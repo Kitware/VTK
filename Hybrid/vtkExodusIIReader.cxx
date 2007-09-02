@@ -705,7 +705,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.35");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.36");
 
 
 
@@ -743,7 +743,8 @@ public:
     * issue; if you set these after RequestInformation has been called,
     * these will not be saved.
     * Any settings you make <b>before</b> RequestInformation is called
-    * will be saved because they are stored in InitialArrayInfo and InitialObjectInfo.
+    * will be saved because they are stored in InitialArrayInfo and 
+    * InitialObjectInfo.
     */
   void Reset();
 
@@ -1250,18 +1251,20 @@ protected:
   vtkDataArray* GetCacheOrRead( vtkExodusIICacheKey );
 
   /** Return the index of an object type (in a private list of all object types).
-    * This returns a 0-based index if the object type was found and -1 if it was not.
+    * This returns a 0-based index if the object type was found and -1 if it 
+    * was not.
     */
   int GetConnTypeIndexFromConnType( int ctyp );
 
   /** Return the index of an object type (in a private list of all object types).
-    * This returns a 0-based index if the object type was found and -1 if it was not.
+    * This returns a 0-based index if the object type was found and -1 if it 
+    * was not.
     */
   int GetObjectTypeIndexFromObjectType( int otyp );
 
   /** Return the number of objects of the given type.
-    * The integer typeIndex is not the type of the object (e.g., EX_ELEM_BLOCK), but
-    * is rather the index into the list of all object types 
+    * The integer typeIndex is not the type of the object (e.g., EX_ELEM_BLOCK), 
+    * but is rather the index into the list of all object types 
     * (see obj_types in vtkExodusIIReader.cxx).
     */
   int GetNumberOfObjectsAtTypeIndex( int typeIndex );
@@ -1303,34 +1306,41 @@ protected:
     */
   BlockInfoType* GetBlockFromFileGlobalId( int otyp, int refId );
 
-  /// Find or create a new SqueezePoint ID (unique sequential list of points 
-  /// referenced by cells in blocks/sets with Status == 1)
+  /** Find or create a new SqueezePoint ID (unique sequential list of points 
+    * referenced by cells in blocks/sets with Status == 1)
+    */
   vtkIdType GetSqueezePointId( int i );
 
   /// Determine the VTK cell type for a given edge/face/element block
   void DetermineVtkCellType( BlockInfoType& binfo );
 
-  /// Find an ArrayInfo object for a specific object type using the name as a key.
+  /** Find an ArrayInfo object for a specific object type using the name 
+    *  as a key.
+    */
   ArrayInfoType* FindArrayInfoByName( int otyp, const char* name );
 
-  /// Does the specified object type match? Avoid using these... they aren't 
-  /// robust against new types being implemented.
+  /** Does the specified object type match? Avoid using these... they aren't 
+    * robust against new types being implemented.
+    */
   int IsObjectTypeBlock( int otyp );
   int IsObjectTypeSet( int otyp );
   int IsObjectTypeMap( int otyp );
 
-  /// Given a map type (NODE_MAP, EDGE_MAP, ...) return the associated object 
-  /// type (NODAL, EDGE_BLOCK, ...) or vice-versa.
+  /** Given a map type (NODE_MAP, EDGE_MAP, ...) return the associated object 
+    * type (NODAL, EDGE_BLOCK, ...) or vice-versa.
+    */
   int GetObjectTypeFromMapType( int mtyp );
   int GetMapTypeFromObjectType( int otyp );
   int GetTemporalTypeFromObjectType( int otyp );
 
-  /// Given a set connectivity type (NODE_SET_CONN, ...), return the associated 
-  /// object type (NODE_SET, ...) or vice-versa.
+  /** Given a set connectivity type (NODE_SET_CONN, ...), return the associated 
+    * object type (NODE_SET, ...) or vice-versa.
+    */
   int GetSetTypeFromSetConnType( int sctyp );
 
-  /// Given a block type (EDGE_BLOCK, ...), return the associated block 
-  /// connectivity type (EDGE_BLOCK_CONN, ...) or vice-versa.
+  /** Given a block type (EDGE_BLOCK, ...), return the associated block 
+    * connectivity type (EDGE_BLOCK_CONN, ...) or vice-versa.
+    */
   int GetBlockConnTypeFromBlockType( int btyp );
 
   /// Get/Set the cached connectivity data
@@ -1344,17 +1354,23 @@ protected:
    */
   void RemoveBeginningAndTrailingSpaces( int len, char **names );
 
-  // The next vtk ID to use for a connectivity entry when point squeezing is on and no point ID exists.
+  /** The next vtk ID to use for a connectivity entry when point squeezing is on 
+    * and no point ID exists.
+    */
   vtkIdType NextSqueezePoint;
 
-  /// Maps a block type (EX_ELEM_BLOCK, EX_FACE_BLOCK, ...) to a list of blocks of that type.
+  /** Maps a block type (EX_ELEM_BLOCK, EX_FACE_BLOCK, ...) to a list of blocks 
+    * of that type.
+    */
   vtkstd::map<int,vtkstd::vector<BlockInfoType> > BlockInfo;
-  /// Maps a set type (EX_ELEM_SET, ..., EX_NODE_SET) to a list of sets of that type.
+  /** Maps a set type (EX_ELEM_SET, ..., EX_NODE_SET) to a list of sets of 
+    *  that type.
+    */
   vtkstd::map<int,vtkstd::vector<SetInfoType> > SetInfo;
-  /** Maps a map type (EX_ELEM_MAP, ..., EX_NODE_MAP) to a list of maps of that type.
-    * In old-style files, the only entries will be a single node and a single element map
-    * which have no specified ID number or name. In that case, an ID of 0 and a name of
-    * "Default" will be given to both.
+  /** Maps a map type (EX_ELEM_MAP, ..., EX_NODE_MAP) to a list of maps of that 
+    * type. In old-style files, the only entries will be a single node and a 
+    * single element map which have no specified ID number or name. In that 
+    * case, an ID of 0 and a name of "Default" will be given to both.
     */
   vtkstd::map<int,vtkstd::vector<MapInfoType> > MapInfo;
 
@@ -1362,12 +1378,13 @@ protected:
   vtkstd::vector<MaterialInfoType> MaterialInfo;
   vtkstd::vector<AssemblyInfoType> AssemblyInfo;
 
-  /** Maps an object type to vector of indices that reorder objects of that type by their IDs.
-    * This is used by the user interface to access blocks, sets, and maps in ascending order.
-    * It is not used internally.
+  /** Maps an object type to vector of indices that reorder objects of that 
+    * type by their IDs. This is used by the user interface to access blocks, 
+    * sets, and maps in ascending order. It is not used internally.
     */
   vtkstd::map<int,vtkstd::vector<int> > SortedObjectIndices;
-  /// Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays defined on that type.
+  /// Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays 
+  //  defined on that type.
   vtkstd::map<int,vtkstd::vector<ArrayInfoType> > ArrayInfo;
 
   /** Maps an object type (EX_ELEM_BLOCK, EX_NODE_SET, ...) to a list of arrays
@@ -1386,7 +1403,9 @@ protected:
   int AppWordSize;
   int DiskWordSize;
 
-  /// The version of Exodus that wrote the currently open file (or a negative number otherwise).
+  /** The version of Exodus that wrote the currently open file (or a negative 
+    * number otherwise).
+    */
   float ExodusVersion;
 
   /// The handle of the currently open file.
@@ -1401,7 +1420,9 @@ protected:
   /// The current time step
   int TimeStep;
 
-  /// The time value. This is used internally when HasModeShapes is true and ignored otherwise.
+  /** The time value. This is used internally when HasModeShapes is true and 
+    * ignored otherwise.
+    */
   double ModeShapeTime;
 
   int GenerateObjectIdArray;
@@ -1410,7 +1431,9 @@ protected:
   /// A least-recently-used cache to hold raw arrays.
   vtkExodusIICache* Cache;
 
-  /// Cache assembled connectivity separately because there's no way to SetLinks() on a vtkUnstructuredGrid.
+  /** Cache assembled connectivity separately because there's no way to 
+    * SetLinks() on a vtkUnstructuredGrid.
+    */
   vtkUnstructuredGrid* CachedConnectivity;
 
   int GenerateGlobalElementIdArray;
@@ -1427,22 +1450,27 @@ protected:
   vtkPolyData* EdgeDecorationMesh;
   vtkPolyData* FaceDecorationMesh;
 
-  /** Should the reader output only points used by elements in the output mesh, or all the points.
-    * Outputting all the points is much faster since the point array can be read straight from
-    * disk and the mesh connectivity need not be altered.
-    * Squeezing the points down to the minimum set needed to produce the output mesh is useful for
-    * glyphing and other point-based operations. On large parallel datasets, loading all the points
-    * implies loading all the points on all processes and performing subsequent filtering on a much
-    * larger set.
+  /** Should the reader output only points used by elements in the output mesh, 
+    * or all the points. Outputting all the points is much faster since the 
+    * point array can be read straight from disk and the mesh connectivity need 
+    * not be altered. Squeezing the points down to the minimum set needed to 
+    * produce the output mesh is useful for glyphing and other point-based 
+    * operations. On large parallel datasets, loading all the points implies 
+    * loading all the points on all processes and performing subsequent 
+    * filtering on a much larger set.
     *
     * By default, SqueezePoints is true for backwards compatability.
     */
   int SqueezePoints;
 
-  /// The total number of cells in the mesh given the current block and set Status values.
+  /** The total number of cells in the mesh given the current block and set 
+    * Status values.
+    */
   vtkIdType NumberOfCells;
 
-  /// The total number of points in the mesh given the SqueezePoints setting (and possibly the block and set Status values).
+  /** The total number of points in the mesh given the SqueezePoints setting 
+    * (and possibly the block and set Status values).
+    */
   //vtkIdType NumberOfPoints;
 
   /// A map from nodal IDs in an Exodus file to nodal IDs in the output mesh.
@@ -1452,7 +1480,9 @@ protected:
   vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
   vtkstd::map<vtkIdType,vtkIdType> ReverseCellMap;
 
-  /// Pointer to owning reader... this is not registered in order to avoid circular references.
+  /** Pointer to owning reader... this is not registered in order to avoid 
+    * circular references.
+    */
   vtkExodusIIReader* Parent;
 
   vtkExodusIIXMLParser *Parser;
@@ -1466,7 +1496,7 @@ private:
   void operator = ( const vtkExodusIIReaderPrivate& ); // Not implemented.
 };
 
-// ------------------------------------------------------------ UTILITY ROUTINES
+// ----------------------------------------------------------- UTILITY ROUTINES
 static int glomIntegrationPointElementDimension( vtkStdString& eleType )
 {
   vtksys::RegularExpression reQuad( "[Qq][Uu][Aa][Dd]" );
@@ -1491,7 +1521,8 @@ static int glomIntegrationPointElementDimension( vtkStdString& eleType )
   return -1;
 }
 
-static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
+static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, 
+                              vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
 {
   // This returns 1 when all objects have the same values
   // in truth_tab for all original variable indices in
@@ -1530,58 +1561,73 @@ static int glomTruthTabMatch( int num_obj, int num_vars, int* truth_tab, vtkExod
   return 1; // All objects define variable ii over the same subset of objects.
 }
 
-static void printBlock( ostream& os, vtkIndent indent, int btyp, vtkExodusIIReaderPrivate::BlockInfoType& binfo )
+static void printBlock( ostream& os, vtkIndent indent, int btyp, 
+                        vtkExodusIIReaderPrivate::BlockInfoType& binfo )
 {
   int b = 0;
   while ( obj_types[b] >= 0 && obj_types[b] != btyp )
     ++b;
   const char* btypnam = objtype_names[b];
-  os << indent << btypnam << " " << binfo.Id << " \"" << binfo.Name.c_str() << "\" (" << binfo.Size << ")\n";
+  os << indent << btypnam << " " << binfo.Id << " \"" << binfo.Name.c_str() 
+     << "\" (" << binfo.Size << ")\n";
   os << indent << "    FileOffset: " << binfo.FileOffset << "\n";
-  os << indent << "    GridOffset: " << binfo.GridOffset << " (" << binfo.Status << ")\n";
+  os << indent << "    GridOffset: " << binfo.GridOffset << " (" 
+     << binfo.Status << ")\n";
   os << indent << "    Type: " << binfo.TypeName.c_str() << "\n";
   os << indent << "    Bounds per entry, Node: " << binfo.BdsPerEntry[0]
-     << " Edge: " << binfo.BdsPerEntry[1] << " Face: " << binfo.BdsPerEntry[2] << "\n";
+     << " Edge: " << binfo.BdsPerEntry[1] << " Face: " << binfo.BdsPerEntry[2] 
+     << "\n";
   os << indent << "    Attributes (" << binfo.AttributesPerEntry << "):";
   int a;
   for ( a = 0; a < binfo.AttributesPerEntry; ++a )
     {
-    os << " \"" << binfo.AttributeNames[a].c_str() << "\"(" << binfo.AttributeStatus[a] << ")";
+    os << " \"" << binfo.AttributeNames[a].c_str() << "\"(" 
+       << binfo.AttributeStatus[a] << ")";
     }
   os << "\n";
 }
 
-static void printSet( ostream& os, vtkIndent indent, int styp, vtkExodusIIReaderPrivate::SetInfoType& sinfo )
+static void printSet( ostream& os, vtkIndent indent, int styp, 
+                      vtkExodusIIReaderPrivate::SetInfoType& sinfo )
 {
   int s = 0;
   while ( obj_types[s] >= 0 && obj_types[s] != styp )
     ++s;
   const char* stypnam = objtype_names[s];
-  os << indent << stypnam << " " << sinfo.Id << " \"" << sinfo.Name.c_str() << "\" (" << sinfo.Size << ")\n";
+  os << indent << stypnam << " " << sinfo.Id << " \"" << sinfo.Name.c_str() 
+     << "\" (" << sinfo.Size << ")\n";
   os << indent << "    FileOffset: " << sinfo.FileOffset << "\n";
-  os << indent << "    GridOffset: " << sinfo.GridOffset << " (" << sinfo.Status << ")\n";
+  os << indent << "    GridOffset: " << sinfo.GridOffset << " (" 
+     << sinfo.Status << ")\n";
   os << indent << "    DistFact: " << sinfo.DistFact << "\n";
 }
 
-static void printMap( ostream& os, vtkIndent indent, int mtyp, vtkExodusIIReaderPrivate::MapInfoType& minfo )
+static void printMap( ostream& os, 
+                      vtkIndent indent, 
+                      int mtyp, 
+                      vtkExodusIIReaderPrivate::MapInfoType& minfo )
 {
   int m = 0;
   while ( obj_types[m] >= 0 && obj_types[m] != mtyp )
     ++m;
   const char* mtypnam = objtype_names[m];
-  os << indent << mtypnam << " " << minfo.Id << " \"" << minfo.Name.c_str() << "\" (" << minfo.Size << ")\n";
+  os << indent << mtypnam << " " << minfo.Id << " \"" << minfo.Name.c_str() 
+     << "\" (" << minfo.Size << ")\n";
   os << indent << "    Status: " << minfo.Status << "\n";
 }
 
-static void printArray( ostream& os, vtkIndent indent, int atyp, vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
+static void printArray( ostream& os, vtkIndent indent, int atyp, 
+                        vtkExodusIIReaderPrivate::ArrayInfoType& ainfo )
 {
   (void)atyp;
-  os << indent << "    " << ainfo.Name.c_str() << " [" << ainfo.Status << "] ( " << ainfo.Components << " = { ";
+  os << indent << "    " << ainfo.Name.c_str() << " [" << ainfo.Status << "] ( " 
+     << ainfo.Components << " = { ";
   os << ainfo.OriginalIndices[0] << " \"" << ainfo.OriginalNames[0] << "\"";
   int i;
   for ( i = 1; i < (int) ainfo.OriginalIndices.size(); ++i )
     {
-    os << ", " << ainfo.OriginalIndices[i] << " \"" << ainfo.OriginalNames[i] << "\"";
+    os << ", " << ainfo.OriginalIndices[i] << " \"" << ainfo.OriginalNames[i] 
+       << "\"";
     }
   os << " } )\n";
   os << indent << "    " << glomTypeNames[ ainfo.GlomType ] << " Truth:";
@@ -1592,7 +1638,7 @@ static void printArray( ostream& os, vtkIndent indent, int atyp, vtkExodusIIRead
   os << "\n";
 }
 
-// ---------------------------------------------------- PRIVATE SUBCLASS MEMBERS
+// --------------------------------------------------- PRIVATE SUBCLASS MEMBERS
 void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 {
   if ( ! this->Name.empty() )
@@ -1609,9 +1655,11 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.35");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.36");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
-vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,CachedConnectivity,vtkUnstructuredGrid);
+vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
+                     CachedConnectivity,
+                     vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
 vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
@@ -1687,7 +1735,8 @@ void vtkExodusIIReaderPrivate::ComputeGridOffsets()
       objNum = (int) this->BlockInfo[otyp].size();
       for ( obj = 0; obj < objNum; ++obj )
         {
-        BlockInfoType* binfop = &this->BlockInfo[otyp][this->SortedObjectIndices[otyp][obj]];
+        BlockInfoType* binfop = 
+          &this->BlockInfo[otyp][this->SortedObjectIndices[otyp][obj]];
         if ( binfop->Status )
           {
           binfop->GridOffset = startCell;
@@ -1700,7 +1749,8 @@ void vtkExodusIIReaderPrivate::ComputeGridOffsets()
       objNum = (int) this->SetInfo[otyp].size();
       for ( obj = 0; obj < objNum; ++obj )
         {
-        SetInfoType* sinfop = &this->SetInfo[otyp][this->SortedObjectIndices[otyp][obj]];
+        SetInfoType* sinfop = 
+          &this->SetInfo[otyp][this->SortedObjectIndices[otyp][obj]];
         if ( sinfop->Status )
           {
           sinfop->GridOffset = startCell;
@@ -1734,13 +1784,15 @@ int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
       dim = d; 
       if ( dim > 3 )
         {
-        vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " << d << " > 3." );
+        vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " 
+                          << d << " > 3." );
         return false;
         }
       }
     else if ( dim != d )
       {
-      vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " << d << " != " << dim << "." );
+      vtkWarningMacro( "Field \"" << np[i] << "\" has integration dimension " 
+                        << d << " != " << dim << "." );
       return false;
       }
     else
@@ -1754,7 +1806,8 @@ int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
   cout << "  Integration points are " << dim << "-dimensional.\n";
   for ( int i = 0; i < dim; ++i )
     {
-    cout << "    " << (max[i]+1) << " integration points along " << char('r' + i) << ".\n";
+    cout << "    " << (max[i]+1) << " integration points along " 
+         << char('r' + i) << ".\n";
     }
 #endif // VTK_DBG_GLOM
   int npt = 1;
@@ -1830,20 +1883,23 @@ int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
             }
           if ( !found )
             {
-            vtkWarningMacro( "Field \"" << field.c_str() <<
-              "\" is missing Gauss point (" << r << ", " << s << ", " << t << ")." );
+            vtkWarningMacro( "Field \"" << field.c_str() 
+              << "\" is missing Gauss point (" << r << ", " << s << ", " 
+              << t << ")." );
             bad = true;
             }
           else if ( cnt > 1 )
             {
-            vtkWarningMacro( "Field \"" << field.c_str() << "\" has " << (cnt-1) <<
-              " duplicate(s) of Gauss point (" << r << ", " << s << ", " << t << ")." );
+            vtkWarningMacro( "Field \"" << field.c_str() << "\" has " << (cnt-1) 
+             << " duplicate(s) of Gauss point (" << r << ", " << s << ", " 
+             << t << ")." );
             bad = true;
             }
           else if ( npt == nn && (ef != t + (max[2]+1) * ( s + r * (max[1]+1) )) )
             {
             vtkWarningMacro( "Field \"" << field.c_str() <<
-              "\" has misplaced Gauss point (" << r << ", " << s << ", " << t << ")." );
+              "\" has misplaced Gauss point (" << r << ", " << s << ", " << 
+              t << ")." );
             bad = true;
             }
           }
@@ -1853,7 +1909,11 @@ int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
   return ! bad;
 }
 
-void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_vars, char** var_names, int* truth_tab )
+void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, 
+                                               int num_obj, 
+                                               int num_vars, 
+                                               char** var_names, 
+                                               int* truth_tab )
 {
   vtksys::RegularExpression reTensor( "(.*)[XxYyZz][XxYyZz]$" );
   vtksys::RegularExpression reVector( "(.*)[XxYyZz]$" );
@@ -1874,21 +1934,24 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
         int sl = (int)strlen(var_names[i]) - 2;
         while ( ii < num_vars )
           {
-          if ( ! reTensor.find( var_names[ii] ) || strncmp( var_names[ii], var_names[i], sl ) )
+          if ( ! reTensor.find( var_names[ii] ) || 
+               strncmp( var_names[ii], var_names[i], sl ) )
             break;
           ainfo.OriginalNames.push_back( var_names[ii] );
           ainfo.OriginalIndices.push_back( ii + 1 );
           ++ii;
           }
         ainfo.Components = ii - i;
-        if ( ! ainfo.Components || ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
+        if ( ! ainfo.Components || 
+             ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
           {
           didGlom = false;
           }
         else
           {
           reTensor.find( srcName );
-          //cout << "Tensor \"" << reTensor.match(1) << "\" has " << (ii-i) << " components\n";
+          //cout << "Tensor \"" << reTensor.match(1) << "\" has " 
+          //     << (ii-i) << " components\n";
           ainfo.Name = reTensor.match(1);
           ainfo.GlomType = vtkExodusIIReaderPrivate::SymmetricTensor;
           ainfo.Status = 0;
@@ -1912,23 +1975,29 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
         while ( ii < num_vars )
           {
           int sl = (int)strlen(var_names[ii]) - 1;
-          // Require the strings to be identical except for the final XYZ at the end.
-          if ( ! toupper(var_names[ii][sl]) == ('X' + (ii-i)) || strncmp( var_names[ii], var_names[i], sl ) )
+          // Require the strings to be identical except for the 
+          // final XYZ at the end.
+          if ( ! toupper(var_names[ii][sl]) == ('X' + (ii-i)) || 
+               strncmp( var_names[ii], var_names[i], sl ) )
             break;
           ainfo.OriginalNames.push_back( var_names[ii] );
           ainfo.OriginalIndices.push_back( ii + 1 );
           ++ii;
           }
         ainfo.Components = ii - i;
-        if ( ainfo.Components < 2 || ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
+        if ( ainfo.Components < 2 || 
+             ! glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
           {
           didGlom = false;
           }
         else
           {
-          //cout << "Vector \"" << reVector.match(1) << "\" has " << (ii - i) << " components\n";
+          //cout << "Vector \"" << reVector.match(1) << "\" has " 
+          //     << (ii - i) << " components\n";
           ainfo.Name = reVector.match(1);
-          ainfo.GlomType = ainfo.Components == 2 ? vtkExodusIIReaderPrivate::Vector2 : vtkExodusIIReaderPrivate::Vector3;
+          ainfo.GlomType = ainfo.Components == 2 ? 
+                           vtkExodusIIReaderPrivate::Vector2 
+                           : vtkExodusIIReaderPrivate::Vector3;
           ainfo.Status = 0;
           ainfo.StorageType = VTK_DOUBLE;
           this->GetInitialObjectArrayStatus(objtyp, &ainfo);
@@ -1950,18 +2019,23 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
         vtkStdString field = reGaussP.match( 1 );
         vtkStdString ele = reGaussP.match( 2 );
 
-        while ( ii < num_vars && reGaussP.find( var_names[ii] ) && (reGaussP.match( 1 ) == field) && (reGaussP.match( 2 ) == ele) )
+        while ( ii < num_vars && 
+                reGaussP.find( var_names[ii] ) && 
+                (reGaussP.match( 1 ) == field) && 
+                (reGaussP.match( 2 ) == ele) )
           {
           ainfo.OriginalNames.push_back( var_names[ii] );
           ainfo.OriginalIndices.push_back( ii + 1 );
           ++ii;
           }
         ainfo.Components = ii - i;
-        // Check that the names are consistent (i.e., there aren't missing Gauss points, they all have the same dim, etc.)
+        // Check that the names are consistent (i.e., there aren't missing  
+        // Gauss points, they all have the same dim, etc.)
         if ( this->VerifyIntegrationPointGlom( ii - i, var_names + i, reGaussP, field, ele ) &&
              glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ) )
           {
-          //cout << "Gauss Points for \"" << field << "\" on " << ele << "-shaped elements has " << (ii-i) << " components\n";
+          //cout << "Gauss Points for \"" << field << "\" on " << ele 
+          //     << "-shaped elements has " << (ii-i) << " components\n";
           ainfo.Name = field;
           ainfo.GlomType = vtkExodusIIReaderPrivate::IntegrationPoint;
           ainfo.Status = 0;
@@ -1984,7 +2058,8 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
             ainfo.GlomType = vtkExodusIIReaderPrivate::Scalar;
             ainfo.StorageType = VTK_DOUBLE;
             ainfo.Status = 0;
-            glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); // fill in ainfo.ObjectTruth
+            // fill in ainfo.ObjectTruth:
+            glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); 
             this->GetInitialObjectArrayStatus(objtyp, &ainfo);
             this->ArrayInfo[ objtyp ].push_back( ainfo );
             }
@@ -2012,7 +2087,8 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
       ainfo.GlomType = vtkExodusIIReaderPrivate::Scalar;
       ainfo.StorageType = VTK_DOUBLE;
       ainfo.Status = 0;
-      glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); // fill in ainfo.ObjectTruth
+      // fill in ainfo.ObjectTruth:
+      glomTruthTabMatch( num_obj, num_vars, truth_tab, ainfo ); 
       this->GetInitialObjectArrayStatus(objtyp, &ainfo);
       this->ArrayInfo[ objtyp ].push_back( ainfo );
       ainfo.Reset();
@@ -2020,9 +2096,11 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp, int num_obj, int num_
     }
 }
 
-int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vtkUnstructuredGrid* output )
+int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( 
+                         vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
-  output->Reset(); // FIXME: Don't think I need this, since we ShallowCopy over it... right?
+  // FIXME: Don't think I need this, since we ShallowCopy over it... right?
+  output->Reset(); 
   if ( this->CachedConnectivity )
     {
     output->ShallowCopy( this->CachedConnectivity );
@@ -2048,15 +2126,16 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vt
   // Need to assemble connectivity array from smaller ones.
   // Call GetCacheOrRead() for each smaller array
 
-  // Might want to experiment with the effectiveness of caching connectivity... set up the
-  //   ExodusIICache class with the ability to never cache some key types.
-  // Might also want to experiment with policies other than LRU, especially applied to
-  //   arrays that are not time-varying. During animations, they will most likely get
-  //   dropped even though that might not be wise.
+  // Might want to experiment with the effectiveness of caching connectivity... 
+  //   set up the ExodusIICache class with the ability to never cache some 
+  //   key types.
+  // Might also want to experiment with policies other than LRU, especially 
+  //   applied to arrays that are not time-varying. During animations, they 
+  //   will most likely get dropped even though that might not be wise.
 
-  // Loop over all the block and set types which could generate connectivity information
-  // in an order that the user expects (element blocks first, blocks ordered by block ID,
-  // not file order).
+  // Loop over all the block and set types which could generate connectivity 
+  // information in an order that the user expects (element blocks first, 
+  // blocks ordered by block ID, not file order).
   int conntypidx;
   int nbl = 0;
   for ( conntypidx = 0; conntypidx < num_conn_types; ++conntypidx )
@@ -2071,14 +2150,22 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( vtkIdType timeStep, vt
       if ( ! this->GetObjectStatus( otyp, sortIdx ) )
         continue;
 
-      obj = this->SortedObjectIndices[otyp][sortIdx]; // Preserve the "sorted" order when concatenating
+      // Preserve the "sorted" order when concatenating
+      obj = this->SortedObjectIndices[otyp][sortIdx]; 
       if ( CONNTYPE_IS_BLOCK(conntypidx) )
         {
-        this->InsertBlockCells( otyp, obj, conn_types[conntypidx], timeStep, this->CachedConnectivity );
+        this->InsertBlockCells( otyp, obj, 
+                                conn_types[conntypidx], 
+                                timeStep, 
+                                this->CachedConnectivity );
         }
       else if ( CONNTYPE_IS_SET(conntypidx) )
         {
-        this->InsertSetCells( otyp, obj, conn_types[conntypidx], timeStep, this->CachedConnectivity );
+        this->InsertSetCells( otyp, 
+                              obj, 
+                              conn_types[conntypidx],   
+                              timeStep, 
+                              this->CachedConnectivity );
         }
       else
         {
@@ -2310,7 +2397,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType vtkNotUsed(t
   
   elemBlockIdArray->Delete();
 
-  return 1;
+  return status;
 }
 
 int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
@@ -5728,7 +5815,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.35");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.36");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
