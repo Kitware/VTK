@@ -150,10 +150,10 @@ protected:
     vtkInformation* request,  
     vtkDataObject* dobj);
 
-  int ShouldIterateOverInput(int& compositePort);
-  int ShouldIterateTemporalData(vtkInformation *request,
-                                vtkInformationVector** inInfoVec, 
-                                vtkInformationVector *outInfoVec);
+  bool ShouldIterateOverInput(int& compositePort);
+  bool ShouldIterateTemporalData(vtkInformation *request,
+                                 vtkInformationVector** inInfoVec, 
+                                 vtkInformationVector *outInfoVec);
   virtual int InputTypeIsValid(int port, int index, 
                                 vtkInformationVector **inInfoVec);
 
