@@ -115,6 +115,8 @@ public:
   // from the suppled array. 
   void SetArray(unsigned __int64* array, vtkIdType size, int save)
     { this->RealSuperclass::SetArray(array, size, save); }
+  void SetArray(unsigned __int64* array, vtkIdType size, int save, int deleteMethod)
+    { this->RealSuperclass::SetArray(array, size, save, deleteMethod); }
 
 protected:
   vtkUnsigned__Int64Array(vtkIdType numComp=1);
