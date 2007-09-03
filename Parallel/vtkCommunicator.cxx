@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.42");
+vtkCxxRevisionMacro(vtkCommunicator, "1.43");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -646,7 +646,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
     buffer->SetArray(writer->RegisterAndGetOutputString(), 
                      size, 
                      0,
-                     vtkDataArrayTemplate::VTK_DATA_ARRAY_DELETE);
+                     vtkCharArray::VTK_DATA_ARRAY_DELETE);
     buffer->SetNumberOfTuples(size);
     }
   return 1;
