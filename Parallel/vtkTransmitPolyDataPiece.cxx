@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.21");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.22");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -38,18 +38,11 @@ vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());  
-
-  this->Buffer = vtkPolyData::New();
-  this->BufferPiece = -1;
-  this->BufferNumberOfPieces = 0;
-  this->BufferGhostLevel = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 {
-  this->Buffer->Delete();
-  this->Buffer = NULL;
   this->SetController(NULL);
 }
 
@@ -126,35 +119,6 @@ int vtkTransmitPolyDataPiece::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int procId;
-  int updateGhostLevel =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  int updatePiece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int updateNumPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  vtkDemandDrivenPipeline* ddp =
-    vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-
-  // Check the pipline mtime to see if we are executing only because
-  // the update request changed.  If so and the only change was to
-  // decrease the number of requested ghost levels then do not bother
-  // retransmitting.
-  if (ddp
-      && ddp->GetPipelineMTime() < this->Buffer->GetMTime()
-      && updatePiece == this->BufferPiece
-      && updateNumPieces == this->BufferNumberOfPieces
-      && updateGhostLevel <= this->BufferGhostLevel)
-    {
-    // We deep copy, because we do not want to modify the buffer 
-    // when we remove ghost cells from the output.
-    output->DeepCopy(this->Buffer);
-    if (updateGhostLevel < this->BufferGhostLevel)
-      {
-      output->RemoveGhostCells(updateGhostLevel+1);
-      }
-    return 1;
-    }
-
   if (this->Controller == NULL)
     {
     vtkErrorMacro("Could not find Controller.");
@@ -174,13 +138,6 @@ int vtkTransmitPolyDataPiece::RequestData(
     this->SatelliteExecute(procId, output, outInfo);
     }
 
-  // Save the output in the buffer.
-  this->Buffer->ShallowCopy(output);
-  // Piece inforomation is not set by this point.
-  // We do not have access to buffers piece, so save in ivars.
-  this->BufferPiece = updatePiece;
-  this->BufferNumberOfPieces = updateNumPieces;
-  this->BufferGhostLevel = updateGhostLevel;
   return 1;
 }
 

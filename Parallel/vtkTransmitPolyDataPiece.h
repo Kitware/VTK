@@ -57,11 +57,6 @@ protected:
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
  
-  vtkPolyData *Buffer;
-  int BufferPiece;
-  int BufferNumberOfPieces;
-  int BufferGhostLevel;
-
   int CreateGhostCells;
   vtkMultiProcessController *Controller;
 
