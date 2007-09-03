@@ -167,11 +167,11 @@ public:
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data 
-  // from the suppled array. 
+  // from the suppled array. If save 0, the array must have been allocated
+  // with new[] not malloc.
   void SetArray(unsigned char* array, vtkIdType size, int save);
   void SetVoidArray(void *array, vtkIdType size, int save) 
     {this->SetArray((unsigned char *)array, size, save);};
-
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.
