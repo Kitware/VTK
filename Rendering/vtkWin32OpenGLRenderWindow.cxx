@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.149");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.150");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -447,7 +447,7 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   
   size_t len = strm.str().length() + 1;
   this->Capabilities = new char[len];
-  lstrcpyn(this->Capabilities, strm.str().c_str(), len);
+  strncpy(this->Capabilities, strm.str().c_str(), len);
   
   return this->Capabilities;
 }
