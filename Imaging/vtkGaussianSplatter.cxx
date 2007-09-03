@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.62");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.63");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -319,7 +319,7 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input,
   outInfo->Set(vtkDataObject::ORIGIN(),
                this->ModelBounds[0],this->ModelBounds[2],
                this->ModelBounds[4]);
-  memcpy(this->Origin,outInfo->Get(vtkDataObject::ORIGIN()), sizeof(double)*6);
+  memcpy(this->Origin,outInfo->Get(vtkDataObject::ORIGIN()), sizeof(double)*3);
   output->SetOrigin(this->Origin);
   
   for (i=0; i<3; i++)
