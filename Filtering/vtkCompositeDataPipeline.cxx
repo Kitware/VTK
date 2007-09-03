@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.64");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.65");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -199,10 +199,9 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
       // it is a NULL input.
       vtkExecutive* e;
       int producerPort;
-      info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+      info->Get(vtkExecutive::PRODUCER(), e, producerPort);
       if(e)
         {
-        int port = request->Get(FROM_OUTPUT_PORT());
         request->Set(FROM_OUTPUT_PORT(), producerPort);
         
         // if the input requires time them mark that
