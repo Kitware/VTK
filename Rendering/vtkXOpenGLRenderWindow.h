@@ -240,6 +240,7 @@ protected:
   Cursor XCSizeNW;
   Cursor XCSizeSE;
   Cursor XCSizeSW;
+  Cursor XCHand;
 
 
   void CreateAWindow();

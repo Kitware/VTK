@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.86");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.87");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -425,6 +425,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCSizeNW =  0;
   this->XCSizeSE =  0;
   this->XCSizeSW =  0;
+  this->XCHand   =  0;
 
   this->Capabilities = 0;
 
@@ -693,6 +694,10 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
       {
       XFreeCursor(this->DisplayId,this->XCSizeSW);
       }
+    if (this->XCHand)
+      {
+      XFreeCursor(this->DisplayId,this->XCHand);
+      }
     }
 
   this->XCArrow =   0;
@@ -703,6 +708,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   this->XCSizeNW =  0;
   this->XCSizeSE =  0;
   this->XCSizeSW =  0;
+  this->XCHand   =  0;
 
   this->MakeCurrent();
   
@@ -1968,5 +1974,13 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
         }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSW);
       break;
+    case VTK_CURSOR_HAND:
+      if (!this->XCHand)
+        {
+        this->XCHand = XCreateFontCursor(this->DisplayId, 
+                                         XC_hand1);
+        }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
+      break;            
     }
 }
