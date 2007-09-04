@@ -32,7 +32,7 @@
 #include "vtkWidgetSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkParallelopipedWidget, "1.1");
+vtkCxxRevisionMacro(vtkParallelopipedWidget, "1.2");
 vtkStandardNewMacro(vtkParallelopipedWidget);
 
 //----------------------------------------------------------------------
@@ -331,10 +331,6 @@ void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget *w)
   vtkParallelopipedRepresentation *rep = 
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
   
-  const int modifier = self->Interactor->GetShiftKey()   |
-                       self->Interactor->GetControlKey() |
-                       self->Interactor->GetAltKey();
-    
   // We know we are inside the parallelopiped.
   // Change the cursor to the Translate thingie.
   self->SetCursor( vtkParallelopipedRepresentation::TranslatingParallelopiped );
@@ -355,7 +351,7 @@ void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget *w)
 
 //----------------------------------------------------------------------
 void vtkParallelopipedWidget
-::BeginTranslateAction(vtkParallelopipedWidget *dispatcher)
+::BeginTranslateAction(vtkParallelopipedWidget *vtkNotUsed(dispatcher))
 {
   vtkParallelopipedRepresentation *rep = 
     reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);
@@ -374,7 +370,7 @@ void vtkParallelopipedWidget
 
 //----------------------------------------------------------------------
 void vtkParallelopipedWidget
-::TranslateAction(vtkParallelopipedWidget *dispatcher)
+::TranslateAction(vtkParallelopipedWidget *vtkNotUsed(dispatcher))
 {
   vtkParallelopipedRepresentation *rep = 
     reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);

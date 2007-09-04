@@ -204,7 +204,7 @@ private:
     CellType::iterator it = tmpCell.end();
     tmpCell.erase(--it);
     CellType outputCell = tmpCell;
-    for (CellType::const_reverse_iterator cit = tmpCell.rbegin(); cit != tmpCell.rend(); ++cit)
+    for (CellType::reverse_iterator cit = tmpCell.rbegin(); cit != tmpCell.rend(); ++cit)
       outputCell.push_back(*cit + 8);
     return outputCell;
     }
@@ -283,7 +283,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.3");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -493,7 +493,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
     // Bring the node that had the chair back to the 4th corner of the
     // parallelopiped. We will use vector addition by finding the 4th point of
     // a parallelogram from the other 3 points.
-    vtkIdType neighborPtIds[3], npts = 0, *cellPtIds = NULL, thatPoint;
+    vtkIdType neighborPtIds[3], npts = 0, *cellPtIds = NULL;
     this->Topology->GetNeighbors( this->ChairHandleIdx, neighborPtIds );
 
     // First find 4 points that form a parallelogram and contain the chaired 
@@ -540,7 +540,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
 // depth of the cavity.
 void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
 {
-  vtkIdType npts = 0, *cellPtIds = NULL, thatPoint;
+  vtkIdType npts = 0, *cellPtIds = NULL;
 
   // If we have a chair somewhere else, remove it. We can have only one 
   // chair at a time.
@@ -722,7 +722,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
 //----------------------------------------------------------------------
 // This is where the bulk of the work is done.
 int vtkParallelopipedRepresentation
-::ComputeInteractionState(int X, int Y, int modify)
+::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   int oldInteractionState = this->InteractionState;
 
@@ -847,7 +847,7 @@ int vtkParallelopipedRepresentation
       // (X,Y) and the last event positions such that they lie at the same
       // depth that the handle lies on.
       
-      double focalPoint[4], axis[3][3], eventWorldPos[4], handleWorldPos[4],
+      double axis[3][3], eventWorldPos[4], handleWorldPos[4],
         handleDisplayPos[4], neighborWorldPos[3][4], neighborDisplayPos[3][4]; 
       
       this->HandleRepresentations[this->CurrentHandleIdx]
@@ -1000,11 +1000,11 @@ int vtkParallelopipedRepresentation
         {
         vtkstd::vector< vtkIdType > nodes2(1);
         nodes2[0] = vtkParallelopipedTopology::GetDiametricOppositeOfCorner(this->ChairHandleIdx)+8;
-        const vtkParallelopipedTopology::CliqueType cells = this->
+        const vtkParallelopipedTopology::CliqueType cells2 = this->
           Topology->FindCellsContainingNodes( this->ChairHandleIdx+1, nodes2 );
 
-        for (vtkParallelopipedTopology::CliqueType::const_iterator clit = cells.begin();
-             clit != cells.end(); ++clit)
+        for (vtkParallelopipedTopology::CliqueType::const_iterator clit = cells2.begin();
+             clit != cells2.end(); ++clit)
           {
           vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
           this->DefinePlane(plane, (*clit)[0], (*clit)[1], (*clit)[2] );           
@@ -1059,8 +1059,7 @@ int vtkParallelopipedRepresentation
     // Ensure that a handle has been picked.
     if (!this->CurrentHandleIdx != -1)
       {
-      double focalPoint[4], axis[3][3], eventWorldPos[4], handleWorldPos[4],
-        handleDisplayPos[4], neighborWorldPos[3][4], neighborDisplayPos[3][4]; 
+      double handleWorldPos[4]; 
       
       this->HandleRepresentations[this->CurrentHandleIdx]
                                  ->GetWorldPosition(handleWorldPos);
