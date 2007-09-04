@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.34");
+vtkCxxRevisionMacro(vtkImageLogic, "1.35");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -258,6 +258,16 @@ void vtkImageLogic::ThreadedRequestData (
       return;
       }
 
+    // this filter expects that inputs that have the same type:
+    if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
+      {
+      vtkErrorMacro(<< "Execute: input1 ScalarType, " 
+                    << inData[0][0]->GetScalarType()
+                    << ", must match input2 ScalarType " 
+                    << inData[1][0]->GetScalarType());
+      return;
+      }
+  
     // this filter expects that inputs that have the same number of components
     if (inData[0][0]->GetNumberOfScalarComponents() != 
         inData[1][0]->GetNumberOfScalarComponents())
