@@ -115,9 +115,15 @@ public:
                             double worldOrient[9] );
   
   // Description:
-  // For this point placer the reference position is
-  // meaningless, so this ivar is ignored and the 
-  // above method is called instead.
+  // Given a renderer, a display position and a reference position, "worldPos"
+  // is calculated as :
+  //   Consider the line "L" that passes through the supplied "displayPos" and
+  // is parallel to the direction of projection of the camera. Clip this line
+  // segment with the parallelopiped, let's call it "L_segment". The computed 
+  // world position, "worldPos" will be the point on "L_segment" that is 
+  // closest to refWorldPos.
+  // NOTE: Note that a set of bounding planes must be supplied. The Oblique
+  //       plane, if supplied is ignored.
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2], 
                             double refWorldPos[2],
@@ -180,6 +186,13 @@ protected:
   // Internal method for getting the orientation of
   // the projection plane
   void GetCurrentOrientation( double worldOrient[9] );
+  
+  // Calculate the distance of a point from the Object. Negative 
+  // values imply that the point is outside. Positive values imply that it is
+  // inside. The closest point to the object is returned in closestPt. 
+  static double GetDistanceFromObject( double               pos[3],
+                                       vtkPlaneCollection * pc,
+                                       double               closestPt[3]);
   
 private:
   vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&);  //Not implemented

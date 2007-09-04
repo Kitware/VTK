@@ -22,6 +22,7 @@ SET(MyTests
 #  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
   TestDijkstraGraphGeodesicPath.cxx
+  TestParallelopipedWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data

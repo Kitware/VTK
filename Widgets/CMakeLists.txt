@@ -59,6 +59,8 @@ vtkLogoWidget.cxx
 vtkOrientationMarkerWidget.cxx
 vtkOrientedGlyphContourRepresentation.cxx
 vtkOrientedGlyphFocalPlaneContourRepresentation.cxx
+vtkParallelopipedRepresentation.cxx
+vtkParallelopipedWidget.cxx
 vtkPlaneWidget.cxx
 vtkPlaybackRepresentation.cxx
 vtkPlaybackWidget.cxx
@@ -81,6 +83,7 @@ vtkSliderRepresentation.cxx
 vtkSliderRepresentation2D.cxx
 vtkSliderRepresentation3D.cxx
 vtkSliderWidget.cxx
+vtkSphereHandleRepresentation.cxx
 vtkSphereWidget.cxx
 vtkSplineWidget.cxx
 vtkTerrainDataPointPlacer.cxx
@@ -91,6 +94,7 @@ vtkWidgetCallbackMapper.cxx
 vtkWidgetEvent.cxx
 vtkWidgetEventTranslator.cxx
 vtkWidgetRepresentation.cxx
+vtkWidgetSet.cxx
 vtkXYPlotWidget.cxx
 )
 
