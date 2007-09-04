@@ -14,6 +14,7 @@ vtkLODProp3D-GetPickLODID
 vtkObject-GetSuperClassName
 vtkPropAssembly-GetBounds
 vtkRenderWindow-GetEventPending
+vtkSQLiteDatabase-GetQueryInstance
 vtkXOpenGLRenderWindow-GetEventPending
 vtkXMesaRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
