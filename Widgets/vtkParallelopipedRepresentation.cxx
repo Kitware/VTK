@@ -35,6 +35,7 @@
 #include "vtkPlane.h"
 #include <vtkstd/vector>
 #include <vtkstd/set>
+#include <vtkstd/algorithm>
 
 #define min(x,y) ((x<y) ? (x) : (y))
 #define max(x,y) ((x>y) ? (x) : (y))
@@ -282,7 +283,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.2");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
