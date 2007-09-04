@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.2");
+vtkCxxRevisionMacro(vtkLine, "1.3");
 vtkStandardNewMacro(vtkLine);
 
 //----------------------------------------------------------------------------
@@ -251,6 +251,271 @@ void vtkLine::Contour(double value, vtkDataArray *cellScalars,
     outCd->CopyData(inCd,cellId,newCellId);
     }
 }
+
+//----------------------------------------------------------------------------
+double vtkLine::DistanceBetweenLines( 
+    double l0[3], double l1[3],                 // line 1
+    double m0[3], double m1[3],                 // line 2
+    double closestPt1[3], double closestPt2[3], // closest points
+    double &t1, double &t2 ) // parametric coords of the closest points
+{
+  // Part of this function was adapted from "GeometryAlgorithms.com"
+  //
+  // Copyright 2001, softSurfer (www.softsurfer.com)
+  // This code may be freely used and modified for any purpose
+  // providing that this copyright notice is included with it.
+  // SoftSurfer makes no warranty for this code, and cannot be held
+  // liable for any real or imagined damage resulting from its use.
+  // Users of this code must verify correctness for their application.
+  
+  const double u[3] = { l1[0]-l0[0], l1[1]-l0[1], l1[2]-l0[2] };
+  const double v[3] = { m1[0]-m0[0], m1[1]-m0[1], m1[2]-m0[2] };
+  const double w[3] = { l0[0]-m0[0], l0[1]-m0[1], l0[2]-m0[2] };
+  const double    a = vtkMath::Dot(u,u);
+  const double    b = vtkMath::Dot(u,v);
+  const double    c = vtkMath::Dot(v,v);        // always >= 0
+  const double    d = vtkMath::Dot(u,w);
+  const double    e = vtkMath::Dot(v,w);
+  const double    D = a*c - b*b;       // always >= 0
+  
+  // compute the line parameters of the two closest points
+  if (D < 1e-6) 
+    {         // the lines are almost parallel
+    t1 = 0.0;
+    t2 = (b > c ? d/b : e/c);   // use the largest denominator
+    }
+  else 
+    {
+    t1 = (b*e - c*d) / D;
+    t2 = (a*e - b*d) / D;
+    }
+
+  for (unsigned int i = 0; i < 3; i++)
+    {
+    closestPt1[i] = l0[i] + t1 * u[i];
+    closestPt2[i] = m0[i] + t2 * v[i];
+    }
+
+  // Return the distance squared between the lines = 
+  // the mag squared of the distance between the two closest points 
+  // = L1(t1) - L2(t2)
+  return vtkMath::Distance2BetweenPoints( closestPt1, closestPt2 );
+}
+
+//----------------------------------------------------------------------------
+double vtkLine::DistanceBetweenLineSegments( 
+    double l0[3], double l1[3],                 // line segment 1
+    double m0[3], double m1[3],                 // line segment 2
+    double closestPt1[3], double closestPt2[3], // closest points
+    double &t1, double &t2 )                    // parametric coords 
+                                                // of the closest points
+{
+  // Part of this function was adapted from "GeometryAlgorithms.com"
+  //
+  // Copyright 2001, softSurfer (www.softsurfer.com)
+  // This code may be freely used and modified for any purpose
+  // providing that this copyright notice is included with it.
+  // SoftSurfer makes no warranty for this code, and cannot be held
+  // liable for any real or imagined damage resulting from its use.
+  // Users of this code must verify correctness for their application.
+
+  const double u[3] = { l1[0]-l0[0], l1[1]-l0[1], l1[2]-l0[2] };
+  const double v[3] = { m1[0]-m0[0], m1[1]-m0[1], m1[2]-m0[2] };
+  const double w[3] = { l0[0]-m0[0], l0[1]-m0[1], l0[2]-m0[2] };
+  const double    a = vtkMath::Dot(u,u);
+  const double    b = vtkMath::Dot(u,v);
+  const double    c = vtkMath::Dot(v,v);        // always >= 0
+  const double    d = vtkMath::Dot(u,w);
+  const double    e = vtkMath::Dot(v,w);
+  const double    D = a*c - b*b;       // always >= 0
+  double          sN, sD = D;      // sc = sN / sD, default sD = D >= 0
+  double          tN, tD = D;      // tc = tN / tD, default tD = D >= 0
+
+  // compute the line parameters of the two closest points
+
+  if (D < 1e-6)
+    { 
+
+    // the lines are almost parallel. Where on the line is the closest point.
+    // First check if the lines overlap. If they do, then the distance is
+    // just the distance between the infinite lines..
+
+    double dist;
+
+    dist = vtkLine::DistanceToLine( l0, m0, m1, t2, closestPt2 );
+    if (t2 >= 0.0 && t2 <= 1.0)
+      {
+      t1 = 0.0;
+      closestPt1[0] = l0[0];
+      closestPt1[1] = l0[1];
+      closestPt1[2] = l0[2];
+      return dist;
+      }
+
+    dist = vtkLine::DistanceToLine( l1, m0, m1, t2, closestPt2 );
+    if (t2 >= 0.0 && t2 <= 1.0)
+      {
+      t1 = 1.0;
+      closestPt1[0] = l1[0];
+      closestPt1[1] = l1[1];
+      closestPt1[2] = l1[2];
+      return dist;
+      }
+    
+    dist = vtkLine::DistanceToLine( m0, l0, l1, t1, closestPt1 );
+    if (t1 >= 0.0 && t1 <= 1.0)
+      {
+      t1 = 0.0;
+      closestPt2[0] = m0[0];
+      closestPt2[1] = m0[1];
+      closestPt2[2] = m0[2];
+      return dist;
+      }
+    
+    dist = vtkLine::DistanceToLine( m1, l0, l1, t1, closestPt1 );
+    if (t1 >= 0.0 && t1 <= 1.0)
+      {
+      t1 = 1.0;
+      closestPt2[0] = m1[0];
+      closestPt2[1] = m1[1];
+      closestPt2[2] = m1[2];
+      return dist;
+      }
+
+    // The lines don't overlap.... The shortest distance is the min of the
+    // distance between the end points.
+
+    const double d1 = vtkMath::Distance2BetweenPoints( l0, m0 );
+    const double d2 = vtkMath::Distance2BetweenPoints( l0, m1 );
+    const double d3 = vtkMath::Distance2BetweenPoints( l1, m0 );
+    const double d4 = vtkMath::Distance2BetweenPoints( l1, m1 );
+    
+    if (d1 <= d2 && d1 <= d3 && d1 <= d4)
+      {
+      t1 = t2 = 0.0;
+      closestPt1[0] = l0[0];
+      closestPt1[1] = l0[1];
+      closestPt1[2] = l0[2];
+      closestPt2[0] = m0[0];
+      closestPt2[1] = m0[1];
+      closestPt2[2] = m0[2];
+      return d1;
+      }
+    if (d2 <= d1 && d2 <= d3 && d2 <= d4)
+      {
+      t1 = 0.0; t2 = 1.0;
+      closestPt1[0] = l0[0];
+      closestPt1[1] = l0[1];
+      closestPt1[2] = l0[2];
+      closestPt2[0] = m1[0];
+      closestPt2[1] = m1[1];
+      closestPt2[2] = m1[2];
+      return d2;
+      }
+    if (d3 <= d1 && d3 <= d2 && d3 <= d4)
+      {
+      t1 = 1.0; t2 = 0.0;
+      closestPt1[0] = l1[0];
+      closestPt1[1] = l1[1];
+      closestPt1[2] = l1[2];
+      closestPt2[0] = m0[0];
+      closestPt2[1] = m0[1];
+      closestPt2[2] = m0[2];
+      return d3;
+      }
+    if (d4 <= d1 && d4 <= d2 && d4 <= d3)
+      {
+      t1 = t2 = 1.0;
+      closestPt1[0] = l1[0];
+      closestPt1[1] = l1[1];
+      closestPt1[2] = l1[2];
+      closestPt2[0] = m1[0];
+      closestPt2[1] = m1[1];
+      closestPt2[2] = m1[2];
+      return d4;
+      }
+
+    // Can never get here.
+    return 0.0;
+    }
+
+  // The lines aren't parallel.
+
+  else 
+    {                // get the closest points on the infinite lines
+    sN = (b*e - c*d);
+    tN = (a*e - b*d);
+    if (sN < 0.0) 
+      {       // sc < 0 => the s=0 edge is visible
+      sN = 0.0;
+      tN = e;
+      tD = c;
+      }
+    else if (sN > sD) 
+      {  // sc > 1 => the s=1 edge is visible
+      sN = sD;
+      tN = e + b;
+      tD = c;
+      }
+    }
+
+  if (tN < 0.0) 
+    {           // tc < 0 => the t=0 edge is visible
+    tN = 0.0;
+    
+    // recompute sc for this edge
+    if (-d < 0.0)
+      {
+      sN = 0.0;
+      }
+    else if (-d > a)
+      {
+      sN = sD;
+      }
+    else 
+      {
+      sN = -d;
+      sD = a;
+      }
+    }
+  else if (tN > tD) 
+    {      // tc > 1 => the t=1 edge is visible
+    tN = tD;
+    
+    // recompute sc for this edge
+    if ((-d + b) < 0.0)
+      {
+      sN = 0;
+      }
+    else if ((-d + b) > a)
+      {
+      sN = sD;
+      }
+    else
+      {
+      sN = (-d + b);
+      sD = a;
+      }
+    }
+
+  // finally do the division to get sc and tc
+  t1 = (fabs(sN) < 1e-6 ? 0.0 : sN / sD);
+  t2 = (fabs(tN) < 1e-6 ? 0.0 : tN / tD);
+
+  // Closest Point on segment1 = S1(t1) = l0 + t1*u
+  // Closest Point on segment2 = S1(t2) = m0 + t2*v
+
+  for (unsigned int i = 0; i < 3; i++)
+    {
+    closestPt1[i] = l0[i] + t1 * u[i];
+    closestPt2[i] = m0[i] + t2 * v[i];
+    }
+
+  // Return the distance squared between the lines = 
+  // the mag squared of the distance between the two closest points 
+  // = S1(t1) - S2(t2)
+  return vtkMath::Distance2BetweenPoints( closestPt1, closestPt2 );
+}                                
 
 //----------------------------------------------------------------------------
 // Compute distance to finite line. Returns parametric coordinate t 
