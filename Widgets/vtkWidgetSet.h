@@ -95,6 +95,16 @@
 
 class vtkAbstractWidget;
 
+//BTX
+// Pointer to a member function that takes a vtkAbstractWidget (the active
+// child) and another vtkAbstractWidget (the widget to dispatch an action)
+// to. All "Action" funtions in a widget must conform to this signature.
+template< class TWidget > struct ActionFunction
+{
+  typedef void (TWidget::*TActionFunctionPointer)(TWidget *dispatcher);
+};
+//ETX
+
 class VTK_WIDGETS_EXPORT vtkWidgetSet : public vtkObject
 {
 public:
@@ -136,15 +146,6 @@ public:
   typedef WidgetContainerType::const_iterator     WidgetConstIteratorType;
   WidgetContainerType                             Widget;
  
-  // Description:
-  // Pointer to a member function that takes a vtkAbstractWidget (the active
-  // child) and another vtkAbstractWidget (the widget to dispatch an action)
-  // to. All "Action" funtions in a widget must conform to this signature.
-  template< class TWidget > struct ActionFunction
-    {
-    typedef void (TWidget::*TActionFunctionPointer)(TWidget *dispatcher);
-    };
-
   // Description:
   // Dispatch an "Action" to every widget in this set. This is meant to be 
   // invoked from a "Callback" in a widget.
