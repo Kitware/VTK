@@ -16,7 +16,9 @@
 
 #include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -27,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.89");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.90");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -168,6 +170,15 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
       }
     }
 
+  // Allocate an array for the list of probe point locations.
+  vtkDoubleArray* probeLocation = vtkDoubleArray::New();
+  probeLocation->SetName("Probe_Location");
+  probeLocation->SetNumberOfComponents(3);
+  probeLocation->Allocate(numPts);
+  probeLocation->SetNumberOfTuples(numPts);
+  outPD->AddArray(probeLocation);
+  probeLocation->Delete();
+
   // Use tolerance as a function of size of source data
   //
   tol2 = source->GetLength();
@@ -187,6 +198,9 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 
     // Get the xyz coordinate of the point in the input dataset
     input->GetPoint(ptId, x);
+
+    // Put the xyz coordinate in the probe point locations array.
+    probeLocation->SetTuple3(ptId, x[0], x[1], x[2]);
 
     // Find the cell that contains xyz and get it
     vtkIdType cellId = source->FindCell(x,NULL,-1,tol2,subId,pcoords,weights);
