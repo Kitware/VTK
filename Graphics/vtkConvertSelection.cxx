@@ -43,7 +43,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.1");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.2");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -115,7 +115,7 @@ int vtkConvertSelection::SelectTableFromTable(
           vtksys_stl::set_intersection(
             matching.begin(), matching.end(), 
             curMatch.begin(), curMatch.end(), 
-            intersection.begin());
+            vtksys_stl::inserter(intersection, intersection.begin()));
           matching = intersection;
           }
         }
