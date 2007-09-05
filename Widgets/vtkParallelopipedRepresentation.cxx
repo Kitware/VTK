@@ -142,7 +142,8 @@ public:
   // If configuration > 0, the topology populated is that of a parallelopiped
   // with a chair at node = (configuration - 1). 
   void PopulateTopology( int configuration, vtkCellArray * cellArray ) const
-    { this->PopulateTopology( m_Topology[configuration], cellArray ); }
+    { vtkParallelopipedTopology::PopulateTopology( 
+                          m_Topology[configuration], cellArray ); }
     
   void PrintTopology(ostream &os) const
     {
@@ -283,7 +284,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.4");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -841,7 +842,7 @@ int vtkParallelopipedRepresentation
         vtkParallelopipedRepresentation::ResizingParallelopiped)
     {
     // Ensure that a handle has been picked.
-    if (!this->CurrentHandleIdx != -1)
+    if (this->CurrentHandleIdx != -1)
       {
       // Compute world positions corresponding to the current event position 
       // (X,Y) and the last event positions such that they lie at the same
@@ -1057,7 +1058,7 @@ int vtkParallelopipedRepresentation
   else if (this->InteractionState == vtkParallelopipedRepresentation::ChairMode)
     {
     // Ensure that a handle has been picked.
-    if (!this->CurrentHandleIdx != -1)
+    if (this->CurrentHandleIdx != -1)
       {
       double handleWorldPos[4]; 
       

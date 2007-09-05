@@ -146,7 +146,7 @@ public:
     };
 
   // Description:
-  // Dispatch an "Action" to every widget in this set. This is meant be be 
+  // Dispatch an "Action" to every widget in this set. This is meant to be 
   // invoked from a "Callback" in a widget.
   template < class TWidget >
   void DispatchAction(TWidget *caller, 

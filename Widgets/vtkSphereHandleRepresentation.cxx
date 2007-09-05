@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkSphereHandleRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkSphereHandleRepresentation, "1.2");
 vtkStandardNewMacro(vtkSphereHandleRepresentation);
 vtkCxxSetObjectMacro(vtkSphereHandleRepresentation,SelectedProperty,vtkProperty);
 
@@ -353,12 +353,11 @@ void vtkSphereHandleRepresentation::Translate(double *p1, double *p2)
   
   double *bounds = this->GetBounds();
   double *pos = this->Sphere->GetCenter();
-  double newBounds[6], newFocus[3];
-  int i;
+  double newFocus[3];
 
   if ( this->ConstraintAxis >= 0 )
     {//move along axis
-    for (i=0; i<3; i++)
+    for (int i=0; i<3; i++)
       {
       if ( i != this->ConstraintAxis )
         {
@@ -367,10 +366,8 @@ void vtkSphereHandleRepresentation::Translate(double *p1, double *p2)
       }
     }
   
-  for (i=0; i<3; i++)
+  for (int i=0; i<3; i++)
     {
-    newBounds[2*i] = bounds[2*i] + v[i];
-    newBounds[2*i+1] = bounds[2*i+1] + v[i];
     newFocus[i] = pos[i] + v[i];
     }
   this->SetWorldPosition(newFocus);
