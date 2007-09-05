@@ -35,8 +35,39 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkSortDataArray.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.8");
+#include <vtkstd/utility>
+#include <vtkstd/algorithm>
+
+//----------------------------------------------------------------------------
+class vtkStringArrayLookup
+{
+public:
+  vtkStringArrayLookup() : Rebuild(true)
+    {
+    this->SortedArray = NULL;
+    this->IndexArray = NULL;
+    }
+  ~vtkStringArrayLookup()
+    {
+    if (this->SortedArray)
+      {
+      this->SortedArray->Delete();
+      this->SortedArray = NULL;
+      }
+    if (this->IndexArray)
+      {
+      this->IndexArray->Delete();
+      this->IndexArray = NULL;
+      }
+    }
+  vtkStringArray* SortedArray;
+  vtkIdList* IndexArray;
+  bool Rebuild;
+};
+
+vtkCxxRevisionMacro(vtkStringArray, "1.9");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -46,6 +77,7 @@ vtkStringArray::vtkStringArray(vtkIdType numComp) :
 {
   this->Array = NULL;
   this->SaveUserArray = 0;
+  this->Lookup = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -55,6 +87,10 @@ vtkStringArray::~vtkStringArray()
   if ((this->Array) && (!this->SaveUserArray))
     {
     delete [] this->Array;
+    }
+  if (this->Lookup)
+    {
+    delete this->Lookup;
     }
 }
 
@@ -93,6 +129,7 @@ void vtkStringArray::SetArray(vtkStdString *array, vtkIdType size, int save)
   this->Size = size;
   this->MaxId = size-1;
   this->SaveUserArray = save;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -117,6 +154,7 @@ int vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
     }
 
   this->MaxId = -1;
+  this->DataChanged();
 
   return 1;
 }
@@ -134,6 +172,7 @@ void vtkStringArray::Initialize()
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -185,6 +224,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
     {
     this->Array[i] = fa->Array[i];
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -328,6 +368,7 @@ vtkStdString * vtkStringArray::ResizeAndExtend(vtkIdType sz)
   this->Array = newArray;
   this->SaveUserArray = 0;
 
+  this->DataChanged();
   return this->Array;
 }
 
@@ -378,6 +419,7 @@ int vtkStringArray::Resize(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
+  this->DataChanged();
   return 1;
 }
 
@@ -388,6 +430,7 @@ void vtkStringArray::SetNumberOfValues(vtkIdType number)
 {
   this->Allocate(number);
   this->MaxId = number - 1;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -404,6 +447,7 @@ vtkStdString * vtkStringArray::WritePointer(vtkIdType id,
     {
     this->MaxId = newSize;
     }
+  this->DataChanged();
   return this->Array + id;
 }
 
@@ -420,6 +464,7 @@ void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
     {
     this->MaxId = id;
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -427,20 +472,21 @@ void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
 vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 {
   this->InsertValue (++this->MaxId,f);
+  this->DataChanged();
   return this->MaxId;
 }
 
 // ----------------------------------------------------------------------
 
-int
-vtkStringArray::GetDataTypeSize( void )
-{ return static_cast<int>(sizeof(vtkStdString)); }
+int vtkStringArray::GetDataTypeSize( void )
+{
+  return static_cast<int>(sizeof(vtkStdString));
+}
 
 
 // ----------------------------------------------------------------------
 
-unsigned long
-vtkStringArray::GetActualMemorySize( void )
+unsigned long vtkStringArray::GetActualMemorySize( void )
 {
   unsigned long totalSize = 0;
   unsigned long  numPrims = this->GetSize();
@@ -487,6 +533,7 @@ void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j,
     {
     this->SetValue(loci + cur, sa->GetValue(locj + cur));
     }
+  this->DataChanged();
 }
 
 // ----------------------------------------------------------------------
@@ -508,6 +555,7 @@ void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
     {
     this->InsertValue(loci + cur, sa->GetValue(locj + cur));
     }
+  this->DataChanged();
 }
 
 // ----------------------------------------------------------------------
@@ -528,6 +576,7 @@ vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
     {
     this->InsertNextValue(sa->GetValue(locj + cur));
     }
+  this->DataChanged();
   return (this->GetNumberOfTuples()-1);
 }
 
@@ -589,6 +638,94 @@ void vtkStringArray::GetTuples(vtkIdType startIndex,
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkStringArray::UpdateLookup()
+{
+  if (!this->Lookup)
+    {
+    this->Lookup = new vtkStringArrayLookup();
+    this->Lookup->SortedArray = vtkStringArray::New();
+    this->Lookup->IndexArray = vtkIdList::New();
+    }
+  if (this->Lookup->Rebuild)
+    {
+    int numComps = this->GetNumberOfComponents();
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    this->Lookup->SortedArray->DeepCopy(this);
+    this->Lookup->IndexArray->SetNumberOfIds(numComps*numTuples);
+    for (vtkIdType i = 0; i < numComps*numTuples; i++)
+      {
+      this->Lookup->IndexArray->SetId(i, i);
+      }
+    vtkSortDataArray::Sort(this->Lookup->SortedArray, this->Lookup->IndexArray);
+    this->Lookup->Rebuild = false;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkStringArray::LookupValue(vtkVariant var)
+{
+  return this->LookupValue(var.ToString());
+}
+
+//----------------------------------------------------------------------------
+void vtkStringArray::LookupValue(vtkVariant var, vtkIdList* ids)
+{
+  this->LookupValue(var.ToString(), ids);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkStringArray::LookupValue(vtkStdString value)
+{
+  this->UpdateLookup();
+  int numComps = this->GetNumberOfComponents();
+  vtkIdType numTuples = this->GetNumberOfTuples();
+  vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
+  vtkStdString* found = vtkstd::lower_bound(ptr, ptr + numComps*numTuples, value);
+  if (*found == value)
+    {
+    return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
+{
+  this->UpdateLookup();
+  ids->Reset();
+  int numComps = this->GetNumberOfComponents();
+  vtkIdType numTuples = this->GetNumberOfTuples();
+  vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
+  vtkstd::pair<vtkStdString*,vtkStdString*> found = 
+    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value);
+  vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);
+  vtkIdType endInd = static_cast<vtkIdType>(found.second - ptr);
+  for (; ind != endInd; ++ind)
+    {
+    ids->InsertNextId(this->Lookup->IndexArray->GetId(ind));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStringArray::DataChanged()
+{
+  if (this->Lookup)
+    {
+    this->Lookup->Rebuild = true;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStringArray::ClearLookup()
+{
+  if (this->Lookup)
+    {
+    delete this->Lookup;
+    this->Lookup = NULL;
+    }
+}
+
 
 // ----------------------------------------------------------------------
 
@@ -601,22 +738,30 @@ void vtkStringArray::GetTuples(vtkIdType startIndex,
 //
 
 
-void
-vtkStringArray::SetValue( vtkIdType id, const char *value )
+void vtkStringArray::SetValue( vtkIdType id, const char *value )
 {
   this->SetValue( id, vtkStdString(value) );
 }
 
-void
-vtkStringArray::InsertValue( vtkIdType id, const char *value )
+void vtkStringArray::InsertValue( vtkIdType id, const char *value )
 {
   this->InsertValue( id, vtkStdString( value ) );
 }
 
-vtkIdType
-vtkStringArray::InsertNextValue( const char *value )
+vtkIdType vtkStringArray::InsertNextValue( const char *value )
 {
   return this->InsertNextValue( vtkStdString( value ) );
 }
 
+vtkIdType vtkStringArray::LookupValue( const char *value )
+{
+  return this->LookupValue( vtkStdString( value ) );
+}
+
+void vtkStringArray::LookupValue( const char *value, vtkIdList* ids)
+{
+  this->LookupValue( vtkStdString( value ), ids);
+}
+
 // ----------------------------------------------------------------------
+

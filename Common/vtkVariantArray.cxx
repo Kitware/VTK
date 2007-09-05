@@ -27,21 +27,50 @@
 
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
+#include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 
+#include <vtkstd/utility>
+#include <vtkstd/algorithm>
+
+//----------------------------------------------------------------------------
+class vtkVariantArrayLookup
+{
+public:
+  vtkVariantArrayLookup() : Rebuild(true)
+    {
+    this->SortedArray = NULL;
+    this->IndexArray = NULL;
+    }
+  ~vtkVariantArrayLookup()
+    {
+    if (this->SortedArray)
+      {
+      this->SortedArray->Delete();
+      this->SortedArray = NULL;
+      }
+    if (this->IndexArray)
+      {
+      this->IndexArray->Delete();
+      this->IndexArray = NULL;
+      }
+    }
+  vtkVariantArray* SortedArray;
+  vtkIdList* IndexArray;
+  bool Rebuild;
+};
+
 // 
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.5");
+vtkCxxRevisionMacro(vtkVariantArray, "1.6");
 vtkStandardNewMacro(vtkVariantArray);
-
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -56,21 +85,24 @@ void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariantArray::vtkVariantArray(vtkIdType numComp) :
   vtkAbstractArray( numComp )
 {
-  this->Array = 0;
+  this->Array = NULL;
   this->SaveUserArray = 0;
+  this->Lookup = NULL;
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariantArray::~vtkVariantArray()
 {
   if ((this->Array) && (!this->SaveUserArray))
     {
     delete [] this->Array;
+    }
+  if (this->Lookup)
+    {
+    delete this->Lookup;
     }
 }
 
@@ -81,7 +113,6 @@ vtkVariantArray::~vtkVariantArray()
 //
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
@@ -101,12 +132,12 @@ int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
     }
 
   this->MaxId = -1;
+  this->DataChanged();
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::Initialize()
 {
   if(this->Array && !this->SaveUserArray)
@@ -117,38 +148,35 @@ void vtkVariantArray::Initialize()
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::GetDataType()
 {
   return VTK_VARIANT;
 }
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::GetDataTypeSize()
 {
   return static_cast<int>(sizeof(vtkVariant));
 }
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::GetElementComponentSize()
 {
   return this->GetDataTypeSize();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(this->NumberOfComponents * number);
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
   if (source->IsA("vtkVariantArray"))
@@ -190,10 +218,10 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
     {
     vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
   if (source->IsA("vtkVariantArray"))
@@ -232,10 +260,10 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
     {
     vtkWarningMacro("Unrecognized type is incompatible with vtkVariantArray.");
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {
   if (source->IsA("vtkVariantArray"))
@@ -273,18 +301,17 @@ vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source
     return -1;
     }
 
+  this->DataChanged();
   return (this->GetNumberOfTuples()-1);
 }
 
 //----------------------------------------------------------------------------
-
 void* vtkVariantArray::GetVoidPointer(vtkIdType id)
 {
   return this->GetPointer(id);
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
 {
   // Do nothing on a NULL input.
@@ -331,10 +358,10 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
     {
     this->Array[i] = va->Array[i];
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   vtkAbstractArray* source,  double* weights)
 {
@@ -367,10 +394,10 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     }
 
   this->InsertTuple(i, nearest, source);
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::InterpolateTuple(vtkIdType i, 
   vtkIdType id1, vtkAbstractArray* source1, 
   vtkIdType id2, vtkAbstractArray* source2, double t)
@@ -394,17 +421,16 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i,
     // Use p1.
     this->InsertTuple(i, id1, source1); 
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::Squeeze()
 {
   this->ResizeAndExtend(this->MaxId + 1);
 }
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::Resize(vtkIdType sz)
 {
   vtkVariant* newArray;
@@ -450,18 +476,18 @@ int vtkVariantArray::Resize(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
+  this->DataChanged();
   return 1;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save)
 {
   this->SetArray(static_cast<vtkVariant*>(arr), size, save);
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 unsigned long vtkVariantArray::GetActualMemorySize()
 {
   // NOTE: Currently does not take into account the "pointed to" data.
@@ -474,14 +500,12 @@ unsigned long vtkVariantArray::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-
 int vtkVariantArray::IsNumeric()
 {
   return 0;
 }
 
 //----------------------------------------------------------------------------
-
 vtkArrayIterator* vtkVariantArray::NewIterator()
 {
   vtkArrayIteratorTemplate<vtkVariant>* iter = 
@@ -497,21 +521,19 @@ vtkArrayIterator* vtkVariantArray::NewIterator()
 //
 
 //----------------------------------------------------------------------------
-
 vtkVariant& vtkVariantArray::GetValue(vtkIdType id) const
 {
   return this->Array[id];
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetValue(vtkIdType id, vtkVariant value)
 {
   this->Array[id] = value;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
 {
   if ( id >= this->Size )
@@ -523,33 +545,32 @@ void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
     {
     this->MaxId = id;
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkVariantArray::InsertNextValue(vtkVariant value)
 {
   this->InsertValue(++this->MaxId, value);
+  this->DataChanged();
   return this->MaxId;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetNumberOfValues(vtkIdType number)
 {
   this->Allocate(number);
   this->MaxId = number - 1;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariant* vtkVariantArray::GetPointer(vtkIdType id)
 {
   return this->Array + id;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkVariantArray::SetArray(vtkVariant* arr, vtkIdType size, int save)
 {
   if ((this->Array) && (!this->SaveUserArray))
@@ -568,10 +589,10 @@ void vtkVariantArray::SetArray(vtkVariant* arr, vtkIdType size, int save)
   this->Size = size;
   this->MaxId = size-1;
   this->SaveUserArray = save;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
 {
   vtkVariant* newArray;
@@ -630,6 +651,95 @@ vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
+  this->DataChanged();
 
   return this->Array;
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::UpdateLookup()
+{
+  if (!this->Lookup)
+    {
+    this->Lookup = new vtkVariantArrayLookup();
+    this->Lookup->SortedArray = vtkVariantArray::New();
+    this->Lookup->IndexArray = vtkIdList::New();
+    }
+  if (this->Lookup->Rebuild)
+    {
+    int numComps = this->GetNumberOfComponents();
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    this->Lookup->SortedArray->DeepCopy(this);
+    this->Lookup->IndexArray->SetNumberOfIds(numComps*numTuples);
+    for (vtkIdType i = 0; i < numComps*numTuples; i++)
+      {
+      this->Lookup->IndexArray->SetId(i, i);
+      }
+    vtkSortDataArray::Sort(this->Lookup->SortedArray, this->Lookup->IndexArray);
+    this->Lookup->Rebuild = false;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
+{
+  this->UpdateLookup();
+  
+  // Perform a binary search of the sorted array using STL lower_bound.
+  int numComps = this->GetNumberOfComponents();
+  vtkIdType numTuples = this->GetNumberOfTuples();
+  vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
+  vtkVariantLessThan comp;
+  vtkVariant* found = vtkstd::lower_bound(
+    ptr, ptr + numComps*numTuples, value, comp);
+  
+  // Check for equality before returning the value 
+  // (i.e. neither is less than the other).
+  if (!comp(*found,value) && !comp(value,*found))
+    {
+    return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
+{
+  this->UpdateLookup();
+  ids->Reset();
+  
+  // Perform a binary search of the sorted array using STL equal_range.
+  int numComps = this->GetNumberOfComponents();
+  vtkIdType numTuples = this->GetNumberOfTuples();
+  vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
+  vtkVariantLessThan comp;
+  vtkstd::pair<vtkVariant*,vtkVariant*> found = 
+    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value, comp);
+  
+  // Add the indices of the found items to the ID list.
+  vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);
+  vtkIdType endInd = static_cast<vtkIdType>(found.second - ptr);
+  for (; ind != endInd; ++ind)
+    {
+    ids->InsertNextId(this->Lookup->IndexArray->GetId(ind));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::DataChanged()
+{
+  if (this->Lookup)
+    {
+    this->Lookup->Rebuild = true;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::ClearLookup()
+{
+  if (this->Lookup)
+    {
+    delete this->Lookup;
+    this->Lookup = NULL;
+    }
 }

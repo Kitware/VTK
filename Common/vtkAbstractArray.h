@@ -42,6 +42,7 @@
 #define __vtkAbstractArray_h
 
 #include "vtkObject.h"
+#include "vtkVariant.h" // for variant arguments
 
 class vtkIdList;
 class vtkIdTypeArray;
@@ -250,16 +251,47 @@ public:
     {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
     }
+  
+  //BTX
+  // Description:
+  // Return the indices where a specific value appears.
+  virtual vtkIdType LookupValue(vtkVariant value) = 0;
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids) = 0;
+  //ETX
+  
+  // Description:
+  // Tell the array explicitly that the data has changed.
+  // This is only necessary to call when you modify the array contents
+  // without using the array's API (i.e. you retrieve a pointer to the
+  // data and modify the array contents).  You need to call this so that
+  // the fast lookup will know to rebuild itself.  Otherwise, the lookup
+  // functions will give incorrect results.
+  virtual void DataChanged() = 0;
+  
+  // Description:
+  // Delete the associated fast lookup data structure on this array,
+  // if it exists.  The lookup will be rebuilt on the next call to a lookup
+  // function.
+  virtual void ClearLookup() = 0;
+  
+  // TODO: Implement these lookup functions also.
+  //virtual void LookupRange(vtkVariant min, vtkVariant max, vtkIdList* ids,
+  //  bool includeMin = true, bool includeMax = true) = 0;
+  //virtual void LookupGreaterThan(vtkVariant min, vtkIdList* ids, bool includeMin = false) = 0;
+  //virtual void LookupLessThan(vtkVariant max, vtkIdList* ids, bool includeMax = false) = 0;
+  
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray(vtkIdType numComp=1);
   ~vtkAbstractArray();
 
-  vtkIdType Size;      // allocated size of data
-  vtkIdType MaxId;     // maximum index inserted thus far
+  vtkIdType Size;         // allocated size of data
+  vtkIdType MaxId;        // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
 
   char* Name;
+  
+  bool RebuildArray;      // whether to rebuild the fast lookup data structure.
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

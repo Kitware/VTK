@@ -101,8 +101,8 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   VTK_CREATE(vtkSelection, threshold);
   threshold->SetContentType(vtkSelection::THRESHOLDS);
   threshold->SetFieldType(vtkSelection::POINT);
-  threshold->SetArrayName("value");
   VTK_CREATE(vtkDoubleArray, thresholdArr);
+  thresholdArr->SetName("value");
   thresholdArr->InsertNextValue(0.0);
   thresholdArr->InsertNextValue(1.0);
   threshold->SetSelectionList(thresholdArr); 

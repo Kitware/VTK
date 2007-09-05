@@ -24,6 +24,8 @@
 
 #include "vtkDataArray.h"
 
+class vtkBitArrayLookup;
+
 class VTK_COMMON_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
@@ -176,6 +178,31 @@ public:
   // Description:
   // Returns a new vtkBitArrayIterator instance.
   vtkArrayIterator* NewIterator();
+  
+  //BTX
+  // Description:
+  // Return the indices where a specific value appears.
+  virtual vtkIdType LookupValue(vtkVariant value);
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  //ETX
+  vtkIdType LookupValue(int value);
+  void LookupValue(int value, vtkIdList* ids);
+  
+  // Description:
+  // Tell the array explicitly that the data has changed.
+  // This is only necessary to call when you modify the array contents
+  // without using the array's API (i.e. you retrieve a pointer to the
+  // data and modify the array contents).  You need to call this so that
+  // the fast lookup will know to rebuild itself.  Otherwise, the lookup
+  // functions will give incorrect results.
+  virtual void DataChanged();
+  
+  // Description:
+  // Delete the associated fast lookup data structure on this array,
+  // if it exists.  The lookup will be rebuilt on the next call to a lookup
+  // function.
+  virtual void ClearLookup();
+  
 protected:
   vtkBitArray(vtkIdType numComp=1);
   ~vtkBitArray();
@@ -196,12 +223,18 @@ private:
 private:
   vtkBitArray(const vtkBitArray&);  // Not implemented.
   void operator=(const vtkBitArray&);  // Not implemented.
+  
+  //BTX
+  vtkBitArrayLookup* Lookup;
+  void UpdateLookup();
+  //ETX
 };
 
 inline void vtkBitArray::SetNumberOfValues(vtkIdType number) 
 {
   this->Allocate(number);
   this->MaxId = number - 1;
+  this->DataChanged();
 }
 
 inline void vtkBitArray::SetValue(vtkIdType id, int value) 
@@ -214,6 +247,7 @@ inline void vtkBitArray::SetValue(vtkIdType id, int value)
     {
     this->Array[id/8] &= (~(0x80 >> id%8));
     }
+  this->DataChanged();
 }
 
 inline void vtkBitArray::InsertValue(vtkIdType id, int i)
@@ -234,11 +268,14 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
     {
     this->MaxId = id;
     }
+  this->DataChanged();
 }
 
 inline vtkIdType vtkBitArray::InsertNextValue(int i)
 {
-  this->InsertValue (++this->MaxId,i); return this->MaxId;
+  this->InsertValue (++this->MaxId,i);
+  this->DataChanged();
+  return this->MaxId;
 }
 
 inline void vtkBitArray::Squeeze() {this->ResizeAndExtend (this->MaxId+1);}

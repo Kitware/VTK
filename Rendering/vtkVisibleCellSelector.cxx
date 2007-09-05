@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include "vtkVisibleCellSelector.h"
+
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -197,7 +199,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.23");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.24");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -720,11 +722,13 @@ void vtkVisibleCellSelector::GetSelectedIds(vtkSelection *dest)
       if (this->DoVertices)
         {
         cellvertptrs = vtkIdTypeArray::New();
+        cellvertptrs->SetName("vertptrs");
         cellvertptrs->SetNumberOfComponents(1);
-        selection->SetAuxiliaryData1(cellvertptrs);
+        selection->GetSelectionData()->AddArray(cellvertptrs);
         cellvertlist = vtkIdTypeArray::New();
+        cellvertlist->SetName("vertlist");
         cellvertlist->SetNumberOfComponents(1);
-        selection->SetAuxiliaryData2(cellvertlist);
+        selection->GetSelectionData()->AddArray(cellvertlist);
         selection->GetProperties()->Set(
           vtkSelection::INDEXED_VERTICES(), 1);
         }

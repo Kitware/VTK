@@ -45,14 +45,12 @@
 // The following should be eventually placed in vtkSetGet.h
 //
 
-// This is same as extended template macro with additional cases for 
-// VTK_VARIANT, and VTK_OBJECT.
+// This is same as extended template macro with an additional case for VTK_VARIANT
 #define vtkExtraExtendedTemplateMacro(call)                                 \
-  vtExtendedTemplateMacro(call);                                            \
-  vtkTemplateMacroCase(VTK_VARIANT, vtkVariant, call)                       \
-  vtkTemplateMacroCase(VTK_OBJECT, vtkObjectBase, call)
+  vtkExtendedTemplateMacro(call);                                            \
+  vtkTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
-// This is same as Iterator Template macro with additional case for VTK_VARIANT
+// This is same as Iterator Template macro with an additional case for VTK_VARIANT
 #define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
   vtkArrayIteratorTemplateMacro(call);                                                   \
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
@@ -76,6 +74,26 @@ public:
   // Description:
   // Copy constructor.
   vtkVariant(const vtkVariant & other);
+
+  // Description:
+  // Create a char variant.
+  vtkVariant(char value);
+
+  // Description:
+  // Create an unsigned char variant.
+  vtkVariant(unsigned char value);
+
+  // Description:
+  // Create a signed char variant.
+  vtkVariant(signed char value);
+
+  // Description:
+  // Create a short variant.
+  vtkVariant(short value);
+
+  // Description:
+  // Create an unsigned short variant.
+  vtkVariant(unsigned short value);
 
   // Description:
   // Create an integer variant.
@@ -157,6 +175,26 @@ public:
   bool IsDouble() const;
 
   // Description:
+  // Get whether the variant is an char.
+  bool IsChar() const;
+
+  // Description:
+  // Get whether the variant is an unsigned char.
+  bool IsUnsignedChar() const;
+
+  // Description:
+  // Get whether the variant is an signed char.
+  bool IsSignedChar() const;
+
+  // Description:
+  // Get whether the variant is an short.
+  bool IsShort() const;
+
+  // Description:
+  // Get whether the variant is an unsigned short.
+  bool IsUnsignedShort() const;
+
+  // Description:
   // Get whether the variant is an int.
   bool IsInt() const;
 
@@ -218,6 +256,11 @@ public:
   // Fail if it holds a VTK object which is not an array.
   float ToFloat(bool* valid = 0) const;
   double ToDouble(bool* valid = 0) const;
+  char ToChar(bool* valid = 0) const;
+  unsigned char ToUnsignedChar(bool* valid = 0) const;
+  signed char ToSignedChar(bool* valid = 0) const;
+  short ToShort(bool* valid = 0) const;
+  unsigned short ToUnsignedShort(bool* valid = 0) const;
   int ToInt(bool* valid = 0) const;
   unsigned int ToUnsignedInt(bool* valid = 0) const;
   long ToLong(bool* valid = 0) const;
@@ -241,15 +284,20 @@ public:
   // Return the array, or NULL if not of that type.
   vtkAbstractArray* ToArray() const;
 
-private:
   template <typename T>
   T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
+private:
   union
   {
     vtkStdString* String;
     float Float;
     double Double;
+    char Char;
+    unsigned char UnsignedChar;
+    signed char SignedChar;
+    short Short;
+    unsigned short UnsignedShort;
     int Int;
     unsigned int UnsignedInt;
     long Long;
@@ -267,6 +315,13 @@ private:
 
   unsigned char Valid;
   unsigned char Type;
+};
+
+// A STL-style function object so you can compare two variants using
+// comp(s1,s2) where comp is an instance of vtkVariantLessThan.
+struct vtkVariantLessThan
+{
+  bool operator()(vtkVariant s1, vtkVariant s2) const;
 };
 
 #endif

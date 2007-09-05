@@ -37,6 +37,7 @@ vtkConeSource.cxx
 vtkConnectivityFilter.cxx
 vtkContourFilter.cxx
 vtkContourGrid.cxx
+vtkConvertSelection.cxx
 vtkCubeSource.cxx
 vtkCursor2D.cxx
 vtkCursor3D.cxx
@@ -188,7 +189,6 @@ vtkShrinkPolyData.cxx
 vtkSimpleElevationFilter.cxx
 vtkSliceCubes.cxx
 vtkSmoothPolyDataFilter.cxx
-vtkSortDataArray.cxx
 vtkSpatialRepresentationFilter.cxx
 vtkSpherePuzzle.cxx
 vtkSpherePuzzleArrows.cxx

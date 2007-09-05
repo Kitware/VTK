@@ -24,6 +24,9 @@
 #include "vtkDataArray.h"
 
 template <class T>
+class vtkDataArrayTemplateLookup;
+
+template <class T>
 class vtkDataArrayTemplate: public vtkDataArray
 {
 public:
@@ -216,13 +219,38 @@ public:
   // Description:
   // Returns a vtkArrayIteratorTemplate<T>.
   virtual vtkArrayIterator* NewIterator();
+  
+  //BTX
+  // Description:
+  // Return the indices where a specific value appears.
+  virtual vtkIdType LookupValue(vtkVariant value);
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  //ETX
+  vtkIdType LookupValue(T value);
+  void LookupValue(T value, vtkIdList* ids);
+  
+  // Description:
+  // Tell the array explicitly that the data has changed.
+  // This is only necessary to call when you modify the array contents
+  // without using the array's API (i.e. you retrieve a pointer to the
+  // data and modify the array contents).  You need to call this so that
+  // the fast lookup will know to rebuild itself.  Otherwise, the lookup
+  // functions will give incorrect results.
+  virtual void DataChanged();
+  
+  // Description:
+  // Delete the associated fast lookup data structure on this array,
+  // if it exists.  The lookup will be rebuilt on the next call to a lookup
+  // function.
+  virtual void ClearLookup();
+  
 protected:
   vtkDataArrayTemplate(vtkIdType numComp);
   ~vtkDataArrayTemplate();
 
   T* Array;   // pointer to data
   T* ResizeAndExtend(vtkIdType sz);  // function to resize data
-
+  
   int TupleSize; //used for data conversion
   double* Tuple;
 
@@ -234,6 +262,9 @@ protected:
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
+
+  vtkDataArrayTemplateLookup<T>* Lookup;
+  void UpdateLookup();
 
   void DeleteArray();
 };

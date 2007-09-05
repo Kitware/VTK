@@ -7,12 +7,14 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherByteSwap.cxx
   otherStringArray.cxx
   TestAmoebaMinimizer.cxx
+  TestArrayLookup.cxx
   TestGarbageCollector.cxx
   TestDataArray.cxx
   TestDirectory.cxx
   TestMath.cxx
   TestPolynomialSolvers.cxx
   TestSmartPointer.cxx
+  TestSortDataArray.cxx
   SystemInformation.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )

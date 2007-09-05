@@ -15,9 +15,37 @@
 #include "vtkBitArray.h"
 
 #include "vtkBitArrayIterator.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.62");
+//----------------------------------------------------------------------------
+class vtkBitArrayLookup
+{
+public:
+  vtkBitArrayLookup() : Rebuild(true)
+    {
+    this->ZeroArray = NULL;
+    this->OneArray = NULL;
+    }
+  ~vtkBitArrayLookup()
+    {
+    if (this->ZeroArray)
+      {
+      this->ZeroArray->Delete();
+      this->ZeroArray = NULL;
+      }
+    if (this->OneArray)
+      {
+      this->OneArray->Delete();
+      this->OneArray = NULL;
+      }
+    }
+  vtkIdList* ZeroArray;
+  vtkIdList* OneArray;
+  bool Rebuild;
+};
+
+vtkCxxRevisionMacro(vtkBitArray, "1.63");
 vtkStandardNewMacro(vtkBitArray);
 
 //----------------------------------------------------------------------------
@@ -29,6 +57,7 @@ vtkBitArray::vtkBitArray(vtkIdType numComp)
   this->TupleSize = 3;
   this->Tuple = new double[this->TupleSize]; //used for conversion
   this->SaveUserArray = 0;
+  this->Lookup = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -39,6 +68,10 @@ vtkBitArray::~vtkBitArray()
     delete [] this->Array;
     }
   delete [] this->Tuple;
+  if (this->Lookup)
+    {
+    delete this->Lookup;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -53,6 +86,7 @@ unsigned char *vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
     {
     this->MaxId = newSize;
     }
+  this->DataChanged();
   return this->Array + id/8;
 }
 
@@ -82,6 +116,7 @@ void vtkBitArray::SetArray(unsigned char* array, vtkIdType size, int save)
   this->Size = size;
   this->MaxId = size-1;
   this->SaveUserArray = save;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -114,6 +149,7 @@ int vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
     }
 
   this->MaxId = -1;
+  this->DataChanged();
 
   return 1;
 }
@@ -130,6 +166,7 @@ void vtkBitArray::Initialize()
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -142,6 +179,8 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
     return;
     }
 
+  this->DataChanged();
+  
   if (ia->GetDataType() != VTK_BIT)
     {
     vtkIdType numTuples = ia->GetNumberOfTuples();
@@ -240,7 +279,8 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
-
+  this->DataChanged();
+  
   return this->Array;
 }
 
@@ -286,6 +326,7 @@ int vtkBitArray::Resize(vtkIdType sz)
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
+  this->DataChanged();
 
   return 1;
 }
@@ -318,6 +359,7 @@ void vtkBitArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
     {
     this->SetValue(loci + cur, ba->GetValue(locj + cur));
     }
+  this->DataChanged();
 }
 
 
@@ -340,6 +382,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
     {
     this->InsertValue(loci + cur, ba->GetValue(locj + cur));
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -361,6 +404,7 @@ vtkIdType vtkBitArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
     {
     this->InsertNextValue( ba->GetValue(locj + cur));
     }
+  this->DataChanged();
   return (this->GetNumberOfTuples()-1);
 }
 
@@ -407,6 +451,7 @@ void vtkBitArray::SetTuple(vtkIdType i, const float * tuple)
     {
     this->SetValue(loc+j,(int)tuple[j]);
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -418,6 +463,7 @@ void vtkBitArray::SetTuple(vtkIdType i, const double * tuple)
     {
     this->SetValue(loc+j,(int)tuple[j]);
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -431,6 +477,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, const float * tuple)
     {
     this->InsertValue(loc+j,(int)tuple[j]);
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -442,6 +489,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, const double * tuple)
     {
     this->InsertValue(loc+j,(int)tuple[j]);
     }
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -453,6 +501,7 @@ vtkIdType vtkBitArray::InsertNextTuple(const float * tuple)
     this->InsertNextValue((int)tuple[i]);
     }
 
+  this->DataChanged();
   return this->MaxId / this->NumberOfComponents;
 }
 
@@ -464,6 +513,7 @@ vtkIdType vtkBitArray::InsertNextTuple(const double * tuple)
     this->InsertNextValue((int)tuple[i]);
     }
 
+  this->DataChanged();
   return this->MaxId / this->NumberOfComponents;
 }
 
@@ -473,6 +523,7 @@ void vtkBitArray::InsertComponent(vtkIdType i, int j, double c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
                     static_cast<int>(c));
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -483,6 +534,7 @@ void vtkBitArray::InsertComponent(vtkIdType i, int j, double c)
 void vtkBitArray::SetComponent(vtkIdType i, int j, double c)
 {
   this->SetValue(i*this->NumberOfComponents + j, static_cast<int>(c));
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
@@ -499,6 +551,7 @@ void vtkBitArray::RemoveTuple(vtkIdType id)
     this->RemoveLastTuple();
     return;
     }
+  this->DataChanged();
   vtkErrorMacro("Not yet implemented...");
 }
 
@@ -506,16 +559,114 @@ void vtkBitArray::RemoveTuple(vtkIdType id)
 void vtkBitArray::RemoveFirstTuple()
 {
   this->RemoveFirstTuple();
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
 void vtkBitArray::RemoveLastTuple()
 {
   this->Resize(this->GetNumberOfTuples()- 1);
+  this->DataChanged();
 }
 
 //----------------------------------------------------------------------------
 vtkArrayIterator* vtkBitArray::NewIterator()
 {
   return vtkBitArrayIterator::New();
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::UpdateLookup()
+{
+  if (!this->Lookup)
+    {
+    this->Lookup = new vtkBitArrayLookup();
+    this->Lookup->ZeroArray = vtkIdList::New();
+    this->Lookup->OneArray = vtkIdList::New();
+    }
+  if (this->Lookup->Rebuild)
+    {
+    int numComps = this->GetNumberOfComponents();
+    vtkIdType numTuples = this->GetNumberOfTuples();
+    this->Lookup->ZeroArray->Allocate(numComps*numTuples);
+    this->Lookup->OneArray->Allocate(numComps*numTuples);
+    for (vtkIdType i = 0; i < numComps*numTuples; i++)
+      {
+      if (this->GetValue(i))
+        {
+        this->Lookup->OneArray->InsertNextId(i);
+        }
+      else
+        {
+        this->Lookup->ZeroArray->InsertNextId(i);
+        }
+      }
+    this->Lookup->Rebuild = false;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBitArray::LookupValue(vtkVariant var)
+{
+  return this->LookupValue(var.ToInt());
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::LookupValue(vtkVariant var, vtkIdList* ids)
+{
+  this->LookupValue(var.ToInt(), ids);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBitArray::LookupValue(int value)
+{
+  this->UpdateLookup();
+  
+  if (value == 1 && this->Lookup->OneArray->GetNumberOfIds() > 0)
+    {
+    return this->Lookup->OneArray->GetId(0);
+    }
+  else if (value == 0 && this->Lookup->ZeroArray->GetNumberOfIds() > 0)
+    {
+    return this->Lookup->ZeroArray->GetId(0);
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::LookupValue(int value, vtkIdList* ids)
+{
+  this->UpdateLookup();
+  
+  if (value == 1)
+    {
+    ids->DeepCopy(this->Lookup->OneArray);
+    }
+  else if (value == 0)
+    {
+    ids->DeepCopy(this->Lookup->ZeroArray);
+    }
+  else
+    {
+    ids->Reset();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::DataChanged()
+{
+  if (this->Lookup)
+    {
+    this->Lookup->Rebuild = true;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::ClearLookup()
+{
+  if (this->Lookup)
+    {
+    delete this->Lookup;
+    this->Lookup = NULL;
+    }
 }

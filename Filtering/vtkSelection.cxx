@@ -15,6 +15,7 @@
 #include "vtkSelection.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkFieldData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -25,16 +26,13 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.17");
+vtkCxxRevisionMacro(vtkSelection, "1.18");
 vtkStandardNewMacro(vtkSelection);
-
-vtkCxxSetObjectMacro(vtkSelection, SelectionList, vtkAbstractArray);
-vtkCxxSetObjectMacro(vtkSelection, AuxiliaryData1, vtkAbstractArray);
-vtkCxxSetObjectMacro(vtkSelection, AuxiliaryData2, vtkAbstractArray);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelection,SOURCE,ObjectBase);
@@ -45,7 +43,6 @@ vtkInformationKeyMacro(vtkSelection,PROCESS_ID,Integer);
 vtkInformationKeyMacro(vtkSelection,GROUP,Integer);
 vtkInformationKeyMacro(vtkSelection,BLOCK,Integer);
 vtkInformationKeyMacro(vtkSelection,FIELD_TYPE,Integer);
-vtkInformationKeyMacro(vtkSelection,ARRAY_NAME,String);
 vtkInformationKeyMacro(vtkSelection,EPSILON,Double);
 vtkInformationKeyMacro(vtkSelection,PRESERVE_TOPOLOGY,Integer);
 vtkInformationKeyMacro(vtkSelection,CONTAINING_CELLS,Integer);
@@ -64,9 +61,6 @@ struct vtkSelectionInternals
 vtkSelection::vtkSelection()
 {
   this->Internal = new vtkSelectionInternals;
-  this->SelectionList = 0;
-  this->AuxiliaryData1 = 0;
-  this->AuxiliaryData2 = 0;
   this->ParentNode = 0;
   this->Properties = vtkInformation::New();
 
@@ -80,18 +74,6 @@ vtkSelection::vtkSelection()
 vtkSelection::~vtkSelection()
 {
   delete this->Internal;
-  if (this->SelectionList)
-    {
-    this->SelectionList->Delete();
-    }
-  if (this->AuxiliaryData1)
-    {
-    this->AuxiliaryData1->Delete();
-    }
-  if (this->AuxiliaryData2)
-    {
-    this->AuxiliaryData2->Delete();
-    }
   this->ParentNode = 0;
   this->Properties->Delete();
 }
@@ -110,24 +92,30 @@ void vtkSelection::Clear()
 {
   delete this->Internal;
   this->Internal = new vtkSelectionInternals;
-  if (this->SelectionList)
-    {
-    this->SelectionList->Delete();
-    }
-  this->SelectionList = 0;
-  if (this->AuxiliaryData1)
-    {
-    this->AuxiliaryData1->Delete();
-    }
-  this->AuxiliaryData2 = 0;
-  if (this->AuxiliaryData2)
-    {
-    this->AuxiliaryData2->Delete();
-    }
-  this->AuxiliaryData2 = 0;
   this->Properties->Clear();
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractArray* vtkSelection::GetSelectionList()
+{
+  if (this->FieldData && this->FieldData->GetNumberOfArrays() > 0)
+    {
+    return this->FieldData->GetAbstractArray(0);
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::SetSelectionList(vtkAbstractArray* arr)
+{
+  if (!this->FieldData)
+    {
+    this->FieldData = vtkFieldData::New();
+    }
+  this->FieldData->Initialize();
+  this->FieldData->AddArray(arr);  
 }
 
 //----------------------------------------------------------------------------
@@ -224,51 +212,6 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "SelectionList :";
-  if (this->SelectionList)
-    {
-    this->SelectionList->PrintSelf(os, indent.GetNextIndent());
-/*    
-    vtkDataArray *da = vtkDataArray::SafeDownCast(this->SelectionList);
-    if (da)
-      {
-      vtkIdType c = da->GetNumberOfComponents();
-      vtkIdType t = da->GetNumberOfTuples();
-      for (int i = 0; i < t; i++)
-        {
-        for (int j = 0; j < c; j++)
-          {
-          os << indent <<  da->GetComponent(i,j) << " ";
-          }
-        os << endl;
-        }
-      }
-*/     
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-
-  os << indent << "AuxiliaryData1 :";
-  if (this->AuxiliaryData1)
-    {
-    this->AuxiliaryData1->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-  os << indent << "AuxiliaryData2 :";
-  if (this->AuxiliaryData2)
-    {
-    this->AuxiliaryData2->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-
   os << indent << "Properties:";
   if (this->Properties)
     {
@@ -310,10 +253,10 @@ void vtkSelection::ShallowCopy(vtkDataObject* src)
     }
   
   this->Initialize();
+  
+  this->Superclass::ShallowCopy(src);
+  
   this->Properties->Copy(input->Properties, 0);
-  this->SetSelectionList(input->SelectionList);
-  this->SetAuxiliaryData1(input->AuxiliaryData1);
-  this->SetAuxiliaryData2(input->AuxiliaryData2);
 
   unsigned int numChildren = input->GetNumberOfChildren();
   for (unsigned int i=0; i<numChildren; i++)
@@ -336,22 +279,9 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
     return;
     }
 
+  this->Superclass::DeepCopy(src);
+  
   this->Properties->Copy(input->Properties, 1);
-  if (input->SelectionList)
-    {
-    this->SelectionList = input->SelectionList->NewInstance();
-    this->SelectionList->DeepCopy(input->SelectionList);
-    }
-  if (input->AuxiliaryData1)
-    {
-    this->AuxiliaryData1 = input->AuxiliaryData1->NewInstance();
-    this->AuxiliaryData1->DeepCopy(input->AuxiliaryData1);
-    }
-  if (input->AuxiliaryData2)
-    {
-    this->AuxiliaryData2 = input->AuxiliaryData2->NewInstance();
-    this->AuxiliaryData2->DeepCopy(input->AuxiliaryData2);
-    }
 
   unsigned int numChildren = input->GetNumberOfChildren();
   for (unsigned int i=0; i<numChildren; i++)
@@ -430,22 +360,6 @@ int vtkSelection::GetFieldType()
     return this->GetProperties()->Get(vtkSelection::FIELD_TYPE());
     }
   return -1;
-}
-
-//----------------------------------------------------------------------------
-void vtkSelection::SetArrayName(const char* name)
-{
-  this->GetProperties()->Set(vtkSelection::ARRAY_NAME(), name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkSelection::GetArrayName()
-{
-  if (this->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
-    {
-    return this->GetProperties()->Get(vtkSelection::ARRAY_NAME());
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -31,6 +31,8 @@
 #include "vtkAbstractArray.h"
 #include "vtkVariant.h" // For variant type
 
+class vtkVariantArrayLookup;
+
 class VTK_COMMON_EXPORT vtkVariantArray : public vtkAbstractArray
 {
 public:
@@ -208,6 +210,28 @@ public:
   // Return the number of values in the array.
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
+  //BTX
+  // Description:
+  // Return the indices where a specific value appears.
+  virtual vtkIdType LookupValue(vtkVariant value);
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  //ETX
+  
+  // Description:
+  // Tell the array explicitly that the data has changed.
+  // This is only necessary to call when you modify the array contents
+  // without using the array's API (i.e. you retrieve a pointer to the
+  // data and modify the array contents).  You need to call this so that
+  // the fast lookup will know to rebuild itself.  Otherwise, the lookup
+  // functions will give incorrect results.
+  virtual void DataChanged();
+  
+  // Description:
+  // Delete the associated fast lookup data structure on this array,
+  // if it exists.  The lookup will be rebuilt on the next call to a lookup
+  // function.
+  virtual void ClearLookup();
+  
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkVariantArray(vtkIdType numComp=1);
@@ -218,7 +242,7 @@ protected:
   vtkVariant* Array;
 
   // Function to resize data
-  vtkVariant* ResizeAndExtend(vtkIdType sz);  
+  vtkVariant* ResizeAndExtend(vtkIdType sz);
   //ETX
 
   int SaveUserArray;
@@ -226,6 +250,11 @@ protected:
 private:
   vtkVariantArray(const vtkVariantArray&);  // Not implemented.
   void operator=(const vtkVariantArray&);  // Not implemented.
+
+  //BTX
+  vtkVariantArrayLookup* Lookup;
+  void UpdateLookup();
+  //ETX
 };
 
 #endif

@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     RGrid.cxx
     TestAppendSelection.cxx
     TestClipHyperOctree.cxx
+    TestConvertSelection.cxx
     TestDelaunay2D.cxx
     TestExtraction.cxx
     TestExtractSelection.cxx
@@ -20,7 +21,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
-    TestSortDataArray.cxx
     TestTessellator.cxx
     )
   IF (VTK_DATA_ROOT)

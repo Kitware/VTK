@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.12");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -198,11 +198,10 @@ int vtkExtractSelectedThresholds::ExtractCells(
   vtkDataArray *inScalars = NULL;
   if (usePointScalars)
     {
-    if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    if (sel->GetSelectionList()->GetName())
       {
       inScalars = input->GetPointData()->GetArray(
-        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        );      
+        sel->GetSelectionList()->GetName());
       }
     else
       {
@@ -211,11 +210,10 @@ int vtkExtractSelectedThresholds::ExtractCells(
     }
   else
     {
-    if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+    if (sel->GetSelectionList()->GetName())
       {
       inScalars = input->GetCellData()->GetArray(
-        sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-        );      
+        sel->GetSelectionList()->GetName());
       }
     else
       {
@@ -424,11 +422,10 @@ int vtkExtractSelectedThresholds::ExtractPoints(
 
   //find out what array we are suppose to threshold in
   vtkDataArray *inScalars = NULL;
-  if (sel->GetProperties()->Has(vtkSelection::ARRAY_NAME()))
+  if (sel->GetSelectionList()->GetName())
     {
     inScalars = input->GetPointData()->GetArray(
-      sel->GetProperties()->Get(vtkSelection::ARRAY_NAME())
-      );      
+      sel->GetSelectionList()->GetName());
     }
   else
     {

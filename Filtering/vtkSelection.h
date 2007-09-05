@@ -51,9 +51,11 @@
 
 //BTX
 class vtkAbstractArray;
+class vtkFieldData;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
+class vtkTable;
 struct vtkSelectionInternals;
 //ETX
 
@@ -78,26 +80,16 @@ public:
 
   // Description:
   // Returns the selection list.
-  vtkGetObjectMacro(SelectionList, vtkAbstractArray);
+  virtual vtkAbstractArray* GetSelectionList();
 
   // Description:
-  // Sets the first auxiliary data array
-  virtual void SetAuxiliaryData1(vtkAbstractArray*);
-
+  // Sets the selection table.
+  virtual void SetSelectionData(vtkFieldData* data) { this->SetFieldData(data); }
+  
   // Description:
-  // Returns the first auxiliary data array
-  // For surface vertex selection these are cell vertex pointers into aux2.
-  vtkGetObjectMacro(AuxiliaryData1, vtkAbstractArray);
-
-  // Description:
-  // Sets the second auxiliary data array
-  // For surface vertex selection this holds lists of visible vertex indices.
-  virtual void SetAuxiliaryData2(vtkAbstractArray*);
-
-  // Description:
-  // Returns the second auxiliary data array
-  vtkGetObjectMacro(AuxiliaryData2, vtkAbstractArray);
-
+  // Returns the selection table.
+  virtual vtkFieldData* GetSelectionData() { return this->GetFieldData(); }
+  
   // Description:
   // Returns the property map.
   vtkGetObjectMacro(Properties, vtkInformation);
@@ -201,6 +193,10 @@ public:
     THRESHOLDS
   };
 //ETX
+  
+  // Description:
+  // Get or set the content type of the selection.
+  // This is the same as setting the CONTENT_TYPE() key on the property.
   virtual void SetContentType(int type);
   virtual int GetContentType();
 
@@ -213,19 +209,17 @@ public:
   enum SelectionField
   {
     CELL,
-    POINT
+    POINT,
+    NONE
   };
 //ETX
+  
+  // Description:
+  // Get or set the field type of the selection.
+  // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
-
-  // Description:
-  // The name of the array the selection came from.
-  // GetArrayName() returns null if the array name is not set.
-  static vtkInformationStringKey* ARRAY_NAME();
-  virtual void SetArrayName(const char* name);
-  virtual const char* GetArrayName();
-
+  
   // Description:
   // For location selection of points, if distance is greater than this reject.
   static vtkInformationDoubleKey* EPSILON();
@@ -303,9 +297,6 @@ protected:
   ~vtkSelection();
 
   vtkInformation* Properties;
-  vtkAbstractArray* SelectionList;
-  vtkAbstractArray* AuxiliaryData1;
-  vtkAbstractArray* AuxiliaryData2;
   vtkSelection* ParentNode;
 
 private:

@@ -30,6 +30,16 @@
 
 #include "vtksys/ios/sstream"
 
+// Implementation of vtkVariant's less than operation
+bool vtkVariantLessThan::operator()(vtkVariant s1, vtkVariant s2) const
+{
+  if (s1.IsString() && s2.IsString())
+    {
+    return s1.ToString() < s2.ToString();
+    }
+  return s1.ToDouble() < s2.ToDouble();
+}
+
 vtkVariant::vtkVariant()
 {
   this->Valid = 0;
@@ -105,6 +115,41 @@ vtkVariant::~vtkVariant()
         break;
       }
     }
+}
+
+vtkVariant::vtkVariant(char value)
+{
+  this->Data.Char = value;
+  this->Valid = 1;
+  this->Type = VTK_CHAR;
+}
+
+vtkVariant::vtkVariant(unsigned char value)
+{
+  this->Data.UnsignedChar = value;
+  this->Valid = 1;
+  this->Type = VTK_UNSIGNED_CHAR;
+}
+
+vtkVariant::vtkVariant(signed char value)
+{
+  this->Data.SignedChar = value;
+  this->Valid = 1;
+  this->Type = VTK_SIGNED_CHAR;
+}
+
+vtkVariant::vtkVariant(short value)
+{
+  this->Data.Short = value;
+  this->Valid = 1;
+  this->Type = VTK_SHORT;
+}
+
+vtkVariant::vtkVariant(unsigned short value)
+{
+  this->Data.UnsignedShort = value;
+  this->Valid = 1;
+  this->Type = VTK_UNSIGNED_SHORT;
 }
 
 vtkVariant::vtkVariant(int value)
@@ -216,6 +261,11 @@ bool vtkVariant::IsNumeric() const
 {
   return this->IsFloat() 
     || this->IsDouble() 
+    || this->IsChar()
+    || this->IsUnsignedChar()
+    || this->IsSignedChar()
+    || this->IsShort()
+    || this->IsUnsignedShort()
     || this->IsInt() 
     || this->IsUnsignedInt()
     || this->IsLong() 
@@ -234,6 +284,31 @@ bool vtkVariant::IsFloat() const
 bool vtkVariant::IsDouble() const
 {
   return this->Type == VTK_DOUBLE;
+}
+
+bool vtkVariant::IsChar() const
+{
+  return this->Type == VTK_CHAR;
+}
+
+bool vtkVariant::IsUnsignedChar() const
+{
+  return this->Type == VTK_UNSIGNED_CHAR;
+}
+
+bool vtkVariant::IsSignedChar() const
+{
+  return this->Type == VTK_SIGNED_CHAR;
+}
+
+bool vtkVariant::IsShort() const
+{
+  return this->Type == VTK_SHORT;
+}
+
+bool vtkVariant::IsUnsignedShort() const
+{
+  return this->Type == VTK_UNSIGNED_SHORT;
 }
 
 bool vtkVariant::IsInt() const
@@ -340,6 +415,36 @@ vtkStdString vtkVariant::ToString() const
     ostr << this->Data.Double;
     return vtkStdString(ostr.str());
     }
+  if (this->IsChar())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.Char;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsUnsignedChar())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.UnsignedChar;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsSignedChar())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.SignedChar;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsShort())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.Short;
+    return vtkStdString(ostr.str());
+    }
+  if (this->IsUnsignedShort())
+    {
+    vtksys_ios::ostringstream ostr;
+    ostr << this->Data.UnsignedShort;
+    return vtkStdString(ostr.str());
+    }
   if (this->IsInt())
     {
     vtksys_ios::ostringstream ostr;
@@ -417,6 +522,31 @@ float vtkVariant::ToFloat(bool* valid) const
 double vtkVariant::ToDouble(bool* valid) const
 {
   return this->ToNumeric(valid, (double *)0);
+}
+
+char vtkVariant::ToChar(bool* valid) const
+{
+  return this->ToNumeric(valid, (char *)0);
+}
+
+unsigned char vtkVariant::ToUnsignedChar(bool* valid) const
+{
+  return this->ToNumeric(valid, (unsigned char *)0);
+}
+
+signed char vtkVariant::ToSignedChar(bool* valid) const
+{
+  return this->ToNumeric(valid, (signed char *)0);
+}
+
+short vtkVariant::ToShort(bool* valid) const
+{
+  return this->ToNumeric(valid, (short *)0);
+}
+
+unsigned short vtkVariant::ToUnsignedShort(bool* valid) const
+{
+  return this->ToNumeric(valid, (unsigned short *)0);
 }
 
 int vtkVariant::ToInt(bool* valid) const
@@ -526,6 +656,26 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
   if (this->IsDouble())
     {
     return static_cast<T>(this->Data.Double);
+    }
+  if (this->IsChar())
+    {
+    return static_cast<T>(this->Data.Char);
+    }
+  if (this->IsUnsignedChar())
+    {
+    return static_cast<T>(this->Data.UnsignedChar);
+    }
+  if (this->IsSignedChar())
+    {
+    return static_cast<T>(this->Data.SignedChar);
+    }
+  if (this->IsShort())
+    {
+    return static_cast<T>(this->Data.Short);
+    }
+  if (this->IsUnsignedShort())
+    {
+    return static_cast<T>(this->Data.UnsignedShort);
     }
   if (this->IsInt())
     {

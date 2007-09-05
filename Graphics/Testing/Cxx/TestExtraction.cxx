@@ -593,9 +593,8 @@ int TestExtraction(int argc, char *argv[])
   sel->Clear();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
-  sel->GetProperties()->Set(
-    vtkSelection::ARRAY_NAME(), "Reverse Cell Ids");
   cellIds = vtkIdTypeArray::New();
+  cellIds->SetName("Reverse Cell Ids");
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
   cellIds->SetTuple1(0,  9); //just passed last -miss
@@ -647,9 +646,8 @@ int TestExtraction(int argc, char *argv[])
     vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
   sel->GetProperties()->Set(
     vtkSelection::FIELD_TYPE(), vtkSelection::POINT);  
-  sel->GetProperties()->Set(
-    vtkSelection::ARRAY_NAME(), "Reverse Point Ids");
   pointIds = vtkIdTypeArray::New();
+  pointIds->SetName("Reverse Point Ids");
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
   pointIds->SetTuple1(0,  9);  //just beyond last -miss

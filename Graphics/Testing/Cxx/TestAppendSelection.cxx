@@ -30,6 +30,10 @@ int SelectionCompare(
   vtkSelection* b)
 {
   int errors = 0;
+  vtkIdTypeArray* alist = vtkIdTypeArray::SafeDownCast(
+    a->GetSelectionList());
+  vtkIdTypeArray* blist = vtkIdTypeArray::SafeDownCast(
+    b->GetSelectionList());
   if (a->GetContentType() != b->GetContentType())
     {
     cerr << "ERROR: Content type does not match." << endl;
@@ -37,7 +41,9 @@ int SelectionCompare(
     }
   if (a->GetContentType() == vtkSelection::VALUES)
     {
-    if (strcmp(a->GetArrayName(), b->GetArrayName()))
+    if (!alist->GetName() || 
+        !blist->GetName() || 
+        strcmp(alist->GetName(), blist->GetName()))
       {
       cerr << "ERROR: The array names do not match." << endl;
       }
@@ -47,10 +53,6 @@ int SelectionCompare(
     cerr << "ERROR: Field type does not match." << endl;
     errors++;
     }
-  vtkIdTypeArray* alist = vtkIdTypeArray::SafeDownCast(
-    a->GetSelectionList());
-  vtkIdTypeArray* blist = vtkIdTypeArray::SafeDownCast(
-    b->GetSelectionList());
   if ((alist && !blist) || (!alist && blist))
     {
     cerr << "ERROR: One has a selection list while the other does not." << endl;
@@ -144,8 +146,8 @@ int TestAppendSelection(int, char*[])
   cerr << "Testing appending value selections ..." << endl;
   VTK_CREATE(vtkSelection, sel1);
   VTK_CREATE(vtkIdTypeArray, sel1Arr);
+  sel1Arr->SetName("arrayname");
   sel1->SetContentType(vtkSelection::VALUES);
-  sel1->SetArrayName("arrayname");
   sel1->SetFieldType(vtkSelection::CELL);
   sel1->SetSelectionList(sel1Arr);
   sel1Arr->InsertNextValue(0);
@@ -153,8 +155,8 @@ int TestAppendSelection(int, char*[])
   sel1Arr->InsertNextValue(2);
   VTK_CREATE(vtkSelection, sel2);
   VTK_CREATE(vtkIdTypeArray, sel2Arr);
+  sel2Arr->SetName("arrayname");
   sel2->SetContentType(vtkSelection::VALUES);
-  sel2->SetArrayName("arrayname");
   sel2->SetFieldType(vtkSelection::CELL);
   sel2->SetSelectionList(sel2Arr);
   sel2Arr->InsertNextValue(3);
@@ -162,8 +164,8 @@ int TestAppendSelection(int, char*[])
   sel2Arr->InsertNextValue(5);
   VTK_CREATE(vtkSelection, selAppend);
   VTK_CREATE(vtkIdTypeArray, selAppendArr);
+  selAppendArr->SetName("arrayname");
   selAppend->SetContentType(vtkSelection::VALUES);
-  selAppend->SetArrayName("arrayname");
   selAppend->SetFieldType(vtkSelection::CELL);
   selAppend->SetSelectionList(selAppendArr);
   selAppendArr->InsertNextValue(0);

@@ -130,6 +130,7 @@ vtkScalarsToColors.cxx
 vtkShortArray.cxx
 vtkSignedCharArray.cxx
 vtkSmartPointerBase.cxx
+vtkSortDataArray.cxx
 vtkSphericalTransform.cxx
 vtkStdString.cxx
 vtkStringArray.cxx
