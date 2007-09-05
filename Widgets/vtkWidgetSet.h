@@ -91,7 +91,7 @@
 #define __vtkWidgetSet_h
 
 #include "vtkObject.h"
-#include <vtkstd/vector>
+#include <vtkstd/vector> // Required for vector
 
 class vtkAbstractWidget;
 
