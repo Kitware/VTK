@@ -43,7 +43,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.2");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.3");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -252,10 +252,10 @@ int vtkConvertSelection::Convert(
   if (input->GetContentType() == vtkSelection::VALUES ||
       input->GetContentType() == vtkSelection::THRESHOLDS)
     {
-    vtkFieldData* data = input->GetSelectionData();
-    for (int i = 0; i < data->GetNumberOfArrays(); i++)
+    vtkFieldData* selData = input->GetSelectionData();
+    for (int i = 0; i < selData->GetNumberOfArrays(); i++)
       {
-      if (!data->GetAbstractArray(i)->GetName())
+      if (!selData->GetAbstractArray(i)->GetName())
         {
         vtkErrorMacro("Array name must be specified for values or thresholds selection.");
         return 0;
@@ -287,10 +287,10 @@ int vtkConvertSelection::Convert(
       this->ArrayNames->GetNumberOfValues() == input->GetSelectionData()->GetNumberOfArrays())
     {
     bool same = true;
-    vtkFieldData* data = input->GetSelectionData();
-    for (int i = 0; i < data->GetNumberOfArrays(); i++)
+    vtkFieldData* selData = input->GetSelectionData();
+    for (int i = 0; i < selData->GetNumberOfArrays(); i++)
       {
-      if (strcmp(data->GetAbstractArray(i)->GetName(), this->ArrayNames->GetValue(i)))
+      if (strcmp(selData->GetAbstractArray(i)->GetName(), this->ArrayNames->GetValue(i)))
         {
         same = false;
         break;
