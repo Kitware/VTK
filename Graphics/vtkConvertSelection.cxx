@@ -36,6 +36,7 @@
 #include "vtkVariantArray.h"
 
 #include <vtksys/stl/algorithm>
+#include <vtksys/stl/iterator>
 #include <vtksys/stl/set>
 
 #define VTK_CREATE(type,name) \
@@ -43,7 +44,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.4");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.5");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -436,8 +437,8 @@ int vtkConvertSelection::Convert(
     switch (selArr->GetDataType())
       {
       vtkTemplateMacro(vtkConvertSelectionLookup(
-        dynamic_cast<vtkDataArrayTemplate<VTK_TT>*>(selArr), 
-        dynamic_cast<vtkDataArrayTemplate<VTK_TT>*>(dataArr),
+        static_cast<vtkDataArrayTemplate<VTK_TT>*>(selArr), 
+        static_cast<vtkDataArrayTemplate<VTK_TT>*>(dataArr),
         indices));
       case VTK_STRING:
         vtkConvertSelectionLookup(

@@ -481,7 +481,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
     
     // Test for correctness
-    vtkIdType correctIndex = arrSize;
+    correctIndex = arrSize;
     for (vtkIdType i = 0; i < numVal; i++)
       {
       correctIndex -= i;
