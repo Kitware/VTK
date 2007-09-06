@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -260,7 +260,7 @@ void vtkFast2DLayoutStrategy::Initialize()
   this->Temp = this->InitialTemperature;
   
   // Set up the image splatter
-  GenerateGaussianSplat(this->SplatImage, 40, 40);
+  GenerateGaussianSplat(this->SplatImage, 41, 41);
   this->DensityGrid->SetInput(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 
@@ -297,8 +297,8 @@ void vtkFast2DLayoutStrategy::Layout()
   float disSquared;
   float attractValue;
   float epsilon = 1e-5;
-  vtkIdType pointIndex1=0;
-  vtkIdType pointIndex2=0;
+  vtkIdType rawSourceIndex=0;
+  vtkIdType rawTargetIndex=0;
   for(int i = 0; i < this->IterationsPerLayout; ++i)
     {
     
@@ -350,14 +350,14 @@ void vtkFast2DLayoutStrategy::Layout()
     float *rawRepulseArray = this->RepulsionArray->GetPointer(0);
     for(vtkIdType j=0; j<numVertices; ++j)
       {
-      pointIndex1 = j * 3;
+      rawSourceIndex = j * 3;
       
       // Compute indices into the density grid
       int indexX = static_cast<int>(
-                   (rawPointData[pointIndex1]-paddedBounds[0]) /
+                   (rawPointData[rawSourceIndex]-paddedBounds[0]) /
                    (paddedBounds[1]-paddedBounds[0]) * dims[0] + .5);
       int indexY = static_cast<int>(
-                   (rawPointData[pointIndex1+1]-paddedBounds[2]) /
+                   (rawPointData[rawSourceIndex+1]-paddedBounds[2]) /
                    (paddedBounds[3]-paddedBounds[2]) * dims[1] + .5);
       
       // Look up the gradient density within the density grid
@@ -366,44 +366,44 @@ void vtkFast2DLayoutStrategy::Layout()
       float y1 = densityArray[(indexY-1) * dims[0] + indexX];
       float y2 = densityArray[(indexY+1) * dims[0] + indexX];
       
-      rawRepulseArray[pointIndex1]   = (x1-x2); // Push away from higher
-      rawRepulseArray[pointIndex1+1] = (y1-y2);    
+      rawRepulseArray[rawSourceIndex]   = (x1-x2); // Push away from higher
+      rawRepulseArray[rawSourceIndex+1] = (y1-y2);    
       }
       
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
       {
-      pointIndex1 = this->EdgeArray[j].to * 3;
-      pointIndex2 = this->EdgeArray[j].from * 3;
+      rawSourceIndex = this->EdgeArray[j].from * 3;
+      rawTargetIndex = this->EdgeArray[j].to * 3;
       
       // No need to attract points to themselves
-      if (pointIndex1 == pointIndex2) continue;
+      if (rawSourceIndex == rawTargetIndex) continue;
       
-      delta[0] = rawPointData[pointIndex1] - 
-             rawPointData[pointIndex2];
-      delta[1] = rawPointData[pointIndex1+1] - 
-              rawPointData[pointIndex2+1];
+      delta[0] = rawPointData[rawSourceIndex] - 
+             rawPointData[rawTargetIndex];
+      delta[1] = rawPointData[rawSourceIndex+1] - 
+              rawPointData[rawTargetIndex+1];
       disSquared = delta[0]*delta[0] + delta[1]*delta[1];
        
       // Perform weight adjustment
       attractValue = this->EdgeArray[j].weight*disSquared-this->RestDistance;
 
-      rawAttractArray[pointIndex1]   -= delta[0] * attractValue;
-      rawAttractArray[pointIndex1+1] -= delta[1] * attractValue;
-      rawAttractArray[pointIndex2]   += delta[0] * attractValue;
-      rawAttractArray[pointIndex2+1] += delta[1] * attractValue;
+      rawAttractArray[rawSourceIndex]   -= delta[0] * attractValue;
+      rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
+      rawAttractArray[rawTargetIndex]   += delta[0] * attractValue;
+      rawAttractArray[rawTargetIndex+1] += delta[1] * attractValue;
       }
       
     // Okay now set new positions based on replusion 
     // and attraction 'forces'
     for(vtkIdType j=0; j<numVertices; ++j)
       {
-      pointIndex1 = j * 3;
+      rawSourceIndex = j * 3;
       
       // Get forces for this node
-      float forceX = rawAttractArray[pointIndex1] + rawRepulseArray[pointIndex1];
-      float forceY = rawAttractArray[pointIndex1+1] + rawRepulseArray[pointIndex1+1];
+      float forceX = rawAttractArray[rawSourceIndex] + rawRepulseArray[rawSourceIndex];
+      float forceY = rawAttractArray[rawSourceIndex+1] + rawRepulseArray[rawSourceIndex+1];
       
       // Forces can get extreme so limit them
       // Note: This is psuedo-normalization of the
@@ -416,8 +416,8 @@ void vtkFast2DLayoutStrategy::Layout()
       forceX *= pNormalize;
       forceY *= pNormalize;
   
-      rawPointData[pointIndex1] += forceX;
-      rawPointData[pointIndex1+1] += forceY;
+      rawPointData[rawSourceIndex] += forceX;
+      rawPointData[rawSourceIndex+1] += forceY;
       }
       
     // The point coordinates have been modified
