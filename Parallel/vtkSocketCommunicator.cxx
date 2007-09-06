@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.69");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.70");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -69,6 +69,8 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "NotSet\n";
     }
+  os << indent << "IsServer: "
+     << (this->IsServer ? "yes" : "no") << endl;
   os << indent << "RemoteHas64BitIds: "
      << (this->RemoteHas64BitIds ? "yes" : "no") << endl;
   os << indent << "Socket: ";
@@ -1006,7 +1008,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.69 $";
+  const char revision[] = "$Revision: 1.70 $";
   int version;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;

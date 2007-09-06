@@ -16,7 +16,7 @@
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDummyController, "1.5");
+vtkCxxRevisionMacro(vtkDummyController, "1.6");
 vtkStandardNewMacro(vtkDummyController);
 
 vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
@@ -38,6 +38,9 @@ vtkDummyController::~vtkDummyController()
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Communicator: " << this->Communicator << endl;
+  os << indent << "RMICommunicator: " << this->RMICommunicator << endl;
 }
 
 //-----------------------------------------------------------------------------
