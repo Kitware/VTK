@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -67,7 +67,7 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
     
   this->RandomSeed = 123;
   this->MaxNumberOfIterations = 200;
-  this->IterationsPerLayout = 100;
+  this->IterationsPerLayout = 200;
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
