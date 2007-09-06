@@ -993,8 +993,9 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(T value)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   T* ptr = static_cast<T*>(this->Lookup->SortedArray->GetVoidPointer(0));
-  T* found = vtkstd::lower_bound(ptr, ptr + numComps*numTuples, value);
-  if (*found == value)
+  T* ptrEnd = ptr + numComps*numTuples;
+  T* found = vtkstd::lower_bound(ptr, ptrEnd, value);
+  if (found != ptrEnd && *found == value)
     {
     return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
     }

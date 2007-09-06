@@ -68,7 +68,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.7");
+vtkCxxRevisionMacro(vtkVariantArray, "1.8");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -689,12 +689,13 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
+  vtkVariant* ptrEnd = ptr + numComps*numTuples;
   vtkVariant* found = vtkstd::lower_bound(
-    ptr, ptr + numComps*numTuples, value, vtkVariantLessThan());
+    ptr, ptrEnd, value, vtkVariantLessThan());
   
   // Check for equality before returning the value 
   // (i.e. neither is less than the other).
-  if (!vtkVariantLessThan()(*found,value) && !vtkVariantLessThan()(value,*found))
+  if (found != ptrEnd && !vtkVariantLessThan()(*found,value) && !vtkVariantLessThan()(value,*found))
     {
     return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
     }
@@ -711,9 +712,8 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
-  vtkVariantLessThan comp;
   vtkstd::pair<vtkVariant*,vtkVariant*> found = 
-    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value, comp);
+    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value, vtkVariantLessThan());
   
   // Add the indices of the found items to the ID list.
   vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);

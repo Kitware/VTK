@@ -67,7 +67,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.9");
+vtkCxxRevisionMacro(vtkStringArray, "1.10");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -681,8 +681,9 @@ vtkIdType vtkStringArray::LookupValue(vtkStdString value)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
-  vtkStdString* found = vtkstd::lower_bound(ptr, ptr + numComps*numTuples, value);
-  if (*found == value)
+  vtkStdString* ptrEnd = ptr + numComps*numTuples;
+  vtkStdString* found = vtkstd::lower_bound(ptr, ptrEnd, value);
+  if (found != ptrEnd && *found == value)
     {
     return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
     }
