@@ -284,7 +284,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.5");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -368,6 +368,7 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
 
   // Handle looks like a sphere.
   this->HandleRepresentation  = NULL;
+  this->HandleRepresentations = NULL;
   vtkSphereHandleRepresentation * hRep = vtkSphereHandleRepresentation::New();
   this->SetHandleRepresentation(hRep);
   hRep->Delete();
