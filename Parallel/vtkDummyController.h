@@ -53,11 +53,15 @@ public:
 
   // Description:
   // Does nothing.
-  virtual void Barrier() {}
+  virtual void CreateOutputWindow() {}
 
   // Description:
-  // Does nothing.
-  virtual void CreateOutputWindow() {}
+  // If you don't need any special functionality from the controller, you
+  // can swap out the dummy communicator for another one.
+  vtkGetObjectMacro(Communicator, vtkCommunicator);
+  vtkGetObjectMacro(RMICommunicator, vtkCommunicator);
+  virtual void SetCommunicator(vtkCommunicator *);
+  virtual void SetRMICommunicator(vtkCommunicator *);
 
 protected:
   vtkDummyController();

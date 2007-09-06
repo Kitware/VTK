@@ -26,16 +26,16 @@
 // created after this need not call Initialize().
 // At the end of the program Finalize() must be called by all
 // processes. 
-// The use of user-defined communicators are supported with 
-// vtkMPICommunicator and vtkMPIGroup. Note that a duplicate of
-// the user defined communicator is used for internal communications (RMIs).
-// This communicator has the same properties as the user one except that
-// it has a new context which prevents the two communicators from
-// interfering with each other.
+//
+// The use of user-defined communicators are supported with the
+// CreateSubController method.  Note that a duplicate of the user defined
+// communicator is used for internal communications (RMIs).  This communicator
+// has the same properties as the user one except that it has a new context
+// which prevents the two communicators from interfering with each other.
 
 // .SECTION see also
 // vtkOutputPort vtkInputPort  vtkMultiProcessController
-// vtkMPICommunicator vtkMPIGroup
+// vtkMPICommunicator vtkProcessGroup
 
 #ifndef __vtkMPIController_h
 #define __vtkMPIController_h
@@ -91,11 +91,6 @@ public:
   virtual void MultipleMethodExecute();
 
   // Description:
-  // This method can be used to synchronize MPI processes in the
-  // current communicator. This uses the user communicator.
-  void Barrier();
-
-  // Description:
   // This method can be used to tell the controller to create
   // a special output window in which all messages are preceded
   // by the process id.
@@ -116,6 +111,8 @@ public:
   // ANY OTHER PROCESS WILL CAUSE AN MPI ERROR AND POSSIBLY
   // LEAD TO A CRASH.
   void SetCommunicator(vtkMPICommunicator* comm);
+
+  virtual vtkMPIController *CreateSubController(vtkProcessGroup *group);
 
 //BTX
 

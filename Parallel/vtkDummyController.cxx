@@ -16,9 +16,11 @@
 #include "vtkDummyController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDummyController, "1.4");
+vtkCxxRevisionMacro(vtkDummyController, "1.5");
 vtkStandardNewMacro(vtkDummyController);
 
+vtkCxxSetObjectMacro(vtkDummyController, Communicator, vtkCommunicator);
+vtkCxxSetObjectMacro(vtkDummyController, RMICommunicator, vtkCommunicator);
 
 //----------------------------------------------------------------------------
 vtkDummyController::vtkDummyController()
@@ -29,8 +31,8 @@ vtkDummyController::vtkDummyController()
 
 vtkDummyController::~vtkDummyController()
 {
-  this->Communicator->Delete();
-  this->RMICommunicator->Delete();
+  this->SetCommunicator(NULL);
+  this->SetRMICommunicator(NULL);
 }
 
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
@@ -43,8 +45,9 @@ void vtkDummyController::SingleMethodExecute()
 {
   if (this->SingleMethod)
     {
-    // Should we wet the global controller here?  I'm going to say no since
-    // we are not really a parallel job.
+    // Should we set the global controller here?  I'm going to say no since
+    // we are not really a parallel job or at the very least not the global
+    // controller.
 
     (this->SingleMethod)(this, this->SingleData);
     }
@@ -57,15 +60,18 @@ void vtkDummyController::SingleMethodExecute()
 //-----------------------------------------------------------------------------
 void vtkDummyController::MultipleMethodExecute()
 {
-  if (this->MultipleMethod[0])
-    {
-    // Should we wet the global controller here?  I'm going to say no since
-    // we are not really a parallel job.
+  int i = this->GetLocalProcessId();
 
-    (this->MultipleMethod[0])(this, this->MultipleData[0]);
+  if (this->MultipleMethod[i])
+    {
+    // Should we set the global controller here?  I'm going to say no since
+    // we are not really a parallel job or at the very least not the global
+    // controller.
+
+    (this->MultipleMethod[i])(this, this->MultipleData[i]);
     }
   else
     {
-    vtkWarningMacro("MultipleMethod 0 not set.");
+    vtkWarningMacro("MultipleMethod " << i << " not set.");
     }
 }

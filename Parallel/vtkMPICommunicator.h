@@ -28,7 +28,7 @@
 // on any other process.
 
 // .SECTION See Also
-// vtkMPIController vtkMPIGroup
+// vtkMPIController vtkProcessGroup
 
 #ifndef __vtkMPICommunicator_h
 #define __vtkMPICommunicator_h
@@ -37,6 +37,7 @@
 
 class vtkMPIController;
 class vtkMPIGroup;
+class vtkProcessGroup;
 
 class vtkMPICommunicatorOpaqueRequest;
 class vtkMPICommunicatorOpaqueComm;
@@ -58,12 +59,13 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Used to initialize (i.e. create the underlying MPI_Comm)
-  // the communicator. Note that group is also stored in
-  // an instance variable (the reference count of group
-  // is increased by 1). group->Delete() can be safely invoked after 
-  // this.
-  int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group);
+  // Used to initialize the communicator (i.e. create the underlying MPI_Comm).
+  // The group must be associated with a valid vtkMPICommunicator.
+  int Initialize(vtkProcessGroup *group);
+
+  // Description:
+  // DO NOT CALL.  Deprecated in VTK 5.2.
+  VTK_LEGACY(int Initialize(vtkMPICommunicator* mpiComm, vtkMPIGroup* group));
 
   // Description:
   // Performs the actual communication.  You will usually use the convenience
@@ -127,6 +129,7 @@ public:
   // Description:
   // More efficient implementations of collective operations that use
   // the equivalent MPI commands.
+  virtual void Barrier();
   virtual int BroadcastVoidArray(void *data, vtkIdType length, int type,
                                  int srcProcessId);
   virtual int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
@@ -198,8 +201,6 @@ protected:
   vtkMPICommunicator();
   ~vtkMPICommunicator();
 
-  virtual void SetGroup(vtkMPIGroup*);
-
   // Obtain size and rank setting NumberOfProcesses and LocalProcessId Should
   // not be called if the current communicator does not include this process
   int InitializeNumberOfProcesses();
@@ -240,7 +241,6 @@ protected:
   void Duplicate(vtkMPICommunicator* source);
 
   vtkMPICommunicatorOpaqueComm* MPIComm;
-  vtkMPIGroup* Group;
 
   int Initialized;
   int KeepHandle;

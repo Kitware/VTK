@@ -25,6 +25,14 @@
 //     only a vtkMultiProcessController. It does not require MPI.
 //     Users are vtkPKdTree and vtkDistributedDataFilter.
 //
+// .SECTION Note
+// This class will be deprecated soon.  Instead of using this class, use the
+// collective and subgrouping operations now built into
+// vtkMultiProcessController.  The only reason this class is not deprecated
+// already is because vtkPKdTree relies heavily on this class in ways that are
+// not easy to work around.  Since vtkPKdTree is due for a major overhaul
+// anyway, we are leaving things the way they are for now.
+//
 // .SECTION See Also
 //      vtkPKdTree vtkDistributedDataFilter
 

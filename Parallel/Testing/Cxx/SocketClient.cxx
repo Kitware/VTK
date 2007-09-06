@@ -33,22 +33,30 @@
 
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+#include "ExerciseMultiProcessController.h"
+
 static const int scMsgLength = 10;
 
-static void CleanUp(vtkSocketCommunicator* comm, vtkSocketController* contr)
+static void CleanUp(vtkSmartPointer<vtkSocketCommunicator> vtkNotUsed(comm),
+                    vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
 {
   // This will close the connection as well as delete 
   // the communicator
-  comm->Delete();
-  contr->Delete();
+  // Deleting no longer necessary with smart pointers.
+//   comm->Delete();
+//   contr->Delete();
 }
 
 int main(int argc, char** argv)
 {
-  vtkSocketController* contr = vtkSocketController::New();
+  VTK_CREATE(vtkSocketController, contr);
   contr->Initialize();
 
-  vtkSocketCommunicator* comm = vtkSocketCommunicator::New();
+  VTK_CREATE(vtkSocketCommunicator, comm);
 
   int i;
 
@@ -97,8 +105,6 @@ int main(int argc, char** argv)
     {
     cerr << "Client error: Could not connect to the server."
          << endl;
-    comm->Delete();
-    contr->Delete();
     delete[] hostname;
     return 1;
     }
@@ -191,34 +197,29 @@ int main(int argc, char** argv)
     }
 
   // Test receiving vtkDataObject
-  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
+  VTK_CREATE(vtkUnstructuredGrid, ugrid);
 
   if (!comm->Receive(ugrid, 1, 9))
     {
     cerr << "Client error: Error receiving data." << endl;
     CleanUp(comm, contr);
-    ugrid->Delete();
     return 1;
     }
 
-  vtkDataSetMapper* umapper = vtkDataSetMapper::New();
+  VTK_CREATE(vtkDataSetMapper, umapper);
   umapper->SetInput(ugrid);
 
-  vtkActor* uactor = vtkActor::New();
+  VTK_CREATE(vtkActor, uactor);
   uactor->SetMapper(umapper);
   uactor->SetPosition(5, 0, 0);
   uactor->SetScale(0.2, 0.2, 0.2);
-  umapper->UnRegister(0);
 
   // Test receiving vtkDataArray
-  vtkDoubleArray* da = vtkDoubleArray::New();
+  VTK_CREATE(vtkDoubleArray, da);
   if (!comm->Receive(da, 1, 9))
     {
     cerr << "Client error: Error receiving data." << endl;
     CleanUp(comm, contr);
-    ugrid->Delete();
-    uactor->Delete();
-    da->Delete();
     return 1;
     }
   for (i=0; i<40; i++)
@@ -227,24 +228,16 @@ int main(int argc, char** argv)
       {
       cerr << "Server error: Corrupt vtkDoubleArray." << endl;
       CleanUp(comm, contr);
-      ugrid->Delete();
-      uactor->Delete();
-      da->Delete();
       return 1;
       }
     }
 
-  da->Delete();
-
   // Test receiving null vtkDataArray
-  vtkDoubleArray *da2 = vtkDoubleArray::New();
+  VTK_CREATE(vtkDoubleArray, da2);
   if (!comm->Receive(da2, 1, 9))
     {
     cerr << "Client error: Error receiving data." << endl;
     CleanUp(comm, contr);
-    ugrid->Delete();
-    uactor->Delete();
-    da2->Delete();
     return 1;
     }
   if (da2->GetNumberOfTuples() == 0) 
@@ -255,7 +248,6 @@ int main(int argc, char** argv)
     {
     cout << "receive null data array failed" << endl;
     }
-  da2->Delete();
 
   contr->SetCommunicator(comm);
 
@@ -267,79 +259,76 @@ int main(int argc, char** argv)
   contr->Barrier();
   contr->Finalize();
 
-  vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  vtkPolyData* pd = vtkPolyData::New();
+  // Run the socket through the standard controller tests.  We have to make a
+  // compliant controller first.
+  int retVal;
+  vtkMultiProcessController *compliantController
+    = contr->CreateCompliantController();
+  retVal = ExerciseMultiProcessController(compliantController);
+  compliantController->Delete();
+  if (retVal)
+    {
+    CleanUp(comm, contr);
+    return retVal;
+    }
+
+  VTK_CREATE(vtkPolyDataMapper, pmapper);
+  VTK_CREATE(vtkPolyData, pd);
   comm->Receive(pd, 1, 11);
   pmapper->SetInput(pd);
-  pd->Delete();
 
-  vtkActor* pactor = vtkActor::New();
+  VTK_CREATE(vtkActor, pactor);
   pactor->SetMapper(pmapper);
-  pmapper->UnRegister(0);
 
-  vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
-  vtkRectilinearGrid* rg = vtkRectilinearGrid::New();
+  VTK_CREATE(vtkDataSetMapper, rgmapper);
+  VTK_CREATE(vtkRectilinearGrid, rg);
   comm->Receive(rg, 1, 11);
   rgmapper->SetInput(rg);
-  rg->Delete();
 
-  vtkActor* rgactor = vtkActor::New();
+  VTK_CREATE(vtkActor, rgactor);
   rgactor->SetMapper(rgmapper);
   rgactor->SetPosition(0, -5, 0);
   rgactor->SetScale(2, 2, 2);
-  rgmapper->UnRegister(0);
 
-  vtkContourFilter* iso2 = vtkContourFilter::New();
-  vtkStructuredGrid* sg = vtkStructuredGrid::New();
+  VTK_CREATE(vtkContourFilter, iso2);
+  VTK_CREATE(vtkStructuredGrid, sg);
   comm->Receive(sg, 1, 11);
   iso2->SetInput(sg);
-  sg->Delete();
   iso2->SetValue(0, .205);
 
-  vtkPolyDataMapper* sgmapper = vtkPolyDataMapper::New();
+  VTK_CREATE(vtkPolyDataMapper, sgmapper);
   sgmapper->SetInputConnection(0, iso2->GetOutputPort());
-  iso2->UnRegister(0);
 
-  vtkActor* sgactor = vtkActor::New();
+  VTK_CREATE(vtkActor, sgactor);
   sgactor->SetMapper(sgmapper);
   sgactor->SetPosition(10, -5, -40);
-  sgmapper->UnRegister(0);
 
 
-  vtkImageData* id = vtkImageData::New();
+  VTK_CREATE(vtkImageData, id);
   comm->Receive(id, 1, 11);
 
-  vtkImageActor* imactor = vtkImageActor::New();
+  VTK_CREATE(vtkImageActor, imactor);
   imactor->SetInput(id);
-  id->Delete();
   imactor->SetPosition(10, 0, 10);
   imactor->SetScale(0.02, 0.02, 0.02);
 
-  vtkRenderer* ren = vtkRenderer::New();
+  VTK_CREATE(vtkRenderer, ren);
   ren->AddActor(uactor);
   ren->AddActor(pactor);
   ren->AddActor(rgactor);
   ren->AddActor(sgactor);
   ren->AddActor(imactor);
-  uactor->UnRegister(0);
-  pactor->UnRegister(0);
-  rgactor->UnRegister(0);
-  sgactor->UnRegister(0);
-  imactor->UnRegister(0);
 
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  VTK_CREATE(vtkRenderWindow, renWin);
   renWin->SetSize(500,400);
   renWin->AddRenderer(ren);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(2.2);
-  ren->UnRegister(0);
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  retVal = vtkRegressionTestImage( renWin );
 
-  renWin->Delete();
-  ugrid->Delete();
   CleanUp(comm, contr);
 
   return !retVal;

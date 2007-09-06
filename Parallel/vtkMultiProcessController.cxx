@@ -15,6 +15,8 @@
 // This will be the default.
 #include "vtkMultiProcessController.h"
 #include "vtkDummyController.h"
+#include "vtkProcessGroup.h"
+#include "vtkSubCommunicator.h"
 #include "vtkToolkits.h"
 
 #ifdef VTK_USE_MPI
@@ -51,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.28");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.29");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.28");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.29");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -241,6 +243,38 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
     this->MultipleMethod[index] = f;
     this->MultipleData[index]   = data;
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkMultiProcessController *vtkMultiProcessController::CreateSubController(
+                                                         vtkProcessGroup *group)
+{
+  if (group->GetCommunicator() != this->Communicator)
+    {
+    vtkErrorMacro(<< "Invalid group for creating a sub controller.");
+    return NULL;
+    }
+
+  if (group->FindProcessId(this->GetLocalProcessId()) < 0)
+    {
+    // The group does not contain this process.  Just return NULL.
+    return NULL;
+    }
+
+  vtkSubCommunicator *subcomm = vtkSubCommunicator::New();
+  subcomm->SetGroup(group);
+
+  // We only need a basic implementation of vtkMultiProcessController for the
+  // subgroup, so we just use vtkDummyController here.  It's a bit of a misnomer
+  // and may lead to confusion, but I think it's better than creating yet
+  // another class we have to maintain.
+  vtkDummyController *subcontroller = vtkDummyController::New();
+  subcontroller->SetCommunicator(subcomm);
+  subcontroller->SetRMICommunicator(subcomm);
+
+  subcomm->Delete();
+
+  return subcontroller;
 }
 
 //----------------------------------------------------------------------------

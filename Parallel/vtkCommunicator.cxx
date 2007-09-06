@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.43");
+vtkCxxRevisionMacro(vtkCommunicator, "1.44");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -837,6 +837,24 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
 // reason to work on creating a really good implementation here.
 
 //-----------------------------------------------------------------------------
+void vtkCommunicator::Barrier()
+{
+  int junk = 0;
+  if (this->LocalProcessId == 0)
+    {
+    for (int i = 1; i < this->NumberOfProcesses; i++)
+      {
+      this->Receive(&junk, 1, i, BARRIER_TAG);
+      }
+    }
+  else
+    {
+    this->Send(&junk, 1, 0, BARRIER_TAG);
+    }
+  this->Broadcast(&junk, 1, 0);
+}
+
+//-----------------------------------------------------------------------------
 int vtkCommunicator::BroadcastVoidArray(void *data, vtkIdType length,
                                                   int type, int srcProcessId)
 {
@@ -1145,7 +1163,7 @@ int vtkCommunicator::ScatterVVoidArray(const void *sendBuffer,
       if (this->LocalProcessId != i)
         {
         result &= this->SendVoidArray(src + offsets[i]*typeSize,
-                                      sendLengths[i]*typeSize,
+                                      sendLengths[i],
                                       type, i, SCATTERV_TAG);
         }
       }

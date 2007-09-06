@@ -59,6 +59,7 @@ vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPipelineSize.cxx
 vtkProcessIdScalars.cxx
+vtkProcessGroup.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkServerSocket.cxx
@@ -66,6 +67,7 @@ vtkSocket.cxx
 vtkSocketCollection.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
+vtkSubCommunicator.cxx
 vtkSubGroup.cxx
 vtkTemporalFractal.cxx
 vtkTemporalInterpolatedVelocityField.cxx
@@ -100,10 +102,26 @@ IF (VTK_USE_MPI)
     ${Kit_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
-    vtkMPIGroup.cxx)
+    )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
 ENDIF (VTK_USE_MPI)
+
+IF (NOT VTK_LEGACY_REMOVE)
+  SET(Kit_Deprecated_SRCS
+    )
+  IF (VTK_USE_MPI)
+    SET(Kit_Deprecated_SRCS ${Kit_Deprecated_SRCS}
+      vtkMPIGroup.cxx
+      )
+  ENDIF (VTK_USE_MPI)
+  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
+  IF (CMAKE_COMPILER_IS_GNUCXX)
+    SET_SOURCE_FILES_PROPERTIES(${Kit_Deprecated_SRCS}
+      PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations
+      )
+  ENDIF (CMAKE_COMPILER_IS_GNUCXX)
+ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF (VTK_USE_MPI) 
   IF (MPI_LIBRARY) 

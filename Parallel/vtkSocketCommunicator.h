@@ -95,6 +95,46 @@ public:
                                int remoteHandle, int tag);
 
   // Description:
+  // This class foolishly breaks the conventions of the superclass, so this
+  // overload fixes the method.
+  virtual void Barrier();
+
+  // Description:
+  // This class foolishly breaks the conventions of the superclass, so the
+  // default implementations of these methods do not work.  These just give
+  // errors instead.
+  virtual int BroadcastVoidArray(void *data, vtkIdType length, int type,
+                                 int srcProcessId);
+  virtual int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type, int destProcessId);
+  virtual int GatherVVoidArray(const void *sendBuffer, void *recvBuffer,
+                               vtkIdType sendLength, vtkIdType *recvLengths,
+                               vtkIdType *offsets, int type, int destProcessId);
+  virtual int ScatterVoidArray(const void *sendBuffer, void *recvBuffer,
+                               vtkIdType length, int type, int srcProcessId);
+  virtual int ScatterVVoidArray(const void *sendBuffer, void *recvBuffer,
+                                vtkIdType *sendLengths, vtkIdType *offsets,
+                                vtkIdType recvLength, int type,
+                                int srcProcessId);
+  virtual int AllGatherVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type);
+  virtual int AllGatherVVoidArray(const void *sendBuffer, void *recvBuffer,
+                                  vtkIdType sendLength, vtkIdType *recvLengths,
+                                  vtkIdType *offsets, int type);
+  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type,
+                              int operation, int destProcessId);
+  virtual int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                              vtkIdType length, int type,
+                              Operation *operation, int destProcessId);
+  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type,
+                                 int operation);
+  virtual int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
+                                 vtkIdType length, int type,
+                                 Operation *operation);
+
+  // Description:
   // Set or get the PerformHandshake ivar. If it is on, the communicator
   // will try to perform a handshake when connected.
   // It is on by default.
@@ -137,6 +177,11 @@ public:
   int ClientSideHandshake();
 
   // Description:
+  // Returns true if this side of the socket is the server.  The result
+  // is invalid if the socket is not connected.
+  vtkGetMacro(IsServer, int);
+
+  // Description:
   // Uniquely identifies the version of this class.  If the versions match,
   // then the socket communicators should be compatible.
   static int GetVersion();
@@ -146,6 +191,7 @@ protected:
   int SwapBytesInReceivedData;
   int RemoteHas64BitIds;
   int PerformHandshake;
+  int IsServer;
   
   int ReportErrors;
 

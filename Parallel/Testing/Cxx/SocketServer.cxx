@@ -29,21 +29,29 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+#include "ExerciseMultiProcessController.h"
+
 static const int scMsgLength = 10;
 
-static void CleanUp(vtkSocketCommunicator* comm, vtkSocketController* contr)
+static void CleanUp(vtkSmartPointer<vtkSocketCommunicator> comm,
+                    vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
 {
   comm->CloseConnection();
-  comm->Delete();
-  contr->Delete();
+  // Deleting no longer necessary with smart pointers.
+//   comm->Delete();
+//   contr->Delete();
 }
 
 int main(int argc, char** argv)
 {
-  vtkSocketController* contr = vtkSocketController::New();
+  VTK_CREATE(vtkSocketController, contr);
   contr->Initialize();
 
-  vtkSocketCommunicator* comm = vtkSocketCommunicator::New();
+  VTK_CREATE(vtkSocketCommunicator, comm);
 
   int port=11111;
 
@@ -71,8 +79,6 @@ int main(int argc, char** argv)
     {
     cerr << "Server error: Wait timed out or could not initialize socket."
          << endl;
-    comm->Delete();
-    contr->Delete();
     return 1;
     }
 
@@ -200,7 +206,7 @@ int main(int argc, char** argv)
 
 
   // Test sending vtkDataObject
-  vtkUnstructuredGridReader* ugrid = vtkUnstructuredGridReader::New();
+  VTK_CREATE(vtkUnstructuredGridReader, ugrid);
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
                                                      "Data/blow.vtk");
   ugrid->SetFileName(fname);
@@ -212,13 +218,11 @@ int main(int argc, char** argv)
     {
     cerr << "Server error: Error sending data." << endl;
     CleanUp(comm, contr);
-    ugrid->Delete();
     return 1;
     }
-  ugrid->Delete();
 
   // Test receiving vtkDataArray
-  vtkDoubleArray* da = vtkDoubleArray::New();
+  VTK_CREATE(vtkDoubleArray, da);
   da->SetNumberOfComponents(4);
   da->SetNumberOfTuples(10);
   for(i=0; i<40; i++)
@@ -229,10 +233,8 @@ int main(int argc, char** argv)
     {
     cerr << "Client error: Error sending data." << endl;
     CleanUp(comm, contr);
-    da->Delete();
     return 1;
     }
-  da->Delete();
 
   // Test receiving null vtkDataArray
   vtkDoubleArray *da2 = NULL;
@@ -245,7 +247,28 @@ int main(int argc, char** argv)
 
   contr->SetCommunicator(comm);
 
-  vtkBYUReader* pd = vtkBYUReader::New();
+  // The following lines were added for coverage
+  // These methods have empty implementations
+  contr->SingleMethodExecute();
+  contr->MultipleMethodExecute();
+  contr->CreateOutputWindow();
+  contr->Barrier();
+  contr->Finalize();
+
+  // First, run the socket through the standard controller tests.  We have
+  // to make a compliant controller first.
+  int retVal;
+  vtkMultiProcessController *compliantController
+    = contr->CreateCompliantController();
+  retVal = ExerciseMultiProcessController(compliantController);
+  compliantController->Delete();
+  if (retVal)
+    {
+    CleanUp(comm, contr);
+    return retVal;
+    }
+
+  VTK_CREATE(vtkBYUReader, pd);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   pd->SetGeometryFileName(fname);
   delete[] fname;
@@ -254,7 +277,7 @@ int main(int argc, char** argv)
 
   comm->Send(pd->GetOutput(), 1, 11);
 
-  vtkRectilinearGridReader* rgrid = vtkRectilinearGridReader::New();
+  VTK_CREATE(vtkRectilinearGridReader, rgrid);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
                                                "Data/RectGrid2.vtk");
   rgrid->SetFileName(fname);
@@ -264,7 +287,7 @@ int main(int argc, char** argv)
 
   comm->Send(rgrid->GetOutput(), 1, 11);
 
-  vtkPLOT3DReader* pl3d = vtkPLOT3DReader::New();
+  VTK_CREATE(vtkPLOT3DReader, pl3d);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
   pl3d->SetXYZFileName(fname);
   delete[] fname;
@@ -278,7 +301,7 @@ int main(int argc, char** argv)
 
   comm->Send(pl3d->GetOutput(), 1, 11);
 
-  vtkPNMReader* imageData = vtkPNMReader::New();
+  VTK_CREATE(vtkPNMReader, imageData);
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");
   imageData->SetFileName(fname);
   delete[] fname;

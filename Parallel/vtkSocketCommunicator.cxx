@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.68");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.69");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -36,6 +36,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapNotSet;
   this->RemoteHas64BitIds = -1; // Invalid until handshake.
   this->PerformHandshake = 1;
+  this->IsServer = 0;
   this->LogStream = 0;
   this->LogFile = 0;
 
@@ -284,6 +285,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::ServerSideHandshake()
 {
+  this->IsServer = 1;
   if ( this->PerformHandshake )
     {
     // Handshake to determine if the client machine has the same endianness
@@ -391,6 +393,7 @@ int vtkSocketCommunicator::ServerSideHandshake()
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::ClientSideHandshake()
 {
+  this->IsServer = 0;
   if (!this->PerformHandshake)
     {
     return 1;
@@ -616,14 +619,18 @@ int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
       vtkErrorMacro("Could not send length.");
       }
     return 0;
-    }  
-  if(!this->Socket->Send(data, wordSize*numWords))
+    }
+  // Only do the actual send if there is some data in the message.
+  if (length > 0)
     {
-    if (this->ReportErrors)
+    if(!this->Socket->Send(data, length))
       {
-      vtkErrorMacro("Could not send message.");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Could not send message.");
+        }
+      return 0;
       }
-    return 0;
     }
   
   // Log this event.
@@ -719,13 +726,17 @@ int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
                                          int numWords, int tag,
                                          const char* logName)
 {
-  if(!this->Socket->Receive(data, wordSize*numWords))
+  // Only do the actual receive if there is some data to receive
+  if (wordSize*numWords > 0)
     {
-    if (this->ReportErrors)
+    if(!this->Socket->Receive(data, wordSize*numWords))
       {
-      vtkErrorMacro("Could not receive message.");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Could not receive message.");
+        }
+      return 0;
       }
-    return 0;
     }
   // Unless we're dealing with chars, then check byte ordering.
   // This is really bad and should probably use some enum for types
@@ -906,9 +917,96 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
 }
 
 //-----------------------------------------------------------------------------
+void vtkSocketCommunicator::Barrier()
+{
+  int junk;
+  if (this->IsServer)
+    {
+    this->Send(&junk, 1, 1, BARRIER_TAG);
+    this->Receive(&junk, 1, 1, BARRIER_TAG);
+    }
+  else
+    {
+    this->Receive(&junk, 1, 1, BARRIER_TAG);
+    this->Send(&junk, 1, 1, BARRIER_TAG);
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkSocketCommunicator::BroadcastVoidArray(void *, vtkIdType, int,
+                                              int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::GatherVoidArray(const void *, void *,
+                                           vtkIdType, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::GatherVVoidArray(const void *, void *,
+                                            vtkIdType, vtkIdType *,
+                                            vtkIdType *, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::ScatterVoidArray(const void *, void *,
+                                            vtkIdType, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::ScatterVVoidArray(const void *, void *,
+                                             vtkIdType *, vtkIdType *,
+                                             vtkIdType, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::AllGatherVoidArray(const void *, void *,
+                                              vtkIdType, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::AllGatherVVoidArray(const void *, void *,
+                                               vtkIdType, vtkIdType *,
+                                               vtkIdType *, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::ReduceVoidArray(const void *, void *,
+                                           vtkIdType, int, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::ReduceVoidArray(const void *, void *,
+                                           vtkIdType, int, Operation *, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
+                                              vtkIdType, int, int)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
+                                              vtkIdType, int, Operation *)
+{
+  vtkErrorMacro("Collective operations not supported on sockets.");
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.68 $";
+  const char revision[] = "$Revision: 1.69 $";
   int version;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;

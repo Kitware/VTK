@@ -36,12 +36,9 @@
 #include "vtkCellData.h"
 #include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#ifdef VTK_USE_MPI
-#include "vtkMPIController.h"
-#include "vtkMPIGroup.h"
-#endif
+#include "vtkProcessGroup.h"
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.9");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.10");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -111,12 +108,6 @@ int vtkPChacoReader::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
 
-  if (!this->Controller->IsA("vtkMPIController"))
-    {
-    vtkErrorMacro(<< "parallel vtkPChacoReader requires MPI");
-    return 0;
-    }
-
   int retVal = 1;
 
   if (this->MyId == 0)
@@ -151,12 +142,7 @@ int vtkPChacoReader::RequestInformation(
       }
     }
 
-#ifdef VTK_USE_MPI
-  vtkMPICommunicator *comm = 
-    vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-
-  comm->Broadcast(metadata, 8, 0);  
-#endif
+  this->Controller->Broadcast(metadata, 8, 0);
 
   if (this->MyId > 0)
     {
@@ -209,16 +195,13 @@ int vtkPChacoReader::RequestData(
 
   vtkMultiProcessController *contr = this->Controller;
 
-#ifdef VTK_USE_MPI
   int i=0;
-  vtkMPICommunicator *comm = 
-    vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
 
   int oops = ((piece != this->MyId) || (numPieces != this->NumProcesses)); 
   int sum = 0;
 
-  comm->Reduce(&oops, &sum, 1, vtkCommunicator::SUM_OP, 0);
-  comm->Broadcast(&sum, 1, 0);
+  contr->Reduce(&oops, &sum, 1, vtkCommunicator::SUM_OP, 0);
+  contr->Broadcast(&sum, 1, 0);
  
   if (sum > 0)
     {
@@ -226,13 +209,12 @@ int vtkPChacoReader::RequestData(
 
     int *myPiece = new int [this->NumProcesses];
   
-    comm->AllGather(&piece, myPiece, 1);
+    contr->AllGather(&piece, myPiece, 1);
 
-    vtkMPICommunicator *subComm = vtkMPICommunicator::New();
-    vtkMPIGroup *group = vtkMPIGroup::New();
-    vtkMPIController *subController = NULL;
+    vtkMultiProcessController *subController;
+    vtkProcessGroup *group = vtkProcessGroup::New();
 
-    group->Initialize(vtkMPIController::SafeDownCast(contr));
+    group->Initialize(contr);
 
     int nparticipants = 0;
 
@@ -241,10 +223,6 @@ int vtkPChacoReader::RequestData(
       if ((myPiece[i] >= 0) && (myPiece[i] < numPieces))
         {
         group->AddProcessId(i);
-        if (i == this->MyId)
-          {
-          subController = vtkMPIController::New();
-          }
         if (myPiece[i] == 0)
           {
           pieceZeroProc = nparticipants;
@@ -257,35 +235,24 @@ int vtkPChacoReader::RequestData(
 
     if (nparticipants < numPieces) // Can this happen?  
       {
-      subComm->Delete();
       group->Delete();
-      if (subController)
-        { 
-        subController->Delete();
-        }
       output->Initialize();
       vtkErrorMacro("<<vtkPChacoReader can't produce less than entire file");
       return 0;
       }
 
-    subComm->Initialize(comm, group);
+    subController = contr->CreateSubController(group);
     group->Delete();
 
     if (subController)
       {
-      subController->SetCommunicator(subComm);
-
       contr = subController;
-      comm = subComm;
       }
     else
       {
-      subComm->Delete();
       contr = NULL;
-      comm = NULL;
       }
     }
-#endif
 
   if ( !contr)
     {
@@ -306,9 +273,7 @@ int vtkPChacoReader::RequestData(
 
   if (numPieces > 1)
     {
-#ifdef VTK_USE_MPI
-    comm->Broadcast(&retVal, 1, pieceZeroProc); 
-#endif
+    contr->Broadcast(&retVal, 1, pieceZeroProc); 
 
     if (retVal == 1)
       {
@@ -318,9 +283,6 @@ int vtkPChacoReader::RequestData(
 
   if (contr != this->Controller)
     {
-#ifdef VTK_USE_MPI
-    comm->Delete();
-#endif
     contr->Delete();
     }
 
@@ -390,10 +352,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
 {
   int retVal = 1;
 
-#ifdef VTK_USE_MPI
   int i=0;
-  vtkMPICommunicator *comm = 
-    vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
 
   int nprocs = contr->GetNumberOfProcesses();
   int myrank = contr->GetLocalProcessId();
@@ -444,8 +403,8 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     }
 
   int vote = 0;
-  comm->Reduce(&retVal, &vote, 1, vtkCommunicator::SUM_OP, 0);
-  comm->Broadcast(&vote, 1, 0);
+  contr->Reduce(&retVal, &vote, 1, vtkCommunicator::SUM_OP, 0);
+  contr->Broadcast(&vote, 1, 0);
 
   if (vote < nprocs)
     {
@@ -463,21 +422,13 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     mygrid->Delete();
     }
 
-#else
-  vtkErrorMacro(<< "vtkPChacoReader::DivideCells requires MPI");
-  (void)source;
-  (void)contr;
-  (void)output;
-#endif
   return retVal;
 }
-int vtkPChacoReader::SendGrid(vtkMultiProcessController *c, 
+int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
                               int to, vtkUnstructuredGrid *grid)
 {
   int retVal = 1;
 
-#ifdef VTK_USE_MPI
-  vtkMPIController *contr = vtkMPIController::SafeDownCast(c);
   int bufsize=0, ack = 0;
 
   if (!grid)
@@ -504,20 +455,13 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *c,
     }
 
   delete [] buf;
-#else
-  vtkErrorMacro(<< "vtkPChacoReader::SendGrid requires MPI");
-  (void)c;
-  (void)to;
-  (void)grid;
-#endif
   return retVal;
 }
-vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *c, int from)
+vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
+                                              int from)
 {
   vtkUnstructuredGrid *grid = NULL;
 
-#ifdef VTK_USE_MPI
-  vtkMPIController *contr = vtkMPIController::SafeDownCast(c);
   int bufsize=0, ack=1;
 
   contr->Receive(&bufsize, 1, from, 0x11);
@@ -542,11 +486,6 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *c, int 
     ack = 0;
     contr->Send(&ack, 1, 0, 0x12);
     }
-#else
-  vtkErrorMacro(<< "vtkPChacoReader::GetGrid requires MPI");
-  (void)c;
-  (void)from;
-#endif
   return grid;
 }
 

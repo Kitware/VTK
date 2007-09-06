@@ -16,12 +16,17 @@
 #include "vtkMPIGroup.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
+#include "vtkProcessGroup.h"
 
-vtkCxxRevisionMacro(vtkMPIGroup, "1.5");
+#ifndef VTK_REMOVE_LEGACY_CODE
+
+vtkCxxRevisionMacro(vtkMPIGroup, "1.6");
 vtkStandardNewMacro(vtkMPIGroup);
 
 void vtkMPIGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
+  VTK_LEGACY_BODY(PrintSelf, "5.2");
+
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Initialized : ";
   if (this->Initialized)
@@ -46,6 +51,8 @@ void vtkMPIGroup::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkMPIGroup::vtkMPIGroup()
 {
+  VTK_LEGACY_BODY(vtkMPIGroup, "5.2");
+
   this->ProcessIds = 0;
   this->MaximumNumberOfProcessIds = 0;
   this->CurrentPosition = 0;
@@ -54,12 +61,16 @@ vtkMPIGroup::vtkMPIGroup()
 
 vtkMPIGroup::~vtkMPIGroup()
 {
+  VTK_LEGACY_BODY(~vtkMPIGroup, "5.2");
+
   delete[] this->ProcessIds;
   this->MaximumNumberOfProcessIds = 0;
 }
 
 void vtkMPIGroup::Initialize(int numProcIds)
 {
+  VTK_LEGACY_BODY(Initialize, "5.2");
+
   if (this->Initialized)
     {
     return;
@@ -87,12 +98,16 @@ void vtkMPIGroup::Initialize(int numProcIds)
 
 void vtkMPIGroup::Initialize(vtkMPIController* controller)
 {
+  VTK_LEGACY_BODY(Initialize, "5.2");
+
   this->Initialize(controller->GetNumberOfProcesses());
   return;
 }
 
 int vtkMPIGroup::AddProcessId(int processId)
 {
+  VTK_LEGACY_BODY(AddProcessId, "5.2");
+
   if ( this->CurrentPosition >= this->MaximumNumberOfProcessIds )
     {
     vtkWarningMacro("Can not add any more process ids. The group is full.");
@@ -116,6 +131,8 @@ int vtkMPIGroup::AddProcessId(int processId)
 
 void vtkMPIGroup::RemoveProcessId(int processId)
 {
+  VTK_LEGACY_BODY(RemoveProcessId, "5.2");
+
   int pos = this->FindProcessId(processId);
   if ( pos >= 0 )
     {
@@ -131,6 +148,8 @@ void vtkMPIGroup::RemoveProcessId(int processId)
 
 int vtkMPIGroup::FindProcessId(int processId)
 {
+  VTK_LEGACY_BODY(FindProcessId, "5.2");
+
   for (int i=0; i < this->CurrentPosition; i++)
     {
     if ( this->ProcessIds[i] == processId )
@@ -143,6 +162,8 @@ int vtkMPIGroup::FindProcessId(int processId)
 
 int vtkMPIGroup::GetProcessId(int pos)
 {
+  VTK_LEGACY_BODY(GetProcessId, "5.2");
+
   if ( pos >= this->CurrentPosition)
     {
     return -1;
@@ -152,6 +173,8 @@ int vtkMPIGroup::GetProcessId(int pos)
 
 void vtkMPIGroup::CopyProcessIdsFrom(vtkMPIGroup* group)
 {
+  VTK_LEGACY_BODY(CopyProcessIdsFrom, "5.2");
+
   int max;
   // Find which MaximumNumberOfProcessIds is smallest and use that.
   if ( this->MaximumNumberOfProcessIds > group->MaximumNumberOfProcessIds )
@@ -189,3 +212,21 @@ void vtkMPIGroup::CopyFrom(vtkMPIGroup* source)
   this->Initialize(source->MaximumNumberOfProcessIds);
   this->CopyProcessIdsFrom(source);
 }
+
+int vtkMPIGroup::GetNumberOfProcessIds()
+{
+  VTK_LEGACY_BODY(GetNumberOfProcessIds, "5.2");
+  return this->CurrentPosition;
+}
+
+void vtkMPIGroup::CopyInto(vtkProcessGroup *destination,
+                           vtkMPICommunicator *mpiComm)
+{
+  destination->SetCommunicator(mpiComm);
+  for (int i = 0; i < this->GetNumberOfProcessIds(); i++)
+    {
+    destination->AddProcessId(this->GetProcessId(i));
+    }
+}
+
+#endif //VTK_REMOVE_LEGACY_CODE

@@ -19,6 +19,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkMPI.h"
 
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 int vtkMPIController::Initialized = 0;
 char vtkMPIController::ProcessorName[MPI_MAX_PROCESSOR_NAME] = "";
 
@@ -65,9 +69,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.22");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.23");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.22");
+vtkCxxRevisionMacro(vtkMPIController, "1.23");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -217,20 +221,6 @@ void vtkMPIController::SetCommunicator(vtkMPICommunicator* comm)
   this->InitializeRMICommunicator();
 }
 
-  
-void vtkMPIController::Barrier()
-{
-  vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
-  int err;
-  if ( (err = MPI_Barrier(*(comm->MPIComm->Handle)) ) 
-       != MPI_SUCCESS ) 
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    }
-}
-
 //----------------------------------------------------------------------------
 // Execute the method set as the SingleMethod.
 void vtkMPIController::SingleMethodExecute()
@@ -289,3 +279,22 @@ char* vtkMPIController::ErrorString(int err)
   return buffer;
 }
 
+//-----------------------------------------------------------------------------
+vtkMPIController *vtkMPIController::CreateSubController(vtkProcessGroup *group)
+{
+  VTK_CREATE(vtkMPICommunicator, subcomm);
+
+  if (!subcomm->Initialize(group)) return NULL;
+
+  // MPI is kind of funny in that in order to create a communicator from a
+  // subgroup of another communicator, it is a collective operation involving
+  // all of the processes in the original communicator, not just those belonging
+  // to the group.  In any process not part of the group, the communicator is
+  // created with MPI_COMM_NULL.  Check for that and return NULL ourselves,
+  // which is not really an error condition.
+  if (*(subcomm->GetMPIComm()->Handle) == MPI_COMM_NULL) return NULL;
+
+  vtkMPIController *controller = vtkMPIController::New();
+  controller->SetCommunicator(subcomm);
+  return controller;
+}

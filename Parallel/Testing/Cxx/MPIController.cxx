@@ -16,6 +16,7 @@
 #include <mpi.h>
 
 #include "vtkMPIController.h"
+#include "vtkProcessGroup.h"
 
 #include "ExerciseMultiProcessController.h"
 
@@ -37,6 +38,22 @@ int main(int argc, char** argv)
   controller->Initialize(&argc, &argv, 1);
 
   int retval = ExerciseMultiProcessController(controller);
+
+  // The previous run of ExerciseMultiProcessController used the native MPI
+  // collective operations.  There is also a second (inefficient) implementation
+  // of these within the base vtkCommunicator class.  This hack should force the
+  // class to use the VTK implementation.  In practice, the collective
+  // operations will probably never be used like this, but this is a convenient
+  // place to test for completeness.
+  VTK_CREATE(vtkProcessGroup, group);
+  group->Initialize(controller);
+  vtkSmartPointer<vtkMultiProcessController> genericController;
+  genericController.TakeReference(
+             controller->vtkMultiProcessController::CreateSubController(group));
+  if (!retval)
+    {
+    retval = ExerciseMultiProcessController(genericController);
+    }
 
   controller->Finalize();
 

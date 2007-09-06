@@ -12,16 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMPIGroup - Class for creating MPI groups.
+// .NAME vtkMPIGroup - DEPRECATED
 
 // .SECTION Description
-// This class is used to create MPI groups. A vtkMPIGroup object
-// has to be initialized by passing the controller. Then the
-// group can be modified by adding, removing ids and copying the contents
-// of another group.
+// This class has been deprecated in VTK 5.2.  Use vtkProcessGroup instead.
 
 // .SECTION See Also
-// vtkMPIController vtkMPICommunicator
+// vtkProcessGroup
 
 #ifndef __vtkMPIGroup_h
 #define __vtkMPIGroup_h
@@ -30,7 +27,9 @@
 
 class vtkMPIController;
 class vtkMPICommunicator;
+class vtkProcessGroup;
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_PARALLEL_EXPORT vtkMPIGroup : public vtkObject
 {
 
@@ -43,47 +42,51 @@ public:
   // Processes = 0, MaximumNumberOfProcesses = 0.
   static vtkMPIGroup* New();
   
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  VTK_LEGACY(virtual void PrintSelf(ostream& os, vtkIndent indent));
 
   // Description:
   // Allocate memory for N process ids where 
   // N = controller->NumberOfProcesses
-  void Initialize(vtkMPIController* controller);
+  VTK_LEGACY(void Initialize(vtkMPIController* controller));
 
   // Description:
   // Add a process id to the end of the list (if it is not already
   // in the group). Returns non-zero on success.
   // This will not add a process id >= MaximumNumberOfProcessIds.
-  int AddProcessId(int processId);
+  VTK_LEGACY(int AddProcessId(int processId));
 
   // Description:
   // Remove the given process id from the list and
   // shift all ids, starting from the position of the removed
   // id, left by one.
-  void RemoveProcessId(int processId);
+  VTK_LEGACY(void RemoveProcessId(int processId));
 
   // Description:
   // Find the location of a process id in the group.
   // Returns -1 if the process id is not on the list.
-  int FindProcessId(int processId);
+  VTK_LEGACY(int FindProcessId(int processId));
 
   // Description:
   // Get the process id at position pos.
   // Returns -1 if pos >= max. available pos.
-  int GetProcessId(int pos);
+  VTK_LEGACY(int GetProcessId(int pos));
 
   // Description:
   // Copy the process ids from a given group.
   // This will copy N ids, where N is the smallest 
   // MaximumNumberOfProcessIds.
-  void CopyProcessIdsFrom(vtkMPIGroup* group);
+  VTK_LEGACY(void CopyProcessIdsFrom(vtkMPIGroup* group));
 
+//BTX
   // Description:
   // Returns the number of ids currently stored.
-  int GetNumberOfProcessIds()
-    {
-      return this->CurrentPosition;
-    }
+  VTK_LEGACY(int GetNumberOfProcessIds());
+//ETX
+
+  // Description:
+  // This method can be used to copy the MPIGroup into a vtkProcessGroup,
+  // which is the successor to this class.
+  void CopyInto(vtkProcessGroup *destination, vtkMPICommunicator *mpiComm);
 
 //BTX
 
@@ -114,6 +117,7 @@ private:
   vtkMPIGroup(const vtkMPIGroup&);  // Not implemented.
   void operator=(const vtkMPIGroup&);  // Not implemented.
 };
+#endif
 
 #endif
 

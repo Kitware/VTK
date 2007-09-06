@@ -30,6 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkProcessGroup.h"
 #include "vtkSphereSource.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
@@ -930,15 +931,11 @@ static void Run(vtkMultiProcessController *controller, void *_args)
     = reinterpret_cast<ExerciseMultiProcessControllerArgs *>(_args);
   args->retval = 0;
 
+  COUT(<< endl << "Exercising " << controller->GetClassName()
+       << ", " << controller->GetNumberOfProcesses() << " processes");
+
   try
     {
-    // First, let us create a random seed that everyone will have.
-    int seed;
-    seed = time(NULL);
-    controller->Broadcast(&seed, 1, 0);
-    COUT("**** Random Seed = " << seed << " ****");
-    vtkMath::RandomSeed(seed);
-
     ExerciseType<int, vtkIntArray>(controller);
     ExerciseType<unsigned long, vtkUnsignedLongArray>(controller);
     ExerciseType<char, vtkCharArray>(controller);
@@ -969,10 +966,70 @@ int ExerciseMultiProcessController(vtkMultiProcessController *controller)
 {
   controller->CreateOutputWindow();
 
+  // First, let us create a random seed that everyone will have.
+  int seed;
+  seed = time(NULL);
+  controller->Broadcast(&seed, 1, 0);
+  COUT("**** Random Seed = " << seed << " ****");
+  vtkMath::RandomSeed(seed);
+
   ExerciseMultiProcessControllerArgs args;
 
   controller->SetSingleMethod(Run, &args);
   controller->SingleMethodExecute();
+
+  if (args.retval) return args.retval;
+
+  // Run the same tests, except this time on a subgroup of processes.
+  VTK_CREATE(vtkProcessGroup, group1);
+  VTK_CREATE(vtkProcessGroup, group2);
+  group1->Initialize(controller);
+  group2->Initialize(controller);
+  group2->RemoveAllProcessIds();
+  for (int i = controller->GetNumberOfProcesses() - 1; i >= 0; i--)
+    {
+    if (vtkMath::Random() < 0.5)
+      {
+      group1->RemoveProcessId(i);
+      group2->AddProcessId(i);
+      }
+    }
+  vtkMultiProcessController *subcontroller1, *subcontroller2;
+  subcontroller1 = controller->CreateSubController(group1);
+  subcontroller2 = controller->CreateSubController(group2);
+  if (subcontroller1 && subcontroller2)
+    {
+    cout << "**** ERROR: Process " << controller->GetLocalProcessId()
+         << " belongs to both subgroups! ****" << endl;
+    subcontroller1->Delete();
+    subcontroller2->Delete();
+    return 1;
+    }
+  else if (subcontroller1)
+    {
+    subcontroller1->SetSingleMethod(Run, &args);
+    subcontroller1->SingleMethodExecute();
+    subcontroller1->Delete();
+    }
+  else if (subcontroller2)
+    {
+    subcontroller2->SetSingleMethod(Run, &args);
+    subcontroller2->SingleMethodExecute();
+    subcontroller2->Delete();
+    }
+  else
+    {
+    cout << "**** Error: Process " << controller->GetLocalProcessId()
+         << " does not belong to either subgroup! ****" << endl;
+    }
+  try
+    {
+    CheckSuccess(controller, !args.retval);
+    }
+  catch (ExerciseMultiProcessControllerError)
+    {
+    args.retval = 1;
+    }
 
   return args.retval;
 }

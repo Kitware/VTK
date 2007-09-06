@@ -15,6 +15,7 @@
 #include "vtkSocketController.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkProcessGroup.h"
 #include "vtkSocketCommunicator.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -38,7 +39,7 @@
 
 int vtkSocketController::Initialized = 0;
 
-vtkCxxRevisionMacro(vtkSocketController, "1.11");
+vtkCxxRevisionMacro(vtkSocketController, "1.12");
 vtkStandardNewMacro(vtkSocketController);
 
 //----------------------------------------------------------------------------
@@ -127,4 +128,32 @@ int vtkSocketController::GetSwapBytesInReceivedData()
 {
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
     GetSwapBytesInReceivedData();
+}
+
+//-----------------------------------------------------------------------------
+vtkMultiProcessController *vtkSocketController::CreateCompliantController()
+{
+  vtkProcessGroup *group = vtkProcessGroup::New();
+  group->Initialize(this->Communicator);
+  group->RemoveAllProcessIds();
+
+  // This hack creates sub controllers with differing orders of the processes
+  // that will map the ids to be unique on each process.
+  if (vtkSocketCommunicator::SafeDownCast(this->Communicator)->GetIsServer())
+    {
+    group->AddProcessId(1);
+    group->AddProcessId(0);
+    }
+  else
+    {
+    group->AddProcessId(0);
+    group->AddProcessId(1);
+    }
+
+  vtkMultiProcessController *compliantController
+    = this->CreateSubController(group);
+
+  group->Delete();
+
+  return compliantController;
 }

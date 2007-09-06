@@ -18,7 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkMPIController.h"
 #include "vtkMPIGroup.h"
-#include "vtkMPIGroup.h"
+#include "vtkProcessGroup.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
@@ -26,15 +26,18 @@
 
 #include "vtkMPI.h"
 
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.43");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.44");
 vtkStandardNewMacro(vtkMPICommunicator);
-
-vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
 
+//-----------------------------------------------------------------------------
 class vtkMPICommunicatorOpaqueRequest
 {
 public:
@@ -49,6 +52,22 @@ vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm()
 MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
 {
   return this->Handle;
+}
+
+//-----------------------------------------------------------------------------
+// This MPI error handler basically does the same thing as the default error
+// handler, but also provides a convenient place to attache a debugger
+// breakpoint.
+void vtkMPICommunicatorMPIErrorHandler(MPI_Comm *comm, int *errorcode, ...)
+{
+  char ErrorMessage[MPI_MAX_ERROR_STRING];
+  int len;
+  MPI_Error_string(*errorcode, ErrorMessage, &len);
+  vtkGenericWarningMacro(<< "MPI had an error" << endl
+                         << "------------------------------------------------"
+                         << endl << ErrorMessage << endl
+                         << "------------------------------------------------");
+  MPI_Abort(*comm, *errorcode);
 }
 
 //----------------------------------------------------------------------------
@@ -308,13 +327,15 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
 
   if (vtkMPICommunicator::WorldCommunicator == 0)
     {
+    // Install an error handler
+    MPI_Errhandler errhandler;
+    MPI_Errhandler_create(vtkMPICommunicatorMPIErrorHandler, &errhandler);
+    MPI_Errhandler_set(MPI_COMM_WORLD, errhandler);
+    MPI_Errhandler_free(&errhandler);
+
     vtkMPICommunicator* comm = vtkMPICommunicator::New();
-    vtkMPIGroup* group = vtkMPIGroup::New();
     comm->MPIComm->Handle = new MPI_Comm;
     *(comm->MPIComm->Handle) = MPI_COMM_WORLD;
-    comm->SetGroup(group);
-    group->Delete();
-    group = NULL;
     if ( (err = MPI_Comm_size(MPI_COMM_WORLD, &size)) != MPI_SUCCESS  )
       {
       char *msg = vtkMPIController::ErrorString(err);
@@ -324,11 +345,6 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
       comm->MPIComm = 0;
       comm->Delete();
       return 0;
-      }
-    comm->Group->Initialize(size);
-    for(int i=0; i<size; i++)
-      {
-      comm->Group->AddProcessId(i);
       }
     comm->InitializeNumberOfProcesses();
     comm->Initialized = 1;
@@ -342,16 +358,6 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
 void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Group: ";
-  if (this->Group)
-    {
-    os << endl;
-    this->Group->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)\n";
-    }
   os << indent << "MPI Communicator handler: " ;
   if (this->MPIComm->Handle)
     {
@@ -384,7 +390,6 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
 vtkMPICommunicator::vtkMPICommunicator()
 {
   this->MPIComm = new vtkMPICommunicatorOpaqueComm;
-  this->Group = 0;
   this->Initialized = 0;
   this->KeepHandle = 0;
   this->LastSenderId = -1;
@@ -406,21 +411,41 @@ vtkMPICommunicator::~vtkMPICommunicator()
     delete this->MPIComm->Handle;
     delete this->MPIComm;
     }
-  this->SetGroup(0);
 }
 
-//----------------------------------------------------------------------------
-int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm, 
-                                   vtkMPIGroup* group)
+//-----------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkMPICommunicator::Initialize(vtkMPICommunicator  *mpiComm,
+                                   vtkMPIGroup *deprecatedGroup)
+{
+  VTK_LEGACY_REPLACED_BODY(Initialize(vtkMPICommunicator *, vtkMPIGroup *),
+                           "5.2", Initialize(vtkProcessGroup *));
+
+  VTK_CREATE(vtkProcessGroup, group);
+  deprecatedGroup->CopyInto(group, mpiComm);
+
+  return this->Initialize(group);
+}
+#endif
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
 {
   if (this->Initialized)
     {
     return 0;
     }
 
-  // If mpiComm has been initialized, it is guaranteed (unless
-  // the MPI calls return an error somewhere) to have valid 
-  // Communicator and Group
+  vtkMPICommunicator *mpiComm
+    = vtkMPICommunicator::SafeDownCast(group->GetCommunicator());
+  if (!mpiComm)
+    {
+    vtkErrorMacro("The group is not attached to an MPI communicator!");
+    return 0;
+    }
+
+  // If mpiComm has been initialized, it is guaranteed (unless the MPI calls
+  // return an error somewhere) to have valid Communicator.
   if (!mpiComm->Initialized)
     {
     vtkWarningMacro("The communicator passed has not been initialized!");
@@ -429,19 +454,8 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
 
   this->KeepHandleOff();
 
-  int nProcIds = group->GetNumberOfProcessIds();
-  // The new group has to be a sub-class
-  if ( ( nProcIds <= 0) ||
-       ( mpiComm->Group == 0 ) ||
-       ( nProcIds > mpiComm->Group->GetNumberOfProcessIds() ) )
-    {
-    vtkWarningMacro("The group or the communicator has " 
-                    << "invalid number of ids.");
-    return 0;
-    }
-
-  
   // Select the new processes
+  int nProcIds = group->GetNumberOfProcessIds();
   int* ranks = new int[nProcIds];
   for(int i=0; i<nProcIds; i++)
     {
@@ -451,7 +465,7 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
   MPI_Group superGroup;
   MPI_Group subGroup;
 
-  // Get the group from the argument
+  // Get the super group
   int err;
   if ( (err = MPI_Comm_group(*(mpiComm->MPIComm->Handle), &superGroup))
        != MPI_SUCCESS )
@@ -503,17 +517,21 @@ int vtkMPICommunicator::Initialize(vtkMPICommunicator* mpiComm,
        
   MPI_Group_free(&subGroup);
 
-  this->InitializeNumberOfProcesses();
-  this->Initialized = 1;
-
-  // Store the group so that this communicator can be used
-  // to create new ones
-  this->SetGroup(group);
+  // MPI is kind of funny in that in order to create a communicator from a
+  // subgroup of another communicator, it is a collective operation involving
+  // all of the processes in the original communicator, not just those belonging
+  // to the group.  In any process not part of the group, the communicator is
+  // created with MPI_COMM_NULL.  Check for that and only finish initialization
+  // when the controller is not MPI_COMM_NULL.
+  if (*(this->MPIComm->Handle) != MPI_COMM_NULL)
+    {
+    this->InitializeNumberOfProcesses();
+    this->Initialized = 1;
+    }
 
   this->Modified();
 
   return 1;
-
 }
 
 //----------------------------------------------------------------------------
@@ -524,13 +542,6 @@ void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
     {
     return;
     }
-
-  this->SetGroup(0);
-  vtkMPIGroup* group = vtkMPIGroup::New();
-  this->SetGroup(group);
-  group->Delete();
-  group = 0;
-  this->Group->CopyFrom(source->Group);
 
   if (this->MPIComm->Handle && !this->KeepHandle)
     {
@@ -933,6 +944,12 @@ void vtkMPICommunicator::Request::Cancel()
     vtkGenericWarningMacro("MPI error occured: " << msg);
     delete[] msg;
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkMPICommunicator::Barrier()
+{
+  CheckForMPIError(MPI_Barrier(*this->MPIComm->Handle));
 }
 
 //----------------------------------------------------------------------------

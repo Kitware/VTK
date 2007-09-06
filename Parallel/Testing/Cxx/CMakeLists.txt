@@ -36,8 +36,10 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
   # The following tests are launched special because they use MPI or
   # have sockets.
-  ADD_EXECUTABLE(SocketServer SocketServer.cxx)
-  ADD_EXECUTABLE(SocketClient SocketClient.cxx)
+  ADD_EXECUTABLE(SocketServer
+    SocketServer.cxx ExerciseMultiProcessController.cxx)
+  ADD_EXECUTABLE(SocketClient
+    SocketClient.cxx ExerciseMultiProcessController.cxx)
   TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
   TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
 
@@ -54,9 +56,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     ADD_EXECUTABLE(TestPStream TestPStream.cxx)
     TARGET_LINK_LIBRARIES(TestPStream vtkParallel)
-
-    ADD_EXECUTABLE(MPIGroups MPIGroups.cxx)
-    TARGET_LINK_LIBRARIES(MPIGroups vtkParallel)
 
     ADD_EXECUTABLE(DistributedData DistributedData.cxx)
     TARGET_LINK_LIBRARIES(DistributedData vtkParallel)
@@ -142,15 +141,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -V Baseline/Parallel/TransmitStructuredGrid.cxx.png
             ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
-        IF (VTK_MPI_MAX_NUMPROCS EQUAL 4)
-          ADD_TEST(MPIGroups-image 
-            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} ${VTK_MPI_PREFLAGS} 
-            ${CXX_TEST_PATH}/MPIGroups
-            -D ${VTK_DATA_ROOT}
-            -T ${VTK_BINARY_DIR}/Testing/Temporary
-            -V Baseline/Parallel/MPIGroups.cxx.png
-            ${VTK_MPI_POSTFLAGS})
-        ENDIF (VTK_MPI_MAX_NUMPROCS EQUAL 4)
 
       ENDIF (VTK_MPIRUN_EXE)
       #

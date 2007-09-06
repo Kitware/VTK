@@ -41,6 +41,7 @@ class vtkImageData;
 class vtkCollection;
 class vtkOutputWindow;
 class vtkDataObject;
+class vtkProcessGroup;
 class vtkMultiProcessController;
 
 //BTX
@@ -139,6 +140,19 @@ public:
   // a special output window in which all messages are preceded
   // by the process id.
   virtual void CreateOutputWindow() = 0;
+
+  // Description:
+  // Creates a new controller with the processes specified by the given group.
+  // The new controller will already be initialized for you.  You are
+  // responsible for deleting the controller once you are done.  It is invalid
+  // to pass this method a group with a different communicator than is used by
+  // this controller.  This operation is collective accross all processes
+  // defined in the group.  It is undefined what will happen if the group is not
+  // the same on all processes.  This method must be called by all processes in
+  // the controller regardless of whether they are in the group.  NULL is
+  // returned on all process not in the group.
+  virtual vtkMultiProcessController *CreateSubController(
+                                                        vtkProcessGroup *group);
   
   //------------------ RMIs --------------------
   //BTX
@@ -249,7 +263,7 @@ public:
 
   // Description:
   // This method can be used to synchronize processes.
-  virtual void Barrier() = 0;
+  void Barrier();
 
   static void SetGlobalController(vtkMultiProcessController *controller);
 
@@ -1129,5 +1143,13 @@ inline int vtkMultiProcessController::Receive(vtkIdType* data,
     }
 }
 #endif
+
+inline void vtkMultiProcessController::Barrier()
+{
+  if (this->Communicator)
+    {
+    this->Communicator->Barrier();
+    }
+}
 
 #endif

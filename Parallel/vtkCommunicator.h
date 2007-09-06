@@ -53,11 +53,6 @@ public:
   virtual void SetNumberOfProcesses(int num);
   vtkGetMacro(NumberOfProcesses, int);
 
-  int MaximumNumberOfProcesses;
-  int NumberOfProcesses;
-
-  int LocalProcessId;
-
   // Description:
   // Tells you which process [0, NumProcess) you are in.
   vtkGetMacro(LocalProcessId, int);
@@ -71,7 +66,8 @@ public:
     GATHERV_TAG         = 12,
     SCATTER_TAG         = 13,
     SCATTERV_TAG        = 14,
-    REDUCE_TAG          = 15
+    REDUCE_TAG          = 15,
+    BARRIER_TAG         = 16
   };
 
   enum StandardOperations
@@ -217,6 +213,11 @@ public:
 #endif
 
   //---------------------- Collective Operations ----------------------
+
+  // Description:
+  // Will block the processes until all other processes reach the Barrier
+  // function.
+  virtual void Barrier();
 
   // Description:
   // Broadcast sends the array in the process with id \c srcProcessId to all of
@@ -800,6 +801,11 @@ protected:
                         int remoteHandle, int tag, int type=-1);
   int ReceiveElementalDataObject(vtkDataObject* data, 
                                  int remoteHandle, int tag);
+
+  int MaximumNumberOfProcesses;
+  int NumberOfProcesses;
+
+  int LocalProcessId;
 
   static int UseCopy;
 

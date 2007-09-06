@@ -19,6 +19,19 @@
 // process 0 will always correspond to self and process 1 to the
 // remote process. This class is best used with ports.
 
+// .SECTION Bugs
+// Note that because process 0 will always correspond to self, this class breaks
+// assumptions usually implied when using ad-hoc polymorphism.  That is, the
+// vtkSocketController will behave differently than other subclasses of
+// vtkMultiProcessController.  If you upcast vtkSocketController to
+// vtkMultiProcessController and send it to a method that does not know that the
+// object is actually a vtkSocketController, the object may not behave as
+// intended.  For example, if that oblivious class chose to identify a "root"
+// based on the local process id, then both sides of the controller will think
+// they are the root (and that will probably lead to deadlock).  If you plan to
+// upcast to vtkMultiProcessController, you should probably use the
+// CreateCompliantController instead.
+
 // .SECTION see also
 // vtkMultiProcessController vtkSocketCommunicator vtkInputPort vtkOutputPort
 
@@ -63,10 +76,6 @@ public:
   void CreateOutputWindow() {};
 
   // Description:
-  //  Does not apply to sockets. Does nothing.
-  void Barrier() {};
-
-  // Description:
   // Wait for connection on a given port, forwarded
   // to the communicator
   virtual int WaitForConnection(int port);
@@ -86,6 +95,16 @@ public:
   // Description:
   // Set the communicator used in normal and rmi communications.
   void SetCommunicator(vtkSocketCommunicator* comm);
+
+  // Description:
+  // FOOLISH MORTALS!  Thou hast forsaken the sacred laws of ad-hoc polymorphism
+  // when thou broke a critical assumption of the superclass (namely, each
+  // process has thine own id).  The time frame to fix thy error has passed.
+  // Too much code has come to rely on this abhorrent behavior.  Instead, we
+  // offer this gift: a method for creating an equivalent communicator with
+  // correct process id semantics.  The calling code is responsible for
+  // deleting this controller.
+  vtkMultiProcessController *CreateCompliantController();
 
 //BTX
 
