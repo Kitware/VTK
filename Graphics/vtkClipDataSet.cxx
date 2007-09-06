@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.46");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.47");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -48,6 +48,7 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   this->InsideOut = 0;
   this->Locator = NULL;
   this->Value = 0.0;
+  this->UseValueAsOffset = true;
   this->GenerateClipScalars = 0;
 
   this->GenerateClippedOutput = 0;
@@ -374,15 +375,21 @@ int vtkClipDataSet::RequestData(
       cellScalars->InsertTuple(i, &s);
       }
 
+    double value = 0.0;
+    if (this->UseValueAsOffset || !this->ClipFunction)
+      {
+      value = this->Value;
+      }
+
     // perform the clipping
-    cell->Clip(this->Value, cellScalars, this->Locator, conn[0],
+    cell->Clip(value, cellScalars, this->Locator, conn[0],
                inPD, outPD, inCD, cellId, outCD[0], this->InsideOut);
     numNew[0] = conn[0]->GetNumberOfCells() - num[0];
     num[0] = conn[0]->GetNumberOfCells();
  
     if ( this->GenerateClippedOutput )
       {
-      cell->Clip(this->Value, cellScalars, this->Locator, conn[1],
+      cell->Clip(value, cellScalars, this->Locator, conn[1],
                  inPD, outPD, inCD, cellId, outCD[1], !this->InsideOut);
       numNew[1] = conn[1]->GetNumberOfCells() - num[1];
       num[1] = conn[1]->GetNumberOfCells();
@@ -466,6 +473,11 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
 
   outPD->CopyAllocate(inPD, numPts/2, numPts/4);
 
+  double value = 0.0;
+  if (this->UseValueAsOffset || !this->ClipFunction)
+    {
+    value = this->Value;
+    }
   if (this->ClipFunction)
     {
     for(vtkIdType i=0; i<numPts; i++)
@@ -475,14 +487,14 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
       int addPoint = 0;
       if (this->InsideOut)
         {
-        if (fv <= this->Value)
+        if (fv <= value)
           {
           addPoint = 1;
           }
         }
       else
         {
-        if (fv > this->Value)
+        if (fv > value)
           {
           addPoint = 1;
           }
@@ -506,14 +518,14 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
         double fv = clipScalars->GetTuple1(i);
         if (this->InsideOut)
           {
-          if (fv <= this->Value)
+          if (fv <= value)
             {
             addPoint = 1;
             }
           }
         else
           {
-          if (fv > this->Value)
+          if (fv > value)
             {
             addPoint = 1;
             }
@@ -583,7 +595,12 @@ void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
   tmp->ShallowCopy(vtkImageData::SafeDownCast(input));
   
   clipVolume->SetInput(tmp);
-  clipVolume->SetValue(this->Value);
+  double value = 0.0;
+  if (this->UseValueAsOffset || !this->ClipFunction)
+    {
+    value = this->Value;
+    }
+  clipVolume->SetValue(value);
   clipVolume->SetInsideOut(this->InsideOut);
   clipVolume->SetClipFunction(this->ClipFunction);
   clipVolume->SetGenerateClipScalars(this->GenerateClipScalars);
