@@ -34,7 +34,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.1");
+vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.2");
 vtkStandardNewMacro(vtkExtractTemporalFieldData);
 
 //----------------------------------------------------------------------------
@@ -267,6 +267,21 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input,
   // Assign this array as the x-coords
   output->SetXCoordinates(timeArray);
   timeArray->Delete();
+
+  // Assign dummy y and z coordinates
+  vtkDoubleArray* yCoords = vtkDoubleArray::New();
+  yCoords->SetNumberOfComponents(1);
+  yCoords->SetNumberOfTuples(1);
+  yCoords->SetTuple1(0, 0.0);
+  output->SetYCoordinates(yCoords);
+  yCoords->Delete();
+
+  vtkDoubleArray* zCoords = vtkDoubleArray::New();
+  zCoords->SetNumberOfComponents(1);
+  zCoords->SetNumberOfTuples(1);
+  zCoords->SetTuple1(0, 0.0);
+  output->SetZCoordinates(zCoords);
+  zCoords->Delete();
 
   // This array is used to make particular samples as invalid.
   // This happens when we are looking at a location which is not contained
