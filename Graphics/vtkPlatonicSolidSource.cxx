@@ -22,7 +22,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.5");
+vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.6");
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
 // The geometry and topology of each solid. Solids are centered at
@@ -52,13 +52,13 @@ static vtkIdType OctVerts[] = {
   4,1,0, 4,2,1, 4,3,2, 4,0,3, 0,1,5, 1,2,5, 2,3,5, 3,0,5
 };
 
-static double a = 0.61803398875;
+static double a_0 = 0.61803398875;
 static double b = 0.381966011250;
 static double DodePoints[] = {
    b, 0, 1,  -b, 0, 1,  b, 0,-1, -b, 0,-1,  0, 1,-b,
    0, 1, b,   0,-1,-b,  0,-1, b,  1, b, 0,  1,-b, 0,
-  -1, b, 0,  -1,-b, 0, -a, a, a,  a,-a, a, -a,-a,-a,
-   a, a,-a,   a, a, a, -a, a,-a, -a,-a, a,  a,-a,-a
+  -1, b, 0,  -1,-b, 0, -a_0, a_0, a_0,  a_0,-a_0, a_0, -a_0,-a_0,-a_0,
+   a_0, a_0,-a_0,   a_0, a_0, a_0, -a_0, a_0,-a_0, -a_0,-a_0, a_0,  a_0,-a_0,-a_0
 };
 static vtkIdType DodeVerts[] = {
   0,16,5,12,1, 1,18,7,13,0, 2,19,6,14,3, 3,17,4,15,2, 4,5,16,8,15,
