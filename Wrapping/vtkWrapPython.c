@@ -841,10 +841,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
           }
         }
         
-      if(currentFunction->IsLegacy)
-        {
-        fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
-        }
       fprintf(fp,"static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n",
               data->ClassName,currentFunction->Name,
               (is_static ? "" : "self"));
@@ -866,6 +862,25 @@ void outputFunction2(FILE *fp, FileInfo *data)
             is_static = 1;
             }
 
+          currentFunction = wrappedFunctions[occ];
+
+          if(currentFunction->IsLegacy)
+            {
+            fprintf(fp,"#if defined(VTK_LEGACY_REMOVE)\n");
+
+            /* avoid warnings if all signatures are legacy and removed */
+            if(!is_static)
+              {
+              fprintf(fp,
+                      "  (void)self;"
+                      " /* avoid warning if all signatures removed */\n");
+              }
+            fprintf(fp,
+                    "  (void)args;"
+                    " /* avoid warning if all signatures removed */\n");
+            fprintf(fp,"#else\n");
+            }
+
           fprintf(fp,"  /* handle an occurrence */\n  {\n");
           /* declare the variables */
           if (!is_static)
@@ -880,7 +895,6 @@ void outputFunction2(FILE *fp, FileInfo *data)
               }
             }
 
-          currentFunction = wrappedFunctions[occ];
           /* process the args */
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
             {
@@ -1083,13 +1097,13 @@ void outputFunction2(FILE *fp, FileInfo *data)
             {
             fprintf(fp," break%d:\n",occ);
             }
+          if(currentFunction->IsLegacy)
+            {
+            fprintf(fp,"#endif\n");
+            }
           }
         }
       fprintf(fp,"  return NULL;\n}\n");
-      if(currentFunction->IsLegacy)
-        {
-        fprintf(fp,"#endif\n");
-        }
       fprintf(fp,"\n");
 
       /* clear all occurances of this method from further consideration */
