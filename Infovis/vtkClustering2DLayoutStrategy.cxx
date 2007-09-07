@@ -37,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -300,16 +300,6 @@ void vtkClustering2DLayoutStrategy::Layout()
   vtkPoints* pts = this->Graph->GetPoints();
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-  
-  // Get a quick pointer to the biconnected array
-  vtkIdTypeArray *biConn = vtkIdTypeArray::SafeDownCast(
-    this->Graph->GetVertexData()->GetArray("biconnected component"));
-  if (biConn == NULL)
-    {
-    vtkErrorMacro("vtkClustering2DLayoutStrategy has to have a biconnected components filter before it");
-    this->LayoutComplete = 1;
-    return;
-    }
   
   // Get a quick pointer to the point data
   vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
