@@ -50,6 +50,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSimple2DLayoutStrategy.h"
+#include "vtkClustering2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
 #include "vtkCellCenters.h"
@@ -59,7 +60,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.4");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.5");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -68,6 +69,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->GraphLayout            = vtkGraphLayout::New();
   this->RandomStrategy         = vtkRandomLayoutStrategy::New();
   this->Simple2DStrategy       = vtkSimple2DLayoutStrategy::New();
+  this->Clustering2DStrategy   = vtkClustering2DLayoutStrategy::New();
   this->Fast2DStrategy         = vtkFast2DLayoutStrategy::New();
   this->ForceDirectedStrategy  = vtkForceDirectedLayoutStrategy::New();
   this->PassThroughStrategy    = vtkPassThroughLayoutStrategy::New();
@@ -154,7 +156,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->EdgeLabelVisibilityOff();
   this->SetVertexColorArrayName("VertexDegree");
   this->ColorVerticesOff();
-  this->SetEdgeColorArrayName("color");
+  this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
   this->SetLayoutStrategyToSimple2D();
   
@@ -207,6 +209,7 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   this->Fast2DStrategy->Delete();
   this->Simple2DStrategy->Delete();
   this->ForceDirectedStrategy->Delete();
+  this->Clustering2DStrategy->Delete();
   this->PassThroughStrategy->Delete();
   this->CircularStrategy->Delete();
   this->VertexDegree->Delete();
@@ -469,6 +472,10 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
   else if (!strcmp(str, "simple2d"))
     {
     s = this->Simple2DStrategy;
+    }
+  else if (!strcmp(str, "clustering2d"))
+    {
+    s = this->Clustering2DStrategy;
     }
   else if (!strcmp(str, "fast2d"))
     {
@@ -817,6 +824,8 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->RandomStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Simple2DStrategy: " << endl;
   this->Simple2DStrategy->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Clustering2DStrategy: " << endl;
+  this->Clustering2DStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Fast2DStrategy: " << endl;
   this->Fast2DStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ForceDirectedStrategy: " << endl;

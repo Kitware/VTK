@@ -50,6 +50,7 @@ class vtkPolyDataMapper;
 class vtkRandomLayoutStrategy;
 class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
+class vtkClustering2DLayoutStrategy;
 class vtkVertexDegree;
 class vtkCellCenters;
 class vtkVertexGlyphFilter;
@@ -117,6 +118,8 @@ public:
   //   "Random"         - Randomly places vertices in a box.
   //   "Force Directed" - A layout in 3D or 2D simulating forces on edges.
   //   "Simple 2D"      - A simple 2D force directed layout.
+  //   "Clustering 2D"  - A 2D force directed layout that's just like
+  //                    - simple 2D but uses some techniques to cluster better.
   //   "Fast 2D"        - A linear-time 2D layout.
   //   "Pass Through"   - Use locations assigned to the input.
   //   "Circular"       - Places vertices uniformly on a circle.
@@ -125,6 +128,7 @@ public:
   void SetLayoutStrategyToRandom()        { this->SetLayoutStrategy("Random"); }
   void SetLayoutStrategyToForceDirected() { this->SetLayoutStrategy("Force Directed"); }
   void SetLayoutStrategyToSimple2D()      { this->SetLayoutStrategy("Simple 2D"); }
+  void SetLayoutStrategyToClustering2D()  { this->SetLayoutStrategy("Cluster 2D"); }
   void SetLayoutStrategyToFast2D()        { this->SetLayoutStrategy("Fast 2D"); }
   void SetLayoutStrategyToPassThrough()   { this->SetLayoutStrategy("Pass Through"); }
   void SetLayoutStrategyToCircular()      { this->SetLayoutStrategy("Circular"); }
@@ -229,6 +233,7 @@ protected:
   vtkRandomLayoutStrategy*         RandomStrategy;
   vtkForceDirectedLayoutStrategy*  ForceDirectedStrategy;
   vtkSimple2DLayoutStrategy*       Simple2DStrategy;
+  vtkClustering2DLayoutStrategy*   Clustering2DStrategy;
   vtkFast2DLayoutStrategy*         Fast2DStrategy;
   vtkPassThroughLayoutStrategy*    PassThroughStrategy;
   vtkCircularLayoutStrategy*       CircularStrategy;
