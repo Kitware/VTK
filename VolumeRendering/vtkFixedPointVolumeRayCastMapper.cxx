@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.36");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.37");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1484,7 +1484,16 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
     // compute 1/2 the average spacing
     double dist = 
       (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
+    double avgNumVoxels = pow((inputExtent[1] - inputExtent[0]) * 
+                              (inputExtent[3] - inputExtent[2]) * 
+                              (inputExtent[5] - inputExtent[4]),
+                              0.333);
     
+    if (avgNumVoxels < 100)
+      {
+      dist *= 0.01 + (1 - 0.01) * avgNumVoxels / 100;
+      }
+
     // Need to treat interactive renders differently, because if
     // AutoAdjustSampleDistances is on, then we doubled the sample
     // distance
@@ -3381,22 +3390,6 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
         {
         float *ptr = tmpArray;    
         double factor;
-        if ( this->LockSampleDistanceToInputSpacing )
-          {
-          // Need to treat interactive renders differently, because if
-          // AutoAdjustSampleDistances is on, then we doubled the sample
-          // distance
-          if ( this->AutoAdjustSampleDistances &&
-               vol->GetAllocatedRenderTime() < 1.0 )
-            {
-            factor = 2.0;
-            }
-          else
-            {
-            factor = 1.0;
-            }
-          }
-        else
           {
           factor = this->SampleDistance / vol->GetProperty()->GetScalarOpacityUnitDistance(c);
           }

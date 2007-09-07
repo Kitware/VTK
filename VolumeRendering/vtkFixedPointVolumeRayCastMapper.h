@@ -145,12 +145,12 @@ public:
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
   
   // Description:
-  // Automatically compute the sample distance from the data spacing.
-  // The sample distance will be kept at 1/2 the average sample
-  // distance. As a side effect, this method will also ignore the
-  // ScalarOpacityUnitDistance provided in the vtkVolumeProperty of
-  // the vtkVolume used during rendering, and will instead use the
-  // 1/2 average sample spacing as this unit distance as well.
+  // Automatically compute the sample distance from the data spacing.  When
+  // the number of voxels is 8, the sample distance will be roughly 1/200
+  // the average voxel size. The distance will grow proportionally to
+  // numVoxels^(1/3) until it reaches 1/2 average voxel size when number of
+  // voxels is 1E6. Note that ScalarOpacityUnitDistance is still taken into
+  // account and if different than 1, will effect the sample distance.
   vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
   vtkGetMacro( LockSampleDistanceToInputSpacing, int );
   vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
