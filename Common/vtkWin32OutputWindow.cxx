@@ -17,11 +17,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.23");
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.24");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
 
+//----------------------------------------------------------------------------
 LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message,
                                              WPARAM wParam,
                                              LPARAM lParam)
@@ -47,8 +48,29 @@ LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message,
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-// Display text in the window, and translate the \n to \r\n.
+//----------------------------------------------------------------------------
+vtkWin32OutputWindow::vtkWin32OutputWindow()
+{
+  // Default to sending output to stderr/cerr when running a dashboard:
+  //
+  if(getenv("DART_TEST_FROM_DART"))
+    {
+    this->SendToStdErr = true;
+    }
+  else
+    {
+    this->SendToStdErr = false;
+    }
+}
 
+//----------------------------------------------------------------------------
+vtkWin32OutputWindow::~vtkWin32OutputWindow()
+{
+}
+
+//----------------------------------------------------------------------------
+// Display text in the window, and translate the \n to \r\n.
+//
 void vtkWin32OutputWindow::DisplayText(const char* someText)
 {
   if(!someText)
@@ -60,10 +82,10 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
     this->PromptText(someText);
     return;
     }
-  
+
   // Create a buffer big enough to hold the entire text
   char* buffer = new char[strlen(someText)+1];
-  // Start at the begining
+  // Start at the beginning
   const char* NewLinePos = someText;
   while(NewLinePos)
     {
@@ -75,6 +97,11 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       {
       vtkWin32OutputWindow::AddText(someText);
       OutputDebugString(someText);
+
+      if (this->SendToStdErr)
+        {
+        cerr << someText;
+        }
       }
     // if a new line is found copy it to the buffer
     // and add the buffer with a control new line
@@ -88,14 +115,20 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       vtkWin32OutputWindow::AddText("\r\n");
       OutputDebugString(buffer);
       OutputDebugString("\r\n");
+
+      if (this->SendToStdErr)
+        {
+        cerr << buffer;
+        cerr << "\r\n";
+        }
       }
     }
   delete [] buffer;
 }
 
-
+//----------------------------------------------------------------------------
 // Add some text to the EDIT control.
-
+//
 void vtkWin32OutputWindow::AddText(const char* someText)
 {
   if(!Initialize()  || (strlen(someText) == 0))
@@ -123,10 +156,10 @@ void vtkWin32OutputWindow::AddText(const char* someText)
 #endif
 }
 
-
+//----------------------------------------------------------------------------
 // initialize the output window with an EDIT control and
 // a container window.
-
+//
 int vtkWin32OutputWindow::Initialize()
 {
   // check to see if it is already initialized
@@ -134,8 +167,9 @@ int vtkWin32OutputWindow::Initialize()
     {
     return 1;
     }
-  // Initialized the output window
-  
+
+  // Initialize the output window
+
   WNDCLASS wndClass;   
   // has the class been registered ?
 #ifdef UNICODE
@@ -248,7 +282,7 @@ int vtkWin32OutputWindow::Initialize()
 #endif
 
   const int maxsize = 5242880;
-  
+
 #ifdef UNICODE
   SendMessageW(vtkWin32OutputWindowOutputWindow,
                EM_LIMITTEXT, maxsize, 0L);
@@ -257,13 +291,13 @@ int vtkWin32OutputWindow::Initialize()
                EM_LIMITTEXT, maxsize, 0L);
 #endif
 
-  
+
   // show the top level container window
   ShowWindow(win, SW_SHOW);
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
   char *vtkmsg = new char [strlen(someText) + 100];
@@ -288,10 +322,11 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   delete [] vtkmsg;
 }
 
+//----------------------------------------------------------------------------
 void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if (vtkWin32OutputWindowOutputWindow)
     {
     os << indent << "OutputWindow: "
@@ -302,6 +337,5 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "OutputWindow: (null)\n";      
     }
 
-
+  os << indent << "SendToStdErr: " << this->SendToStdErr << "\n";      
 }
-

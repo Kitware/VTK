@@ -38,21 +38,32 @@ public:
   // Description:
   // Create a vtkWin32OutputWindow.
   static vtkWin32OutputWindow* New();
+
   // Description:  Put the text into the display window.
   // New lines are converted to carriage return new lines.
   virtual void DisplayText(const char*);
+
+  // Description:
+  // Set or get whether the vtkWin32OutputWindow should also send its output
+  // to stderr / cerr.
+  vtkGetMacro(SendToStdErr, bool);
+  vtkSetMacro(SendToStdErr, bool);
+  vtkBooleanMacro(SendToStdErr, bool);
+
 protected: 
-  vtkWin32OutputWindow() {}; 
-  virtual ~vtkWin32OutputWindow() {}; 
-  
+  vtkWin32OutputWindow();
+  virtual ~vtkWin32OutputWindow();
+
   void PromptText(const char* text);
   static void AddText(const char*);
   static int Initialize();
+
 private:
+  bool SendToStdErr;
+
   vtkWin32OutputWindow(const vtkWin32OutputWindow&);  // Not implemented.
   void operator=(const vtkWin32OutputWindow&);  // Not implemented.
 };
-
 
 
 #endif
