@@ -32,7 +32,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.44");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.45");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -414,7 +414,7 @@ vtkMPICommunicator::~vtkMPICommunicator()
 }
 
 //-----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
+#ifndef VTK_LEGACY_REMOVE
 int vtkMPICommunicator::Initialize(vtkMPICommunicator  *mpiComm,
                                    vtkMPIGroup *deprecatedGroup)
 {
@@ -1236,7 +1236,7 @@ int vtkMPICommunicator::AllReduceVoidArray(
 
 //=============================================================================
 // Deprecated reduce methods.
-#ifndef VTK_REMOVE_LEGACY_CODE
+#ifndef VTK_LEGACY_REMOVE
 
 int vtkMPICommunicator::ReduceMax(int *data, int *to,
                                   int size, int root)
@@ -1338,4 +1338,4 @@ int vtkMPICommunicator::ReduceOr(bool *data, bool *to, int size, int root)
                       LOGICAL_OR_OP, root);
 }
 
-#endif // VTK_REMOVE_LEGACY_CODE
+#endif // VTK_LEGACY_REMOVE
