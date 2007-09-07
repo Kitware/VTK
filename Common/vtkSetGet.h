@@ -805,16 +805,20 @@ virtual double *Get##name() \
 // Macros to create runtime deprecation warning messages in function
 // bodies.  Example usage:
 //
+//   #if !defined(VTK_LEGACY_REMOVE)
 //   void vtkMyClass::MyOldMethod()
 //   {
 //     VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, "VTK 5.0");
 //   }
+//   #endif
 //
+//   #if !defined(VTK_LEGACY_REMOVE)
 //   void vtkMyClass::MyMethod()
 //   {
 //     VTK_LEGACY_REPLACED_BODY(vtkMyClass::MyMethod, "VTK 5.0",
 //                              vtkMyClass::MyOtherMethod);
 //   }
+//   #endif
 #if defined(VTK_LEGACY_REMOVE) || defined(VTK_LEGACY_SILENT)
 # define VTK_LEGACY_BODY(method, version)
 # define VTK_LEGACY_REPLACED_BODY(method, version, replace)
