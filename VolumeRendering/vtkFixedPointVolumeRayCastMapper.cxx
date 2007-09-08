@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.37");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.38");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1484,10 +1484,11 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
     // compute 1/2 the average spacing
     double dist = 
       (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
-    double avgNumVoxels = pow((inputExtent[1] - inputExtent[0]) * 
+    double avgNumVoxels = 
+      pow(static_cast<double>((inputExtent[1] - inputExtent[0]) * 
                               (inputExtent[3] - inputExtent[2]) * 
-                              (inputExtent[5] - inputExtent[4]),
-                              0.333);
+                              (inputExtent[5] - inputExtent[4])),
+          static_cast<double>(0.333));
     
     if (avgNumVoxels < 100)
       {
