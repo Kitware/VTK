@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.18");
+vtkCxxRevisionMacro(vtkSelection, "1.19");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -363,59 +363,167 @@ int vtkSelection::GetFieldType()
 }
 
 //----------------------------------------------------------------------------
-void vtkSelection::Union(vtkSelection* s)
+bool vtkSelection::EqualProperties(vtkSelection* other, 
+  bool fullcompare/*=true*/)
 {
-  if (this->Properties->Has(CONTENT_TYPE()) != s->Properties->Has(CONTENT_TYPE()))
+  if (!other)
     {
-    vtkErrorMacro(<< "Cannot union selections where one has content type "
-                  << "and the other does not.");
-    return;
+    return false;
     }
-  if (this->Properties->Has(CONTENT_TYPE()) && 
-      this->Properties->Get(CONTENT_TYPE()) != s->Properties->Get(CONTENT_TYPE()))
+
+  vtkSmartPointer<vtkInformationIterator> iterSelf = 
+    vtkSmartPointer<vtkInformationIterator>::New();
+  
+  iterSelf->SetInformation(this->Properties);
+
+  vtkInformation* otherProperties = other->GetProperties();
+  for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal();
+    iterSelf->GoToNextItem())
     {
-    vtkErrorMacro(<< "Cannot union selections with different content types.");
-    return;
+    vtkInformationKey* key = iterSelf->GetCurrentKey();
+    vtkInformationIntegerKey* ikey = 
+      vtkInformationIntegerKey::SafeDownCast(key);
+    vtkInformationObjectBaseKey* okey = 
+      vtkInformationObjectBaseKey::SafeDownCast(key);
+    if (ikey)
+      {
+      if (!otherProperties->Has(ikey) || 
+        this->Properties->Get(ikey) != otherProperties->Get(ikey))
+        {
+        return false;
+        }
+      }
+    if (okey)
+      {
+      if (!otherProperties->Has(okey) || 
+        this->Properties->Get(okey) != otherProperties->Get(okey))
+        {
+        return false;
+        }
+      }
     }
+
+  if (fullcompare)
+    {
+    return other->EqualProperties(this, false);
+    }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::UnionSelectionList(vtkSelection* other)
+{
   int type = this->Properties->Get(CONTENT_TYPE());
   switch (type)
     {
-    case GLOBALIDS:
-    case PEDIGREEIDS:
-    case VALUES:
-    case INDICES:
-    case LOCATIONS:
-    case THRESHOLDS:
+  case GLOBALIDS:
+  case PEDIGREEIDS:
+  case VALUES:
+  case INDICES:
+  case LOCATIONS:
+  case THRESHOLDS:
       {
       vtkAbstractArray* aa1 = this->GetSelectionList();
-      vtkAbstractArray* aa2 = s->GetSelectionList();
+      vtkAbstractArray* aa2 = other->GetSelectionList();
       if (aa1->GetDataType() != aa2->GetDataType())
         {
         vtkErrorMacro(<< "Cannot take the union where selection list types "
-                      << "do not match.");
+          << "do not match.");
         return;
         }
       if (aa1->GetNumberOfComponents() != aa2->GetNumberOfComponents())
         {
         vtkErrorMacro(<< "Cannot take the union where selection list number "
-                      << "of components do not match.");
+          << "of components do not match.");
         return;
         }
+      // TODO: avoid duplicates.
       for (vtkIdType i = 0; i < aa2->GetNumberOfTuples(); i++)
         {
         aa1->InsertNextTuple(i, aa2);
         }
       break;
       }
-    case SELECTIONS:
-    case COMPOSITE_SELECTIONS:
-    case FRUSTUM:
-    default:
+  case SELECTIONS:
+  case COMPOSITE_SELECTIONS:
+  case FRUSTUM:
+  default:
       {
       vtkErrorMacro(<< "Do not know how to take the union of content type "
-                    << type << ".");
+        << type << ".");
       return;
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::Union(vtkSelection* s)
+{
+  if (s->GetContentType() == SELECTIONS)
+    {
+    // Merge the selection with any of our children.
+    for (unsigned int cc=0; cc < s->GetNumberOfChildren(); cc++)
+      {
+      s->GetChild(cc)->Union(s);
+      }
+    return;
+    }
+
+  // Now we are assured "s" is a leaf node.
+  if (this->GetContentType() == SELECTIONS)
+    {
+    // Attempt to merge "s" with any of our children, if possible.
+    // If not, a clone of "s" gets added as a new child.
+    bool merged = false;
+    for (unsigned int cc=0; cc < this->GetNumberOfChildren(); cc++)
+      {
+      vtkSelection* child = this->GetChild(cc);
+      if (child->GetContentType() == SELECTIONS)
+        {
+        vtkErrorMacro("Selection trees deeper than 1 level are not handled.");
+        return;
+        }
+      if (child->EqualProperties(s))
+        {
+        child->UnionSelectionList(s);
+        merged = true;
+        break;
+        }
+      }
+    if (!merged)
+      {
+      vtkSelection* clone = vtkSelection::New();
+      clone->ShallowCopy(s);
+      this->AddChild(clone);
+      clone->Delete();
+      }
+
+    }
+  else if (this->EqualProperties(s))
+    {
+    this->UnionSelectionList(s);
+    }
+  else
+    {
+    if (this->GetParentNode())
+      {
+      // sanity check to ensure we don't create trees deeper than 1 level.
+      vtkErrorMacro("Cannot merge. Sanity check for depth of tree failed.");
+      return;
+      }
+    
+    vtkSelection* clone = vtkSelection::New();
+    clone->ShallowCopy(this);
+    this->Initialize();
+    this->SetContentType(vtkSelection::SELECTIONS);
+    this->AddChild(clone);
+    clone->Delete();
+
+    clone = vtkSelection::New();
+    clone->ShallowCopy(s);
+    this->AddChild(clone);
+    clone->Delete();
     }
 }
 

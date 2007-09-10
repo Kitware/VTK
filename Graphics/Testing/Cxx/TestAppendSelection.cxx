@@ -19,9 +19,10 @@
 
 #include "vtkAppendSelection.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkSelection.h"
-
 #include "vtkSmartPointer.h"
+
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -86,6 +87,21 @@ int SelectionCompare(
           errors++;
           break;
           }
+        }
+      }
+    }
+  if (a->GetContentType() == vtkSelection::SELECTIONS)
+    {
+    if (a->GetNumberOfChildren() != b->GetNumberOfChildren())
+      {
+      cerr << "ERROR: Number of children does not match." << endl;
+      errors++;
+      }
+    else
+      {
+      for (unsigned int cc=0; cc < a->GetNumberOfChildren(); cc++)
+        {
+        errors += SelectionCompare(a->GetChild(cc), b->GetChild(cc));
         }
       }
     }
@@ -174,6 +190,38 @@ int TestAppendSelection(int, char*[])
   selAppendArr->InsertNextValue(3);
   selAppendArr->InsertNextValue(4);
   selAppendArr->InsertNextValue(5);
+  errors += TestAppendSelectionCase(sel1, sel2, selAppend);
+  cerr << "... done." << endl;
+  }
+
+  {
+  cerr << "Testing appending cell selections with different process ids..." << endl;
+  VTK_CREATE(vtkSelection, sel1);
+  VTK_CREATE(vtkIdTypeArray, sel1Arr);
+  sel1->SetContentType(vtkSelection::INDICES);
+  sel1->SetFieldType(vtkSelection::CELL);
+  sel1->SetSelectionList(sel1Arr);
+  sel1->GetProperties()->Set(vtkSelection::PROCESS_ID(), 0);
+  sel1Arr->InsertNextValue(0);
+  sel1Arr->InsertNextValue(1);
+  sel1Arr->InsertNextValue(2);
+  VTK_CREATE(vtkSelection, sel2);
+  VTK_CREATE(vtkIdTypeArray, sel2Arr);
+  sel2->SetContentType(vtkSelection::INDICES);
+  sel2->SetFieldType(vtkSelection::CELL);
+  sel2->SetSelectionList(sel2Arr);
+  sel2->GetProperties()->Set(vtkSelection::PROCESS_ID(), 1);
+  sel2Arr->InsertNextValue(3);
+  sel2Arr->InsertNextValue(4);
+  sel2Arr->InsertNextValue(5);
+  VTK_CREATE(vtkSelection, selAppend);
+  VTK_CREATE(vtkSelection, sel1Clone);
+  VTK_CREATE(vtkSelection, sel2Clone);
+  selAppend->SetContentType(vtkSelection::SELECTIONS);
+  sel1Clone->DeepCopy(sel1);
+  sel2Clone->DeepCopy(sel2);
+  selAppend->AddChild(sel1Clone);
+  selAppend->AddChild(sel2Clone);
   errors += TestAppendSelectionCase(sel1, sel2, selAppend);
   cerr << "... done." << endl;
   }

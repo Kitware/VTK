@@ -292,9 +292,20 @@ public:
   // For Frustum selection.
   static vtkInformationIntegerKey* SHOW_BOUNDS();
 
+//BTX
 protected:
   vtkSelection();
   ~vtkSelection();
+
+  // Description:
+  // Merges the selection list between self and the other. Assumes that both has
+  // identical properties.
+  void UnionSelectionList(vtkSelection* other);
+
+
+  // Description:
+  // Compares Properties of self and other to ensure that they are exactly same.
+  bool EqualProperties(vtkSelection* other, bool fullcompare=true);
 
   vtkInformation* Properties;
   vtkSelection* ParentNode;
@@ -304,6 +315,7 @@ private:
   void operator=(const vtkSelection&);  // Not implemented.
 
   vtkSelectionInternals* Internal;
+//ETX
 };
 
 #endif
