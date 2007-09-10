@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.27");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.28");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -930,8 +930,11 @@ int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement *elem)
   if (this->GetNumberOfAttributes() != elem->GetNumberOfAttributes() ||
       this->GetNumberOfNestedElements() != elem->GetNumberOfNestedElements() ||
       (this->GetName() != elem->GetName() && 
-       (!this->GetName() || !elem->GetName() || strcmp(this->GetName(), 
-                                                       elem->GetName()))))
+       (!this->GetName() || !elem->GetName() || 
+        strcmp(this->GetName(), elem->GetName()))) ||
+      (this->GetCharacterData() != elem->GetCharacterData() && 
+       (!this->GetCharacterData() || !elem->GetCharacterData() || 
+        strcmp(this->GetCharacterData(), elem->GetCharacterData()))))
     {
     return 0;
     }
@@ -973,6 +976,8 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
   this->SetId(elem->GetId());
   this->SetXMLByteIndex(elem->GetXMLByteIndex());
   this->SetAttributeEncoding(elem->GetAttributeEncoding());
+  const char *elem_cdata = elem->GetCharacterData();
+  this->SetCharacterData(elem_cdata, elem_cdata ? strlen(elem_cdata) : 0);
 
   // Copy attributes
 

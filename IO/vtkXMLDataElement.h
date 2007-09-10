@@ -175,9 +175,10 @@ public:
   vtkSetMacro(XMLByteIndex, unsigned long);
   
   // Description:
-  // Check if the instance has the same name, attributes and nested elements
-  // contents than the given element (this method is applied recursively
-  // on the nested elements, and they must be stored in the same order).
+  // Check if the instance has the same name, attributes, character data
+  // and nested elements contents than the given element (this method is
+  // applied recursively on the nested elements, and they must be stored in
+  // the same order).
   // Warning: Id, Parent, XMLByteIndex are ignored.
   virtual int IsEqualTo(vtkXMLDataElement *elem);
 
