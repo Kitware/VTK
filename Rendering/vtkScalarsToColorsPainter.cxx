@@ -37,7 +37,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.6");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.7");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -251,12 +251,13 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
   vtkCellData* opcd = this->OutputData->GetCellData();
   vtkFieldData* opfd = this->OutputData->GetFieldData();
 
+  int arraycomponent = this->ArrayComponent;
   // This is for a legacy feature: selection of the array component to color by
   // from the mapper.  It is now in the lookuptable.  When this feature
   // is removed, we can remove this condition.
   if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
     {
-    this->ArrayComponent = 0;
+    arraycomponent = 0;
     }
   
   if (!this->ScalarVisibility || scalars == 0 || this->GetPolyData() == 0)
@@ -353,7 +354,7 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
   colors = 0;
   this->LookupTable->SetAlpha(alpha);
   colors = this->LookupTable->
-    MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+    MapScalars(scalars, this->ColorMode, arraycomponent);
   if (multiply_with_alpha)
     {
     // It is possible that the LUT simply returns the scalars as the
