@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.24");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.24.6.1");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ vtkXMLDataElement::vtkXMLDataElement()
   this->XMLByteIndex = 0;
 
   this->AttributeEncoding = VTK_ENCODING_UTF_8;
+  this->CharacterData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,6 +58,7 @@ vtkXMLDataElement::~vtkXMLDataElement()
 
   this->RemoveAllNestedElements();
   delete [] this->NestedElements;
+  this->SetCharacterData(0, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -113,6 +115,52 @@ void vtkXMLDataElement::ReadXMLAttributes(const char** atts, int encoding)
         str.rdbuf()->freeze(0);
         }
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetCharacterData(const char* c, int length)
+{
+  if (this->CharacterData)
+    {
+    delete [] this->CharacterData;
+    this->CharacterData = 0;
+    }
+  if (c && length > 0)
+    {
+    this->CharacterData = new char[length + 1];
+    strncpy(this->CharacterData, c, length);
+    this->CharacterData[length] = 0;
+    }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::AddCharacterData(const char* c, int length)
+{
+  if (!c || length <= 0)
+    {
+    return;
+    }
+  
+  char* old_data = this->CharacterData;
+  int old_length = (old_data)? strlen(old_data): 0;
+  int total_length = old_length + length;
+  
+  this->CharacterData = new char[total_length + 1];
+  this->CharacterData[0] = 0;
+
+  if (old_length > 0)
+    {
+    strncpy(this->CharacterData, old_data, old_length);
+    this->CharacterData[old_length] = 0;
+    }
+  strncat(this->CharacterData, c, length);
+  this->CharacterData[total_length] = 0;
+  
+  if (old_data)
+    {
+    delete [] old_data;
     }
 }
 
@@ -729,12 +777,17 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
     return 0;
 #endif
     }
+  else if (strcmp(v, "String") == 0)
+    {
+    value = VTK_STRING;
+    return 1;
+    }
   else
     {
     vtkErrorMacro("Unknown data type \"" << v << "\".  Supported types are:\n"
                   "Int8,  Int16,  Int32,  Int64,\n"
                   "UInt8, UInt16, UInt32, UInt64,\n"
-                  "Float32, Float64\n");
+                  "Float32, Float64, String\n");
     return 0;
     }
 }
@@ -877,8 +930,11 @@ int vtkXMLDataElement::IsEqualTo(vtkXMLDataElement *elem)
   if (this->GetNumberOfAttributes() != elem->GetNumberOfAttributes() ||
       this->GetNumberOfNestedElements() != elem->GetNumberOfNestedElements() ||
       (this->GetName() != elem->GetName() && 
-       (!this->GetName() || !elem->GetName() || strcmp(this->GetName(), 
-                                                       elem->GetName()))))
+       (!this->GetName() || !elem->GetName() || 
+        strcmp(this->GetName(), elem->GetName()))) ||
+      (this->GetCharacterData() != elem->GetCharacterData() && 
+       (!this->GetCharacterData() || !elem->GetCharacterData() || 
+        strcmp(this->GetCharacterData(), elem->GetCharacterData()))))
     {
     return 0;
     }
@@ -920,6 +976,8 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
   this->SetId(elem->GetId());
   this->SetXMLByteIndex(elem->GetXMLByteIndex());
   this->SetAttributeEncoding(elem->GetAttributeEncoding());
+  const char *elem_cdata = elem->GetCharacterData();
+  this->SetCharacterData(elem_cdata, elem_cdata ? strlen(elem_cdata) : 0);
 
   // Copy attributes
 
@@ -954,5 +1012,7 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
   os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
   os << indent << "AttributeEncoding: " << this->AttributeEncoding << "\n";
+  os << indent << "CharacterData: " << 
+    (this->CharacterData? this->CharacterData : "(null)") << endl;
 }
 
