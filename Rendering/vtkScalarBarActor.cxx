@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.61");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.62");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -322,22 +322,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
 
     // Build scalar bar object; determine its type
-    //
-    // is this a vtkLookupTable or a subclass of vtkLookupTable 
-    // with its scale set to log
-    // NOTE: it's possible we could to without the 'lut' variable
-    // later in the code, but if the vtkLookupTableSafeDownCast operation
-    // fails for some reason, this code will break in new ways. So, the 'LUT'
-    // variable is used for this operation only
-    vtkLookupTable *LUT = vtkLookupTable::SafeDownCast( this->LookupTable );
-    int isLogTable = 0;
-    if ( LUT )
-      {
-      if ( LUT->GetScale() == VTK_SCALE_LOG10 )
-        {
-        isLogTable = 1; 
-        }
-      }
+    // i.e. has scale set to log
+    int isLogTable = this->LookupTable->UsingLogScale();
     
     // we hard code how many steps to display
     vtkScalarsToColors *lut = this->LookupTable;
@@ -721,15 +707,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
   // is this a vtkLookupTable or a subclass of vtkLookupTable 
   // with its scale set to log
-  vtkLookupTable *LUT = vtkLookupTable::SafeDownCast( this->LookupTable );
-  int isLogTable = 0;
-  if ( LUT )
-    {
-    if ( LUT->GetScale() == VTK_SCALE_LOG10 )
-      {
-      isLogTable = 1; 
-      }
-    }
+  int isLogTable = this->LookupTable->UsingLogScale();
 
   for (i=0; i < this->NumberOfLabels; i++)
     {

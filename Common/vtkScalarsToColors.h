@@ -151,6 +151,11 @@ public:
   virtual vtkUnsignedCharArray *ConvertUnsignedCharToRGBA(
     vtkUnsignedCharArray *colors, int numComp, int numTuples);
 
+  // Description:
+  // This should return 1 is the subclass is using log scale for mapping scalars
+  // to colors. Default implementation returns 0.
+  virtual int UsingLogScale()
+    { return 0; }
 protected:
   vtkScalarsToColors();
   ~vtkScalarsToColors() {}

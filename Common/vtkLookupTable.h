@@ -213,6 +213,14 @@ public:
   // Copy the contents from another LookupTable
   void DeepCopy(vtkLookupTable *lut);
 
+  // Description:
+  // This should return 1 is the subclass is using log scale for mapping scalars
+  // to colors. Returns 1 is scale == VTK_SCALE_LOG10.
+  virtual int UsingLogScale()
+    {
+    return (this->GetScale() == VTK_SCALE_LOG10)? 1 : 0;
+    }
+
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
