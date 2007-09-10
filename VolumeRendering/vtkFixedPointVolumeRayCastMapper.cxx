@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.38");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.39");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -784,7 +784,8 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   
   this->Volume = NULL;
   
-  
+  this->FinalColorWindow           = 1.0;
+  this->FinalColorLevel            = 0.5;
 }
 
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
@@ -1584,10 +1585,67 @@ void vtkFixedPointVolumeRayCastMapper::DisplayRenderedImage( vtkRenderer *ren,
     depth = -1;
     }
   
+  
+  if( this->FinalColorWindow != 1.0 ||
+      this->FinalColorLevel != 0.5 )
+    {
+    this->ApplyFinalColorWindowLevel();
+    }
+  
   this->ImageDisplayHelper->
     RenderTexture( vol, ren, 
                    this->RayCastImage,
                    depth );
+}
+
+void vtkFixedPointVolumeRayCastMapper::ApplyFinalColorWindowLevel()
+{  
+  double scale=1.0/this->FinalColorWindow;
+  double bias=0.5-this->FinalColorLevel/this->FinalColorWindow;
+  
+  unsigned short *image = this->RayCastImage->GetImage();
+  unsigned short *iptr;
+  
+  int fullSize[2];
+  this->RayCastImage->GetImageMemorySize(fullSize);
+
+  int size[2];
+  this->RayCastImage->GetImageInUseSize(size);
+
+  int i, j;
+  
+  for ( j = 0; j < fullSize[1]; j++ )
+    {
+    iptr = image + 4*j*fullSize[0];
+    for ( i = 0; i < size[0]; i++ )
+      {
+      int tmp;
+    
+      // Red component
+      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+3))/32767.0;
+      tmp = (tmp<0)?(0):(tmp);
+      tmp = (tmp>32767)?(32767):(tmp);
+      *iptr = tmp;
+      
+      // Green component
+      iptr++;
+      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+2))/32767.0;
+      tmp = (tmp<0)?(0):(tmp);
+      tmp = (tmp>32767)?(32767):(tmp);
+      *iptr = tmp;
+      
+      // Green component
+      iptr++;
+      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+1))/32767.0;
+      tmp = (tmp<0)?(0):(tmp);
+      tmp = (tmp>32767)?(32767):(tmp);
+      *iptr = tmp;
+      
+      // alpha - do nothing
+      iptr++;
+      iptr++;
+      }
+    }
 }
 
 // This method should be called when the render is aborted to restore previous values.

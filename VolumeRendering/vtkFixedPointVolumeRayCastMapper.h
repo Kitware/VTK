@@ -284,6 +284,22 @@ public:
     { return this->RetrieveRenderTime( ren ); }
   
 
+  // Description:
+  // Set/Get the window / level applied to the final color.
+  // This allows brightness / contrast adjustments on the
+  // final image.
+  // window is the width of the window.
+  // level is the center of the window.
+  // Initial window value is 1.0
+  // Initial level value is 0.5
+  // window cannot be null but can be negative, this way
+  // values will be reversed.
+  // |window| can be larger than 1.0
+  // level can be any real value.
+  vtkSetMacro( FinalColorWindow, float );
+  vtkGetMacro( FinalColorWindow, float );
+  vtkSetMacro( FinalColorLevel,  float );
+  vtkGetMacro( FinalColorLevel,  float );
   
 protected:
   vtkFixedPointVolumeRayCastMapper();
@@ -466,7 +482,13 @@ protected:
   void            UpdateMinMaxVolume( vtkVolume *vol );
   void            FillInMaxGradientMagnitudes( int fullDim[3],
                                                int smallDim[3] );
+   
+  float FinalColorWindow;
+  float FinalColorLevel;
   
+  void ApplyFinalColorWindowLevel();
+  
+
 private:
   vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.
   void operator=(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.
