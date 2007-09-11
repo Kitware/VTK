@@ -387,6 +387,13 @@ public:
   vtkGetMacro(UseBackBuffer, int);
   vtkBooleanMacro(UseBackBuffer, int);
 
+  // Description:
+  // When set the render manager will synchronize the TileViewport and TileScale
+  // properties. This may not be desirable in cases where there's some other
+  // mechanism to set the tile dimensions eg. Tile displays.
+  vtkSetMacro(SynchronizeTileProperties, int);
+  vtkGetMacro(SynchronizeTileProperties, int);
+  vtkBooleanMacro(SynchronizeTileProperties, int);
 protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager();
@@ -427,7 +434,7 @@ protected:
   int MagnifyImageMethod;
 
   int UseRGBA;
-
+  int SynchronizeTileProperties;
   int FullImageSize[2];
   int ReducedImageSize[2];
 
@@ -520,12 +527,14 @@ protected:
     int ReducedSize[2];
     int NumberOfRenderers;
     int UseCompositing;
+    int TileScale[2];
   };
 
   struct RenderWindowInfoDouble
   {
     double ImageReductionFactor;
     double DesiredUpdateRate;
+    double TileViewport[4];
   };
   
   struct RendererInfoInt

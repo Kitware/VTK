@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.69");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.70");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -129,6 +129,7 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->Timer = vtkTimerLog::New();
   
   this->UseBackBuffer = 1;
+  this->SynchronizeTileProperties = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -204,6 +205,8 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Last image processing time: "
      << this->ImageProcessingTime << endl;
   os << indent << "UseRGBA: " << this->UseRGBA << endl;
+  os << indent << "SynchronizeTileProperties: " 
+    << this->SynchronizeTileProperties << endl;
 
   os << indent << "FullImage: ";
   if (this->FullImage)
@@ -558,16 +561,11 @@ void vtkParallelRenderManager::StartRender()
     }
   else
     {
-    tilesize = this->RenderWindow->GetSize();
+    tilesize = this->RenderWindow->GetActualSize();
     }
-  // To me, it seems dangerous for RenderWindow to return a size bigger
-  // than it actually supports or for GetSize to not return the same values
-  // as SetSize.  Yet this is the case when tile rendering is established
-  // in RenderWindow.  Correct for this.
   int size[2];
-  int *tilescale;
-  tilescale = this->RenderWindow->GetTileScale();
-  size[0] = tilesize[0]/tilescale[0];  size[1] = tilesize[1]/tilescale[1];
+  size[0] = tilesize[0];  
+  size[1] = tilesize[1];
   if ((size[0] == 0) || (size[1] == 0))
     {
     // It helps to have a real window size.
@@ -594,7 +592,8 @@ void vtkParallelRenderManager::StartRender()
   winInfoDouble.ImageReductionFactor = this->ImageReductionFactor;
   winInfoInt.UseCompositing = this->UseCompositing;
   winInfoDouble.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
-
+  this->RenderWindow->GetTileScale(winInfoInt.TileScale);
+  this->RenderWindow->GetTileViewport(winInfoDouble.TileViewport);
   for (id = 0; id < numProcs; id++)
     {
     if (id == this->RootProcessId)
@@ -1104,7 +1103,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
     }
   else
     {
-    size = this->RenderWindow->GetSize();
+    size = this->RenderWindow->GetActualSize();
     }
   int numPixels = size[0]*size[1];
   int numReducedPixels
@@ -1932,6 +1931,11 @@ void vtkParallelRenderManager::SatelliteStartRender()
     }
 
   this->RenderWindow->SetDesiredUpdateRate(winInfoDouble.DesiredUpdateRate);
+  if (this->SynchronizeTileProperties)
+    {
+    this->RenderWindow->SetTileViewport(winInfoDouble.TileViewport);
+    this->RenderWindow->SetTileScale(winInfoInt.TileScale);
+    }
   this->SetUseCompositing(winInfoInt.UseCompositing);
   if (this->MaxImageReductionFactor < winInfoDouble.ImageReductionFactor)
     {
