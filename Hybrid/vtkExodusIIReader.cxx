@@ -200,6 +200,7 @@ public:
   vtkTypeRevisionMacro(vtkExodusIIXMLParser,vtkXMLParser);
   void Go(  const char* xmlFileName, vtkExodusIIReaderPrivate* metadata )
     {
+    this->CurrentHierarchyEntry = NULL;
     this->InMaterialAssignment = 0;
     if ( ! xmlFileName || ! metadata )
       {
@@ -215,7 +216,6 @@ public:
       this->Metadata = 0;
       }
     }
-
   
   virtual vtkStdString GetPartNumber(int block)
   {
@@ -258,6 +258,17 @@ public:
     return (*iter);
   }
   
+  virtual void SetCurrentHierarchyEntry(int num)
+  {
+    //since it's an STL list, we need to get the correct entry
+    vtkstd::list<vtkStdString>::iterator iter=this->apbList.begin();
+    for(int i=0;i<num;i++)
+      {
+      iter++;
+      }
+    this->SetCurrentHierarchyEntry((*iter).c_str());
+  }
+  
   virtual vtkstd::vector<int> GetBlocksForEntry(int num)
   {
     return this->apbToBlocks[this->GetHierarchyEntry(num)];
@@ -272,6 +283,9 @@ public:
   {
     return this->blockIds;
   }
+
+  vtkGetStringMacro(CurrentHierarchyEntry);
+  vtkSetStringMacro(CurrentHierarchyEntry);
 
 protected:
   vtkExodusIIXMLParser()
@@ -702,10 +716,12 @@ private:
   vtkstd::map<vtkStdString,int> apbIndents;
 
   vtkstd::set<int> blockIds;
+
+  char *CurrentHierarchyEntry;
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.37");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.38");
 
 
 
@@ -1655,7 +1671,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.37");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.38");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -3284,9 +3300,34 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
     if ( ainfop->Components != 1 )
       {
-      vtkErrorMacro( "Only global variables with one component are supported." );
-      arr->Delete();
-      arr = 0;
+      // Exodus doesn't support reading with a stride, so we have to manually interleave the arrays. Bleh.
+      vtkstd::vector<vtkstd::vector<double> > tmpVal;
+      tmpVal.resize( ainfop->Components );
+      int c;
+      for ( c = 0; c < ainfop->Components; ++c )
+        {
+        vtkIdType N = this->GetNumberOfTimeSteps();
+        tmpVal[c].resize( N );
+        if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL, ainfop->OriginalIndices[c], key.ObjectId, 
+            1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
+          {
+          vtkErrorMacro( "Could not read temporal global result variable " << ainfop->OriginalNames[c].c_str() << "." );
+          arr->Delete();
+          arr = 0;
+          return 0;
+          }
+        }
+      int t;
+      vtkstd::vector<double> tmpTuple;
+      tmpTuple.resize( ainfop->Components );
+      for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
+        {
+        for ( c = 0; c < ainfop->Components; ++c )
+          {
+          tmpTuple[c] = tmpVal[c][t];
+          }
+        arr->SetTuple( t, &tmpTuple[0] );
+        }
       }
     else if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL, ainfop->OriginalIndices[0], key.ObjectId, 
         1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
@@ -5815,7 +5856,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.37");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.38");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -6649,11 +6690,8 @@ const char* vtkExodusIIReader::GetHierarchyArrayName(int arrayIdx)
 {
   if (this->Metadata->Parser)
     {
-    //MEMORY LEAK - without copying the result, the list does not appear on SGI's
-    char* result=new char[512];
-    sprintf(result,"%s",this->Metadata->Parser->GetHierarchyEntry(arrayIdx).c_str());
-    return result;
-    //return this->Metadata->Parser->GetHierarchyEntry(arrayIdx).c_str();
+    this->Metadata->Parser->SetCurrentHierarchyEntry(arrayIdx);
+    return this->Metadata->Parser->GetCurrentHierarchyEntry();
     }
   return "Should not see this";
 }
