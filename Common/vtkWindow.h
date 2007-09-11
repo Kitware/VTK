@@ -60,6 +60,11 @@ public:
   virtual void SetSize(int a[2]);
 
   // Description:
+  // GetSize() returns the size * this->TileScale, whereas this method returns
+  // the size without multiplying with the tile scale.
+  int *GetActualSize();
+
+  // Description:
   // Get the current size of the screen in pixels.
   virtual int     *GetScreenSize() = 0;
 

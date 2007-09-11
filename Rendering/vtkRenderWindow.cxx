@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.152");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.153");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -261,6 +261,11 @@ void vtkRenderWindow::Render()
     {
     this->Interactor->Initialize();
     }
+
+  // CAUTION:
+  // This method uses this->GetSize() and allocates buffers using that size. 
+  // Remember that GetSize() will returns a size scaled by the TileScale factor.
+  // We should use GetActualSize() when we don't want the size to be scaled.
 
   // if there is a reason for an AccumulationBuffer
   if ( this->SubFrames || this->AAFrames || this->FDFrames)

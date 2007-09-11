@@ -16,7 +16,7 @@
 
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkWindow, "1.29");
+vtkCxxRevisionMacro(vtkWindow, "1.30");
 
 //-----------------------------------------------------------------------------
 // Construct an instance of  vtkRenderWindow with its screen size 
@@ -62,6 +62,14 @@ int *vtkWindow::GetSize()
   this->TileSize[1] = this->Size[1]*this->TileScale[1];
   
   return this->TileSize;
+}
+
+//-----------------------------------------------------------------------------
+int* vtkWindow::GetActualSize()
+{
+  // Some subclasses override GetSize() to do some additional magic.
+  this->GetSize();
+  return this->Size;
 }
 
 //-----------------------------------------------------------------------------
