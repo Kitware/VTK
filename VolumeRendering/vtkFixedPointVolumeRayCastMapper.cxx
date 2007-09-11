@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.39");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.40");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1622,21 +1622,21 @@ void vtkFixedPointVolumeRayCastMapper::ApplyFinalColorWindowLevel()
       int tmp;
     
       // Red component
-      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+3))/32767.0;
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+3))/32767.0);
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;
       
       // Green component
       iptr++;
-      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+2))/32767.0;
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+2))/32767.0);
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;
       
       // Green component
       iptr++;
-      tmp = (float)(*iptr)*scale + bias * (float)(*(iptr+1))/32767.0;
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+1))/32767.0);
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;
@@ -3607,38 +3607,39 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
     << (this->LockSampleDistanceToInputSpacing ? "On\n" : "Off\n");
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
-  
-  os << indent << "ShadingRequired: " << this->ShadingRequired << endl;
-  os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired
-     << endl;
-  
-  os << indent << "CurrentScalars: " << this->CurrentScalars << endl;
-  os << indent << "PreviousScalars: " << this->PreviousScalars << endl;
+  os << indent << "Final Color Window: " << this->FinalColorWindow << endl;
+  os << indent << "Final Color Level: " << this->FinalColorLevel << endl;
 
-  if ( this->RayCastImage )
-    {
-    os << indent << "Ray Cast Image:\n";
-    this->RayCastImage->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Ray Cast Image: (none)\n";
-    } 
+  // These are all things that shouldn't be printed....
+  //os << indent << "ShadingRequired: " << this->ShadingRequired << endl;
+  //os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired
+  //   << endl;
   
-  os << indent << "RenderWindow: " << this->RenderWindow << endl;
+  //os << indent << "CurrentScalars: " << this->CurrentScalars << endl;
+  //os << indent << "PreviousScalars: " << this->PreviousScalars << endl;
+
+  //if ( this->RayCastImage )
+  //  {
+  //  os << indent << "Ray Cast Image:\n";
+  //  this->RayCastImage->PrintSelf(os,indent.GetNextIndent());
+  //  }
+  //else
+  //  {
+  //  os << indent << "Ray Cast Image: (none)\n";
+  //  } 
   
-  os << indent << "CompositeHelper: " << this->CompositeHelper << endl;
-  os << indent << "CompositeShadeHelper: " << this->CompositeShadeHelper
-     << endl;
-  os << indent << "CompositeGOHelper: " << this->CompositeGOHelper << endl;
-  os << indent << "CompositeGOShadeHelper: " << this->CompositeGOShadeHelper
-     << endl;
-  os << indent << "MIPHelper: " << this->MIPHelper << endl;
+  //os << indent << "RenderWindow: " << this->RenderWindow << endl;
   
-  os << indent << "TableShift: " << this->TableShift[0] << " "
-     << this->TableShift[1] << " " << this->TableShift[2] << " "
-     << this->TableShift[3] << endl;
-  os << indent << "TableScale: " << this->TableScale[0] << " "
-     << this->TableScale[1] << " " << this->TableScale[2] << " "
-     << this->TableScale[3] << endl;
+  //os << indent << "CompositeHelper: " << this->CompositeHelper << endl;
+  //os << indent << "CompositeShadeHelper: " << this->CompositeShadeHelper << endl;
+  //os << indent << "CompositeGOHelper: " << this->CompositeGOHelper << endl;
+  //os << indent << "CompositeGOShadeHelper: " << this->CompositeGOShadeHelper << endl;
+  //os << indent << "MIPHelper: " << this->MIPHelper << endl;
+  
+  //os << indent << "TableShift: " << this->TableShift[0] << " "
+  //   << this->TableShift[1] << " " << this->TableShift[2] << " "
+  //   << this->TableShift[3] << endl;
+  //os << indent << "TableScale: " << this->TableScale[0] << " "
+  //   << this->TableScale[1] << " " << this->TableScale[2] << " "
+  //   << this->TableScale[3] << endl;
 }
