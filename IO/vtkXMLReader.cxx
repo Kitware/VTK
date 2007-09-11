@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.46");
+vtkCxxRevisionMacro(vtkXMLReader, "1.47");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -412,35 +412,30 @@ int vtkXMLReader::RequestData(vtkInformation *request,
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
+  // Save the time value in the output data information.
+  double* steps =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    
   // Check if a particular time was requested.
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if(steps &&
+     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
     double *requestedTimeSteps = 
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     
-    // Save the time value in the output data information.
     int length =
       outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-
-    double* steps =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     
-      // find the first time value larger than requested time value
-      // this logic could be improved
+    // find the first time value larger than requested time value
+    // this logic could be improved
     int cnt = 0;
     while (cnt < length-1 && steps[cnt] < requestedTimeSteps[0])
       {
       cnt++;
       }
     this->CurrentTimeStep = cnt;
-    // Do not overwrite if a sub-reader setup data time steps.
-    if (!output->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()))
-      {
-      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                    steps+this->CurrentTimeStep,1);
-      }
 
     // Clamp the requested time step to be in bounds.
     if ( this->CurrentTimeStep < this->TimeStepRange[0] )
@@ -451,6 +446,9 @@ int vtkXMLReader::RequestData(vtkInformation *request,
       {
       this->CurrentTimeStep = this->TimeStepRange[1];
       }
+
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
+                                  steps+this->CurrentTimeStep,1);
     }
 
   // Re-open the input file.  If it fails, the error was already
