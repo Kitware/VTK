@@ -66,7 +66,7 @@ public:
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
   // this extent should be set to 0, 9, 0, 0, 0, 0.
   // The extent specifies inclusive min/max values.
-  // This implies the the top extent should be set to the number of bins - 1.
+  // This implies that the top extent should be set to the number of bins - 1.
   void SetComponentExtent(int extent[6]);
   void SetComponentExtent(int minX, int maxX, int minY, int maxY,
         int minZ, int maxZ);
