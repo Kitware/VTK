@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.77");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.78");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -765,7 +765,7 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, double *pt,
       if (this->CopyCellData && input)
         {
         output->GetCellData()->
-          CopyData(output->GetCellData(), this->InCellCount,
+          CopyData(input->GetCellData(), this->InCellCount,
                    this->OutCellCount++);
         }
       }
