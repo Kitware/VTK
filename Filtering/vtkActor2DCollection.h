@@ -96,7 +96,7 @@ private:
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a) 
 {
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+  return this->vtkCollection::IsItemPresent(a);
 }
 
 inline vtkActor2D *vtkActor2DCollection::GetNextActor2D() 

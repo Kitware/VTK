@@ -36,8 +36,10 @@ public:
 
   // Description:
   // Add a poly data to the list.
-  void AddItem(vtkPolyData *pd) {
-    this->vtkCollection::AddItem((vtkObject *)pd);};
+  void AddItem(vtkPolyData *pd)
+    {
+      this->vtkCollection::AddItem(pd);
+    }
 
   // Description:
   // Get the next poly data in the list.

@@ -16,7 +16,7 @@
 #include "vtkActor2DCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActor2DCollection, "1.1");
+vtkCxxRevisionMacro(vtkActor2DCollection, "1.2");
 vtkStandardNewMacro(vtkActor2DCollection);
 
 // protected function to delete an element. Internal use only.
@@ -79,7 +79,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
            indexElem = indexElem->Next)
     {
 
-    vtkActor2D* tempActor = (vtkActor2D*) indexElem->Item;
+    vtkActor2D* tempActor = static_cast<vtkActor2D*>(indexElem->Item);
     if (a->GetLayerNumber() < tempActor->GetLayerNumber())
       {
       // The indexElem item's layer number is larger, so swap

@@ -45,7 +45,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkBitArray, "1.63");
+vtkCxxRevisionMacro(vtkBitArray, "1.64");
 vtkStandardNewMacro(vtkBitArray);
 
 //----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
     this->SaveUserArray = 0;
 
     this->Array = new unsigned char[(this->Size+7)/8];
-    memcpy(this->Array, (unsigned char*)ia->GetVoidPointer(0),
+    memcpy(this->Array, static_cast<unsigned char*>(ia->GetVoidPointer(0)),
            ((this->Size+7)/8)*sizeof(unsigned char));
     }
 }
@@ -423,7 +423,7 @@ double *vtkBitArray::GetTuple(vtkIdType i)
   int loc = this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->Tuple[j] = (double)this->GetValue(loc+j);
+    this->Tuple[j] = static_cast<double>(this->GetValue(loc+j));
     }
 
   return this->Tuple;
@@ -437,7 +437,7 @@ void vtkBitArray::GetTuple(vtkIdType i, double * tuple)
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    tuple[j] = (double)this->GetValue(loc+j);
+    tuple[j] = static_cast<double>(this->GetValue(loc+j));
     }
 }
 
@@ -449,7 +449,7 @@ void vtkBitArray::SetTuple(vtkIdType i, const float * tuple)
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->SetValue(loc+j,(int)tuple[j]);
+    this->SetValue(loc+j,static_cast<int>(tuple[j]));
     }
   this->DataChanged();
 }
@@ -461,7 +461,7 @@ void vtkBitArray::SetTuple(vtkIdType i, const double * tuple)
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->SetValue(loc+j,(int)tuple[j]);
+    this->SetValue(loc+j,static_cast<int>(tuple[j]));
     }
   this->DataChanged();
 }
@@ -475,7 +475,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, const float * tuple)
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->InsertValue(loc+j,(int)tuple[j]);
+    this->InsertValue(loc+j,static_cast<int>(tuple[j]));
     }
   this->DataChanged();
 }
@@ -487,7 +487,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, const double * tuple)
 
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->InsertValue(loc+j,(int)tuple[j]);
+    this->InsertValue(loc+j,static_cast<int>(tuple[j]));
     }
   this->DataChanged();
 }
@@ -498,7 +498,7 @@ vtkIdType vtkBitArray::InsertNextTuple(const float * tuple)
 {
   for (int i=0; i<this->NumberOfComponents; i++)
     {
-    this->InsertNextValue((int)tuple[i]);
+    this->InsertNextValue(static_cast<int>(tuple[i]));
     }
 
   this->DataChanged();
@@ -510,7 +510,7 @@ vtkIdType vtkBitArray::InsertNextTuple(const double * tuple)
 {
   for (int i=0; i<this->NumberOfComponents; i++)
     {
-    this->InsertNextValue((int)tuple[i]);
+    this->InsertNextValue(static_cast<int>(tuple[i]));
     }
 
   this->DataChanged();

@@ -32,8 +32,10 @@ public:
 
   // Description:
   // Add a dataarray to the list.
-  void AddItem(vtkDataArray *ds) {
-    this->vtkCollection::AddItem((vtkObject *)ds);};
+  void AddItem(vtkDataArray *ds)
+    {
+      this->vtkCollection::AddItem(ds);
+    }
   
   // Description:
   // Get the next dataarray in the list.

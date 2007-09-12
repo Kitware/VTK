@@ -207,8 +207,8 @@ virtual type *Get##name ()                                              \
 // Set method must be defined to use this macro.
 //
 #define vtkBooleanMacro(name,type) \
-virtual void name##On () { this->Set##name((type)1);}; \
-virtual void name##Off () { this->Set##name((type)0);}
+  virtual void name##On () { this->Set##name(static_cast<type>(1));};   \
+  virtual void name##Off () { this->Set##name(static_cast<type>(0));}
 
 //
 // Following set macros for vectors define two members for each macro.  The first 

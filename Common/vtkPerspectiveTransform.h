@@ -238,17 +238,31 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   // transformation of a coordinate occurs.  This method is provided
   // to make it possible to decompose a transformation into its
   // constituents, for example to save a transformation to a file.
-  vtkHomogeneousTransform *GetConcatenatedTransform(int i) {
-    if (this->Input == NULL) {
-      return (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i); }
-    else if (i < this->Concatenation->GetNumberOfPreTransforms()) {
-      return (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i); }
-    else if (i > this->Concatenation->GetNumberOfPreTransforms()) {
-      return (vtkHomogeneousTransform*)this->Concatenation->GetTransform(i-1);}
-    else if (this->GetInverseFlag()) {
-      return (vtkHomogeneousTransform *)this->Input->GetInverse(); }
-    else {
-      return (vtkHomogeneousTransform *)this->Input; } };
+  vtkHomogeneousTransform *GetConcatenatedTransform(int i)
+    {
+      vtkAbstractTransform *t;
+      if (this->Input == NULL)
+        {
+        t=this->Concatenation->GetTransform(i);
+        }
+      else if (i < this->Concatenation->GetNumberOfPreTransforms())
+        {
+        t=this->Concatenation->GetTransform(i);
+        }
+      else if (i > this->Concatenation->GetNumberOfPreTransforms())
+        {
+        t=this->Concatenation->GetTransform(i-1);
+        }
+      else if (this->GetInverseFlag())
+        {
+        t=this->Input->GetInverse();
+        }
+      else
+        {
+        t=this->Input;
+        }
+      return static_cast<vtkHomogeneousTransform *>(t);
+    }
 
   // Description:
   // Set the input for this transformation.  This will be used as the

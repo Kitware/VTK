@@ -22,7 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.26");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.27");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -380,7 +380,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.26");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.27");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()
@@ -787,7 +787,8 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation *concat)
       tuple->InverseTransform->Delete();
       tuple->InverseTransform = NULL;
       }
-    oldPreMatrixTransform = (vtkSimpleTransform *)this->PreMatrixTransform;
+    oldPreMatrixTransform =
+      static_cast<vtkSimpleTransform *>(this->PreMatrixTransform);
     this->PreMatrixTransform = NULL;
     this->PreMatrix = NULL;
     }    
@@ -810,7 +811,8 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation *concat)
       tuple->InverseTransform->Delete();
       tuple->InverseTransform = NULL;
       }
-    oldPostMatrixTransform = (vtkSimpleTransform *)this->PostMatrixTransform;
+    oldPostMatrixTransform =
+      static_cast<vtkSimpleTransform *>(this->PostMatrixTransform);
     this->PostMatrixTransform = NULL;
     this->PostMatrix = NULL;
     }    

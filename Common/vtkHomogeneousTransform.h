@@ -66,8 +66,10 @@ public:
 
   // Description:
   // Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.
-  vtkHomogeneousTransform *GetHomogeneousInverse() {
-    return (vtkHomogeneousTransform *)this->GetInverse(); };
+  vtkHomogeneousTransform *GetHomogeneousInverse()
+    {
+      return static_cast<vtkHomogeneousTransform *>(this->GetInverse());
+    }
 
   // Description:
   // This will calculate the transformation without calling Update.

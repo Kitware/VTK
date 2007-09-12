@@ -77,7 +77,7 @@ private:
 
 inline void vtkPropCollection::AddItem(vtkProp *a) 
 {
-  this->vtkCollection::AddItem((vtkObject *)a);
+  this->vtkCollection::AddItem(a);
 }
 
 inline vtkProp *vtkPropCollection::GetNextProp() 

@@ -160,17 +160,31 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
   // transformation of a coordinate occurs.  This method is provided
   // to make it possible to decompose a transformation into its
   // constituents, for example to save a transformation to a file.
-  vtkLinearTransform *GetConcatenatedTransform(int i) {
-    if (this->Input == NULL) {
-      return (vtkLinearTransform *)this->Concatenation->GetTransform(i); }
-    else if (i < this->Concatenation->GetNumberOfPreTransforms()) {
-      return (vtkLinearTransform *)this->Concatenation->GetTransform(i); }
-    else if (i > this->Concatenation->GetNumberOfPreTransforms()) {
-      return (vtkLinearTransform *)this->Concatenation->GetTransform(i-1); } 
-    else if (this->GetInverseFlag()) {
-      return (vtkLinearTransform *)this->Input->GetInverse(); }
-    else {
-      return (vtkLinearTransform *)this->Input; } };
+  vtkLinearTransform *GetConcatenatedTransform(int i)
+    {
+      vtkAbstractTransform *t;
+      if (this->Input == NULL)
+        {
+        t=this->Concatenation->GetTransform(i);
+        }
+      else if (i < this->Concatenation->GetNumberOfPreTransforms())
+        {
+        t=this->Concatenation->GetTransform(i);
+        }
+      else if (i > this->Concatenation->GetNumberOfPreTransforms())
+        {
+        t=this->Concatenation->GetTransform(i-1);
+        }
+      else if (this->GetInverseFlag())
+        {
+        t=this->Input->GetInverse();
+        }
+      else
+        {
+        t=this->Input;
+        }
+      return static_cast<vtkLinearTransform *>(t);
+    }
 
   // Description:
   // Get the x, y, z orientation angles from the transformation matrix as an

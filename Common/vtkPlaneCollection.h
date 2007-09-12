@@ -63,7 +63,7 @@ private:
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f) 
 {
-  this->vtkCollection::AddItem((vtkObject *)f);
+  this->vtkCollection::AddItem(f);
 }
 
 inline vtkPlane *vtkPlaneCollection::GetNextItem() 

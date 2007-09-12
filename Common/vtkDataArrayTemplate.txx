@@ -125,7 +125,7 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     this->Size = 0;
 
     vtkIdType newSize = (sz > 0 ? sz : 1);
-    this->Array = (T*)malloc(newSize * sizeof(T));
+    this->Array = static_cast<T*>(malloc(newSize * sizeof(T)));
     if(!this->Array)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -186,7 +186,7 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   this->Size = fa->GetSize();
 
   this->Size = (this->Size > 0 ? this->Size : 1);
-  this->Array = (T*)malloc(this->Size * sizeof(T));
+  this->Array = static_cast<T*>(malloc(this->Size * sizeof(T)));
   if(!this->Array)
     {
     vtkErrorMacro("Unable to allocate " << this->Size
@@ -281,7 +281,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     {
     // The old array is owned by the user so we cannot try to
     // reallocate it.  Just allocate new memory that we will own.
-    newArray = (T*)malloc(newSize*sizeof(T));
+    newArray = static_cast<T*>(malloc(newSize*sizeof(T)));
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -304,7 +304,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     {
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
-    newArray = (T*)realloc(this->Array, newSize*sizeof(T));
+    newArray = static_cast<T*>(realloc(this->Array, newSize*sizeof(T)));
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize
@@ -478,7 +478,7 @@ double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
     {
     this->TupleSize = this->NumberOfComponents;
     free(this->Tuple);
-    this->Tuple = (double*)malloc(this->TupleSize * sizeof(double));
+    this->Tuple = static_cast<double*>(malloc(this->TupleSize*sizeof(double)));
     }
 
   // Make sure tuple allocation succeeded.

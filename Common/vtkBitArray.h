@@ -155,7 +155,9 @@ public:
   void* WriteVoidPointer(vtkIdType id, vtkIdType number)
     { return this->WritePointer(id, number); }
   void *GetVoidPointer(vtkIdType id)
-    {return (void *)this->GetPointer(id);};
+    {
+      return static_cast<void *>(this->GetPointer(id));
+    }
 
   // Description:
   // Deep copy of another bit array.
@@ -173,7 +175,9 @@ public:
   // with new[] not malloc.
   void SetArray(unsigned char* array, vtkIdType size, int save);
   void SetVoidArray(void *array, vtkIdType size, int save) 
-    {this->SetArray((unsigned char *)array, size, save);};
+    {
+      this->SetArray(static_cast<unsigned char *>(array), size, save);
+    }
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.

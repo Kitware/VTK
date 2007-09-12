@@ -84,22 +84,22 @@ private:
 
 inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p) 
 {
-  this->vtkCollection::AddItem((vtkObject *)p);
+  this->vtkCollection::AddItem(p);
 }
 
 inline void vtkAssemblyPaths::RemoveItem(vtkAssemblyPath *p) 
 {
-  this->vtkCollection::RemoveItem((vtkObject *)p);
+  this->vtkCollection::RemoveItem(p);
 }
 
 inline int vtkAssemblyPaths::IsItemPresent(vtkAssemblyPath *p) 
 {
-  return this->vtkCollection::IsItemPresent((vtkObject *)p);
+  return this->vtkCollection::IsItemPresent(p);
 }
 
 inline vtkAssemblyPath *vtkAssemblyPaths::GetNextItem() 
 { 
-  return (vtkAssemblyPath *)(this->GetNextItemAsObject());
+  return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject());
 }
 
 #endif

@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.29");
+vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.30");
 vtkStandardNewMacro(vtkPerspectiveTransform);
 
 //----------------------------------------------------------------------------
@@ -158,7 +158,8 @@ unsigned long vtkPerspectiveTransform::GetMTime()
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
-  vtkPerspectiveTransform *transform = (vtkPerspectiveTransform *)gtrans;
+  vtkPerspectiveTransform *transform =
+    static_cast<vtkPerspectiveTransform *>(gtrans);
 
   // copy the input
   this->SetInput(transform->Input);
@@ -215,7 +216,7 @@ void vtkPerspectiveTransform::InternalUpdate()
   for (i = nPreTransforms-1; i >= 0; i--)
     {
     vtkHomogeneousTransform *transform = 
-      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
+      static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
                               this->Matrix);
     }
@@ -224,7 +225,7 @@ void vtkPerspectiveTransform::InternalUpdate()
   for (i = nPreTransforms; i < nTransforms; i++)
     {
     vtkHomogeneousTransform *transform = 
-      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
+      static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
                               this->Matrix);
     }

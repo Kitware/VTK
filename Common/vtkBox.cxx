@@ -16,8 +16,9 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkBoundingBox.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkBox, "1.7");
+vtkCxxRevisionMacro(vtkBox, "1.8");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -286,6 +287,9 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
     case 13:
       n[0] = n[1] = n[2] = 0.0;
       n[minAxis] = inDir[minAxis];
+      break;
+    default:
+      assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
     }
 }

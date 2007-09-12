@@ -148,8 +148,10 @@ public:
   // Description:
   // Just like GetInverse, but it includes a typecast to 
   // vtkLinearTransform.
-  vtkLinearTransform *GetLinearInverse() { 
-    return (vtkLinearTransform *)this->GetInverse(); }; 
+  vtkLinearTransform *GetLinearInverse()
+    {
+      return static_cast<vtkLinearTransform *>(this->GetInverse());
+    }
 
   // Description:
   // This will calculate the transformation without calling Update.

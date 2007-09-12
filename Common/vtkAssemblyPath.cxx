@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 
-vtkCxxRevisionMacro(vtkAssemblyPath, "1.8");
+vtkCxxRevisionMacro(vtkAssemblyPath, "1.9");
 vtkStandardNewMacro(vtkAssemblyPath);
 
 vtkAssemblyPath::vtkAssemblyPath()
@@ -50,7 +50,7 @@ void vtkAssemblyPath::AddNode(vtkProp *p, vtkMatrix4x4 *m)
 void vtkAssemblyPath::AddNode(vtkAssemblyNode *n) 
 {
   // First add the node to the list
-  this->vtkCollection::AddItem((vtkObject *)n);
+  this->vtkCollection::AddItem(n);
   
   // Grab the matrix, if any, and concatenate it
   this->Transform->Push(); //keep in synch with list of nodes
@@ -64,7 +64,7 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
 
 vtkAssemblyNode *vtkAssemblyPath::GetNextNode() 
 { 
-  return (vtkAssemblyNode *)(this->GetNextItemAsObject());
+  return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject());
 }
 
 vtkAssemblyNode *vtkAssemblyPath::GetFirstNode() 
@@ -75,7 +75,7 @@ vtkAssemblyNode *vtkAssemblyPath::GetFirstNode()
     }
   else
     {
-    return (vtkAssemblyNode *)(this->Top->Item);
+    return static_cast<vtkAssemblyNode *>(this->Top->Item);
     }
 }
 
@@ -87,7 +87,7 @@ vtkAssemblyNode *vtkAssemblyPath::GetLastNode()
     }
   else
     {
-    return (vtkAssemblyNode *)(this->Bottom->Item);
+    return static_cast<vtkAssemblyNode *>(this->Bottom->Item);
     }
 }
 
@@ -106,7 +106,7 @@ void vtkAssemblyPath::ShallowCopy(vtkAssemblyPath *path)
   this->RemoveAllItems();
   for ( path->InitTraversal(); (node = path->GetNextNode()); )
     {
-    this->vtkCollection::AddItem((vtkObject *)node);
+    this->vtkCollection::AddItem(node);
     }
 }
 
@@ -131,5 +131,3 @@ void vtkAssemblyPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
-
