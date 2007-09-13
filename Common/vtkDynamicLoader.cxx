@@ -16,7 +16,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.24");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.25");
 
 //-----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -49,7 +49,7 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 void*
 vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 {
-  return reinterpret_cast<void*>(vtksys::DynamicLoader::GetSymbolAddress(lib, sym));
+  return (void *)(vtksys::DynamicLoader::GetSymbolAddress(lib, sym));
 }
 
 // ----------------------------------------------------------------------------
