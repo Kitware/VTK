@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.8");
+vtkCxxRevisionMacro(vtkViewport, "1.9");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light, 
@@ -480,40 +480,43 @@ void vtkViewport::ViewportToNormalizedViewport(double &u, double &v)
 void vtkViewport::NormalizedViewportToView(double &x, double &y, 
                                            double &vtkNotUsed(z))
 {
-  // for tiling we must consider the tiledViewport
-  double *tvport = this->VTKWindow->GetTileViewport();
+  if(this->VTKWindow)
+    {
+    // for tiling we must consider the tiledViewport
+    double *tvport = this->VTKWindow->GetTileViewport();
 
-  // what part of the full viewport is the current tiled viewport?
-  double *vport = this->GetViewport();
-  double nvport[4];
-  this->GetViewport(nvport);
-  
-  // clip the viewport to the tiled viewport
-  if (nvport[0] < tvport[0])
-    {
-    nvport[0] = tvport[0];
-    }
-  if (nvport[1] < tvport[1])
-    {
-    nvport[1] = tvport[1];
-    }
-  if (nvport[2] > tvport[2])
-    {
-    nvport[2] = tvport[2];
-    }
-  if (nvport[3] > tvport[3])
-    {
-    nvport[3] = tvport[3];
-    }
+    // what part of the full viewport is the current tiled viewport?
+    double *vport = this->GetViewport();
+    double nvport[4];
+    this->GetViewport(nvport);
+    
+    // clip the viewport to the tiled viewport
+    if (nvport[0] < tvport[0])
+      {
+      nvport[0] = tvport[0];
+      }
+    if (nvport[1] < tvport[1])
+      {
+      nvport[1] = tvport[1];
+      }
+    if (nvport[2] > tvport[2])
+      {
+      nvport[2] = tvport[2];
+      }
+    if (nvport[3] > tvport[3])
+      {
+      nvport[3] = tvport[3];
+      }
 
-  x = x*(vport[2] - vport[0]) + vport[0];
-  y = y*(vport[3] - vport[1]) + vport[1];
+    x = x*(vport[2] - vport[0]) + vport[0];
+    y = y*(vport[3] - vport[1]) + vport[1];
 
-  x = (x - nvport[0])/(nvport[2] - nvport[0]);
-  y = (y - nvport[1])/(nvport[3] - nvport[1]);
-  
-  x = (2.0*x - 1.0);
-  y = (2.0*y - 1.0);
+    x = (x - nvport[0])/(nvport[2] - nvport[0]);
+    y = (y - nvport[1])/(nvport[3] - nvport[1]);
+    
+    x = (2.0*x - 1.0);
+    y = (2.0*y - 1.0);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -580,42 +583,45 @@ void vtkViewport::NormalizedViewportToViewport(double &u, double &v)
 void vtkViewport::ViewToNormalizedViewport(double &x, double &y, 
                                            double &vtkNotUsed(z))
 {
-  // for tiling we must consider the tiledViewport
-  double *tvport = this->VTKWindow->GetTileViewport();
+  if(this->VTKWindow)
+    {
+    // for tiling we must consider the tiledViewport
+    double *tvport = this->VTKWindow->GetTileViewport();
 
-  // what part of the full viewport is the current tiled viewport?
-  double *vport = this->GetViewport();
-  double nvport[4];
-  this->GetViewport(nvport);
-  
-  // clip the viewport to the tiled viewport
-  if (nvport[0] < tvport[0])
-    {
-    nvport[0] = tvport[0];
-    }
-  if (nvport[1] < tvport[1])
-    {
-    nvport[1] = tvport[1];
-    }
-  if (nvport[2] > tvport[2])
-    {
-    nvport[2] = tvport[2];
-    }
-  if (nvport[3] > tvport[3])
-    {
-    nvport[3] = tvport[3];
-    }
+    // what part of the full viewport is the current tiled viewport?
+    double *vport = this->GetViewport();
+    double nvport[4];
+    this->GetViewport(nvport);
+    
+    // clip the viewport to the tiled viewport
+    if (nvport[0] < tvport[0])
+      {
+      nvport[0] = tvport[0];
+      }
+    if (nvport[1] < tvport[1])
+      {
+      nvport[1] = tvport[1];
+      }
+    if (nvport[2] > tvport[2])
+      {
+      nvport[2] = tvport[2];
+      }
+    if (nvport[3] > tvport[3])
+      {
+      nvport[3] = tvport[3];
+      }
 
-  x =  (x + 1.0) / 2.0;
-  y =  (y + 1.0) / 2.0;
+    x =  (x + 1.0) / 2.0;
+    y =  (y + 1.0) / 2.0;
 
-  // now x and y are in the normalized viewport of the clipped viewport
-  // we need to convert that to the normalized viewport of the entire
-  // viewport
-  x = nvport[0] + x*(nvport[2] - nvport[0]);
-  y = nvport[1] + y*(nvport[3] - nvport[1]);
-  x = (x - vport[0])/(vport[2] - vport[0]);
-  y = (y - vport[1])/(vport[3] - vport[1]);
+    // now x and y are in the normalized viewport of the clipped viewport
+    // we need to convert that to the normalized viewport of the entire
+    // viewport
+    x = nvport[0] + x*(nvport[2] - nvport[0]);
+    y = nvport[1] + y*(nvport[3] - nvport[1]);
+    x = (x - vport[0])/(vport[2] - vport[0]);
+    y = (y - vport[1])/(vport[3] - vport[1]);
+    }
 }
 
 void vtkViewport::ComputeAspect()
