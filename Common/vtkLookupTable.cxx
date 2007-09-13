@@ -16,8 +16,9 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.104");
+vtkCxxRevisionMacro(vtkLookupTable, "1.105");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -204,6 +205,9 @@ void vtkLookupTable::ForceBuild()
         c_rgba[3] = static_cast<unsigned char>((sqrt(rgba[3]))*255.0f + 0.5f);
         }
         break;
+      default:
+        assert("check: impossible case."); // reaching this line is a bug.
+        break;
       }
     }
   this->BuildTime.Modified();
@@ -269,13 +273,13 @@ void vtkLookupTableLogRange(double range[2], double logRange[2])
     }
   if (rmin < 0 && rmax < 0)
     {
-    logRange[0] = log10(-(double)rmin);
-    logRange[1] = log10(-(double)rmax);
+    logRange[0] = log10(-static_cast<double>(rmin));
+    logRange[1] = log10(-static_cast<double>(rmax));
     }
   else if (rmin > 0 && rmax > 0)
     {
-    logRange[0] = log10((double)rmin);
-    logRange[1] = log10((double)rmax);
+    logRange[0] = log10(static_cast<double>(rmin));
+    logRange[1] = log10(static_cast<double>(rmax));
     }
 }
 
@@ -721,7 +725,7 @@ void vtkLookupTableMapMag(vtkLookupTable *self, T *input,
     sum = 0;
     for (j = 0; j < inIncr; ++j)
       {
-      tmp = (double)(*input);  
+      tmp = static_cast<double>(*input);  
       sum += (tmp * tmp);
       ++input;
       }

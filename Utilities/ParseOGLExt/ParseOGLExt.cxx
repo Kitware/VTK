@@ -50,7 +50,7 @@ static vtkstd::string ToUpper(vtkstd::string s)
 
   for (vtkstd::string::size_type i = 0; i < s.length(); i++)
     {
-    u.append(1, (char)toupper(s[i]));
+    u.append(1, static_cast<char>(toupper(s[i])));
     }
 
   return u;
@@ -546,7 +546,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
              == ConstantsAlreadyWritten.end() )
           {
           hfile << "  const GLenum " << iconst->name.c_str()
-                << " = (GLenum) " << iconst->value.c_str() << ";" << endl;
+                << " = static_cast<GLenum>(" << iconst->value.c_str() << ");" << endl;
 
           ConstantsAlreadyWritten.insert( vtkstd::make_pair( iconst->name, 
                                                              iconst->value ) );
@@ -728,11 +728,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
          ifunct != functs[*iextension].end(); ifunct++)
       {
       cxxfile << "    " << vtkglclass.c_str() << "::"
-              << ifunct->name.c_str() << " = (" << vtkglclass.c_str() << "::"
+              << ifunct->name.c_str() << " = reinterpret_cast<" << vtkglclass.c_str() << "::"
               << ifunct->GetProcType()
-              << ")manager->GetProcAddress(\""
+              << ">(manager->GetProcAddress(\""
               << Extension::TypeToString(iextension->type)
-              << ifunct->name.c_str() << "\");" << endl;
+              << ifunct->name.c_str() << "\"));" << endl;
       }
     cxxfile << "    return 1";
     for (ifunct = functs[*iextension].begin();

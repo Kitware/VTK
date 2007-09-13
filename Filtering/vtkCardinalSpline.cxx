@@ -16,8 +16,9 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.30");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.31");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //----------------------------------------------------------------------------
@@ -234,16 +235,19 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
       coefficients[0][1] = 2.0;
       coefficients[0][2] = 1.0;
       work[0]= 3.0 * ((y[1] - y[0]) / (x[1] - x[0])) -
-         0.5 * (x[1] - x[0]) * leftValue;
+        0.5 * (x[1] - x[0]) * leftValue;
       break;
     case 3:
       // desired second derivative at leftmost point is
       // leftValue times second derivative at first interior point.
       coefficients[0][1] = 2.0;
       coefficients[0][2] = 4.0 * ((0.5 + leftValue) / 
-                                (2.0 + leftValue));
+                                  (2.0 + leftValue));
       work[0]= 6.0 * ((1.0 + leftValue) / (2.0 + leftValue)) *
-                 ((y[1] - y[0]) / (x[1]-x[0]));
+        ((y[1] - y[0]) / (x[1]-x[0]));
+      break;
+    default:
+      assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
     }
 
@@ -292,6 +296,9 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
       work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
         ((y[size-1] - y[size-2]) /
          (x[size-1] - x[size-2]));
+      break;
+    default:
+      assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
     }
 

@@ -516,91 +516,91 @@ vtkStdString vtkVariant::ToString() const
 
 float vtkVariant::ToFloat(bool* valid) const
 {
-  return this->ToNumeric(valid, (float *)0);
+  return this->ToNumeric(valid, static_cast<float *>(0));
 }
 
 double vtkVariant::ToDouble(bool* valid) const
 {
-  return this->ToNumeric(valid, (double *)0);
+  return this->ToNumeric(valid, static_cast<double *>(0));
 }
 
 char vtkVariant::ToChar(bool* valid) const
 {
-  return this->ToNumeric(valid, (char *)0);
+  return this->ToNumeric(valid, static_cast<char *>(0));
 }
 
 unsigned char vtkVariant::ToUnsignedChar(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned char *)0);
+  return this->ToNumeric(valid, static_cast<unsigned char *>(0));
 }
 
 signed char vtkVariant::ToSignedChar(bool* valid) const
 {
-  return this->ToNumeric(valid, (signed char *)0);
+  return this->ToNumeric(valid, static_cast<signed char *>(0));
 }
 
 short vtkVariant::ToShort(bool* valid) const
 {
-  return this->ToNumeric(valid, (short *)0);
+  return this->ToNumeric(valid, static_cast<short *>(0));
 }
 
 unsigned short vtkVariant::ToUnsignedShort(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned short *)0);
+  return this->ToNumeric(valid, static_cast<unsigned short *>(0));
 }
 
 int vtkVariant::ToInt(bool* valid) const
 {
-  return this->ToNumeric(valid, (int *)0);
+  return this->ToNumeric(valid, static_cast<int *>(0));
 }
 
 unsigned int vtkVariant::ToUnsignedInt(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned int *)0);
+  return this->ToNumeric(valid, static_cast<unsigned int *>(0));
 }
 
 long vtkVariant::ToLong(bool* valid) const
 {
-  return this->ToNumeric(valid, (long *)0);
+  return this->ToNumeric(valid, static_cast<long *>(0));
 }
 
 unsigned long vtkVariant::ToUnsignedLong(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned long *)0);
+  return this->ToNumeric(valid, static_cast<unsigned long *>(0));
 }
 
 #if defined(VTK_TYPE_USE___INT64)
 __int64 vtkVariant::To__Int64(bool* valid) const
 {
-  return this->ToNumeric(valid, (__int64 *)0);
+  return this->ToNumeric(valid, static_cast<__int64 *>(0));
 }
 
 unsigned __int64 vtkVariant::ToUnsigned__Int64(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned __int64 *)0);
+  return this->ToNumeric(valid, static_cast<unsigned __int64 *>(0));
 }
 #endif
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 long long vtkVariant::ToLongLong(bool* valid) const
 {
-  return this->ToNumeric(valid, (long long *)0);
+  return this->ToNumeric(valid, static_cast<long long *>(0));
 }
 
 unsigned long long vtkVariant::ToUnsignedLongLong(bool* valid) const
 {
-  return this->ToNumeric(valid, (unsigned long long *)0);
+  return this->ToNumeric(valid, static_cast<unsigned long long *>(0));
 }
 #endif
 
 vtkTypeInt64 vtkVariant::ToTypeInt64(bool* valid) const
 {
-  return this->ToNumeric(valid, (vtkTypeInt64 *)0);
+  return this->ToNumeric(valid, static_cast<vtkTypeInt64 *>(0));
 }
 
 vtkTypeUInt64 vtkVariant::ToTypeUInt64(bool* valid) const
 {
-  return this->ToNumeric(valid, (vtkTypeUInt64 *)0);
+  return this->ToNumeric(valid, static_cast<vtkTypeUInt64 *>(0));
 }
 
 vtkObjectBase* vtkVariant::ToVTKObject() const

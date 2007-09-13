@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.10");
+vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.11");
 
 //----------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
@@ -217,7 +217,8 @@ void vtkHomogeneousTransform::GetMatrix(vtkMatrix4x4 *m)
 //----------------------------------------------------------------------------
 void vtkHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
-  vtkHomogeneousTransform *t = (vtkHomogeneousTransform *)transform;
+  vtkHomogeneousTransform *t =
+    static_cast<vtkHomogeneousTransform *>(transform);
 
   this->Matrix->DeepCopy(t->Matrix);
 }

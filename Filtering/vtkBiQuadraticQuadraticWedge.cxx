@@ -26,8 +26,9 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.9");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.10");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -267,7 +268,8 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition (double *x,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation (subId, pc, closestPoint, (double *) w);
+      this->EvaluateLocation (subId, pc, closestPoint,
+                              static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints (closestPoint, x);
       }
     return 0;
@@ -351,14 +353,17 @@ vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
-              double tol, double &t, double *x, double *pcoords, int &subId)
+                                                     double tol, double &t,
+                                                     double *x,
+                                                     double *pcoords,
+                                                     int &subId)
 {
   int intersection = 0;
   double tTemp;
   double pc[3], xTemp[3];
   int faceNum;
   int inter;
-
+  
   t = VTK_DOUBLE_MAX;
   for (faceNum = 0; faceNum < 5; faceNum++)
     {
@@ -371,7 +376,8 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
         this->TriangleFace->PointIds->SetId (i, this->PointIds->GetId (WedgeFaces[faceNum][i]));
         this->TriangleFace->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceNum][i]));
         }
-      inter = this->TriangleFace->IntersectWithLine (p1, p2, tol, tTemp, xTemp, pc, subId);
+      inter = this->TriangleFace->IntersectWithLine (p1, p2, tol, tTemp, xTemp,
+                                                     pc, subId);
       }
     else
       {
@@ -379,7 +385,8 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
         {
         this->Face->Points->SetPoint (i, this->Points->GetPoint (WedgeFaces[faceNum][i]));
         }
-      inter = this->Face->IntersectWithLine (p1, p2, tol, tTemp, xTemp, pc, subId);
+      inter = this->Face->IntersectWithLine (p1, p2, tol, tTemp, xTemp, pc,
+                                             subId);
       }
     if (inter)
       {
@@ -392,41 +399,44 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
         x[2] = xTemp[2];
         switch (faceNum)
           {
-        case 0:
-          pcoords[0] = 0.0;
-          pcoords[1] = pc[1];
-          pcoords[2] = pc[0];
-          break;
-
-        case 1:
-          pcoords[0] = 1.0;
-          pcoords[1] = pc[0];
-          pcoords[2] = pc[1];
-          break;
-
-        case 2:
-          pcoords[0] = pc[0];
-          pcoords[1] = 0.0;
-          pcoords[2] = pc[1];
-          break;
-
-        case 3:
-          pcoords[0] = pc[1];
-          pcoords[1] = 1.0;
-          pcoords[2] = pc[0];
-          break;
-
-        case 4:
-          pcoords[0] = pc[1];
-          pcoords[1] = pc[0];
-          pcoords[2] = 0.0;
-          break;
-
-        case 5:
-          pcoords[0] = pc[0];
-          pcoords[1] = pc[1];
-          pcoords[2] = 1.0;
-          break;
+          case 0:
+            pcoords[0] = 0.0;
+            pcoords[1] = pc[1];
+            pcoords[2] = pc[0];
+            break;
+            
+          case 1:
+            pcoords[0] = 1.0;
+            pcoords[1] = pc[0];
+            pcoords[2] = pc[1];
+            break;
+            
+          case 2:
+            pcoords[0] = pc[0];
+            pcoords[1] = 0.0;
+            pcoords[2] = pc[1];
+            break;
+            
+          case 3:
+            pcoords[0] = pc[1];
+            pcoords[1] = 1.0;
+            pcoords[2] = pc[0];
+            break;
+            
+          case 4:
+            pcoords[0] = pc[1];
+            pcoords[1] = pc[0];
+            pcoords[2] = 0.0;
+            break;
+            
+          case 5:
+            pcoords[0] = pc[0];
+            pcoords[1] = pc[1];
+            pcoords[2] = 1.0;
+            break;
+          default:
+            assert("check:impossible case" && 0); // reaching this line is a bug
+            break;
           }
         }
       }

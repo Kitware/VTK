@@ -68,7 +68,7 @@ private:
 
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f) 
 {
-  this->vtkCollection::AddItem((vtkObject *)f);
+  this->vtkCollection::AddItem(f);
 }
 
 inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem() 

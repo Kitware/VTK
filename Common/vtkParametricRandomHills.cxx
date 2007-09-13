@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.7");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.8");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 //----------------------------------------------------------------------------
@@ -63,9 +63,9 @@ void vtkParametricRandomHills::InitSeed ( int randomSeed )
 {
   if ( randomSeed < 0 )
     {
-    randomSeed = (int)time( NULL );
+    randomSeed = static_cast<int>(time( NULL ));
     }
-  srand( (unsigned int) randomSeed );
+  srand( static_cast<unsigned int>(randomSeed) );
 }
 
 //----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void vtkParametricRandomHills::GenerateTheHills( void )
     // Here the generation is nonrandom.
     // We put hills in a regular grid over the whole surface.
     double randVal = 0.1;
-    double gridMax = sqrt((double)this->NumberOfHills);
+    double gridMax = sqrt(static_cast<double>(this->NumberOfHills));
     int counter = 0;
 
     double midU = (MaximumU - MinimumU)/2.0;
@@ -147,10 +147,10 @@ void vtkParametricRandomHills::GenerateTheHills( void )
     hillTuple[3] = this->HillYVariance * randVal + this->HillYVariance * this->YVarianceScaleFactor;
     hillTuple[4] = this->HillAmplitude * randVal * 2.0 + this->HillAmplitude * this->AmplitudeScaleFactor;
 
-    for ( int i = 0; i < (int)gridMax; ++i )
+    for ( int i = 0; i < static_cast<int>(gridMax); ++i )
       {
       hillTuple[0] = MinimumU + shiftU + (i / gridMax) * (MaximumU - MinimumU);
-      for ( int j = 0; j < (int)gridMax; ++j )
+      for ( int j = 0; j < static_cast<int>(gridMax); ++j )
         {
         hillTuple[1] = MinimumV + shiftV + (j / gridMax) * (MaximumV - MinimumV);
         this->hillData->SetTuple(counter,hillTuple);

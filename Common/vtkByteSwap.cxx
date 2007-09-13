@@ -16,7 +16,7 @@
 #include <memory.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkByteSwap, "1.54");
+vtkCxxRevisionMacro(vtkByteSwap, "1.55");
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
@@ -112,19 +112,19 @@ inline void vtkByteSwapRangeWrite(const char* first, vtkIdType num,
                                   ostream* os, int)
 {
   // No need to swap segments of 1 byte.
-  os->write((char*)first, num*sizeof(char));
+  os->write(first, num*sizeof(char));
 }
 inline void vtkByteSwapRangeWrite(const signed char* first, vtkIdType num,
                                   ostream* os, int)
 {
   // No need to swap segments of 1 byte.
-  os->write((char*)first, num*sizeof(signed char));
+  os->write(reinterpret_cast<const char*>(first), num*sizeof(signed char));
 }
 inline void vtkByteSwapRangeWrite(const unsigned char* first, vtkIdType num,
                                   ostream* os, int)
 {
   // No need to swap segments of 1 byte.
-  os->write((char*)first, num*sizeof(unsigned char));
+  os->write(reinterpret_cast<const char*>(first), num*sizeof(unsigned char));
 }
 template <class T>
 inline void vtkByteSwapRangeWrite(const T* first, vtkIdType num,
@@ -204,7 +204,7 @@ inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, FILE* f)
 template <class T>
 inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, ostream* os)
 {
-  os->write((char*)p, sizeof(T)*num);
+  os->write(reinterpret_cast<const char*>(p), sizeof(T)*num);
 }
 #endif
 
@@ -300,7 +300,7 @@ void vtkByteSwap::SwapVoidRange(void *buffer, int numWords, int wordSize)
   
   half = wordSize / 2;
   inc = wordSize - 1;
-  buf = (unsigned char *)(buffer);
+  buf = static_cast<unsigned char *>(buffer);
   
   for (idx1 = 0; idx1 < numWords; ++idx1)
     {

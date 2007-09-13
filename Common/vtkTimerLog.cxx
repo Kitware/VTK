@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.44");
+vtkCxxRevisionMacro(vtkTimerLog, "1.45");
 vtkStandardNewMacro(vtkTimerLog);
 
 // Create a singleton to cleanup the table.  No other singletons
@@ -226,7 +226,8 @@ void vtkTimerLog::MarkEvent(const char *event)
 #endif
 
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Indent = vtkTimerLog::Indent;
-  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime = (double)time_diff;
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime =
+    static_cast<double>(time_diff);
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks = ticks_diff;
   strncpy(vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event, event, strsize);
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event[strsize] = '\0';
@@ -561,7 +562,7 @@ double vtkTimerLog::GetCPUTime()
 {
   double   currentCPUTime = 1.0;
 #ifndef _WIN32_WCE
-  currentCPUTime = (double)clock() / (double)CLOCKS_PER_SEC;
+  currentCPUTime = static_cast<double>(clock()) /static_cast<double>(CLOCKS_PER_SEC);
 #endif
   return currentCPUTime;
 }
@@ -596,8 +597,8 @@ void vtkTimerLog::DumpEntry(ostream& os, int index, double ttime,
   os << index << "   "
      << ttime << "  "
      << deltatime << "   "
-     << (double)tick/vtkTimerLog::TicksPerSecond << "  "
-     << (double)deltatick/vtkTimerLog::TicksPerSecond << "  ";
+     << static_cast<double>(tick)/vtkTimerLog::TicksPerSecond << "  "
+     << static_cast<double>(deltatick)/vtkTimerLog::TicksPerSecond << "  ";
   if (deltatime == 0.0)
     {
     os << "0.0   ";

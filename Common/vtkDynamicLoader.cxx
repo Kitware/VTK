@@ -16,13 +16,13 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.23");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.24");
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkDynamicLoader);
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -32,39 +32,39 @@ vtkDynamicLoader* vtkDynamicLoader::New()
 }
 
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 {
   return vtksys::DynamicLoader::OpenLibrary(libname);
 }
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 {
   return vtksys::DynamicLoader::CloseLibrary(lib);
 }
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //vtkSymbolPointer
 void*
 vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 {
-  return (void*)vtksys::DynamicLoader::GetSymbolAddress(lib, sym);
+  return reinterpret_cast<void*>(vtksys::DynamicLoader::GetSymbolAddress(lib, sym));
 }
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 const char* vtkDynamicLoader::LibPrefix()
 {
   return vtksys::DynamicLoader::LibPrefix();
 }
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 const char* vtkDynamicLoader::LibExtension()
 {
   return vtksys::DynamicLoader::LibExtension();
 }
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 const char* vtkDynamicLoader::LastError()
 {
   return vtksys::DynamicLoader::LastError();

@@ -16,8 +16,9 @@
 
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.61");
+vtkCxxRevisionMacro(vtkStructuredData, "1.62");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
@@ -250,6 +251,9 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
       jMax = jMin + 1;
       kMin = cellId / ((dim[0] - 1) * (dim[1] - 1));
       kMax = kMin + 1;
+      break;
+    default:
+      assert("check: impossible case."); // reaching this line is a bug.
       break;
     }
 

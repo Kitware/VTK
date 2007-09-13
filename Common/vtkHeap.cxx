@@ -15,7 +15,7 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.14");
+vtkCxxRevisionMacro(vtkHeap, "1.15");
 vtkStandardNewMacro(vtkHeap);
 
 struct vtkTestAlignLong
@@ -30,8 +30,8 @@ static int vtkGetLongAlignment()
   char *               p1;
   char *               p2;
   
-  p1 = (char *) &s1;   // Get address of struct
-  p2 = (char *) &s1.x; // Get address of long within struct
+  p1 = reinterpret_cast<char *>(&s1);   // Get address of struct
+  p2 = reinterpret_cast<char *>(&s1.x); // Get address of long within struct
   
   return (p2 - p1);    // Get member offset/alignment
 }
@@ -71,7 +71,7 @@ void vtkHeap::SetBlockSize(size_t _arg)
 {
   vtkDebugMacro(
     << this->GetClassName() << " (" << this << "): setting BlockSize to " 
-    << (int)_arg); 
+    << static_cast<int>(_arg)); 
   if (this->BlockSize != _arg) 
     { 
     this->BlockSize = _arg; 
@@ -174,11 +174,11 @@ void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Block Size: " << (int)this->BlockSize << "\n";
+  os << indent << "Block Size: " << static_cast<int>(this->BlockSize) << "\n";
   os << indent << "Number of Blocks: " << this->NumberOfBlocks << "\n";
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
   os << indent << "Current bytes allocated: " 
-     << ((this->NumberOfBlocks-1)*(int)this->BlockSize + 
-         (int)this->Position) << "\n";
+     << ((this->NumberOfBlocks-1)*static_cast<int>(this->BlockSize) + 
+         static_cast<int>(this->Position)) << "\n";
 }
 

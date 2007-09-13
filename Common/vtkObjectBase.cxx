@@ -114,7 +114,7 @@ int vtkObjectBase::IsA(const char *type)
 // will not work with reference counting.
 void vtkObjectBase::Delete() 
 {
-  this->UnRegister((vtkObjectBase *)NULL);
+  this->UnRegister(static_cast<vtkObjectBase *>(NULL));
 }
 
 void vtkObjectBase::FastDelete()
@@ -174,7 +174,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.16\n";
+  os << "vtkObjectBase 1.17\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)

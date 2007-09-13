@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.106");
+vtkCxxRevisionMacro(vtkTransform, "1.107");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void vtkTransform::Inverse()
 //----------------------------------------------------------------------------
 void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
-  vtkTransform *transform = (vtkTransform *)gtrans;
+  vtkTransform *transform = static_cast<vtkTransform *>(gtrans);
 
   // copy the input
   this->SetInput(transform->Input);
@@ -217,7 +217,7 @@ void vtkTransform::InternalUpdate()
   for (i = nPreTransforms-1; i >= 0; i--)
     {
     vtkHomogeneousTransform *transform = 
-      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
+      static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
                               this->Matrix);
     }
@@ -226,7 +226,7 @@ void vtkTransform::InternalUpdate()
   for (i = nPreTransforms; i < nTransforms; i++)
     {
     vtkHomogeneousTransform *transform = 
-      (vtkHomogeneousTransform *)this->Concatenation->GetTransform(i);
+      static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
                               this->Matrix);
     }

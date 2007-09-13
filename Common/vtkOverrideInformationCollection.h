@@ -66,7 +66,7 @@ private:
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f) 
 {
-  this->vtkCollection::AddItem((vtkObject *)f);
+  this->vtkCollection::AddItem(f);
 }
 
 inline vtkOverrideInformation *vtkOverrideInformationCollection::GetNextItem() 

@@ -19,7 +19,7 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.5");
+vtkCxxRevisionMacro(vtkActor2D, "1.6");
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
@@ -199,7 +199,8 @@ unsigned long int vtkActor2D::GetMTime()
 void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
 {
   this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
-  this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
+  this->PositionCoordinate->SetValue(static_cast<float>(XPos),
+                                     static_cast<float>(YPos),0.0);
 }
 
 //----------------------------------------------------------------------------

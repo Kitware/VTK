@@ -28,8 +28,9 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.9");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.10");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -331,7 +332,8 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
+      this->EvaluateLocation(subId, pc, closestPoint,
+                             static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;
@@ -468,6 +470,9 @@ int vtkBiQuadraticQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
         case 5:
           pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
           break;
+          default:
+            assert("check: impossible case."); // reaching this line is a bug.
+            break;
           }
         }
       }

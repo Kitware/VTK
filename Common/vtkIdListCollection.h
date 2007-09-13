@@ -32,8 +32,10 @@ public:
 
   // Description:
   // Add a dataset to the list.
-  void AddItem(vtkIdList *ds) {
-    this->vtkCollection::AddItem((vtkObject *)ds);};
+  void AddItem(vtkIdList *ds)
+    {
+      this->vtkCollection::AddItem(ds);
+    }
   
   // Description:
   // Get the next dataset in the list.

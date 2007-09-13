@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.38");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.39");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -110,7 +110,7 @@ vtkAlgorithm::~vtkAlgorithm()
 void vtkAlgorithm::UpdateProgress(double amount)
 {
   this->Progress = amount;
-  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
+  this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amount));
 }
 
 

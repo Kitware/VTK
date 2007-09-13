@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.13");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.14");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
       break;
       }
 
-    errRatio = (double)estErr / (double)maxError;
+    errRatio = static_cast<double>(estErr) / static_cast<double>(maxError);
     // Empirical formulae for calculating next step size
     // 0.9 is a safety factor to prevent infinite loops (see reference)
     if ( errRatio == 0.0 ) // avoid pow errors

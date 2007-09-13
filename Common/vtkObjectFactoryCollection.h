@@ -35,7 +35,10 @@ public:
 
   // Description:
   // Add an ObjectFactory from the list.
-  void AddItem(vtkObjectFactory *t) { this->vtkCollection::AddItem((vtkObject *)t); }
+  void AddItem(vtkObjectFactory *t)
+    {
+      this->vtkCollection::AddItem(t);
+    }
   
   // Description:
   // Get the next ObjectFactory in the list. Return NULL when the end of the

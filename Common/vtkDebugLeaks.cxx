@@ -40,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.41");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.42");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
   newpos = new vtkDebugLeaksHashNode;
   newpos->Key = strcpy(new char[strlen(name)+1], name);
 
-  loc = (((unsigned long)vtkHashString(name)) & 0x03f0) / 16;
+  loc = (static_cast<unsigned long>(vtkHashString(name)) & 0x03f0) / 16;
   
   pos = this->Nodes[loc];
   if (!pos)
@@ -164,7 +164,7 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 {
   vtkDebugLeaksHashNode *pos;
-  int loc = (((unsigned long)vtkHashString(key)) & 0x03f0) / 16;
+  int loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
   
   pos = this->Nodes[loc];
 
@@ -183,7 +183,7 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
 {
   vtkDebugLeaksHashNode *pos;
-  int loc = (((unsigned long)vtkHashString(key)) & 0x03f0) / 16;
+  int loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
   
   pos = this->Nodes[loc];
 

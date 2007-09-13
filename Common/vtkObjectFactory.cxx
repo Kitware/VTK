@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.46");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.47");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -224,17 +224,17 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
         // Look for the symbol vtkLoad, vtkGetFactoryCompilerUsed,
         // and vtkGetFactoryVersion in the library
         VTK_LOAD_FUNCTION loadfunction
-          = (VTK_LOAD_FUNCTION)
+          = reinterpret_cast<VTK_LOAD_FUNCTION>(
           vtkDynamicLoader::GetSymbolAddress(lib,
-                                             "vtkLoad");
+                                             "vtkLoad"));
         VTK_COMPILER_FUNCTION compilerFunction
-          = (VTK_COMPILER_FUNCTION)
+          = reinterpret_cast<VTK_COMPILER_FUNCTION>(
           vtkDynamicLoader::GetSymbolAddress(lib,
-                                             "vtkGetFactoryCompilerUsed");
+                                             "vtkGetFactoryCompilerUsed"));
         VTK_VERSION_FUNCTION versionFunction
-          = (VTK_VERSION_FUNCTION)
+          = reinterpret_cast<VTK_VERSION_FUNCTION>(
           vtkDynamicLoader::GetSymbolAddress(lib,
-                                             "vtkGetFactoryVersion");
+                                             "vtkGetFactoryVersion"));
         // if the symbol is found call it to create the factory
         // from the library
         if(loadfunction && compilerFunction && versionFunction)
@@ -260,7 +260,7 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
             newfactory->LibraryCompilerUsed = 
               strcpy(new char[strlen(compiler)+1], compiler);
             // initialize class members if load worked
-            newfactory->LibraryHandle = (void*)lib;
+            newfactory->LibraryHandle = static_cast<void*>(lib);
             newfactory->LibraryPath = 
               strcpy(new char[strlen(fullpath)+1], fullpath);
             vtkObjectFactory::RegisterFactory(newfactory);
@@ -399,7 +399,7 @@ void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
   vtkObjectFactory::RegisteredFactories->RemoveItem(factory);
   if(lib)
     {
-    vtkDynamicLoader::CloseLibrary((vtkLibHandle)lib);
+    vtkDynamicLoader::CloseLibrary(static_cast<vtkLibHandle>(lib));
     }
 }
 

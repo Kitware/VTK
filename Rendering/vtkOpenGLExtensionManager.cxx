@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.25");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.26");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -229,10 +229,10 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 
 
 #ifdef VTK_USE_GLX_GET_PROC_ADDRESS
-  return (vtkOpenGLExtensionManagerFunctionPointer)glXGetProcAddress((const GLubyte *)fname);
+  return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddress((const GLubyte *)fname));
 #endif //VTK_USE_GLX_GET_PROC_ADDRESS
 #ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
-  return (vtkOpenGLExtensionManagerFunctionPointer)glXGetProcAddressARB((const GLubyte *)fname);
+  return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(glXGetProcAddressARB((const GLubyte *)fname));
 #endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
 
 
@@ -378,7 +378,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   const char *glu_extensions = "";
   const char *win_extensions;
 
-  gl_extensions = (const char *)glGetString(GL_EXTENSIONS);
+  gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
   if (gl_extensions == NULL)
     {
@@ -399,7 +399,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   extensions_string = gl_extensions;
 
 #if GLU_SUPPORTED
-  glu_extensions = (const char *)gluGetString(GLU_EXTENSIONS);
+  glu_extensions =
+    reinterpret_cast<const char *>(gluGetString(GLU_EXTENSIONS));
 #endif
   if (glu_extensions != NULL)
     {
@@ -438,7 +439,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   vtkstd::string version_extensions;
   vtkstd::string::size_type beginpos, endpos;
 
-  const char *version = (const char *)glGetString(GL_VERSION);
+  const char *version =
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
   int driverMajor, driverMinor;
   sscanf(version, "%d.%d", &driverMajor, &driverMinor);
 
@@ -468,7 +470,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   if (this->RenderWindow)
     {
     // Try getting the display of the window we are doing the queries on.
-    display = (Display *)this->RenderWindow->GetGenericDisplayId();
+    display =
+      static_cast<Display *>(this->RenderWindow->GetGenericDisplayId());
     }
   if (!display)
     {

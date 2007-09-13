@@ -68,7 +68,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.8");
+vtkCxxRevisionMacro(vtkVariantArray, "1.9");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -496,7 +496,7 @@ unsigned long vtkVariantArray::GetActualMemorySize()
 
   totalSize = numPrims*sizeof(vtkVariant);
 
-  return (unsigned long) ceil(totalSize / 1024.0); // kilobytes
+  return static_cast<unsigned long>(ceil(totalSize / 1024.0)); // kilobytes
 }
 
 //----------------------------------------------------------------------------

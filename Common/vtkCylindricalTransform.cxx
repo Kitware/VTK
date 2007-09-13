@@ -18,7 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkCylindricalTransform, "1.4");
+vtkCxxRevisionMacro(vtkCylindricalTransform, "1.5");
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ void vtkCylindricalTransform::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCylindricalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
   vtkCylindricalTransform *cylindricalTransform = 
-    (vtkCylindricalTransform *)transform;
+    static_cast<vtkCylindricalTransform *>(transform);
 
   // copy these even though they aren't used
   this->SetInverseTolerance(cylindricalTransform->InverseTolerance);
@@ -111,13 +111,14 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
 void vtkCylindricalTransform::ForwardTransformPoint(const float inPoint[3],
                                                     float outPoint[3])
 {
-  vtkCylindricalToRectangular(inPoint, outPoint, (float (*)[3])0);
+  vtkCylindricalToRectangular(inPoint, outPoint, static_cast<float (*)[3]>(0));
 }
 
 void vtkCylindricalTransform::ForwardTransformPoint(const double inPoint[3],
                                                     double outPoint[3])
 {
-  vtkCylindricalToRectangular(inPoint, outPoint, (double (*)[3])0);
+  vtkCylindricalToRectangular(inPoint, outPoint,
+                              static_cast<double (*)[3]>(0));
 }
 
 void vtkCylindricalTransform::ForwardTransformDerivative(

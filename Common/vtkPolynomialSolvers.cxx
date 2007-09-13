@@ -32,7 +32,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.5");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.6");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -187,14 +187,14 @@ int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
 
   int offsetB = d + 1;
   degSSS[1] = d - 1;
-  SSS[offsetB] = (double)d * P[0];
+  SSS[offsetB] = static_cast<double>(d) * P[0];
 
   int i;
   double oldVal[] = { P[0], P[0] };
   for ( i = 1; i < d; ++ i ) 
     {
     SSS[i] = P[i];
-    SSS[offsetB + i] = (double)( d - i ) * P[i];
+    SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
     for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
     }
   for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];
@@ -269,14 +269,14 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
   int offsetB = d + 1;
   degSSS[1] = d - 1;
-  SSS[offsetB] = (double)d * P[0];
+  SSS[offsetB] = static_cast<double>(d) * P[0];
 
   int i;
   double oldVal[] = { P[0], P[0] };
   for ( i = 1; i < d; ++ i ) 
     {
     SSS[i] = P[i];
-    SSS[offsetB + i] = (double)( d - i ) * P[i];
+    SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
     for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
     }
   for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];

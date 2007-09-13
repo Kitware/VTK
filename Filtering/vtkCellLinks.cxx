@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.2");
+vtkCxxRevisionMacro(vtkCellLinks, "1.3");
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     {
     vtkIdType *pts, npts;
     
-    vtkPolyData *pdata = (vtkPolyData *)data;
+    vtkPolyData *pdata = static_cast<vtkPolyData *>(data);
     // traverse data to determine number of uses of each point
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -274,7 +274,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
   size *= sizeof(int *); //references to cells
   size += (this->MaxId+1) * sizeof(vtkCellLinks::Link); //list of cell lists
 
-  return (unsigned long) ceil((float)size/1024.0); //kilobytes
+  return static_cast<unsigned long>( ceil(size/1024.0)); //kilobytes
 }
 
 //----------------------------------------------------------------------------

@@ -15,7 +15,7 @@
 #include "vtkXMLFileOutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMLFileOutputWindow, "1.6");
+vtkCxxRevisionMacro(vtkXMLFileOutputWindow, "1.7");
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
 void vtkXMLFileOutputWindow::Initialize() 
@@ -24,7 +24,7 @@ void vtkXMLFileOutputWindow::Initialize()
     {
     if (!this->FileName)
       {
-      char* fileName = (char *) "vtkMessageLog.xml";
+      const char* fileName = "vtkMessageLog.xml";
       this->FileName = new char[strlen(fileName)+1];
       strcpy(this->FileName, fileName);
       }

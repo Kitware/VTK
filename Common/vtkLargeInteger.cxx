@@ -599,7 +599,7 @@ vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
 
   // first shift the data
   unsigned int i;
-  if (this->Sig >= (unsigned long)n)
+  if (this->Sig >= static_cast<unsigned long>(n))
     {
     for (i = 0; i <= (this->Sig - n); i++) 
       {

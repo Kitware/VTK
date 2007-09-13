@@ -118,13 +118,18 @@ protected:
   // Represent 2^30 as a double precision float. Use as a stepping
   // stone for computing 2^52 as a double, since we can't represent 2^52 as an
   // int before converting to double.
-  static inline double two30() { return (double)(((unsigned long)1) << 30); };
+  static inline double two30()
+    {
+      return static_cast<double>(static_cast<unsigned long>(1) << 30);
+    }
 
   // Description: 
   // Represent 2^52 as a double precision float. This value is 
   // significant because doubles have 52 bits of precision in the mantissa
   static inline double two52() 
-    { return (((unsigned long)1) << (52-30)) * two30(); };
+    {
+      return (static_cast<unsigned long>(1) << (52-30)) * two30();
+    }
 
   // Description:
   // Represent 2^51 as a double precision float. This value is significant
@@ -133,20 +138,26 @@ protected:
   // floor, since the default round-to-even on an X86 mucks with the LSB
   // during the denormalizing shift.
   static inline double two51() 
-    { return (((unsigned long)1) << (51-30)) * two30(); }; 
+    {
+      return (static_cast<unsigned long>(1) << (51-30)) * two30();
+    }
 
   // Description:
   // Represent 2^63 as a double precision float. We need this value to shift
   // unwanted fractional bits off the end of an extended precision value
   static inline double two63() 
-    { return (((unsigned long)1) << (63-60)) * two30() * two30();};
+    {
+      return (static_cast<unsigned long>(1) << (63-60)) * two30() * two30();
+    }
 
   // Description:
   // Represent 2^62 as a double precision float. We need this value to shift
   // unwanted fractional bits off the end of an extended precision value. Use
   // when we're doing a SafeFloor.
   static inline double two62() 
-    { return (((unsigned long)1) << (62-60)) * two30() * two30();};
+    {
+      return (static_cast<unsigned long>(1) << (62-60)) * two30() * two30();
+    }
 
   // Define number of bits of precision for various data types.
   // Note: INT_BITS is really 31, (rather than 32, since one of the bits is
@@ -193,10 +204,16 @@ protected:
 public: 
 #ifdef VTK_EXT_PREC
   // Compute (0.5 ^ (EXT_BITS-INT_BITS)) as a compile-time constant
-  static inline double RoundingTieBreaker() {return 1.0 / (two30() * (((unsigned long)1) << (EXT_BITS - INT_BITS - 30))); };
+  static inline double RoundingTieBreaker()
+    {
+      return 1.0 / (two30() * (static_cast<unsigned long>(1) << (EXT_BITS - INT_BITS - 30)));
+    }
 #else
   // Compute (0.5 ^ (DBL_BITS-INT_BITS)) as a compile-time constant
-  static inline double RoundingTieBreaker() { return 1.0 / (((unsigned long)1) << (DBL_BITS - INT_BITS)); };
+  static inline double RoundingTieBreaker()
+    {
+      return 1.0 / (static_cast<unsigned long>(1) << (DBL_BITS - INT_BITS));
+    }
 #endif
 
 protected:
@@ -311,7 +328,7 @@ public:
 #endif // VTK_EXT_PREC
       return u.i[mantissa_pos];
 #else // ! VTK_USE_TRICK
-    return (int) val;
+      return static_cast<int>(val);
 #endif // VTK_USE_TRICK
     }
 
@@ -344,7 +361,7 @@ public:
 #endif // VTK_EXT_PREC
       return u.i[mantissa_pos] >> SafeFinalShift();
 #else // ! VTK_USE_TRICK
-    return (int) val;
+      return static_cast<int>(val);
 #endif // VTK_USE_TRICK
     }
 
@@ -374,11 +391,11 @@ public:
 #else // ! VTK_USE_TRICK
     if (val>=0)
       {
-      return (int) (val + 0.5);
+      return static_cast<int>(val + 0.5);
       }
     else
       {
-      return (int) (val - 0.5);
+      return static_cast<int>(val - 0.5);
       }
 #endif // VTK_USE_TRICK
     }

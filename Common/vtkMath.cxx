@@ -25,17 +25,18 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include <assert.h>
 
 #ifdef WIN32
 #include <float.h>
 #define isnan(x) _isnan(x)
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.122");
+vtkCxxRevisionMacro(vtkMath, "1.123");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
-static const double sqrt3 = sqrt( (double)3. );
+static const double sqrt3 = sqrt( static_cast<double>(3.) );
 static const double inv3 = 1 / 3.;
 
 // Avoid aliasing optimization problems by using a union:
@@ -93,7 +94,7 @@ double vtkMath::Random()
     {
     Seed += VTK_K_M;
     }
-  return ((double) vtkMath::Seed / VTK_K_M);
+  return static_cast<double>(vtkMath::Seed)/VTK_K_M;
 }
 
 //----------------------------------------------------------------------------
@@ -1066,17 +1067,17 @@ int vtkMath::FerrariSolve( double* c, double* r, int* m )
     }
   qsort( unsorted, nr, 2*sizeof( double ), vtkMathCompareRoots );
   r[0] = unsorted[0];
-  m[0] = ( int ) unsorted[1];
+  m[0] = static_cast<int>(unsorted[1]);
   nr1 = 1;
   for ( i = 1; i < nr; ++ i )
     {
     if ( unsorted[2*i] == unsorted[2*i - 2] )
       {
-      m[i - 1] += ( int ) unsorted[2*i + 1]; 
+      m[i - 1] += static_cast<int>(unsorted[2*i + 1]);
       continue;
       }
     r[nr1] = unsorted[2*i];
-    m[nr1++] = ( int ) unsorted[2*i + 1];
+    m[nr1++] = static_cast<int>(unsorted[2*i + 1]);
     }
   double shift = - c[0] * .25;
   for ( i = 0; i < nr1; ++ i ) r[i] += shift;
@@ -3364,12 +3365,12 @@ int vtkMath::GetAdjustedScalarRange(
   switch (array->GetDataType())
     {
     case VTK_UNSIGNED_CHAR:
-      range[0] = (double)array->GetDataTypeMin();
-      range[1] = (double)array->GetDataTypeMax();
+      range[0] = static_cast<double>(array->GetDataTypeMin());
+      range[1] = static_cast<double>(array->GetDataTypeMax());
       break;
 
     case VTK_UNSIGNED_SHORT:
-      range[0] = (double)array->GetDataTypeMin();
+      range[0] = static_cast<double>(array->GetDataTypeMin());
       if (range[1] <= 4095.0)
         {
         if (range[1] > VTK_UNSIGNED_CHAR_MAX)
@@ -3379,8 +3380,11 @@ int vtkMath::GetAdjustedScalarRange(
         }
       else
         {
-        range[1] = (double)array->GetDataTypeMax();
+        range[1] = static_cast<double>(array->GetDataTypeMax());
         }
+      break;
+    default:
+      assert("check: impossible case."); // reaching this line is a bug.
       break;
     }
 

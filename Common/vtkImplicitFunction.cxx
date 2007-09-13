@@ -18,7 +18,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.37");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.38");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
@@ -39,7 +39,7 @@ double vtkImplicitFunction::FunctionValue(const double x[3])
 {
   if ( ! this->Transform )
     {
-    return this->EvaluateFunction((double *)x);
+    return this->EvaluateFunction(const_cast<double *>(x));
     }
   else //pass point through transform
     {
@@ -79,7 +79,7 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 {
   if ( ! this->Transform )
     {
-    this->EvaluateGradient((double *)x,g);
+    this->EvaluateGradient(const_cast<double *>(x),g);
     }
   else //pass point through transform
     {
@@ -87,7 +87,7 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
     double A[3][3];
     this->Transform->Update();
     this->Transform->InternalTransformDerivative(x,pt,A);
-    this->EvaluateGradient((double *)pt,g);
+    this->EvaluateGradient(static_cast<double *>(pt),g);
 
     // The gradient must be transformed using the same math as is
     // use for a normal to a surface: it must be multiplied by the

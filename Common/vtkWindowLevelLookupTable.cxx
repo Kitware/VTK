@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.25");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.26");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkWindowLevelLookupTable::Build()
         rgba = this->Table->WritePointer(4*i,4);
         for (j = 0; j < 4; j++)
           {
-          rgba[j] = (unsigned char) \
+          rgba[j] = static_cast<unsigned char> \
             (start[j] + (this->NumberOfColors - i - 1)*incr[j] + 0.5);
           }
         }
@@ -79,7 +79,7 @@ void vtkWindowLevelLookupTable::Build()
         rgba = this->Table->WritePointer(4*i,4);
         for (j = 0; j < 4; j++)
           {
-          rgba[j] = (unsigned char)(start[j] + i*incr[j] + 0.5);
+          rgba[j] = static_cast<unsigned char>(start[j] + i*incr[j] + 0.5);
           }
         }
       }

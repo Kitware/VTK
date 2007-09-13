@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.35");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.36");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -593,7 +593,7 @@ void vtkFunctionParser::Evaluate()
         else
           {
           this->Stack[stackPosition] = 
-            log(this->Stack[stackPosition])/log((double)10);
+            log(this->Stack[stackPosition])/log(static_cast<double>(10));
           }
         break;
       case VTK_PARSER_SQUARE_ROOT:
@@ -1214,7 +1214,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       tmpString = strstr(this->Function, this->ScalarVariableNames[i]);
       if (tmpString)
         {
-        start = (int)(tmpString - this->Function);
+        start = static_cast<int>(tmpString - this->Function);
         end = start + strlen(this->ScalarVariableNames[i]);
         if (start <= idx && end >= idx)
           {
@@ -1230,7 +1230,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       tmpString = strstr(this->Function, this->VectorVariableNames[i]);
       if (tmpString)
         {
-        start = (int)(tmpString - this->Function);
+        start = static_cast<int>(tmpString - this->Function);
         end = start + strlen(this->VectorVariableNames[i]);
         if (start <= idx && end >= idx)
           {
