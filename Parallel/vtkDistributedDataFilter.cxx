@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.46")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.47")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4505,7 +4505,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
     // Only use global ids if they are available.
     useGlobalNodeIds = (   useGlobalNodeIds
                         && (sets[i]->GetPointData()->GetGlobalIds() != NULL) );
-    useGlobalCellIds = (   useGlobalNodeIds
+    useGlobalCellIds = (   useGlobalCellIds
                         && (sets[i]->GetCellData()->GetGlobalIds() != NULL) );
     }
 
