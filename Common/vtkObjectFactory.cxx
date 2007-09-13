@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.47");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.48");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -224,15 +224,15 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
         // Look for the symbol vtkLoad, vtkGetFactoryCompilerUsed,
         // and vtkGetFactoryVersion in the library
         VTK_LOAD_FUNCTION loadfunction
-          = reinterpret_cast<VTK_LOAD_FUNCTION>(
+          = (VTK_LOAD_FUNCTION)(
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkLoad"));
         VTK_COMPILER_FUNCTION compilerFunction
-          = reinterpret_cast<VTK_COMPILER_FUNCTION>(
+          = (VTK_COMPILER_FUNCTION)(
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkGetFactoryCompilerUsed"));
         VTK_VERSION_FUNCTION versionFunction
-          = reinterpret_cast<VTK_VERSION_FUNCTION>(
+          = (VTK_VERSION_FUNCTION)(
           vtkDynamicLoader::GetSymbolAddress(lib,
                                              "vtkGetFactoryVersion"));
         // if the symbol is found call it to create the factory
