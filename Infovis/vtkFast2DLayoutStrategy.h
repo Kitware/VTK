@@ -95,6 +95,13 @@ public:
   // distance is computed automatically.
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
+  
+  // Description:
+  // Set whether the layout does a 'simmer' at the end 
+  // which makes sure vertices aren't on top of each other.
+  // Default value is 'true'.
+  vtkSetMacro(Simmer, bool);
+  vtkGetMacro(Simmer, bool);
 
   // Description:
   // This strategy sets up some data structures
@@ -150,6 +157,7 @@ private:
   int LayoutComplete;
   float Temp;
   float RestDistance;
+  bool Simmer;
 
   vtkFast2DLayoutStrategy(const vtkFast2DLayoutStrategy&);  // Not implemented.
   void operator=(const vtkFast2DLayoutStrategy&);  // Not implemented.

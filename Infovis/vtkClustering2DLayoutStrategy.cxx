@@ -37,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -76,6 +76,7 @@ vtkClustering2DLayoutStrategy::vtkClustering2DLayoutStrategy()
   this->EdgeWeightField = 0;
   this->RestDistance = 0;
   this->EdgeArray = NULL;
+  this->Simmer = true;
 }
 
 // ----------------------------------------------------------------------
@@ -384,6 +385,35 @@ void vtkClustering2DLayoutStrategy::Layout()
       rawRepulseArray[rawSourceIndex+1] = (y1-y2);    
       }
       
+      
+    // Simmer at the end
+    if (this->Simmer && (this->Temp < .25))
+      {
+      // Calculate the repulsive forces
+      for(vtkIdType j=0; j<numVertices; ++j)
+        {
+        rawSourceIndex = j * 3;
+          
+        for(vtkIdType k=0; k<numVertices; ++k)
+          {
+          // Don't repulse against yourself :)
+          if (k == j) continue;
+            
+          rawTargetIndex = k * 3;
+            
+          delta[0] = rawPointData[rawSourceIndex] - 
+                    rawPointData[rawTargetIndex];
+          delta[1] = rawPointData[rawSourceIndex+1] - 
+                    rawPointData[rawTargetIndex+1];
+          disSquared = delta[0]*delta[0] + delta[1]*delta[1];
+          // Avoid divide by zero
+          disSquared += epsilon;
+          rawRepulseArray[rawSourceIndex]   += delta[0]/disSquared;
+          rawRepulseArray[rawSourceIndex+1] += delta[1]/disSquared;      
+          }
+        }
+      }
+      
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
@@ -507,4 +537,6 @@ void vtkClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "CuttingThreshold: " << this->CuttingThreshold << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
+  os << indent << "Simmer: " << (this->Simmer ? "On" : "Off") << endl;
+  
 }

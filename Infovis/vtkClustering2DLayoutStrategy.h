@@ -96,6 +96,13 @@ public:
   // distance is computed automatically.
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
+  
+  // Description:
+  // Set whether the layout does a 'simmer' at the end 
+  // which makes sure vertices aren't on top of each other.
+  // Default value is 'true'.
+  vtkSetMacro(Simmer, bool);
+  vtkGetMacro(Simmer, bool);
 
   // Description:
   // This strategy sets up some data structures
@@ -156,6 +163,7 @@ private:
   float Temp;
   float RestDistance;
   float CuttingThreshold;
+  bool Simmer;
   
   // Private helper methods
   void GenerateCircularSplat(vtkImageData *splat, int x, int y);

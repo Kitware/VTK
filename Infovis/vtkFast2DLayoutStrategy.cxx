@@ -36,7 +36,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.9");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -74,6 +74,7 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
   this->EdgeWeightField = 0;
   this->RestDistance = 0;
   this->EdgeArray = NULL;
+  this->Simmer = true;
 }
 
 // ----------------------------------------------------------------------
@@ -370,6 +371,34 @@ void vtkFast2DLayoutStrategy::Layout()
       rawRepulseArray[rawSourceIndex+1] = (y1-y2);    
       }
       
+    // Simmer at the end
+    if (this->Simmer && (this->Temp < .25))
+      {
+      // Calculate the repulsive forces
+      for(vtkIdType j=0; j<numVertices; ++j)
+        {
+        rawSourceIndex = j * 3;
+          
+        for(vtkIdType k=0; k<numVertices; ++k)
+          {
+          // Don't repulse against yourself :)
+          if (k == j) continue;
+            
+          rawTargetIndex = k * 3;
+            
+          delta[0] = rawPointData[rawSourceIndex] - 
+                    rawPointData[rawTargetIndex];
+          delta[1] = rawPointData[rawSourceIndex+1] - 
+                    rawPointData[rawTargetIndex+1];
+          disSquared = delta[0]*delta[0] + delta[1]*delta[1];
+          // Avoid divide by zero
+          disSquared += epsilon;
+          rawRepulseArray[rawSourceIndex]   += delta[0]/disSquared;
+          rawRepulseArray[rawSourceIndex+1] += delta[1]/disSquared;      
+          }
+        }
+      }
+      
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
@@ -453,4 +482,5 @@ void vtkFast2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
+  os << indent << "Simmer: " << (this->Simmer ? "On" : "Off") << endl;
 }
