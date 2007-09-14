@@ -65,9 +65,17 @@ public:
   // Description:
   // Names of cell volume fraction arrays to extract.
   void RemoveAllVolumeArrayNames();
-  void AddVolumeArrayName(char* arrayName);
   int GetNumberOfVolumeArrayNames();
   const char* GetVolumeArrayName(int idx);
+
+  // Description
+  // Names of cell volume fraction arrays to extract.
+  // Each of the volume fraction arrays must be of the same type.
+  // These three methods enforce that on input, removing any prior arrays
+  // of the wrong type whenever a new array is added.
+  void AddDoubleVolumeArrayName(char* arrayName);
+  void AddFloatVolumeArrayName(char* arrayName);
+  void AddUnsignedCharVolumeArrayName(char* arrayName);
 
   // Description:
   // Set, get or maninpulate the implicit clipping plane.
