@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.150");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.151");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -66,12 +66,12 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
   this->Finalize();
+  this->CleanUpRenderers();
   delete[] this->Capabilities;
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
 {
-  vtkRenderer *ren;
   GLuint id;
   
   /* finish OpenGL rendering */
@@ -102,18 +102,8 @@ void vtkWin32OpenGLRenderWindow::Clean()
         }
 #endif
       }
-    
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkCollectionSimpleIterator rsit;
-    this->Renderers->InitTraversal(rsit);
-    for ( ren = (vtkOpenGLRenderer *) this->Renderers->GetNextRenderer(rsit);
-          ren != NULL;
-          ren = (vtkOpenGLRenderer *) this->Renderers->GetNextRenderer(rsit) )
-      {
-      ren->SetRenderWindow(NULL);
-      }
+
+    this->CleanUpRenderers();
     
     if (wglMakeCurrent(NULL, NULL) != TRUE) 
       {
@@ -130,6 +120,20 @@ void vtkWin32OpenGLRenderWindow::Clean()
     SelectPalette(this->DeviceContext, this->OldPalette, FALSE); // SVA delete the old palette
     DeleteObject(this->Palette);
     this->Palette = NULL;
+    }
+}
+
+void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
+{
+  // tell each of the renderers that this render window/graphics context
+  // is being removed (the RendererCollection is removed by vtkRenderWindow's
+  // destructor)
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
+    {
+    ren->SetRenderWindow(NULL);
     }
 }
 
@@ -1319,13 +1323,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   SelectObject(this->MemoryHdc, this->MemoryBuffer);
   
   // Renderers will need to redraw anything cached in display lists
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit); 
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(NULL);
-    }
+  this->CleanUpRenderers();
 
   // adjust settings for renderwindow
   this->Mapped =0;
@@ -1346,6 +1344,8 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   this->MakeCurrent();
   
   // Renderers will need to redraw anything cached in display lists
+  vtkCollectionSimpleIterator rsit;
+  vtkRenderer *ren;
   for (this->Renderers->InitTraversal(rsit); 
        (ren = this->Renderers->GetNextRenderer(rsit));)
     {
@@ -1410,13 +1410,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
     GdiFlush();
       
     // we need to release resources
-    vtkRenderer *ren;
-    vtkCollectionSimpleIterator rsit;
-    for (this->Renderers->InitTraversal(rsit); 
-         (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(NULL);
-      }
+    this->CleanUpRenderers();
     DeleteDC(this->MemoryHdc);
     this->MemoryHdc = (HDC)0;
     DeleteObject(this->MemoryBuffer);

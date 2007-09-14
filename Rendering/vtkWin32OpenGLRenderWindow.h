@@ -264,6 +264,7 @@ protected:
   void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
   void CreateOffScreenWindow(int width,int height);
   void SaveScreenRendering();
+  void CleanUpRenderers();
 
 private:
   vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
