@@ -36,7 +36,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.2");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.3");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -77,6 +77,14 @@ int vtkBoostBiconnectedComponents::RequestData(
   vector<vtkIdType> artPoints;
   pair<size_t, vtksys_stl::back_insert_iterator<vector<vtkIdType> > > 
     res(0, vtksys_stl::back_inserter(artPoints));
+    
+  // Initialize the helper pmap to all -1
+  for (vtkIdType e = 0; e < output->GetNumberOfEdges(); e++)
+    {
+    helper.pmap[e] = -1;
+    }
+    
+  // Call BGL biconnected_components
   res = biconnected_components(
     g, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
   size_t numComp = res.first;
@@ -105,7 +113,14 @@ int vtkBoostBiconnectedComponents::RequestData(
     int comp;
     if (nedges > 0)
       {
-      comp = edgeComps->GetValue(edges[0]);
+      int edgeIndex =0;
+      int value = edgeComps->GetValue(edges[edgeIndex]);
+      while( (value == -1) && (edgeIndex < nedges-1))
+        {
+        edgeIndex++;
+        value = edgeComps->GetValue(edges[edgeIndex]);
+        }
+      comp = value;
       }
     else
       {
