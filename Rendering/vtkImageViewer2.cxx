@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.37");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.38");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -569,7 +569,7 @@ public:
   vtkImageViewer2 *IV;
   double InitialWindow;
   double InitialLevel;
-}
+};
 
 //----------------------------------------------------------------------------
 void vtkImageViewer2::InstallPipeline()

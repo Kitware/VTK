@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.102");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.103");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -258,20 +258,20 @@ int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 
 // this ascii code to keysym table is meant to mimic Tk
 
-static char *AsciiToKeySymTable[] = {
+static const char *AsciiToKeySymTable[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   "space", "exclam", "quotedbl", "numbersign", 
-         "dollar", "percent", "ampersand", "quoteright", 
+  "dollar", "percent", "ampersand", "quoteright", 
   "parenleft", "parenright", "asterisk", "plus", 
-         "comma", "minus", "period", "slash",
+  "comma", "minus", "period", "slash",
   "0", "1", "2", "3", "4", "5", "6", "7", 
   "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
   "at", "A", "B", "C", "D", "E", "F", "G", 
   "H", "I", "J", "K", "L", "M", "N", "O",
   "P", "Q", "R", "S", "T", "U", "V", "W",
   "X", "Y", "Z", "bracketleft", 
-         "backslash", "bracketright", "asciicircum", "underscore",
+  "backslash", "bracketright", "asciicircum", "underscore",
   "quoteleft", "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
   "p", "q", "r", "s", "t", "u", "v", "w",
@@ -287,7 +287,7 @@ static char *AsciiToKeySymTable[] = {
   
 // this virtual key code to keysym table is meant to mimic Tk
 
-static char *VKeyCodeToKeySymTable[] = {
+static const char *VKeyCodeToKeySymTable[] = {
   0, 0, 0, "Cancel", 0, 0, 0, 0,
   "BackSpace", "Tab", 0, 0, "Clear", "Return", 0, 0,
   "Shift_L", "Control_L", "Alt_L", "Pause", "Caps_Lock", 0,0,0, 
@@ -556,7 +556,7 @@ void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, U
       }
 #endif
   } 
-  char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
+  const char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
     {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
