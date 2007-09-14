@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer, "1.51");
+vtkCxxRevisionMacro(vtkImageViewer, "1.52");
 vtkStandardNewMacro(vtkImageViewer);
 
 //----------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public:
   vtkImageViewer *IV;
   double InitialWindow;
   double InitialLevel;
-};
+}
 
 //----------------------------------------------------------------------------
 void vtkImageViewer::SetupInteractor(vtkRenderWindowInteractor *rwi)

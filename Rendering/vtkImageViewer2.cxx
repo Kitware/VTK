@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.36");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.37");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -569,7 +569,7 @@ public:
   vtkImageViewer2 *IV;
   double InitialWindow;
   double InitialLevel;
-};
+}
 
 //----------------------------------------------------------------------------
 void vtkImageViewer2::InstallPipeline()
@@ -722,7 +722,7 @@ void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->WindowLevel->SetInputConnection(input);
   this->UpdateDisplayExtent();
-};
+}
 
 //----------------------------------------------------------------------------
 #ifndef VTK_LEGACY_REMOVE
