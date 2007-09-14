@@ -76,6 +76,7 @@ public:
   void AddDoubleVolumeArrayName(char* arrayName);
   void AddFloatVolumeArrayName(char* arrayName);
   void AddUnsignedCharVolumeArrayName(char* arrayName);
+  void AddVolumeArrayName(char* arrayName); //for backwards compatibility
 
   // Description:
   // Set, get or maninpulate the implicit clipping plane.
