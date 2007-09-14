@@ -48,7 +48,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.103");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.104");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -595,7 +595,7 @@ void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UIN
       }
 #endif
   }
-  char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
+  const char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
     {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
