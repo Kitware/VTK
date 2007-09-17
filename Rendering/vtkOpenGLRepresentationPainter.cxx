@@ -16,7 +16,10 @@
 #include "vtkOpenGLRepresentationPainter.h"
 
 #include "vtkActor.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
+#include "vtkPrimitivePainter.h"
 #include "vtkProperty.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
@@ -25,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.4");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -93,7 +96,9 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     glColor4dv(color);
     glPolygonMode(face, GL_LINE);
 
+    this->Information->Set(vtkPrimitivePainter::DISABLE_SCALAR_COLOR(), 1);
     this->Superclass::RenderInternal(renderer, actor, typeflags);
+    this->Information->Remove(vtkPrimitivePainter::DISABLE_SCALAR_COLOR());
 
     // reset the default.
     glPolygonMode(face, GL_FILL);

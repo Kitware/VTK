@@ -28,11 +28,13 @@
 #include "vtkCellData.h"
 #include "vtkConfigure.h"
 #include "vtkDataArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkPrimitivePainter.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -40,7 +42,7 @@
 #include "vtkTriangle.h"
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.5");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.6");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -157,7 +159,18 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
   vtkPointData* pointData = this->PolyData->GetPointData();
   vtkUnsignedCharArray* fieldColors = vtkUnsignedCharArray::SafeDownCast(
     this->PolyData->GetFieldData()->GetArray("Color"));
-  
+ 
+  int disable_scalar_color = 0;
+  if (this->Information->Has(vtkPrimitivePainter::DISABLE_SCALAR_COLOR()) &&
+    this->Information->Get(vtkPrimitivePainter::DISABLE_SCALAR_COLOR())==1)
+    {
+    disable_scalar_color = 1;
+    }
+  if (disable_scalar_color)
+    {
+    fieldColors = 0;
+    }
+
   vtkPoints* p = this->PolyData->GetPoints();
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
@@ -178,6 +191,8 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
       cellData->GetNormals())? 0 : 1;
     }
 
+  // skip scalars if disable_scalar_color is true.
+  int start_attribute = (disable_scalar_color? 1 : 0);
   // Note that cell attributes are overridden by point attributes.
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)
     {
@@ -185,7 +200,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
     device->BeginPrimitive(mode);
 
-    for (attribii = 0; attribii < vtkCellData::NUM_ATTRIBUTES; attribii++)
+    for (attribii = start_attribute; attribii < vtkCellData::NUM_ATTRIBUTES; attribii++)
       {
       if (!device->IsAttributesSupported(attribii))
         {
@@ -239,7 +254,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
         }
       
       // Send point centered attributes.
-      for (attribii = 0; attribii < vtkPointData::NUM_ATTRIBUTES; attribii++)
+      for (attribii = start_attribute; attribii < vtkPointData::NUM_ATTRIBUTES; attribii++)
         {
         if (!device->IsAttributesSupported(attribii))
           {

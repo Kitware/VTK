@@ -28,6 +28,7 @@
 class vtkDataArray;
 class vtkPoints;
 class vtkUnsignedCharArray;
+class vtkInformationIntegerKey;
 
 class VTK_RENDERING_EXPORT vtkPrimitivePainter : public vtkPolyDataPainter
 {
@@ -39,6 +40,10 @@ public:
   // Get the type of primitive supported by this painter.
   // This must be set by concrete subclasses.
   vtkGetMacro(SupportedPrimitive, int);
+
+  // Description:
+  // Key added to disable any scalar coloring for the current pass.
+  static vtkInformationIntegerKey* DISABLE_SCALAR_COLOR();
 
 protected:
   vtkPrimitivePainter();
@@ -65,6 +70,11 @@ protected:
   // This method is overridden to update the output data
   // as per the input.
   virtual void PrepareForRendering(vtkRenderer*, vtkActor*);
+
+  // Description:
+  // Called before RenderInternal() if the Information has been changed
+  // since the last time this method was called.
+  virtual void ProcessInformation(vtkInformation*);
 
   // Description:
   // Subclasses need to override this to return the output of the pipeline.
@@ -98,6 +108,9 @@ protected:
 
   int SupportedPrimitive; // must be set by subclasses.
   vtkSetMacro(SupportedPrimitive, int);
+
+  int DisableScalarColor;
+  vtkSetMacro(DisableScalarColor, int);
 
   vtkPolyData* OutputData;
   vtkTimeStamp OutputUpdateTime;

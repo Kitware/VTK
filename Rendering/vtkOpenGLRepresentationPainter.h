@@ -22,6 +22,7 @@
 #define __vtkOpenGLRepresentationPainter_h
 
 #include "vtkRepresentationPainter.h"
+class vtkInformationIntegerKey;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRepresentationPainter : 
   public vtkRepresentationPainter

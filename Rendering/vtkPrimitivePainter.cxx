@@ -18,24 +18,28 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkTimerLog.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.3");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.4");
+vtkInformationKeyMacro(vtkPrimitivePainter, DISABLE_SCALAR_COLOR, Integer);
 //-----------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
   this->SupportedPrimitive = 0x0; // must be set by subclasses. No primitive 
                                   // supported by default.
 
+  this->DisableScalarColor = 0;
   this->OutputData = vtkPolyData::New();
 }
 
@@ -55,6 +59,21 @@ void vtkPrimitivePainter::ReportReferences(vtkGarbageCollector *collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->OutputData, 
     "Output Data");
+}
+
+//-----------------------------------------------------------------------------
+void vtkPrimitivePainter::ProcessInformation(vtkInformation* info)
+{
+  if (info->Has(DISABLE_SCALAR_COLOR()) &&
+    info->Get(DISABLE_SCALAR_COLOR()) == 1)
+    {
+    this->SetDisableScalarColor(1);
+    }
+  else
+    {
+    this->SetDisableScalarColor(0);
+    }
+  this->Superclass::ProcessInformation(info);
 }
 
 //-----------------------------------------------------------------------------
@@ -128,23 +147,25 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
   interpolation = prop->GetInterpolation();
 
   // are they cell or point scalars
-  c = vtkUnsignedCharArray::SafeDownCast(input->GetPointData()->GetScalars());
-  if (!c)
+  if (!this->DisableScalarColor)
     {
-    c = vtkUnsignedCharArray::SafeDownCast(input->GetCellData()->GetScalars());
-    cellScalars = 1;
-    }
+    c = vtkUnsignedCharArray::SafeDownCast(input->GetPointData()->GetScalars());
+    if (!c)
+      {
+      c = vtkUnsignedCharArray::SafeDownCast(input->GetCellData()->GetScalars());
+      cellScalars = 1;
+      }
 
-  if (!c)
-    {
-    c = vtkUnsignedCharArray::SafeDownCast(input->GetFieldData()->
-      GetArray("Color"));
-    fieldScalars = 1; // note when fieldScalars == 1, also cellScalars == 1.
+    if (!c)
+      {
+      c = vtkUnsignedCharArray::SafeDownCast(input->GetFieldData()->
+        GetArray("Color"));
+      fieldScalars = 1; // note when fieldScalars == 1, also cellScalars == 1.
       // this ensures that primitive painters that do not distinguish between
       // fieldScalars and cellScalars (eg. Verts/Lines/Polys painters) can ignore 
       // fieldScalars flag.
+      }
     }
-  
     
   n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT)
