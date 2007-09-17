@@ -60,7 +60,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.10");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.11");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -87,7 +87,7 @@ void vtkOpenGLVolumeTextureMapper3D::ReleaseGraphicsResources(vtkWindow
   if (( this->Volume1Index || this->Volume2Index || 
         this->Volume3Index || this->ColorLookupIndex) && renWin)
     {
-    ((vtkRenderWindow *) renWin)->MakeCurrent();
+    static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1
     // free any textures
     this->DeleteTextureIndex( &this->Volume1Index );
@@ -153,9 +153,9 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
 
     for (i = 0; i < numClipPlanes; i++)
       {
-      glEnable((GLenum)(GL_CLIP_PLANE0+i));
+      glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
 
-      plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+      plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
       planeEquation[0] = plane->GetNormal()[0]; 
       planeEquation[1] = plane->GetNormal()[1]; 
@@ -163,7 +163,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
       planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
                            planeEquation[1]*plane->GetOrigin()[1]+
                            planeEquation[2]*plane->GetOrigin()[2]);
-      glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
       }
     }
 
@@ -203,7 +203,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   
   this->Timer->StopTimer();      
 
-  this->TimeToDraw = (float)this->Timer->GetElapsedTime();
+  this->TimeToDraw = static_cast<float>(this->Timer->GetElapsedTime());
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
@@ -215,7 +215,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFP( vtkRenderer *ren, vtkVolume *vol )
 {
-  glAlphaFunc (GL_GREATER, (GLclampf) 0);
+  glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
   
   glEnable( GL_BLEND );
@@ -273,7 +273,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFP( vtkRenderer *ren, vtkVolume *vol 
 
 void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol )
 {
-  glAlphaFunc (GL_GREATER, (GLclampf) 0);
+  glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
   
   glEnable( GL_BLEND );
@@ -348,7 +348,7 @@ void vtkOpenGLVolumeTextureMapper3D::CreateTextureIndex( GLuint *index )
 {
   GLuint tempIndex=0;    
   glGenTextures(1, &tempIndex);
-  *index = (long) tempIndex;
+  *index = static_cast<long>(tempIndex);
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
@@ -586,7 +586,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *v
     this->DeleteTextureIndex(&this->Volume3Index);
     
     vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
@@ -595,7 +595,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *v
     
 
     vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);
@@ -1001,7 +1001,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
     this->DeleteTextureIndex(&this->Volume3Index);
     
     vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
@@ -1009,7 +1009,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
                       GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
     
     vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);
@@ -1051,7 +1051,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
        !this->ColorLookupIndex || !this->AlphaLookupIndex )
     {    
     vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
-    glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
+    glBindTexture(GL_TEXTURE_2D,0);
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     this->CreateTextureIndex(&this->ColorLookupIndex);
     glBindTexture(GL_TEXTURE_2D, this->ColorLookupIndex);   
@@ -1065,7 +1065,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures(
                   GL_RGB, GL_UNSIGNED_BYTE, this->ColorLookup );    
       
     vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
-    glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
+    glBindTexture(GL_TEXTURE_2D,0);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
     glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   
@@ -1155,7 +1155,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
     this->GetVolumeDimensions(dim);
     
     vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume1Index);
@@ -1163,7 +1163,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
                       GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
 
     vtkgl::ActiveTexture( vtkgl::TEXTURE1 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume2Index);   
@@ -1172,7 +1172,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
                       this->Volume2 );
 
     vtkgl::ActiveTexture( vtkgl::TEXTURE2 );
-    glBindTexture(vtkgl::TEXTURE_3D, (GLuint)NULL);
+    glBindTexture(vtkgl::TEXTURE_3D,0);
     this->DeleteTextureIndex(&this->Volume3Index);
     this->CreateTextureIndex(&this->Volume3Index);
     glBindTexture(vtkgl::TEXTURE_3D, this->Volume3Index);
@@ -1210,7 +1210,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures(
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     
     vtkgl::ActiveTexture( vtkgl::TEXTURE3 );
-    glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
+    glBindTexture(GL_TEXTURE_2D,0);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
     glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   

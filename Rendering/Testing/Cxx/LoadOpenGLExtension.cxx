@@ -106,9 +106,12 @@ int LoadOpenGLExtension(int argc, char *argv[])
   //
   renwin->Render();
 
-  const char *gl_vendor = (const char *) glGetString(GL_VENDOR);
-  const char *gl_version = (const char *) glGetString(GL_VERSION);
-  const char *gl_renderer = (const char *) glGetString(GL_RENDERER);
+  const char *gl_vendor =
+    reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+  const char *gl_version =
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  const char *gl_renderer =
+    reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 
   cout << endl;
   cout << "GL_VENDOR: " << (gl_vendor ? gl_vendor : "(null)") << endl;
