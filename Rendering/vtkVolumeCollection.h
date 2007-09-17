@@ -37,8 +37,10 @@ class VTK_RENDERING_EXPORT vtkVolumeCollection : public vtkPropCollection
 
   // Description:
   // Add a Volume to the list.
-  void AddItem(vtkVolume *a) {
-    this->vtkCollection::AddItem((vtkObject *)a);};
+  void AddItem(vtkVolume *a)
+    {
+      this->vtkCollection::AddItem(a);
+    }
     
   // Description:
   // Get the next Volume in the list. Return NULL when at the end of the 
@@ -75,10 +77,4 @@ private:
   void operator=(const vtkVolumeCollection&);  // Not implemented.
 };
 
-
 #endif
-
-
-
-
-

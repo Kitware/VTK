@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.7");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -77,27 +77,27 @@ void vtkOpenGLHAVSVolumeMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 { 
   if (this->Initialized)
     {
-    ((vtkRenderWindow *) renWin)->MakeCurrent();
+    static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
     this->DeleteShaders();
     
     glDisable( vtkgl::VERTEX_PROGRAM_ARB );
     glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
     
-    glDeleteTextures(1, (GLuint *)&this->TransferFunctionTexture);
+    glDeleteTextures(1, static_cast<GLuint *>(&this->TransferFunctionTexture));
 
     int numBuffers = (this->KBufferState == VTK_KBUFFER_SIZE_2)? 2 : 4;
     for (int i = 0; i < numBuffers; i++)
       {
-      glDeleteTextures(1, (GLuint *)&this->FramebufferTextures[i]);
+      glDeleteTextures(1,static_cast<GLuint *>(&this->FramebufferTextures[i]));
       }
 
-    vtkgl::DeleteFramebuffersEXT(1, (GLuint *)&this->FramebufferObject);
+    vtkgl::DeleteFramebuffersEXT(1,static_cast<GLuint *>(&this->FramebufferObject));
     this->Initialized = false;
     if (this->GPUDataStructures)
       {
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOVertexName);
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOTexCoordName);
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOVertexIndexName);
+      vtkgl::DeleteBuffers(1, static_cast<GLuint *>(&this->VBOVertexName));
+      vtkgl::DeleteBuffers(1, static_cast<GLuint *>(&this->VBOTexCoordName));
+      vtkgl::DeleteBuffers(1,static_cast<GLuint *>(&this->VBOVertexIndexName));
       vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, 0);
       vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER, 0);
       }
@@ -244,25 +244,25 @@ void vtkOpenGLHAVSVolumeMapper::InitializeGPUDataStructures()
     {
     if (VBOVertexName)
       {
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOVertexName);
+      vtkgl::DeleteBuffers(1, static_cast<GLuint *>(&this->VBOVertexName));
       }
     if (VBOVertexIndexName)
       {
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOVertexIndexName);
+      vtkgl::DeleteBuffers(1,static_cast<GLuint *>(&this->VBOVertexIndexName));
       }
     if (VBOTexCoordName)
       {
-      vtkgl::DeleteBuffers(1, (GLuint *)&this->VBOTexCoordName);
+      vtkgl::DeleteBuffers(1, static_cast<GLuint *>(&this->VBOTexCoordName));
       }
 
     // Build vertex array
-    vtkgl::GenBuffers(1, (GLuint *)&this->VBOVertexName);
+    vtkgl::GenBuffers(1, static_cast<GLuint *>(&this->VBOVertexName));
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, this->VBOVertexName);
     vtkgl::BufferData(vtkgl::ARRAY_BUFFER, 
                       this->NumberOfVertices*3*sizeof(float), 
                       this->Vertices, vtkgl::STATIC_DRAW);
     // Build dynamic vertex index array
-    vtkgl::GenBuffers(1, (GLuint *)&this->VBOVertexIndexName);
+    vtkgl::GenBuffers(1, static_cast<GLuint *>(&this->VBOVertexIndexName));
     vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER,
                       this->VBOVertexIndexName);
     vtkgl::BufferData(vtkgl::ELEMENT_ARRAY_BUFFER,
@@ -274,7 +274,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeGPUDataStructures()
     this->CheckOpenGLError("Initializing VBOs");
 
     // Build tex coord array
-    vtkgl::GenBuffers(1, (GLuint *)&this->VBOTexCoordName);
+    vtkgl::GenBuffers(1, static_cast<GLuint *>(&this->VBOTexCoordName));
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, this->VBOTexCoordName);
     vtkgl::BufferData(vtkgl::ARRAY_BUFFER,
                          this->NumberOfScalars*sizeof(float),
@@ -297,7 +297,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
 {
   // Create vertex shader
   glEnable( vtkgl::VERTEX_PROGRAM_ARB );
-  vtkgl::GenProgramsARB(1, (GLuint *)&this->VertexProgram);
+  vtkgl::GenProgramsARB(1, static_cast<GLuint *>(&this->VertexProgram));
   vtkgl::BindProgramARB(vtkgl::VERTEX_PROGRAM_ARB, this->VertexProgram);
   vtkgl::ProgramStringARB(vtkgl::VERTEX_PROGRAM_ARB,
                           vtkgl::PROGRAM_FORMAT_ASCII_ARB,
@@ -308,20 +308,21 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
   glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
   if (this->KBufferSize == VTK_KBUFFER_SIZE_2)
     {
-    vtkgl::GenProgramsARB(1, (GLuint *)&this->FragmentProgramBegin);
+    vtkgl::GenProgramsARB(1,
+                          static_cast<GLuint *>(&this->FragmentProgramBegin));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramBegin);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             strlen(vtkHAVSVolumeMapper_k2BeginFP),
                             vtkHAVSVolumeMapper_k2BeginFP);
-    vtkgl::GenProgramsARB(1, (GLuint *)&this->FragmentProgram);
+    vtkgl::GenProgramsARB(1, static_cast<GLuint *>(&this->FragmentProgram));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, this->FragmentProgram);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             strlen(vtkHAVSVolumeMapper_k2FP),
                             vtkHAVSVolumeMapper_k2FP);
-    vtkgl::GenProgramsARB(1, (GLuint *)&this->FragmentProgramEnd);
+    vtkgl::GenProgramsARB(1, static_cast<GLuint *>(&this->FragmentProgramEnd));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramEnd);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
@@ -331,20 +332,21 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
     }
   else
     {
-    vtkgl::GenProgramsARB(1, (GLuint *)&this->FragmentProgramBegin);
+    vtkgl::GenProgramsARB(1,
+                          static_cast<GLuint *>(&this->FragmentProgramBegin));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramBegin);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             strlen(vtkHAVSVolumeMapper_k6BeginFP),
                             vtkHAVSVolumeMapper_k6BeginFP);
-    vtkgl::GenProgramsARB(1, (GLuint *)&this->FragmentProgram);
+    vtkgl::GenProgramsARB(1, static_cast<GLuint *>(&this->FragmentProgram));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, this->FragmentProgram);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
                             strlen(vtkHAVSVolumeMapper_k6FP),
                             vtkHAVSVolumeMapper_k6FP);
-    vtkgl::GenProgramsARB(1, (GLuint *) &this->FragmentProgramEnd);
+    vtkgl::GenProgramsARB(1, static_cast<GLuint *>(&this->FragmentProgramEnd));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramEnd);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
@@ -363,10 +365,12 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
 //----------------------------------------------------------------------------
 void vtkOpenGLHAVSVolumeMapper::DeleteShaders()
 {
-  vtkgl::DeleteProgramsARB(1, (GLuint *)&this->VertexProgram);
-  vtkgl::DeleteProgramsARB(1, (GLuint *)&this->FragmentProgramBegin);
-  vtkgl::DeleteProgramsARB(1, (GLuint *)&this->FragmentProgram);
-  vtkgl::DeleteProgramsARB(1, (GLuint *)&this->FragmentProgramEnd);
+  vtkgl::DeleteProgramsARB(1, static_cast<GLuint *>(&this->VertexProgram));
+  vtkgl::DeleteProgramsARB(1,
+                           static_cast<GLuint *>(&this->FragmentProgramBegin));
+  vtkgl::DeleteProgramsARB(1, static_cast<GLuint *>(&this->FragmentProgram));
+  vtkgl::DeleteProgramsARB(1,
+                           static_cast<GLuint *>(&this->FragmentProgramEnd));
 }
 
 //----------------------------------------------------------------------------
@@ -376,7 +380,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
   this->Superclass::InitializeLookupTables(vol);
   
   // Create a 1D texture for transfer function look up
-  glGenTextures(1, (GLuint *)&this->TransferFunctionTexture);
+  glGenTextures(1, static_cast<GLuint *>(&this->TransferFunctionTexture));
   glBindTexture(GL_TEXTURE_1D, this->TransferFunctionTexture);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -393,7 +397,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeLookupTables(vtkVolume *vol)
     float *psiTable = ppi->GetPsiTable(tableSize);
 
     // Create a 2D texture for the PSI lookup table
-    glGenTextures(1, (GLuint *)&this->PsiTableTexture);
+    glGenTextures(1, static_cast<GLuint *>(&this->PsiTableTexture));
     glBindTexture(GL_TEXTURE_2D, this->PsiTableTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
@@ -417,19 +421,22 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
   if (!this->Initialized)
     {
     // Create FBO
-    vtkgl::GenFramebuffersEXT(1, (GLuint *)&this->FramebufferObject);
+    vtkgl::GenFramebuffersEXT(1,
+                              static_cast<GLuint *>(&this->FramebufferObject));
     this->CheckOpenGLError("creating FBO");
     }
   else
     {
-    glDeleteTextures(numBuffers, (GLuint *)this->FramebufferTextures);
-    vtkgl::DeleteRenderbuffersEXT(1, (GLuint *)&this->DepthTexture);
+    glDeleteTextures(numBuffers,
+                     static_cast<GLuint *>(this->FramebufferTextures));
+    vtkgl::DeleteRenderbuffersEXT(1,
+                                  static_cast<GLuint *>(&this->DepthTexture));
     }
 
   numBuffers = (this->KBufferSize == VTK_KBUFFER_SIZE_2)? 2 : 4;
 
   // Create FBO textures
-  glGenTextures(numBuffers, (GLuint *)this->FramebufferTextures);
+  glGenTextures(numBuffers, static_cast<GLuint *>(this->FramebufferTextures));
   for (int i = 0; i < numBuffers; i++)
     {
     glBindTexture(GL_TEXTURE_2D, this->FramebufferTextures[i]);
@@ -450,7 +457,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeFramebufferObject()
   this->CheckOpenGLError("binding FBO");
   
   // Generate depth buffer texture for framebuffer
-  vtkgl::GenRenderbuffersEXT(1, (GLuint *)&this->DepthTexture);
+  vtkgl::GenRenderbuffersEXT(1, static_cast<GLuint *>(&this->DepthTexture));
 
   // Attach texture to framebuffer color buffer
   vtkgl::FramebufferTexture2DEXT( vtkgl::FRAMEBUFFER_EXT, 
@@ -639,10 +646,10 @@ void vtkOpenGLHAVSVolumeMapper::RenderHAVS(vtkRenderer *ren)
     {
     glEnableClientState(GL_VERTEX_ARRAY);
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, this->VBOVertexName);
-    glVertexPointer(3, GL_FLOAT, 0, (char *) NULL);  
+    glVertexPointer(3, GL_FLOAT, 0, static_cast<char *>(NULL));  
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     vtkgl::BindBuffer(vtkgl::ARRAY_BUFFER, this->VBOTexCoordName);
-    glTexCoordPointer(1, GL_FLOAT, 0, (char *) NULL);
+    glTexCoordPointer(1, GL_FLOAT, 0, static_cast<char *>(NULL));
   
     vtkgl::BindBuffer(vtkgl::ELEMENT_ARRAY_BUFFER, this->VBOVertexIndexName);
     }
@@ -850,9 +857,10 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOInit(int screenWidth, int screenHeight,
   // Draw a quad to initialize the k-buffer
   glBegin(GL_QUADS);
   glVertex3f(0.0, 0.0, 0.0);
-  glVertex3f((float)screenWidth, 0.0, 0.0);
-  glVertex3f((float)screenWidth, (float)screenHeight, 0.0);
-  glVertex3f(0.0, (float)screenHeight, 0.0);
+  glVertex3f(static_cast<float>(screenWidth), 0.0, 0.0);
+  glVertex3f(static_cast<float>(screenWidth),
+             static_cast<float>(screenHeight), 0.0);
+  glVertex3f(0.0, static_cast<float>(screenHeight), 0.0);
   glEnd();
   
   vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0);
@@ -887,7 +895,7 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOGeometry()
   if (this->GPUDataStructures)
     {
     glDrawElements(GL_TRIANGLES, this->LevelOfDetailTriangleCount*3, 
-                   GL_UNSIGNED_INT, (char *) NULL); 
+                   GL_UNSIGNED_INT, static_cast<char *>(NULL)); 
     }
   else
     {
@@ -939,9 +947,10 @@ void vtkOpenGLHAVSVolumeMapper::DrawFBOFlush(int screenWidth,
     {
     glBegin(GL_QUADS);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, (float)screenHeight, 0.0);
-    glVertex3f((float)screenWidth, (float)screenHeight, 0.0);
-    glVertex3f((float)screenWidth, 0.0, 0.0);
+    glVertex3f(0.0, static_cast<float>(screenHeight), 0.0);
+    glVertex3f(static_cast<float>(screenWidth),
+               static_cast<float>(screenHeight), 0.0);
+    glVertex3f(static_cast<float>(screenWidth), 0.0, 0.0);
     glEnd();
     }
 
@@ -1024,8 +1033,8 @@ void vtkOpenGLHAVSVolumeMapper::DrawBlend(int screenWidth, int screenHeight,
   glEnable(GL_TEXTURE_2D);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-  float max_u = (float)screenWidth/(float)this->FramebufferObjectSize;
-  float max_v = (float)screenHeight/(float)this->FramebufferObjectSize;
+  float max_u =static_cast<float>(screenWidth)/static_cast<float>(this->FramebufferObjectSize);
+  float max_v = static_cast<float>(screenHeight)/static_cast<float>(this->FramebufferObjectSize);
   if (max_u > 1.0) { max_u = 1.0; }
   if (max_v > 1.0) { max_v = 1.0; }
 

@@ -84,7 +84,7 @@ private:
 
 inline void vtkActorCollection::AddItem(vtkActor *a) 
 {
-  this->vtkCollection::AddItem((vtkObject *)a);
+  this->vtkCollection::AddItem(a);
 }
 
 inline vtkActor *vtkActorCollection::GetNextActor() 

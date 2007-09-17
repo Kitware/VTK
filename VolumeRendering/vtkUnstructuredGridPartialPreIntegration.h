@@ -131,7 +131,7 @@ inline void vtkUnstructuredGridPartialPreIntegration::IntegrateRay(
   float taufD = length*attenuation_front;
   float taubD = length*attenuation_back;
   float Psi = vtkUnstructuredGridPartialPreIntegration::Psi(taufD, taubD);
-  float zeta = (float)exp(-0.5*(taufD+taubD));
+  float zeta = static_cast<float>(exp(-0.5*(taufD+taubD)));
   float alpha = 1-zeta;
 
   float newintensity = (1-color[3])*(  intensity_front*(1-Psi)
@@ -154,7 +154,7 @@ inline void vtkUnstructuredGridPartialPreIntegration::IntegrateRay(
   float taufD = length*attenuation_front;
   float taubD = length*attenuation_back;
   float Psi = vtkUnstructuredGridPartialPreIntegration::Psi(taufD, taubD);
-  float zeta = (float)exp(-0.5*(taufD+taubD));
+  float zeta = static_cast<float>(exp(-0.5*(taufD+taubD)));
   float alpha = 1-zeta;
 
   color[0] += (1-color[3])*(color_front[0]*(1-Psi) + color_back[0]*(Psi-zeta));

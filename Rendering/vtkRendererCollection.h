@@ -36,8 +36,11 @@ class VTK_RENDERING_EXPORT vtkRendererCollection : public vtkCollection
 
   // Description:
   // Add a Renderer to the list.
-  void AddItem(vtkRenderer *a) {
-    this->vtkCollection::AddItem((vtkObject *)a);};
+  void AddItem(vtkRenderer *a)
+    {
+    this->vtkCollection::AddItem(a);
+    }
+  
   
   // Description:
   // Get the next Renderer in the list. Return NULL when at the end of the 
