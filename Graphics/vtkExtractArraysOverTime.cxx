@@ -67,7 +67,7 @@ public:
   vtkstd::vector<vtkDataArray*> OutArrays;
 };
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.14");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.15");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -418,7 +418,7 @@ void vtkExtractArraysOverTime::PostExecute(
       
     }
 
-  //Use the vtkEAOTValidity array to zero any invalid samples.
+  //Use the vtkValidPointMask array to zero any invalid samples.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkRectilinearGrid *output = vtkRectilinearGrid::GetData(outInfo);
   this->RemoveInvalidPoints(output);
@@ -577,7 +577,7 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
   // by a cell or at a cell or point id that is destroyed.
   // It is used in the parallel subclass as well.
   vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::New();
-  validPts->SetName("vtkEAOTValidity");
+  validPts->SetName("vtkValidPointMask");
   validPts->SetNumberOfTuples(this->NumberOfTimeSteps);
   opd->AddArray(validPts);
   for (vtkIdType i=0; i<this->NumberOfTimeSteps; i++)
@@ -660,7 +660,7 @@ void vtkExtractArraysOverTime::CopyFastPathDataToOutput(vtkDataSet *input,
     
   vtkUnsignedCharArray* validPts = 
     vtkUnsignedCharArray::SafeDownCast(
-      output->GetPointData()->GetArray("vtkEAOTValidity"));
+      output->GetPointData()->GetArray("vtkValidPointMask"));
 
   // if no valid field arrays were found, which would happen if the reader
   // did not have the requested data, set validity to 0, otherwise 1.
@@ -861,7 +861,7 @@ void vtkExtractArraysOverTime::ExecuteIdAtTimeStep(
     //record that their is good data at this sample time
     vtkUnsignedCharArray* validPts = 
       vtkUnsignedCharArray::SafeDownCast(
-        output->GetPointData()->GetArray("vtkEAOTValidity"));
+        output->GetPointData()->GetArray("vtkValidPointMask"));
     if (validPts)
       {
       validPts->SetValue(this->CurrentTimeIndex, 1);
@@ -1003,7 +1003,7 @@ void vtkExtractArraysOverTime::ExecuteLocationAtTimeStep(
     //record that their is good data at this sample time
     vtkUnsignedCharArray* validPts = 
       vtkUnsignedCharArray::SafeDownCast(
-        output->GetPointData()->GetArray("vtkEAOTValidity"));
+        output->GetPointData()->GetArray("vtkValidPointMask"));
     if (validPts)
       {
       validPts->SetValue(this->CurrentTimeIndex, 1);
@@ -1078,7 +1078,7 @@ void vtkExtractArraysOverTime::RemoveInvalidPoints(
   )
 {
   vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::SafeDownCast(
-    source->GetPointData()->GetArray("vtkEAOTValidity"));
+    source->GetPointData()->GetArray("vtkValidPointMask"));
   if (!validPts)
     {
     return;
