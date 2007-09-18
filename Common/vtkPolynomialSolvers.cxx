@@ -27,12 +27,15 @@
 #include "vtkDataArray.h"
 #include "vtkMath.h"
 
-#ifdef WIN32
-#include <float.h>
-#define isnan(x) _isnan(x)
+#ifndef isnan
+// This is compiler specific not platform specific: MinGW doesn't need that.
+# if defined(_MSC_VER) || defined(__BORLANDC__)
+#  include <float.h>
+#  define isnan(x) _isnan(x)
+# endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.6");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.7");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------

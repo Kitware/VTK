@@ -27,12 +27,15 @@
 #include "vtkDataArray.h"
 #include <assert.h>
 
-#ifdef WIN32
-#include <float.h>
-#define isnan(x) _isnan(x)
+#ifndef isnan
+// This is compiler specific not platform specific: MinGW doesn't need that.
+# if defined(_MSC_VER) || defined(__BORLANDC__)
+#  include <float.h>
+#  define isnan(x) _isnan(x)
+# endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.123");
+vtkCxxRevisionMacro(vtkMath, "1.124");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
