@@ -58,7 +58,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.147");
+vtkCxxRevisionMacro(vtkDataReader, "1.148");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -2347,7 +2347,7 @@ void vtkDataReader::CheckFor(const char* name, char *line, int &num,
     // enter the name
     char nameOfAttribute[256];
     sscanf(line, "%*s %s", nameOfAttribute);
-    if ( nameOfAttribute )
+    if ( *nameOfAttribute )
       {
       array[num-1] = new char [strlen(nameOfAttribute)+1];
       strcpy(array[num-1],nameOfAttribute);
