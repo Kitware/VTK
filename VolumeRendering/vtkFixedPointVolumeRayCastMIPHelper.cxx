@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.8");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.9");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -67,13 +67,15 @@ void vtkFixedPointMIPHelperGenerateImageOneNN( T *data,
         mapper->FixedPointIncrement( pos, dir );
         }
       
-      VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined );
+      VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined, mapper->GetFlipMIPComparison() );
           
       if ( !mapper->CheckIfCropped( pos ) )
         {
         mapper->ShiftVectorDown( pos, spos );
         dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
-        if ( !maxValueDefined || *dptr > maxValue )
+        if ( !maxValueDefined || 
+             ( (mapper->GetFlipMIPComparison() && *dptr < maxValue) ||
+               (!mapper->GetFlipMIPComparison() && *dptr > maxValue) ) )
           {
           maxValue = *dptr;
           maxIdx = static_cast<unsigned short>((maxValue + shift[0])*scale[0]);        
@@ -103,11 +105,19 @@ void vtkFixedPointMIPHelperGenerateImageOneNN( T *data,
         mapper->FixedPointIncrement( pos, dir );
         }
       
-      VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, 1 );
+      VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, 1, mapper->GetFlipMIPComparison() );
 
       mapper->ShiftVectorDown( pos, spos );
       dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
-      maxValue = ( *dptr > maxValue )?(*dptr):(maxValue);
+      if ( mapper->GetFlipMIPComparison() )
+        {
+        maxValue = ( *dptr < maxValue )?(*dptr):(maxValue);
+        }
+      else
+        {
+        maxValue = ( *dptr > maxValue )?(*dptr):(maxValue);
+        }
+      
       maxIdx = static_cast<unsigned short>((maxValue + shift[0])*scale[0]);        
       }
 
@@ -144,12 +154,14 @@ void vtkFixedPointMIPHelperGenerateImageDependentNN( T *data,
       mapper->FixedPointIncrement( pos, dir );
       }
     
-    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdxS, maxValueDefined );
+    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdxS, maxValueDefined, mapper->GetFlipMIPComparison() );
     VTKKWRCHelper_CroppingCheckNN( pos );
   
     mapper->ShiftVectorDown( pos, spos );
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];          
-    if ( !maxValueDefined || *(dptr + components - 1) > maxValue[components-1] )
+    if ( !maxValueDefined || 
+         ( ( mapper->GetFlipMIPComparison() && *(dptr + components - 1) < maxValue[components-1] ) ||
+           ( !mapper->GetFlipMIPComparison() && *(dptr + components - 1) > maxValue[components-1] ) ) )
       {
       for ( c = 0; c < components; c++ )
         {
@@ -207,7 +219,7 @@ void vtkFixedPointMIPHelperGenerateImageIndependentNN( T *data,
       mapper->FixedPointIncrement( pos, dir );
       }
     VTKKWRCHelper_CroppingCheckNN( pos );
-    VTKKWRCHelper_MIPSpaceLeapPopulateMulti( maxIdx ) 
+    VTKKWRCHelper_MIPSpaceLeapPopulateMulti( maxIdx, mapper->GetFlipMIPComparison() ) 
     
     mapper->ShiftVectorDown( pos, spos );
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];          
@@ -225,8 +237,9 @@ void vtkFixedPointMIPHelperGenerateImageIndependentNN( T *data,
       {
       for ( c = 0; c < components; c++ )
         {
-        if ( VTKKWRCHelper_MIPSpaceLeapCheckMulti( c ) &&
-             *(dptr + c) > maxValue[c] )
+        if ( VTKKWRCHelper_MIPSpaceLeapCheckMulti( c, mapper->GetFlipMIPComparison() ) &&
+            ((mapper->GetFlipMIPComparison() &&  *(dptr + c) < maxValue[c] ) ||
+             (!mapper->GetFlipMIPComparison() &&  *(dptr + c) > maxValue[c] )) )
           {
           maxValue[c] = *(dptr+c);
           maxIdx[c] = (unsigned short)((maxValue[c] + shift[c])*scale[c]);
@@ -277,7 +290,7 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
       mapper->FixedPointIncrement( pos, dir );
       }
     
-    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined );
+    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined, mapper->GetFlipMIPComparison() );
     VTKKWRCHelper_CroppingCheckTrilin( pos );
     
     mapper->ShiftVectorDown( pos, spos );  
@@ -291,21 +304,39 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
 
       dptr = dataPtr + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
       VTKKWRCHelper_GetCellScalarValuesSimple( dptr );
-      maxScalar = (A>B)?(A):(B);
-      maxScalar = (C>maxScalar)?(C):(maxScalar);
-      maxScalar = (D>maxScalar)?(D):(maxScalar);
-      maxScalar = (E>maxScalar)?(E):(maxScalar);
-      maxScalar = (F>maxScalar)?(F):(maxScalar);
-      maxScalar = (G>maxScalar)?(G):(maxScalar);
-      maxScalar = (H>maxScalar)?(H):(maxScalar);      
+      if ( mapper->GetFlipMIPComparison() )
+        {
+        maxScalar = (A<B)?(A):(B);
+        maxScalar = (C<maxScalar)?(C):(maxScalar);
+        maxScalar = (D<maxScalar)?(D):(maxScalar);
+        maxScalar = (E<maxScalar)?(E):(maxScalar);
+        maxScalar = (F<maxScalar)?(F):(maxScalar);
+        maxScalar = (G<maxScalar)?(G):(maxScalar);
+        maxScalar = (H<maxScalar)?(H):(maxScalar);      
+        }
+      else
+        {
+        maxScalar = (A>B)?(A):(B);
+        maxScalar = (C>maxScalar)?(C):(maxScalar);
+        maxScalar = (D>maxScalar)?(D):(maxScalar);
+        maxScalar = (E>maxScalar)?(E):(maxScalar);
+        maxScalar = (F>maxScalar)?(F):(maxScalar);
+        maxScalar = (G>maxScalar)?(G):(maxScalar);
+        maxScalar = (H>maxScalar)?(H):(maxScalar);      
+        }
+        
       }
 
-    if ( !maxValueDefined || maxScalar > static_cast<unsigned int>(maxValue) )
+    if ( !maxValueDefined || 
+         ((mapper->GetFlipMIPComparison() && maxScalar < static_cast<unsigned int>(maxValue) ) ||
+          (!mapper->GetFlipMIPComparison() && maxScalar > static_cast<unsigned int>(maxValue) )) )
       {
       VTKKWRCHelper_ComputeWeights(pos);
       VTKKWRCHelper_InterpolateScalar(val);
       
-      if ( !maxValueDefined || val > maxValue )
+      if ( !maxValueDefined || 
+           ((mapper->GetFlipMIPComparison() && val < maxValue ) ||
+            (!mapper->GetFlipMIPComparison() && val > maxValue )) )
         {
         maxValue = val;
         maxIdx = static_cast<unsigned short>(maxValue);        
@@ -357,7 +388,7 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin( T *dataPtr,
       }
     
     VTKKWRCHelper_CroppingCheckTrilin( pos );
-    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined );    
+    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined, mapper->GetFlipMIPComparison() );    
       
     mapper->ShiftVectorDown( pos, spos );    
     if ( spos[0] != oldSPos[0] ||
@@ -376,7 +407,9 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin( T *dataPtr,
     VTKKWRCHelper_ComputeWeights(pos);
     VTKKWRCHelper_InterpolateScalar(val);
     
-    if ( !maxValueDefined || val > maxValue )
+    if ( !maxValueDefined || 
+         ((mapper->GetFlipMIPComparison() && val < maxValue ) ||
+          (!mapper->GetFlipMIPComparison() && val > maxValue )) )
       {
       maxValue = val;
       maxIdx = static_cast<unsigned short>(maxValue);
@@ -431,7 +464,7 @@ void vtkFixedPointMIPHelperGenerateImageDependentTrilin( T *dataPtr,
       }
     
     VTKKWRCHelper_CroppingCheckTrilin( pos );
-    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined );    
+    VTKKWRCHelper_MIPSpaceLeapCheck( maxIdx, maxValueDefined, mapper->GetFlipMIPComparison() );    
     
     mapper->ShiftVectorDown( pos, spos );    
     if ( spos[0] != oldSPos[0] ||
@@ -452,7 +485,9 @@ void vtkFixedPointMIPHelperGenerateImageDependentTrilin( T *dataPtr,
     VTKKWRCHelper_ComputeWeights(pos);
     VTKKWRCHelper_InterpolateScalarComponent( val, c, components );
 
-    if ( !maxValueDefined || (val[components-1] > maxValue[components-1]) )
+    if ( !maxValueDefined || 
+         ((mapper->GetFlipMIPComparison() && (val[components-1] < maxValue[components-1]) ) ||
+          (!mapper->GetFlipMIPComparison() && (val[components-1] > maxValue[components-1]) )) )
       {
       for ( c= 0; c < components; c++ )
         {
@@ -540,7 +575,8 @@ void vtkFixedPointMIPHelperGenerateImageIndependentTrilin( T *dataPtr,
       {
       for ( c= 0; c < components; c++ )
         {
-        if ( (val[c] > maxValue[c]) )
+        if ( ( mapper->GetFlipMIPComparison() && val[c] < maxValue[c] ) ||
+             ( !mapper->GetFlipMIPComparison() && val[c] > maxValue[c] ) )
           {
           maxValue[c] = val[c];
           }

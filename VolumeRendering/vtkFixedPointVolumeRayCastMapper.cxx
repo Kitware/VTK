@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.40");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.41");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -786,6 +786,8 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   
   this->FinalColorWindow           = 1.0;
   this->FinalColorLevel            = 0.5;
+  
+  this->FlipMIPComparison = 0;
 }
 
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
@@ -1795,7 +1797,9 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
     }
 
   vtkVolume *vol = me->GetVolume();
-  if ( me->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND )
+  
+  if ( me->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ||
+       me->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND )
     {
     me->GetMIPHelper()->GenerateImage( threadID, threadCount, vol, me );
     }
@@ -3248,7 +3252,18 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
   if ( blendMode != this->SavedBlendMode )
     {
     needToUpdate = 1;
+    
+    if ( this->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND )
+      {
+      this->FlipMIPComparison = 1;
+      }
+    else
+      {
+      this->FlipMIPComparison = 1;
+      }
     }
+  
+  
   
   // How many components?
   int components = this->CurrentScalars->GetNumberOfComponents();
@@ -3642,4 +3657,6 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   //os << indent << "TableScale: " << this->TableScale[0] << " "
   //   << this->TableScale[1] << " " << this->TableScale[2] << " "
   //   << this->TableScale[3] << endl;
+  
+  // os << indent << "Flip Mip Comparison" << this->FlipMIPComparison << end;"
 }

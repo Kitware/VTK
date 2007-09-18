@@ -62,6 +62,8 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
   void SetBlendModeToMaximumIntensity()
     { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
+  void SetBlendModeToMinimumIntensity()
+    { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
   vtkGetMacro( BlendMode, int );
   
   // Description:
@@ -124,7 +126,8 @@ public:
   enum 
   {
     COMPOSITE_BLEND,
-    MAXIMUM_INTENSITY_BLEND
+    MAXIMUM_INTENSITY_BLEND,
+    MINIMUM_INTENSITY_BLEND
   };
 //ETX
 

@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       PreIntegrationNonIncremental.cxx
       TestFinalColorWindowLevel.cxx
       TestHAVSVolumeMapper.cxx
+      TestMinIntensityRendering.cxx
       TestProjectedTetrahedra.cxx
       volProt.cxx
       )

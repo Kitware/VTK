@@ -195,7 +195,7 @@ public:
   void GetUIntTripleFromPointer( unsigned int v[3], unsigned int *ptr );
   void ShiftVectorDown( unsigned int in[3], unsigned int out[3] );
   int CheckMinMaxVolumeFlag( unsigned int pos[3], int c );
-  int CheckMIPMinMaxVolumeFlag( unsigned int pos[3], int c, unsigned short maxIdx );
+  int CheckMIPMinMaxVolumeFlag( unsigned int pos[3], int c, unsigned short maxIdx, int flip );
   
   void LookupColorUC( unsigned short *colorTable,
                       unsigned short *scalarOpacityTable,
@@ -300,6 +300,12 @@ public:
   vtkGetMacro( FinalColorWindow, float );
   vtkSetMacro( FinalColorLevel,  float );
   vtkGetMacro( FinalColorLevel,  float );
+
+  
+  // Here to be used by the mapper to tell the helper
+  // to flip the MIP comparison in order to support
+  // minimum intensity blending
+  vtkGetMacro( FlipMIPComparison, int );
   
 protected:
   vtkFixedPointVolumeRayCastMapper();
@@ -485,6 +491,8 @@ protected:
    
   float FinalColorWindow;
   float FinalColorLevel;
+
+  int FlipMIPComparison;
   
   void ApplyFinalColorWindowLevel();
   
@@ -593,7 +601,7 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMinMaxVolumeFlag( unsigned int
 }
 
 inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned int mmpos[3], int c, 
-                                                                       unsigned short maxIdx )
+                                                                       unsigned short maxIdx, int flip )
 {
   unsigned int offset = 
     this->MinMaxVolumeSize[3] * 
@@ -603,7 +611,14 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned 
   
   if ( (*(this->MinMaxVolume + 3*offset + 2)&0x00ff) )
     {
-    return ( *(this->MinMaxVolume + 3*offset + 1) > maxIdx );
+    if (flip)
+      {
+      return ( *(this->MinMaxVolume + 3*offset) < maxIdx );
+      }
+    else
+      {
+      return ( *(this->MinMaxVolume + 3*offset + 1) > maxIdx );
+      }
     }
   else
     { 

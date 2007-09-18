@@ -1252,7 +1252,7 @@
 //ETX
 
 //BTX 
-#define VTKKWRCHelper_MIPSpaceLeapCheck( MAXIDX, MAXIDXDEF )            \
+#define VTKKWRCHelper_MIPSpaceLeapCheck( MAXIDX, MAXIDXDEF, FLIP )      \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                        \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                        \
        pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                         \
@@ -1261,7 +1261,7 @@
     mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                              \
     mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                              \
     mmvalid = (MAXIDXDEF)?                                              \
-     (mapper->CheckMIPMinMaxVolumeFlag( mmpos, 0, MAXIDX )):(1);        \
+     (mapper->CheckMIPMinMaxVolumeFlag( mmpos, 0, MAXIDX, FLIP )):(1);  \
     }                                                                   \
                                                                         \
   if ( !mmvalid )                                                       \
@@ -1272,23 +1272,23 @@
 
 
 //BTX 
-#define VTKKWRCHelper_MIPSpaceLeapPopulateMulti( MAXIDX )                       \
-  if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                                \
-       pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                                \
-       pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                                 \
-    {                                                                           \
-    mmpos[0] = pos[0] >> VTKKW_FPMM_SHIFT;                                      \
-    mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                                      \
-    mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                                      \
-    for ( c = 0; c < components; c++ )                                          \
-      {                                                                         \
-      mmvalid[c] = mapper->CheckMIPMinMaxVolumeFlag( mmpos, c, MAXIDX[c] );     \
-      }                                                                         \
+#define VTKKWRCHelper_MIPSpaceLeapPopulateMulti( MAXIDX, FLIP )                   \
+  if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                                  \
+       pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                                  \
+       pos[2] >> VTKKW_FPMM_SHIFT != mmpos[2] )                                   \
+    {                                                                             \
+    mmpos[0] = pos[0] >> VTKKW_FPMM_SHIFT;                                        \
+    mmpos[1] = pos[1] >> VTKKW_FPMM_SHIFT;                                        \
+    mmpos[2] = pos[2] >> VTKKW_FPMM_SHIFT;                                        \
+    for ( c = 0; c < components; c++ )                                            \
+      {                                                                           \
+      mmvalid[c] = mapper->CheckMIPMinMaxVolumeFlag( mmpos, c, MAXIDX[c], FLIP ); \
+      }                                                                           \
     }
 //ETX
 
 //BTX 
-#define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP )  mmvalid[COMP]
+#define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP, FLIP )  mmvalid[COMP]
 //ETX
 
 #include "vtkObject.h"
