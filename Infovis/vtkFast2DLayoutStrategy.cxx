@@ -22,6 +22,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkBitArray.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
@@ -36,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.9");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.10");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -74,7 +75,6 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
   this->EdgeWeightField = 0;
   this->RestDistance = 0;
   this->EdgeArray = NULL;
-  this->Simmer = true;
 }
 
 // ----------------------------------------------------------------------
@@ -86,7 +86,7 @@ vtkFast2DLayoutStrategy::~vtkFast2DLayoutStrategy()
 
 
 // Helper functions
-void GenerateCircularSplat(vtkImageData *splat, int x, int y)
+void vtkFast2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
   splat->SetScalarTypeToFloat();
   splat->SetNumberOfScalarComponents(1);
@@ -122,7 +122,7 @@ void GenerateCircularSplat(vtkImageData *splat, int x, int y)
     }
 }
 
-void GenerateGaussianSplat(vtkImageData *splat, int x, int y)
+void vtkFast2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
 {
   splat->SetScalarTypeToFloat();
   splat->SetNumberOfScalarComponents(1);
@@ -371,34 +371,6 @@ void vtkFast2DLayoutStrategy::Layout()
       rawRepulseArray[rawSourceIndex+1] = (y1-y2);    
       }
       
-    // Simmer at the end
-    if (this->Simmer && (this->Temp < .25))
-      {
-      // Calculate the repulsive forces
-      for(vtkIdType j=0; j<numVertices; ++j)
-        {
-        rawSourceIndex = j * 3;
-          
-        for(vtkIdType k=0; k<numVertices; ++k)
-          {
-          // Don't repulse against yourself :)
-          if (k == j) continue;
-            
-          rawTargetIndex = k * 3;
-            
-          delta[0] = rawPointData[rawSourceIndex] - 
-                    rawPointData[rawTargetIndex];
-          delta[1] = rawPointData[rawSourceIndex+1] - 
-                    rawPointData[rawTargetIndex+1];
-          disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-          // Avoid divide by zero
-          disSquared += epsilon;
-          rawRepulseArray[rawSourceIndex]   += delta[0]/disSquared;
-          rawRepulseArray[rawSourceIndex+1] += delta[1]/disSquared;      
-          }
-        }
-      }
-      
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
@@ -467,9 +439,109 @@ void vtkFast2DLayoutStrategy::Layout()
   this->TotalIterations += this->IterationsPerLayout;
   if (this->TotalIterations >= this->MaxNumberOfIterations)
     {
+        
+    // Make sure no vertex is on top of another vertex
+    this->ResolveCoincidentVertices();
+    
     // I'm done
     this->LayoutComplete = 1;
     }
+}
+
+void vtkFast2DLayoutStrategy::ResolveCoincidentVertices()
+{
+
+  // Note: This algorithm is stupid but was easy to implement
+  //       please change or improve if you'd like. :)
+  
+  // Basically see if the vertices are within a tolerance 
+  // of each other (do they fall into the same bucket).
+  // If the vertices do fall into the same bucket give them
+  // some random displacements to resolve coincident and 
+  // repeat until we have no coincident vertices
+  
+  // Get the number of vertices in the graph datastructure
+  vtkIdType numVertices = this->Graph->GetNumberOfVertices();
+  
+  // Get a quick pointer to the point data
+  vtkPoints* pts = this->Graph->GetPoints();
+  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  float *rawPointData = array->GetPointer(0);
+  
+  // Place the vertices into a giant grid (100xNumVertices)
+  // and see if you have any collisions
+  vtkBitArray *giantGrid = vtkBitArray::New();
+  vtkIdType xDim = sqrt((float)numVertices) * 10;
+  vtkIdType yDim = sqrt((float)numVertices) * 10;
+  vtkIdType gridSize = xDim * yDim;
+  giantGrid->SetNumberOfValues(gridSize);
+  
+  // Initialize array to zeros
+  for(vtkIdType i=0; i<gridSize; ++i)
+    {
+    giantGrid->SetValue(i, 0);
+    }
+  
+  double bounds[6];
+  this->Graph->GetBounds(bounds);
+  int totalCollisionOps = 0;
+  
+  for(vtkIdType i=0; i<numVertices; ++i)
+    {
+    int rawIndex = i * 3;
+      
+    // Compute indices into the buckets
+    int indexX = static_cast<int>(
+                 (rawPointData[rawIndex]-bounds[0]) /
+                 (bounds[1]-bounds[0]) * (xDim-1) + .5);
+    int indexY = static_cast<int>(
+                 (rawPointData[rawIndex+1]-bounds[2]) /
+                 (bounds[3]-bounds[2]) * (yDim-1) + .5);
+                 
+    // See if you collide with another vertex
+    if (giantGrid->GetValue(indexX + indexY*xDim))
+      {
+      
+      // Oh my... try to get yourself out of this
+      // by randomly jumping to a place that doesn't
+      // have another vertex
+      bool collision = true;
+      float jumpDistance = 5.0*(bounds[1]-bounds[0])/xDim; // 2.5 grid spaces max
+      int collisionOps = 0;
+      
+      // You get 10 trys and then we have to punt
+      while (collision && (collisionOps < 10))
+        {
+        collisionOps++;
+        
+        // Move
+        rawPointData[rawIndex] += jumpDistance*(static_cast<float>(rand())/RAND_MAX - .5);
+        rawPointData[rawIndex+1] += jumpDistance*(static_cast<float>(rand())/RAND_MAX - .5);
+        
+        // Test
+        indexX = static_cast<int>(
+                 (rawPointData[rawIndex]-bounds[0]) /
+                 (bounds[1]-bounds[0]) * (xDim-1) + .5);
+        indexY = static_cast<int>(
+                     (rawPointData[rawIndex+1]-bounds[2]) /
+                     (bounds[3]-bounds[2]) * (yDim-1) + .5);
+        if (!giantGrid->GetValue(indexX + indexY*xDim))
+          {
+          collision = false; // yea
+          }
+        } // while
+        totalCollisionOps += collisionOps;
+      } // if collide
+                   
+    // Put into a bucket
+    giantGrid->SetValue(indexX + indexY*xDim, 1);
+    }
+  
+  // Delete giantGrid
+  giantGrid->Delete();
+  
+  // Report number of collision operations just for sanity check  
+  vtkWarningMacro("Collision Ops: " << totalCollisionOps);
 }
 
 void vtkFast2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
@@ -482,5 +554,4 @@ void vtkFast2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
-  os << indent << "Simmer: " << (this->Simmer ? "On" : "Off") << endl;
 }

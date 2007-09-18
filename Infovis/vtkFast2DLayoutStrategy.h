@@ -89,20 +89,12 @@ public:
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
   
-  
   // Description:
   // Manually set the resting distance. Otherwise the
   // distance is computed automatically.
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
   
-  // Description:
-  // Set whether the layout does a 'simmer' at the end 
-  // which makes sure vertices aren't on top of each other.
-  // Default value is 'true'.
-  vtkSetMacro(Simmer, bool);
-  vtkGetMacro(Simmer, bool);
-
   // Description:
   // This strategy sets up some data structures
   // for faster processing of each Layout() call
@@ -157,7 +149,11 @@ private:
   int LayoutComplete;
   float Temp;
   float RestDistance;
-  bool Simmer;
+  
+  // Private helper methods
+  void GenerateCircularSplat(vtkImageData *splat, int x, int y);
+  void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
+  void ResolveCoincidentVertices();
 
   vtkFast2DLayoutStrategy(const vtkFast2DLayoutStrategy&);  // Not implemented.
   void operator=(const vtkFast2DLayoutStrategy&);  // Not implemented.
