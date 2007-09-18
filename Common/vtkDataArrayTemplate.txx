@@ -96,7 +96,7 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     this->Size = 0;
     this->SaveUserArray = 0;
 
-    int newSize = (sz > 0 ? sz : 1);
+    vtkIdType newSize = (sz > 0 ? sz : 1);
     this->Array = (T*)malloc(newSize * sizeof(T));
     if(!this->Array)
       {
