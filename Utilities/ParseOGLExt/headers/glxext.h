@@ -6,32 +6,26 @@ extern "C" {
 #endif
 
 /*
-** License Applicability. Except to the extent portions of this file are
-** made subject to an alternative license as permitted in the SGI Free
-** Software License B, Version 1.1 (the "License"), the contents of this
-** file are subject only to the provisions of the License. You may not use
-** this file except in compliance with the License. You may obtain a copy
-** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
-** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+** Copyright (c) 2007 The Khronos Group Inc.
 ** 
-** http://oss.sgi.com/projects/FreeB
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and/or associated documentation files (the
+** "Materials"), to deal in the Materials without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Materials, and to
+** permit persons to whom the Materials are furnished to do so, subject to
+** the following conditions:
 ** 
-** Note that, as provided in the License, the Software is distributed on an
-** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+** The above copyright notice and this permission notice shall be included
+** in all copies or substantial portions of the Materials.
 ** 
-** Original Code. The Original Code is: OpenGL Sample Implementation,
-** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-** Inc. The Original Code is Copyright (c) 1991-2004 Silicon Graphics, Inc.
-** Copyright in any portions created by third parties is as indicated
-** elsewhere herein. All Rights Reserved.
-** 
-** Additional Notice Provisions: This software was created using the
-** OpenGL(R) version 1.2.1 Sample Implementation published by SGI, but has
-** not been independently verified as being compliant with the OpenGL(R)
-** version 1.2.1 Specification.
+** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -52,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glxext.h last updated 2005/01/20 */
-/* Current version at http://oss.sgi.com/projects/ogl-sample/registry/ */
-#define GLX_GLXEXT_VERSION 10
+/* glxext.h last updated 2007/04/21 */
+/* Current version at http://www.opengl.org/registry/ */
+#define GLX_GLXEXT_VERSION 19
 
 #ifndef GLX_VERSION_1_3
 #define GLX_WINDOW_BIT                     0x00000001
@@ -307,6 +301,51 @@ extern "C" {
 #ifndef GLX_MESA_agp_offset
 #endif
 
+#ifndef GLX_EXT_fbconfig_packed_float
+#define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT   0x20B1
+#define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT    0x00000008
+#endif
+
+#ifndef GLX_EXT_framebuffer_sRGB
+#define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT   0x20B2
+#endif
+
+#ifndef GLX_EXT_texture_from_pixmap
+#define GLX_TEXTURE_1D_BIT_EXT             0x00000001
+#define GLX_TEXTURE_2D_BIT_EXT             0x00000002
+#define GLX_TEXTURE_RECTANGLE_BIT_EXT      0x00000004
+#define GLX_BIND_TO_TEXTURE_RGB_EXT        0x20D0
+#define GLX_BIND_TO_TEXTURE_RGBA_EXT       0x20D1
+#define GLX_BIND_TO_MIPMAP_TEXTURE_EXT     0x20D2
+#define GLX_BIND_TO_TEXTURE_TARGETS_EXT    0x20D3
+#define GLX_Y_INVERTED_EXT                 0x20D4
+#define GLX_TEXTURE_FORMAT_EXT             0x20D5
+#define GLX_TEXTURE_TARGET_EXT             0x20D6
+#define GLX_MIPMAP_TEXTURE_EXT             0x20D7
+#define GLX_TEXTURE_FORMAT_NONE_EXT        0x20D8
+#define GLX_TEXTURE_FORMAT_RGB_EXT         0x20D9
+#define GLX_TEXTURE_FORMAT_RGBA_EXT        0x20DA
+#define GLX_TEXTURE_1D_EXT                 0x20DB
+#define GLX_TEXTURE_2D_EXT                 0x20DC
+#define GLX_TEXTURE_RECTANGLE_EXT          0x20DD
+#define GLX_FRONT_LEFT_EXT                 0x20DE
+#define GLX_FRONT_RIGHT_EXT                0x20DF
+#define GLX_BACK_LEFT_EXT                  0x20E0
+#define GLX_BACK_RIGHT_EXT                 0x20E1
+#define GLX_FRONT_EXT                      GLX_FRONT_LEFT_EXT
+#define GLX_BACK_EXT                       GLX_BACK_LEFT_EXT
+#define GLX_AUX0_EXT                       0x20E2
+#define GLX_AUX1_EXT                       0x20E3
+#define GLX_AUX2_EXT                       0x20E4
+#define GLX_AUX3_EXT                       0x20E5
+#define GLX_AUX4_EXT                       0x20E6
+#define GLX_AUX5_EXT                       0x20E7
+#define GLX_AUX6_EXT                       0x20E8
+#define GLX_AUX7_EXT                       0x20E9
+#define GLX_AUX8_EXT                       0x20EA
+#define GLX_AUX9_EXT                       0x20EB
+#endif
+
 
 /*************************************************************/
 
@@ -340,10 +379,24 @@ typedef struct {
 } GLXBufferClobberEventSGIX;
 #endif
 
-/* Define int32_t and int64_t types for UST/MSC */
+#ifndef GLEXT_64_TYPES_DEFINED
+/* This code block is duplicated in glxext.h, so must be protected */
+#define GLEXT_64_TYPES_DEFINED
+/* Define int32_t, int64_t, and uint64_t types for UST/MSC */
 /* (as used in the GLX_OML_sync_control extension). */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #include <inttypes.h>
+#elif defined(__sun__) || defined(__digital__)
+#include <inttypes.h>
+#if defined(__STDC__)
+#if defined(__arch64__)
+typedef long int int64_t;
+typedef unsigned long int uint64_t;
+#else
+typedef long long int int64_t;
+typedef unsigned long long int uint64_t;
+#endif /* __arch64__ */
+#endif /* __STDC__ */
 #elif defined( __VMS )
 #include <inttypes.h>
 #elif defined(__SCO__) || defined(__USLC__)
@@ -351,8 +404,16 @@ typedef struct {
 #elif defined(__UNIXOS2__) || defined(__SOL64__)
 typedef long int int32_t;
 typedef long long int int64_t;
+typedef unsigned long long int uint64_t;
+#elif defined(_WIN32) && defined(__GNUC__)
+#include <stdint.h>
+#elif defined(_WIN32)
+typedef __int32 int32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 #else
-#warn "int32_t and int64_t are undefined!"
+#include <inttypes.h>     /* Fallback option */
+#endif
 #endif
 
 #ifndef GLX_VERSION_1_3
@@ -696,6 +757,24 @@ typedef int ( * PFNGLXQUERYHYPERPIPEATTRIBSGIXPROC) (Display *dpy, int timeSlice
 extern unsigned int glXGetAGPOffsetMESA (const void *);
 #endif /* GLX_GLXEXT_PROTOTYPES */
 typedef unsigned int ( * PFNGLXGETAGPOFFSETMESAPROC) (const void *pointer);
+#endif
+
+#ifndef GLX_EXT_fbconfig_packed_float
+#define GLX_EXT_fbconfig_packed_float 1
+#endif
+
+#ifndef GLX_EXT_framebuffer_sRGB
+#define GLX_EXT_framebuffer_sRGB 1
+#endif
+
+#ifndef GLX_EXT_texture_from_pixmap
+#define GLX_EXT_texture_from_pixmap 1
+#ifdef GLX_GLXEXT_PROTOTYPES
+extern void glXBindTexImageEXT (Display *, GLXDrawable, int, const int *);
+extern void glXReleaseTexImageEXT (Display *, GLXDrawable, int);
+#endif /* GLX_GLXEXT_PROTOTYPES */
+typedef void ( * PFNGLXBINDTEXIMAGEEXTPROC) (Display *dpy, GLXDrawable drawable, int buffer, const int *attrib_list);
+typedef void ( * PFNGLXRELEASETEXIMAGEEXTPROC) (Display *dpy, GLXDrawable drawable, int buffer);
 #endif
 
 

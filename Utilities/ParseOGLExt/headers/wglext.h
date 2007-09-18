@@ -6,32 +6,26 @@ extern "C" {
 #endif
 
 /*
-** License Applicability. Except to the extent portions of this file are
-** made subject to an alternative license as permitted in the SGI Free
-** Software License B, Version 1.1 (the "License"), the contents of this
-** file are subject only to the provisions of the License. You may not use
-** this file except in compliance with the License. You may obtain a copy
-** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
-** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+** Copyright (c) 2007 The Khronos Group Inc.
 ** 
-** http://oss.sgi.com/projects/FreeB
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and/or associated documentation files (the
+** "Materials"), to deal in the Materials without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Materials, and to
+** permit persons to whom the Materials are furnished to do so, subject to
+** the following conditions:
 ** 
-** Note that, as provided in the License, the Software is distributed on an
-** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+** The above copyright notice and this permission notice shall be included
+** in all copies or substantial portions of the Materials.
 ** 
-** Original Code. The Original Code is: OpenGL Sample Implementation,
-** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-** Inc. The Original Code is Copyright (c) 1991-2004 Silicon Graphics, Inc.
-** Copyright in any portions created by third parties is as indicated
-** elsewhere herein. All Rights Reserved.
-** 
-** Additional Notice Provisions: This software was created using the
-** OpenGL(R) version 1.2.1 Sample Implementation published by SGI, but has
-** not been independently verified as being compliant with the OpenGL(R)
-** version 1.2.1 Specification.
+** THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -52,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number */
-/* wglext.h last updated 2005/01/07 */
-/* Current version at http://oss.sgi.com/projects/ogl-sample/registry/ */
-#define WGL_WGLEXT_VERSION 6
+/* wglext.h last updated 2007/02/09 */
+/* Current version at http://www.opengl.org/registry/ */
+#define WGL_WGLEXT_VERSION 9
 
 #ifndef WGL_ARB_buffer_region
 #define WGL_FRONT_COLOR_BUFFER_BIT_ARB 0x00000001
@@ -317,6 +311,21 @@ extern "C" {
 #define WGL_TEXTURE_FLOAT_RG_NV        0x20B6
 #define WGL_TEXTURE_FLOAT_RGB_NV       0x20B7
 #define WGL_TEXTURE_FLOAT_RGBA_NV      0x20B8
+#endif
+
+#ifndef WGL_3DL_stereo_control
+#define WGL_STEREO_EMITTER_ENABLE_3DL  0x2055
+#define WGL_STEREO_EMITTER_DISABLE_3DL 0x2056
+#define WGL_STEREO_POLARITY_NORMAL_3DL 0x2057
+#define WGL_STEREO_POLARITY_INVERT_3DL 0x2058
+#endif
+
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
+#endif
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
 #endif
 
 
@@ -621,6 +630,14 @@ typedef BOOL (WINAPI * PFNWGLQUERYFRAMETRACKINGI3DPROC) (DWORD *pFrameCount, DWO
 
 #ifndef WGL_NV_float_buffer
 #define WGL_NV_float_buffer 1
+#endif
+
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_EXT_pixel_format_packed_float 1
+#endif
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_EXT_framebuffer_sRGB 1
 #endif
 
 

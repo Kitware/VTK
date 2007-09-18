@@ -50,7 +50,7 @@ static vtkstd::string ToUpper(vtkstd::string s)
 
   for (vtkstd::string::size_type i = 0; i < s.length(); i++)
     {
-    u.append(1, (char)toupper(s[i]));
+    u.append(1, static_cast<char>(toupper(s[i])));
     }
 
   return u;
@@ -526,18 +526,14 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
-    hfile << "  //Definitions for " << iextension->name.c_str() << endl;
+    hfile << endl << "  //Definitions for " << iextension->name.c_str() << endl;
     vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
       = consts.find(*iextension);
     if (cExts != consts.end())
       {
-      hfile << "  enum " << cExts->first.name.c_str() << "_consts {" << endl;
-      bool wroteFirst = false;
-
       for (vtkstd::list<Constant>::iterator iconst = cExts->second.begin();
            iconst != cExts->second.end(); iconst++)
         {
-
         // New versions of the NVIDIA OpenGL headers for Linux can
         // #define the same constant with the same value in multiple
         // sections.  This utility will happily parse those and write
@@ -549,16 +545,8 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
                                                               iconst->value ) )
              == ConstantsAlreadyWritten.end() )
           {
-          if (wroteFirst)
-            {
-            hfile << "," << endl;
-            }
-          else
-            {
-            wroteFirst = true;
-            }
-          hfile << "    " << iconst->name.c_str() << " = "
-                << iconst->value.c_str();
+          hfile << "  const GLenum " << iconst->name.c_str()
+                << " = static_cast<GLenum>(" << iconst->value.c_str() << ");" << endl;
 
           ConstantsAlreadyWritten.insert( vtkstd::make_pair( iconst->name, 
                                                              iconst->value ) );
@@ -566,11 +554,10 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
           }
         else
           {
-          hfile << "/* skipping duplicate " << iconst->name.c_str()
+          hfile << "  /* skipping duplicate " << iconst->name.c_str()
                 << " = " << iconst->value.c_str() << " */" << endl;
           }
         }
-      hfile << endl << "  };" << endl;
       }
     vtkstd::map<Extension, vtkstd::list<Typedef> >::iterator tExts
       = types.find(*iextension);
@@ -621,8 +608,8 @@ static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
 static void WriteCode(ostream &hfile, ostream &cxxfile)
 {
   // Write data for header file ---------------------------------
-  hfile << "#ifndef _vtkgl_h" << endl
-        << "#define _vtkgl_h" << endl << endl;
+  hfile << "#ifndef __vtkgl_h" << endl
+        << "#define __vtkgl_h" << endl << endl;
   hfile << "#include \"vtkToolkits.h\"" << endl;
   hfile << "#include \"vtkSystemIncludes.h\"" << endl;
   hfile << "#include \"vtkWindows.h\"" << endl;
@@ -664,6 +651,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
 
   Extension::WriteSupportWrapperBegin(hfile, Extension::GL);
   hfile << endl << "namespace vtkgl {" << endl;
+  // Add necessary type declarations.
+  hfile << "  //Define int32_t, int64_t, and uint64_t." << endl;
+  hfile << "  typedef vtkTypeInt32 int32_t;" << endl;
+  hfile << "  typedef vtkTypeInt64 int64_t;" << endl;
+  hfile << "  typedef vtkTypeUInt64 uint64_t;" << endl;
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GL);
   hfile << endl << "  // Method to load functions for a particular extension.";
@@ -685,8 +677,8 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "  typedef XID GLXWindow;" << endl;
   hfile << "  typedef XID GLXFBConfigID;" << endl;
   hfile << "  typedef struct __GLXFBConfigRec *GLXFBConfig;" << endl;
-  hfile << "  typedef int int32_t;" << endl;
-  hfile << "  typedef long long int64_t;" << endl;
+  hfile << "  typedef vtkTypeInt32 int32_t;" << endl;
+  hfile << "  typedef vtkTypeInt64 int64_t;" << endl;
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GLX);
   hfile << "}" << endl;
@@ -736,11 +728,11 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
          ifunct != functs[*iextension].end(); ifunct++)
       {
       cxxfile << "    " << vtkglclass.c_str() << "::"
-              << ifunct->name.c_str() << " = (" << vtkglclass.c_str() << "::"
+              << ifunct->name.c_str() << " = reinterpret_cast<" << vtkglclass.c_str() << "::"
               << ifunct->GetProcType()
-              << ")manager->GetProcAddress(\""
+              << ">(manager->GetProcAddress(\""
               << Extension::TypeToString(iextension->type)
-              << ifunct->name.c_str() << "\");" << endl;
+              << ifunct->name.c_str() << "\"));" << endl;
       }
     cxxfile << "    return 1";
     for (ifunct = functs[*iextension].begin();
