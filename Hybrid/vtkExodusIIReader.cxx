@@ -721,7 +721,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.38");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.39");
 
 
 
@@ -1671,7 +1671,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.38");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.39");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -1987,15 +1987,19 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
       {
       if ( i+1 < num_vars )
         {
+        int sli = (int)strlen(var_names[i]) - 1;
         int ii = i;
         while ( ii < num_vars )
           {
-          int sl = (int)strlen(var_names[ii]) - 1;
+          int slii = ii == i ? sli : (int)strlen(var_names[ii]) - 1;
           // Require the strings to be identical except for the 
           // final XYZ at the end.
-          if ( ! toupper(var_names[ii][sl]) == ('X' + (ii-i)) || 
-               strncmp( var_names[ii], var_names[i], sl ) )
+          if ( slii != sli ||
+               toupper(var_names[ii][slii]) != ('X' + (ii-i)) || 
+               strncmp( var_names[ii], var_names[i], slii ) )
+            {
             break;
+            }
           ainfo.OriginalNames.push_back( var_names[ii] );
           ainfo.OriginalIndices.push_back( ii + 1 );
           ++ii;
@@ -5856,7 +5860,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.38");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.39");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
