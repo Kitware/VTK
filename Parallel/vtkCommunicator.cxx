@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.44");
+vtkCxxRevisionMacro(vtkCommunicator, "1.45");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -1240,7 +1240,7 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
 #define OP_CASE(id, opclass) \
   case id: opClass = new vtkCommunicator##opclass##Class; break;
 
-  vtkCommunicator::Operation *opClass;
+  vtkCommunicator::Operation *opClass = 0;
   
   switch (operation)
     {
@@ -1261,6 +1261,10 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
 
   return this->ReduceVoidArray(sendBuffer, recvBuffer, length, type,
                                opClass, destProcessId);
+  if (opClass)
+    {
+    delete opClass;
+    }
 
 #undef OP_CASE
 }
