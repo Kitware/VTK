@@ -51,6 +51,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkClustering2DLayoutStrategy.h"
+#include "vtkCommunity2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
 #include "vtkCellCenters.h"
@@ -60,7 +61,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.5");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.6");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -70,6 +71,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->RandomStrategy         = vtkRandomLayoutStrategy::New();
   this->Simple2DStrategy       = vtkSimple2DLayoutStrategy::New();
   this->Clustering2DStrategy   = vtkClustering2DLayoutStrategy::New();
+  this->Community2DStrategy    = vtkCommunity2DLayoutStrategy::New();
   this->Fast2DStrategy         = vtkFast2DLayoutStrategy::New();
   this->ForceDirectedStrategy  = vtkForceDirectedLayoutStrategy::New();
   this->PassThroughStrategy    = vtkPassThroughLayoutStrategy::New();
@@ -477,6 +479,10 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
     {
     s = this->Clustering2DStrategy;
     }
+  else if (!strcmp(str, "community2d"))
+    {
+    s = this->Community2DStrategy;
+    }
   else if (!strcmp(str, "fast2d"))
     {
     s = this->Fast2DStrategy;
@@ -826,6 +832,8 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->Simple2DStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Clustering2DStrategy: " << endl;
   this->Clustering2DStrategy->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Community2DStrategy: " << endl;
+  this->Community2DStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Fast2DStrategy: " << endl;
   this->Fast2DStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ForceDirectedStrategy: " << endl;

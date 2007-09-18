@@ -51,6 +51,7 @@ class vtkRandomLayoutStrategy;
 class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
 class vtkClustering2DLayoutStrategy;
+class vtkCommunity2DLayoutStrategy;
 class vtkVertexDegree;
 class vtkCellCenters;
 class vtkVertexGlyphFilter;
@@ -129,6 +130,7 @@ public:
   void SetLayoutStrategyToForceDirected() { this->SetLayoutStrategy("Force Directed"); }
   void SetLayoutStrategyToSimple2D()      { this->SetLayoutStrategy("Simple 2D"); }
   void SetLayoutStrategyToClustering2D()  { this->SetLayoutStrategy("Cluster 2D"); }
+  void SetLayoutStrategyToCommunity2D()   { this->SetLayoutStrategy("Community 2D"); }
   void SetLayoutStrategyToFast2D()        { this->SetLayoutStrategy("Fast 2D"); }
   void SetLayoutStrategyToPassThrough()   { this->SetLayoutStrategy("Pass Through"); }
   void SetLayoutStrategyToCircular()      { this->SetLayoutStrategy("Circular"); }
@@ -234,6 +236,7 @@ protected:
   vtkForceDirectedLayoutStrategy*  ForceDirectedStrategy;
   vtkSimple2DLayoutStrategy*       Simple2DStrategy;
   vtkClustering2DLayoutStrategy*   Clustering2DStrategy;
+  vtkCommunity2DLayoutStrategy*    Community2DStrategy;
   vtkFast2DLayoutStrategy*         Fast2DStrategy;
   vtkPassThroughLayoutStrategy*    PassThroughStrategy;
   vtkCircularLayoutStrategy*       CircularStrategy;
