@@ -64,9 +64,13 @@ public:
 
   // Description:
   // Names of cell volume fraction arrays to extract.
-  void RemoveAllVolumeArrayNames();
+  void RemoveDoubleVolumeArrayNames();
+  void RemoveFloatVolumeArrayNames();
+  void RemoveUnsignedCharVolumeArrayNames();
   int GetNumberOfVolumeArrayNames();
   const char* GetVolumeArrayName(int idx);
+  // for backwards compatibility
+  void RemoveAllVolumeArrayNames();
 
   // Description
   // Names of cell volume fraction arrays to extract.
@@ -76,7 +80,8 @@ public:
   void AddDoubleVolumeArrayName(char* arrayName);
   void AddFloatVolumeArrayName(char* arrayName);
   void AddUnsignedCharVolumeArrayName(char* arrayName);
-  void AddVolumeArrayName(char* arrayName); //for backwards compatibility
+  //for backwards compatibility
+  void AddVolumeArrayName(char* arrayName); 
 
   // Description:
   // Set, get or maninpulate the implicit clipping plane.

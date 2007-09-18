@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.26");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.27");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -137,7 +137,48 @@ unsigned long vtkExtractCTHPart::GetMTime()
 //-----------------------------------------------------------------------------
 void vtkExtractCTHPart::RemoveAllVolumeArrayNames()
 {
-  
+  this->Internals->VolumeArrayNames.erase(
+    this->Internals->VolumeArrayNames.begin(),
+    this->Internals->VolumeArrayNames.end());
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkExtractCTHPart::RemoveDoubleVolumeArrayNames()
+{
+  if (this->Internals->DataType != VTK_DOUBLE)
+    {
+    return;
+    }
+
+  this->Internals->VolumeArrayNames.erase(
+    this->Internals->VolumeArrayNames.begin(),
+    this->Internals->VolumeArrayNames.end());
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkExtractCTHPart::RemoveFloatVolumeArrayNames()
+{
+  if (this->Internals->DataType != VTK_FLOAT)
+    {
+    return;
+    }
+
+  this->Internals->VolumeArrayNames.erase(
+    this->Internals->VolumeArrayNames.begin(),
+    this->Internals->VolumeArrayNames.end());
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkExtractCTHPart::RemoveUnsignedCharVolumeArrayNames()
+{
+  if (this->Internals->DataType != VTK_UNSIGNED_CHAR)
+    {
+    return;
+    }
+
   this->Internals->VolumeArrayNames.erase(
     this->Internals->VolumeArrayNames.begin(),
     this->Internals->VolumeArrayNames.end());
@@ -153,7 +194,6 @@ void vtkExtractCTHPart::AddVolumeArrayName(char* arrayName)
     }
   
   this->Internals->DataType = 0;
-
   this->Internals->VolumeArrayNames.push_back(arrayName);
   this->Modified();
 }
@@ -168,8 +208,8 @@ void vtkExtractCTHPart::AddDoubleVolumeArrayName(char* arrayName)
   
   if (this->Internals->DataType != VTK_DOUBLE)
     {
-    this->Internals->DataType = VTK_DOUBLE;
     this->RemoveAllVolumeArrayNames();
+    this->Internals->DataType = VTK_DOUBLE;
     }
 
   this->Internals->VolumeArrayNames.push_back(arrayName);
@@ -186,8 +226,8 @@ void vtkExtractCTHPart::AddFloatVolumeArrayName(char* arrayName)
   
   if (this->Internals->DataType != VTK_FLOAT)
     {
-    this->Internals->DataType = VTK_FLOAT;
     this->RemoveAllVolumeArrayNames();
+    this->Internals->DataType = VTK_FLOAT;
     }
 
   this->Internals->VolumeArrayNames.push_back(arrayName);  
@@ -204,8 +244,8 @@ void vtkExtractCTHPart::AddUnsignedCharVolumeArrayName(char* arrayName)
   
   if (this->Internals->DataType != VTK_UNSIGNED_CHAR)
     {
-    this->Internals->DataType = VTK_UNSIGNED_CHAR;
     this->RemoveAllVolumeArrayNames();
+    this->Internals->DataType = VTK_UNSIGNED_CHAR;
     }
 
   this->Internals->VolumeArrayNames.push_back(arrayName);
