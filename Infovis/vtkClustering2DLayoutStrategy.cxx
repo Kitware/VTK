@@ -37,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -624,7 +624,7 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
   giantGrid->Delete();
   
   // Report number of collision operations just for sanity check  
-  vtkWarningMacro("Collision Ops: " << totalCollisionOps);
+  // vtkWarningMacro("Collision Ops: " << totalCollisionOps);
 }
 
 void vtkClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
