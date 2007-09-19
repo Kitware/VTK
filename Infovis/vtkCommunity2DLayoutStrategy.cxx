@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -74,6 +74,7 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
+  this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
   this->EdgeArray = NULL;
 }
