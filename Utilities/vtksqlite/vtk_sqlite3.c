@@ -12859,12 +12859,14 @@ VTK_SQLITE_PRIVATE ThreadData *vtk_sqlite3Os2ThreadSpecificData( int allocateFla
 ** If we are to be thread-safe, include the pthreads header and define
 ** the VTK_SQLITE_UNIX_THREADS macro.
 */
-#ifndef THREADSAFE
-# define THREADSAFE 1
-#endif
-#if THREADSAFE
-# include <pthread.h>
-# define VTK_SQLITE_UNIX_THREADS 1
+#ifdef HAVE_PTHREAD_H
+# ifndef THREADSAFE
+#  define THREADSAFE 1
+# endif
+# if THREADSAFE
+#  include <pthread.h>
+#  define VTK_SQLITE_UNIX_THREADS 1
+# endif
 #endif
 
 /*
