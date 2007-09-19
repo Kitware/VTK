@@ -20,7 +20,7 @@
 #  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1310)
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
 #  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
 #endif /* MSVC 7.1 */
