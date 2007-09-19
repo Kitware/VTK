@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.41");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.42");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -3259,7 +3259,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       }
     else
       {
-      this->FlipMIPComparison = 1;
+      this->FlipMIPComparison = 0;
       }
     }
   
