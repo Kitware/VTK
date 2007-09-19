@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.10");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -53,13 +53,20 @@ vtkOpenGLHAVSVolumeMapper::vtkOpenGLHAVSVolumeMapper()
   this->VBOVertexIndexName         = 0;
   this->PsiTableTexture            = 0;
   this->FramebufferObjectSize      = 0;
+  this->OrderedTriangles           = 0;
 }
 
 //----------------------------------------------------------------------------
 // return the correct type of UnstructuredGridVolumeMapper 
 vtkOpenGLHAVSVolumeMapper::~vtkOpenGLHAVSVolumeMapper()
 {
-  if (!this->GPUDataStructures) { delete [] this->OrderedTriangles; }
+  if (!this->GPUDataStructures)
+    {
+    if(this->OrderedTriangles!=0)
+      {
+      delete [] this->OrderedTriangles;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -184,7 +191,7 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
   
   if (!supports_vertex_buffer_object)
     {
-    this->GPUDataStructures = false;
+    this->SetGPUDataStructures(false);
     }
 
   this->UpdateProgress(0.0);
@@ -229,10 +236,21 @@ void vtkOpenGLHAVSVolumeMapper::Initialize(vtkRenderer *ren,
 // Change GPU data structures state
 void vtkOpenGLHAVSVolumeMapper::SetGPUDataStructures(bool gpu)
 {
-  this->GPUDataStructures = gpu;
-  if (this->Initialized)
+  if(this->GPUDataStructures!=gpu)
     {
-    this->InitializeGPUDataStructures();
+    if(!this->GPUDataStructures)
+      {
+      if(this->OrderedTriangles!=0)
+        {
+        delete [] this->OrderedTriangles;
+        this->OrderedTriangles=0;
+        }
+      }
+    this->GPUDataStructures = gpu;
+    if (this->Initialized)
+      {
+      this->InitializeGPUDataStructures();
+      }
     }
 }
 
