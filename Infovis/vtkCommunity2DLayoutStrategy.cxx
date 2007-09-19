@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -509,8 +509,8 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
   // Place the vertices into a giant grid (100xNumVertices)
   // and see if you have any collisions
   vtkBitArray *giantGrid = vtkBitArray::New();
-  vtkIdType xDim = sqrt((float)numVertices) * 10;
-  vtkIdType yDim = sqrt((float)numVertices) * 10;
+  vtkIdType xDim = static_cast<int>(sqrt((float)numVertices) * 10);
+  vtkIdType yDim = static_cast<int>(sqrt((float)numVertices) * 10);
   vtkIdType gridSize = xDim * yDim;
   giantGrid->SetNumberOfValues(gridSize);
   

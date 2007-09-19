@@ -37,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -385,37 +385,6 @@ void vtkClustering2DLayoutStrategy::Layout()
       rawRepulseArray[rawSourceIndex+1] = (y1-y2);    
       }
       
-
-#if 0      
-    // Simmer at the end
-    if (0 && this->Simmer && (this->Temp < .5))
-      {
-      // Calculate the repulsive forces
-      for(vtkIdType j=0; j<numVertices; ++j)
-        {
-        rawSourceIndex = j * 3;
-          
-        for(vtkIdType k=0; k<numVertices; ++k)
-          {
-          // Don't repulse against yourself :)
-          if (k == j) continue;
-            
-          rawTargetIndex = k * 3;
-            
-          delta[0] = rawPointData[rawSourceIndex] - 
-                    rawPointData[rawTargetIndex];
-          delta[1] = rawPointData[rawSourceIndex+1] - 
-                    rawPointData[rawTargetIndex+1];
-          disSquared = delta[0]*delta[0] + delta[1]*delta[1];
-          // Avoid divide by zero
-          disSquared += epsilon;
-          rawRepulseArray[rawSourceIndex]   += delta[0]/disSquared;
-          rawRepulseArray[rawSourceIndex+1] += delta[1]/disSquared;      
-          }
-        }
-      }
-#endif
-      
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
     for (vtkIdType j=0; j<numEdges; ++j)
@@ -555,8 +524,8 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
   // Place the vertices into a giant grid (100xNumVertices)
   // and see if you have any collisions
   vtkBitArray *giantGrid = vtkBitArray::New();
-  vtkIdType xDim = sqrt((float)numVertices) * 10;
-  vtkIdType yDim = sqrt((float)numVertices) * 10;
+  vtkIdType xDim = static_cast<int>(sqrt((float)numVertices) * 10);
+  vtkIdType yDim = static_cast<int>(sqrt((float)numVertices) * 10);
   vtkIdType gridSize = xDim * yDim;
   giantGrid->SetNumberOfValues(gridSize);
   
