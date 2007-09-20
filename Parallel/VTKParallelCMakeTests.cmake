@@ -36,3 +36,12 @@ ENDIF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_
 # e.g. IBM BlueGene/L doesn't have SO_REUSEADDR, because "setsockopt is not needed for
 # BlueGene/L applications" according to the BlueGene/L Application Development handbook
 CHECK_SYMBOL_EXISTS(SO_REUSEADDR "sys/types.h;sys/socket.h" VTK_HAVE_SO_REUSEADDR)
+
+SET(HAVE_SOCKETS TRUE)
+# Cray Xt3/ Catamount doesn't have any socket support
+# this could also be determined by doing something like
+# check_symbol_exists(socket "sys/types.h;sys/socket.h" HAVE_SOCKETS)
+IF(CMAKE_SYSTEM MATCHES Catamount)
+  SET(HAVE_SOCKETS FALSE)
+ENDIF(CMAKE_SYSTEM MATCHES Catamount)
+

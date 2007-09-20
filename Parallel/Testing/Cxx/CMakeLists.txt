@@ -36,12 +36,15 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
   # The following tests are launched special because they use MPI or
   # have sockets.
-  ADD_EXECUTABLE(SocketServer
-    SocketServer.cxx ExerciseMultiProcessController.cxx)
-  ADD_EXECUTABLE(SocketClient
-    SocketClient.cxx ExerciseMultiProcessController.cxx)
-  TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
-  TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
+
+  IF(HAVE_SOCKETS)
+    ADD_EXECUTABLE(SocketServer
+      SocketServer.cxx ExerciseMultiProcessController.cxx)
+    ADD_EXECUTABLE(SocketClient
+      SocketClient.cxx ExerciseMultiProcessController.cxx)
+    TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
+    TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
+  ENDIF(HAVE_SOCKETS)
 
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
@@ -157,17 +160,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
   # For now this test is only available on Unix because
   # on Windows, python does not support forking/killing processes
-  IF (UNIX)
-    IF (PYTHON_EXECUTABLE)
-      IF (VTK_DATA_ROOT)
-        ADD_TEST(Sockets-image ${PYTHON_EXECUTABLE}
-          ${VTK_SOURCE_DIR}/Parallel/Testing/Cxx/TestSockets.py 
-          ${VTK_EXECUTABLE_DIR}/SocketServer
-          ${VTK_EXECUTABLE_DIR}/SocketClient
-          ${VTK_DATA_ROOT}
-          Baseline/Parallel/SocketClient.cxx.png
-          ${VTK_BINARY_DIR}/Testing/Temporary)
-      ENDIF (VTK_DATA_ROOT)
-    ENDIF (PYTHON_EXECUTABLE)
-  ENDIF (UNIX)
+  IF (UNIX  AND  PYTHON_EXECUTABLE  AND  VTK_DATA_ROOT  AND  HAVE_SOCKETS)
+    ADD_TEST(Sockets-image ${PYTHON_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Parallel/Testing/Cxx/TestSockets.py 
+      ${VTK_EXECUTABLE_DIR}/SocketServer
+      ${VTK_EXECUTABLE_DIR}/SocketClient
+      ${VTK_DATA_ROOT}
+      Baseline/Parallel/SocketClient.cxx.png
+      ${VTK_BINARY_DIR}/Testing/Temporary)
+  ENDIF (UNIX  AND  PYTHON_EXECUTABLE  AND  VTK_DATA_ROOT  AND  HAVE_SOCKETS)
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
