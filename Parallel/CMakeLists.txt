@@ -16,7 +16,6 @@ ENDIF (WIN32)
 SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
-vtkClientSocket.cxx
 vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx
@@ -62,11 +61,6 @@ vtkProcessIdScalars.cxx
 vtkProcessGroup.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
-vtkServerSocket.cxx
-vtkSocket.cxx
-vtkSocketCollection.cxx
-vtkSocketCommunicator.cxx
-vtkSocketController.cxx
 vtkSubCommunicator.cxx
 vtkSubGroup.cxx
 vtkTemporalFractal.cxx
@@ -80,6 +74,18 @@ vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
 vtkXMLPMultiGroupDataWriter.cxx
 )
+
+# this is only for Cray Xt3/Catamount, not sure it is the best way to do it, Alex
+IF(HAVE_SOCKETS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkClientSocket.cxx
+    vtkServerSocket.cxx
+    vtkSocket.cxx
+    vtkSocketCollection.cxx
+    vtkSocketCommunicator.cxx
+    vtkSocketController.cxx )
+ENDIF(HAVE_SOCKETS)
+
 
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
