@@ -11791,7 +11791,10 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ return 0; }
+/* We can get rid of this because REDEF_IO is off */
+/*
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; return 0; }
+*/
 #endif
 
 /*
@@ -16180,7 +16183,10 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenericFree(void *p){
   free(p);
 }
 /* Never actually used, but needed for the linker */
-VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; /* use arg */ return 0; }
+/* We can get rid of this because REDEF_IO is off */
+/*
+VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; return 0; }
+*/
 #endif
 
 /*
