@@ -19,7 +19,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.29");
+vtkCxxRevisionMacro(vtkDirectory, "1.30");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -151,6 +151,15 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
+
+/* There is a problem with the Portland compiler, large file
+support and glibc/Linux system headers: 
+             http://www.pgroup.com/userforum/viewtopic.php?
+             p=1992&sid=f16167f51964f1a68fe5041b8eb213b6
+*/
+#if defined(__PGI) && defined(__USE_FILE_OFFSET64)
+# define dirent dirent64
+#endif
 
 int vtkDirectory::Open(const char* name)
 {
