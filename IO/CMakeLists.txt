@@ -1,9 +1,17 @@
+IF(VTK_USE_METAIO)
+  SET(_VTK_METAIO_LIB vtkmetaio)
+  SET(_VTK_METAIO_SOURCES vtkMetaImageReader.cxx vtkMetaImageWriter.cxx )
+ELSE(VTK_USE_METAIO)
+  SET(_VTK_METAIO_LIB)
+  SET(_VTK_METAIO_SOURCES)
+ENDIF(VTK_USE_METAIO)
+
 SET(KIT IO)
 SET(UKIT IO)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF vtkmetaio vtksqlite
+SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkNetCDF ${_VTK_METAIO_LIB} vtksqlite
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES}
   ${KWSYS_NAMESPACE})
@@ -62,8 +70,7 @@ vtkMCubesReader.cxx
 vtkMCubesWriter.cxx
 vtkMedicalImageProperties.cxx
 vtkMedicalImageReader2.cxx
-vtkMetaImageReader.cxx
-vtkMetaImageWriter.cxx
+${_VTK_METAIO_SOURCES}
 vtkMINCImageAttributes.cxx
 vtkMINCImageReader.cxx
 vtkMINCImageWriter.cxx

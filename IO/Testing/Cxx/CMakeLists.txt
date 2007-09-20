@@ -16,7 +16,11 @@ ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF(VTK_USE_INFOVIS)
   SET(ConditionalTests ${ConditionalTests} TestDataObjectIO.cxx)
 ENDIF(VTK_USE_INFOVIS)
+IF(VTK_USE_METAIO)
+  SET(ConditionalTests ${ConditionalTests} TestMetaIO.cxx)
+ENDIF(VTK_USE_METAIO)
 SET(VTK_HAS_UINT64_ARRAY 0)
+
 IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
   SET(VTK_HAS_UINT64_ARRAY 1)
 ELSE(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
@@ -36,7 +40,6 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
-  TestMetaIO.cxx
   TestCompress.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h

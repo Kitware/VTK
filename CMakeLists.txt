@@ -247,6 +247,8 @@ OPTION(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
 #-----------------------------------------------------------------------------
+OPTION(VTK_USE_METAIO "Build metaio" ON)
+
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data or using widgets." ON)
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
