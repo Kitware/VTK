@@ -179,8 +179,8 @@ int CompareDataArrays(vtkDataArray *A, vtkDataArray *B)
                                           numComponents*numTuples));
     default:
       vtkGenericWarningMacro("Invalid type?");
-      return 0;
     }
+  return 0;
 }
 
 static int CompareFieldData(vtkFieldData *fd1, vtkFieldData *fd2)
