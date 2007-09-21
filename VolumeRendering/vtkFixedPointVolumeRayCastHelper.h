@@ -84,6 +84,18 @@
 //ETX
 
 //BTX
+#define VTKKWRCHelper_GetCellComponentRawScalarValues( DATA, CIDX ) \
+  A[CIDX] = static_cast<unsigned int >((*(DATA     )));             \
+  B[CIDX] = static_cast<unsigned int >((*(DATA+Binc)));             \
+  C[CIDX] = static_cast<unsigned int >((*(DATA+Cinc)));             \
+  D[CIDX] = static_cast<unsigned int >((*(DATA+Dinc)));             \
+  E[CIDX] = static_cast<unsigned int >((*(DATA+Einc)));             \
+  F[CIDX] = static_cast<unsigned int >((*(DATA+Finc)));             \
+  G[CIDX] = static_cast<unsigned int >((*(DATA+Ginc)));             \
+  H[CIDX] = static_cast<unsigned int >((*(DATA+Hinc)))
+//ETX
+
+//BTX
 #define VTKKWRCHelper_GetCellComponentMagnitudeValues( ABCD, EFGH, CIDX )      \
   mA[CIDX] = static_cast<unsigned int >(*(ABCD       ));                       \
   mB[CIDX] = static_cast<unsigned int >(*(ABCD+mBFinc));                       \
@@ -373,9 +385,9 @@
       break;                                                                                            \
     case 4:                                                                                             \
       _alpha = SCALAROPACITYTABLE[IDX[3]];                                                              \
-      COLOR[0] = static_cast<unsigned short>((IDX[0]*_alpha + 0x7f)>>8 );                               \
-      COLOR[1] = static_cast<unsigned short>((IDX[1]*_alpha + 0x7f)>>8 );                               \
-      COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7f)>>8 );                               \
+      COLOR[0] = static_cast<unsigned short>((IDX[0]*_alpha + 0x7fff)>>8 );                              \
+      COLOR[1] = static_cast<unsigned short>((IDX[1]*_alpha + 0x7fff)>>8 );                              \
+      COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7fff)>>8 );                              \
       COLOR[3] = _alpha;                                                                                \
       break;                                                                                            \
     }                                                                                                   \

@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.9");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.10");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -175,10 +175,22 @@ void vtkFixedPointMIPHelperGenerateImageDependentNN( T *data,
 
   if ( maxValueDefined )
     {
-    unsigned short maxIdx[4];
+    unsigned short maxIdx[4]={0,0,0,0};
+    if ( components == 2 )
+      {
+      maxIdx[0] = (unsigned short)((maxValue[0] + shift[0])*scale[0]);
+      maxIdx[1] = (unsigned short)((maxValue[1] + shift[1])*scale[1]);
+      }
+    else
+      {
+      maxIdx[0] = (unsigned short)(maxValue[0]);
+      maxIdx[1] = (unsigned short)(maxValue[1]);
+      maxIdx[2] = (unsigned short)(maxValue[2]);
+      maxIdx[3] = (unsigned short)((maxValue[3] + shift[3])*scale[3]);
+      }
+    
     for ( c = 0; c < components; c++ )
       {
-      maxIdx[c] = (unsigned short)((maxValue[c] + shift[c])*scale[c]);
       }
     VTKKWRCHelper_LookupDependentColorUS( colorTable[0], scalarOpacityTable[0], 
                                           maxIdx, components, imagePtr );
@@ -475,11 +487,25 @@ void vtkFixedPointMIPHelperGenerateImageDependentTrilin( T *dataPtr,
       oldSPos[1] = spos[1];
       oldSPos[2] = spos[2];
       
-      for ( c= 0; c < components; c++ )
+      if ( components == 2 )
         {
-        dptr = dataPtr + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2] + c;
-        VTKKWRCHelper_GetCellComponentScalarValues( dptr, c, scale[c], shift[c] );
+        for ( c= 0; c < components; c++ )
+          {
+          dptr = dataPtr + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2] + c;
+          VTKKWRCHelper_GetCellComponentScalarValues( dptr, c, scale[c], shift[c] );
+          }
         }
+      else
+        {
+        for ( c= 0; c < 3; c++ )
+          {
+          dptr = dataPtr + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2] + c;
+          VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, c );
+          }
+        dptr = dataPtr + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2] + c;
+        VTKKWRCHelper_GetCellComponentScalarValues( dptr, 3, scale[3], shift[3] );
+        }
+      
       }
     
     VTKKWRCHelper_ComputeWeights(pos);

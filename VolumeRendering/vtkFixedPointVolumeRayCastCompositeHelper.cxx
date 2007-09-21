@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.6");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.7");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeHelper with default values
@@ -216,8 +216,8 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentNN( T *data,
     VTKKWRCHelper_CroppingCheckNN( pos );
 
     unsigned short val[4];
-    val[3] = *(dptr+3);
-    
+    val[3] = static_cast<unsigned short>(((*(dptr+3)) + shift[3])*scale[3]);
+        
     tmp[3] = scalarOpacityTable[0][val[3]];
     if ( !tmp[3] )
       {
@@ -228,9 +228,9 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentNN( T *data,
     val[1] = *(dptr+1);
     val[2] = *(dptr+2);
     
-    tmp[0] = (val[0]*tmp[3]+0x7f)>>(8);
-    tmp[1] = (val[1]*tmp[3]+0x7f)>>(8);
-    tmp[2] = (val[2]*tmp[3]+0x7f)>>(8);
+    tmp[0] = (val[0]*tmp[3]+0x7fff)>>(8);
+    tmp[1] = (val[1]*tmp[3]+0x7fff)>>(8);
+    tmp[2] = (val[2]*tmp[3]+0x7fff)>>(8);
     
     VTKKWRCHelper_CompositeColorAndCheckEarlyTermination( color, tmp, remainingOpacity );
     }
@@ -520,13 +520,13 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentTrilin( T *data,
       oldSPos[2] = spos[2];
       
       dptr = data + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 0, scale[0], shift[0] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 0 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 1, scale[1], shift[1] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 1 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 2, scale[2], shift[2] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 2 );
       
       dptr++;
       VTKKWRCHelper_GetCellComponentScalarValues( dptr, 3, scale[3], shift[3] );
@@ -542,9 +542,9 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentTrilin( T *data,
       continue;
       }
     
-    tmp[0] = (val[0]*tmp[3]+0x7f)>>8;
-    tmp[1] = (val[1]*tmp[3]+0x7f)>>8;
-    tmp[2] = (val[2]*tmp[3]+0x7f)>>8;
+    tmp[0] = (val[0]*tmp[3]+0x7fff)>>8;
+    tmp[1] = (val[1]*tmp[3]+0x7fff)>>8;
+    tmp[2] = (val[2]*tmp[3]+0x7fff)>>8;
     
     VTKKWRCHelper_CompositeColorAndCheckEarlyTermination( color, tmp, remainingOpacity );
     }

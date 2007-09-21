@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper, "1.6");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper, "1.7");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeGOShadeHelper with default values
@@ -233,7 +233,8 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentNN( T *data,
     VTKKWRCHelper_CroppingCheckNN( pos );
     unsigned short val[4];
     
-    val[3] = *(dptr+3);    
+    val[3] = static_cast<unsigned short>(((*(dptr+3)) + shift[3])*scale[3]);
+        
     unsigned char  mag   = *magPtr;
     
     tmp[3] = (scalarOpacityTable[0][val[3]] * gradientOpacityTable[0][mag] + 0x3fff)>>(VTKKW_FP_SHIFT);
@@ -247,9 +248,9 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentNN( T *data,
     val[2] = *(dptr+2);
     unsigned short normal = *dirPtr;
     
-    tmp[0] = (val[0]*tmp[3]+0x7f)>>(8);
-    tmp[1] = (val[1]*tmp[3]+0x7f)>>(8);
-    tmp[2] = (val[2]*tmp[3]+0x7f)>>(8);
+    tmp[0] = (val[0]*tmp[3]+0x7fff)>>(8);
+    tmp[1] = (val[1]*tmp[3]+0x7fff)>>(8);
+    tmp[2] = (val[2]*tmp[3]+0x7fff)>>(8);
     
     VTKKWRCHelper_LookupShading( diffuseShadingTable[0], specularShadingTable[0], normal, tmp );
     
@@ -670,13 +671,13 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin( T *dat
       oldSPos[2] = spos[2];
       
       dptr = data + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 0, scale[0], shift[0] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 0 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 1, scale[1], shift[1] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 1 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 2, scale[2], shift[2] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 2 );
       
       dptr++;
       VTKKWRCHelper_GetCellComponentScalarValues( dptr, 3, scale[3], shift[3] );
@@ -717,9 +718,9 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentTrilin( T *dat
       needToSampleDirection = 0;
       }
     
-    tmp[0] = (val[0]*tmp[3]+0x7f)>>8;
-    tmp[1] = (val[1]*tmp[3]+0x7f)>>8;
-    tmp[2] = (val[2]*tmp[3]+0x7f)>>8;
+    tmp[0] = (val[0]*tmp[3]+0x7fff)>>8;
+    tmp[1] = (val[1]*tmp[3]+0x7fff)>>8;
+    tmp[2] = (val[2]*tmp[3]+0x7fff)>>8;
     
     VTKKWRCHelper_InterpolateShading( diffuseShadingTable[0], specularShadingTable[0], tmp ); 
     VTKKWRCHelper_CompositeColorAndCheckEarlyTermination( color, tmp, remainingOpacity );

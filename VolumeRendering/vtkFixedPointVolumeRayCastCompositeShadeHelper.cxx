@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper, "1.6");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper, "1.7");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeShadeHelper with default values
@@ -220,14 +220,14 @@ void vtkFixedPointCompositeShadeHelperGenerateImageFourDependentNN( T *data,
     val[0] = *(dptr  );
     val[1] = *(dptr+1);
     val[2] = *(dptr+2);
-    val[3] = *(dptr+3);
+    val[3] = static_cast<unsigned short>(((*(dptr+3)) + shift[3])*scale[3]);
     
     tmp[3] = scalarOpacityTable[0][val[3]];
     if ( tmp[3] )
       {
-      tmp[0] = (val[0]*tmp[3]+0x7f)>>(8);
-      tmp[1] = (val[1]*tmp[3]+0x7f)>>(8);
-      tmp[2] = (val[2]*tmp[3]+0x7f)>>(8);
+      tmp[0] = (val[0]*tmp[3]+0x7fff)>>(8);
+      tmp[1] = (val[1]*tmp[3]+0x7fff)>>(8);
+      tmp[2] = (val[2]*tmp[3]+0x7fff)>>(8);
       
       unsigned short normal   = *dirPtr;    
       VTKKWRCHelper_LookupShading( diffuseShadingTable[0], specularShadingTable[0], normal, tmp );
@@ -564,13 +564,13 @@ void vtkFixedPointCompositeShadeHelperGenerateImageFourDependentTrilin( T *data,
       oldSPos[2] = spos[2];
       
       dptr = data + spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 0, scale[0], shift[0] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 0 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 1, scale[1], shift[1] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 1 );
       
       dptr++;
-      VTKKWRCHelper_GetCellComponentScalarValues( dptr, 2, scale[2], shift[2] );
+      VTKKWRCHelper_GetCellComponentRawScalarValues( dptr, 2 );
       
       dptr++;
       VTKKWRCHelper_GetCellComponentScalarValues( dptr, 3, scale[3], shift[3] );
@@ -595,9 +595,9 @@ void vtkFixedPointCompositeShadeHelperGenerateImageFourDependentTrilin( T *data,
       needToSampleDirection = 0;
       }
     
-    tmp[0] = (val[0]*tmp[3]+0x7f)>>8;
-    tmp[1] = (val[1]*tmp[3]+0x7f)>>8;
-    tmp[2] = (val[2]*tmp[3]+0x7f)>>8;
+    tmp[0] = (val[0]*tmp[3]+0x7fff)>>8;
+    tmp[1] = (val[1]*tmp[3]+0x7fff)>>8;
+    tmp[2] = (val[2]*tmp[3]+0x7fff)>>8;
     
     VTKKWRCHelper_InterpolateShading( diffuseShadingTable[0], specularShadingTable[0], tmp ); 
     VTKKWRCHelper_CompositeColorAndCheckEarlyTermination( color, tmp, remainingOpacity );
