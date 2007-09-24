@@ -15,7 +15,7 @@
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCriticalSection, "1.11");
+vtkCxxRevisionMacro(vtkCriticalSection, "1.12");
 vtkStandardNewMacro(vtkCriticalSection);
 
 // New for the SimpleCriticalSection
@@ -36,7 +36,7 @@ void vtkSimpleCriticalSection::Init()
 #endif
 
 #ifdef VTK_USE_PTHREADS
-#ifdef VTK_HP_PTHREADS
+#if defined(VTK_HP_PTHREADS) && 0 /* no pthread_mutexattr_default anymore */
   pthread_mutex_init(&(this->CritSec), pthread_mutexattr_default);
 #else
   pthread_mutex_init(&(this->CritSec), NULL);
