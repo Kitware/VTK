@@ -19,10 +19,6 @@
 #pragma warning ( disable : 4702 )
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
-#include <string>
-
 #include "metaUtils.h"
 #include "metaObject.h"
 #include "metaScene.h"
@@ -43,6 +39,10 @@
 #include "metaArrow.h"
 #include "metaTransform.h"
 #include "metaTubeGraph.h"
+
+#include <stdio.h>
+#include <ctype.h>
+#include <string>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
