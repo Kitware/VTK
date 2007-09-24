@@ -385,9 +385,9 @@
       break;                                                                                            \
     case 4:                                                                                             \
       _alpha = SCALAROPACITYTABLE[IDX[3]];                                                              \
-      COLOR[0] = static_cast<unsigned short>((IDX[0]*_alpha + 0x7fff)>>8 );                              \
-      COLOR[1] = static_cast<unsigned short>((IDX[1]*_alpha + 0x7fff)>>8 );                              \
-      COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7fff)>>8 );                              \
+      COLOR[0] = static_cast<unsigned short>((IDX[0]*_alpha + 0x7f)>>8 );                               \
+      COLOR[1] = static_cast<unsigned short>((IDX[1]*_alpha + 0x7f)>>8 );                               \
+      COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7f)>>8 );                               \
       COLOR[3] = _alpha;                                                                                \
       break;                                                                                            \
     }                                                                                                   \
