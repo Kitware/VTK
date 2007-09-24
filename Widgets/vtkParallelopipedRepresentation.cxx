@@ -110,8 +110,10 @@ public:
 
   void FindCellsContainingNodes( int configuration, vtkCellArray *cellArray, 
                         const vtkstd::vector< vtkIdType > & nodes ) const
-    { this->PopulateTopology( FindCellsContainingNodes( 
-                              m_Topology[configuration], nodes), cellArray ); }
+    {
+    vtkParallelopipedTopology::PopulateTopology(
+      FindCellsContainingNodes(m_Topology[configuration], nodes), cellArray);
+    }
 
   vtkstd::vector< CellType > FindCellsContainingNodes( 
        int configuration, const vtkstd::vector< vtkIdType > & nodes )
@@ -284,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.6");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -678,7 +680,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
       nodes[2] = neighborPtIds[(i+1)%3]; 
       vtkDebugMacro( << "Looking for cells containing nodes: " << nodes[0] 
         << "," << nodes[1] << "," << nodes[2] << " in topology " 
-        << this->CurrentHandleIdx+1 );
+        << (this->CurrentHandleIdx+1) );
       this->Topology->FindCellsContainingNodes( 
           this->CurrentHandleIdx + 1, cells, nodes );
       
