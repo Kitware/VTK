@@ -16,6 +16,15 @@
 
 #include "vtkObjectFactory.h"
 
+// The VTK_SOCKET_FAKE_API definition is given to the compiler
+// command line by CMakeLists.txt if there is no real sockets
+// interface available.  When this macro is defined we simply make
+// every method return failure.
+//
+// Perhaps we should add a method to query at runtime whether a real
+// sockets interface is available.
+
+#ifndef VTK_SOCKET_FAKE_API
 #if defined(_WIN32) && !defined(__CYGWIN__)
   #define VTK_WINDOWS_FULL
   #include "vtkWindows.h"
@@ -29,6 +38,7 @@
   #include <unistd.h>
   #include <sys/time.h>
 #endif
+#endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define WSA_VERSION MAKEWORD(1,1)
@@ -37,7 +47,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.5");
+vtkCxxRevisionMacro(vtkSocket, "1.6");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
@@ -58,6 +68,7 @@ vtkSocket::~vtkSocket()
 //-----------------------------------------------------------------------------
 int vtkSocket::CreateSocket()
 {
+#ifndef VTK_SOCKET_FAKE_API
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   // Elimate windows 0.2 second delay sending (buffering) data.
   int on = 1;
@@ -66,11 +77,15 @@ int vtkSocket::CreateSocket()
     return -1;
     }
   return sock;
+#else
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::BindSocket(int socketdescriptor, int port)
 {
+#ifndef VTK_SOCKET_FAKE_API
   struct sockaddr_in server;
 
   server.sin_family = AF_INET;
@@ -89,31 +104,47 @@ int vtkSocket::BindSocket(int socketdescriptor, int port)
     return -1;
     }
   return 0;
+#else
+  static_cast<void>(socketdescriptor);
+  static_cast<void>(port);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::Accept(int socketdescriptor)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
     {
     return -1;
     }
   return accept(socketdescriptor, 0, 0);
+#else
+  static_cast<void>(socketdescriptor);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::Listen(int socketdescriptor)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
     {
     return -1;
     }
   return listen(socketdescriptor, 1);
+#else
+  static_cast<void>(socketdescriptor);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0 )
     {
     // invalid socket descriptor.
@@ -144,12 +175,18 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
     }
   // The indicated socket has some activity on it.
   return 1;
+#else
+  static_cast<void>(socketdescriptor);
+  static_cast<void>(msec);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     unsigned long msec, int* selected_index)
 {
+#ifndef VTK_SOCKET_FAKE_API
   int i;
   int max_fd = -1;
   *selected_index = -1;
@@ -195,11 +232,19 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
       }
     }
   return -1; 
+#else
+  static_cast<void>(sockets_to_select);
+  static_cast<void>(size);
+  static_cast<void>(msec);
+  static_cast<void>(selected_index);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
     {
     return -1;
@@ -226,11 +271,18 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
 
   return connect(socketdescriptor, reinterpret_cast<sockaddr*>(&name), 
     sizeof(name));
+#else
+  static_cast<void>(socketdescriptor);
+  static_cast<void>(hostName);
+  static_cast<void>(port);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::GetPort(int sock)
 {
+#ifndef VTK_SOCKET_FAKE_API
   struct sockaddr_in sockinfo;
   memset(&sockinfo, 0, sizeof(sockinfo));
 #if defined(VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
@@ -243,21 +295,31 @@ int vtkSocket::GetPort(int sock)
     return 0;
     }
   return ntohs(sockinfo.sin_port);
+#else
+  static_cast<void>(sock);
+  return -1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 void vtkSocket::CloseSocket(int socketdescriptor)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (socketdescriptor < 0)
     {
     return;
     }
   vtkCloseSocketMacro(socketdescriptor);
+#else
+  static_cast<void>(socketdescriptor);
+  return;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::Send(const void* data, int length)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (!this->GetConnected())
     {
     return 0;
@@ -288,11 +350,17 @@ int vtkSocket::Send(const void* data, int length)
     total += n;
     } while(total < length);
   return 1;
+#else
+  static_cast<void>(data);
+  static_cast<void>(length);
+  return 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------
 int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
 {
+#ifndef VTK_SOCKET_FAKE_API
   if (!this->GetConnected())
     {
     return 0;
@@ -324,6 +392,12 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
     total += n;
     } while(readFully && total < length);
   return total;
+#else
+  static_cast<void>(data);
+  static_cast<void>(length);
+  static_cast<void>(readFully);
+  return 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------

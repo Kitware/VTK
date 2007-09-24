@@ -14,78 +14,78 @@ IF (WIN32)
 ENDIF (WIN32)
 
 SET ( Kit_SRCS
-vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
+vtkClientSocket.cxx
 vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx
 vtkCommunicator.cxx
-vtkCompositer.cxx
 vtkCompositeRenderManager.cxx
+vtkCompositer.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyCommunicator.cxx
 vtkDummyController.cxx
+vtkDuplicatePolyData.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
-vtkMultiGroupDataExtractPiece.cxx
-vtkPKdTree.cxx
 vtkMemoryLimitImageDataStreamer.cxx
+vtkMultiGroupDataExtractPiece.cxx
 vtkMultiProcessController.cxx
-vtkParallelRenderManager.cxx
-vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
 vtkPImageWriter.cxx
+vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPOPReader.cxx
-vtkPOutlineFilter.cxx
 vtkPOutlineCornerFilter.cxx
+vtkPOutlineFilter.cxx
 vtkPPolyDataNormals.cxx
 vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkParallelFactory.cxx
+vtkParallelRenderManager.cxx
+vtkPassThroughFilter.cxx
 vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
 vtkPipelineSize.cxx
-vtkProcessIdScalars.cxx
 vtkProcessGroup.cxx
+vtkProcessIdScalars.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
+vtkServerSocket.cxx
+vtkSocket.cxx
+vtkSocketCollection.cxx
+vtkSocketCommunicator.cxx
+vtkSocketController.cxx
 vtkSubCommunicator.cxx
 vtkSubGroup.cxx
 vtkTemporalFractal.cxx
 vtkTemporalInterpolatedVelocityField.cxx
 vtkTemporalStreamTracer.cxx
 vtkTransmitImageDataPiece.cxx
+vtkTransmitPolyDataPiece.cxx
 vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
-vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
 vtkXMLPMultiGroupDataWriter.cxx
 )
 
-# this is only for Cray Xt3/Catamount, not sure it is the best way to do it, Alex
-IF(HAVE_SOCKETS)
-  SET(Kit_SRCS ${Kit_SRCS}
-    vtkClientSocket.cxx
-    vtkServerSocket.cxx
-    vtkSocket.cxx
-    vtkSocketCollection.cxx
-    vtkSocketCommunicator.cxx
-    vtkSocketController.cxx )
-ENDIF(HAVE_SOCKETS)
-
+IF(NOT HAVE_SOCKETS)
+  # Tell vtkSocket.cxx that there are no sockets on this platform.
+  SET_SOURCE_FILES_PROPERTIES(vtkSocket.cxx PROPERTIES
+    COMPILE_FLAGS -DVTK_SOCKET_FAKE_API)
+ENDIF(NOT HAVE_SOCKETS)
 
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}

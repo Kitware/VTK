@@ -18,28 +18,13 @@
 #include "vtkProcessGroup.h"
 #include "vtkSocketCommunicator.h"
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define VTK_WINDOWS_FULL
-# include "vtkWindows.h"
-#else
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
- #include <arpa/inet.h>
- #include <netdb.h>
- #include <unistd.h>
-#endif
-
 #ifdef _WIN32
 #define WSA_VERSION MAKEWORD(1,1)
-#define vtkCloseSocketMacro(sock) (closesocket(sock))
-#else
-#define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
 int vtkSocketController::Initialized = 0;
 
-vtkCxxRevisionMacro(vtkSocketController, "1.12");
+vtkCxxRevisionMacro(vtkSocketController, "1.13");
 vtkStandardNewMacro(vtkSocketController);
 
 //----------------------------------------------------------------------------
