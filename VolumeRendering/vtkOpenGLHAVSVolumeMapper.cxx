@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.10");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.11");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -1143,6 +1143,15 @@ bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware()
 {
   vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
   
+  // Temporarily filter out the Macs, as this mapper makes the ATI driver crash
+  // (RogueResearch2 on VTK, ATI Radeon X1600 OpenGL Engine 2.0 ATI-1.4.56) and
+  // makes the Nvidia driver render some corrupted image (kamino on ParaView3
+  // dashboard NVIDIA GeForce 7300 GT 2.0 NVIDIA-1.4.56).
+  // This mapper does not actually use texture3D but it is known that Macs
+  // only support texture3d through OpenGL 1.2 API, not as an extension, so
+  // this is a good way to filter them out. 
+  int iAmAMac=!extensions->ExtensionSupported("GL_EXT_texture3D");
+  
   // OpenGL 1.3 is required by GL_ARB_draw_buffers, GL_ARB_fragment_program
   // and GL_ARB_vertex_program
   // CLAMP_TO_EGDE is core feature of OpenGL 1.2 and
@@ -1180,7 +1189,7 @@ bool vtkOpenGLHAVSVolumeMapper::SupportedByHardware()
 
   extensions->Delete();
   
-  return supports_GL_1_3 && supports_draw_buffers &&
+  return !iAmAMac && supports_GL_1_3 && supports_draw_buffers &&
     supports_GL_ARB_fragment_program && supports_GL_ARB_vertex_program &&
     supports_GL_EXT_framebuffer_object &&
     ( supports_GL_ARB_texture_float || supports_GL_ATI_texture_float);
