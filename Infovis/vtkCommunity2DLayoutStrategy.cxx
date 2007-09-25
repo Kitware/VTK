@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -246,7 +246,6 @@ void vtkCommunity2DLayoutStrategy::Initialize()
     {
     this->EdgeArray[i].from = this->Graph->GetSourceVertex(i);
     this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
-    this->EdgeArray[i].dead_edge = 0;
     
     if (weightArray != NULL)
       {
@@ -406,32 +405,48 @@ void vtkCommunity2DLayoutStrategy::Layout()
       int sourceIndex = this->EdgeArray[j].from;
       int targetIndex = this->EdgeArray[j].to;
       
-      // Perform weight adjustment
-      attractValue = this->EdgeArray[j].weight*disSquared-this->RestDistance;
-
       // Clustering: Get close to other nodes that are 
       // part of your community
+      float communityRestDistance = this->RestDistance;
       if (community)
         {
         int sourceComm = community->GetValue(sourceIndex);
         int targetComm = community->GetValue(targetIndex);
-        if ((sourceComm != -1) &&
-            (sourceComm == targetComm))
+        
+        // Often -1 is used for no/unspecified community
+        // if either node is marked as such then just skip
+        if ((sourceComm == -1) || (targetComm == -1))
           {
-          attractValue *= 1e3;
+          continue;
+          } 
+               
+        // If the source and target are the same
+        // then decrease rest distance and move
+        // nodes closer to each other
+        if (sourceComm == targetComm)
+          {
+          communityRestDistance *= .5;
+          rawPointData[rawSourceIndex]   -= delta[0]*.1 * this->Temp;
+          rawPointData[rawSourceIndex+1] -= delta[1]*.1 * this->Temp;
+          rawPointData[rawTargetIndex]   += delta[0]*.1 * this->Temp;
+          rawPointData[rawTargetIndex+1] += delta[1]*.1 * this->Temp;
           }
-        else if ((sourceComm != -1) && 
-                 (sourceComm != -1))
+          
+        // If source and target are different
+        // then decrease the weight
+        else 
           {
-          attractValue *= 1e-3;
-          this->EdgeArray[j].dead_edge = 1;
+          communityRestDistance *= 2;
           }     
-
-        rawAttractArray[rawSourceIndex]   -= delta[0] * attractValue;
-        rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
-        rawAttractArray[rawTargetIndex]   += delta[0] * attractValue;
-        rawAttractArray[rawTargetIndex+1] += delta[1] * attractValue;
         } // if community
+      
+      // Perform weight adjustment
+      attractValue = this->EdgeArray[j].weight*disSquared-communityRestDistance;
+
+      rawAttractArray[rawSourceIndex]   -= delta[0] * attractValue;
+      rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
+      rawAttractArray[rawTargetIndex]   += delta[0] * attractValue;
+      rawAttractArray[rawTargetIndex+1] += delta[1] * attractValue;
       } // for each edge
       
     // Okay now set new positions based on replusion 

@@ -135,9 +135,6 @@ private:
     vtkIdType from;
     vtkIdType to;
     float weight;
-    int dead_edge; // I'm making this an int so that the edge array is
-                   // word boundary aligned... but I'm not sure what
-                   // really happens in these days of magical compilers
   } vtkLayoutEdge;
   
   // This class 'has a' vtkFastSplatter for the density grid
