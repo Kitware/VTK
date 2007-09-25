@@ -721,7 +721,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.39");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.40");
 
 
 
@@ -1671,7 +1671,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.39");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.40");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -5860,7 +5860,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.39");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.40");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5901,7 +5901,7 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
   int appWordSize = 8;
   int diskWordSize = 8;
   float version;
-  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) == 0 )
+  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) < 0 )
     {
     return 0;
     }
