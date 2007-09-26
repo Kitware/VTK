@@ -26,11 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.16");
-
-#ifndef NULL
-#define NULL 0
-#endif
+vtkCxxRevisionMacro(vtkSource, "1.17");
 
 class vtkSourceToDataSetFriendship
 {
@@ -61,6 +57,7 @@ vtkSource::~vtkSource()
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkSource::GetOutputIndex(vtkDataObject *out)
 {
   int i;
@@ -109,9 +106,7 @@ int vtkSource::GetReleaseDataFlag()
 //----------------------------------------------------------------------------
 void vtkSource::SetReleaseDataFlag(int i)
 {
-  int idx;
-  
-  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+  for (int idx = 0; idx < this->NumberOfOutputs; idx++)
     {
     if (this->Outputs[idx])
       {
@@ -371,7 +366,8 @@ void vtkSource::SetNthOutput(int index, vtkDataObject* newOutput)
 //----------------------------------------------------------------------------
 void vtkSource::Execute()
 {
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use ExecuteData(vtkDataObject *) instead");
+  vtkErrorMacro(<< "Definition of Execute() method should be in subclass"
+    " and you should really use ExecuteData(vtkDataObject *) instead");
 }
 
 //----------------------------------------------------------------------------
