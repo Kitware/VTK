@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.22");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.23");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -95,7 +95,7 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
   this->LabelFormat = new char[6];
   sprintf(this->LabelFormat,"%s","%0.3g");
 
-  this->ID = 0;
+  this->ID = VTK_UNSIGNED_LONG_MAX;
   this->IDInitialized = 0;
 
   this->ShowLabelAboveWidget = 1;
@@ -1018,6 +1018,11 @@ void vtkBiDimensionalRepresentation2D::Highlight(int highlightOn)
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation2D::SetID(unsigned long id)
 {
+  if (id == this->ID)
+    {
+    return;
+    }
+
   this->ID = id;
   this->IDInitialized = 1;
   this->Modified();
