@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.48");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.49");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -103,7 +103,9 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
   this->Range[1] = 0;
 
   this->Function = NULL;
-  
+
+  this->AllowDuplicateScalars = 0;
+
   this->Internal = new vtkPiecewiseFunctionInternals;
 }
 
@@ -362,6 +364,27 @@ int vtkPiecewiseFunction::GetNodeValue( int index, double val[4] )
   return 1;
 }
 
+// For a specified index value, get the node parameters
+int vtkPiecewiseFunction::SetNodeValue( int index, double val[4] )
+{
+  int size = this->Internal->Nodes.size();
+  
+  if ( index < 0 || index >= size )
+    {
+    vtkErrorMacro("Index out of range!");
+    return -1;
+    }
+  
+  this->Internal->Nodes[index]->X = val[0];
+  this->Internal->Nodes[index]->Y = val[1];
+  this->Internal->Nodes[index]->Midpoint = val[2];
+  this->Internal->Nodes[index]->Sharpness = val[3];
+
+  this->Modified();
+
+  return 1;
+}
+
 // Adds a point to the function. If a duplicate point is inserted
 // then the function value at that location is set to the new value.
 // This is the legacy version that assumes midpoint = 0.5 and
@@ -389,7 +412,10 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
     }
   
   // remove any node already at this X location
-  this->RemovePoint( x );
+  if (!this->AllowDuplicateScalars)
+    {
+    this->RemovePoint( x );
+    }
   
   // Create the new node
   vtkPiecewiseFunctionNode *node = new vtkPiecewiseFunctionNode;

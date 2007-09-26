@@ -81,10 +81,11 @@ public:
   double GetValue( double x );
 
   // Description:
-  // For the node specified by index, returns the
+  // For the node specified by index, set/get the
   // location (X), value (Y), midpoint, and sharpness 
   // values at the node.
   int GetNodeValue( int index, double val[4] );
+  int SetNodeValue( int index, double val[4] );
   
   // Description:
   // Returns a pointer to the data stored in the table.
@@ -157,6 +158,13 @@ public:
   static vtkPiecewiseFunction* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
+  // Description:
+  // Toggle whether to allow duplicate scalar values in the piecewise
+  // function (off by default).
+  vtkSetMacro(AllowDuplicateScalars, int);
+  vtkGetMacro(AllowDuplicateScalars, int);
+  vtkBooleanMacro(AllowDuplicateScalars, int);
+
 protected:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();
@@ -180,6 +188,8 @@ protected:
   // Range whenever a node is added or removed
   void SortAndUpdateRange();
   
+  int AllowDuplicateScalars;
+
 private:
   vtkPiecewiseFunction(const vtkPiecewiseFunction&);  // Not implemented.
   void operator=(const vtkPiecewiseFunction&);  // Not implemented.
