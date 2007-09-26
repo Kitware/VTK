@@ -18,27 +18,28 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkTreeFieldAggregator.h"
-#include "vtkTreeDFSIterator.h"
 
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkIntArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkStringArray.h>
-#include <vtkIdList.h>
-#include <math.h>
-#include "vtkTree.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGraph.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStringArray.h"
+#include "vtkTree.h"
+#include "vtkTreeDFSIterator.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.7");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.8");
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
-vtkTreeFieldAggregator::vtkTreeFieldAggregator():MinValue(0.0)
+vtkTreeFieldAggregator::vtkTreeFieldAggregator()
 {
   this->MinValue = 0;
   this->Field = 0;

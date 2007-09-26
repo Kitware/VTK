@@ -16,20 +16,20 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
 #include "vtkRandomGraphSource.h"
-#include <vtkCellData.h>
-#include <vtkFloatArray.h>
+
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkGraph.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.6");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.7");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
