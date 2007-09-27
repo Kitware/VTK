@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.71");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.71.4.1");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -111,7 +111,9 @@ vtkColorTransferFunction::vtkColorTransferFunction()
 
   this->Table = NULL;
   this->TableSize = 0;
-  
+
+  this->AllowDuplicateScalars = 0;
+
   this->Internal = new vtkColorTransferFunctionInternals;
 }
 
@@ -198,7 +200,10 @@ int vtkColorTransferFunction::AddRGBPoint( double x, double r,
     }
   
   // remove any node already at this X location
-  this->RemovePoint( x );
+  if (!this->AllowDuplicateScalars)
+    {
+    this->RemovePoint( x );
+    }
   
   // Create the new node
   vtkCTFNode *node = new vtkCTFNode;
@@ -935,6 +940,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable( double xStart, double xEn
   this->SortAndUpdateRange();
 }
 
+//----------------------------------------------------------------------------
 // For a specified index value, get the node parameters
 int vtkColorTransferFunction::GetNodeValue( int index, double val[6] )
 {
@@ -953,6 +959,30 @@ int vtkColorTransferFunction::GetNodeValue( int index, double val[6] )
   val[4] = this->Internal->Nodes[index]->Midpoint;
   val[5] = this->Internal->Nodes[index]->Sharpness;
   
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+// For a specified index value, get the node parameters
+int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
+{
+  int size = this->Internal->Nodes.size();
+  
+  if ( index < 0 || index >= size )
+    {
+    vtkErrorMacro("Index out of range!");
+    return -1;
+    }
+  
+  this->Internal->Nodes[index]->X = val[0];
+  this->Internal->Nodes[index]->R = val[1];
+  this->Internal->Nodes[index]->G = val[2];
+  this->Internal->Nodes[index]->B = val[3];
+  this->Internal->Nodes[index]->Midpoint = val[4];
+  this->Internal->Nodes[index]->Sharpness = val[5];
+
+  this->Modified();
+
   return 1;
 }
 
@@ -1376,7 +1406,9 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Range: " << this->Range[0] << " to " 
      << this->Range[1] << endl;
-  
+
+  os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars << endl;
+
   unsigned int i;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )
     {

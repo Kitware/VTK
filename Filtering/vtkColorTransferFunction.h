@@ -92,11 +92,12 @@ public:
   double GetGreenValue( double x );
   double GetBlueValue( double x );
 
-  //  Description:
-  // For the node specified by index, returns the
+  // Description:
+  // For the node specified by index, set/get the
   // location (X), R, G, and B values, midpoint, and 
   // sharpness values at the node.
   int GetNodeValue( int index, double val[6] );
+  int SetNodeValue( int index, double val[6] );
   
   // Description:
   // Map one value through the lookup table.
@@ -167,6 +168,13 @@ public:
                                      int inputDataType, int numberOfValues,
                                      int inputIncrement, int outputIncrement);
   
+  // Description:
+  // Toggle whether to allow duplicate scalar values in the color transfer
+  // function (off by default).
+  vtkSetMacro(AllowDuplicateScalars, int);
+  vtkGetMacro(AllowDuplicateScalars, int);
+  vtkBooleanMacro(AllowDuplicateScalars, int);
+
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
@@ -195,6 +203,8 @@ protected:
   
   // An evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
+
+  int AllowDuplicateScalars;
 
   vtkTimeStamp BuildTime;
   unsigned char *Table;
