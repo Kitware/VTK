@@ -32,7 +32,7 @@
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkTimePointToString, "1.2");
+vtkCxxRevisionMacro(vtkTimePointToString, "1.3");
 vtkStandardNewMacro(vtkTimePointToString);
 
 vtkTimePointToString::vtkTimePointToString()
@@ -153,8 +153,10 @@ int vtkTimePointToString::RequestData(
   for (vtkIdType i = 0; i < numTuples*numComps; i++)
     {
     vtkTypeUInt64 timePoint = inputArray->GetValue(i);
-    vtkStdString str = vtkTimePointUtility::TimePointToISO8601(timePoint, this->ISO8601Format);
+    const char* s = vtkTimePointUtility::TimePointToISO8601(timePoint, this->ISO8601Format);
+    vtkStdString str = s;
     stringArray->SetValue(i, str);
+    delete[] s;
     }
 
   // Add the array to the approprate field data (i.e. the same field data as the input).
