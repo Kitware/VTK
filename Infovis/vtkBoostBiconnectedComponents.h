@@ -42,6 +42,11 @@ public:
   static vtkBoostBiconnectedComponents *New();
   vtkTypeRevisionMacro(vtkBoostBiconnectedComponents, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set the output array name. If no output array name is
+  // set then the name 'VertexDegree' is used.
+  vtkSetStringMacro(OutputArrayName);
 
 protected:
   vtkBoostBiconnectedComponents();
@@ -51,6 +56,8 @@ protected:
   
 private:
 
+  char* OutputArrayName;
+  
   vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&);  // Not implemented.
   void operator=(const vtkBoostBiconnectedComponents&);  // Not implemented.
 };

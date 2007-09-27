@@ -36,15 +36,18 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.3");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.4");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
 {
+  this->OutputArrayName = 0;
 }
 
 vtkBoostBiconnectedComponents::~vtkBoostBiconnectedComponents()
 {
+  // release mem
+  this->SetOutputArrayName(0);
 }
 
 int vtkBoostBiconnectedComponents::RequestData(
@@ -89,8 +92,17 @@ int vtkBoostBiconnectedComponents::RequestData(
     g, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
   size_t numComp = res.first;
   
-  vtkIdTypeArray* edgeComps = vtkIdTypeArray::New();
-  edgeComps->SetName("biconnected component");
+  
+  // Create the edge attribute array
+  vtkIntArray* edgeComps = vtkIntArray::New();
+  if (this->OutputArrayName)
+    {
+    edgeComps->SetName(this->OutputArrayName);
+    }
+  else
+    {
+    edgeComps->SetName("biconnected component");
+    }
   edgeComps->Allocate(output->GetNumberOfEdges());
   for (vtkIdType e = 0; e < output->GetNumberOfEdges(); e++)
     {
@@ -102,8 +114,17 @@ int vtkBoostBiconnectedComponents::RequestData(
 
   // Assign component values to vertices based on the first edge
   // If isolated, assign a new value
-  vtkIdTypeArray* vertComps = vtkIdTypeArray::New();
-  vertComps->SetName("biconnected component");
+  
+  // Create the vertex attribute array
+  vtkIntArray* vertComps = vtkIntArray::New();
+  if (this->OutputArrayName)
+    {
+    vertComps->SetName(this->OutputArrayName);
+    }
+  else
+    {
+    vertComps->SetName("biconnected component");
+    }
   vertComps->Allocate(output->GetNumberOfVertices());
   for (vtkIdType u = 0; u < output->GetNumberOfVertices(); u++)
     {
@@ -151,5 +172,9 @@ int vtkBoostBiconnectedComponents::RequestData(
 void vtkBoostBiconnectedComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  
+    
+  os << indent << "OutputArrayName: " 
+     << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
 }
 
