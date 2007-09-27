@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVertexDegree, "1.3");
+vtkCxxRevisionMacro(vtkVertexDegree, "1.4");
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
@@ -37,6 +37,8 @@ vtkVertexDegree::vtkVertexDegree()
 
 vtkVertexDegree::~vtkVertexDegree()
 {
+  // release mem
+  this->SetOutputArrayName(0);
 }
 
 
