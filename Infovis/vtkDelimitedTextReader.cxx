@@ -31,7 +31,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.18");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.19");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -52,7 +52,7 @@ static int splitString(const vtkStdString& input,
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
-static int my_getline(istream& stream, vtkStdString &output, int& line_count, char delim='\n');
+static int my_getline(istream& stream, vtkStdString &output, int& line_count);
 
 // ----------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ void vtkDelimitedTextReader::OpenFile()
   
   // Open the new file.
   vtkDebugMacro(<< "vtkDelimitedTextReader is opening file: " << this->FileName);
-  this->Internals->File = new ifstream(this->FileName, ios::in);
+  this->Internals->File = new ifstream(this->FileName, ios::in | ios::binary);
 
   // Check to see if open was successful
   if (! this->Internals->File || this->Internals->File->fail())
@@ -383,13 +383,12 @@ splitString(const vtkStdString& input,
 // ----------------------------------------------------------------------
 
 static int
-my_getline(istream& in, vtkStdString &out, int& line_count, char delimiter)
+my_getline(istream& in, vtkStdString &out, int& line_count)
 {
-  ++line_count;
-
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
+  ++line_count;
   
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
@@ -397,12 +396,16 @@ my_getline(istream& in, vtkStdString &out, int& line_count, char delimiter)
     ++numCharactersRead;
 
     char downcast = static_cast<char>(nextValue);
-    if (downcast != delimiter)
+    if (downcast != '\n' && downcast != '\r' && downcast != 0x0d)
       {
       out += downcast;
       }
     else
       {
+      if (downcast == '\r' && in.peek() == '\n')
+        {
+        in.get();
+        }
       return numCharactersRead;
       }
     }
