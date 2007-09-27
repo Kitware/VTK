@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -123,7 +123,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
       {
       for (int j = 0; j < maxCoord; j++)
         {
-        double r = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+        double r = vtkMath::Random();
         v[i].x[j] = (this->GraphBounds[2*j+1] - this->GraphBounds[2*j])*r + this->GraphBounds[2*j];
         }
       if (!this->ThreeDimensionalLayout)

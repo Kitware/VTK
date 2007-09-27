@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -218,8 +218,8 @@ void vtkCommunity2DLayoutStrategy::Initialize()
   // Jitter x and y, skip z
   for (vtkIdType i=0; i<numVertices*3; i+=3)
     {
-    rawPointData[i] += this->RestDistance*(static_cast<float>(rand())/RAND_MAX - .5);
-    rawPointData[i+1] += this->RestDistance*(static_cast<float>(rand())/RAND_MAX - .5);
+    rawPointData[i] += this->RestDistance*(vtkMath::Random() - .5);
+    rawPointData[i+1] += this->RestDistance*(vtkMath::Random() - .5);
     }
 
   // Get the weight array
@@ -568,8 +568,8 @@ void vtkCommunity2DLayoutStrategy::ResolveCoincidentVertices()
         collisionOps++;
         
         // Move
-        rawPointData[rawIndex] += jumpDistance*(static_cast<float>(rand())/RAND_MAX - .5);
-        rawPointData[rawIndex+1] += jumpDistance*(static_cast<float>(rand())/RAND_MAX - .5);
+        rawPointData[rawIndex] += jumpDistance*(vtkMath::Random() - .5);
+        rawPointData[rawIndex+1] += jumpDistance*(vtkMath::Random() - .5);
         
         // Test
         indexX = static_cast<int>(
