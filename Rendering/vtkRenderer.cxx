@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.236");
+vtkCxxRevisionMacro(vtkRenderer, "1.237");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1320,6 +1320,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "LastRenderingUsedDepthPeeling: "
      << (this->LastRenderingUsedDepthPeeling ? "On" : "Off")<< "\n";
+  
+  os << indent << "ReportGraphicErrors: "
+     << (this->ReportGraphicErrors ? "On" : "Off")<< "\n";
   
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;
