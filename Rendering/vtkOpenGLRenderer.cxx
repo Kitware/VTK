@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.73");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.74");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -108,6 +108,8 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->ProgramShader=0;
   this->DepthFormat=0;
   this->DepthPeelingHigherLayer=0;
+  
+  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -139,7 +141,7 @@ void vtkOpenGLRenderer::ClearLights (void)
   // now delete all the old lights 
   for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + VTK_MAX_LIGHTS; curLight++)
     {
-    glDisable((GLenum)curLight);
+    glDisable(static_cast<GLenum>(curLight));
     }
 
   this->NumberOfLightsBound = 0;
@@ -192,8 +194,8 @@ int vtkOpenGLRenderer::UpdateLights ()
     // also make sure we still have room.             
     if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
       {
-      light->Render((vtkRenderer *)this,curLight);
-      glEnable((GLenum)curLight);
+      light->Render(this,curLight);
+      glEnable(static_cast<GLenum>(curLight));
       // increment the current light by one 
       curLight++;
       count++;
@@ -737,10 +739,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glClearColor( ((GLclampf)(0)),
-                  ((GLclampf)(0)),
-                  ((GLclampf)(0)),
-                  ((GLclampf)(0.0)) );
+    glClearColor( static_cast<GLclampf>(0),static_cast<GLclampf>(0),
+                  static_cast<GLclampf>(0),static_cast<GLclampf>(0));
     
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
@@ -1089,14 +1089,14 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (! this->Transparent())
     {
-    glClearColor( ((GLclampf)(this->Background[0])),
-                  ((GLclampf)(this->Background[1])),
-                  ((GLclampf)(this->Background[2])),
-                  ((GLclampf)(0.0)) );
+    glClearColor( static_cast<GLclampf>(this->Background[0]),
+                  static_cast<GLclampf>(this->Background[1]),
+                  static_cast<GLclampf>(this->Background[2]),
+                  static_cast<GLclampf>(0.0));
     clear_mask |= GL_COLOR_BUFFER_BIT;
     }
 
-  glClearDepth( (GLclampd)( 1.0 ) );
+  glClearDepth(static_cast<GLclampf>(1.0));
   clear_mask |= GL_DEPTH_BUFFER_BIT;
 
   vtkDebugMacro(<< "glClear\n");
@@ -1168,7 +1168,7 @@ void vtkOpenGLRenderer::DonePick()
   GLuint hits = glRenderMode(GL_RENDER); 
   this->PickInfo->NumPicked = hits;
 
-  unsigned int depth = (unsigned int)-1;
+  unsigned int depth = static_cast<unsigned int>(-1);
   GLuint* ptr = this->PickInfo->PickBuffer;
   this->PickInfo->PickedId = 0;
   for(unsigned int k =0; k < hits; k++)
@@ -1204,7 +1204,7 @@ void vtkOpenGLRenderer::DonePick()
     // integer value corresponds to window coordinate depth 1.0, 
     // and zero corresponds to window coordinate depth 0.0.
     
-    this->PickedZ = ((double)depth / (double)VTK_UNSIGNED_INT_MAX);
+    this->PickedZ = depth/static_cast<double>(VTK_UNSIGNED_INT_MAX);
 
     // Clamp to range [0,1]
     this->PickedZ = (this->PickedZ < 0.0) ? 0.0 : this->PickedZ;
@@ -1226,7 +1226,7 @@ double vtkOpenGLRenderer::GetPickedZ()
 
 unsigned int vtkOpenGLRenderer::GetPickedId()
 {
-  return (unsigned int)this->PickInfo->PickedId;
+  return static_cast<unsigned int>(this->PickInfo->PickedId);
 }
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()
@@ -1241,7 +1241,7 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()
 {
-  return (unsigned int)this->PickInfo->NumPicked;
+  return static_cast<unsigned int>(this->PickInfo->NumPicked);
 }
 
 int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
@@ -1262,10 +1262,76 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     iptr++; // move to first depth value
     iptr++; // move to next depth value
     iptr++; // move to first name picked
-    *optr = (unsigned int)*iptr;
+    *optr = static_cast<unsigned int>(*iptr);
     optr++;
     // skip additonal names
     iptr += num_names;
     }
   return k;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Update graphic error status, regardless of ReportGraphicErrors flag.
+// It means this method can be used in any context and is not restricted to
+// debug mode.
+void vtkOpenGLRenderer::CheckGraphicError()
+{
+  this->LastGraphicError=static_cast<unsigned int>(glGetError());
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Return the last graphic error status. Initial value is false.
+int vtkOpenGLRenderer::HasGraphicError()
+{
+  return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return a string matching the last graphic error status.
+const char *vtkOpenGLRenderer::GetLastGraphicErrorString()
+{
+  const char *result;
+  switch(static_cast<GLenum>(this->LastGraphicError))
+    {
+    case GL_NO_ERROR:
+      result="No error";
+      break;
+    case GL_INVALID_ENUM:
+      result="Invalid enum";
+      break;
+    case GL_INVALID_VALUE:
+      result="Invalid value";
+      break;
+    case GL_INVALID_OPERATION:
+      result="Invalid operation";
+      break;
+    case GL_STACK_OVERFLOW:
+      result="Stack overflow";
+      break;
+    case GL_STACK_UNDERFLOW:
+      result="Stack underflow";
+      break;
+    case GL_OUT_OF_MEMORY:
+      result="Out of memory";
+      break;
+    case vtkgl::TABLE_TOO_LARGE:
+      // GL_ARB_imaging
+      result="Table too large";
+      break;
+    case vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT:
+      // GL_EXT_framebuffer_object
+      result="Invalid framebuffer operation";
+      break;
+    case vtkgl::TEXTURE_TOO_LARGE_EXT:
+      // GL_EXT_texture
+      result="Texture too large";
+      break;
+    default:
+      result="Unknown error";
+      break;
+    }
+  return result;
 }

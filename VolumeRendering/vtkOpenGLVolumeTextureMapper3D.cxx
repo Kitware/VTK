@@ -40,31 +40,10 @@ extern const char* vtkVolumeTextureMapper3D_TwoDependentShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
-#define PrintError(S)                                                           \
-  {                                                                             \
-  GLenum errorCode;                                                             \
-  if ( (errorCode = glGetError()) != GL_NO_ERROR )                              \
-    {                                                                           \
-    cout << S << endl;                                                          \
-    cout << "ERROR" << endl;                                                    \
-    switch (errorCode)                                                          \
-      {                                                                         \
-      case GL_INVALID_ENUM: cout << "invalid enum" << endl; break;              \
-      case GL_INVALID_VALUE: cout << "invalid value" << endl; break;            \
-      case GL_INVALID_OPERATION: cout << "invalid operation" << endl; break;    \
-      case GL_STACK_OVERFLOW: cout << "stack overflow" << endl; break;          \
-      case GL_STACK_UNDERFLOW: cout << "stack underflow" << endl; break;        \
-      case GL_OUT_OF_MEMORY: cout << "out of memory" << endl; break;            \
-      default: cout << "unknown error" << endl;                                 \
-      }                                                                         \
-    }}
-
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.11");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.12");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
-
-
 
 vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D()
 {
@@ -179,6 +158,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   // Turn lighting off - the polygon textures already have illumination
   glDisable( GL_LIGHTING );
 
+  vtkGraphicErrorMacro(ren,"Before actual render method");
   switch ( this->RenderMethod )
     {
     case vtkVolumeTextureMapper3D::NVIDIA_METHOD:

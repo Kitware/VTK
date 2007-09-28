@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.235");
+vtkCxxRevisionMacro(vtkRenderer, "1.236");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -118,6 +118,8 @@ vtkRenderer::vtkRenderer()
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
+  
+  this->ReportGraphicErrors=0; // false
 }
 
 vtkRenderer::~vtkRenderer()

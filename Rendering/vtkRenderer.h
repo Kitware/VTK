@@ -47,6 +47,28 @@ class vtkPolyDataPainter;
 class vtkIdentColoredPainter;
 class vtkVisibleCellSelector;
 
+// Description:
+// This macro is used to print error message coming from the graphic library
+// (OpenGL for instance) used to actually implement the rendering algorithms.
+// It is only active in debug mode and has no cost in release mode.
+// In debug mode, if reports errors only if flag ReportGraphicError is true
+// on the renderer (initial value is false).
+// Signature is:
+// void vtkGraphicErrorMacro(vtkRenderer *renderer,const char *message)
+#ifdef VTK_LEAN_AND_MEAN
+# define vtkGraphicErrorMacro(renderer,message)
+#else
+# define vtkGraphicErrorMacro(renderer,message)                         \
+  if(renderer->GetReportGraphicErrors())                                \
+    {                                                                   \
+    renderer->CheckGraphicError();                                      \
+    if(renderer->HasGraphicError())                                     \
+      {                                                                 \
+      vtkErrorMacro(<<message<<" "<<renderer->GetLastGraphicErrorString()); \
+      }                                                                 \
+    }
+#endif
+
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
 public:
@@ -425,6 +447,27 @@ public:
   // Initial value is false.
   vtkGetMacro(LastRenderingUsedDepthPeeling,int);
   
+  // Description:
+  // Turn on/off report of graphic errors. Initial value is false (off).
+  // This flag is used by vtkGraphicErrorMacro.
+  vtkSetMacro(ReportGraphicErrors,int);
+  vtkGetMacro(ReportGraphicErrors,int);
+  vtkBooleanMacro(ReportGraphicErrors,int);
+  
+  // Description:
+  // Update graphic error status, regardless of ReportGraphicErrors flag.
+  // It means this method can be used in any context and is not restricted to
+  // debug mode.
+  virtual void CheckGraphicError()=0;
+  
+  // Description:
+  // Return the last graphic error status. Initial value is false.
+  virtual int HasGraphicError()=0;
+  
+  // Description:
+  // Return a string matching the last graphic error status.
+  virtual const char *GetLastGraphicErrorString()=0;
+  
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -571,6 +614,11 @@ protected:
   // Initial value is false.
   int LastRenderingUsedDepthPeeling;
   
+  // Description:
+  // Boolean flag telling if errors from the graphic library have to be
+  // reported by vtkGraphicErrorMacro. Initial value is false (off).
+  int ReportGraphicErrors;
+  
   // VISIBLE CELL SELECTION ----------------------------------------
   //BTX  
   friend class vtkVisibleCellSelector;
@@ -620,7 +668,7 @@ protected:
   // End Ivars for visible cell selecting.
 
   //---------------------------------------------------------------
-
+  
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.
