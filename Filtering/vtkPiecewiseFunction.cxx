@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.49");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.50");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -947,5 +947,7 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
        << this->Internal->Nodes[i]->Sharpness << " Midpoint: " 
        << this->Internal->Nodes[i]->Midpoint << endl;
     }
+  os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars
+     << endl;
 }
 
