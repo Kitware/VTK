@@ -1,4 +1,4 @@
-IF (UNIX)
+IF (VTK_USE_X)
   PROJECT (MotifExamples)
 
   INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
@@ -30,4 +30,4 @@ IF (UNIX)
   ELSE (HAVE_XM_PUSHB_H)
     MESSAGE(STATUS "Could not find required Motif header Xm/PushB.h. Not building Motif examples.")
   ENDIF (HAVE_XM_PUSHB_H)
-ENDIF (UNIX)
+ENDIF (VTK_USE_X)
