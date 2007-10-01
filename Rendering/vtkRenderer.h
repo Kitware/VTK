@@ -414,7 +414,8 @@ public:
   
   // Description:
   // Turn on/off rendering of translucent material with depth peeling
-  // technique.
+  // technique. The render window must have alpha bits (ie call
+  // SetAlphaBitPlanes(1)) to support depth peeling.
   // If UseDepthPeeling is on and the GPU supports it, depth peeling is used
   // for rendering translucent materials.
   // If UseDepthPeeling is off, alpha blending is used.
