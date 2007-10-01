@@ -37,16 +37,15 @@
 // Field data is not necessarily "rectangular" in shape. In these cases, some
 // of the data may not be plotted.
 //
-// Feidl data can contain non-numeric arrays (i.e. arrays not subclasses of
+// Field data can contain non-numeric arrays (i.e. arrays not subclasses of
 // vtkDataArray). Such arrays are skipped.
 //
-// The early implementation lacks many features that could be added in the 
-// future.
-// This includes the ability to "brush" data (choose regions along an axis and
-// highlight any points/lines passing through the region); efficiency is really
-// bad; more control over the properties of the plot (separate properties for
-// each axes,title,etc.; and using the labels found in the field to label each
-// of the axes.
+// The early implementation lacks many features that could be added in the
+// future. This includes the ability to "brush" data (choose regions along an
+// axis and highlight any points/lines passing through the region);
+// efficiency is really bad; more control over the properties of the plot
+// (separate properties for each axes,title,etc.; and using the labels found
+// in the field to label each of the axes.
 //
 // .SECTION See Also
 // vtkAxisActor3D can be used to create axes in world coordinate space.
