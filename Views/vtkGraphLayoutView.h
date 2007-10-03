@@ -52,6 +52,7 @@ class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
 class vtkClustering2DLayoutStrategy;
 class vtkCommunity2DLayoutStrategy;
+class vtkConstrained2DLayoutStrategy;
 class vtkVertexDegree;
 class vtkCellCenters;
 class vtkVertexGlyphFilter;
@@ -237,6 +238,7 @@ protected:
   vtkSimple2DLayoutStrategy*       Simple2DStrategy;
   vtkClustering2DLayoutStrategy*   Clustering2DStrategy;
   vtkCommunity2DLayoutStrategy*    Community2DStrategy;
+  vtkConstrained2DLayoutStrategy*  Constrained2DStrategy;
   vtkFast2DLayoutStrategy*         Fast2DStrategy;
   vtkPassThroughLayoutStrategy*    PassThroughStrategy;
   vtkCircularLayoutStrategy*       CircularStrategy;

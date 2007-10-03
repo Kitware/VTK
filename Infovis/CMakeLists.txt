@@ -6,10 +6,11 @@ SET(KIT_JAVA_LIBS vtkWidgetsJava)
 SET(KIT_LIBS vtkWidgets vtklibxml2)
 
 SET( Kit_SRCS
-vtkCommunity2DLayoutStrategy.cxx
 vtkBoxLayoutStrategy.cxx
 vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
+vtkCommunity2DLayoutStrategy.cxx
+vtkConstrained2DLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkExtractSelectedGraph.cxx
