@@ -49,7 +49,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.5");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.6");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -227,7 +227,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
     else if ( !stringData )
       {
-      vtkErrorMacro(<<"Need input data to render labels (3)");
+      vtkWarningMacro(<<"Could not find label array");
       return;
       }
 
