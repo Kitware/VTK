@@ -67,7 +67,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.11");
+vtkCxxRevisionMacro(vtkStringArray, "1.12");
 vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
@@ -256,7 +256,8 @@ void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     {
     if (weights[k] > max_weight)
       {
-      nearest = k;
+      nearest = ptIndices->GetId(k);
+      max_weight = weights[k];
       }
     }
 
