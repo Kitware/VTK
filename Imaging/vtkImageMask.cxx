@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.40");
+vtkCxxRevisionMacro(vtkImageMask, "1.41");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -35,6 +35,7 @@ vtkImageMask::vtkImageMask()
   this->SetNumberOfInputPorts(2);
 }
 
+//----------------------------------------------------------------------------
 vtkImageMask::~vtkImageMask()
 {
   delete [] this->MaskedOutputValue;

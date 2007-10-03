@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageMask combines a mask with an image.  Non zero mask
 // implies the output pixel will be the same as the image.
-// If a mask pixel is zero,  the the output pixel
+// If a mask pixel is zero,  then the output pixel
 // is set to "MaskedValue".  The filter also has the option to pass
 // the mask through a boolean not operation before processing the image.
 // This reverses the passed and replaced pixels.
