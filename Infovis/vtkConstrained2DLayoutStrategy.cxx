@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkConstrained2DLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkConstrained2DLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkConstrained2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -579,4 +579,5 @@ void vtkConstrained2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
+  os << indent << "InputArrayName: " << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
 }
