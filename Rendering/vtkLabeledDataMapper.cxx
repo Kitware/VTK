@@ -26,7 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.49");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.50");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -286,7 +286,19 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       else
         {
-        vtkErrorMacro(<<"Need input data to render labels (3)");
+        if (this->FieldDataName)
+          {
+          vtkWarningMacro(<< "Could not find label array ("
+                          << this->FieldDataName << ") "
+                          << "in input.");
+          }
+        else 
+          {
+          vtkWarningMacro(<< "Could not find label array ("
+                          << "index " << this->FieldDataArray << ") "
+                          << "in input.");
+          }
+
         return;
         }
       }
