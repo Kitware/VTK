@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()
@@ -74,7 +74,7 @@ void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
     }
           
   // Generate the points, either x,y,0 or x,y,z
-  srand(this->RandomSeed);
+  vtkMath::RandomSeed(this->RandomSeed);
 
   vtkPoints* newPoints = vtkPoints::New();
   for (int i=0; i< graph->GetNumberOfVertices(); i++)

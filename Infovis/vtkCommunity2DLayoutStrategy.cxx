@@ -38,7 +38,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -159,7 +159,7 @@ void vtkCommunity2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, in
 // Set the graph that will be laid out
 void vtkCommunity2DLayoutStrategy::Initialize()
 {
-  srand(this->RandomSeed);
+  vtkMath::RandomSeed(this->RandomSeed);
 
   // Set up some quick access variables
   vtkPoints* pts = this->Graph->GetPoints();

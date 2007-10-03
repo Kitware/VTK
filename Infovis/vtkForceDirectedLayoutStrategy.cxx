@@ -31,7 +31,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -117,7 +117,7 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   // Get the points, either x,y,0 or x,y,z or random
   if (this->RandomInitialPoints)
     {
-    srand(this->RandomSeed);
+    vtkMath::RandomSeed(this->RandomSeed);
     
     for (vtkIdType i = 0; i < numVertices; i++)
       {
