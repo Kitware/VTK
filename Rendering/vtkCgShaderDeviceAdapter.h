@@ -22,7 +22,7 @@
 
 #include "vtkShaderDeviceAdapter.h"
 
-class VTK_COMMON_EXPORT vtkCgShaderDeviceAdapter : public vtkShaderDeviceAdapter
+class VTK_RENDERING_EXPORT vtkCgShaderDeviceAdapter : public vtkShaderDeviceAdapter
 {
 public:
   static vtkCgShaderDeviceAdapter* New();
