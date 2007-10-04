@@ -103,6 +103,14 @@ public:
   virtual int GetTotalNumberOfElements();
   virtual int GetTotalNumberOfNodes();
 
+  // Description:
+  // Calls UpdateTimeInformation() on all serial readers so they'll re-read
+  // their time info from the file. 
+  // The last time step that they all have in common
+  // is stored in LastCommonTimeStep, which is used in RequestInformation()
+  // to override the output time-specific information keys with the range
+  // of times that ALL readers can actually read.
+  virtual void UpdateTimeInformation();
 
 protected:
   vtkPExodusIIReader();
@@ -136,6 +144,8 @@ protected:
   vtkstd::vector<int> NumberOfPointsPerFile;
   vtkstd::vector<int> NumberOfCellsPerFile;
 //ETX
+
+  int LastCommonTimeStep;
 
   int Timing;
   vtkTimerLog *TimerLog;

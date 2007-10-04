@@ -721,7 +721,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.40");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.41");
 
 
 
@@ -1141,6 +1141,8 @@ public:
     */
   void SetInitialObjectArrayStatus( int otype, const char *name, int stat );
 
+  int UpdateTimeInformation();
+
 protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
@@ -1494,7 +1496,6 @@ protected:
 
   /// A map from nodal ids in the output mesh to those in an Exodus file. 
   vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
-  vtkstd::map<vtkIdType,vtkIdType> ReverseCellMap;
 
   /** Pointer to owning reader... this is not registered in order to avoid 
     * circular references.
@@ -1671,7 +1672,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.40");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.41");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -2135,7 +2136,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity(
     this->NextSqueezePoint = 0;
     this->PointMap.clear();
     this->ReversePointMap.clear();
-    this->ReverseCellMap.clear();
     this->PointMap.reserve( this->ModelParameters.num_nodes );
     for ( int i = 0; i < this->ModelParameters.num_nodes; ++i )
       {
@@ -2262,7 +2262,8 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
   vtkstd::vector<ArrayInfoType>::iterator ai;
   int aidx = 0;
   vtkIdType internalExodusId = -1;
-  
+  int objId = -1;
+
   if(this->FastPathObjectId < 0)
     {
     // This just means that no downstream filter has requested temporal data
@@ -2288,7 +2289,22 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
       }
     else
       {
-      internalExodusId = this->ReverseCellMap[this->FastPathObjectId];
+      int numObj = this->GetNumberOfObjectsOfType( vtkExodusIIReader::ELEM_BLOCK );
+      int obj;
+      for ( obj = 0; obj < numObj; ++obj )
+        {
+        BlockInfoType* binfop = &this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK][obj];
+        if(this->FastPathObjectId >= binfop->GridOffset && 
+           this->FastPathObjectId < binfop->GridOffset + binfop->Size)
+          {
+          // we found the block that  the element is in
+          internalExodusId = this->FastPathObjectId 
+                             - binfop->GridOffset 
+                             + binfop->FileOffset;
+          objId = obj;
+          break;
+          }
+        }
       }
     }
   else if(strcmp(this->FastPathIdType,"GLOBAL")==0)
@@ -2297,25 +2313,26 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
     switch(this->FastPathObjectType)
       {
       case vtkExodusIIReader::NODAL:
-        globalIdMapKey = new vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
+        globalIdMapKey = 
+            new vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
         break;
       case vtkExodusIIReader::ELEM_BLOCK:
-        globalIdMapKey = new vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
+        globalIdMapKey = 
+            new vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
         break;
       default:
         vtkWarningMacro( "Unsupported object type for fast path." );
         return 0;
       }
 
-    vtkIdTypeArray* globalIdMap = vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( *globalIdMapKey ));
+    vtkIdTypeArray* globalIdMap = 
+        vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( *globalIdMapKey ));
     delete globalIdMapKey;
     if(!globalIdMap)
       {
       return 0;
       }
 
-    // FIXME: there should be a faster way of doing this.
-    // Can we keep around a map from global ids to exodus ones?
     for ( vtkIdType j = 0; j < globalIdMap->GetNumberOfTuples(); ++j )
       {
       if(globalIdMap->GetValue( j ) == this->FastPathObjectId)
@@ -2341,6 +2358,18 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output
     {
     if ( ! ai->Status )
       continue; // Skip arrays we don't want.
+
+    // If this array isn't defined over the block that the element resides in,
+    // skip. Right now this is only done when the fast-path id type is "INDEX".
+    if ( objId>=0 && 
+         this->FastPathObjectType == vtkExodusIIReader::ELEM_BLOCK &&
+         strcmp(this->FastPathIdType,"INDEX")==0 )
+      {
+      if ( ! ai->ObjectTruth[objId] )
+        {
+        continue;
+        }
+      }
 
     vtkExodusIICacheKey temporalDataKey( 
         -1, 
@@ -2893,7 +2922,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
       //cout << "\n";
       //cout << " " <<
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
       //cout << "\n";
@@ -2914,7 +2942,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
         }
       //cout << "\n";
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
-      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       }
 #else // VTK_USE_64BIT_IDS
@@ -2923,7 +2950,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
     for ( int i = 0; i < binfo->Size; ++i )
       {
       cellId = output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
-      this->ReverseCellMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(cellId,binfo->FileOffset + i - 1));
       srcIds += binfo->PointsPerCell;
       //for ( int k = 0; k < binfo->PointsPerCell; ++k )
         //cout << " " << srcIds[k];
@@ -3403,7 +3429,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     arr->SetNumberOfTuples( this->GetNumberOfTimeSteps() );
     if ( ainfop->Components == 1 )
       {
-      if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[0], key.ObjectId, 
+      if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[0], key.ObjectId+1, 
           1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
         {
         vtkErrorMacro( "Could not read element result variable " << ainfop->Name.c_str() << "." );
@@ -3421,7 +3447,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize( N );
-        if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[c], key.ObjectId, 
+        if ( ex_get_var_time( exoid, vtkExodusIIReader::ELEM_BLOCK, ainfop->OriginalIndices[c], key.ObjectId+1, 
             1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
           {
           vtkErrorMacro( "Could not read temporal element result variable " << ainfop->OriginalNames[c].c_str() << "." );
@@ -4744,10 +4770,31 @@ int vtkExodusIIReaderPrivate::CloseFile()
   return 0;
 }
 
-int vtkExodusIIReaderPrivate::RequestInformation()
+
+
+int vtkExodusIIReaderPrivate::UpdateTimeInformation()
 {
   int exoid = this->Exoid;
   int itmp[5];
+  int num_timesteps;
+
+  VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME, itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
+  num_timesteps = itmp[0];
+
+  this->Times.clear();
+  if ( num_timesteps > 0 )
+    {
+    this->Times.reserve( num_timesteps );
+    this->Times.resize( num_timesteps );
+    VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
+    }
+  return 0;
+}
+
+int vtkExodusIIReaderPrivate::RequestInformation()
+{
+  int exoid = this->Exoid;
+  //int itmp[5];
   int* ids;
   int nids;
   int obj;
@@ -4767,14 +4814,18 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   VTK_EXO_FUNC( ex_get_init_ext( exoid, &this->ModelParameters ),
     "Unable to read database parameters." );
 
-  VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME,       itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
-  num_timesteps = itmp[0];
+  VTK_EXO_FUNC( this->UpdateTimeInformation(), "" );
+
+  //VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME,       itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
+  //num_timesteps = itmp[0];
 
   vtkstd::vector<BlockInfoType> bitBlank;
   vtkstd::vector<SetInfoType> sitBlank;
   vtkstd::vector<MapInfoType> mitBlank;
   vtkstd::vector<ArrayInfoType> aitBlank;
 
+  num_timesteps = this->Times.size();
+/*
   this->Times.clear();
   if ( num_timesteps > 0 )
     {
@@ -4782,7 +4833,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     this->Times.resize( num_timesteps );
     VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
     }
-
+*/
   this->NumberOfCells = 0;
   for ( i = 0; i < num_obj_types; ++i )
     {
@@ -5311,7 +5362,6 @@ void vtkExodusIIReaderPrivate::Reset()
   this->NumberOfCells = 0;
   this->PointMap.clear();
   this->ReversePointMap.clear();
-  this->ReverseCellMap.clear();
   this->Cache->Clear();
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
   this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
@@ -5860,7 +5910,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.40");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.41");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5901,6 +5951,7 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
   int appWordSize = 8;
   int diskWordSize = 8;
   float version;
+
   if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) < 0 )
     {
     return 0;
@@ -7016,5 +7067,27 @@ void vtkExodusIIReader::Reset()
 void vtkExodusIIReader::ResetSettings()
 {
   this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::UpdateTimeInformation()
+{
+  if ( this->Metadata->OpenFile( this->FileName ) )
+    {
+    this->Metadata->UpdateTimeInformation();
+
+    if ( ! this->GetHasModeShapes() )
+      {
+      int nTimes = (int) this->Metadata->Times.size();
+      double timeRange[2];
+      if ( nTimes )
+        {
+        timeRange[0] = this->Metadata->Times[0];
+        timeRange[1] = this->Metadata->Times[nTimes - 1];
+        this->TimeStepRange[0] = 0; 
+        this->TimeStepRange[1] = nTimes - 1;
+        }
+      }
+    this->Metadata->CloseFile();
+    }
 }
 

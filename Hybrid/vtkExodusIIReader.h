@@ -659,6 +659,11 @@ public:
   // keep the active cache but return to initial array selections, etc.
   void ResetSettings();
 
+  // Description:
+  // Re-reads time information from the exodus file and updates
+  // TimeStepRange accordingly.
+  virtual void UpdateTimeInformation();
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
