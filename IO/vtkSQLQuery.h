@@ -53,50 +53,22 @@
 #ifndef __vtkSQLQuery_h
 #define __vtkSQLQuery_h
 
-#include "vtkObject.h"
+#include "vtkRowQuery.h"
 
 class vtkSQLDatabase;
 class vtkVariant;
 class vtkVariantArray;
 
-class VTK_IO_EXPORT vtkSQLQuery : public vtkObject
+class VTK_IO_EXPORT vtkSQLQuery : public vtkRowQuery
 {
 public:
-  vtkTypeRevisionMacro(vtkSQLQuery, vtkObject);
+  vtkTypeRevisionMacro(vtkSQLQuery, vtkRowQuery);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The query string to be executed.
   vtkGetStringMacro(Query);
   vtkSetStringMacro(Query);
-
-  // Description:
-  // Execute the query.  This must be performed
-  // before any field name or data access functions
-  // are used.
-  virtual bool Execute() = 0;
-
-  // Description:
-  // The number of fields in the query result.
-  virtual int GetNumberOfFields() = 0;
-
-  // Description:
-  // Return the name of the specified query field.
-  virtual const char* GetFieldName(int i) = 0;
-
-  // Description:
-  // Return the type of the field, using the constants defined in vtkType.h.
-  virtual int GetFieldType(int i) = 0;
-
-  // Description:
-  // Return the index of the specified query field.
-  // Uses GetNumberOfFields() and GetFieldName()
-  // to match field name.
-  int GetFieldIndex(char* name);
-
-  // Description:
-  // Advance row, return false if past end.
-  virtual bool NextRow() = 0;
 
   // Description:
   // Return true if the query is active (i.e. execution was successful
@@ -111,25 +83,6 @@ public:
   virtual bool BeginTransaction() { return true; }
   virtual bool CommitTransaction() { return true; }
   virtual bool RollbackTransaction() { return true; }
-
-//BTX
-  // Description:
-  // Advance row, return false if past end.
-  // Also, fill array with row values.
-  bool NextRow(vtkVariantArray* rowArray);
-
-  // Description:
-  // Return data in current row, field c
-  virtual vtkVariant DataValue(vtkIdType c) = 0;
-//ETX
-
-  // Description:
-  // Returns true if an error is set, otherwise false.
-  virtual bool HasError() = 0;
-  
-  // Description:
-  // Get the last error text from the query
-  virtual const char* GetLastErrorText() = 0;
 
   // Description:
   // Return the database associated with the query.

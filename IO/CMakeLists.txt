@@ -95,6 +95,7 @@ vtkPostScriptWriter.cxx
 vtkRectilinearGridReader.cxx
 vtkRectilinearGridWriter.cxx
 vtkRTXMLPolyDataReader.cxx
+vtkRowQuery.cxx
 vtkSESAMEReader.cxx
 vtkShaderCodeLibrary.cxx
 vtkSQLDatabase.cxx
@@ -184,6 +185,7 @@ vtkDataCompressor
 vtkEnSightReader
 vtkGenericMovieWriter
 vtkMoleculeReaderBase
+vtkRowQuery
 vtkSQLDatabase
 vtkSQLQuery
 vtkVolumeReader
@@ -268,7 +270,7 @@ ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
 IF(VTK_HAS_UINT64_ARRAY)
   SET(Kit_SRCS
     ${Kit_SRCS}
-    vtkSQLTableReader.cxx
+    vtkRowQueryToTable.cxx
   )
 ENDIF(VTK_HAS_UINT64_ARRAY)
 

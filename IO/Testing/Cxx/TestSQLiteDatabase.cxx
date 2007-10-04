@@ -22,7 +22,7 @@
 
 #include "vtkSQLiteDatabase.h"
 #include "vtkSQLQuery.h"
-#include "vtkSQLTableReader.h"
+#include "vtkRowQueryToTable.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
@@ -129,8 +129,8 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
     }
   va->Delete();
 
-  cerr << endl << "Using vtkSQLTableReader to execute query:" << endl;
-  vtkSQLTableReader* reader = vtkSQLTableReader::New();
+  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();

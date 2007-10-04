@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSQLQuery.cxx
+  Module:    vtkRowQuery.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,41 +16,57 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-#include "vtkSQLQuery.h"
+#include "vtkRowQuery.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkSQLDatabase.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.2");
+vtkCxxRevisionMacro(vtkRowQuery, "1.2");
 
-vtkSQLQuery::vtkSQLQuery()
+vtkRowQuery::vtkRowQuery()
 {
-  this->Query = 0;
-  this->Database = 0;
-  this->Active = false;
 }
 
-vtkSQLQuery::~vtkSQLQuery()
+vtkRowQuery::~vtkRowQuery()
 {
-  this->SetQuery(0);
-  if (this->Database)
-    {
-    this->Database->Delete();
-    this->Database = NULL;
-    }
 }
 
-vtkCxxSetObjectMacro(vtkSQLQuery, Database, vtkSQLDatabase);
-
-void vtkSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
+void vtkRowQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Query: " << (this->Query ? this->Query : "NULL") << endl;
-  os << indent << "Database: " << (this->Database ? "" : "NULL") << endl;
-  if (this->Database)
+}
+
+int vtkRowQuery::GetFieldIndex(char* name)
+{
+  int index;
+  bool found = false;
+  for (index = 0; index < this->GetNumberOfFields(); index++)
     {
-    this->Database->PrintSelf(os, indent.GetNextIndent());
+    if (!strcmp(name, this->GetFieldName(index)))
+      {
+      found = true;
+      break;
+      }
     }
+  if (found)
+    {
+    return index;
+    }
+  return -1;
+}
+
+
+bool vtkRowQuery::NextRow(vtkVariantArray* rowArray)
+{
+  if (!this->NextRow())
+    {
+    return false;
+    }
+  rowArray->Reset();
+  for (int col = 0; col < this->GetNumberOfFields(); col++)
+    {
+    rowArray->InsertNextValue(this->DataValue(col));
+    }
+  return true;
 }
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSQLTableReader.cxx
+  Module:    vtkRowQueryToTable.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,28 +16,28 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-#include "vtkSQLTableReader.h"
+#include "vtkRowQueryToTable.h"
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkSQLQuery.h"
+#include "vtkRowQuery.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTypeUInt64Array.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkSQLTableReader, "1.1");
-vtkStandardNewMacro(vtkSQLTableReader);
+vtkCxxRevisionMacro(vtkRowQueryToTable, "1.2");
+vtkStandardNewMacro(vtkRowQueryToTable);
 
-vtkSQLTableReader::vtkSQLTableReader()
+vtkRowQueryToTable::vtkRowQueryToTable()
 {
   this->SetNumberOfInputPorts(0);
   this->Query = NULL;
 }
 
-vtkSQLTableReader::~vtkSQLTableReader()
+vtkRowQueryToTable::~vtkRowQueryToTable()
 {
   if (this->Query)
     {
@@ -46,7 +46,7 @@ vtkSQLTableReader::~vtkSQLTableReader()
     }
 }
 
-void vtkSQLTableReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkRowQueryToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Query: " << (this->Query ? "" : "NULL") << endl;
@@ -56,9 +56,9 @@ void vtkSQLTableReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-vtkCxxSetObjectMacro(vtkSQLTableReader, Query, vtkSQLQuery);
+vtkCxxSetObjectMacro(vtkRowQueryToTable, Query, vtkRowQuery);
 
-unsigned long vtkSQLTableReader::GetMTime()
+unsigned long vtkRowQueryToTable::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
   if (this->Query != NULL)
@@ -69,7 +69,7 @@ unsigned long vtkSQLTableReader::GetMTime()
   return mTime;
 }
 
-int vtkSQLTableReader::RequestData(
+int vtkRowQueryToTable::RequestData(
   vtkInformation*, 
   vtkInformationVector** vtkNotUsed(inputVector), 
   vtkInformationVector* outputVector)
