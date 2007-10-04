@@ -339,7 +339,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.23")
+vtkCxxRevisionMacro(vtkShader, "1.24")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -1184,6 +1184,11 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
     }
 }
 
+//-----------------------------------------------------------------------------
+int vtkShader::GetScope()
+{
+  return (this->XMLShader? this->XMLShader->GetScope() : vtkXMLShader::SCOPE_NONE);
+}
 
 //-----------------------------------------------------------------------------
 void vtkShader::PrintSelf(ostream &os, vtkIndent indent)

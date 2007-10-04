@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.5");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -96,9 +96,9 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     glColor4dv(color);
     glPolygonMode(face, GL_LINE);
 
-    this->Information->Set(vtkPrimitivePainter::DISABLE_SCALAR_COLOR(), 1);
+    this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Superclass::RenderInternal(renderer, actor, typeflags);
-    this->Information->Remove(vtkPrimitivePainter::DISABLE_SCALAR_COLOR());
+    this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
 
     // reset the default.
     glPolygonMode(face, GL_FILL);

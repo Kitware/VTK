@@ -44,6 +44,7 @@
 #include "vtkPainter.h"
 
 class vtkInformationIntegerKey;
+class vtkInformationObjectBaseKey;
 class vtkPolyData;
 
 class VTK_RENDERING_EXPORT vtkPolyDataPainter : public vtkPainter
@@ -62,6 +63,14 @@ public:
   // When on, the painter creates normals when none are available in the
   // polydata. On by default.
   static vtkInformationIntegerKey* BUILD_NORMALS();
+
+  // Description:
+  // Key added to disable any scalar coloring for the current pass.
+  static vtkInformationIntegerKey* DISABLE_SCALAR_COLOR();
+
+  // Set the mapping between vtkPointData (vtkCellData) arrays and
+  // generic vertex attributes. 
+  static vtkInformationObjectBaseKey* DATA_ARRAY_TO_VERTEX_ATTRIBUTE();
 
   // Description:
   // Overridden to stop the render call if input polydata is not set,

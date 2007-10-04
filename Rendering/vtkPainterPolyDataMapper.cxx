@@ -21,17 +21,20 @@
 #include "vtkDefaultPainter.h"
 #include "vtkDisplayListPainter.h"
 #include "vtkGarbageCollector.h"
+#include "vtkGenericVertexAttributeMapping.h"
 #include "vtkInformation.h"
+#include "vtkInformationObjectBaseKey.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
+#include "vtkPrimitivePainter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
-#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.9")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.10")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -84,6 +87,64 @@ vtkPainterPolyDataMapper::~vtkPainterPolyDataMapper()
   this->Observer->Delete();
   this->PainterInformation->Delete();
 }
+
+//---------------------------------------------------------------------------
+void vtkPainterPolyDataMapper::MapDataArrayToVertexAttribute(
+  const char* vertexAttributeName,
+  const char* dataArrayName, 
+  int field,
+  int componentno)
+{
+  vtkGenericVertexAttributeMapping* mappings = 0;
+  if( this->PainterInformation->Has(
+      vtkPrimitivePainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()) )
+    {
+    mappings = vtkGenericVertexAttributeMapping::SafeDownCast(
+      this->PainterInformation->Get(
+        vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    }
+
+  if (mappings==NULL)
+    {
+    mappings = vtkGenericVertexAttributeMapping::New();
+    this->PainterInformation->Set(
+      vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE(), mappings);
+    mappings->Delete();
+    }
+
+  mappings->AddMapping(
+    vertexAttributeName, dataArrayName, field, componentno);
+}
+
+//-----------------------------------------------------------------------------
+void vtkPainterPolyDataMapper::RemoveAllVertexAttributeMappings()
+{
+  vtkGenericVertexAttributeMapping* mappings = 0;
+  if( this->PainterInformation->Has(
+      vtkPrimitivePainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()) )
+    {
+    mappings = vtkGenericVertexAttributeMapping::SafeDownCast(
+      this->PainterInformation->Get(
+        vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    mappings->RemoveAllMappings();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPainterPolyDataMapper::RemoveVertexAttributeMapping(
+  const char* vertexAttributeName)
+{
+  vtkGenericVertexAttributeMapping* mappings = 0;
+  if( this->PainterInformation->Has(
+      vtkPrimitivePainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()) )
+    {
+    mappings = vtkGenericVertexAttributeMapping::SafeDownCast(
+      this->PainterInformation->Get(
+        vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    mappings->RemoveMapping(vertexAttributeName);
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::SetPainter(vtkPolyDataPainter* p)

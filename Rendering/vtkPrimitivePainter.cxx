@@ -17,9 +17,12 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkGarbageCollector.h"
+#include "vtkGenericVertexAttributeMapping.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -27,64 +30,72 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkShaderDeviceAdapter.h"
+#include "vtkShaderProgram.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.4");
-vtkInformationKeyMacro(vtkPrimitivePainter, DISABLE_SCALAR_COLOR, Integer);
-//-----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.5");
+//---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
-  this->SupportedPrimitive = 0x0; // must be set by subclasses. No primitive 
+  this->SupportedPrimitive = 0x0; // must be set by subclasses. No primitive
                                   // supported by default.
-
   this->DisableScalarColor = 0;
   this->OutputData = vtkPolyData::New();
+  this->GenericVertexAttributes = false;
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkPrimitivePainter::~vtkPrimitivePainter()
 {
-  if (this->OutputData)
+  if( this->OutputData )
     {
     this->OutputData->Delete();
     this->OutputData = 0;
     }
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void vtkPrimitivePainter::ReportReferences(vtkGarbageCollector *collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->OutputData, 
-    "Output Data");
+  vtkGarbageCollectorReport(collector, this->OutputData, "Output Data");
 }
 
-//-----------------------------------------------------------------------------
-void vtkPrimitivePainter::ProcessInformation(vtkInformation* info)
+//---------------------------------------------------------------------------
+void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
 {
+  this->GenericVertexAttributes = false;
+  if (info->Has(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()))
+    {
+    vtkGenericVertexAttributeMapping *mappings = 
+      vtkGenericVertexAttributeMapping::SafeDownCast(
+      info->Get(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    this->GenericVertexAttributes = mappings && 
+      (mappings->GetNumberOfMappings() > 0);
+    }
+
   if (info->Has(DISABLE_SCALAR_COLOR()) &&
     info->Get(DISABLE_SCALAR_COLOR()) == 1)
     {
-    this->SetDisableScalarColor(1);
+    this->DisableScalarColor = 1;
     }
   else
     {
-    this->SetDisableScalarColor(0);
+    this->DisableScalarColor = 0;
     }
-  this->Superclass::ProcessInformation(info);
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void vtkPrimitivePainter::PrepareForRendering(vtkRenderer* renderer,
   vtkActor* actor)
 {
-  // Here, we don't use the this->StaticData flag to mean that the input 
-  // can never change, since the input may be the output of 
+  // Here, we don't use the this->StaticData flag to mean that the input
+  // can never change, since the input may be the output of
   // some filtering painter that filter on actor/renderer properties
-  // and not on the input polydata. Hence the input polydata 
-  // may get modified even if the input to the PolyDataMapper is 
+  // and not on the input polydata. Hence the input polydata
+  // may get modified even if the input to the PolyDataMapper is
   // immutable.
 
   // If the input has changed update the output.
@@ -98,11 +109,10 @@ void vtkPrimitivePainter::PrepareForRendering(vtkRenderer* renderer,
   this->Superclass::PrepareForRendering(renderer, actor);
 }
 
-//-----------------------------------------------------------------------------
-void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act, 
-    unsigned long typeflags)
+//---------------------------------------------------------------------------
+void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
+    vtkActor* act, unsigned long typeflags)
 {
-
   unsigned long supported_typeflags = this->SupportedPrimitive & typeflags;
   if (!supported_typeflags)
     {
@@ -131,24 +141,24 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
   int cellScalars = 0;
   int fieldScalars = 0;
 
-  // get the property 
+  // get the property
   prop = act->GetProperty();
 
-  // get the transparency 
+  // get the transparency
   tran = prop->GetOpacity();
-  
-  // if the primitives are invisible then get out of here 
+
+  // if the primitives are invisible then get out of here
   if (tran <= 0.0)
     {
     return;
     }
 
-  // get the shading interpolation 
+  // get the shading interpolation
   interpolation = prop->GetInterpolation();
 
-  // are they cell or point scalars
   if (!this->DisableScalarColor)
     {
+    // are they cell or point scalars
     c = vtkUnsignedCharArray::SafeDownCast(input->GetPointData()->GetScalars());
     if (!c)
       {
@@ -166,7 +176,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
       // fieldScalars flag.
       }
     }
-    
+
   n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT)
     {
@@ -177,14 +187,14 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
       this->OutputData->GetPointData()->SetNormals(0);
       }
     }
-  
+
   cellNormals = 0;
   if (n == 0 && input->GetCellData()->GetNormals())
     {
     cellNormals = 1;
     n = input->GetCellData()->GetNormals();
     }
-  
+
   unsigned long idx = 0;
   if (n && !cellNormals)
     {
@@ -194,7 +204,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
     {
     idx |= VTK_PDM_COLORS;
     if (!fieldScalars && c->GetName())
-      { 
+      {
       // In the future, I will look at the number of components.
       // All paths will have to handle 3 component colors.
       // When using field colors, the c->GetName() condition is not valid,
@@ -219,7 +229,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
 
   // Texture and color by texture
   t = input->GetPointData()->GetTCoords();
-  if ( t ) 
+  if ( t )
     {
     tDim = t->GetNumberOfComponents();
     if (tDim > 2)
@@ -235,9 +245,26 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
     idx |= VTK_PDM_TCOORDS;
     }
 
+  if (!act)
+    {
+    vtkErrorMacro("No actor");
+    }
+
+  vtkShaderDeviceAdapter *shaderDevice = NULL;
+
+  if (prop->GetShading() && prop->GetShaderProgram())
+    {
+    shaderDevice = prop->GetShaderProgram()->GetShaderDeviceAdapter();
+    }
+
+  if (shaderDevice && this->GenericVertexAttributes)
+    {
+    idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
+    }
+
   if (this->RenderPrimitive(idx, n, c, t, renderer))
     {
-    // subclass rendered the supported primitive successfully. 
+    // subclass rendered the supported primitive successfully.
     // The delegate need not render it.
     typeflags &= (~this->SupportedPrimitive);
     }
@@ -248,8 +275,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer, vtkActor* act,
   this->Superclass::RenderInternal(renderer, act, typeflags);
 }
 
-
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void vtkPrimitivePainter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

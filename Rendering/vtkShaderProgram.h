@@ -61,6 +61,7 @@ class vtkRenderWindow;
 class vtkShader;
 class vtkWindow;
 class vtkXMLMaterial;
+class vtkShaderDeviceAdapter;
 
 // manages all shaders defined in the XML file
 // especially the part about sending things to the card
@@ -86,6 +87,10 @@ public:
   // Description:
   // Removes the given shader.
   void RemoveShader(vtkShader* shader);
+
+  // Description:
+  // Returns a new iterator to iterate over the shaders.
+  vtkCollectionIterator* NewShaderIterator();
 
   // Description:
   // Returns the number of shaders available in this
@@ -129,6 +134,11 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Get the vtkShaderDeviceAdapter which can be used to execute this
+  // shader program.
+  vtkGetObjectMacro(ShaderDeviceAdapter, vtkShaderDeviceAdapter);
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
@@ -142,11 +152,16 @@ protected:
   int GLExtensionsLoaded;
   virtual void LoadExtensions(vtkRenderWindow*) {}
 
+  // Subclasses must set the shader device apater of the right type.
+  void SetShaderDeviceAdapter(vtkShaderDeviceAdapter*);
+
   // Description:;
   // Must be overloaded by subclasses to create the shader of appropriate type.
   virtual vtkShader* NewShader() =0;
 private:
   vtkShaderProgram(const vtkShaderProgram&); // Not Implemented
   void operator=(const vtkShaderProgram&); // Not Implemented
+
+  vtkShaderDeviceAdapter* ShaderDeviceAdapter;
 };
 #endif //__vtkShaderProgram_h

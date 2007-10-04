@@ -42,7 +42,7 @@
 class vtkCellArray;
 class vtkPointData;
 class vtkPoints;
-
+class vtkShaderDeviceAdapter;
 class VTK_RENDERING_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataPainter
 {
 public:
@@ -50,7 +50,7 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkStandardPolyDataPainter *New();
 
-
+//BTX
 protected:
   vtkStandardPolyDataPainter();
   ~vtkStandardPolyDataPainter();
@@ -62,13 +62,25 @@ protected:
     unsigned long typeflags);
 
   void DrawCells(int mode, vtkCellArray *connectivity,
-    vtkIdType startCellId, vtkRenderer *renderer, 
+    vtkIdType startCellId, 
+    vtkShaderDeviceAdapter* shaderDevice,
+    vtkRenderer *renderer, 
     int buildnormals, int interpolation);
 
+  // Description:
+  // Called before RenderInternal() if the Information has been changed
+  // since the last time this method was called.
+  virtual void ProcessInformation(vtkInformation*);
+
+  void UpdateGenericAttributesCache();
   vtkIdType TotalCells;
 private:
   vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.
   void operator=(const vtkStandardPolyDataPainter&); // Not implemented.
+
+  class vtkInternal;
+  vtkInternal* Internal;
+//ETX
 };
 
 #endif //__vtkStandardPolyDataPainter_h

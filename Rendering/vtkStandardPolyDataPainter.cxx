@@ -28,21 +28,40 @@
 #include "vtkCellData.h"
 #include "vtkConfigure.h"
 #include "vtkDataArray.h"
+#include "vtkGenericVertexAttributeMapping.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
-#include "vtkPrimitivePainter.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkShaderDeviceAdapter.h"
+#include "vtkShaderProgram.h"
+#include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
+#include <vtkstd/vector>
+
+class vtkStandardPolyDataPainter::vtkInternal
+{
+public:
+  struct vtkInfo
+    {
+    unsigned int MappingsIndex;
+    vtkDataArray* Array;
+    };
+  typedef vtkstd::vector<vtkInfo> InfoVector;
+  InfoVector CellAttributesCache;
+  InfoVector PointAttributesCache;
+  vtkSmartPointer<vtkGenericVertexAttributeMapping> Mappings;
+};
+
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.6");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.7");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -62,17 +81,81 @@ static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
 //-----------------------------------------------------------------------------
 vtkStandardPolyDataPainter::vtkStandardPolyDataPainter()
 {
+  this->Internal = new vtkInternal;
 }
 
 //-----------------------------------------------------------------------------
 vtkStandardPolyDataPainter::~vtkStandardPolyDataPainter()
 {
+  delete this->Internal;
 }
 
 //-----------------------------------------------------------------------------
 void vtkStandardPolyDataPainter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkStandardPolyDataPainter::ProcessInformation(vtkInformation* info)
+{
+  this->Internal->Mappings = 0;
+
+  if( info->Has(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()) )
+    {
+    vtkGenericVertexAttributeMapping* collection = 
+      vtkGenericVertexAttributeMapping::SafeDownCast(
+      info->Get(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    this->Internal->Mappings = collection;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkStandardPolyDataPainter::UpdateGenericAttributesCache()
+{
+  if (this->Internal->Mappings)
+    {
+    unsigned int max = this->Internal->Mappings->GetNumberOfMappings();
+    for (unsigned int cc=0; cc < max; cc++)
+      {
+      int field = this->Internal->Mappings->GetFieldAssociation(cc);
+      const char *dataArrayName = this->Internal->Mappings->GetArrayName(cc);
+      const char *vertexAttributeName = 
+        this->Internal->Mappings->GetAttributeName(cc);
+
+      if (dataArrayName == NULL)
+        {
+        continue;
+        }
+
+      if (vertexAttributeName == NULL)
+        {
+        continue;
+        }
+
+      vtkDataArray *inArray = NULL;
+      vtkInternal::InfoVector* dest=0;
+
+      if (field == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+        {
+        inArray = this->PolyData->GetPointData()->GetArray(dataArrayName);
+        dest = &this->Internal->PointAttributesCache;
+        }
+      else if (field == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+        {
+        inArray = this->PolyData->GetCellData()->GetArray(dataArrayName);
+        dest = &this->Internal->CellAttributesCache;
+        }
+
+      if (inArray && dest)
+        {
+        vtkInternal::vtkInfo info;
+        info.MappingsIndex = cc;
+        info.Array = inArray;
+        dest->push_back(info);
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -93,35 +176,52 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
   this->TotalCells = vtkStandardPolyDataPainterGetTotalCells(this->PolyData,
     typeflags);
   this->Timer->StartTimer();
+  vtkProperty* property = actor->GetProperty();
   vtkIdType startCell = 0;
-  int interpolation = actor->GetProperty()->GetInterpolation();
+  int interpolation = property->GetInterpolation();
+  vtkShaderDeviceAdapter* shaderDevice=0;
+
+  this->Internal->PointAttributesCache.clear();
+  this->Internal->CellAttributesCache.clear();
+  if (property->GetShading() && property->GetShaderProgram())
+    {
+    // Preprocess the generic vertex attributes that we need to pass to the
+    // shader.
+    this->UpdateGenericAttributesCache();
+    shaderDevice = property->GetShaderProgram()->GetShaderDeviceAdapter();
+    }
+  if (shaderDevice)
+    {
+    shaderDevice->PrepareForRender();
+    }
+
   if (typeflags & vtkPainter::VERTS)
     {
     this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
-      renderer, 0, interpolation);
+      shaderDevice, renderer, 0, interpolation);
     }
 
   startCell += this->PolyData->GetNumberOfVerts();
   if (typeflags & vtkPainter::LINES)
     {
     this->DrawCells(VTK_POLY_LINE, this->PolyData->GetLines(), startCell,
-      renderer, 0, interpolation);
+      shaderDevice, renderer, 0, interpolation);
     }
   
   startCell += this->PolyData->GetNumberOfLines();
   if (typeflags & vtkPainter::POLYS)
     {
 #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    if (property->GetRepresentation() == VTK_WIREFRAME)
       {
       this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
-        renderer, this->BuildNormals, interpolation);
+        shaderDevice, renderer, this->BuildNormals, interpolation);
       }
     else
 #endif
       {
       this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
-        renderer, this->BuildNormals, interpolation);
+        shaderDevice, renderer, this->BuildNormals, interpolation);
       }
     }
  
@@ -129,7 +229,7 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
   if (typeflags & vtkPainter::STRIPS)
     {
     this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
-      renderer, this->BuildNormals, interpolation);
+      shaderDevice, renderer, this->BuildNormals, interpolation);
     }
 
   this->Timer->StopTimer();
@@ -139,11 +239,17 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
   // Ofcouse, more than likely, this call will never have a delegate,
   // but anyways.
   this->Superclass::RenderInternal(renderer, actor, typeflags);
+
+
+  this->Internal->PointAttributesCache.clear();
+  this->Internal->CellAttributesCache.clear();
 }
 
 //-----------------------------------------------------------------------------
 void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
-                                   vtkIdType startCellId, vtkRenderer *renderer,
+                                   vtkIdType startCellId,
+                                   vtkShaderDeviceAdapter* shaderDevice,
+                                   vtkRenderer *renderer,
                                    int buildnormals, int interpolation)
 {
   if (!this->PolyData)
@@ -161,8 +267,8 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
     this->PolyData->GetFieldData()->GetArray("Color"));
  
   int disable_scalar_color = 0;
-  if (this->Information->Has(vtkPrimitivePainter::DISABLE_SCALAR_COLOR()) &&
-    this->Information->Get(vtkPrimitivePainter::DISABLE_SCALAR_COLOR())==1)
+  if (this->Information->Has(DISABLE_SCALAR_COLOR()) &&
+    this->Information->Get(DISABLE_SCALAR_COLOR())==1)
     {
     disable_scalar_color = 1;
     }
@@ -200,6 +306,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
     device->BeginPrimitive(mode);
 
+    // SEND CELL ATTRIBUTES
     for (attribii = start_attribute; attribii < vtkCellData::NUM_ATTRIBUTES; attribii++)
       {
       if (!device->IsAttributesSupported(attribii))
@@ -240,6 +347,24 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
       fielddata_cellId++;
       }
 
+    // Send generic attributes associated with the cell.
+    vtkInternal::InfoVector::iterator gaIter = this->Internal->CellAttributesCache.begin();
+    for (; shaderDevice && gaIter != this->Internal->CellAttributesCache.end(); ++gaIter)
+      {
+      vtkDataArray* a = gaIter->Array; 
+      unsigned int mappingsIndex = gaIter->MappingsIndex;
+      int numc = a->GetNumberOfComponents();
+      int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
+      // if siComp==-1, then all components of the array are sent,
+      // otherwise only the choosen component is sent.
+      shaderDevice->SendAttribute(
+        this->Internal->Mappings->GetAttributeName(mappingsIndex),
+        (siComp>=0)? 1: numc,
+        a->GetDataType(),
+        (siComp>=0) ? a->GetVoidPointer(numc*cellId+siComp) :
+        a->GetVoidPointer(numc*cellId));
+      }
+
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
       {
       vtkIdType pointId = pts[cellpointi];
@@ -253,6 +378,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
         fielddata_cellId++; 
         }
       
+      // SEND POINT ATTRIBUTES.
       // Send point centered attributes.
       for (attribii = start_attribute; attribii < vtkPointData::NUM_ATTRIBUTES; attribii++)
         {
@@ -293,6 +419,25 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
         device->SendAttribute(vtkDataSetAttributes::NORMALS, 3, 
           VTK_DOUBLE, polyNorm);
+        }
+
+      // Send generic attributes associated with the point.
+      gaIter = this->Internal->PointAttributesCache.begin();
+      for (; shaderDevice && gaIter != 
+        this->Internal->PointAttributesCache.end(); ++gaIter)
+        {
+        vtkDataArray* a = gaIter->Array; 
+        unsigned int mappingsIndex = gaIter->MappingsIndex;
+        int numc = a->GetNumberOfComponents();
+        int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
+        // if siComp==-1, then all components of the array are sent,
+        // otherwise only the choosen component is sent.
+        shaderDevice->SendAttribute(
+          this->Internal->Mappings->GetAttributeName(mappingsIndex),
+          (siComp>=0)? 1: numc,
+          a->GetDataType(),
+          (siComp>=0) ? a->GetVoidPointer(numc*pointId+siComp) :
+          a->GetVoidPointer(numc*pointId));
         }
 
       // Send the point position as the last attribute.

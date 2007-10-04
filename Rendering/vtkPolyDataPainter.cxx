@@ -24,16 +24,19 @@
 
 #include "vtkPolyDataPainter.h"
 
-#include "vtkInformation.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationObjectBaseKey.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataPainter, "1.2");
+vtkCxxRevisionMacro(vtkPolyDataPainter, "1.3");
 vtkCxxSetObjectMacro(vtkPolyDataPainter, PolyData, vtkPolyData);
 vtkInformationKeyMacro(vtkPolyDataPainter, BUILD_NORMALS, Integer);
+vtkInformationKeyMacro(vtkPolyDataPainter, DATA_ARRAY_TO_VERTEX_ATTRIBUTE, ObjectBase);
+vtkInformationKeyMacro(vtkPolyDataPainter, DISABLE_SCALAR_COLOR, Integer);
 //-----------------------------------------------------------------------------
 vtkPolyDataPainter::vtkPolyDataPainter()
 {

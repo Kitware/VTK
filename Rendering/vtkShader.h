@@ -130,6 +130,11 @@ public:
   int GetShaderVariable(const char* name, int* values);
   int GetShaderVariable(const char* name, float* values);
   int GetShaderVariable(const char* name, double* values);
+
+  // Description:
+  // Returns the scope of the shader i.e. if it's a vertex or fragment shader.
+  // (vtkXMLShader::SCOPE_VERTEX or vtkXMLShader::SCOPE_FRAGMENT).
+  int GetScope();
 protected:
   vtkShader();
   ~vtkShader();

@@ -41,6 +41,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       # Tests testing Cg Shaders.
       SET(tests ${tests}
         TestCgShader
+        TestGenericVertexAttributesCg
         )
     ENDIF (VTK_USE_CG_SHADERS)
 
@@ -48,6 +49,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       # Tests testing GLSL Shaders.
       SET(tests ${tests}
         TestGLSLShader
+        TestGenericVertexAttributesGLSL
         )
     ENDIF (VTK_USE_GLSL_SHADERS)
 

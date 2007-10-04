@@ -21,11 +21,11 @@ ENDIF(APPLE AND VTK_WRAP_JAVA)
 
 SET( Kit_SRCS
   vtkAbstractMapper3D.cxx
-  vtkAbstractVolumeMapper.cxx
   vtkAbstractPicker.cxx
   vtkAbstractPropPicker.cxx
-  vtkActor.cxx
+  vtkAbstractVolumeMapper.cxx
   vtkActorCollection.cxx
+  vtkActor.cxx
   vtkAreaPicker.cxx
   vtkAssembly.cxx
   vtkAxisActor2D.cxx
@@ -36,8 +36,8 @@ SET( Kit_SRCS
   vtkChooserPainter.cxx
   vtkClipPlanesPainter.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
-  vtkCuller.cxx
   vtkCullerCollection.cxx
+  vtkCuller.cxx
   vtkDataSetMapper.cxx
   vtkDefaultPainter.cxx
   vtkDisplayListPainter.cxx
@@ -46,14 +46,14 @@ SET( Kit_SRCS
   vtkFollower.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
+  vtkGenericVertexAttributeMapping.cxx
   vtkGraphicsFactory.cxx
   vtkHierarchicalPolyDataMapper.cxx
-  vtkIVExporter.cxx
   vtkIdentColoredPainter.cxx
   vtkImageActor.cxx
   vtkImageMapper.cxx
-  vtkImageViewer.cxx
   vtkImageViewer2.cxx
+  vtkImageViewer.cxx
   vtkImagingFactory.cxx
   vtkImporter.cxx
   vtkInteractorEventRecorder.cxx
@@ -69,22 +69,23 @@ SET( Kit_SRCS
   vtkInteractorStyleRubberBandZoom.cxx
   vtkInteractorStyleSwitch.cxx
   vtkInteractorStyleTerrain.cxx
-  vtkInteractorStyleTrackball.cxx
   vtkInteractorStyleTrackballActor.cxx
   vtkInteractorStyleTrackballCamera.cxx
+  vtkInteractorStyleTrackball.cxx
   vtkInteractorStyleUnicam.cxx
   vtkInteractorStyleUser.cxx
-  vtkLODActor.cxx
-  vtkLODProp3D.cxx
+  vtkIVExporter.cxx
   vtkLabeledDataMapper.cxx
   vtkLeaderActor2D.cxx
-  vtkLight.cxx
   vtkLightCollection.cxx
-  vtkLightKit.cxx
+  vtkLight.cxx
   vtkLightingPainter.cxx
+  vtkLightKit.cxx
   vtkLinesPainter.cxx
-  vtkMapper.cxx
+  vtkLODActor.cxx
+  vtkLODProp3D.cxx
   vtkMapperCollection.cxx
+  vtkMapper.cxx
   vtkMultiGroupPolyDataMapper.cxx
   vtkOBJExporter.cxx
   vtkObserverMediator.cxx
@@ -94,25 +95,25 @@ SET( Kit_SRCS
   vtkPainterPolyDataMapper.cxx
   vtkParallelCoordinatesActor.cxx
   vtkPicker.cxx
-  vtkPointsPainter.cxx
   vtkPointPicker.cxx
-  vtkPolyDataMapper.cxx
+  vtkPointsPainter.cxx
   vtkPolyDataMapper2D.cxx
+  vtkPolyDataMapper.cxx
   vtkPolyDataPainter.cxx
   vtkPolygonsPainter.cxx
   vtkPrimitivePainter.cxx
-  vtkProp3D.cxx
   vtkProp3DCollection.cxx
-  vtkPropPicker.cxx
+  vtkProp3D.cxx
   vtkProperty.cxx
+  vtkPropPicker.cxx
   vtkQuaternionInterpolator.cxx
-  vtkRenderWindow.cxx
-  vtkRenderWindowCollection.cxx
-  vtkRenderWindowInteractor.cxx
   vtkRenderedAreaPicker.cxx
-  vtkRenderer.cxx
   vtkRendererCollection.cxx
+  vtkRenderer.cxx
   vtkRendererSource.cxx
+  vtkRenderWindowCollection.cxx
+  vtkRenderWindow.cxx
+  vtkRenderWindowInteractor.cxx
   vtkRepresentationPainter.cxx
   vtkScalarBarActor.cxx
   vtkScalarsToColorsPainter.cxx
@@ -120,24 +121,25 @@ SET( Kit_SRCS
   vtkScenePicker.cxx
   vtkSelectVisiblePoints.cxx
   vtkShader.cxx
+  vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
   vtkStandardPolyDataPainter.cxx
   vtkTesting.cxx
-  vtkTextActor.cxx
   # vtkTextActor2D.cxx
   vtkTextActor3D.cxx
+  vtkTextActor.cxx
   vtkTextMapper.cxx
   vtkTextProperty.cxx
   vtkTexture.cxx
   vtkTransformInterpolator.cxx
   vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx
-  vtkVisibleCellSelector.cxx
   vtkVisibilitySort.cxx
-  vtkVRMLExporter.cxx
-  vtkVolume.cxx
+  vtkVisibleCellSelector.cxx
   vtkVolumeCollection.cxx
+  vtkVolume.cxx
   vtkVolumeProperty.cxx
+  vtkVRMLExporter.cxx
   vtkWindowToImageFilter.cxx
   vtkWorldPointPicker.cxx
   )
@@ -152,6 +154,7 @@ ENDIF(VTK_USE_GL2PS)
 IF(VTK_USE_CG_SHADERS)
   SET(Kit_SRCS ${Kit_SRCS} 
     vtkCgShader.cxx
+    vtkCgShaderDeviceAdapter.cxx
     vtkCgShaderProgram.cxx
     )
   INCLUDE_DIRECTORIES(${CG_INCLUDE_PATH})
@@ -184,6 +187,7 @@ SET( KitOpenGL_SRCS
 IF(VTK_USE_GLSL_SHADERS)
   SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
     vtkGLSLShader.cxx
+    vtkGLSLShaderDeviceAdapter.cxx
     vtkGLSLShaderProgram.cxx
     )
 ENDIF(VTK_USE_GLSL_SHADERS)
@@ -204,6 +208,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkPrimitivePainter
   vtkProp3D
   vtkShader
+  vtkShaderDeviceAdapter
   vtkShaderProgram
   vtkVisibilitySort.cxx
   ABSTRACT

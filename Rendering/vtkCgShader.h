@@ -138,6 +138,7 @@ public:
   // we need to ensure that the actor transformations are pushed before
   // state matrix uniform variables are bound. 
   virtual void PassShaderVariables(vtkActor* actor, vtkRenderer* ren);
+//BTX
 protected:
   vtkCgShader();
   ~vtkCgShader();
@@ -160,10 +161,12 @@ protected:
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture,
                                    int);
 
+  friend class vtkCgShaderDeviceAdapter;
 private:
   vtkCgShader(const vtkCgShader&); // Not Implemented
   void operator=(const vtkCgShader&); // Not Implemented
   
   vtkCgShaderInternals* Internals;
+//ETX
 };
 #endif //_vtkCgShader_h

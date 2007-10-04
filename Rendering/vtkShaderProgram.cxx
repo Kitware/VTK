@@ -32,6 +32,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkShader.h"
 #include "vtkToolkits.h" // for VTK_USE_*_SHADERS
+#include "vtkShaderDeviceAdapter.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLMaterial.h"
 #include "vtkXMLShader.h"
@@ -44,10 +45,8 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.8");
-
+vtkCxxRevisionMacro(vtkShaderProgram, "1.9");
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
-
 //-----------------------------------------------------------------------------
 vtkShaderProgram::vtkShaderProgram()
 {
@@ -56,11 +55,13 @@ vtkShaderProgram::vtkShaderProgram()
   this->ShaderCollectionIterator = this->ShaderCollection->NewIterator();
   
   this->GLExtensionsLoaded = 0;
+  this->ShaderDeviceAdapter = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkShaderProgram::~vtkShaderProgram()
 {
+  this->SetShaderDeviceAdapter(0);
   this->SetMaterial(0);
   this->ShaderCollection->Delete();
   this->ShaderCollectionIterator->Delete();
@@ -77,6 +78,26 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *w)
       this->ShaderCollectionIterator->GetCurrentObject());
     shader->ReleaseGraphicsResources(w);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkShaderProgram::SetShaderDeviceAdapter(vtkShaderDeviceAdapter* adapter)
+{
+  if (this->ShaderDeviceAdapter)
+    {
+    this->ShaderDeviceAdapter->SetShaderProgram(0);
+    }
+  vtkSetObjectBodyMacro(ShaderDeviceAdapter, vtkShaderDeviceAdapter, adapter);
+  if (this->ShaderDeviceAdapter)
+    {
+    this->ShaderDeviceAdapter->SetShaderProgram(this);
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkCollectionIterator* vtkShaderProgram::NewShaderIterator()
+{
+  return this->ShaderCollection->NewIterator();
 }
 
 //-----------------------------------------------------------------------------

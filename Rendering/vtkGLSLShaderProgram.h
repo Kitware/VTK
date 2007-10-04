@@ -68,7 +68,8 @@ public:
   
   // Description:
   // Return the OpenGL program id.
-  unsigned int GetProgram();
+  unsigned int GetProgram()
+    {return this->Program;}
   
 protected:
   vtkGLSLShaderProgram();

@@ -28,7 +28,6 @@
 class vtkDataArray;
 class vtkPoints;
 class vtkUnsignedCharArray;
-class vtkInformationIntegerKey;
 
 class VTK_RENDERING_EXPORT vtkPrimitivePainter : public vtkPolyDataPainter
 {
@@ -40,10 +39,6 @@ public:
   // Get the type of primitive supported by this painter.
   // This must be set by concrete subclasses.
   vtkGetMacro(SupportedPrimitive, int);
-
-  // Description:
-  // Key added to disable any scalar coloring for the current pass.
-  static vtkInformationIntegerKey* DISABLE_SCALAR_COLOR();
 
 protected:
   vtkPrimitivePainter();
@@ -57,7 +52,8 @@ protected:
     VTK_PDM_CELL_COLORS = 0x08,
     VTK_PDM_CELL_NORMALS = 0x10,
     VTK_PDM_OPAQUE_COLORS = 0x20,
-    VTK_PDM_FIELD_COLORS = 0x40
+    VTK_PDM_FIELD_COLORS = 0x40,
+    VTK_PDM_GENERIC_VERTEX_ATTRIBUTES =0x80
   };
   //ETX
 
@@ -91,7 +87,7 @@ protected:
   // forwareded to the delegate does not include a request to render the 
   // supported primitive type.
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
-    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) = 0;
+    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) =0;
 
   // Description:
   // Based on the input polydata, setups certains flags and call
@@ -110,19 +106,14 @@ protected:
   vtkSetMacro(SupportedPrimitive, int);
 
   int DisableScalarColor;
-  vtkSetMacro(DisableScalarColor, int);
 
   vtkPolyData* OutputData;
   vtkTimeStamp OutputUpdateTime;
+  bool GenericVertexAttributes;
 
 private:
   vtkPrimitivePainter(const vtkPrimitivePainter&); // Not implemented.
   void operator=(const vtkPrimitivePainter&); // Not implemented.
 };
 
-
-
-
 #endif
-
-
