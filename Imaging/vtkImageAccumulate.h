@@ -26,6 +26,12 @@
 // functions allow the statistics to be computed on an arbitrary
 // portion of the input data.
 // See the documentation for vtkImageStencilData for more information.
+//
+// This filter also support ignoring pixel with value equal to 0. Using this
+// option with vtkImageMask may result in results being slightly off since 0
+// could be a valid value from your input.
+//
+// .SECTION see also vtkImageMask
 
 #ifndef __vtkImageAccumulate_h
 #define __vtkImageAccumulate_h
