@@ -45,7 +45,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.9");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.10");
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 //-----------------------------------------------------------------------------
 vtkShaderProgram::vtkShaderProgram()
@@ -260,4 +260,5 @@ void vtkShaderProgram::PrintSelf(ostream &os, vtkIndent indent)
     os << indent << "Shader: " << endl;
     shader->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "ShaderDeviceAdapter: " << this->ShaderDeviceAdapter << endl;
 }
