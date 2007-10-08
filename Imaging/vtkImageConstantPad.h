@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageConstantPad changes the image extent of its input.
 // Any pixels outside of the original image extent are filled with
-// a constant value.
+// a constant value (default is 0.0).
 
 // .SECTION See Also
 // vtkImageWrapPad vtkImageMirrorPad
