@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.21");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.21.4.1");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -388,7 +388,8 @@ int vtkExodusIIWriter::ProcessRequest(vtkInformation *request,
   else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     // get the requested update extent
-    if(!this->TimeValues)
+    if(!this->TimeValues && inputVector[0]->GetInformationObject(0)
+          ->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
       {
       this->TimeValues = vtkDoubleArray::New();
       this->TimeValues->SetArray(
@@ -397,7 +398,7 @@ int vtkExodusIIWriter::ProcessRequest(vtkInformation *request,
         inputVector[0]->GetInformationObject(0)
           ->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()),1);
       }
-    if (this->WriteAllTimeSteps)
+    if (this->WriteAllTimeSteps && this->TimeValues)
       {
       if(this->TimeValues->GetPointer(0))
         {
@@ -472,7 +473,9 @@ int vtkExodusIIWriter::RequestData(
     }
 
   // is this the first request
-  if (this->CurrentTimeIndex==0 && this->WriteAllTimeSteps)
+  if (this->CurrentTimeIndex==0 && 
+      this->WriteAllTimeSteps && 
+      this->NumberOfTimeSteps>0)
     {
     // Tell the pipeline to start looping.
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
@@ -2236,8 +2239,12 @@ int vtkExodusIIWriter::WriteNextTimeStep()
   int rc = 0;
 
   int ts = this->CurrentTimeIndex;
-  float tsv = this->TimeValues->GetValue(this->CurrentTimeIndex);
-
+  float tsv = 0;
+  if(this->TimeValues)
+    {
+    tsv = this->TimeValues->GetValue(this->CurrentTimeIndex);
+    }
+ 
   if (this->PassDoubles)
     {
     double dtsv = (double)tsv;
