@@ -21,15 +21,9 @@
 #include "vtkCommand.h"
 
 
-extern JNIEXPORT int vtkJavaGetId(JNIEnv *env,jobject obj);
+extern JNIEXPORT jlong vtkJavaGetId(JNIEnv *env,jobject obj);
 
-extern JNIEXPORT int vtkJavaRegisterNewObject(JNIEnv *env, jobject obj, void *ptr);
-extern JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *env, jobject obj, int id, void *tcFunc);               
-          
-extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj, 
-           char *result_type);
-extern JNIEXPORT void vtkJavaDeleteObject(JNIEnv *env, jobject obj);
-extern JNIEXPORT jobject vtkJavaGetObjectFromPointer(void *ptr);
+extern JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env,jobject obj);
 extern JNIEXPORT char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
 extern JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
@@ -57,11 +51,6 @@ extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env, unsigned int *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,unsigned short *ptr,int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env, unsigned long *arr, int size);
-
-extern JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj);
-extern JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env,
-              const char* fullclassname, void* obj);
-
 
 // this is the void pointer parameter passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.

@@ -50,7 +50,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 
   // get the render window pointer
   vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0,(char *) "vtkRenderWindow"));
+  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0));
   
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;

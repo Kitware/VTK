@@ -108,6 +108,44 @@ void return_result(FILE *fp)
     }
 }
 
+/* same as return_result except we return a long (the c++ pointer) rather than an object */
+void return_result_native(FILE *fp)
+{
+  switch (currentFunction->ReturnType % 0x1000)
+    {
+    case 0x1: fprintf(fp,"double "); break;
+    case 0x2: fprintf(fp,"void "); break;
+    case 0x3: fprintf(fp,"char "); break;
+    case 0x7: fprintf(fp,"double "); break;
+    case 0x4: case 0x5: case 0x6: case 0xA: case 0xB: case 0xC: case 0xD:
+    case 0x13: case 0x14: case 0x15: case 0x16: case 0x1A: case 0x1B: case 0x1C:
+      fprintf(fp,"int "); 
+      break;
+    case 0xE:
+      fprintf(fp,"boolean ");
+      break;
+    case 0x303: fprintf(fp,"String "); break;
+    case 0x109:  
+    case 0x309:  
+      fprintf(fp,"long "); 
+      break;
+      
+      /* handle functions returning vectors */
+      /* this is done by looking them up in a hint file */
+    case 0x301: case 0x307:
+      fprintf(fp,"double[] "); 
+      break;
+    case 0x313:
+        fprintf(fp,"byte[] ");
+        break;
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
+    case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
+      fprintf(fp,"int[]  "); break;
+    case 0x30E:
+      fprintf(fp,"boolean[]  "); break;
+    }
+}
+
 /* have we done one of these yet */
 int DoneOne()
 {
@@ -478,7 +516,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (!DoneOne())
       {
       fprintf(fp,"\n  private native ");
-      return_result(fp);
+      return_result_native(fp);
       fprintf(fp,"%s_%i(",currentFunction->Name,numberOfWrappedFunctions);
       
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
@@ -502,28 +540,66 @@ void outputFunction(FILE *fp, FileInfo *data)
           }
         output_temp(fp,i);
         }
-      /* if not void then need return otherwise none */
-      if (currentFunction->ReturnType % 0x1000 == 0x2)
+      /* if returning object, lookup in global hash */
+      if (currentFunction->ReturnType % 0x1000 == 0x109 ||
+          currentFunction->ReturnType % 0x1000 == 0x309)
         {
-        fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
-                numberOfWrappedFunctions);
+        fprintf(fp,") {");
+        fprintf(fp,"\n    long temp = %s_%i(",currentFunction->Name, numberOfWrappedFunctions);
+        for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          {
+          if (i)
+            {
+            fprintf(fp,",");
+            }
+          fprintf(fp,"id%i",i);
+          }
+        fprintf(fp,");\n");
+        fprintf(fp,"\n    %s obj = null;", currentFunction->ReturnClass);
+        fprintf(fp,"\n    java.lang.ref.WeakReference ref = (java.lang.ref.WeakReference)vtkGlobalJavaHash.PointerToReference.get(new Long(temp));");
+        fprintf(fp,"\n    if (ref != null) {");
+        fprintf(fp,"\n      obj = (%s)ref.get();", currentFunction->ReturnClass);
+        fprintf(fp,"\n    }");
+        fprintf(fp,"\n    if (obj == null) {");
+        fprintf(fp,"\n      %s tempObj = new %s(temp);", currentFunction->ReturnClass, currentFunction->ReturnClass);
+        fprintf(fp,"\n      String className = tempObj.GetClassName();");
+        fprintf(fp,"\n      try {");
+        fprintf(fp,"\n        Class c = Class.forName(\"vtk.\" + className);");
+        fprintf(fp,"\n        java.lang.reflect.Constructor cons = c.getConstructor(new Class[] {long.class} );");
+        fprintf(fp,"\n        obj = (%s)cons.newInstance(new Object[] {new Long(temp)});", currentFunction->ReturnClass);
+        fprintf(fp,"\n      } catch (Exception e) {");
+        fprintf(fp,"\n        e.printStackTrace();");
+        fprintf(fp,"\n      }");
+        fprintf(fp,"\n      tempObj.Delete();");
+        fprintf(fp,"\n    }");
+        fprintf(fp,"\n    return obj;");
+        fprintf(fp,"\n  }\n");
         }
       else
         {
-        fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
-                numberOfWrappedFunctions);
-        }
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
-        {
-        if (i)
+        /* if not void then need return otherwise none */
+        if (currentFunction->ReturnType % 0x1000 == 0x2)
           {
-          fprintf(fp,",");
+          fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
+                  numberOfWrappedFunctions);
           }
-        fprintf(fp,"id%i",i);
+        else
+          {
+          fprintf(fp,")\n    { return %s_%i(",currentFunction->Name,
+                  numberOfWrappedFunctions);
+          }
+        for (i = 0; i < currentFunction->NumberOfArguments; i++)
+          {
+          if (i)
+            {
+            fprintf(fp,",");
+            }
+          fprintf(fp,"id%i",i);
+          }
+        if ((currentFunction->NumberOfArguments == 1) && 
+            (currentFunction->ArgTypes[0] == 0x5000)) fprintf(fp,",id1");
+        fprintf(fp,"); }\n");
         }
-      if ((currentFunction->NumberOfArguments == 1) && 
-          (currentFunction->ArgTypes[0] == 0x5000)) fprintf(fp,",id1");
-      fprintf(fp,"); }\n");
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
       numberOfWrappedFunctions++;
@@ -566,42 +642,63 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     if (data->IsConcrete)
       {
-      fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
+      fprintf(fp,"\n  public %s() {", data->ClassName);
+      fprintf(fp,"\n    this.vtkId = this.VTKInit();");
+      fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+      fprintf(fp,"\n  }\n");
       }
     else
       {
-      fprintf(fp,"\n  public %s() { super();};\n",data->ClassName);
+      fprintf(fp,"\n  public %s() { super(); }\n",data->ClassName);
       }
-    fprintf(fp,"\n  protected %s(int dmy) { super(); };\n",data->ClassName);
-    fprintf(fp,"  protected int vtkId = 0;\n");
+    fprintf(fp,"\n  public %s(long id) {", data->ClassName);
+    fprintf(fp,"\n    super();");
+    fprintf(fp,"\n    this.vtkId = id;");
+    fprintf(fp,"\n    this.VTKRegister();");
+    fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+    fprintf(fp,"\n  }\n");
+    fprintf(fp,"\n  protected long vtkId = 0;\n");
+    fprintf(fp,"\n  protected boolean vtkDeleted = false;\n");
+    fprintf(fp,"\n  public long GetVTKId() { return this.vtkId; }");
 
-    
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
       {
-      fprintf(fp,"\n  public native void VTKDelete();\n");
-      fprintf(fp,"  protected void finalize() { this.VTKDelete();};\n");
+      fprintf(fp,"\n  protected native void VTKDelete();");
+      fprintf(fp,"\n  protected native void VTKRegister();");
+      fprintf(fp,"\n  public void Delete() {");
+      fprintf(fp,"\n    int refCount = this.GetReferenceCount();");
+      fprintf(fp,"\n    this.VTKDelete();");
+      fprintf(fp,"\n    this.vtkDeleted = true;");
+      fprintf(fp,"\n    if (refCount == 1) {");
+      fprintf(fp,"\n      this.vtkId = 0;");
+      fprintf(fp,"\n    }");
+      fprintf(fp,"\n  }");
+      fprintf(fp,"\n  protected void finalize() { if (!this.vtkDeleted) this.Delete(); }\n");
       }
     }
   /* Special case for vtkObject */
   else if ( strcmp("vtkObject",data->ClassName) == 0 )
     {
-    fprintf(fp,"\n  public %s() { super(); this.VTKInit(); };\n",
-            data->ClassName);
-    fprintf(fp,"\n  protected %s(int dmy) { super(dmy); };\n",data->ClassName);
+    fprintf(fp,"\n  public %s() {", data->ClassName);
+    fprintf(fp,"\n    super();");
+    fprintf(fp,"\n    this.vtkId = this.VTKInit();");
+    fprintf(fp,"\n    vtkGlobalJavaHash.PointerToReference.put(new Long(this.vtkId), new java.lang.ref.WeakReference(this));");
+    fprintf(fp,"\n  }\n");
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->ClassName);
     }
   else
     {
-    fprintf(fp,"\n  public %s() { super(); };\n",data->ClassName);
-    fprintf(fp,"\n  protected %s(int dmy) { super(dmy); };\n",data->ClassName);
+    fprintf(fp,"\n  public %s() { super(); }\n",data->ClassName);
+    fprintf(fp,"\n  public %s(long id) { super(id); }\n",data->ClassName);
     }
 
   if (data->IsConcrete)
     {
-    fprintf(fp,"  public native void   VTKInit();\n");
+    fprintf(fp,"  public native long   VTKInit();\n");
     }
 
-  fprintf(fp,"  protected native void   VTKCastInit();\n");
+  /* fprintf(fp,"  protected native void   VTKCastInit();\n"); */
 
   if (!strcmp("vtkObject",data->ClassName))
     {

@@ -110,6 +110,9 @@ IF(JAVA_COMPILE)
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java)
     ADD_CUSTOM_TARGET(VTKBuildAll ALL)
 
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkGlobalJavaHash.java
+      ${VTK_BINARY_DIR}/java/vtk/vtkGlobalJavaHash.java COPYONLY)
+      
 #    ADD_CUSTOM_COMMAND(OUTPUT ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
 #      COMMAND ${JAVA_COMPILE}
 #      ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
