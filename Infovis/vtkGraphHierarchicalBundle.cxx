@@ -34,7 +34,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.2");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.3");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -160,7 +160,7 @@ int vtkGraphHierarchicalBundle::RequestData(
       vtkExtendedTemplateMacro(mappingMadness(static_cast<VTK_TT*>(graphVoid),
                                       static_cast<VTK_TT*>(treeVoid),
                                       &graphIndexToTreeIndex,
-                                      graph->GetNumberOfVertices()));
+                                      tree->GetNumberOfVertices()));
       }
     }
   
