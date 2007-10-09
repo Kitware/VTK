@@ -37,7 +37,7 @@
 #include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.10");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.11");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -535,8 +535,16 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
     giantGrid->SetValue(i, 0);
     }
   
-  double bounds[6];
+  double bounds[6], paddedBounds[6];
   this->Graph->GetBounds(bounds);
+  
+  // Give bounds a 10% padding
+  paddedBounds[0] = bounds[0] - (bounds[1]-bounds[0])*.1;
+  paddedBounds[1] = bounds[1] + (bounds[1]-bounds[0])*.1;
+  paddedBounds[2] = bounds[2] - (bounds[3]-bounds[2])*.1;
+  paddedBounds[3] = bounds[3] + (bounds[3]-bounds[2])*.1;
+  paddedBounds[4] = paddedBounds[5] = 0;
+  
   int totalCollisionOps = 0;
   
   for(vtkIdType i=0; i<numVertices; ++i)
@@ -545,11 +553,11 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
       
     // Compute indices into the buckets
     int indexX = static_cast<int>(
-                 (rawPointData[rawIndex]-bounds[0]) /
-                 (bounds[1]-bounds[0]) * (xDim-1) + .5);
+                 (rawPointData[rawIndex]-paddedBounds[0]) /
+                 (paddedBounds[1]-paddedBounds[0]) * (xDim-1) + .5);
     int indexY = static_cast<int>(
-                 (rawPointData[rawIndex+1]-bounds[2]) /
-                 (bounds[3]-bounds[2]) * (yDim-1) + .5);
+                 (rawPointData[rawIndex+1]-paddedBounds[2]) /
+                 (paddedBounds[3]-paddedBounds[2]) * (yDim-1) + .5);
                  
     // See if you collide with another vertex
     if (giantGrid->GetValue(indexX + indexY*xDim))
@@ -559,7 +567,7 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
       // by randomly jumping to a place that doesn't
       // have another vertex
       bool collision = true;
-      float jumpDistance = 5.0*(bounds[1]-bounds[0])/xDim; // 2.5 grid spaces max
+      float jumpDistance = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
       int collisionOps = 0;
       
       // You get 10 trys and then we have to punt
@@ -573,11 +581,11 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
         
         // Test
         indexX = static_cast<int>(
-                 (rawPointData[rawIndex]-bounds[0]) /
-                 (bounds[1]-bounds[0]) * (xDim-1) + .5);
+                 (rawPointData[rawIndex]-paddedBounds[0]) /
+                 (paddedBounds[1]-paddedBounds[0]) * (xDim-1) + .5);
         indexY = static_cast<int>(
-                     (rawPointData[rawIndex+1]-bounds[2]) /
-                     (bounds[3]-bounds[2]) * (yDim-1) + .5);
+                     (rawPointData[rawIndex+1]-paddedBounds[2]) /
+                     (paddedBounds[3]-paddedBounds[2]) * (yDim-1) + .5);
         if (!giantGrid->GetValue(indexX + indexY*xDim))
           {
           collision = false; // yea
@@ -591,6 +599,7 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
     }
   
   // Delete giantGrid
+  giantGrid->Initialize();
   giantGrid->Delete();
   
   // Report number of collision operations just for sanity check  

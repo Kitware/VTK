@@ -17,7 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 // .NAME vtkConstrained2DLayoutStrategy - a simple fast 2D graph layout
-// that looks for a 'constraint' array (vtkFloatArray). Any entry in the 
+// that looks for a 'constraint' array (vtkDoubleArray). Any entry in the 
 // constraint array will indicate the level of impedence a node has to 
 // the force calculations during the layout optimization. The array is 
 // assumed to be normalized between zero and one, with one being totally 
