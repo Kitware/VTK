@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.20");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.21");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -60,15 +60,15 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->AttractionArray = vtkFloatArray::New();
     
   this->RandomSeed = 123;
-  this->IterationsPerLayout = 100;
-  this->InitialTemperature = 5;
+  this->IterationsPerLayout = 200;
+  this->InitialTemperature = 1;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
   this->Jitter = true;
-  this->MaxNumberOfIterations = 100;
+  this->MaxNumberOfIterations = 200;
   this->EdgeArray = NULL;
 }
 
