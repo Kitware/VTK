@@ -19,6 +19,9 @@ Changes by Gerard Vermeulen, May 2003
 Changes by Phil Thompson, Nov. 2006
  Ported to PyQt v4.
  Added support for wheel events.
+
+Changes by Phil Thompson, Oct. 2007
+ Bug fixes.
 """
 
 
@@ -169,12 +172,18 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
     def TimerEvent(self):
         self._Iren.TimerEvent()
 
+    def paintEngine(self):
+        return None
+
     def paintEvent(self, ev):
-        self.Render()
+        self._RenderWindow.Render()
 
     def resizeEvent(self, ev):
-        self._Iren.SetSize(self.width(), self.height())
-        self._Iren.ConfigureEvent()
+        w = self.width()
+        h = self.height()
+
+        self._RenderWindow.SetSize(w, h)
+        self._Iren.SetSize(w, h)
 
     def _GetCtrlShift(self, ev):
         ctrl = shift = False
@@ -285,7 +294,7 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         return self._RenderWindow
 
     def Render(self):
-        self._RenderWindow.Render()
+        self.update()
 
 
 def QVTKRenderWidgetConeExample():    
