@@ -159,9 +159,10 @@ public class Regression
       }
     else
       {
-      vtkTesting2.RegressionTest(renWin, 10);
+      retVal2 = vtkTesting2.RegressionTest(renWin, 10);
       }
 
+    vtkGlobalJavaHash.DeleteAll();
     if ( retVal0 != vtkTesting2.PASSED )
       {
       vtkTesting2.Exit(retVal0);

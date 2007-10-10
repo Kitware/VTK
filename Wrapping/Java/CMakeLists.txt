@@ -247,7 +247,8 @@ IF(JAVA_COMPILE)
         ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
           -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           Regression -D ${VTK_DATA_ROOT}
-          -V Baseline/Graphics/Cone.png)
+          -V Baseline/Graphics/Cone.png 
+          -T ${VTK_BINARY_DIR}/Testing/Temporary)
       ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF(BUILD_TESTING)
 
@@ -310,7 +311,8 @@ IF(JAVA_COMPILE)
           ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
             -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             Regression -D ${VTK_DATA_ROOT}
-            -V Baseline/Graphics/Cone.png)
+            -V Baseline/Graphics/Cone.png 
+            -T ${VTK_BINARY_DIR}/Testing/Temporary)
         ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       ENDIF(BUILD_TESTING)
 
