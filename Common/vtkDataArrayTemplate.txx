@@ -822,6 +822,7 @@ void vtkDataArrayTemplate<T>::ComputeRange(int comp)
       {
       infoVec = vtkInformationVector::New();
       info->Set( PER_COMPONENT(), infoVec );
+      infoVec->FastDelete();
       }
     else
       {

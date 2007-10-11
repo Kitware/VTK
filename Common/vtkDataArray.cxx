@@ -39,7 +39,7 @@ vtkInformationKeyMacro(vtkDataArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
-vtkCxxRevisionMacro(vtkDataArray, "1.80");
+vtkCxxRevisionMacro(vtkDataArray, "1.81");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -1003,6 +1003,7 @@ void vtkDataArray::ComputeRange(int comp)
       {
       infoVec = vtkInformationVector::New();
       info->Set( PER_COMPONENT(), infoVec );
+      infoVec->Delete();
       }
     else
       {
