@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.57");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.58");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -1366,6 +1366,28 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] elementIds;
       }
+    else if (strncmp(line, "g_point", 7) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_point");
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      
+      for (i = 0; i < numElements; i++)
+        {
+        this->ReadNextDataLine(line);
+        }
+      lineRead = this->ReadNextDataLine(line);
+      sscanf(line, " %s", subLine);
+      if (isdigit(subLine[0]))
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          lineRead = this->ReadNextDataLine(line);
+          }
+        }
+      }
     else if (strncmp(line, "bar2", 4) == 0)
       {
       vtkDebugMacro("bar2");
@@ -1399,6 +1421,30 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] intIds;
       }
+    else if (strncmp(line, "g_bar2", 6) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_bar2");
+      
+      intIds = new int[2];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d", &intIds[0], &intIds[1]) != 2)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }
+      delete [] intIds;
+      }
     else if (strncmp(line, "bar3", 4) == 0)
       {
       vtkDebugMacro("bar3");
@@ -1430,6 +1476,29 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         lineRead = this->ReadNextDataLine(line);
         }      
       delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "g_bar3", 6) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_bar3");
+      intIds = new int[2];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %*d %d", &intIds[0], &intIds[1]) != 2)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }      
       delete [] intIds;
       }
     else if (strncmp(line, "nsided", 6) == 0)
@@ -1512,6 +1581,29 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       delete [] newLines;
       }
+    else if (strncmp(line, "g_nsided", 8) == 0)
+      {
+      // skipping ghost cells
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      for (i = 0; i < numElements*2; i++)
+        {
+        this->ReadNextDataLine(line);
+        }
+      lineRead = this->ReadNextDataLine(line);
+      if (lineRead)
+        {
+        sscanf(line, " %s", subLine);
+        }
+      if (lineRead && isdigit(subLine[0]))
+        {
+        // We still need to read in the node ids for each element.
+        for (i = 0; i < numElements; i++)
+          {
+          lineRead = this->ReadNextDataLine(line);
+          }
+        }
+      }
     else if (strncmp(line, "tria3", 5) == 0 ||
              strncmp(line, "tria6", 5) == 0)
       {
@@ -1555,6 +1647,41 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         lineRead = this->ReadNextDataLine(line);
         }      
       delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "g_tria3", 7) == 0 ||
+             strncmp(line, "g_tria6", 7) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_tria6", 7) == 0)
+        {
+        vtkDebugMacro("g_tria6");
+        cellType = vtkEnSightReader::TRIA6;
+        }
+      else
+        {
+        vtkDebugMacro("g_tria3");
+        cellType = vtkEnSightReader::TRIA3;
+        }
+      
+      intIds = new int[3];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2]) != 3)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }      
       delete [] intIds;
       }
     else if (strncmp(line, "quad4", 5) == 0 ||
@@ -1603,6 +1730,41 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] intIds;
       }
+    else if (strncmp(line, "g_quad4", 7) == 0 ||
+             strncmp(line, "g_quad8", 7) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_quad8", 7) == 0)
+        {
+        vtkDebugMacro("g_quad8");
+        cellType = vtkEnSightReader::QUAD8;
+        }
+      else
+        {
+        vtkDebugMacro("g_quad4");
+        cellType = vtkEnSightReader::QUAD4;
+        }
+      
+      intIds = new int[4];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+                 &intIds[3]) != 4)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] intIds;
+      }
     else if (strncmp(line, "tetra4", 6) == 0 ||
              strncmp(line, "tetra10", 7) == 0)
       {
@@ -1649,6 +1811,41 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] intIds;
       }
+    else if (strncmp(line, "g_tetra4", 8) == 0 ||
+             strncmp(line, "g_tetra10", 9) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_tetra10", 9) == 0)
+        {
+        vtkDebugMacro("g_tetra10");
+        cellType = vtkEnSightReader::TETRA10;
+        }
+      else
+        {
+        vtkDebugMacro("g_tetra4");
+        cellType = vtkEnSightReader::TETRA4;
+        }
+      
+      intIds = new int[4];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3]) != 4)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }
+      delete [] intIds;
+      }
     else if (strncmp(line, "pyramid5", 8) == 0 ||
              strncmp(line, "pyramid13", 9) == 0)
       {
@@ -1693,6 +1890,41 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         lineRead = this->ReadNextDataLine(line);
         }          
       delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "g_pyramid5", 10) == 0 ||
+             strncmp(line, "g_pyramid13", 11) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_pyramid13", 11) == 0)
+        {
+        vtkDebugMacro("g_pyramid13");
+        cellType = vtkEnSightReader::PYRAMID13;
+        }
+      else
+        {
+        vtkDebugMacro("g_pyramid5");
+        cellType = vtkEnSightReader::PYRAMID5;
+        }
+      
+      intIds = new int[5];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+                 &intIds[3], &intIds[4]) != 5)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }          
       delete [] intIds;
       }
     else if (strncmp(line, "hexa8", 5) == 0 ||
@@ -1743,6 +1975,42 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] intIds;
       }
+    else if (strncmp(line, "g_hexa8", 7) == 0 ||
+             strncmp(line, "g_hexa20", 8) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_hexa20", 8) == 0)
+        {
+        vtkDebugMacro("g_hexa20");
+        cellType = vtkEnSightReader::HEXA20;
+        }
+      else
+        {
+        vtkDebugMacro("g_hexa8");
+        cellType = vtkEnSightReader::HEXA8;
+        }
+      
+      intIds = new int[8];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3], &intIds[4], &intIds[5], &intIds[6],
+                 &intIds[7]) != 8)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] intIds;
+      }
     else if (strncmp(line, "penta6", 6) == 0 ||
              strncmp(line, "penta15", 7) == 0)
       {
@@ -1789,7 +2057,42 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       delete [] nodeIds;
       delete [] intIds;
       }
-    else if (strncmp(line, "END TIME STEP", 13) == 0)
+    else if (strncmp(line, "g_penta6", 8) == 0 ||
+             strncmp(line, "g_penta15", 9) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_penta15", 9) == 0)
+        {
+        vtkDebugMacro("g_penta15");
+        cellType = vtkEnSightReader::PENTA15;
+        }
+      else
+        {
+        vtkDebugMacro("g_penta6");
+        cellType = vtkEnSightReader::PENTA6;
+        }
+      
+      intIds = new int[6];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3], &intIds[4], &intIds[5]) != 6)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] intIds;
+      } 
+   else if (strncmp(line, "END TIME STEP", 13) == 0)
       {
       return 1;
       }

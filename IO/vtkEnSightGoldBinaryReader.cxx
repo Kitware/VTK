@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.71");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.72");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -524,7 +524,8 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       // Skip xCoords, yCoords and zCoords.
       this->IFile->seekg(sizeof(float)*3*numPts, ios::cur);
       }
-    else if (strncmp(line, "point", 5) == 0)
+    else if (strncmp(line, "point", 5) == 0 ||
+             strncmp(line, "g_point", 7) == 0)
       {
       vtkDebugMacro("point");
       
@@ -543,7 +544,8 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       // Skip nodeIdList.
       this->IFile->seekg(sizeof(int)*numElements, ios::cur);
       }
-    else if (strncmp(line, "bar2", 4) == 0)
+    else if (strncmp(line, "bar2", 4) == 0 ||
+             strncmp(line, "g_bar2", 6) == 0)
       {
       vtkDebugMacro("bar2");
       
@@ -562,7 +564,8 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       // Skip nodeIdList.
       this->IFile->seekg(sizeof(int)*2*numElements, ios::cur);
       }
-    else if (strncmp(line, "bar3", 4) == 0)
+    else if (strncmp(line, "bar3", 4) == 0 ||
+             strncmp(line, "g_bar3", 6) == 0)
       {
       vtkDebugMacro("bar3");
       vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -583,7 +586,8 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       // Skip nodeIdList.
       this->IFile->seekg(sizeof(int)*2*numElements, ios::cur);
       }
-    else if (strncmp(line, "nsided", 6) == 0)
+    else if (strncmp(line, "nsided", 6) == 0 ||
+             strncmp(line, "g_nsided", 8) == 0)
       {
       vtkDebugMacro("nsided");
       int *numNodesPerElement;
@@ -614,9 +618,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       delete [] numNodesPerElement;
       }
     else if (strncmp(line, "tria3", 5) == 0 ||
-             strncmp(line, "tria6", 5) == 0)
+             strncmp(line, "tria6", 5) == 0 ||
+             strncmp(line, "g_tria3", 7) == 0 ||
+             strncmp(line, "g_tria6", 7) == 0)
       {
-      if (strncmp(line, "tria6", 5) == 0)
+      if (strncmp(line, "tria6", 5) == 0 ||
+          strncmp(line, "g_tria6", 7) == 0)
         {
         vtkDebugMacro("tria6");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -652,9 +659,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
       }
     else if (strncmp(line, "quad4", 5) == 0 ||
-             strncmp(line, "quad8", 5) == 0)
+             strncmp(line, "quad8", 5) == 0 ||
+             strncmp(line, "g_quad4", 7) == 0 ||
+             strncmp(line, "g_quad8", 7) == 0)
       {
-      if (strncmp(line, "quad8", 5) == 0)
+      if (strncmp(line, "quad8", 5) == 0 ||
+          strncmp(line, "g_quad8", 7) == 0)
         {
         vtkDebugMacro("quad8");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -690,9 +700,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
       }
     else if (strncmp(line, "tetra4", 6) == 0 ||
-             strncmp(line, "tetra10", 7) == 0)
+             strncmp(line, "tetra10", 7) == 0 ||
+             strncmp(line, "g_tetra4", 8) == 0 ||
+             strncmp(line, "g_tetra10", 9) == 0)
       {
-      if (strncmp(line, "tetra10", 7) == 0)
+      if (strncmp(line, "tetra10", 7) == 0 ||
+          strncmp(line, "g_tetra10", 9) == 0)
         {
         vtkDebugMacro("tetra10");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -728,9 +741,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
       }
     else if (strncmp(line, "pyramid5", 8) == 0 ||
-             strncmp(line, "pyramid13", 9) == 0)
+             strncmp(line, "pyramid13", 9) == 0 ||
+             strncmp(line, "g_pyramid5", 10) == 0 ||
+             strncmp(line, "g_pyramid13", 11) == 0)
       {
-      if (strncmp(line, "pyramid13", 9) == 0)
+      if (strncmp(line, "pyramid13", 9) == 0 ||
+          strncmp(line, "g_pyramid13", 11) == 0)
         {
         vtkDebugMacro("pyramid13");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -766,9 +782,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
       }
     else if (strncmp(line, "hexa8", 5) == 0 ||
-             strncmp(line, "hexa20", 6) == 0)
+             strncmp(line, "hexa20", 6) == 0 ||
+             strncmp(line, "g_hexa8", 7) == 0 ||
+             strncmp(line, "g_hexa20", 8) == 0)
       {
-      if (strncmp(line, "hexa20", 6) == 0)
+      if (strncmp(line, "hexa20", 6) == 0 ||
+          strncmp(line, "g_hexa20", 8) == 0)
         {
         vtkDebugMacro("hexa20");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -804,9 +823,12 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
       }
     else if (strncmp(line, "penta6", 6) == 0 ||
-             strncmp(line, "penta15", 7) == 0)
+             strncmp(line, "penta15", 7) == 0 ||
+             strncmp(line, "g_penta6", 8) == 0 ||
+             strncmp(line, "g_penta15", 9) == 0)
       {
-      if (strncmp(line, "penta15", 7) == 0)
+      if (strncmp(line, "penta15", 7) == 0 ||
+          strncmp(line, "g_penta15", 9) == 0)
         {
         vtkDebugMacro("penta15");
         vtkWarningMacro("Only vertex nodes of this element will be read.");
@@ -2464,6 +2486,26 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       delete [] nodeIds;
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "g_point", 7) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_point");
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of g_point cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        { // skip element ids.
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+      
+      // Skip nodeIdList.
+      this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+      }
     else if (strncmp(line, "bar2", 4) == 0)
       {
       vtkDebugMacro("bar2");
@@ -2496,6 +2538,26 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "g_bar2", 6) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_bar2");
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of g_bar2 cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      // Skip nodeIdList.
+      this->IFile->seekg(sizeof(int)*2*numElements, ios::cur);
       }
     else if (strncmp(line, "bar3", 4) == 0)
       {
@@ -2531,6 +2593,27 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "g_bar3", 6) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_bar3");
+
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of g_bar3 cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+      
+      // Skip nodeIdList.
+      this->IFile->seekg(sizeof(int)*2*numElements, ios::cur);
       }
     else if (strncmp(line, "nsided", 6) == 0)
       {
@@ -2579,6 +2662,37 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         }
       
       delete [] nodeIdList;
+      delete [] numNodesPerElement;
+      }
+    else if (strncmp(line, "g_nsided", 8) == 0)
+      {
+      // skipping ghost cells
+      vtkDebugMacro("g_nsided");
+      int *numNodesPerElement;
+      int numNodes = 0;
+      
+      //cellType = vtkEnSightReader::NSIDED;
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of g_nsided cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+      
+      numNodesPerElement = new int[numElements];
+      this->ReadIntArray(numNodesPerElement, numElements);
+      for (i = 0; i < numElements; i++)
+        {
+        numNodes += numNodesPerElement[i];
+        }
+      // Skip nodeIdList.
+      this->IFile->seekg(sizeof(int)*numNodes, ios::cur);
       delete [] numNodesPerElement;
       }
     else if (strncmp(line, "tria3", 5) == 0 ||
@@ -2643,6 +2757,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       delete [] nodeIds;
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "g_tria3", 7) == 0 ||
+             strncmp(line, "g_tria6", 7) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_tria6", 7) == 0)
+        {
+        vtkDebugMacro("g_tria6");
+        cellType = vtkEnSightReader::TRIA6;
+        }
+      else
+        {
+        vtkDebugMacro("g_tria3");
+        cellType = vtkEnSightReader::TRIA3;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of triangle cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::TRIA6)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*6*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*3*numElements, ios::cur);
+        }
+      }
     else if (strncmp(line, "quad4", 5) == 0 ||
              strncmp(line, "quad8", 5) == 0)
       {
@@ -2704,6 +2856,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "g_quad4", 7) == 0 ||
+             strncmp(line, "g_quad8", 7) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_quad8", 7) == 0)
+        {
+        vtkDebugMacro("g_quad8");
+        cellType = vtkEnSightReader::QUAD8;
+        }
+      else
+        {
+        vtkDebugMacro("g_quad4");
+        cellType = vtkEnSightReader::QUAD4;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of quad cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::QUAD8)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*8*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*4*numElements, ios::cur);
+        }
       }
     else if (strncmp(line, "tetra4", 6) == 0 ||
              strncmp(line, "tetra10", 7) == 0)
@@ -2767,6 +2957,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       delete [] nodeIds;
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "g_tetra4", 8) == 0 ||
+             strncmp(line, "g_tetra10", 9) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_tetra10", 9) == 0)
+        {
+        vtkDebugMacro("g_tetra10");
+        cellType = vtkEnSightReader::TETRA10;
+        }
+      else
+        {
+        vtkDebugMacro("g_tetra4");
+        cellType = vtkEnSightReader::TETRA4;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of tetrahedral cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::TETRA10)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*10*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*4*numElements, ios::cur);
+        }
+      }
     else if (strncmp(line, "pyramid5", 8) == 0 ||
              strncmp(line, "pyramid13", 9) == 0)
       {
@@ -2828,6 +3056,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "g_pyramid5", 10) == 0 ||
+             strncmp(line, "g_pyramid13", 11) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_pyramid13", 11) == 0)
+        {
+        vtkDebugMacro("g_pyramid13");
+        cellType = vtkEnSightReader::PYRAMID13;
+        }
+      else
+        {
+        vtkDebugMacro("g_pyramid5");
+        cellType = vtkEnSightReader::PYRAMID5;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of pyramid cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::PYRAMID13)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*13*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*5*numElements, ios::cur);
+        }
       }
     else if (strncmp(line, "hexa8", 5) == 0 ||
              strncmp(line, "hexa20", 6) == 0)
@@ -2891,6 +3157,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       delete [] nodeIds;
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "g_hexa8", 7) == 0 ||
+             strncmp(line, "g_hexa20", 8) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_hexa20", 8) == 0)
+        {
+        vtkDebugMacro("g_hexa20");
+        cellType = vtkEnSightReader::HEXA20;
+        }
+      else
+        {
+        vtkDebugMacro("g_hexa8");
+        cellType = vtkEnSightReader::HEXA8;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of hexahedral cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::HEXA20)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*20*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*8*numElements, ios::cur);
+        }
+      }
     else if (strncmp(line, "penta6", 6) == 0 ||
              strncmp(line, "penta15", 7) == 0)
       {
@@ -2952,6 +3256,44 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "g_penta6", 8) == 0 ||
+             strncmp(line, "g_penta15", 9) == 0)
+      {
+      // skipping ghost cells
+      if (strncmp(line, "g_penta15", 9) == 0)
+        {
+        vtkDebugMacro("g_penta15");
+        cellType = vtkEnSightReader::PENTA15;
+        }
+      else
+        {
+        vtkDebugMacro("g_penta6");
+        cellType = vtkEnSightReader::PENTA6;
+        }
+      
+      this->ReadInt(&numElements);
+      if (numElements < 0 || numElements*(int)sizeof(int) > this->FileSize ||
+          numElements > this->FileSize)
+        {
+        vtkErrorMacro("Invalid number of pentagonal cells; check that ByteOrder is set correctly.");
+        return -1;
+        }
+      if (this->ElementIdsListed)
+        {
+        this->IFile->seekg(sizeof(int)*numElements, ios::cur);
+        }
+
+      if (cellType == vtkEnSightReader::PENTA15)
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*15*numElements, ios::cur);
+        }
+      else
+        {
+        // Skip nodeIdList.
+        this->IFile->seekg(sizeof(int)*6*numElements, ios::cur);
+        }
       }
     else if (strncmp(line, "END TIME STEP", 13) == 0)
       {
