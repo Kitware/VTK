@@ -15,23 +15,22 @@ CMAKE_FIND_FRAMEWORKS(Python)
 
 FOREACH(_CURRENT_VERSION 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
   STRING(REPLACE "." "" _CURRENT_VERSION_NO_DOTS ${_CURRENT_VERSION})
-  IF(WIN32)
-    FIND_LIBRARY(PYTHON_DEBUG_LIBRARY
-      NAMES python${_CURRENT_VERSION_NO_DOTS}_d python
-      PATHS
-      [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs/Debug
-      [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs )
-  ENDIF(WIN32)
+  FIND_LIBRARY(PYTHON_DEBUG_LIBRARY
+    NAMES python${_CURRENT_VERSION_NO_DOTS}_d python Python
+    PATHS
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs/Debug
+    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs 
+    )
 
   FIND_LIBRARY(PYTHON_LIBRARY
-    NAMES python${_CURRENT_VERSION_NO_DOTS} python${_CURRENT_VERSION}
+    NAMES python${_CURRENT_VERSION_NO_DOTS} python${_CURRENT_VERSION} Python
     PATHS
       [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs
-    PATH_SUFFIXES
+      PATH_SUFFIXES
       python${_CURRENT_VERSION}/config
     # Avoid finding the .dll in the PATH.  We want the .lib.
     NO_SYSTEM_ENVIRONMENT_PATH
-  )
+    )
 
   SET(PYTHON_FRAMEWORK_INCLUDES)
   IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_PATH)
@@ -57,22 +56,6 @@ MARK_AS_ADVANCED(
   PYTHON_LIBRARY
   PYTHON_INCLUDE_PATH
 )
-
-# Python Should be built and installed as a Framework on OSX
-IF(Python_FRAMEWORKS)
-  # If a framework has been selected for the include path,
-  # make sure "-framework" is used to link it.
-  IF("${PYTHON_INCLUDE_PATH}" MATCHES "Python\\.framework")
-    SET(PYTHON_LIBRARY "")
-    SET(PYTHON_DEBUG_LIBRARY "")
-  ENDIF("${PYTHON_INCLUDE_PATH}" MATCHES "Python\\.framework")
-  IF(NOT PYTHON_LIBRARY)
-    SET (PYTHON_LIBRARY "-framework Python" CACHE FILEPATH "Python Framework" FORCE)
-  ENDIF(NOT PYTHON_LIBRARY)
-  IF(NOT PYTHON_DEBUG_LIBRARY)
-    SET (PYTHON_DEBUG_LIBRARY "-framework Python" CACHE FILEPATH "Python Framework" FORCE)
-  ENDIF(NOT PYTHON_DEBUG_LIBRARY)
-ENDIF(Python_FRAMEWORKS)
 
 # We use PYTHON_LIBRARY and PYTHON_DEBUG_LIBRARY for the cache entries
 # because they are meant to specify the location of a single library.
