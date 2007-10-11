@@ -29,6 +29,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkInformation.h"
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 # include "vtkLongLongArray.h"
@@ -41,7 +42,11 @@
 #  include "vtkUnsigned__Int64Array.h"
 # endif
 #endif
-vtkCxxRevisionMacro(vtkAbstractArray, "1.9");
+
+vtkCxxRevisionMacro(vtkAbstractArray, "1.10");
+
+vtkCxxSetObjectMacro(vtkAbstractArray,Information,vtkInformation);
+
 //----------------------------------------------------------------------------
 // Construct object with sane defaults.
 vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
@@ -50,12 +55,14 @@ vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
   this->MaxId = -1;
   this->NumberOfComponents = 1;
   this->Name = NULL;
+  this->Information = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkAbstractArray::~vtkAbstractArray()
 {
   this->SetName(NULL);
+  this->SetInformation(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -94,6 +101,27 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2,
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
+{
+  if ( da && da->Information && da != this )
+    {
+    vtkInformation* info = this->GetInformation(); // may create new instance
+    info->Copy( da->Information, 1 /* deep */ );
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkAbstractArray::GetInformation()
+{
+  if ( ! this->Information )
+    {
+    vtkInformation* info = vtkInformation::New();
+    this->SetInformation( info );
+    info->FastDelete();
+    }
+  return this->Information;
+}
 
 //----------------------------------------------------------------------------
 template <class T>
@@ -219,4 +247,9 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
+  os << indent << "Information: " << this->Information << endl;
+  if ( this->Information )
+    {
+    this->Information->PrintSelf( os, indent.GetNextIndent() );
+    }
 }

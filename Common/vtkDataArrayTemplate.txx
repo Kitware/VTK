@@ -19,6 +19,10 @@
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationVector.h"
 #include "vtkSortDataArray.h"
 #include <vtkstd/exception>
 #include <vtkstd/utility>
@@ -201,6 +205,7 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
     {
     memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
     }
+  this->vtkAbstractArray::DeepCopy( fa );
   this->DataChanged();
 }
 
@@ -804,39 +809,69 @@ void vtkDataArrayTemplate<T>::ComputeRange(int comp)
     comp = 0;
     }
 
-  // Choose index into component range cache.
-  int index = (comp<0)? this->NumberOfComponents : comp;
-
-  if(index >= VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES ||
-     (this->GetMTime() > this->ComponentRangeComputeTime[index]))
+  vtkInformation* info = this->GetInformation();
+  vtkInformationDoubleVectorKey* rkey;
+  if ( comp < 0 )
     {
-    // We need to compute the range.
-    this->Range[0] =  VTK_DOUBLE_MAX;
-    this->Range[1] =  VTK_DOUBLE_MIN;
-
-    if(comp >= 0)
-      {
-      this->ComputeScalarRange(comp);
-      }
-    else
-      {
-      this->ComputeVectorRange();
-      }
-
-    // Store the result in the range cache if there is room.
-    if(index < VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES)
-      {
-      this->ComponentRangeComputeTime[index].Modified();
-      this->ComponentRange[index][0] = this->Range[0];
-      this->ComponentRange[index][1] = this->Range[1];
-      }
+    rkey = L2_NORM_RANGE();
     }
   else
     {
-    // Copy value from range cache entry for this component.
-    this->Range[0] = this->ComponentRange[index][0];
-    this->Range[1] = this->ComponentRange[index][1];
+    vtkInformationVector* infoVec;
+    if ( ! info->Has( PER_COMPONENT() ) )
+      {
+      infoVec = vtkInformationVector::New();
+      info->Set( PER_COMPONENT(), infoVec );
+      }
+    else
+      {
+      infoVec = info->Get( PER_COMPONENT() );
+      }
+    int vlen = infoVec->GetNumberOfInformationObjects();
+    if ( vlen < this->NumberOfComponents )
+      {
+      infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
+      double rtmp[2];
+      rtmp[0] = VTK_DOUBLE_MAX;
+      rtmp[1] = VTK_DOUBLE_MIN;
+      // Since the MTime() of these new keys will be newer than this->MTime(), we must
+      // be sure that their ranges are marked "invalid" so that we know they must be
+      // computed.
+      for ( int i = vlen; i < this->NumberOfComponents; ++i )
+        {
+        infoVec->GetInformationObject( i )->Set( COMPONENT_RANGE(), rtmp, 2 );
+        }
+      }
+    info = infoVec->GetInformationObject( comp );
+    rkey = COMPONENT_RANGE();
     }
+
+  if ( info->Has( rkey ) )
+    {
+    if ( this->GetMTime() <= info->GetMTime() )
+      {
+      info->Get( rkey, this->Range );
+      if ( this->Range[0] != VTK_DOUBLE_MAX && this->Range[1] != VTK_DOUBLE_MIN )
+        {
+        // Only accept these values if they are reasonable. Otherwise, it is an
+        // indication that they've never been computed before.
+        return;
+        }
+      }
+    }
+
+  this->Range[0] = VTK_DOUBLE_MAX;
+  this->Range[1] = VTK_DOUBLE_MIN;
+  if ( comp < 0 )
+    {
+    this->ComputeVectorRange();
+    }
+  else
+    {
+    this->ComputeScalarRange( comp );
+    }
+
+  info->Set( rkey, this->Range, 2 );
 }
 
 //----------------------------------------------------------------------------

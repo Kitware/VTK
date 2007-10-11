@@ -25,6 +25,7 @@ IF(PYTHON_EXECUTABLE)
     vtkByteSwap.h
     vtkCallbackCommand.h
     vtkCommand.h
+    vtkCommonInformationKeyManager.h
     vtkContainer.h
     vtkDataArrayCollection.h
     vtkDataArrayTemplate.h
@@ -42,6 +43,7 @@ IF(PYTHON_EXECUTABLE)
     vtkIOStream.h
     vtkIOStreamFwd.h
     vtkIndent.h
+    vtkInformationInternals.h
     vtkJavaAwt.h
     vtkJavaUtil.h
     vtkLargeInteger.h

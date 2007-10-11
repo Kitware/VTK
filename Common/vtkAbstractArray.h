@@ -44,10 +44,11 @@
 #include "vtkObject.h"
 #include "vtkVariant.h" // for variant arguments
 
+class vtkArrayIterator;
+class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
-class vtkDataArray;
-class vtkArrayIterator;
+class vtkInformation;
 
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
@@ -139,7 +140,10 @@ public:
   // Deep copy of data. Implementation left to subclasses, which
   // should support as many type conversions as possible given the
   // data type.
-  virtual void DeepCopy(vtkAbstractArray *da) = 0;
+  //
+  // Subclasses should call vtkAbstractArray::DeepCopy() so that the
+  // information object (if one exists) is copied from \a da.
+  virtual void DeepCopy(vtkAbstractArray* da);
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
@@ -279,11 +283,23 @@ public:
   //  bool includeMin = true, bool includeMax = true) = 0;
   //virtual void LookupGreaterThan(vtkVariant min, vtkIdList* ids, bool includeMin = false) = 0;
   //virtual void LookupLessThan(vtkVariant max, vtkIdList* ids, bool includeMax = false) = 0;
+
+  // Description:
+  // Get an information object that can be used to annotate the array.
+  // This is NULL by default; you are responsible for allocating an information object
+  // if none already exists.
+  vtkInformation* GetInformation();
   
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray(vtkIdType numComp=1);
   ~vtkAbstractArray();
+
+  // Description:
+  // Set an information object that can be used to annotate the array.
+  // This is NULL by default; you are responsible for allocating an information object
+  // if none already exists.
+  virtual void SetInformation( vtkInformation* );
 
   vtkIdType Size;         // allocated size of data
   vtkIdType MaxId;        // maximum index inserted thus far
@@ -292,6 +308,8 @@ protected:
   char* Name;
   
   bool RebuildArray;      // whether to rebuild the fast lookup data structure.
+
+  vtkInformation* Information;
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

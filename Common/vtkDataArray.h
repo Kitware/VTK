@@ -37,10 +37,10 @@
 #include "vtkAbstractArray.h"
 
 class vtkDoubleArray;
-class vtkLookupTable;
 class vtkIdList;
-
-#define VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES 11
+class vtkInformationDoubleVectorKey;
+class vtkInformationInformationVectorKey;
+class vtkLookupTable;
 
 class VTK_COMMON_EXPORT vtkDataArray : public vtkAbstractArray
 {
@@ -340,6 +340,33 @@ public:
   // user.
   static vtkDataArray* CreateDataArray(int dataType);
 
+  // Description:
+  // This key is used to hold a vector of COMPONENT_RANGE keys -- one
+  // for each component of the array.  You may add additional per-component
+  // key-value pairs to information objects in this vector. However if you
+  // do so, you must be sure to either (1) set COMPONENT_RANGE to
+  // { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN } or (2) call ComputeRange( component )
+  // <b>before</b> modifying the information object.  Otherwise it is
+  // possible for modifications to the array to take place without the bounds
+  // on the component being updated since the modification time of the
+  // vtkInformation object is used to determine when the COMPONENT_RANGE 
+  // values are out of date.
+  static vtkInformationInformationVectorKey* PER_COMPONENT();
+  // Description:
+  // This key is used to hold tight bounds on the range of
+  // one component over all tuples of the array.
+  // Two values (a minimum and maximum) are stored for each component.
+  // When GetRange() is called when no tuples are present in the array
+  // this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+  static vtkInformationDoubleVectorKey* COMPONENT_RANGE();
+  // Description:
+  // This key is used to hold tight bounds on the $L_2$ norm
+  // of tuples in the array.
+  // Two values (a minimum and maximum) are stored for each component.
+  // When GetRange() is called when no tuples are present in the array
+  // this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+  static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
+  
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(vtkIdType numComp=1);
@@ -348,16 +375,6 @@ protected:
   vtkLookupTable *LookupTable;
   double Range[2];
 
-  // We can have arbitrary number of components, but 11 should
-  // take care of 99.99% of the cases.  Components greater
-  // than 11 do not get cached.  The comment below assume max of 4 comps.  
-  // 5 components since you can compute the range of components
-  // less than 0 to get a magnitude range. ComponentRange[4] is 
-  // this magnitude range
-  vtkTimeStamp 
-     ComponentRangeComputeTime[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES];
-  double ComponentRange[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES][2];
-  
 private:
   double* GetTupleN(vtkIdType i, int n);
   

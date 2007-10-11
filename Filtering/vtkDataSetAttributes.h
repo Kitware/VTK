@@ -421,6 +421,9 @@ public:
   // ext is no longer used.
   // If shallowCopyArrays is true, input arrays are copied to the output
   // instead of new ones being allocated.
+  // 
+  // Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
   void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
                     vtkIdType ext=1000)
     {
@@ -432,6 +435,9 @@ public:
   // Description:
   // This method is used to copy data arrays in images.
   // You should call "CopyAllocate" before calling this method.
+  // 
+  // Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
   void CopyStructuredData(vtkDataSetAttributes *inDsa,
                           const int *inExt, const int *outExt);
 
@@ -444,6 +450,9 @@ public:
   // for that attribute, ignore (2) and (3), 2) if there is a copy field for
   // that field (on or off), obey the flag, ignore (3) 3) obey
   // CopyAllOn/Off
+  // 
+  // Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
   void CopyData(vtkDataSetAttributes *fromPd, vtkIdType fromId, vtkIdType toId);
 
 
@@ -516,6 +525,9 @@ public:
   // Description:
   // A special form of CopyAllocate() to be used with FieldLists. Use it 
   // when you are copying data from a set of vtkDataSetAttributes.
+  // 
+  // Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
   void CopyAllocate(vtkDataSetAttributes::FieldList& list, vtkIdType sze=0, 
                     vtkIdType ext=1000);
 
@@ -524,6 +536,9 @@ public:
   // you are copying data from a set of vtkDataSetAttributes. Make sure 
   // that you have called the special form of CopyAllocate that accepts 
   // FieldLists.
+  // 
+  // Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
   void CopyData(vtkDataSetAttributes::FieldList& list, 
                 vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
                 vtkIdType toId);

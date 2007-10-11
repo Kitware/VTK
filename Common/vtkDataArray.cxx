@@ -18,8 +18,12 @@
 #include "vtkCriticalSection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkIntArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationVector.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
 #include "vtkIdList.h"
 #include "vtkLookupTable.h"
 #include "vtkLongArray.h"
@@ -31,9 +35,11 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+vtkInformationKeyMacro(vtkDataArray, PER_COMPONENT, InformationVector);
+vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
+vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
-
-vtkCxxRevisionMacro(vtkDataArray, "1.79");
+vtkCxxRevisionMacro(vtkDataArray, "1.80");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -129,6 +135,8 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 
   if ( this != da )
     {
+    this->Superclass::DeepCopy( da ); // copy Information object
+
     int numTuples = da->GetNumberOfTuples();
     this->NumberOfComponents = da->NumberOfComponents;
     this->SetNumberOfTuples(numTuples);
@@ -976,59 +984,95 @@ void vtkDataArray::ComputeRange(int comp)
 {
   double s,t;
   vtkIdType numTuples;
+  vtkInformation* info = this->GetInformation();
 
   if (comp < 0 && this->NumberOfComponents == 1)
     {
     comp = 0;
     }
 
-  int idx = comp;
-  idx = (idx<0)?(this->NumberOfComponents):(idx);
-  
-  if (idx >= VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES || 
-       (this->GetMTime() > this->ComponentRangeComputeTime[idx]) )
+  vtkInformationDoubleVectorKey* rkey;
+  if ( comp < 0 )
     {
-    numTuples=this->GetNumberOfTuples();
-    this->Range[0] =  VTK_DOUBLE_MAX;
-    this->Range[1] =  VTK_DOUBLE_MIN;
-
-    for (vtkIdType i=0; i<numTuples; i++)
-      {
-      if (comp >= 0)
-        {
-        s = this->GetComponent(i,comp);
-        }
-      else
-        { // Compute range of vector magnitude.
-        s = 0.0;
-        for (int j=0; j < this->NumberOfComponents; ++j)
-          {
-          t = this->GetComponent(i,j);
-          s += t*t;
-          }
-        s = sqrt(s);
-        }
-      if ( s < this->Range[0] )
-        {
-        this->Range[0] = s;
-        }
-      if ( s > this->Range[1] )
-        {
-        this->Range[1] = s;
-        }
-      }
-    if (idx < VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES)
-      {
-      this->ComponentRangeComputeTime[idx].Modified();
-      this->ComponentRange[idx][0] = this->Range[0];
-      this->ComponentRange[idx][1] = this->Range[1];
-      }
+    rkey = L2_NORM_RANGE();
     }
   else
     {
-    this->Range[0] = this->ComponentRange[idx][0];
-    this->Range[1] = this->ComponentRange[idx][1];    
+    vtkInformationVector* infoVec;
+    if ( ! info->Has( PER_COMPONENT() ) )
+      {
+      infoVec = vtkInformationVector::New();
+      info->Set( PER_COMPONENT(), infoVec );
+      }
+    else
+      {
+      infoVec = info->Get( PER_COMPONENT() );
+      }
+    int vlen = infoVec->GetNumberOfInformationObjects();
+    if ( vlen < this->NumberOfComponents )
+      {
+      infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
+      double rtmp[2];
+      rtmp[0] = VTK_DOUBLE_MAX;
+      rtmp[1] = VTK_DOUBLE_MIN;
+      // Since the MTime() of these new keys will be newer than this->MTime(), we must
+      // be sure that their ranges are marked "invalid" so that we know they must be
+      // computed.
+      for ( int i = vlen; i < this->NumberOfComponents; ++i )
+        {
+        infoVec->GetInformationObject( i )->Set( COMPONENT_RANGE(), rtmp, 2 );
+        }
+      }
+    info = infoVec->GetInformationObject( comp );
+    rkey = COMPONENT_RANGE();
     }
+
+  if ( info->Has( rkey ) )
+    {
+    if ( this->GetMTime() <= info->GetMTime() )
+      {
+      info->Get( rkey, this->Range );
+      if ( this->Range[0] != VTK_DOUBLE_MAX && this->Range[1] != VTK_DOUBLE_MIN )
+        {
+        // Only accept these values if they are reasonable. Otherwise, it is an
+        // indication that they've never been computed before.
+        return;
+        }
+      }
+    }
+
+  // If we got here, we need to compute the range.
+  numTuples=this->GetNumberOfTuples();
+  this->Range[0] =  VTK_DOUBLE_MAX;
+  this->Range[1] =  VTK_DOUBLE_MIN;
+
+  for (vtkIdType i=0; i<numTuples; i++)
+    {
+    if (comp >= 0)
+      {
+      s = this->GetComponent(i,comp);
+      }
+    else
+      { // Compute range of vector magnitude.
+      s = 0.0;
+      for (int j=0; j < this->NumberOfComponents; ++j)
+        {
+        t = this->GetComponent(i,j);
+        s += t*t;
+        }
+      s = sqrt(s);
+      }
+    if ( s < this->Range[0] )
+      {
+      this->Range[0] = s;
+      }
+    if ( s > this->Range[1] )
+      {
+      this->Range[1] = s;
+      }
+    }
+
+  info->Set( rkey, this->Range, 2 );
 }
 
 //----------------------------------------------------------------------------

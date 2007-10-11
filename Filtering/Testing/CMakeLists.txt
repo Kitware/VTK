@@ -21,7 +21,6 @@ IF(PYTHON_EXECUTABLE)
     vtkFilteringInformationKeyManager.h
     vtkImageIterator.h
     vtkImageProgressIterator.h
-    vtkInformationInternals.h
     vtkMarchingCubesCases.h
     vtkMarchingSquaresCases.h
     vtkMultiBlockDataSetInternal.h
