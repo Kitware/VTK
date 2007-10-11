@@ -124,7 +124,8 @@ public:
   const char* GetAttributeValue(int idx);
 
   // Description:
-  // Remove all attributes.
+  // Remove one or all attributes.
+  virtual void RemoveAttribute(const char *name);
   virtual void RemoveAllAttributes();
 
   // Description:
