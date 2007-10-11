@@ -29,14 +29,9 @@
 
 #include <math.h>
 
-#if defined(_MSC_VER) || defined (__BORLANDC__)
-# include "vtkWindows.h"
-# include <GL/glaux.h>
-#else
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.130");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.130.4.1");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
