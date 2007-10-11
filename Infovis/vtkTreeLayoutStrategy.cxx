@@ -31,7 +31,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -117,24 +117,7 @@ void vtkTreeLayoutStrategy::Layout()
   vtkIdType internalCount = tree->GetNumberOfVertices() - leafCount - 1;
   double leafSpacing = this->LeafSpacing / static_cast<double>(leafCount);
   double internalSpacing = (1.0 - this->LeafSpacing) / static_cast<double>(internalCount);
-
-  double angleRad = this->Angle * vtkMath::Pi() / 180.0;
-  double spacing;
-  if (this->LogSpacingValue == 1.0)
-    {
-    if (this->Radial)
-      {
-      spacing = 1.0 / maxLevel;
-      }
-    else
-      {
-      spacing = 0.5 / tan(angleRad / 2);
-      }
-    }
-  else
-    {
-    spacing = this->LogSpacingValue;
-    }
+  double spacing = this->LogSpacingValue;
 
   double curPlace = 0;
   iter->SetMode(vtkTreeDFSIterator::FINISH);
@@ -149,14 +132,7 @@ void vtkTreeLayoutStrategy::Layout()
       }
     else
       {
-      if (this->LogSpacingValue == 1.0)
-        {
-        height = spacing * tree->GetLevel(vertex) / static_cast<double>(maxLevel);
-        }
-      else
-        {
-        height = (1 - pow(spacing, tree->GetLevel(vertex) + 1.0)) / (1 - spacing) - 1.0;
-        }
+      height = pow(spacing,tree->GetLevel(vertex))* tree->GetLevel(vertex) / static_cast<double>(maxLevel);
       }
 
     double x, y;
@@ -165,9 +141,23 @@ void vtkTreeLayoutStrategy::Layout()
       double ang;
       if (tree->IsLeaf(vertex))
         {
-        ang = 2.0 * vtkMath::Pi() * curPlace;
-        ang *= this->Angle / 360.0;
-        ang -= vtkMath::Pi() / 2.0 + vtkMath::Pi()*this->Angle / 180.0;
+        
+        // 1) Compute the postion in the arc
+        // 2) Spin around so that the tree leaves are at 
+        //    the bottom and centered (some fudging)
+        // 3) Convert to radians
+        double angleInDegrees = curPlace * this->Angle;
+        
+        // Note: this should be 90 degrees... but I don't
+        // understand the rest of the logic below....
+        // Maybe it like that scene in Raiders of the Lost Arc
+        // where the front of the staff has a distance and
+        // the back says minus one ha-ka. :)
+        angleInDegrees -= (75+this->Angle/2); 
+        
+        // Convert to radians
+        ang = angleInDegrees * vtkMath::Pi() / 180.0;
+
         curPlace += leafSpacing;
         }
       else

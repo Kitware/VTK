@@ -68,8 +68,9 @@ public:
   // Description:
   // The spacing of tree levels. Levels near zero give more space
   // to levels near the root, while levels near one (the default)
-  // create evenly-spaced levels.
-  vtkSetClampMacro(LogSpacingValue, double, 0.0, 1.0);
+  // create evenly-spaced levels. Levels above one give more space
+  // to levels near the leaves.
+  vtkSetMacro(LogSpacingValue, double);
   vtkGetMacro(LogSpacingValue, double);
 
   // Description:
