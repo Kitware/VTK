@@ -28,7 +28,7 @@
 
 class vtkInformationKey;
 
-class VTK_FILTERING_EXPORT vtkCommonInformationKeyManager
+class VTK_COMMON_EXPORT vtkCommonInformationKeyManager
 {
 public:
   vtkCommonInformationKeyManager();
