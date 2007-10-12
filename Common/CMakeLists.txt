@@ -294,6 +294,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
   vtkEventForwarderCommand.cxx
+  vtkFloatingPointExceptions
   vtkGarbageCollectorManager.cxx
   vtkIOStream.cxx
   vtkIndent.cxx
