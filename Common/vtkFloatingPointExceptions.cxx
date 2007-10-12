@@ -15,6 +15,10 @@
 
 #include "vtkFloatingPointExceptions.h"
 
+#ifdef _MSC_VER
+#include <float.h>
+#endif
+
 //-----------------------------------------------------------------------------
 // Description:
 // Enable floating point exceptions.
@@ -22,11 +26,7 @@ void vtkFloatingPointExceptions::Enable()
 {
 #ifdef _MSC_VER
   // enable floating point exceptions on MSVC
-  short m = 0x372;
-  __asm
-    {
-    fldcw m;
-    }
+  _controlfp(_EM_DENORMAL | _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
 #endif  //_MSC_VER
 #if defined(__linux__) && defined(__i386__)
   // This only works on linux x86
