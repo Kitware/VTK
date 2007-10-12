@@ -31,7 +31,7 @@
 #include "vtksys/ios/sstream"
 
 // Implementation of vtkVariant's less than operation
-bool vtkVariantLessThan::operator()(vtkVariant s1, vtkVariant s2) const
+const bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) const
 {
   if (s1.IsString() && s2.IsString())
     {

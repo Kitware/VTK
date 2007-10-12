@@ -319,9 +319,9 @@ private:
 
 // A STL-style function object so you can compare two variants using
 // comp(s1,s2) where comp is an instance of vtkVariantLessThan.
-struct vtkVariantLessThan
+struct VTK_COMMON_EXPORT vtkVariantLessThan
 {
-  bool operator()(vtkVariant s1, vtkVariant s2) const;
+  const bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 #endif
