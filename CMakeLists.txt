@@ -460,7 +460,15 @@ ENDIF(BUILD_TESTING)
 OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
 MARK_AS_ADVANCED(VTK_USE_DISPLAY)
 
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "    try {")
+OPTION(VTK_TESTING_USE_FPE "Testing use floating point exceptions." OFF)
+MARK_AS_ADVANCED(VTK_TESTING_USE_FPE)
+
+IF(VTK_TESTING_USE_FPE)
+ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "vtkFloatingPointExceptions::Enable();\n    try {")
+ELSE(VTK_TESTING_USE_FPE)
+ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "    try {")
+ENDIF(VTK_TESTING_USE_FPE)
+
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
     catch(vtkstd::exception& e)
       {

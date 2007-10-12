@@ -31,5 +31,6 @@
 #endif
 
 #include <vtkstd/exception> // for vtkstd::exception
+#include "vtkFloatingPointExceptions.h"
 
 #endif
