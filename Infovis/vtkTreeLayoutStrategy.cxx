@@ -31,7 +31,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -99,6 +99,7 @@ void vtkTreeLayoutStrategy::Layout()
   // and get the maximum depth
   vtkIdType leafCount = 0;
   vtkIdType maxLevel = 0;
+  vtkIdType lastLeafLevel = 0;
   vtkTreeDFSIterator* iter = vtkTreeDFSIterator::New();
   iter->SetTree(tree);
   while (iter->HasNext())
@@ -107,17 +108,58 @@ void vtkTreeLayoutStrategy::Layout()
     if (tree->IsLeaf(vertex))
       {
       leafCount++;
+      lastLeafLevel = tree->GetLevel(vertex);
       }
     if (tree->GetLevel(vertex) > maxLevel)
       {
       maxLevel = tree->GetLevel(vertex);
       }
     }
-  // Don't count the root in the list of internal nodes.
-  vtkIdType internalCount = tree->GetNumberOfVertices() - leafCount - 1;
-  double leafSpacing = this->LeafSpacing / static_cast<double>(leafCount);
-  double internalSpacing = (1.0 - this->LeafSpacing) / static_cast<double>(internalCount);
+  
+  // Divide the "extra spacing" between tree branches among all internal nodes.
+  // When the angle is 360, we want to divide by 
+  // internalCount - 1 (taking out just the root),
+  // so that there is extra space where the tree meets itself.
+  // When the angle is lower (here we say 270 or lower), 
+  // we should to divide by internalCount - lastLeafLevel,
+  // so that the tree ends exactly at the sweep angle end points.
+  // To do this, we interpolate between these values.
+  vtkIdType internalCount = tree->GetNumberOfVertices() - leafCount;
+  double alpha = (this->Angle - 270) / 90;
+  if (alpha < 0.0)
+    {
+    alpha = 0.0;
+    }
+  double internalCountInterp = alpha*(internalCount - 1) + (1.0 - alpha)*(internalCount - lastLeafLevel);
+  double internalSpacing = (1.0 - this->LeafSpacing) / internalCountInterp;
+  
+  // Divide the spacing between tree leaves among all leaf nodes.
+  // This is similar to the interpolation for internal spacing.
+  // When the angle is close to 360, we want space between the first and last leaf nodes.
+  // When the angle is lower (less than 270), we fill the full sweep angle so divide
+  // by leafCount - 1 to take out this extra space.
+  double leafCountInterp = alpha*leafCount + (1.0 - alpha)*(leafCount - 1);
+  double leafSpacing = this->LeafSpacing / leafCountInterp;
+  
   double spacing = this->LogSpacingValue;
+  
+  // The distance between level L-1 and L is s^L.
+  // Thus, if s < 1 then the distance between levels gets smaller in higher levels,
+  //       if s = 1 the distance remains the same, and
+  //       if s > 1 the distance get larger.
+  // The height (distance from the root) of level L, then, is
+  // s + s^2 + s^3 + ... + s^L, where s is the log spacing value.
+  // The max height (used for normalization) is
+  // s + s^2 + s^3 + ... + s^maxLevel.
+  // The quick formula for computing this is
+  // sum_{i=1}^{n} s^i = (s^(n+1) - 1)/(s - 1) - 1        if s != 1
+  //                   = n                                if s == 1
+  double maxHeight = maxLevel;
+  double eps = 1e-8;
+  if (abs(spacing-1.0) > eps)
+    {
+    maxHeight = (pow(spacing, maxLevel+1.0) - 1.0)/(spacing - 1.0) - 1.0;
+    }
 
   double curPlace = 0;
   iter->SetMode(vtkTreeDFSIterator::FINISH);
@@ -132,7 +174,14 @@ void vtkTreeLayoutStrategy::Layout()
       }
     else
       {
-      height = pow(spacing,tree->GetLevel(vertex))* tree->GetLevel(vertex) / static_cast<double>(maxLevel);
+      if (abs(spacing-1.0) < eps)
+        {
+        height = tree->GetLevel(vertex)/maxHeight;
+        }
+      else
+        {
+        height = ((pow(spacing, tree->GetLevel(vertex)+1.0) - 1.0)/(spacing - 1.0) - 1.0)/maxHeight;
+        }
       }
 
     double x, y;
@@ -144,16 +193,11 @@ void vtkTreeLayoutStrategy::Layout()
         
         // 1) Compute the postion in the arc
         // 2) Spin around so that the tree leaves are at 
-        //    the bottom and centered (some fudging)
+        //    the bottom and centered
         // 3) Convert to radians
         double angleInDegrees = curPlace * this->Angle;
         
-        // Note: this should be 90 degrees... but I don't
-        // understand the rest of the logic below....
-        // Maybe it like that scene in Raiders of the Lost Arc
-        // where the front of the staff has a distance and
-        // the back says minus one ha-ka. :)
-        angleInDegrees -= (75+this->Angle/2); 
+        angleInDegrees -= (90+this->Angle/2); 
         
         // Convert to radians
         ang = angleInDegrees * vtkMath::Pi() / 180.0;
@@ -179,11 +223,11 @@ void vtkTreeLayoutStrategy::Layout()
             {
             leafAngle += 2*vtkMath::Pi();
             }
-          if (leafAngle < minAng)
+          if (c == 0)
             {
             minAng = leafAngle;
             }
-          if (leafAngle > maxAng)
+          if (c == nchildren - 1)
             {
             maxAng = leafAngle;
             }

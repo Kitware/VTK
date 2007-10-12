@@ -64,6 +64,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   bool radial = true;
   double angle = 360;
   double logSpacing = 0.8;
+  double leafSpacing = 0.9;
 
   for (int i = 1; i < argc; i++)
     {
@@ -108,6 +109,12 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       logSpacing = atof(argv[i]);
       continue;
       }
+    if (!strcmp(argv[i], "-f"))
+      {
+      i++;
+      leafSpacing = atof(argv[i]);
+      continue;
+      }
     if (!strcmp(argv[i], "-r"))
       {
       treeType = RANDOM_TREE;
@@ -149,6 +156,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       << " -S : standard tree layout (default radial)\n"
       << " -A angle : tree sweep angle (default 360)\n"
       << " -L logspacing : tree logspacing (0.0 to 1.0; default 0.8)\n"
+      << " -f leafspacing : tree leaf spacing\n"
       << " -t : show tree instead of edge bundles\n";
     return 0;
     }
@@ -296,6 +304,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   treeStrategy->SetAngle(angle);
   treeStrategy->SetRadial(radial);
   treeStrategy->SetLogSpacingValue(logSpacing);
+  treeStrategy->SetLeafSpacing(leafSpacing);
 
   VTK_CREATE(vtkGraphLayout, treeLayout);
   treeLayout->SetInput(tree);
