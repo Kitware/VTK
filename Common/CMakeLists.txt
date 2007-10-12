@@ -57,6 +57,7 @@ vtkExtentTranslator.cxx
 vtkFastNumericConversion.cxx
 vtkFileOutputWindow.cxx
 vtkFloatArray.cxx
+vtkFloatingPointExceptions.cxx
 vtkFunctionParser.cxx
 vtkFunctionSet.cxx
 vtkGarbageCollector.cxx
@@ -247,6 +248,7 @@ vtkCommand
 vtkCommonInformationKeyManager
 vtkDataArray
 vtkEventForwarderCommand
+vtkFloatingPointExceptions
 vtkFunctionSet
 vtkHomogeneousTransform
 vtkImplicitFunction

@@ -34,6 +34,7 @@ IF(PYTHON_EXECUTABLE)
     vtkDynamicLoader.h
     vtkEventForwarderCommand.h
     vtkErrorCode.h
+    vtkFloatingPointExceptions.h
     vtkGarbageCollector.h
     vtkGarbageCollectorManager.h
     vtkHashMap.h
