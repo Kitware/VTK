@@ -210,7 +210,7 @@ public:
   {
     CELL,
     POINT,
-    NONE
+    FIELD
   };
 //ETX
   
