@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.53");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.54");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -1074,10 +1074,10 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnFastPathData(
     {
     if( (outInfo->Get(FAST_PATH_OBJECT_ID()) == 
             outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_ID())) &&
-        (outInfo->Get(FAST_PATH_OBJECT_TYPE()) == 
-            outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_TYPE())) &&
-        (outInfo->Get(FAST_PATH_ID_TYPE()) == 
-            outInfo->Get(PREVIOUS_FAST_PATH_ID_TYPE())) )
+        (strcmp(outInfo->Get(FAST_PATH_OBJECT_TYPE()),
+                outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_TYPE())) == 0) &&
+        (strcmp(outInfo->Get(FAST_PATH_ID_TYPE()),
+                outInfo->Get(PREVIOUS_FAST_PATH_ID_TYPE())) == 0) )
       {
       return 0;
       }  
