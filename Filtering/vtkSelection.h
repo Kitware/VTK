@@ -201,7 +201,7 @@ public:
   virtual int GetContentType();
 
   // Description:
-  // Controls whether cells or points determine what is inside and out.
+  // Controls whether cell, point, or field data determine what is inside and out.
   // The default is CELL.
   // GetFieldType() returns -1 if the field type is not set.
   static vtkInformationIntegerKey* FIELD_TYPE();

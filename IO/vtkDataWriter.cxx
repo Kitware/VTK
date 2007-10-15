@@ -37,10 +37,11 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkVariantArray.h"
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.123");
+vtkCxxRevisionMacro(vtkDataWriter, "1.124");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -812,6 +813,19 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
           }
         }
       *fp << "\n";
+      }
+    break;
+
+    case VTK_VARIANT:
+      {
+      sprintf (str, format, "variant"); *fp << str; 
+      vtkVariant *v=((vtkVariantArray *)data)->GetPointer(0);
+      for (vtkIdType i = 0; i < num*numComp; i++)
+        {
+        *fp << v[i].GetType() << " ";
+        this->EncodeWriteString(fp, v[i].ToString().c_str(), false);
+        *fp << endl;
+        }
       }
     break;
 

@@ -21,6 +21,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractSelection.h"
@@ -39,7 +40,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.11");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -72,67 +73,6 @@ void vtkExtractSelectedGraph::SetSelectionConnection(vtkAlgorithmOutput* in)
   this->SetInputConnection(1, in);
 }
 
-int vtkExtractSelectedGraph::ConvertToIndexSelection(
-  vtkSelection* selection, 
-  vtkDataSet* input, 
-  vtkSelection* outputSelection)
-{
-  // Change the selection to preserve topology
-  vtkSelection* selTemp = vtkSelection::New();
-  selTemp->ShallowCopy(selection);
-  selTemp->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), true);
-  
-  // Use the extraction filter to create an insidedness array.
-  vtkExtractSelection* const extract = vtkExtractSelection::New();
-  extract->SetInput(0, input);
-  extract->SetInput(1, selTemp);
-  extract->Update();
-  vtkDataSet* const extracted = extract->GetOutput();
-  selTemp->Delete();
-  
-  outputSelection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  int type = selection->GetProperties()->Get(vtkSelection::FIELD_TYPE());
-  outputSelection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), type);
-  vtkSignedCharArray* insidedness = 0;
-  if (type == vtkSelection::CELL)
-    {
-    insidedness = vtkSignedCharArray::SafeDownCast(
-      extracted->GetCellData()->GetAbstractArray("vtkInsidedness"));
-    }
-  else if (type == vtkSelection::POINT)
-    {
-    insidedness = vtkSignedCharArray::SafeDownCast(
-      extracted->GetPointData()->GetAbstractArray("vtkInsidedness"));
-    }
-  else
-    {
-    vtkErrorMacro("Unknown field type");
-    extract->Delete();
-    return 0;
-    }
-  
-  if (!insidedness)
-    {
-    vtkErrorMacro("Did not find expected vtkInsidedness array.");
-    extract->Delete();
-    return 0;
-    }
-  
-  // Convert the insidedness array into an index selection.
-  vtkIdTypeArray* indexArray = vtkIdTypeArray::New();
-  for (vtkIdType i = 0; i < insidedness->GetNumberOfTuples(); i++)
-    {
-    if (insidedness->GetValue(i) == 1)
-      {
-      indexArray->InsertNextValue(i);
-      }
-    }
-  outputSelection->SetSelectionList(indexArray);
-  indexArray->Delete();
-  extract->Delete();
-  return 1;
-}
-
 int vtkExtractSelectedGraph::RequestData(
   vtkInformation* vtkNotUsed(request), 
   vtkInformationVector** inputVector, 
@@ -148,21 +88,37 @@ int vtkExtractSelectedGraph::RequestData(
     return 1;
     }
   
-  vtkSelection* indexSelection = vtkSelection::New();
-  indexSelection->ShallowCopy(selection);
-  
-  int content = selection->GetProperties()->Get(selection->CONTENT_TYPE());
-  if (content != vtkSelection::INDICES)
+  // If it is a selection with multiple parts, find a point or cell
+  // child selection, with preference to points.
+  if (selection->GetContentType() == vtkSelection::SELECTIONS)
     {
-    // Convert the selection to an INDICES selection
-    int ret = this->ConvertToIndexSelection(selection, input, indexSelection);
-    if (ret != 1)
+    vtkSelection* child = 0;
+    for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
       {
-      vtkErrorMacro("Selection conversion to INDICES failed.");
-      indexSelection->Delete();
-      return 0;
+      vtkSelection* cur = selection->GetChild(i);
+      if (cur->GetFieldType() == vtkSelection::POINT)
+        {
+        child = cur;
+        break;
+        }
+      else if (cur->GetFieldType() == vtkSelection::CELL)
+        {
+        child = cur;
+        }
       }
+    selection = child;
     }
+    
+  // Convert the selection to an INDICES selection
+  vtkSelection* indexSelection = 
+    vtkConvertSelection::ToIndexSelection(selection, input);
+  if (!indexSelection)
+    {
+    vtkErrorMacro("Selection conversion to INDICES failed.");
+    indexSelection->Delete();
+    return 0;
+    }
+  
   vtkAbstractArray* arr = indexSelection->GetSelectionList();
   if (arr == NULL)
     {

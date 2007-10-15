@@ -69,6 +69,14 @@ public:
   //ETX
 
   // Description:
+  // Convenience method for setting the origin vertex
+  // given an array name and string value.
+  // This method is primarily for the benefit of the
+  // VTK Parallel client/server layer, callers should
+  // prefer to use SetOriginVertex() whenever possible.
+  void SetOriginVertexString(char* arrayName, char* value);
+
+  // Description:
   // Set the output array name. If no output array name is
   // set then the name 'BFS' is used.
   vtkSetStringMacro(OutputArrayName);

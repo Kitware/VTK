@@ -63,13 +63,6 @@ protected:
   vtkExtractSelectedGraph();
   ~vtkExtractSelectedGraph();
 
-  // Description:
-  // Converts any selection to an INDICES selection.
-  int ConvertToIndexSelection(
-    vtkSelection* selection, 
-    vtkDataSet* input, 
-    vtkSelection* outputSelection);
-  
   int RequestData(
     vtkInformation*, 
     vtkInformationVector**, 

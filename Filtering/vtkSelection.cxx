@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.19");
+vtkCxxRevisionMacro(vtkSelection, "1.20");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -424,24 +424,46 @@ void vtkSelection::UnionSelectionList(vtkSelection* other)
   case LOCATIONS:
   case THRESHOLDS:
       {
-      vtkAbstractArray* aa1 = this->GetSelectionList();
-      vtkAbstractArray* aa2 = other->GetSelectionList();
-      if (aa1->GetDataType() != aa2->GetDataType())
+      vtkFieldData* fd1 = this->GetFieldData();
+      vtkFieldData* fd2 = other->GetFieldData();
+      if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
         {
-        vtkErrorMacro(<< "Cannot take the union where selection list types "
-          << "do not match.");
-        return;
+        vtkErrorMacro(<< "Cannot take the union where the number of arrays do not match.");
         }
-      if (aa1->GetNumberOfComponents() != aa2->GetNumberOfComponents())
+      for (int i = 0; i < fd1->GetNumberOfArrays(); i++)
         {
-        vtkErrorMacro(<< "Cannot take the union where selection list number "
-          << "of components do not match.");
-        return;
-        }
-      // TODO: avoid duplicates.
-      for (vtkIdType i = 0; i < aa2->GetNumberOfTuples(); i++)
-        {
-        aa1->InsertNextTuple(i, aa2);
+        vtkAbstractArray* aa1 = fd1->GetAbstractArray(i);
+        vtkAbstractArray* aa2 = 0;
+        if (i == 0 && type != VALUES && type != THRESHOLDS)
+          {
+          aa2 = fd2->GetAbstractArray(i);
+          }
+        else
+          {
+          aa2 = fd2->GetAbstractArray(aa1->GetName());
+          }
+        if (!aa2)
+          {
+          vtkErrorMacro(<< "Could not find array with name " 
+                        << aa1->GetName() << " in other selection.");
+          }
+        if (aa1->GetDataType() != aa2->GetDataType())
+          {
+          vtkErrorMacro(<< "Cannot take the union where selection list types "
+            << "do not match.");
+          return;
+          }
+        if (aa1->GetNumberOfComponents() != aa2->GetNumberOfComponents())
+          {
+          vtkErrorMacro(<< "Cannot take the union where selection list number "
+            << "of components do not match.");
+          return;
+          }
+        // TODO: avoid duplicates.
+        for (vtkIdType i = 0; i < aa2->GetNumberOfTuples(); i++)
+          {
+          aa1->InsertNextTuple(i, aa2);
+          }
         }
       break;
       }
@@ -465,7 +487,7 @@ void vtkSelection::Union(vtkSelection* s)
     // Merge the selection with any of our children.
     for (unsigned int cc=0; cc < s->GetNumberOfChildren(); cc++)
       {
-      s->GetChild(cc)->Union(s);
+      this->Union(s->GetChild(cc));
       }
     return;
     }

@@ -28,7 +28,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkThresholdTable, "1.3");
+vtkCxxRevisionMacro(vtkThresholdTable, "1.4");
 vtkStandardNewMacro(vtkThresholdTable);
 
 vtkThresholdTable::vtkThresholdTable() : MinValue(0), MaxValue(VTK_INT_MAX)
@@ -63,7 +63,7 @@ void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
 
 bool vtkThresholdTableCompare(vtkVariant a, vtkVariant b)
 {
-  return a.ToDouble() < b.ToDouble();
+  return a.ToDouble() <= b.ToDouble();
 }
 
 template <typename iterT>

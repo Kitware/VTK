@@ -19,6 +19,7 @@
 #include "vtkConvertSelection.h"
 
 #include "vtkCellData.h"
+#include "vtkCommand.h"
 #include "vtkDataArrayTemplate.h"
 #include "vtkDataSet.h"
 #include "vtkExtractSelection.h"
@@ -44,7 +45,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.6");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.7");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -109,13 +110,11 @@ int vtkConvertSelection::SelectTableFromTable(
           }
         else
           {
-          vtksys_stl::set<vtkIdType> curMatch, intersection;
-          curMatch.insert(
-            list->GetPointer(0), 
-            list->GetPointer(0) + list->GetNumberOfIds());
+          vtksys_stl::set<vtkIdType> intersection;
+          vtksys_stl::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
           vtksys_stl::set_intersection(
             matching.begin(), matching.end(), 
-            curMatch.begin(), curMatch.end(), 
+            list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds(), 
             vtksys_stl::inserter(intersection, intersection.begin()));
           matching = intersection;
           }
@@ -125,6 +124,11 @@ int vtkConvertSelection::SelectTableFromTable(
     for (it = matching.begin(); it != itEnd; ++it)
       {
       indices->InsertNextValue(*it);
+      }
+    if (row % 100 == 0)
+      {
+      double progress = 0.8 * row / selTable->GetNumberOfRows();
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
       }
     }
   return 1;
@@ -414,10 +418,16 @@ int vtkConvertSelection::Convert(
       {
       dataArr = dsa->GetGlobalIds();
       }
+    else if (fd && selArr->GetName())
+      {
+      // Since data objects only have field data which does not have attributes,
+      // use the array name to try to match the incoming selection's array.
+      dataArr = fd->GetAbstractArray(selArr->GetName());
+      }
     else
       {
-      // TODO: Make this error go away.
-      vtkErrorMacro("BUG: Currently you can only specify pedigree and global ids on a vtkDataSet.");
+      vtkErrorMacro("Tried to use array name to match global or pedigree ids on data object,"
+        << "but name not set on selection array.");
       return 0;
       }
     
@@ -455,6 +465,9 @@ int vtkConvertSelection::Convert(
         return 0;
       }
     }
+  
+  double progress = 0.8;
+  this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   
   //
   // Now that we have the list of indices, convert the selection by indexing
@@ -528,6 +541,11 @@ int vtkConvertSelection::Convert(
         {
         // TODO: Make this a silent warning when we are done debugging
         vtkWarningMacro("Attempting to select an index outside the array range.");
+        }
+      if (i % 1000 == 0)
+        {
+        progress = 0.8 + (0.2 * (ind*numIndices + i)) / (numOutputArrays*numIndices);
+        this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
         }
       }
     outputData->AddArray(outputArr);

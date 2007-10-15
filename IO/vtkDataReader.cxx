@@ -40,6 +40,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkVariantArray.h"
 #include <vtksys/ios/sstream>
 
 // We only have vtkTypeUInt64Array if we have long long
@@ -58,7 +59,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.148");
+vtkCxxRevisionMacro(vtkDataReader, "1.149");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1308,17 +1309,89 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
         for (int j=0; j<numComp; j++)
           {
           my_getline(*(this->IS), s);
-          vtkIdType idx = i*numComp + j;
-          if (idx % 100 == 0 || idx > 4900)
-            {
-            cerr << "reading index " << idx << "=" << s.substr(0, 10) << endl;
-            }
           int length = s.length();
           char* decoded = new char[length + 1];
           int decodedLength = this->DecodeString(decoded, s.c_str());
           vtkStdString decodedStr(decoded, decodedLength);
           ((vtkStringArray*)array)->InsertNextValue(decodedStr);
           }
+        }
+      }
+    }
+  else if ( ! strncmp(type, "variant", 7) )
+    {
+    array = vtkVariantArray::New();
+    array->SetNumberOfComponents(numComp);
+    for (int i=0; i<numTuples; i++)
+      {
+      for (int j=0; j<numComp; j++)
+        {
+        int type;
+        vtkStdString str;
+        *(this->IS) >> type >> str;
+        char* decoded = new char[str.length() + 1];
+        int decodedLength = this->DecodeString(decoded, str.c_str());
+        vtkStdString decodedStr(decoded, decodedLength);
+        vtkVariant sv(decodedStr);
+        vtkVariant v;
+        switch (type)
+          {
+          case VTK_CHAR:
+            v = sv.ToChar();
+            break;
+          case VTK_SIGNED_CHAR:
+            v = sv.ToSignedChar();
+            break;
+          case VTK_UNSIGNED_CHAR:
+            v = sv.ToUnsignedChar();
+            break;
+          case VTK_SHORT:
+            v = sv.ToShort();
+            break;
+          case VTK_UNSIGNED_SHORT:
+            v = sv.ToUnsignedShort();
+            break;
+          case VTK_INT:
+            v = sv.ToInt();
+            break;
+          case VTK_UNSIGNED_INT:
+            v = sv.ToUnsignedInt();
+            break;
+          case VTK_LONG:
+            v = sv.ToLong();
+            break;
+          case VTK_UNSIGNED_LONG:
+            v = sv.ToUnsignedLong();
+            break;
+          case VTK_FLOAT:
+            v = sv.ToFloat();
+            break;
+          case VTK_DOUBLE:
+            v = sv.ToDouble();
+            break;
+#ifdef VTK_TYPE_USE_LONG_LONG
+          case VTK_LONG_LONG:
+            v = sv.ToLongLong();
+            break;
+          case VTK_UNSIGNED_LONG_LONG:
+            v = sv.ToUnsignedLongLong();
+            break;
+#endif
+#ifdef VTK_TYPE_USE___INT64
+          case VTK___INT64:
+            v = sv.To__Int64();
+            break;
+          case VTK_UNSIGNED__INT64:
+            v = sv.ToUnsigned__Int64();
+            break;
+#endif
+          case VTK_STRING:
+            v = sv.ToString();
+            break;
+          default:
+            vtkErrorMacro("Unknown variant type " << type);
+          }
+        ((vtkVariantArray*)array)->InsertNextValue(v);
         }
       }
     }

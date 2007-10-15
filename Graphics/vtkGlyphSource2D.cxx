@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.15");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.16");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
@@ -127,6 +127,9 @@ int vtkGlyphSource2D::RequestData(
       break;
     case VTK_HOOKEDARROW_GLYPH:
       this->CreateHookedArrow(pts,lines,polys,colors);
+      break;
+    case VTK_EDGEARROW_GLYPH:
+      this->CreateEdgeArrow(pts,lines,polys,colors);
       break;
     }
   
@@ -481,6 +484,29 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
     }
 }
 
+void vtkGlyphSource2D::CreateEdgeArrow(vtkPoints *pts, vtkCellArray *lines,
+                                       vtkCellArray *polys, vtkUnsignedCharArray *colors)
+{
+  vtkIdType ptIds[3];
+
+  double x = 0.5 / sqrt(3.0);
+  ptIds[0] = pts->InsertNextPoint(-1.0,   x, 0.0);
+  ptIds[1] = pts->InsertNextPoint( 0.0, 0.0, 0.0);
+  ptIds[2] = pts->InsertNextPoint(-1.0,  -x, 0.0);
+  
+  if ( this->Filled )
+    {
+    polys->InsertNextCell(3,ptIds);
+    }
+  else
+    {
+    lines->InsertNextCell(3,ptIds);
+    }
+  colors->InsertNextValue(this->RGB[0]);
+  colors->InsertNextValue(this->RGB[1]);
+  colors->InsertNextValue(this->RGB[2]);
+}
+
 void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
                                   vtkCellArray *polys, vtkUnsignedCharArray *colors,
                                                                   double scale)
@@ -567,6 +593,9 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
       break;
     case VTK_HOOKEDARROW_GLYPH:
       os << "Hooked Arrow\n";
+      break;
+    case VTK_EDGEARROW_GLYPH:
+      os << "Edge Arrow\n";
       break;
     }
 }

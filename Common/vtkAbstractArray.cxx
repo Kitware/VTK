@@ -19,8 +19,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
-#include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
@@ -29,7 +30,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkInformation.h"
+#include "vtkVariantArray.h"
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 # include "vtkLongLongArray.h"
@@ -43,7 +44,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.10");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.11");
 
 vtkCxxSetObjectMacro(vtkAbstractArray,Information,vtkInformation);
 
@@ -219,6 +220,9 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
    
     case VTK_STRING:
       return vtkStringArray::New();
+
+    case VTK_VARIANT:
+      return vtkVariantArray::New();
 
     default:
       break;

@@ -41,6 +41,7 @@
 #define VTK_ARROW_GLYPH 9
 #define VTK_THICKARROW_GLYPH 10
 #define VTK_HOOKEDARROW_GLYPH 11
+#define VTK_EDGEARROW_GLYPH 12
 
 class vtkPoints;
 class vtkUnsignedCharArray;
@@ -112,7 +113,7 @@ public:
 
   // Description:
   // Specify the type of glyph to generate.
-  vtkSetClampMacro(GlyphType,int,VTK_NO_GLYPH,VTK_HOOKEDARROW_GLYPH);
+  vtkSetClampMacro(GlyphType,int,VTK_NO_GLYPH,VTK_EDGEARROW_GLYPH);
   vtkGetMacro(GlyphType,int);
   void SetGlyphTypeToNone() {this->SetGlyphType(VTK_NO_GLYPH);}  
   void SetGlyphTypeToVertex() {this->SetGlyphType(VTK_VERTEX_GLYPH);}  
@@ -126,6 +127,7 @@ public:
   void SetGlyphTypeToArrow() {this->SetGlyphType(VTK_ARROW_GLYPH);}
   void SetGlyphTypeToThickArrow() {this->SetGlyphType(VTK_THICKARROW_GLYPH);}
   void SetGlyphTypeToHookedArrow() {this->SetGlyphType(VTK_HOOKEDARROW_GLYPH);}
+  void SetGlyphTypeToEdgeArrow() {this->SetGlyphType(VTK_EDGEARROW_GLYPH);}
 
 protected:
   vtkGlyphSource2D();
@@ -169,6 +171,8 @@ protected:
                         vtkCellArray *polys, vtkUnsignedCharArray *colors);
   void CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
                          vtkCellArray *polys, vtkUnsignedCharArray *colors);
+  void CreateEdgeArrow(vtkPoints *pts, vtkCellArray *lines,
+                       vtkCellArray *polys, vtkUnsignedCharArray *colors);
 
 private:
   vtkGlyphSource2D(const vtkGlyphSource2D&);  // Not implemented.

@@ -116,7 +116,7 @@ protected:
   int AttributeLocation;
 
   static char AttributeLocationNames[2][12];
-  static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10];
+  static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
   vtkAssignAttribute(const vtkAssignAttribute&);  // Not implemented.
   void operator=(const vtkAssignAttribute&);  // Not implemented.
