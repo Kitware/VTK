@@ -27,6 +27,33 @@
 #ifndef __vtkGraphToBoostAdapter_h
 #define __vtkGraphToBoostAdapter_h
 
+#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+
+// Moving these functions before any boost includes to get rid of some linux
+// compile errors.
+namespace boost {
+  inline int
+  get(
+    vtkIntArray* & arr,
+    vtkIdType& key)
+  {
+    return arr->GetValue(key);
+  }
+
+  inline void
+  put(
+    vtkIntArray* arr,
+    vtkIdType key,
+    const int & value)
+  {
+    arr->InsertValue(key, value);
+  }
+
+}
+
 #include <vtksys/stl/utility>
 
 #include <boost/config.hpp>
@@ -34,14 +61,8 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
-#include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
 
 #include "vtkGraph.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
 
 // The functions and classes in this file allows the user to
 // treat a vtkBoostDirectedGraph object as a boost graph "as is". No
@@ -678,6 +699,7 @@ namespace boost {
 
   //===========================================================================
   // VTK arrays as property maps
+  // These need to be defined before including other boost stuff
 
 #define vtkPropertyMapMacro(T, V)                       \
   template <>                                           \
@@ -691,7 +713,7 @@ namespace boost {
                                                         \
   inline property_traits<T*>::reference                 \
   get(                                                  \
-    T* arr,                                             \
+    T* const & arr,                                     \
     property_traits<T*>::key_type key)                  \
   {                                                     \
     return arr->GetValue(key);                          \
@@ -706,10 +728,22 @@ namespace boost {
     arr->InsertValue(key, value);                       \
   }
 
+  template <>
+  struct property_traits<vtkIntArray*>
+    {
+    typedef int value_type;
+    typedef int reference;
+    typedef vtkIdType key_type;
+    typedef read_write_property_map_tag category;
+    };
+
   vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
-  vtkPropertyMapMacro(vtkIntArray, int)
   vtkPropertyMapMacro(vtkDoubleArray, double)
   vtkPropertyMapMacro(vtkFloatArray, float)
+
+  //===========================================================================
+  // Helper for vtkGraph edge property maps
+  // Automatically converts boost edge ids to vtkGraph edge ids.
 
   template<typename PMap>
   class vtkGraphEdgePropertyMapHelper
