@@ -834,6 +834,8 @@ int TerrainPolylineEditor(int argc, char * argv[])
 
   recorder->Play();
   
+  recorder->Off();
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -849,7 +851,6 @@ int TerrainPolylineEditor(int argc, char * argv[])
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
-  recorder->Off();
   recorder->Delete();
   
   return EXIT_SUCCESS;

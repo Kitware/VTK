@@ -41,7 +41,7 @@
 #include "vtkBezierContourLineInterpolator.h"
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.15");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.16");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -373,7 +373,9 @@ void vtkOrientedGlyphContourRepresentation::Translate(double eventPos[2])
   displayPos[1] = eventPos[1] + this->InteractionOffset[1];
   
   double worldPos[3];
-  double worldOrient[9];
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
   if ( this->PointPlacer->ComputeWorldPosition(this->Renderer,
                                                displayPos, ref, worldPos,
                                                worldOrient ) )

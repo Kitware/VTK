@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.20");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.21");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -69,7 +69,7 @@ vtkContourRepresentation::~vtkContourRepresentation()
   this->Internal->Nodes.clear(); 
   delete this->Internal;
 }
-  
+
 //----------------------------------------------------------------------
 void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
                                                           double worldOrient[9],
@@ -166,8 +166,10 @@ int vtkContourRepresentation::AddNodeAtWorldPosition( double worldPos[3] )
 int vtkContourRepresentation::AddNodeAtDisplayPosition(double displayPos[2])
 {
   double worldPos[3];
-  double worldOrient[9];
-  
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+
   // Compute the world position from the display position
   // based on the concrete representation's constraints
   // If this is not a valid display location return 0
@@ -317,8 +319,10 @@ int vtkContourRepresentation::SetActiveNodeToDisplayPosition( double displayPos[
     }
   
   double worldPos[3];
-  double worldOrient[9];
-  
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+
   // Compute the world position from the display position
   // based on the concrete representation's constraints
   // If this is not a valid display location return 0
@@ -535,8 +539,10 @@ int vtkContourRepresentation::SetNthNodeWorldPosition( int n, double worldPos[3]
 int vtkContourRepresentation::SetNthNodeDisplayPosition( int n, double displayPos[2] )
 {
   double worldPos[3];
-  double worldOrient[9];
-  
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+
   // Compute the world position from the display position
   // based on the concrete representation's constraints
   // If this is not a valid display location return 0
@@ -736,8 +742,10 @@ int vtkContourRepresentation::AddNodeOnContour( int X, int Y )
   int idx;
   
   double worldPos[3];
-  double worldOrient[9];
-  
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
+
   // Compute the world position from the display position
   // based on the concrete representation's constraints
   // If this is not a valid display location return 0
@@ -1074,7 +1082,10 @@ void vtkContourRepresentation::Initialize( vtkPolyData * pd )
   vtkIdList *pointIds = pd->GetCell(0)->GetPointIds();
 
   // Get the worldOrient from the point placer
-  double ref[3], displayPos[2], worldPos[3], worldOrient[9];
+  double ref[3], displayPos[2], worldPos[3];
+  double worldOrient[9] = {1.0,0.0,0.0,
+                           0.0,1.0,0.0,
+                           0.0,0.0,1.0};
   ref[0] = 0.0; ref[1] = 0.0; ref[2] = 0.0;
   displayPos[0] = 0.0; displayPos[1] = 0.0;
   this->PointPlacer->ComputeWorldPosition(this->Renderer,
