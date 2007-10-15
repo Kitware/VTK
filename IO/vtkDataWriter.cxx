@@ -41,7 +41,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.124");
+vtkCxxRevisionMacro(vtkDataWriter, "1.125");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -820,10 +820,10 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       {
       sprintf (str, format, "variant"); *fp << str; 
       vtkVariant *v=((vtkVariantArray *)data)->GetPointer(0);
-      for (vtkIdType i = 0; i < num*numComp; i++)
+      for (vtkIdType j = 0; j < num*numComp; j++)
         {
-        *fp << v[i].GetType() << " ";
-        this->EncodeWriteString(fp, v[i].ToString().c_str(), false);
+        *fp << v[j].GetType() << " ";
+        this->EncodeWriteString(fp, v[j].ToString().c_str(), false);
         *fp << endl;
         }
       }
