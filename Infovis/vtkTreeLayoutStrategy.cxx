@@ -31,7 +31,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -156,7 +156,8 @@ void vtkTreeLayoutStrategy::Layout()
   //                   = n                                if s == 1
   double maxHeight = maxLevel;
   double eps = 1e-8;
-  if (abs(spacing-1.0) > eps)
+  double diff = spacing - 1.0 > 0 ? spacing - 1.0 : 1.0 - spacing;
+  if (diff > eps)
     {
     maxHeight = (pow(spacing, maxLevel+1.0) - 1.0)/(spacing - 1.0) - 1.0;
     }
@@ -174,7 +175,7 @@ void vtkTreeLayoutStrategy::Layout()
       }
     else
       {
-      if (abs(spacing-1.0) < eps)
+      if (diff <= eps)
         {
         height = tree->GetLevel(vertex)/maxHeight;
         }
