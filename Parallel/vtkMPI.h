@@ -16,7 +16,14 @@
 #ifndef __vtkMPI_h
 #define __vtkMPI_h
 
-#include "mpi.h"
+#ifndef USE_STDARG
+ #define USE_STDARG
+ #include "mpi.h"
+ #undef USE_STDARG
+#else
+ #include "mpi.h"
+#endif
+
 #include "vtkSystemIncludes.h"
 
 class VTK_PARALLEL_EXPORT vtkMPICommunicatorOpaqueComm
