@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.18");
+vtkCxxRevisionMacro(vtkContourWidget, "1.19");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -357,14 +357,31 @@ void vtkContourWidget::EndSelectAction(vtkAbstractWidget *w)
 //----------------------------------------------------------------------
 void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
 {
+  if (!this->GetEnabled())
+    {
+    vtkErrorMacro(<<"Enable widget before initializing");
+    }
+
   if (this->WidgetRep)
     {
     vtkContourRepresentation *rep = 
       reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
 
-    rep->Initialize( pd );
-    this->WidgetState = (rep->GetClosedLoop() || state == 1 ) ?
-          vtkContourWidget::Manipulate : vtkContourWidget::Define;
+    if ( pd == NULL )
+      {
+      while( rep->DeleteLastNode() );
+      rep->ClosedLoopOff();
+      this->Render();
+      rep->NeedToRenderOff();
+      rep->VisibilityOff();
+      this->WidgetState = vtkContourWidget::Start;
+      }
+    else
+      {
+      rep->Initialize( pd );
+      this->WidgetState = (rep->GetClosedLoop() || state == 1 ) ?
+        vtkContourWidget::Manipulate : vtkContourWidget::Define;
+      }
     }
 }
 
