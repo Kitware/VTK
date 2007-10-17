@@ -80,7 +80,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.65");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.66");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -662,8 +662,10 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
       }
 
     request->Set(REQUEST_DATA_OBJECT());
+    this->SuppressResetPipelineInformation = 1;
     this->Superclass::ExecuteDataObject(
       request, this->GetInputInformation(),this->GetOutputInformation());
+    this->SuppressResetPipelineInformation = 0;
     request->Remove(REQUEST_DATA_OBJECT());
     
     request->Set(REQUEST_INFORMATION());
