@@ -28,7 +28,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.31");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.32");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
@@ -517,8 +517,17 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     fontSize = 12;
     this->TextMapper[maxTextMapper]->GetTextProperty()->SetFontSize(fontSize);
     this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
-    twr = (double)tempi[0]/tempi[1];
-    symbolSize = swr / (swr + twr);
+    
+    if(maxLength>0) // make sure that tempi is not 0, to avoid a
+      // divide-by-zero floating-point exception.
+      {
+      twr = (double)tempi[0]/tempi[1];
+      symbolSize = swr / (swr + twr);
+      }
+    else
+      {
+      symbolSize=0;
+      }
 
     //Okay, now that the proportions are okay, let's size everything
     //First the text
