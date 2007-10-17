@@ -721,7 +721,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.42");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.43");
 
 
 
@@ -769,6 +769,9 @@ public:
     * to a state just like it was after New() was called.
     */
   void ResetSettings();
+
+  /// Clears out any data in the cache and restores it to its initial state.
+  void ResetCache();
 
   /** Return the number of time steps in the open file.
     * You must have called RequestInformation() before 
@@ -1672,7 +1675,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.42");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.43");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -5367,13 +5370,10 @@ void vtkExodusIIReaderPrivate::Reset()
   this->NumberOfCells = 0;
   this->PointMap.clear();
   this->ReversePointMap.clear();
-  this->Cache->Clear();
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
-  this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
-  this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
-  this->SetCachedConnectivity( 0 );
   this->NextSqueezePoint = 0;
   this->FastPathObjectId = -1;
+  this->ResetCache();
 
   this->Modified();
 }
@@ -5402,6 +5402,14 @@ void vtkExodusIIReaderPrivate::ResetSettings()
   this->FastPathObjectType = vtkExodusIIReader::NODAL;
   this->FastPathObjectId = -1;
   this->SetFastPathIdType( 0 );
+}
+
+void vtkExodusIIReaderPrivate::ResetCache()
+{
+  this->Cache->Clear();
+  this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
+  this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
+  this->SetCachedConnectivity( 0 );
 }
 
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
@@ -5915,7 +5923,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.42");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.43");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -7072,6 +7080,11 @@ void vtkExodusIIReader::Reset()
 void vtkExodusIIReader::ResetSettings()
 {
   this->Metadata->ResetSettings();
+}
+
+void vtkExodusIIReader::ResetCache()
+{
+  this->Metadata->ResetCache();
 }
 
 void vtkExodusIIReader::UpdateTimeInformation()

@@ -660,6 +660,10 @@ public:
   void ResetSettings();
 
   // Description:
+  // Clears out the cache entries.
+  void ResetCache();
+
+  // Description:
   // Re-reads time information from the exodus file and updates
   // TimeStepRange accordingly.
   virtual void UpdateTimeInformation();
