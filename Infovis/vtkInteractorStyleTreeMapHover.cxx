@@ -38,7 +38,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.9");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.10");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -135,7 +135,8 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
   vtkRenderer *ren;
   if (mrwi && mrwi->GetRenderWindow()) 
     {
-    ren = mrwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+    this->FindPokedRenderer(0, 0);
+    ren = this->CurrentRenderer;
     if (ren) 
       {
       ren->RemoveActor(SelectionActor);
@@ -145,7 +146,8 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
   vtkInteractorStyleImage::SetInteractor(rwi);
   if (rwi && rwi->GetRenderWindow())
     {
-    ren = rwi->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+    this->FindPokedRenderer(0, 0);
+    ren = this->CurrentRenderer;
     if (ren) 
       {
       ren->AddActor(SelectionActor);
@@ -178,7 +180,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
 {
   vtkIdType id=-1;
   
-  vtkRenderer* r = this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+  vtkRenderer* r = this->CurrentRenderer;
   if (r == NULL)
     {
     return id;
@@ -212,7 +214,10 @@ void vtkInteractorStyleTreeMapHover::GetBoundingBoxForTreeMapItem(vtkIdType id, 
 
 void vtkInteractorStyleTreeMapHover::OnMouseMove()
 {
-  vtkRenderer* r = this->GetInteractor()->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
+  int x = this->Interactor->GetEventPosition()[0];
+  int y = this->Interactor->GetEventPosition()[1];
+  this->FindPokedRenderer(x, y);
+  vtkRenderer* r = this->CurrentRenderer;
   if (r == NULL)
     {
     return;
@@ -225,8 +230,6 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
     }
 
   // Use the hardware picker to find a point in world coordinates.
-  int x = this->Interactor->GetEventPosition()[0];
-  int y = this->Interactor->GetEventPosition()[1];
   float binfo[4];
   vtkIdType id = this->GetTreeMapIdAtPos(x,y);
   
@@ -317,14 +320,16 @@ double vtkInteractorStyleTreeMapHover::GetSelectionWidth()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
 {
-
   // Get the id of the object underneath the mouse
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
+  this->FindPokedRenderer(x, y);
+  
   this->CurrentSelectedId = GetTreeMapIdAtPos(x,y);
 
   // Get the pedigree id of this object and
   // send out an event with that id as data
+  vtkIdType id = this->CurrentSelectedId;
   vtkAbstractArray* absArray = 
     this->Layout->GetOutput()->GetPointData()->GetAbstractArray(
       "PedigreeVertexId");
@@ -333,10 +338,10 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
     vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(absArray);
     if (idArray)
       {
-      vtkIdType pedigreeId = idArray->GetValue(this->CurrentSelectedId);
-      this->InvokeEvent(vtkCommand::UserEvent, &pedigreeId);
+      id = idArray->GetValue(this->CurrentSelectedId);
       }
     }
+  this->InvokeEvent(vtkCommand::UserEvent, &id);
 
   this->HighLightCurrentSelectedItem();
   Superclass::OnLeftButtonUp();
