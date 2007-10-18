@@ -38,6 +38,8 @@
 #include "vtkDataSetAlgorithm.h"
 
 class vtkIdTypeArray;
+class vtkCharArray;
+class vtkMaskPoints;
 
 class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
@@ -81,25 +83,46 @@ public:
   // Set to "vtkValidPointMask" by default.
   vtkSetStringMacro(ValidPointMaskArrayName)
   vtkGetStringMacro(ValidPointMaskArrayName)
- 
+//BTX 
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
 
   int SpatialMatch;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+    vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, 
+    vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, 
+    vtkInformationVector *);
 
+  // Description:
+  // Equivalent to calling InitializeForProbing(); ProbeEmptyPoints().
   void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
+
+  // Description:
+  // Initializes output and various arrays which keep track for probing status.
+  void InitializeForProbing(vtkDataSet *input, vtkDataSet *source, 
+    vtkDataSet *output);
+
+  // Description:
+  // Probe only those points that are marked as not-probed by the MaskPoints
+  // array.
+  void ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source, 
+    vtkDataSet *output);
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
-  vtkIdType NumberOfValidPoints;
+  vtkCharArray* MaskPoints;
+  int NumberOfValidPoints;
 private:
   vtkProbeFilter(const vtkProbeFilter&);  // Not implemented.
   void operator=(const vtkProbeFilter&);  // Not implemented.
+
+  class vtkVectorOfArrays;
+  vtkVectorOfArrays* CellArrays;
+//ETX
 };
 
 #endif

@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.19");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.20");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -57,38 +57,19 @@ int vtkPProbeFilter::RequestInformation(vtkInformation *request,
 }
 
 //----------------------------------------------------------------------------
-int vtkPProbeFilter::RequestData(vtkInformation *vtkNotUsed(request),
+int vtkPProbeFilter::RequestData(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *srcInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *source = vtkDataSet::SafeDownCast(
-    srcInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!source || !source->GetNumberOfPoints())
+  if (!this->Superclass::RequestData(request, inputVector, outputVector))
     {
-    int pieceNum = 
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    vtkMultiGroupDataSet *tmpSource = vtkMultiGroupDataSet::SafeDownCast(
-      srcInfo->Get(vtkDataObject::DATA_OBJECT()));
-    if (tmpSource)
-      {
-      source = vtkDataSet::SafeDownCast(tmpSource->GetDataSet(0, pieceNum));
-      }
-    }
-
-  if (!source)
-    {
-    vtkErrorMacro("No source provided.");
     return 0;
     }
 
-  this->Probe(input, source, output);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int procid = 0;
   int numProcs = 1;
   if ( this->Controller )
