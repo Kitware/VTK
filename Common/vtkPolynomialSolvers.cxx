@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.7");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.8");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -478,5 +478,189 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
   delete [] div1;
   delete [] div2;
   return nr;
+}
+
+extern "C" {
+  int vtkPolynomialSolversCompareRoots(const void* a, const void* b)
+  {
+    return (*((const double*)a)) < (*((const double*)b)) ? -1 : 1; 
+  }
+}
+
+//----------------------------------------------------------------------------
+// Algebraically extracts REAL roots of the quartic polynomial with 
+// REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
+// and stores them (when they exist) and their respective multiplicities
+// in the r and m arrays.
+int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol )
+{
+  // step 0: eliminate trivial cases up to numerical noise
+  if ( fabs( c[3] ) < tol )
+    {
+    if ( fabs( c[2] ) < tol )
+      {
+      if ( fabs( c[1] ) < tol )
+        {
+        if ( fabs( c[0] ) < tol )
+          {
+          r[0] = 0.;
+          m[0] = 4;
+          return 1;
+          }
+        else
+          {
+          r[0] = - c[1];
+          m[0] = 1;
+          r[1] = 0.;
+          m[1] = 3;
+          return 2;
+          }
+        }
+      else
+        {
+        double cc[3];
+        cc[0] = 1.;
+        cc[1] = c[0];
+        cc[2] = c[1];
+        int nr = vtkMath::SolveQuadratic( cc, r, m );
+        r[nr] = 0.;
+        m[nr] = 2;
+        return nr + 1;
+        }
+      }
+    else
+      {
+      int nr = vtkMath::TartagliaCardanSolve( c - 1, r, m );
+      r[nr] = 0.;
+      m[nr] = 1;
+      return nr + 1;
+      }
+    }
+  if ( ( fabs( c[0] ) < tol ) && ( fabs( c[2] ) < tol ) )
+    {
+    if ( fabs( c[1] ) < tol )
+      {
+      if ( c[3] < 0. ) return 0;
+      r[0] = sqrt( sqrt( c[3] ) );
+      m[0] = 4;
+      return 1;
+      }
+    double cc[3], cr[2];
+    int cm[2];
+    cc[0] = 1.;
+    cc[1] = c[1];
+    cc[2] = c[3];
+    int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
+    int nr = 0;
+    int i;
+    for ( i = 0; i < nr1; ++ i )
+      {
+      if ( fabs( cr[i] ) < tol )
+        {
+        r[nr] = 0.;
+        m[nr ++] = 2 * cm[i];
+        }
+      else 
+        {
+        if ( cr[i] > tol )
+          {
+          r[nr] = sqrt( cr[i] );
+          m[nr ++] = cm[i];
+          r[nr] = - sqrt( cr[i] );
+          m[nr ++] = cm[i];
+          }
+        }
+      }
+    return nr;
+    }
+  
+  // step 1: reduce to X^4 + aX^2 + bX + d
+  double p2d8 = c[0] * c[0] * .125 ;
+  double qd2 = c[1] * .5;
+  double a = c[1] - 3 * p2d8;
+  double b = c[0] * ( p2d8 - qd2 ) + c[2];
+  double d = p2d8 * ( qd2 - .75 * p2d8 ) - c[0] * c[2] * .25 + c[3];
+  // expedite the case when the reduced equation is biquadratic
+  if ( fabs( b ) < tol )
+    {
+    double cc[3], cr[2];
+    int cm[2];
+    cc[0] = 1.;
+    cc[1] = a;
+    cc[2] = d;
+    int nr1 = vtkMath::SolveQuadratic( cc, cr, cm );
+    int nr = 0;
+    double shift = - c[0] * .25;
+    int i;
+    for ( i = 0; i < nr1; ++ i )
+      {
+      if ( fabs( cr[i] ) < tol )
+        {
+        r[nr] = shift;
+        m[nr ++] = 2 * cm[i];
+        }
+      else 
+        {
+        if ( cr[i] > tol )
+          {
+          r[nr] = sqrt( cr[i] ) + shift;
+          m[nr ++] = cm[i];
+          r[nr] = - sqrt( cr[i] ) + shift;
+          m[nr ++] = cm[i];
+          }
+        }
+      }
+    return nr;
+    }
+
+  // step 2: solve the companion cubic
+  double cc[4], cr[3];
+  double unsorted[8];
+  int cm[3];
+  cc[1] = 2. * a;
+  cc[2] = a * a - 4. * d;
+  cc[3] = - b * b;
+  int nr = vtkMath::TartagliaCardanSolve( cc, cr, cm );
+
+  // step 3: figure alpha^2
+  double alpha2 = cr[-- nr];
+  while ( alpha2 < 0. && nr ) alpha2 = cr[-- nr];
+
+  // step 4: solve the quadratics
+  cc[0] = 1.;
+  cc[1] = sqrt( alpha2 );
+  double rho = - b / cc[1];
+  cc[2] = ( a + alpha2 + rho ) * .5;
+  int nr1 = vtkMath::SolveQuadratic( cc, r, m );
+  cc[1] = - cc[1];
+  cc[2] -= rho;
+  nr = nr1 + vtkMath::SolveQuadratic( cc, r + nr1, m + nr1 );
+  if ( ! nr ) return 0;
+
+  // step 5: sort, filter and shift roots (if any)
+  int i;
+  for ( i = 0; i < nr; ++ i )
+    {
+    unsorted[2*i] = r[i];
+    unsorted[2*i + 1] = m[i];
+    }
+  qsort( unsorted, nr, 2*sizeof( double ), vtkPolynomialSolversCompareRoots );
+  r[0] = unsorted[0];
+  m[0] = static_cast<int>(unsorted[1]);
+  nr1 = 1;
+  for ( i = 1; i < nr; ++ i )
+    {
+    if ( unsorted[2*i] == unsorted[2*i - 2] )
+      {
+      m[i - 1] += static_cast<int>(unsorted[2*i + 1]);
+      continue;
+      }
+    r[nr1] = unsorted[2*i];
+    m[nr1++] = static_cast<int>(unsorted[2*i + 1]);
+    }
+  double shift = - c[0] * .25;
+  for ( i = 0; i < nr1; ++ i ) r[i] += shift;
+
+  return nr1;
 }
 
