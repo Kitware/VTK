@@ -25,7 +25,7 @@
 
 #include "vtkProbeFilter.h"
 
-class VTK_COMMON_EXPORT vtkMultiGroupProbeFilter : public vtkProbeFilter
+class VTK_GRAPHICS_EXPORT vtkMultiGroupProbeFilter : public vtkProbeFilter
 {
 public:
   static vtkMultiGroupProbeFilter* New();
