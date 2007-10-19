@@ -77,7 +77,6 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
@@ -85,6 +84,9 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
+  //BTX
+  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
+  //ETX
 
   // Description:
   // Use the given key to lookup a list of other keys in the given
@@ -298,7 +300,6 @@ public:
   static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
   static vtkInformationKey* GetKey(vtkInformationDoubleKey* key);
   static vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
-  static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
   static vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
@@ -307,6 +308,9 @@ public:
   static vtkInformationKey* GetKey(vtkInformationStringKey* key);
   static vtkInformationKey* GetKey(vtkInformationKey* key);
   static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
+  //BTX
+  static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
+  //ETX
 
   // Description:
   // Initiate garbage collection when a reference is removed.
