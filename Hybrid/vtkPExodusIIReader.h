@@ -103,7 +103,15 @@ public:
   virtual int GetTotalNumberOfElements();
   virtual int GetTotalNumberOfNodes();
 
-
+  // Description:
+  // Calls UpdateTimeInformation() on all serial readers so they'll re-read
+  // their time info from the file. 
+  // The last time step that they all have in common
+  // is stored in LastCommonTimeStep, which is used in RequestInformation()
+  // to override the output time-specific information keys with the range
+  // of times that ALL readers can actually read.
+  virtual void UpdateTimeInformation();
+ 
 protected:
   vtkPExodusIIReader();
   ~vtkPExodusIIReader();
@@ -131,6 +139,7 @@ protected:
   char **FileNames;
   int NumberOfFileNames;
   int GenerateFileIdArray;
+  int LastCommonTimeStep;
 //BTX
   vtkstd::vector<vtkExodusIIReader*> ReaderList;
   vtkstd::vector<int> NumberOfPointsPerFile;

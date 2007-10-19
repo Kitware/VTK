@@ -92,7 +92,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.13");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.13.4.1");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -157,6 +157,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
   this->GenerateFileIdArray = 0;
   this->XMLFileName=NULL;
+  this->LastCommonTimeStep = -1;
 }
  
 //----------------------------------------------------------------------------
@@ -260,6 +261,25 @@ int vtkPExodusIIReader::RequestInformation(
   if ( ! this->Superclass::RequestInformation( request, inputVector, outputVector ) )
     {
     return 0;
+    }
+
+  // Check whether we have been given a certain timestep to stop at. If so,
+  // override the output time keys with the actual range that ALL readers can read.
+  // If files are still being written to, some files might be on different timesteps
+  // than others.
+  if(this->LastCommonTimeStep >= 0)
+    {
+    double *times = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    int numTimes = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    numTimes = this->LastCommonTimeStep+1 < numTimes ? this->LastCommonTimeStep+1 : numTimes;
+    vtkstd::vector<double> commonTimes;
+    commonTimes.insert(commonTimes.begin(),times,times+numTimes);
+    double timeRange[2];
+    timeRange[1] = commonTimes[numTimes-1];
+    timeRange[0] = commonTimes[0];
+
+    outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+    outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &commonTimes[0], numTimes );
     }
 
   this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData 
@@ -1113,3 +1133,35 @@ int vtkPExodusIIReader::GetTotalNumberOfNodes()
     }
   return total;
 }
+
+void vtkPExodusIIReader::UpdateTimeInformation()
+{
+  // Before we start, make sure that we have readers to read (i.e. that 
+  // RequestData() has been called. 
+  if(this->ReaderList.size() == 0)
+    {
+    return;
+    }
+
+  int lastTimeStep = VTK_INT_MAX;
+  int numTimeSteps = 0;
+  for ( unsigned int reader_idx=0; reader_idx<this->ReaderList.size(); ++reader_idx )
+    {
+    vtkExodusIIReader *reader = this->ReaderList[reader_idx];
+
+    // In order to get an up-to-date number of timesteps, update the reader's
+    // time information first
+    reader->UpdateTimeInformation();
+    numTimeSteps = reader->GetNumberOfTimeSteps();
+
+    // if this reader's last time step is less than the one we have, use it instead
+    lastTimeStep = numTimeSteps-1 < lastTimeStep ? numTimeSteps-1 : lastTimeStep;
+    }
+
+  this->LastCommonTimeStep = lastTimeStep;
+
+  this->Superclass::UpdateTimeInformation();
+  this->Modified();
+  this->UpdateInformation();
+}
+

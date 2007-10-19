@@ -34,7 +34,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.3");
+vtkCxxRevisionMacro(vtkExtractTemporalFieldData, "1.3.2.1");
 vtkStandardNewMacro(vtkExtractTemporalFieldData);
 
 //----------------------------------------------------------------------------
@@ -167,7 +167,10 @@ int vtkExtractTemporalFieldData::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::GetData(inInfo);
 
-  this->CopyDataToOutput(input, output);
+  double *times = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  this->CopyDataToOutput(input, output, times, numTimes);
 
   return 1;
 }
@@ -207,7 +210,9 @@ int vtkExtractTemporalFieldData::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input, 
-                                                 vtkRectilinearGrid *output)
+                                                 vtkRectilinearGrid *output,
+                                                 double *times,
+                                                 int numTimes)
 {
   vtkPointData *opd = output->GetPointData();
   vtkFieldData *ifd = input->GetFieldData();
@@ -259,9 +264,20 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input,
     {
     timeArray->SetName("Time");
     }
-  for(int m=0; m<this->NumberOfTimeSteps; m++)
+  // Copy the time steps to the output
+  if (times && numTimes == this->NumberOfTimeSteps)
     {
-    timeArray->SetTuple1(m,m);
+    for(int m=0; m<this->NumberOfTimeSteps; m++)
+      {
+      timeArray->SetTuple1(m,times[m]);
+      }
+    }
+  else
+    {
+    for(int m=0; m<this->NumberOfTimeSteps; m++)
+      {
+      timeArray->SetTuple1(m,m);
+      }
     }
   opd->AddArray(timeArray);
   // Assign this array as the x-coords

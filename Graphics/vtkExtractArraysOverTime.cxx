@@ -67,7 +67,7 @@ public:
   vtkstd::vector<vtkDataArray*> OutArrays;
 };
 
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.15");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.15.2.1");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,9 @@ int vtkExtractArraysOverTime::RequestData(
     // for the actual data?
     if(this->WaitingForFastPathData)
       {
-      this->CopyFastPathDataToOutput(input, output);
+      double *times = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      this->CopyFastPathDataToOutput(input, output, times, numTimes);
       this->PostExecute(request, inputVector, outputVector);
       this->WaitingForFastPathData = false;
       return 1;
@@ -592,7 +594,9 @@ int vtkExtractArraysOverTime::AllocateOutputData(vtkDataSet *input,
 
 //----------------------------------------------------------------------------
 void vtkExtractArraysOverTime::CopyFastPathDataToOutput(vtkDataSet *input, 
-                                                 vtkRectilinearGrid *output)
+                                                 vtkRectilinearGrid *output,
+                                                 double *inTimes,
+                                                 int numInTimes)
 {
   vtkDataSetAttributes* inputAttributes = 0;
   vtkDataSetAttributes* outputAttributes = 0;
@@ -643,18 +647,28 @@ void vtkExtractArraysOverTime::CopyFastPathDataToOutput(vtkDataSet *input,
     }
 
   // Copy the time steps to the output
+  vtkStdString timeArrayName;
   if (inputAttributes->GetArray("Time"))
+    {
+    timeArrayName = "TimeData";
+    }
+  else
+    {
+    timeArrayName = "Time";
+    }
+
+  if (inTimes && numInTimes == this->NumberOfTimeSteps)
     {
     for(int m=0; m<this->NumberOfTimeSteps; m++)
       {
-      outputAttributes->GetArray("TimeData")->SetTuple1(m,m);
+      outputAttributes->GetArray(timeArrayName)->SetTuple1(m,inTimes[m]);
       }
     }
   else
     {
     for(int m=0; m<this->NumberOfTimeSteps; m++)
       {
-      outputAttributes->GetArray("Time")->SetTuple1(m,m);
+      outputAttributes->GetArray(timeArrayName)->SetTuple1(m,m);
       }
     }
     

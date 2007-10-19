@@ -96,7 +96,8 @@ protected:
   // Description:
   // This looks at the arrays in the vtkFieldData of input and copies those
   // whose names are in the form "XXXOverTime" to the output point data.
-  void CopyFastPathDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output);
+  void CopyFastPathDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output,
+                                double *inputTimes, int numTimes);
 
   int CurrentTimeIndex;
   int NumberOfTimeSteps;

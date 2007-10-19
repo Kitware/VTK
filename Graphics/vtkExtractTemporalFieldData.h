@@ -73,7 +73,8 @@ protected:
   // Description:
   // This looks at the arrays in the vtkFieldData of input and copies them 
   // to the output point data.
-  void CopyDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output);
+  void CopyDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output,
+                        double *times, int numTimes);
 
   int NumberOfTimeSteps;
 
