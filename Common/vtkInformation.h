@@ -266,6 +266,7 @@ public:
   void Remove(vtkInformationDataObjectKey* key);
   int Has(vtkInformationDataObjectKey* key);
 
+  //BTX
   // Description:
   // Get/Set an entry storing a vtkExecutive/port number pair.
   void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
@@ -290,6 +291,7 @@ public:
   int Length(vtkInformationExecutivePortVectorKey* key);
   void Remove(vtkInformationExecutivePortVectorKey* key);
   int Has(vtkInformationExecutivePortVectorKey* key);
+  //ETX
 
   // Description:
   // Upcast the given key instance.

@@ -101,6 +101,9 @@ vtkImplicitSelectionLoop.cxx
 vtkImplicitSum.cxx
 vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
+vtkInformation.cxx
+vtkInformationExecutivePortKey.cxx
+vtkInformationExecutivePortVectorKey.cxx
 vtkInterpolatedVelocityField.cxx
 vtkKochanekSpline.cxx
 vtkLine.cxx
@@ -244,6 +247,8 @@ vtkImageProgressIterator
 vtkImageSource
 vtkImageToImageFilter
 vtkImageTwoInputFilter
+vtkInformationExecutivePortKey
+vtkInformationExecutivePortVectorKey
 vtkLocator
 vtkMapper2D
 vtkMultiGroupDataSetAlgorithm
@@ -279,6 +284,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkFilteringInformationKeyManager.cxx
   vtkHierarchicalDataIterator.cxx
   vtkImageIterator.cxx
+  vtkInformation.cxx
   vtkImageProgressIterator.cxx
   WRAP_EXCLUDE
 )

@@ -77,8 +77,6 @@ vtkInformation.cxx
 vtkInformationDataObjectKey.cxx
 vtkInformationDoubleKey.cxx
 vtkInformationDoubleVectorKey.cxx
-vtkInformationExecutivePortKey.cxx
-vtkInformationExecutivePortVectorKey.cxx
 vtkInformationIdTypeKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
@@ -255,8 +253,6 @@ vtkImplicitFunction
 vtkInformationDataObjectKey
 vtkInformationDoubleKey
 vtkInformationDoubleVectorKey
-vtkInformationExecutivePortKey
-vtkInformationExecutivePortVectorKey
 vtkInformationIdTypeKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey

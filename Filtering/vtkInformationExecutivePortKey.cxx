@@ -18,13 +18,13 @@
 #include "vtkInformation.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
-  vtkCommonInformationKeyManager::Register(this);
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

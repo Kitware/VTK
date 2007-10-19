@@ -23,11 +23,11 @@
 
 #include "vtkInformationKey.h"
 
-#include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
+#include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
 
 class vtkExecutive;
 
-class VTK_COMMON_EXPORT vtkInformationExecutivePortVectorKey : public vtkInformationKey
+class VTK_FILTERING_EXPORT vtkInformationExecutivePortVectorKey : public vtkInformationKey
 {
 public:
   vtkTypeRevisionMacro(vtkInformationExecutivePortVectorKey,vtkInformationKey);
