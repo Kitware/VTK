@@ -26,7 +26,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.7");
+vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.8");
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
@@ -145,6 +145,17 @@ void vtkBoundedPlanePointPlacer::SetBoundingPlanes(vtkPlanes *planes)
     plane->Delete();
     }
 }
+
+//----------------------------------------------------------------------
+int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
+                                                      double displayPos[2],
+                                                      double vtkNotUsed(refWorldPos)[3],
+                                                      double worldPos[3],
+                                                      double worldOrient[9] )
+{
+  return this->ComputeWorldPosition( ren, displayPos, worldPos, worldOrient );
+}
+
 
 //----------------------------------------------------------------------
 int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,

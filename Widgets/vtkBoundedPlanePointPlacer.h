@@ -123,11 +123,7 @@ public:
                                     double displayPos[2], 
                                     double refWorldPos[3],
                                     double worldPos[3],
-                                    double worldOrient[9] )
-    {
-    return this->ComputeWorldPosition( 
-        ren, displayPos, worldPos, worldOrient );
-    }
+                                    double worldOrient[9] );
   
   // Description:
   // Give a world position check if it is valid - does
