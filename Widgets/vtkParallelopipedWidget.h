@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParallelopipedWidget - A widget to manipulate 3D parallelopipeds.
+// .NAME vtkParallelopipedWidget - a widget to manipulate 3D parallelopipeds
 //
 // .SECTION Description
 // This widget was designed with the aim of visualizing / probing cuts on
@@ -76,6 +76,13 @@ public:
     }
   
   // Description:
+  // Enable/disable the creation of a chair on this widget. If off,
+  // chairs cannot be created.
+  vtkSetMacro(EnableChairCreation,int);
+  vtkGetMacro(EnableChairCreation,int);
+  vtkBooleanMacro(EnableChairCreation,int);
+
+  // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
 
@@ -94,6 +101,9 @@ protected:
   static void TranslateCallback                 (vtkAbstractWidget* );
   static void OnMouseMoveCallback               (vtkAbstractWidget* );
   static void OnLeftButtonUpCallback            (vtkAbstractWidget* );
+
+  // Control whether chairs can be created
+  int EnableChairCreation;
 
   // Description:
   void BeginTranslateAction ( vtkParallelopipedWidget *dispatcher);

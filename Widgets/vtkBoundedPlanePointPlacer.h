@@ -115,20 +115,19 @@ public:
                             double worldOrient[9] );
   
   // Description:
-  // Given a renderer, a display position and a reference position, "worldPos"
-  // is calculated as :
-  //   Consider the line "L" that passes through the supplied "displayPos" and
-  // is parallel to the direction of projection of the camera. Clip this line
-  // segment with the parallelopiped, let's call it "L_segment". The computed 
-  // world position, "worldPos" will be the point on "L_segment" that is 
-  // closest to refWorldPos.
-  // NOTE: Note that a set of bounding planes must be supplied. The Oblique
-  //       plane, if supplied is ignored.
-  int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
-                            double refWorldPos[2],
-                            double worldPos[3],
-                            double worldOrient[9] );
+  // Given a renderer, a display position, and a reference world
+  // position, compute the new world position and orientation 
+  // of this point. This method is typically used by the 
+  // representation to move the point.
+  virtual int ComputeWorldPosition( vtkRenderer *ren,
+                                    double displayPos[2], 
+                                    double refWorldPos[3],
+                                    double worldPos[3],
+                                    double worldOrient[9] )
+    {
+    return this->ComputeWorldPosition( 
+        ren, displayPos, worldPos, worldOrient );
+    }
   
   // Description:
   // Give a world position check if it is valid - does

@@ -30,7 +30,7 @@
 #include "vtkEvent.h"
 #include "vtkSphereHandleRepresentation.h"
 #include "vtkLine.h"
-#include "vtkBoundedPlanePointPlacer.h"
+#include "vtkClosedSurfacePointPlacer.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPlane.h"
 #include <vtkstd/vector>
@@ -110,9 +110,9 @@ public:
 
   void FindCellsContainingNodes( int configuration, vtkCellArray *cellArray, 
                         const vtkstd::vector< vtkIdType > & nodes ) const
-    {
-    vtkParallelopipedTopology::PopulateTopology(
-      FindCellsContainingNodes(m_Topology[configuration], nodes), cellArray);
+    { 
+    vtkParallelopipedTopology::PopulateTopology( 
+      FindCellsContainingNodes( m_Topology[configuration], nodes), cellArray );
     }
 
   vtkstd::vector< CellType > FindCellsContainingNodes( 
@@ -286,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -375,21 +375,22 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   this->SetHandleRepresentation(hRep);
   hRep->Delete();
   
-  // Define the point coordinates and initial placement of the widget
-  double bounds[6] = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
-  this->PlaceWidget(bounds);
-
   this->CurrentHandleIdx  = -1;
   this->LastResizeAxisIdx = -1;
   this->ChairHandleIdx    = -1;
   
   // Point placer to dictate placement of the chair point inside the 
   // parallelopiped.  
-  this->ChairPointPlacer  = vtkBoundedPlanePointPlacer::New();
+  this->ChairPointPlacer  = vtkClosedSurfacePointPlacer::New();
   
-  this->InitialChairDepth = 0.1;
+  this->InitialChairDepth = 0.25;
   this->MinimumThickness  = 0.05;
+  this->AbsoluteMinimumThickness  = 0.05;
   this->PlaceFactor       = 1.0;
+  
+  // Define the point coordinates and initial placement of the widget
+  double bounds[6] = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
+  this->PlaceWidget(bounds);
 }
 
 //----------------------------------------------------------------------------
@@ -771,6 +772,24 @@ int vtkParallelopipedRepresentation
             break;
           case vtkParallelopipedRepresentation::RequestChairMode:
             {
+            
+            // Toggle chair mode if we already have a chair here.. We are 
+            // trying to toggle of course.. In this case remove all chairs,
+            if (this->CurrentHandleIdx == this->ChairHandleIdx &&
+                this->HexPolyData->GetPolys()->GetNumberOfCells() == 9)
+              {
+              this->RemoveExistingChairs();
+              this->LastEventPosition[0] = X;
+              this->LastEventPosition[1] = Y;
+              this->InteractionState = vtkParallelopipedRepresentation::Inside;
+
+              // Synchronize the handle representations with our recently updated 
+              // "Points" data-structure.
+              this->PositionHandles();
+              return this->InteractionState;
+              }
+
+            // We aren't trying to toggle. Create one
             // Create a chair with a default cavity depth of 0.1
             this->UpdateChairAtNode( this->CurrentHandleIdx );
 
@@ -804,7 +823,7 @@ int vtkParallelopipedRepresentation
       // Now check if we are within the parallelopiped or outside the 
       // parallelopiped. We will use the pointplacer to evaluate this.
       vtkPlaneCollection *pc = vtkPlaneCollection::New();
-      this->GetBoundingPlanes( pc );
+      this->GetParallelopipedBoundingPlanes( pc );
       this->ChairPointPlacer->SetBoundingPlanes( pc );
       pc->Delete();
 
@@ -976,7 +995,7 @@ int vtkParallelopipedRepresentation
           }
         }
 
-      // "cells" below contains the face to be translate.
+      // "cells" below contains the face to be translated.
       vtkSmartPointer< vtkCellArray > cells = vtkSmartPointer<vtkCellArray>::New();
       this->Topology->FindCellsContainingNodes( 
         (this->ChairHandleIdx == -1) ? 0 : 
@@ -987,7 +1006,7 @@ int vtkParallelopipedRepresentation
       cells->GetNextCell(npts, cellPtIds);
 
       // The translation vector      
-      const double handleTranslation[3] = 
+      double handleTranslation[3] = 
         { t * neighborWorldPos[axisIdx][0] - t * handleWorldPos[0],
           t * neighborWorldPos[axisIdx][1] - t * handleWorldPos[1],
           t * neighborWorldPos[axisIdx][2] - t * handleWorldPos[2]  };
@@ -995,6 +1014,48 @@ int vtkParallelopipedRepresentation
       double newHandleWorldPos[3] = { handleWorldPos[0] + handleTranslation[0],
                                       handleWorldPos[1] + handleTranslation[1],
                                       handleWorldPos[2] + handleTranslation[2]};
+
+      if (   t > 0.0  // We are moving towards the other handle
+          && (vtkMath::Distance2BetweenPoints(
+              neighborWorldPos[axisIdx], newHandleWorldPos)) < (
+              this->AbsoluteMinimumThickness * this->AbsoluteMinimumThickness))
+        {
+        // Too close. We don't want the parallelopiped collapsing, do we ?
+        vtkDebugMacro( << "AbsoluteMaximumThickness = " 
+          << this->AbsoluteMinimumThickness << " This move will bring us " 
+          << sqrt(vtkMath::Distance2BetweenPoints(
+              neighborWorldPos[axisIdx], newHandleWorldPos)) << " far away to ("
+          << newHandleWorldPos[0] << "," << newHandleWorldPos[1] << ","
+          << newHandleWorldPos[2] << "). We can\'t do that." );
+
+        // Revise 't' so as to maintain minimum thickness. The bottom line is
+        // that although 't E [-inf, 1.0]', 't' will never hit 1.0 unless 
+        // AbsoluteMinimumThickness is 0.0. 
+        t = 1.0 - this->AbsoluteMinimumThickness / sqrt(
+            vtkMath::Distance2BetweenPoints(
+              neighborWorldPos[axisIdx], handleWorldPos));
+
+        // Recompute these 2 positions with our revised 't' value.
+        handleTranslation[0] = t * neighborWorldPos[axisIdx][0] - t * handleWorldPos[0];
+        handleTranslation[1] = t * neighborWorldPos[axisIdx][1] - t * handleWorldPos[1];
+        handleTranslation[2] = t * neighborWorldPos[axisIdx][2] - t * handleWorldPos[2];
+
+        newHandleWorldPos[0] = handleWorldPos[0] + handleTranslation[0];
+        newHandleWorldPos[1] = handleWorldPos[1] + handleTranslation[1];
+        newHandleWorldPos[2] = handleWorldPos[2] + handleTranslation[2];
+
+        if (t < 0.0)
+          {
+          // Sanity check. We should never get here in the first place.
+          this->LastEventPosition[0] = X;
+          this->LastEventPosition[1] = Y;
+          return this->InteractionState;
+          }
+
+        vtkDebugMacro( "So we are revising the value of t to " << t 
+          << " and newHandleWorldPos to (" << newHandleWorldPos[0] << "," 
+          << newHandleWorldPos[1] << "," << newHandleWorldPos[2] << ")" );
+        }
 
       // If we have a chair, prevent the handle from being translated beyond
       // the plane of the chair, otherwise it will cause the chair to turn 
@@ -1026,7 +1087,6 @@ int vtkParallelopipedRepresentation
             return this->InteractionState;
             }
           }
-        
         }
 
       // Highlight this face...
@@ -1479,6 +1539,16 @@ void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
     {
     this->Points->SetPoint(i, newCorners[i]);
     }
+  this->AbsoluteMinimumThickness = 
+    this->HexPolyData->GetLength()*this->MinimumThickness;
+
+  this->ChairPointPlacer->SetMinimumDistance( 0.5 * this->AbsoluteMinimumThickness );
+  
+  // Initialize the chair points too
+  for (int i = 8; i < 16; i++)
+    {
+    this->Points->SetPoint(i, newCorners[0]);
+    }
   
   this->PositionHandles();
 }
@@ -1491,8 +1561,15 @@ void vtkParallelopipedRepresentation::GetPolyData(vtkPolyData *pd)
 }
 
 //----------------------------------------------------------------------------
+double *vtkParallelopipedRepresentation::GetBounds()
+{
+  return this->Points->GetBounds();
+}
+
+//----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::BuildRepresentation()
 {
+  this->Points->Modified();
 }
 
 //----------------------------------------------------------------------------

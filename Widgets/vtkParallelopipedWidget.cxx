@@ -32,12 +32,15 @@
 #include "vtkWidgetSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkParallelopipedWidget, "1.3");
+vtkCxxRevisionMacro(vtkParallelopipedWidget, "1.4");
 vtkStandardNewMacro(vtkParallelopipedWidget);
 
 //----------------------------------------------------------------------
 vtkParallelopipedWidget::vtkParallelopipedWidget()
 {
+  // Allow chairs to be created.
+  this->EnableChairCreation = 1;
+
   // 8 handles for the 8 corners of the piped.
   this->HandleWidgets = new vtkHandleWidget* [8];
   for (int i=0; i<8; i++)
@@ -57,7 +60,9 @@ vtkParallelopipedWidget::vtkParallelopipedWidget()
             vtkCommand::LeftButtonPressEvent,
             vtkEvent::NoModifier, 0, 1, NULL,
             vtkParallelopipedWidget::RequestResizeEvent,
-            this, vtkParallelopipedWidget::RequestResizeCallback);
+            this, vtkParallelopipedWidget::RequestResizeAlongAnAxisCallback);
+// Commented out by Will because it is unstable code
+//            this, vtkParallelopipedWidget::RequestResizeCallback);
   this->CallbackMapper->SetCallbackMethod(
             vtkCommand::LeftButtonPressEvent,
             vtkEvent::ShiftModifier, 0, 1, NULL,
@@ -296,6 +301,12 @@ void vtkParallelopipedWidget
 void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
+
+  if ( ! self->EnableChairCreation )
+    {
+    return;
+    }
+
   vtkParallelopipedRepresentation *rep = 
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
   
@@ -335,8 +346,7 @@ void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget *w)
   // We know we are inside the parallelopiped.
   // Change the cursor to the Translate thingie.
   self->SetCursor( vtkParallelopipedRepresentation::TranslatingParallelopiped );
-  rep->SetInteractionState( vtkParallelopipedRepresentation
-                                ::TranslatingParallelopiped );
+  rep->SetInteractionState( vtkParallelopipedRepresentation::TranslatingParallelopiped );
 
   // Dispatch to all widgets in the set.
   if (self->WidgetSet)
@@ -423,7 +433,6 @@ void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget *w)
                               ::TranslatingParallelopiped)
     {
     // Dispatch to all widgets in the set.
-    // Dispatch to all widgets in the set.
     if (self->WidgetSet)
       {
       self->WidgetSet->DispatchAction(
@@ -455,6 +464,7 @@ void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget *w)
     {
     self->Interactor->Render();
     self->SetCursor(newInteractionState);
+    self->InvokeEvent(vtkCommand::InteractionEvent, NULL);
     }
 }
 
@@ -493,4 +503,8 @@ void vtkParallelopipedWidget::ReportReferences(vtkGarbageCollector* collector)
 void vtkParallelopipedWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Chair Creation: " 
+     << (this->EnableChairCreation ? "On\n" : "Off\n");
+  
 }

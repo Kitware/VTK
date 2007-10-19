@@ -61,6 +61,7 @@ vtkOrientedGlyphContourRepresentation.cxx
 vtkOrientedGlyphFocalPlaneContourRepresentation.cxx
 vtkParallelopipedRepresentation.cxx
 vtkParallelopipedWidget.cxx
+vtkClosedSurfacePointPlacer.cxx
 vtkPlaneWidget.cxx
 vtkPlaybackRepresentation.cxx
 vtkPlaybackWidget.cxx

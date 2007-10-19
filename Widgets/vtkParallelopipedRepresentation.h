@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParallelopipedRepresentation - Representation for the class vtkParallelopipedWidget
+// .NAME vtkParallelopipedRepresentation - representation for the class vtkParallelopipedWidget
 // .SECTION Description
-// See vtkParallelopipedWidget for details.
+// See the vtkParallelopipedWidget class for details.
 //
 // .SECTION Caveats
 // .SECTION See Also
@@ -34,7 +34,7 @@ class vtkProperty;
 class vtkCellArray;
 class vtkTransform;
 class vtkHandleRepresentation;
-class vtkBoundedPlanePointPlacer;
+class vtkClosedSurfacePointPlacer;
 class vtkPlaneCollection;
 class vtkParallelopipedTopology;
 
@@ -89,6 +89,10 @@ public:
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
+  // The parallelopiped polydata.
+  virtual double *GetBounds();
+
+  // Description:
   // Set/Get the handle properties. 
   virtual void SetHandleProperty           (vtkProperty *);
   virtual void SetHoveredHandleProperty    (vtkProperty *);
@@ -101,7 +105,7 @@ public:
   vtkHandleRepresentation* GetHandleRepresentation(int index);
 
   // Description:
-  // Turns the visibility of the handles on/off.. Sometimes they may get in
+  // Turns the visibility of the handles on/off. Sometimes they may get in
   // the way of visualization.
   void HandlesOn();
   void HandlesOff();
@@ -118,6 +122,9 @@ public:
   vtkGetObjectMacro(OutlineProperty,vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
   
+  // Description:
+  // This actually constructs the geometry of the widget from the various
+  // data parameters.
   virtual void BuildRepresentation();
  
   // Description:
@@ -126,6 +133,9 @@ public:
   virtual int  RenderOverlay(vtkViewport *viewport);
   virtual int  RenderOpaqueGeometry(vtkViewport *viewport);
 
+  // Description:
+  // Given and x-y display coordinate, compute the interaction state of 
+  // the widget.
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
 
   //BTX - manage the state of the widget
@@ -155,13 +165,14 @@ public:
   
   // Description:
   // Synchronize the parallelopiped handle positions with the 
-  // Polygonal datastructure
+  // Polygonal datastructure.
   virtual void PositionHandles();
   
   // Description:
   // Minimum thickness for the parallelopiped. User interactions cannot make
   // any individual axis of the parallopiped thinner than this value.
-  // Default is 0.05
+  // Default is 0.05 expressed as a fraction of the diagonal of the bounding
+  // box used in the PlaceWidget() invocation.
   vtkSetMacro( MinimumThickness, double );
   vtkGetMacro( MinimumThickness, double );
   
@@ -212,7 +223,6 @@ protected:
   vtkPolyDataMapper                 * HexMapper;
   vtkPolyData                       * HexPolyData;
   vtkPoints                         * Points;
-  vtkPoints                         * ChairPoints;
   vtkActor                          * HexFaceActor;
   vtkPolyDataMapper                 * HexFaceMapper;
   vtkPolyData                       * HexFacePolyData;
@@ -239,9 +249,10 @@ protected:
   vtkProperty                       * SelectedHandleProperty;
   vtkProperty                       * SelectedFaceProperty;
   vtkProperty                       * SelectedOutlineProperty;
-  vtkBoundedPlanePointPlacer        * ChairPointPlacer;
+  vtkClosedSurfacePointPlacer       * ChairPointPlacer;
   vtkParallelopipedTopology         * Topology;
   double                              MinimumThickness;
+  double                              AbsoluteMinimumThickness;
 
 private:
   vtkParallelopipedRepresentation(const vtkParallelopipedRepresentation&);  //Not implemented
