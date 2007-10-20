@@ -24,7 +24,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.12");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.13");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -356,7 +356,7 @@ int vtkQuadraticHexahedron::CellBoundary( int subId,
                                           double pcoords[3], 
                                           vtkIdList *pts )
 {
-  for ( int i = 0; i < 8; ++ i ) // For each of the eight vertices of the hexhedron
+  for ( int i = 0; i < 8; ++ i ) // For each of the eight vertices of the hex
     {
     this->Hex->PointIds->SetId( i, this->PointIds->GetId( i ) );
     }

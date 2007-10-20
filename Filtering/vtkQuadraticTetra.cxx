@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.10");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 //----------------------------------------------------------------------------
@@ -269,7 +269,12 @@ void vtkQuadraticTetra::EvaluateLocation(int& vtkNotUsed(subId),
 int vtkQuadraticTetra::CellBoundary(int subId, double pcoords[3],
                                     vtkIdList *pts)
 {
-  return this->Tetra->CellBoundary(subId, pcoords, pts);
+  for ( int i = 0; i < 4; ++ i ) // For each of the four vertices of the tet
+    {
+    this->Tetra->PointIds->SetId( i, this->PointIds->GetId( i ) );
+    }
+
+  return this->Tetra->CellBoundary( subId, pcoords, pts );
 }
 
 //----------------------------------------------------------------------------
