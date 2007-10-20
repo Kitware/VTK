@@ -12,11 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkInformation.h"
-
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationKeyVectorKey.h"
+
+#include "vtkObject.h"
+#ifdef __vtkInformation_h
+#  error "vtkInformation.h must not be included before this line."
+#endif // __vtkInformation_h
+#undef VTK_COMMON_EXPORT
+#define VTK_COMMON_EXPORT VTK_FILTERING_EXPORT
+#include "vtkInformation.h" // Must be last include
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, 
