@@ -44,6 +44,7 @@ IF(PYTHON_EXECUTABLE)
     vtkIOStream.h
     vtkIOStreamFwd.h
     vtkIndent.h
+    vtkInformation.h
     vtkInformationInternals.h
     vtkJavaAwt.h
     vtkJavaUtil.h
