@@ -12,6 +12,11 @@ Run flex like this:
 Modify lex.yy.c:
   - remove yyunput function
   - remove TABs
+  - change yy_n_chars declarations from "int yy_n_chars;" to
+    "size_t yy_n_chars;" in both the yy_buffer_state structure
+    and the global scope.
+  - change num_to_read declaration from "int num_to_read;" to
+    "size_t num_to_read;" in yy_get_next_buffer function.
 
 */
 
@@ -26,6 +31,7 @@ Modify lex.yy.c:
 #define YY_SKIP_YYWRAP
 
 #ifdef _WIN32
+#pragma warning ( disable : 4018 )
 #pragma warning ( disable : 4127 )
 #pragma warning ( disable : 4131 )
 #pragma warning ( disable : 4244 )
