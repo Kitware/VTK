@@ -30,7 +30,7 @@ int TestMetaIO(int argc, char *argv[])
   vtkOutputWindow::GetInstance()->PromptUserOn();
   if ( argc <= 1 )
     {
-    cout << "Usage: " << argv[0] << " <xml file>" << endl;
+    cout << "Usage: " << argv[0] << " <meta image file>" << endl;
     return 1;
     }
 
@@ -63,7 +63,7 @@ int TestMetaIO(int argc, char *argv[])
 
   double error = 0;
   int * ext = readerStd->GetOutput()->GetWholeExtent();
-  for(int z=ext[4]; z<=ext[5]; z++)
+  for(int z=ext[4]; z<=ext[5]; z+=2)
     {
     for(int y=ext[2]; y<=ext[3]; y++)
       {
