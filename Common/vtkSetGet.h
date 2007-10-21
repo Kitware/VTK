@@ -608,10 +608,10 @@ virtual double *Get##name() \
 
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
-#define vtkTypeMacro(thisClass,superclass) vtkExportedTypeMacro(thisClass,superclass,/* */)
+#define vtkTypeMacro(thisClass,superclass) vtkExportedTypeMacro(thisClass,superclass,)
 
 // Version of vtkTypeMacro that adds the CollectRevisions method.
-#define vtkTypeRevisionMacro(thisClass,superclass) vtkExportedTypeRevisionMacro(thisClass,superclass,/* */)
+#define vtkTypeRevisionMacro(thisClass,superclass) vtkExportedTypeRevisionMacro(thisClass,superclass,)
 
 // Macro to implement the standard CollectRevisions method.
 #define vtkCxxRevisionMacro(thisClass, revision) \
