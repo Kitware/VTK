@@ -48,7 +48,9 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     GET_FILENAME_COMPONENT(__fname ${__file} ABSOLUTE)
     GET_FILENAME_COMPONENT(__fname.path ${__fname} PATH)
     GET_FILENAME_COMPONENT(__fname.name ${__fname} NAME_WE)
-    SET(__files.h ${__files.h} "${__fname.path}/${__fname.name}.h")
+    IF ( EXISTS "${__fname.path}/${__fname.name}.h" )
+      SET(__files.h ${__files.h} "${__fname.path}/${__fname.name}.h")
+    ENDIF ( EXISTS "${__fname.path}/${__fname.name}.h" )
   ENDFOREACH(__file)
   INSTALL(FILES ${__files.h}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
