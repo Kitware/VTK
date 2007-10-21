@@ -206,8 +206,10 @@ Modify lex.yy.c:
 "vtkGetVector6Macro"   return(GetVector6Macro);
 "vtkSetVectorMacro"    return(SetVectorMacro);
 "vtkGetVectorMacro"    return(GetVectorMacro);
-"vtkViewportCoordinateMacro"     return(ViewportCoordinateMacro);
+"vtkViewportCoordinateMacro" return(ViewportCoordinateMacro);
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
+"vtkExportedTypeMacro" return(TypeMacro);
+"vtkExportedTypeRevisionMacro" return(TypeMacro);
 "vtkTypeMacro"         return(TypeMacro);
 "vtkTypeRevisionMacro" return(TypeMacro);
 "VTK_LEGACY"           return(VTK_LEGACY);

@@ -50,16 +50,16 @@ class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
-class VTK_COMMON_EXPORT vtkInformation : public vtkObject
+class vtkInformation : public vtkObject
 {
 public:
-  static vtkInformation *New();
-  vtkTypeRevisionMacro(vtkInformation,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  VTK_COMMON_EXPORT static vtkInformation *New();
+  vtkExportedTypeRevisionMacro(vtkInformation,vtkObject,VTK_COMMON_EXPORT);
+  VTK_COMMON_EXPORT void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Clear all information entries.
-  void Clear();
+  VTK_COMMON_EXPORT void Clear();
 
   // Description:
   // Copy all information entries from the given vtkInformation
@@ -67,25 +67,25 @@ public:
   // deep==1, a deep copy of the information structure is performed (new 
   // instances of any contained vtkInformation and vtkInformationVector 
   // objects are created).
-  void Copy(vtkInformation* from, int deep=0);
+  VTK_COMMON_EXPORT void Copy(vtkInformation* from, int deep=0);
 
   // Description:
   // Copy the key/value pair associated with the given key in the
   // given information object.  If deep=1, a deep copy of the information
   // structure is performed (new instances of any contained vtkInformation and 
   // vtkInformationVector objects are created).
-  void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
   //BTX
-  void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
+  VTK_FILTERING_EXPORT void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
   //ETX
 
   // Description:
@@ -93,255 +93,255 @@ public:
   // information object.  The key/value pairs associated with these
   // other keys will be copied.  If deep==1, a deep copy of the
   // information structure is performed.
-  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
 
   // Description:
   // Get/Set a request-valued entry.
-  void Set(vtkInformationRequestKey* key);
-  void Remove(vtkInformationRequestKey* key);
-  int Has(vtkInformationRequestKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationRequestKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationRequestKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationRequestKey* key);
 
   // Description:
   // Get/Set an integer-valued entry.
-  void Set(vtkInformationIntegerKey* key, int value);
-  int Get(vtkInformationIntegerKey* key);
-  void Remove(vtkInformationIntegerKey* key);
-  int Has(vtkInformationIntegerKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationIntegerKey* key, int value);
+  VTK_COMMON_EXPORT int Get(vtkInformationIntegerKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationIntegerKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationIntegerKey* key);
 
   // Description:
   // Get/Set a vtkIdType-valued entry.
-  void Set(vtkInformationIdTypeKey* key, vtkIdType value);
-  vtkIdType Get(vtkInformationIdTypeKey* key);
-  void Remove(vtkInformationIdTypeKey* key);
-  int Has(vtkInformationIdTypeKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationIdTypeKey* key, vtkIdType value);
+  VTK_COMMON_EXPORT vtkIdType Get(vtkInformationIdTypeKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationIdTypeKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationIdTypeKey* key);
 
   // Description:
   // Get/Set an double-valued entry.
-  void Set(vtkInformationDoubleKey* key, double value);
-  double Get(vtkInformationDoubleKey* key);
-  void Remove(vtkInformationDoubleKey* key);
-  int Has(vtkInformationDoubleKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationDoubleKey* key, double value);
+  VTK_COMMON_EXPORT double Get(vtkInformationDoubleKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationDoubleKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationDoubleKey* key);
 
   // Description:
   // Get/Set an integer-vector-valued entry.
-  void Append(vtkInformationIntegerVectorKey* key, int value);
-  void Set(vtkInformationIntegerVectorKey* key, int* value, int length);
-  void Set(vtkInformationIntegerVectorKey* key, int value1, 
+  VTK_COMMON_EXPORT void Append(vtkInformationIntegerVectorKey* key, int value);
+  VTK_COMMON_EXPORT void Set(vtkInformationIntegerVectorKey* key, int* value, int length);
+  VTK_COMMON_EXPORT void Set(vtkInformationIntegerVectorKey* key, int value1, 
            int value2, int value3);
-  void Set(vtkInformationIntegerVectorKey* key, 
+  VTK_COMMON_EXPORT void Set(vtkInformationIntegerVectorKey* key, 
            int value1, int value2, int value3,
            int value4, int value5, int value6);
-  int* Get(vtkInformationIntegerVectorKey* key);
-  int  Get(vtkInformationIntegerVectorKey* key, int idx);
-  void Get(vtkInformationIntegerVectorKey* key, int* value);
-  int Length(vtkInformationIntegerVectorKey* key);
-  void Remove(vtkInformationIntegerVectorKey* key);
-  int Has(vtkInformationIntegerVectorKey* key);
+  VTK_COMMON_EXPORT int* Get(vtkInformationIntegerVectorKey* key);
+  VTK_COMMON_EXPORT int  Get(vtkInformationIntegerVectorKey* key, int idx);
+  VTK_COMMON_EXPORT void Get(vtkInformationIntegerVectorKey* key, int* value);
+  VTK_COMMON_EXPORT int Length(vtkInformationIntegerVectorKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationIntegerVectorKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationIntegerVectorKey* key);
 
   // Description:
   // Get/Set an integer-pointer-valued entry.
-  void Set(vtkInformationIntegerPointerKey* key, int* value, int length);
-  int* Get(vtkInformationIntegerPointerKey* key);
-  void Get(vtkInformationIntegerPointerKey* key, int* value);
-  int Length(vtkInformationIntegerPointerKey* key);
-  void Remove(vtkInformationIntegerPointerKey* key);
-  int Has(vtkInformationIntegerPointerKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationIntegerPointerKey* key, int* value, int length);
+  VTK_COMMON_EXPORT int* Get(vtkInformationIntegerPointerKey* key);
+  VTK_COMMON_EXPORT void Get(vtkInformationIntegerPointerKey* key, int* value);
+  VTK_COMMON_EXPORT int Length(vtkInformationIntegerPointerKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationIntegerPointerKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationIntegerPointerKey* key);
 
   // Description:
   // Get/Set an unsigned-long-valued entry.
-  void Set(vtkInformationUnsignedLongKey* key, unsigned long value);
-  unsigned long Get(vtkInformationUnsignedLongKey* key);
-  void Remove(vtkInformationUnsignedLongKey* key);
-  int Has(vtkInformationUnsignedLongKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationUnsignedLongKey* key, unsigned long value);
+  VTK_COMMON_EXPORT unsigned long Get(vtkInformationUnsignedLongKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationUnsignedLongKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationUnsignedLongKey* key);
 
   // Description:
   // Get/Set an double-vector-valued entry.
-  void Append(vtkInformationDoubleVectorKey* key, double value);
-  void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
-  void Set(vtkInformationDoubleVectorKey* key, double value1, 
+  VTK_COMMON_EXPORT void Append(vtkInformationDoubleVectorKey* key, double value);
+  VTK_COMMON_EXPORT void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
+  VTK_COMMON_EXPORT void Set(vtkInformationDoubleVectorKey* key, double value1, 
            double value2, double value3);
-  void Set(vtkInformationDoubleVectorKey* key, 
+  VTK_COMMON_EXPORT void Set(vtkInformationDoubleVectorKey* key, 
            double value1, double value2, double value3,
            double value4, double value5, double value6);
-  double* Get(vtkInformationDoubleVectorKey* key);
-  double  Get(vtkInformationDoubleVectorKey* key, int idx);
-  void Get(vtkInformationDoubleVectorKey* key, double* value);
-  int Length(vtkInformationDoubleVectorKey* key);
-  void Remove(vtkInformationDoubleVectorKey* key);
-  int Has(vtkInformationDoubleVectorKey* key);
+  VTK_COMMON_EXPORT double* Get(vtkInformationDoubleVectorKey* key);
+  VTK_COMMON_EXPORT double  Get(vtkInformationDoubleVectorKey* key, int idx);
+  VTK_COMMON_EXPORT void Get(vtkInformationDoubleVectorKey* key, double* value);
+  VTK_COMMON_EXPORT int Length(vtkInformationDoubleVectorKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationDoubleVectorKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationDoubleVectorKey* key);
 
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
-  void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
-  void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
-  vtkInformationKey*  Get(vtkInformationKeyVectorKey* key, int idx);
-  void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
-  int Length(vtkInformationKeyVectorKey* key);
-  void Remove(vtkInformationKeyVectorKey* key);
-  int Has(vtkInformationKeyVectorKey* key);
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
+  VTK_COMMON_EXPORT void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
+  VTK_COMMON_EXPORT void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
+  VTK_COMMON_EXPORT vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
+  VTK_COMMON_EXPORT vtkInformationKey*  Get(vtkInformationKeyVectorKey* key, int idx);
+  VTK_COMMON_EXPORT void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
+  VTK_COMMON_EXPORT int Length(vtkInformationKeyVectorKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationKeyVectorKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationKeyVectorKey* key);
 
   // Provide extra overloads of this method to avoid requiring user
   // code to include the headers for these key types.  Avoid wrapping
   // them because the original method can be called from the wrappers
   // anyway and this causes a python help string to be too long.
   //BTX
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationDataObjectKey* value);
-  void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationDoubleVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_FILTERING_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationExecutivePortKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationInformationKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationInformationVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationIntegerKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationIntegerVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationObjectBaseKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationUnsignedLongKey* value);
 
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationDataObjectKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key, 
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, 
                     vtkInformationDoubleKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationDoubleVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_FILTERING_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationExecutivePortKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationInformationKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationInformationVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationIntegerKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationIntegerVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key, 
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, 
                     vtkInformationStringKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationObjectBaseKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationUnsignedLongKey* value);
   //ETX
 
   // Description:
   // Get/Set a string-valued entry.
-  void Set(vtkInformationStringKey* key, const char*);
-  const char* Get(vtkInformationStringKey* key);
-  void Remove(vtkInformationStringKey* key);
-  int Has(vtkInformationStringKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationStringKey* key, const char*);
+  VTK_COMMON_EXPORT const char* Get(vtkInformationStringKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationStringKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationStringKey* key);
 
   // Description:
   // Get/Set an entry storing another vtkInformation instance.
-  void Set(vtkInformationInformationKey* key, vtkInformation*);
-  vtkInformation* Get(vtkInformationInformationKey* key);
-  void Remove(vtkInformationInformationKey* key);
-  int Has(vtkInformationInformationKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationInformationKey* key, vtkInformation*);
+  VTK_COMMON_EXPORT vtkInformation* Get(vtkInformationInformationKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationInformationKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationInformationKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkInformationVector instance.
-  void Set(vtkInformationInformationVectorKey* key, vtkInformationVector*);
-  vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
-  void Remove(vtkInformationInformationVectorKey* key);
-  int Has(vtkInformationInformationVectorKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationInformationVectorKey* key, vtkInformationVector*);
+  VTK_COMMON_EXPORT vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationInformationVectorKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationInformationVectorKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkObjectBase instance.
-  void Set(vtkInformationObjectBaseKey* key, vtkObjectBase*);
-  vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
-  void Remove(vtkInformationObjectBaseKey* key);
-  int Has(vtkInformationObjectBaseKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationObjectBaseKey* key, vtkObjectBase*);
+  VTK_COMMON_EXPORT vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationObjectBaseKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationObjectBaseKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkDataObject instance.
-  void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
-  vtkDataObject* Get(vtkInformationDataObjectKey* key);
-  void Remove(vtkInformationDataObjectKey* key);
-  int Has(vtkInformationDataObjectKey* key);
+  VTK_COMMON_EXPORT void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
+  VTK_COMMON_EXPORT vtkDataObject* Get(vtkInformationDataObjectKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationDataObjectKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationDataObjectKey* key);
 
   //BTX
   // Description:
   // Get/Set an entry storing a vtkExecutive/port number pair.
-  void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
-  vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key);
-  int GetPort(vtkInformationExecutivePortKey* key);
-  void Get(vtkInformationExecutivePortKey* key, vtkExecutive*& executive, int &port);
-  void Remove(vtkInformationExecutivePortKey* key);
-  int Has(vtkInformationExecutivePortKey* key);
+  VTK_FILTERING_EXPORT void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
+  VTK_FILTERING_EXPORT vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key);
+  VTK_FILTERING_EXPORT int GetPort(vtkInformationExecutivePortKey* key);
+  VTK_FILTERING_EXPORT void Get(vtkInformationExecutivePortKey* key, vtkExecutive*& executive, int &port);
+  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortKey* key);
+  VTK_FILTERING_EXPORT int Has(vtkInformationExecutivePortKey* key);
 
   // Description:
   // Get/Set an entry storing a vector of vtkExecutive/port number pairs.
-  void Append(vtkInformationExecutivePortVectorKey* key,
+  VTK_FILTERING_EXPORT void Append(vtkInformationExecutivePortVectorKey* key,
               vtkExecutive* executive, int port);
-  void Remove(vtkInformationExecutivePortVectorKey* key,
+  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortVectorKey* key,
               vtkExecutive* executive, int port);
-  void Set(vtkInformationExecutivePortVectorKey* key,
+  VTK_FILTERING_EXPORT void Set(vtkInformationExecutivePortVectorKey* key,
            vtkExecutive** executives, int* ports, int length);
-  vtkExecutive** GetExecutives(vtkInformationExecutivePortVectorKey* key);
-  int* GetPorts(vtkInformationExecutivePortVectorKey* key);
-  void Get(vtkInformationExecutivePortVectorKey* key,
+  VTK_FILTERING_EXPORT vtkExecutive** GetExecutives(vtkInformationExecutivePortVectorKey* key);
+  VTK_FILTERING_EXPORT int* GetPorts(vtkInformationExecutivePortVectorKey* key);
+  VTK_FILTERING_EXPORT void Get(vtkInformationExecutivePortVectorKey* key,
            vtkExecutive** executives, int* ports);
-  int Length(vtkInformationExecutivePortVectorKey* key);
-  void Remove(vtkInformationExecutivePortVectorKey* key);
-  int Has(vtkInformationExecutivePortVectorKey* key);
+  VTK_FILTERING_EXPORT int Length(vtkInformationExecutivePortVectorKey* key);
+  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortVectorKey* key);
+  VTK_FILTERING_EXPORT int Has(vtkInformationExecutivePortVectorKey* key);
   //ETX
 
   // Description:
   // Upcast the given key instance.
-  static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
-  static vtkInformationKey* GetKey(vtkInformationDoubleKey* key);
-  static vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
-  static vtkInformationKey* GetKey(vtkInformationInformationKey* key);
-  static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
-  static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
-  static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
-  static vtkInformationKey* GetKey(vtkInformationRequestKey* key);
-  static vtkInformationKey* GetKey(vtkInformationStringKey* key);
-  static vtkInformationKey* GetKey(vtkInformationKey* key);
-  static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationDoubleKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationInformationKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationRequestKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationStringKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
   //BTX
-  static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
+  VTK_FILTERING_EXPORT static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
   //ETX
 
   // Description:
   // Initiate garbage collection when a reference is removed.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  VTK_COMMON_EXPORT virtual void Register(vtkObjectBase* o);
+  VTK_COMMON_EXPORT virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
   // Get/Set the Request ivar
-  void SetRequest(vtkInformationRequestKey *request) { this->Request = request; }
-  vtkInformationRequestKey *GetRequest() { return this->Request; }
+  VTK_COMMON_EXPORT void SetRequest(vtkInformationRequestKey *request) { this->Request = request; }
+  VTK_COMMON_EXPORT vtkInformationRequestKey *GetRequest() { return this->Request; }
       
 protected:
-  vtkInformation();
-  ~vtkInformation();
+  VTK_COMMON_EXPORT vtkInformation();
+  VTK_COMMON_EXPORT ~vtkInformation();
 
   // Get/Set a map entry directly through the vtkObjectBase instance
   // representing the value.  Used internally to manage the map.
-  void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
-  vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
+  VTK_COMMON_EXPORT void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
+  VTK_COMMON_EXPORT vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
 
   // Expand the table to a larger size
-  void ExpandTable();
+  VTK_COMMON_EXPORT void ExpandTable();
   
   // Internal implementation details.
   vtkInformationInternals* Internal;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  VTK_COMMON_EXPORT virtual void ReportReferences(vtkGarbageCollector*);
 
   // Report the object associated with the given key to the collector.
-  void ReportAsObjectBase(vtkInformationKey* key,
+  VTK_COMMON_EXPORT void ReportAsObjectBase(vtkInformationKey* key,
                           vtkGarbageCollector* collector);
 
 private:
@@ -350,8 +350,8 @@ private:
   friend class vtkInformationIterator;
   //ETX
 private:
-  vtkInformation(const vtkInformation&);  // Not implemented.
-  void operator=(const vtkInformation&);  // Not implemented.
+  VTK_COMMON_EXPORT vtkInformation(const vtkInformation&);  // Not implemented.
+  VTK_COMMON_EXPORT void operator=(const vtkInformation&);  // Not implemented.
   vtkInformationRequestKey *Request;
 };
 

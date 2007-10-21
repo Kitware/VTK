@@ -138,7 +138,7 @@ char *vtkstrdup(const char *in)
         sigAllocatedLength)
       {
       currentFunction->Signature = (char *)
-	realloc(currentFunction->Signature, sigAllocatedLength*2);
+        realloc(currentFunction->Signature, sigAllocatedLength*2);
       sigAllocatedLength = sigAllocatedLength*2;
       }
     } 
@@ -300,58 +300,58 @@ function: '~' func { preSig("~"); }
       | type func 
          {
          currentFunction->ReturnType = $<integer>1;
-	 } 
+         } 
       | type CONST func 
          {
          currentFunction->ReturnType = $<integer>1;
-	 } 
+         } 
       | VIRTUAL type CONST func 
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
-	 }
+         }
       | VIRTUAL type func 
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
-	 }
+         }
       | VIRTUAL func
          {
          preSig("virtual ");
-	 };
+         };
 
 operator:
         operator_sig
          {
          output_function();
-	 }
+         }
       | type operator_sig
          {
          currentFunction->ReturnType = $<integer>1;
          output_function();
-	 }
+         }
       | type CONST operator_sig
          {
          currentFunction->ReturnType = $<integer>1;
          output_function();
-	 }
+         }
       | VIRTUAL type CONST operator_sig
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
          output_function();
-	 }
+         }
       | VIRTUAL type operator_sig
          {
          preSig("virtual ");
          currentFunction->ReturnType = $<integer>2;
          output_function();
-	 }
+         }
       | VIRTUAL operator_sig
          {
          preSig("virtual ");
          output_function();
-	 };
+         };
 
 operator_sig: OPERATOR maybe_other_no_semi ';'
     {
@@ -398,13 +398,13 @@ arg: type
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	$<integer>1;} 
+        $<integer>1;} 
   | type var_id 
     {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
-	$<integer>2 / 0x10000; 
+        $<integer>2 / 0x10000; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	$<integer>1 + $<integer>2 % 0x10000;
+        $<integer>1 + $<integer>2 % 0x10000;
     } opt_var_assign
   | VAR_FUNCTION 
     { 
@@ -1016,7 +1016,58 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
-	   $<str>3);
+           $<str>3);
+   sprintf(temps,"NewInstance"); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x309;
+   currentFunction->ReturnClass = vtkstrdup($<str>3);
+   output_function();
+
+   if ( data.IsConcrete )
+     {
+     currentFunction->Signature = (char *)malloc(2048);
+     sigAllocatedLength = 2048;
+     sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
+             $<str>3);
+     sprintf(temps,"SafeDownCast"); 
+     currentFunction->Name = vtkstrdup(temps);
+     currentFunction->NumberOfArguments = 1;
+     currentFunction->ArgTypes[0] = 0x309;
+     currentFunction->ArgCounts[0] = 1;
+     currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
+     currentFunction->ReturnType = 0x2309;
+     currentFunction->ReturnClass = vtkstrdup($<str>3);
+     output_function();
+     }
+   }
+| TypeMacro '(' any_id ',' any_id ',' ')'
+   { 
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature, "const char *GetClassName ();");
+   sprintf(temps,"GetClassName"); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 0;
+   currentFunction->ReturnType = 0x1303;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature,
+           "int IsA (const char *name);");
+   sprintf(temps,"IsA"); 
+   currentFunction->Name = vtkstrdup(temps);
+   currentFunction->NumberOfArguments = 1;
+   currentFunction->ArgTypes[0] = 0x1303;
+   currentFunction->ArgCounts[0] = 0;
+   currentFunction->ReturnType = 0x4;
+   output_function();
+
+   currentFunction->Signature = (char *)malloc(2048);
+   sigAllocatedLength = 2048;
+   sprintf(currentFunction->Signature, "%s *NewInstance ();",
+           $<str>3);
    sprintf(temps,"NewInstance"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
@@ -1116,9 +1167,9 @@ void look_for_hint(void)
   while (fscanf(fhint,"%s %s %x %i",h_cls,h_func,&h_type,&h_value) != EOF)
     {
     if ((!strcmp(h_cls,data.ClassName))&&
-	currentFunction->Name &&
-	(!strcmp(h_func,currentFunction->Name))&&
-	((int)h_type == currentFunction->ReturnType))
+        currentFunction->Name &&
+        (!strcmp(h_func,currentFunction->Name))&&
+        ((int)h_type == currentFunction->ReturnType))
       {
       currentFunction->HaveHint = 1;
       currentFunction->HintSize = h_value;
@@ -1170,7 +1221,7 @@ void output_function()
       case 0x301: case 0x302: case 0x307: case 0x30A: case 0x30B: case 0x30C:
       case 0x304: case 0x305: case 0x306: case 0x313:
         look_for_hint();
-	break;
+        break;
       }
     }
 
