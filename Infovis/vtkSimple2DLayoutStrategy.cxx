@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.21");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.22");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -115,7 +115,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   // The optimal distance between vertices.
   if (this->RestDistance == 0)
     {
-    this->RestDistance = sqrt(1.0 / div);
+    this->RestDistance = 1.0/div;
     }
     
   // Set up array to store repulsion values
