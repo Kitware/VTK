@@ -112,6 +112,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # pragma warning ( default : 4263 ) /* no override, call convention differs */
   // Disable MSVC compiler warning messages that often occur in valid code.
 # if !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#  pragma warning ( disable : 4003 ) /* not enough actual parameters for macro */
 #  pragma warning ( disable : 4097 ) /* typedef is synonym for class */
 #  pragma warning ( disable : 4127 ) /* conditional expression is constant */
 #  pragma warning ( disable : 4244 ) /* possible loss in conversion */
