@@ -47,25 +47,33 @@ public:
     METAIO_STL::string  name;
     METAIO_STL::string  description;
     METAIO_STL::string  value;
-    TypeEnumType type;
-    DataEnumType externaldata;
+    TypeEnumType        type;
+    DataEnumType        externaldata;
     METAIO_STL::string  rangeMin;
     METAIO_STL::string  rangeMax;
-    bool         required;
-    bool         userDefined;
+    bool                required;
+    bool                userDefined;
     };
 
   struct Option{
     METAIO_STL::string        name;
     METAIO_STL::string        description;
     METAIO_STL::string        tag;
+    METAIO_STL::string        longtag;
     METAIO_STL::vector<Field> fields;
-    bool               required;
-    bool               userDefined;
-    bool               complete;
+    bool                      required;
+    bool                      userDefined;
+    bool                      complete;
   };
 
-  typedef METAIO_STL::vector<Option>                OptionVector; 
+  struct ParameterGroup{
+    METAIO_STL::string                     name;
+    METAIO_STL::string                     description;
+    METAIO_STL::vector<METAIO_STL::string> options;
+    };
+
+  typedef METAIO_STL::vector<Option>             OptionVector;
+  typedef METAIO_STL::vector<ParameterGroup>     ParameterGroupVector;
   
   MetaCommand();
   ~MetaCommand() {}
@@ -114,6 +122,15 @@ public:
                       METAIO_STL::string rangeMin,
                       METAIO_STL::string rangeMax);
 
+  /** Set the long tag for the option */
+  bool SetOptionLongTag(METAIO_STL::string optionName,
+                        METAIO_STL::string longTag);
+
+  /** Set the group for a field or an option
+   *  If the group doesn't exist it is automatically created. */
+  bool SetParameterGroup(METAIO_STL::string optionName,
+                         METAIO_STL::string groupName,
+                         METAIO_STL::string groupDescription="");
 
   /** Collect all the information until the next tag 
    * \warning this function works only if the field is of type String */
@@ -151,6 +168,7 @@ public:
   /** List the options */
   void ListOptions();
   void ListOptionsXML();
+  void ListOptionsSlicerXML();
   void ListOptionsSimplified();
 
   Option * GetOptionByMinusTag(METAIO_STL::string minusTag);
@@ -196,15 +214,29 @@ public:
   void SetName(const char* name) 
     { m_Name=name; }
 
+  /** Set the description */
   void SetDescription(const char* description) 
     { m_Description=description; }
   METAIO_STL::string GetDescription() const
     {return m_Description;}
 
+  /** Set the author */
   void SetAuthor(const char* author) 
     { m_Author=author; }
   METAIO_STL::string GetAuthor() const
     {return m_Author;}
+
+  /** Set the acknowledgments */
+  void SetAcknowledgments(const char* acknowledgments) 
+    { m_Acknowledgments=acknowledgments; }
+  METAIO_STL::string GetAcknowledgments() const
+    {return m_Acknowledgments;} 
+  
+  /** Set the category */
+  void SetCategory(const char* category) 
+    { m_Category=category; }
+  METAIO_STL::string GetCategory() const
+    {return m_Category;}
 
   long GetOptionId(Option* option);
 
@@ -225,6 +257,16 @@ public:
   void SetVerbose(bool verbose) {m_Verbose = verbose;}
   void SetParseFailureOnUnrecognizedOption(bool fail) 
   { m_FailOnUnrecognizedOption = fail; }
+
+  /** Return true if we got the --xml */
+  bool GotXMLFlag()
+    {
+    return m_GotXMLFlag;
+    }
+
+  /** Disable the deprecated warnings */
+  void DisableDeprecatedWarnings();
+
 protected:
 
   /** Small XML helper */
@@ -238,6 +280,10 @@ protected:
   METAIO_STL::string m_Description;
   METAIO_STL::string m_Author;
   METAIO_STL::string m_ExecutableName;
+  METAIO_STL::string m_Acknowledgments;
+  METAIO_STL::string m_Category;
+
+  ParameterGroupVector m_ParameterGroup;
 
 private:
 
@@ -249,6 +295,12 @@ private:
 
   bool         m_Verbose;
   bool         m_FailOnUnrecognizedOption;
+  bool         m_GotXMLFlag;
+  bool         m_DisableDeprecatedWarnings;
+
+  // Use when write --xml
+  void WriteXMLOptionToCout(METAIO_STL::string optionName,unsigned int& index);
+
 }; // end of class
 
 #if (METAIO_USE_NAMESPACE)

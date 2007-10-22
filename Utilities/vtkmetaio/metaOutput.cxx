@@ -259,13 +259,15 @@ void MetaOutput::
 SetMetaCommand(MetaCommand* metaCommand)
 {
   m_MetaCommand = metaCommand;
-  m_MetaCommand->SetOption("GenerateMetaOutput","generateMetaOutput",
-                           false,"Generate MetaOutput");
-  m_MetaCommand->SetOption("GenerateXMLMetaOutput","oxml",
+  m_MetaCommand->SetOption("GenerateMetaOutput","",false,"Generate MetaOutput");
+  m_MetaCommand->SetOptionLongTag("GenerateMetaOutput","generateMetaOutput");
+  m_MetaCommand->SetOption("GenerateXMLMetaOutput","",
                            false,"Generate XML MetaOutput to the console");
-  m_MetaCommand->SetOption("GenerateXMLFile","ofxml",
+  m_MetaCommand->SetOptionLongTag("GenerateXMLMetaOutput","oxml");
+  m_MetaCommand->SetOption("GenerateXMLFile","",
             false,"Generate XML MetaOutput to a file",MetaCommand::STRING,"",
             MetaCommand::DATA_OUT);
+  m_MetaCommand->SetOptionLongTag("GenerateXMLFile","ofxml");
 }
 
 /** Get the username */

@@ -54,12 +54,28 @@
 #include <string>
 #include <typeinfo>
 
-
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {
 #endif
 
 extern int META_DEBUG;
+
+// Types used for storing the compression table
+typedef struct MET_CompressionOffset
+  {
+  unsigned long uncompressedOffset;
+  unsigned long compressedOffset;
+  } MET_CompressionOffsetType;
+
+typedef METAIO_STL::vector<MET_CompressionOffsetType> MET_CompressionOffsetListType;
+
+typedef struct MET_CompressionTable
+  {
+  MET_CompressionOffsetListType offsetList;
+  z_stream* compressedStream;
+  char*     buffer;
+  unsigned long bufferSize;
+  } MET_CompressionTableType;
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -267,6 +283,16 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
                               unsigned char * uncompressedData,
                               int uncompressedDataSize);
 
+// Uncompress a stream given an uncompressedSeekPosition
+METAIO_EXPORT 
+long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
+                          unsigned long uncompressedSeekPosition,
+                          unsigned char * uncompressedData,
+                          long uncompressedDataSize,
+                          long compressedDataSize,
+                          MET_CompressionTableType * compressionTable);
+
+
 /////////////////////////////////////////////////////////
 // FILES NAMES
 /////////////////////////////////////////////////////////
@@ -294,7 +320,8 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
                                    int _length, 
                                    T *_v)
   {
-  strcpy(_mf->name, _name);
+  strncpy(_mf->name, _name,254);
+  _mf->name[254] = '\0';
   _mf->type = _type;
   _mf->defined = true;
   _mf->length = _length;
@@ -304,7 +331,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
   if(_type == MET_FLOAT_MATRIX)
     {
     int i;
-    for(i=0; i<_length*_length; i++)
+    for(i=0; i < 255 && i < _length*_length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
       }
@@ -312,14 +339,16 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
   else if(_type != MET_STRING)
     {
     int i;
-    for(i=0; i<_length; i++)
+    for(i=0; i < 255 && i < _length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
       }
     }
   else
     {
-    strcpy((char *)(_mf->value), (const char *)_v);
+    strncpy((char *)(_mf->value), (const char *)_v,
+            (sizeof(_mf->value)-1));
+    ((char *)(_mf->value))[(sizeof(_mf->value)-1)] = '\0';
     }
   return true;
   }
