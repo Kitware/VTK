@@ -37,6 +37,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       EnSightIronProtASCII
       EnSightIronProtBin
       EnSightMandelbrot
+      EnSightNfacedASCII
+      EnSightNfacedBin
       EnSightOfficeASCII
       EnSightOfficeBin
       EnSightRectGridASCII
