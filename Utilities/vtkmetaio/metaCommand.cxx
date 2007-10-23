@@ -47,7 +47,7 @@ MetaCommand()
 }
 
 
-/** Extract the date from the $Date: 2007-10-22 06:37:56 $ cvs command */
+/** Extract the date from the $Date: 2007-10-23 04:07:52 $ cvs command */
 METAIO_STL::string MetaCommand::
 ExtractDateFromCVS(METAIO_STL::string date)
 {
@@ -70,7 +70,7 @@ SetDateFromCVS(METAIO_STL::string cvsDate)
   this->SetDate( this->ExtractDateFromCVS( cvsDate ).c_str() );
 }
 
-/** Extract the version from the $Revision: 1.13 $ cvs command */
+/** Extract the version from the $Revision: 1.14 $ cvs command */
 METAIO_STL::string MetaCommand::
 ExtractVersionFromCVS(METAIO_STL::string version)
 {
@@ -2137,11 +2137,11 @@ bool MetaCommand::SetParameterGroup(METAIO_STL::string optionName,
    
   if(!group)
     {
-    ParameterGroup group;
-    group.name = groupName;
-    group.description = groupDescription;
-    group.options.push_back(optionName);
-    m_ParameterGroup.push_back(group);
+    ParameterGroup pgroup;
+    pgroup.name = groupName;
+    pgroup.description = groupDescription;
+    pgroup.options.push_back(optionName);
+    m_ParameterGroup.push_back(pgroup);
     }
   else
     {
