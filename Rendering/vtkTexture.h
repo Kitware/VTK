@@ -114,7 +114,8 @@ public:
 
 //BTX
   // Description:
-  // This process object accepts image data as input.
+  // Get the input as a vtkImageData object.  This method is for
+  // backwards compatibility.
   vtkImageData *GetInput();
 //ETX
 
