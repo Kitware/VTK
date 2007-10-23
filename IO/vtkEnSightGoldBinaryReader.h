@@ -31,6 +31,8 @@
 // what types they will be.
 // This reader can only handle static EnSight datasets (both static geometry
 // and variables).
+// .SECTION Thanks
+// Thanks to Yvan Fournier for providing the code to support nfaced elements.
 
 #ifndef __vtkEnSightGoldBinaryReader_h
 #define __vtkEnSightGoldBinaryReader_h

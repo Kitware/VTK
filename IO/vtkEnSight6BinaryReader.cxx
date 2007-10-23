@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.53");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.54");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -46,6 +46,8 @@ vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
   this->IFile = NULL;
 
   this->FileSize = 0;
+
+  this->ElementIdsListed = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -2142,7 +2144,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
 
   // Clear all cell ids from the last execution, if any.
   idx = this->UnstructuredPartIds->IsId(partId);
-  for (i = 0; i < 16; i++)
+  for (i = 0; i < vtkEnSightReader::NUMBER_OF_ELEMENT_TYPES; i++)
     {
     this->GetCellIds(idx, i)->Reset();
     }

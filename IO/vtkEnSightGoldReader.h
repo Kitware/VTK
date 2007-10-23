@@ -31,6 +31,8 @@
 // what types they will be.
 // This reader can only handle static EnSight datasets (both static geometry
 // and variables).
+// .SECTION Thanks
+// Thanks to Yvan Fournier for providing the code to support nfaced elements.
 
 #ifndef __vtkEnSightGoldReader_h
 #define __vtkEnSightGoldReader_h
@@ -161,6 +163,9 @@ protected:
   // Description:
   // Handle the undef / partial support for EnSight gold
   UndefPartialInternal* UndefPartial;
+
+  int NodeIdsListed;
+  int ElementIdsListed;
 
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&);  // Not implemented.

@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.58");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.59");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -51,6 +51,9 @@ public:
 vtkEnSightGoldReader::vtkEnSightGoldReader()
 {
   this->UndefPartial = new UndefPartialInternal;
+
+  this->NodeIdsListed = 0;
+  this->ElementIdsListed = 0;
 }
 //----------------------------------------------------------------------------
 
@@ -129,9 +132,37 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
   // Skip description lines.  Using ReadLine instead of
   // ReadNextDataLine because the description line could be blank.
   this->ReadNextDataLine(line);
-  // Skip the node id and element id lines.
+
+  // Read the node id and element id lines.
   this->ReadNextDataLine(line);
+  sscanf(line, " %*s %*s %s", subLine);
+  if (strncmp(subLine, "given", 5) == 0)
+    {
+    this->NodeIdsListed = 1;
+    }
+  else if (strncmp(subLine, "ignore", 6) == 0)
+    {
+    this->NodeIdsListed = 1;
+    }
+  else
+    {
+    this->NodeIdsListed = 0;
+    }
+  
   this->ReadNextDataLine(line);
+  sscanf(line, " %*s %*s %s", subLine);
+  if (strncmp(subLine, "given", 5) == 0)
+    {
+    this->ElementIdsListed = 1;
+    }
+  else if (strncmp(subLine, "ignore", 6) == 0)
+    {
+    this->ElementIdsListed = 1;
+    }
+  else
+    {
+    this->ElementIdsListed = 0;
+    }  
   
   lineRead = this->ReadNextDataLine(line); // "extents" or "part"
   if (strncmp(line, "extents",7) == 0)
@@ -1234,7 +1265,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
 {
   int lineRead = 1;
   char subLine[256];
-  int i, j;
+  int i, j, k;
   vtkIdType *nodeIds;
   int *intIds;
   int numElements;
@@ -1313,7 +1344,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       sscanf(line, " %s", subLine);
 
       char *endptr;
-      strtod(subLine, &endptr); // Testing is we can convert this string to double
+      strtod(subLine, &endptr); // Testing if we can convert this string to double
       if ( subLine != endptr )
         { // necessary if node ids were listed
         for (i = 0; i < numPts; i++)
@@ -1448,14 +1479,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     else if (strncmp(line, "bar3", 4) == 0)
       {
       vtkDebugMacro("bar3");
-      vtkDebugMacro("Only vertex nodes of this element will be read.");
-      nodeIds = new vtkIdType[2];
-      intIds = new int[2];
+      nodeIds = new vtkIdType[3];
+      intIds = new int[3];
       
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %*d %d", &intIds[0], &intIds[1]) != 2)
+      if (sscanf(line, " %d %d %d", &intIds[0], &intIds[1], &intIds[2]) != 3)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1465,13 +1495,16 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %*d %d", &intIds[0], &intIds[1]);
-        for (j = 0; j < 2; j++)
+        sscanf(line, " %d %d %d", &intIds[0], &intIds[1], &intIds[2]);
+        for (j = 0; j < 3; j++)
           {
           intIds[j]--;
-          nodeIds[j] = intIds[j];
           }
-        cellId = output->InsertNextCell(VTK_LINE, 2, nodeIds);
+        nodeIds[0] = intIds[0];
+        nodeIds[1] = intIds[2];
+        nodeIds[2] = intIds[1];
+                  
+        cellId = output->InsertNextCell(VTK_QUADRATIC_EDGE, 3, nodeIds);
         this->GetCellIds(idx, vtkEnSightReader::BAR3)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1503,83 +1536,53 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       }
     else if (strncmp(line, "nsided", 6) == 0)
       {
+      int *numNodesPerElement;
       int numNodes;
-      char ** newLines;
       char formatLine[256], tempLine[256];
       
       this->ReadNextDataLine(line);
       numElements = atoi(line);
-      newLines = new char *[numElements*2];
-      for (i = 0; i < numElements*2; i++)
+      if (this->ElementIdsListed)
         {
-        newLines[i] = new char[256];
-        this->ReadNextDataLine(newLines[i]);
-        }
-      lineRead = this->ReadNextDataLine(line);
-      if (lineRead)
-        {
-        sscanf(line, " %s", subLine);
-        }
-      if (lineRead && isdigit(subLine[0]))
-        {
-        // We still need to read in the node ids for each element.
         for (i = 0; i < numElements; i++)
           {
-          numNodes = atoi(newLines[numElements+i]);
-          nodeIds = new vtkIdType[numNodes];
-          intIds = new int[numNodes];
-          
-          strcpy(formatLine, "");
-          strcpy(tempLine, "");
-          for (j = 0; j < numNodes; j++)
-            {
-            strcat(formatLine, " %d");
-            sscanf(line, formatLine, &intIds[numNodes-j-1]);
-            strcat(tempLine, " %*d");
-            strcpy(formatLine, tempLine);
-            intIds[numNodes-j-1]--;
-            nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
-            }
-          cellId = output->InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
-          this->GetCellIds(idx, vtkEnSightReader::NSIDED)->InsertNextId(cellId);
-          lineRead = this->ReadNextDataLine(line);
-          delete [] nodeIds;
-          delete [] intIds;
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
           }
         }
-      else
+
+      numNodesPerElement = new int[numElements];
+      for (i = 0; i < numElements; i++)
         {
-        // We have already read in the lines with node ids into newLines.
-        for (i = 0; i < numElements; i++)
+        this->ReadNextDataLine(line);
+        numNodesPerElement[i] = atoi(line);
+        }
+
+      this->ReadNextDataLine(line);
+      for (i = 0; i < numElements; i++)
+        {
+        numNodes = numNodesPerElement[i];
+        nodeIds = new vtkIdType[numNodes];
+        intIds = new int[numNodesPerElement[i]];
+          
+        strcpy(formatLine, "");
+        strcpy(tempLine, "");
+        for (j = 0; j < numNodes; j++)
           {
-          numNodes = atoi(newLines[i]);
-          nodeIds = new vtkIdType[numNodes];
-          intIds = new int[numNodes];
-          
-          strcpy(formatLine, "");
-          strcpy(tempLine, "");
-          for (j = 0; j < numNodes; j++)
-            {
-            strcat(formatLine, " %d");
-            sscanf(newLines[numElements+i], formatLine,
-                   &intIds[numNodes-j-1]);
-            intIds[numNodes-j-1]--;
-            nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
-            strcat(tempLine, " %*d");
-            strcpy(formatLine, tempLine);
-            }
-          cellId = output->InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
-          this->GetCellIds(idx, vtkEnSightReader::NSIDED)->InsertNextId(cellId);
-          delete [] nodeIds;
-          delete [] intIds;
+          strcat(formatLine, " %d");
+          sscanf(line, formatLine, &intIds[numNodes-j-1]);
+          strcat(tempLine, " %*d");
+          strcpy(formatLine, tempLine);
+          intIds[numNodes-j-1]--;
+          nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
           }
+        cellId = output->InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
+        this->GetCellIds(idx, vtkEnSightReader::NSIDED)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        delete [] nodeIds;
+        delete [] intIds;
         }
-      for (i = 0; i < numElements*2; i++)
-        {
-        delete [] newLines[i];
-        newLines[i] = NULL;
-        }
-      delete [] newLines;
+      delete [] numNodesPerElement;
       }
     else if (strncmp(line, "g_nsided", 8) == 0)
       {
@@ -1604,20 +1607,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           }
         }
       }
-    else if (strncmp(line, "tria3", 5) == 0 ||
-             strncmp(line, "tria6", 5) == 0)
+    else if (strncmp(line, "tria3", 5) == 0)
       {
-      if (strncmp(line, "tria6", 5) == 0)
-        {
-        vtkDebugMacro("tria6");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::TRIA6;
-        }
-      else
-        {
-        vtkDebugMacro("tria3");
-        cellType = vtkEnSightReader::TRIA3;
-        }
+      vtkDebugMacro("tria3");
+      cellType = vtkEnSightReader::TRIA3;
       
       nodeIds = new vtkIdType[3];
       intIds = new int[3];
@@ -1643,6 +1636,42 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "tria6", 5) == 0)
+      {
+      vtkDebugMacro("tria6");
+      cellType = vtkEnSightReader::TRIA6;
+      
+      nodeIds = new vtkIdType[6];
+      intIds = new int[6];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3], &intIds[4], &intIds[5]) != 6)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+               &intIds[3], &intIds[4], &intIds[5]);
+        for (j = 0; j < 6; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_TRIANGLE, 6, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1684,20 +1713,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }      
       delete [] intIds;
       }
-    else if (strncmp(line, "quad4", 5) == 0 ||
-             strncmp(line, "quad8", 5) == 0)
+    else if (strncmp(line, "quad4", 5) == 0)
       {
-      if (strncmp(line, "quad8", 5) == 0)
-        {
-        vtkDebugMacro("quad8");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::QUAD8;
-        }
-      else
-        {
-        vtkDebugMacro("quad4");
-        cellType = vtkEnSightReader::QUAD4;
-        }
+      vtkDebugMacro("quad4");
+      cellType = vtkEnSightReader::QUAD4;
       
       nodeIds = new vtkIdType[4];
       intIds = new int[4];
@@ -1724,6 +1743,44 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_QUAD, 4, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "quad8", 5) == 0)
+      {
+      vtkDebugMacro("quad8");
+      cellType = vtkEnSightReader::QUAD8;
+      
+      nodeIds = new vtkIdType[8];
+      intIds = new int[8];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d",
+                 &intIds[0], &intIds[1], &intIds[2], &intIds[3],
+                 &intIds[4], &intIds[5], &intIds[6], &intIds[7]) != 8)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d %d %d",
+               &intIds[0], &intIds[1], &intIds[2], &intIds[3],
+               &intIds[4], &intIds[5], &intIds[6], &intIds[7]);
+        for (j = 0; j < 8; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_QUAD, 8, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -1765,20 +1822,107 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }      
       delete [] intIds;
       }
-    else if (strncmp(line, "tetra4", 6) == 0 ||
-             strncmp(line, "tetra10", 7) == 0)
+    else if (strncmp(line, "nfaced", 6) == 0)
       {
-      if (strncmp(line, "tetra10", 7) == 0)
+      int *numFacesPerElement;
+      int *numNodesPerFace;
+      int *nodeMarker;
+      char formatLine[256], tempLine[256];
+      int numPts = 0;
+      int numFaces = 0;
+      int numNodes = 0;
+      int faceCount = 0;
+      int elementNodeCount = 0;
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      if (this->ElementIdsListed)
         {
-        vtkDebugMacro("tetra10");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::TETRA10;
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
         }
-      else
+
+      numFacesPerElement = new int[numElements];
+      for (i = 0; i < numElements; i++)
         {
-        vtkDebugMacro("tetra4");
-        cellType = vtkEnSightReader::TETRA4;
+        this->ReadNextDataLine(line);
+        numFacesPerElement[i] = atoi(line);
+        numFaces += numFacesPerElement[i];
         }
+
+      numNodesPerFace = new int[numFaces];
+      for (i = 0; i < numFaces; i++)
+        {
+        this->ReadNextDataLine(line);
+        numNodesPerFace[i] = atoi(line);
+        }
+
+      numPts = output->GetNumberOfPoints();
+      nodeMarker = new int[numPts];
+      for (i = 0; i < numPts; i++)
+        {
+        nodeMarker[i] = -1;
+        }
+
+      this->ReadNextDataLine(line);
+      for (i = 0; i < numElements; i++)
+        {
+        numNodes = 0;
+        for (j = 0; j < numFacesPerElement[i]; j++)
+          {
+          numNodes += numNodesPerFace[faceCount + j];
+          }
+        intIds = new int[numNodes];
+
+        // Read element node ids
+        elementNodeCount = 0;
+        for (j = 0; j < numFacesPerElement[i]; j++)
+          {
+          strcpy(formatLine, "");
+          strcpy(tempLine, "");
+          for (k = 0; k < numNodesPerFace[faceCount + j]; k++)
+            {
+            strcat(formatLine, " %d");
+            sscanf(line, formatLine, &intIds[elementNodeCount]);
+            strcat(tempLine, " %*d");
+            strcpy(formatLine, tempLine);
+            elementNodeCount += 1;
+            }
+          lineRead = this->ReadNextDataLine(line);
+          }
+        faceCount += numFacesPerElement[i];
+
+        // Build element
+        nodeIds = new vtkIdType[numNodes];
+        elementNodeCount = 0;
+        for (j = 0; j < numNodes; j++)
+          {
+          if (nodeMarker[intIds[j] - 1] < i)
+            {
+            nodeIds[elementNodeCount] = intIds[j] - 1;
+            nodeMarker[intIds[j] - 1] = i;
+            elementNodeCount += 1;
+            }
+          }
+        cellId = output->InsertNextCell(VTK_CONVEX_POINT_SET, 
+                                        elementNodeCount, 
+                                        nodeIds);
+        this->GetCellIds(idx, vtkEnSightReader::NFACED)->InsertNextId(cellId);
+        delete [] nodeIds;
+        delete [] intIds;
+        }
+
+      delete [] nodeMarker;
+      delete [] numNodesPerFace;
+      delete [] numFacesPerElement;
+      }
+    else if (strncmp(line, "tetra4", 6) == 0)
+      {
+      vtkDebugMacro("tetra4");
+      cellType = vtkEnSightReader::TETRA4;
       
       nodeIds = new vtkIdType[4];
       intIds = new int[4];
@@ -1805,6 +1949,45 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_TETRA, 4, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "tetra10", 7) == 0)
+      {
+      vtkDebugMacro("tetra10");
+      cellType = vtkEnSightReader::TETRA10;
+      
+      nodeIds = new vtkIdType[10];
+      intIds = new int[10];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d %d %d", &intIds[0],
+                 &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+                 &intIds[5], &intIds[6], &intIds[7], &intIds[8],
+                 &intIds[9]) != 10)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d %d %d %d %d",
+               &intIds[0], &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+               &intIds[5], &intIds[6], &intIds[7], &intIds[8], &intIds[9]);
+        for (j = 0; j < 10; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_TETRA, 10, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
@@ -1846,20 +2029,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       delete [] intIds;
       }
-    else if (strncmp(line, "pyramid5", 8) == 0 ||
-             strncmp(line, "pyramid13", 9) == 0)
+    else if (strncmp(line, "pyramid5", 8) == 0)
       {
-      if (strncmp(line, "pyramid13", 9) == 0)
-        {
-        vtkDebugMacro("pyramid13");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::PYRAMID13;
-        }
-      else
-        {
-        vtkDebugMacro("pyramid5");
-        cellType = vtkEnSightReader::PYRAMID5;
-        }
+      vtkDebugMacro("pyramid5");
+      cellType = vtkEnSightReader::PYRAMID5;
       
       nodeIds = new vtkIdType[5];
       intIds = new int[5];
@@ -1886,6 +2059,46 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_PYRAMID, 5, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }          
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "pyramid13", 9) == 0)
+      {
+      vtkDebugMacro("pyramid13");
+      cellType = vtkEnSightReader::PYRAMID13;
+      
+      nodeIds = new vtkIdType[13];
+      intIds = new int[13];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d", &intIds[0],
+                 &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+                 &intIds[5], &intIds[6], &intIds[7], &intIds[8],
+                 &intIds[9], &intIds[10], &intIds[11], &intIds[12]) != 13)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d", &intIds[0],
+               &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+               &intIds[5], &intIds[6], &intIds[7], &intIds[8],
+               &intIds[9], &intIds[10], &intIds[11], &intIds[12]);
+        for (j = 0; j < 13; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_PYRAMID, 13, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }          
@@ -1927,20 +2140,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }          
       delete [] intIds;
       }
-    else if (strncmp(line, "hexa8", 5) == 0 ||
-             strncmp(line, "hexa20", 6) == 0)
+    else if (strncmp(line, "hexa8", 5) == 0)
       {
-      if (strncmp(line, "hexa20", 6) == 0)
-        {
-        vtkDebugMacro("hexa20");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::HEXA20;
-        }
-      else
-        {
-        vtkDebugMacro("hexa8");
-        cellType = vtkEnSightReader::HEXA8;
-        }
+      vtkDebugMacro("hexa8");
+      cellType = vtkEnSightReader::HEXA8;
       
       nodeIds = new vtkIdType[8];
       intIds = new int[8];
@@ -1969,6 +2172,49 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "hexa20", 6) == 0)
+      {
+      vtkDebugMacro("hexa20");
+      cellType = vtkEnSightReader::HEXA20;
+      
+      nodeIds = new vtkIdType[20];
+      intIds = new int[20];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                 &intIds[0], &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+                 &intIds[5], &intIds[6], &intIds[7], &intIds[8], &intIds[9],
+                 &intIds[10], &intIds[11], &intIds[12], &intIds[13],
+                 &intIds[14], &intIds[15], &intIds[16], &intIds[17],
+                 &intIds[18], &intIds[19]) != 20)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+               &intIds[0], &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+               &intIds[5], &intIds[6], &intIds[7], &intIds[8], &intIds[9],
+               &intIds[10], &intIds[11], &intIds[12], &intIds[13], &intIds[14],
+               &intIds[15], &intIds[16], &intIds[17], &intIds[18], &intIds[19]);
+        for (j = 0; j < 20; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_HEXAHEDRON, 20, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      
@@ -2011,20 +2257,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }      
       delete [] intIds;
       }
-    else if (strncmp(line, "penta6", 6) == 0 ||
-             strncmp(line, "penta15", 7) == 0)
+    else if (strncmp(line, "penta6", 6) == 0)
       {
-      if (strncmp(line, "penta15", 7) == 0)
-        {
-        vtkDebugMacro("penta15");
-        vtkDebugMacro("Only vertex nodes of this element will be read.");
-        cellType = vtkEnSightReader::PENTA15;
-        }
-      else
-        {
-        vtkDebugMacro("penta6");
-        cellType = vtkEnSightReader::PENTA6;
-        }
+      vtkDebugMacro("penta6");
+      cellType = vtkEnSightReader::PENTA6;
       
       nodeIds = new vtkIdType[6];
       intIds = new int[6];
@@ -2051,6 +2287,47 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           nodeIds[j] = intIds[j];
           }
         cellId = output->InsertNextCell(VTK_WEDGE, 6, nodeIds);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
+        lineRead = this->ReadNextDataLine(line);
+        }      
+      delete [] nodeIds;
+      delete [] intIds;
+      }
+    else if (strncmp(line, "penta15", 7) == 0)
+      {
+      vtkDebugMacro("penta15");
+      cellType = vtkEnSightReader::PENTA15;
+      
+      nodeIds = new vtkIdType[15];
+      intIds = new int[15];
+      
+      this->ReadNextDataLine(line);
+      numElements = atoi(line);
+      this->ReadNextDataLine(line);
+      if (sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                 &intIds[0], &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+                 &intIds[5], &intIds[6], &intIds[7], &intIds[8], &intIds[9],
+                 &intIds[10], &intIds[11], &intIds[12], &intIds[13],
+                 &intIds[14]) != 15)
+        {
+        for (i = 0; i < numElements; i++)
+          {
+          // Skip the element ids since they are just labels.
+          this->ReadNextDataLine(line);
+          }
+        }
+      for (i = 0; i < numElements; i++)
+        {
+        sscanf(line, " %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+               &intIds[0], &intIds[1], &intIds[2], &intIds[3], &intIds[4],
+               &intIds[5], &intIds[6], &intIds[7], &intIds[8], &intIds[9],
+               &intIds[10], &intIds[11], &intIds[12], &intIds[13], &intIds[14]);
+        for (j = 0; j < 15; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
+        cellId = output->InsertNextCell(VTK_QUADRATIC_WEDGE, 15, nodeIds);
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }      

@@ -41,14 +41,16 @@ public:
     TRIA6     = 5,
     QUAD4     = 6,
     QUAD8     = 7,
-    TETRA4    = 8,
-    TETRA10   = 9,
-    PYRAMID5  = 10,
-    PYRAMID13 = 11,
-    HEXA8     = 12,
-    HEXA20    = 13,
-    PENTA6    = 14,
-    PENTA15   = 15
+    NFACED    = 8,
+    TETRA4    = 9,
+    TETRA10   = 10,
+    PYRAMID5  = 11,
+    PYRAMID13 = 12,
+    HEXA8     = 13,
+    HEXA20    = 14,
+    PENTA6    = 15,
+    PENTA15   = 16,
+    NUMBER_OF_ELEMENT_TYPES  = 17
   };
 
   enum VariableTypesList

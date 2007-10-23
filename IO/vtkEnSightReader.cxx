@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.71");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.72");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1797,6 +1797,10 @@ int vtkEnSightReader::GetElementType(const char* line)
     {
     return vtkEnSightReader::QUAD8;
     }
+  else if (strncmp(line, "nfaced", 6) == 0)
+    {
+    return vtkEnSightReader::NFACED;
+    }
   else if (strncmp(line, "tetra4", 6) == 0)
     {
     return vtkEnSightReader::TETRA4;
@@ -1926,10 +1930,11 @@ void vtkEnSightReader::RemoveLeadingBlanks(char *line)
 vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
 {
   // Check argument range.
-  if(cellType < 0 || cellType > 15)
+  if(cellType < POINT || cellType >= NUMBER_OF_ELEMENT_TYPES)
     {
     vtkErrorMacro("Cell type " << cellType
-                  << " out of range.  Only 16 types exist.");
+                  << " out of range.  Only "
+                  << NUMBER_OF_ELEMENT_TYPES-1 << " types exist.");
     return 0;
     }
   if(index < 0 || index > this->UnstructuredPartIds->GetNumberOfIds())
@@ -1947,7 +1952,7 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
     }
   
   // Get the index of the actual vtkIdList requested.
-  unsigned int cellIdsIndex = index*16 + cellType;
+  unsigned int cellIdsIndex = index*NUMBER_OF_ELEMENT_TYPES + cellType;
   
   // Make sure the container is large enough for this index.
   if(cellIdsIndex+1 > this->CellIds->size())
