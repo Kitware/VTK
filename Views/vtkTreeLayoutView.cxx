@@ -50,7 +50,7 @@
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.3");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.4");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -101,6 +101,7 @@ vtkTreeLayoutView::vtkTreeLayoutView()
   this->OutlineActor->PickableOff();
   this->OutlineActor->GetProperty()->SetPointSize(7);
   this->OutlineActor->SetPosition(0, 0, -0.001);
+  this->OutlineMapper->SetScalarVisibility(false);
   this->EdgeMapper->SetScalarModeToUseCellData();
   this->EdgeMapper->SetLookupTable(this->EdgeColorLUT);
   this->EdgeActor->SetPosition(0, 0, -0.003);
@@ -112,11 +113,13 @@ vtkTreeLayoutView::vtkTreeLayoutView()
   this->LabelMapper->GetLabelTextProperty()->SetItalic(0);
   this->LabelMapper->GetLabelTextProperty()->SetLineOffset(10);
   this->LabelActor->PickableOff();
-  this->SelectionVertexActor->GetProperty()->SetPointSize(5);
+  this->SelectionVertexActor->GetProperty()->SetPointSize(11);
   this->SelectionVertexActor->PickableOff();
-  this->SelectionVertexActor->SetPosition(0, 0, 0.001);
+  this->SelectionVertexActor->SetPosition(0, 0, -0.002);
+  this->SelectionVertexMapper->SetScalarVisibility(false);
   this->SelectionEdgeActor->PickableOff();
   this->SelectionEdgeActor->SetPosition(0, 0, -0.002);
+  this->SelectionEdgeMapper->SetScalarVisibility(false);
   
   // Set default parameters
   this->SetLabelArrayName("label");

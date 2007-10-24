@@ -62,7 +62,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.8");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.9");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -151,8 +151,10 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SelectionVertexActor->GetProperty()->SetPointSize(11);
   this->SelectionVertexActor->PickableOff();
   this->SelectionVertexActor->SetPosition(0, 0, -0.002);
+  this->SelectionVertexMapper->SetScalarVisibility(false);
   this->SelectionEdgeActor->PickableOff();
   this->SelectionEdgeActor->SetPosition(0, 0, -0.002);
+  this->SelectionEdgeMapper->SetScalarVisibility(false);
   
   // Set default parameters
   this->SetVertexLabelArrayName("label");
