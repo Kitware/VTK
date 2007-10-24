@@ -113,6 +113,12 @@ IF(JAVA_COMPILE)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkGlobalJavaHash.java
       ${VTK_BINARY_DIR}/java/vtk/vtkGlobalJavaHash.java COPYONLY)
       
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkCanvas.java
+      ${VTK_BINARY_DIR}/java/vtk/vtkCanvas.java COPYONLY)
+      
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkPanel.java
+      ${VTK_BINARY_DIR}/java/vtk/vtkPanel.java COPYONLY)
+      
 #    ADD_CUSTOM_COMMAND(OUTPUT ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.class
 #      COMMAND ${JAVA_COMPILE}
 #      ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
