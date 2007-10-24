@@ -88,6 +88,12 @@ public:
   static vtkHierarchicalDataSet* GetData(vtkInformation* info);
   static vtkHierarchicalDataSet* GetData(vtkInformationVector* v, int i=0);
   //ETX
+  //
+
+  // Description:
+  // Return a new (forward) iterator
+  // (the iterator has to be deleted by user)
+  virtual vtkCompositeDataIterator* NewIterator();
 
 protected:
   vtkHierarchicalDataSet();

@@ -16,13 +16,14 @@
 
 #include "vtkDataSet.h"
 #include "vtkHierarchicalDataInformation.h"
+#include "vtkHierarchicalDataIterator.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationVector.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.9");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.9.46.1");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalDataSet,LEVEL,Integer);
@@ -89,6 +90,13 @@ vtkHierarchicalDataSet::GetData(vtkInformationVector* v, int i)
   return vtkHierarchicalDataSet::GetData(v->GetInformationObject(i));
 }
 
+//----------------------------------------------------------------------------
+vtkCompositeDataIterator* vtkHierarchicalDataSet::NewIterator()
+{
+  vtkMultiGroupDataIterator* iter = vtkHierarchicalDataIterator::New();
+  iter->SetDataSet(this);
+  return iter;
+}
 //----------------------------------------------------------------------------
 void vtkHierarchicalDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {

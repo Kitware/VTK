@@ -140,6 +140,7 @@ vtkMultiGroupDataExtractGroup.cxx
 vtkMultiGroupDataGeometryFilter.cxx
 vtkMultiGroupDataGroupFilter.cxx
 vtkMultiGroupDataGroupIdScalars.cxx
+vtkMultiGroupProbeFilter.cxx
 vtkMultiThreshold.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx

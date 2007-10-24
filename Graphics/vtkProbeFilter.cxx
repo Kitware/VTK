@@ -27,26 +27,37 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.91");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.91.2.1");
 vtkStandardNewMacro(vtkProbeFilter);
+
+class vtkProbeFilter::vtkVectorOfArrays : 
+  public vtkstd::vector<vtkDataArray*>
+{
+};
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
 {
   this->SpatialMatch = 0;
-  this->NumberOfValidPoints = 0;
   this->ValidPoints = vtkIdTypeArray::New();
+  this->MaskPoints = vtkCharArray::New();
+  this->MaskPoints->SetNumberOfComponents(1);
   this->SetNumberOfInputPorts(2);
   this->ValidPointMaskArrayName = 0;
   this->SetValidPointMaskArrayName("vtkValidPointMask");
+  this->CellArrays = new vtkVectorOfArrays();
+  this->NumberOfValidPoints = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::~vtkProbeFilter()
 {
+  this->MaskPoints->Delete();
+  this->MaskPoints = 0;
   this->ValidPoints->Delete();
   this->ValidPoints = NULL;
   this->SetValidPointMaskArrayName(0);
+  delete this->CellArrays;
 }
 
 //----------------------------------------------------------------------------
@@ -101,10 +112,88 @@ int vtkProbeFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
+// * input -- dataset probed with
+// * source -- dataset probed into
+// * output - output.
+void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* source,
+  vtkDataSet* output)
+{
+  vtkIdType numPts = input->GetNumberOfPoints();
+
+  // Initialize valid points/mask points arrays.
+  this->NumberOfValidPoints = 0;
+  this->ValidPoints->Allocate(numPts);
+  this->MaskPoints->SetNumberOfTuples(numPts);
+  this->MaskPoints->FillComponent(0, 0);
+  this->MaskPoints->SetName(this->ValidPointMaskArrayName? 
+    this->ValidPointMaskArrayName: "vtkValidPointMask");
+
+  // First, copy the input to the output as a starting point
+  output->CopyStructure(input);
+
+  vtkPointData *inPD, *outPD;
+  vtkCellData* inCD;
+
+  inPD = source->GetPointData();
+  outPD = output->GetPointData();
+  inCD = source->GetCellData();
+
+  // Allocate storage for output PointData
+  // All input PD is passed to output as PD. Those arrays in input CD that are
+  // not present in output PD will be passed as output PD.
+  outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inPD, numPts, numPts);
+
+  this->CellArrays->clear();
+  int numCellArrays = inCD->GetNumberOfArrays();
+  for (int cc=0; cc < numCellArrays; cc++)
+    {
+    vtkDataArray* inArray = inCD->GetArray(cc);
+    if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
+      {
+      vtkDataArray* newArray = inArray->NewInstance();
+      newArray->SetName(inArray->GetName());
+      newArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+      newArray->Allocate(numPts);
+      outPD->AddArray(newArray);
+      this->CellArrays->push_back(newArray);
+      newArray->Delete();
+      }
+    else
+      {
+      this->CellArrays->push_back(0);
+      }
+    }
+
+  outPD->AddArray(this->MaskPoints);
+
+  // BUG FIX: JB.
+  // Output gets setup from input, but when output is imagedata, scalartype
+  // depends on source scalartype not input scalartype
+  if (output->IsA("vtkImageData"))
+    {
+    vtkImageData *out = (vtkImageData*)output;
+    vtkDataArray *s = outPD->GetScalars();
+    if (s)
+      {
+      out->SetScalarType(s->GetDataType());
+      out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
                            vtkDataSet *output)
 {
-  this->NumberOfValidPoints = 0;
+  this->InitializeForProbing(input, source, output);
+  this->ProbeEmptyPoints(input, source, output);
+}
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source,
+                                      vtkDataSet *output)
+{
   vtkIdType ptId, numPts;
   double x[3], tol2;
   vtkCell *cell;
@@ -118,7 +207,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 
   pd = source->GetPointData();
   cd = source->GetCellData();
-  int size = input->GetNumberOfPoints();
+  int numCellArrays = cd->GetNumberOfArrays();
 
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
@@ -131,42 +220,10 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
     weights = new double[mcs];
     }
 
-  // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
-
   numPts = input->GetNumberOfPoints();
-  this->ValidPoints->Allocate(numPts);
-
-  vtkCharArray* maskArray = vtkCharArray::New();
-  maskArray->SetNumberOfComponents(1);
-  maskArray->SetNumberOfTuples(numPts);
-  maskArray->SetName(this->ValidPointMaskArrayName? 
-    this->ValidPointMaskArrayName: "vtkValidPointMask");
-
-  // Allocate storage for output PointData
-  //
   outPD = output->GetPointData();
-  outPD->InterpolateAllocate(pd, size, size);
-  int numArrays = cd->GetNumberOfArrays();
-  vtkstd::vector<vtkDataArray*> outArrays(numArrays);
-  for (int i=0; i<numArrays; i++)
-    {
-    vtkDataArray* inArray = cd->GetArray(i);
-    if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
-      {
-      vtkDataArray* newArray = inArray->NewInstance();
-      newArray->SetName(inArray->GetName());
-      newArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
-      newArray->Allocate(size);
-      outPD->AddArray(newArray);
-      outArrays[i] = newArray;
-      newArray->Delete();
-      }
-    else
-      {
-      outArrays[i] = 0;
-      }
-    }
+
+  char* maskArray = this->MaskPoints->GetPointer(0);
 
   // Use tolerance as a function of size of source data
   //
@@ -185,6 +242,13 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
       abort = GetAbortExecute();
       }
 
+    if (maskArray[ptId] == static_cast<char>(1))
+      {
+      // skip points which have already been probed with success.
+      // This is helpful for multigroup dataset probing.
+      continue;
+      }
+
     // Get the xyz coordinate of the point in the input dataset
     input->GetPoint(ptId, x);
 
@@ -200,40 +264,26 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
       }
     if (cell)
       {
-      this->NumberOfValidPoints++;
       // Interpolate the point data
       outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
       this->ValidPoints->InsertNextValue(ptId);
-      for (int i=0; i<numArrays; i++)
+      this->NumberOfValidPoints++;
+      for (int i=0; i<numCellArrays; i++)
         {
         vtkDataArray* inArray = cd->GetArray(i);
-        if (outArrays[i])
+        if ((*this->CellArrays)[i])
           {
-          outPD->CopyTuple(inArray, outArrays[i], cellId, ptId);
+          outPD->CopyTuple(inArray, (*this->CellArrays)[i], cellId, ptId);
           }
         }
-      maskArray->SetValue(ptId, (char)1);
+      maskArray[ptId] = static_cast<char>(1);
       }
     else
       {
       outPD->NullPoint(ptId);
-      maskArray->SetValue(ptId, (char)0);
       }
     }
 
-  output->GetPointData()->AddArray(maskArray);
-  maskArray->Delete();
-
-  // BUG FIX: JB.
-  // Output gets setup from input, but when output is imagedata, scalartype
-  // depends on source scalartype not input scalartype
-  if (output->IsA("vtkImageData"))
-    {
-    vtkImageData *out = (vtkImageData*)output;
-    vtkDataArray *s = outPD->GetScalars();
-    out->SetScalarType(s->GetDataType());
-    out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
-    }
   if (mcs>256)
     {
     delete [] weights;
