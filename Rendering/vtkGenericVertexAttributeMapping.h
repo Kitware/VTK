@@ -18,6 +18,9 @@
 // vtkGenericVertexAttributeMapping stores mapping between data arrays and
 // generic vertex attributes. It is used by vtkPainterPolyDataMapper to pass the
 // mappings to the painter which rendering the attributes.
+// .SECTION Thanks
+// Support for generic vertex attributes in VTK was contributed in
+// collaboration with Stéphane Ploix at EDF.
 
 #ifndef __vtkGenericVertexAttributeMapping_h
 #define __vtkGenericVertexAttributeMapping_h

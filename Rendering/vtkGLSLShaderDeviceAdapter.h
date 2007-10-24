@@ -16,6 +16,9 @@
 // attributes to the rendering pipeline to be used in a GLSL shader.
 // .SECTION Description
 // vtkShaderDeviceAdapter subclass for GLSL.
+// .SECTION Thanks
+// Support for generic vertex attributes in VTK was contributed in
+// collaboration with Stéphane Ploix at EDF.
 
 #ifndef __vtkGLSLShaderDeviceAdapter_h
 #define __vtkGLSLShaderDeviceAdapter_h

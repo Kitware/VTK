@@ -28,10 +28,11 @@
 // much any vtkPolyData, and attributes, and vtkPolyDataPainterDeviceAdapter.  On
 // the flip side, the vtkStandardPolyDataPainter will be slower than the more
 // special purpose painters.
-//
 // .SECTION See Also
 // vtkDefaultPainter
-//
+// .SECTION Thanks
+// Support for generic vertex attributes in VTK was contributed in
+// collaboration with Stéphane Ploix at EDF.
 
 
 #ifndef __vtkStandardPolyDataPainter_h

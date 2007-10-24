@@ -21,6 +21,9 @@
 // Cg and GSince this changes based on the shading language used, this class
 // merely defines the API and subclasses provide implementations for Cg and
 // GLSL.
+// .SECTION Thanks
+// Support for generic vertex attributes in VTK was contributed in
+// collaboration with Stéphane Ploix at EDF.
 
 #ifndef __vtkShaderDeviceAdapter_h
 #define __vtkShaderDeviceAdapter_h

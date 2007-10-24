@@ -16,6 +16,9 @@
 // to the rendering pipeline to be used in a Cg shader.
 // .SECTION Description
 // vtkShaderDeviceAdapter subclass for Cg.
+// .SECTION Thanks
+// Support for generic vertex attributes in VTK was contributed in
+// collaboration with Stéphane Ploix at EDF.
 
 #ifndef __vtkCgShaderDeviceAdapter_h
 #define __vtkCgShaderDeviceAdapter_h
