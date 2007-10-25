@@ -41,7 +41,7 @@ class METAIO_EXPORT MetaCommand
 public:
 
   typedef enum {DATA_NONE,DATA_IN,DATA_OUT} DataEnumType;
-  typedef enum {INT,FLOAT,CHAR,STRING,LIST,FLAG,BOOL} TypeEnumType;
+  typedef enum {INT,FLOAT,CHAR,STRING,LIST,FLAG,BOOL,IMAGE,FILE} TypeEnumType;
 
   struct Field{
     METAIO_STL::string  name;
@@ -60,6 +60,7 @@ public:
     METAIO_STL::string        description;
     METAIO_STL::string        tag;
     METAIO_STL::string        longtag;
+    METAIO_STL::string        label;
     METAIO_STL::vector<Field> fields;
     bool                      required;
     bool                      userDefined;
@@ -125,6 +126,10 @@ public:
   /** Set the long tag for the option */
   bool SetOptionLongTag(METAIO_STL::string optionName,
                         METAIO_STL::string longTag);
+
+  /** Set the label for the option */
+  bool SetOptionLabel(METAIO_STL::string optionName,
+                      METAIO_STL::string label);
 
   /** Set the group for a field or an option
    *  If the group doesn't exist it is automatically created. */
