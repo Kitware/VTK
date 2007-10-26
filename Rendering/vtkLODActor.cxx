@@ -28,33 +28,33 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.66");
+vtkCxxRevisionMacro(vtkLODActor, "1.67");
 vtkStandardNewMacro(vtkLODActor);
+vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);
+vtkCxxSetObjectMacro(vtkLODActor, MediumResFilter, vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
 {
-  vtkMatrix4x4 *m;
-  
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
-  m = vtkMatrix4x4::New();
+  vtkMatrix4x4 *m = vtkMatrix4x4::New();
   this->Device->SetUserMatrix(m);
   m->Delete();
   
   this->LODMappers = vtkMapperCollection::New();
-  // stuff for creating own LODs
-  this->MaskPoints = NULL;
-  this->OutlineFilter = NULL;
+  this->MediumResFilter     = NULL;
+  this->LowResFilter        = NULL;
   this->NumberOfCloudPoints = 150;
-  this->LowMapper = NULL;
-  this->MediumMapper = NULL;
+  this->LowMapper           = NULL;
+  this->MediumMapper        = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
+  this->Device = NULL;
   this->DeleteOwnLODs();
   this->LODMappers->Delete();
 }
@@ -277,14 +277,25 @@ void vtkLODActor::CreateOwnLODs()
     }
   
   // create filters and mappers
-  this->MaskPoints = vtkMaskPoints::New();
-  this->MaskPoints->RandomModeOn();
-  this->MaskPoints->GenerateVerticesOn();
+  if (!this->MediumResFilter)
+    {
+    vtkMaskPoints * mediumResFilter = vtkMaskPoints::New();
+    mediumResFilter->RandomModeOn();
+    mediumResFilter->GenerateVerticesOn();
+    this->SetMediumResFilter( mediumResFilter );
+    mediumResFilter->Delete();
+    }
+
   this->MediumMapper = vtkPolyDataMapper::New();
-
-  this->OutlineFilter = vtkOutlineFilter::New();
+  
+  if (!this->LowResFilter)
+    {
+    vtkOutlineFilter *lowResFilter = vtkOutlineFilter::New();
+    this->SetLowResFilter(lowResFilter);
+    lowResFilter->Delete();
+    }
+    
   this->LowMapper = vtkPolyDataMapper::New();
-
   this->LODMappers->AddItem(this->MediumMapper);
   this->LODMappers->AddItem(this->LowMapper);
   
@@ -311,16 +322,24 @@ void vtkLODActor::UpdateOwnLODs()
     }
   
   // connect the filters to the mapper, and set parameters
-  this->MaskPoints->SetInput(this->Mapper->GetInput());
-  this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
-  this->OutlineFilter->SetInput(this->Mapper->GetInput());
+  this->MediumResFilter->SetInput(this->Mapper->GetInput());
+  this->LowResFilter->SetInput(this->Mapper->GetInput());
+
+  // If the medium res filter is a vtkMaskPoints, then set the ivar in here.
+  // In reality, we should deprecate the vtkLODActor::SetNumberOfCloudPoints
+  // method, since now you can get the filters that make up the low and
+  // medium res and set them yourself.
+  if (vtkMaskPoints * f = vtkMaskPoints::SafeDownCast(this->MediumResFilter))
+    {
+    f->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
+    }
   
   // copy all parameters including LUTs, scalar range, etc.
   this->MediumMapper->ShallowCopy(this->Mapper);
-  this->MediumMapper->SetInput(this->MaskPoints->GetOutput());
+  this->MediumMapper->SetInput(this->MediumResFilter->GetOutput());
   this->LowMapper->ShallowCopy(this->Mapper);
   this->LowMapper->ScalarVisibilityOff();
-  this->LowMapper->SetInput(this->OutlineFilter->GetOutput());
+  this->LowMapper->SetInput(this->LowResFilter->GetOutput());
 
   this->BuildTime.Modified();
 }
@@ -342,10 +361,8 @@ void vtkLODActor::DeleteOwnLODs()
   
   // delete the filters used to create the LODs ...
   // The NULL check should not be necessary, but for sanity ...
-  this->MaskPoints->Delete();
-  this->MaskPoints = NULL;
-  this->OutlineFilter->Delete();
-  this->OutlineFilter = NULL;
+  this->SetLowResFilter(NULL);
+  this->SetMediumResFilter(NULL);
   this->LowMapper->Delete();
   this->LowMapper = NULL;
   this->MediumMapper->Delete();
@@ -355,7 +372,10 @@ void vtkLODActor::DeleteOwnLODs()
 //----------------------------------------------------------------------------
 void vtkLODActor::Modified()
 {
-  this->Device->Modified();
+  if (this->Device) // Will be NULL only during destruction of this class.
+    {
+    this->Device->Modified();
+    }
   this->vtkActor::Modified();
 }
 

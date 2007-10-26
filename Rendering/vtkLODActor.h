@@ -56,8 +56,7 @@
 
 class vtkMapper;
 class vtkMapperCollection;
-class vtkMaskPoints;
-class vtkOutlineFilter;
+class vtkPolyDataAlgorithm;
 class vtkPolyDataMapper;
 class vtkRenderer;
 class vtkViewport;
@@ -95,6 +94,15 @@ public:
   // Add another level of detail.  They do not have to be in any order
   // of complexity.
   void AddLODMapper(vtkMapper *mapper);
+  
+  // Description:
+  // You may plug in your own filters to decimate/subsample the input. The
+  // default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints 
+  // (medium-res).
+  virtual void SetLowResFilter( vtkPolyDataAlgorithm * );
+  virtual void SetMediumResFilter( vtkPolyDataAlgorithm * );
+  vtkGetObjectMacro( LowResFilter,    vtkPolyDataAlgorithm );
+  vtkGetObjectMacro( MediumResFilter, vtkPolyDataAlgorithm );
 
   // Description:
   // Set/Get the number of random points for the point cloud.
@@ -121,13 +129,15 @@ protected:
   vtkActor            *Device;
   vtkMapperCollection *LODMappers;
 
-  // stuff for creating our own LOD mappers
-  vtkMaskPoints       *MaskPoints;
-  vtkOutlineFilter    *OutlineFilter;
-  vtkTimeStamp        BuildTime;
-  int                 NumberOfCloudPoints;
-  vtkPolyDataMapper   *LowMapper;
-  vtkPolyDataMapper   *MediumMapper;
+  // We can create our own LOD filters. The default is to use a 
+  //
+  vtkPolyDataAlgorithm  * LowResFilter;
+  vtkPolyDataAlgorithm  * MediumResFilter;
+  vtkPolyDataMapper     * LowMapper;
+  vtkPolyDataMapper     * MediumMapper;
+  
+  vtkTimeStamp            BuildTime;
+  int                     NumberOfCloudPoints;
 
   virtual void CreateOwnLODs();
   virtual void UpdateOwnLODs();

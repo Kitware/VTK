@@ -13,6 +13,7 @@ IF(VTK_USE_DISPLAY)
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
     TestInteractorTimers.cxx
+    TestLODActor.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestTextureRGBA.cxx
