@@ -2464,11 +2464,11 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
       }
 
     // Streaming related. We need to update some of the fields
-    int m_Quantity = 1;
+    int quantity = 1;
     int i, j;
     for(i=0; i<m_NDims; i++)
       {
-      m_Quantity *= (_indexMax[i] - _indexMin[i] + 1);
+      quantity *= (_indexMax[i] - _indexMin[i] + 1);
       }
 
     bool usePath;
@@ -2480,7 +2480,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
        !strcmp("LOCAL", m_ElementDataFileName) ||
        !strcmp("local", m_ElementDataFileName))
       {
-      M_ReadElementsROI(_stream, m_ElementData, m_Quantity,
+      M_ReadElementsROI(_stream, m_ElementData, quantity,
                         _indexMin,_indexMax,subSamplingFactor);
       }
     else if(!strncmp("LIST", m_ElementDataFileName,4))
@@ -2646,7 +2646,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         return false;
         }
 
-      M_ReadElementsROI(readStreamTemp, m_ElementData, m_Quantity,
+      M_ReadElementsROI(readStreamTemp, m_ElementData, quantity,
                         _indexMin,_indexMax,subSamplingFactor);
 
       readStreamTemp->close();
