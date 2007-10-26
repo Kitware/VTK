@@ -30,6 +30,10 @@
 
 #include "vtksys/ios/sstream"
 
+vtkVariantLessThan::vtkVariantLessThan()
+{
+}
+
 // Implementation of vtkVariant's less than operation
 const bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) const
 {

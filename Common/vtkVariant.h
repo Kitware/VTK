@@ -321,6 +321,7 @@ private:
 // comp(s1,s2) where comp is an instance of vtkVariantLessThan.
 struct VTK_COMMON_EXPORT vtkVariantLessThan
 {
+  vtkVariantLessThan();
   const bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
