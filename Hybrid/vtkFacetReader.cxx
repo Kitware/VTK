@@ -35,11 +35,11 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetReader, "1.4");
+vtkCxxRevisionMacro(vtkFacetReader, "1.5");
 vtkStandardNewMacro(vtkFacetReader);
 
 //------------------------------------------------------------------------------
-// Due to a buggy stream library on the HP and another on Mac OSX, we
+// Due to a buggy stream library on the HP and another on Mac OS X, we
 // need this very carefully written version of getline.  Returns true
 // if any data were read before the end-of-file was reached.
 // 

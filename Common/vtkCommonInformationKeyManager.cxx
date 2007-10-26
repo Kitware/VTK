@@ -63,7 +63,7 @@ void vtkCommonInformationKeyManager::ClassInitialize()
 {
   // Allocate the singleton storing pointers to information keys.
   // This must be a malloc/free pair instead of new/delete to work
-  // around problems on MachO (Mac OSX) runtime systems that do lazy
+  // around problems on MachO (Mac OS X) runtime systems that do lazy
   // symbol loading.  Calling operator new here causes static
   // initialization to occur in other translation units immediately,
   // which then may try to access the vector before it is set here.
