@@ -84,9 +84,6 @@ public:
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
-  //BTX
-  VTK_FILTERING_EXPORT void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0);
-  //ETX
 
   // Description:
   // Use the given key to lookup a list of other keys in the given
@@ -193,8 +190,6 @@ public:
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationDoubleVectorKey* value);
-  VTK_FILTERING_EXPORT void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationExecutivePortKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationInformationKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
@@ -215,8 +210,6 @@ public:
                     vtkInformationDoubleKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationDoubleVectorKey* value);
-  VTK_FILTERING_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationExecutivePortKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationInformationKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
@@ -268,33 +261,6 @@ public:
   VTK_COMMON_EXPORT void Remove(vtkInformationDataObjectKey* key);
   VTK_COMMON_EXPORT int Has(vtkInformationDataObjectKey* key);
 
-  //BTX
-  // Description:
-  // Get/Set an entry storing a vtkExecutive/port number pair.
-  VTK_FILTERING_EXPORT void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
-  VTK_FILTERING_EXPORT vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key);
-  VTK_FILTERING_EXPORT int GetPort(vtkInformationExecutivePortKey* key);
-  VTK_FILTERING_EXPORT void Get(vtkInformationExecutivePortKey* key, vtkExecutive*& executive, int &port);
-  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortKey* key);
-  VTK_FILTERING_EXPORT int Has(vtkInformationExecutivePortKey* key);
-
-  // Description:
-  // Get/Set an entry storing a vector of vtkExecutive/port number pairs.
-  VTK_FILTERING_EXPORT void Append(vtkInformationExecutivePortVectorKey* key,
-              vtkExecutive* executive, int port);
-  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortVectorKey* key,
-              vtkExecutive* executive, int port);
-  VTK_FILTERING_EXPORT void Set(vtkInformationExecutivePortVectorKey* key,
-           vtkExecutive** executives, int* ports, int length);
-  VTK_FILTERING_EXPORT vtkExecutive** GetExecutives(vtkInformationExecutivePortVectorKey* key);
-  VTK_FILTERING_EXPORT int* GetPorts(vtkInformationExecutivePortVectorKey* key);
-  VTK_FILTERING_EXPORT void Get(vtkInformationExecutivePortVectorKey* key,
-           vtkExecutive** executives, int* ports);
-  VTK_FILTERING_EXPORT int Length(vtkInformationExecutivePortVectorKey* key);
-  VTK_FILTERING_EXPORT void Remove(vtkInformationExecutivePortVectorKey* key);
-  VTK_FILTERING_EXPORT int Has(vtkInformationExecutivePortVectorKey* key);
-  //ETX
-
   // Description:
   // Upcast the given key instance.
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
@@ -308,9 +274,6 @@ public:
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationStringKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
-  //BTX
-  VTK_FILTERING_EXPORT static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key);
-  //ETX
 
   // Description:
   // Initiate garbage collection when a reference is removed.
@@ -322,6 +285,116 @@ public:
   VTK_COMMON_EXPORT void SetRequest(vtkInformationRequestKey *request) { this->Request = request; }
   VTK_COMMON_EXPORT vtkInformationRequestKey *GetRequest() { return this->Request; }
       
+  //BTX
+  // Description:
+  // Copy the key/value pair associated with the given key in the
+  // given information object.  If deep=1, a deep copy of the information
+  // structure is performed (new instances of any contained vtkInformation and
+  // vtkInformationVector objects are created).
+  // @deprecated Replaced by vtkInformationExecutivePortKey::ShallowCopy() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT void CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int deep=0));
+
+  // Description:
+  // Append an InformationKey-vector-valued entry.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::Append() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT void Append(
+      vtkInformationKeyVectorKey* key,
+      vtkInformationExecutivePortKey* value));
+  // Description:
+  // Append an InformationKey-vector-valued entry.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::AppendUnique() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT void AppendUnique(
+      vtkInformationKeyVectorKey* key,
+      vtkInformationExecutivePortKey* value));
+
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::Set() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int));
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::GetExecutive() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::GetPort() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    int GetPort(vtkInformationExecutivePortKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::Get() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Get(vtkInformationExecutivePortKey* key, vtkExecutive*& executive, int &port));
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::Remove() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Remove(vtkInformationExecutivePortKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vtkExecutive/port number pair.
+  // @deprecated Replaced by vtkInformationExecutivePortKey::Has() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    int Has(vtkInformationExecutivePortKey* key));
+
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Append() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Append(vtkInformationExecutivePortVectorKey* key,
+              vtkExecutive* executive, int port));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Remove() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Remove(vtkInformationExecutivePortVectorKey* key,
+              vtkExecutive* executive, int port));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Set() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Set(vtkInformationExecutivePortVectorKey* key,
+           vtkExecutive** executives, int* ports, int length));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::GetExecutives() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    vtkExecutive** GetExecutives(vtkInformationExecutivePortVectorKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::GetPorts() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    int* GetPorts(vtkInformationExecutivePortVectorKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Get() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Get(vtkInformationExecutivePortVectorKey* key,
+           vtkExecutive** executives, int* ports));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Length() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    int Length(vtkInformationExecutivePortVectorKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Remove() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    void Remove(vtkInformationExecutivePortVectorKey* key));
+  // Description:
+  // Retrieve/Modify an entry storing a vector of vtkExecutive/port number pairs.
+  // @deprecated Replaced by vtkInformationExecutivePortVectorKey::Has() as of VTK 5.2.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    int Has(vtkInformationExecutivePortVectorKey* key));
+
+  // Description:
+  // Upcast the given key instance.
+  // @deprecated This convenience method will be removed in some future version.
+  VTK_LEGACY(VTK_FILTERING_EXPORT
+    static vtkInformationKey* GetKey(vtkInformationExecutivePortKey* key));
+  //ETX
+
 protected:
   VTK_COMMON_EXPORT vtkInformation();
   VTK_COMMON_EXPORT ~vtkInformation();

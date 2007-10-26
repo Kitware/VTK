@@ -20,6 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiGroupDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
+#include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationKey.h"
@@ -80,7 +82,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.66");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.67");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -199,7 +201,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
       // it is a NULL input.
       vtkExecutive* e;
       int producerPort;
-      info->Get(vtkExecutive::PRODUCER(), e, producerPort);
+      vtkExecutive::PRODUCER()->Get(info, e, producerPort);
       if(e)
         {
         request->Set(FROM_OUTPUT_PORT(), producerPort);
@@ -828,7 +830,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     vtkSmartPointer<vtkInformation> r = 
       vtkSmartPointer<vtkInformation>::New();
 
-    r->Set(FROM_OUTPUT_PORT(), inInfo->GetPort(PRODUCER()));
+    r->Set(FROM_OUTPUT_PORT(), PRODUCER()->GetPort(inInfo));
 
     // The request is forwarded upstream through the pipeline.
     r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);

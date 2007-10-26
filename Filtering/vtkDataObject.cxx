@@ -26,6 +26,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -34,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.36");
+vtkCxxRevisionMacro(vtkDataObject, "1.37");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -281,8 +283,8 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
 
       // If the new producer is a vtkSource then setup the backward
       // compatibility link.
-      vtkExecutive* newExec = newInfo->GetExecutive(vtkExecutive::PRODUCER());
-      int newPort = newInfo->GetPort(vtkExecutive::PRODUCER());
+      vtkExecutive* newExec = vtkExecutive::PRODUCER()->GetExecutive(newInfo);
+      int newPort = vtkExecutive::PRODUCER()->GetPort(newInfo);
       if(newExec)
         {
         vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
@@ -301,8 +303,8 @@ void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
       {
       // If the old producer was a vtkSource then remove the backward
       // compatibility link.
-      vtkExecutive* oldExec = oldInfo->GetExecutive(vtkExecutive::PRODUCER());
-      int oldPort = oldInfo->GetPort(vtkExecutive::PRODUCER());
+      vtkExecutive* oldExec = vtkExecutive::PRODUCER()->GetExecutive(oldInfo);
+      int oldPort = vtkExecutive::PRODUCER()->GetPort(oldInfo);
       if(oldExec)
         {
         vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
@@ -781,7 +783,7 @@ vtkExecutive* vtkDataObject::GetExecutive()
 {
   if(this->PipelineInformation)
     {
-    return this->PipelineInformation->GetExecutive(vtkExecutive::PRODUCER());
+    return vtkExecutive::PRODUCER()->GetExecutive(this->PipelineInformation);
     }
   return 0;
 }
@@ -791,7 +793,7 @@ int vtkDataObject::GetPortNumber()
 {
   if(this->PipelineInformation)
     {
-    return this->PipelineInformation->GetPort(vtkExecutive::PRODUCER());
+    return vtkExecutive::PRODUCER()->GetPort(this->PipelineInformation);
     }
   return 0;
 }

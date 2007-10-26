@@ -28,6 +28,8 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHierarchicalDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationRequestKey.h"
@@ -39,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.53");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.54");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -135,7 +137,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
         // call ComputePipelineMTime on the input
         vtkExecutive* e;
         int producerPort;
-        info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+        vtkExecutive::PRODUCER()->Get(info,e,producerPort);
         if(e)
           {
           unsigned long pmtime;

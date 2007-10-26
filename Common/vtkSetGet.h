@@ -555,16 +555,12 @@ virtual double *Get##name() \
 
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
-// This version takes a third argument that may be VTK_COMMON_EXPORT,
-// VTK_FILTERING_EXPORT, etc. You should not use this version unless you
-// have split the implementation of a class across multiple VTK libraries.
-// When in doubt, use vtkTypeMacro instead.
-#define vtkExportedTypeMacro(thisClass,superclass,dllExport) \
+#define vtkTypeMacro(thisClass,superclass) \
   typedef superclass Superclass; \
   private: \
-  dllExport virtual const char* GetClassNameInternal() const { return #thisClass; } \
+  virtual const char* GetClassNameInternal() const { return #thisClass; } \
   public: \
-  dllExport static int IsTypeOf(const char *type) \
+  static int IsTypeOf(const char *type) \
   { \
     if ( !strcmp(#thisClass,type) ) \
       { \
@@ -572,11 +568,11 @@ virtual double *Get##name() \
       } \
     return superclass::IsTypeOf(type); \
   } \
-  dllExport virtual int IsA(const char *type) \
+  virtual int IsA(const char *type) \
   { \
     return this->thisClass::IsTypeOf(type); \
   } \
-  dllExport static thisClass* SafeDownCast(vtkObjectBase *o) \
+  static thisClass* SafeDownCast(vtkObjectBase *o) \
   { \
     if ( o && o->IsA(#thisClass) ) \
       { \
@@ -585,12 +581,12 @@ virtual double *Get##name() \
     return NULL;\
   } \
   protected: \
-  dllExport virtual vtkObjectBase *NewInstanceInternal() const \
+  virtual vtkObjectBase *NewInstanceInternal() const \
   { \
     return thisClass::New(); \
   } \
   public: \
-  dllExport thisClass *NewInstance() const \
+  thisClass *NewInstance() const \
   { \
     return thisClass::SafeDownCast(this->NewInstanceInternal()); \
   }
@@ -604,11 +600,7 @@ virtual double *Get##name() \
   protected: \
   dllExport void CollectRevisions(ostream& os); \
   public: \
-  vtkExportedTypeMacro(thisClass,superclass,dllExport)
-
-// Macro used to determine whether a class is the same class or
-// a subclass of the named class.
-#define vtkTypeMacro(thisClass,superclass) vtkExportedTypeMacro(thisClass,superclass,)
+  vtkTypeMacro(thisClass,superclass)
 
 // Version of vtkTypeMacro that adds the CollectRevisions method.
 #define vtkTypeRevisionMacro(thisClass,superclass) vtkExportedTypeRevisionMacro(thisClass,superclass,)

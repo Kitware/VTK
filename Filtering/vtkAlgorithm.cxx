@@ -24,6 +24,8 @@
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
@@ -36,7 +38,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.39");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.40");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -573,9 +575,9 @@ void vtkAlgorithm::SetNumberOfOutputPorts(int n)
     vtkInformation* info = producer->GetOutputInformation(i);
 
     // Remove all consumers' references to this producer on this port.
-    vtkExecutive** consumers = info->GetExecutives(vtkExecutive::CONSUMERS());
-    int* consumerPorts = info->GetPorts(vtkExecutive::CONSUMERS());
-    int consumerCount = info->Length(vtkExecutive::CONSUMERS());
+    vtkExecutive** consumers = vtkExecutive::CONSUMERS()->GetExecutives(info);
+    int* consumerPorts = vtkExecutive::CONSUMERS()->GetPorts(info);
+    int consumerCount = vtkExecutive::CONSUMERS()->Length(info);
     for(int j=0; j < consumerCount; ++j)
       {
       vtkInformationVector* inputs =
@@ -584,7 +586,7 @@ void vtkAlgorithm::SetNumberOfOutputPorts(int n)
       }
 
     // Remove this producer's references to all consumers on this port.
-    info->Remove(vtkExecutive::CONSUMERS());
+    vtkExecutive::CONSUMERS()->Remove(info);
     }
 
   // Set the number of output port information objects.
@@ -818,7 +820,7 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
   // Add this consumer to the new input's list of consumers.
   if(newInfo)
     {
-    newInfo->Append(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+    vtkExecutive::CONSUMERS()->Append(newInfo, consumer, consumerPort);
     }
 
   // Remove this consumer from all old inputs' lists of consumers.
@@ -826,7 +828,7 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
     {
     if(vtkInformation* oldInfo = inputs->GetInformationObject(i))
       {
-      oldInfo->Remove(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+      vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
       }
     }
 
@@ -883,7 +885,7 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
   vtkInformation* newInfo = producer->GetOutputInformation(producerPort);
 
   // Add this consumer to the input's list of consumers.
-  newInfo->Append(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+  vtkExecutive::CONSUMERS()->Append(newInfo, consumer, consumerPort);
 
   // Add the information object to the list of inputs.
   inputs->Append(newInfo);
@@ -926,7 +928,7 @@ void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
   vtkInformation* oldInfo = producer->GetOutputInformation(producerPort);
 
   // Remove this consumer from the old input's list of consumers.
-  oldInfo->Remove(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+  vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
 
   // Remove the information object from the list of inputs.
   inputs->Remove(oldInfo);
@@ -978,13 +980,13 @@ void vtkAlgorithm::SetNthInputConnection(int port, int index,
   // Add the consumer to the new input's list of consumers.
   if(newInfo)
     {
-    newInfo->Append(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+    vtkExecutive::CONSUMERS()->Append(newInfo, consumer, consumerPort);
     }
 
   // Remove the consumer from the old input's list of consumers.
   if(oldInfo)
     {
-    oldInfo->Remove(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+    vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
     }
 
   // Store the information object in the vector of input connections.
@@ -1016,7 +1018,7 @@ void vtkAlgorithm::SetNumberOfInputConnections(int port, int n)
     // Remove each input's reference to this consumer.
     if(vtkInformation* oldInfo = inputs->GetInformationObject(i))
       {
-      oldInfo->Remove(vtkExecutive::CONSUMERS(), consumer, consumerPort);
+      vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
       }
     }
 
@@ -1090,7 +1092,7 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
     // it is a NULL input.
     vtkExecutive* producer;
     int producerPort;
-    info->Get(vtkExecutive::PRODUCER(),producer,producerPort);
+    vtkExecutive::PRODUCER()->Get(info,producer,producerPort);
     if(producer)
       {
       return producer->GetAlgorithm()->GetOutputPort(producerPort);

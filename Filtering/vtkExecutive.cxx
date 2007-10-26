@@ -33,7 +33,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.32");
+vtkCxxRevisionMacro(vtkExecutive, "1.33");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -260,7 +260,7 @@ vtkInformationVector* vtkExecutive::GetOutputInformation()
   for(int i = oldNumberOfPorts; i < nop; ++i)
     {
     vtkInformation* info = this->OutputInformation->GetInformationObject(i);
-    info->Set(vtkExecutive::PRODUCER(), this, i);
+    vtkExecutive::PRODUCER()->Set(info, this, i);
     }
 
   return this->OutputInformation;
@@ -414,7 +414,7 @@ vtkAlgorithmOutput* vtkExecutive::GetProducerPort(vtkDataObject* d)
     vtkInformation* info = d->GetPipelineInformation();
     vtkExecutive* dExecutive;
     int port;
-    info->Get(vtkExecutive::PRODUCER(),dExecutive,port);
+    vtkExecutive::PRODUCER()->Get(info,dExecutive,port);
     if(dExecutive == this)
       {
       return this->Algorithm->GetOutputPort(port);
@@ -509,7 +509,7 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
   vtkInformation* info = inVector->GetInformationObject(index);
   vtkExecutive* e;
   int producerPort;
-  info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+  vtkExecutive::PRODUCER()->Get(info,e,producerPort);
   if(e)
     {
     return e->GetOutputData(producerPort);
@@ -637,7 +637,7 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
       // it is a NULL input.
       vtkExecutive* e;
       int producerPort;
-      info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+      vtkExecutive::PRODUCER()->Get(info,e,producerPort);
       if(e)
         {
         int port = request->Get(FROM_OUTPUT_PORT());
