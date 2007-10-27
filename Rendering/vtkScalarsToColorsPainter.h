@@ -142,7 +142,7 @@ protected:
   // dependent on key passed down from a painter upstream
   // that makes a more informed decision for alpha blending
   // depending on extensions available, for example.
-  int GetPremultiplyColorsWithAlpha(vtkActor* actor);
+  virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
   
   // Methods to set the ivars. These are purposefully protected.
   // The only means of affecting these should be using teh vtkInformation 

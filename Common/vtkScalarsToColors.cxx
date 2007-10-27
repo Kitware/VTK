@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.25");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.26");
 
 //----------------------------------------------------------------------------
 vtkScalarsToColors::vtkScalarsToColors()
@@ -27,6 +27,15 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->VectorComponent = 0;
   this->VectorMode = vtkScalarsToColors::COMPONENT;
   this->UseMagnitude = 0;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return true if all of the values defining the mapping have an opacity
+// equal to 1. Default implementation return true.
+int vtkScalarsToColors::IsOpaque()
+{
+  return 1;
 }
 
 //----------------------------------------------------------------------------

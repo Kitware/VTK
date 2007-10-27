@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.74");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.75");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -327,6 +327,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       
       int supports_depth_texture;
       int supports_shadow;
+      int supports_blend_func_separate;
       if(supports_GL_1_4)
         {
         supports_depth_texture=1;
@@ -336,6 +337,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         {
         supports_depth_texture=extensions->ExtensionSupported("GL_ARB_depth_texture");
         supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow");
+        supports_blend_func_separate=extensions->ExtensionSupported("GL_EXT_blend_func_separate");
         }
       
       int supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle");
@@ -363,6 +365,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->DepthPeelingIsSupported =
         supports_depth_texture &&
         supports_shadow &&
+        supports_blend_func_separate &&
         supports_shadow_funcs &&
         supports_vertex_shader &&
         supports_fragment_shader &&
@@ -386,6 +389,15 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         // GL_ARB_depth_texture, GL_ARB_shadow and GL_EXT_shadow_funcs
         // don't introduce new functions.
+        if(supports_GL_1_4)
+          {
+          extensions->LoadExtension("GL_VERSION_1_4");
+          }
+        else
+          {
+          extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
+          }
+        
         if(supports_GL_2_0)
           {
           extensions->LoadExtension("GL_VERSION_2_0");
@@ -709,7 +721,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           ++l;
           if(!stop && !infiniteLoop)
             {
-            stop=l>this->MaximumNumberOfPeels;
+            stop=l>=this->MaximumNumberOfPeels;
             }
           }
         }
@@ -744,8 +756,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
     
     vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -754,6 +764,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // actor in wireframe may have change that
     glPolygonMode(GL_FRONT, GL_FILL);
     
+    glDisable(GL_BLEND);
     // First the opaque layer
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,opaqueLayerRgba);
     glBegin(GL_QUADS);
@@ -767,6 +778,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glVertex2f(0, this->ViewportHeight);
     glEnd();
     
+    // save the default blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     // the transparent layers
     vtkstd::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
     vtkstd::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
@@ -786,10 +802,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       glEnd();
       ++it;
       }
-    
+    // Restore the default blend function for the next stage (overlay)
+    glPopAttrib();
+  
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
-    glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -821,10 +838,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     }
-  
-  // Restore default alpha blending for the next stage (overlay)
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
 }
 
 // ----------------------------------------------------------------------------

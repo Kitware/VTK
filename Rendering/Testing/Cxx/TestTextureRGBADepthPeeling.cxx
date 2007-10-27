@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestTextureRGBA.cxx
+  Module:    TestTextureRGBADepthPeeling.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,7 +16,7 @@
 // .NAME Test of an RGBA texture on a vtkActor.
 // .SECTION Description
 // this program tests the rendering of an vtkActor with a translucent texture
-// with alpha blending.
+// with depth peeling.
 
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
@@ -32,7 +32,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-int TestTextureRGBA(int argc, char *argv[])
+int TestTextureRGBADepthPeeling(int argc, char *argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(
       argc, argv, "Data/textureRGBA.png");
@@ -65,13 +65,26 @@ int TestTextureRGBA(int argc, char *argv[])
   renderer->SetBackground(0.5,0.7,0.7);
 
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
+  renderer->SetUseDepthPeeling(1);
+  renderer->SetMaximumNumberOfPeels(200);
+  renderer->SetOcclusionRatio(0.1);
 
   vtkRenderWindowInteractor *interactor = vtkRenderWindowInteractor::New();
   interactor->SetRenderWindow(renWin);
 
   renWin->SetSize(400,400);
   renWin->Render();
+  if(renderer->GetLastRenderingUsedDepthPeeling())
+    {
+    cout<<"depth peeling was used"<<endl;
+    }
+  else
+    {
+    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+    }
+  
   interactor->Initialize();
   renWin->Render();
 

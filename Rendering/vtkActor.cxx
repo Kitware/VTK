@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.135");
+vtkCxxRevisionMacro(vtkActor, "1.136");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
@@ -117,7 +117,9 @@ void vtkActor::GetActors(vtkPropCollection *ac)
 // should be called from the render methods only
 int vtkActor::GetIsOpaque()
 {
-  if (this->Property->GetOpacity() >= 1.0)
+  int result=this->Property->GetOpacity() >= 1.0;
+  
+  if(result)
     {
     if (this->Texture && this->Texture->GetInput())
       {
@@ -127,22 +129,19 @@ int vtkActor::GetIsOpaque()
       this->Texture->GetInput()->PropagateUpdateExtent();
       this->Texture->GetInput()->TriggerAsynchronousUpdate();
       this->Texture->GetInput()->UpdateData();
-      if (this->Texture->GetInput()->GetPointData()->GetScalars() == NULL)
-        { // Handle gracefully. What should it return? 
-        return 1;
-        }
-      if (this->Texture->GetInput()->GetPointData()->GetScalars()
-        ->GetNumberOfComponents()%2)
-        {
-        return 1;
-        }
-      }
-    else
-      {
-      return 1;
+      result=this->Texture->GetInput()->GetPointData()->GetScalars() == NULL
+        || this->Texture->GetInput()->GetPointData()->GetScalars()
+        ->GetNumberOfComponents()%2;
       }
     }
-  return 0;
+  if(result)
+    {
+    if(this->Mapper!=0 && this->Mapper->GetLookupTable()!=0)
+      {
+      result=this->Mapper->GetLookupTable()->IsOpaque();
+      }
+    }
+  return result;
 }
 
 

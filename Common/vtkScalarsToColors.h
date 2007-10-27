@@ -40,6 +40,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
+  // Return true if all of the values defining the mapping have an opacity
+  // equal to 1. Default implementation return true.
+  virtual int IsOpaque();
+  
+  // Description:
   // Perform any processing required (if any) before processing 
   // scalars.
   virtual void Build() {};

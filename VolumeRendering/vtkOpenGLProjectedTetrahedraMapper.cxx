@@ -57,7 +57,7 @@ const int SqrtTableSize = 2048;
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.8");
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
@@ -426,6 +426,10 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   glShadeModel(GL_SMOOTH);
+  
+  // save the default blend function.
+  glPushAttrib(GL_COLOR_BUFFER_BIT);
+  
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   // Establish vertex arrays.
@@ -727,7 +731,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glDisableClientState(GL_COLOR_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // Restore the blend function.
+  glPopAttrib();
 
   glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);

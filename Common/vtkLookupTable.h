@@ -49,7 +49,12 @@ public:
   
   vtkTypeRevisionMacro(vtkLookupTable,vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
+  // Description:
+  // Return true if all of the values defining the mapping have an opacity
+  // equal to 1. Default implementation return true.
+  virtual int IsOpaque();
+  
   // Description:
   // Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
@@ -238,6 +243,9 @@ protected:
   vtkTimeStamp BuildTime;
   double RGBA[4]; //used during conversion process
 
+  int OpaqueFlag;
+  vtkTimeStamp OpaqueFlagBuildTime;
+  
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.
   void operator=(const vtkLookupTable&);  // Not implemented.

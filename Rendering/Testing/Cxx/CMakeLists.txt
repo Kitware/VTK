@@ -17,6 +17,15 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestTextureRGBA.cxx
+    TestTextureRGBADepthPeeling.cxx
+    TestTextActor3DAlphaBlending.cxx
+    TestTextActor3DDepthPeeling.cxx
+    TestTranslucentImageActorAlphaBlending.cxx
+    TestTranslucentImageActorDepthPeeling.cxx
+    TestTranslucentLUTAlphaBlending.cxx
+    TestTranslucentLUTDepthPeeling.cxx
+    TestTranslucentLUTTextureAlphaBlending.cxx
+    TestTranslucentLUTTextureDepthPeeling.cxx
     TestTStripsColorsTCoords.cxx
     TestTStripsNormalsColorsTCoords.cxx
     TestTStripsNormalsTCoords.cxx

@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.88");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.89");
 #endif
 
 #define MAX_LIGHTS 8
@@ -164,7 +164,32 @@ void vtkOpenGLRenderWindow::OpenGLInit()
   glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
   // initialize blending for transparency
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  
+  // Try to initialize vtkgl::BlendFuncSeparate() if available.
+  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
+  extensions->SetRenderWindow(this);
+  if(extensions->ExtensionSupported("GL_VERSION_1_4"))
+    {
+    extensions->LoadExtension("GL_VERSION_1_4");
+    }
+  else
+    {
+    if(extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
+      {
+      extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
+      }
+    }
+  extensions->Delete();
+  
+  if(vtkgl::BlendFuncSeparate!=0)
+    {
+    vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    }
+  else
+    {
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    }
   glEnable(GL_BLEND);
 
   if (this->PointSmoothing)

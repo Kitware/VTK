@@ -40,6 +40,8 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release. 
   virtual void ReleaseGraphicsResources(vtkWindow *);
+  
+  virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
 protected:
   vtkOpenGLScalarsToColorsPainter();
   ~vtkOpenGLScalarsToColorsPainter();

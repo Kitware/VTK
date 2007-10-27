@@ -33,9 +33,11 @@
 #  include "vtkOpenGL.h"
 #endif
 
+#include "vtkgl.h" // vtkgl namespace
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.4");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
@@ -61,6 +63,21 @@ void vtkOpenGLScalarsToColorsPainter::ReleaseGraphicsResources(vtkWindow* win)
     this->InternalColorTexture->ReleaseGraphicsResources(win);
     }
   this->Superclass::ReleaseGraphicsResources(win);
+}
+
+//-----------------------------------------------------------------------------
+int vtkOpenGLScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(
+  vtkActor* actor)
+{
+  GLint alphaBits;
+  glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+  
+  // Dealing with having a correct alpha (none square) in the framebuffer
+  // is only required if there is an alpha component in the framebuffer
+  // (doh...) and if we cannot deal directly with BlendFuncSeparate.
+  
+  return vtkgl::BlendFuncSeparate==0 && alphaBits>0 &&
+    this->Superclass::GetPremultiplyColorsWithAlpha(actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -134,24 +151,27 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer* renderer,
     this->InternalColorTexture->Load(renderer);
     }
 
-  int pre_mulitiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
-
-  GLint old_func[2];
+  int pre_multiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
+  
   // We colors were premultiplied by alpha then we change the blending
   // function to one that will compute correct blended destination alpha
   // value, otherwise we stick with the default.
-  if (pre_mulitiplied_by_alpha)
+  if (pre_multiplied_by_alpha)
     {
-    glGetIntegerv(GL_BLEND_SRC, &old_func[0]);
-    glGetIntegerv(GL_BLEND_DST, &old_func[1]);
+    // save the blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    
+    // the following function is not correct with textures because there are
+    // not premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
   this->Superclass::RenderInternal(renderer, actor, typeflags);
 
-  if (pre_mulitiplied_by_alpha)
+  if (pre_multiplied_by_alpha)
     {
-    glBlendFunc(old_func[0], old_func[1]);
+    // restore the blend function
+    glPopAttrib();
     }
 }
 

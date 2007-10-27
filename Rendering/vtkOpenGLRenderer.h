@@ -110,6 +110,7 @@ protected:
   //BTX
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
+  friend class vtkOpenGLImageActor;
   //ETX
   
   // Description:

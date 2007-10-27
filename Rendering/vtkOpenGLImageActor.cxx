@@ -25,13 +25,14 @@
 #include <math.h>
 
 #include "vtkOpenGL.h"
+#include "vtkgl.h" // vtkgl namespace
 
 #ifndef GL_MAX_TEXTURE_SIZE
 #define GL_MAX_TEXTURE_SIZE 1024
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.34");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.35");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -441,7 +442,21 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
 
   // now bind it 
   glEnable(GL_TEXTURE_2D);
+  
+  GLint uUseTexture=-1;
+  GLint uTexture=-1;
+  
+  vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
+  
+  if(oRenderer->GetDepthPeelingHigherLayer())
+    {
+    uUseTexture=oRenderer->GetUseTextureUniformVariable();
+    uTexture=oRenderer->GetTextureUniformVariable();
+    vtkgl::Uniform1i(uUseTexture,1);
+    vtkgl::Uniform1i(uTexture,0); // active texture 0
+    }
 
+  
   // draw the quad
   if ( vtkMapper::GetResolveCoincidentTopology() )
     {
