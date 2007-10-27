@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.75");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.76");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -331,6 +331,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       if(supports_GL_1_4)
         {
         supports_depth_texture=1;
+        supports_blend_func_separate=1;
         supports_shadow=1;
         }
       else
