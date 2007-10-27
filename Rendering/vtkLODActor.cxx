@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODActor, "1.67");
+vtkCxxRevisionMacro(vtkLODActor, "1.68");
 vtkStandardNewMacro(vtkLODActor);
 vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkLODActor, MediumResFilter, vtkPolyDataAlgorithm);
@@ -70,6 +70,16 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
   // how should we print out the LODMappers?
   os << indent << "Number Of LOD Mappers: " 
      << this->LODMappers->GetNumberOfItems() << endl;
+  os << indent << "Medium Resolution Filter: " << this->MediumResFilter << "\n";
+  if (this->MediumResFilter)
+    {
+    this->MediumResFilter->PrintSelf(os,indent.GetNextIndent());
+    }     
+  os << indent << "Low Resolution Filter: " << this->LowResFilter << "\n";
+  if (this->LowResFilter)
+    {
+    this->LowResFilter->PrintSelf(os,indent.GetNextIndent());
+    }     
 }
 
 
