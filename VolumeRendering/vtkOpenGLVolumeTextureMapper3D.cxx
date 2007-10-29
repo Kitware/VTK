@@ -41,7 +41,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.13");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1826,19 +1826,20 @@ void vtkOpenGLVolumeTextureMapper3D::Initialize()
     {    
     canDoFP = 1;
     }
-  else if ( supports_texture3D          &&
-            supports_multitexture       &&
-            supports_GL_NV_texture_shader2     &&
-            supports_GL_NV_register_combiners2 &&
-            supports_GL_NV_register_combiners  &&
-            vtkgl::TexImage3D               &&
-            vtkgl::ActiveTexture            &&
-            vtkgl::MultiTexCoord3fv         &&
-            vtkgl::CombinerParameteriNV        &&
-            vtkgl::CombinerStageParameterfvNV  &&
-            vtkgl::CombinerInputNV             &&
-            vtkgl::CombinerOutputNV            &&
-            vtkgl::FinalCombinerInputNV )
+  
+  if ( supports_texture3D          &&
+       supports_multitexture       &&
+       supports_GL_NV_texture_shader2     &&
+       supports_GL_NV_register_combiners2 &&
+       supports_GL_NV_register_combiners  &&
+       vtkgl::TexImage3D               &&
+       vtkgl::ActiveTexture            &&
+       vtkgl::MultiTexCoord3fv         &&
+       vtkgl::CombinerParameteriNV        &&
+       vtkgl::CombinerStageParameterfvNV  &&
+       vtkgl::CombinerInputNV             &&
+       vtkgl::CombinerOutputNV            &&
+       vtkgl::FinalCombinerInputNV )
     {
     canDoNV = 1;
     }
