@@ -21,7 +21,7 @@
 // if any, only if it could not render.
 // .SECTION Thanks
 // Support for generic vertex attributes in VTK was contributed in
-// collaboration with Stéphane Ploix at EDF.
+// collaboration with Stephane Ploix at EDF.
 
 #ifndef __vtkPrimitivePainter_h
 #define __vtkPrimitivePainter_h

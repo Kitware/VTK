@@ -18,7 +18,7 @@
 // vtkShaderDeviceAdapter subclass for Cg.
 // .SECTION Thanks
 // Support for generic vertex attributes in VTK was contributed in
-// collaboration with Stéphane Ploix at EDF.
+// collaboration with Stephane Ploix at EDF.
 
 #ifndef __vtkCgShaderDeviceAdapter_h
 #define __vtkCgShaderDeviceAdapter_h

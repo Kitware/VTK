@@ -18,7 +18,7 @@
 // vtkShaderDeviceAdapter subclass for GLSL.
 // .SECTION Thanks
 // Support for generic vertex attributes in VTK was contributed in
-// collaboration with Stéphane Ploix at EDF.
+// collaboration with Stephane Ploix at EDF.
 
 #ifndef __vtkGLSLShaderDeviceAdapter_h
 #define __vtkGLSLShaderDeviceAdapter_h

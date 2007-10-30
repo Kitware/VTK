@@ -17,7 +17,7 @@
 // PolyDataMapper that uses painters to do the actual rendering.
 // .SECTION Thanks
 // Support for generic vertex attributes in VTK was contributed in
-// collaboration with Stéphane Ploix at EDF.
+// collaboration with Stephane Ploix at EDF.
 
 #ifndef __vtkPainterPolyDataMapper_h
 #define __vtkPainterPolyDataMapper_h
