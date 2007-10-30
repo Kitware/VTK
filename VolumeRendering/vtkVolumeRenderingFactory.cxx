@@ -39,7 +39,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.12");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.13");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -60,7 +60,7 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
   const char *rl = vtkGraphicsFactory::GetRenderLibrary();
   
 
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
   if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
     // Projected Tetrahedra Mapper
