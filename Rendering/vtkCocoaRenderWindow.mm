@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.54");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.55");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -629,11 +629,11 @@ void vtkCocoaRenderWindow::Initialize ()
     // create on screen
     if(!this->OnScreenInitialized)
       {
-      this->CreateAWindow();
       this->OnScreenInitialized = 1;
+      this->CreateAWindow();
       }
     }
-  if(this->OnScreenInitialized)
+  if((this->OnScreenInitialized) && (this->Mapped))
     {
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
