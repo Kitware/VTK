@@ -1231,7 +1231,7 @@ C_FUNC_DEF double v_hex_oddy( int /*num_nodes*/, double coordinates[][3] )
    the average Frobenius aspect of a hex
 
    NB (P. Pebay 01/20/07): 
-     this metric is calculated by averaging the 8 Frobenius aspects at
+     this function is calculated by averaging the 8 Frobenius aspects at
      each corner of the hex, when the reference corner is right isosceles.
 */
 C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
@@ -1312,7 +1312,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
 
   Maximum Frobenius condition number of the Jacobian matrix at 8 corners
    NB (P. Pebay 01/25/07): 
-     this metric is calculated by taking the maximum of the 8 Frobenius aspects at
+     this function is calculated by taking the maximum of the 8 Frobenius aspects at
      each corner of the hex, when the reference corner is right isosceles.
 */
 C_FUNC_DEF double v_hex_max_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
@@ -2697,7 +2697,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
 */
 
 /*!
-  multiple quality metrics of a hex
+  multiple quality functions of a hex
 */
 C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3], 
   unsigned int metrics_request_flag, HexMetricVals *metric_vals )

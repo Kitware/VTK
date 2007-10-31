@@ -215,7 +215,7 @@ C_FUNC_DEF double v_tri_aspect_ratio( int /*num_nodes*/, double coordinates[][3]
    NB (P. Pebay 01/13/07): 
      CR / (3.0*IR) where CR is the circumradius and IR is the inradius
 
-     this quality metric is also known to VERDICT, for tetrahedral elements only,
+     this quality function is also known to VERDICT, for tetrahedral elements only,
      a the "aspect beta"
    
 */
@@ -863,7 +863,7 @@ C_FUNC_DEF double v_tri_distortion( int num_nodes, double coordinates[][3] )
 
 
 /*! 
-  tri_quality for calculating multiple tri metrics at once
+  tri_quality for calculating multiple tri functions at once
 
   using this method is generally faster than using the individual 
   method multiple times.
@@ -989,7 +989,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3],
 
 
   // calculate the area of the tri
-  // the following metrics depend on area
+  // the following functions depend on area
   if( metrics_request_flag & (V_TRI_AREA | V_TRI_SCALED_JACOBIAN | 
     V_TRI_SHAPE | V_TRI_RELATIVE_SIZE_SQUARED | V_TRI_SHAPE_AND_SIZE ) )
   {

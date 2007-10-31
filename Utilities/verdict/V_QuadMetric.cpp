@@ -419,7 +419,7 @@ C_FUNC_DEF double v_quad_aspect_ratio( int /*num_nodes*/, double coordinates[][3
    the radius ratio of a quad
 
    NB (P. Pebay 01/19/07): 
-     this metric is called "radius ratio" by extension of a concept that does
+     this function is called "radius ratio" by extension of a concept that does
      not exist in general with quads -- although a different name should probably
      be used in the future.
 */
@@ -480,7 +480,7 @@ C_FUNC_DEF double v_quad_radius_ratio( int /*num_nodes*/, double coordinates[][3
    the average Frobenius aspect of a quad
 
    NB (P. Pebay 01/20/07): 
-     this metric is calculated by averaging the 4 Frobenius aspects at
+     this function is calculated by averaging the 4 Frobenius aspects at
      each corner of the quad, when the reference triangle is right isosceles.
 */
 C_FUNC_DEF double v_quad_med_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
@@ -526,7 +526,7 @@ C_FUNC_DEF double v_quad_med_aspect_frobenius( int /*num_nodes*/, double coordin
    the maximum Frobenius aspect of a quad
 
    NB (P. Pebay 01/20/07): 
-     this metric is calculated by taking the maximum of the 4 Frobenius aspects at
+     this function is calculated by taking the maximum of the 4 Frobenius aspects at
      each corner of the quad, when the reference triangle is right isosceles.
 */
 C_FUNC_DEF double v_quad_max_aspect_frobenius( int /*num_nodes*/, double coordinates[][3] )
@@ -1426,7 +1426,7 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
 
   VerdictBoolean is_collapsed = is_collapsed_quad(coordinates);
 
-  // handle collapsed quads metrics here
+  // handle collapsed quads functions here
   if(is_collapsed == VERDICT_TRUE && metrics_request_flag & 
       ( V_QUAD_MINIMUM_ANGLE | V_QUAD_MAXIMUM_ANGLE | V_QUAD_JACOBIAN |
         V_QUAD_SCALED_JACOBIAN ))

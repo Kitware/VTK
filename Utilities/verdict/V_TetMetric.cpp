@@ -229,7 +229,7 @@ C_FUNC_DEF double v_tet_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   NB (P. Pebay 04/16/07):
     CR / (3.0 * IR) where CR is the circumsphere radius and IR is the inscribed 
     sphere radius.
-    Note that this metric is similar to the aspect beta of a tet, except that
+    Note that this function is similar to the aspect beta of a tet, except that
     it does not return VERDICT_DBL_MAX if the element has negative orientation.
 */
 C_FUNC_DEF double v_tet_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
@@ -292,7 +292,7 @@ C_FUNC_DEF double v_tet_radius_ratio( int /*num_nodes*/, double coordinates[][3]
   NB (P. Pebay 04/16/07):  
     CR / (3.0 * IR) where CR is the circumsphere radius and IR is the inscribed 
     sphere radius if the element has positive orientation.
-    Note that this metric is similar to the radius ratio of a tet, except that
+    Note that this function is similar to the radius ratio of a tet, except that
     it returns VERDICT_DBL_MAX if the element has negative orientation.
 
 */
@@ -963,7 +963,7 @@ C_FUNC_DEF double v_tet_distortion( int num_nodes, double coordinates[][3] )
 
 
 /*!
-  the quality metrics of a tet
+  the quality functions of a tet
 */
 C_FUNC_DEF void v_tet_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, TetMetricVals *metric_vals )
