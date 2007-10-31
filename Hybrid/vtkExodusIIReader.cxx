@@ -293,10 +293,12 @@ protected:
     this->Metadata = 0;
     this->InMaterialAssignment = 0;
     this->ParseMaterials = 0;
+    this->CurrentHierarchyEntry=0;
     }
   virtual ~vtkExodusIIXMLParser()
     {
     //this->Metadata->UnRegister( this );
+    this->SetCurrentHierarchyEntry(0);
     }
   virtual void StartElement( const char* tagName, const char** attrs )
     {
@@ -721,7 +723,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.43");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.44");
 
 
 
@@ -1675,7 +1677,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.43");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.44");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -5923,7 +5925,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.43");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.44");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
