@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Specify file name of the xml file.
-  void SetXMLFileName(const char *filename); 
+  vtkSetStringMacro(XMLFileName);
   vtkGetStringMacro(XMLFileName);
 
   // Description:

@@ -1395,7 +1395,7 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.53");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.54");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1577,7 +1577,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.53");
+vtkCxxRevisionMacro(vtkExodusReader, "1.54");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4590,22 +4590,6 @@ const char*vtkExodusReader::GetArrayName ( vtkExodusReader::ArrayType type,
     }
 
   return NULL;
-}
-
-void vtkExodusReader::SetXMLFileName(const char *filename) 
-{
-  // NULL or "" then just return
-  if (!filename || !strcmp(filename,"")) 
-    {
-    return;
-    }
-  else 
-    {
-    XMLFileName = StrDupWithNew(filename); // Memory leak :)
-    }
-
-  this->Modified();
-  //cout << "Exodus XML file set to " << XMLFileName << endl;
 }
 
 // Had to add this because displacement vector names had spaces
