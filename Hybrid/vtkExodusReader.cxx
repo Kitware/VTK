@@ -1395,7 +1395,7 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.52");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.53");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1577,7 +1577,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.52");
+vtkCxxRevisionMacro(vtkExodusReader, "1.53");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -1643,7 +1643,9 @@ int vtkExodusReader::CanReadFile(const char* fname)
     {
     return 0;
     }
-  
+
+  // close the file opened for testing.
+  ex_close(returnVal);
   // Success
   return 1;
 }
