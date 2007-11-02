@@ -101,6 +101,8 @@ struct HexMetricVals
   double oddy ;
   /** \sa v_hex_med_aspect_frobenius */
   double med_aspect_frobenius ;
+  /** \sa v_hex_max_aspect_frobenius */
+  double max_aspect_frobenius ;
   /** \sa v_hex_condition */
   double condition ;
   /** \sa v_hex_jacobian */

@@ -41,7 +41,7 @@ int v_hex_get_weight( VerdictVector &v1,
     VerdictVector &v3 )
 {
 
-  if( verdict_hex_size == 0)
+  if ( verdict_hex_size == 0)
     return 0;
 
   v1.set(1,0,0);
@@ -286,7 +286,7 @@ double condition_comp( const VerdictVector &xxi,
 {
   double det =  xxi % (xet * xze);
   
-  if( det <= VERDICT_DBL_MIN) { return VERDICT_DBL_MAX; }
+  if ( det <= VERDICT_DBL_MIN) { return VERDICT_DBL_MAX; }
   
   
   double term1 = xxi % xxi + xet % xet + xze % xze;
@@ -314,7 +314,7 @@ double oddy_comp( const VerdictVector &xxi,
   rt_g = xxi % (xet * xze);
   
   double oddy_metric;
-  if( rt_g > VERDICT_DBL_MIN ) 
+  if ( rt_g > VERDICT_DBL_MIN ) 
   {
     double norm_G_squared = g11*g11 + 2.0*g12*g12 + 2.0*g13*g13 + g22*g22 + 2.0*g23*g23 +g33*g33;
     
@@ -425,7 +425,7 @@ double hex_edge_length(int max_min, double coordinates[][3])
   
   double _edge = edge[0];
   
-  if(max_min == 0)
+  if ( max_min == 0)
   {
     for( i = 1; i<12; i++) 
       _edge = VERDICT_MIN( _edge, edge[i] ); 
@@ -476,7 +476,7 @@ double diag_length(int max_min, double coordinates[][3])
   diag[3] = sqrt( temp[0] + temp[1] + temp[2] );
 
   double diagonal = diag[0];
-  if(max_min == 0 )  //Return min diagonal
+  if ( max_min == 0 )  //Return min diagonal
   { 
     for( i = 1; i<4; i++)
       diagonal = VERDICT_MIN( diagonal, diag[i] );
@@ -681,7 +681,7 @@ C_FUNC_DEF double v_hex_edge_ratio (int /*num_nodes*/, double coordinates[][3])
   m2 = m2  < mij ? m2  : mij;
   m2 = m2  < mkl ? m2  : mkl;
 
-  if( m2 < VERDICT_DBL_MIN ) 
+  if ( m2 < VERDICT_DBL_MIN ) 
     return (double)VERDICT_DBL_MAX;
 
   double M2;
@@ -697,7 +697,7 @@ C_FUNC_DEF double v_hex_edge_ratio (int /*num_nodes*/, double coordinates[][3])
 
   double edge_ratio = sqrt( M2 / m2 );
   
-  if( edge_ratio > 0 )
+  if ( edge_ratio > 0 )
     return (double) VERDICT_MIN( edge_ratio, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( edge_ratio, -VERDICT_DBL_MAX );
 }
@@ -729,7 +729,7 @@ C_FUNC_DEF double v_hex_max_edge_ratio (int /*num_nodes*/, double coordinates[][
 
   aspect = VERDICT_MAX( aspect_12, VERDICT_MAX( aspect_13, aspect_23 ) );
 
-  if( aspect > 0 )
+  if ( aspect > 0 )
     return (double) VERDICT_MIN( aspect, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( aspect, -VERDICT_DBL_MAX );
  
@@ -751,11 +751,11 @@ C_FUNC_DEF double v_hex_skew( int /*num_nodes*/, double coordinates[][3] )
   VerdictVector efg2 = calc_hex_efg( 2, node_pos);
   VerdictVector efg3 = calc_hex_efg( 3, node_pos);
  
-  if( efg1.normalize() <= VERDICT_DBL_MIN )
+  if ( efg1.normalize() <= VERDICT_DBL_MIN )
     return VERDICT_DBL_MAX;
-  if( efg2.normalize() <= VERDICT_DBL_MIN )
+  if ( efg2.normalize() <= VERDICT_DBL_MIN )
     return VERDICT_DBL_MAX;
-  if( efg3.normalize() <= VERDICT_DBL_MIN )
+  if ( efg3.normalize() <= VERDICT_DBL_MIN )
     return VERDICT_DBL_MAX;
 
   skew_1 = fabs(efg1 % efg2);
@@ -764,7 +764,7 @@ C_FUNC_DEF double v_hex_skew( int /*num_nodes*/, double coordinates[][3] )
 
   double skew = (VERDICT_MAX( skew_1, VERDICT_MAX( skew_2, skew_3 ) ));
 
-  if( skew > 0 )
+  if ( skew > 0 )
     return (double) VERDICT_MIN( skew, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( skew, -VERDICT_DBL_MAX );
 }
@@ -793,7 +793,7 @@ C_FUNC_DEF double v_hex_taper( int /*num_nodes*/, double coordinates[][3] )
 
   double taper = (double)VERDICT_MAX(taper_1, VERDICT_MAX(taper_2, taper_3));  
 
-  if( taper > 0 )
+  if ( taper > 0 )
     return (double) VERDICT_MIN( taper, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( taper, -VERDICT_DBL_MAX );
 }
@@ -815,7 +815,7 @@ C_FUNC_DEF double v_hex_volume( int /*num_nodes*/, double coordinates[][3] )
   double volume;
   volume = (double) (efg1 % (efg2 * efg3))/64.0;
 
-  if( volume > 0 )
+  if ( volume > 0 )
     return (double) VERDICT_MIN( volume, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( volume, -VERDICT_DBL_MAX );
 }
@@ -834,7 +834,7 @@ C_FUNC_DEF double v_hex_stretch( int /*num_nodes*/, double coordinates[][3] )
   
   double stretch = HEX_STRETCH_SCALE_FACTOR * safe_ratio(min_edge, max_diag);
 
-  if( stretch > 0 )
+  if ( stretch > 0 )
     return (double) VERDICT_MIN( stretch, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( stretch, -VERDICT_DBL_MAX );
 }
@@ -852,7 +852,7 @@ C_FUNC_DEF double v_hex_diagonal( int /*num_nodes*/, double coordinates[][3] )
   
   double diagonal = safe_ratio( min_diag, max_diag);
 
-  if( diagonal > 0 )
+  if ( diagonal > 0 )
     return (double) VERDICT_MIN( diagonal, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( diagonal, -VERDICT_DBL_MAX );
 }
@@ -1221,7 +1221,7 @@ C_FUNC_DEF double v_hex_oddy( int /*num_nodes*/, double coordinates[][3] )
   current_oddy = oddy_comp( xxi, xet, xze);
   if ( current_oddy > oddy ) { oddy = current_oddy; }
   
-  if( oddy > 0 )
+  if ( oddy > 0 )
     return (double) VERDICT_MIN( oddy, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( oddy, -VERDICT_DBL_MAX );
 
@@ -1240,7 +1240,6 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   VerdictVector node_pos[8];
   make_hex_nodes ( coordinates, node_pos );
 
-  double med_aspect_frobenius = 0.; 
   VerdictVector xxi, xet, xze;
 
   // J(0,0,0):
@@ -1249,7 +1248,8 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xet = node_pos[3] - node_pos[0];
   xze = node_pos[4] - node_pos[0];
 
-  med_aspect_frobenius += condition_comp( xxi, xet, xze );
+  double med_aspect_frobenius = condition_comp( xxi, xet, xze );
+
   // J(1,0,0):
   
   xxi = node_pos[2] - node_pos[1];
@@ -1257,6 +1257,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[5] - node_pos[1];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(1,1,0):
   
   xxi = node_pos[3] - node_pos[2];
@@ -1264,6 +1265,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[6] - node_pos[2];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(0,1,0):
   
   xxi = node_pos[0] - node_pos[3];
@@ -1271,6 +1273,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[7] - node_pos[3];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(0,0,1):
 
   xxi = node_pos[7] - node_pos[4];
@@ -1278,6 +1281,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[0] - node_pos[4];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(1,0,1):
 
   xxi = node_pos[4] - node_pos[5];
@@ -1285,6 +1289,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[1] - node_pos[5];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(1,1,1):
 
   xxi = node_pos[5] - node_pos[6];
@@ -1292,6 +1297,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   xze = node_pos[2] - node_pos[6];
 
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
+
   // J(1,1,1):
 
   xxi = node_pos[6] - node_pos[7];
@@ -1301,7 +1307,7 @@ C_FUNC_DEF double v_hex_med_aspect_frobenius( int /*num_nodes*/, double coordina
   med_aspect_frobenius += condition_comp( xxi, xet, xze );
   med_aspect_frobenius /= 24.;
 
-  if( med_aspect_frobenius > 0 )
+  if ( med_aspect_frobenius > 0 )
     return (double) VERDICT_MIN( med_aspect_frobenius, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( med_aspect_frobenius, -VERDICT_DBL_MAX );
 
@@ -1321,32 +1327,23 @@ C_FUNC_DEF double v_hex_max_aspect_frobenius( int /*num_nodes*/, double coordina
   VerdictVector node_pos[8];
   make_hex_nodes ( coordinates, node_pos );
 
-  double condition = 0.0, current_condition; 
   VerdictVector xxi, xet, xze;
 
-  xxi = calc_hex_efg(1, node_pos );
-  xet = calc_hex_efg(2, node_pos );
-  xze = calc_hex_efg(3, node_pos );
-
-  current_condition = condition_comp( xxi, xet, xze );
-  if ( current_condition > condition ) { condition = current_condition; }
-
-        // J(0,0,0):
+  // J(0,0,0):
 
   xxi = node_pos[1] - node_pos[0];
   xet = node_pos[3] - node_pos[0];
   xze = node_pos[4] - node_pos[0];
 
-  current_condition = condition_comp( xxi, xet, xze );
-  if ( current_condition > condition ) { condition = current_condition; }
+  double condition = condition_comp( xxi, xet, xze );
 
-        // J(1,0,0):
+  // J(1,0,0):
   
   xxi = node_pos[2] - node_pos[1];
   xet = node_pos[0] - node_pos[1];
   xze = node_pos[5] - node_pos[1];
 
-  current_condition = condition_comp( xxi, xet, xze );
+  double current_condition = condition_comp( xxi, xet, xze );
   if ( current_condition > condition ) { condition = current_condition; }
 
   // J(1,1,0):
@@ -1403,9 +1400,9 @@ C_FUNC_DEF double v_hex_max_aspect_frobenius( int /*num_nodes*/, double coordina
   current_condition = condition_comp( xxi, xet, xze );
   if ( current_condition > condition ) { condition = current_condition; }
 
-  condition /= 3.0;
+  condition /= 3.;
 
-  if( condition > 0 )
+  if ( condition > 0 )
     return (double) VERDICT_MIN( condition, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( condition, -VERDICT_DBL_MAX );
 
@@ -1519,7 +1516,7 @@ C_FUNC_DEF double v_hex_jacobian( int /*num_nodes*/, double coordinates[][3] )
   current_jacobian = xxi % (xet * xze);
   if ( current_jacobian < jacobian ) { jacobian = current_jacobian; }
 
-  if( jacobian > 0 )
+  if ( jacobian > 0 )
     return (double) VERDICT_MIN( jacobian, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( jacobian, -VERDICT_DBL_MAX );
 }
@@ -1546,20 +1543,20 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = calc_hex_efg(3, node_pos );
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi) { min_jacobi = jacobi; }
 
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
   
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else  
     temp_norm_jac = jacobi;
@@ -1571,19 +1568,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[4] - node_pos[0];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
 
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else  
     temp_norm_jac = jacobi;
@@ -1596,19 +1593,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[5] - node_pos[1];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else  
     temp_norm_jac = jacobi;
@@ -1620,19 +1617,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[6] - node_pos[2];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else  
     temp_norm_jac = jacobi;
@@ -1644,19 +1641,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[7] - node_pos[3];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else  
     temp_norm_jac = jacobi;
@@ -1668,19 +1665,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[0] - node_pos[4];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else 
     temp_norm_jac = jacobi;
@@ -1692,19 +1689,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[1] - node_pos[5];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else
     temp_norm_jac = jacobi;
@@ -1716,19 +1713,19 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[2] - node_pos[6];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else
     temp_norm_jac = jacobi;
@@ -1740,24 +1737,24 @@ C_FUNC_DEF double v_hex_scaled_jacobian( int /*num_nodes*/, double coordinates[]
   xze = node_pos[3] - node_pos[7];
 
   jacobi = xxi % ( xet * xze );
-  if( jacobi < min_jacobi ) { min_jacobi = jacobi; }
+  if ( jacobi < min_jacobi ) { min_jacobi = jacobi; }
   
   len1_sq = xxi.length_squared();
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return (double) VERDICT_DBL_MAX;
 
   lengths = sqrt( len1_sq * len2_sq * len3_sq );
   temp_norm_jac = jacobi / lengths;
-  if( temp_norm_jac < min_norm_jac)
+  if ( temp_norm_jac < min_norm_jac)
     min_norm_jac = temp_norm_jac;  
   else 
     temp_norm_jac = jacobi;
 
-  if( min_norm_jac> 0 )
+  if ( min_norm_jac> 0 )
     return (double) VERDICT_MIN( min_norm_jac, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( min_norm_jac, -VERDICT_DBL_MAX );
 }
@@ -1789,7 +1786,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1811,7 +1808,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1833,7 +1830,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1855,7 +1852,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1877,7 +1874,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1899,7 +1896,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1921,7 +1918,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1943,7 +1940,7 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   len2_sq = xet.length_squared();
   len3_sq = xze.length_squared();
 
-  if( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
+  if ( len1_sq <= VERDICT_DBL_MIN || len2_sq <= VERDICT_DBL_MIN ||
       len3_sq <= VERDICT_DBL_MIN)
     return 0;
 
@@ -1954,10 +1951,10 @@ C_FUNC_DEF double v_hex_shear( int /*num_nodes*/, double coordinates[][3] )
   shear = det / lengths; 
   min_shear = VERDICT_MIN( shear, min_shear );
 
-  if( min_shear <= VERDICT_DBL_MIN )
+  if ( min_shear <= VERDICT_DBL_MIN )
     min_shear = 0;
   
-  if( min_shear > 0 )
+  if ( min_shear > 0 )
     return (double) VERDICT_MIN( min_shear, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( min_shear, -VERDICT_DBL_MAX );
 }
@@ -1993,7 +1990,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(1,0,0):
@@ -2008,7 +2005,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(1,1,0):
@@ -2023,7 +2020,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(0,1,0):
@@ -2038,7 +2035,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(0,0,1):
@@ -2053,7 +2050,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(1,0,1):
@@ -2068,7 +2065,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(1,1,1):
@@ -2083,7 +2080,7 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
   
 
   // J(1,1,1):
@@ -2098,12 +2095,12 @@ C_FUNC_DEF double v_hex_shape( int /*num_nodes*/, double coordinates[][3] )
   else
     return 0;
   
-  if( shape < min_shape ) { min_shape = shape; }
+  if ( shape < min_shape ) { min_shape = shape; }
 
-  if( min_shape <= VERDICT_DBL_MIN )
+  if ( min_shape <= VERDICT_DBL_MIN )
     min_shape = 0;
 
-  if( min_shape > 0 )
+  if ( min_shape > 0 )
     return (double) VERDICT_MIN( min_shape, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( min_shape, -VERDICT_DBL_MAX );
 }
@@ -2211,7 +2208,7 @@ C_FUNC_DEF double v_hex_relative_size_squared( int /*num_nodes*/, double coordin
   det_sum += det;  
 
 
-  if( det_sum > VERDICT_DBL_MIN )
+  if ( det_sum > VERDICT_DBL_MIN )
   {
     tau = det_sum / ( 8*detw);
 
@@ -2220,7 +2217,7 @@ C_FUNC_DEF double v_hex_relative_size_squared( int /*num_nodes*/, double coordin
     size = tau*tau; 
   }
 
-  if( size > 0 )
+  if ( size > 0 )
     return (double) VERDICT_MIN( size, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( size, -VERDICT_DBL_MAX );
 }
@@ -2237,7 +2234,7 @@ C_FUNC_DEF double v_hex_shape_and_size( int num_nodes, double coordinates[][3] )
 
   double shape_size = size * shape;
 
-  if( shape_size > 0 )
+  if ( shape_size > 0 )
     return (double) VERDICT_MIN( shape_size, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( shape_size, -VERDICT_DBL_MAX );
 
@@ -2257,7 +2254,7 @@ C_FUNC_DEF double v_hex_shear_and_size( int num_nodes, double coordinates[][3] )
 
   double shear_size = shear * size; 
 
-  if( shear_size > 0 )
+  if ( shear_size > 0 )
     return (double) VERDICT_MIN( shear_size, VERDICT_DBL_MAX );
   return (double) VERDICT_MAX( shear_size, -VERDICT_DBL_MAX );
 
@@ -2373,10 +2370,10 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
 {
 
   //Define variables
-  int i;
+  int i; 
   
   double xxi[3], xet[3], xze[3];
-  double norm_jacobian = 0.0, current_norm_jac = 0.0;
+  double norm_jacobian = 0.0, current_norm_jac = 0.0; 
         double jacobian = 0.0, current_jacobian = 0.0;
   double oddy = 0.0, current_oddy = 0.0;  
   double condition = 0.0, current_condition = 0.0;
@@ -2390,7 +2387,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
           xze[i] = calc_hex_efg( 6, i, coordinates );
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze  );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2403,14 +2400,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2425,7 +2422,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   } 
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze  );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2436,14 +2433,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2458,7 +2455,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi,  xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2469,14 +2466,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2491,7 +2488,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2502,14 +2499,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2525,7 +2522,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
 
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2536,14 +2533,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2558,7 +2555,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }  
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2569,14 +2566,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2592,7 +2589,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
 
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2603,14 +2600,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2626,7 +2623,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
 
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2637,14 +2634,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2659,7 +2656,7 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // norm jacobian and jacobian
-  if( choices[0] || choices[1] )
+  if ( choices[0] || choices[1] )
   {
     current_jacobian = determinant( xxi, xet, xze );
     current_norm_jac = normalize_jacobian( current_jacobian,
@@ -2670,14 +2667,14 @@ C_FUNC_DEF double hex_jac_normjac_oddy_cond( int choices[],
   }
 
   // oddy 
-  if( choices[2] )
+  if ( choices[2] )
   {
     current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
   }
 
   // condition
-  if( choices[3] )
+  if ( choices[3] )
   {
     current_condition = condition_comp( xxi, xet, xze );
     if ( current_condition > condition ) { condition = current_condition; }
@@ -2705,7 +2702,7 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
   memset( metric_vals, 0, sizeof(HexMetricVals) );
 
   // max edge ratio, skew, taper, and volume
-  if(metrics_request_flag & (V_HEX_MAX_EDGE_RATIO | V_HEX_SKEW | V_HEX_TAPER ) ) 
+  if (metrics_request_flag & (V_HEX_MAX_EDGE_RATIO | V_HEX_SKEW | V_HEX_TAPER ) ) 
   {
     VerdictVector node_pos[8];
     make_hex_nodes ( coordinates, node_pos );
@@ -2715,7 +2712,7 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     efg2 = calc_hex_efg( 2, node_pos);
     efg3 = calc_hex_efg( 3, node_pos);
 
-    if(metrics_request_flag & V_HEX_MAX_EDGE_RATIO)
+    if (metrics_request_flag & V_HEX_MAX_EDGE_RATIO)
     {
       double max_edge_ratio_12, max_edge_ratio_13, max_edge_ratio_23;
 
@@ -2730,14 +2727,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
       metric_vals->max_edge_ratio = (double)VERDICT_MAX( max_edge_ratio_12, VERDICT_MAX( max_edge_ratio_13, max_edge_ratio_23 ) );
     }
     
-    if(metrics_request_flag & V_HEX_SKEW)
+    if (metrics_request_flag & V_HEX_SKEW)
     {
       
       VerdictVector vec1 = efg1;
       VerdictVector vec2 = efg2;
       VerdictVector vec3 = efg3;
 
-      if( vec1.normalize() <= VERDICT_DBL_MIN ||
+      if ( vec1.normalize() <= VERDICT_DBL_MIN ||
           vec2.normalize() <= VERDICT_DBL_MIN ||
           vec3.normalize() <= VERDICT_DBL_MIN  )
       {
@@ -2753,7 +2750,7 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
       }
     }
   
-    if(metrics_request_flag & V_HEX_TAPER)
+    if (metrics_request_flag & V_HEX_TAPER)
     {
       VerdictVector efg12 = calc_hex_efg( 12, node_pos);
       VerdictVector efg13 = calc_hex_efg( 13, node_pos);
@@ -2767,15 +2764,21 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     }
   }
   
-  if(metrics_request_flag & V_HEX_VOLUME)
+  if (metrics_request_flag & V_HEX_VOLUME)
   {
     metric_vals->volume = v_hex_volume(8, coordinates ); 
   }
 
-  if(metrics_request_flag & ( V_HEX_JACOBIAN | V_HEX_SCALED_JACOBIAN | 
-        V_HEX_CONDITION |V_HEX_SHEAR | V_HEX_SHAPE | V_HEX_RELATIVE_SIZE_SQUARED 
-        | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE |
-        V_HEX_STRETCH ))
+  if (metrics_request_flag & ( V_HEX_JACOBIAN | 
+                              V_HEX_SCALED_JACOBIAN | 
+                              V_HEX_MED_ASPECT_FROBENIUS |
+                              V_HEX_MAX_ASPECT_FROBENIUS |
+                              V_HEX_SHEAR | 
+                              V_HEX_SHAPE | 
+                              V_HEX_RELATIVE_SIZE_SQUARED |
+                              V_HEX_SHAPE_AND_SIZE |
+                              V_HEX_SHEAR_AND_SIZE |
+                              V_HEX_STRETCH ))
   {
 
     static const double two_thirds = 2.0/3.0;
@@ -2786,12 +2789,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     make_hex_edges(coordinates, edges);
 
     // calculate the length squares if we need to
-    if(metrics_request_flag & ( V_HEX_JACOBIAN | V_HEX_SHEAR | V_HEX_SCALED_JACOBIAN | V_HEX_SHAPE | 
+    if (metrics_request_flag & ( V_HEX_JACOBIAN | V_HEX_SHEAR | V_HEX_SCALED_JACOBIAN | V_HEX_SHAPE | 
           V_HEX_SHAPE_AND_SIZE | V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHEAR_AND_SIZE | V_HEX_STRETCH))
       make_edge_length_squares(edges, length_squared);
 
-    double jacobian = VERDICT_DBL_MAX, scaled_jacobian = VERDICT_DBL_MAX,
-      condition = 0.0, shear=1.0, shape=1.0, oddy = 0.0;
+    double jacobian = VERDICT_DBL_MAX, scaled_jacobian = VERDICT_DBL_MAX;
+    double med_aspect_frobenius = 0.;
+    double max_aspect_frobenius = 0.;
+    double shear=1.0, shape=1.0, oddy = 0.0;
     double current_jacobian, current_scaled_jacobian, current_condition, current_shape,
       detw=0, det_sum=0, current_oddy;
     VerdictBoolean rel_size_error = VERDICT_FALSE;
@@ -2799,11 +2804,11 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     VerdictVector xxi, xet, xze;
 
     // get weights if we need based on average size of a hex
-    if(metrics_request_flag & (V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & (V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       v_hex_get_weight(xxi, xet, xze);
       detw = xxi % (xet * xze);
-      if(detw < VERDICT_DBL_MIN)
+      if (detw < VERDICT_DBL_MIN)
         rel_size_error = VERDICT_TRUE;
     }
 
@@ -2816,22 +2821,16 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
       jacobian = current_jacobian;
 
 
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
       current_jacobian *= 64.0;
       current_scaled_jacobian = current_jacobian / 
         sqrt(xxi.length_squared() * xet.length_squared() * xze.length_squared());
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
 
-    if(metrics_request_flag & V_HEX_CONDITION)
-    {
-      current_condition = condition_comp( xxi, xet, xze );
-      if ( current_condition > condition ) { condition = current_condition; }
-    }
-
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( xxi, xet, xze );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
@@ -2843,14 +2842,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
 
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[0] <= VERDICT_DBL_MIN || length_squared[3] <= VERDICT_DBL_MIN
+      if (length_squared[0] <= VERDICT_DBL_MIN || length_squared[3] <= VERDICT_DBL_MIN
          || length_squared[8] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -2860,31 +2859,33 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[0] * length_squared[3] * length_squared[8]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
 
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( edges[0], -edges[3], edges[8] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      // First computation of the current_condition: no need to += nor to check if > max
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius = current_condition; }
+      if ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) { max_aspect_frobenius = current_condition; }
     }
 
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( edges[0], -edges[3], edges[8] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[0] + length_squared[3] + length_squared[8]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -2893,14 +2894,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[1] <= VERDICT_DBL_MIN || length_squared[0] <= VERDICT_DBL_MIN
+      if (length_squared[1] <= VERDICT_DBL_MIN || length_squared[0] <= VERDICT_DBL_MIN
          || length_squared[9] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -2910,31 +2911,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[1] * length_squared[0] * length_squared[9]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
 
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( edges[1], -edges[0], edges[9] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
 
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( edges[1], -edges[0], edges[9] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
     
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[1] + length_squared[0] + length_squared[9]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -2943,14 +2945,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[2] <= VERDICT_DBL_MIN || length_squared[1] <= VERDICT_DBL_MIN
+      if (length_squared[2] <= VERDICT_DBL_MIN || length_squared[1] <= VERDICT_DBL_MIN
          || length_squared[10] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -2960,31 +2962,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[2] * length_squared[1] * length_squared[10]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
     
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( edges[2], -edges[1], edges[10] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( edges[2], -edges[1], edges[10] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[2] + length_squared[1] + length_squared[10]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -2994,14 +2997,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[3] <= VERDICT_DBL_MIN || length_squared[2] <= VERDICT_DBL_MIN
+      if (length_squared[3] <= VERDICT_DBL_MIN || length_squared[2] <= VERDICT_DBL_MIN
          || length_squared[11] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -3011,31 +3014,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[3] * length_squared[2] * length_squared[11]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
 
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( edges[3], -edges[2], edges[11] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( edges[3], -edges[2], edges[11] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[3] + length_squared[2] + length_squared[11]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -3044,14 +3048,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[4] <= VERDICT_DBL_MIN || length_squared[8] <= VERDICT_DBL_MIN
+      if (length_squared[4] <= VERDICT_DBL_MIN || length_squared[8] <= VERDICT_DBL_MIN
          || length_squared[7] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -3061,31 +3065,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[4] * length_squared[8] * length_squared[7]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
 
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( edges[4], -edges[8], -edges[7] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( edges[4], -edges[8], -edges[7] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[4] + length_squared[8] + length_squared[7]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -3094,14 +3099,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[4] <= VERDICT_DBL_MIN || length_squared[5] <= VERDICT_DBL_MIN
+      if (length_squared[4] <= VERDICT_DBL_MIN || length_squared[5] <= VERDICT_DBL_MIN
          || length_squared[9] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -3111,31 +3116,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[4] * length_squared[5] * length_squared[9]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
     
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( -edges[4], edges[5], -edges[9] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( -edges[4], edges[5], -edges[9] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[4] + length_squared[5] + length_squared[9]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -3144,14 +3150,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[5] <= VERDICT_DBL_MIN || length_squared[6] <= VERDICT_DBL_MIN
+      if (length_squared[5] <= VERDICT_DBL_MIN || length_squared[6] <= VERDICT_DBL_MIN
          || length_squared[10] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -3161,31 +3167,32 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[5] * length_squared[6] * length_squared[10]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
     
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( -edges[5], edges[6], -edges[10] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( -edges[5], edges[6], -edges[10] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[5] + length_squared[6] + length_squared[10]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
@@ -3194,14 +3201,14 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     if ( current_jacobian < jacobian )
       jacobian = current_jacobian;
     
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
       det_sum += current_jacobian;
     }
     
-    if(metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SCALED_JACOBIAN | V_HEX_SHEAR | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(length_squared[6] <= VERDICT_DBL_MIN || length_squared[7] <= VERDICT_DBL_MIN
+      if (length_squared[6] <= VERDICT_DBL_MIN || length_squared[7] <= VERDICT_DBL_MIN
          || length_squared[11] <= VERDICT_DBL_MIN)
       {
         current_scaled_jacobian = VERDICT_DBL_MAX;
@@ -3211,37 +3218,38 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
         current_scaled_jacobian = current_jacobian / 
           sqrt(length_squared[6] * length_squared[7] * length_squared[11]);
       }
-      if(current_scaled_jacobian < scaled_jacobian)
+      if (current_scaled_jacobian < scaled_jacobian)
         shear = scaled_jacobian = current_scaled_jacobian;
     }
     
-    if(metrics_request_flag & V_HEX_CONDITION)
+    if ( metrics_request_flag & ( V_HEX_MAX_ASPECT_FROBENIUS | V_HEX_MED_ASPECT_FROBENIUS ) )
     {
       current_condition = condition_comp( -edges[6], edges[7], -edges[11] );
-      if ( current_condition > condition ) { condition = current_condition; }
+      if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS ) { med_aspect_frobenius += current_condition; }
+      if ( ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS ) && ( current_condition > max_aspect_frobenius ) ) { max_aspect_frobenius = current_condition; }
     }
     
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
     {
       current_oddy = oddy_comp( -edges[6], edges[7], -edges[11] );
       if ( current_oddy > oddy ) { oddy = current_oddy; }
     }
 
-    if(metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_SHAPE | V_HEX_SHAPE_AND_SIZE ))
     {
-      if(current_jacobian > VERDICT_DBL_MIN)
+      if (current_jacobian > VERDICT_DBL_MIN)
         current_shape = 3 * pow( current_jacobian, two_thirds) / 
           (length_squared[6] + length_squared[7] + length_squared[11]);
       else
         current_shape = 0;
 
-      if(current_shape < shape) { shape = current_shape; }
+      if (current_shape < shape) { shape = current_shape; }
 
     }
 
-    if(metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
+    if (metrics_request_flag & ( V_HEX_RELATIVE_SIZE_SQUARED | V_HEX_SHAPE_AND_SIZE | V_HEX_SHEAR_AND_SIZE ))
     {
-      if(det_sum > VERDICT_DBL_MIN && rel_size_error != VERDICT_TRUE)
+      if (det_sum > VERDICT_DBL_MIN && rel_size_error != VERDICT_TRUE)
       {
         double tau = det_sum / ( 8 * detw );
         metric_vals->relative_size_squared = (double)VERDICT_MIN( tau*tau, 1.0/tau/tau);
@@ -3251,35 +3259,38 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
     }
 
     // set values from above calculations
-    if(metrics_request_flag & V_HEX_JACOBIAN)
+    if (metrics_request_flag & V_HEX_JACOBIAN)
       metric_vals->jacobian = (double)jacobian;
 
-    if(metrics_request_flag & V_HEX_SCALED_JACOBIAN)
+    if (metrics_request_flag & V_HEX_SCALED_JACOBIAN)
       metric_vals->scaled_jacobian = (double)scaled_jacobian;
 
-    if(metrics_request_flag & V_HEX_CONDITION)
-      metric_vals->condition = (double)(condition/3.0);
+    if ( metrics_request_flag & V_HEX_MED_ASPECT_FROBENIUS )
+      metric_vals->med_aspect_frobenius = (double)( med_aspect_frobenius / 24. );
 
-    if(metrics_request_flag & V_HEX_SHEAR)
+    if ( metrics_request_flag & V_HEX_MAX_ASPECT_FROBENIUS )
+      metric_vals->condition = metric_vals->max_aspect_frobenius = (double)( max_aspect_frobenius / 3. );
+
+    if (metrics_request_flag & V_HEX_SHEAR)
     {
-      if( shear < VERDICT_DBL_MIN )  //shear has range 0 to +1
+      if ( shear < VERDICT_DBL_MIN )  //shear has range 0 to +1
         shear = 0;
       metric_vals->shear = (double)shear;
     }
 
-    if(metrics_request_flag & V_HEX_SHAPE)
+    if (metrics_request_flag & V_HEX_SHAPE)
       metric_vals->shape = (double)shape; 
   
-    if(metrics_request_flag & V_HEX_SHAPE_AND_SIZE)
+    if (metrics_request_flag & V_HEX_SHAPE_AND_SIZE)
       metric_vals->shape_and_size = (double)(shape * metric_vals->relative_size_squared);
   
-    if(metrics_request_flag & V_HEX_SHEAR_AND_SIZE)
+    if (metrics_request_flag & V_HEX_SHEAR_AND_SIZE)
       metric_vals->shear_and_size = (double)(shear * metric_vals->relative_size_squared);
   
-    if(metrics_request_flag & V_HEX_ODDY)
+    if (metrics_request_flag & V_HEX_ODDY)
       metric_vals->oddy = (double)oddy;
 
-    if(metrics_request_flag & V_HEX_STRETCH)
+    if (metrics_request_flag & V_HEX_STRETCH)
     {
       static const double HEX_STRETCH_SCALE_FACTOR = sqrt(3.0);
       double min_edge=length_squared[0];
@@ -3293,112 +3304,112 @@ C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3],
   }
 
 
-  if(metrics_request_flag & V_HEX_DIAGONAL)
+  if (metrics_request_flag & V_HEX_DIAGONAL)
     metric_vals->diagonal = v_hex_diagonal(num_nodes, coordinates);
-  if(metrics_request_flag & V_HEX_DIMENSION)
+  if (metrics_request_flag & V_HEX_DIMENSION)
     metric_vals->dimension = v_hex_dimension(num_nodes, coordinates);
-  if(metrics_request_flag & V_HEX_DISTORTION)
+  if (metrics_request_flag & V_HEX_DISTORTION)
                 metric_vals->distortion = v_hex_distortion(num_nodes, coordinates);
 
   
   //take care of any overflow problems
   //max_edge_ratio
-  if( metric_vals->max_edge_ratio > 0 )
+  if ( metric_vals->max_edge_ratio > 0 )
     metric_vals->max_edge_ratio = (double) VERDICT_MIN( metric_vals->max_edge_ratio, VERDICT_DBL_MAX );
   else
     metric_vals->max_edge_ratio = (double) VERDICT_MAX( metric_vals->max_edge_ratio, -VERDICT_DBL_MAX );
 
   //skew
-  if( metric_vals->skew > 0 )
+  if ( metric_vals->skew > 0 )
     metric_vals->skew = (double) VERDICT_MIN( metric_vals->skew, VERDICT_DBL_MAX );
   else
     metric_vals->skew = (double) VERDICT_MAX( metric_vals->skew, -VERDICT_DBL_MAX );
 
   //taper
-  if( metric_vals->taper > 0 )
+  if ( metric_vals->taper > 0 )
     metric_vals->taper = (double) VERDICT_MIN( metric_vals->taper, VERDICT_DBL_MAX );
   else
     metric_vals->taper = (double) VERDICT_MAX( metric_vals->taper, -VERDICT_DBL_MAX );
 
   //volume
-  if( metric_vals->volume > 0 )
+  if ( metric_vals->volume > 0 )
     metric_vals->volume = (double) VERDICT_MIN( metric_vals->volume, VERDICT_DBL_MAX );
   else
     metric_vals->volume = (double) VERDICT_MAX( metric_vals->volume, -VERDICT_DBL_MAX );
 
   //stretch
-  if( metric_vals->stretch > 0 )
+  if ( metric_vals->stretch > 0 )
     metric_vals->stretch = (double) VERDICT_MIN( metric_vals->stretch, VERDICT_DBL_MAX );
   else
     metric_vals->stretch = (double) VERDICT_MAX( metric_vals->stretch, -VERDICT_DBL_MAX );
 
   //diagonal
-  if( metric_vals->diagonal > 0 )
+  if ( metric_vals->diagonal > 0 )
     metric_vals->diagonal = (double) VERDICT_MIN( metric_vals->diagonal, VERDICT_DBL_MAX );
   else
     metric_vals->diagonal = (double) VERDICT_MAX( metric_vals->diagonal, -VERDICT_DBL_MAX );
 
   //dimension
-  if( metric_vals->dimension > 0 )
+  if ( metric_vals->dimension > 0 )
     metric_vals->dimension = (double) VERDICT_MIN( metric_vals->dimension, VERDICT_DBL_MAX );
   else
     metric_vals->dimension = (double) VERDICT_MAX( metric_vals->dimension, -VERDICT_DBL_MAX );
 
   //oddy
-  if( metric_vals->oddy > 0 )
+  if ( metric_vals->oddy > 0 )
     metric_vals->oddy = (double) VERDICT_MIN( metric_vals->oddy, VERDICT_DBL_MAX );
   else
     metric_vals->oddy = (double) VERDICT_MAX( metric_vals->oddy, -VERDICT_DBL_MAX );
 
   //condition
-  if( metric_vals->condition > 0 )
+  if ( metric_vals->condition > 0 )
     metric_vals->condition = (double) VERDICT_MIN( metric_vals->condition, VERDICT_DBL_MAX );
   else
     metric_vals->condition = (double) VERDICT_MAX( metric_vals->condition, -VERDICT_DBL_MAX );
 
   //jacobian
-  if( metric_vals->jacobian > 0 )
+  if ( metric_vals->jacobian > 0 )
     metric_vals->jacobian = (double) VERDICT_MIN( metric_vals->jacobian, VERDICT_DBL_MAX );
   else
     metric_vals->jacobian = (double) VERDICT_MAX( metric_vals->jacobian, -VERDICT_DBL_MAX );
 
   //scaled_jacobian
-  if( metric_vals->scaled_jacobian > 0 )
+  if ( metric_vals->scaled_jacobian > 0 )
     metric_vals->scaled_jacobian = (double) VERDICT_MIN( metric_vals->scaled_jacobian, VERDICT_DBL_MAX );
   else
     metric_vals->scaled_jacobian = (double) VERDICT_MAX( metric_vals->scaled_jacobian, -VERDICT_DBL_MAX );
 
   //shear
-  if( metric_vals->shear > 0 )
+  if ( metric_vals->shear > 0 )
     metric_vals->shear = (double) VERDICT_MIN( metric_vals->shear, VERDICT_DBL_MAX );
   else
     metric_vals->shear = (double) VERDICT_MAX( metric_vals->shear, -VERDICT_DBL_MAX );
 
   //shape
-  if( metric_vals->shape > 0 )
+  if ( metric_vals->shape > 0 )
     metric_vals->shape = (double) VERDICT_MIN( metric_vals->shape, VERDICT_DBL_MAX );
   else
     metric_vals->shape = (double) VERDICT_MAX( metric_vals->shape, -VERDICT_DBL_MAX );
 
   //relative_size_squared
-  if( metric_vals->relative_size_squared > 0 )
+  if ( metric_vals->relative_size_squared > 0 )
     metric_vals->relative_size_squared = (double) VERDICT_MIN( metric_vals->relative_size_squared, VERDICT_DBL_MAX );
   else
     metric_vals->relative_size_squared = (double) VERDICT_MAX( metric_vals->relative_size_squared, -VERDICT_DBL_MAX );
 
   //shape_and_size
-  if( metric_vals->shape_and_size > 0 )
+  if ( metric_vals->shape_and_size > 0 )
     metric_vals->shape_and_size = (double) VERDICT_MIN( metric_vals->shape_and_size, VERDICT_DBL_MAX );
   else
     metric_vals->shape_and_size = (double) VERDICT_MAX( metric_vals->shape_and_size, -VERDICT_DBL_MAX );
 
   //shear_and_size
-  if( metric_vals->shear_and_size > 0 ) metric_vals->shear_and_size = (double) VERDICT_MIN( metric_vals->shear_and_size, VERDICT_DBL_MAX );
+  if ( metric_vals->shear_and_size > 0 ) metric_vals->shear_and_size = (double) VERDICT_MIN( metric_vals->shear_and_size, VERDICT_DBL_MAX );
   else
     metric_vals->shear_and_size = (double) VERDICT_MAX( metric_vals->shear_and_size, -VERDICT_DBL_MAX );
   
   //distortion
-  if( metric_vals->distortion > 0 )
+  if ( metric_vals->distortion > 0 )
     metric_vals->distortion = (double) VERDICT_MIN( metric_vals->distortion, VERDICT_DBL_MAX );
   else
     metric_vals->distortion = (double) VERDICT_MAX( metric_vals->distortion, -VERDICT_DBL_MAX );
