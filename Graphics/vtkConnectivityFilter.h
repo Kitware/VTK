@@ -172,6 +172,7 @@ private:
   vtkIdType *Visited;
   vtkIdType *PointMap;
   vtkIdTypeArray *NewScalars;
+  vtkIdTypeArray *NewCellScalars;
   vtkIdType RegionNumber;
   vtkIdType PointNumber;    
   vtkIdType NumCellsInRegion;
