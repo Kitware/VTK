@@ -21,21 +21,21 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.72");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.73");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
 vtkConnectivityFilter::vtkConnectivityFilter()
 {
-  this->RegionSizes = vtkIntArray::New();
+  this->RegionSizes = vtkIdTypeArray::New();
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
 
@@ -128,7 +128,7 @@ int vtkConnectivityFilter::RequestData(
     this->PointMap[i] = -1;
     }
 
-  this->NewScalars = vtkFloatArray::New();
+  this->NewScalars = vtkIdTypeArray::New();
   this->NewScalars->SetNumberOfTuples(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
@@ -372,7 +372,7 @@ int vtkConnectivityFilter::RequestData(
 //
 void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
 {
-  int i, j, k, cellId, numIds, ptId, numPts, numCells;
+  vtkIdType i, j, k, cellId, numIds, ptId, numPts, numCells;
   vtkIdList *tmpWave;
 
   while ( (numIds=this->Wave->GetNumberOfIds()) > 0 )
@@ -392,8 +392,8 @@ void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
           if ( this->PointMap[ptId=this->PointIds->GetId(j)] < 0 )
             {
             this->PointMap[ptId] = this->PointNumber++;
-            this->NewScalars->SetComponent(this->PointMap[ptId], 0,
-                                           this->RegionNumber);
+            this->NewScalars->SetValue(this->PointMap[ptId],
+                                       this->RegionNumber);
             }
 
           input->GetPointCells(ptId,this->CellIds);

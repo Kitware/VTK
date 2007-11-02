@@ -59,6 +59,7 @@
 class vtkDataArray;
 class vtkFloatArray;
 class vtkIdList;
+class vtkIdTypeArray;
 class vtkIntArray;
 
 class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAlgorithm
@@ -155,7 +156,7 @@ protected:
   int ExtractionMode; //how to extract regions
   vtkIdList *Seeds; //id's of points or cells used to seed regions
   vtkIdList *SpecifiedRegionIds; //regions specified for extraction
-  vtkIntArray *RegionSizes; //size (in cells) of each region extracted
+  vtkIdTypeArray *RegionSizes; //size (in cells) of each region extracted
 
   double ClosestPoint[3];
 
@@ -170,10 +171,10 @@ private:
   vtkIdList *NeighborCellPointIds;
   vtkIdType *Visited;
   vtkIdType *PointMap;
-  vtkFloatArray *NewScalars;
-  int RegionNumber;
+  vtkIdTypeArray *NewScalars;
+  vtkIdType RegionNumber;
   vtkIdType PointNumber;    
-  int NumCellsInRegion;
+  vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
   vtkIdList *Wave;
   vtkIdList *Wave2;

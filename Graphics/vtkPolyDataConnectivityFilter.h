@@ -161,10 +161,10 @@ private:
   // used to support algorithm execution
   vtkDataArray *CellScalars;
   vtkIdList *NeighborCellPointIds;
-  int *Visited;
+  vtkIdType *Visited;
   vtkIdType *PointMap;
   vtkDataArray *NewScalars;
-  int RegionNumber;
+  vtkIdType RegionNumber;
   vtkIdType PointNumber;    
   vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
