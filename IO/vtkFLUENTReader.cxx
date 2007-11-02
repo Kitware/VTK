@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.14");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.15");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -211,6 +211,8 @@ vtkFLUENTReader::~vtkFLUENTReader()
   delete this->FluentDataFile;
 
   this->CellDataArraySelection->Delete();
+
+  delete[] this->FileName;
 }
 
 //----------------------------------------------------------------------------
