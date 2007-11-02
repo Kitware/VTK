@@ -721,7 +721,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.39.2.1");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.39.2.2");
 
 
 
@@ -1674,7 +1674,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.39.2.1");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.39.2.2");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -4218,18 +4218,18 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
     { binfo.CellType=VTK_QUADRATIC_EDGE;           binfo.PointsPerCell = 3; }
 
   // Check for regular elements
-  else if ((elemType.substr(0,3) == "CIR")) { binfo.CellType = VTK_VERTEX;     binfo.PointsPerCell = 1; }
-  else if ((elemType.substr(0,3) == "SPH")) { binfo.CellType = VTK_VERTEX;     binfo.PointsPerCell = 1; }
-  else if ((elemType.substr(0,3) == "BAR")) { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
-  else if ((elemType.substr(0,3) == "TRU")) { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
-  else if ((elemType.substr(0,3) == "BEA")) { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
-  else if ((elemType.substr(0,3) == "EDG")) { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
-  else if ((elemType.substr(0,3) == "TRI")) { binfo.CellType = VTK_TRIANGLE;   binfo.PointsPerCell = 3; }
-  else if ((elemType.substr(0,3) == "QUA")) { binfo.CellType = VTK_QUAD;       binfo.PointsPerCell = 4; }
-  else if ((elemType.substr(0,3) == "TET")) { binfo.CellType = VTK_TETRA;      binfo.PointsPerCell = 4; }
-  else if ((elemType.substr(0,3) == "PYR")) { binfo.CellType = VTK_PYRAMID;    binfo.PointsPerCell = 5; }
-  else if ((elemType.substr(0,3) == "WED")) { binfo.CellType = VTK_WEDGE;      binfo.PointsPerCell = 6; }
-  else if ((elemType.substr(0,3) == "HEX")) { binfo.CellType = VTK_HEXAHEDRON; binfo.PointsPerCell = 8; }
+  else if (elemType.substr(0,3) == "CIR") { binfo.CellType = VTK_VERTEX;     binfo.PointsPerCell = 1; }
+  else if (elemType.substr(0,3) == "SPH") { binfo.CellType = VTK_VERTEX;     binfo.PointsPerCell = 1; }
+  else if (elemType.substr(0,3) == "BAR") { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
+  else if (elemType.substr(0,3) == "TRU") { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
+  else if (elemType.substr(0,3) == "BEA") { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
+  else if (elemType.substr(0,3) == "EDG") { binfo.CellType = VTK_LINE;       binfo.PointsPerCell = 2; }
+  else if (elemType.substr(0,3) == "TRI") { binfo.CellType = VTK_TRIANGLE;   binfo.PointsPerCell = 3; }
+  else if (elemType.substr(0,3) == "QUA") { binfo.CellType = VTK_QUAD;       binfo.PointsPerCell = 4; }
+  else if (elemType.substr(0,3) == "TET") { binfo.CellType = VTK_TETRA;      binfo.PointsPerCell = 4; }
+  else if (elemType.substr(0,3) == "PYR") { binfo.CellType = VTK_PYRAMID;    binfo.PointsPerCell = 5; }
+  else if (elemType.substr(0,3) == "WED") { binfo.CellType = VTK_WEDGE;      binfo.PointsPerCell = 6; }
+  else if (elemType.substr(0,3) == "HEX") { binfo.CellType = VTK_HEXAHEDRON; binfo.PointsPerCell = 8; }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 3))
     { binfo.CellType = VTK_TRIANGLE;           binfo.PointsPerCell = 3; }
   else if ((elemType.substr(0,3) == "SHE") && (binfo.BdsPerEntry[0] == 4))
@@ -4239,6 +4239,11 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
   else if ((elemType.substr(0,8) == "NULL") && (binfo.Size == 0))
     {
     (void)binfo; // silently ignore empty element blocks
+    }
+  else if (elemType.substr(0,3) == "SUP")
+    {
+    binfo.CellType=VTK_POLY_VERTEX;
+    binfo.PointsPerCell = binfo.BdsPerEntry[0];
     }
   else
     {
@@ -5901,7 +5906,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.39.2.1");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.39.2.2");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5942,7 +5947,7 @@ int vtkExodusIIReader::CanReadFile( const char* fname )
   int appWordSize = 8;
   int diskWordSize = 8;
   float version;
-  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) == 0 )
+  if ( (exoid = ex_open( fname, EX_READ, &appWordSize, &diskWordSize, &version )) < 0 )
     {
     return 0;
     }
