@@ -16,6 +16,7 @@ IF(VTK_USE_DISPLAY)
     TestLODActor.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
+    TestOSConeCxx.cxx
     TestTextureRGBA.cxx
     TestTextureRGBADepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
