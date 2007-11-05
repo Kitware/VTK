@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.76");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.77");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -539,8 +539,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         else if(isATIRadeon9600XT)
           {
-          // The Mac OS X 10.4.9 and 10.4.10 versions of the ATI driver, known not to work
-          if(strstr(gl_version, "1.5 ATI-1.4.18"))
+          // The Mac OS X 10.4.9, 10.4.10, 10.5.0
+          // versions of the ATI driver, known not to work
+          if(strstr(gl_version, "1.5 ATI-1.4.18") ||
+             strstr(gl_version, "2.0 ATI-1.5.16"))
             {
             this->DepthPeelingIsSupported = 0;
             }
@@ -554,12 +556,12 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           }
         else if(isATIRadeonX1600 || isATIRadeonX1900)
           {
-          // The Mac OS X 10.4.8 version of the ATI driver, known not to work
-          // The Mac OS X 10.4.9 version of the ATI driver, known not to work
-          // The Mac OS X 10.4.10 version of the ATI driver, known not to work
+          // The Mac OS X 10.4.8, 10.4.9, 10.4.10, 10.5.0
+          // versions of the ATI driver, known not to work
           if(strstr(gl_version, "2.0 ATI-1.4.40") ||
              strstr(gl_version, "2.0 ATI-1.4.52") ||
-             strstr(gl_version, "2.0 ATI-1.4.56"))
+             strstr(gl_version, "2.0 ATI-1.4.56") ||
+             strstr(gl_version, "2.0 ATI-1.5.16"))
             {
             this->DepthPeelingIsSupported = 0;
             }
