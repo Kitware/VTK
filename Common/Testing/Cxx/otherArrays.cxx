@@ -123,7 +123,7 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     }
 
   strm << "\tvtkDataArray::GetTuple(i, double *tuple)...";
-  ((vtkDataArray*)ptr)->GetTuple (4, tuple3);
+  static_cast<vtkDataArray*>(ptr)->GetTuple (4, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {

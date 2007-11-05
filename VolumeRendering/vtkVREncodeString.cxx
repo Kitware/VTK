@@ -45,7 +45,7 @@ public:
         }
       else if ( ch != '\r' )
         {
-        this->Stream << (unsigned char)ch;
+        this->Stream << static_cast<unsigned char>(ch);
         }
       }
     this->Stream << "\\n\";" << endl;

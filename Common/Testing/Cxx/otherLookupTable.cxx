@@ -42,9 +42,9 @@ void TestOLT(vtkLookupTable *lut1)
   unsigned char output[4*1024];
 
   int bitA = 1;
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_BIT, 
+  lut1->MapScalarsThroughTable2(&bitA, output, VTK_BIT, 
                                 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 
+  lut1->MapScalarsThroughTable2(&bitA, output, VTK_CHAR, 
                                 2, 1, VTK_RGB);
   lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 
                                 2, 1, VTK_LUMINANCE_ALPHA);
