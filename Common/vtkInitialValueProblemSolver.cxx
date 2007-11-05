@@ -16,7 +16,7 @@
 
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.10");
+vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.11");
 
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
 {
@@ -62,20 +62,12 @@ void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Function set : " << this->FunctionSet << endl;
   os << indent << "Function values : " << this->Vals << endl;
   os << indent << "Function derivatives: " << this->Derivs << endl;
-  os << indent << "Initialized: ";
-  if (this->Initialized)
-    {
-    os << "yes." << endl;
-    }
-  else
-    { 
-    os << "no." << endl;
-    }
+  os << indent << "Initialized: " << (this->Initialized ? "Yes" : "No") << endl;
 }
 
 void vtkInitialValueProblemSolver::Initialize()
 {
-  if (!FunctionSet || this->Initialized)
+  if (!this->FunctionSet || this->Initialized)
     {
     return;
     }
@@ -85,3 +77,4 @@ void vtkInitialValueProblemSolver::Initialize()
     new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;
 }
+
