@@ -19,6 +19,8 @@ IF(VTK_USE_DISPLAY)
     TestOSConeCxx.cxx
     TestTextureRGBA.cxx
     TestTextureRGBADepthPeeling.cxx
+    TestTextActorAlphaBlending.cxx
+    TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
     TestTranslucentImageActorAlphaBlending.cxx
