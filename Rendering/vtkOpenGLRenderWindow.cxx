@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.87");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.87.10.1");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1550,15 +1550,19 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     else
       {
       result=1;
-      // Set up the depth render buffer
-      vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
-                                 depthRenderBufferObject);
-      vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
-                                    vtkgl::DEPTH_COMPONENT24,width,height);
-      vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                        vtkgl::DEPTH_ATTACHMENT_EXT,
-                                        vtkgl::RENDERBUFFER_EXT,
-                                        depthRenderBufferObject);
+
+      // Set up the depth (and stencil), render buffer
+      vtkgl::BindRenderbufferEXT(
+        vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
+      vtkgl::RenderbufferStorageEXT(
+        vtkgl::RENDERBUFFER_EXT, vtkgl::DEPTH_STENCIL_EXT, width,height);
+      vtkgl::FramebufferRenderbufferEXT(
+        vtkgl::FRAMEBUFFER_EXT,
+        vtkgl::DEPTH_ATTACHMENT_EXT, vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
+      vtkgl::FramebufferRenderbufferEXT(
+        vtkgl::FRAMEBUFFER_EXT, 
+        vtkgl::STENCIL_ATTACHMENT_EXT, vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
+
       this->BackLeftBuffer=
         static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
       this->FrontLeftBuffer=
