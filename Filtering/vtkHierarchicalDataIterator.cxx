@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMultiGroupDataInformation.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataIterator, "1.4.50.1");
+vtkCxxRevisionMacro(vtkHierarchicalDataIterator, "1.4.50.2");
 vtkStandardNewMacro(vtkHierarchicalDataIterator);
 
 //----------------------------------------------------------------------------
@@ -27,6 +27,7 @@ class vtkHierarchicalDataIterator::vtkInternal
 public:
   unsigned int CurIndex;
   unsigned int CurLevel;
+  bool AscendingLevels;
   vtkInternal()
     {
     this->Clear();
@@ -36,6 +37,51 @@ public:
     {
     this->CurLevel = VTK_UNSIGNED_INT_MAX;
     this->CurIndex = VTK_UNSIGNED_INT_MAX;
+    }
+
+  // NOTE: Not safe to call this method when IsDoneWithTraversal returns true.
+  bool IsCurrentDataSetEmpty(vtkHierarchicalDataSet* hDS)
+    {
+    return (hDS->GetDataSet(this->CurLevel, this->CurIndex) ==0);
+    }
+
+  // NOTE: Not safe to call this method when IsDoneWithTraversal returns true.
+  void Next(vtkHierarchicalDataSet* hDS)
+    {
+    do
+      {
+      this->CurIndex++;
+      if (this->CurIndex >= hDS->GetNumberOfDataSets(this->CurLevel))
+        {
+        // Reached end of current level. Go to next level.
+        this->NextLevel();
+        }
+      } while (!this->Done(hDS) && this->IsCurrentDataSetEmpty(hDS));
+    if (this->Done(hDS))
+      {
+      this->Clear();
+      }
+    }
+
+  bool Done(vtkHierarchicalDataSet* hDS)
+    {
+    unsigned int numLevels = hDS->GetNumberOfLevels();
+    return (this->CurLevel >= numLevels);
+    }
+
+private:
+  void NextLevel()
+    {
+    this->CurIndex = 0;
+    if (this->AscendingLevels)
+      {
+      this->CurLevel++;
+      }
+    else
+      {
+      this->CurLevel = this->CurLevel==0? 
+        VTK_UNSIGNED_INT_MAX: (this->CurLevel-1);
+      }
     }
 };
 
@@ -63,6 +109,7 @@ vtkHierarchicalDataSet* vtkHierarchicalDataIterator::GetDataSet()
 void vtkHierarchicalDataIterator::GoToFirstItem()
 {
   this->Internal->Clear();
+  this->Internal->AscendingLevels = (this->AscendingLevels ==1);
 
   vtkHierarchicalDataSet* hDS = this->GetDataSet();
   if (!hDS)
@@ -83,42 +130,12 @@ void vtkHierarchicalDataIterator::GoToFirstItem()
     }
   this->Internal->CurIndex = 0;
 
-  // Now take the CurLevel to the first non-empty level.
-  this->GoToNonEmptyLevel();
-}
-
-//----------------------------------------------------------------------------
-void vtkHierarchicalDataIterator::GoToNonEmptyLevel()
-{
-  if (this->Internal->CurLevel == VTK_UNSIGNED_INT_MAX)
+  // Now until we reach the first non-empty dataset, we keep on going to the
+  // next item.
+  if (!this->IsDoneWithTraversal() && 
+    this->Internal->IsCurrentDataSetEmpty(hDS))
     {
-    return;
-    }
-
-  vtkHierarchicalDataSet* hDS = this->GetDataSet();
-  unsigned int numLevels = hDS->GetNumberOfLevels();
-  while (hDS->GetNumberOfDataSets(this->Internal->CurLevel) ==0)
-    {
-    if (this->AscendingLevels)
-      {
-      this->Internal->CurLevel++;
-      if (this->Internal->CurLevel >= numLevels)
-        {
-        // Done with traversal
-        this->Internal->Clear();
-        break;
-        }
-      }
-    else
-      {
-      if (this->Internal->CurLevel == 0)
-        {
-        // Done with traversal.
-        this->Internal->Clear();
-        break;
-        }
-      this->Internal->CurLevel--;
-      }
+    this->Internal->Next(hDS);
     }
 }
 
@@ -134,48 +151,7 @@ void vtkHierarchicalDataIterator::GoToNextItem()
 
   if (!this->IsDoneWithTraversal())
     {
-    unsigned int numDS = hDS->GetNumberOfDataSets(this->Internal->CurLevel);
-    this->Internal->CurIndex++;
-
-    while (this->Internal->CurIndex < numDS &&
-      !hDS->GetDataSet(this->Internal->CurLevel, this->Internal->CurIndex))
-      {
-      // skip empty pieces.
-      this->Internal->CurIndex++;
-      }
-
-    if (this->Internal->CurIndex < numDS)
-      {
-      return;
-      }
-
-    // End of current level reached, go to "next" level.
-    this->Internal->CurIndex=0;
-    if (this->AscendingLevels)
-      {
-      this->Internal->CurLevel++;
-      }
-    else
-      {
-      // Descending levels.
-      if (this->Internal->CurLevel != 0)
-        {
-        this->Internal->CurLevel--;
-        }
-      else
-        {
-        this->Internal->Clear();
-        }
-      }
-
-    if (!this->IsDoneWithTraversal())
-      {
-      this->GoToNonEmptyLevel();
-      }
-    else
-      {
-      this->Internal->Clear();
-      }
+    this->Internal->Next(hDS);
     }
 }
 
@@ -189,8 +165,7 @@ int vtkHierarchicalDataIterator::IsDoneWithTraversal()
     return 1;
     }
 
-  unsigned int numLevels = hDS->GetNumberOfLevels();
-  return (this->Internal->CurLevel >= numLevels)? 1 : 0;
+  return this->Internal->Done(hDS)? 1: 0;
 }
 
 //----------------------------------------------------------------------------
@@ -221,11 +196,11 @@ unsigned int vtkHierarchicalDataIterator::GetCurrentIndex()
 vtkInformation* vtkHierarchicalDataIterator::GetCurrentInformationObject()
 {
   vtkHierarchicalDataSet* hDS = this->GetDataSet();
-  if (!hDS)
+  if (!hDS || this->IsDoneWithTraversal())
     {
-    vtkErrorMacro("No data object has been set.");
     return 0;
     }
+
   vtkMultiGroupDataInformation* mgInfo =
     this->DataSet->GetMultiGroupDataInformation();
   if (!mgInfo)

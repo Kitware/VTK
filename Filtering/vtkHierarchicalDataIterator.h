@@ -85,9 +85,6 @@ protected:
   vtkHierarchicalDataIterator(); 
   virtual ~vtkHierarchicalDataIterator(); 
 
-  
-  void GoToNonEmptyLevel();
-
 private:
   class vtkInternal;
   vtkInternal* Internal;
