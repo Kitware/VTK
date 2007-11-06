@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.32");
+vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.33");
 
 //----------------------------------------------------------------------------
 vtkDataSetToStructuredPointsFilter::vtkDataSetToStructuredPointsFilter()
@@ -47,7 +47,7 @@ vtkDataSet *vtkDataSetToStructuredPointsFilter::GetInput()
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Inputs[0]);
+  return static_cast<vtkDataSet *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkDataSet *vtkDataSetToStructuredPointsFilter::GetInput()
 void vtkDataSetToStructuredPointsFilter::ComputeInputUpdateExtents(
                                                          vtkDataObject *data)
 {
-  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  vtkStructuredPoints *output = static_cast<vtkStructuredPoints*>(data);
   vtkDataSet *input = this->GetInput();
   int *ext;
   

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageSource, "1.63");
+vtkCxxRevisionMacro(vtkImageSource, "1.64");
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
@@ -51,7 +51,7 @@ vtkImageData *vtkImageSource::GetOutput()
     return NULL;
     }
   
-  return (vtkImageData *)(this->Outputs[0]);
+  return static_cast<vtkImageData *>(this->Outputs[0]);
 }
 
 
@@ -104,7 +104,7 @@ vtkImageData *vtkImageSource::AllocateOutputData(vtkDataObject *out)
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageSource::GetOutput(int idx)
 {
-  return (vtkImageData *) this->vtkSource::GetOutput(idx);
+  return static_cast<vtkImageData *>(this->vtkSource::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------

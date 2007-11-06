@@ -23,7 +23,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.4");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.5");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -105,7 +105,8 @@ int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
     {
     tmp_count = 0;
     for(this->LastDataSetIndex = 0; 
-      this->LastDataSetIndex < (int)(this->DataSets->size()); this->LastDataSetIndex++)
+        this->LastDataSetIndex < static_cast<int>(this->DataSets->size());
+        this->LastDataSetIndex++)
       {
       ds = this->DataSets->operator[](this->LastDataSetIndex);
       if(ds && ds != this->LastDataSet)

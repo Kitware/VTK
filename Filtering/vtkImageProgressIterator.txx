@@ -29,7 +29,7 @@ vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd,
   vtkImageIterator<DType>(imgd,ext)
 {
   this->Target = 
-    (unsigned long)((ext[5] - ext[4]+1)*(ext[3] - ext[2]+1)/50.0);
+    static_cast<unsigned long>((ext[5] - ext[4]+1)*(ext[3] - ext[2]+1)/50.0);
   this->Target++;
   this->Count = 0;
   this->Count2 = 0;

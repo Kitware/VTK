@@ -35,14 +35,15 @@ vtkImageIterator<DType>::vtkImageIterator()
 template <class DType>
 void vtkImageIterator<DType>::Initialize(vtkImageData *id, int *ext)
 {
-  this->Pointer = (DType *)id->GetScalarPointerForExtent(ext);
+  this->Pointer = static_cast<DType *>(id->GetScalarPointerForExtent(ext));
   id->GetIncrements(this->Increments[0], this->Increments[1],
                     this->Increments[2]);
   id->GetContinuousIncrements(ext,this->ContinuousIncrements[0],
                               this->ContinuousIncrements[1],
                               this->ContinuousIncrements[2]);
   this->EndPointer =
-    (DType *)id->GetScalarPointer(ext[1],ext[3],ext[5]) +this->Increments[0];
+    static_cast<DType *>(id->GetScalarPointer(ext[1],ext[3],ext[5]))
+    +this->Increments[0];
 
   // if the extent is empty then the end pointer should equal the beg pointer
   if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4])

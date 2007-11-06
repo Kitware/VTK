@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.62");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.63");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -73,10 +73,8 @@ vtkImageData *vtkImageToImageFilter::GetInput()
     return NULL;
     }
   
-  return (vtkImageData *)(this->Inputs[0]);
+  return static_cast<vtkImageData *>(this->Inputs[0]);
 }
-
-
 
 //----------------------------------------------------------------------------
 // This method can be overriden in a subclass to compute the output
@@ -188,10 +186,11 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
   int threadId, threadCount;
   vtkImageData *output;
 
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
+  threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
+  threadCount = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->NumberOfThreads;
 
-  str = (vtkImageThreadStruct *)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  str = static_cast<vtkImageThreadStruct *>(
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
   output = str->Output;
   output->GetUpdateExtent( ext );
 
@@ -252,8 +251,9 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
 
   // determine the actual number of pieces that will be generated
   int range = max - min + 1;
-  int valuesPerThread = (int)ceil(range/(double)total);
-  int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
+  int valuesPerThread =
+    static_cast<int>(ceil(range/static_cast<double>(total)));
+  int maxThreadIdUsed = static_cast<int>(ceil(range/static_cast<double>(valuesPerThread))) - 1;
   if (num < maxThreadIdUsed)
     {
     splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;

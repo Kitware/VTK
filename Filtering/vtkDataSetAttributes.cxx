@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.24");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.25");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -445,14 +445,15 @@ void vtkDataSetAttributesCopyValues(
   unsigned char *outZPtr;
   
   // Get the starting input pointer.
-  inZPtr = (unsigned char*)(srcIter->GetArray()->GetVoidPointer(0));
+  inZPtr = static_cast<unsigned char*>(srcIter->GetArray()->GetVoidPointer(0));
   // Shift to the start of the subextent.
   inZPtr += (outExt[0]-outExt[0])*inIncs[0] * data_type_size +
     (outExt[2] - outExt[2])*inIncs[1] * data_type_size +
     (outExt[4] - outExt[4])*inIncs[2] * data_type_size;
 
   // Get output pointer.
-  outZPtr = (unsigned char*)(destIter->GetArray()->GetVoidPointer(0));
+  outZPtr =
+    static_cast<unsigned char*>(destIter->GetArray()->GetVoidPointer(0));
 
   // Loop over z axis.
   int zIdx, yIdx;

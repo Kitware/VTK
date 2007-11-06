@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.11");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.12");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -61,13 +61,13 @@ void vtkEdgeTablePoints::Resize(vtkIdType newSize)
   if( size <= newSize )
     {
     PointVector.resize(newSize);
-    int index = (int)(log((double)newSize)/log(2.));
+    int index = static_cast<int>(log(static_cast<double>(newSize))/log(2.));
     this->Modulo = PRIME_NUMBERS[index];
     //cout << "this->Modulo:" << newSize << "," << index << ","
     //     << this->Modulo << endl;
     }
 
-  assert((unsigned)size < PointVector.size() ); // valid size
+  assert(static_cast<unsigned>(size) < PointVector.size() ); // valid size
   // For now you are not supposed to use this method
   assert( 0 );
 }
@@ -131,7 +131,7 @@ void vtkEdgeTableEdge::Resize(vtkIdType newSize)
   if( size <= newSize )
     {
     Vector.resize(newSize);
-    int index = (int)(log((double)newSize)/log(2.));
+    int index = static_cast<int>(log(static_cast<double>(newSize))/log(2.));
     this->Modulo = PRIME_NUMBERS[index];
     cout << "this->Modulo:" << index << ":" << this->Modulo << endl;
     }
@@ -296,7 +296,8 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
   //vtkDebugMacro( << "RemoveEdge:" << e1 << "," << e2 );
 
   vtkIdType pos = this->HashFunction(e1, e2);
-  assert("check: valid range po" && (unsigned)pos < this->EdgeTable->Vector.size() );
+  assert("check: valid range po" &&
+         static_cast<unsigned>(pos) < this->EdgeTable->Vector.size() );
 
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
@@ -356,13 +357,14 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
 
   vtkIdType pos = this->HashFunction(e1, e2);
   
-  if( (unsigned)pos >= this->EdgeTable->Vector.size() )
+  if( static_cast<unsigned>(pos) >= this->EdgeTable->Vector.size() )
     {
     vtkDebugMacro( << "No entry were found in the hash table" );
     return -1;
     }
   
-  assert("check: valid range pos" && (unsigned)pos<this->EdgeTable->Vector.size() );
+  assert("check: valid range pos" &&
+         static_cast<unsigned>(pos)<this->EdgeTable->Vector.size() );
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
   
@@ -411,8 +413,9 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
 }
 
 //-----------------------------------------------------------------------------
-int vtkGenericEdgeTable::IncrementEdgeReferenceCount(vtkIdType e1, vtkIdType e2, 
-                                               vtkIdType cellId )
+int vtkGenericEdgeTable::IncrementEdgeReferenceCount(vtkIdType e1,
+                                                     vtkIdType e2, 
+                                                     vtkIdType cellId )
 {
   int index;
   //reorder so that e1 < e2;
@@ -421,7 +424,8 @@ int vtkGenericEdgeTable::IncrementEdgeReferenceCount(vtkIdType e1, vtkIdType e2,
   //vtkDebugMacro( << "IncrementEdgeReferenceCount:" << e1 << "," << e2  );
 
   vtkIdType pos = this->HashFunction(e1, e2);
-  assert("check: valid range pos" && (unsigned)pos < this->EdgeTable->Vector.size());
+  assert("check: valid range pos" &&
+         static_cast<unsigned>(pos) < this->EdgeTable->Vector.size());
 
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
@@ -462,7 +466,8 @@ int vtkGenericEdgeTable::CheckEdgeReferenceCount(vtkIdType e1, vtkIdType e2)
   //vtkDebugMacro( << "CheckEdgeReferenceCount:" << e1 << "," << e2  );
 
   vtkIdType pos = this->HashFunction(e1, e2);
-  assert("check: valid range pos" && (unsigned)pos < this->EdgeTable->Vector.size());
+  assert("check: valid range pos" &&
+         static_cast<unsigned>(pos) < this->EdgeTable->Vector.size());
 
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
@@ -538,13 +543,13 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId)
   int index;
   vtkIdType pos = this->HashFunction(ptId);
 
-  if( (unsigned)pos >= this->HashPoints->PointVector.size() )
+  if( static_cast<unsigned>(pos) >= this->HashPoints->PointVector.size() )
     {
     return 0;
     }
  
   assert("check: valid range pos" &&
-           (unsigned)pos<this->HashPoints->PointVector.size() );
+         static_cast<unsigned>(pos)<this->HashPoints->PointVector.size() );
  
   //Be carefull with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
@@ -579,7 +584,7 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId, double point[3],
   int index;
   vtkIdType pos = this->HashFunction(ptId);
   assert("check: valid range pos" &&
-           (unsigned)pos < this->HashPoints->PointVector.size() );
+         static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   // Be carefull with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
@@ -618,7 +623,7 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
   //Need to check size first
   //this->HashPoints->Resize( pos );
   assert("check: valid range pos" && 
-           (unsigned)pos < this->HashPoints->PointVector.size() );
+         static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   //Be carefull with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
@@ -645,7 +650,7 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
 
   //Need to check size first
   assert("check: valid range pos" && 
-           (unsigned)pos < this->HashPoints->PointVector.size() );
+         static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   //Be carefull with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
@@ -690,7 +695,7 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
 
   //Need to check size first
   //this->HashPoints->Resize( pos );
-  if( !((unsigned)pos < this->HashPoints->PointVector.size() ))
+  if( !(static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() ))
     {
     int kk = 2;
     kk++;
@@ -756,7 +761,7 @@ void vtkGenericEdgeTable::IncrementPointReferenceCount(vtkIdType ptId )
 
   //Need to check size first
   assert("check: valid range pos" &&
-         (unsigned)pos < this->HashPoints->PointVector.size() );
+         static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   //Be carefull with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = this->HashPoints->PointVector[pos];

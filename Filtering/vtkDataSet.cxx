@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.12");
+vtkCxxRevisionMacro(vtkDataSet, "1.13");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -544,7 +544,7 @@ void vtkDataSet::GenerateGhostLevelArray()
           //cerr << "   " << di << ", " << dj << ", " << dk << endl;
           //cerr << dist << endl;
           
-          levels->InsertNextValue((unsigned char)dist);
+          levels->InsertNextValue(static_cast<unsigned char>(dist));
           }
         }
       }
@@ -622,7 +622,7 @@ void vtkDataSet::GenerateGhostLevelArray()
             dist = dk;
             }
 
-          levels->InsertNextValue((unsigned char)dist);
+          levels->InsertNextValue(static_cast<unsigned char>(dist));
           }
         }
       }

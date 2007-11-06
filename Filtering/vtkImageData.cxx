@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.27");
+vtkCxxRevisionMacro(vtkImageData, "1.28");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ vtkImageData::~vtkImageData()
 // object.
 void vtkImageData::CopyStructure(vtkDataSet *ds)
 {
-  vtkImageData *sPts=(vtkImageData *)ds;
+  vtkImageData *sPts=static_cast<vtkImageData *>(ds);
   this->Initialize();
 
   int i;
@@ -216,7 +216,7 @@ void vtkImageData::PrepareForNewData()
 // The input data object must be of type vtkImageData or a subclass!
 void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
 {
-  vtkImageData *image = (vtkImageData *)data;
+  vtkImageData *image = static_cast<vtkImageData *>(data);
 
   // Copy the generic stuff
   this->CopyInformation( data );
@@ -246,7 +246,7 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   unsigned long   lsize;
 
   // Start with the number of scalar components
-  size = (unsigned long)(this->GetNumberOfScalarComponents());
+  size = static_cast<unsigned long>(this->GetNumberOfScalarComponents());
 
   // Multiply by the number of bytes per scalar
   switch (this->GetScalarType())
@@ -716,7 +716,7 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   for (i=0; i<3; i++)
     {
     d = x[i] - origin[i];
-    loc[i] = (int) ((d / spacing[i]) + 0.5);
+    loc[i] = static_cast<int>((d / spacing[i]) + 0.5);
     if ( loc[i] < extent[i*2] || loc[i] > extent[i*2+1] )
       {
       return -1;
@@ -1097,10 +1097,10 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
     d = x[i] - origin[i];
     doubleLoc = d / spacing[i];
     // Floor for negative indexes.
-    ijk[i] = (int) (floor(doubleLoc));
+    ijk[i] = static_cast<int>(floor(doubleLoc));
     if ( ijk[i] >= extent[i*2] && ijk[i] < extent[i*2 + 1] )
       {
-      pcoords[i] = doubleLoc - (double)ijk[i];
+      pcoords[i] = doubleLoc - static_cast<double>(ijk[i]);
       }
 
     else if ( ijk[i] < extent[i*2] || ijk[i] > extent[i*2+1] )
@@ -1607,7 +1607,7 @@ void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
       for (idxR = 0; idxR < rowLength; idxR++)
         {
         // Pixel operation
-        *outPtr = (OT)(*inPtr);
+        *outPtr = static_cast<OT>(*inPtr);
         outPtr++;
         inPtr++;
         }
@@ -1638,9 +1638,9 @@ void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
     {
     vtkTemplateMacro(
       vtkImageDataCastExecute(inData,
-                              (T *)(inPtr),
+                              static_cast<T *>(inPtr),
                               outData,
-                              (VTK_TT *)(outPtr),
+                              static_cast<VTK_TT *>(outPtr),
                               outExt) );
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
@@ -1668,7 +1668,8 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro(vtkImageDataCastExecute(inData, (VTK_TT *)(inPtr),
+    vtkTemplateMacro(vtkImageDataCastExecute(inData,
+                                             static_cast<VTK_TT *>(inPtr),
                                              this, extent) );
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

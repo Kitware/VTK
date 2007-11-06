@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.5");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.6");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -505,7 +505,8 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
   this->Mesh->Points[idx].P[0] = p[0];
   this->Mesh->Points[idx].P[1] = p[1];
   this->Mesh->Points[idx].P[2] = p[2];
-  this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
+  this->Mesh->Points[idx].Type =
+    static_cast<OTPoint::PointClassification>(type);
 
   return idx;
 }
@@ -513,7 +514,8 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
 //------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
-                                              double x[3], double p[3], int type)
+                                              double x[3], double p[3],
+                                              int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx >= this->MaximumNumberOfPoints )
@@ -533,7 +535,8 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].P[0] = p[0];
   this->Mesh->Points[idx].P[1] = p[1];
   this->Mesh->Points[idx].P[2] = p[2];
-  this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
+  this->Mesh->Points[idx].Type =
+    static_cast<OTPoint::PointClassification>(type);
 
   return idx;
 }
@@ -542,7 +545,8 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
                                               vtkIdType sortid2,
-                                              double x[3], double p[3], int type)
+                                              double x[3], double p[3],
+                                              int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx >= this->MaximumNumberOfPoints )
@@ -562,7 +566,8 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   this->Mesh->Points[idx].P[0] = p[0];
   this->Mesh->Points[idx].P[1] = p[1];
   this->Mesh->Points[idx].P[2] = p[2];
-  this->Mesh->Points[idx].Type = (OTPoint::PointClassification) type;
+  this->Mesh->Points[idx].Type =
+    static_cast<OTPoint::PointClassification>(type);
 
   return idx;
 }
@@ -574,7 +579,8 @@ void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
 {
   assert("pre: valid_range" && internalId>=0 &&
          internalId<this->NumberOfPoints);
-  this->Mesh->Points[internalId].Type = (OTPoint::PointClassification) type;
+  this->Mesh->Points[internalId].Type =
+    static_cast<OTPoint::PointClassification>(type);
 }
 
 //------------------------------------------------------------------------
@@ -1008,7 +1014,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   cout << "DATASET POLYDATA\n";
 
   //write out points
-  int numFaces = (int)this->CavityFaces.size();
+  int numFaces = static_cast<int>(this->CavityFaces.size());
   cout << "POINTS " << 3*numFaces+1 << " double\n";
 
   for (fptr=this->CavityFaces.begin();
@@ -1124,12 +1130,12 @@ void vtkOrderedTriangulator::Triangulate()
     {
     if (this->UseTwoSortIds)
       {
-      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
+      qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnTwoIds);
       }
     else
       {
-      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
+      qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnIds);
       }
     }
@@ -1224,12 +1230,12 @@ void vtkOrderedTriangulator::TemplateTriangulate(int cellType,
     {
     if (this->UseTwoSortIds)
       {
-      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
+      qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnTwoIds);
       }
     else
       {
-      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
+      qsort(this->Mesh->Points.GetPointer(0), this->NumberOfPoints,
             sizeof(OTPoint), vtkSortOnIds);
       }
     }

@@ -16,13 +16,13 @@
 #include "vtkViewport.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCoordinate, "1.2");
+vtkCxxRevisionMacro(vtkCoordinate, "1.3");
 vtkStandardNewMacro(vtkCoordinate);
 
 vtkCxxSetObjectMacro(vtkCoordinate,ReferenceCoordinate,vtkCoordinate);
 vtkCxxSetObjectMacro(vtkCoordinate,Viewport,vtkViewport);
 
-#define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
+#define VTK_RINT(x) ((x > 0.0) ? static_cast<int>(x + 0.5) : static_cast<int>(x - 0.5))
 
 //----------------------------------------------------------------------------
 // Creates an Coordinate with the following defaults:
@@ -252,8 +252,8 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 {
   double *f = this->GetComputedDoubleViewportValue(viewport);
 
-  this->ComputedViewportValue[0] = (int)VTK_RINT(f[0]);
-  this->ComputedViewportValue[1] = (int)VTK_RINT(f[1]);
+  this->ComputedViewportValue[0] = static_cast<int>(VTK_RINT(f[0]));
+  this->ComputedViewportValue[1] = static_cast<int>(VTK_RINT(f[1]));
 
   return this->ComputedViewportValue;
 }
@@ -276,13 +276,13 @@ int *vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
     return this->ComputedDisplayValue;
     }
 
-  a[0] = (double)this->ComputedDisplayValue[0];
-  a[1] = (double)this->ComputedDisplayValue[1];
+  a[0] = static_cast<double>(this->ComputedDisplayValue[0]);
+  a[1] = static_cast<double>(this->ComputedDisplayValue[1]);
 
   viewport->DisplayToLocalDisplay(a[0],a[1]);
 
-  this->ComputedDisplayValue[0] = (int)VTK_RINT(a[0]);
-  this->ComputedDisplayValue[1] = (int)VTK_RINT(a[1]);
+this->ComputedDisplayValue[0] = static_cast<int>(VTK_RINT(a[0]));
+this->ComputedDisplayValue[1] = static_cast<int>(VTK_RINT(a[1]));
 
   vtkDebugMacro("Returning LocalDisplayValue of : " <<
                 this->ComputedDisplayValue[0] << " , " <<
@@ -394,8 +394,8 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
 {
   double *val = this->GetComputedDoubleDisplayValue(viewport);
 
-  this->ComputedDisplayValue[0] = (int)(val[0]);
-  this->ComputedDisplayValue[1] = (int)(val[1]);
+  this->ComputedDisplayValue[0] = static_cast<int>(val[0]);
+  this->ComputedDisplayValue[1] = static_cast<int>(val[1]);
 
   vtkDebugMacro("Returning DisplayValue of : " <<
                 this->ComputedDisplayValue[0] << " , " <<

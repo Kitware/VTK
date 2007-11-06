@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.18");
+vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.19");
 
 //----------------------------------------------------------------------------
 vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()
@@ -47,13 +47,14 @@ vtkDataSet *vtkDataSetToPolyDataFilter::GetInput()
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Inputs[0]);
+  return static_cast<vtkDataSet *>(this->Inputs[0]);
 }
 
 
 //----------------------------------------------------------------------------
 // Copy the update information across
-void vtkDataSetToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+void vtkDataSetToPolyDataFilter::ComputeInputUpdateExtents(
+  vtkDataObject *output)
 {
   vtkDataObject *input = this->GetInput();
 

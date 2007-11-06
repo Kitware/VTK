@@ -19,7 +19,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.66");
+vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.67");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
@@ -91,12 +91,8 @@ vtkImageData *vtkImageMultipleInputFilter::GetInput(int idx)
     return NULL;
     }
   
-  return (vtkImageData*)(this->Inputs[idx]);
+  return static_cast<vtkImageData *>(this->Inputs[idx]);
 }
-
-
-
-
 
 //----------------------------------------------------------------------------
 void vtkImageMultipleInputFilter::ExecuteInformation()
@@ -113,7 +109,8 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
   output->CopyTypeSpecificInformation(input);
 
   // Let the subclass modify the default.
-  this->ExecuteInformation((vtkImageData**)(this->Inputs), output);
+  this->ExecuteInformation(reinterpret_cast<vtkImageData**>(this->Inputs),
+                           output);
 }
 
 // Call the alternate version of this method, and use the returned input
@@ -163,10 +160,12 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
   int ext[6], splitExt[6], total;
   int threadId, threadCount;
   
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
+  threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
+  threadCount =
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg)->NumberOfThreads;
   
-  str = (vtkImageMultiThreadStruct *)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  str =static_cast<vtkImageMultiThreadStruct *>(
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
   
   memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
          sizeof(int)*6);
@@ -210,11 +209,13 @@ void vtkImageMultipleInputFilter::ExecuteData(vtkDataObject *out)
 
 
   vtkImageData *outdata = this->AllocateOutputData(out);
-  this->MultiThread((vtkImageData**)this->GetInputs(), outdata);
+  this->MultiThread(reinterpret_cast<vtkImageData**>(this->GetInputs()),
+                    outdata);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMultipleInputFilter::MultiThread(vtkImageData **inputs, vtkImageData *output)
+void vtkImageMultipleInputFilter::MultiThread(vtkImageData **inputs,
+                                              vtkImageData *output)
 {
   vtkImageMultiThreadStruct str;
   
@@ -282,8 +283,10 @@ int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6],
 
   // determine the actual number of pieces that will be generated
   int range = max - min + 1;
-  int valuesPerThread = (int)ceil(range/(double)total);
-  int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
+  int valuesPerThread =
+    static_cast<int>(ceil(range/static_cast<double>(total)));
+  int maxThreadIdUsed =
+    static_cast<int>(ceil(range/static_cast<double>(valuesPerThread)) - 1);
   if (num < maxThreadIdUsed)
     {
     splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;

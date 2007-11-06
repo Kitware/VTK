@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.82");
+vtkCxxRevisionMacro(vtkCellLocator, "1.83");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -105,7 +105,7 @@ void vtkCellLocator::FreeSearchStructure()
     for (i=0; i<this->NumberOfOctants; i++)
       {
       cellIds = this->Tree[i];
-      if (cellIds == (void *)VTK_CELL_INSIDE)
+      if (cellIds == reinterpret_cast<void *>(VTK_CELL_INSIDE))
         {
         cellIds = 0;
         }
@@ -259,7 +259,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
     for (loop = 0; loop <3; loop++)
       {
       hitPosition[loop] = hitPosition[loop]*this->NumberOfDivisions + 1.0;
-      pos[loop] = (int)hitPosition[loop];
+      pos[loop] = static_cast<int>(hitPosition[loop]);
       // Adjust right boundary condition: if we intersect from the top, right,
       // or back; then pos must be adjusted to a valid octant index 
       if (pos[loop] > this->NumberOfDivisions)
@@ -451,7 +451,7 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
   //
   for (j=0; j<3; j++) 
     {
-    ijk[j] = (int)((x[j] - this->Bounds[2*j]) / this->H[j]);
+    ijk[j] = static_cast<int>((x[j] - this->Bounds[2*j]) / this->H[j]);
     
     if (ijk[j] < 0)
       {
@@ -733,7 +733,7 @@ int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
   //
   for (j=0; j<3; j++) 
     {
-    ijk[j] = (int)((x[j] - this->Bounds[2*j]) / this->H[j]);
+    ijk[j] = static_cast<int>((x[j] - this->Bounds[2*j]) / this->H[j]);
     
     if (ijk[j] < 0)
       {
@@ -837,9 +837,9 @@ int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
     refinedRadius2 = maxDistance*maxDistance;
     }
   
-  radiusLevels[0] = (int)(refinedRadius/this->H[0]);
-  radiusLevels[1] = (int)(refinedRadius/this->H[1]);
-  radiusLevels[2] = (int)(refinedRadius/this->H[2]);
+  radiusLevels[0] = static_cast<int>(refinedRadius/this->H[0]);
+  radiusLevels[1] = static_cast<int>(refinedRadius/this->H[1]);
+  radiusLevels[2] = static_cast<int>(refinedRadius/this->H[2]);
   
   radiusLevel = radiusLevels[0];
   radiusLevel = radiusLevels[1] > radiusLevel ? radiusLevels[1] : radiusLevel;
@@ -949,7 +949,8 @@ int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
     // ii appropriately
     if (refinedRadius < currentRadius && ii > 2) //always check ii==1
       {
-      ii = (int)((double)ii * (refinedRadius / currentRadius)) + 1;
+      ii = static_cast<int>(
+        static_cast<double>(ii) * (refinedRadius / currentRadius)) + 1;
       if (ii < 2)
         {
         ii = 2;
@@ -1099,10 +1100,12 @@ void vtkCellLocator::GetOverlappingBuckets(double x[3], int vtkNotUsed(ijk)[3],
   // Determine the range of indices in each direction
   for (i=0; i < 3; i++)
     {
-    minLevel[i] = (int) ((double) (((x[i]-dist) - this->Bounds[2*i])
-                                  / this->H[i]));
-    maxLevel[i] = (int) ((double) (((x[i]+dist) - this->Bounds[2*i])
-                                  / this->H[i]));
+    minLevel[i] =
+      static_cast<int> (static_cast<double> (((x[i]-dist) - this->Bounds[2*i])
+                                             / this->H[i]));
+    maxLevel[i] =
+      static_cast<int> (static_cast<double> (((x[i]+dist) - this->Bounds[2*i])
+                                             / this->H[i]));
     
     if ( minLevel[i] < 0 )
       {
@@ -1266,8 +1269,9 @@ void vtkCellLocator::BuildLocator()
   
   if ( this->Automatic ) 
     {
-    this->Level = (int) (ceil(log((double)numCells/numCellsPerBucket) / 
-      (log((double) 8.0))));
+    this->Level = static_cast<int>(
+      ceil(log(static_cast<double>(numCells)/numCellsPerBucket) /
+           (log(static_cast<double>(8.0)))));
     } 
   this->Level =(this->Level > this->MaxLevel ? this->MaxLevel : this->Level);
   
@@ -1322,10 +1326,10 @@ void vtkCellLocator::BuildLocator()
     // find min/max locations of bounding box
     for (i=0; i<3; i++)
       {
-      ijkMin[i] = (int)((boundsPtr[2*i] - this->Bounds[2*i] - hTol[i]) 
-        / this->H[i]);
-      ijkMax[i] = (int)((boundsPtr[2*i+1] - this->Bounds[2*i] + hTol[i])
-        / this->H[i]);
+      ijkMin[i] = static_cast<int>(
+        (boundsPtr[2*i] - this->Bounds[2*i] - hTol[i])/ this->H[i]);
+      ijkMax[i] = static_cast<int>(
+        (boundsPtr[2*i+1] - this->Bounds[2*i] + hTol[i]) / this->H[i]);
       
       if (ijkMin[i] < 0)
         {
@@ -1345,7 +1349,8 @@ void vtkCellLocator::BuildLocator()
         for ( i = ijkMin[0]; i <= ijkMax[0]; i++ )
           {
           idx = parentOffset + i + j*ndivs + k*product;
-          this->MarkParents((void*)VTK_CELL_INSIDE,i,j,k,ndivs,this->Level);
+          this->MarkParents(reinterpret_cast<void*>(VTK_CELL_INSIDE),i,j,k,
+                            ndivs,this->Level);
           octant = this->Tree[idx];
           if ( ! octant )
             {
@@ -1391,7 +1396,7 @@ void vtkCellLocator::MarkParents(void* a, int i, int j, int k,
       return;
       }
     
-    this->Tree[parentIdx] = (vtkIdList *)a;
+    this->Tree[parentIdx] = static_cast<vtkIdList *>(a);
     
     prod = prod >> 3;
     offset -= prod;

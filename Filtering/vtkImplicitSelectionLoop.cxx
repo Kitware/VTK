@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 
-vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.19");
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.20");
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
 vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 
@@ -141,7 +141,7 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
       }
     }
 
-  minDist2 = (double)sqrt(minDist2);
+  minDist2 = static_cast<double>(sqrt(minDist2));
   return (inside ? -minDist2 : minDist2);
 }
 

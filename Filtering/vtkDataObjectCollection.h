@@ -32,25 +32,33 @@ public:
 
   // Description:
   // Add a data object to the list.
-  void AddItem(vtkDataObject *ds) {
-    this->vtkCollection::AddItem((vtkObject *)ds);};
+  void AddItem(vtkDataObject *ds)
+    {
+      this->vtkCollection::AddItem(ds);
+    }
   
   // Description:
   // Get the next data object in the list.
-  vtkDataObject *GetNextItem() { 
-    return static_cast<vtkDataObject *>(this->GetNextItemAsObject());};
+  vtkDataObject *GetNextItem()
+    {
+      return static_cast<vtkDataObject *>(this->GetNextItemAsObject());
+    }
 
   // Description:
   // Get the ith data object in the list.
-  vtkDataObject *GetItem(int i) { 
-    return static_cast<vtkDataObject *>(this->GetItemAsObject(i));};
+  vtkDataObject *GetItem(int i)
+    { 
+      return static_cast<vtkDataObject *>(this->GetItemAsObject(i));
+    }
   
   //BTX
   // Description: 
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth. 
-  vtkDataObject *GetNextDataObject(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));};
+  vtkDataObject *GetNextDataObject(vtkCollectionSimpleIterator &cookie)
+    {
+      return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));
+    }
   //ETX
 
 protected:

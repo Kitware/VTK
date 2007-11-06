@@ -32,7 +32,7 @@ int TestByteSwap(ostream& strm)
   char cword[1024];
   unsigned short usword[2];
 
-  memcpy ((char *) sword, "abcd", 2);
+  memcpy (reinterpret_cast<char *>(sword), "abcd", 2);
   vtkByteSwap::Swap2BE(sword);
   memcpy ((char *) check, sword, 2);
   strm << "Swap2BE(short \"ab\") -> " << (char) check[0] << (char) check[1] << endl;

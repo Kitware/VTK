@@ -23,7 +23,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.69");
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.70");
 
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
@@ -123,7 +123,7 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetOutput()
     return NULL;
     }
 
-  return (vtkDataSet *)this->Superclass::GetOutput(0);
+  return this->Superclass::GetOutput(0);
 }
 
 // Get the output as vtkPolyData.
@@ -136,7 +136,7 @@ vtkPolyData *vtkDataSetToDataSetFilter::GetPolyDataOutput()
     }
   if (ds->GetDataObjectType() == VTK_POLY_DATA)
     {
-    return (vtkPolyData *)ds;
+    return static_cast<vtkPolyData *>(ds);
     }
   return NULL;
 }
@@ -151,7 +151,7 @@ vtkStructuredPoints *vtkDataSetToDataSetFilter::GetStructuredPointsOutput()
     }
   if (ds->GetDataObjectType() == VTK_STRUCTURED_POINTS)
     {
-    return (vtkStructuredPoints *)ds;
+    return static_cast<vtkStructuredPoints *>(ds);
     }
   return NULL;
 }
@@ -166,7 +166,7 @@ vtkStructuredGrid *vtkDataSetToDataSetFilter::GetStructuredGridOutput()
     }
   if (ds->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
-    return (vtkStructuredGrid *)ds;
+    return static_cast<vtkStructuredGrid *>(ds);
     }
   return NULL;
 }
@@ -181,7 +181,7 @@ vtkUnstructuredGrid *vtkDataSetToDataSetFilter::GetUnstructuredGridOutput()
     }
   if (ds->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
-    return (vtkUnstructuredGrid *)ds;
+    return static_cast<vtkUnstructuredGrid *>(ds);
     }
   return NULL;
 }
@@ -196,7 +196,7 @@ vtkRectilinearGrid *vtkDataSetToDataSetFilter::GetRectilinearGridOutput()
     }
   if (ds->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
-    return (vtkRectilinearGrid *)ds;
+    return static_cast<vtkRectilinearGrid *>(ds);
     }
   return NULL;
 }
@@ -212,7 +212,7 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetInput()
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Inputs[0]);
+  return static_cast<vtkDataSet *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ void vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 //----------------------------------------------------------------------------
 vtkDataSet *vtkDataSetToDataSetFilter::GetOutput(int idx)
 {
-  return (vtkDataSet *) this->vtkDataSetSource::GetOutput(idx); 
+  return this->vtkDataSetSource::GetOutput(idx);
 }
 
 //----------------------------------------------------------------------------

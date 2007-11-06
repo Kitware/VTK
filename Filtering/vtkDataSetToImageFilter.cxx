@@ -18,7 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.6");
+vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.7");
 
 //----------------------------------------------------------------------------
 vtkDataSetToImageFilter::vtkDataSetToImageFilter()
@@ -48,7 +48,7 @@ vtkDataSet *vtkDataSetToImageFilter::GetInput()
     return NULL;
     }
   
-  return (vtkDataSet *)(this->Inputs[0]);
+  return static_cast<vtkDataSet *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ vtkDataSet *vtkDataSetToImageFilter::GetInput()
 void vtkDataSetToImageFilter::ComputeInputUpdateExtents(
   vtkDataObject *data)
 {
-  vtkImageData *output = (vtkImageData *)data;
+  vtkImageData *output = static_cast<vtkImageData *>(data);
   vtkDataSet *input = this->GetInput();
   int *ext;
   

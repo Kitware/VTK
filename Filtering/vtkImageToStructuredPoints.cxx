@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.63");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.64");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -131,8 +131,9 @@ int vtkImageToStructuredPoints::RequestData(
       }
     else
       {
-      inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
-      outPtr = (unsigned char *) output->GetScalarPointer();
+      inPtr =
+        static_cast<unsigned char *>(data->GetScalarPointerForExtent(uExtent));
+      outPtr = static_cast<unsigned char *>(output->GetScalarPointer());
 
       // Make sure there are data.
       if(!inPtr || !outPtr)
@@ -180,7 +181,8 @@ int vtkImageToStructuredPoints::RequestData(
     else
       {
       vtkDataArray *fv = vtkDataArray::CreateDataArray(vData->GetScalarType());
-      float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
+      float *inPtr2 =
+        static_cast<float *>(vData->GetScalarPointerForExtent(uExtent));
 
       // Make sure there are data.
       if(!inPtr2)

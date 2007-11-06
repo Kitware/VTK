@@ -18,7 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectSource, "1.17");
+vtkCxxRevisionMacro(vtkDataObjectSource, "1.18");
 
 vtkDataObjectSource::vtkDataObjectSource()
 {
@@ -41,7 +41,7 @@ vtkDataObject *vtkDataObjectSource::GetOutput()
     return NULL;
     }
   
-  return (vtkDataObject *)(this->Outputs[0]);
+  return this->Outputs[0];
 }
 
 //----------------------------------------------------------------------------
