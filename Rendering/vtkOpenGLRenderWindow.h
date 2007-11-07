@@ -132,6 +132,20 @@ public:
   // It is used by vtkOpenGLCamera.
   unsigned int GetFrontLeftBuffer();
   
+  // Description:
+  // Update graphic error status, regardless of ReportGraphicErrors flag.
+  // It means this method can be used in any context and is not restricted to
+  // debug mode.
+  virtual void CheckGraphicError();
+  
+  // Description:
+  // Return the last graphic error status. Initial value is false.
+  virtual int HasGraphicError();
+  
+  // Description:
+  // Return a string matching the last graphic error status.
+  virtual const char *GetLastGraphicErrorString();
+  
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -181,6 +195,9 @@ protected:
   unsigned int BackLeftBuffer;
   unsigned int BackRightBuffer;
   unsigned int FrontLeftBuffer;
+  
+  // Actual type is GLenum. Last value returned by glGetError().
+  unsigned int LastGraphicError;
   
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.

@@ -63,20 +63,6 @@ public:
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int GetDepthPeelingHigherLayer();
   
-  // Description:
-  // Update graphic error status, regardless of ReportGraphicErrors flag.
-  // It means this method can be used in any context and is not restricted to
-  // debug mode.
-  virtual void CheckGraphicError();
-  
-  // Description:
-  // Return the last graphic error status. Initial value is false.
-  virtual int HasGraphicError();
-  
-  // Description:
-  // Return a string matching the last graphic error status.
-  virtual const char *GetLastGraphicErrorString();
-  
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
@@ -158,9 +144,6 @@ protected:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int DepthPeelingHigherLayer;
-  
-  // Actual type is GLenum. Last value returned by glGetError().
-  unsigned int LastGraphicError;
   
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

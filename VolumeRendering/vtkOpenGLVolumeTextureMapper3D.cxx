@@ -41,7 +41,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.14");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -158,7 +158,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   // Turn lighting off - the polygon textures already have illumination
   glDisable( GL_LIGHTING );
 
-  vtkGraphicErrorMacro(ren,"Before actual render method");
+  vtkGraphicErrorMacro(ren->GetRenderWindow(),"Before actual render method");
   switch ( this->RenderMethod )
     {
     case vtkVolumeTextureMapper3D::NVIDIA_METHOD:

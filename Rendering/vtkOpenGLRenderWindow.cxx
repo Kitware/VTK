@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.89");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.90");
 #endif
 
 #define MAX_LIGHTS 8
@@ -63,6 +63,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
   this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
+  
+  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
 }
 
 // free up memory & close the window
@@ -239,7 +241,7 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
     this->MakeCurrent();
     size = 0;
     glGetIntegerv( GL_DEPTH_BITS, &size );
-    return (int) size;
+    return static_cast<int>(size);
     }
   else
     {
@@ -265,13 +267,13 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
     {
     this->MakeCurrent();
     glGetIntegerv( GL_RED_BITS, &size );
-    rgba[0] = (int)size;
+    rgba[0] = static_cast<int>(size);
     glGetIntegerv( GL_GREEN_BITS, &size  );
-    rgba[1] = (int)size;
+    rgba[1] = static_cast<int>(size);
     glGetIntegerv( GL_BLUE_BITS, &size );
-    rgba[2] = (int)size;
+    rgba[2] = static_cast<int>(size);
     glGetIntegerv( GL_ALPHA_BITS, &size );
-    rgba[3] = (int)size;
+    rgba[3] = static_cast<int>(size);
     return rgba[0]+rgba[1]+rgba[2]+rgba[3];
     }
   else
@@ -576,8 +578,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
-                   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
+    glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
+                   (2.0 * static_cast<GLfloat>(yloop) / this->Size[1] - 1),
                    -1.0 );
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
@@ -606,8 +608,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1), 
+                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
                  -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
@@ -890,8 +892,8 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1), 
+                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
                  -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
@@ -1191,8 +1193,8 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
+                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
                  -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
@@ -1376,8 +1378,8 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                 2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
+  glRasterPos2f( 2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1, 
+                 2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1);
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
@@ -1407,7 +1409,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
 void vtkOpenGLRenderWindow::RegisterTextureResource (GLuint id)
 {
-  this->TextureResourceIds->InsertNextId ((int) id);
+  this->TextureResourceIds->InsertNextId (static_cast<int>(id));
 }
 
 // ----------------------------------------------------------------------------
@@ -1659,4 +1661,70 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   this->OffScreenUseFrameBuffer=0;
   
   assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Update graphic error status, regardless of ReportGraphicErrors flag.
+// It means this method can be used in any context and is not restricted to
+// debug mode.
+void vtkOpenGLRenderWindow::CheckGraphicError()
+{
+  this->LastGraphicError=static_cast<unsigned int>(glGetError());
+}
+  
+// ----------------------------------------------------------------------------
+// Description:
+// Return the last graphic error status. Initial value is false.
+int vtkOpenGLRenderWindow::HasGraphicError()
+{
+  return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return a string matching the last graphic error status.
+const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
+{
+  const char *result;
+  switch(static_cast<GLenum>(this->LastGraphicError))
+    {
+    case GL_NO_ERROR:
+      result="No error";
+      break;
+    case GL_INVALID_ENUM:
+      result="Invalid enum";
+      break;
+    case GL_INVALID_VALUE:
+      result="Invalid value";
+      break;
+    case GL_INVALID_OPERATION:
+      result="Invalid operation";
+      break;
+    case GL_STACK_OVERFLOW:
+      result="Stack overflow";
+      break;
+    case GL_STACK_UNDERFLOW:
+      result="Stack underflow";
+      break;
+    case GL_OUT_OF_MEMORY:
+      result="Out of memory";
+      break;
+    case vtkgl::TABLE_TOO_LARGE:
+      // GL_ARB_imaging
+      result="Table too large";
+      break;
+    case vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT:
+      // GL_EXT_framebuffer_object
+      result="Invalid framebuffer operation";
+      break;
+    case vtkgl::TEXTURE_TOO_LARGE_EXT:
+      // GL_EXT_texture
+      result="Texture too large";
+      break;
+    default:
+      result="Unknown error";
+      break;
+    }
+  return result;
 }

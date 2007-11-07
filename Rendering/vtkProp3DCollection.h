@@ -50,8 +50,10 @@ public:
   // Description: 
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth. 
-  vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));};
+  vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie)
+    {
+      return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));
+    }
   //ETX
   
 protected:
@@ -61,8 +63,14 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
-  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    {
+      this->vtkCollection::AddItem(o);
+    }
+  void AddItem(vtkProp *o)
+    {
+      this->vtkPropCollection::AddItem(o);
+    }
 
 private:
   vtkProp3DCollection(const vtkProp3DCollection&);  // Not implemented.
@@ -71,7 +79,7 @@ private:
 
 inline void vtkProp3DCollection::AddItem(vtkProp3D *a) 
 {
-  this->vtkCollection::AddItem((vtkObject *)a);
+  this->vtkCollection::AddItem(a);
 }
 
 inline vtkProp3D *vtkProp3DCollection::GetNextProp3D() 

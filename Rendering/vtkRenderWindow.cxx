@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.153");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.154");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -72,6 +72,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
+  this->ReportGraphicErrors=0; // false
 }
 
 //----------------------------------------------------------------------------
@@ -101,7 +102,7 @@ vtkRenderWindow *vtkRenderWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindow");
-  return (vtkRenderWindow*)ret;
+  return static_cast<vtkRenderWindow *>(ret);
 }
 
 //----------------------------------------------------------------------------
@@ -346,9 +347,15 @@ void vtkRenderWindow::Render()
         {
         for (x = 0; x < size[0]; x++)
           {
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
           }
         }
 
@@ -391,9 +398,15 @@ void vtkRenderWindow::Render()
         {
         for (x = 0; x < size[0]; x++)
           {
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
-          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
+          *p2 = static_cast<unsigned char>(*p1/num);
+          p1++;
+          p2++;
           }
         }
 
@@ -529,9 +542,15 @@ void vtkRenderWindow::DoAARender()
           {
           for (x = 0; x < size[0]; x++)
             {
-            *p1 += (float)*p2; p1++; p2++;
-            *p1 += (float)*p2; p1++; p2++;
-            *p1 += (float)*p2; p1++; p2++;
+            *p1 += static_cast<float>(*p2);
+            p1++;
+            p2++;
+            *p1 += static_cast<float>(*p2);
+            p1++;
+            p2++;
+            *p1 += static_cast<float>(*p2);
+            p1++;
+            p2++;
             }
           }
         delete [] p3;
@@ -633,9 +652,15 @@ void vtkRenderWindow::DoFDRender()
         {
         for (x = 0; x < size[0]; x++)
           {
-          *p1 += (float)*p2; p1++; p2++;
-          *p1 += (float)*p2; p1++; p2++;
-          *p1 += (float)*p2; p1++; p2++;
+          *p1 += static_cast<float>(*p2);
+          p1++;
+          p2++;
+          *p1 += static_cast<float>(*p2);
+          p1++;
+          p2++;
+          *p1 += static_cast<float>(*p2);
+          p1++;
+          p2++;
           }
         }
       delete [] p3;
@@ -812,10 +837,11 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-  os << indent << "StencilCapable: " << (this->StencilCapable ? "True" : "False")
-     << endl;
+  os << indent << "StencilCapable: " <<
+    (this->StencilCapable ? "True" : "False") << endl;
+  os << indent << "ReportGraphicErrors: "
+     << (this->ReportGraphicErrors ? "On" : "Off")<< "\n";
 }
-
 
 //----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo

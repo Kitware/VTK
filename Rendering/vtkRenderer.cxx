@@ -38,7 +38,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.237");
+vtkCxxRevisionMacro(vtkRenderer, "1.238");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -118,8 +118,6 @@ vtkRenderer::vtkRenderer()
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
-  
-  this->ReportGraphicErrors=0; // false
 }
 
 vtkRenderer::~vtkRenderer()
@@ -171,7 +169,7 @@ vtkRenderer *vtkRenderer::New()
 { 
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderer");
-  return (vtkRenderer *)ret;
+  return static_cast<vtkRenderer *>(ret);
 }
 
 // Concrete render method.
@@ -241,10 +239,14 @@ void vtkRenderer::Render(void)
       
       // backing store should be OK, lets use it
       // calc the pixel range for the renderer
-      rx1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
-      ry1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
-      rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
-      ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+      rx1 = static_cast<int>(this->Viewport[0]*
+                             (this->RenderWindow->GetSize()[0] - 1));
+      ry1 = static_cast<int>(this->Viewport[1]*
+                             (this->RenderWindow->GetSize()[1] - 1));
+      rx2 = static_cast<int>(this->Viewport[2]*
+                             (this->RenderWindow->GetSize()[0] - 1));
+      ry2 = static_cast<int>(this->Viewport[3]*
+                             (this->RenderWindow->GetSize()[1] - 1));
       this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
       this->InvokeEvent(vtkCommand::EndEvent,NULL);
       return;
@@ -325,10 +327,10 @@ void vtkRenderer::Render(void)
     
     // backing store should be OK, lets use it
     // calc the pixel range for the renderer
-    rx1 = (int)(this->Viewport[0]*(size[0] - 1));
-    ry1 = (int)(this->Viewport[1]*(size[1] - 1));
-    rx2 = (int)(this->Viewport[2]*(size[0] - 1));
-    ry2 = (int)(this->Viewport[3]*(size[1] - 1));
+    rx1 = static_cast<int>(this->Viewport[0]*(size[0] - 1));
+    ry1 = static_cast<int>(this->Viewport[1]*(size[1] - 1));
+    rx2 = static_cast<int>(this->Viewport[2]*(size[0] - 1));
+    ry2 = static_cast<int>(this->Viewport[3]*(size[1] - 1));
     this->BackingImage = this->RenderWindow->GetPixelData(rx1,ry1,rx2,ry2,0);
     this->BackingStoreSize[0] = size[0];
     this->BackingStoreSize[1] = size[1];
@@ -343,7 +345,7 @@ void vtkRenderer::Render(void)
     {
     // Measure the actual RenderTime
     t2 = vtkTimerLog::GetUniversalTime();
-    this->LastRenderTimeInSeconds = (double) (t2 - t1);
+    this->LastRenderTimeInSeconds = static_cast<double>(t2 - t1);
 
     if (this->LastRenderTimeInSeconds == 0.0)
       {
@@ -396,7 +398,7 @@ int vtkRenderer::UpdateCamera ()
     }
 
   // update the viewing transformation
-  this->ActiveCamera->Render((vtkRenderer *)this); 
+  this->ActiveCamera->Render(this); 
   
   return 1;
 }
@@ -502,9 +504,7 @@ void vtkRenderer::AllocateTime()
        (aCuller=this->Cullers->GetNextCuller(sit));)
     {
     totalTime =
-      aCuller->Cull((vtkRenderer *)this, 
-                    this->PropArray, this->PropArrayCount,
-                    initialized );
+      aCuller->Cull(this,this->PropArray, this->PropArrayCount,initialized );
     }
 
   // loop through all props and set the AllocatedRenderTime
@@ -1320,9 +1320,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "LastRenderingUsedDepthPeeling: "
      << (this->LastRenderingUsedDepthPeeling ? "On" : "Off")<< "\n";
-  
-  os << indent << "ReportGraphicErrors: "
-     << (this->ReportGraphicErrors ? "On" : "Off")<< "\n";
   
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;

@@ -36,13 +36,17 @@ class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
 
   // Description:
   // Add an Culler to the list.
-  void AddItem(vtkCuller *a) {
-    this->vtkCollection::AddItem((vtkObject *)a);};
+  void AddItem(vtkCuller *a)
+    {
+      this->vtkCollection::AddItem(a);
+    }
 
   // Description:
   // Get the next Culler in the list.
-  vtkCuller *GetNextItem() { 
-    return static_cast<vtkCuller *>(this->GetNextItemAsObject());};
+  vtkCuller *GetNextItem()
+    { 
+      return static_cast<vtkCuller *>(this->GetNextItemAsObject());
+    }
   
   // Description:
   // Get the last Culler in the list.
@@ -52,18 +56,22 @@ class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
   // Description: 
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth. 
-  vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));};
+  vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie)
+    {
+      return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
+    }
   //ETX
 
 protected:
-  vtkCullerCollection() {};
-  ~vtkCullerCollection() {};
-  
+  vtkCullerCollection() {}
+  ~vtkCullerCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    {
+      this->vtkCollection::AddItem(o);
+    }
 
 private:
   vtkCullerCollection(const vtkCullerCollection&);  // Not implemented.
