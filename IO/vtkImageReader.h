@@ -48,8 +48,14 @@ public:
   // Set/Get the Data mask.
   vtkGetMacro(DataMask,unsigned short);
   void SetDataMask(int val) 
-       {if (val == this->DataMask) { return; }
-        this->DataMask = ((unsigned short)(val)); this->Modified();}
+    {
+      if (val == this->DataMask)
+        {
+        return;
+        }
+      this->DataMask = static_cast<unsigned short>(val);
+      this->Modified();
+    }
   
   // Description:
   // Set/Get transformation matrix to transform the data from slice space

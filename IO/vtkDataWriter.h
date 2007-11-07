@@ -62,8 +62,10 @@ public:
   // the next call to write ...
   vtkGetMacro(OutputStringLength, int);  
   vtkGetStringMacro(OutputString);
-  unsigned char *GetBinaryOutputString() {
-      return (unsigned char *)this->OutputString;};
+  unsigned char *GetBinaryOutputString()
+    {
+      return reinterpret_cast<unsigned char *>(this->OutputString);
+    }
       
   // Description:
   // This convenience method returns the string, sets the IVAR to NULL,

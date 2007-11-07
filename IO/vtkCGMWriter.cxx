@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.21");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.22");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -317,7 +317,7 @@ static int cgmImageEndCgm (cgmImagePtr im);
 // we always use this SIZEOF() macro in place of using sizeof() directly.
 //
 
-#define SIZEOF(object)  ((size_t) sizeof(object))
+#define SIZEOF(object)  (static_cast<size_t>(sizeof(object)))
  
 // GeJ: these are helper functions I use in cgm.  That means DON'T call
 // them from your program.  Yes, that means you.  
@@ -593,13 +593,13 @@ void vtkCGMWriter::WriteData()
     factor[0] = 1.0;
     factor[1] = yRange/xRange;
     size[0] = this->Resolution;
-    size[1] = (int)(factor[1] * this->Resolution);
+    size[1] = static_cast<int>(factor[1] * this->Resolution);
     }
   else
     {
     factor[0] = yRange/xRange;
     factor[1] = 1.0;
-    size[0] = (int)(factor[0] * this->Resolution);
+    size[0] = static_cast<int>(factor[0] * this->Resolution);
     size[1] = this->Resolution;
     }
 
@@ -677,7 +677,7 @@ void vtkCGMWriter::WriteData()
       depth[cellId].cellId = cellId;
       }
     
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), vtkCGMqsortCompare);
+    qsort(depth, numCells, sizeof(vtkSortValues), vtkCGMqsortCompare);
     }
  
 
@@ -726,15 +726,16 @@ void vtkCGMWriter::WriteData()
       }
     else if ( colorMode == VTK_COLOR_MODE_SPECIFIED_COLOR )
       {
-      color = GetColor((int)(this->SpecifiedColor[0] * 255.0),
-                       (int)(this->SpecifiedColor[1] * 255.0),
-                       (int)(this->SpecifiedColor[2] * 255.0), CGMColors);
+      color = GetColor(static_cast<int>(this->SpecifiedColor[0] * 255.0),
+                       static_cast<int>(this->SpecifiedColor[1] * 255.0),
+                       static_cast<int>(this->SpecifiedColor[2] * 255.0),
+                       CGMColors);
       }
     else //if ( colorMode == VTK_COLOR_MODE_RANDOM_COLORS )
       {
-      color = GetColor((int)vtkMath::Random(0,255),
-                       (int)vtkMath::Random(0,255), 
-                       (int)vtkMath::Random(0,255), CGMColors);
+      color = GetColor(static_cast<int>(vtkMath::Random(0,255)),
+                       static_cast<int>(vtkMath::Random(0,255)), 
+                       static_cast<int>(vtkMath::Random(0,255)), CGMColors);
       }
 
     switch (type)
@@ -743,8 +744,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[0].x = (int)x[0];
-          points[0].y = (int)x[1];
+          points[0].x = static_cast<int>(x[0]);
+          points[0].y = static_cast<int>(x[1]);
           }
         cgmPolyMarker(im, points, 1);
         break;
@@ -752,8 +753,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[i].x = (int)x[0];
-          points[i].y = (int)x[1];
+          points[i].x = static_cast<int>(x[0]);
+          points[i].y = static_cast<int>(x[1]);
           }
         cgmSetLineColor(im, color);
         cgmPolyLine(im, points, npts);
@@ -762,8 +763,8 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<npts; i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[i].x = (int)x[0];
-          points[i].y = (int)x[1];
+          points[i].x = static_cast<int>(x[0]);
+          points[i].y = static_cast<int>(x[1]);
           }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, npts);
@@ -772,14 +773,14 @@ void vtkCGMWriter::WriteData()
         for (i=0; i<(npts-2); i++)
           {
           scaledPts->GetPoint(p[i], x);
-          points[0].x = (int)x[0];
-          points[0].y = (int)x[1];
+          points[0].x = static_cast<int>(x[0]);
+          points[0].y = static_cast<int>(x[1]);
           scaledPts->GetPoint(p[i+1], x);
-          points[1].x = (int)x[0];
-          points[1].y = (int)x[1];
+          points[1].x = static_cast<int>(x[0]);
+          points[1].y = static_cast<int>(x[1]);
           scaledPts->GetPoint(p[i+2], x);
-          points[2].x = (int)x[0];
-          points[2].y = (int)x[1];
+          points[2].x = static_cast<int>(x[0]);
+          points[2].y = static_cast<int>(x[1]);
           }
         cgmSetShapeFillAttrib(im, 1, color, -1);
         cgmPolygon(im, points, 3);
@@ -903,7 +904,7 @@ static int cgmAppByte(unsigned char *es, short int addme)
  * Return value is number of octets added
  * for internal cgm functions only, do not call
  */
-  *es = (unsigned char) addme & 0377;
+  *es = static_cast<unsigned char>(addme) & 0377;
   return 1;
 }
 
@@ -916,9 +917,9 @@ static int cgmAppShort(unsigned char *es, short int addme)
   short int temp;
 
   temp = addme >> 8;
-  *es = (unsigned char) temp & 0377;
+  *es = static_cast<unsigned char>(temp) & 0377;
   es++;
-  *es = (unsigned char) addme & 0377;
+  *es = static_cast<unsigned char>(addme) & 0377;
   return 2;
 }
 
@@ -937,16 +938,16 @@ static int cgmcomhead(unsigned char *es, int elemclass, int id, int len)
     }
 
   /* set the element class */
-  *es = (unsigned char) elemclass << 4;
+  *es = static_cast<unsigned char>(elemclass) << 4;
   /* set the element id */
   temp = 0177 & id ;
   temp = temp >> 3;
   *es = *es | temp;
   es++;
   id = id << 5;
-  *es = (unsigned char) id;
-  *es = *es | (unsigned char) ( 037 & len );
-
+  *es = static_cast<unsigned char>(id);
+  *es = *es | static_cast<unsigned char>( 037 & len );
+  
   return 1;
 }
 
@@ -971,7 +972,7 @@ static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len)
   es += 2;
 
   /* now set the second two bytes */
-  cgmAppShort(es, (short int) len);
+  cgmAppShort(es, static_cast<short int>(len));
   *es = *es & 0177; /* make bit 15 = 0 */
   es += 2;
 
@@ -992,8 +993,8 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
     {
     /* not enough space, must grow elemlist */
     im->listlen = im->listlen + CGMGROWLISTSIZE;
-    newlist = (unsigned char *) realloc(im->elemlist, 
-                                        SIZEOF(unsigned char ) * im->listlen);
+    newlist = static_cast<unsigned char *>(
+      realloc(im->elemlist,SIZEOF(unsigned char ) * im->listlen));
     if (newlist) 
       {
       /* successfully allocated memory */
@@ -1012,7 +1013,7 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
   /* ok, if we get to here, there is enough space, so add it. */
   for (x=0; x < octet_count; x++) 
     {
-    *im->curelemlist = (unsigned char) *es;
+    *im->curelemlist = static_cast<unsigned char>(*es);
     im->curelemlist++;
     es++;
     }
@@ -1043,7 +1044,7 @@ static int cgmCgmHeader(cgmImagePtr im)
     return 0;
     }
   
-  headerp = (unsigned char *) calloc(1024, SIZEOF(unsigned char ));
+  headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!headerp) 
     {
     return 0; /* memory allocation failed */
@@ -1051,11 +1052,11 @@ static int cgmCgmHeader(cgmImagePtr im)
   head=headerp;
 
   /*** Attribute: BegMF; Elem Class 0; Elem ID 1 */
-  buf = (const unsigned char *) "vtk: Visualization Toolkit";
-  blen = (int)strlen( (const char *) buf);
+  buf = reinterpret_cast<const unsigned char *>("vtk: Visualization Toolkit");
+  blen = static_cast<int>(strlen(reinterpret_cast<const char *>(buf)));
   cgmcomhead(head, 0, 1, blen+1);
   head += 2;
-  head += cgmAppByte(head, (short int) blen); 
+  head += cgmAppByte(head, static_cast<short int>(blen)); 
   buf2 = buf;
   while (*buf2) 
     {
@@ -1072,14 +1073,14 @@ static int cgmCgmHeader(cgmImagePtr im)
   /*** Attribute: MFVersion; Elem Class 1; Elem ID 1 */
   cgmcomhead(head, 1, 1, 2);
   head += 2;
-  head += cgmAppShort(head, (short int) 1);
+  head += cgmAppShort(head, static_cast<short int>(1));
   octet_count += 4;
 
   /*** Attribute: MFDesc; Elem Class 1; Elem ID 2 */
-  blen = (int)strlen( (char *) im->desc);
+  blen = static_cast<int>(strlen(reinterpret_cast<char *>(im->desc)));
   cgmcomheadlong(head, 1, 2, blen+1);
   head += 4;
-  head += cgmAppByte(head, (short int) blen); 
+  head += cgmAppByte(head, static_cast<short int>(blen)); 
   buf2 = im->desc;
   while (*buf2) 
     {
@@ -1096,19 +1097,19 @@ static int cgmCgmHeader(cgmImagePtr im)
   /*** Attribute: ColrPrec; Elem Class 1; Elem ID 7 */
   cgmcomhead(head, 1, 7, 2);
   head += 2;
-  head += cgmAppShort(head, (short int) 8);
+  head += cgmAppShort(head, static_cast<short int>(8));
   octet_count += 4;
 
   /*** Attribute: ColrIndexPrec; Elem Class 1; Elem ID 8 */
   cgmcomhead(head, 1, 8, 2);
   head += 2;
-  head += cgmAppShort(head, (short int) 8);
+  head += cgmAppShort(head, static_cast<short int>(8));
   octet_count += 4;
 
   /*** Attribute: MaxColrIndex; Elem Class 1; Elem ID 9 */
   cgmcomhead(head, 1, 9, 1);
   head += 2;
-  head += cgmAppByte(head, (short int) 255);
+  head += cgmAppByte(head, static_cast<short int>(255));
   octet_count += 4; head++;
 
   /*** Attribute: MFElemList; Elem Class 1; Elem ID 11 */
@@ -1116,9 +1117,9 @@ static int cgmCgmHeader(cgmImagePtr im)
    * means drawing-plus-control set */
   cgmcomhead(head, 1, 11, 6);
   head += 2;
-  head += cgmAppShort(head, (short int) 1);
-  head += cgmAppShort(head, (short int) -1);
-  head += cgmAppShort(head, (short int) 1);
+  head += cgmAppShort(head, static_cast<short int>(1));
+  head += cgmAppShort(head, static_cast<short int>(-1));
+  head += cgmAppShort(head, static_cast<short int>(1));
   octet_count += 8;
 
   /*** Attribute: FontList; Elem Class 1; Elem ID 13 */
@@ -1131,7 +1132,7 @@ static int cgmCgmHeader(cgmImagePtr im)
   if (0) 
     { /* don't do this if there aren't any fonts */
     //      if (buf)  /* don't do this if there aren't any fonts */
-    fontlistlen = (int)strlen( (const char *) buf) + 1;
+    fontlistlen = static_cast<int>(strlen(reinterpret_cast<const char *>(buf))) + 1;
     cgmcomheadlong(head, 1, 13, fontlistlen);
     head +=4;
 
@@ -1144,7 +1145,7 @@ static int cgmCgmHeader(cgmImagePtr im)
         buf++;
         blen++;
         }
-      head += cgmAppByte(head, (short int) blen);
+      head += cgmAppByte(head, static_cast<short int>(blen));
       while (buf2 < buf) 
         {
         *head++ = *buf2++;
@@ -1203,8 +1204,8 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   
   /* increment the picture number */
   im->picnum++;
-  tb = (char *) calloc(4*4, SIZEOF(char) );
-  headerp = (unsigned char *) calloc(1024, SIZEOF(unsigned char ));
+  tb = static_cast<char *>(calloc(4*4, SIZEOF(char) ));
+  headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!headerp) 
     {
     return 0; /* memory allocation failed */
@@ -1213,12 +1214,12 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
 
   /*** Attribute: BegPic; Elem Class 0; Elem ID 3 */
   sprintf(tb, "picture %d", im->picnum);
-  buf = (unsigned char*) tb;
+  buf = reinterpret_cast<unsigned char*>(tb);
   /* buf = (unsigned char *) "picture 1"; */
-  blen = (int)strlen( (char *) buf);
+  blen = static_cast<int>(strlen(reinterpret_cast<char *>(buf)));
   cgmcomhead(head, 0, 3, blen+1);
   head += 2;
-  head += cgmAppByte(head, (short int) blen); 
+  head += cgmAppByte(head, static_cast<short int>(blen)); 
   buf2 = buf;
   while (*buf2) 
     {
@@ -1240,7 +1241,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   /*** Attribute: ColrMode; Elem Class 2; Elem ID 2 */
   cgmcomhead(head, 2, 2, 2);
   head += 2;
-  head += cgmAppShort(head, (short int) 0);
+  head += cgmAppShort(head, static_cast<short int>(0));
   octet_count += 4;
   /* Picture Descriptor: Line Width Specification Mode;
    * Elem Class 2; Elem ID 3*/
@@ -1248,7 +1249,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
     {
     cgmcomhead(head, 2, 3, 2);
     head += 2;
-    head += cgmAppShort(head, (short int) im->linespec);
+    head += cgmAppShort(head, static_cast<short int>(im->linespec));
     octet_count += 4;
     }
   /* Picture Descriptor: Marker Size Specification Mode;
@@ -1257,7 +1258,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
     {
     cgmcomhead(head, 2, 4, 2);
     head += 2;
-    head += cgmAppShort(head, (short int) im->markerspec);
+    head += cgmAppShort(head, static_cast<short int>(im->markerspec));
     octet_count += 4;
     }
   /* Picture Descriptor: Edge Width Specification Mode;
@@ -1266,17 +1267,17 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
     {
     cgmcomhead(head, 2, 5, 2);
     head += 2;
-    head += cgmAppShort(head, (short int) im->edgespec);
+    head += cgmAppShort(head, static_cast<short int>(im->edgespec));
     octet_count += 4;
     }
 
   /*** Attribute: VDCExt; Elem Class 2; Elem ID 6 */
   cgmcomhead(head, 2, 6, 8);
   head += 2;
-  head += cgmAppShort(head, (short int) 0);
-  head += cgmAppShort(head, (short int) 0);
-  head += cgmAppShort(head, (short int) im->sx);
-  head += cgmAppShort(head, (short int) im->sy);
+  head += cgmAppShort(head, static_cast<short int>(0));
+  head += cgmAppShort(head, static_cast<short int>(0));
+  head += cgmAppShort(head, static_cast<short int>(im->sx));
+  head += cgmAppShort(head, static_cast<short int>(im->sy));
   octet_count += 10;
 
   /*** Attribute: Begin Picture Body; Elem Class 0; Elem ID 4 */
@@ -1431,7 +1432,7 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1448,14 +1449,14 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
   /* set Param_List_Len to 2 (signed int at index precision) */
 
   /* add in the value of lntype */
-  es += cgmAppShort(es, (short int) lntype);
+  es += cgmAppShort(es, static_cast<short int>(lntype));
 
   octet_count = 4; /* we just know this */
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->ltype = (short int) lntype;
+    im->ltype = static_cast<short int>(lntype);
     free(esp);
     return 1;
     }
@@ -1492,7 +1493,7 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1511,7 +1512,7 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
       }
     es += 2;
     octet_count = 2;
-    es += cgmAppShort(es, (short int) lnwidth);
+    es += cgmAppShort(es, static_cast<short int>(lnwidth));
     octet_count += 2;
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
@@ -1526,7 +1527,7 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
       }
     octet_count = 2;
     es += 2;
-    es += cgmAppShort(es, (short int) lnwidth);
+    es += cgmAppShort(es, static_cast<short int>(lnwidth));
     octet_count += 2;
     }
 
@@ -1574,7 +1575,7 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1600,7 +1601,7 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->lcolor = (short int) lncolor;
+    im->lcolor = static_cast<short int>(lncolor);
     free(esp);
     return 1;
     }
@@ -1647,7 +1648,7 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1663,14 +1664,14 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
   es += 2;
 
   /* add in the value of inhatch */
-  es += cgmAppShort(es, (short int) instyle);
+  es += cgmAppShort(es, static_cast<short int>(instyle));
 
   octet_count = 4; /* we just know this */
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->shapestyle = (short int) instyle;
+    im->shapestyle = static_cast<short int>(instyle);
     free(esp);
     return 1;
     }
@@ -1713,7 +1714,7 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1737,7 +1738,7 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->shapecolor = (short int) incolor;
+    im->shapecolor = static_cast<short int>(incolor);
     free(esp);
     return 1;
     }
@@ -1785,7 +1786,7 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1812,7 +1813,7 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->shapehatch = (short int) inhatch;
+    im->shapehatch = static_cast<short int>(inhatch);
     free(esp);
     return 1;
     }
@@ -1862,7 +1863,7 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1873,14 +1874,14 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
   es += 2;
 
   /* add in the value of edtype */
-  es += cgmAppShort(es, (short int) edtype);
+  es += cgmAppShort(es, static_cast<short int>(edtype));
 
   octet_count = 4; /* we just know this */
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->edgetype = (short int) edtype;
+    im->edgetype = static_cast<short int>(edtype);
     free(esp);
     return 1;
     }
@@ -1917,7 +1918,7 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -1944,7 +1945,11 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     }
   else 
     {
-    if (!cgmcomhead(es, 5, 28, 2)) {free(esp);return 0;}
+    if (!cgmcomhead(es, 5, 28, 2))
+      {
+      free(esp);
+      return 0;
+      }
     es += 2;
     octet_count = 2;
     es+= cgmAppShort(es, edwidth);
@@ -1997,7 +2002,7 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2020,7 +2025,7 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->edgecolor = (short int) edcolor;
+    im->edgecolor = static_cast<short int>(edcolor);
     free(esp);
     return 1;
     }
@@ -2058,7 +2063,7 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2081,7 +2086,7 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->edgevis = (short int) edvis;
+    im->edgevis = static_cast<short int>(edvis);
     free(esp);
     return 1;
     }
@@ -2134,7 +2139,7 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2148,14 +2153,14 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
     }
   es += 2;
 
-  es += cgmAppShort(es, (short int) font);
+  es += cgmAppShort(es, static_cast<short int>(font));
 
   octet_count = 4; /* we just know this */
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->textfont = (short int) font;
+    im->textfont = static_cast<short int>(font);
     free(esp);
     return 1;
     }
@@ -2195,7 +2200,7 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2218,7 +2223,7 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->textcolor = (short int) color;
+    im->textcolor = static_cast<short int>(color);
     free(esp);
     return 1;
     }
@@ -2251,7 +2256,7 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2309,7 +2314,7 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2323,13 +2328,13 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
     }
   es +=2; octet_count = 2;
 
-  es += cgmAppShort(es, (short int) tpath);
+  es += cgmAppShort(es, static_cast<short int>(tpath));
   octet_count += 2;
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->textpath = (short int) tpath;
+    im->textpath = static_cast<short int>(tpath);
     free(esp);
     return 1;
     }
@@ -2433,7 +2438,7 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2456,7 +2461,7 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->mtype = (short int) mtype;
+    im->mtype = static_cast<short int>(mtype);
     free(esp);
     return 1;
     }
@@ -2493,7 +2498,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2509,7 +2514,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
     if (!cgmcomhead(es, 5, 7, 4)) {free(esp);return 0;}
     octet_count = 2;
     es += 2;
-    es += cgmAppShort(es, (short int) msize);
+    es += cgmAppShort(es, static_cast<short int>(msize));
     octet_count += 2;
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
@@ -2573,7 +2578,7 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
     }
 
   /* allocate sufficent space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
     return 0; /* memory allocation failed */
@@ -2581,7 +2586,11 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
   esp=es;
 
 
-  if (!cgmcomhead(es, 5, 8, 1)) {free (esp);return 0;}
+  if (!cgmcomhead(es, 5, 8, 1))
+    {
+    free (esp);
+    return 0;
+    }
   es += 2;
 
   *es =  0377 & mcolor; /* mask off last 8 bits and put in es */
@@ -2595,7 +2604,7 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count)) 
     {
-    im->mcolor = (short int) mcolor;
+    im->mcolor = static_cast<short int>(mcolor);
     free(esp);
     return 1;
     }
@@ -2606,7 +2615,8 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
     }
 }
 
-static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor)
+static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth,
+                            int lncolor)
 {
 /* Spits out the attributes of lines.  These attributes stay in effect
  * until changed, so you don't have to output them every time.
@@ -2628,7 +2638,8 @@ static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor
   return 1;
 }
 
-static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int inhatch)
+static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor,
+                                 int inhatch)
 {
 /* Spits out the attributes for the interior of filled-area elements.
  * These attributes stay in effect until changed, so you don't have to output
@@ -2659,7 +2670,8 @@ static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int i
   return 1;
 }
 
-static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth, int edcolor, int edvis)
+static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth,
+                                 int edcolor, int edvis)
 {
 /* Spits out the attributes for the edges of filled-area elements.  It may
  * seem logical that these would be the same as the corresponding line 
@@ -2861,10 +2873,10 @@ static int cgmImageAddColorIndex(cgmImagePtr im, int r, int g, int b)
       }
     im->colorsTotal++;
     }
-  im->red[ct] = (short int) r;
-  im->green[ct] = (short int) g;
-  im->blue[ct] = (short int) b;
-  im->open[ct] = (short int) 0;
+  im->red[ct] = static_cast<short int>(r);
+  im->green[ct] = static_cast<short int>(g);
+  im->blue[ct] = static_cast<short int>(b);
+  im->open[ct] = static_cast<short int>(0);
 
   return ct;
 }
@@ -2895,7 +2907,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
     {
     /* we can use the short form of the command */
     /* allocate sufficent space. Should be 32 bits * 10 to be safe*/
-    cts = (unsigned char *) calloc(4*10, SIZEOF(unsigned char ) );
+    cts = static_cast<unsigned char *>( calloc(4*10, SIZEOF(unsigned char ) ));
     if (!cts) 
       {
       return -1; /* memory allocation failed */
@@ -2912,7 +2924,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
     {
     /* we must use the long form of the command */
     /* allocate sufficent space. Should be 32 bits*256 to be safe*/
-    cts = (unsigned char *) calloc(256*4, SIZEOF(unsigned char ) );
+    cts = static_cast<unsigned char *>(calloc(256*4, SIZEOF(unsigned char ) ));
     if (!cts) 
       {
       return -1; /* memory allocation failed */
@@ -2931,7 +2943,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
     }
 
   /*ctsp += cgmAppByte(ctsp, (short int) si);*/
-  cgmAppByte(ctsp, (short int) si);
+  cgmAppByte(ctsp, static_cast<short int>(si));
   ctsp++;
   octet_count++;
   for (numco = si; numco <= ei; numco++) 
@@ -3639,7 +3651,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficent space. Should be 32 bits*10 to be safe */
-    es = (unsigned char *) calloc(4*10,SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3668,7 +3680,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then things could fail in a most unsavory fashion.
      */
     /* allocate sufficent space.  32 bits*(n+1) to be safe */
-    es = (unsigned char *) calloc(4*(n+1), SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3692,8 +3704,8 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
   for (x=0; x<n; x++) 
     {
     /* now we are ready for the parameter data */
-    es += cgmAppShort(es, (short int) p->x);
-    es += cgmAppShort(es, (short int) p->y);
+    es += cgmAppShort(es, static_cast<short int>(p->x));
+    es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
     }
@@ -3843,7 +3855,7 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficent space. Should be 32 bits*10 to be safe */
-    es = (unsigned char *) calloc(4*10,SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>(calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3868,7 +3880,7 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then the list may have to grow several times
      */
     /* allocate sufficent space.  32 bits*(n+1) to be safe */
-    es = (unsigned char *) calloc(4*(n+1), SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3892,8 +3904,8 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
   for (x=0; x<n; x++) 
     {
     /* now we are ready for the parameter data */
-    es += cgmAppShort(es, (short int) p->x);
-    es += cgmAppShort(es, (short int) p->y);
+    es += cgmAppShort(es, static_cast<short int>(p->x));
+    es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
     }
@@ -3936,7 +3948,7 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficent space. Should be 32 bits*10 to be safe */
-    es = (unsigned char *) calloc(4*10,SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3962,7 +3974,7 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then the list may have to grow several times
      */
     /* allocate sufficent space.  32 bits*(n+1) to be safe */
-    es = (unsigned char *) calloc(4*(n+1), SIZEOF(unsigned char ));
+    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
       return 0; /* memory allocation failed */
@@ -3986,8 +3998,8 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
   for (x=0; x<n; x++) 
     {
     /* now we are ready for the parameter data */
-    es += cgmAppShort(es, (short int) p->x);
-    es += cgmAppShort(es, (short int) p->y);
+    es += cgmAppShort(es, static_cast<short int>(p->x));
+    es += cgmAppShort(es, static_cast<short int>(p->y));
     octet_count += 4;
     p++;
     }
@@ -4352,13 +4364,14 @@ static cgmImagePtr cgmImageStartCgm()
   const char *tmps;
   int tmpsl;
   cgmImagePtr im;
-  im = (cgmImage *) calloc(SIZEOF(cgmImage), 1);
+  im = static_cast<cgmImage *>(calloc(SIZEOF(cgmImage), 1));
   if (!im) 
     {
     return 0; /* memory allocation failed */
     }
   /* elemlist is set to some number, when it is full, make it bigger */
-  im->elemlist = (unsigned char *) calloc(CGMSTARTLISTSIZE, SIZEOF(unsigned char ) );
+  im->elemlist = static_cast<unsigned char *>(calloc(CGMSTARTLISTSIZE,
+                                                     SIZEOF(unsigned char ) ));
   if (!im->elemlist) 
     {
     free(im);
@@ -4377,20 +4390,21 @@ static cgmImagePtr cgmImageStartCgm()
 
   /* don't make this longer than 250 characters */
   tmps = "vtk CGM Output file";
-  tmpsl = (int)strlen(tmps);
+  tmpsl = static_cast<int>(strlen(tmps));
   if (tmpsl >250) 
     {
     tmpsl = 250;
     }
-  im->desc = (unsigned char *) calloc(tmpsl+1, SIZEOF(unsigned char));
-  strncpy((char*)im->desc, tmps, tmpsl);
+  im->desc = static_cast<unsigned char *>( calloc(tmpsl+1, SIZEOF(unsigned char)));
+  strncpy(reinterpret_cast<char*>(im->desc), tmps, tmpsl);
   /* The font list can be quite long, but individual font names can
    * can only be 250 chars */
   tmps = "TIMES_ROMAN,TIMES_BOLD,TIMES_ITALIC,TIMES_BOLD_ITALIC,HELVETICA,HELVETICA_BOLD,HELVETICA_ITALIC,HELVETICA_BOLD_ITALIC,COURIER,COURIER_BOLD,COURIER_ITALIC,COURIER_BOLD_ITALIC";
   im->numfonts=12;
-  tmpsl = (int)strlen(tmps);
-  im->fontlist = (unsigned char *) calloc(tmpsl+1, SIZEOF(unsigned char));
-  strcpy((char*)im->fontlist, tmps);
+  tmpsl = static_cast<int>(strlen(tmps));
+  im->fontlist = static_cast<unsigned char *>( calloc(tmpsl+1,
+                                                      SIZEOF(unsigned char)));
+  strcpy(reinterpret_cast<char*>(im->fontlist), tmps);
   im->outfile = NULL;
 
   if (!cgmImageSetDefaults(im)) 
@@ -4416,7 +4430,7 @@ static int cgmImageEndPic(cgmImagePtr im)
     return 0;
     }
 
-  esp = (unsigned char *) calloc(1024, SIZEOF(unsigned char ));
+  esp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
   if (!esp) 
     {
     return 0; /* memory allocation failed */
@@ -4455,7 +4469,7 @@ static int cgmImageEndCgm (cgmImagePtr im)
   cgmImageEndPic(im);
   if (im->state == 2) 
     { /* We have closed the pic, but not the CGM */
-    efile = (unsigned char *) calloc(4*4,SIZEOF(unsigned char ));
+    efile = static_cast<unsigned char *>( calloc(4*4,SIZEOF(unsigned char )));
     if (!efile) 
       {
       return 0; /* memory allocation failed */
@@ -4481,7 +4495,7 @@ static int cgmImageEndCgm (cgmImagePtr im)
     used = im->listlen - im->bytestoend;
     for (x=0;x < used; x++) 
       {
-      putc((unsigned char) im->elemlist[x], im->outfile);
+      putc(static_cast<unsigned char>(im->elemlist[x]), im->outfile);
       }
     } /* else do nothing */
 

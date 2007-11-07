@@ -28,7 +28,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.58");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.59");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -243,13 +243,13 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     // treating vtkIdType as int
     for (i=0; i < (npts-1); i++)
       {
-      if (fprintf (geomFile, "%d ", (int)(pts[i]+1)) < 0)
+      if (fprintf (geomFile, "%d ", static_cast<int>(pts[i]+1)) < 0)
         {
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
         }
       }
-    if (fprintf (geomFile, "%d\n", (int)(-(pts[npts-1]+1))) < 0)
+    if (fprintf (geomFile, "%d\n", static_cast<int>(-(pts[npts-1]+1))) < 0)
       {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;

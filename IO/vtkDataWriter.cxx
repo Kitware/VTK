@@ -41,7 +41,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.126");
+vtkCxxRevisionMacro(vtkDataWriter, "1.127");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -170,8 +170,8 @@ ostream *vtkDataWriter::OpenVTKFile()
       return NULL;    
       }
     input->Update();
-    this->OutputStringAllocatedLength = (int) (500 
-      + 1024 * input->GetActualMemorySize());
+    this->OutputStringAllocatedLength =
+      static_cast<int> (500+ 1024 * input->GetActualMemorySize());
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
     fptr = new vtksys_ios::ostringstream;
@@ -559,18 +559,22 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
         {
         case 2:
           // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
+          vtkByteSwap::SwapWrite2BERange(reinterpret_cast<short *>(data),
+                                         num*numComp, fp);
           break;
         case 4:
           // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
+          vtkByteSwap::SwapWrite4BERange(reinterpret_cast<float *>(data),
+                                         num*numComp, fp);
           break;
         case 8:
           // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite8BERange((double *)data,num*numComp, fp);
+          vtkByteSwap::SwapWrite8BERange(reinterpret_cast<double *>(data),
+                                         num*numComp, fp);
           break;
         default:
-          fp->write((char *)data, ( sizeof(T))*( num*numComp));
+          fp->write(reinterpret_cast<char *>(data),
+                    ( sizeof(T))*( num*numComp));
 
         }
       }
@@ -599,7 +603,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
           for (i=0; i<numComp; i++)
             {
             idx = i + j*numComp;
-            s = ((vtkBitArray *)data)->GetValue(idx);
+            s = static_cast<vtkBitArray *>(data)->GetValue(idx);
             *fp << (s!=0.0?1:0); 
             if ( !((idx+1)%8) )
               {
@@ -614,8 +618,10 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
         }
       else
         {
-        unsigned char *cptr=((vtkUnsignedCharArray *)data)->GetPointer(0);
-        fp->write((char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
+        unsigned char *cptr=
+          static_cast<vtkUnsignedCharArray *>(data)->GetPointer(0);
+        fp->write(reinterpret_cast<char *>(cptr),
+                  (sizeof(unsigned char))*((num-1)/8+1));
 
         }
       *fp << "\n";
@@ -625,7 +631,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_CHAR:
       {
       sprintf (str, format, "char"); *fp << str; 
-      char *s=((vtkCharArray *)data)->GetPointer(0);
+      char *s=static_cast<vtkCharArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
       }
     break;
@@ -633,7 +639,8 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED_CHAR:
       {
       sprintf (str, format, "unsigned_char"); *fp << str; 
-      unsigned char *s=((vtkUnsignedCharArray *)data)->GetPointer(0);
+      unsigned char *s=
+        static_cast<vtkUnsignedCharArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%hhu ", num, numComp);
       }
     break;
@@ -641,7 +648,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_SHORT:
       {
       sprintf (str, format, "short"); *fp << str; 
-      short *s=((vtkShortArray *)data)->GetPointer(0);
+      short *s=static_cast<vtkShortArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%hd ", num, numComp);
       }
     break;
@@ -649,7 +656,8 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED_SHORT:
       {
       sprintf (str, format, "unsigned_short"); *fp << str; 
-      unsigned short *s=((vtkUnsignedShortArray *)data)->GetPointer(0);
+      unsigned short *s=
+        static_cast<vtkUnsignedShortArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%hu ", num, numComp);
       }
     break;
@@ -657,7 +665,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_INT:
       {
       sprintf (str, format, "int"); *fp << str; 
-      int *s=((vtkIntArray *)data)->GetPointer(0);
+      int *s=static_cast<vtkIntArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
       }
     break;
@@ -665,7 +673,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED_INT:
       {
       sprintf (str, format, "unsigned_int"); *fp << str; 
-      unsigned int *s=((vtkUnsignedIntArray *)data)->GetPointer(0);
+      unsigned int *s=static_cast<vtkUnsignedIntArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%u ", num, numComp);
       }
     break;
@@ -673,7 +681,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_LONG:
       {
       sprintf (str, format, "long"); *fp << str; 
-      long *s=((vtkLongArray *)data)->GetPointer(0);
+      long *s=static_cast<vtkLongArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%ld ", num, numComp);
       }
     break;
@@ -681,7 +689,8 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED_LONG:
       {
       sprintf (str, format, "unsigned_long"); *fp << str; 
-      unsigned long *s=((vtkUnsignedLongArray *)data)->GetPointer(0);
+      unsigned long *s=
+        static_cast<vtkUnsignedLongArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%lu ", num, numComp);
       }
     break;
@@ -700,7 +709,8 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED___INT64:
       {
       sprintf (str, format, "vtktypeuint64"); *fp << str; 
-      unsigned __int64 *s= static_cast<unsigned __int64*>(data->GetVoidPointer(0));
+      unsigned __int64 *s=
+        static_cast<unsigned __int64*>(data->GetVoidPointer(0));
       strcpy(outputFormat, vtkTypeTraits<unsigned __int64>::ParseFormat());
       strcat(outputFormat, " ");
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
@@ -722,7 +732,8 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_UNSIGNED_LONG_LONG:
       {
       sprintf (str, format, "vtktypeuint64"); *fp << str; 
-      unsigned long long *s= static_cast<unsigned long long*>(data->GetVoidPointer(0));
+      unsigned long long *s=
+        static_cast<unsigned long long*>(data->GetVoidPointer(0));
       strcpy(outputFormat, vtkTypeTraits<unsigned long long>::ParseFormat());
       strcat(outputFormat, " ");
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
@@ -733,7 +744,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_FLOAT:
       {
       sprintf (str, format, "float"); *fp << str; 
-      float *s=((vtkFloatArray *)data)->GetPointer(0);
+      float *s=static_cast<vtkFloatArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
       }
     break;
@@ -741,7 +752,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_DOUBLE:
       {
       sprintf (str, format, "double"); *fp << str; 
-      double *s=((vtkDoubleArray *)data)->GetPointer(0);
+      double *s=static_cast<vtkDoubleArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%lg ", num, numComp);
       }
     break;
@@ -752,7 +763,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       int size = data->GetNumberOfTuples();
       int *intArray = new int[size*numComp];
       sprintf (str, format, "vtkIdType"); *fp << str; 
-      vtkIdType *s=((vtkIdTypeArray *)data)->GetPointer(0);
+      vtkIdType *s=static_cast<vtkIdTypeArray *>(data)->GetPointer(0);
       for (i = 0; i < size*numComp; i++)
         {
         intArray[i] = s[i];
@@ -773,7 +784,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
           for (i=0; i<numComp; i++)
             {
             idx = i + j*numComp;
-            s = ((vtkStringArray *)data)->GetValue(idx);
+            s = static_cast<vtkStringArray *>(data)->GetValue(idx);
             this->EncodeWriteString(fp, s.c_str(), false);
             *fp << "\n";
             }
@@ -787,21 +798,24 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
           for (i=0; i<numComp; i++)
             {
             idx = i + j*numComp;
-            s = ((vtkStringArray *)data)->GetValue(idx);
+            s = static_cast<vtkStringArray *>(data)->GetValue(idx);
             vtkTypeUInt64 length = s.length();
             if (length < (static_cast<vtkTypeUInt64>(1) << 6))
               {
-              vtkTypeUInt8 len = (static_cast<vtkTypeUInt8>(3) << 6) | static_cast<vtkTypeUInt8>(length);
-              fp->write((char*)(&len), 1);
+              vtkTypeUInt8 len = (static_cast<vtkTypeUInt8>(3) << 6)
+                | static_cast<vtkTypeUInt8>(length);
+              fp->write(reinterpret_cast<char*>(&len), 1);
               }
             else if (length < (static_cast<vtkTypeUInt64>(1) << 14))
               {
-              vtkTypeUInt16 len = (static_cast<vtkTypeUInt16>(2) << 14) | static_cast<vtkTypeUInt16>(length);
+              vtkTypeUInt16 len = (static_cast<vtkTypeUInt16>(2) << 14)
+                | static_cast<vtkTypeUInt16>(length);
               vtkByteSwap::SwapWrite2BERange(&len, 1, fp);
               }
             else if (length < (static_cast<vtkTypeUInt64>(1) << 30))
               {
-              vtkTypeUInt32 len = (static_cast<vtkTypeUInt32>(1) << 30) | static_cast<vtkTypeUInt32>(length);
+              vtkTypeUInt32 len = (static_cast<vtkTypeUInt32>(1) << 30)
+                | static_cast<vtkTypeUInt32>(length);
               vtkByteSwap::SwapWrite4BERange(&len, 1, fp);
               }
             else
@@ -819,7 +833,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     case VTK_VARIANT:
       {
       sprintf (str, format, "variant"); *fp << str; 
-      vtkVariant *v=((vtkVariantArray *)data)->GetPointer(0);
+      vtkVariant *v=static_cast<vtkVariantArray *>(data)->GetPointer(0);
       for (j = 0; j < num*numComp; j++)
         {
         *fp << v[j].GetType() << " ";
@@ -902,7 +916,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   if ( (lut=scalars->GetLookupTable()) == NULL || 
        (size = lut->GetNumberOfColors()) <= 0 )
     {
-    name = (char *) "default";
+    name = static_cast<char *>("default");
     }
   else 
     {
@@ -958,7 +972,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   else //color scalars
     {
     int nvs = scalars->GetNumberOfComponents();
-    unsigned char *data=((vtkUnsignedCharArray *)scalars)->GetPointer(0);
+    unsigned char *data=
+      static_cast<vtkUnsignedCharArray *>(scalars)->GetPointer(0);
     *fp << "COLOR_SCALARS " << scalarsName << " " << nvs << "\n";
 
     if ( this->FileType == VTK_ASCII )
@@ -967,7 +982,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
         {
         for (j=0; j<nvs; j++)
           {
-          *fp << ((float)data[nvs*i+j]/255.0) << " ";
+          *fp << (static_cast<float>(data[nvs*i+j])/255.0) << " ";
           }
         if ( i != 0 && !(i%2) )
           {
@@ -977,8 +992,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
       }
     else // binary type
       {
-      fp->write((char *)data, (sizeof(unsigned char))*(nvs*num));
-
+      fp->write(reinterpret_cast<char *>(data),
+                (sizeof(unsigned char))*(nvs*num));
       }
 
     *fp << "\n";
@@ -1002,7 +1017,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     else
       {
       unsigned char *colors=lut->GetPointer(0);
-      fp->write((char *)colors, (sizeof(unsigned char)*4*size));
+      fp->write(reinterpret_cast<char *>(colors),
+                (sizeof(unsigned char)*4*size));
       }
     *fp << "\n";
     }
@@ -1342,11 +1358,11 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
       {
       // currently writing vtkIdType as int
-      *fp << (int)npts << " ";
+      *fp << static_cast<int>(npts) << " ";
       for (j=0; j<npts; j++)
         {
         // currently writing vtkIdType as int
-        *fp << (int)pts[j] << " ";
+        *fp << static_cast<int>(pts[j]) << " ";
         }
       *fp << "\n";
       }
@@ -1395,7 +1411,8 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     {
     if (this->WriteToOutputString)
       {
-      vtksys_ios::ostringstream *ostr = (vtksys_ios::ostringstream*)(fp);
+      vtksys_ios::ostringstream *ostr =
+        static_cast<vtksys_ios::ostringstream*>(fp);
 
       if (this->OutputString &&
           static_cast<unsigned int>(this->OutputStringAllocatedLength) > ostr->str().size())
@@ -1457,7 +1474,7 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "Output String Length: " << this->OutputStringLength << "\n";
-  os << indent << "Output String (addr): " << ((void *)this->OutputString) << "\n";
+  os << indent << "Output String (addr): " << static_cast<void *>(this->OutputString) << "\n";
   os << indent << "WriteToOutputString: " << (this->WriteToOutputString ? "On\n" : "Off\n");
 
   if ( this->ScalarsName )
