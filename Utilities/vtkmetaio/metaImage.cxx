@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <string>
 #include <string.h> // for memcpy
+#include <stdlib.h> // atoi
 #include <math.h>
 
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)
