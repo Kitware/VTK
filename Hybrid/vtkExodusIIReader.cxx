@@ -723,7 +723,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.44");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.45");
 
 
 
@@ -1677,7 +1677,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.44");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.45");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -1940,6 +1940,9 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
   vtksys::RegularExpression reTensor( "(.*)[XxYyZz][XxYyZz]$" );
   vtksys::RegularExpression reVector( "(.*)[XxYyZz]$" );
   vtksys::RegularExpression reGaussP( "(.*)_([^_]*)_GP([0-9]+)$" );
+
+  // Clear out existing array names since we are re-reading them in.
+  this->ArrayInfo[objtyp].clear();
 
   ArrayInfoType ainfo;
   for ( int i = 0; i < num_vars; ++i )
@@ -5925,7 +5928,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.44");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.45");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
