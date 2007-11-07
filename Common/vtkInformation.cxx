@@ -38,7 +38,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.24");
+vtkCxxRevisionMacro(vtkInformation, "1.25");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -762,4 +762,16 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
       return;
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::SetRequest(vtkInformationRequestKey* request)
+{
+  this->Request = request;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationRequestKey* vtkInformation::GetRequest()
+{
+  return this->Request;
 }

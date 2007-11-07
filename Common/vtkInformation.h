@@ -282,9 +282,9 @@ public:
 
   // Description:
   // Get/Set the Request ivar
-  VTK_COMMON_EXPORT void SetRequest(vtkInformationRequestKey *request) { this->Request = request; }
-  VTK_COMMON_EXPORT vtkInformationRequestKey *GetRequest() { return this->Request; }
-      
+  VTK_COMMON_EXPORT void SetRequest(vtkInformationRequestKey* request);
+  VTK_COMMON_EXPORT vtkInformationRequestKey* GetRequest();
+
   //BTX
   // Description:
   // Copy the key/value pair associated with the given key in the
