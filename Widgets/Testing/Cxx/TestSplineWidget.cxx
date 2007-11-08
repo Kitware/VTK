@@ -231,7 +231,8 @@ int TestSplineWidget( int argc, char *argv[] )
     spline->SetProjectionNormal(0);
     spline->SetProjectionPosition(102.4);  //initial plane oriented position
     spline->SetProjectionNormal(3); //allow arbitrary oblique orientations
-    spline->SetPlaneSource((vtkPlaneSource*)ipw->GetPolyDataAlgorithm());
+    spline->SetPlaneSource(
+      static_cast<vtkPlaneSource*>(ipw->GetPolyDataAlgorithm()));
 
 
   // Specify the type of spline (change from default vtkCardinalSpline)

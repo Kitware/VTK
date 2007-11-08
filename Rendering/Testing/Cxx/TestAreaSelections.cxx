@@ -61,7 +61,8 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   double y1 = renderer->GetPickY2();
 
   sel->SetRenderPasses(0,1,0,1,1);
-  sel->SetArea((int)x0,(int)y0,(int)x1,(int)y1);
+  sel->SetArea(static_cast<int>(x0),static_cast<int>(y0),static_cast<int>(x1),
+               static_cast<int>(y1));
   sel->Select();
   vtkSelection *res = vtkSelection::New();
   sel->GetSelectedIds(res);
@@ -180,7 +181,7 @@ int TestAreaSelections(int argc, char* argv[])
   //pass pick events to the VisibleCellSelector
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(EndPick);
-  cbc->SetClientData((void *)renderer);
+  cbc->SetClientData(renderer);
   rwi->AddObserver(vtkCommand::EndPickEvent,cbc);
   cbc->Delete();
 

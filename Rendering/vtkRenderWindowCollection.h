@@ -36,35 +36,42 @@ class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
 
   // Description:
   // Add a RenderWindow to the list.
-  void AddItem(vtkRenderWindow *a) {
-    this->vtkCollection::AddItem((vtkObject *)a);};
+  void AddItem(vtkRenderWindow *a)
+    {
+      this->vtkCollection::AddItem(a);
+    }
   
   // Description:
   // Get the next RenderWindow in the list. Return NULL when at the end of the 
   // list.
-  vtkRenderWindow *GetNextItem() {
-    return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());};
+  vtkRenderWindow *GetNextItem()
+    {
+      return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
+    }
   
   //BTX
   // Description: 
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth. 
-  vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));};
+  vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie)
+    {
+      return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));
+    }
   //ETX
 
 protected:
-  vtkRenderWindowCollection() {};
-  ~vtkRenderWindowCollection() {};
+  vtkRenderWindowCollection() {}
+  ~vtkRenderWindowCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o)
+    {
+      this->vtkCollection::AddItem(o);
+    }
 
 private:
   vtkRenderWindowCollection(const vtkRenderWindowCollection&);  // Not implemented.
   void operator=(const vtkRenderWindowCollection&);  // Not implemented.
 };
-
-
 #endif

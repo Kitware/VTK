@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.63");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.64");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -53,7 +53,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->Index && renWin)
     {
-    ((vtkRenderWindow *) renWin)->MakeCurrent();
+    static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1
     // free any textures
     if (glIsTexture(this->Index))
@@ -151,8 +151,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
 
     // xsize and ysize must be a power of 2 in OpenGL
-    xs = (unsigned short)xsize;
-    ys = (unsigned short)ysize;
+    xs = static_cast<unsigned short>(xsize);
+    ys = static_cast<unsigned short>(ysize);
     while (!(xs & 0x01))
       {
       xs = xs >> 1;
@@ -232,18 +232,18 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // get a unique display list id
 #ifdef GL_VERSION_1_1
     glGenTextures(1, &tempIndex);
-    this->Index = (long) tempIndex;
+    this->Index = static_cast<long>(tempIndex);
     glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
     this->Index = glGenLists(1);
-    glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
-    glNewList ((GLuint) this->Index, GL_COMPILE);
+    glDeleteLists (static_cast<GLuint>(this->Index), static_cast<GLsizei>(0));
+    glNewList (static_cast<GLuint>(this->Index), GL_COMPILE);
 #endif
     //seg fault protection for those wackos that don't use an
     //opengl render window
     if(this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
       {
-      ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->
+      static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
         RegisterTextureResource( this->Index );
       }
 
@@ -302,7 +302,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 #endif
     glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
                   xsize, ysize, 0, format, 
-                  GL_UNSIGNED_BYTE, (const GLvoid *)resultData );
+                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(resultData) );
 #ifndef GL_VERSION_1_1
     glEndList ();
 #endif
@@ -325,7 +325,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   
   // don't accept fragments if they have zero opacity. this will stop the
   // zbuffer from be blocked by totally transparent texture fragments.
-  glAlphaFunc (GL_GREATER, (GLclampf) 0);
+  glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
   // now bind it 
@@ -381,8 +381,8 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
   xsize = FindPowerOfTwo(xs);
   ysize = FindPowerOfTwo(ys);
   
-  hx = (float)(xs - 1.0) / (xsize - 1.0);
-  hy = (float)(ys - 1.0) / (ysize - 1.0);
+  hx = static_cast<float>(xs - 1.0) / (xsize - 1.0);
+  hy = static_cast<float>(ys - 1.0) / (ysize - 1.0);
 
   tptr = p = new unsigned char[xsize*ysize*bpp];
 
@@ -391,7 +391,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
     {
     pcoords[1] = j*hy;
 
-    jIdx = (int)pcoords[1];
+    jIdx = static_cast<int>(pcoords[1]);
     if ( jIdx >= (ys-1) ) //make sure to interpolate correctly at edge
       {
       jIdx = ys - 2;
@@ -407,7 +407,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
     for (i=0; i < xsize; i++)
       {
       pcoords[0] = i*hx;
-      iIdx = (int)pcoords[0];
+      iIdx = static_cast<int>(pcoords[0]);
       if ( iIdx >= (xs-1) ) 
         {
         iIdx = xs - 2;
@@ -432,7 +432,8 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
       w3 = pcoords[0]*pcoords[1];
       for (k=0; k < bpp; k++)
         {
-        *p++ = (unsigned char) (p1[k]*w0 + p2[k]*w1 + p3[k]*w2 + p4[k]*w3);
+        *p++ = static_cast<unsigned char>(p1[k]*w0 + p2[k]*w1 + p3[k]*w2
+                                          + p4[k]*w3);
         }
       }
     }

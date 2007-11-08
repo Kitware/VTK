@@ -126,7 +126,10 @@ public:
   vtkstd::map< vtkProp *, vtkstd::string > m_ActorDescription;
 
 protected:
-  TestScenePickerCommand() { this->SetActorDescription((vtkActor*)NULL, "None"); }
+  TestScenePickerCommand()
+    {
+      this->SetActorDescription(static_cast<vtkActor*>(NULL), "None");
+    }
   virtual ~TestScenePickerCommand() {}
 };
 

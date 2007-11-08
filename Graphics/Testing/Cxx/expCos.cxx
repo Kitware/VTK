@@ -78,7 +78,7 @@ int expCos( int argc, char *argv[] )
   for (i=0; i<numPts; i++)
     {
     input->GetPoint(i,x);
-    r = sqrt((double)x[0]*x[0] + x[1]*x[1]);
+    r = sqrt(static_cast<double>(x[0]*x[0]) + x[1]*x[1]);
     x[2] = exp(-r) * cos (10.0*r);
     newPts->SetPoint(i,x);
     deriv = -exp(-r) * (cos(10.0*r) + 10.0*sin(10.0*r));

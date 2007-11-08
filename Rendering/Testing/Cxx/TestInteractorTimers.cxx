@@ -43,7 +43,7 @@ public:
     {
     if (vtkCommand::TimerEvent == eventId)
       {
-      int tid = * (int *) callData;
+      int tid = * static_cast<int *>(callData);
 
       if (tid == this->ReallyFastTimerId)
         {
@@ -66,7 +66,7 @@ public:
             n = 20 - n;
             }
 
-          double f = (double) n / 10.0;
+          double f = static_cast<double>(n) / 10.0;
 
           vtkRenderer *renderer = iren->GetRenderWindow()->GetRenderers()->GetFirstRenderer();
           if (renderer)
