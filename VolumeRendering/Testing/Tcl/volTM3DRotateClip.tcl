@@ -104,8 +104,8 @@ volumeMapper AddClippingPlane plane4
 
 # Okay now the graphics stuff
 vtkRenderer ren1
-ren1 ReportGraphicErrorsOn
 vtkRenderWindow renWin
+    renWin ReportGraphicErrorsOn
     renWin AddRenderer ren1
     renWin SetSize 256 256
 vtkRenderWindowInteractor iren
