@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    TestFBO.cxx
+Program:   Visualization Toolkit
+Module:    TestFBO.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
@@ -218,7 +218,7 @@ void DisplayFrameBufferAttachment(unsigned int uattachment)
       vtkgl::GetFramebufferAttachmentParameterivEXT(
         vtkgl::FRAMEBUFFER_EXT,attachment,
         vtkgl::FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT,&params);
-       CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT");
+      CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT");
       cout<<" this attachment is a texture with name: "<<params<<endl;
       vtkgl::GetFramebufferAttachmentParameterivEXT(
         vtkgl::FRAMEBUFFER_EXT,attachment,
@@ -240,11 +240,11 @@ void DisplayFrameBufferAttachment(unsigned int uattachment)
             <<params<<endl;
         }
 #endif
-       vtkgl::GetFramebufferAttachmentParameterivEXT(
-         vtkgl::FRAMEBUFFER_EXT,attachment,
-         vtkgl::FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT,&params);
+      vtkgl::GetFramebufferAttachmentParameterivEXT(
+        vtkgl::FRAMEBUFFER_EXT,attachment,
+        vtkgl::FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT,&params);
        
-       CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT");
+      CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT");
       if(params==0)
         {
         cout<<" this is not 3D texture."<<endl;
@@ -389,7 +389,7 @@ const char *MinMagModToString(int minMagMode)
     case GL_NEAREST_MIPMAP_LINEAR:
       result="GL_NEAREST_MIPMAP_LINEAR";
       break;
-     case GL_LINEAR_MIPMAP_NEAREST:
+    case GL_LINEAR_MIPMAP_NEAREST:
       result="GL_LINEAR_MIPMAP_NEAREST";
       break;
     case GL_LINEAR_MIPMAP_LINEAR:
@@ -441,7 +441,7 @@ const char *InternalTextureFormatToString(int internalFormat)
     case GL_RGBA:
       result="GL_RGBA";
       break;
-    // sized internal format
+      // sized internal format
     case GL_ALPHA4:
       result="GL_ALPHA4";
       break;
@@ -625,6 +625,7 @@ const char *WrapModeToString(GLenum wrapMode)
       result="vtkgl::MIRRORED_REPEAT";
       break;
     default:
+      result="";
       assert("check: impossible case.");
       break;
     }
@@ -637,13 +638,13 @@ void QueryTextureObject(GLenum target)
                                  || target==GL_PROXY_TEXTURE_1D
                                  || target==GL_TEXTURE_2D
                                  || target==GL_PROXY_TEXTURE_2D
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_X
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_X
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_Y
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-                                 || target==GL_PROXY_TEXTURE_CUBE_MAP
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_X
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_X
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_Y
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_Y
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_Z
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_Z
+                                 || target==vtkgl::PROXY_TEXTURE_CUBE_MAP
                                  || target==vtkgl::TEXTURE_3D
                                  || target==vtkgl::PROXY_TEXTURE_3D
                                  || target==vtkgl::TEXTURE_RECTANGLE_ARB
@@ -691,13 +692,13 @@ void QueryTextureObject(GLenum target)
   glGetTexParameterfv(target,vtkgl::TEXTURE_BASE_LEVEL,fvalue);
   CheckOpenGLError("");
   cout<<" base level="<<fvalue[0]<<endl;
-  glGetTexParameterfv(target,GL_TEXTURE_MAX_LEVEL,fvalue);
+  glGetTexParameterfv(target,vtkgl::TEXTURE_MAX_LEVEL,fvalue);
   CheckOpenGLError("");
   cout<<" max level="<<fvalue[0]<<endl;
-  glGetTexParameterfv(target,GL_TEXTURE_LOD_BIAS,fvalue);
+  glGetTexParameterfv(target,vtkgl::TEXTURE_LOD_BIAS,fvalue);
   CheckOpenGLError("");
   cout<<" LOD bias="<<fvalue[0]<<endl;
-  glGetTexParameteriv(target,GL_DEPTH_TEXTURE_MODE,ivalue);
+  glGetTexParameteriv(target,vtkgl::DEPTH_TEXTURE_MODE,ivalue);
   CheckOpenGLError("");
   cout<<" depth texture mode=";
   switch(ivalue[0])
@@ -715,7 +716,7 @@ void QueryTextureObject(GLenum target)
       cout<<"unknown depth texture mode."<<"(0x"<< hex << ivalue[0] << dec << ")";
       break;
     }
-  glGetTexParameteriv(target,GL_TEXTURE_COMPARE_MODE,ivalue);
+  glGetTexParameteriv(target,vtkgl::TEXTURE_COMPARE_MODE,ivalue);
   CheckOpenGLError("");
   cout<<" compare mode=";
   switch(ivalue[0])
@@ -723,14 +724,14 @@ void QueryTextureObject(GLenum target)
     case GL_NONE:
       cout<<"GL_NONE";
       break;
-    case GL_COMPARE_R_TO_TEXTURE:
+    case vtkgl::COMPARE_R_TO_TEXTURE:
       cout<<"GL_COMPARE_R_TO_TEXTURE";
       break;
     default:
       cout<<"unknown."<<"(0x"<< hex << ivalue[0] << dec << ")";
       break;
     }
-  glGetTexParameteriv(target,GL_TEXTURE_COMPARE_FUNC,ivalue);
+  glGetTexParameteriv(target,vtkgl::TEXTURE_COMPARE_FUNC,ivalue);
   CheckOpenGLError("");
   cout<<" compare function=";
   switch(ivalue[0])
@@ -763,7 +764,7 @@ void QueryTextureObject(GLenum target)
       cout<<"unknown"<<"(0x"<< hex << ivalue[0] << dec << ")";
       break;
     }
-  glGetTexParameteriv(target,GL_GENERATE_MIPMAP,ivalue);
+  glGetTexParameteriv(target,vtkgl::GENERATE_MIPMAP,ivalue);
   CheckOpenGLError("");
   cout<<" generate mipmap="<<BooleanToString(ivalue[0])<<endl;
 }
@@ -774,13 +775,13 @@ void QueryTextureImage(GLenum target)
                                  || target==GL_PROXY_TEXTURE_1D
                                  || target==GL_TEXTURE_2D
                                  || target==GL_PROXY_TEXTURE_2D
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_X
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_X
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_Y
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
-                                 || target==GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-                                 || target==GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-                                 || target==GL_PROXY_TEXTURE_CUBE_MAP
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_X
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_X
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_Y
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_Y
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_POSITIVE_Z
+                                 || target==vtkgl::TEXTURE_CUBE_MAP_NEGATIVE_Z
+                                 || target==vtkgl::PROXY_TEXTURE_CUBE_MAP
                                  || target==vtkgl::TEXTURE_3D
                                  || target==vtkgl::PROXY_TEXTURE_3D
                                  || target==vtkgl::TEXTURE_RECTANGLE_ARB
@@ -794,7 +795,7 @@ void QueryTextureImage(GLenum target)
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_HEIGHT,ivalue);
   CheckOpenGLError("");
   cout<<" height="<<ivalue[0]<<endl;
-  glGetTexLevelParameteriv(target,0,GL_TEXTURE_DEPTH,ivalue);
+  glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_DEPTH,ivalue);
   CheckOpenGLError("");
   cout<<" depth="<<ivalue[0]<<endl;
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_BORDER,ivalue);
@@ -852,19 +853,19 @@ void QueryTextureImage(GLenum target)
     {
     cout<<"I"<<ivalue[0];
     }
-  glGetTexLevelParameteriv(target,0,GL_TEXTURE_DEPTH_SIZE,ivalue);
+  glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_DEPTH_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
     cout<<"D"<<ivalue[0];
     }
   cout<<endl;
-  glGetTexLevelParameteriv(target,0,GL_TEXTURE_COMPRESSED,ivalue);
+  glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_COMPRESSED,ivalue);
   CheckOpenGLError("");
   cout<<" compressed="<<BooleanToString(ivalue[0])<<endl;
   if(ivalue[0])
     {
-    glGetTexLevelParameteriv(target,0,GL_TEXTURE_COMPRESSED_IMAGE_SIZE,
+    glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_COMPRESSED_IMAGE_SIZE,
                              ivalue);
     CheckOpenGLError("");
     cout<<" compressed image size="<<ivalue[0]<<" ubytes."<<endl;
@@ -976,8 +977,8 @@ int textureFormat[13]={GL_COLOR_INDEX,
                        GL_ALPHA,
                        GL_RGB,
                        GL_RGBA,
-                       GL_BGR,
-                       GL_BGRA,
+                       vtkgl::BGR,
+                       vtkgl::BGRA,
                        GL_LUMINANCE,
                        GL_LUMINANCE_ALPHA};
 
@@ -993,9 +994,9 @@ int textureSizedInternalFormats[51]={GL_ALPHA4,
                                      GL_ALPHA8,
                                      GL_ALPHA12,
                                      GL_ALPHA16,
-                                     GL_DEPTH_COMPONENT16,
-                                     GL_DEPTH_COMPONENT24,
-                                     GL_DEPTH_COMPONENT32,
+                                     vtkgl::DEPTH_COMPONENT16,
+                                     vtkgl::DEPTH_COMPONENT24,
+                                     vtkgl::DEPTH_COMPONENT32,
                                      GL_LUMINANCE4,
                                      GL_LUMINANCE8,
                                      GL_LUMINANCE12,
@@ -1024,10 +1025,10 @@ int textureSizedInternalFormats[51]={GL_ALPHA4,
                                      GL_RGB10_A2,
                                      GL_RGBA12,
                                      GL_RGBA16,
-                                     GL_SRGB8,
-                                     GL_SRGB8_ALPHA8,
-                                     GL_SLUMINANCE8,
-                                     GL_SLUMINANCE8_ALPHA8, // idx=38,count=39
+                                     vtkgl::SRGB8,
+                                     vtkgl::SRGB8_ALPHA8,
+                                     vtkgl::SLUMINANCE8,
+                                     vtkgl::SLUMINANCE8_ALPHA8, // idx=38,count=39
                                      vtkgl::RGBA32F_ARB,
                                      vtkgl::RGB32F_ARB,
                                      vtkgl::ALPHA32F_ARB,
@@ -1053,19 +1054,19 @@ int textureFormats[13]={GL_COLOR_INDEX,
                         GL_ALPHA,
                         GL_RGB,
                         GL_RGBA,
-                        GL_BGR,
-                        GL_BGRA,
+                        vtkgl::BGR,
+                        vtkgl::BGRA,
                         GL_LUMINANCE,
                         GL_LUMINANCE_ALPHA};
 
 #if 0
 int textureFormat[7]={GL_ALPHA,
-                       GL_DEPTH_COMPONENT,
-                       GL_LUMINANCE,
-                       GL_LUMINANCE_ALPHA,
-                       GL_INTENSITY,
-                       GL_RGB,
-                       GL_RGBA //,
+                      GL_DEPTH_COMPONENT,
+                      GL_LUMINANCE,
+                      GL_LUMINANCE_ALPHA,
+                      GL_INTENSITY,
+                      GL_RGB,
+                      GL_RGBA //,
 };
 #endif
 
@@ -1077,18 +1078,18 @@ int textureType[]={GL_UNSIGNED_BYTE,
                    GL_UNSIGNED_INT,
                    GL_INT,
                    GL_FLOAT,
-                   GL_UNSIGNED_BYTE_3_3_2,
-                   GL_UNSIGNED_BYTE_2_3_3_REV,
-                   GL_UNSIGNED_SHORT_5_6_5,
-                   GL_UNSIGNED_SHORT_5_6_5_REV,
-                   GL_UNSIGNED_SHORT_4_4_4_4,
-                   GL_UNSIGNED_SHORT_4_4_4_4_REV,
-                   GL_UNSIGNED_SHORT_5_5_5_1,
-                   GL_UNSIGNED_SHORT_1_5_5_5_REV,
-                   GL_UNSIGNED_INT_8_8_8_8,
-                   GL_UNSIGNED_INT_8_8_8_8_REV,
-                   GL_UNSIGNED_INT_10_10_10_2,
-                   GL_UNSIGNED_INT_2_10_10_10_REV};
+                   vtkgl::UNSIGNED_BYTE_3_3_2,
+                   vtkgl::UNSIGNED_BYTE_2_3_3_REV,
+                   vtkgl::UNSIGNED_SHORT_5_6_5,
+                   vtkgl::UNSIGNED_SHORT_5_6_5_REV,
+                   vtkgl::UNSIGNED_SHORT_4_4_4_4,
+                   vtkgl::UNSIGNED_SHORT_4_4_4_4_REV,
+                   vtkgl::UNSIGNED_SHORT_5_5_5_1,
+                   vtkgl::UNSIGNED_SHORT_1_5_5_5_REV,
+                   vtkgl::UNSIGNED_INT_8_8_8_8,
+                   vtkgl::UNSIGNED_INT_8_8_8_8_REV,
+                   vtkgl::UNSIGNED_INT_10_10_10_2,
+                   vtkgl::UNSIGNED_INT_2_10_10_10_REV};
 
 GLenum textureTarget[2]={GL_TEXTURE_2D,
                          vtkgl::TEXTURE_RECTANGLE_ARB};
@@ -1133,16 +1134,16 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
     case vtkgl::ALPHA16F_ARB:
       result=GL_ALPHA;
       break;
-    case GL_DEPTH_COMPONENT16:
-    case GL_DEPTH_COMPONENT24:
-    case GL_DEPTH_COMPONENT32:
+    case vtkgl::DEPTH_COMPONENT16:
+    case vtkgl::DEPTH_COMPONENT24:
+    case vtkgl::DEPTH_COMPONENT32:
       result=GL_DEPTH_COMPONENT;
       break;
     case GL_LUMINANCE4:
     case GL_LUMINANCE8:
     case GL_LUMINANCE12:
     case GL_LUMINANCE16:
-    case GL_SLUMINANCE8:
+    case vtkgl::SLUMINANCE8:
     case vtkgl::LUMINANCE32F_ARB:
     case vtkgl::LUMINANCE16F_ARB:
       result=GL_LUMINANCE;
@@ -1153,7 +1154,7 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
     case GL_LUMINANCE12_ALPHA4:
     case GL_LUMINANCE12_ALPHA12:
     case GL_LUMINANCE16_ALPHA16:
-    case GL_SLUMINANCE8_ALPHA8:
+    case vtkgl::SLUMINANCE8_ALPHA8:
     case vtkgl::LUMINANCE_ALPHA32F_ARB:
     case vtkgl::LUMINANCE_ALPHA16F_ARB:
       result=GL_LUMINANCE;
@@ -1173,7 +1174,7 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
     case GL_RGB10:
     case GL_RGB12:
     case GL_RGB16:
-    case GL_SRGB8:
+    case vtkgl::SRGB8:
     case vtkgl::RGB32F_ARB:
     case vtkgl::RGB16F_ARB:
       result=GL_RGB;
@@ -1185,12 +1186,13 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
     case GL_RGB10_A2:
     case GL_RGBA12:
     case GL_RGBA16:
-    case GL_SRGB8_ALPHA8:
+    case vtkgl::SRGB8_ALPHA8:
     case vtkgl::RGBA32F_ARB:
     case vtkgl::RGBA16F_ARB:
       result=GL_RGBA;
       break;
     default:
+      result=0;
       assert("check: impossible case."); 
       break;
     }
@@ -1222,6 +1224,7 @@ const char *TargetToString(int target)
       result="vtkgl::TEXTURE_3D";
       break;
     default:
+      result="";
       assert("check: impossible case.");
       break;
     }
@@ -1249,6 +1252,7 @@ const char *WrapModeToString(int wrapMode)
       result="vtkgl::MIRRORED_REPEAT";
       break;
     default:
+      result="";
       assert("check: impossible case.");
       break;
     }
@@ -1304,8 +1308,8 @@ void TestTextureFormatsAndFBO()
               {
               cout<<" NPOT";
               }
-             int internalFormat=textureSizedInternalFormats[internalFormatIndex];
-             cout<<" "<<InternalTextureFormatToString(internalFormat)<<endl;
+            int internalFormat=textureSizedInternalFormats[internalFormatIndex];
+            cout<<" "<<InternalTextureFormatToString(internalFormat)<<endl;
             
             
             glGenTextures(1,&textureObject);
@@ -1624,7 +1628,7 @@ void TestVisual(int multiSample,
       {
       cout<<"imaging subset is supported."<<endl;
       
-      glGetIntegerv(GL_MAX_COLOR_MATRIX_STACK_DEPTH,value);
+      glGetIntegerv(vtkgl::MAX_COLOR_MATRIX_STACK_DEPTH,value);
       cout<<"GL_MAX_COLOR_MATRIX_STACK_DEPTH="<<value[0]<<" . Maximum color matrix stack depth. Min is 2."<<endl;
       CheckMinValidValue(value[0],2);
       
