@@ -56,7 +56,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.11");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.12");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -302,7 +302,7 @@ int vtkUnstructuredGrid::GetGhostLevel()
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 {
-  vtkUnstructuredGrid *ug=(vtkUnstructuredGrid *)ds;
+  vtkUnstructuredGrid *ug=static_cast<vtkUnstructuredGrid *>(ds);
   vtkPointSet::CopyStructure(ds);
 
   if (this->Connectivity != ug->Connectivity)
@@ -406,8 +406,8 @@ void vtkUnstructuredGrid::Initialize()
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 {
 
-  vtkDebugMacro(<< "Returning cell type " << (int)this->Types->GetValue(cellId));
-  return (int)this->Types->GetValue(cellId);
+  vtkDebugMacro(<< "Returning cell type " << static_cast<int>(this->Types->GetValue(cellId)));
+  return static_cast<int>(this->Types->GetValue(cellId));
 }
 
 //----------------------------------------------------------------------------
@@ -418,7 +418,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
   vtkCell *cell = NULL;
   vtkIdType *pts, numPts;
 
-  switch ((int)this->Types->GetValue(cellId))
+  switch (static_cast<int>(this->Types->GetValue(cellId)))
     {
     case VTK_VERTEX:
       if(!this->Vertex)
@@ -703,7 +703,7 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   double  x[3];
   vtkIdType *pts, numPts;
 
-  cell->SetCellType((int)Types->GetValue(cellId));
+  cell->SetCellType(static_cast<int>(Types->GetValue(cellId)));
 
   loc = this->Locations->GetValue(cellId);
   this->Connectivity->GetCell(loc,numPts,pts);
@@ -797,7 +797,7 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
   vtkDebugMacro(<< "insert location "
                 << this->Connectivity->GetInsertLocation(npts));
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
-  return this->Types->InsertNextValue((unsigned char) type);
+  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 
 }
 
@@ -812,8 +812,9 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
   // insert type and storage information
   vtkDebugMacro(<< "insert location "
                 << this->Connectivity->GetInsertLocation(npts));
-  this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
-  return this->Types->InsertNextValue((unsigned char) type);
+  this->Locations->InsertNextValue(
+    this->Connectivity->GetInsertLocation(npts));
+  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
 
 }
 
@@ -858,7 +859,7 @@ void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
   // build types
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
-    this->Types->InsertNextValue((unsigned char) type);
+    this->Types->InsertNextValue(static_cast<unsigned char>(type));
     this->Locations->InsertNextValue(cells->GetTraversalLocation(npts));
     }
 }
@@ -904,7 +905,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
   // build types
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
-    this->Types->InsertNextValue((unsigned char) types[i]);
+    this->Types->InsertNextValue(static_cast<unsigned char>(types[i]));
     this->Locations->InsertNextValue(cells->GetTraversalLocation(npts));
     }
 }
@@ -1402,7 +1403,7 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 {
   for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
     {
-    if ((int)Types->GetValue(cellId) == type)
+    if (static_cast<int>(Types->GetValue(cellId)) == type)
       {
       array->InsertNextValue(cellId);
       }
@@ -1447,7 +1448,7 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
     newGrid->Delete();
     return;
     }
-  cellGhostLevels =((vtkUnsignedCharArray*)temp)->GetPointer(0);
+  cellGhostLevels =(static_cast<vtkUnsignedCharArray*>(temp))->GetPointer(0);
 
 
   // Now threshold based on the cell ghost level array.

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.12");
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.13");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
@@ -40,13 +40,13 @@ vtkPolyData *vtkPolyDataSource::GetOutput()
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Outputs[0]);
+  return static_cast<vtkPolyData *>(this->Outputs[0]);
 }
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkPolyDataSource::GetOutput(int idx)
 {
-  return (vtkPolyData *) this->vtkSource::GetOutput(idx); 
+  return static_cast<vtkPolyData *>(this->vtkSource::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -55,12 +55,11 @@ void vtkPolyDataSource::SetOutput(vtkPolyData *output)
   this->vtkSource::SetNthOutput(0, output);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   int piece, numPieces, ghostLevel;
-  vtkPolyData *output = (vtkPolyData *)data;
+  vtkPolyData *output = static_cast<vtkPolyData *>(data);
   int idx;
 
   output->GetUpdateExtent(piece, numPieces, ghostLevel);

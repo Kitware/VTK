@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.19");
+vtkCxxRevisionMacro(vtkPolyDataToPolyDataFilter, "1.20");
 
 //----------------------------------------------------------------------------
 vtkPolyDataToPolyDataFilter::vtkPolyDataToPolyDataFilter() 
@@ -42,7 +42,7 @@ vtkPolyData *vtkPolyDataToPolyDataFilter::GetInput()
     return NULL;
     }
   
-  return (vtkPolyData *)(this->Inputs[0]);
+  return static_cast<vtkPolyData *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.6");
+vtkCxxRevisionMacro(vtkPointSet, "1.7");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -47,7 +47,7 @@ vtkPointSet::~vtkPointSet ()
 // Copy the geometric structure of an input point set object.
 void vtkPointSet::CopyStructure(vtkDataSet *ds)
 {
-  vtkPointSet *ps=(vtkPointSet *)ds;
+  vtkPointSet *ps=static_cast<vtkPointSet *>(ds);
 
   if ( this->Points != ps->Points )
     {

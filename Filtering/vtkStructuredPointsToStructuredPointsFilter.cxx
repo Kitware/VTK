@@ -18,21 +18,21 @@
 #include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.32");
+vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.33");
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkStructuredPointsToStructuredPointsFilter::vtkStructuredPointsToStructuredPointsFilter()
 {
   this->NumberOfRequiredInputs = 1;
   this->SetNumberOfInputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkStructuredPointsToStructuredPointsFilter::~vtkStructuredPointsToStructuredPointsFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkStructuredPointsToStructuredPointsFilter::SetInput(
                                                    vtkImageData *input)
@@ -40,7 +40,7 @@ void vtkStructuredPointsToStructuredPointsFilter::SetInput(
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkImageData *vtkStructuredPointsToStructuredPointsFilter::GetInput()
 {
@@ -49,11 +49,11 @@ vtkImageData *vtkStructuredPointsToStructuredPointsFilter::GetInput()
     return NULL;
     }
   
-  return (vtkStructuredPoints *)(this->Inputs[0]);
+  return static_cast<vtkStructuredPoints *>(this->Inputs[0]);
 }
 
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Copy WholeExtent, Spacing and Origin.
 void vtkStructuredPointsToStructuredPointsFilter::ExecuteInformation()
 {
@@ -71,7 +71,7 @@ void vtkStructuredPointsToStructuredPointsFilter::ExecuteInformation()
 }
 
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents( 
                                                         vtkDataObject *output)
 {
@@ -81,7 +81,7 @@ void vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents(
   this->GetInput()->RequestExactExtentOn();
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 vtkStructuredPointsToStructuredPointsFilter
 ::FillInputPortInformation(int port, vtkInformation* info)
@@ -94,7 +94,7 @@ vtkStructuredPointsToStructuredPointsFilter
   return 1;
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkStructuredPointsToStructuredPointsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

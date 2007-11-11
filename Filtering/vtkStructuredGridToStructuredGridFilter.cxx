@@ -17,28 +17,29 @@
 #include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.22");
+vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.23");
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkStructuredGridToStructuredGridFilter::vtkStructuredGridToStructuredGridFilter()
 {
   this->NumberOfRequiredInputs = 1;
   this->SetNumberOfInputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkStructuredGridToStructuredGridFilter::~vtkStructuredGridToStructuredGridFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkStructuredGridToStructuredGridFilter::SetInput(vtkStructuredGrid *input)
+void vtkStructuredGridToStructuredGridFilter::SetInput(
+  vtkStructuredGrid *input)
 {
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkStructuredGrid *vtkStructuredGridToStructuredGridFilter::GetInput()
 {
@@ -47,10 +48,10 @@ vtkStructuredGrid *vtkStructuredGridToStructuredGridFilter::GetInput()
     return NULL;
     }
   
-  return (vtkStructuredGrid *)(this->Inputs[0]);
+  return static_cast<vtkStructuredGrid *>(this->Inputs[0]);
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 int
 vtkStructuredGridToStructuredGridFilter
 ::FillInputPortInformation(int port, vtkInformation* info)
@@ -64,7 +65,7 @@ vtkStructuredGridToStructuredGridFilter
   return 1;
 }
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkStructuredGridToStructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

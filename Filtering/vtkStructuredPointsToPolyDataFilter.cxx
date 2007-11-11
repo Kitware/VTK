@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.30");
+vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.31");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()
@@ -47,7 +47,7 @@ vtkImageData *vtkStructuredPointsToPolyDataFilter::GetInput()
     return NULL;
     }
   
-  return (vtkImageData *)(this->Inputs[0]);
+  return static_cast<vtkImageData *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -65,8 +65,9 @@ void vtkStructuredPointsToPolyDataFilter::ComputeInputUpdateExtents(
 }
 
 //----------------------------------------------------------------------------
-int vtkStructuredPointsToPolyDataFilter::FillInputPortInformation(int port,
-                                                                  vtkInformation* info)
+int vtkStructuredPointsToPolyDataFilter::FillInputPortInformation(
+  int port,
+  vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
     {

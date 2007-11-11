@@ -30,7 +30,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.6");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.7");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -86,7 +86,7 @@ vtkStructuredGrid::~vtkStructuredGrid()
 // Copy the geometric and topological structure of an input structured grid.
 void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 {
-  vtkStructuredGrid *sg=(vtkStructuredGrid *)ds;
+  vtkStructuredGrid *sg=static_cast<vtkStructuredGrid *>(ds);
   vtkPointSet::CopyStructure(ds);
   int i;
 

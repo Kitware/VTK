@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.21");
+vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.22");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
@@ -36,7 +36,7 @@ vtkRectilinearGridSource::vtkRectilinearGridSource()
 //----------------------------------------------------------------------------
 vtkRectilinearGrid *vtkRectilinearGridSource::GetOutput(int idx)
 {
-  return (vtkRectilinearGrid *) this->vtkSource::GetOutput(idx); 
+  return static_cast<vtkRectilinearGrid *>(this->vtkSource::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkRectilinearGrid *vtkRectilinearGridSource::GetOutput()
     return NULL;
     }
   
-  return (vtkRectilinearGrid *)(this->Outputs[0]);
+  return static_cast<vtkRectilinearGrid *>(this->Outputs[0]);
 }
 
 //----------------------------------------------------------------------------

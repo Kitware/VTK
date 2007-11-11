@@ -17,7 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.17");
+vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.18");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridToPolyDataFilter::vtkRectilinearGridToPolyDataFilter()
@@ -47,7 +47,7 @@ vtkRectilinearGrid *vtkRectilinearGridToPolyDataFilter::GetInput()
     return NULL;
     }
   
-  return (vtkRectilinearGrid *)(this->Inputs[0]);
+  return static_cast<vtkRectilinearGrid *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
