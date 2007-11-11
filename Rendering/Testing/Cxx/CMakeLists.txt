@@ -12,6 +12,7 @@ IF(VTK_USE_DISPLAY)
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
+    TestFBO.cxx
     TestInteractorTimers.cxx
     TestLODActor.cxx
     TestOrderedTriangulator.cxx
