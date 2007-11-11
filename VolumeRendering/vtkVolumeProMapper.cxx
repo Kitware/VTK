@@ -27,7 +27,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProMapper, "1.4");
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.5");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -135,7 +135,7 @@ vtkVolumeProMapper *vtkVolumeProMapper::New()
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeProMapper");
   if(ret)
     {
-    return (vtkVolumeProMapper*)ret;
+    return static_cast<vtkVolumeProMapper*>(ret);
     }
   
 #if defined (VTK_USE_VOLUMEPRO_1000) || defined (VTK_FORCE_COMPILE_VP1000)
