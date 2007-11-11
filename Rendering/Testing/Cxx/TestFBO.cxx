@@ -365,6 +365,20 @@ const char *TextureCompressionFormat(GLint value)
     case vtkgl::COMPRESSED_RGBA_FXT1_3DFX:
       result="GL_COMPRESSED_RGBA_FXT1_3DFX";
       break;
+      
+      // extension GL_EXT_texture_sRGB
+    case vtkgl::COMPRESSED_SRGB_S3TC_DXT1_EXT:
+      result="GL_COMPRESSED_SRGB_S3TC_DXT1_EXT";
+      break;
+    case vtkgl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+      result="GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT";
+      break;
+    case vtkgl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+      result="GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT";
+      break;
+    case vtkgl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+      result="GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT";
+      break;
     default:
       result="unknown texture compression format";
       break;
