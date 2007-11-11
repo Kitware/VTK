@@ -454,13 +454,13 @@ const char *InternalTextureFormatToString(int internalFormat)
     case GL_ALPHA16:
       result="GL_ALPHA16";
       break;
-    case GL_DEPTH_COMPONENT16:
+    case vtkgl::DEPTH_COMPONENT16:
       result="GL_DEPTH_COMPONENT16";
       break;
-    case GL_DEPTH_COMPONENT24:
+    case vtkgl::DEPTH_COMPONENT24:
       result="GL_DEPTH_COMPONENT24";
       break;
-    case GL_DEPTH_COMPONENT32:
+    case vtkgl::DEPTH_COMPONENT32:
       result="GL_DEPTH_COMPONENT32";
       break;
     case GL_LUMINANCE4:
@@ -547,16 +547,16 @@ const char *InternalTextureFormatToString(int internalFormat)
     case GL_RGBA16:
       result="GL_RGBA16";
       break;
-    case GL_SRGB8:
+    case vtkgl::SRGB8:
       result="GL_RGB8";
       break;
-    case GL_SRGB8_ALPHA8:
+    case vtkgl::SRGB8_ALPHA8:
       result="GL_RGB8_ALPHA8";
       break;
-    case GL_SLUMINANCE8:
+    case vtkgl::SLUMINANCE8:
       result="GL_SLUMINANCE8";
       break;
-    case GL_SLUMINANCE8_ALPHA8:
+    case vtkgl::SLUMINANCE8_ALPHA8:
       result="GL_SLUMINANCE8_ALPHA8";
       break;
     case vtkgl::RGBA32F_ARB:
@@ -673,7 +673,7 @@ void QueryTextureObject(GLenum target)
   glGetTexParameteriv(target,GL_TEXTURE_WRAP_T,ivalue);
   CheckOpenGLError("");
   cout<<" wrap t="<<WrapModeToString(ivalue[0])<<endl;
-  glGetTexParameteriv(target,GL_TEXTURE_WRAP_R,ivalue);
+  glGetTexParameteriv(target,vtkgl::TEXTURE_WRAP_R,ivalue);
   CheckOpenGLError("");
   cout<<" wrap r="<<WrapModeToString(ivalue[0])<<endl;
   glGetTexParameterfv(target,GL_TEXTURE_PRIORITY,fvalue);
@@ -682,13 +682,13 @@ void QueryTextureObject(GLenum target)
   glGetTexParameteriv(target,GL_TEXTURE_RESIDENT,ivalue);
   CheckOpenGLError("");
   cout<<" resident="<<BooleanToString(ivalue[0])<<endl;
-  glGetTexParameterfv(target,GL_TEXTURE_MIN_LOD,fvalue);
+  glGetTexParameterfv(target,vtkgl::TEXTURE_MIN_LOD,fvalue);
   CheckOpenGLError("");
   cout<<" min LOD="<<fvalue[0]<<endl;
-  glGetTexParameterfv(target,GL_TEXTURE_MAX_LOD,fvalue);
+  glGetTexParameterfv(target,vtkgl::TEXTURE_MAX_LOD,fvalue);
   CheckOpenGLError("");
   cout<<" max LOD="<<fvalue[0]<<endl;
-  glGetTexParameterfv(target,GL_TEXTURE_BASE_LEVEL,fvalue);
+  glGetTexParameterfv(target,vtkgl::TEXTURE_BASE_LEVEL,fvalue);
   CheckOpenGLError("");
   cout<<" base level="<<fvalue[0]<<endl;
   glGetTexParameterfv(target,GL_TEXTURE_MAX_LEVEL,fvalue);
