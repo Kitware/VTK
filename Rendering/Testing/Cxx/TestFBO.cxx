@@ -1843,10 +1843,17 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   //
   renwin->Render();
 
-  QueryTexture3D();
+  if(vtkgl::TexImage3D!=0)
+    {
+    QueryTexture3D();
+    }
   QueryTexture2D();
   QueryTexture1D();
-  QueryTexture2DRectangle();
+  
+  if(ARB_texture_rectangle_supported)
+    {
+    QueryTexture2DRectangle();
+    }
 
   // Check if non-power-of-two texture is supported based on glError not
   // on the OpenGL version returned by the driver or on the list of
