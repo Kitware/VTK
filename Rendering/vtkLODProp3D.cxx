@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.44");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.45");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -1041,10 +1041,15 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
     
     }
 
-  this->SelectedLODIndex = index;
-  this->LODs[this->SelectedLODIndex].Prop3D->SetAllocatedRenderTime( t, vp );
   this->EstimatedRenderTime = 0.0;
   this->AllocatedRenderTime = t;
+  if (index == -1)
+    {
+    return;
+    }
+
+  this->SelectedLODIndex = index;
+  this->LODs[this->SelectedLODIndex].Prop3D->SetAllocatedRenderTime( t, vp );
 
   // Push the matrix down into the selected LOD
   vtkProp3D *p = this->LODs[this->SelectedLODIndex].Prop3D;
