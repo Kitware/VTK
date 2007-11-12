@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME Test of the prioity streaming support in VTK
+// .NAME Test of the priority streaming support in VTK
 
 #include "vtkContourFilter.h"
 #include "vtkImageMandelbrotSource.h"
