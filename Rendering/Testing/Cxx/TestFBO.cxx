@@ -366,7 +366,7 @@ const char *TextureCompressionFormat(GLint value)
       result="GL_COMPRESSED_RGBA_FXT1_3DFX";
       break;
       
-      // extension GL_EXT_texture_sRGB
+      // extension GL_EXT_texture_sRGB (or OpenGL>=2.1)
     case vtkgl::COMPRESSED_SRGB_S3TC_DXT1_EXT:
       result="GL_COMPRESSED_SRGB_S3TC_DXT1_EXT";
       break;
@@ -1008,9 +1008,9 @@ int textureSizedInternalFormats[51]={GL_ALPHA4,
                                      GL_ALPHA8,
                                      GL_ALPHA12,
                                      GL_ALPHA16,
-                                     vtkgl::DEPTH_COMPONENT16,
-                                     vtkgl::DEPTH_COMPONENT24,
-                                     vtkgl::DEPTH_COMPONENT32,
+                                     vtkgl::DEPTH_COMPONENT16, //4
+                                     vtkgl::DEPTH_COMPONENT24, //5
+                                     vtkgl::DEPTH_COMPONENT32, //6
                                      GL_LUMINANCE4,
                                      GL_LUMINANCE8,
                                      GL_LUMINANCE12,
@@ -1039,7 +1039,7 @@ int textureSizedInternalFormats[51]={GL_ALPHA4,
                                      GL_RGB10_A2,
                                      GL_RGBA12,
                                      GL_RGBA16,
-                                     vtkgl::SRGB8,
+                                     vtkgl::SRGB8, //35
                                      vtkgl::SRGB8_ALPHA8,
                                      vtkgl::SLUMINANCE8,
                                      vtkgl::SLUMINANCE8_ALPHA8, // idx=38,count=39
@@ -1057,7 +1057,6 @@ int textureSizedInternalFormats[51]={GL_ALPHA4,
                                      vtkgl::LUMINANCE_ALPHA16F_ARB}; // i=50,c=51
 
 const int NumberOftextureSizedInternalFormats=51;
-
 
 int textureFormats[13]={GL_COLOR_INDEX,
                         GL_STENCIL_INDEX,
@@ -1273,7 +1272,10 @@ const char *WrapModeToString(int wrapMode)
   return result;
 }
 
-int ARB_texture_rectangle_supported=0;
+bool ARB_texture_rectangle_supported=false;
+bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture
+bool srgb_texture_supported=false; // OpenGL 2.1 or GL_EXT_texture_sRGB
+bool float_texture_supported=false; // Gl_ARB_texture_float
 
 void TestTextureFormatsAndFBO()
 {
@@ -1286,7 +1288,42 @@ void TestTextureFormatsAndFBO()
   // linear/nearest.
   // size POT or NPOT
   
- 
+  bool supportedtextureSizedInternalFormats[NumberOftextureSizedInternalFormats];
+  
+  int i=0;
+  while(i<NumberOftextureSizedInternalFormats)
+    {
+    supportedtextureSizedInternalFormats[i]=true;
+    ++i;
+    }
+  if(!depth_texture_supported)
+    {
+    i=4;
+    while(i<=6)
+      {
+      supportedtextureSizedInternalFormats[i]=false;
+      ++i;
+      }
+    }
+  if(!srgb_texture_supported)
+    {
+    i=35;
+    while(i<=38)
+      {
+      supportedtextureSizedInternalFormats[i]=false;
+      ++i;
+      }
+    }
+   if(!float_texture_supported)
+    {
+    i=39;
+    while(i<=50)
+      {
+      supportedtextureSizedInternalFormats[i]=false;
+      ++i;
+      }
+    }  
+  
   GLuint textureObject;
   
   int numberOfTarget=1;
@@ -1311,6 +1348,8 @@ void TestTextureFormatsAndFBO()
           int internalFormatIndex=0;
           while(internalFormatIndex<NumberOftextureSizedInternalFormats)
             {
+            if(supportedtextureSizedInternalFormats[internalFormatIndex])
+              {
             cout<<"----------------------------------------------------"<<endl;
             cout<<"Test "<<TargetToString(target)<<" "<<WrapModeToString(textureWrap[wrapIdx])<<" "<<MinMagModToString(textureMinMag[magIdx]);
             
@@ -1433,6 +1472,7 @@ void TestTextureFormatsAndFBO()
               }
             glDeleteTextures(1,&textureObject);
             CheckOpenGLError("");
+              }
             ++internalFormatIndex;
             }
           ++textureSizeIdx;
@@ -1728,6 +1768,9 @@ void TestVisual(int multiSample,
     CheckMinValidFValue(fvalue[0],2.0);
     }
   
+  depth_texture_supported=extensions->ExtensionSupported("GL_VERSION_1_4") ||
+    extensions->ExtensionSupported("GL_ARB_depth_texture");
+  
   if(extensions->LoadSupportedExtension("GL_VERSION_1_5"))
     {
     cout<<endl<<"OpenGL 1.5 Implementation dependent values : "<<endl;
@@ -1781,6 +1824,11 @@ void TestVisual(int multiSample,
     CheckMinValidValue(value[0],1);
     }
 
+  
+   srgb_texture_supported=extensions->ExtensionSupported("GL_VERSION_2_1") ||
+     extensions->ExtensionSupported("GL_EXT_texture_sRGB");
+   float_texture_supported=extensions->ExtensionSupported("GL_ARB_texture_float");
+   
   ARB_texture_rectangle_supported=extensions->LoadSupportedExtension("GL_ARB_texture_rectangle");
   
   if(ARB_texture_rectangle_supported)
@@ -1875,6 +1923,8 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cout << "Loading a none-power-of-two texture failed with the following"
          << "error:" << OpenGLErrorMessage2(errorCode) <<endl;
     }
+  
+  
   
   
   TestTextureFormatsAndFBO();
