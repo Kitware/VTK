@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.8");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.9");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -335,7 +335,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
         if ( xOldVal * xVal < 0. ) ++ midVarSgn;
         if ( xVal ) xOldVal = xVal;
         }
-    
+
       if ( midVarSgn == lowerVarSgn[i] ) lowerBnds[i] = x;
       else if ( midVarSgn != upperVarSgn[i] )
         {
@@ -346,17 +346,17 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
       }
     }
   
-  delete [] lowerVarSgn;
-  delete [] upperVarSgn;
-  delete [] degSSS;
-  delete [] SSS;
-
   if ( localTol <= tol ) return nIntervals;
 
   // 3. Root polishing
 
   double* lowerVals = new double[nIntervals];
-  for ( i = 0; i < nIntervals; ++ i ) lowerVals[i] = evaluateHorner( P, d, lowerBnds[i] );
+  bool* multRoot = new bool[nIntervals];
+  for ( i = 0; i < nIntervals; ++ i ) 
+    {
+    lowerVals[i] = evaluateHorner( P, d, lowerBnds[i] );
+    multRoot[i] = lowerVals[i] * evaluateHorner( P, d, lowerBnds[i]  + localTol ) > 0. ? true : false;
+    }
 
   while ( localTol > tol )
     {
@@ -364,15 +364,40 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     for ( i = 0; i < nIntervals; ++ i )
       {
       x = lowerBnds[i] + localTol;
-      xVal = evaluateHorner( P, d, x );
-      if ( lowerVals[i] * xVal > 0. )
+      if ( multRoot[i] )
         {
-        lowerBnds[i] = x;
-        lowerVals[i] = xVal;
+        lowerVarSgn[0] = varSgn[0];
+        upperVarSgn[0] = varSgn[1];
+
+        midVarSgn = offsetA = 0;
+        xOldVal = 0.;
+        midVarSgn = 0;
+        for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
+          {
+          xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
+          if ( xOldVal * xVal < 0. ) ++ midVarSgn;
+          if ( xVal ) xOldVal = xVal;
+          }
+
+        if ( midVarSgn == lowerVarSgn[i] ) lowerBnds[i] = x;
+
+        }
+      else
+        {
+        xVal = evaluateHorner( P, d, x );
+        if ( lowerVals[i] * xVal > 0. )
+          {
+          lowerBnds[i] = x;
+          lowerVals[i] = xVal;
+          }
         }
       }
     }
 
+  delete [] lowerVarSgn;
+  delete [] upperVarSgn;
+  delete [] degSSS;
+  delete [] SSS;
   delete [] lowerVals;
 
   return nIntervals;
