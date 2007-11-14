@@ -1827,9 +1827,9 @@ void TestVisual(int multiSample,
   
    srgb_texture_supported=extensions->ExtensionSupported("GL_VERSION_2_1") ||
      extensions->ExtensionSupported("GL_EXT_texture_sRGB");
-   float_texture_supported=extensions->ExtensionSupported("GL_ARB_texture_float");
+   float_texture_supported=extensions->ExtensionSupported("GL_ARB_texture_float")==1;
    
-  ARB_texture_rectangle_supported=extensions->LoadSupportedExtension("GL_ARB_texture_rectangle");
+  ARB_texture_rectangle_supported=extensions->LoadSupportedExtension("GL_ARB_texture_rectangle")==1;
   
   if(ARB_texture_rectangle_supported)
     {
