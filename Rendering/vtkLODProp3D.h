@@ -187,6 +187,7 @@ public:
   // able to collect all the actors or volumes. These methods
   // are used in that process.
   virtual void GetActors(vtkPropCollection *);
+  virtual void GetVolumes(vtkPropCollection *);
   
   // Description:
   // Set the id of the LOD that is to be used for picking when  automatic 

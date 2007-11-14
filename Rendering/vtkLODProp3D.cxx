@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.45");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.46");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -522,7 +522,6 @@ vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 
   return m;
 }
-
 
 // Set the property for an LOD that is an actor
 void vtkLODProp3D::SetLODProperty( int id, vtkProperty *p )
@@ -1085,6 +1084,10 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)
 {
+#if 0
+  // I don't get that 1999 code, why is it limiting the actors to the one
+  // picked...
+
   vtkDebugMacro(<< "vtkLODProp3D::GetActors");
   int index;
   int lodID;
@@ -1100,6 +1103,30 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
   if (! this->LODs[index].Prop3D->IsA("vtkVolume"))
     {
     ac->AddItem(this->LODs[index].Prop3D);
+    }
+#else
+  int i;
+  for (i = 0; i < this->NumberOfEntries; i++)
+    {
+    if (this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
+        vtkActor::SafeDownCast(this->LODs[i].Prop3D))
+      {
+      ac->AddItem(this->LODs[i].Prop3D);
+      }
+    }
+#endif
+}
+
+void vtkLODProp3D::GetVolumes(vtkPropCollection *ac)
+{
+  int i;
+  for (i = 0; i < this->NumberOfEntries; i++)
+    {
+    if (this->LODs[i].ID != VTK_INDEX_NOT_IN_USE &&
+        vtkVolume::SafeDownCast(this->LODs[i].Prop3D))
+      {
+      ac->AddItem(this->LODs[i].Prop3D);
+      }
     }
 }
 
