@@ -30,6 +30,10 @@
 // value of -1.  To get the biconnected components that a cut vertex belongs
 // to, traverse its edge list and collect the distinct component ids for its
 // incident edges.
+//
+// .SECTION Caveats
+// The boost graph bindings currently only support boost version 1.33.1.
+// There are apparently backwards-compatibility issues with later versions.
 
 #ifndef __vtkBoostBiconnectedComponents_h
 #define __vtkBoostBiconnectedComponents_h
