@@ -64,14 +64,6 @@ int TestPLYReader( int argc, char *argv[] )
   // interact with data
   renWin->Render();
   
-  vtkWindowToImageFilter* w2i = vtkWindowToImageFilter::New();
-    vtkPNGWriter* writer = vtkPNGWriter::New();
-    w2i->SetInput(renWin);
-    w2i->Update();
-    writer->SetInputConnection(w2i->GetOutputPort());
-    writer->SetFileName("TestPLYReader.png");
-    writer->Write();
-
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -84,6 +76,7 @@ int TestPLYReader( int argc, char *argv[] )
   reader->Delete();
   renWin->Delete();
   ren->Delete();
+  iren->Delete();
 
   return !retVal;
 }
