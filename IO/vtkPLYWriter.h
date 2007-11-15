@@ -24,9 +24,7 @@
 // you need to specify a vtkLookupTable to map the scalars to RGB.
 
 // .SECTION Caveats
-// PLY does not handle big endian versus little endian correctly. Also,
-// this class is compiled into VTK only if the PLY library is found
-// during the make process (using CMake).
+// PLY does not handle big endian versus little endian correctly.
 
 // .SECTION See Also
 // vtkPLYReader

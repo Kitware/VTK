@@ -11,7 +11,7 @@ IF(VTK_USE_FFMPEG_ENCODER)
   SET(ConditionalTests ${ConditionalTests} TestFFMPEGWriter.cxx)
 ENDIF(VTK_USE_FFMPEG_ENCODER)
 IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
-  SET(ConditionalTests ${ConditionalTests} TestHyperOctreeIO.cxx)
+  SET(ConditionalTests ${ConditionalTests} TestHyperOctreeIO.cxx TestPLYReader.cxx)
 ENDIF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 IF(VTK_USE_INFOVIS)
   SET(ConditionalTests ${ConditionalTests} TestDataObjectIO.cxx)
@@ -67,6 +67,10 @@ IF (VTK_DATA_ROOT)
          TestHyperOctreeIO -D ${VTK_DATA_ROOT}
          -T ${VTK_BINARY_DIR}/Testing/Temporary
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestHyperOctreeIO.png)
+    ADD_TEST(TestPLYReader ${CXX_TEST_PATH}/${KIT}CxxTests
+         TestPLYReader -D ${VTK_DATA_ROOT}
+         -T ${VTK_BINARY_DIR}/Testing/Temporary
+         -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
 
