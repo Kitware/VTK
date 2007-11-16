@@ -59,7 +59,7 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
     argc, argv, "Data/alphachannel.png");
   
   pnmReader->SetFileName(fname);
-  delete fname;
+  delete[] fname;
   
   renderer->SetBackground(0.1,0.2,0.4);
   renWin->SetSize(400,400);
