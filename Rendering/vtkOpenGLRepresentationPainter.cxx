@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.6");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -75,6 +75,8 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     }
 
   this->Superclass::RenderInternal(renderer, actor, typeflags);
+  this->TimeToDraw += this->DelegatePainter? 
+    this->DelegatePainter->GetTimeToDraw() : 0;
   if (reset_needed)
     {
     // reset the default.
@@ -98,6 +100,8 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Superclass::RenderInternal(renderer, actor, typeflags);
+    this->TimeToDraw += this->DelegatePainter? 
+      this->DelegatePainter->GetTimeToDraw() : 0;
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
 
     // reset the default.

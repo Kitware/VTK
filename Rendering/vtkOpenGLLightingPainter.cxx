@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLightingPainter);
-vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.3");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -109,6 +109,7 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
     }
 
   this->ProgressOffset = 0.0;
+  double time_to_draw = 0.0;
   if (disable_flags)
     {
     int disabled_cells = vtkOpenGLLightingPainterGetTotalCells(this->PolyData, 
@@ -118,6 +119,9 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
     
     glDisable(GL_LIGHTING);
     this->Superclass::RenderInternal(renderer, actor, disable_flags);
+    time_to_draw += this->DelegatePainter? 
+      this->DelegatePainter->GetTimeToDraw() : 0;
+
     glEnable( GL_LIGHTING);
 
     this->ProgressOffset += this->ProgressScaleFactor;
@@ -130,7 +134,12 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
     this->ProgressScaleFactor = 
       static_cast<double>(enabled_cells) / total_cells;
     this->Superclass::RenderInternal(renderer, actor, enable_flags);
+
+    time_to_draw += this->DelegatePainter? 
+      this->DelegatePainter->GetTimeToDraw() : 0;
     }
+
+  this->TimeToDraw = time_to_draw;
 }
 
 //-----------------------------------------------------------------------------
