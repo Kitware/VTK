@@ -10,12 +10,12 @@
 #include "vtkTimerLog.h"
 
 //=============================================================================
-void PrintPolynomial( double* P, u_int degP )
+void PrintPolynomial( double* P, unsigned int degP )
 {
   cout << "\n## P = ";
 
-  u_int degPm1 = degP - 1;
-  for ( u_int i = 0; i < degPm1; ++ i ) 
+  unsigned int degPm1 = degP - 1;
+  for ( unsigned int i = 0; i < degPm1; ++ i ) 
     {
     if ( P[i] > 0 ) cout << " +" << P[i] << " x^" << degP - i;
     else if ( P[i] < 0 ) cout << " " << P[i] << " x^" << degP - i;
