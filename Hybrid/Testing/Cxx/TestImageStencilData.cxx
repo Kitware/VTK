@@ -188,6 +188,17 @@ int TestImageStencilData( int argc, char * argv [] )
     stencil1->Subtract(stencil2);
     GetStencilDataAsImageData(stencil1, image);
     }
+  else if (atoi(argv[1]) == 3)
+    {
+    // Test clipping of stencils
+    stencil1->Add(stencil2);
+    int clipExtents1[6] = { 15, 35, 15, 35, 0, 0 };
+    stencil1->Clip( clipExtents1 );
+    int clipExtents2[6] = { 35, 39, 35, 39, 0, 0 };
+    stencil2->Clip( clipExtents2 );
+    stencil1->Add(stencil2);
+    GetStencilDataAsImageData(stencil1, image);
+    }
   else
     {
     return EXIT_FAILURE;

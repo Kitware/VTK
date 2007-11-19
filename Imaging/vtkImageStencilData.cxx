@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.21");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.22");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -96,7 +96,10 @@ void vtkImageStencilData::Initialize()
     int n = this->NumberOfExtentEntries;
     for (int i = 0; i < n; i++)
       {
-      delete [] this->ExtentLists[i];
+      if (this->ExtentLists[i]) 
+        { 
+        delete [] this->ExtentLists[i]; 
+        }
       }
     delete [] this->ExtentLists;
     }
@@ -548,6 +551,11 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2, int yIdx, int zId
 //----------------------------------------------------------------------------
 void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
 {
+  if (zIdx < this->Extent[4] || zIdx > this->Extent[5] || 
+      yIdx < this->Extent[2] || yIdx > this->Extent[3] )
+    {
+    return;
+    }
   
   // calculate the index into the extent array
   int extent[6];
@@ -568,6 +576,7 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
     // remove the whole row.
     clistlen = 0;
     delete [] clist;
+    clist = NULL;
     return;
     }
   
@@ -575,16 +584,17 @@ void vtkImageStencilData::RemoveExtent(int r1, int r2, int yIdx, int zIdx)
   for (int k = 0; k < length; k += 2)
     {
     if (r1 <=  clist[k] && r2 >= (clist[k+1]-1))
-      {
+      {  
       // Remove this entry;
       clistlen -= 2;
-  
+
       if (clistlen == 0)
         {
         delete [] clist;
+        clist = NULL;
         return;
         }
-      
+
       int clistmaxlen = 2;
       while (clistlen > clistmaxlen)
         {
@@ -838,4 +848,53 @@ void vtkImageStencilData::Subtract( vtkImageStencilData * stencil1 )
 
   this->Modified();
 } 
+
+//----------------------------------------------------------------------------
+int vtkImageStencilData::Clip( int extent[6] )
+{
+  int currentExtent[6], idy, idz, iter=0, r1, r2;
+  this->Update();
+  this->GetExtent( currentExtent );
+
+  if (vtkMath::ExtentIsWithinOtherExtent( currentExtent, extent ))
+    {
+    // Nothing to do, we are already within the clipping extents.
+    return 0;
+    }
+
+  bool removeXLeft  = (extent[0] > currentExtent[0]);
+  bool removeXRight = (extent[1] < currentExtent[1]);  
+  bool remove = false, removed = false;
+
+  for (idz=currentExtent[4]; idz<=currentExtent[5]; idz++, iter=0)
+    {
+    remove = (idz < extent[4] || idz > extent[5]);
+    for (idy = currentExtent[2]; idy <= currentExtent[3]; idy++, iter=0)
+      {
+      if (remove || idy < extent[2] || idy > extent[3])
+        {
+        // Remove everything at Y = idy, Z = idz.
+        this->RemoveExtent( currentExtent[0],currentExtent[1], idy, idz );
+        removed |= true;
+        }
+      else
+        {
+        if (removeXLeft)
+          {
+          // Clip on the left at Y = idy, Z = idz.
+          this->RemoveExtent( currentExtent[0], extent[0]-1, idy, idz );
+          removed |= true;
+          }
+        if (removeXRight)
+          {
+          // Clip on the right at Y = idy, Z = idz.
+          this->RemoveExtent( extent[1]+1, currentExtent[1], idy, idz );
+          removed |= true;
+          }
+        }
+      }
+    }
+
+  return (removed ? 1 : 0);
+}
 

@@ -48,4 +48,8 @@ IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
          TestImageStencilData 2
         -D ${VTK_DATA_ROOT}
         -V Baseline/${KIT}/TestSubtractStencilData.png)
+  ADD_TEST(TestClipStencilData ${CXX_TEST_PATH}/${KIT}CxxTests 
+         TestImageStencilData 3 
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/${KIT}/TestClipStencilData.png)
 ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)

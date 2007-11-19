@@ -163,6 +163,11 @@ public:
   // that lies within Self from Self.   
   virtual void Subtract( vtkImageStencilData * ); 
 
+  // Description:
+  // Clip the stencil with the supplied extents. In other words, discard data
+  // outside the specified extents. Return 1 if something changed.
+  virtual int Clip( int extent[6] );
+
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();
