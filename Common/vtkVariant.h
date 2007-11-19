@@ -322,7 +322,7 @@ private:
 struct VTK_COMMON_EXPORT vtkVariantLessThan
 {
   vtkVariantLessThan();
-  const bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
+  bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
 };
 
 #endif

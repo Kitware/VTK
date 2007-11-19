@@ -35,7 +35,7 @@ vtkVariantLessThan::vtkVariantLessThan()
 }
 
 // Implementation of vtkVariant's less than operation
-const bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) const
+bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) const
 {
   if (s1.IsString() && s2.IsString())
     {
