@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.22");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.23");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -852,7 +852,7 @@ void vtkImageStencilData::Subtract( vtkImageStencilData * stencil1 )
 //----------------------------------------------------------------------------
 int vtkImageStencilData::Clip( int extent[6] )
 {
-  int currentExtent[6], idy, idz, iter=0, r1, r2;
+  int currentExtent[6], idy, idz;
   this->Update();
   this->GetExtent( currentExtent );
 
@@ -866,10 +866,10 @@ int vtkImageStencilData::Clip( int extent[6] )
   bool removeXRight = (extent[1] < currentExtent[1]);  
   bool remove = false, removed = false;
 
-  for (idz=currentExtent[4]; idz<=currentExtent[5]; idz++, iter=0)
+  for (idz=currentExtent[4]; idz<=currentExtent[5]; idz++)
     {
     remove = (idz < extent[4] || idz > extent[5]);
-    for (idy = currentExtent[2]; idy <= currentExtent[3]; idy++, iter=0)
+    for (idy = currentExtent[2]; idy <= currentExtent[3]; idy++)
       {
       if (remove || idy < extent[2] || idy > extent[3])
         {
