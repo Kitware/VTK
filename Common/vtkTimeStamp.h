@@ -45,18 +45,18 @@ public:
 
   // Description:
   // Return this object's Modified time.
-  unsigned long int GetMTime() {return this->ModifiedTime;};
+  unsigned long GetMTime() const {return this->ModifiedTime;};
 
   // Description:
   // Support comparisons of time stamp objects directly.
-  int operator>(vtkTimeStamp& ts) {
+  bool operator>(vtkTimeStamp& ts) {
     return (this->ModifiedTime > ts.ModifiedTime);};
-  int operator<(vtkTimeStamp& ts) {
+  bool operator<(vtkTimeStamp& ts) {
     return (this->ModifiedTime < ts.ModifiedTime);};
 
   // Description:
   // Allow for typecasting to unsigned long.
-  operator unsigned long() {return this->ModifiedTime;};
+  operator unsigned long() const {return this->ModifiedTime;};
 
 private:
   unsigned long ModifiedTime;
