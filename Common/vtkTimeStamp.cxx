@@ -20,7 +20,7 @@
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
-#if defined(__APPLE__)
+#if defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 1040)
   #include <libkern/OSAtomic.h>
 #endif
 
