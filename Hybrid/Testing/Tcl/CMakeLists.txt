@@ -15,6 +15,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       clipTet
       clipWedge
       cubeAxes
+      cubeAxes2
       depthSort
       earth
       imageToPolyData

@@ -56,9 +56,11 @@ SET ( Kit_SRCS
 vtk3DSImporter.cxx
 vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
+vtkAxisActor.cxx
 vtkAxesActor.cxx
 vtkCaptionActor2D.cxx
 vtkCornerAnnotation.cxx
+vtkCubeAxesActor.cxx
 vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
