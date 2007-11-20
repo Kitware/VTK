@@ -29,12 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.65");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.66");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
 #include <AvailabilityMacros.h>
-#if MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1030
 enum
 {
   kEventControlVisibilityChanged = 157
@@ -1131,7 +1131,7 @@ WindowPtr vtkCarbonRenderWindow::GetRootWindow()
   // if not, then WindowId is set and we're using HIViews.
   // Instead of storing the RootWindow, we ask for it in case of a dynamic 
   // GUI where the root window can change
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1030
   return this->RootWindow ? this->RootWindow : HIViewGetWindow(this->WindowId);
 #else
   return this->RootWindow;

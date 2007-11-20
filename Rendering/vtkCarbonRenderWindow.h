@@ -16,11 +16,24 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 // vtkCarbonRenderWindow is a concrete implementation of the abstract
-// class vtkOpenGLRenderWindow. vtkCarbonRenderWindow interfaces to the
-// OpenGL graphics library using the Carbon API on Mac OSX.
+// class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.3
+// and later.
+// To use this class, build VTK with VTK_USE_CARBON turned ON.
+// This class can be used only by 32 bit processes, as Carbon is
+// unavailable in 64 bit. If you need 64 bit support, use
+// vtkCocoaRenderWindow.
+// vtkCarbonRenderWindow interfaces to the OpenGL graphics library using
+// the Carbon AGL APIs.
+//
+// .SECTION See Also
+// vtkOpenGLRenderWindow vtkCocoaRenderWindow
 
 #ifndef __vtkCarbonRenderWindow_h
 #define __vtkCarbonRenderWindow_h
+
+#if defined(__LP64__) && __LP64__
+  #error vtkCarbonRenderWindow does not work in 64 bit
+#endif
 
 #include "vtkOpenGLRenderWindow.h"
 

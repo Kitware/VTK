@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.55");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.56");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -133,7 +133,7 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
     {
     NSString* winTitleStr;
 
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
     winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
 #else
     winTitleStr = [NSString stringWithCString:_arg];
@@ -417,13 +417,13 @@ void vtkCocoaRenderWindow::WindowConfigure()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetupPixelFormat(void*, void*, int, int, int)
 {
-  vtkErrorMacro(<< "vtkCocoaRenderWindow::SetupPixelFormat - IMPLEMENT\n");
+  vtkErrorMacro(<< "vtkCocoaRenderWindow::SetupPixelFormat - IMPLEMENT");
 }
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetupPalette(void*)
 {
-  vtkErrorMacro(<< "vtkCocoaRenderWindow::SetupPalette - IMPLEMENT\n");
+  vtkErrorMacro(<< "vtkCocoaRenderWindow::SetupPalette - IMPLEMENT");
 }
 
 //----------------------------------------------------------------------------
@@ -434,7 +434,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   
   // Get the screen's scale factor.
   // It will be used to create the window if not created yet.
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   this->ScaleFactor = [[NSScreen mainScreen] userSpaceScaleFactor];
 #endif
 
@@ -498,7 +498,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   
   // Always use the scaling factor from the window once it is created.
   // The screen and the window might possibly have different scaling factors, though unlikely.
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   if (this->GetWindowId())
     {
     this->ScaleFactor = [(NSWindow*)this->GetWindowId() userSpaceScaleFactor];
@@ -534,7 +534,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   if (this->WindowCreated)
     {
     NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
     this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
 #else
     this->SetWindowName([winName cString]);
@@ -691,7 +691,7 @@ int *vtkCocoaRenderWindow::GetScreenSize()
   NSRect screenRect = [screen frame];
   
   // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-#if defined(MAC_OS_X_VERSION_10_4) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   this->Size[0] = (int)round(NSWidth(screenRect) * [screen userSpaceScaleFactor]);
   this->Size[1] = (int)round(NSHeight(screenRect) * [screen userSpaceScaleFactor]);
 #else
@@ -954,7 +954,8 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     NSMutableDictionary* cocoaManager = 
       reinterpret_cast<NSMutableDictionary *>(manager);
     #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector] enableCollectorForPointer:manager];
+      [[NSGarbageCollector defaultCollector]
+        enableCollectorForPointer:cocoaManager];
     #else
       [cocoaManager release];
     #endif
@@ -964,7 +965,8 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     NSMutableDictionary* cocoaManager = 
       reinterpret_cast<NSMutableDictionary *>(manager);
     #ifdef __OBJC_GC__
-      [[NSGarbageCollector defaultCollector] disableCollectorForPointer:manager];
+      [[NSGarbageCollector defaultCollector]
+        disableCollectorForPointer:cocoaManager];
     #else
       [cocoaManager retain];
     #endif

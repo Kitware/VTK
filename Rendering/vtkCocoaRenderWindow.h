@@ -16,7 +16,12 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 // vtkCocoaRenderWindow is a concrete implementation of the abstract
-// class vtkOpenGLRenderWindow. It uses Objective-C++, and the OpenGL and
+// class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.3
+// and later.
+// To use this class, build VTK with VTK_USE_COCOA turned ON.
+// This class can be used by 32 and 64 bit processes, and either in
+// garbage collected or reference counted modes.
+// vtkCocoaRenderWindow uses Objective-C++, and the OpenGL and
 // Cocoa APIs. This class's default behaviour is to create an NSWindow and
 // a vtkCocoaGLView which are used together to draw all vtk stuff into.
 // If you already have an NSWindow and vtkCocoaGLView and you want this
