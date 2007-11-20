@@ -49,6 +49,7 @@ int TestOSConeCxx(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->Delete();
   
+#if 0
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
@@ -63,6 +64,10 @@ int TestOSConeCxx(int argc, char* argv[])
   
   // Cleanup
   iren->Delete();
-  
+#else // the interactor version fails with OSMesa.
+  renWin->Render();
+  int retVal = vtkRegressionTestImage( renWin );
+  renWin->Delete();
+#endif
   return !retVal;
 }
