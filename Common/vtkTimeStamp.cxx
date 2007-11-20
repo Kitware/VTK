@@ -20,8 +20,13 @@
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
-#if defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 1040)
-  #include <libkern/OSAtomic.h>
+
+// OSAtomic.h was only added in the 10.4 SDK, include it conditionally
+#if defined(__APPLE__)
+  #include <AvailabilityMacros.h>
+  #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1040
+    #include <libkern/OSAtomic.h>
+  #endif
 #endif
 
 //-------------------------------------------------------------------------
