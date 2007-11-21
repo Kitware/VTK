@@ -927,6 +927,7 @@ OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org."
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
   FIND_PACKAGE(Boost REQUIRED)
+  INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
 ENDIF(VTK_USE_BOOST)
 
 ###################################
