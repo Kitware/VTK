@@ -65,7 +65,7 @@ class vtkCamera;
 class VTK_HYBRID_EXPORT vtkCubeAxesActor : public vtkActor
 {
 public:
-  vtkTypeMacro(vtkCubeAxesActor,vtkActor);
+  vtkTypeRevisionMacro(vtkCubeAxesActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -307,8 +307,8 @@ protected:
   int RenderSomething;
   
 private:
-  vtkCubeAxesActor(const vtkCubeAxesActor&);
-  void operator=(const vtkCubeAxesActor&);
+  vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
+  void operator=(const vtkCubeAxesActor&); // Not implemented
 
   vtkSetStringMacro(ActualXLabel);
   vtkSetStringMacro(ActualYLabel);

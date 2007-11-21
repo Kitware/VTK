@@ -85,7 +85,7 @@ class vtkVectorText;
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
 {
 public:
-  vtkTypeMacro(vtkAxisActor,vtkActor);
+  vtkTypeRevisionMacro(vtkAxisActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -301,9 +301,8 @@ protected:
   double  Bounds[6];
   
 private:
-  vtkAxisActor(const vtkAxisActor&);
-  void operator=(const vtkAxisActor&);
-
+  vtkAxisActor(const vtkAxisActor&); // Not implemented
+  void operator=(const vtkAxisActor&); // Not implemented
 
   void TransformBounds(vtkViewport *, double bnds[6]);
 

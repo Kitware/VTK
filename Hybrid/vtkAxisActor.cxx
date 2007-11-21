@@ -2,13 +2,10 @@
 
   Program:   Visualization Toolkit
   Module:    vtkAxisActor.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
   Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore Nat'l Laboratory
 
-Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even 
@@ -36,6 +33,7 @@ All rights reserved.
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
+vtkCxxRevisionMacro(vtkAxisActor, "1.2");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************

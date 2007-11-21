@@ -2,19 +2,17 @@
 
   Program:   Visualization Toolkit
   Module:    vtkCubeAxesActor.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
   Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore National Lab
 
-Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even 
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
      PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+
+ =========================================================================*/
 #include "vtkCubeAxesActor.h"
 
 #include "vtkCamera.h"
@@ -34,6 +32,7 @@ All rights reserved.
 // *************************************************************************
 
 vtkStandardNewMacro(vtkCubeAxesActor);
+vtkCxxRevisionMacro(vtkCubeAxesActor, "1.2");
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 
 // *************************************************************************
