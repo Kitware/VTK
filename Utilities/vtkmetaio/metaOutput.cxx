@@ -213,7 +213,7 @@ AddField(METAIO_STL::string name,
   Field field;
   field.name = name;
   field.description = description;
-  field.value = value;
+  field.value.push_back(value);
   field.type = type;
   field.rangeMin = rangeMin;
   field.rangeMax = rangeMax;
@@ -253,6 +253,24 @@ AddIntField(METAIO_STL::string name,
   return true;
 }
 
+/** Add list field */
+bool MetaOutput::AddListField(METAIO_STL::string name,
+                              METAIO_STL::string description,
+                              ListType list)
+{
+  Field field;
+  field.name = name;
+  field.description = description;
+  ListType::const_iterator it = list.begin();
+  while(it != list.end())
+    {
+    field.value.push_back(*it);
+    it++;
+    }
+  field.type = LIST;
+  m_FieldVector.push_back(field);
+  return true;
+}
 
 /** Add meta command */
 void MetaOutput::
@@ -453,8 +471,25 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
     {
     buffer += "  <Output name=\""+ (*itOutput).name + "\"";
     buffer += " description=\""+ (*itOutput).description + "\"";
-    buffer += " value=\""+ (*itOutput).value + "\"";
     buffer += " type=\""+ this->TypeToString((*itOutput).type) + "\"";
+   
+    unsigned int index = 0;
+    typedef METAIO_STL::vector<METAIO_STL::string> VectorType;
+    VectorType::const_iterator itValue = (*itOutput).value.begin();
+    while(itValue != (*itOutput).value.end())
+      {
+      buffer += " value";
+      if((*itOutput).value.size()>1)
+        {
+        char* val = new char[10];
+        sprintf(val,"%d",index);
+        buffer += val;
+        delete [] val;
+        }
+      buffer += "=\"" + *itValue + "\"";
+      itValue++;
+      index++;
+      }
     buffer += "/>\n";
     itOutput++;
     }
