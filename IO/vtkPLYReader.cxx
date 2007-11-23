@@ -27,15 +27,8 @@
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.19");
+vtkCxxRevisionMacro(vtkPLYReader, "1.20");
 vtkStandardNewMacro(vtkPLYReader);
-
-#ifndef true
-#define true 1
-#endif
-#ifndef false
-#define false 0
-#endif
 
 
 // Construct object with merging set to true.

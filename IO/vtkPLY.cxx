@@ -244,8 +244,8 @@ void vtkPLY::ply_describe_element(
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf(stderr,"ply_describe_element: can't find element '%s'\n",elem_name);
-    exit (-1);
+    vtkGenericWarningMacro("ply_describe_element: can't find element " << elem_name);
+    return;
   }
 
   elem->num = nelems;
@@ -286,8 +286,7 @@ void vtkPLY::ply_describe_property(
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf(stderr, "ply_describe_property: can't find element '%s'\n",
-            elem_name);
+    vtkGenericWarningMacro("ply_describe_property: can't find element " << elem_name);
     return;
   }
 
@@ -333,8 +332,7 @@ void vtkPLY::ply_describe_other_properties(
   /* look for appropriate element */
   elem = find_element (plyfile, other->name);
   if (elem == NULL) {
-    fprintf(stderr, "ply_describe_other_properties: can't find element '%s'\n",
-            other->name);
+    vtkGenericWarningMacro("ply_describe_other_properties: can't find element " << other->name);
     return;
   }
 
@@ -391,8 +389,8 @@ void vtkPLY::ply_element_count(
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf(stderr,"ply_element_count: can't find element '%s'\n",elem_name);
-    exit (-1);
+    vtkGenericWarningMacro("ply_element_count: can't find element " << elem_name);
+    return;
   }
 
   elem->num = nelems;
@@ -486,8 +484,8 @@ void vtkPLY::ply_put_element_setup(PlyFile *plyfile, const char *elem_name)
 
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf(stderr, "ply_elements_setup: can't find element '%s'\n", elem_name);
-    exit (-1);
+    vtkGenericWarningMacro("ply_put_element_setup: can't find element " << elem_name);
+    return;
   }
 
   plyfile->which_elem = elem;
@@ -831,6 +829,8 @@ PlyFile *vtkPLY::ply_open_for_reading(
   /* create the PlyFile data structure */
 
   plyfile = vtkPLY::ply_read (fp, nelems, elem_names);
+  if (plyfile == NULL)
+    return (NULL);
 
   /* determine the file type and version */
 
@@ -905,6 +905,8 @@ void vtkPLY::ply_get_element_setup(
 
   /* find information about the element */
   elem = find_element (plyfile, elem_name);
+  if (elem == NULL)
+    return;
   plyfile->which_elem = elem;
 
   /* deposit the property information into the element's description */
@@ -1127,8 +1129,7 @@ PlyOtherProp *vtkPLY::ply_get_other_properties(
   /* find information about the element */
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf (stderr, "ply_get_other_properties: Can't find element '%s'\n",
-             elem_name);
+    vtkGenericWarningMacro("ply_get_other_properties: can't find element " << elem_name);
     return (NULL);
   }
 
@@ -1215,9 +1216,8 @@ PlyOtherElems *vtkPLY::ply_get_other_element (
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
   if (elem == NULL) {
-    fprintf (stderr,
-             "ply_get_other_element: can't find element '%s'\n", elem_name);
-    exit (-1);
+    vtkGenericWarningMacro("ply_get_other_element: can't find element " << elem_name);
+    return (NULL);
   }
 
   /* create room for the new "other" element, initializing the */
