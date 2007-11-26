@@ -25,8 +25,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.17");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.18");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -103,6 +104,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
 void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
                                                    int ratio)
 {
+  assert("pre: valid_ratio" && ratio>=2);
   if (level >= this->BoxInternal->RefinementRatios.size())
     {
     this->BoxInternal->RefinementRatios.resize(level+1);
