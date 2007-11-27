@@ -62,7 +62,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.9");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.10");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -718,6 +718,7 @@ void vtkGraphLayoutView::ProcessEvents(
   else if(eventId == vtkCommand::SelectionChangedEvent)
     {
     this->Update();
+    Superclass::ProcessEvents(caller, eventId, callData);
     }
   else
     {

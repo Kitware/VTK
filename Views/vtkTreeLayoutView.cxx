@@ -50,7 +50,7 @@
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.4");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.5");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -564,6 +564,7 @@ void vtkTreeLayoutView::ProcessEvents(
   else if(eventId == vtkCommand::SelectionChangedEvent)
     {
     this->Update();
+    Superclass::ProcessEvents(caller, eventId, callData);
     }
   else
     {
