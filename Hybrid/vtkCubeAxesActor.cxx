@@ -32,7 +32,7 @@
 // *************************************************************************
 
 vtkStandardNewMacro(vtkCubeAxesActor);
-vtkCxxRevisionMacro(vtkCubeAxesActor, "1.2");
+vtkCxxRevisionMacro(vtkCubeAxesActor, "1.3");
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 
 // *************************************************************************
@@ -592,6 +592,40 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Z Axis Label Format: " << this->ZLabelFormat << "\n";
   os << indent << "Inertia: " << this->Inertia << "\n";
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
+
+  os << indent << "XAxisTickVisibility: "
+     << (this->XAxisTickVisibility ? "On" : "Off") << endl;
+  os << indent << "YAxisTickVisibility: "
+     << (this->YAxisTickVisibility ? "On" : "Off") << endl;
+  os << indent << "ZAxisTickVisibility: "
+     << (this->ZAxisTickVisibility ? "On" : "Off") << endl;
+
+  os << indent << "XAxisMinorTickVisibility: "
+     << (this->XAxisMinorTickVisibility ? "On" : "Off") << endl;
+  os << indent << "YAxisMinorTickVisibility: "
+     << (this->YAxisMinorTickVisibility ? "On" : "Off") << endl;
+  os << indent << "ZAxisMinorTickVisibility: "
+     << (this->ZAxisMinorTickVisibility ? "On" : "Off") << endl;
+
+  os << indent << "XAxisLabelVisibility: "
+     << (this->XAxisLabelVisibility ? "On" : "Off") << endl;
+  os << indent << "YAxisLabelVisibility: "
+     << (this->YAxisLabelVisibility ? "On" : "Off") << endl;
+  os << indent << "ZAxisLabelVisibility: "
+     << (this->ZAxisLabelVisibility ? "On" : "Off") << endl;
+
+  os << indent << "XUnits: "
+     << (this->XUnits ? this->XUnits : "(none)") << endl;
+  os << indent << "YUnits: "
+     << (this->YUnits ? this->YUnits : "(none)") << endl;
+  os << indent << "ZUnits: "
+     << (this->ZUnits ? this->ZUnits : "(none)") << endl;
+
+  os << indent << "TickLocation: " << this->TickLocation << endl;
+
+  os << indent << "DrawXGridlines: " << this->DrawXGridlines << endl;
+  os << indent << "DrawYGridlines: " << this->DrawYGridlines << endl;
+  os << indent << "DrawZGridlines: " << this->DrawZGridlines << endl;
 }
 
 void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport, 

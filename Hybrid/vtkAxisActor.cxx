@@ -33,7 +33,7 @@
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxRevisionMacro(vtkAxisActor, "1.2");
+vtkCxxRevisionMacro(vtkAxisActor, "1.3");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************
@@ -753,6 +753,54 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Point2 Coordinate: " << this->Point2Coordinate << "\n";
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "AxisType: ";
+  switch (this->AxisType)
+    {
+    case VTK_AXIS_TYPE_X:
+      os << "X Axis" << endl;
+      break;
+    case VTK_AXIS_TYPE_Y:
+      os << "Y Axis" << endl;
+      break;
+    case VTK_AXIS_TYPE_Z:
+      os << "Z Axis" << endl;
+      break;
+    default:
+      // shouldn't get here
+      ;
+    }
+
+  os << indent << "DeltaMajor: " << this->DeltaMajor << endl;
+  os << indent << "DeltaMinor: " << this->DeltaMinor << endl;
+
+  os << indent << "MinorTicksVisible: " << this->MinorTicksVisible << endl;
+
+  os << indent << "Camera: ";
+  if (this->Camera)
+    {
+    this->Camera->PrintSelf(os, indent);
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "MajorTickSize: " << this->MajorTickSize << endl;
+  os << indent << "MinorTickSize: " << this->MinorTickSize << endl;
+
+  os << indent << "DrawGridlines: " << this->DrawGridlines << endl;
+
+  os << indent << "MajorStart: " << this->MajorStart << endl;
+  os << indent << "MinorStart: " << this->MinorStart << endl;
+
+  os << indent << "AxisPosition: " << this->AxisPosition << endl;
+
+  os << indent << "GridlineXLength: " << this->GridlineXLength << endl;
+  os << indent << "GridlineYLength: " << this->GridlineYLength << endl;
+  os << indent << "GridlineZLength: " << this->GridlineZLength << endl;
+
+  os << indent << "TickLocation: " << this->TickLocation << endl;
 }
 
 // **************************************************************************
