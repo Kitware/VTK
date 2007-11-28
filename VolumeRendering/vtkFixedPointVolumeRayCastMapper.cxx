@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.42");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.43");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1624,21 +1624,21 @@ void vtkFixedPointVolumeRayCastMapper::ApplyFinalColorWindowLevel()
       int tmp;
     
       // Red component
-      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+3))/32767.0);
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+3)));
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;
       
       // Green component
       iptr++;
-      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+2))/32767.0);
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+2)));
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;
       
       // Green component
       iptr++;
-      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+1))/32767.0);
+      tmp = (int)((float)(*iptr)*scale + bias * (float)(*(iptr+1)));
       tmp = (tmp<0)?(0):(tmp);
       tmp = (tmp>32767)?(32767):(tmp);
       *iptr = tmp;

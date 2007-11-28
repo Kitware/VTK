@@ -50,15 +50,12 @@ int TestFinalColorWindowLevel( int argc, char *argv[] )
   
   // Create a transfer function mapping scalar value to opacity
   vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
-  oTFun->AddSegment(10, 0.0, 255, 0.3);
+  oTFun->AddSegment(10, 0.0, 255, 0.05);
 
   // Create a transfer function mapping scalar value to color (color)
   vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
-  cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 );
-  cTFun->AddRGBPoint(  64, 1.0, 1.0, 0.0 );
-  cTFun->AddRGBPoint( 128, 0.0, 1.0, 0.0 );
-  cTFun->AddRGBPoint( 192, 0.0, 1.0, 1.0 );
-  cTFun->AddRGBPoint( 255, 0.0, 0.0, 1.0 );
+  cTFun->AddRGBPoint(   0, 0.0, 0.0, 0.0 );
+  cTFun->AddRGBPoint( 255, 1.0, 1.0, 1.0 );
 
 
   vtkVolumeProperty *property = vtkVolumeProperty::New();
@@ -82,8 +79,13 @@ int TestFinalColorWindowLevel( int argc, char *argv[] )
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.5);
   
-  mapper->SetFinalColorWindow(.5);
-  mapper->SetFinalColorLevel(.75);
+   float level;
+  for ( level = .25; level < 1.0; level += .01 )
+    {
+    mapper->SetFinalColorWindow(.5);
+    mapper->SetFinalColorLevel(level);
+    renWin->Render();
+    }
   
   renWin->Render();
 
