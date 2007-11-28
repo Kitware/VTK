@@ -35,9 +35,8 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.2");
+vtkCxxRevisionMacro(vtkRenderView, "1.3");
 vtkStandardNewMacro(vtkRenderView);
-vtkCxxSetObjectMacro(vtkRenderView, InteractorStyle, vtkInteractorStyle);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
 {
@@ -57,6 +56,30 @@ vtkRenderView::~vtkRenderView()
 {
   this->Renderer->Delete();
   this->InteractorStyle->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderView::SetInteractorStyle(vtkInteractorStyle* style)
+{
+  // This is just like vtkCxxSetObjectMacro but changes the observer.
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting InteractorStyle to " << style );
+  if (this->InteractorStyle != style)
+    {
+    vtkInteractorStyle* tempSGMacroVar = this->InteractorStyle;
+    this->InteractorStyle = style;
+    if (this->InteractorStyle != NULL)
+      {
+      this->InteractorStyle->Register(this);
+      this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+      }
+    if (tempSGMacroVar != NULL)
+      {
+      tempSGMacroVar->RemoveObserver(this->GetObserver());
+      tempSGMacroVar->UnRegister(this);
+      }
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
