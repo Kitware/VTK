@@ -60,6 +60,7 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_POSITIONAL_PLACEHOLDERS 1006
 #define VTK_SQL_FEATURE_LAST_INSERT_ID          1007
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
+#define VTK_SQL_FEATURE_TRIGGERS                1009
 
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
