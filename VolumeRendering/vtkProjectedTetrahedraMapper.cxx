@@ -48,7 +48,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.10");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.11");
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
@@ -140,9 +140,19 @@ void vtkProjectedTetrahedraMapperTransformPoints(const point_type *in_points,
       {
       float w = (  mat[0*4+3]*in_p[0] + mat[1*4+3]*in_p[1]
                  + mat[2*4+3]*in_p[2] + mat[3*4+3]);
-      out_p[0] /= w;
-      out_p[1] /= w;
-      out_p[2] /= w;
+      if (w > 0.0)
+        {
+        out_p[0] /= w;
+        out_p[1] /= w;
+        out_p[2] /= w;
+        }
+      else
+        {
+        // A negative w probably means the point is behind the viewer.  Things
+        // can get screwy if we try to inverse-project that.  Instead, just
+        // set the position somewhere very far behind us.
+        out_p[2] = -VTK_LARGE_FLOAT;
+        }
       }
     }
 }

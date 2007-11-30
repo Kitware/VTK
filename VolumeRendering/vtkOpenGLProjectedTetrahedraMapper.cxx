@@ -57,7 +57,7 @@ const int SqrtTableSize = 2048;
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLProjectedTetrahedraMapper, "1.9");
 vtkStandardNewMacro(vtkOpenGLProjectedTetrahedraMapper);
 
 vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
@@ -499,6 +499,26 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
         tet_texcoords[j*2 + 0] = (float)c[3]/255;
         tet_texcoords[j*2 + 1] = 0;
+        }
+
+      // Do not render this cell if it is outside of the cutting planes.  For
+      // most planes, cut if all points are outside.  For the near plane, cut if
+      // any points are outside because things can go very wrong if one of the
+      // points is behind the view.
+      if (   (   (tet_points[0*3+0] >  1.0f) && (tet_points[1*3+0] >  1.0f)
+              && (tet_points[2*3+0] >  1.0f) && (tet_points[3*3+0] >  1.0f) )
+          || (   (tet_points[0*3+0] < -1.0f) && (tet_points[1*3+0] < -1.0f)
+              && (tet_points[2*3+0] < -1.0f) && (tet_points[3*3+0] < -1.0f) )
+          || (   (tet_points[0*3+1] >  1.0f) && (tet_points[1*3+1] >  1.0f)
+              && (tet_points[2*3+1] >  1.0f) && (tet_points[3*3+1] >  1.0f) )
+          || (   (tet_points[0*3+1] < -1.0f) && (tet_points[1*3+1] < -1.0f)
+              && (tet_points[2*3+1] < -1.0f) && (tet_points[3*3+1] < -1.0f) )
+          || (   (tet_points[0*3+2] >  1.0f) && (tet_points[1*3+2] >  1.0f)
+              && (tet_points[2*3+2] >  1.0f) && (tet_points[3*3+2] >  1.0f) )
+          || (   (tet_points[0*3+2] < -1.0f) || (tet_points[1*3+2] < -1.0f)
+              || (tet_points[2*3+2] < -1.0f) || (tet_points[3*3+2] < -1.0f) ) )
+        {
+        continue;
         }
 
       // The classic PT algorithm uses face normals to determine the
