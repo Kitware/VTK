@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.38");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.39");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -932,6 +932,7 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
     output->CopyStructure(data);
     output->SetExtentTranslator(tmp);
     tmp->UnRegister(tmp);
+    output->GetFieldData()->PassData(data->GetFieldData());
     output->GetCellData()->PassData(data->GetCellData());
     output->GetPointData()->PassData(data->GetPointData());
     this->SetNumberOfPieces(0);
@@ -1024,6 +1025,7 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
 
   append->Update();
   output->CopyStructure(append->GetOutput());
+  output->GetFieldData()->PassData(append->GetOutput()->GetFieldData());
   output->GetCellData()->PassData(append->GetOutput()->GetCellData());
   output->GetPointData()->PassData(append->GetOutput()->GetPointData());
 
@@ -1089,6 +1091,7 @@ int vtkPDataSetReader::UnstructuredGridExecute(
 
   append->Update();
   output->CopyStructure(append->GetOutput());
+  output->GetFieldData()->PassData(append->GetOutput()->GetFieldData());
   output->GetCellData()->PassData(append->GetOutput()->GetCellData());
   output->GetPointData()->PassData(append->GetOutput()->GetPointData());
 
