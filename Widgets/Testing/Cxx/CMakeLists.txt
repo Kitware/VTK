@@ -14,6 +14,8 @@ SET(MyTests
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
 #  TestLogoWidget.cxx
+  TestLogoWidgetAlphaBlending.cxx
+  TestLogoWidgetDepthPeeling.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
