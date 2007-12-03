@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.78");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.79");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -696,6 +696,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     unsigned int threshold=static_cast<unsigned int>(this->ViewportWidth*this->ViewportHeight*OcclusionRatio);
     this->LayerList=new vtkOpenGLRendererLayerList;
     
+    // save the default blend function.
+    glPushAttrib(GL_COLOR_BUFFER_BIT);
+    
     int multiSampleStatus=glIsEnabled(vtkgl::MULTISAMPLE);
     
     if(multiSampleStatus)
@@ -779,8 +782,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     glVertex2f(0, this->ViewportHeight);
     glEnd();
     
-    // save the default blend function.
-    glPushAttrib(GL_COLOR_BUFFER_BIT);
     vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
