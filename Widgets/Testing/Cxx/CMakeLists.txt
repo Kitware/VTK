@@ -14,8 +14,6 @@ SET(MyTests
 #  TestHandleWidget2D.cxx
   TestImplicitPlaneWidget.cxx
 #  TestLogoWidget.cxx
-  TestLogoWidgetAlphaBlending.cxx
-  TestLogoWidgetDepthPeeling.cxx
   TestOrientationMarkerWidget.cxx
 #  TestPlaybackWidget.cxx
 #  TestRectilinearWipeWidget.cxx
@@ -38,6 +36,8 @@ IF (VTK_DATA_ROOT)
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
 #    TestLineWidget2.cxx
+    TestLogoWidgetAlphaBlending.cxx
+    TestLogoWidgetDepthPeeling.cxx
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
@@ -55,6 +55,8 @@ IF(NOT VTK_USE_DISPLAY)
     TestImageTracerWidget.cxx
     TestImplicitPlaneWidget.cxx
     TestLineWidget.cxx
+    TestLogoWidgetAlphaBlending.cxx
+    TestLogoWidgetDepthPeeling.cxx
     TestOrientationMarkerWidget.cxx
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
