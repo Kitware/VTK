@@ -18,22 +18,14 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOSConeCxx.cxx
-    TestTextureRGBA.cxx
-    TestTextureRGBADepthPeeling.cxx
     TestTextActorAlphaBlending.cxx
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
     TestTextActor3DDepthPeeling.cxx
-    TestTranslucentImageActorAlphaBlending.cxx
-    TestTranslucentImageActorDepthPeeling.cxx
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTDepthPeeling.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestTranslucentLUTTextureDepthPeeling.cxx
-    TestTStripsColorsTCoords.cxx
-    TestTStripsNormalsColorsTCoords.cxx
-    TestTStripsNormalsTCoords.cxx
-    TestTStripsTCoords.cxx
     )
 
   IF(VTK_DATA_ROOT)
@@ -41,6 +33,14 @@ IF(VTK_USE_DISPLAY)
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
       TestScenePicker.cxx
+      TestTextureRGBA.cxx
+      TestTextureRGBADepthPeeling.cxx
+      TestTranslucentImageActorAlphaBlending.cxx
+      TestTranslucentImageActorDepthPeeling.cxx
+      TestTStripsColorsTCoords.cxx
+      TestTStripsNormalsColorsTCoords.cxx
+      TestTStripsNormalsTCoords.cxx
+      TestTStripsTCoords.cxx
       )
   ENDIF(VTK_DATA_ROOT)
 
