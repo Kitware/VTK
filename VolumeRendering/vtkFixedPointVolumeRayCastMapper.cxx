@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.43");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.44");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1744,14 +1744,14 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
                                 dummyExtent );
 
   this->PerVolumeInitialization( ren, vol );
-  if ( this->RenderWindow->CheckAbortStatus() )
+  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
     }
 
   this->PerSubVolumeInitialization( ren, vol, 0 );
-  if ( this->RenderWindow->CheckAbortStatus() )
+  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
@@ -1759,7 +1759,7 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   
   this->RenderSubVolume();
 
-  if ( this->RenderWindow->CheckAbortStatus() )
+  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
@@ -1943,6 +1943,8 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
     }
   
   // Restore
+
+  this->RenderWindow = NULL;
   this->SampleDistance = this->OldSampleDistance;
   this->BlendMode = savedBlendMode;
   
@@ -2613,7 +2615,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   
   for ( j = 0; j < imageMemorySize[1]; j++ )
     {
-    if ( j%64 == 1 && this->RenderWindow->CheckAbortStatus() )
+    if ( j%64 == 1 && 
+         this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
       {
       return 0;
       }
@@ -3262,8 +3265,6 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       this->FlipMIPComparison = 0;
       }
     }
-  
-  
   
   // How many components?
   int components = this->CurrentScalars->GetNumberOfComponents();
