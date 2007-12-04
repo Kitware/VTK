@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.80");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.81");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -513,9 +513,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
         int isATIRadeonX300X550 =
           strstr(gl_renderer, "RADEON X300/X550 Series x86/SSE2") != 0;
         
-        int isNvidiaGeForce7300GT=
-          strstr(gl_renderer, "NVIDIA GeForce 7300 GT OpenGL Engine") != 0;
-        
         const char* gl_version =
           reinterpret_cast<const char *>(glGetString(GL_VERSION));
         if(const char* mesa_version = strstr(gl_version, "Mesa"))
@@ -575,11 +572,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
             {
             this->DepthPeelingIsSupported = 0;
             }
-          }
-        else if(isNvidiaGeForce7300GT)
-          {
-          // Mac Pro, Tiger (2.0 NVIDIA-1.4.56) or Leopard (2.0 NVIDIA-1.5.18)
-          this->DepthPeelingIsSupported = 0;
           }
         }
       }
