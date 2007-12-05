@@ -228,14 +228,11 @@ public:
   // This flag tells the extraction filter not to convert the selected
   // output into an unstructured grid, but instead to produce a vtkInsidedness
   // array and add it to the input dataset. 
-  // Warning: this is not supported by vtkExtractSelectedThresholds for now.
   static vtkInformationIntegerKey* PRESERVE_TOPOLOGY();
 
   // Description:
   // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
   // it should also extract the cells that contain any of the extracted points.
-  // Warning: this is not supported by vtkExtractSelectedThresholds or
-  // vtkExtractSelectedFrustum; these act as if this value is 1.
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
   // Description:
