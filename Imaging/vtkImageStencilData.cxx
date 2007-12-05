@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.23");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.24");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -414,6 +414,10 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
       return 0;
       }
     r1 = clist[iter++];
+    if (r1 < rmin)
+      {
+      r1 = rmin;
+      }
     }
 
   if (r1 > rmax)
