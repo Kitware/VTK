@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.1");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.2");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -94,10 +94,11 @@ bool vtkPostgreSQLDatabase::Open()
   vtkstd::string dataport;
   vtkstd::string database;
 
-  if ( protocol != "psql" ||
-       ! vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
+  bool result = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
                                         protocol, username, password,
-                                        hostname, dataport, database ) )
+                                               hostname, dataport, database );
+  if ( protocol != "psql" ||
+       !  result )
     {
     vtkGenericWarningMacro( "Invalid URL: " << this->URL );
     return 0;
@@ -105,8 +106,11 @@ bool vtkPostgreSQLDatabase::Open()
   
   vtkstd::string options( "host=" + hostname );
 
+  if ( dataport.length() ) options += " port=" + dataport;
   if ( database.length() ) options += " dbname=" + database;
-  
+  if ( username.length() ) options += " user=" + username;
+  if ( password.length() ) options += " password=" + password;
+
   try
     {
     this->Connection = new vtkPostgreSQLDatabasePrivate( options.c_str() );

@@ -28,6 +28,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkStringArray.h"
+#include "vtkToolkits.h"
 
 int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 {
@@ -37,7 +38,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   // as well as tables in the databases. A new database "vtktest"
   // will be created and then destroyed by this test.
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::New();
-  db->SetURL( "host=localhost dbname=test" );
+  db->SetURL( VTK_PSQL_TEST_URL );
   db->Open();
 
   vtkStringArray* dbNames = db->GetDatabases();
@@ -53,7 +54,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     }
 
   // Reconnect to the database we've just created.
-  db->SetURL( "host=localhost dbname=vtktest" );
+  db->SetURL( VTK_PSQL_TEST_URL );
   bool status = db->Open();
 
   if ( ! status )
@@ -180,7 +181,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     }
 
   db->Close();
-  db->SetURL( "host=localhost dbname=test" );
+  db->SetURL( VTK_PSQL_TEST_URL );
   db->Open();
   // Delete the database until we run the test again
   if ( ! db->DropDatabase( "vtktest" ) )
