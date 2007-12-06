@@ -78,6 +78,12 @@
 #  define VTK_DATA_ROOT "@VTK_DATA_ROOT@"
 #endif
 
+/* Should VTK use PostgreSQL?  */
+#cmakedefine VTK_USE_PSQL
+
+/* Should VTK use MySQL?  */
+#cmakedefine VTK_USE_MYSQL
+
 /* Is a test PostgreSQL database URL defined? */
 #cmakedefine VTK_PSQL_TEST_URL
 #ifdef VTK_PSQL_TEST_URL
