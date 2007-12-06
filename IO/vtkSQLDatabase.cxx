@@ -18,21 +18,80 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkSQLDatabase.h"
+#include "vtkSQLiteDatabase.h"
+#include "vtkPostgreSQLDatabase.h"
+#include "vtkMySQLDatabase.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.1");
+#include <vtksys/SystemTools.hxx>
+#include <vtksys/RegularExpression.hxx>
 
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.2");
+
+// ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
 {
 }
 
+// ----------------------------------------------------------------------
 vtkSQLDatabase::~vtkSQLDatabase()
 {
 }
 
+// ----------------------------------------------------------------------
 void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+// ----------------------------------------------------------------------
+vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
+{
+  vtkstd::string protocol( 0 );
+  vtkstd::string dataglom( 0 );
+
+  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom ) )
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << URL );
+    return 0;
+    }
+  
+  vtkSQLDatabase* db = 0;
+  if ( protocol == "sqlite" )
+    {
+    vtkSQLiteDatabase* sdb = vtkSQLiteDatabase::New();
+    if ( sdb )
+      {
+      sdb->SetFileName( dataglom.c_str() );
+      }
+
+    db = sdb;
+    }
+  else if ( protocol == "psql" )
+    {
+    db = vtkPostgreSQLDatabase::New();
+    }
+  else if ( protocol == "mysql" )
+    {
+    db = vtkMySQLDatabase::New();
+    }
+  else
+    {
+    vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
+    return 0;
+    }
+
+  if ( db )
+    {
+    db->SetURL( URL );
+    }
+  else
+    {
+    vtkGenericWarningMacro( "Unable to instantiate a database" );
+    }
+
+  vtkGenericWarningMacro( "Unable to connect to URL: " << URL );
+  return db;
 }
 

@@ -71,11 +71,30 @@
 /* Should VTK use the display?  */
 #cmakedefine VTK_USE_DISPLAY
 
-/* is VTK_DATA_ROOT defined? */
+/* Is VTK_DATA_ROOT defined? */
 #cmakedefine VTK_DATA_ROOT
 #ifdef VTK_DATA_ROOT
 #  undef VTK_DATA_ROOT
 #  define VTK_DATA_ROOT "@VTK_DATA_ROOT@"
+#endif
+
+/* Is a test PostgreSQL database URL defined? */
+#cmakedefine VTK_PSQL_TEST_URL
+#ifdef VTK_PSQL_TEST_URL
+#  undef VTK_PSQL_TEST_URL
+#  define VTK_PSQL_TEST_URL "@VTK_PSQL_TEST_URL@"
+#endif
+
+/* Is a test MySQL database URL defined? */
+#cmakedefine VTK_MYSQL_TEST_URL
+#ifdef VTK_MYSQL_TEST_URL
+#  undef VTK_MYSQL_TEST_URL
+#  define VTK_MYSQL_TEST_URL "@VTK_MYSQL_TEST_URL@"
+#  define VTK_MYSQL_TEST_HOST "@MYSQL_TEST_HOST@"
+#  define VTK_MYSQL_TEST_PORT @MYSQL_TEST_PORT@
+#  define VTK_MYSQL_TEST_USERNAME "@MYSQL_TEST_USERNAME@"
+#  define VTK_MYSQL_TEST_PASSWORD "@MYSQL_TEST_PASSWORD@"
+#  define VTK_MYSQL_TEST_DATABASE "@MYSQL_TEST_DATABASE@"
 #endif
 
 /* Debug leaks support.  */

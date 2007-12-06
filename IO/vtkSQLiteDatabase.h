@@ -108,10 +108,7 @@ protected:
 private:
   vtk_sqlite3 *SQLiteInstance;
   char *FileName;
-  char *LastErrorText;
   
-  vtkSetStringMacro(LastErrorText);
-
   vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
   void operator=(const vtkSQLiteDatabase &); // Not implemented.
 };

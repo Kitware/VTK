@@ -35,7 +35,9 @@
 //
 // .SECTION Thanks
 // Thanks to Andrew Wilson from Sandia National Laboratories for his work
-// on the database classes.
+// on the database classes and for the SQLite example. Thanks to David Thompson 
+// and Philippe Pebay from Sandia National Laboratories for implementing
+// this class.
 //
 // .SECTION See Also
 // vtkSQLQuery
@@ -45,11 +47,13 @@
 
 #include "vtkObject.h"
 
+#include <vtkstd/string>
+
 class vtkSQLQuery;
 class vtkStringArray;
 
 // This is a list of features that each database may or may not
-// support.  As yet (April 2007) we don't provide access to most of
+// support.  As yet (December 2007) we don't provide access to most of
 // them.  
 #define VTK_SQL_FEATURE_TRANSACTIONS            1000
 #define VTK_SQL_FEATURE_QUERY_SIZE              1001
@@ -61,6 +65,44 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_LAST_INSERT_ID          1007
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
 #define VTK_SQL_FEATURE_TRIGGERS                1009
+
+//BTX
+// Basic data types for database columns
+enum DatabaseColumnType
+{
+  SERIAL,
+  SMALLINT,
+  INTEGER,
+  BIGINT,
+  VARCHAR,
+  TEXT,
+  REAL,
+  DOUBLE,
+  BLOB,
+  TIME,
+  DATE,
+  TIMESTAMP,
+};
+
+// Types of indices that can be generated for database tables
+enum DatabaseIndexType
+{
+  INDEX,       // Non-unique index of values in named columns
+  UNIQUE,      // Index of values in named columns required to have at most one entry per pair of valid values.
+  PRIMARY_KEY, // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
+};
+
+// Events where database triggers can be registered.
+enum DatabaseTriggerType
+{
+  BEFORE_INSERT, // Just before a row is inserted
+  AFTER_INSERT,  // Just after a row is inserted
+  BEFORE_UPDATE, // Just before a row's values are changed
+  AFTER_UPDATE,  // Just after a row's values are changed
+  BEFORE_DELETE, // Just before a row is deleted
+  AFTER_DELETE,  // Just after a row is deleted
+};
+//ETX
 
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
@@ -102,10 +144,19 @@ public:
   // Return whether a feature is supported by the database.
   virtual bool IsSupported(int vtkNotUsed(feature)) { return false; }
 
+  // Description:
+  // Create a the proper subclass given a URL
+  static vtkSQLDatabase* CreateFromURL( const char* URL );
 
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
+
+  vtkSetStringMacro(URL);
+  vtkSetStringMacro(LastErrorText);
+
+  char* URL;
+  char *LastErrorText;
 
 private:
   vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.
@@ -113,4 +164,3 @@ private:
 };
 
 #endif // __vtkSQLDatabase_h
-

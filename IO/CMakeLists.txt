@@ -88,6 +88,7 @@ vtkPNGReader.cxx
 vtkPNGWriter.cxx
 vtkPNMReader.cxx
 vtkPNMWriter.cxx
+
 vtkParticleReader.cxx
 vtkPolyDataReader.cxx
 vtkPolyDataWriter.cxx
@@ -250,6 +251,56 @@ IF (VTK_USE_MPEG2_ENCODER)
   SET(Kit_SRCS ${Kit_SRCS} vtkMPEG2Writer.cxx)
   SET(KIT_LIBS ${KIT_LIBS} ${vtkMPEG2Encode_LIBRARIES})
 ENDIF (VTK_USE_MPEG2_ENCODER)
+
+#-----------------------------------------------------------------------------
+# PostgreSQL
+# build the PostgreSQL database backend (if the PostgresSQL and pqxx libraries are available)
+#
+OPTION( VTK_USE_POSTGRES "Build the PostgreSQL driver for vtkSQLDatabase." BOOL)
+IF ( VTK_USE_POSTGRES )
+  FIND_PACKAGE( PQXX REQUIRED )
+  IF ( BUILD_TESTING )
+    SET ( VTK_PSQL_TEST_URL "" CACHE STRING "A URL for a PostgreSQL server of the form psql://[[username[:password]@]hostname[:port]]/[dbname]" ) 
+  ENDIF ( BUILD_TESTING )
+ENDIF ( VTK_USE_POSTGRES )
+#
+# Only include the Postgres backend if the user has explicitly turned on
+# VTK_USE_POSTGRES. If so, user must also have set POSTGRES_LIBRARIES
+# and POSTGRES_INCLUDE_DIRECTORIES to valid values.
+IF ( VTK_USE_POSTGRES AND PQXX_FOUND )
+  INCLUDE_DIRECTORIES( ${PQXX_INCLUDE_DIRECTORIES} )
+  SET( Kit_SRCS
+    ${Kit_SRCS}
+    vtkPostgreSQLDatabase.cxx
+    vtkPostgreSQLQuery.cxx
+  )
+  LINK_LIBRARIES( ${PQXX_LIBRARIES} )
+ENDIF ( VTK_USE_POSTGRES AND PQXX_FOUND )
+
+#-----------------------------------------------------------------------------
+# MySQL
+# build the MySQL database backend (if the MySQL libraries are available)
+#
+OPTION( VTK_USE_MYSQL "Build the MySQL driver for vtkSQLDatabase." BOOL)
+IF ( VTK_USE_MYSQL )
+  FIND_PACKAGE( MySQL REQUIRED )
+  IF ( BUILD_TESTING )
+    SET ( VTK_MYSQL_TEST_URL "" CACHE STRING "A URL for a MySQL server of the form mysql://[[username[:password]@]hostname[:port]]/[dbname]" ) 
+  ENDIF ( BUILD_TESTING )
+ENDIF ( VTK_USE_MYSQL )
+#
+# Only include the MySQL backend if the user has explicitly turned on
+# VTK_USE_MYSQL. If so, user must also have set MYSQL_LIBRARIES
+# and MYSQL_INCLUDE_DIRECTORIES to valid values.
+IF ( VTK_USE_MYSQL AND MYSQL_FOUND )
+  INCLUDE_DIRECTORIES( ${MYSQL_INCLUDE_DIRECTORIES} )
+  SET( Kit_SRCS
+    ${Kit_SRCS}
+    vtkMySQLDatabase.cxx
+    vtkMySQLQuery.cxx
+  )
+  LINK_LIBRARIES( ${MYSQL_LIBRARY}  ${MYSQL_EXTRA_LIBRARIES} )
+ENDIF ( VTK_USE_MYSQL AND MYSQL_FOUND )
 
 #-----------------------------------------------------------------------------
 # Add these classes only if vtkTypeUInt64Array exists
