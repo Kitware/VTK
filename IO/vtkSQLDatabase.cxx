@@ -33,7 +33,7 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/RegularExpression.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.3");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.4");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -74,14 +74,18 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 
     db = sdb;
     }
+#ifdef VTK_USE_PSQL
   else if ( protocol == "psql" )
     {
     db = vtkPostgreSQLDatabase::New();
     }
+#endif // VTK_USE_PSQL
+#ifdef VTK_USE_MYSQL
   else if ( protocol == "mysql" )
     {
     db = vtkMySQLDatabase::New();
     }
+#endif // VTK_USE_MYSQL
   else
     {
     vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
