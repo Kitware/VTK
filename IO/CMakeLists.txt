@@ -256,7 +256,7 @@ ENDIF (VTK_USE_MPEG2_ENCODER)
 # PostgreSQL
 # build the PostgreSQL database backend (if the PostgresSQL and pqxx libraries are available)
 #
-OPTION( VTK_USE_POSTGRES "Build the PostgreSQL driver for vtkSQLDatabase." BOOL)
+OPTION( VTK_USE_POSTGRES "Build the PostgreSQL driver for vtkSQLDatabase." OFF)
 IF ( VTK_USE_POSTGRES )
   FIND_PACKAGE( PQXX REQUIRED )
   IF ( BUILD_TESTING )
@@ -281,7 +281,7 @@ ENDIF ( VTK_USE_POSTGRES AND PQXX_FOUND )
 # MySQL
 # build the MySQL database backend (if the MySQL libraries are available)
 #
-OPTION( VTK_USE_MYSQL "Build the MySQL driver for vtkSQLDatabase." BOOL)
+OPTION( VTK_USE_MYSQL "Build the MySQL driver for vtkSQLDatabase." OFF)
 IF ( VTK_USE_MYSQL )
   FIND_PACKAGE( MySQL REQUIRED )
   IF ( BUILD_TESTING )
