@@ -31,6 +31,9 @@ template <class T> struct vtkTypeTraits;
     /* The type itself.  */                                                   \
     typedef type ValueType;                                                   \
                                                                               \
+    /* the value defined for this type in vtkType */                          \
+    static int VTKTypeID() { return VTK_##macro; }                            \
+                                                                              \
     /* The smallest possible value represented by the type.  */               \
     static type Min() { return VTK_##macro##_MIN; }                           \
                                                                               \
@@ -119,9 +122,16 @@ VTK_TYPE_TRAITS(unsigned long, UNSIGNED_LONG, 0, UInt64, unsigned long, "%lu");
 # if VTK_SIZEOF_LONG_LONG == 8
 #  define VTK_TYPE_SIZED_LONG_LONG INT64
 #  define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
-VTK_TYPE_TRAITS(long long, LONG_LONG, 1, Int64, long long, "%lld");
+#  if defined(_MSC_VER) && _MSC_VER < 1400
+#   define VTK_TYPE_LONG_LONG_FORMAT "%I64"
+#  else
+#   define VTK_TYPE_LONG_LONG_FORMAT "%ll"
+#  endif
+VTK_TYPE_TRAITS(long long, LONG_LONG, 1, Int64, long long,
+                VTK_TYPE_LONG_LONG_FORMAT "d");
 VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64,
-                unsigned long long, "%llu");
+                unsigned long long, VTK_TYPE_LONG_LONG_FORMAT "u");
+#  undef VTK_TYPE_LONG_LONG_FORMAT
 # else
 #  error "Type long long is not 8 bytes in size."
 # endif
