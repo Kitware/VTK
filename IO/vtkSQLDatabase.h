@@ -47,7 +47,7 @@
 
 #include "vtkObject.h"
 
-#include <vtkstd/string>
+#include <vtkstd/string> // Because I really enjoy including headers
 
 class vtkSQLQuery;
 class vtkStringArray;
