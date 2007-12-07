@@ -36,7 +36,7 @@ int TestMySQLDatabase(int, char ** const)
   vtkMySQLDatabase *db = vtkMySQLDatabase::New();
     
   db->SetHostName(VTK_MYSQL_TEST_HOST);
-  db->SetPort(VTK_MYSQL_TEST_PORT);
+  db->SetPorT(VTK_MYSQL_TEST_PORT);
   db->SetUserName(VTK_MYSQL_TEST_USERNAME);
   db->SetPassword(VTK_MYSQL_TEST_PASSWORD);
   db->SetDatabaseName(VTK_MYSQL_TEST_DATABASE);

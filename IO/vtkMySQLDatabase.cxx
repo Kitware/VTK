@@ -24,7 +24,7 @@
  
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.1");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.2");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ vtkMySQLDatabase::vtkMySQLDatabase()
     UserName(NULL),
     Password(NULL),
     DatabaseName(NULL),
-    Port(3306){
+    PorT(3306){
   this->Connection = NULL;
   mysql_init(& this->NullConnection);
   this->Tables = vtkStringArray::New();
@@ -190,7 +190,7 @@ vtkMySQLDatabase::Open()
                         this->UserName,
                         this->Password, 
                         (this->DatabaseName ? this->DatabaseName : ""),
-                        this->Port,
+                        this->PorT,
                         0, 0);
                                         
   if (this->Connection == NULL)

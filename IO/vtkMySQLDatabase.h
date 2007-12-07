@@ -67,8 +67,8 @@ public:
   // Description:
   // Set/get the TCP port to use while connecting to the database.
   // Defaults to 3306.
-  vtkSetMacro(Port, int);
-  vtkGetMacro(Port, int);
+  vtkSetMacro(PorT, int);
+  vtkGetMacro(PorT, int);
 
   // Description:
   // Set/get the name of the database to open while connecting.
@@ -119,7 +119,7 @@ private:
   char *UserName;
   char *Password;
   char *DatabaseName;
-  int  Port;
+  int  PorT;
 
   vtkStringArray *Tables;
   vtkStringArray *Record;
