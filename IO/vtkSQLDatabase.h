@@ -66,49 +66,49 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
 #define VTK_SQL_FEATURE_TRIGGERS                1009
 
-//BTX
-// Basic data types for database columns
-enum DatabaseColumnType
-{
-  SERIAL,
-  SMALLINT,
-  INTEGER,
-  BIGINT,
-  VARCHAR,
-  TEXT,
-  REAL,
-  DOUBLE,
-  BLOB,
-  TIME,
-  DATE,
-  TIMESTAMP,
-};
-
-// Types of indices that can be generated for database tables
-enum DatabaseIndexType
-{
-  INDEX,       // Non-unique index of values in named columns
-  UNIQUE,      // Index of values in named columns required to have at most one entry per pair of valid values.
-  PRIMARY_KEY, // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
-};
-
-// Events where database triggers can be registered.
-enum DatabaseTriggerType
-{
-  BEFORE_INSERT, // Just before a row is inserted
-  AFTER_INSERT,  // Just after a row is inserted
-  BEFORE_UPDATE, // Just before a row's values are changed
-  AFTER_UPDATE,  // Just after a row's values are changed
-  BEFORE_DELETE, // Just before a row is deleted
-  AFTER_DELETE,  // Just after a row is deleted
-};
-//ETX
-
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkSQLDatabase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+//BTX
+// Basic data types for database columns
+  enum DatabaseColumnType
+    {
+      SERIAL,
+      SMALLINT,
+      INTEGER,
+      BIGINT,
+      VARCHAR,
+      TEXT,
+      REAL,
+      DOUBLE,
+      BLOB,
+      TIME,
+      DATE,
+      TIMESTAMP,
+    };
+
+// Types of indices that can be generated for database tables
+  enum DatabaseIndexType
+    {
+      INDEX,       // Non-unique index of values in named columns
+      UNIQUE,      // Index of values in named columns required to have at most one entry per pair of valid values.
+      PRIMARY_KEY, // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
+    };
+
+// Events where database triggers can be registered.
+  enum DatabaseTriggerType
+    {
+      BEFORE_INSERT, // Just before a row is inserted
+      AFTER_INSERT,  // Just after a row is inserted
+      BEFORE_UPDATE, // Just before a row's values are changed
+      AFTER_UPDATE,  // Just after a row's values are changed
+      BEFORE_DELETE, // Just before a row is deleted
+      AFTER_DELETE,  // Just after a row is deleted
+    };
+//ETX
 
   // Description:
   // Open a new connection to the database.
