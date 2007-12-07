@@ -33,7 +33,7 @@
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxRevisionMacro(vtkAxisActor, "1.3");
+vtkCxxRevisionMacro(vtkAxisActor, "1.4");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************
@@ -526,7 +526,9 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
     }
 
   double bounds[6], center[3], tick[3], pos[3];
-  int i, xmult, ymult;
+  int i = 0;
+  int xmult = 0;
+  int ymult = 0;
 
   switch (this->AxisType)
     {
@@ -616,7 +618,8 @@ void vtkAxisActor::BuildTitle(bool force)
 
   double *p1 = this->Point1Coordinate->GetValue();
   double *p2 = this->Point2Coordinate->GetValue();
-  int xmult, ymult;
+  int xmult = 0;
+  int ymult = 0;
 
   if (!force && this->LabelBuildTime.GetMTime() < this->BuildTime.GetMTime() &&
       this->BoundsTime.GetMTime() < this->BuildTime.GetMTime() &&

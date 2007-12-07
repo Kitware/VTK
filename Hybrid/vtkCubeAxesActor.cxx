@@ -32,7 +32,7 @@
 // *************************************************************************
 
 vtkStandardNewMacro(vtkCubeAxesActor);
-vtkCxxRevisionMacro(vtkCubeAxesActor, "1.3");
+vtkCxxRevisionMacro(vtkCubeAxesActor, "1.4");
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 
 // *************************************************************************
@@ -1457,11 +1457,11 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 {
   double bounds[6], slope = 0.0, minSlope, num, den;
   double pts[8][3], d2, d2Min, min, max;
-  int i, idx = 0;
-  int xIdx, yIdx = 0, zIdx = 0, zIdx2;
-  int xAxes = 0, yAxes, zAxes, xloc, yloc, zloc;
+  int i = 0, idx = 0;
+  int xIdx = 0, yIdx = 0, zIdx = 0, zIdx2 = 0;
+  int xAxes = 0, yAxes = 0, zAxes = 0, xloc = 0, yloc = 0, zloc = 0;
 
-  if (this->FlyMode == VTK_FLY_STATIC_EDGES) 
+  if (this->FlyMode == VTK_FLY_STATIC_EDGES)
     {
     for (i = 0; i < 4; i++)
       {
