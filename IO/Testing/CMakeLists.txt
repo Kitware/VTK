@@ -16,6 +16,7 @@ IF(PYTHON_EXECUTABLE)
     vtkMINC.h
     vtkPLY.h
     vtkBase64Utilities.h
+    vtkPostgreSQLDatabasePrivate.h
     vtkXMLUtilities.h
     vtkXMLWriterC.h
     vtkXMLWriterF.h
