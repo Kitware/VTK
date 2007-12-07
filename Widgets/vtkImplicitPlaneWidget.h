@@ -105,8 +105,8 @@ public:
 
   // Description:
   // Get the origin of the plane.
-  void SetOrigin(double x, double y, double z);
-  void SetOrigin(double x[3]);
+  virtual void SetOrigin(double x, double y, double z);
+  virtual void SetOrigin(double x[3]);
   double* GetOrigin();
   void GetOrigin(double xyz[3]);
 
@@ -284,7 +284,7 @@ protected:
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
   int               DrawPlane;
-  void HighlightPlane(int highlight);
+  virtual void HighlightPlane(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
   vtkFeatureEdges   *Edges;
