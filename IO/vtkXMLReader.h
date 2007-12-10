@@ -136,8 +136,8 @@ protected:
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
   
   // Internal utility methods.
-  int OpenVTKFile();
-  void CloseVTKFile();
+  virtual int OpenVTKFile();
+  virtual void CloseVTKFile();
   virtual void CreateXMLParser();
   virtual void DestroyXMLParser();
   void SetupCompressor(const char* type);
