@@ -27,7 +27,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.53");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.54");
 
 class vtkTIFFReaderInternal
 {
@@ -93,7 +93,7 @@ void vtkTIFFReaderInternal::Clean()
   this->Image=NULL;
   this->Width = 0;
   this->Height = 0;
-  this->SamplesPerPixel = 0;
+  this->SamplesPerPixel = 1;
   this->Compression = 0;
   this->BitsPerSample = 0;
   this->Photometrics = 0;
