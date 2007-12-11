@@ -29,11 +29,12 @@
 // in VTK/Utilities/vtksqlite.  
 //
 // If you want to open a database that stays in memory and never gets
-// written to disk, pass in the filename ':memory:'.
+// written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
+// specifiy the file path by passing the URL 'sqlite://<file_path>'.
 //
 // .SECTION Thanks
-// Thanks to Andrew Wilson from Sandia National Laboratories for implementing
-// this class.
+// Thanks to Andrew Wilson and Philippe Pebay from Sandia National 
+// Laboratories for implementing this class.
 //
 // .SECTION See Also
 // vtkSQLiteQuery
@@ -59,14 +60,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLiteDatabase *New();
 
-  // Description:
-  // Set/get the name of the file containing the database.  SQLite works
-  // entirely on files and does not have a notion of network
-  // connections.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
-  
   // Description:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
@@ -107,7 +100,6 @@ protected:
 
 private:
   vtk_sqlite3 *SQLiteInstance;
-  char *FileName;
   
   vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
   void operator=(const vtkSQLiteDatabase &); // Not implemented.

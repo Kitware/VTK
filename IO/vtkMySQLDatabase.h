@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+/*----------------------------------------------------------------------------
+  Copyright (c) Sandia Corporation
+  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  ----------------------------------------------------------------------------*/
 // .NAME vtkMySQLDatabase - maintain a connection to a MySQL database
 //
 // .SECTION Description
@@ -48,34 +51,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkMySQLDatabase *New();
 
-  // Description:
-  // Set/get the hostname where the database server lives.  No
-  // default.
-  vtkSetStringMacro(HostName);
-  vtkGetStringMacro(HostName);
-
-  // Description:
-  // Set/get the username to use while connecting to the database.
-  vtkSetStringMacro(UserName);
-  vtkGetStringMacro(UserName);
-  
-  // Description:
-  // Set/get the password to use while connecting to the database.
-  void SetPassword(const char *passwd);
-  vtkGetStringMacro(Password);
-
-  // Description:
-  // Set/get the TCP port to use while connecting to the database.
-  // Defaults to 3306.
-  vtkSetMacro(PorT, int);
-  vtkGetMacro(PorT, int);
-
-  // Description:
-  // Set/get the name of the database to open while connecting.
-  // Changing this after the connection is already open has no effect.
-  vtkSetStringMacro(DatabaseName);
-  vtkGetStringMacro(DatabaseName);
-  
   // Description:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
@@ -115,12 +90,6 @@ protected:
   ~vtkMySQLDatabase();
 
 private:
-  char *HostName;
-  char *UserName;
-  char *Password;
-  char *DatabaseName;
-  int  PorT;
-
   vtkStringArray *Tables;
   vtkStringArray *Record;
 

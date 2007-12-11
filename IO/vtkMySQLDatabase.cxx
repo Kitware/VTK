@@ -12,30 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+/*----------------------------------------------------------------------------
+  Copyright (c) Sandia Corporation
+  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  ----------------------------------------------------------------------------*/
 #include "vtkMySQLDatabase.h"
 #include "vtkMySQLQuery.h"
-#include <vtkStringArray.h>
-#include <vtkObjectFactory.h>
 
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+
+#include <vtksys/SystemTools.hxx>
 
 #include <assert.h>
 #include <mysql.h>
  
-// ----------------------------------------------------------------------
-
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.2");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.3");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
-
 vtkMySQLDatabase::vtkMySQLDatabase()
-  : HostName(NULL),
-    UserName(NULL),
-    Password(NULL),
-    DatabaseName(NULL),
-    PorT(3306){
+{
+  this->URL = NULL;
   this->Connection = NULL;
+
   mysql_init(& this->NullConnection);
   this->Tables = vtkStringArray::New();
   this->Tables->Register(this);
@@ -44,60 +44,20 @@ vtkMySQLDatabase::vtkMySQLDatabase()
 }
 
 // ----------------------------------------------------------------------
-
 vtkMySQLDatabase::~vtkMySQLDatabase()
 {
-  this->Close();
-  this->SetHostName(NULL);
-  this->SetUserName(NULL);
-  this->SetPassword(NULL);
-  this->SetLastErrorText(NULL);
-  this->Tables->UnRegister(this);
-
-}
-
-// ----------------------------------------------------------------------
-
-// The reason I'm writing this method out instead of just using
-// vtkSetStringMacro is that I want to zero out the old string before
-// I delete it.  That way there's less chance that a password will be
-// left floating around in main memory.
-
-void
-vtkMySQLDatabase::SetPassword(const char *pwd)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " 
-                << "Password to " << (pwd?pwd:"(null)") );      
-  
-  if ( this->Password == NULL && pwd == NULL) { return;}               
-  if ( this->Password && pwd && (!strcmp(this->Password,pwd))) { return;} 
-
-  if (this->Password) 
-    { 
-    memset(this->Password, 0, strlen(this->Password) * sizeof(char));
-    delete [] this->Password;
-    this->Password = NULL;
+  if ( this->IsOpen() )
+    {
+    this->Close();
     }
 
-  if (pwd) 
-    { 
-    size_t n = strlen(pwd) + 1;
-    char *cp1 =  new char[n]; 
-    const char *cp2 = (pwd); 
-    this->Password = cp1; 
-    do { *cp1++ = *cp2++; } while ( --n ); 
-    } 
-   else 
-    { 
-    this->Password = NULL; 
-    } 
-  this->Modified(); 
+  this->SetURL( NULL );
+  this->SetLastErrorText(NULL);
+  this->Tables->UnRegister(this);
 }
 
 // ----------------------------------------------------------------------
-
-bool
-vtkMySQLDatabase::IsSupported(int feature)
+bool vtkMySQLDatabase::IsSupported(int feature)
 {
   switch (feature)
     {
@@ -142,55 +102,46 @@ vtkMySQLDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
-
-bool
-vtkMySQLDatabase::Open()
+bool vtkMySQLDatabase::Open()
 {
-  bool canOpen = true;
-
-  if (this->UserName == NULL)
+  if  ( ! this->URL )
     {
-    vtkErrorMacro(<<"Open(): Username is null!");
-    canOpen = false;
-    }
-
-  if (this->Password == NULL)
-    {
-    vtkErrorMacro(<<"Open(): Password is null!  For no password, use the string \"\".");
-    canOpen = false;
-    }
-
-  if (this->HostName == NULL)
-    {
-    vtkErrorMacro(<<"Open(): Hostname is null!");
-    canOpen = false;
-    }
-  
-  if (this->DatabaseName == NULL)
-    {
-    vtkWarningMacro(<<"Open(): Database name is null.  This is permitted but highly discouraged.");
-    }
-
-  if (this->IsOpen())
-    {
-    vtkWarningMacro(<<"Open(): Database is already open.");
-    return true;
-    }
-
-  if (!canOpen)
-    {
+    this->SetLastErrorText("Cannot open database because URL is null.");
+    vtkErrorMacro(<< this->GetLastErrorText());
     return false;
+    }
+
+  if ( this->IsOpen() )
+    {
+    vtkGenericWarningMacro( "Open(): Database is already open." );
+    return true;
     }
 
   assert(this->Connection == NULL);
 
+  vtkstd::string protocol;
+  vtkstd::string username;
+  vtkstd::string password;
+  vtkstd::string hostname;
+  vtkstd::string dataport;
+  vtkstd::string database;
+
+  bool parsing = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
+                                               protocol, username, password,
+                                               hostname, dataport, database );
+  if ( ! parsing || protocol != "mysql" )
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << this->URL );
+    return 0;
+    }
+
   this->Connection = 
     mysql_real_connect( & this->NullConnection, 
-                        this->HostName,
-                        this->UserName,
-                        this->Password, 
-                        (this->DatabaseName ? this->DatabaseName : ""),
-                        this->PorT,
+                        hostname.c_str(),
+                        username.c_str(),
+                        password.c_str(), 
+                        database.c_str(),
+                        atoi( dataport.c_str() ),
                         0, 0);
                                         
   if (this->Connection == NULL)
@@ -208,9 +159,7 @@ vtkMySQLDatabase::Open()
 }
 
 // ----------------------------------------------------------------------
-
-void
-vtkMySQLDatabase::Close()
+void vtkMySQLDatabase::Close()
 {
   if (! this->IsOpen())
     {
@@ -224,17 +173,13 @@ vtkMySQLDatabase::Close()
 }
 
 // ----------------------------------------------------------------------
-
-bool
-vtkMySQLDatabase::IsOpen()
+bool vtkMySQLDatabase::IsOpen()
 {
   return (this->Connection != NULL);
 }
 
 // ----------------------------------------------------------------------
-
-vtkSQLQuery *
-vtkMySQLDatabase::GetQueryInstance()
+vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 {
   vtkMySQLQuery *query = 
     vtkMySQLQuery::New();
@@ -243,17 +188,13 @@ vtkMySQLDatabase::GetQueryInstance()
 }
 
 // ----------------------------------------------------------------------
-
-const char *
-vtkMySQLDatabase::GetLastErrorText()
+const char* vtkMySQLDatabase::GetLastErrorText()
 {
   return this->LastErrorText;
 }
 
 // ----------------------------------------------------------------------
-
-vtkStringArray *
-vtkMySQLDatabase::GetTables()
+vtkStringArray* vtkMySQLDatabase::GetTables()
 {
   this->Tables->Resize(0);
   if (!this->IsOpen())
@@ -297,9 +238,7 @@ vtkMySQLDatabase::GetTables()
 }
 
 // ----------------------------------------------------------------------
-
-vtkStringArray *
-vtkMySQLDatabase::GetRecord(const char *table)
+vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
 {
   vtkStringArray *results = vtkStringArray::New();
 
@@ -331,9 +270,7 @@ vtkMySQLDatabase::GetRecord(const char *table)
 }
 
 // ----------------------------------------------------------------------
-
-void
-vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
+void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

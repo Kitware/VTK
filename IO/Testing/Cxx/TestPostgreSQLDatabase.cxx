@@ -30,20 +30,25 @@
 #include "vtkStringArray.h"
 #include "vtkToolkits.h"
 
-int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
+int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 {
   // This test requires a database named "test" to be present
   // on a Postgres server running on the local machine. The
   // default user must have permission to add and drop databases
   // as well as tables in the databases. A new database "vtktest"
   // will be created and then destroyed by this test.
-  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::New();
-  db->SetURL( VTK_PSQL_TEST_URL );
-  db->Open();
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
+  bool status = db->Open();
+
+  if ( ! status )
+    {
+    cerr << "Couldn't open database.\n";
+    return 1;
+    }
 
   vtkStringArray* dbNames = db->GetDatabases();
   cout << "Database list:\n";
-  for ( int dbi = 0; dbi < dbNames->GetNumberOfValues(); ++dbi )
+  for ( int dbi = 0; dbi < dbNames->GetNumberOfValues(); ++ dbi )
     {
     cout << "+ " << dbNames->GetValue( dbi ) << endl;
     }
@@ -53,19 +58,9 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     cerr << "Error: " << db->GetLastErrorText() << endl;
     }
 
-  // Reconnect to the database we've just created.
-  db->SetURL( VTK_PSQL_TEST_URL );
-  bool status = db->Open();
-
-  if ( ! status )
-    {
-    cerr << "Couldn't open database.\n";
-    return 1;
-    }
-
   vtkSQLQuery* query = db->GetQueryInstance();
 
-  vtkStdString dropQuery( "DROP TABLE IF EXISTS people" );
+  vtkStdString dropQuery( "DROP TABLE people" );
   cout << dropQuery << endl;
   query->SetQuery( dropQuery.c_str() );
   if ( ! query->Execute() )
@@ -83,7 +78,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     return 1;
     }
 
-  for ( int i = 0; i < 40; ++i )
+  for ( int i = 0; i < 40; ++ i )
     {
     char insertQuery[200];
     sprintf( insertQuery, "INSERT INTO people VALUES('John Doe %d', %d, %d)", i, i, 10 * i );
@@ -108,7 +103,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     return 1;
     }
 
-  for ( int col = 0; col < query->GetNumberOfFields(); ++col )
+  for ( int col = 0; col < query->GetNumberOfFields(); ++ col )
     {
     if ( col > 0 )
       {
@@ -119,7 +114,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   cerr << endl;
   while ( query->NextRow() )
     {
-    for ( int field = 0; field < query->GetNumberOfFields(); ++field )
+    for ( int field = 0; field < query->GetNumberOfFields(); ++ field )
       {
       if ( field > 0 )
         {
@@ -136,7 +131,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     cerr << "Query failed" << endl;
     return 1;
     }
-  for ( int col = 0; col < query->GetNumberOfFields(); ++col )
+  for ( int col = 0; col < query->GetNumberOfFields(); ++ col )
     {
     if ( col > 0 )
       {
@@ -148,7 +143,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   vtkVariantArray* va = vtkVariantArray::New();
   while ( query->NextRow( va ) )
     {
-    for ( int field = 0; field < va->GetNumberOfValues(); ++field )
+    for ( int field = 0; field < va->GetNumberOfValues(); ++ field )
       {
       if ( field > 0 )
         {
@@ -165,14 +160,14 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   reader->SetQuery( query );
   reader->Update();
   vtkTable* table = reader->GetOutput();
-  for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col )
+  for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++ col )
     {
     table->GetColumn( col )->Print( cerr );
     }
   cerr << endl;
-  for ( vtkIdType row = 0; row < table->GetNumberOfRows(); ++row )
+  for ( vtkIdType row = 0; row < table->GetNumberOfRows(); ++ row )
     {
-    for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col )
+    for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++ col )
       {
       vtkVariant v = table->GetValue( row, col );
       cerr << "row " << row << ", col " << col << " - "
@@ -181,7 +176,6 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     }
 
   db->Close();
-  db->SetURL( VTK_PSQL_TEST_URL );
   db->Open();
   // Delete the database until we run the test again
   if ( ! db->DropDatabase( "vtktest" ) )

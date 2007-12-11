@@ -79,7 +79,7 @@
 #endif
 
 /* Should VTK use PostgreSQL?  */
-#cmakedefine VTK_USE_PSQL
+#cmakedefine VTK_USE_POSTGRES
 
 /* Should VTK use MySQL?  */
 #cmakedefine VTK_USE_MYSQL
@@ -96,11 +96,6 @@
 #ifdef VTK_MYSQL_TEST_URL
 #  undef VTK_MYSQL_TEST_URL
 #  define VTK_MYSQL_TEST_URL "@VTK_MYSQL_TEST_URL@"
-#  define VTK_MYSQL_TEST_HOST "@MYSQL_TEST_HOST@"
-#  define VTK_MYSQL_TEST_PORT @MYSQL_TEST_PORT@
-#  define VTK_MYSQL_TEST_USERNAME "@MYSQL_TEST_USERNAME@"
-#  define VTK_MYSQL_TEST_PASSWORD "@MYSQL_TEST_PASSWORD@"
-#  define VTK_MYSQL_TEST_DATABASE "@MYSQL_TEST_DATABASE@"
 #endif
 
 /* Debug leaks support.  */

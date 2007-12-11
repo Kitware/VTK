@@ -58,21 +58,6 @@ public:
   static vtkPostgreSQLDatabase *New();
 
   // Description:
-  // Set/get the URL of the database.
-  // PostgreSQL works by contacting a daemon over a socket, passing it requests,
-  // and listening for responses. The actual database access is not done within
-  // your process.
-  //
-  // The set method is implemented manually so that the modification time of the
-  // URL and the Connection object may be tracked independently of the
-  // vtkPostgreSQLDatabase object.
-  //
-  // The URL format for PostgreSQL databases is a true URL of the form:
-  //   'psql://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
-  vtkSetStringMacro(URL);
-  vtkGetStringMacro(URL);
-
-  // Description:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
   // database was opened successfully; false otherwise.

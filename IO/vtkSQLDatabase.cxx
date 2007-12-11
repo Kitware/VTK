@@ -17,12 +17,13 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkToolkits.h"
 #include "vtkSQLDatabase.h"
 #include "vtkSQLiteDatabase.h"
 
-#ifdef VTK_USE_PSQL
+#ifdef VTK_USE_POSTGRES
 #include "vtkPostgreSQLDatabase.h"
-#endif // VTK_USE_PSQL
+#endif // VTK_USE_POSTGRES
 
 #ifdef VTK_USE_MYSQL
 #include "vtkMySQLDatabase.h"
@@ -31,9 +32,8 @@
 #include "vtkObjectFactory.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/RegularExpression.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.4");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.5");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -54,8 +54,8 @@ void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 // ----------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
-  vtkstd::string protocol( 0 );
-  vtkstd::string dataglom( 0 );
+  vtkstd::string protocol;
+  vtkstd::string dataglom;
 
   if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom ) )
     {
@@ -66,20 +66,14 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   vtkSQLDatabase* db = 0;
   if ( protocol == "sqlite" )
     {
-    vtkSQLiteDatabase* sdb = vtkSQLiteDatabase::New();
-    if ( sdb )
-      {
-      sdb->SetFileName( dataglom.c_str() );
-      }
-
-    db = sdb;
+    db = vtkSQLiteDatabase::New();
     }
-#ifdef VTK_USE_PSQL
+#ifdef VTK_USE_POSTGRES
   else if ( protocol == "psql" )
     {
     db = vtkPostgreSQLDatabase::New();
     }
-#endif // VTK_USE_PSQL
+#endif // VTK_USE_POSTGRES
 #ifdef VTK_USE_MYSQL
   else if ( protocol == "mysql" )
     {
@@ -98,10 +92,9 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     }
   else
     {
-    vtkGenericWarningMacro( "Unable to instantiate a database" );
+    vtkGenericWarningMacro( "Unable to instantiate a database with URL: " << URL );
     }
 
-  vtkGenericWarningMacro( "Unable to connect to URL: " << URL );
   return db;
 }
 

@@ -18,24 +18,22 @@ PURPOSE.  See the above copyright notice for more information.
   ----------------------------------------------------------------------------*/
 #include "vtkPostgreSQLDatabase.h"
 #include "vtkPostgreSQLDatabasePrivate.h"
+#include "vtkPostgreSQLQuery.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkPostgreSQLQuery.h"
 #include "vtkStringArray.h"
-#include "vtkVariantArray.h"
 
-#include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.2");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.3");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
 {
-  this->URL = 0;
+  this->URL = NULL;
   this->Connection = 0;
   this->URLMTime = this->MTime;
   this->ConnectionMTime = this->MTime;
@@ -49,7 +47,8 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
     this->Close();
     }
 
-  this->SetURL( 0 );
+  this->SetLastErrorText(NULL);
+  this->SetURL( NULL );
 }
 
 // ----------------------------------------------------------------------
@@ -94,11 +93,10 @@ bool vtkPostgreSQLDatabase::Open()
   vtkstd::string dataport;
   vtkstd::string database;
 
-  bool result = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
-                                        protocol, username, password,
+  bool parsing = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
+                                               protocol, username, password,
                                                hostname, dataport, database );
-  if ( protocol != "psql" ||
-       !  result )
+  if ( !  parsing  || protocol != "psql" )
     {
     vtkGenericWarningMacro( "Invalid URL: " << this->URL );
     return 0;
@@ -122,7 +120,7 @@ bool vtkPostgreSQLDatabase::Open()
     return false;
     }
 
-  this->SetLastErrorText( 0 );
+  this->SetLastErrorText( NULL );
   return true;
 }
 
@@ -131,7 +129,7 @@ void vtkPostgreSQLDatabase::Close()
 {
   if ( this->Connection )
     {
-    this->Connection->Delete();
+    //   this->Connection->Delete();
     this->Connection = 0;
     this->URLMTime.Modified(); // Force a re-open to occur when Open() is called.
     }

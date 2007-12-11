@@ -146,13 +146,22 @@ public:
 
   // Description:
   // Create a the proper subclass given a URL
+  // The URL format for SQL databases is a true URL of the form:
+  //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
+
+  // Description:
+  // Get the URL of the database.
+  vtkGetStringMacro(URL);
 
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
 
+  // Description:
+  // Set the URL of the database.
   vtkSetStringMacro(URL);
+
   vtkSetStringMacro(LastErrorText);
 
   char* URL;
