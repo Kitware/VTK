@@ -104,13 +104,13 @@ inline T myAbs(T x)
 
 VTK_TEMPLATE_SPECIALIZE inline int AreEqual(float a, float b)
 {
-  float tolerance = myAbs(0.0001f*a);
+  float tolerance = myAbs(0.0002f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
 VTK_TEMPLATE_SPECIALIZE inline int AreEqual(double a, double b)
 {
-  double tolerance = myAbs(0.000001f*a);
+  double tolerance = myAbs(0.000002f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
