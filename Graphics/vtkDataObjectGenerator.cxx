@@ -42,7 +42,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.2");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.3");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -300,9 +300,9 @@ void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestDataObject(vtkInformation *req,
-                                          vtkInformationVector **inV,
-                                          vtkInformationVector *outV)
+int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
+                                              vtkInformationVector **,
+                                              vtkInformationVector *outV)
 {  
   vtkInformation *outInfo = outV->GetInformationObject(0);
   vtkDataObject *outData = NULL;
@@ -477,8 +477,8 @@ int vtkDataObjectGenerator::RequestUpdateExtent(vtkInformation *req,
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestData(vtkInformation *req,
-                                        vtkInformationVector **inV,
+int vtkDataObjectGenerator::RequestData(vtkInformation *,
+                                        vtkInformationVector **,
                                         vtkInformationVector *outV)
 {
   if (!this->Structure)
