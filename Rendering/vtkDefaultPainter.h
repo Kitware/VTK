@@ -21,7 +21,6 @@
 // input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
 // vtkDisplayListPainter --> vtkCoincidentTopologyResolutionPainter -->
 // vtkLightingPainter --> vtkRepresentationPainter --> 
-// vtkClipPlanesPainter --> vtkCoincidentTopologyResolutionPainter -->
 // <Delegate of vtkDefaultPainter>.
 // Typically, the delegate of the default painter be one that is capable of r
 // rendering grpahics primitives or a vtkChooserPainter which can select appropriate
