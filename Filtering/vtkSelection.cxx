@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.21");
+vtkCxxRevisionMacro(vtkSelection, "1.22");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -457,6 +457,11 @@ void vtkSelection::UnionSelectionList(vtkSelection* other)
           {
           vtkErrorMacro(<< "Cannot take the union where selection list number "
             << "of components do not match.");
+          return;
+          }
+        // If it is the same array, we are done.
+        if (aa1 == aa2)
+          {
           return;
           }
         // TODO: avoid duplicates.
