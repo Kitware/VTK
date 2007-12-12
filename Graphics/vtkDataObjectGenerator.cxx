@@ -42,7 +42,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.3");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.4");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -135,7 +135,7 @@ public:
       {
       (*it)->print(level+1);
       }
-    if (type = GS || type == HDS || type == HBS || type == MBS)
+    if (type == GS || type == HDS || type == HBS || type == MBS)
       {
       for (int i = 0; i < level; i++)
         {
