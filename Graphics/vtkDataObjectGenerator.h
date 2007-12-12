@@ -35,14 +35,15 @@
 // second group has two datasets, a vtkPolyData and a vtkRectilinearGrid. The
 // third contains a vtkMultiBlockDataSet, which in this case is empty.
 
-#ifndef _vtkDataObjectGenerator_h
-#define _vtkDataObjectGenerator_h
+#ifndef __vtkDataObjectGenerator_h
+#define __vtkDataObjectGenerator_h
 
-#include <vtkDataObjectAlgorithm.h>
+#include "vtkDataObjectAlgorithm.h"
 
 class vtkInternalStructureCache;
 
-class VTK_GRAPHICS_EXPORT vtkDataObjectGenerator : public vtkDataObjectAlgorithm
+class VTK_GRAPHICS_EXPORT vtkDataObjectGenerator 
+: public vtkDataObjectAlgorithm
 {
  public:
   static vtkDataObjectGenerator *New();
@@ -55,7 +56,6 @@ class VTK_GRAPHICS_EXPORT vtkDataObjectGenerator : public vtkDataObjectAlgorithm
   vtkGetStringMacro(Program);
 
 protected:
-
   vtkDataObjectGenerator();
   ~vtkDataObjectGenerator();
 
@@ -114,4 +114,5 @@ private:
   vtkDataObjectGenerator(const vtkDataObjectGenerator&);  // Not implemented.
   void operator=(const vtkDataObjectGenerator&);  // Not implemented.
 };
+
 #endif

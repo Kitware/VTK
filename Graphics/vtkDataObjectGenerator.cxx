@@ -42,13 +42,13 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.1");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.2");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
   {
-  ID1, UF1, RG1, SG1, PD1, US1, GS, GE, HDS, HDE, HBS, HBE, MBS, MBE, NUMTOKENS
+  ID1, UF1, RG1, SG1, PD1, UG1, GS, GE, HDS, HDE, HBS, HBE, MBS, MBE, NUMTOKENS
   };
 
 const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
@@ -57,7 +57,7 @@ const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
   "RG1",
   "SG1",
   "PD1",
-  "US1",
+  "UG1",
   "(",
   ")",
   "HD<",
@@ -225,8 +225,8 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
       case PD1:
         sptr->add_dataset(PD1);
         break;
-      case US1:
-        sptr->add_dataset(US1);
+      case UG1:
+        sptr->add_dataset(UG1);
         break;
       case GS:
         {
@@ -266,6 +266,69 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
   return structure;
 }
 
+//----------------------------------------------------------------------------
+vtkDataObjectGenerator::vtkDataObjectGenerator()
+{
+  this->SetNumberOfInputPorts(0);
+
+  this->Program=NULL;
+  this->SetProgram("ID1");
+  this->Structure = NULL;
+
+  this->CellIdCounter = 0;
+  this->PointIdCounter = 0;
+  this->XOffset = 0.0;
+  this->YOffset = 0.0;
+  this->ZOffset = 0.0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObjectGenerator::~vtkDataObjectGenerator()
+{
+  this->SetProgram(NULL);
+  if (this->Structure != NULL)
+    {
+    delete this->Structure;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Program: " << this->Program << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObjectGenerator::RequestDataObject(vtkInformation *req,
+                                          vtkInformationVector **inV,
+                                          vtkInformationVector *outV)
+{  
+  vtkInformation *outInfo = outV->GetInformationObject(0);
+  vtkDataObject *outData = NULL;
+
+  if (!this->Program)
+     {
+     //vtkErrorMacro("No string to generate data objects for");
+     return VTK_OK;
+     }
+
+  if (this->Structure != NULL)
+    {
+    delete this->Structure;
+    }
+  this->Structure = vtkDataObjectGeneratorParseStructure(this->Program);
+  outData = this->CreateOutputDataObjects(this->Structure);
+  if (outData)
+    {
+    outData->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_EXTENT_TYPE(), outData->GetExtentType());
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
+    outData->Delete();
+    }
+  return VTK_OK;
+}
+
 //---------------------------------------------------------------------------
 vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
   vtkInternalStructureCache *structure)
@@ -286,7 +349,7 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     case RG1:
     case SG1:
     case PD1:
-    case US1:
+    case UG1:
     { 
     /*
     cerr 
@@ -327,6 +390,143 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
+                                               vtkInformationVector **inV,
+                                               vtkInformationVector *outV)
+{
+  if (!this->Structure)
+    {
+    //vtkErrorMacro("Program has not been parsed.");
+    return VTK_OK;
+    }
+
+  if (!this->Structure->children.size())
+    {
+    vtkErrorMacro("Program was invalid.");
+    return VTK_ERROR;
+    }
+
+  //Say that this filter can break up its output into any number of pieces
+  vtkInformation *outInfo = outV->GetInformationObject(0);
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+
+  //If my output is an atomic structured type, fill in the whole extent info
+  vtkInternalStructureCache *top = this->Structure->children.front();
+  int t = top->type;
+  if (t == ID1 ||
+      t == RG1 ||
+      t == SG1)
+    {
+    int ext[6];
+    ext[0] = 0;
+    ext[1] = 1;
+    ext[2] = 0;
+    ext[3] = 1;
+    ext[4] = 0;
+    ext[5] = 1;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
+    double spacing[3];
+    spacing[0] = 1.0;
+    spacing[1] = 1.0;
+    spacing[2] = 1.0;
+    outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+    double origin[3];
+    origin[0] = 0.0;
+    origin[1] = 0.0;
+    origin[2] = 0.0;
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    }
+  if (t == UF1)
+    {
+    int ext[6];
+    ext[0] = 0;
+    ext[1] = 2;
+    ext[2] = 0;
+    ext[3] = 2;
+    ext[4] = 0;
+    ext[5] = 2;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
+    double spacing[3];
+    spacing[0] = 0.5;
+    spacing[1] = 0.5;
+    spacing[2] = 0.5;
+    outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+    double origin[3];
+    origin[0] = 0.0;
+    origin[1] = 0.0;
+    origin[2] = 0.0;
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    }
+
+  //Could create vtkCompositeDataInformation here.
+  return this->Superclass::RequestInformation(req, inV, outV);
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObjectGenerator::RequestUpdateExtent(vtkInformation *req,
+                                                vtkInformationVector **inV,
+                                                vtkInformationVector *outV)
+{  
+  //This is a source and doesn't have any inputs. 
+  //I can defer this to the parent class because it does not have any 
+  //inputs to request extent/pieces from dependent on what is requested by
+  //my outputs.
+  return this->Superclass::RequestUpdateExtent(req, inV, outV);
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObjectGenerator::RequestData(vtkInformation *req,
+                                        vtkInformationVector **inV,
+                                        vtkInformationVector *outV)
+{
+  if (!this->Structure)
+    {
+    //vtkErrorMacro("Program has not been parsed");
+    return VTK_OK;
+    }
+
+  //For parallel processing, this will stripe the datasets contained
+  //in the first level of composite data sets.
+  vtkInformation *outInfo = outV->GetInformationObject(0);
+  vtkDataObject *outStructure = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (!outStructure)
+    {
+    return VTK_ERROR;
+    }
+
+  this->Rank = 0;
+  if (outInfo->Has(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+    {
+    this->Rank = 
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    }
+  this->Processors = 1;
+  if (outInfo->Has(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+    {
+    this->Processors =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    }
+
+  //this->Rank = 0;
+  //this->Processors = 1;
+
+  this->CellIdCounter = 0;
+  this->PointIdCounter = 0;
+
+  vtkDataObject *outData = this->FillOutputDataObjects(this->Structure, -1);
+  outStructure->ShallowCopy(outData);
+  outData->Delete();
+  
+  return VTK_OK;
+}
+
+
 //---------------------------------------------------------------------------
 vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   vtkInternalStructureCache *structure,
@@ -334,7 +534,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   int stripe
   )
 {
-  vtkDataObject *outData;
+  vtkDataObject *outData = NULL;
   int t = structure->type;
   if (t != -1 &&
       t != HDE &&
@@ -343,16 +543,21 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       t != GS  &&
       t != GE)
     {    
-    if (level==1 && ((stripe%this->Processors) != this->Rank)) 
+    if (level==1 && 
+        (structure->parent->parent->type == MBS) &&
+        ((stripe%this->Processors) != this->Rank) ) 
       {
       //for parallel processing, each processor gets a different set of 
       //stripes of the data sets within the groups in the first level of 
       //composite data sets
       /*
-      cerr << "Ignoring "
+      cerr << this->Rank << "/" << this->Processors
+           << " Ignoring "
+           << stripe << "->"
            << vtkDataObjectGeneratorTypeStrings[t] 
            << endl;
       */
+      return NULL;
       }
     else
       {
@@ -401,7 +606,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     this->MakePolyData1(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
-    case US1:
+    case UG1:
     {
     this->MakeUnstructuredGrid1(vtkDataSet::SafeDownCast(outData));
     return outData;
@@ -442,7 +647,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
             dptr->type == RG1 ||
             dptr->type == SG1 ||
             dptr->type == PD1 ||
-            dptr->type == US1)
+            dptr->type == UG1)
           {
           //restrict HierarchicalDataSets to be one level deep
           dobj = this->FillOutputDataObjects(dptr, level+1, dcnt);
@@ -619,188 +824,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     //cerr << "UH OH" << endl;
     return NULL;
     }
-}
-
-//----------------------------------------------------------------------------
-vtkDataObjectGenerator::vtkDataObjectGenerator()
-{
-  this->SetNumberOfInputPorts(0);
-  this->CellIdCounter = 0;
-  this->PointIdCounter = 0;
-  this->Program=NULL;
-  this->Structure = NULL;
-  this->XOffset = 0.0;
-  this->YOffset = 0.0;
-  this->ZOffset = 0.0;
-}
-
-//----------------------------------------------------------------------------
-vtkDataObjectGenerator::~vtkDataObjectGenerator()
-{
-  this->SetProgram(NULL);
-  if (this->Structure != NULL)
-    {
-    delete this->Structure;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "Program: " << this->Program << "\n";
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestDataObject(vtkInformation *req,
-                                          vtkInformationVector **inV,
-                                          vtkInformationVector *outV)
-{
-  if (!this->Program)
-     {
-     vtkErrorMacro("No string to generate data objects for");
-     return 1;
-     }
-  
-  vtkInformation *outInfo = outV->GetInformationObject(0);
-  vtkDataObject *outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
-
-  if (this->Structure != NULL)
-    {
-    delete this->Structure;
-    }
-  this->Structure = vtkDataObjectGeneratorParseStructure(this->Program);
-  outData = this->CreateOutputDataObjects(this->Structure);
-  if (outData)
-    {
-    outData->SetPipelineInformation(outInfo);
-    }
-
-  return VTK_OK;
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
-                                               vtkInformationVector **inV,
-                                               vtkInformationVector *outV)
-{
-  if (!this->Structure)
-    {
-    vtkErrorMacro("Program has not been parsed");
-    return 1;
-    }
-
-  if (!this->Structure->children.size())
-    {
-    return 1;
-    }
-
-  //Say that this filter can break up its output into any number of pieces
-  vtkInformation *outInfo = outV->GetInformationObject(0);
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
-  //If my output is an atomic structured type, fill in the whole extent info
-  vtkInternalStructureCache *top = this->Structure->children.front();
-  int t = top->type;
-  if (t == ID1 ||
-      t == RG1 ||
-      t == SG1)
-    {
-    int ext[6];
-    ext[0] = 0;
-    ext[1] = 1;
-    ext[2] = 0;
-    ext[3] = 1;
-    ext[4] = 0;
-    ext[5] = 1;
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
-    double spacing[3];
-    spacing[0] = 1.0;
-    spacing[1] = 1.0;
-    spacing[2] = 1.0;
-    outInfo->Set(vtkDataObject::SPACING(),spacing,3);
-    double origin[3];
-    origin[0] = 0.0;
-    origin[1] = 0.0;
-    origin[2] = 0.0;
-    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
-    }
-  if (t == UF1)
-    {
-    int ext[6];
-    ext[0] = 0;
-    ext[1] = 2;
-    ext[2] = 0;
-    ext[3] = 2;
-    ext[4] = 0;
-    ext[5] = 2;
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
-    double spacing[3];
-    spacing[0] = 0.5;
-    spacing[1] = 0.5;
-    spacing[2] = 0.5;
-    outInfo->Set(vtkDataObject::SPACING(),spacing,3);
-    double origin[3];
-    origin[0] = 0.0;
-    origin[1] = 0.0;
-    origin[2] = 0.0;
-    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
-    }
-
-  //Could create vtkCompositeDataInformation here.
-  return this->Superclass::RequestInformation(req, inV, outV);
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestUpdateExtent(vtkInformation *req,
-                                                vtkInformationVector **inV,
-                                                vtkInformationVector *outV)
-{  
-  //This is a source and doesn't have any inputs. 
-  //I can defer this to the parent class because it does not have any 
-  //inputs to request extent/pieces from dependent on what is requested by
-  //my outputs.
-  return this->Superclass::RequestUpdateExtent(req, inV, outV);
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObjectGenerator::RequestData(vtkInformation *req,
-                                        vtkInformationVector **inV,
-                                        vtkInformationVector *outV)
-{
-  if (!this->Structure)
-    {
-    vtkErrorMacro("Program has not been parsed");
-    return 1;
-    }
-
-  //For parallel processing, this will stripe the datasets contained
-  //in the first level of composite data sets.
-  vtkInformation *outInfo = outV->GetInformationObject(0);
-  this->Rank = 0;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-    {
-    this->Rank = 
-      outInfo->Get(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    }
-  this->Processors = 1;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-    {
-    this->Processors =
-      outInfo->Get(
-        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    }
-
-  this->CellIdCounter = 0;
-  this->PointIdCounter = 0;
-  vtkDataObject *outData = this->FillOutputDataObjects(this->Structure, -1);
-  outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);     
-  
-  return VTK_OK;
 }
 
 //----------------------------------------------------------------------------
@@ -1014,8 +1037,8 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   const double &YO = this->YOffset;
   const double &ZO = this->ZOffset;
   pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
-  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+1.0);
   pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
   ds->SetPoints(pts);
   pts->Delete();
   ds->Allocate();
@@ -1040,8 +1063,8 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet *ids)
   const double &YO = this->YOffset;
   const double &ZO = this->ZOffset;
   pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+0.0);
-  pts->InsertNextPoint(XO+0.0, YO+0.0, ZO+1.0);
   pts->InsertNextPoint(XO+0.0, YO+1.0, ZO+0.0);
+  pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
   ds->SetPoints(pts);
   pts->Delete();
   ds->Allocate();
