@@ -42,7 +42,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.4");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.5");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -1042,7 +1042,7 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   ds->SetPoints(pts);
   pts->Delete();
   ds->Allocate();
-  int verts[3] = {0,1,2};
+  vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
 
   this->MakeValues(ds);
@@ -1068,7 +1068,7 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid1(vtkDataSet *ids)
   ds->SetPoints(pts);
   pts->Delete();
   ds->Allocate();
-  int verts[3] = {0,1,2};
+  vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
 
   this->MakeValues(ds);
