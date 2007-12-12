@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.5");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.6");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -49,6 +49,8 @@ vtkSQLDatabase::~vtkSQLDatabase()
 void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "URL: " << this->URL  << endl;
 }
 
 // ----------------------------------------------------------------------
