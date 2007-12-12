@@ -35,7 +35,6 @@ vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkStringToNumeric.cxx
-vtkTableToGraphFilter.cxx
 vtkTableToTreeFilter.cxx
 vtkThresholdTable.cxx
 vtkTimePointUtility.cxx
