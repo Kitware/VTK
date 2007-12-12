@@ -55,7 +55,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # the following warnings when built with the MS compilers. Qt guys should
   # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
   # results:
-  "include.QtCore.*warning C4127: conditional expression is constant"
+  "include.Qt(Core|Gui).*warning C4127: conditional expression is constant"
   )
 
 IF(APPLE)
