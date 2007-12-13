@@ -42,7 +42,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.5");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.6");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -296,7 +296,8 @@ vtkDataObjectGenerator::~vtkDataObjectGenerator()
 void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Program: " << this->Program << "\n";
+  os << indent << "Program: " 
+     << (this->Program ? this->Program : "(none)") << "\n";
 }
 
 //----------------------------------------------------------------------------
