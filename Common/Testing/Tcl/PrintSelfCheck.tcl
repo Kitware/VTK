@@ -142,20 +142,28 @@ proc check_header_file { filename } {
 
         set class_ivar_count 0
 
-        set first [string first "vtk" $data];
+        set first [string first "vtk" $data]
 
         if { $first > -1 } {
 
-          set end [expr [string first ":" $data] - 1];
+          set end [expr [string first ":" $data] - 1]
 
-          set newstring [string range $data $first $end ]
+          if { $end > $first } {
+            # found ":" - class name before the ":"
+            set newstring [string range $data $first $end]
 
-          set last [string wordend $newstring 0];
+            set last [string wordend $newstring 0]
 
-          if { $last > -1 } {
-            set class_name [string trim [string range $newstring 0 $last] ];
+            if { $last > -1 } {
+              set class_name [string trim [string range $newstring 0 $last]]
+            }
+          } else {
+            # found no ":" - class name from $first to end of word
+            # (root class has no superclass)
+            set last [string wordend $data $first]
+
+            set class_name [string trim [string range $data $first $last]]
           }
-
         }
         set class_list($class_name.p) 0
 
@@ -165,6 +173,7 @@ proc check_header_file { filename } {
 
         if { [string compare $class_name ""] == 0 } {
           puts "Problem with class definition in file $filename"
+          puts "  Could not determine class name from line: '$data'"
         }
 
         set first [string first "public" $data]
@@ -360,7 +369,7 @@ proc check_printself { filename } {
             if { [list_contains "$class_name.i.$ivar"] == 1 } {
               set class_list($class_name.i.$ivar) 1
             } elseif { $verbose } {
-              puts "\tIvar Issue:\t\tCan't find $class_name.i.$ivar"
+              puts "\tIvar Issue:\t\tCan't find $class_name.i.$ivar - no Set or Get Macro?"
             }
           }
 
@@ -707,11 +716,12 @@ proc measure_vtk {kit} {
    set total_super_miss_count [expr $total_super_miss_count + $super_miss_count];
    
    print_totals
-   close_files
    
    if { $verbose } {
       parray class_list
    }
+
+   close_files
    
 }
 measure_vtk [lindex $argv 0]

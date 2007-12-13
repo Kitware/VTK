@@ -25,9 +25,6 @@
 #include "vtkObject.h"
 
 //BTX
-
-class VTK_COMMON_EXPORT vtkOutputWindow;
-
 class VTK_COMMON_EXPORT vtkOutputWindowCleanup
 {
 public:
