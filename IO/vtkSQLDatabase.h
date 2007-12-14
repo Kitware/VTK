@@ -162,6 +162,8 @@ protected:
   // Set the URL of the database.
   vtkSetStringMacro(URL);
 
+  // Description:
+  // Set the last error text of the database.
   vtkSetStringMacro(LastErrorText);
 
   char* URL;

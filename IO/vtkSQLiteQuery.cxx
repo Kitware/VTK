@@ -34,7 +34,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.2");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.3");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -249,8 +249,7 @@ bool vtkSQLiteQuery::NextRow()
       }
     else
       {
-      vtkSQLiteDatabase *dbContainer = 
-        dynamic_cast<vtkSQLiteDatabase *>(this->Database);
+      vtkSQLiteDatabase *dbContainer = vtkSQLiteDatabase::SafeDownCast( this->Database );
       assert(dbContainer != NULL);
       vtk_sqlite3 *db = dbContainer->SQLiteInstance;
       this->SetLastErrorText(vtk_sqlite3_errmsg(db));
@@ -348,7 +347,7 @@ bool vtkSQLiteQuery::BeginTransaction()
     return false;
     }
 
-  vtkSQLiteDatabase *dbContainer = dynamic_cast<vtkSQLiteDatabase *>(this->Database);
+  vtkSQLiteDatabase *dbContainer = vtkSQLiteDatabase::SafeDownCast( this->Database );
   assert(dbContainer != NULL);
 
   vtk_sqlite3 *db = dbContainer->SQLiteInstance;
@@ -389,8 +388,7 @@ bool vtkSQLiteQuery::CommitTransaction()
     return false;
     }
   
-  vtkSQLiteDatabase *dbContainer = 
-    dynamic_cast<vtkSQLiteDatabase *>(this->Database);
+  vtkSQLiteDatabase *dbContainer = vtkSQLiteDatabase::SafeDownCast( this->Database );
   assert(dbContainer != NULL);
   vtk_sqlite3 *db = dbContainer->SQLiteInstance;
   char *errorMessage = NULL;
@@ -426,8 +424,7 @@ bool vtkSQLiteQuery::RollbackTransaction()
     return false;
     }
 
-  vtkSQLiteDatabase *dbContainer = 
-    dynamic_cast<vtkSQLiteDatabase *>(this->Database);
+  vtkSQLiteDatabase *dbContainer = vtkSQLiteDatabase::SafeDownCast( this->Database );
   assert(dbContainer != NULL);
   vtk_sqlite3 *db = dbContainer->SQLiteInstance;
   char *errorMessage = NULL;
