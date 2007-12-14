@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.64");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.65");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -82,13 +82,17 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   GLenum format = GL_LUMINANCE;
   vtkImageData *input = this->GetInput();
   
-  // need to reload the texture
+  // Need to reload the texture.
+  // There used to be a check on the render window's mtime, but
+  // this is too broad of a check (e.g. it would cause all textures
+  // to load when only the desired update rate changed).
+  // If a better check is required, check something more specific,
+  // like the graphics context.
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
       input->GetMTime() > this->LoadTime.GetMTime() ||
       (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
        this->LoadTime.GetMTime()) || 
-       ren->GetRenderWindow() != this->RenderWindow ||
-       ren->GetRenderWindow()->GetMTime() > this->LoadTime.GetMTime())
+       ren->GetRenderWindow() != this->RenderWindow)
     {
     int bytesPerPixel;
     int *size;
