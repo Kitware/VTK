@@ -8,7 +8,7 @@
 
 @interface BasicVTKView : vtkCocoaGLView
 {
-        vtkRenderer*                                    renderer;
+    vtkRenderer*                    renderer;
 }
 
 - (void)initializeVTKSupport;

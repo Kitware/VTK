@@ -14,52 +14,52 @@
 
 - (void)setupLeftVTKView
 {
-        [leftVTKView initializeVTKSupport];
+    [leftVTKView initializeVTKSupport];
 
-        // 'smart pointers' are used because they are very similiar to creating auto-realeased objects in Cocoa.
+    // 'smart pointers' are used because they are very similiar to creating auto-realeased objects in Cocoa.
 
-        // Personal Taste Section. I like to use a trackball interactor
-        vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
-        intStyle->SetCurrentStyleToTrackballCamera();
-        [leftVTKView getInteractor]->SetInteractorStyle(intStyle);
+    // Personal Taste Section. I like to use a trackball interactor
+    vtkSmartPointer<vtkInteractorStyleSwitch>   intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
+    intStyle->SetCurrentStyleToTrackballCamera();
+    [leftVTKView getInteractor]->SetInteractorStyle(intStyle);
 
-        // Create a cone, see the "VTK User's Guide" for details
-        vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
+    // Create a cone, see the "VTK User's Guide" for details
+    vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
         cone->SetHeight(3.0);
         cone->SetRadius(1.0);
         cone->SetResolution(100);
-        vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkPolyDataMapper>  coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         coneMapper->SetInput(cone->GetOutput());
-        vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
+    vtkSmartPointer<vtkActor>   coneActor = vtkSmartPointer<vtkActor>::New();
         coneActor->SetMapper(coneMapper);
-        [leftVTKView getRenderer]->AddActor(coneActor);
-        
-        // Tell the system that the view needs to be redrawn
-        [leftVTKView setNeedsDisplay:YES];
+    [leftVTKView getRenderer]->AddActor(coneActor);
+    
+    // Tell the system that the view needs to be redrawn
+    [leftVTKView setNeedsDisplay:YES];
 }
 
 - (void)setupRightVTKView
 {
-        [rightVTKView initializeVTKSupport];
+    [rightVTKView initializeVTKSupport];
 
-        // 'smart pointers' are used because they are very similiar to creating auto-realeased objects in Cocoa.
+    // 'smart pointers' are used because they are very similiar to creating auto-realeased objects in Cocoa.
 
-        // Personal Taste Section. I like to use a trackball interactor
-        vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
-        intStyle->SetCurrentStyleToTrackballCamera();
-        [rightVTKView getInteractor]->SetInteractorStyle(intStyle);
+    // Personal Taste Section. I like to use a trackball interactor
+    vtkSmartPointer<vtkInteractorStyleSwitch>   intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
+    intStyle->SetCurrentStyleToTrackballCamera();
+    [rightVTKView getInteractor]->SetInteractorStyle(intStyle);
 
-        // Create a cyclinder, see the "VTK User's Guide" for details
-        vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
+    // Create a cyclinder, see the "VTK User's Guide" for details
+    vtkSmartPointer<vtkCylinderSource>  cylinder = vtkSmartPointer<vtkCylinderSource>::New();
         cylinder->SetResolution(100);
-        vtkSmartPointer<vtkPolyDataMapper> cylinderMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkPolyDataMapper>  cylinderMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         cylinderMapper->SetInput(cylinder->GetOutput());
-        vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
+    vtkSmartPointer<vtkActor>   cylinderActor = vtkSmartPointer<vtkActor>::New();
         cylinderActor->SetMapper(cylinderMapper);
-        [rightVTKView getRenderer]->AddActor(cylinderActor);
+    [rightVTKView getRenderer]->AddActor(cylinderActor);
 
-        // Tell the system that the view needs to be redrawn
-        [rightVTKView setNeedsDisplay:YES];
+    // Tell the system that the view needs to be redrawn
+    [rightVTKView setNeedsDisplay:YES];
 }
 
 #pragma mark -
@@ -76,14 +76,14 @@
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
 {
-        // Releases memory allocated in initializeVTKSupport.
-        // In a way, calling these is pointless since the application is quitting anyway.
-        [leftVTKView cleanUpVTKSupport];
-        [rightVTKView cleanUpVTKSupport];
-        
-        // If you have built vtk with VTK_DEBUG_LEAKS on then this method will print out any leaks
-        // that exist.  The sample has been careful to cleanup after itself, so there should be no leaks.
-        vtkDebugLeaks::PrintCurrentLeaks();
+    // Releases memory allocated in initializeVTKSupport.
+    // In a way, calling these is pointless since the application is quitting anyway.
+    [leftVTKView cleanUpVTKSupport];
+    [rightVTKView cleanUpVTKSupport];
+    
+    // If you have built vtk with VTK_DEBUG_LEAKS on then this method will print out any leaks
+    // that exist.  The sample has been careful to cleanup after itself, so there should be no leaks.
+    vtkDebugLeaks::PrintCurrentLeaks();
 }
 
 - (NSString *)windowNibName 
@@ -96,12 +96,12 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
 {
     [super windowControllerDidLoadNib:windowController];
-        
+    
     // vtk stuff
-        [self setupLeftVTKView];
-        [self setupRightVTKView];
-        
-        [NSApp setDelegate:self];
+    [self setupLeftVTKView];
+    [self setupRightVTKView];
+    
+    [NSApp setDelegate:self];
 }
 
 

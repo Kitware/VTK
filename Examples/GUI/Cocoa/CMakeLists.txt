@@ -1,3 +1,5 @@
+# this needs lots of work!  Doesn't include NIBs, plist, etc etc etc
+
 PROJECT(SimpleCocoa)
 
 FIND_PACKAGE(VTK REQUIRED)
