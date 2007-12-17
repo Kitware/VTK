@@ -36,6 +36,9 @@
 #include "vtkCamera.h"
 #include "vtkPlane.h"
 #include "vtkBoundedPlanePointPlacer.h"
+#include "vtkWidgetEventTranslator.h"
+#include "vtkWidgetEvent.h"
+#include "vtkEvent.h"
 
 int TestOrientedGlyphContour( int argc, char *argv[] )
 {
@@ -117,6 +120,15 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   
   contourWidget->SetInteractor(iren);
   contourWidget->SetRepresentation(contourRep);
+
+  // Change bindings.
+  vtkWidgetEventTranslator *eventTranslator = contourWidget->GetEventTranslator();
+  eventTranslator->RemoveTranslation( vtkCommand::RightButtonPressEvent );
+  eventTranslator->SetTranslation( 
+      vtkCommand::KeyPressEvent,
+      vtkEvent::NoModifier, 103, 0, "g",
+      vtkWidgetEvent::AddFinalPoint );
+
   contourWidget->On();
 
   contourRep->SetPointPlacer( placer );
