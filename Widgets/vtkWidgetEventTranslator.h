@@ -55,8 +55,7 @@ public:
 
   // Description:
   // Use these methods to create the translation from a VTK event to a widget
-  // event. If you specify the same event to translate from more than once,
-  // previous translations are overwritten. Specifying NoEvent or an empty
+  // event. Specifying vtkWidgetEvent::NoEvent or an empty
   // string for the (toEvent) erases the mapping for the event.
   void SetTranslation(unsigned long VTKEvent, unsigned long widgetEvent);
   void SetTranslation(const char *VTKEvent, const char *widgetEvent);
@@ -72,6 +71,15 @@ public:
   unsigned long GetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                                int repeatCount, char* keySym);
   unsigned long GetTranslation(vtkEvent *VTKEvent);
+
+  // Description:
+  // Remove translations for a binding. 
+  // Returns the number of translations removed.
+  int RemoveTranslation( unsigned long VTKEvent,
+                         int modifier,    char keyCode,
+                         int repeatCount, char* keySym);
+  int RemoveTranslation( vtkEvent *e );
+  int RemoveTranslation(unsigned long VTKEvent);
   
   // Description:
   // Clear all events from the translator (i.e., no events will be

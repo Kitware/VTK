@@ -19,28 +19,25 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCallbackCommand.h"
 #include "vtkEvent.h"
+#include "vtkSmartPointer.h"
+#include "vtkAbstractWidget.h"
 #include <vtkstd/map>
 #include <vtkstd/list>
-#include "vtkAbstractWidget.h"
 
-vtkCxxRevisionMacro(vtkWidgetEventTranslator, "1.2");
+vtkCxxRevisionMacro(vtkWidgetEventTranslator, "1.3");
 vtkStandardNewMacro(vtkWidgetEventTranslator);
 
 
 // This is what is place in the list
 struct EventItem {
-  vtkEvent *VTKEvent;
+  vtkSmartPointer< vtkEvent > VTKEvent;
   unsigned long WidgetEvent;
 
+  EventItem() : VTKEvent(NULL) {}
   EventItem(vtkEvent *e, unsigned long we)
     {
-      this->VTKEvent = e;
-      e->Register(e);
-      this->WidgetEvent = we;
-    }
-  ~EventItem()
-    {
-      this->VTKEvent->Delete();
+    this->VTKEvent    = e;
+    this->WidgetEvent = we;
     }
 };
 
@@ -49,27 +46,43 @@ struct EventList : public vtkstd::list<EventItem>
 {
   unsigned long find(unsigned long VTKEvent)
     {
-      vtkstd::list<EventItem>::iterator liter = this->begin();
-      for ( ; liter != this->end(); ++liter)
+    vtkstd::list<EventItem>::iterator liter = this->begin();
+    for ( ; liter != this->end(); ++liter)
+      {
+      if ( VTKEvent == liter->VTKEvent->GetEventId() )
         {
-        if ( VTKEvent == liter->VTKEvent->GetEventId() )
-          {
-          return liter->WidgetEvent;
-          }
+        return liter->WidgetEvent;
         }
-      return vtkWidgetEvent::NoEvent;
+      }
+    return vtkWidgetEvent::NoEvent;
     }
+
   unsigned long find(vtkEvent *VTKEvent)
     {
-      vtkstd::list<EventItem>::iterator liter = this->begin();
-      for ( ; liter != this->end(); ++liter)
+    vtkstd::list<EventItem>::iterator liter = this->begin();
+    for ( ; liter != this->end(); ++liter)
+      {
+      if ( *VTKEvent == liter->VTKEvent )
         {
-        if ( *VTKEvent == liter->VTKEvent )
-          {
-          return liter->WidgetEvent;
-          }
+        return liter->WidgetEvent;
         }
-      return vtkWidgetEvent::NoEvent;
+      }
+    return vtkWidgetEvent::NoEvent;
+    }
+
+  // Remove a mapping
+  int Remove( vtkEvent *VTKEvent )
+    {
+    vtkstd::list<EventItem>::iterator liter = this->begin();
+    for ( ; liter != this->end(); ++liter)
+      {
+      if ( *VTKEvent == liter->VTKEvent )
+        {
+        this->erase( liter );
+        return 1;
+        }
+      }
+    return 0;
     }
 };
 
@@ -100,9 +113,16 @@ vtkWidgetEventTranslator::~vtkWidgetEventTranslator()
 void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent, 
                                               unsigned long widgetEvent)
 {
-  vtkEvent *e = vtkEvent::New(); //default modifiers
-  e->SetEventId(VTKEvent);
-  (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
+  e->SetEventId(VTKEvent); //default modifiers
+  if (widgetEvent != vtkWidgetEvent::NoEvent)
+    {
+    (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
+    }
+  else 
+    {
+    this->RemoveTranslation( e );
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -119,21 +139,35 @@ void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent,
                                               int repeatCount, char* keySym,
                                               unsigned long widgetEvent)
 {
-  vtkEvent *e = vtkEvent::New(); //default modifiers
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
   e->SetEventId(VTKEvent);
   e->SetModifier(modifier);
   e->SetKeyCode(keyCode);
   e->SetRepeatCount(repeatCount);
   e->SetKeySym(keySym);
-  (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
+  if (widgetEvent != vtkWidgetEvent::NoEvent)
+    {
+    (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
+    }
+  else
+    {
+    this->RemoveTranslation( e );
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(vtkEvent *VTKEvent, 
                                               unsigned long widgetEvent)
 {
-  (*this->EventMap)[VTKEvent->GetEventId()].push_back(
-    EventItem(VTKEvent,widgetEvent));
+  if (widgetEvent != vtkWidgetEvent::NoEvent)
+    {
+    (*this->EventMap)[VTKEvent->GetEventId()].push_back(
+      EventItem(VTKEvent,widgetEvent));
+    }
+  else
+    {
+    this->RemoveTranslation( VTKEvent );
+    }
 }
 
 
@@ -196,6 +230,48 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(vtkEvent *VTKEvent)
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent,
+                                              int modifier, char keyCode,
+                                              int repeatCount, char* keySym)
+{
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
+  e->SetEventId(VTKEvent);
+  e->SetModifier(modifier);
+  e->SetKeyCode(keyCode);
+  e->SetRepeatCount(repeatCount);
+  e->SetKeySym(keySym);
+  return this->RemoveTranslation( e );
+}
+
+//----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation( vtkEvent *e )
+{
+  EventMapIterator iter = this->EventMap->find(e->GetEventId());
+  int numTranslationsRemoved = 0;
+  if (iter != this->EventMap->end())
+    { 
+    while (iter->second.Remove(e)) 
+      { 
+      ++numTranslationsRemoved; 
+      iter = this->EventMap->find(e->GetEventId());
+      if (iter == this->EventMap->end())
+        {
+        break;
+        }
+      } 
+    }
+
+  return numTranslationsRemoved;
+}
+
+//----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent)
+{
+  vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
+  e->SetEventId(VTKEvent);
+  return this->RemoveTranslation( e );
+}
 
 //----------------------------------------------------------------------------
 void vtkWidgetEventTranslator::ClearEvents()
