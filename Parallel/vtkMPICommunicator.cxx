@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.46");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.47");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -994,6 +994,22 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
     {
     int numProc;
     MPI_Comm_size(*this->MPIComm->Handle, &numProc);
+#if defined(OPEN_MPI) && (OMPI_MAJOR_VERSION <= 1) && (OMPI_MINOR_VERSION <= 2)
+    // I found a bug in OpenMPI 1.2 and earlier where MPI_Gatherv sometimes
+    // fails with only one process.  I am told that they will fix it in a later
+    // version, but here is a workaround for now.
+    if (numProc == 1)
+      {
+      switch(type)
+        {
+        vtkTemplateMacro(vtkstd::copy(
+                       reinterpret_cast<const VTK_TT*>(sendBuffer),
+                       reinterpret_cast<const VTK_TT*>(sendBuffer) + sendLength,
+                       reinterpret_cast<VTK_TT*>(recvBuffer) + offsets[0]));
+        }
+      return 1;
+      }
+#endif //OPEN_MPI
     vtkstd::vector<int> mpiRecvLengths, mpiOffsets;
     mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
@@ -1052,6 +1068,23 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
     {
     int numProc;
     MPI_Comm_size(*this->MPIComm->Handle, &numProc);
+#if defined(OPEN_MPI) && (OMPI_MAJOR_VERSION <= 1) && (OMPI_MINOR_VERSION <= 2)
+    // I found a bug in OpenMPI 1.2 and earlier where MPI_Scatterv sometimes
+    // fails with only one process.  I am told that they will fix it in a later
+    // version, but here is a workaround for now.
+    if (numProc == 1)
+      {
+      switch(type)
+        {
+        vtkTemplateMacro(vtkstd::copy(
+                   reinterpret_cast<const VTK_TT*>(sendBuffer) + offsets[0],
+                   reinterpret_cast<const VTK_TT*>(sendBuffer) + offsets[0]
+                                                               + sendLengths[0],
+                   reinterpret_cast<VTK_TT*>(recvBuffer)));
+        }
+      return 1;
+      }
+#endif //OPEN_MPI
     vtkstd::vector<int> mpiSendLengths, mpiOffsets;
     mpiSendLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
@@ -1105,6 +1138,37 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
   // become int arrays.
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
+#if defined(OPEN_MPI) && (OMPI_MAJOR_VERSION <= 1) && (OMPI_MINOR_VERSION <= 2)
+  // I found a bug in OpenMPI 1.2 and earlier where MPI_Allgatherv sometimes
+  // fails with only one process.  I am told that they will fix it in a later
+  // version, but here is a workaround for now.
+  if (numProc == 1)
+    {
+    switch(type)
+      {
+      vtkTemplateMacro(vtkstd::copy(
+                       reinterpret_cast<const VTK_TT*>(sendBuffer),
+                       reinterpret_cast<const VTK_TT*>(sendBuffer) + sendLength,
+                       reinterpret_cast<VTK_TT*>(recvBuffer) + offsets[0]));
+      }
+    return 1;
+    }
+
+  // I found another bug with Allgatherv where it sometimes fails to send data
+  // to all processes when one process is sending nothing.  That is not
+  // sufficient and I have not figured out what else needs to occur (although
+  // the TestMPIController test's random tries eventually catches it if you
+  // run it a bunch).  I sent a report to the OpenMPI mailing list.  Hopefully
+  // they will have it fixed in a future version.
+  for (int i = 0; i < this->NumberOfProcesses; i++)
+    {
+    if (recvLengths[i] < 1)
+      {
+      this->Superclass::AllGatherVVoidArray(sendBuffer, recvBuffer, sendLength,
+                                            recvLengths, offsets, type);
+      }
+    }
+#endif //OPEN_MPI
   vtkstd::vector<int> mpiRecvLengths, mpiOffsets;
   mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
   for (int i = 0; i < numProc; i++)
