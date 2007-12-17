@@ -211,12 +211,12 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       }
     }
 
-  // Done in this wierd order to get everything to work right. This invocation creates the
-  // default representation.
-  this->Superclass::SetEnabled(enabling);
-
   if ( enabling )
     {
+    // Done in this wierd order to get everything to work right. 
+    // This invocation creates the default representation.
+    this->Superclass::SetEnabled(enabling);
+
       if (this->Point1Widget)
         {
         this->Point1Widget->SetRepresentation(
@@ -272,6 +272,12 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
       {
       this->Point4Widget->SetEnabled(0);
       }
+
+    // Done in this wierd order to get everything right. The renderer is
+    // set to null after we disable the sub-widgets. That should give the 
+    // renderer a chance to remove the representation props before being
+    // set to NULL.
+    this->Superclass::SetEnabled(enabling);    
     }
 }
 
