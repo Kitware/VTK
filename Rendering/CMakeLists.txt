@@ -356,6 +356,18 @@ ELSE (WIN32)
                    vtkCocoaRenderWindowInteractor.mm
                    vtkCocoaRenderWindow.mm
                    vtkCocoaGLView.mm)
+       
+      # The objective-c++ classes might need their own flags.
+      # Set them if specified.
+      IF(VTK_REQUIRED_OBJCXX_FLAGS)
+
+        SET_SOURCE_FILES_PROPERTIES(vtkCocoaRenderWindowInteractor.mm 
+                                    vtkCocoaRenderWindow.mm 
+                                    vtkCocoaGLView.mm
+                                    PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+
+      ENDIF(VTK_REQUIRED_OBJCXX_FLAGS)
+
       SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView WRAP_EXCLUDE)
       SET (KIT_LIBS ${KIT_LIBS} ${OPENGL_gl_LIBRARY} "-framework Cocoa")
     ENDIF(VTK_USE_COCOA)
