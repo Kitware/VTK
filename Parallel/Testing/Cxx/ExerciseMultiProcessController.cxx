@@ -76,6 +76,27 @@ void MatrixMultArray(const T *A, T *B, vtkIdType length)
     A += 4;  B += 4;
     }
 }
+
+// Specialize for floats for greater precision.
+VTK_TEMPLATE_SPECIALIZE
+void MatrixMultArray(const float *A, float *B, vtkIdType length)
+{
+  double *tmpA = new double[length];
+  double *tmpB = new double[length];
+  for (vtkIdType i = 0; i < length; i++)
+    {
+    tmpA[i] = static_cast<double>(A[i]);
+    tmpB[i] = static_cast<double>(B[i]);
+    }
+  MatrixMultArray(tmpA, tmpB, length);
+  for (vtkIdType i = 0; i < length; i++)
+    {
+    B[i] = static_cast<float>(tmpB[i]);
+    }
+  delete[] tmpA;
+  delete[] tmpB;
+}
+
 class MatrixMultOperation : public vtkCommunicator::Operation
 {
 public:
@@ -104,13 +125,13 @@ inline T myAbs(T x)
 
 VTK_TEMPLATE_SPECIALIZE inline int AreEqual(float a, float b)
 {
-  float tolerance = myAbs(0.0002f*a);
+  float tolerance = myAbs(0.005f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
 VTK_TEMPLATE_SPECIALIZE inline int AreEqual(double a, double b)
 {
-  double tolerance = myAbs(0.000002f*a);
+  double tolerance = myAbs(0.000001f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
