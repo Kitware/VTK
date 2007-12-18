@@ -30,7 +30,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.3");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
@@ -143,6 +143,8 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer* renderer, vtkActor
     // if nothing has changed we use an old display list else
     // we use the newly generated list.
     glCallList(this->ListIds[i]);
+    glFinish(); // To compute time correctly, we need to wait 
+                // till OpenGL finishes.
     
     this->Timer->StopTimer();
     this->TimeToDraw += this->Timer->GetElapsedTime();
