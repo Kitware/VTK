@@ -34,7 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.71");
+vtkCxxRevisionMacro(vtkClipVolume, "1.72");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -61,6 +61,10 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
   this->GetExecutive()->SetOutputData(1, output2);
   output2->Delete();
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 vtkClipVolume::~vtkClipVolume()
@@ -225,7 +229,7 @@ int vtkClipVolume::RequestData(
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetScalars();
+    clipScalars = this->GetInputArrayToProcess(0,inputVector);
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
