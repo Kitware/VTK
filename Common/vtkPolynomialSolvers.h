@@ -59,14 +59,14 @@ public:
   //   P[0] X^d + ... + P[d-1] X + P[d] 
   // in ]\a[0] ; \a[1]] using Sturm's theorem ( polynomial 
   // coefficients are REAL ) and returns the count \nr. All roots are bracketed
-  // in the \nr first ]\lowerBnds[i] ; \lowerBnds[i] + tol] intervals.
+  // in the \nr first ]\upperBnds[i] - tol ; \upperBnds[i]] intervals.
   // Returns -1 if anything went wrong (such as: polynomial does not have
   // degree d, the interval provided by the other is absurd, etc.).
-  // Warning: it is the user's responsibility to make sure the \lowerBnds 
+  // Warning: it is the user's responsibility to make sure the \upperBnds 
   // Note that \nr is smaller or equal to the actual number of roots in 
   // ]\a[0] ; \a[1]] since roots within \tol are lumped in the same bracket.
-  // array is large enough to contain the maximal number of expected lower bounds.
-  static int SturmBisectionSolve( double* P, int d, double* a, double *lowerBnds, double tol );
+  // array is large enough to contain the maximal number of expected upper bounds.
+  static int SturmBisectionSolve( double* P, int d, double* a, double *upperBnds, double tol );
 
   // Description:
   // Seeks all REAL roots of the \a d -th degree polynomial 
