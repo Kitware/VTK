@@ -125,7 +125,7 @@ inline T myAbs(T x)
 
 VTK_TEMPLATE_SPECIALIZE inline int AreEqual(float a, float b)
 {
-  float tolerance = myAbs(0.005f*a);
+  float tolerance = myAbs(0.01f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
