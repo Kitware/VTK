@@ -162,6 +162,7 @@ public:
   // TIME_UNIT        = 0
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
+  // The defaults are LENGTH_UNIT, 1.0.
   void SetMaximumPropagation(int unit, double max);
   void SetMaximumPropagation(double max);
   void SetMaximumPropagationUnit(int unit);
