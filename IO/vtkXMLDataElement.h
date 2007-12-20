@@ -199,7 +199,11 @@ public:
   // created by this vtkXMLDataParser.
   vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
-  
+
+  // Description:
+  // Prints element tree as XML.
+  void PrintXML(ostream& os, vtkIndent indent);
+    
 protected:
   vtkXMLDataElement();
   ~vtkXMLDataElement();  
@@ -237,8 +241,6 @@ protected:
   // Method used by vtkXMLFileParser to setup the element.
   void ReadXMLAttributes(const char** atts, int encoding);  
   void SeekInlineDataPosition(vtkXMLDataParser* parser);
-  
-  void PrintXML(ostream& os, vtkIndent indent);
   
   // Internal utility methods.
   vtkXMLDataElement* LookupElementInScope(const char* id);
