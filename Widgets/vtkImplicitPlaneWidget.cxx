@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.8");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
 
     // add the edges
     this->CurrentRenderer->AddActor(this->EdgesActor);
-    this->OutlineActor->SetProperty(this->EdgesProperty);
+    this->EdgesActor->SetProperty(this->EdgesProperty);
 
     // add the normal vector
     this->CurrentRenderer->AddActor(this->LineActor);
@@ -981,8 +981,6 @@ void vtkImplicitPlaneWidget::CreateDefaultProperties()
 
   // Edge property
   this->EdgesProperty = vtkProperty::New();
-  this->EdgesProperty->SetAmbient(1.0);
-  this->EdgesProperty->SetAmbientColor(1.0,1.0,1.0);
 }
 
 //----------------------------------------------------------------------------
