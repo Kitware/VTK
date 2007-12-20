@@ -39,7 +39,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.13");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.14");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -87,7 +87,7 @@ int vtkExtractSelectedGraph::RequestData(
     return 1;
     }
 
-  bool inverse = false;
+  int inverse = 0;
   if(selection->GetProperties()->Has(vtkSelection::INVERSE()))
     {
     inverse = selection->GetProperties()->Get(vtkSelection::INVERSE());
