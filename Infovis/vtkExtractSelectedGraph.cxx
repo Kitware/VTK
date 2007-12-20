@@ -40,7 +40,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.12");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -80,12 +80,18 @@ int vtkExtractSelectedGraph::RequestData(
 {
   vtkAbstractGraph* input = vtkAbstractGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
-  
+
   // If there is nothing in the list, there is nothing to select.
   vtkAbstractArray* list = selection->GetSelectionList();
   if (!list || list->GetNumberOfTuples() == 0)
     {
     return 1;
+    }
+
+  bool inverse = false;
+  if(selection->GetProperties()->Has(vtkSelection::INVERSE()))
+    {
+    inverse = selection->GetProperties()->Get(vtkSelection::INVERSE());
     }
   
   // If it is a selection with multiple parts, find a point or cell
@@ -138,6 +144,7 @@ int vtkExtractSelectedGraph::RequestData(
   output->SetDirected(input->GetDirected());
   output->GetFieldData()->PassData(input->GetFieldData());
 
+
   if (selection->GetProperties()->Has(vtkSelection::FIELD_TYPE()) && 
       selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == vtkSelection::CELL)
     {
@@ -148,22 +155,40 @@ int vtkExtractSelectedGraph::RequestData(
     // Copy all vertices
     output->SetNumberOfVertices(input->GetNumberOfVertices());
         
-    // Copy selected edges
     vtkCellData* inputEdgeData = input->GetEdgeData();
     vtkCellData* outputEdgeData = output->GetEdgeData();
     outputEdgeData->CopyAllocate(inputEdgeData);
-    for (vtkIdType i = 0; i < selectSize; i++)
+
+    // Copy unselected edges
+    if(inverse)
       {
-      vtkIdType inputEdge = selectArr->GetValue(i);
-      if (inputEdge < input->GetNumberOfEdges())
+      for (vtkIdType i = 0; i < inputEdgeData->GetNumberOfTuples(); i++)
         {
-        vtkIdType source = input->GetSourceVertex(inputEdge);
-        vtkIdType target = input->GetTargetVertex(inputEdge);
-        vtkIdType outputEdge = output->AddEdge(source, target);
-        outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
+        if(selectArr->LookupValue(i) < 0 )
+          {
+          vtkIdType source = input->GetSourceVertex(i);
+          vtkIdType target = input->GetTargetVertex(i);
+          vtkIdType outputEdge = output->AddEdge(source, target);
+          outputEdgeData->CopyData(inputEdgeData, i, outputEdge);
+          }
         }
       }
-    
+    // Copy selected edges
+    else
+      {
+      for (vtkIdType i = 0; i < selectSize; i++)
+        {
+        vtkIdType inputEdge = selectArr->GetValue(i);
+        if (inputEdge < input->GetNumberOfEdges())
+          {
+          vtkIdType source = input->GetSourceVertex(inputEdge);
+          vtkIdType target = input->GetTargetVertex(inputEdge);
+          vtkIdType outputEdge = output->AddEdge(source, target);
+          outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
+          }
+        }
+      }
+
     // Remove isolated vertices
     if (this->RemoveIsolatedVertices)
       {
@@ -192,7 +217,6 @@ int vtkExtractSelectedGraph::RequestData(
     // Vertex selection
     //
     
-    // Copy selected vertices
     double pt[3];
     vtkPoints* inputPoints = input->GetPoints();
     vtkPoints* outputPoints = vtkPoints::New();
@@ -200,16 +224,36 @@ int vtkExtractSelectedGraph::RequestData(
     vtkPointData* outputVertexData = output->GetVertexData();
     outputVertexData->CopyAllocate(inputVertexData);
     map<vtkIdType, vtkIdType> idMap;
-    for (vtkIdType i = 0; i < selectSize; i++)
+
+    // Copy unselected vertices
+    if(inverse)
       {
-      vtkIdType inputVertex = selectArr->GetValue(i);
-      if (inputVertex < input->GetNumberOfVertices())
+      for (vtkIdType i = 0; i < inputVertexData->GetNumberOfTuples(); i++)
         {
-        vtkIdType outputVertex = output->AddVertex();
-        outputVertexData->CopyData(inputVertexData, inputVertex, outputVertex);
-        idMap[inputVertex] = outputVertex;
-        inputPoints->GetPoint(inputVertex, pt);
-        outputPoints->InsertNextPoint(pt);
+        if(selectArr->LookupValue(i) < 0)
+          {
+          vtkIdType outputVertex = output->AddVertex();
+          outputVertexData->CopyData(inputVertexData, i, outputVertex);
+          idMap[i] = outputVertex;
+          inputPoints->GetPoint(i, pt);
+          outputPoints->InsertNextPoint(pt);
+          }
+        }
+      }
+    // Copy selected vertices
+    else
+      {
+      for (vtkIdType i = 0; i < selectSize; i++)
+        {
+        vtkIdType inputVertex = selectArr->GetValue(i);
+        if (inputVertex < input->GetNumberOfVertices())
+          {
+          vtkIdType outputVertex = output->AddVertex();
+          outputVertexData->CopyData(inputVertexData, inputVertex, outputVertex);
+          idMap[inputVertex] = outputVertex;
+          inputPoints->GetPoint(inputVertex, pt);
+          outputPoints->InsertNextPoint(pt);
+          }
         }
       }
     output->SetPoints(outputPoints);
@@ -227,17 +271,19 @@ int vtkExtractSelectedGraph::RequestData(
       madeCopy = true;
       }
   
-    // Copy any edges that connect selected vertices
     vtkCellData* inputEdgeData = input->GetEdgeData();
     vtkCellData* outputEdgeData = output->GetEdgeData();
     outputEdgeData->CopyAllocate(inputEdgeData);
     vtkGraphIdList* edgeList = vtkGraphIdList::New();
-    for (vtkIdType i = 0; i < selectSize; i++)
+
+    // Copy any edges that connect UNSELECTED vertices
+    if(inverse)
       {
-      vtkIdType inputVertex = selectArr->GetValue(i);
-      if (idMap.count(inputVertex) > 0)
+      map<vtkIdType, vtkIdType>::iterator mapIter = idMap.begin();
+      while(mapIter != idMap.end())
         {
-        vtkIdType outputVertex = idMap[inputVertex];
+        vtkIdType inputVertex = mapIter->first;
+        vtkIdType outputVertex = mapIter->second;
         copy->GetOutEdges(inputVertex, edgeList);
         for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
           {
@@ -248,6 +294,31 @@ int vtkExtractSelectedGraph::RequestData(
             vtkIdType oppOutputVertex = idMap[oppInputVertex];
             vtkIdType outputEdge = output->AddEdge(outputVertex, oppOutputVertex);
             outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
+            }
+          }
+        mapIter++;
+        }
+      }
+    // Copy any edges that connect SELECTED vertices
+    else
+      {
+      for (vtkIdType i = 0; i < selectSize; i++)
+        {
+        vtkIdType inputVertex = selectArr->GetValue(i);
+        if (idMap.count(inputVertex) > 0)
+          {
+          vtkIdType outputVertex = idMap[inputVertex];
+          copy->GetOutEdges(inputVertex, edgeList);
+          for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
+            {
+            vtkIdType inputEdge = edgeList->GetId(j);
+            vtkIdType oppInputVertex = input->GetOppositeVertex(inputEdge, inputVertex);
+            if (idMap.count(oppInputVertex) > 0)
+              {
+              vtkIdType oppOutputVertex = idMap[oppInputVertex];
+              vtkIdType outputEdge = output->AddEdge(outputVertex, oppOutputVertex);
+              outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
+              }
             }
           }
         }
