@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkMultiGroupProbeFilter.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkHierarchicalDataIterator.h"
@@ -24,7 +25,7 @@
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkMultiGroupProbeFilter);
-vtkCxxRevisionMacro(vtkMultiGroupProbeFilter, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupProbeFilter, "1.2");
 //----------------------------------------------------------------------------
 vtkMultiGroupProbeFilter::vtkMultiGroupProbeFilter()
 {
@@ -82,6 +83,11 @@ int vtkMultiGroupProbeFilter::RequestData(
     return 0;
     }
 
+  double ibounds[6];
+  input->GetBounds(ibounds);
+  vtkBoundingBox ibb;
+  ibb.SetBounds(ibounds);
+
   if (!sourceDS && !sourceMG)
     {
     vtkErrorMacro("vtkDataSet or vtkMultiGroupDataSet is expected as the input "
@@ -116,7 +122,15 @@ int vtkMultiGroupProbeFilter::RequestData(
       initialized = true;
       this->InitializeForProbing(input, sourceDS, output);
       }
-    this->ProbeEmptyPoints(input, sourceDS, output);
+    double sbounds[6];
+    sourceDS->GetBounds(sbounds);
+    vtkBoundingBox sbb;
+    sbb.SetBounds(sbounds);
+    // Probe only if the bounds of the two dataset intersect.
+    if (sbb.Intersects(ibb))
+      {
+      this->ProbeEmptyPoints(input, sourceDS, output);
+      }
     }
 
   return 1;
