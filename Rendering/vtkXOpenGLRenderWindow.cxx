@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.88");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.89");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -436,6 +436,15 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 {
   // close-down all system-specific drawing resources
   this->Finalize();
+  
+  vtkRenderer* ren;
+  this->Renderers->InitTraversal();
+  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+        ren != NULL;
+        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+    {
+    ren->SetRenderWindow(NULL);
+    }
 
   delete this->Internal;
 
@@ -722,6 +731,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
         ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
     {
     ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
     }
 
 

@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.56");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.57");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -52,6 +52,15 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     this->ShowCursor();
     }
   this->Finalize();
+  
+  vtkRenderer *renderer;
+  vtkCollectionSimpleIterator rsit;
+
+  for ( this->Renderers->InitTraversal(rsit);
+        (renderer = this->Renderers->GetNextRenderer(rsit));)
+    {
+    renderer->SetRenderWindow(0);
+    }
 
   if (this->Capabilities)
     {
@@ -115,6 +124,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
           (ren = this->Renderers->GetNextRenderer(rsit));)
       {
       ren->SetRenderWindow(NULL);
+      ren->SetRenderWindow(this);
       }
     
     this->SetContextId(NULL);

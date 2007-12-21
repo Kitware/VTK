@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.152");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.153");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -61,7 +61,15 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
   this->Finalize();
-  this->CleanUpRenderers();
+  
+  vtkRenderer *ren;
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
+    {
+    ren->SetRenderWindow(NULL);
+    }
+
   delete[] this->Capabilities;
 }
 
@@ -129,6 +137,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
        (ren = this->Renderers->GetNextRenderer(rsit));)
     {
     ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
     }
 }
 
@@ -1228,14 +1237,7 @@ void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
     this->CleanUpOffScreenRendering();
     if (!this->WindowId)
       {
-      vtkRenderer* ren;
       this->WindowInitialize();
-      vtkCollectionSimpleIterator rsit;
-      for (this->Renderers->InitTraversal(rsit); 
-           (ren = this->Renderers->GetNextRenderer(rsit));)
-        {
-        ren->SetRenderWindow(this);
-        }
       this->OpenGLInit();
       if (this->Interactor)
         {
@@ -1337,16 +1339,6 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
     vtkErrorMacro("wglCreateContext failed in CreateOffScreenDC(), error: " << GetLastError());
     }
   this->MakeCurrent();
-  
-  // Renderers will need to redraw anything cached in display lists
-  vtkCollectionSimpleIterator rsit;
-  vtkRenderer *ren;
-  for (this->Renderers->InitTraversal(rsit); 
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(this);
-    }
-  
   this->OpenGLInit();
 }
 
@@ -1425,14 +1417,6 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   this->DoubleBuffer = this->ScreenDoubleBuffer;
   this->ContextId = this->ScreenContextId;
   this->MakeCurrent();
-
-  vtkRenderer* ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit);
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(this);
-    }
 }
 
 //----------------------------------------------------------------------------
