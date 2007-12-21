@@ -17,9 +17,20 @@
 // vtkFunctionParser is a class that takes in a mathematical expression as
 // a char string, parses it, and evaluates it at the specified values of
 // the variables in the input string.
+//
+// You can use the "if" operator to create conditional expressions
+// such as if ( test, trueresult, falseresult). These evaluate the boolean
+// valued test expression and then evaluate either the trueresult or the 
+// falseresult expression to produce a final (scalar or vector valued) value.
+// "test" may contain <,>,=,|,&, and () and all three subexpressions can
+// evaluate arbitrary function operators (ln, cos, +, if, etc)
+//
 // .SECTION Thanks
 // Thomas Dunne (thomas.dunne@iwr.uni-heidelberg.de) for adding code for
 // two-parameter-parsing and a few functions (sign, min, max).
+//
+// Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
+// conditional expressions and for fixing a variety of bugs.
 
 #ifndef __vtkFunctionParser_h
 #define __vtkFunctionParser_h
@@ -72,8 +83,31 @@
 #define VTK_PARSER_JHAT 38
 #define VTK_PARSER_KHAT 39
 
-// codes for scalar variables come before those for vectors
-#define VTK_PARSER_BEGIN_VARIABLES 40
+// code for if(bool, trueval, falseval) resulting in a scalar
+#define VTK_PARSER_IF 40
+
+// code for if(bool, truevec, falsevec) resulting in a vector
+#define VTK_PARSER_VECTOR_IF 41
+
+// codes for boolean expressions
+#define VTK_PARSER_LESS_THAN 42
+
+// codes for boolean expressions
+#define VTK_PARSER_GREATER_THAN 43
+
+// codes for boolean expressions
+#define VTK_PARSER_EQUAL_TO 44
+
+// codes for boolean expressions
+#define VTK_PARSER_AND 45
+
+// codes for boolean expressions
+#define VTK_PARSER_OR 46
+
+// codes for scalar variables come before those for vectors. Do not define
+// values for VTK_PARSER_BEGIN_VARIABLES+1, VTK_PARSER_BEGIN_VARIABLES+2, ...,
+// because they are used to look up variables numbered 1, 2, ...
+#define VTK_PARSER_BEGIN_VARIABLES 47
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
@@ -194,7 +228,9 @@ protected:
   ~vtkFunctionParser();
   
   int Parse();
-  void Evaluate();
+  // Description:
+  // Evaluate the function, returning true on success, false on failure.
+  bool Evaluate();
 
   int CheckSyntax();
   void RemoveSpaces();
