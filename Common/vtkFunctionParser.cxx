@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.37");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.38");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1730,7 +1730,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
           {
           // if(bool, valtrue, valfalse)
           int numCommas = 0;
-          int secondCommaIndex;
+          int secondCommaIndex = endIndex;
           parenthesisCount = 0;
           for (i = endIndex-1; i > beginIndex2; i--)
             {
