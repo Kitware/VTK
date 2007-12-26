@@ -34,7 +34,7 @@
 #include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.10")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.11")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -260,7 +260,7 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
   if (this->Painter)
     {
     // Update Painter information if obsolete.
-    if (this->PainterUpdateTime < this->MTime)
+    if (this->PainterUpdateTime < this->GetMTime())
       {
       this->UpdatePainterInformation();
       this->PainterUpdateTime.Modified();
