@@ -87,6 +87,8 @@ IF(PYTHON_EXECUTABLE)
     vtkTk.h
     vtkVariant.h
     vtkVersion.h
+    vtkWeakPointerBase.h
+    vtkWeakPointer.h
     vtkXMLFileOutputWindow.h
     )
 ENDIF(PYTHON_EXECUTABLE)
