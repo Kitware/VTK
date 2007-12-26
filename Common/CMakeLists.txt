@@ -172,6 +172,7 @@ vtkVariantArray.cxx
 vtkVersion.cxx
 vtkVoidArray.cxx
 vtkWarpTransform.cxx
+vtkWeakPointerBase.cxx
 vtkWindow.cxx
 vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
@@ -302,6 +303,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkStdString.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
+  vtkWeakPointerBase.cxx
 
   WRAP_EXCLUDE
 )
@@ -354,6 +356,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSystemIncludes.h
     vtkType.h
     vtkTypeTraits.h
+    vtkWeakPointer.h
     vtkWin32Header.h
     vtkWindows.h
     )
