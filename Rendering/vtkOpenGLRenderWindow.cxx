@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.92");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.93");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1639,10 +1639,16 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
       this->FrontLeftBuffer=
         static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-    
+      
+      this->BackBuffer=static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+      this->FrontBuffer=
+        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+      
       if(this->NumberOfFrameBuffers==2)
         {
         this->BackRightBuffer=
+          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+        this->FrontRightBuffer=
           static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
         }
     
@@ -1685,6 +1691,9 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
   this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
+  this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
+  this->BackBuffer=static_cast<unsigned int>(GL_BACK);
+  this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
   
   GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
   vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
