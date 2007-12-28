@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.91");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.92");
 #endif
 
 #define MAX_LIGHTS 8
@@ -63,6 +63,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
   this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
+  this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
+  this->BackBuffer=static_cast<unsigned int>(GL_BACK);
+  this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
   
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
 }
@@ -77,36 +80,72 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK_LEFT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+i if GL is bound to an
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGLCamera.
 unsigned int vtkOpenGLRenderWindow::GetBackLeftBuffer()
 {
   return this->BackLeftBuffer;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the back right buffer.
 // It is GL_BACK_RIGHT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+i if GL is bound to an
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGLCamera.
 unsigned int vtkOpenGLRenderWindow::GetBackRightBuffer()
 {
   return this->BackRightBuffer;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return the OpenGL name of the front left buffer.
-// It is GL_FRONT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+i if GL is bound to an
+// It is GL_FRONT_LEFT if GL is bound to the window-system-provided
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGLCamera.
 unsigned int vtkOpenGLRenderWindow::GetFrontLeftBuffer()
 {
   return this->FrontLeftBuffer;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return the OpenGL name of the front right buffer.
+// It is GL_FRONT_RIGHT if GL is bound to the window-system-provided
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
+// application-created framebuffer object (GPU-based offscreen rendering)
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetFrontRightBuffer()
+{
+  return this->FrontRightBuffer;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return the OpenGL name of the back left buffer.
+// It is GL_BACK if GL is bound to the window-system-provided
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// application-created framebuffer object (GPU-based offscreen rendering)
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
+{
+  return this->BackBuffer;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Return the OpenGL name of the front left buffer.
+// It is GL_FRONT if GL is bound to the window-system-provided
+// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// application-created framebuffer object (GPU-based offscreen rendering)
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
+{
+  return this->FrontBuffer;
 }
 
 // Update system if needed due to stereo rendering.
