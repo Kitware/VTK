@@ -121,7 +121,7 @@ public:
   virtual void SetOutputData(int port, vtkDataObject*);
 
   // Description:
-  // Get the data object for an output port of the algorithm.
+  // Get the data object for an input port of the algorithm.
   virtual vtkDataObject* GetInputData(int port, int connection);
   virtual vtkDataObject* GetInputData(int port, int connection, 
                                       vtkInformationVector **inInfoVec);
