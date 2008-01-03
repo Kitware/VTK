@@ -39,7 +39,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.2");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.3");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -78,21 +78,10 @@ vtkGraphMapper::vtkGraphMapper()
   this->VertexGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   this->VertexActor->SetMapper(this->VertexMapper);
-  // FIXME: This deletion seems to be causing an issue with the 
-  // smart pointer deconstruction later on
-  //this->VertexMapper->Delete();
   this->OutlineMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   this->OutlineActor->SetMapper(this->OutlineMapper);
-  
-  // FIXME: This deletion seems to be causing an issue with the 
-  // smart pointer deconstruction later on
-  //this->OutlineMapper->Delete();
   this->EdgeMapper->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->EdgeActor->SetMapper(this->EdgeMapper);
-  
-  // FIXME: This deletion seems to be causing an issue with the 
-  // smart pointer deconstruction later on
-  //this->EdgeMapper->Delete();
   
   // Set default parameters
   this->SetVertexColorArrayName("VertexDegree");
@@ -259,7 +248,7 @@ void vtkGraphMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 //----------------------------------------------------------------------------
 // Receives from Actor -> maps data to primitives
 //
-void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor *act)
+void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
 {
   // make sure that we've been properly initialized
   if ( !this->GetInput() )
