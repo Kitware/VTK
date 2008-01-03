@@ -41,7 +41,7 @@ class vtkVertexGlyphFilter;
 class vtkViewTheme;
 
 
-class VTK_RENDERING_EXPORT vtkGraphMapper : public vtkMapper 
+class VTK_INFOVIS_EXPORT vtkGraphMapper : public vtkMapper 
 {
 public:
   static vtkGraphMapper *New();
