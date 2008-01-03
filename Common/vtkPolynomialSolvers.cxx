@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.10");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.11");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -303,6 +303,13 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     offsetA = offsetB;
     offsetB = offsetR;
    }
+
+  offsetA = 0;
+  for ( i = 0; i < nSSS; offsetA += degSSS[i ++] + 1 )
+    {
+    for ( int j = 0; j <= degSSS[i]; ++ j ) cout << SSS[offsetA + j] << " ";
+    cout << "\n";
+    }
 
   int nRoots = varSgn[0] - varSgn[1];
   if ( ! nRoots ) return 0;

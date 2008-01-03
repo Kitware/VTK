@@ -39,6 +39,7 @@ int TestPolynomialSolvers( int, char *[] )
   int testIntValue;
   double tolLinBairstow = 1.e-12;
   double tolSturm = 1.e-5;
+  double tolRoots = 1.e-15;
   double roots[5];
   int mult[4];
   double rootInt[] = { -4., 4. };
@@ -72,7 +73,7 @@ int TestPolynomialSolvers( int, char *[] )
   int actualMult[] = { 2, 1, 1 };
   for ( int i = 0; i < testIntValue ; ++ i ) 
     {
-    if ( roots[i] != actualRoots[i] )
+    if ( fabs ( roots[i] - actualRoots[i] ) > tolRoots )
       {
       vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found root "<<roots[i]<<" != "<<actualRoots[i]);
       return 1;  
