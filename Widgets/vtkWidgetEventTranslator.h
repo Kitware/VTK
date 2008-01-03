@@ -60,7 +60,7 @@ public:
   void SetTranslation(unsigned long VTKEvent, unsigned long widgetEvent);
   void SetTranslation(const char *VTKEvent, const char *widgetEvent);
   void SetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
-                      int repeatCount, char* keySym, unsigned long widgetEvent);
+                      int repeatCount, const char* keySym, unsigned long widgetEvent);
   void SetTranslation(vtkEvent *VTKevent, unsigned long widgetEvent);
   
   // Description:

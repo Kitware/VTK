@@ -69,7 +69,7 @@ public:
   void SetCallbackMethod(unsigned long VTKEvent, unsigned long widgetEvent, 
                          vtkAbstractWidget *w, CallbackType f);
   void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode, 
-                         int repeatCount, char* keySym,
+                         int repeatCount, const char* keySym,
                          unsigned long widgetEvent, 
                          vtkAbstractWidget *w, CallbackType f);
   //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,

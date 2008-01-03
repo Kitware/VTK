@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkWidgetCallbackMapper, "1.2");
+vtkCxxRevisionMacro(vtkWidgetCallbackMapper, "1.3");
 vtkStandardNewMacro(vtkWidgetCallbackMapper);
 
 
@@ -95,7 +95,7 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
 //----------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, 
                                                  int modifier, char keyCode, 
-                                                 int repeatCount, char* keySym,
+                                                 int repeatCount, const char* keySym,
                                                  unsigned long widgetEvent, 
                                                  vtkAbstractWidget *w, CallbackType f)
 {
