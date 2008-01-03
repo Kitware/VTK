@@ -25,13 +25,18 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkCircularLayoutStrategy.h"
+#include "vtkClustering2DLayoutStrategy.h"
 #include "vtkCommand.h"
+#include "vtkCommunity2DLayoutStrategy.h"
+#include "vtkConstrained2DLayoutStrategy.h"
+#include "vtkCoordinate.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGraphLayout.h"
+#include "vtkGraphMapper.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -50,9 +55,6 @@
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSimple2DLayoutStrategy.h"
-#include "vtkClustering2DLayoutStrategy.h"
-#include "vtkCommunity2DLayoutStrategy.h"
-#include "vtkConstrained2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
 #include "vtkCellCenters.h"
@@ -62,50 +64,36 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.10");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.11");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
 {
-  this->Coordinate             = vtkCoordinate::New();
-  this->GraphLayout            = vtkGraphLayout::New();
-  this->RandomStrategy         = vtkRandomLayoutStrategy::New();
-  this->Simple2DStrategy       = vtkSimple2DLayoutStrategy::New();
-  this->Clustering2DStrategy   = vtkClustering2DLayoutStrategy::New();
-  this->Community2DStrategy    = vtkCommunity2DLayoutStrategy::New();
-  this->Constrained2DStrategy  = vtkConstrained2DLayoutStrategy::New();
-  this->Fast2DStrategy         = vtkFast2DLayoutStrategy::New();
-  this->ForceDirectedStrategy  = vtkForceDirectedLayoutStrategy::New();
-  this->PassThroughStrategy    = vtkPassThroughLayoutStrategy::New();
-  this->CircularStrategy       = vtkCircularLayoutStrategy::New();
-  this->VertexDegree           = vtkVertexDegree::New();
-  this->CellCenters            = vtkCellCenters::New();
-  this->GraphToPolyData        = vtkGraphToPolyData::New();
-  this->VertexGlyph            = vtkVertexGlyphFilter::New();
-  this->VertexMapper           = vtkPolyDataMapper::New();
-  this->VertexColorLUT         = vtkLookupTable::New();
-  this->VertexActor            = vtkActor::New();
-  this->OutlineMapper          = vtkPolyDataMapper::New();
-  this->OutlineActor           = vtkActor::New();
-  this->EdgeMapper             = vtkPolyDataMapper::New();
-  this->EdgeColorLUT           = vtkLookupTable::New();
-  this->EdgeActor              = vtkActor::New();
-  this->VertexLabelMapper      = vtkDynamic2DLabelMapper::New();
-  this->VertexLabelActor       = vtkActor2D::New();
-  this->EdgeLabelMapper        = vtkDynamic2DLabelMapper::New();
-  this->EdgeLabelActor         = vtkActor2D::New();
-  this->VisibleCellSelector    = vtkVisibleCellSelector::New();
-  this->KdTreeSelector         = vtkKdTreeSelector::New();
-  this->ExtractSelectedGraph   = vtkExtractSelectedGraph::New();
-  this->SelectionToPolyData    = vtkGraphToPolyData::New();
-  this->SelectionVertexGlyph   = vtkVertexGlyphFilter::New();
-  this->SelectionVertexMapper  = vtkPolyDataMapper::New();
-  this->SelectionVertexActor   = vtkActor::New();
-  this->SelectionEdgeMapper    = vtkPolyDataMapper::New();
-  this->SelectionEdgeActor     = vtkActor::New();
+  this->Coordinate             = vtkSmartPointer<vtkCoordinate>::New();
+  this->GraphLayout            = vtkSmartPointer<vtkGraphLayout>::New();
+  this->RandomStrategy         = vtkSmartPointer<vtkRandomLayoutStrategy>::New();
+  this->Simple2DStrategy       = vtkSmartPointer<vtkSimple2DLayoutStrategy>::New();
+  this->Clustering2DStrategy   = vtkSmartPointer<vtkClustering2DLayoutStrategy>::New();
+  this->Community2DStrategy    = vtkSmartPointer<vtkCommunity2DLayoutStrategy>::New();
+  this->Constrained2DStrategy  = vtkSmartPointer<vtkConstrained2DLayoutStrategy>::New();
+  this->Fast2DStrategy         = vtkSmartPointer<vtkFast2DLayoutStrategy>::New();
+  this->ForceDirectedStrategy  = vtkSmartPointer<vtkForceDirectedLayoutStrategy>::New();
+  this->PassThroughStrategy    = vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();
+  this->CircularStrategy       = vtkSmartPointer<vtkCircularLayoutStrategy>::New();
+  this->VertexDegree           = vtkSmartPointer<vtkVertexDegree>::New();
+  this->CellCenters            = vtkSmartPointer<vtkCellCenters>::New();
+  this->GraphMapper            = vtkSmartPointer<vtkGraphMapper>::New();
+  this->GraphActor             = vtkSmartPointer<vtkActor>::New();
+  this->VertexLabelMapper      = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
+  this->VertexLabelActor       = vtkSmartPointer<vtkActor2D>::New();
+  this->EdgeLabelMapper        = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
+  this->EdgeLabelActor         = vtkSmartPointer<vtkActor2D>::New();
+  this->VisibleCellSelector    = vtkSmartPointer<vtkVisibleCellSelector>::New();
+  this->KdTreeSelector         = vtkSmartPointer<vtkKdTreeSelector>::New();
+  this->ExtractSelectedGraph   = vtkSmartPointer<vtkExtractSelectedGraph>::New();
+  this->SelectedGraphMapper    = vtkSmartPointer<vtkGraphMapper>::New();
+  this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
   
-  this->VertexColorArrayNameInternal = 0;
-  this->EdgeColorArrayNameInternal = 0;
   this->LayoutStrategyInternal = 0;
   this->SelectionArrayNameInternal = 0;
   
@@ -119,18 +107,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
   this->Coordinate->SetCoordinateSystemToDisplay();
   
-  // Setup representation
-  this->VertexMapper->SetScalarModeToUsePointData();
-  this->VertexMapper->SetLookupTable(this->VertexColorLUT);
-  this->VertexActor->PickableOff();
-  this->VertexActor->GetProperty()->SetPointSize(5);
-  this->OutlineActor->PickableOff();
-  this->OutlineActor->GetProperty()->SetPointSize(7);
-  this->OutlineActor->SetPosition(0, 0, -0.001);
-  this->OutlineMapper->SetScalarVisibility(false);
-  this->EdgeMapper->SetScalarModeToUseCellData();
-  this->EdgeMapper->SetLookupTable(this->EdgeColorLUT);
-  this->EdgeActor->SetPosition(0, 0, -0.003);
+  // Setup parameters on the various mappers and actors
   this->VertexLabelMapper->SetLabelModeToLabelFieldData();
   this->VertexLabelMapper->GetLabelTextProperty()->SetColor(1,1,1);
   this->VertexLabelMapper->GetLabelTextProperty()->SetJustificationToCentered();
@@ -148,13 +125,9 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->EdgeLabelMapper->GetLabelTextProperty()->SetItalic(0);
   this->EdgeLabelMapper->GetLabelTextProperty()->SetLineOffset(-10);
   this->EdgeLabelActor->PickableOff();
-  this->SelectionVertexActor->GetProperty()->SetPointSize(11);
-  this->SelectionVertexActor->PickableOff();
-  this->SelectionVertexActor->SetPosition(0, 0, -0.002);
-  this->SelectionVertexMapper->SetScalarVisibility(false);
-  this->SelectionEdgeActor->PickableOff();
-  this->SelectionEdgeActor->SetPosition(0, 0, -0.002);
-  this->SelectionEdgeMapper->SetScalarVisibility(false);
+  this->SelectedGraphActor->PickableOff();
+  this->SelectedGraphActor->SetPosition(0, 0, -0.01);
+  this->SelectedGraphMapper->SetScalarVisibility(false);
   
   // Set default parameters
   this->SetVertexLabelArrayName("label");
@@ -175,17 +148,12 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   // Connect pipeline
   this->GraphLayout->SetLayoutStrategy(this->Simple2DStrategy);
   this->VertexDegree->SetInputConnection(this->GraphLayout->GetOutputPort());
-  this->CellCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
-  this->GraphToPolyData->SetInputConnection(this->VertexDegree->GetOutputPort());
-  this->VertexGlyph->SetInputConnection(this->GraphToPolyData->GetOutputPort());
-  this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
-  this->VertexActor->SetMapper(this->VertexMapper);
-  this->OutlineMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
-  this->OutlineActor->SetMapper(this->OutlineMapper);
-  this->EdgeMapper->SetInputConnection(this->GraphToPolyData->GetOutputPort());
-  this->EdgeActor->SetMapper(this->EdgeMapper);
-  this->VertexLabelMapper->SetInputConnection(this->GraphToPolyData->GetOutputPort());
+  
+  this->GraphMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
+  this->GraphActor->SetMapper(this->GraphMapper);
+  this->VertexLabelMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->VertexLabelActor->SetMapper(this->VertexLabelMapper);
+  this->CellCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->EdgeLabelMapper->SetInputConnection(this->CellCenters->GetOutputPort());
   this->EdgeLabelActor->SetMapper(this->EdgeLabelMapper);
 
@@ -199,56 +167,18 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ExtractSelectedGraph->SetInput(1, empty);
   empty->Delete();
   
-  this->SelectionToPolyData->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
-  this->SelectionVertexGlyph->SetInputConnection(this->SelectionToPolyData->GetOutputPort());
-  this->SelectionVertexMapper->SetInputConnection(this->SelectionVertexGlyph->GetOutputPort());
-  this->SelectionVertexActor->SetMapper(this->SelectionVertexMapper);
-  this->SelectionEdgeMapper->SetInputConnection(this->SelectionToPolyData->GetOutputPort());
-  this->SelectionEdgeActor->SetMapper(this->SelectionEdgeMapper);
+  this->SelectedGraphMapper->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
+  this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
 }
 
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::~vtkGraphLayoutView()
 {
-  this->Coordinate->Delete();
-  this->GraphLayout->Delete();
-  this->RandomStrategy->Delete();
-  this->Fast2DStrategy->Delete();
-  this->Simple2DStrategy->Delete();
-  this->ForceDirectedStrategy->Delete();
-  this->Clustering2DStrategy->Delete();
-  this->Community2DStrategy->Delete();
-  this->Constrained2DStrategy->Delete();
-  this->PassThroughStrategy->Delete();
-  this->CircularStrategy->Delete();
-  this->VertexDegree->Delete();
-  this->CellCenters->Delete();
-  this->GraphToPolyData->Delete();
-  this->VertexGlyph->Delete();
-  this->VertexMapper->Delete();
-  this->VertexColorLUT->Delete();
-  this->VertexActor->Delete();
-  this->OutlineMapper->Delete();
-  this->OutlineActor->Delete();
-  this->EdgeMapper->Delete();
-  this->EdgeColorLUT->Delete();
-  this->EdgeActor->Delete();
-  this->VertexLabelMapper->Delete();
-  this->VertexLabelActor->Delete();
-  this->EdgeLabelMapper->Delete();
-  this->EdgeLabelActor->Delete();
-  this->KdTreeSelector->Delete();
-  this->VisibleCellSelector->Delete();
-  this->ExtractSelectedGraph->Delete();
-  this->SelectionToPolyData->Delete();
-  this->SelectionVertexGlyph->Delete();
-  this->SelectionVertexMapper->Delete();
-  this->SelectionVertexActor->Delete();
-  this->SelectionEdgeMapper->Delete();
-  this->SelectionEdgeActor->Delete();
+  // Delete internally created objects.
+  // Note: All of the smartpointer objects 
+  //       will be deleted for us
+    
   
-  this->SetVertexColorArrayNameInternal(0);
-  this->SetEdgeColorArrayNameInternal(0);
   this->SetLayoutStrategyInternal(0);
   this->SetSelectionArrayNameInternal(0);
 }
@@ -328,77 +258,73 @@ void vtkGraphLayoutView::EdgeLabelVisibilityOff()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetVertexColorArrayName(const char* name)
 {
-  this->SetVertexColorArrayNameInternal(name);
-  this->VertexMapper->SetScalarModeToUsePointFieldData();
-  this->VertexMapper->SelectColorArray(name);
+  this->GraphMapper->SetVertexColorArrayName(name);
 }
 
 //----------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetVertexColorArrayName()
 {
-  return this->GetVertexColorArrayNameInternal();
+  return this->GraphMapper->GetVertexColorArrayName();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetColorVertices(bool vis)
 {
-  this->VertexMapper->SetScalarVisibility(vis);
+  this->GraphMapper->SetColorVertices(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetColorVertices()
 {
-  return this->VertexMapper->GetScalarVisibility() ? true : false;
+  return this->GraphMapper->GetColorVertices();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::ColorVerticesOn()
 {
-  this->VertexMapper->SetScalarVisibility(true);
+  this->GraphMapper->ColorVerticesOn();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::ColorVerticesOff()
 {
-  this->VertexMapper->SetScalarVisibility(false);
+  this->GraphMapper->ColorVerticesOff();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeColorArrayName(const char* name)
 {
-  this->SetEdgeColorArrayNameInternal(name);
-  this->EdgeMapper->SetScalarModeToUseCellFieldData();
-  this->EdgeMapper->SelectColorArray(name);
+  this->GraphMapper->SetEdgeColorArrayName(name);
 }
 
 //----------------------------------------------------------------------------
 const char* vtkGraphLayoutView::GetEdgeColorArrayName()
 {
-  return this->GetEdgeColorArrayNameInternal();
+  return this->GraphMapper->GetEdgeColorArrayName();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetColorEdges(bool vis)
 {
-  this->EdgeMapper->SetScalarVisibility(vis);
+  this->GraphMapper->SetColorEdges(vis);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGraphLayoutView::GetColorEdges()
 {
-  return this->EdgeMapper->GetScalarVisibility() ? true : false;
+  return this->GraphMapper->GetColorEdges();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::ColorEdgesOn()
 {
-  this->EdgeMapper->SetScalarVisibility(true);
+  this->GraphMapper->ColorEdgesOn();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::ColorEdgesOff()
 {
-  this->EdgeMapper->SetScalarVisibility(false);
+  this->GraphMapper->ColorEdgesOff();
 }
 
 //----------------------------------------------------------------------------
@@ -548,13 +474,10 @@ void vtkGraphLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
     {
     this->GraphLayout->SetInputConnection(conn);
   
-    this->Renderer->AddActor(this->VertexActor);
-    this->Renderer->AddActor(this->OutlineActor);
-    this->Renderer->AddActor(this->EdgeActor);
+    this->Renderer->AddActor(this->GraphActor);
+    this->Renderer->AddActor(this->SelectedGraphActor);
     this->Renderer->AddActor(this->VertexLabelActor);
     this->Renderer->AddActor(this->EdgeLabelActor);
-    this->Renderer->AddActor(this->SelectionVertexActor);
-    this->Renderer->AddActor(this->SelectionEdgeActor);
     this->Renderer->ResetCamera();
     }
   else
@@ -572,13 +495,10 @@ void vtkGraphLayoutView::RemoveInputConnection(vtkAlgorithmOutput* conn)
     {
     this->GraphLayout->RemoveInputConnection(0, conn);
   
-    this->Renderer->RemoveActor(this->VertexActor);
-    this->Renderer->RemoveActor(this->OutlineActor);
-    this->Renderer->RemoveActor(this->EdgeActor);
+    this->Renderer->RemoveActor(this->GraphActor);
+    this->Renderer->RemoveActor(this->SelectedGraphActor);
     this->Renderer->RemoveActor(this->VertexLabelActor);
     this->Renderer->RemoveActor(this->EdgeLabelActor);
-    this->Renderer->RemoveActor(this->SelectionVertexActor);
-    this->Renderer->RemoveActor(this->SelectionEdgeActor);
     }
 }
 
@@ -655,6 +575,8 @@ void vtkGraphLayoutView::ProcessEvents(
     vtkSelection* selection = this->KdTreeSelector->GetOutput();
     selection->Register(0);
     
+    // FIXME: Selection on edges needs to be supported.
+#if 0
     // If the selection is empty, do a visible cell selection
     // to attempt to pick up an edge.
     vtkAbstractArray* list = selection->GetSelectionList();
@@ -702,6 +624,7 @@ void vtkGraphLayoutView::ProcessEvents(
       ids->Delete();
       selectedIds->Delete();      
       }
+#endif
     
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
@@ -751,83 +674,43 @@ void vtkGraphLayoutView::PrepareForRendering()
     this->SetSelectionLink(link);
     }
   
-  // Update the pipeline up until the graph to polydata
-  this->GraphToPolyData->Update();
-  vtkPolyData* pd = this->GraphToPolyData->GetOutput();
-  
-  // Try to find the range the user-specified color array.
-  // If we cannot find that array, use the scalar range.
-  double range[2];
-  vtkDataArray* arr = 0; 
-  if (this->GetColorEdges())
-    {
-    if (this->GetEdgeColorArrayName())
-      {
-      arr = pd->GetCellData()->GetArray(this->GetEdgeColorArrayName());
-      }
-    if (!arr)
-      {
-      arr = pd->GetCellData()->GetScalars();
-      }
-    if (arr)
-      {
-      arr->GetRange(range);    
-      this->EdgeMapper->SetScalarRange(range[0], range[1]);
-      }
-    }
-
-  // Do the same thing for the vertex array.
-  arr = 0; 
-  if (this->GetColorVertices())
-    {
-    if (this->GetVertexColorArrayName())
-      {
-      arr = pd->GetPointData()->GetArray(this->GetVertexColorArrayName());
-      }
-    if (!arr)
-      {
-      arr = pd->GetPointData()->GetScalars();
-      }
-    if (arr)
-      {
-      arr->GetRange(range);    
-      this->VertexMapper->SetScalarRange(range[0], range[1]);
-      }
-    }
-  
   this->Superclass::PrepareForRendering();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::ApplyViewTheme(vtkViewTheme* theme)
 {
+
+  // Take some parameters from the theme and apply
+  // to objects within this class
   this->Renderer->SetBackground(theme->GetBackgroundColor());
   
-  this->VertexActor->GetProperty()->SetColor(theme->GetPointColor());
-  this->OutlineActor->GetProperty()->SetColor(theme->GetOutlineColor());
-  this->VertexColorLUT->SetHueRange(theme->GetPointHueRange()); 
-  this->VertexColorLUT->SetSaturationRange(theme->GetPointSaturationRange()); 
-  this->VertexColorLUT->SetValueRange(theme->GetPointValueRange()); 
-  this->VertexColorLUT->SetAlphaRange(theme->GetPointAlphaRange()); 
-  this->VertexColorLUT->Build();
-
   this->VertexLabelMapper->GetLabelTextProperty()->
     SetColor(theme->GetVertexLabelColor());
   this->EdgeLabelMapper->GetLabelTextProperty()->
     SetColor(theme->GetEdgeLabelColor());
-
-  this->EdgeActor->GetProperty()->SetColor(theme->GetCellColor());
-  this->EdgeActor->GetProperty()->SetOpacity(theme->GetCellOpacity());
-  this->EdgeColorLUT->SetHueRange(theme->GetCellHueRange()); 
-  this->EdgeColorLUT->SetSaturationRange(theme->GetCellSaturationRange()); 
-  this->EdgeColorLUT->SetValueRange(theme->GetCellValueRange()); 
-  this->EdgeColorLUT->SetAlphaRange(theme->GetCellAlphaRange()); 
-  this->EdgeColorLUT->Build();
-
-  this->SelectionEdgeActor->GetProperty()->SetColor(theme->GetSelectedCellColor());
-  this->SelectionEdgeActor->GetProperty()->SetOpacity(theme->GetSelectedCellOpacity());
-  this->SelectionVertexActor->GetProperty()->SetColor(theme->GetSelectedPointColor());
-  this->SelectionVertexActor->GetProperty()->SetOpacity(theme->GetSelectedPointOpacity());
+    
+  // Pass theme to the graph mapper
+  this->GraphMapper->ApplyViewTheme(theme);
+  
+  // Set vertex size and edge size on mapper
+  this->GraphMapper->SetVertexPointSize(5);
+  this->GraphMapper->SetEdgeLineWidth(1);
+  
+  
+  // Pull selection info from theme, create a new theme, 
+  // and pass to the selection graph mapper
+  vtkViewTheme *selectTheme = vtkViewTheme::New();
+  selectTheme->SetPointColor(theme->GetSelectedPointColor());
+  selectTheme->SetCellColor(theme->GetSelectedCellColor());
+  selectTheme->SetOutlineColor(theme->GetSelectedPointColor());
+  this->SelectedGraphMapper->ApplyViewTheme(selectTheme);
+  
+  // Set vertex size and edge size on mapper
+  this->SelectedGraphMapper->SetVertexPointSize(9);
+  this->SelectedGraphMapper->SetEdgeLineWidth(2);
+  
+  selectTheme->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -860,20 +743,10 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->GraphLayout->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexDegree: " << endl;
   this->VertexDegree->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "GraphToPolyData: " << endl;
-  this->GraphToPolyData->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexGlyph: " << endl;
-  this->VertexGlyph->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexMapper: " << endl;
-  this->VertexMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexColorLUT: " << endl;
-  this->VertexColorLUT->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "OutlineMapper: " << endl;
-  this->OutlineMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "EdgeMapper: " << endl;
-  this->EdgeMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "EdgeColorLUT: " << endl;
-  this->EdgeColorLUT->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "GraphMapper: " << endl;
+  this->GraphMapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "SelectedGraphMapper: " << endl;
+  this->SelectedGraphMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexLabelMapper: " << endl;
   this->VertexLabelMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeLabelMapper: " << endl;
@@ -884,32 +757,14 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->VisibleCellSelector->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ExtractSelectedGraph: " << endl;
   this->ExtractSelectedGraph->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionToPolyData: " << endl;
-  this->SelectionToPolyData->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionVertexGlyph: " << endl;
-  this->SelectionVertexGlyph->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionVertexMapper: " << endl;
-  this->SelectionVertexMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "SelectionEdgeMapper: " << endl;
-  this->SelectionEdgeMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LayoutStrategy: "
      << (this->LayoutStrategyInternal ? this->LayoutStrategyInternal : "(null)") << endl;
   if (this->GetRepresentation())
     {
-    os << indent << "VertexActor: " << endl;
-    this->VertexActor->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "OutlineActor: " << endl;
-    this->OutlineActor->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "EdgeActor: " << endl;
-    this->EdgeActor->PrintSelf(os, indent.GetNextIndent());
     os << indent << "VertexLabelActor: " << endl;
     this->VertexLabelActor->PrintSelf(os, indent.GetNextIndent());
     os << indent << "EdgeLabelActor: " << endl;
     this->EdgeLabelActor->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "SelectionVertexActor: " << endl;
-    this->SelectionVertexActor->PrintSelf(os, indent.GetNextIndent());
-    os << indent << "SelectionEdgeActor: " << endl;
-    this->SelectionEdgeActor->PrintSelf(os, indent.GetNextIndent());
     }
 }
 

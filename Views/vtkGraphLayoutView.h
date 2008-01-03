@@ -25,23 +25,28 @@
 // set the layout strategy to PassThrough in this view.
 //
 // .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for implementing
-// the first version of this class.
+// Thanks a bunch to the holographic unfolding pattern.
 
 #ifndef __vtkGraphLayoutView_h
 #define __vtkGraphLayoutView_h
 
+#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 #include "vtkRenderView.h"
 
 class vtkActor;
 class vtkActor2D;
+class vtkCellCenters;
 class vtkCircularLayoutStrategy;
+class vtkClustering2DLayoutStrategy;
 class vtkCoordinate;
+class vtkCommunity2DLayoutStrategy;
+class vtkConstrained2DLayoutStrategy;
 class vtkDynamic2DLabelMapper;
 class vtkExtractSelectedGraph;
 class vtkFast2DLayoutStrategy;
 class vtkForceDirectedLayoutStrategy;
 class vtkGraphLayout;
+class vtkGraphMapper;
 class vtkGraphToPolyData;
 class vtkKdTreeSelector;
 class vtkLookupTable;
@@ -50,14 +55,12 @@ class vtkPolyDataMapper;
 class vtkRandomLayoutStrategy;
 class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
-class vtkClustering2DLayoutStrategy;
-class vtkCommunity2DLayoutStrategy;
-class vtkConstrained2DLayoutStrategy;
 class vtkVertexDegree;
-class vtkCellCenters;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
 class vtkVisibleCellSelector;
+
+
 
 class VTK_VIEWS_EXPORT vtkGraphLayoutView : public vtkRenderView
 {
@@ -96,7 +99,7 @@ public:
   const char* GetVertexColorArrayName();
   
   // Description:
-  // Whether to show labels.  Default is off.
+  // Whether to color vertices.  Default is off.
   void SetColorVertices(bool vis);
   bool GetColorVertices();
   void ColorVerticesOn();
@@ -108,7 +111,7 @@ public:
   const char* GetEdgeColorArrayName();
   
   // Description:
-  // Whether to show labels.  Default is off.
+  // Whether to color edges.  Default is off.
   void SetColorEdges(bool vis);
   bool GetColorEdges();
   void ColorEdgesOn();
@@ -206,15 +209,6 @@ protected:
   // Description:
   // May a display coordinate to a world coordinate on the x-y plane.  
   void MapToXYPlane(double displayX, double displayY, double &x, double &y);
-  
-  // Description:
-  // Used to store the vertex and edge color array names
-  vtkGetStringMacro(VertexColorArrayNameInternal);
-  vtkSetStringMacro(VertexColorArrayNameInternal);
-  vtkGetStringMacro(EdgeColorArrayNameInternal);
-  vtkSetStringMacro(EdgeColorArrayNameInternal);
-  char* VertexColorArrayNameInternal;
-  char* EdgeColorArrayNameInternal;
 
   // Description:
   // Used to store the layout strategy name
@@ -229,46 +223,34 @@ protected:
   char* SelectionArrayNameInternal;
   
   // Used for coordinate conversion
-  vtkCoordinate* Coordinate;
+  vtkSmartPointer<vtkCoordinate>                   Coordinate;
 
   // Representation objects
-  vtkGraphLayout*                  GraphLayout;
-  vtkRandomLayoutStrategy*         RandomStrategy;
-  vtkForceDirectedLayoutStrategy*  ForceDirectedStrategy;
-  vtkSimple2DLayoutStrategy*       Simple2DStrategy;
-  vtkClustering2DLayoutStrategy*   Clustering2DStrategy;
-  vtkCommunity2DLayoutStrategy*    Community2DStrategy;
-  vtkConstrained2DLayoutStrategy*  Constrained2DStrategy;
-  vtkFast2DLayoutStrategy*         Fast2DStrategy;
-  vtkPassThroughLayoutStrategy*    PassThroughStrategy;
-  vtkCircularLayoutStrategy*       CircularStrategy;
-  vtkVertexDegree*                 VertexDegree;
-  vtkCellCenters*                  CellCenters;
-  vtkGraphToPolyData*              GraphToPolyData;
-  vtkVertexGlyphFilter*            VertexGlyph;
-  vtkPolyDataMapper*               VertexMapper;
-  vtkLookupTable*                  VertexColorLUT;
-  vtkActor*                        VertexActor;
-  vtkPolyDataMapper*               OutlineMapper;
-  vtkActor*                        OutlineActor;
-  vtkPolyDataMapper*               EdgeMapper;
-  vtkLookupTable*                  EdgeColorLUT;
-  vtkActor*                        EdgeActor;
-  vtkDynamic2DLabelMapper*         VertexLabelMapper;
-  vtkActor2D*                      VertexLabelActor;
-  vtkDynamic2DLabelMapper*         EdgeLabelMapper;
-  vtkActor2D*                      EdgeLabelActor;
+  vtkSmartPointer<vtkGraphLayout>                  GraphLayout;
+  vtkSmartPointer<vtkRandomLayoutStrategy>         RandomStrategy;
+  vtkSmartPointer<vtkForceDirectedLayoutStrategy>  ForceDirectedStrategy;
+  vtkSmartPointer<vtkSimple2DLayoutStrategy>       Simple2DStrategy;
+  vtkSmartPointer<vtkClustering2DLayoutStrategy>   Clustering2DStrategy;
+  vtkSmartPointer<vtkCommunity2DLayoutStrategy>    Community2DStrategy;
+  vtkSmartPointer<vtkConstrained2DLayoutStrategy>  Constrained2DStrategy;
+  vtkSmartPointer<vtkFast2DLayoutStrategy>         Fast2DStrategy;
+  vtkSmartPointer<vtkPassThroughLayoutStrategy>    PassThroughStrategy;
+  vtkSmartPointer<vtkCircularLayoutStrategy>       CircularStrategy;
+  vtkSmartPointer<vtkVertexDegree>                 VertexDegree;
+  vtkSmartPointer<vtkCellCenters>                  CellCenters;
+  vtkSmartPointer<vtkActor>                        GraphActor;
+  vtkSmartPointer<vtkGraphMapper>                  GraphMapper;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>         VertexLabelMapper;
+  vtkSmartPointer<vtkActor2D>                      VertexLabelActor;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>         EdgeLabelMapper;
+  vtkSmartPointer<vtkActor2D>                      EdgeLabelActor;
   
   // Selection objects
-  vtkKdTreeSelector*        KdTreeSelector;
-  vtkVisibleCellSelector*   VisibleCellSelector;
-  vtkExtractSelectedGraph*  ExtractSelectedGraph;
-  vtkGraphToPolyData*       SelectionToPolyData;
-  vtkVertexGlyphFilter*     SelectionVertexGlyph;
-  vtkPolyDataMapper*        SelectionVertexMapper;
-  vtkActor*                 SelectionVertexActor;
-  vtkPolyDataMapper*        SelectionEdgeMapper;
-  vtkActor*                 SelectionEdgeActor;
+  vtkSmartPointer<vtkKdTreeSelector>               KdTreeSelector;
+  vtkSmartPointer<vtkVisibleCellSelector>          VisibleCellSelector;
+  vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
+  vtkSmartPointer<vtkActor>                        SelectedGraphActor;
+  vtkSmartPointer<vtkGraphMapper>                  SelectedGraphMapper;
 
 private:
   vtkGraphLayoutView(const vtkGraphLayoutView&);  // Not implemented.
