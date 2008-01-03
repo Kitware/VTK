@@ -222,6 +222,7 @@ protected:
   vtkSetStringMacro(SelectionArrayNameInternal);
   char* SelectionArrayNameInternal;
   
+  //BTX
   // Used for coordinate conversion
   vtkSmartPointer<vtkCoordinate>                   Coordinate;
 
@@ -251,6 +252,7 @@ protected:
   vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
   vtkSmartPointer<vtkActor>                        SelectedGraphActor;
   vtkSmartPointer<vtkGraphMapper>                  SelectedGraphMapper;
+  //ETX
 
 private:
   vtkGraphLayoutView(const vtkGraphLayoutView&);  // Not implemented.

@@ -115,7 +115,7 @@ protected:
   char* VertexColorArrayNameInternal;
   char* EdgeColorArrayNameInternal;
 
-  
+  //BTX
   vtkSmartPointer<vtkGraphToPolyData>   GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter> VertexGlyph;
   vtkSmartPointer<vtkGlyph2D>           IconGlyph;
@@ -133,6 +133,7 @@ protected:
   // Color maps
   vtkSmartPointer<vtkLookupTable>       EdgeLookupTable;
   vtkSmartPointer<vtkLookupTable>       VertexLookupTable;
+  //ETX
 
   //virtual void ReportReferences(vtkGarbageCollector*);
 
