@@ -92,7 +92,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.14");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.15");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -475,14 +475,29 @@ int vtkPExodusIIReader::RequestData(
       if ( ! this->GetHasModeShapes() )
         {
         // find the highest time step with a time value that is smaller than the requested time.
-        int timeStep = 0;
-        while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+        //int timeStep = 0;
+        //while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+        //  {
+        //  timeStep++;
+        //  }
+        //this->TimeStep = timeStep;
+        int cnt=0;
+        int closestStep=0;
+        double minDist=-1;
+        for (cnt=0;cnt<length;cnt++)
           {
-          timeStep++;
+          double tdist=(steps[cnt]-requestedTimeSteps[0]>requestedTimeSteps[0]-steps[cnt])?
+            steps[cnt]-requestedTimeSteps[0]:
+            requestedTimeSteps[0]-steps[cnt];
+          if (minDist<0 || tdist<minDist)
+            {
+            minDist=tdist;
+            closestStep=cnt;
+            }
           }
-        this->TimeStep = timeStep;
+        this->TimeStep=closestStep;
         this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
-        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + timeStep, 1 );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + this->TimeStep, 1 );
         }
       else
         {
