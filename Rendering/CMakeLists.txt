@@ -48,7 +48,6 @@ SET( Kit_SRCS
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
   vtkGraphicsFactory.cxx
-  vtkGraphMapper.cxx
   vtkHierarchicalPolyDataMapper.cxx
   vtkIdentColoredPainter.cxx
   vtkImageActor.cxx

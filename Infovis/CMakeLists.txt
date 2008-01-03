@@ -21,6 +21,7 @@ vtkGraphHierarchicalBundle.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
 vtkGraphLayoutViewer.cxx
+vtkGraphMapper.cxx
 vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
 vtkInteractorStyleTreeMapHover.cxx
