@@ -18,9 +18,9 @@
 
 /***************************************************************************/
 /*                                                                         */
-/* NOTE: Include this file after <freetype/freetype.h> and after the       */
-/*       Mac-specific <Types.h> header (or any other Mac header that       */
-/*       includes <Types.h>); we use Handle type.                          */
+/* NOTE: Include this file after <freetype/freetype.h> and after any       */
+/*       Mac-specific headers (because this header uses Mac types such as  */
+/*       Handle, FSSpec, FSRef, etc.)                                      */
 /*                                                                         */
 /***************************************************************************/
 
@@ -100,7 +100,8 @@ FT_BEGIN_HEADER
   FT_New_Face_From_FOND( FT_Library  library,
                          Handle      fond,
                          FT_Long     face_index,
-                         FT_Face    *aface );
+                         FT_Face    *aface )
+                       FT_DEPRECATED_ATTRIBUTE;
 
 
   /*************************************************************************/
@@ -188,7 +189,8 @@ FT_BEGIN_HEADER
   FT_GetFilePath_From_Mac_ATS_Name( const char*  fontName,
                                     UInt8*       path,
                                     UInt32       maxPathSize,
-                                    FT_Long*     face_index );
+                                    FT_Long*     face_index )
+                                  FT_DEPRECATED_ATTRIBUTE;
 
 
   /*************************************************************************/
