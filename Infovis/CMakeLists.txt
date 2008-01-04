@@ -54,12 +54,22 @@ vtkXMLTreeReader.cxx
 IF(VTK_USE_BOOST)
   SET(Kit_SRCS
     ${Kit_SRCS}
-    vtkBoostBiconnectedComponents.cxx
     vtkBoostBrandesCentrality.cxx
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
   )
+  
+  # Biconnected Components only exists in Boost 1.33 or later
+  IF(BOOST_MINOR_VERSION GREATER 32)
+    SET(Kit_SRCS
+      ${Kit_SRCS}
+      vtkBoostBiconnectedComponents.cxx
+    )
+  ELSE (BOOST_MINOR_VERSION GREATER 32)
+    MESSAGE("This version of boost does not support Biconnected components")
+  ENDIF(BOOST_MINOR_VERSION GREATER 32)
+
 ENDIF(VTK_USE_BOOST)
 
 # Add these classes only if vtkTypeUInt64Array exists

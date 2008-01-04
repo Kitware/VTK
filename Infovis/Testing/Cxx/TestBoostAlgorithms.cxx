@@ -17,7 +17,6 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 #include "vtkActor.h"
-#include "vtkBoostBiconnectedComponents.h"
 #include "vtkBoostBrandesCentrality.h"
 #include "vtkBoostBreadthFirstSearch.h"
 #include "vtkBoostConnectedComponents.h"
@@ -33,6 +32,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+#include <boost/version.hpp>
+
+#define BOOST_MINOR_VERSION (BOOST_VERSION / 100 % 1000)
+
+#if BOOST_MINOR_VERSION >= 33
+  #include "vtkBoostBiconnectedComponents.h"
+#endif
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -112,9 +118,12 @@ int TestBoostAlgorithms(int argc, char* argv[])
   VTK_CREATE(vtkRenderer, ren);
 
   // Test biconnected components
-  VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
-  biconn->SetInput(g);
-  RenderGraph(ren, biconn, 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
+  // Only available in Boost 1.33 or later
+#if BOOST_MINOR_VERSION >= 33
+    VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
+    biconn->SetInput(g);
+    RenderGraph(ren, biconn, 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
+#endif
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);

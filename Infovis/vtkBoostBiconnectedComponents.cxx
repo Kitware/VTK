@@ -29,6 +29,7 @@
 #include "vtkGraphToBoostAdapter.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/vector_property_map.hpp>
+#include <boost/version.hpp>
 #include <vtksys/stl/vector>
 #include <vtksys/stl/utility>
 
@@ -36,7 +37,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.4");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.5");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -88,10 +89,14 @@ int vtkBoostBiconnectedComponents::RequestData(
     }
     
   // Call BGL biconnected_components
+  
+  // FIXME
+  #define BOOST_MINOR_VERSION (BOOST_VERSION / 100 % 1000)
+  #if BOOST_MINOR_VERSION == 33
   res = biconnected_components(
     g, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+  #endif
   size_t numComp = res.first;
-  
   
   // Create the edge attribute array
   vtkIntArray* edgeComps = vtkIntArray::New();
