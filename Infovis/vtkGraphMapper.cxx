@@ -39,7 +39,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.3");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.4");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -395,6 +395,8 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "GraphToPoly: (none)\n";
     }
+  os << indent << "VertexPointSize: " << this->VertexPointSize << "\n";
+  os << indent << "EdgeLineWidth: " << this->EdgeLineWidth << "\n";
 }
 
 //----------------------------------------------------------------------------
