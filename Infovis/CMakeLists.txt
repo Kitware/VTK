@@ -61,14 +61,14 @@ IF(VTK_USE_BOOST)
   )
   
   # Biconnected Components only exists in Boost 1.33 or later
-  IF(BOOST_MINOR_VERSION GREATER 32)
+  IF(NOT BOOST_VERSION LESS 103301)
     SET(Kit_SRCS
       ${Kit_SRCS}
       vtkBoostBiconnectedComponents.cxx
     )
-  ELSE (BOOST_MINOR_VERSION GREATER 32)
+  ELSE (NOT BOOST_VERSION LESS 103301)
     MESSAGE("This version of boost does not support Biconnected components")
-  ENDIF(BOOST_MINOR_VERSION GREATER 32)
+  ENDIF(NOT BOOST_VERSION LESS 103301)
 
 ENDIF(VTK_USE_BOOST)
 

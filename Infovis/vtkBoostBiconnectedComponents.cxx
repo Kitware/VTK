@@ -37,7 +37,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.5");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.6");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -88,14 +88,18 @@ int vtkBoostBiconnectedComponents::RequestData(
     helper.pmap[e] = -1;
     }
     
-  // Call BGL biconnected_components
-  
-  // FIXME
-  #define BOOST_MINOR_VERSION (BOOST_VERSION / 100 % 1000)
-  #if BOOST_MINOR_VERSION == 33
+  // Call BGL biconnected_components.
+  // It does not exist prior to Boost 1.33.1
+  // It's signature changed as of Boost 1.34.1
+#if BOOST_VERSION >= 103301
+#if BOOST_VERSION < 103401
   res = biconnected_components(
     g, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
-  #endif
+#else
+  res = biconnected_components(
+    g, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
+#endif
+#endif
   size_t numComp = res.first;
   
   // Create the edge attribute array
