@@ -661,6 +661,12 @@ void GaussIntegration::get_signs_for_node_local_coord_hex(int node_id, double &s
       sign_node_y2 = 0.;
       sign_node_y3 = 1.;
       break;
+   default:
+      // Should not be possible to get here, but if we do, at least results will be consistent, not random
+      sign_node_y1 = 0.;
+      sign_node_y2 = 0.;
+      sign_node_y3 = 0.;
+      break;
    }
 }
 
@@ -1095,6 +1101,13 @@ void GaussIntegration::get_node_local_coord_tet(int node_id, double &y1, double 
       y1 = 0.;
       y2 = 0.5;
       y3 = 0.5;
+      y4 = 0.;
+      break;
+   default:
+      // Should not be possible to get here, but if we do, at least results will be consistent, not random
+      y1 = 0.;
+      y2 = 0.;
+      y3 = 0.;
       y4 = 0.;
       break;
    }
