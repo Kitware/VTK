@@ -16,17 +16,6 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-#include "vtkGraph.h"
-#include "vtkGraphToBoostAdapter.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMath.h"
-#include "vtkTimerLog.h"
-#include "vtkTreeToBoostAdapter.h"
-
-#include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
@@ -38,9 +27,21 @@
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/transitive_closure.hpp>
-#include <boost/graph/sequential_vertex_coloring.hpp>
+// #include <boost/graph/sequential_vertex_coloring.hpp>
 #include <boost/property_map.hpp>
 #include <boost/vector_property_map.hpp>
+
+#include "vtkGraph.h"
+#include "vtkGraphToBoostAdapter.h"
+#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkMath.h"
+#include "vtkTimerLog.h"
+#include "vtkTreeToBoostAdapter.h"
+
+#include "vtkSmartPointer.h"
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using namespace boost;
 using namespace vtksys_stl;
