@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.11");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.12");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 //----------------------------------------------------------------------------
@@ -299,17 +299,12 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
     offsetR = offsetB + degSSS[nSSS] + 1;
     degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR );
+    cout << degSSS[nSSS + 1] << " ";
    
     offsetA = offsetB;
     offsetB = offsetR;
    }
-
-  offsetA = 0;
-  for ( i = 0; i < nSSS; offsetA += degSSS[i ++] + 1 )
-    {
-    for ( int j = 0; j <= degSSS[i]; ++ j ) cout << SSS[offsetA + j] << " ";
-    cout << "\n";
-    }
+  cout << "\n";
 
   int nRoots = varSgn[0] - varSgn[1];
   if ( ! nRoots ) return 0;
