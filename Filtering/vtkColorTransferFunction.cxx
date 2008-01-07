@@ -20,10 +20,12 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
+#include <math.h>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.72");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.73");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
+//=============================================================================
 class vtkCTFNode
 {
 public:
@@ -88,6 +90,130 @@ public:
   vtkCTFFindNodeInRange       FindNodeInRange;
   vtkCTFFindNodeOutOfRange    FindNodeOutOfRange;
 };
+
+//=============================================================================
+// Convert to and from a special polar version of CIELAB (useful for creating
+// continuous diverging color maps).
+inline void vtkColorTransferFunctionLabToMsh(const double lab[3], double msh[3])
+{
+  const double &L = lab[0];
+  const double &a = lab[1];
+  const double &b = lab[2];
+  double &M = msh[0];
+  double &s = msh[1];
+  double &h = msh[2];
+
+  M = sqrt(L*L + a*a + b*b);
+  s = (M > 0.001) ? acos(L/M) : 0.0;
+  h = (s > 0.001) ? atan2(b,a) : 0.0;
+}
+
+inline void vtkColorTransferFunctionMshToLab(const double msh[3], double lab[3])
+{
+  const double &M = msh[0];
+  const double &s = msh[1];
+  const double &h = msh[2];
+  double &L = lab[0];
+  double &a = lab[1];
+  double &b = lab[2];
+
+  L = M*cos(s);
+  a = M*sin(s)*cos(h);
+  b = M*sin(s)*sin(h);
+}
+
+// Given two angular orientations, returns the smallest angle between the two.
+inline double vtkColorTransferFunctionAngleDiff(double a1, double a2)
+{
+  double adiff = a1 - a2;
+  if (adiff < 0.0) adiff = -adiff;
+  while (adiff >= vtkMath::DoublePi()) adiff -= vtkMath::DoublePi();
+  return adiff;
+}
+
+// For the case when interpolating from a saturated color to an unsaturated
+// color, find a hue for the unsaturated color that makes sense.
+inline double vtkColorTransferFunctionAdjustHue(const double msh[3],
+                                                double unsatM)
+{
+  if (msh[0] >= unsatM - 0.1)
+    {
+    // The best we can do is hold hue constant.
+    return msh[2];
+    }
+  else
+    {
+    // This equation is designed to make the perceptual change of the
+    // interpolation to be close to constant.
+    double hueSpin = (  msh[1]*sqrt(unsatM*unsatM - msh[0]*msh[0])
+                      / (msh[0]*sin(msh[1])) );
+    // Spin hue away from 0 except in purple hues.
+    if (msh[2] > -0.3*vtkMath::DoublePi())
+      {
+      return msh[2] + hueSpin;
+      }
+    else
+      {
+      return msh[2] - hueSpin;
+      }
+    }
+}
+
+// Interpolate a diverging color map.
+inline void vtkColorTransferFunctionInterpolateDiverging(double s,
+                                                         const double rgb1[3],
+                                                         const double rgb2[3],
+                                                         double result[3])
+{
+  double lab1[3], lab2[3];
+  vtkMath::RGBToLab(rgb1, lab1);
+  vtkMath::RGBToLab(rgb2, lab2);
+
+  double msh1[3], msh2[3];
+  vtkColorTransferFunctionLabToMsh(lab1, msh1);
+  vtkColorTransferFunctionLabToMsh(lab2, msh2);
+
+  // If the endpoints are distinct saturated colors, then place white in between
+  // them.
+  if (   (msh1[1] > 0.05) && (msh2[1] > 0.05)
+      && (vtkColorTransferFunctionAngleDiff(msh1[2], msh2[2]) > 0.33*vtkMath::DoublePi()) )
+    {
+    // Insert the white midpoint by setting one end to white and adjusting the
+    // scalar value.
+    if (s < 0.5)
+      {
+      msh2[0] = 95.0;  msh2[1] = 0.0;  msh2[2] = 0.0;
+      s = 2.0*s;
+      }
+    else
+      {
+      msh1[0] = 95.0;  msh1[1] = 0.0;  msh1[2] = 0.0;
+      s = 2.0*s - 1.0;
+      }
+    }
+
+  // If one color has no saturation, then its hue value is invalid.  In this
+  // case, we want to set it to something logical so that the interpolation of
+  // hue makes sense.
+  if ((msh1[1] < 0.05) && (msh2[1] > 0.05))
+    {
+    msh1[2] = vtkColorTransferFunctionAdjustHue(msh2, msh1[0]);
+    }
+  else if ((msh2[1] < 0.05) && (msh1[1] > 0.05))
+    {
+    msh2[2] = vtkColorTransferFunctionAdjustHue(msh1, msh2[0]);
+    }
+
+  double mshTmp[3];
+  mshTmp[0] = (1-s)*msh1[0] + s*msh2[0];
+  mshTmp[1] = (1-s)*msh1[1] + s*msh2[1];
+  mshTmp[2] = (1-s)*msh1[2] + s*msh2[2];
+
+  // Now convert back to RGB
+  double labTmp[3];
+  vtkColorTransferFunctionMshToLab(mshTmp, labTmp);
+  vtkMath::LabToRGB(labTmp, result);
+}
 
 //----------------------------------------------------------------------------
 // Construct a new vtkColorTransferFunction with default values
@@ -718,7 +844,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           // Now convert this back to RGB
           vtkMath::HSVToRGB( hsvTmp, tptr );
           }
-        else // this->ColorSpace == VTK_CTF_LAB
+        else if (this->ColorSpace == VTK_CTF_LAB)
           {
           double lab1[3], lab2[3];
           vtkMath::RGBToLab(rgb1, lab1);
@@ -731,6 +857,14 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
 
           // Now convert back to RGB
           vtkMath::LabToRGB(labTmp, tptr);
+          }
+        else if (this->ColorSpace == VTK_CTF_DIVERGING)
+          {
+          vtkColorTransferFunctionInterpolateDiverging(s, rgb1, rgb2, tptr);
+          }
+        else
+          {
+          vtkErrorMacro("ColorSpace set to invalid value.");
           }
         continue;
         }    
@@ -813,7 +947,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         // Now convert this back to RGB
         vtkMath::HSVToRGB( hsvTmp, tptr );
         }
-      else // this->ColorSpace == VTK_CTF_LAB
+      else if (this->ColorSpace == VTK_CTF_LAB)
         {
         double lab1[3], lab2[3];
         vtkMath::RGBToLab(rgb1, lab1);
@@ -831,6 +965,17 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           }
         // Now convert this back to RGB
         vtkMath::LabToRGB(labTmp, tptr);
+        }
+      else if (this->ColorSpace == VTK_CTF_DIVERGING)
+        {
+        // I have not implemented proper interpolation by a hermite curve for
+        // the diverging color map, but I cannot think of a good use case for
+        // that anyway.
+        vtkColorTransferFunctionInterpolateDiverging(s, rgb1, rgb2, tptr);
+        }
+      else
+        {
+        vtkErrorMacro("ColorSpace set to invalid value.");
         }
       
       // Final error check to make sure we don't go outside [0,1]
