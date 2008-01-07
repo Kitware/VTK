@@ -18,10 +18,6 @@
 // to graphics primitives. vtkPolyDataMapper serves as a superclass for
 // device-specific poly data mappers, that actually do the mapping to the
 // rendering/graphics hardware/software.
-// It is now possible to set a memory limit for the pipeline in the mapper.
-// If the total estimated memory usage of the pipeline is larger than
-// this limit, the mapper will divide the data into pieces and render
-// each in a for loop.
 
 #ifndef __vtkPolyDataMapper_h
 #define __vtkPolyDataMapper_h
