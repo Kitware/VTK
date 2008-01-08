@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.67");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.68");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -1141,11 +1141,13 @@ WindowPtr vtkCarbonRenderWindow::GetRootWindow()
   // if not, then WindowId is set and we're using HIViews.
   // Instead of storing the RootWindow, we ask for it in case of a dynamic 
   // GUI where the root window can change
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1030
-  return this->RootWindow ? this->RootWindow : HIViewGetWindow(this->WindowId);
-#else
-  return this->RootWindow;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
+  if(HIViewGetWindow && !this->RootWindow)
+    {
+    return HIViewGetWindow(this->WindowId);
+    }
 #endif
+  return this->RootWindow;
 }
 
 //----------------------------------------------------------------------------
