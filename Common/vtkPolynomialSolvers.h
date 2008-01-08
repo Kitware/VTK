@@ -19,7 +19,7 @@
   or without modification, are permitted provided that this Notice and any
   statement of authorship are reproduced on all copies.
 
-  Contact: pppebay@ca.sandia.gov,dcthomp@sandia.gov
+  Contact: pppebay@sandia.gov,dcthomp@sandia.gov
 
 =========================================================================*/
 // .NAME vtkPolynomialSolvers - polynomial solvers
