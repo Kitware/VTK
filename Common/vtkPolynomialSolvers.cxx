@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.14");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.15");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -144,7 +144,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
   delete [] Q;
   
   cout << "[mR[0]= " << mR[0] << ", ";
-  if ( ! r && ! fabs ( mR[0] * A[m] ) < three_epsilon ) 
+  if ( ! r && ( ! mR[0] || fabs ( mR[0] * A[m] ) < three_epsilon ) )
     {
     mR[0] = 0.;
     return -1;
