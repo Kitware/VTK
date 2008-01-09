@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.18");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.19");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -279,6 +279,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   int offsetB = d + 1;
   degSSS[1] = d - 1;
   SSS[offsetB] = static_cast<double>( d ) * P[0];
+
 
   int i;
   double oldVal[] = { P[0], P[0] };
@@ -529,13 +530,13 @@ extern "C" {
 int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol )
 {
   // step 0: eliminate trivial cases up to numerical noise
-  if ( fabs( c[3] ) < tol )
+  if ( fabs( c[3] ) <= tol )
     {
-    if ( fabs( c[2] ) < tol )
+    if ( fabs( c[2] ) <= tol )
       {
-      if ( fabs( c[1] ) < tol )
+      if ( fabs( c[1] ) <= tol )
         {
-        if ( fabs( c[0] ) < tol )
+        if ( fabs( c[0] ) <= tol )
           {
           r[0] = 0.;
           m[0] = 4;
@@ -570,9 +571,9 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
       return nr + 1;
       }
     }
-  if ( ( fabs( c[0] ) < tol ) && ( fabs( c[2] ) < tol ) )
+  if ( ( fabs( c[0] ) <= tol ) && ( fabs( c[2] ) <= tol ) )
     {
-    if ( fabs( c[1] ) < tol )
+    if ( fabs( c[1] ) <= tol )
       {
       if ( c[3] < 0. ) return 0;
       r[0] = sqrt( sqrt( c[3] ) );
@@ -589,7 +590,7 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
     int i;
     for ( i = 0; i < nr1; ++ i )
       {
-      if ( fabs( cr[i] ) < tol )
+      if ( fabs( cr[i] ) <= tol )
         {
         r[nr] = 0.;
         m[nr ++] = 2 * cm[i];
@@ -615,7 +616,7 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
   double b = c[0] * ( p2d8 - qd2 ) + c[2];
   double d = p2d8 * ( qd2 - .75 * p2d8 ) - c[0] * c[2] * .25 + c[3];
   // expedite the case when the reduced equation is biquadratic
-  if ( fabs( b ) < tol )
+  if ( fabs( b ) <= tol )
     {
     double cc[3], cr[2];
     int cm[2];
@@ -628,7 +629,7 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
     int i;
     for ( i = 0; i < nr1; ++ i )
       {
-      if ( fabs( cr[i] ) < tol )
+      if ( fabs( cr[i] ) <= tol )
         {
         r[nr] = shift;
         m[nr ++] = 2 * cm[i];
