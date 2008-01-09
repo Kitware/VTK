@@ -253,6 +253,66 @@ void vtkAbstractWidget::Render()
 }
 
 //----------------------------------------------------------------------
+void vtkAbstractWidget::SetPriority( float f )
+{
+  if (f != this->Priority)
+    {
+    this->Superclass::SetPriority(f);
+
+    // We are going to re-add all the events to the interactor. The
+    // interactor observer maintains a sorted list of command-observers, sorted
+    // by prioirty. The sorting happens only during insertion of a command-
+    // observer into the list. Yeah.. Look at the documentation of SetPriority
+    // in vtkInteractorObserver. That documentation recommends setting the 
+    // interactor to NULL and back again. We won't do that because it will 
+    // cause two unnecessary re-renders, (cause we'd have had to enable and
+    // disable the widgets).
+    if (this->Enabled)
+      {
+      if (this->Interactor)
+        {
+        this->Interactor->RemoveObserver(this->CharObserverTag);
+        this->Interactor->RemoveObserver(this->DeleteObserverTag);
+        this->CharObserverTag = this->Interactor->AddObserver(
+            vtkCommand::CharEvent, 
+            this->KeyPressCallbackCommand, 
+            this->Priority);
+        this->DeleteObserverTag = this->Interactor->AddObserver(
+            vtkCommand::DeleteEvent, 
+            this->KeyPressCallbackCommand, 
+            this->Priority);
+        }
+
+      if ( !this->Parent )
+        {
+        if(this->Interactor)
+          {
+          this->Interactor->RemoveObserver(this->EventCallbackCommand);
+          }
+        }
+      else
+        {
+        this->Parent->RemoveObserver(this->EventCallbackCommand);
+        }
+
+      if ( ! this->Parent )
+        {
+        if(this->Interactor)
+          {
+          this->EventTranslator->AddEventsToInteractor(this->Interactor,
+            this->EventCallbackCommand,this->Priority);
+          }
+        }
+      else
+        {
+        this->EventTranslator->AddEventsToParent(this->Parent,
+          this->EventCallbackCommand,this->Priority);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------
 void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h

@@ -124,6 +124,12 @@ public:
   vtkGetMacro(ManagesCursor,int);
   vtkBooleanMacro(ManagesCursor,int);
 
+  // Description:
+  // Override the superclass method. This will automatically change the
+  // priority of the widget. Unlike the superclass documentation, no 
+  // methods such as SetInteractor to null and reset it etc. are necessary
+  virtual void SetPriority( float );
+
 protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget();
