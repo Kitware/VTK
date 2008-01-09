@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.17");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.18");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -196,7 +196,7 @@ int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
 
   int offsetB = d + 1;
   degSSS[1] = d - 1;
-  SSS[offsetB] = static_cast<double>(d) * P[0];
+  SSS[offsetB] = static_cast<double>( d ) * P[0];
 
   int i;
   double oldVal[] = { P[0], P[0] };
@@ -278,7 +278,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
   int offsetB = d + 1;
   degSSS[1] = d - 1;
-  SSS[offsetB] = static_cast<double>(d) * P[0];
+  SSS[offsetB] = static_cast<double>( d ) * P[0];
 
   int i;
   double oldVal[] = { P[0], P[0] };

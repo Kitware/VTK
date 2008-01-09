@@ -60,7 +60,7 @@ int TestPolynomialSolvers( int, char *[] )
 
   if ( testIntValue != 3 )
     {
-    vtkGenericWarningMacro("LinBairstowSolve(x^4 -7x^3 +17x^2 -17 x +6 ) = "<<testIntValue<<" != 3");
+    vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6 ) = "<<testIntValue<<" != 3");
     return 1;
     }
   cout << "FerrariSolve found (tol= " << 0
@@ -150,7 +150,71 @@ int TestPolynomialSolvers( int, char *[] )
                                                           << "]\n";
   
 
-  // 4. count, then find the roots of a degree 22 polynomial with SturmRootCount and SturmBisectionSolve
+  // 4. find the roots of a biquadratic trinomial with SturmBisectionSolve,
+  // whose 2 double roots (-4 and 4) are also the bounds of the interval, thus
+  // being a limiting case of Sturm's theorem, using:
+  // 4.a FerrariSolve
+  // 4.b SturmBissectionSolve
+
+  double P4_2[] = { 1., 0., -32., 0., 256. };
+  PrintPolynomial( P4_2, 4 );
+
+  // 4.a FerrariSolve
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4_2 + 1, roots, mult, 0. );
+  timer->StopTimer();
+
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("FerrariSolve(x^4 -32x^2 +256 ) = "<<testIntValue<<" != 2");
+    return 1;
+    }
+  cout << "FerrariSolve found (tol= " << 0
+               << ") " << testIntValue << " roots in " 
+               << timer->GetElapsedTime() << " sec.:\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
+                                                  << ", mult. " << mult[i] 
+                                                  << "\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    if ( fabs ( roots[i] ) - 4. > tolRoots )
+      {
+      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ) found root "<<roots[i]<<" != +/-4");
+      return 1;  
+      }
+    if ( mult[i] != 2 )
+      {
+      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ) found multiplicity "<<mult[i]<<" != 2");
+      return 1;  
+      }
+    }
+
+  // 4.b SturmBissectionSolve
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4_2, 4, rootInt, lowerBnds, tolSturm );
+  timer->StopTimer();
+
+//   if ( testIntValue != 1 )
+//     {
+//     vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 1.");
+//     return 1;
+//     }
+//   if ( fabs( lowerBnds[0] - 1. ) > tolSturm )
+//     {
+//     vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<lowerBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
+//     return 1;
+//     }
+  cout << "SturmBisectionSolve bracketed " << testIntValue << " roots in ]" 
+               << rootInt[0] << ";"
+               << rootInt[1] << "] within "
+               << tolSturm << " in "
+               << timer->GetElapsedTime() << " sec:\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] - tolSturm
+                                                          << ";" << lowerBnds[i]
+                                                          << "]\n";
+  
+
+  // 5. count, then find the roots of a degree 22 polynomial with SturmRootCount and SturmBisectionSolve
   double P22[] = {
     -0.0005, -0.001, 0.05, 0.1, -0.2,
     1., 0., -5.1, 0., 4., 
