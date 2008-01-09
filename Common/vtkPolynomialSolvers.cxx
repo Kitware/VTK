@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.16");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.17");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -143,9 +143,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
     }
   delete [] Q;
   
-  cout << "[mR[0]= " << mR[0] << ", ";
-  cout << " 3e*A[m] = " << three_epsilon * A[m] << ", ";
-  if ( ! r && ( ! mR[0] || fabs ( mR[0] ) <= three_epsilon * fabs ( A[m] ) ) )
+  if ( ! r && ( ! mR[0] || fabs ( mR[0] ) <= static_cast<double>( 2 * m ) * VTK_DBL_EPSILON * fabs ( A[m] ) ) )
     {
     mR[0] = 0.;
     return -1;
@@ -307,12 +305,10 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
     offsetR = offsetB + degSSS[nSSS] + 1;
     degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR );
-    cout << degSSS[nSSS + 1] << "] ";
    
     offsetA = offsetB;
     offsetB = offsetR;
    }
-  cout << "\n";
 
   int nRoots = varSgn[0] - varSgn[1];
   if ( ! nRoots ) return 0;

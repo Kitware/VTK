@@ -98,6 +98,11 @@ int TestPolynomialSolvers( int, char *[] )
   for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] -tolSturm
                                                           << ";" << lowerBnds[i]
                                                           << "]\n";
+  if ( testIntValue != 3 )
+    {
+    vtkGenericWarningMacro("SturmBisectionSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 3.");
+    return 1;  
+    }
 
   // 2. find the roots of a degree 5 polynomial with LinBairstowSolve
   double P5[] = { 1., -10., 35., -50., 24., 0. } ;
