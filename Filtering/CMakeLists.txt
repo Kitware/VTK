@@ -70,7 +70,6 @@ vtkGenericSubdivisionErrorMetric.cxx
 vtkGeometricErrorMetric.cxx
 vtkGraph.cxx
 vtkGraphAlgorithm.cxx
-vtkGraphDFSIterator.cxx
 vtkGraphIdList.cxx
 vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx

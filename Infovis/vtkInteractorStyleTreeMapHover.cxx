@@ -37,8 +37,9 @@
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
 #include "vtkWorldPointPicker.h"
+#include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.10");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -245,36 +246,41 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
     {
 
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetPointData()->GetAbstractArray(this->LabelField);
-    if (absArray != NULL)
+    if (absArray != NULL && id > -1)
       {
-      vtkStringArray* strArray = vtkStringArray::SafeDownCast(absArray);
-      if ((id > -1) && (strArray!=NULL))
+      vtkStdString str;
+      if (vtkStringArray::SafeDownCast(absArray))
         {
-        this->Balloon->SetBalloonText(strArray->GetValue(id));
-        vtkTree* tree = this->Layout->GetOutput();
-        double z;
-        if (this->TreeMapToPolyData != NULL)
-          {
-          z = this->TreeMapToPolyData->GetLevelDeltaZ() 
-            * (tree->GetLevel(id) + 1);
-          }
-        else
-          {
-          z = 0.02;
-          }
-        this->HighlightPoints->SetPoint(0, binfo[0], binfo[2], z);
-        this->HighlightPoints->SetPoint(1, binfo[1], binfo[2], z);
-        this->HighlightPoints->SetPoint(2, binfo[1], binfo[3], z);
-        this->HighlightPoints->SetPoint(3, binfo[0], binfo[3], z);
-        this->HighlightPoints->SetPoint(4, binfo[0], binfo[2], z);
-        this->HighlightPoints->Modified();
-        this->HighlightActor->VisibilityOn();
+        str = vtkStringArray::SafeDownCast(absArray)->GetValue(id);
+        }
+      if (vtkDataArray::SafeDownCast(absArray))
+        {
+        str = vtkVariant(vtkDataArray::SafeDownCast(absArray)->GetTuple(id)[0]).ToString();
+        }
+      this->Balloon->SetBalloonText(str);
+      vtkTree* tree = this->Layout->GetOutput();
+      double z;
+      if (this->TreeMapToPolyData != NULL)
+        {
+        z = this->TreeMapToPolyData->GetLevelDeltaZ() 
+          * (tree->GetLevel(id) + 1);
         }
       else
         {
-        this->Balloon->SetBalloonText("");
-        HighlightActor->VisibilityOff();
+        z = 0.02;
         }
+      this->HighlightPoints->SetPoint(0, binfo[0], binfo[2], z);
+      this->HighlightPoints->SetPoint(1, binfo[1], binfo[2], z);
+      this->HighlightPoints->SetPoint(2, binfo[1], binfo[3], z);
+      this->HighlightPoints->SetPoint(3, binfo[0], binfo[3], z);
+      this->HighlightPoints->SetPoint(4, binfo[0], binfo[2], z);
+      this->HighlightPoints->Modified();
+      this->HighlightActor->VisibilityOn();
+      }
+    else
+      {
+      this->Balloon->SetBalloonText("");
+      HighlightActor->VisibilityOff();
       }
 
     this->Balloon->StartWidgetInteraction(loc);
