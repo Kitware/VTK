@@ -723,7 +723,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.46");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.47");
 
 
 
@@ -1677,7 +1677,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.46");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.47");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -2532,7 +2532,9 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
           ai->Status = 0; // Don't load this block's/set's version. User must disable other block/set before loading this one.
           arr = 0;
           }
-        if ( arr && (arr->GetNumberOfComponents() != ai->Components) )
+        if ( arr && (
+            ( arr->GetNumberOfComponents() != ai->Components ) ||
+            ( arr->GetNumberOfComponents() == 2 && this->ModelParameters.num_dim == 2 ) ) )
           {
           vtkErrorMacro( "Cell array \"" << ai->Name.c_str() << "\" has different number of components across blocks/sets." );
           ai->Status = 0; // Don't load this block's/set's version. User must disable other block/set before loading this one.
@@ -2551,8 +2553,18 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
           }
         arr = vtkDataArray::CreateDataArray( ai->StorageType );
         arr->SetName( ai->Name.c_str() );
-        arr->SetNumberOfComponents( ai->Components );
-        arr->SetNumberOfTuples( this->NumberOfCells );
+        if ( ai->Components == 2 && this->ModelParameters.num_dim == 2 )
+          { 
+          // Promote 2-component arrays to 3-component arrays when we have 2-D coordinates
+          arr->SetNumberOfComponents( 3 );
+          arr->SetNumberOfTuples( this->NumberOfCells );
+          arr->FillComponent( 2, 0. );
+          }
+        else
+          {
+          arr->SetNumberOfComponents( ai->Components );
+          arr->SetNumberOfTuples( this->NumberOfCells );
+          }
         cd->AddArray( arr );
         this->Cache->Insert( key, arr );
         arr->FastDelete();
@@ -3279,11 +3291,16 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     {
     // read nodal array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::NODAL][key.ArrayId];
+    int ncomps = ( this->ModelParameters.num_dim == 2 && ainfop->Components == 2 ) ? 3 : ainfop->Components;
     arr = vtkDataArray::CreateDataArray( ainfop->StorageType );
     arr->SetName( ainfop->Name.c_str() );
-    arr->SetNumberOfComponents( ainfop->Components );
+    arr->SetNumberOfComponents( ncomps );
     arr->SetNumberOfTuples( this->ModelParameters.num_nodes );
-    if ( ainfop->Components == 1 )
+    if ( ncomps != ainfop->Components )
+      {
+      arr->FillComponent( 2, 0. );
+      }
+    if ( ncomps == 1 )
       {
       if ( ex_get_var( exoid, key.Time + 1, key.ObjectType,
           ainfop->OriginalIndices[0], 0, arr->GetNumberOfTuples(),
@@ -3316,7 +3333,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         }
       int t;
       vtkstd::vector<double> tmpTuple;
-      tmpTuple.resize( ainfop->Components );
+      tmpTuple.resize( ncomps );
+      tmpTuple[ncomps - 1] = 0.; // In case we're embedding a 2-D vector in 3-D
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
         {
         for ( c = 0; c < ainfop->Components; ++c )
@@ -3961,8 +3979,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
           {
-          double* dispVal = displ->GetTuple3( idx );
-          for ( c = 0; c < 3; ++c )
+          double* dispVal = displ->GetTuple( idx );
+          for ( c = 0; c < dim; ++c )
             coords[c] += dispVal[c] * this->DisplacementMagnitude * cos( 2. * vtkMath::DoublePi() * this->ModeShapeTime );
 
           coords += 3;
@@ -3972,8 +3990,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         for ( vtkIdType idx = 0; idx < displ->GetNumberOfTuples(); ++idx )
           {
-          double* dispVal = displ->GetTuple3( idx );
-          for ( c = 0; c < 3; ++c )
+          double* dispVal = displ->GetTuple( idx );
+          for ( c = 0; c < dim; ++c )
             coords[c] += dispVal[c] * this->DisplacementMagnitude;
 
           coords += 3;
@@ -5916,7 +5934,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
     for ( int i = 0; i < N; ++i )
       {
       vtkstd::string upperName = vtksys::SystemTools::UpperCase( it->second[i].Name.substr( 0, 3 ) );
-      if ( upperName == "DIS" && it->second[i].Components == 3 )
+      if ( upperName == "DIS" && it->second[i].Components == this->ModelParameters.num_dim )
         {
         return this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, vtkExodusIIReader::NODAL, 0, i ) );
         }
@@ -5928,7 +5946,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.46");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.47");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
