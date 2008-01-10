@@ -41,8 +41,10 @@
 #define __vtkPainter_h
 
 #include "vtkObject.h"
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkActor;
+class vtkDataObject;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkPainterObserver;
@@ -132,6 +134,19 @@ public:
   // does not modify the geometry, the bounds are passed through.
   virtual void UpdateBounds(double bounds[6]);
 
+  // Description:
+  // Set the data object to paint. Currently we only support one data object per
+  // painter chain.
+  void SetInput(vtkDataObject*);
+  vtkGetObjectMacro(Input, vtkDataObject);
+
+  // Description:
+  // Get the output data object from this painter. The default implementation
+  // simply forwards the input data object as the output.
+  virtual vtkDataObject* GetOutput()
+    { return this->Input; }
+
+//BTX
 protected:
   vtkPainter();
   ~vtkPainter();
@@ -196,10 +211,8 @@ protected:
  
   // Time of most recent call to ProcessInformation().
   vtkTimeStamp InformationProcessTime;
-  //BTX
   friend class vtkPainterObserver;
   vtkPainterObserver* Observer;
-  //ETX
  
   vtkInformation* Information;
   vtkPainter* DelegatePainter;
@@ -211,11 +224,14 @@ protected:
   double TimeToDraw;
   vtkTimerLog* Timer;
   
-  vtkWindow* LastWindow; // Window used for previous render.
+  vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
                          // This is not reference counted.
 private:
   vtkPainter(const vtkPainter &); // Not implemented.
   void operator=(const vtkPainter &);   // Not implemented.
+
+  vtkDataObject* Input;
+//ETX
 };
 
 #endif //__vtkPainter_h

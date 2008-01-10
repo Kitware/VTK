@@ -32,51 +32,44 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataPainter, "1.3");
-vtkCxxSetObjectMacro(vtkPolyDataPainter, PolyData, vtkPolyData);
+vtkCxxRevisionMacro(vtkPolyDataPainter, "1.4");
 vtkInformationKeyMacro(vtkPolyDataPainter, BUILD_NORMALS, Integer);
 vtkInformationKeyMacro(vtkPolyDataPainter, DATA_ARRAY_TO_VERTEX_ATTRIBUTE, ObjectBase);
 vtkInformationKeyMacro(vtkPolyDataPainter, DISABLE_SCALAR_COLOR, Integer);
 //-----------------------------------------------------------------------------
 vtkPolyDataPainter::vtkPolyDataPainter()
 {
-  this->PolyData = NULL;
   this->BuildNormals = 1;
 }
 
 //-----------------------------------------------------------------------------
 vtkPolyDataPainter::~vtkPolyDataPainter()
 {
-  this->SetPolyData(NULL);
 }
 
 //-----------------------------------------------------------------------------
 void vtkPolyDataPainter::Render(vtkRenderer* renderer, vtkActor* actor, 
     unsigned long typeflags)
 {
-  if (!this->PolyData)
+  if (!this->GetInputAsPolyData())
     {
-    vtkErrorMacro("No input!");
+    vtkErrorMacro("No polydata input!");
     return;
     }
+
   this->Superclass::Render(renderer, actor, typeflags);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolyDataPainter::PassInformation(vtkPainter* toPainter)
+vtkPolyData* vtkPolyDataPainter::GetInputAsPolyData()
 {
-  vtkPolyDataPainter* pdp = vtkPolyDataPainter::SafeDownCast(toPainter);
-  if (pdp)
-    {
-    // Is the input to the toPainter correct?
-    vtkPolyData* output = this->GetOutputData();
-    if (output != pdp->GetPolyData())
-      {
-      // only pass the data when they differ.
-      pdp->SetPolyData(output); 
-      }
-    }
-  this->Superclass::PassInformation(toPainter);
+  return vtkPolyData::SafeDownCast(this->GetInput());
+}
+
+//-----------------------------------------------------------------------------
+vtkPolyData* vtkPolyDataPainter::GetOutputAsPolyData()
+{
+  return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
 //-----------------------------------------------------------------------------
@@ -89,18 +82,9 @@ void vtkPolyDataPainter::ProcessInformation(vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolyDataPainter::ReportReferences(vtkGarbageCollector *collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->PolyData, "Input PolyData");
-}
-
-//-----------------------------------------------------------------------------
 void vtkPolyDataPainter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "PolyData: (" << this->PolyData << ")" << endl;
   os << indent << "BuildNormals: " << this->BuildNormals << endl;
 }
 

@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLightingPainter);
-vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLLightingPainter, "1.4");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ vtkOpenGLLightingPainter::~vtkOpenGLLightingPainter()
 void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
   unsigned long typeflags)
 {
-  vtkPolyData* input = this->GetPolyData();
+  vtkPolyData* input = this->GetInputAsPolyData();
   vtkProperty* prop = actor->GetProperty();
   vtkDataArray* n;
   int interpolation, rep;
@@ -100,7 +100,7 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
     }
   
   int total_cells = 
-    vtkOpenGLLightingPainterGetTotalCells(this->PolyData, typeflags);
+    vtkOpenGLLightingPainterGetTotalCells(input, typeflags);
  
   if (total_cells == 0)
     {
@@ -112,7 +112,7 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
   double time_to_draw = 0.0;
   if (disable_flags)
     {
-    int disabled_cells = vtkOpenGLLightingPainterGetTotalCells(this->PolyData, 
+    int disabled_cells = vtkOpenGLLightingPainterGetTotalCells(input, 
       disable_flags);
     this->ProgressScaleFactor = 
       static_cast<double>(disabled_cells) / total_cells;
@@ -129,7 +129,7 @@ void vtkOpenGLLightingPainter::RenderInternal(vtkRenderer* renderer, vtkActor* a
 
   if (enable_flags)
     {
-    int enabled_cells = vtkOpenGLLightingPainterGetTotalCells(this->PolyData,
+    int enabled_cells = vtkOpenGLLightingPainterGetTotalCells(input,
       enable_flags);
     this->ProgressScaleFactor = 
       static_cast<double>(enabled_cells) / total_cells;

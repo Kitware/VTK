@@ -55,8 +55,12 @@ public:
 
   // Description:
   // Get/set the poly data to render.
-  vtkGetObjectMacro(PolyData, vtkPolyData);
-  virtual void SetPolyData(vtkPolyData *arg);
+  vtkPolyData* GetInputAsPolyData();
+
+  // Description:
+  // Get the output polydata from this Painter. The default 
+  // implementation forwards the input polydata as the output.
+  vtkPolyData* GetOutputAsPolyData();
 
   // Description:
   // Keys used to specify control the behaviour of the painter.
@@ -82,7 +86,6 @@ protected:
   vtkPolyDataPainter();
   ~vtkPolyDataPainter();
 
-  vtkPolyData *PolyData;
   int BuildNormals; // ivar synchornized with this->Information before
     // RenderInternal() is called. The ivar are purposefully protected,
     // the only way to affecting these from outside should be using 
@@ -90,23 +93,9 @@ protected:
   vtkSetMacro(BuildNormals, int);
 
   // Description:
-  // Pass on the information and data (output) from the current
-  // this to the argument painter.
-  virtual void PassInformation(vtkPainter* toPainter);
-
-  // Description:
-  // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
-
-  // Description:
   // Called before RenderInternal() if the Information has been changed
   // since the last time this method was called.
   virtual void ProcessInformation(vtkInformation*);
-
-  // Description:
-  // Get the output polydata from this Painter. The default 
-  // implementation forwards the input polydata as the output.
-  virtual vtkPolyData* GetOutputData()  { return this->PolyData; }
 
 private:
   vtkPolyDataPainter(const vtkPolyDataPainter &); // Not implemented.

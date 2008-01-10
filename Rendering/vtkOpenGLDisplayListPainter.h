@@ -14,8 +14,7 @@
 =========================================================================*/
 // .NAME vtkOpenGLDisplayListPainter - display list painter using OpenGL.
 // .SECTION Description
-// Note that this painter builds separate display lists for each
-// type i.e. verts,lines,polys,tstrips.
+// vtkOpenGLDisplayListPainter creates an OpenGL display list for rendering.
 
 #ifndef __vtkOpenGLDisplayListPainter_h
 #define __vtkOpenGLDisplayListPainter_h
@@ -39,10 +38,10 @@ protected:
   vtkOpenGLDisplayListPainter();
   ~vtkOpenGLDisplayListPainter();
 
-  unsigned int ListIds[4];
-  vtkTimeStamp BuildTimes[4];
+  unsigned int DisplayListId;
+  vtkTimeStamp BuildTime;
 
-  void ReleaseList(int index);
+  void ReleaseList();
 
   // Description:
   // If not using ImmediateModeRendering, this will build a display list,

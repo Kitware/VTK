@@ -27,7 +27,7 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPointsPainter);
-vtkCxxRevisionMacro(vtkPointsPainter, "1.2");
+vtkCxxRevisionMacro(vtkPointsPainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkPointsPainter::vtkPointsPainter()
 {
@@ -75,8 +75,8 @@ vtkPointsPainter::~vtkPointsPainter()
 int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* vtkNotUsed(t), vtkRenderer* ren)
 {
-  vtkPoints* p = this->PolyData->GetPoints();
-  vtkCellArray* ca = this->PolyData->GetVerts();
+  vtkPoints* p = this->GetInputAsPolyData()->GetPoints();
+  vtkCellArray* ca = this->GetInputAsPolyData()->GetVerts();
   vtkIdType cellNum = 0;
   vtkIdType totalCells = ca->GetNumberOfCells();
 

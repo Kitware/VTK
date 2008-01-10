@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkUnsignedCharArray.h"
 vtkStandardNewMacro(vtkPolygonsPainter);
-vtkCxxRevisionMacro(vtkPolygonsPainter, "1.2");
+vtkCxxRevisionMacro(vtkPolygonsPainter, "1.3");
 
 #define VTK_PP_INVALID_TYPE -1
 //-----------------------------------------------------------------------------
@@ -174,10 +174,11 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
 int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren)
 {
-  vtkPoints* p = this->PolyData->GetPoints();
-  vtkCellArray* ca = this->PolyData->GetPolys();
-  vtkIdType cellNum = this->PolyData->GetVerts()->GetNumberOfCells() + 
-    this->PolyData->GetLines()->GetNumberOfCells();
+  vtkPolyData* pd = this->GetInputAsPolyData();
+  vtkPoints* p = pd->GetPoints();
+  vtkCellArray* ca = pd->GetPolys();
+  vtkIdType cellNum = pd->GetVerts()->GetNumberOfCells() + 
+    pd->GetLines()->GetNumberOfCells();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
   

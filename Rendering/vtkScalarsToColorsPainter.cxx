@@ -37,7 +37,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.7");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.8");
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -120,9 +120,9 @@ void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
 {
   // If the input polydata has changed, the output should also reflect
   if (this->OutputUpdateTime < this->MTime ||
-    this->OutputUpdateTime < this->PolyData->GetMTime())
+    this->OutputUpdateTime < this->GetInput()->GetMTime())
     {
-    this->OutputData->ShallowCopy(this->PolyData);
+    this->OutputData->ShallowCopy(this->GetInputAsPolyData());
 
     // scalars passed thru this filter are colors, which will be buit in
     // the pre-rendering stage.
@@ -243,7 +243,7 @@ static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
 void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha)
 {
   int cellFlag;
-  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(this->GetPolyData(),
+  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(this->GetInputAsPolyData(),
     this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
     this->ArrayName, cellFlag);
 
@@ -260,7 +260,7 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
     arraycomponent = 0;
     }
   
-  if (!this->ScalarVisibility || scalars == 0 || this->GetPolyData() == 0)
+  if (!this->ScalarVisibility || scalars == 0 || this->GetInputAsPolyData() == 0)
     {
     // no color info to pass thru.
     // Earlier, I was cleaning up the output scalars here.
@@ -337,12 +337,12 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
   if (colors && this->LookupTable->GetAlpha() == alpha)
     {
     // (this->GetMTime() < colors->GetMTime() &&
-    //  this->GetPolyData()->GetMTime() < colors->GetMTime())
+    //  this->GetInputAsPolyData()->GetMTime() < colors->GetMTime())
     // checks are redundant, since if the PolyData or this->MTime changed,
     // this->SetupPipeline would have caught it and got rid of all the
     // scalars in the output, hence, the control would never reach here.
     if (this->GetMTime() < colors->GetMTime() &&
-      this->GetPolyData()->GetMTime() < colors->GetMTime() &&
+      this->GetInputAsPolyData()->GetMTime() < colors->GetMTime() &&
       this->LookupTable->GetMTime() < colors->GetMTime())
       {
       // using old colors.
@@ -493,7 +493,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
   double alpha, int multiply_with_alpha)
 {
-  vtkPolyData* input = this->GetPolyData();
+  vtkPolyData* input = this->GetInputAsPolyData();
   
   // this->SetupPipeline() assures that output has no scalars
   // of any kind, so no need to clean up the output scalars again. 
@@ -604,6 +604,12 @@ void vtkScalarsToColorsPainter::ReportReferences(vtkGarbageCollector *collector)
   this->Superclass::ReportReferences(collector);
 
   vtkGarbageCollectorReport(collector, this->OutputData, "Output PolyData");
+}
+
+//-----------------------------------------------------------------------------
+vtkDataObject *vtkScalarsToColorsPainter::GetOutput()
+{
+  return this->OutputData;
 }
 
 //-----------------------------------------------------------------------------

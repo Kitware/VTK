@@ -15,8 +15,9 @@
 
 #include "vtkOpenGLDisplayListPainter.h"
 
+#include "vtkDataObject.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -30,12 +31,12 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.5");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
 {
-  this->ListIds[0] = this->ListIds[1] = this->ListIds[2] = this->ListIds[3] = 0;
+  this->DisplayListId = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -49,23 +50,19 @@ void vtkOpenGLDisplayListPainter::ReleaseGraphicsResources(vtkWindow* win)
   if (win)
     {
     win->MakeCurrent();
-    for (int i=0; i < 4 ; i++)
-      {
-      this->ReleaseList(i);
-      }
+    this->ReleaseList();
     }
-  this->LastWindow = NULL;
-
   this->Superclass::ReleaseGraphicsResources(win);
+  this->LastWindow = NULL;
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLDisplayListPainter::ReleaseList(int index)
+void vtkOpenGLDisplayListPainter::ReleaseList()
 {
-  if (this->ListIds[index])
+  if (this->DisplayListId)
     {
-    glDeleteLists(this->ListIds[index], 1);
-    this->ListIds[index] = 0;
+    glDeleteLists(this->DisplayListId, 1);
+    this->DisplayListId = 0;
     }
 }
 
@@ -73,7 +70,6 @@ void vtkOpenGLDisplayListPainter::ReleaseList(int index)
 void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
   unsigned long typeflags)
 {
-  int i;
   if (this->ImmediateModeRendering)
     {
     // don't use display lists at all.
@@ -82,75 +78,38 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer* renderer, vtkActor
     return;
     }
 
-  // Using display lists.
-  vtkPolyData* input = this->GetPolyData();
-  unsigned long types[] = { vtkPainter::VERTS, vtkPainter::LINES, 
-    vtkPainter::POLYS, vtkPainter::STRIPS };
- 
-  vtkIdType numCells[4];
-  numCells[0] = input->GetNumberOfVerts();
-  numCells[1] = input->GetNumberOfLines();
-  numCells[2] = input->GetNumberOfPolys();
-  numCells[3] = input->GetNumberOfStrips();
-  
-  vtkIdType total_cells = 0;
-  for (i=0; i < 4; i++)
-    {
-    if (typeflags & types[i])
-      {
-      total_cells += numCells[i];
-      }
-    }
-  if (total_cells == 0)
-    {
-    // nothing to render.
-    return;
-    }
-
-  this->ProgressOffset = 0.0;
   this->TimeToDraw = 0.0;
-  for (i=0; i < 4; i++)
+
+  // if something has changed regenrate display lists.
+  if (!this->DisplayListId || 
+    this->GetMTime() > this->BuildTime ||
+    this->GetInput()->GetMTime() > this->BuildTime ||
+    actor->GetProperty()->GetMTime() > this->BuildTime ||
+    this->Information->GetMTime() > this->BuildTime || 
+    renderer->GetRenderWindow() != this->LastWindow.GetPointer())
     {
-    if ( !(typeflags & types[i]) )
-      {
-      // type not requested.
-      continue;
-      }
-    
-    this->ProgressScaleFactor = static_cast<double>(numCells[i]) / total_cells;
-    
-    // if something has changed regenrate display lists.
-    if (!this->ListIds[i] || 
-      this->GetMTime() > this->BuildTimes[i] ||
-      input->GetMTime() > this->BuildTimes[i] ||
-      actor->GetProperty()->GetMTime() > this->BuildTimes[i] ||
-      renderer->GetRenderWindow() != this->LastWindow)
-      {
-      this->ReleaseList(i);
-      this->ListIds[i] = glGenLists(1);
-      glNewList(this->ListIds[i], GL_COMPILE);
-      // generate the display list.
-      this->Superclass::RenderInternal(renderer, actor, types[i]);
-      glEndList();
+    this->ReleaseList();
+    this->DisplayListId = glGenLists(1);
+    glNewList(this->DisplayListId, GL_COMPILE);
+    // generate the display list.
+    this->Superclass::RenderInternal(renderer, actor, typeflags);
+    glEndList();
 
-      this->BuildTimes[i].Modified();
-      this->LastWindow = renderer->GetRenderWindow();
-      }
-
-    // Time the actual drawing.
-    this->Timer->StartTimer();
-    // render the display list.
-    // if nothing has changed we use an old display list else
-    // we use the newly generated list.
-    glCallList(this->ListIds[i]);
-    // glFinish(); // To compute time correctly, we need to wait 
-                // till OpenGL finishes.
-    
-    this->Timer->StopTimer();
-    this->TimeToDraw += this->Timer->GetElapsedTime();
-    
-    this->ProgressOffset += this->ProgressScaleFactor;
+    this->BuildTime.Modified();
+    this->LastWindow = renderer->GetRenderWindow();
     }
+
+  // Time the actual drawing.
+  this->Timer->StartTimer();
+  // render the display list.
+  // if nothing has changed we use an old display list else
+  // we use the newly generated list.
+  glCallList(this->DisplayListId);
+  // glFinish(); // To compute time correctly, we need to wait 
+  // till OpenGL finishes.
+  this->Timer->StopTimer();
+
+  this->TimeToDraw += this->Timer->GetElapsedTime();
 }
 
 //-----------------------------------------------------------------------------

@@ -18,16 +18,16 @@
 #ifndef __vtkClipPlanesPainter_h
 #define __vtkClipPlanesPainter_h
 
-#include "vtkPolyDataPainter.h"
+#include "vtkPainter.h"
 
 class vtkInformationObjectBaseKey;
 class vtkPlaneCollection;
 
-class VTK_RENDERING_EXPORT vtkClipPlanesPainter : public vtkPolyDataPainter
+class VTK_RENDERING_EXPORT vtkClipPlanesPainter : public vtkPainter
 {
 public:
   static vtkClipPlanesPainter* New();
-  vtkTypeRevisionMacro(vtkClipPlanesPainter, vtkPolyDataPainter);
+  vtkTypeRevisionMacro(vtkClipPlanesPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

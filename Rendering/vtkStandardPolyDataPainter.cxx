@@ -61,7 +61,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.7");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.8");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -115,6 +115,7 @@ void vtkStandardPolyDataPainter::UpdateGenericAttributesCache()
 {
   if (this->Internal->Mappings)
     {
+    vtkPolyData* pd = this->GetInputAsPolyData();
     unsigned int max = this->Internal->Mappings->GetNumberOfMappings();
     for (unsigned int cc=0; cc < max; cc++)
       {
@@ -135,15 +136,15 @@ void vtkStandardPolyDataPainter::UpdateGenericAttributesCache()
 
       vtkDataArray *inArray = NULL;
       vtkInternal::InfoVector* dest=0;
-
+  
       if (field == vtkDataObject::FIELD_ASSOCIATION_POINTS)
         {
-        inArray = this->PolyData->GetPointData()->GetArray(dataArrayName);
+        inArray = pd->GetPointData()->GetArray(dataArrayName);
         dest = &this->Internal->PointAttributesCache;
         }
       else if (field == vtkDataObject::FIELD_ASSOCIATION_CELLS)
         {
-        inArray = this->PolyData->GetCellData()->GetArray(dataArrayName);
+        inArray = pd->GetCellData()->GetArray(dataArrayName);
         dest = &this->Internal->CellAttributesCache;
         }
 
@@ -173,8 +174,8 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
     vtkErrorMacro("Painter Device Adapter missing!");
     return;
     }
-  this->TotalCells = vtkStandardPolyDataPainterGetTotalCells(this->PolyData,
-    typeflags);
+  vtkPolyData* pd = this->GetInputAsPolyData();
+  this->TotalCells = vtkStandardPolyDataPainterGetTotalCells(pd, typeflags);
   this->Timer->StartTimer();
   vtkProperty* property = actor->GetProperty();
   vtkIdType startCell = 0;
@@ -197,38 +198,38 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
 
   if (typeflags & vtkPainter::VERTS)
     {
-    this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
+    this->DrawCells(VTK_POLY_VERTEX, pd->GetVerts(), startCell,
       shaderDevice, renderer, 0, interpolation);
     }
 
-  startCell += this->PolyData->GetNumberOfVerts();
+  startCell += pd->GetNumberOfVerts();
   if (typeflags & vtkPainter::LINES)
     {
-    this->DrawCells(VTK_POLY_LINE, this->PolyData->GetLines(), startCell,
+    this->DrawCells(VTK_POLY_LINE, pd->GetLines(), startCell,
       shaderDevice, renderer, 0, interpolation);
     }
   
-  startCell += this->PolyData->GetNumberOfLines();
+  startCell += pd->GetNumberOfLines();
   if (typeflags & vtkPainter::POLYS)
     {
 #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
     if (property->GetRepresentation() == VTK_WIREFRAME)
       {
-      this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
+      this->DrawCells(VTK_TETRA, pd->GetPolys(), startCell,
         shaderDevice, renderer, this->BuildNormals, interpolation);
       }
     else
 #endif
       {
-      this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
+      this->DrawCells(VTK_POLYGON, pd->GetPolys(), startCell,
         shaderDevice, renderer, this->BuildNormals, interpolation);
       }
     }
  
-  startCell += this->PolyData->GetNumberOfPolys();
+  startCell += pd->GetNumberOfPolys();
   if (typeflags & vtkPainter::STRIPS)
     {
-    this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
+    this->DrawCells(VTK_TRIANGLE_STRIP, pd->GetStrips(), startCell,
       shaderDevice, renderer, this->BuildNormals, interpolation);
     }
 
@@ -252,19 +253,15 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
                                    vtkRenderer *renderer,
                                    int buildnormals, int interpolation)
 {
-  if (!this->PolyData)
-    {
-    vtkWarningMacro("No polydata to render!");
-    return;
-    }
+  vtkPolyData* pd = this->GetInputAsPolyData();
 
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
 
-  vtkCellData* cellData = this->PolyData->GetCellData();
-  vtkPointData* pointData = this->PolyData->GetPointData();
+  vtkCellData* cellData = pd->GetCellData();
+  vtkPointData* pointData = pd->GetPointData();
   vtkUnsignedCharArray* fieldColors = vtkUnsignedCharArray::SafeDownCast(
-    this->PolyData->GetFieldData()->GetArray("Color"));
+    pd->GetFieldData()->GetArray("Color"));
  
   int disable_scalar_color = 0;
   if (this->Information->Has(DISABLE_SCALAR_COLOR()) &&
@@ -277,7 +274,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
     fieldColors = 0;
     }
 
-  vtkPoints* p = this->PolyData->GetPoints();
+  vtkPoints* p = pd->GetPoints();
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
   vtkIdType fielddata_cellId = startCellId;

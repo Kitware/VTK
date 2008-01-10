@@ -14,31 +14,30 @@
 =========================================================================*/
 #include "vtkRenderer.h"
 
+#include "vtkAreaPicker.h"
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
-#include "vtkCuller.h"
 #include "vtkCullerCollection.h"
+#include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkGraphicsFactory.h"
-#include "vtkLight.h"
+#include "vtkIdentColoredPainter.h"
 #include "vtkLightCollection.h"
+#include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOutputWindow.h"
+#include "vtkPainterPolyDataMapper.h"
 #include "vtkPicker.h"
-#include "vtkAreaPicker.h"
 #include "vtkProp3DCollection.h"
+#include "vtkPropCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
-#include "vtkPropCollection.h"
-#include "vtkIdentColoredPainter.h"
-#include "vtkPainterPolyDataMapper.h"
-#include "vtkPolyDataPainter.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.238");
+vtkCxxRevisionMacro(vtkRenderer, "1.239");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
 
@@ -1720,7 +1719,7 @@ int vtkRenderer::UpdateGeometryForSelection()
 
   //create holders for prop's original rendering settings
   int orig_visibility;
-  vtkPolyDataPainter *orig_painter = NULL;
+  vtkPainter*orig_painter = NULL;
 
   //create a painter that will color each cell with an index
   if (this->IdentPainter==NULL)
@@ -1798,11 +1797,11 @@ int vtkRenderer::UpdateGeometryForSelection()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
+vtkPainter* vtkRenderer::SwapInSelectablePainter(
   vtkProp *prop,
   int &orig_visibility)
 {
-  vtkPolyDataPainter* orig_painter = NULL;
+  vtkPainter* orig_painter = NULL;
   vtkPainterPolyDataMapper *orig_mapper = NULL;
   
   //try to find a polydatapainter that we can swap out
@@ -1842,7 +1841,7 @@ vtkPolyDataPainter* vtkRenderer::SwapInSelectablePainter(
 //----------------------------------------------------------------------------
 void vtkRenderer::SwapOutSelectablePainter(
   vtkProp *prop,
-  vtkPolyDataPainter* orig_painter,
+  vtkPainter* orig_painter,
   int orig_visibility) 
 {
   vtkPainterPolyDataMapper *orig_mapper = NULL;

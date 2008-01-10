@@ -28,7 +28,7 @@
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.4");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.5");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -98,7 +98,7 @@ void vtkChooserPainter::PrepareForRendering(vtkRenderer* ren, vtkActor* actor)
   if (this->PaintersChoiceTime < this->MTime ||
     this->PaintersChoiceTime < this->Information->GetMTime() || 
     this->LastRenderer != ren || 
-    this->PaintersChoiceTime < this->PolyData->GetMTime())
+    this->PaintersChoiceTime < this->GetInput()->GetMTime())
     {
     this->LastRenderer = ren;
     // Choose the painters.
@@ -291,19 +291,20 @@ vtkPolyDataPainter* vtkChooserPainter::CreatePainter(const char *paintertype)
 void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
     unsigned long typeflags)
 {
-  vtkIdType numVerts = this->PolyData->GetNumberOfVerts();
-  vtkIdType numLines = this->PolyData->GetNumberOfLines();
-  vtkIdType numPolys = this->PolyData->GetNumberOfPolys();
-  vtkIdType numStrips = this->PolyData->GetNumberOfStrips();
+  vtkPolyData* pdInput = this->GetInputAsPolyData();
+  vtkIdType numVerts = pdInput->GetNumberOfVerts();
+  vtkIdType numLines = pdInput->GetNumberOfLines();
+  vtkIdType numPolys = pdInput->GetNumberOfPolys();
+  vtkIdType numStrips = pdInput->GetNumberOfStrips();
   
   vtkIdType total_cells = (typeflags & vtkPainter::VERTS)? 
-    this->PolyData->GetNumberOfVerts() : 0;
+    pdInput->GetNumberOfVerts() : 0;
   total_cells += (typeflags & vtkPainter::LINES)? 
-    this->PolyData->GetNumberOfLines() : 0;
+    pdInput->GetNumberOfLines() : 0;
   total_cells += (typeflags & vtkPainter::POLYS)? 
-    this->PolyData->GetNumberOfPolys() : 0;
+    pdInput->GetNumberOfPolys() : 0;
   total_cells += (typeflags & vtkPainter::STRIPS)? 
-    this->PolyData->GetNumberOfStrips() : 0;
+    pdInput->GetNumberOfStrips() : 0;
   
   if (total_cells == 0)
     {

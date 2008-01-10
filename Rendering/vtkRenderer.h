@@ -43,7 +43,7 @@ class vtkCamera;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
-class vtkPolyDataPainter;
+class vtkPainter;
 class vtkIdentColoredPainter;
 class vtkVisibleCellSelector;
 
@@ -600,13 +600,13 @@ protected:
   // Description:
   // Called by UpdateGeometryForSelection to temporarily swap in a mapper to 
   // render a prop in selection mode.
-  vtkPolyDataPainter* SwapInSelectablePainter(vtkProp *, 
+  vtkPainter* SwapInSelectablePainter(vtkProp *, 
                                               int &);
 
   // Description:
   // Called by UpdateGeometryForSelection to restore a prop's original mapper.
   void SwapOutSelectablePainter(vtkProp *,
-                                vtkPolyDataPainter*, 
+                                vtkPainter*, 
                                 int );
 
   // Description:

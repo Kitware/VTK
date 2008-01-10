@@ -29,7 +29,7 @@
 #ifndef __vtkDefaultPainter_h
 #define __vtkDefaultPainter_h
 
-#include "vtkPolyDataPainter.h"
+#include "vtkPainter.h"
 
 class vtkClipPlanesPainter;
 class vtkCoincidentTopologyResolutionPainter;
@@ -38,11 +38,11 @@ class vtkLightingPainter;
 class vtkScalarsToColorsPainter;
 class vtkRepresentationPainter;
 
-class VTK_RENDERING_EXPORT vtkDefaultPainter : public vtkPolyDataPainter
+class VTK_RENDERING_EXPORT vtkDefaultPainter : public vtkPainter
 {
 public:
   static vtkDefaultPainter *New();
-  vtkTypeRevisionMacro(vtkDefaultPainter, vtkPolyDataPainter);
+  vtkTypeRevisionMacro(vtkDefaultPainter, vtkPainter);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   
   // Description:

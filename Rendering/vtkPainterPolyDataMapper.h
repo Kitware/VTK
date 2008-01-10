@@ -25,7 +25,7 @@
 #include "vtkPolyDataMapper.h"
 
 class vtkPainterPolyDataMapperObserver;
-class vtkPolyDataPainter;
+class vtkPainter;
 
 class VTK_RENDERING_EXPORT vtkPainterPolyDataMapper : public vtkPolyDataMapper
 {
@@ -43,8 +43,8 @@ public:
   // By default, vtkDefaultPainter is used to build the rendering 
   // painter chain for color mapping/clipping etc. followed by 
   // a vtkChooserPainter which renders the primitives.
-  vtkGetObjectMacro(Painter, vtkPolyDataPainter);
-  void SetPainter(vtkPolyDataPainter*);
+  vtkGetObjectMacro(Painter, vtkPainter);
+  void SetPainter(vtkPainter*);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
@@ -86,15 +86,15 @@ protected:
   // Description:
   // Called when the PainterInformation becomes obsolete. 
   // It is called before the Render is initiated on the Painter.
-  void UpdatePainterInformation();
+  virtual void UpdatePainterInformation();
 
   // Description:
   // Take part in garbage collection.
-  void ReportReferences(vtkGarbageCollector *collector);
+  virtual void ReportReferences(vtkGarbageCollector *collector);
 
   vtkInformation* PainterInformation;
   vtkTimeStamp PainterUpdateTime;
-  vtkPolyDataPainter* Painter;
+  vtkPainter* Painter;
   vtkPainterPolyDataMapperObserver* Observer;
 private:
   vtkPainterPolyDataMapper(const vtkPainterPolyDataMapper&); // Not implemented.

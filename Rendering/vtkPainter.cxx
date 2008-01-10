@@ -25,16 +25,18 @@
 #include "vtkPainter.h"
 
 #include "vtkCommand.h"
-#include "vtkInformation.h"
-#include "vtkInformationIntegerKey.h"
+#include "vtkDataObject.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkPainter, "1.3");
+vtkCxxRevisionMacro(vtkPainter, "1.4");
+vtkCxxSetObjectMacro(vtkPainter, Input, vtkDataObject);
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
 vtkInformationKeyMacro(vtkPainter, CONSERVE_MEMORY, Integer);
@@ -62,6 +64,7 @@ public:
 //-----------------------------------------------------------------------------
 vtkPainter::vtkPainter()
 {
+  this->Input = 0;
   this->DelegatePainter = NULL;
   this->LastWindow = 0;
 
@@ -87,6 +90,7 @@ vtkPainter::vtkPainter()
 //-----------------------------------------------------------------------------
 vtkPainter::~vtkPainter()
 {
+  this->SetInput(0);
   this->Observer->Self = NULL;
   this->Observer->Delete();
 
@@ -178,6 +182,7 @@ void vtkPainter::ReportReferences(vtkGarbageCollector *collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->DelegatePainter, 
     "Delegate Painter");
+  vtkGarbageCollectorReport(collector, this->Input, "Input");
 }
 
 //-----------------------------------------------------------------------------
@@ -243,6 +248,13 @@ void vtkPainter::PassInformation(vtkPainter* toPainter)
     // the delegate.
     toPainter->SetInformation(this->Information);
     }
+
+  // Propagate the data object through the painter chain.
+  vtkDataObject* myoutput = this->GetOutput();
+  if (myoutput != toPainter->GetInput())
+    {
+    toPainter->SetInput(myoutput);
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -262,6 +274,7 @@ void vtkPainter::UpdateBounds(double bounds[6])
 void vtkPainter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Input: " << this->Input << endl;
   os << indent << "TimeToDraw: " << this->TimeToDraw << endl;
   os << indent << "Progress: " << this->Progress << endl;
   os << indent << "Information: " ;

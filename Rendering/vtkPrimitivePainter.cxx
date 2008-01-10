@@ -35,7 +35,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.5");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.6");
 //---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
@@ -61,6 +61,12 @@ void vtkPrimitivePainter::ReportReferences(vtkGarbageCollector *collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->OutputData, "Output Data");
+}
+
+//---------------------------------------------------------------------------
+vtkDataObject* vtkPrimitivePainter::GetOutput()
+{
+  return this->OutputData;
 }
 
 //---------------------------------------------------------------------------
@@ -100,9 +106,9 @@ void vtkPrimitivePainter::PrepareForRendering(vtkRenderer* renderer,
 
   // If the input has changed update the output.
   if (this->OutputUpdateTime < this->MTime ||
-    this->OutputUpdateTime < this->PolyData->GetMTime())
+    this->OutputUpdateTime < this->GetInput()->GetMTime())
     {
-    this->OutputData->ShallowCopy(this->PolyData);
+    this->OutputData->ShallowCopy(this->GetInputAsPolyData());
     this->OutputUpdateTime.Modified();
     }
 
@@ -136,7 +142,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   vtkDataArray *n;
   vtkDataArray *t;
   int tDim;
-  vtkPolyData *input = this->GetPolyData();
+  vtkPolyData *input = this->GetInputAsPolyData();
   int cellNormals;
   int cellScalars = 0;
   int fieldScalars = 0;

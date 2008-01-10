@@ -18,15 +18,15 @@
 #ifndef __vtkDisplayListPainter_h
 #define __vtkDisplayListPainter_h
 
-#include "vtkPolyDataPainter.h"
+#include "vtkPainter.h"
 
 class vtkInformationIntegerKey;
 
-class VTK_RENDERING_EXPORT vtkDisplayListPainter : public vtkPolyDataPainter
+class VTK_RENDERING_EXPORT vtkDisplayListPainter : public vtkPainter
 {
 public:
   static vtkDisplayListPainter* New();
-  vtkTypeRevisionMacro(vtkDisplayListPainter, vtkPolyDataPainter);
+  vtkTypeRevisionMacro(vtkDisplayListPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

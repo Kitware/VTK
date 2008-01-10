@@ -27,7 +27,7 @@
 #include "vtkRepresentationPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.4");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.5");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
@@ -91,9 +91,9 @@ vtkDefaultPainter::~vtkDefaultPainter()
 //-----------------------------------------------------------------------------
 void vtkDefaultPainter::BuildPainterChain()
 {
-  vtkPolyDataPainter* headPainter = 0;
-  vtkPolyDataPainter* prevPainter = 0;
-  vtkPolyDataPainter* painter = 0;
+  vtkPainter* headPainter = 0;
+  vtkPainter* prevPainter = 0;
+  vtkPainter* painter = 0;
 
   painter = this->GetScalarsToColorsPainter();
   if (painter)
@@ -116,7 +116,7 @@ void vtkDefaultPainter::BuildPainterChain()
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
     }
-  
+
   painter = this->GetDisplayListPainter();
   if (painter)
     {

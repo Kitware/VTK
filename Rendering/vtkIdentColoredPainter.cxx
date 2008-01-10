@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.23");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.24");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -275,8 +275,9 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
     return;
     }
 
+  vtkPolyData* polyData = this->GetInputAsPolyData();
   this->TotalCells = 
-    vtkIdentColoredPainterGetTotalCells(this->PolyData, typeflags);
+    vtkIdentColoredPainterGetTotalCells(polyData, typeflags);
 
   this->Timer->StartTimer();
 
@@ -294,41 +295,41 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
 
   if (typeflags & vtkPainter::VERTS)
     {
-    this->DrawCells(VTK_POLY_VERTEX, this->PolyData->GetVerts(), startCell,
+    this->DrawCells(VTK_POLY_VERTEX, polyData->GetVerts(), startCell,
                     renderer);
     }
-  startCell += this->PolyData->GetNumberOfVerts();
+  startCell += polyData->GetNumberOfVerts();
 
   if (typeflags & vtkPainter::LINES)
     {
-    this->DrawCells(VTK_POLY_LINE, this->PolyData->GetLines(), startCell,
+    this->DrawCells(VTK_POLY_LINE, polyData->GetLines(), startCell,
                     renderer);
     }
-  startCell += this->PolyData->GetNumberOfLines();
+  startCell += polyData->GetNumberOfLines();
 
   if (typeflags & vtkPainter::POLYS)
     {
 #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      this->DrawCells(VTK_TETRA, this->PolyData->GetPolys(), startCell,
+      this->DrawCells(VTK_TETRA, polyData->GetPolys(), startCell,
                       renderer);
       }
     else
 #endif
       {
-      this->DrawCells(VTK_POLYGON, this->PolyData->GetPolys(), startCell,
+      this->DrawCells(VTK_POLYGON, polyData->GetPolys(), startCell,
                       renderer);
       }
     } 
-  startCell += this->PolyData->GetNumberOfPolys();
+  startCell += polyData->GetNumberOfPolys();
 
   if (typeflags & vtkPainter::STRIPS)
     {
-    this->DrawCells(VTK_TRIANGLE_STRIP, this->PolyData->GetStrips(), startCell,
+    this->DrawCells(VTK_TRIANGLE_STRIP, polyData->GetStrips(), startCell,
                       renderer);
     }
-  startCell += this->PolyData->GetNumberOfStrips();
+  startCell += polyData->GetNumberOfStrips();
 
   //reset lighting back to the default
   device->MakeBlending(origBlending);
@@ -349,16 +350,10 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
                                        vtkIdType startCellId, 
                                        vtkRenderer *renderer)
 {
-  if (!this->PolyData)
-    {
-    vtkWarningMacro("No polydata to render!");
-    return;
-    }
-
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
 
-  vtkPoints* p = this->PolyData->GetPoints();
+  vtkPoints* p = this->GetInputAsPolyData()->GetPoints();
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
 

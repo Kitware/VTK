@@ -125,7 +125,7 @@ protected:
 
   // Description:
   // Subclasses need to override this to return the output of the pipeline.
-  virtual vtkPolyData *GetOutputData() { return this->OutputData; }
+  virtual vtkDataObject *GetOutput();
 
   // Description:
   // Take part in garbage collection.
