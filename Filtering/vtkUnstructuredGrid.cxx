@@ -56,7 +56,7 @@
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.12");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.13");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -954,6 +954,12 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::BuildLinks()
 {
+  // Remove the old links if they are already built
+  if (this->Links)
+    {
+    this->Links->UnRegister(this);
+    }
+
   this->Links = vtkCellLinks::New();
   this->Links->Allocate(this->GetNumberOfPoints());
   this->Links->Register(this);
@@ -1255,14 +1261,6 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
       this->Links->UnRegister(this);
       this->Links = NULL;
       }
-    if (grid->Links)
-      {
-      this->Links = vtkCellLinks::New();
-      this->Links->DeepCopy(grid->Links);
-      this->Links->Register(this);
-      this->Links->Delete();
-      }
-
     if ( this->Types )
       {
       this->Types->UnRegister(this);
@@ -1292,6 +1290,14 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
 
   // Do superclass
   this->vtkPointSet::DeepCopy(dataObject);
+
+  // Finally Build Links if we need to
+  if (grid && grid->Links)
+    {
+    this->BuildLinks();
+    }
+
+
 }
 
 
