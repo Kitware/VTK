@@ -35,12 +35,10 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.125");
+vtkCxxRevisionMacro(vtkMath, "1.126");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
-static const double sqrt3 = sqrt( static_cast<double>(3.) );
-static const double inv3 = 1 / 3.;
 
 // Avoid aliasing optimization problems by using a union:
 union vtkIEEE754Bits {
@@ -1017,139 +1015,6 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
     // Okay this was not a cubic - lets try quadratic
     return vtkMath::SolveQuadratic( c1, c2, c3, r1, r2, num_roots );
     }
-}
-
-//----------------------------------------------------------------------------
-// Algebraically extracts REAL roots of the cubic polynomial with 
-// REAL coefficients X^3 + c[1] X^2 + c[2] X + c[3]
-// and stores them (when they exist) and their respective multiplicities.
-// The main differences with SolveCubic are that (1) the polynomial must have
-// unit leading coefficient, (2) no information is returned regarding complex
-// roots, and (3) non-simple roots are stored only once -- this is a
-// specialized solver.
-// Returns the number of roots.
-// 
-int vtkMath::TartagliaCardanSolve( double* c, double* r, int* m )
-{
-  // step 0: eliminate trivial cases up to numerical noise
-  if ( fabs( c[3] ) < VTK_DBL_EPSILON )
-    {
-    r[0] = 0.;
-    if ( fabs( c[2] ) < VTK_DBL_EPSILON )
-      {
-      if ( fabs( c[1] ) < VTK_DBL_EPSILON )
-        {
-        m[0] = 3;
-        return 1;
-        }
-      else
-        {
-        m[0] = 2;
-        r[1] = - c[1];
-        m[1] = 1;
-        return 2;
-        }
-      }
-    else
-      {
-      m[0] = 1;
-      double delta = c[1] * c[1] - 4. * c[2];
-      if ( delta > VTK_DBL_EPSILON )
-        {
-        delta = sqrt( delta );
-        r[1] = ( - delta - c[1] ) * 0.5;
-        m[1] = 1;
-        r[2] = ( delta - c[1] ) * 0.5;
-        m[2] = 1;
-        return 3;
-        }
-      else
-        {
-        if ( delta < - VTK_DBL_EPSILON ) return 1;
-        r[1] = - c[1] * 0.5;
-        m[1] = 2;
-        return 2;
-        }
-      }
-    }
-
-  // step 1: reduce to X^3 + pX + q
-  double shift = - c[1] / 3.;
-  double a2 = c[1] * c[1];
-  double p = c[2] - a2 / 3.;
-  double q = c[1] * ( 2. * a2 / 9. - c[2] ) / 3. + c[3];
-
-  // step 2: compute the trivial real roots if p or q are 0
-  // case 2.1: p = 0: 1 triple real root
-  if ( fabs( p ) < VTK_DBL_EPSILON )
-    {
-    if ( fabs( q ) < VTK_DBL_EPSILON )
-      {
-      r[0] = + shift;
-      m[0] = 3;
-      return 1;
-      }
-    double x;
-    x = q < 0 ? pow( - q, inv3 ) : - pow( q, inv3 );
-    r[0] = x + shift;
-    m[0] = 3;
-    return 1;
-    }
-
-  // case 2.2: q = 0: 1 ( p > 0 ) or 3 ( p < 0 ) simple real root(s) 
-  if ( fabs( q ) < VTK_DBL_EPSILON )
-    {
-    r[0] = + shift;
-    m[0] = 1;
-    if ( p < 0 )
-      {
-      double x = sqrt( - p );
-      r[1] =  x + shift;
-      r[2] =  - x + shift;
-      m[1] = m[2] = 1;
-      return 3;
-      }
-    return 1;
-    }
-
-  // step 3: compute discriminant
-  double p_3 = p * inv3;
-  double q_2 = q * 0.5;
-  double D = p_3 * p_3 * p_3 + q_2 * q_2;
-
-  // step 4: compute roots depending on the discriminant
-  double u;
-  // 4.1: case D = 0: 1 simple and 1 double real roots
-  if ( fabs( D ) < VTK_DBL_EPSILON )
-    {
-    u = q > 0 ? - pow( q_2, inv3 ) : pow( - q_2, inv3 );
-    r[0] =  2. * u + shift;
-    m[0] = 1;
-    r[1] =  - u + shift;
-    m[1] = 2;
-    return 2;
-    }
-  // 4.2: case D > 0: 1 simple real root
-  if ( D > 0 )
-    {
-    u = sqrt( D ) - q_2;
-    u = u < 0 ? - pow( - u, inv3 ) : pow( u, inv3 );
-    r[0] = u - p_3 / u + shift;
-    m[0] = 1;
-    return 1;
-    }
-  // 5.3: case D < 0: 3 simple real roots
-  double smp_3 = sqrt( - p_3 );
-  double argu  = acos( q_2 / ( p_3 * smp_3 ) ) * inv3;
-  double x1 = cos( argu );
-  double x2 = sqrt3 * sqrt( 1. - x1 * x1 );
-  x1 *= smp_3;
-  x2 *= smp_3;
-  r[0] = 2. * x1 + shift;
-  r[1] = x2 - x1 + shift;
-  r[2] = r[1]  - 2. * x2;
-  m[0] = m[1] = m[2] = 1;
-  return 3;
 }
 
 //----------------------------------------------------------------------------

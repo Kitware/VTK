@@ -232,6 +232,40 @@ int TestPolynomialSolvers( int, char *[] )
                << timer->GetElapsedTime() << " sec:\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
+  // 6. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
+  // filters some numerical noise by noticing there is a double root (that
+  // SolveCubic does not notice).
+  double P3[] = { 1., -2.e-4, 1.e-8, 0.};
+  PrintPolynomial( P3, 3 );
+
+#if 0
+  double r1, r2, r3;
+  int nr;
+  testIntValue = vtkMath::SolveCubic( P3[0], P3[1], P3[2], P3[3], &r1, &r2, &r3, &nr );
+  if ( testIntValue != 3 )
+    {
+    vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 3");
+    return 1;
+    }
+#endif // 0  
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::TartagliaCardanSolve( P3, roots, mult );
+  timer->StopTimer();
+
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 2");
+    return 1;
+    }
+  cout << "TartagliaCardanSolve found (tol= " << 0
+               << ") " << testIntValue << " roots in " 
+               << timer->GetElapsedTime() << " sec.:\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
+                                                  << ", mult. " << mult[i] 
+                                                  << "\n";
+
+
   timer->Delete();
   return 0;
 }

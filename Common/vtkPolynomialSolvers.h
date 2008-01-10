@@ -82,6 +82,20 @@ public:
   // Warning: it is the user's responsibility to pass a non-negative \tol.
   static int FerrariSolve( double* c, double* r, int* m, double tol );
 
+  // Description:
+  // Algebraically extracts REAL roots of the cubic polynomial with 
+  // REAL coefficients X^3 + c[1] X^2 + c[2] X + c[3]
+  // and stores them (when they exist) and their respective multiplicities
+  // in the \a r and \a m arrays.
+  // The main differences with SolveCubic are that (1) the polynomial must have
+  // unit leading coefficient, (2) complex roots are discarded upfront, 
+  // (3) non-simple roots are stored only once, along with their respective
+  // multiplicities, and (4) some numerical noise is filtered by the use of 
+  // relative tolerance instead of equality with 0.
+  // Returns the number of roots.
+  // <i> In memoriam </i> Niccolo Tartaglia (1500 - 1559), unfairly forgotten.
+  static int TartagliaCardanSolve( double* c, double* r, int* m );
+
 protected:
   vtkPolynomialSolvers() {};
   ~vtkPolynomialSolvers() {};
