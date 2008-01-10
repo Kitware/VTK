@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.20");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.21");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -161,78 +161,6 @@ inline double evaluateHorner( double* P, int d, double x )
   for ( int i = 1; i <= d; ++ i ) val = val * x + P[i];
 
   return val;
-}
-
-//----------------------------------------------------------------------------
-// Counts the number of real roots in [a[0],a[1]] of a real d-th degree 
-// polynomial using Sturm's theorem.
-int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
-{
-  if ( ! P[0] )
-    {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootCount: Zero leading coefficient");
-    return -1;
-    }
-
-  if ( d < 1 )
-    {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootCount: Degree < 1");
-    return -1;
-    }
-
-  if ( a[1] <= a[0] )
-    {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootCount: Erroneous interval endpoints");
-    return -1;
-    }
-
-  double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2];
-  int* degSSS = new int[d + 2];
-  
-  int offsetA = 0;
-  degSSS[0] = d;
-  SSS[0] = P[0];
-  SSS[d] = P[d];
-
-  int offsetB = d + 1;
-  degSSS[1] = d - 1;
-  SSS[offsetB] = static_cast<double>( d ) * P[0];
-
-  int i, k;
-  double oldVal[] = { P[0], P[0] };
-  for ( i = 1; i < d; ++ i ) 
-    {
-    SSS[i] = P[i];
-    SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
-    for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
-    }
-  for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];
-
-  int varSgn[] = { 0, 0 };
-  int offsetR;
-  int nSSS = 1;
-  for ( ; degSSS[nSSS] > -1; ++ nSSS )
-    {
-    double newVal[] = { SSS[offsetB], SSS[offsetB] };
-    for ( k = 0; k < 2; ++ k )
-      {
-      for ( i = 1; i <= degSSS[nSSS]; ++ i ) newVal[k] = newVal[k] * a[k] + SSS[offsetB + i];
-
-      if ( oldVal[k] * newVal[k] < 0. ) ++ varSgn[k];
-      if ( newVal[k] ) oldVal[k] = newVal[k];
-      }
-
-    offsetR = offsetB + degSSS[nSSS] + 1;
-    degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR );
-   
-    offsetA = offsetB;
-    offsetB = offsetR;
-   }
-
-  delete [] degSSS;
-  delete [] SSS;
-
-  return varSgn[0] - varSgn[1];
 }
 
 //----------------------------------------------------------------------------

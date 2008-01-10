@@ -207,7 +207,7 @@ int TestPolynomialSolvers( int, char *[] )
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   
 
-  // 5. count, then find the roots of a degree 22 polynomial with SturmRootCount and SturmBisectionSolve
+  // 5. Find the roots of a degree 22 polynomial with SturmBisectionSolve
   double P22[] = {
     -0.0005, -0.001, 0.05, 0.1, -0.2,
     1., 0., -5.1, 0., 4., 
@@ -215,19 +215,6 @@ int TestPolynomialSolvers( int, char *[] )
     -7., -.3, 3.8, 14., -16.,
     80., -97.9, 5. };
   PrintPolynomial( P22, 22 );
-
-  timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::SturmRootCount( P22, 22, rootInt );
-  timer->StopTimer();
-  if ( testIntValue != 5 )
-    {
-    vtkGenericWarningMacro("SturmRootCount( -0.0005x^22 -0.001x^21 +0.05x^20 +0.1x^19 -0.2x^18 +1x^17 -5.1x^15 +4x^13 -1x^12 +0.2x^11 +3x^10 +2.2x^9 +2x^8 -7x^7 -0.3x^6 +3.8x^5 +14x^4 -16x^3 +80x^2 -97.9x +5, ]-4;4] ) = "<<testIntValue<<" != 5");
-    return 1;
-    }
-  cout << "SturmRootCount counted " << testIntValue << " roots in ]" 
-               << rootInt[0] << ";"
-               << rootInt[1] << "] in "
-               << timer->GetElapsedTime() << " sec.\n";
 
   timer->StartTimer();
   testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P22, 22, rootInt, upperBnds, tolSturm );

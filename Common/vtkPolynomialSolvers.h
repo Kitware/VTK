@@ -46,15 +46,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Counts the number of REAL roots of the \a d -th degree polynomial 
-  //   P[0] X^d + ... + P[d-1] X + P[d] 
-  // in ]\a[0], \a[1]] using Sturm's theorem ( polynomial coefficients are 
-  // REAL ) and returns the count.
-  // Returns -1 if anything went wrong (such as: polynomial does not have
-  // degree d, the interval provided by the other is absurd, etc.).
-  static int SturmRootCount( double* P, int d, double* a );
-
-  // Description:
   // Finds all REAL roots (within tolerance \tol) of the \a d -th degree polynomial 
   //   P[0] X^d + ... + P[d-1] X + P[d] 
   // in ]\a[0] ; \a[1]] using Sturm's theorem ( polynomial 
