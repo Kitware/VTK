@@ -98,7 +98,7 @@ public:
   //   set a tolerance for that locator here.  The default tolerance
   //   is 10e-4.
 
-  vtkSetClampMacro(PointMergeTolerance, float, 0.0, .25);
+  vtkSetClampMacro(PointMergeTolerance, float, 0.0, VTK_LARGE_FLOAT);
   vtkGetMacro(PointMergeTolerance, float);
 
   // Description:
