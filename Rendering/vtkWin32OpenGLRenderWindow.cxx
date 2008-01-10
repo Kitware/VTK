@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.153");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.154");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1495,6 +1495,9 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
 #else
       cursorName = IDC_ARROW;
 #endif
+      break;
+    case VTK_CURSOR_CROSSHAIR:
+      cursorName = IDC_CROSS;
       break;
     }
   

@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.89");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.90");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1925,6 +1925,7 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       
   switch (shape)
     {
+    case VTK_CURSOR_CROSSHAIR: // XC_crosshair sucks on linux, default to arrow
     case VTK_CURSOR_ARROW:
       if (!this->XCArrow)
         {

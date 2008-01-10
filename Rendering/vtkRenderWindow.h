@@ -56,16 +56,17 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_DRESDEN      6
 #define VTK_STEREO_ANAGLYPH     7
 
-#define VTK_CURSOR_DEFAULT  0
-#define VTK_CURSOR_ARROW    1
-#define VTK_CURSOR_SIZENE   2
-#define VTK_CURSOR_SIZENW   3
-#define VTK_CURSOR_SIZESW   4
-#define VTK_CURSOR_SIZESE   5
-#define VTK_CURSOR_SIZENS   6
-#define VTK_CURSOR_SIZEWE   7
-#define VTK_CURSOR_SIZEALL  8
-#define VTK_CURSOR_HAND     9
+#define VTK_CURSOR_DEFAULT   0
+#define VTK_CURSOR_ARROW     1
+#define VTK_CURSOR_SIZENE    2
+#define VTK_CURSOR_SIZENW    3
+#define VTK_CURSOR_SIZESW    4
+#define VTK_CURSOR_SIZESE    5
+#define VTK_CURSOR_SIZENS    6
+#define VTK_CURSOR_SIZEWE    7
+#define VTK_CURSOR_SIZEALL   8
+#define VTK_CURSOR_HAND      9
+#define VTK_CURSOR_CROSSHAIR 10
 
 // Description:
 // This macro is used to print error message coming from the graphic library
