@@ -20,7 +20,7 @@
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.2");
+vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.3");
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
@@ -36,6 +36,8 @@ vtkImageActorPointPlacer::vtkImageActorPointPlacer()
   this->SavedBounds[3] = 0.0;
   this->SavedBounds[4] = 0.0;
   this->SavedBounds[5] = 0.0;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
 }
 
 //----------------------------------------------------------------------
@@ -138,6 +140,15 @@ int vtkImageActorPointPlacer::UpdateInternalState()
   
   double bounds[6];
   this->ImageActor->GetBounds(bounds);
+  if (this->Bounds[0] != VTK_DOUBLE_MAX)
+    {
+    bounds[0] = (bounds[0] < this->Bounds[0]) ? this->Bounds[0] : bounds[0];
+    bounds[1] = (bounds[1] > this->Bounds[1]) ? this->Bounds[1] : bounds[1];
+    bounds[2] = (bounds[2] < this->Bounds[2]) ? this->Bounds[2] : bounds[2];
+    bounds[3] = (bounds[3] > this->Bounds[3]) ? this->Bounds[3] : bounds[3];
+    bounds[4] = (bounds[4] < this->Bounds[4]) ? this->Bounds[4] : bounds[4];
+    bounds[5] = (bounds[5] > this->Bounds[5]) ? this->Bounds[5] : bounds[5];
+    }
   
   int displayExtent[6];
   this->ImageActor->GetDisplayExtent(displayExtent);

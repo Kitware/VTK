@@ -100,6 +100,14 @@ public:
   // of the displayed image.
   void SetImageActor( vtkImageActor * );
   vtkGetObjectMacro( ImageActor, vtkImageActor );
+
+  // Description:
+  // Optionally, you may set bounds to restrict the placement of the points.
+  // The placement of points will then be constrained to lie not only on
+  // the ImageActor but also within the bounds specified. If no bounds are
+  // specified, they may lie anywhere on the supplied ImageActor.
+  vtkSetVector6Macro( Bounds, double );
+  vtkGetVector6Macro( Bounds, double );
   
 protected:
   vtkImageActorPointPlacer();
@@ -116,6 +124,9 @@ protected:
   // Used to keep track of whether the bounds of the
   // input image have changed
   double SavedBounds[6];
+
+  // See the SetBounds method
+  double Bounds[6];
   
 private:
   vtkImageActorPointPlacer(const vtkImageActorPointPlacer&);  //Not implemented
