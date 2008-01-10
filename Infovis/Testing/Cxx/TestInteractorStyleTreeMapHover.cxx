@@ -67,7 +67,7 @@ void TestStyle(vtkInteractorStyle *style)
 
         // Start by pressing the button
         iren->SetEventInformationFlipY(
-                start_x, start_y, ctrl, shift, 0, 0, 0);
+                static_cast<int>(start_x), static_cast<int>(start_y), ctrl, shift, 0, 0, 0);
         vtkStdString pressEvent = buttons[button] + "ButtonPressEvent";
         iren->InvokeEvent(pressEvent.c_str());
 
@@ -80,10 +80,12 @@ void TestStyle(vtkInteractorStyle *style)
         for (int i = 0; i < 5; ++i)
           {
           sign = sign * -1;
-          x = m->Random(win_center_x + radius * 2 * sign,
-                            win_center_x + radius * sign);
-          y = m->Random(win_center_y + radius * 2 * sign,
-                            win_center_y + radius * sign);
+          x = static_cast<int>(m->Random(
+            win_center_x + radius * 2 * sign,
+            win_center_x + radius * sign));
+          y = static_cast<int>(m->Random(
+            win_center_y + radius * 2 * sign,
+            win_center_y + radius * sign));
           iren->SetEventInformationFlipY(x, y, ctrl, shift, 0, 0, 0);
           iren->InvokeEvent("MouseMoveEvent");
 
