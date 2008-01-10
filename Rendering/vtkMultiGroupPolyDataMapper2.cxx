@@ -31,7 +31,7 @@
 #include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkMultiGroupPolyDataMapper2);
-vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper2, "1.1");
+vtkCxxRevisionMacro(vtkMultiGroupPolyDataMapper2, "1.2");
 //----------------------------------------------------------------------------
 vtkMultiGroupPolyDataMapper2::vtkMultiGroupPolyDataMapper2()
 {
@@ -269,5 +269,6 @@ void vtkMultiGroupPolyDataMapper2::UpdatePainterInformation()
 void vtkMultiGroupPolyDataMapper2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ColorBlocks: " << this->ColorBlocks << endl;
 }
 
