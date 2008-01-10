@@ -38,12 +38,12 @@ int TestPolynomialSolvers( int, char *[] )
 {
   int testIntValue;
   double tolLinBairstow = 1.e-12;
-  double tolSturm = 1.e-5;
+  double tolSturm = 1.e-6;
   double tolRoots = 1.e-15;
   double roots[5];
   int mult[4];
   double rootInt[] = { -4., 4. };
-  double lowerBnds[22];
+  double upperBnds[22];
   vtkTimerLog *timer = vtkTimerLog::New();
 
   // 1. find the roots of a degree 4 polynomial with a 1 double root (1) and 2
@@ -87,7 +87,7 @@ int TestPolynomialSolvers( int, char *[] )
 
   // 1.b SturmBissectionSolve
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4, 4, rootInt, lowerBnds, tolSturm );
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4, 4, rootInt, upperBnds, tolSturm );
   timer->StopTimer();
 
   cout << "SturmBisectionSolve bracketed " << testIntValue << " roots in ]" 
@@ -95,9 +95,7 @@ int TestPolynomialSolvers( int, char *[] )
                << rootInt[1] << "] within "
                << tolSturm << " in "
                << timer->GetElapsedTime() << " sec:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] -tolSturm
-                                                          << ";" << lowerBnds[i]
-                                                          << "]\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   if ( testIntValue != 3 )
     {
     vtkGenericWarningMacro("SturmBisectionSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 3.");
@@ -127,7 +125,7 @@ int TestPolynomialSolvers( int, char *[] )
   PrintPolynomial( P2, 2 );
 
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P2, 2, rootInt, lowerBnds, tolSturm );
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P2, 2, rootInt, upperBnds, tolSturm );
   timer->StopTimer();
 
   if ( testIntValue != 1 )
@@ -135,9 +133,9 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 1.");
     return 1;
     }
-  if ( fabs( lowerBnds[0] - 1. ) > tolSturm )
+  if ( fabs( upperBnds[0] - 1. ) > tolSturm )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<lowerBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
     return 1;
     }
   cout << "SturmBisectionSolve bracketed " << testIntValue << " roots in ]" 
@@ -145,10 +143,7 @@ int TestPolynomialSolvers( int, char *[] )
                << rootInt[1] << "] within "
                << tolSturm << " in "
                << timer->GetElapsedTime() << " sec:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] - tolSturm
-                                                          << ";" << lowerBnds[i]
-                                                          << "]\n";
-  
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
   // 4. find the roots of a biquadratic trinomial with SturmBisectionSolve,
   // whose 2 double roots (-4 and 4) are also the bounds of the interval, thus
@@ -191,27 +186,25 @@ int TestPolynomialSolvers( int, char *[] )
 
   // 4.b SturmBissectionSolve
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4_2, 4, rootInt, lowerBnds, tolSturm );
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4_2, 4, rootInt, upperBnds, tolSturm );
   timer->StopTimer();
 
-//   if ( testIntValue != 1 )
-//     {
-//     vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 1.");
-//     return 1;
-//     }
-//   if ( fabs( lowerBnds[0] - 1. ) > tolSturm )
-//     {
-//     vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<lowerBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
-//     return 1;
-//     }
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 2.");
+    return 1;
+    }
+  if ( fabs( upperBnds[0] - 4. ) > tolSturm )
+    {
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
+    return 1;
+    }
   cout << "SturmBisectionSolve bracketed " << testIntValue << " roots in ]" 
                << rootInt[0] << ";"
                << rootInt[1] << "] within "
                << tolSturm << " in "
                << timer->GetElapsedTime() << " sec:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] - tolSturm
-                                                          << ";" << lowerBnds[i]
-                                                          << "]\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   
 
   // 5. count, then find the roots of a degree 22 polynomial with SturmRootCount and SturmBisectionSolve
@@ -237,7 +230,7 @@ int TestPolynomialSolvers( int, char *[] )
                << timer->GetElapsedTime() << " sec.\n";
 
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P22, 22, rootInt, lowerBnds, tolSturm );
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P22, 22, rootInt, upperBnds, tolSturm );
   timer->StopTimer();
 
   if ( testIntValue != 5 )
@@ -250,9 +243,7 @@ int TestPolynomialSolvers( int, char *[] )
                << rootInt[1] << "] within tol. "
                << tolSturm << " in "
                << timer->GetElapsedTime() << " sec:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << "]" << lowerBnds[i] - tolSturm
-                                                          << ";" << lowerBnds[i]
-                                                          << "]\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
   timer->Delete();
   return 0;

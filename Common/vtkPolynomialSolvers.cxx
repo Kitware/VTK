@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.19");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.20");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double three_epsilon = 3. * VTK_DBL_EPSILON;
@@ -198,15 +198,15 @@ int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
   degSSS[1] = d - 1;
   SSS[offsetB] = static_cast<double>( d ) * P[0];
 
-  int i;
+  int i, k;
   double oldVal[] = { P[0], P[0] };
   for ( i = 1; i < d; ++ i ) 
     {
     SSS[i] = P[i];
     SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
-    for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
+    for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
     }
-  for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];
+  for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];
 
   int varSgn[] = { 0, 0 };
   int offsetR;
@@ -214,7 +214,7 @@ int vtkPolynomialSolvers::SturmRootCount( double* P, int d, double* a )
   for ( ; degSSS[nSSS] > -1; ++ nSSS )
     {
     double newVal[] = { SSS[offsetB], SSS[offsetB] };
-    for ( int k = 0; k < 2; ++ k )
+    for ( k = 0; k < 2; ++ k )
       {
       for ( i = 1; i <= degSSS[nSSS]; ++ i ) newVal[k] = newVal[k] * a[k] + SSS[offsetB + i];
 
@@ -266,8 +266,8 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     return -1;
     }
 
+  double bounds[] = { a[0], a[1] };
   // 1. Root counting
-
   double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2];
   int* degSSS = new int[d + 2];
   
@@ -279,17 +279,28 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   int offsetB = d + 1;
   degSSS[1] = d - 1;
   SSS[offsetB] = static_cast<double>( d ) * P[0];
-
-
-  int i;
+  
+  int i, k;
   double oldVal[] = { P[0], P[0] };
   for ( i = 1; i < d; ++ i ) 
     {
     SSS[i] = P[i];
     SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
-    for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[i];
+    for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[i];
     }
-  for ( int k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * a[k] + P[d];
+  for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[d];
+
+  double perturbation = tol * .5 / static_cast<double>( d );
+  while ( ! oldVal[0] && ! evaluateHorner( SSS + offsetB, d - 1, bounds[0] ) )
+    {
+    bounds[0] -= perturbation;
+    oldVal[0] = evaluateHorner( SSS, d, bounds[0] );
+    }
+  while ( ! oldVal[1] && ! evaluateHorner( SSS + offsetB, d - 1, bounds[1] ) )
+    {
+    bounds[1] += perturbation;
+    oldVal[1] = evaluateHorner( SSS, d, bounds[1] );
+    }
 
   int varSgn[] = { 0, 0 };
   int offsetR;
@@ -297,9 +308,9 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   for ( ; degSSS[nSSS] > -1; ++ nSSS )
     {
     double newVal[] = { SSS[offsetB], SSS[offsetB] };
-    for ( int k = 0; k < 2; ++ k )
+    for ( k = 0; k < 2; ++ k )
       {
-      for ( i = 1; i <= degSSS[nSSS]; ++ i ) newVal[k] = newVal[k] * a[k] + SSS[offsetB + i];
+      for ( i = 1; i <= degSSS[nSSS]; ++ i ) newVal[k] = newVal[k] * bounds[k] + SSS[offsetB + i];
       if ( oldVal[k] * newVal[k] < 0. ) ++ varSgn[k];
       if ( newVal[k] ) oldVal[k] = newVal[k];
       }
@@ -316,8 +327,8 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
   // 2. Root bracketing
 
-  upperBnds[0] = a[1];
-  double localTol = a[1] - a[0];
+  upperBnds[0] = bounds[1];
+  double localTol = bounds[1] - bounds[0];
 
   int* lowerVarSgn = new int[nRoots];
   int* upperVarSgn = new int[nRoots];
