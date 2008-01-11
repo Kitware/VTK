@@ -1280,8 +1280,7 @@ void SystemTools::ConvertToUnixSlashes(kwsys_stl::string& path)
       }
 
     // Also, reuse the loop to check for slash followed by another slash
-    if ( !hasDoubleSlash && *pos1 &&
-      *pos1 == '/' && *(pos1+1) == '/' )
+    if (*pos1 == '/' && *(pos1+1) == '/' && !hasDoubleSlash)
       {
 #ifdef _WIN32
       // However, on windows if the first characters are both slashes,
@@ -1309,7 +1308,7 @@ void SystemTools::ConvertToUnixSlashes(kwsys_stl::string& path)
     {
     // if there is a tilda ~ then replace it with HOME
     pathCString = path.c_str();
-    if(*pathCString == '~')
+    if(pathCString[0] == '~' && (pathCString[1] == '/' || pathCString[1] == '\0'))
       {
       const char* homeEnv = SystemTools::GetEnv("HOME");
       if (homeEnv)
@@ -1317,11 +1316,16 @@ void SystemTools::ConvertToUnixSlashes(kwsys_stl::string& path)
         path.replace(0,1,homeEnv);
         }
       }
-
+    // remove trailing slash if the path is more than 
+    // a single /
     pathCString = path.c_str();
-    if (*(pathCString+(path.size()-1)) == '/')
+    if(path.size() > 1 && *(pathCString+(path.size()-1)) == '/')
       {
-      path = path.substr(0, path.size()-1);
+      // if it is c:/ then do not remove the trailing slash
+      if(!((path.size() == 3 && pathCString[1] == ':')))
+        {
+        path = path.substr(0, path.size()-1);
+        }
       }
 
     }
@@ -1338,15 +1342,15 @@ kwsys_stl::string SystemTools::ConvertToUnixOutputPath(const char* path)
     {
     ret.erase(pos, 1);
     }
-  // now escape spaces if there is a space in the path
-  if(ret.find(" ") != kwsys_stl::string::npos)
+  // escape spaces and () in the path
+  if(ret.find_first_of(" ") != kwsys_stl::string::npos)
     {
     kwsys_stl::string result = "";
     char lastch = 1;
     for(const char* ch = ret.c_str(); *ch != '\0'; ++ch)
       {
         // if it is already escaped then don't try to escape it again
-      if(*ch == ' ' && lastch != '\\')
+      if((*ch == ' ') && lastch != '\\')
         {
         result += '\\';
         }
@@ -2645,7 +2649,13 @@ SystemTools::JoinPath(const kwsys_stl::vector<kwsys_stl::string>& components)
 bool SystemTools::ComparePath(const char* c1, const char* c2)
 {
 #if defined(_WIN32) || defined(__APPLE__)
+# ifdef _MSC_VER
+  return _stricmp(c1, c2) == 0;
+# elif defined(__APPLE__) || defined(__GNUC__)
+  return strcasecmp(c1, c2) == 0;
+#else
   return SystemTools::Strucmp(c1, c2) == 0;
+# endif
 #else
   return strcmp(c1, c2) == 0;
 #endif
@@ -2716,7 +2726,16 @@ kwsys_stl::string SystemTools::GetFilenamePath(const kwsys_stl::string& filename
   kwsys_stl::string::size_type slash_pos = fn.rfind("/");
   if(slash_pos != kwsys_stl::string::npos)
     {
-    return fn.substr(0, slash_pos);
+    kwsys_stl::string  ret = fn.substr(0, slash_pos);
+    if(ret.size() == 2 && ret[1] == ':')
+      {
+      return ret + '/';
+      }
+    if(ret.size() == 0)
+      {
+      return "/";
+      }
+    return ret;
     }
   else
     {
@@ -3032,6 +3051,12 @@ bool SystemTools::FileIsFullPath(const char* in_name)
   if(name.length() < 1)
     {
     return false;
+    }
+#endif
+#if !defined(_WIN32)
+  if(name[0] == '~')
+    {
+    return true;
     }
 #endif
   // On UNIX, the name must begin in a '/'.
