@@ -19,7 +19,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.98");
+vtkCxxRevisionMacro(vtkObject, "1.99");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -465,8 +465,22 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
 {
   int focusHandled = 0;
 
+  // When we invoke an event, the observer may add or remove observers.  To make
+  // sure that the iteration over the observers goes smoothly, we capture any
+  // change to the list with the ListModified ivar.  However, an observer may
+  // also do something that causes another event to be invoked in this object.
+  // That means that this method will be called recursively, which means that we
+  // will obliterate the ListModified flag that the first call is relying on.
+  // To get around this, save the previous ListModified value on the stack and
+  // then restore it before leaving.
+  int saveListModified = this->ListModified;
   this->ListModified = 0;
 
+  // This clearing of the Visited flag can be problematic if this method is
+  // being called recursively.  It means that the call further up the stack will
+  // probably call some observers multiple times.  In the worst case scenario
+  // this might cause an infinite loop, but I think that is pretty unlikely
+  // in practice.
   vtkObserver *elem = this->Start;
   while (elem)
     {
@@ -511,6 +525,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
         if(command->GetAbortFlag())
           {
           command->UnRegister();
+          this->ListModified = saveListModified;
           return 1;
           }
         command->UnRegister();
@@ -550,6 +565,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
         if(command->GetAbortFlag())
           {
           command->UnRegister();
+          this->ListModified = saveListModified;
           return 1;
           }
         command->UnRegister();
@@ -566,6 +582,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       }
     }
 
+  this->ListModified = saveListModified;
   return 0;
 }
 
