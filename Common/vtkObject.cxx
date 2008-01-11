@@ -19,7 +19,9 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.99");
+#include <vtkstd/map>
+
+vtkCxxRevisionMacro(vtkObject, "1.100");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -61,7 +63,7 @@ int vtkObject::GetGlobalWarningDisplay()
 class vtkObserver
 {
  public:
-  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0), Visited(0) {}
+  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0) {}
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -70,7 +72,6 @@ class vtkObserver
   unsigned long Tag;
   vtkObserver *Next;
   float Priority;
-  int Visited;
 };
 
 void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
@@ -476,16 +477,17 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   int saveListModified = this->ListModified;
   this->ListModified = 0;
 
-  // This clearing of the Visited flag can be problematic if this method is
-  // being called recursively.  It means that the call further up the stack will
-  // probably call some observers multiple times.  In the worst case scenario
-  // this might cause an infinite loop, but I think that is pretty unlikely
-  // in practice.
+  // We also need to save what observers we have called on the stack (least it
+  // get overridden in the event invocation).  Also make sure that we do not
+  // invoke any new observers that were added during another observer's
+  // invocation.
+  typedef vtkstd::map<unsigned long, bool> VisitedMapType;
+  VisitedMapType visited;
   vtkObserver *elem = this->Start;
   while (elem)
     {
-    elem->Visited = 0;
-    elem=elem->Next;
+    visited.insert(vtkstd::make_pair(elem->Tag, false));
+    elem = elem->Next;
     }
 
   // Loop once or twice, giving preference to focus holders, if any.
@@ -510,12 +512,13 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
-      if (!elem->Visited &&
+      VisitedMapType::iterator vIter = visited.find(elem->Tag);
+      if ((vIter != visited.end()) && (vIter->second == false) &&
           ((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
           (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
         {
         focusHandled = 1;
-        elem->Visited = 1;
+        vIter->second = true;
         vtkCommand* command = elem->Command;
         command->Register(command);
         command->SetAbortFlag(0);
@@ -552,10 +555,11 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
-      if (!elem->Visited &&
+      VisitedMapType::iterator vIter = visited.find(elem->Tag);
+      if ((vIter != visited.end()) && (vIter->second == false) &&
           (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
         {
-        elem->Visited = 1;
+        vIter->second = true;;
         vtkCommand* command = elem->Command;
         command->Register(command);
         command->SetAbortFlag(0);
