@@ -299,7 +299,7 @@ int TestPolynomialSolvers( int, char *[] )
 
 
   // 8. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested
-  double P3_3[] = { 1., -3., -4., 0.};
+  double P3_3[] = { 1., -2.e-6 , .999999999999999e-12, 0.};
   PrintPolynomial( P3_3, 3 );
 
 #if 0
@@ -322,13 +322,13 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 3");
     return 1;
     }
+  cout.precision( 10 );
   cout << "TartagliaCardanSolve found (tol= " << tolDirectSolvers
                << ") " << testIntValue << " roots in " 
                << timer->GetElapsedTime() << " sec.:\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
                                                   << ", mult. " << mult[i] 
                                                   << "\n";
-
 
   timer->Delete();
   return 0;

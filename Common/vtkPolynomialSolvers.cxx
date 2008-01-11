@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.24");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.25");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>(3.) );
@@ -673,8 +673,11 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m, do
     else
       {
       m[0] = 1;
-      double delta = c[0] * c[0] - 4. * c[1];
-      if ( delta > VTK_DBL_EPSILON )
+      double a2 = c[0] * c[0];
+      double fourc1 = 4. * c[1];
+      double delta = a2 - fourc1;
+      double threshold = tol * ( a2 > fabs( fourc1 ) ? a2 : fabs( fourc1 ) );
+      if ( delta > threshold )
         {
         delta = sqrt( delta );
         r[1] = ( - delta - c[0] ) * 0.5;
@@ -685,7 +688,7 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m, do
         }
       else
         {
-        if ( delta < - VTK_DBL_EPSILON ) return 1;
+        if ( delta < - threshold ) return 1;
         r[1] = - c[0] * 0.5;
         m[1] = 2;
         return 2;
