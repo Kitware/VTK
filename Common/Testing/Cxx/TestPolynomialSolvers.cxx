@@ -40,6 +40,7 @@ int TestPolynomialSolvers( int, char *[] )
   double tolLinBairstow = 1.e-12;
   double tolSturm = 1.e-6;
   double tolRoots = 1.e-15;
+  double tolDirectSolvers = VTK_DBL_EPSILON;
   double roots[5];
   int mult[4];
   double rootInt[] = { -4., 4. };
@@ -55,7 +56,7 @@ int TestPolynomialSolvers( int, char *[] )
 
   // 1.a FerrariSolve
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4 + 1, roots, mult, 0. );
+  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4 + 1, roots, mult, tolDirectSolvers );
   timer->StopTimer();
 
   if ( testIntValue != 3 )
@@ -63,7 +64,7 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6 ) = "<<testIntValue<<" != 3");
     return 1;
     }
-  cout << "FerrariSolve found (tol= " << 0
+  cout << "FerrariSolve found (tol= " << tolDirectSolvers
                << ") " << testIntValue << " roots in " 
                << timer->GetElapsedTime() << " sec.:\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
@@ -156,7 +157,7 @@ int TestPolynomialSolvers( int, char *[] )
 
   // 4.a FerrariSolve
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4_2 + 1, roots, mult, 0. );
+  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4_2 + 1, roots, mult, tolDirectSolvers );
   timer->StopTimer();
 
   if ( testIntValue != 2 )
@@ -164,7 +165,7 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("FerrariSolve(x^4 -32x^2 +256 ) = "<<testIntValue<<" != 2");
     return 1;
     }
-  cout << "FerrariSolve found (tol= " << 0
+  cout << "FerrariSolve found (tol= " << tolDirectSolvers
                << ") " << testIntValue << " roots in " 
                << timer->GetElapsedTime() << " sec.:\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
@@ -242,6 +243,69 @@ int TestPolynomialSolvers( int, char *[] )
   double r1, r2, r3;
   int nr;
   testIntValue = vtkMath::SolveCubic( P3[0], P3[1], P3[2], P3[3], &r1, &r2, &r3, &nr );
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 3");
+    return 1;
+    }
+#endif // 0  
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::TartagliaCardanSolve( P3 + 1, roots, mult, tolDirectSolvers );
+  timer->StopTimer();
+
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 2");
+    return 1;
+    }
+  cout << "TartagliaCardanSolve found (tol= " << tolDirectSolvers
+               << ") " << testIntValue << " roots in " 
+               << timer->GetElapsedTime() << " sec.:\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
+                                                  << ", mult. " << mult[i] 
+                                                  << "\n";
+
+  // 7. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested
+  double P3_2[] = { 1., 1., 1., 1.};
+  PrintPolynomial( P3_2, 3 );
+
+#if 0
+  double r1, r2, r3;
+  int nr;
+  testIntValue = vtkMath::SolveCubic( P3_2[0], P3_2[1], P3_2[2], P3_2[3], &r1, &r2, &r3, &nr );
+  if ( testIntValue != 1 )
+    {
+    vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 1");
+    return 1;
+    }
+#endif // 0  
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::TartagliaCardanSolve( P3_2 + 1, roots, mult, tolDirectSolvers );
+  timer->StopTimer();
+
+  if ( testIntValue != 1 )
+    {
+    vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 1");
+    return 1;
+    }
+  cout << "TartagliaCardanSolve found (tol= " << tolDirectSolvers
+               << ") " << testIntValue << " roots in " 
+               << timer->GetElapsedTime() << " sec.:\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
+                                                  << ", mult. " << mult[i] 
+                                                  << "\n";
+
+
+  // 8. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested
+  double P3_3[] = { 1., -3., -4., 0.};
+  PrintPolynomial( P3_3, 3 );
+
+#if 0
+  double r1, r2, r3;
+  int nr;
+  testIntValue = vtkMath::SolveCubic( P3_3[0], P3_3[1], P3_3[2], P3_3[3], &r1, &r2, &r3, &nr );
   if ( testIntValue != 3 )
     {
     vtkGenericWarningMacro("SolveCubic returned "<<testIntValue<<" != 3");
@@ -250,15 +314,15 @@ int TestPolynomialSolvers( int, char *[] )
 #endif // 0  
 
   timer->StartTimer();
-  testIntValue = vtkPolynomialSolvers::TartagliaCardanSolve( P3, roots, mult );
+  testIntValue = vtkPolynomialSolvers::TartagliaCardanSolve( P3_3 + 1, roots, mult, tolDirectSolvers );
   timer->StopTimer();
 
-  if ( testIntValue != 2 )
+  if ( testIntValue != 3 )
     {
-    vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 2");
+    vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 3");
     return 1;
     }
-  cout << "TartagliaCardanSolve found (tol= " << 0
+  cout << "TartagliaCardanSolve found (tol= " << tolDirectSolvers
                << ") " << testIntValue << " roots in " 
                << timer->GetElapsedTime() << " sec.:\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 

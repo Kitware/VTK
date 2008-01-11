@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.23");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.24");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>(3.) );
@@ -505,7 +505,7 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
       }
     else
       {
-      int nr = vtkPolynomialSolvers::TartagliaCardanSolve( c - 1, r, m );
+      int nr = vtkPolynomialSolvers::TartagliaCardanSolve( c, r, m, tol );
       r[nr] = 0.;
       m[nr] = 1;
       return nr + 1;
@@ -589,13 +589,13 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
     }
 
   // step 2: solve the companion cubic
-  double cc[4], cr[3];
+  double cc[3], cr[3];
   double unsorted[8];
   int cm[3];
-  cc[1] = 2. * a;
-  cc[2] = a * a - 4. * d;
-  cc[3] = - b * b;
-  int nr = vtkPolynomialSolvers::TartagliaCardanSolve( cc, cr, cm );
+  cc[0] = 2. * a;
+  cc[1] = a * a - 4. * d;
+  cc[2] = - b * b;
+  int nr = vtkPolynomialSolvers::TartagliaCardanSolve( cc, cr, cm, tol );
 
   // step 3: figure alpha^2
   double alpha2 = cr[-- nr];
@@ -641,7 +641,7 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
 
 //----------------------------------------------------------------------------
 // Algebraically extracts REAL roots of the cubic polynomial with 
-// REAL coefficients X^3 + c[1] X^2 + c[2] X + c[3]
+// REAL coefficients X^3 + c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
 // The main differences with SolveCubic are that (1) the polynomial must have
 // unit leading coefficient, (2) no information is returned regarding complex
@@ -649,15 +649,15 @@ int vtkPolynomialSolvers::FerrariSolve( double* c, double* r, int* m, double tol
 // specialized solver.
 // Returns the number of roots.
 // 
-int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
+int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m, double tol )
 {
   // step 0: eliminate trivial cases up to numerical noise
-  if ( fabs( c[3] ) < VTK_DBL_EPSILON )
+  if ( fabs( c[2] ) <= tol )
     {
     r[0] = 0.;
-    if ( fabs( c[2] ) < VTK_DBL_EPSILON )
+    if ( fabs( c[1] ) <= tol )
       {
-      if ( fabs( c[1] ) < VTK_DBL_EPSILON )
+      if ( fabs( c[0] ) <= tol )
         {
         m[0] = 3;
         return 1;
@@ -665,7 +665,7 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
       else
         {
         m[0] = 2;
-        r[1] = - c[1];
+        r[1] = - c[0];
         m[1] = 1;
         return 2;
         }
@@ -673,20 +673,20 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
     else
       {
       m[0] = 1;
-      double delta = c[1] * c[1] - 4. * c[2];
+      double delta = c[0] * c[0] - 4. * c[1];
       if ( delta > VTK_DBL_EPSILON )
         {
         delta = sqrt( delta );
-        r[1] = ( - delta - c[1] ) * 0.5;
+        r[1] = ( - delta - c[0] ) * 0.5;
         m[1] = 1;
-        r[2] = ( delta - c[1] ) * 0.5;
+        r[2] = ( delta - c[0] ) * 0.5;
         m[2] = 1;
         return 3;
         }
       else
         {
         if ( delta < - VTK_DBL_EPSILON ) return 1;
-        r[1] = - c[1] * 0.5;
+        r[1] = - c[0] * 0.5;
         m[1] = 2;
         return 2;
         }
@@ -694,16 +694,16 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
     }
 
   // step 1: reduce to X^3 + pX + q
-  double shift = - c[1] / 3.;
-  double a2 = c[1] * c[1];
-  double p = c[2] - a2 / 3.;
-  double q = c[1] * ( 2. * a2 / 9. - c[2] ) / 3. + c[3];
+  double shift = - c[0] / 3.;
+  double a2 = c[0] * c[0];
+  double p = c[1] - a2 / 3.;
+  double q = c[0] * ( 2. * a2 / 9. - c[1] ) / 3. + c[2];
 
   // step 2: compute the trivial real roots if p or q are 0
   // case 2.1: p = 0: 1 triple real root
-  if ( fabs( p ) < VTK_DBL_EPSILON )
+  if ( fabs( p ) <= tol )
     {
-    if ( fabs( q ) < VTK_DBL_EPSILON )
+    if ( fabs( q ) <= tol )
       {
       r[0] = + shift;
       m[0] = 3;
@@ -717,7 +717,7 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
     }
 
   // case 2.2: q = 0: 1 ( p > 0 ) or 3 ( p < 0 ) simple real root(s) 
-  if ( fabs( q ) < VTK_DBL_EPSILON )
+  if ( fabs( q ) <= tol )
     {
     r[0] = + shift;
     m[0] = 1;
@@ -740,7 +740,7 @@ int vtkPolynomialSolvers::TartagliaCardanSolve( double* c, double* r, int* m )
   // step 4: compute roots depending on the discriminant
   double u;
   // 4.1: case D = 0: 1 simple and 1 double real roots
-  if ( fabs( D ) < VTK_DBL_EPSILON )
+  if ( fabs( D ) <= tol )
     {
     u = q > 0 ? - pow( q_2, inv3 ) : pow( - q_2, inv3 );
     r[0] =  2. * u + shift;
