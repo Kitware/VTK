@@ -251,8 +251,7 @@ OPTION(VTK_USE_METAIO "Build metaio" ON)
 
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data or using widgets." ON)
-VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
-                     "VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF "" OFF)
 
 VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON "VTK_USE_RENDERING" OFF)
 

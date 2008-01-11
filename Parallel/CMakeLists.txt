@@ -1,9 +1,15 @@
 SET(KIT Parallel)
 SET(UKIT PARALLEL)
-SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL )
-SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
-SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
+SET(KIT_TCL_LIBS vtkIOTCL)
+SET(KIT_PYTHON_LIBS vtkIOPythonD)
+SET(KIT_JAVA_LIBS vtkIOJava)
+SET(KIT_LIBS vtkIO)
+IF(VTK_USE_RENDERING)
+  SET(KIT_TCL_LIBS vtkRenderingTCL ${KIT_TCL_LIBS})
+  SET(KIT_PYTHON_LIBS vtkRenderingPythonD ${KIT_PYTHON_LIBS})
+  SET(KIT_JAVA_LIBS vtkRenderingJava ${KIT_JAVA_LIBS})
+  SET(KIT_LIBS vtkRendering ${KIT_LIBS})
+ENDIF(VTK_USE_RENDERING)
 IF(VTK_HAS_EXODUS)
   SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
 ENDIF(VTK_HAS_EXODUS)
@@ -20,7 +26,6 @@ vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx
 vtkCommunicator.cxx
-vtkCompositeRenderManager.cxx
 vtkCompositer.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
@@ -53,11 +58,9 @@ vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkParallelFactory.cxx
-vtkParallelRenderManager.cxx
 vtkPassThroughFilter.cxx
 vtkPieceRequestFilter.cxx
 vtkPieceScalars.cxx
-vtkPipelineSize.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
 vtkRTAnalyticSource.cxx
@@ -77,9 +80,18 @@ vtkTransmitPolyDataPiece.cxx
 vtkTransmitRectilinearGridPiece.cxx
 vtkTransmitStructuredGridPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
-vtkTreeCompositer.cxx
 vtkXMLPMultiGroupDataWriter.cxx
 )
+
+IF(VTK_USE_RENDERING)
+  SET ( Kit_SRCS
+    ${Kit_SRCS}
+    vtkCompositeRenderManager.cxx
+    vtkPipelineSize.cxx
+    vtkParallelRenderManager.cxx
+    vtkTreeCompositer.cxx
+    )
+ENDIF(VTK_USE_RENDERING)
 
 IF(NOT HAVE_SOCKETS)
   # Tell vtkSocket.cxx that there are no sockets on this platform.
@@ -96,11 +108,17 @@ ENDIF(VTK_HAS_EXODUS)
 SET_SOURCE_FILES_PROPERTIES(
 vtkCommunicator 
 vtkMultiProcessController
-vtkParallelRenderManager
 vtkPStreamTracer
 vtkSocket
 ABSTRACT
 )
+
+IF(VTK_USE_RENDERING)
+  SET_SOURCE_FILES_PROPERTIES(
+  vtkParallelRenderManager
+  ABSTRACT
+  )
+ENDIF(VTK_USE_RENDERING)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
