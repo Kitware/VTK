@@ -53,8 +53,10 @@ ELSE(CMAKE_COMPILER_IS_GNUCXX)
       "${VTK_REQUIRED_CXX_FLAGS} -Wl,-woff84 -woff 15 -woff 84 -woff 3439 -woff 1424 -woff 3201")
     SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -woff 3439")
   ENDIF(CMAKE_SYSTEM MATCHES "IRIX.*")
-#silence duplicate symbol warnings on AIX
   IF(CMAKE_SYSTEM MATCHES "AIX.*")
+    # allow t-ypeid and d-ynamic_cast usage (normally off by default on xlC)
+    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -qrtti=all")
+    # silence duplicate symbol warnings on AIX
     SET(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -bhalt:5")
     SET(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -bhalt:5")
     SET(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -bhalt:5")
