@@ -57,7 +57,7 @@ vtkRenderWindow renWin
     renWin AddRenderer ren4
     renWin AddRenderer ren5
     renWin SetWindowName "VTK - Cube Axes"
-    renWin SetSize 800 800
+    renWin SetSize 600 600
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
