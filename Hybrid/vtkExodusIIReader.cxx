@@ -723,7 +723,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.47");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.48");
 
 
 
@@ -1677,7 +1677,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.47");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.48");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -1939,6 +1939,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
 {
   vtksys::RegularExpression reTensor( "(.*)[XxYyZz][XxYyZz]$" );
   vtksys::RegularExpression reVector( "(.*)[XxYyZz]$" );
+  vtksys::RegularExpression reVector2( "(.*)_[RrZz]$" );
   vtksys::RegularExpression reGaussP( "(.*)_([^_]*)_GP([0-9]+)$" );
 
   // Clear out existing array names since we are re-reading them in.
@@ -1992,19 +1993,25 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
         didGlom = false;
         }
       }
-    else if ( reVector.find( srcName ) )
+    else if ( reVector.find( srcName ) || reVector2.find( srcName ) )
       {
+      int vecPattern = 0; // default to XYZ name
       if ( i+1 < num_vars )
         {
         int sli = (int)strlen(var_names[i]) - 1;
         int ii = i;
-        while ( ii < num_vars )
+        const char xyzEndings[] = "XYZ";
+        const char rzEndings[] = "RZ";
+        const char* endings = toupper( var_names[i][sli] ) == 'R' ? rzEndings : xyzEndings;
+        int numEndings = strlen( endings );
+        if ( endings == rzEndings ) vecPattern = 1;
+        while ( ii < num_vars && ( ii - i < numEndings ) )
           {
           int slii = ii == i ? sli : (int)strlen(var_names[ii]) - 1;
           // Require the strings to be identical except for the 
-          // final XYZ at the end.
+          // final XYZ or RZ at the end.
           if ( slii != sli ||
-               toupper(var_names[ii][slii]) != ('X' + (ii-i)) || 
+               toupper(var_names[ii][slii]) != endings[ii-i] || 
                strncmp( var_names[ii], var_names[i], slii ) )
             {
             break;
@@ -2023,7 +2030,16 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
           {
           //cout << "Vector \"" << reVector.match(1) << "\" has " 
           //     << (ii - i) << " components\n";
-          ainfo.Name = reVector.match(1);
+          switch ( vecPattern )
+            {
+          case 1:
+            ainfo.Name = reVector2.match(1);
+            break;
+          case 0:
+          default:
+            ainfo.Name = reVector.match(1);
+            break;
+            }
           ainfo.GlomType = ainfo.Components == 2 ? 
                            vtkExodusIIReaderPrivate::Vector2 
                            : vtkExodusIIReaderPrivate::Vector3;
@@ -2485,6 +2501,48 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtk
   return status;
 }
 
+// Copy tuples from one array to another, possibly with a different number of components per tuple.
+static void vtkEmbedTuplesInLargerArray(
+  vtkDataSetAttributes* attr, vtkDataArray* dst, vtkDataArray* src, vtkIdType numTuples, vtkIdType offset )
+{
+  vtkIdType i;
+  int srcNumComp = src->GetNumberOfComponents();
+  int dstNumComp = dst->GetNumberOfComponents();
+  if ( dstNumComp != srcNumComp )
+    { // We've promoted the array from 2-D to 3-D... can't use CopyTuple
+    if ( dst->GetDataType() != src->GetDataType() )
+      {
+      return;
+      }
+    vtkIdType sid = 0;
+    vtkIdType did = offset * dstNumComp;
+    int minNumComp = dstNumComp < srcNumComp ? dstNumComp : srcNumComp;
+    switch( dst->GetDataType() )
+      {
+      vtkTemplateMacro(
+        {
+        VTK_TT* srcTuple = (VTK_TT*) src->GetVoidPointer( sid );
+        VTK_TT* dstTuple = (VTK_TT*) dst->GetVoidPointer( did );
+        for ( i = 0; i < numTuples; ++i, srcTuple += srcNumComp, dstTuple += dstNumComp )
+          {
+          for ( int j = 0; j < minNumComp; ++j )
+            {
+            dstTuple[j] = srcTuple[j];
+            }
+          }
+        }
+      );
+      }
+    }
+  else
+    {
+    for ( i = 0; i < numTuples; ++i )
+      {
+      attr->CopyTuple( src, dst, i, i + offset );
+      }
+    }
+}
+
 int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
 {
   // Need to assemble arrays from smaller per-block/set arrays.
@@ -2599,11 +2657,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
             src = this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, ami->first, obj, aidx ) );
             if ( src )
               {
-              vtkIdType c;
-              for ( c = 0; c < binfop->Size; ++c )
-                {
-                cd->CopyTuple( src, arr, c, c + binfop->GridOffset );
-                }
+              vtkEmbedTuplesInLargerArray( cd, arr, src, binfop->Size, binfop->GridOffset );
               }
             }
 
@@ -2618,11 +2672,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkU
             src = this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, ami->first, obj, aidx ) );
             if ( src )
               {
-              vtkIdType c;
-              for ( c = 0; c < sinfop->Size; ++c )
-                {
-                cd->CopyTuple( src, arr, c, c + sinfop->GridOffset );
-                }
+              vtkEmbedTuplesInLargerArray( cd, arr, src, sinfop->Size, sinfop->GridOffset );
               }
             }
 
@@ -2977,6 +3027,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
       }
 #endif // VTK_USE_64BIT_IDS
     }
+  (void)cellId; // Eliminate IRIX CC warning.
 }
 
 void vtkExodusIIReaderPrivate::InsertSetCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
@@ -5946,7 +5997,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.47");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.48");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
