@@ -12,7 +12,7 @@
 //=============================================================================
 void PrintPolynomial( double* P, unsigned int degP )
 {
-  cout << "\nP=";
+  cout << "\n";
 
   unsigned int degPm1 = degP - 1;
   for ( unsigned int i = 0; i < degPm1; ++ i ) 
@@ -64,24 +64,27 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6 ) = "<<testIntValue<<" != 3");
     return 1;
     }
-  cout << "FerrariSolve found (tol=" << tolDirectSolvers
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
-                                                  << ", m: " << mult[i] 
-                                                  << "\n";
+  cout << "Ferrari tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
   double actualRoots[] = { 1., 2., 3. };
   int actualMult[] = { 2, 1, 1 };
   for ( int i = 0; i < testIntValue ; ++ i ) 
     {
     if ( fabs ( roots[i] - actualRoots[i] ) > tolRoots )
       {
-      vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found root "<<roots[i]<<" != "<<actualRoots[i]);
+      vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ): root "<<roots[i]<<" != "<<actualRoots[i]);
       return 1;  
       }
     if ( mult[i] != actualMult[i] )
       {
-      vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found multiplicity "<<mult[i]<<" != "<<actualMult[i]);
+      vtkGenericWarningMacro("FerrariSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ): multiplicity "<<mult[i]<<" != "<<actualMult[i]);
       return 1;  
       }
     }
@@ -91,17 +94,17 @@ int TestPolynomialSolvers( int, char *[] )
   testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P4, 4, rootInt, upperBnds, tolSturm );
   timer->StopTimer();
 
-  cout << "SturmBisectionSolve found " << testIntValue << " roots in ]" 
-               << rootInt[0] << ";"
-               << rootInt[1] << "] within "
-               << tolSturm << " in "
-               << timer->GetElapsedTime() << " sec:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   if ( testIntValue != 3 )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 3.");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^4 -7x^3 +17x^2 -17 x +6, ]-4;4] ): "<<testIntValue<<" root(s) instead of 3.");
     return 1;  
     }
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
   // 2. find the roots of a degree 5 polynomial with LinBairstowSolve
   double P5[] = { 1., -10., 35., -50., 24., 0. } ;
@@ -116,9 +119,9 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("LinBairstowSolve(x^5 -10x^4 +35x^3 -50x^2 +24x ) = "<<testIntValue<<" != 5");
     return 1;
     }
-  cout << "LinBairstowSolve found (tol=" << tolLinBairstow
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
+  cout << "LinBairstow tol=" << tolLinBairstow
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] << "\n";
 
   // 3. find the roots of a quadratic trinomial with SturmBisectionSolve
@@ -131,19 +134,19 @@ int TestPolynomialSolvers( int, char *[] )
 
   if ( testIntValue != 1 )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 1.");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ): "<<testIntValue<<" root(s) instead of 1.");
     return 1;
     }
   if ( fabs( upperBnds[0] - 1. ) > tolSturm )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ): root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
     return 1;
     }
-  cout << "SturmBisectionSolve found " << testIntValue << " roots in ]" 
-               << rootInt[0] << ";"
-               << rootInt[1] << "] within "
-               << tolSturm << " in "
-               << timer->GetElapsedTime() << " sec:\n";
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
   // 4. find the roots of a biquadratic trinomial with SturmBisectionSolve,
@@ -165,22 +168,25 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("FerrariSolve(x^4 -32x^2 +256 ) = "<<testIntValue<<" != 2");
     return 1;
     }
-  cout << "FerrariSolve found (tol=" << tolDirectSolvers
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
-                                                  << ", m: " << mult[i] 
-                                                  << "\n";
+  cout << "Ferrari tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
   for ( int i = 0; i < testIntValue ; ++ i ) 
     {
     if ( fabs ( roots[i] ) - 4. > tolRoots )
       {
-      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ) found root "<<roots[i]<<" != +/-4");
+      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ): root "<<roots[i]<<" != +/-4");
       return 1;  
       }
     if ( mult[i] != 2 )
       {
-      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ) found multiplicity "<<mult[i]<<" != 2");
+      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ): multiplicity "<<mult[i]<<" != 2");
       return 1;  
       }
     }
@@ -192,19 +198,19 @@ int TestPolynomialSolvers( int, char *[] )
 
   if ( testIntValue != 2 )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 2.");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ): "<<testIntValue<<" root(s) instead of 2.");
     return 1;
     }
   if ( fabs( upperBnds[0] - 4. ) > tolSturm )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ) found root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
+    vtkGenericWarningMacro("SturmBisectionSolve(x^2 -  2x + 1, ]-4;4] ): root "<<upperBnds[0]<<" instead of 1 (within tolSturmerance of "<<tolSturm<<").");
     return 1;
     }
-  cout << "SturmBisectionSolve found " << testIntValue << " roots in ]" 
-               << rootInt[0] << ";"
-               << rootInt[1] << "] within "
-               << tolSturm << " in "
-               << timer->GetElapsedTime() << " sec:\n";
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   
 
@@ -223,14 +229,14 @@ int TestPolynomialSolvers( int, char *[] )
 
   if ( testIntValue != 5 )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve( -0.0005x^22 -0.001x^21 +0.05x^20 +0.1x^19 -0.2x^18 +1x^17 -5.1x^15 +4x^13 -1x^12 +0.2x^11 +3x^10 +2.2x^9 +2x^8 -7x^7 -0.3x^6 +3.8x^5 +14x^4 -16x^3 +80x^2 -97.9x +5, ]-4;4] ) found "<<testIntValue<<" root(s) instead of 5");
+    vtkGenericWarningMacro("SturmBisectionSolve( -0.0005x^22 -0.001x^21 +0.05x^20 +0.1x^19 -0.2x^18 +1x^17 -5.1x^15 +4x^13 -1x^12 +0.2x^11 +3x^10 +2.2x^9 +2x^8 -7x^7 -0.3x^6 +3.8x^5 +14x^4 -16x^3 +80x^2 -97.9x +5, ]-4;4] ): "<<testIntValue<<" root(s) instead of 5");
     return 1;
     }
-  cout << "SturmBisectionSolve found " << testIntValue << " roots in ]" 
-               << rootInt[0] << ";"
-               << rootInt[1] << "] within tol. "
-               << tolSturm << " in "
-               << timer->GetElapsedTime() << " sec:\n";
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
   // 6. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
@@ -259,12 +265,15 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 2");
     return 1;
     }
-  cout << "TartagliaCardanSolve found (tol=" << tolDirectSolvers
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
-                                                  << ", m: " << mult[i] 
-                                                  << "\n";
+  cout << "TartagliaCardan tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
 
   // 7. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested
   double P3_2[] = { 1., 1., 1., 1.};
@@ -290,13 +299,15 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 1");
     return 1;
     }
-  cout << "TartagliaCardanSolve found (tol=" << tolDirectSolvers
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
-                                                  << ", m: " << mult[i] 
-                                                  << "\n";
-
+  cout << "TartagliaCardan tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
 
   // 8. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested
   double P3_3[] = { 1., -2.e-6 , .999999999999999e-12, 0.};
@@ -322,13 +333,16 @@ int TestPolynomialSolvers( int, char *[] )
     vtkGenericWarningMacro("TartagliaCardanSolve returned "<<testIntValue<<" != 3");
     return 1;
     }
-  cout.precision( 10 );
-  cout << "TartagliaCardanSolve found (tol=" << tolDirectSolvers
-               << ") " << testIntValue << " roots in " 
-               << timer->GetElapsedTime() << "s:\n";
-  for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] 
-                                                  << ", m: " << mult[i] 
-                                                  << "\n";
+  cout << "TartagliaCardan tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  cout.precision( 9 );
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
 
   timer->Delete();
   return 0;
