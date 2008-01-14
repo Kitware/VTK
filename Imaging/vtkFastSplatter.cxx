@@ -40,7 +40,7 @@
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
 #endif
 
-vtkCxxRevisionMacro(vtkFastSplatter, "1.3");
+vtkCxxRevisionMacro(vtkFastSplatter, "1.4");
 vtkStandardNewMacro(vtkFastSplatter);
 
 //-----------------------------------------------------------------------------
@@ -283,9 +283,9 @@ void vtkFastSplatterBucketPoints(const T *points, vtkIdType numPoints,
 
     // Find the bucket.
     vtkIdType loc[3];
-    loc[0] = (vtkIdType)(((p[0]-origin[0])/spacing[0]) + 0.5);
-    loc[1] = (vtkIdType)(((p[1]-origin[1])/spacing[1]) + 0.5);
-    loc[2] = (vtkIdType)(((p[2]-origin[2])/spacing[2]) + 0.5);
+    loc[0] = static_cast<vtkIdType>(((p[0]-origin[0])/spacing[0]) + 0.5);
+    loc[1] = static_cast<vtkIdType>(((p[1]-origin[1])/spacing[1]) + 0.5);
+    loc[2] = static_cast<vtkIdType>(((p[2]-origin[2])/spacing[2]) + 0.5);
     if (   (loc[0] < 0) || (loc[0] >= dimensions[0])
         || (loc[1] < 0) || (loc[1] >= dimensions[1])
         || (loc[2] < 0) || (loc[2] >= dimensions[2]) )
@@ -313,7 +313,8 @@ void vtkFastSplatterConvolve(T *splat, const int splatDims[3],
   int numPoints = 0;
 
   // First, clear out the output image.
-  vtkstd::fill_n(output, imageDims[0]*imageDims[1]*imageDims[2], (T)0);
+  vtkstd::fill_n(output, imageDims[0]*imageDims[1]*imageDims[2],
+                 static_cast<T>(0));
 
   int splatCenter[3];
   splatCenter[0] = splatDims[0]/2;
@@ -469,14 +470,15 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   this->Buckets->AllocateScalars();
 
   // Get array for buckets.
-  unsigned int *buckets = (unsigned int *)this->Buckets->GetScalarPointer();
+  unsigned int *buckets =
+    static_cast<unsigned int *>(this->Buckets->GetScalarPointer());
 
   // Count how many points in the input lie in each pixel of the output image.
   vtkPoints *points = input->GetPoints();
   void *p = points->GetVoidPointer(0);
   switch (points->GetDataType())
     {
-    vtkTemplateMacro(vtkFastSplatterBucketPoints((VTK_TT *)p,
+    vtkTemplateMacro(vtkFastSplatterBucketPoints(static_cast<VTK_TT *>(p),
                                                  points->GetNumberOfPoints(),
                                                  buckets,
                                                  this->OutputDimensions,
@@ -488,10 +490,10 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   void *o = output->GetScalarPointer();
   switch (output->GetScalarType())
     {
-    vtkTemplateMacro(vtkFastSplatterConvolve((VTK_TT *)splat,
+    vtkTemplateMacro(vtkFastSplatterConvolve(static_cast<VTK_TT *>(splat),
                                              splatImage->GetDimensions(),
                                              buckets,
-                                             (VTK_TT *)o,
+                                             static_cast<VTK_TT *>(o),
                                              &(this->NumberOfPointsSplatted),
                                              this->OutputDimensions));
     }
@@ -505,22 +507,24 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
       switch (output->GetScalarType())
         {
         vtkTemplateMacro(vtkFastSplatterClamp(
-              (VTK_TT *)o,
-              output->GetNumberOfPoints()*output->GetNumberOfScalarComponents(),
-              (VTK_TT)this->MinValue, (VTK_TT)this->MaxValue));
+                           static_cast<VTK_TT *>(o),
+                           output->GetNumberOfPoints()*
+                           output->GetNumberOfScalarComponents(),
+                           static_cast<VTK_TT>(this->MinValue),
+                           static_cast<VTK_TT>(this->MaxValue)));
         }
       break;
     case FreezeScaleLimit:
       switch (output->GetScalarType())
         {
         vtkTemplateMacro(vtkFastSplatterFrozenScale(
-                                          (VTK_TT *)o,
-                                          output->GetNumberOfScalarComponents(),
-                                          output->GetNumberOfPoints(),
-                                          (VTK_TT)this->MinValue,
-                                          (VTK_TT)this->MaxValue,
-                                          this->LastDataMinValue,
-                                          this->LastDataMaxValue));
+                           static_cast<VTK_TT *>(o),
+                           output->GetNumberOfScalarComponents(),
+                           output->GetNumberOfPoints(),
+                           static_cast<VTK_TT>(this->MinValue),
+                           static_cast<VTK_TT>(this->MaxValue),
+                           this->LastDataMinValue,
+                           this->LastDataMaxValue));
         }
       break;
 
@@ -528,13 +532,13 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
       switch (output->GetScalarType())
         {
         vtkTemplateMacro(vtkFastSplatterScale(
-                                          (VTK_TT *)o,
-                                          output->GetNumberOfScalarComponents(),
-                                          output->GetNumberOfPoints(),
-                                          (VTK_TT)this->MinValue,
-                                          (VTK_TT)this->MaxValue,
-                                          & this->LastDataMinValue,
-                                          & this->LastDataMaxValue));
+                           static_cast<VTK_TT *>(o),
+                           output->GetNumberOfScalarComponents(),
+                           output->GetNumberOfPoints(),
+                           static_cast<VTK_TT>(this->MinValue),
+                           static_cast<VTK_TT>(this->MaxValue),
+                           & this->LastDataMinValue,
+                           & this->LastDataMaxValue));
         }
       break;
     }

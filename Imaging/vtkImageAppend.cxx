@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.34");
+vtkCxxRevisionMacro(vtkImageAppend, "1.35");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -286,7 +286,7 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
   rowLength = (inExt[1] - inExt[0]+1)*inData->GetNumberOfScalarComponents();
   maxY = inExt[3] - inExt[2];
   maxZ = inExt[5] - inExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
 
@@ -330,7 +330,8 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 
 
   typeSize = outData->GetScalarSize();
-  outPtrZ = (unsigned char *)(outData->GetScalarPointerForExtent(outExt));
+  outPtrZ = static_cast<unsigned char *>(
+    outData->GetScalarPointerForExtent(outExt));
 
   // Get increments to march through data
   outData->GetIncrements(outIncX, outIncY, outIncZ);
@@ -420,8 +421,10 @@ void vtkImageAppend::ThreadedRequestData (
           {
           vtkTemplateMacro(
             vtkImageAppendExecute(this, id,
-                                  inExt, inData[0][idx1], (VTK_TT *)(inPtr),
-                                  cOutExt, outData[0], (VTK_TT *)(outPtr)));
+                                  inExt, inData[0][idx1],
+                                  static_cast<VTK_TT *>(inPtr),
+                                  cOutExt, outData[0],
+                                  static_cast<VTK_TT *>(outPtr)));
           default:
             vtkErrorMacro(<< "Execute: Unknown ScalarType");
           return;

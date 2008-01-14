@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.48");
+vtkCxxRevisionMacro(vtkImageBlend, "1.49");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -366,8 +366,8 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   inC = inData->GetNumberOfScalarComponents();
   outC = outData->GetNumberOfScalarComponents();
 
-  target = (unsigned long)((extent[3] - extent[2] + 1)*
-                           (extent[5] - extent[4] + 1)/50.0);
+  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
+                                      (extent[5] - extent[4] + 1)/50.0);
   target++;
 
   // Get increments to march through data
@@ -519,15 +519,15 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
 
   // round opacity to a value in the range [0,256], because division
   // by 256 can be efficiently achieved by bit-shifting by 8 bits
-  o = (unsigned short)(256*opacity + 0.5);
+  o = static_cast<unsigned short>(256*opacity + 0.5);
   r = o;
   f = 256 - o;
 
   inC = inData->GetNumberOfScalarComponents();
   outC = outData->GetNumberOfScalarComponents();
 
-  target = (unsigned long)((extent[3] - extent[2] + 1)*
-                           (extent[5] - extent[4] + 1)/50.0);
+  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
+                                      (extent[5] - extent[4] + 1)/50.0);
   target++;  
 
   // Get increments to march through data 
@@ -692,8 +692,9 @@ void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
   int rowLength;
   unsigned char *inPtr, *inPtr1, *outPtr;
  
-  inPtr = (unsigned char *) inData->GetScalarPointerForExtent(ext);
-  outPtr = (unsigned char *) outData->GetScalarPointerForExtent(ext);
+  inPtr = static_cast<unsigned char *>(inData->GetScalarPointerForExtent(ext));
+  outPtr =
+    static_cast<unsigned char *>(outData->GetScalarPointerForExtent(ext));
  
   // Get increments to march through inData
   inData->GetIncrements(inIncX, inIncY, inIncZ);
@@ -734,8 +735,8 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   unsigned long count = 0;
   unsigned long target;
 
-  target = (unsigned long)((extent[3] - extent[2] + 1)*
-                           (extent[5] - extent[4] + 1)/50.0);
+  target = static_cast<unsigned long>((extent[3] - extent[2] + 1)*
+                                      (extent[5] - extent[4] + 1)/50.0);
   target++;
   
   // Get increments to march through data 
@@ -752,7 +753,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);
   tmpC = tmpData->GetNumberOfScalarComponents();
 
-  double* tmpPtr = (double *)tmpData->GetScalarPointerForExtent(extent);  
+  double* tmpPtr = static_cast<double *>(tmpData->GetScalarPointerForExtent(extent));
 
   // Opacity
   double minA, maxA;
@@ -766,8 +767,8 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
     }
   else
     {
-    minA = (double)inData->GetScalarTypeMin();
-    maxA = (double)inData->GetScalarTypeMax();
+    minA = static_cast<double>(inData->GetScalarTypeMin());
+    maxA = static_cast<double>(inData->GetScalarTypeMax());
     }
 
   r = opacity;
@@ -798,12 +799,12 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
             {
-            r = opacity * ((double)inPtr[3] - minA);
+            r = opacity * (static_cast<double>(inPtr[3]) - minA);
             if (r > threshold) 
               {
-              tmpPtr[0] += (double)inPtr[0] * r;
-              tmpPtr[1] += (double)inPtr[1] * r;
-              tmpPtr[2] += (double)inPtr[2] * r;
+              tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
+              tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
+              tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
               tmpPtr[3] += r;
               }
             tmpPtr += 4; 
@@ -816,9 +817,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
             {
-            tmpPtr[0] += (double)inPtr[0] * r;
-            tmpPtr[1] += (double)inPtr[1] * r;
-            tmpPtr[2] += (double)inPtr[2] * r;
+            tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
+            tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
+            tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
             tmpPtr[3] += r;
             tmpPtr += 4; 
             inPtr += inC;
@@ -830,12 +831,12 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
             {
-            r = opacity * ((double)inPtr[1] - minA);
+            r = opacity * (static_cast<double>(inPtr[1]) - minA);
             if (r > threshold) 
               {
-              tmpPtr[0] += (double)(*inPtr) * r;
-              tmpPtr[1] += (double)(*inPtr) * r;
-              tmpPtr[2] += (double)(*inPtr) * r;
+              tmpPtr[0] += static_cast<double>(*inPtr) * r;
+              tmpPtr[1] += static_cast<double>(*inPtr) * r;
+              tmpPtr[2] += static_cast<double>(*inPtr) * r;
               tmpPtr[3] += r;
               }
             tmpPtr += 4; 
@@ -848,9 +849,9 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           { 
           for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
             {
-            tmpPtr[0] += (double)(*inPtr) * r;
-            tmpPtr[1] += (double)(*inPtr) * r;
-            tmpPtr[2] += (double)(*inPtr) * r;
+            tmpPtr[0] += static_cast<double>(*inPtr) * r;
+            tmpPtr[1] += static_cast<double>(*inPtr) * r;
+            tmpPtr[2] += static_cast<double>(*inPtr) * r;
             tmpPtr[3] += r;
             tmpPtr += 4; 
             inPtr++;
@@ -863,10 +864,10 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         { 
         for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
           {
-          r = opacity * ((double)inPtr[1] - minA);
+          r = opacity * (static_cast<double>(inPtr[1]) - minA);
           if (r > threshold) 
             {
-            tmpPtr[0] = (double)(*inPtr) * r;
+            tmpPtr[0] = static_cast<double>(*inPtr) * r;
             tmpPtr[1] += r;
             }
           tmpPtr += 2; 
@@ -879,7 +880,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
         { 
         for (int idxX = extent[0]; idxX <= extent[1]; idxX++)
           {
-          tmpPtr[0] = (double)(*inPtr) * r;
+          tmpPtr[0] = static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
           tmpPtr += 2; 
           inPtr++;
@@ -918,7 +919,8 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
   tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);
   tmpC = tmpData->GetNumberOfScalarComponents();
 
-  double* tmpPtr = (double *)tmpData->GetScalarPointerForExtent(extent);  
+  double* tmpPtr = static_cast<double *>(
+    tmpData->GetScalarPointerForExtent(extent));
 
   // Loop through output pixels
 
@@ -1015,7 +1017,7 @@ void vtkImageBlend::ThreadedRequestData (
         (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
       tmpData->SetScalarType(VTK_DOUBLE);
       tmpData->AllocateScalars();
-      memset((void *)tmpData->GetScalarPointer(), 0, 
+      memset(static_cast<void *>(tmpData->GetScalarPointer()), 0, 
              (outExt[1] - outExt[0] + 1) * 
              (outExt[3] - outExt[2] + 1) * 
              (outExt[5] - outExt[4] + 1) *
@@ -1091,8 +1093,10 @@ void vtkImageBlend::ThreadedRequestData (
           if (inData[0][idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
             {
             vtkImageBlendExecuteChar(this, extent,
-                                     inData[0][idx1], (unsigned char *)(inPtr),
-                                     outData[0], (unsigned char *)(outPtr),
+                                     inData[0][idx1],
+                                     static_cast<unsigned char *>(inPtr),
+                                     outData[0],
+                                     static_cast<unsigned char *>(outPtr),
                                      opacity, id);
             }
           else
@@ -1101,8 +1105,10 @@ void vtkImageBlend::ThreadedRequestData (
               {
               vtkTemplateMacro(
                 vtkImageBlendExecute(this, extent,
-                                     inData[0][idx1], (VTK_TT *)(inPtr),
-                                     outData[0], (VTK_TT *)(outPtr), 
+                                     inData[0][idx1],
+                                     static_cast<VTK_TT *>(inPtr),
+                                     outData[0],
+                                     static_cast<VTK_TT *>(outPtr), 
                                      opacity, id));
               default:
                 vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -1118,7 +1124,7 @@ void vtkImageBlend::ThreadedRequestData (
               vtkImageBlendCompoundExecute(this, 
                                            extent,
                                            inData[0][idx1], 
-                                           (VTK_TT *)(inPtr), 
+                                           static_cast<VTK_TT *>(inPtr), 
                                            tmpData, 
                                            opacity,
                                            this->CompoundThreshold));
@@ -1148,7 +1154,7 @@ void vtkImageBlend::ThreadedRequestData (
           vtkImageBlendCompoundTransferExecute(this, 
                                                outExt,
                                                outData[0], 
-                                               (VTK_TT *)(outPtr), 
+                                               static_cast<VTK_TT *>(outPtr), 
                                                tmpData));
         default:
           vtkErrorMacro(<< "Execute: Unknown ScalarType");

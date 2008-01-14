@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.63");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.64");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -199,7 +199,7 @@ int vtkGaussianSplatter::RequestData(
     if ( ! (ptId % progressInterval) )
       {
       vtkDebugMacro(<<"Inserting point #" << ptId);
-      this->UpdateProgress ((double)ptId/numPts);
+      this->UpdateProgress (static_cast<double>(ptId)/numPts);
       abortExecute = this->GetAbortExecute();
       }
 
@@ -222,8 +222,8 @@ int vtkGaussianSplatter::RequestData(
     // Determine splat footprint
     for (i=0; i<3; i++)
       {
-      min[i] = (int) floor((double)loc[i]-this->SplatDistance[i]);
-      max[i] = (int) ceil((double)loc[i]+this->SplatDistance[i]);
+      min[i] = static_cast<int>(floor(static_cast<double>(loc[i])-this->SplatDistance[i]));
+      max[i] = static_cast<int>(ceil(static_cast<double>(loc[i])+this->SplatDistance[i]));
       if ( min[i] < 0 )
         {
         min[i] = 0;
@@ -490,7 +490,7 @@ double vtkGaussianSplatter::EccentricGaussian (double cx[3])
       }
     else
       {
-      mag = sqrt((double)mag);
+      mag = sqrt(mag);
       }
     }
 
@@ -506,8 +506,9 @@ double vtkGaussianSplatter::EccentricGaussian (double cx[3])
 void vtkGaussianSplatter::SetScalar(int idx, double dist2, 
                                     vtkDoubleArray *newScalars)
 {
-  double v = (this->*SampleFactor)(this->S) * exp((double)
-            (this->ExponentFactor*(dist2)/(this->Radius2)));
+  double v = (this->*SampleFactor)(this->S) * exp(
+    static_cast<double>
+    (this->ExponentFactor*(dist2)/(this->Radius2)));
 
   if ( ! this->Visited[idx] )
     {

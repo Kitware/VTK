@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.44");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.45");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
@@ -196,7 +196,8 @@ int vtkExtractVOI::RequestInformation(
       outDims[i] = 1;
       }
     // We might as well make this work for negative extents.
-    mins[i] = (int)(floor((float)voi[2*i] / (float)rate[i]));
+    mins[i] = static_cast<int>(floor(static_cast<float>(voi[2*i])
+                                     / static_cast<float>(rate[i])));
 
     outSpacing[i] = spacing[i] * rate[i];
     outOrigin[i] = voi[2*i]*spacing[i]-mins[i]*outSpacing[i];
@@ -283,9 +284,12 @@ int vtkExtractVOI::RequestData(
   // We need to duplicate the computation done in 
   // ExecuteInformtation for the output whole extent.
   // Use shift as temporary variable (output mins).
-  shift[0] = (int)(floor( (float)(voi[0])/(float)(rate[0]) ));
-  shift[1] = (int)(floor( (float)(voi[2])/(float)(rate[1]) ));
-  shift[2] = (int)(floor( (float)(voi[4])/(float)(rate[2]) ));
+  shift[0] = static_cast<int>(
+    floor(static_cast<float>(voi[0])/static_cast<float>(rate[0]) ));
+  shift[1] = static_cast<int>(
+    floor( static_cast<float>(voi[2])/static_cast<float>(rate[1]) ));
+  shift[2] = static_cast<int>(
+    floor( static_cast<float>(voi[4])/static_cast<float>(rate[2]) ));
   // Take the different between the output and input mins (in input coordinates).
   shift[0] = voi[0] - (shift[0]*rate[0]);
   shift[1] = voi[2] - (shift[1]*rate[1]);

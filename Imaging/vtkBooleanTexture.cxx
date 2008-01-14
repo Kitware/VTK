@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.44");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.45");
 vtkStandardNewMacro(vtkBooleanTexture);
 
 vtkBooleanTexture::vtkBooleanTexture()
@@ -82,10 +82,14 @@ void vtkBooleanTexture::ExecuteData(vtkDataObject *outp)
 //
 // Compute size of various regions
 //
-  midILower = (int) ((float)(this->XSize - 1) / 2.0 - this->Thickness / 2.0);
-  midJLower = (int) ((float)(this->YSize - 1) / 2.0 - this->Thickness / 2.0);
-  midIUpper = (int) ((float)(this->XSize - 1) / 2.0 + this->Thickness / 2.0);
-  midJUpper = (int) ((float)(this->YSize - 1) / 2.0 + this->Thickness / 2.0);
+  midILower = static_cast<int>((this->XSize - 1) / 2.0
+                               - this->Thickness / 2.0);
+  midJLower = static_cast<int>((this->YSize - 1) / 2.0
+                               - this->Thickness / 2.0);
+  midIUpper = static_cast<int>((this->XSize - 1) / 2.0
+                               + this->Thickness / 2.0);
+  midJUpper = static_cast<int>((this->YSize - 1) / 2.0
+                               + this->Thickness / 2.0);
 //
 // Create texture map
 //

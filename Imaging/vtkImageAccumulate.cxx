@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.72");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.73");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 
   // Zero count in every bin
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
-  memset((void *)outPtr, 0,
+  memset(static_cast<void *>(outPtr), 0,
          (max0-min0+1)*(max1-min1+1)*(max2-min2+1)*sizeof(int));
 
   // Get information to march through data
@@ -177,7 +177,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   spacing = outData->GetSpacing();
   int ignoreZero = self->GetIgnoreZero();
 
-  target = (unsigned long)((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
+  target = static_cast<unsigned long>((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
   target++;
 
   int reverse = self->GetReverseStencil();
@@ -231,7 +231,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
               (*voxelCount)++;
               }
             // compute the index
-            outIdx = (int) (((double)*subPtr++ - origin[idxC]) / spacing[idxC]);
+            outIdx = static_cast<int>((static_cast<double>(*subPtr++) - origin[idxC]) / spacing[idxC]);
             if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
               {
               // Out of bin range
@@ -251,20 +251,20 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 
   if (*voxelCount) // avoid the div0
     {
-    mean[0] = sum[0] / (double)*voxelCount;
-    mean[1] = sum[1] / (double)*voxelCount;
-    mean[2] = sum[2] / (double)*voxelCount;
+    mean[0] = sum[0] / static_cast<double>(*voxelCount);
+    mean[1] = sum[1] / static_cast<double>(*voxelCount);
+    mean[2] = sum[2] / static_cast<double>(*voxelCount);
 
     if (*voxelCount - 1) // avoid the div0
       {
-      variance = sumSqr[0] / (double)(*voxelCount-1) -
-        ((double) *voxelCount * mean[0] * mean[0] / (double) (*voxelCount - 1));
+      variance = sumSqr[0] / static_cast<double>(*voxelCount-1) -
+        (static_cast<double>(*voxelCount) * mean[0] * mean[0] / static_cast<double>(*voxelCount - 1));
       standardDeviation[0] = sqrt(variance);
-      variance = sumSqr[1] / (double)(*voxelCount-1) -
-        ((double) *voxelCount * mean[1] * mean[1] / (double) (*voxelCount - 1));
+      variance = sumSqr[1] / static_cast<double>(*voxelCount-1) -
+        (static_cast<double>(*voxelCount) * mean[1] * mean[1] / static_cast<double>(*voxelCount - 1));
       standardDeviation[1] = sqrt(variance);
-      variance = sumSqr[2] / (double)(*voxelCount-1) -
-        ((double) *voxelCount * mean[2] * mean[2] / (double) (*voxelCount - 1));
+      variance = sumSqr[2] / static_cast<double>(*voxelCount-1) -
+        (static_cast<double>(*voxelCount) * mean[2] * mean[2] / static_cast<double>(*voxelCount - 1));
       standardDeviation[2] = sqrt(variance);
       }
     else
@@ -334,8 +334,10 @@ int vtkImageAccumulate::RequestData(
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(vtkImageAccumulateExecute( this,
-                                                inData, (VTK_TT *)(inPtr),
-                                                outData, (int *)(outPtr),
+                                                inData,
+                                                static_cast<VTK_TT *>(inPtr),
+                                                outData,
+                                                static_cast<int *>(outPtr),
                                                 this->Min, this->Max,
                                                 this->Mean,
                                                 this->StandardDeviation,
