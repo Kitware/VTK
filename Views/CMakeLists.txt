@@ -13,7 +13,6 @@ vtkSurfaceRepresentation.cxx
 vtkTreeLayoutView.cxx
 vtkTreeMapView.cxx
 vtkView.cxx
-vtkViewTheme.cxx
 )
 
 #SET_SOURCE_FILES_PROPERTIES(

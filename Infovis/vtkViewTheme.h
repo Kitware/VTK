@@ -31,7 +31,7 @@
 
 #include "vtkObject.h"
 
-class VTK_VIEWS_EXPORT vtkViewTheme : public vtkObject
+class VTK_INFOVIS_EXPORT vtkViewTheme : public vtkObject
 {
 public:
   static vtkViewTheme* New();

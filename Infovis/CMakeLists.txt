@@ -47,6 +47,7 @@ vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
 vtkVertexDegree.cxx
+vtkViewTheme.cxx
 vtkXMLTreeReader.cxx
 )
 
