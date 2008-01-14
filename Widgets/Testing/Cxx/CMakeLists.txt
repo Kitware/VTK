@@ -9,6 +9,7 @@ SET(MyTests
 #  TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
 #  TestCheckerboardWidget.cxx
+  TestContourWidget2.cxx
 #  TestDistanceWidget.cxx
   TestHandleWidget.cxx
 #  TestHandleWidget2D.cxx
