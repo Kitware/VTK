@@ -2,6 +2,10 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
+# On older Macs, 10 is too low. Due to what looks like a driver bug
+# spectral lighting behaves sort of weird and produces small differences
+set threshold 30
+
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1

@@ -1,6 +1,10 @@
 package require vtk
 package require vtkinteraction
 
+# On older Macs, 10 is too low. Due to what looks like a driver bug
+# spectral lighting behaves sort of weird and produces small differences
+set threshold 30
+
 vtkPoints points
   points InsertNextPoint 2 4 0
   points InsertNextPoint 2.6 2.6 0
