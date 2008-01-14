@@ -149,6 +149,13 @@ public:
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
+  // Description:
+  // Enable/disable whether to attach the arrow only to the edge, 
+  // NOT the vertices of the caption border.
+  vtkSetMacro(AttachEdgeOnly,int);
+  vtkGetMacro(AttachEdgeOnly,int);
+  vtkBooleanMacro(AttachEdgeOnly,int);
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -187,6 +194,8 @@ protected:
   vtkPolyData *LeaderGlyph; //what to put on the end of the leader
   
   int   Padding;
+  int   AttachEdgeOnly;
+
 
 private:
   vtkTextActor        *TextActor;

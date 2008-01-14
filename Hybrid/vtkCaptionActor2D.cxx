@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.35");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.36");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -59,6 +59,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->Caption = NULL;
   this->Border = 1;
   this->Leader = 1;
+  this->AttachEdgeOnly = 0;
   this->ThreeDimensionalLeader = 1;
   this->LeaderGlyphSize = 0.025;
   this->MaximumLeaderGlyphSize = 20;
@@ -282,7 +283,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   minPt[1] = p2[1];
 
   pt[0] = p2[0]; pt[1] = p2[1]; pt[2] = minPt[2] = 0.0;
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if ( !this->AttachEdgeOnly && 
+    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
     {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1]; 
@@ -296,7 +298,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   pt[0] = p3[0];
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if ( !this->AttachEdgeOnly && 
+    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
     {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1]; 
@@ -310,7 +313,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   pt[1] = p3[1];
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if ( !this->AttachEdgeOnly && 
+    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
     {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1]; 
@@ -324,7 +328,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   pt[0] = p2[0];
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if ( !this->AttachEdgeOnly && 
+    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
     {
     minD2 = d2;
     minPt[0] = pt[0]; minPt[1] = pt[1]; 
@@ -509,6 +514,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "AttachEdgeOnly: " << (this->AttachEdgeOnly ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
