@@ -22,8 +22,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPointWidget.h"
 #include "vtkRenderWindow.h"
+#include "vtkTextActor.h"
+#include "vtkTextMapper.h"
+#include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.5");
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //-------------------------------------------------------------------------
@@ -55,6 +58,7 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->CaptionActor2D->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
 
   this->ShowBorder = vtkBorderRepresentation::BORDER_OFF;
+  this->FontFactor = 1.0;
 }
 
 //-------------------------------------------------------------------------
@@ -131,6 +135,31 @@ void vtkCaptionRepresentation::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
+
+    // If the text actor's ScaledText is off, we still want to be able
+    // to change the caption's text size programmatically by changing a 
+    // *relative* font size factor. We will also need to change the  
+    // caption's boundary size accordingly.
+
+    if(!this->Moving && this->CaptionActor2D 
+        && this->CaptionActor2D->GetCaption()
+        && !this->CaptionActor2D->GetTextActor()->GetScaledText())
+      {
+      // Create a dummy text mapper for getting font sizes
+      vtkTextMapper *textMapper = vtkTextMapper::New();
+      vtkTextProperty *tprop = textMapper->GetTextProperty();
+
+      tprop->ShallowCopy(this->CaptionActor2D->GetCaptionTextProperty());
+      textMapper->SetInput(this->CaptionActor2D->GetCaption());
+      int textsize[2];
+      int fsize = vtkTextMapper::SetRelativeFontSize(textMapper, 
+        this->Renderer, this->Renderer->GetSize(), textsize, 
+        0.015*this->FontFactor);
+      this->CaptionActor2D->GetCaptionTextProperty()->SetFontSize(fsize);
+      textMapper->Delete();
+      this->AdjustCaptionBoundary();
+      }
+
     // Ask the superclass the size and set the caption
     int *pos1 = this->PositionCoordinate->
       GetComputedDisplayValue(this->Renderer);
@@ -145,6 +174,50 @@ void vtkCaptionRepresentation::BuildRepresentation()
 
     // Note that the transform is updated by the superclass
     this->Superclass::BuildRepresentation();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCaptionRepresentation::AdjustCaptionBoundary()
+{
+  if(this->CaptionActor2D->GetCaption())
+    {
+    vtkFreeTypeUtilities* ftu = vtkFreeTypeUtilities::GetInstance();
+    if (!ftu)
+      {
+      vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
+      return;
+      }
+
+    int text_bbox[4];
+    ftu->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(), 
+      this->CaptionActor2D->GetCaption(), text_bbox);
+    if (!ftu->IsBoundingBoxValid(text_bbox))
+      {
+      return;
+      }
+
+    // The bounding box was the area that is going to be filled with pixels
+    // given a text origin of (0, 0). Now get the real size we need, i.e.
+    // the full extent from the origin to the bounding box.
+
+    double text_size[2];
+    text_size[0] = (text_bbox[1] - text_bbox[0] + 5);
+    text_size[1] = (text_bbox[3] - text_bbox[2] + 5);
+
+    this->GetRenderer()->DisplayToNormalizedDisplay (text_size[0], text_size[1]);
+    this->GetRenderer()->NormalizedDisplayToViewport (text_size[0], text_size[1]);
+    this->GetRenderer()->ViewportToNormalizedViewport (text_size[0], text_size[1]);
+
+    // update the PositionCoordinate
+    //this->NeedToAdjustSize = 1;
+
+    double* pos2 = this->Position2Coordinate->GetValue();
+    if(pos2[0] != text_size[0] || pos2[1] != text_size[1])
+      {
+      this->Position2Coordinate->SetValue(text_size[0], text_size[1], 0);
+      this->Modified();
+      }
     }
 }
 
@@ -206,5 +279,5 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
-  
+  os << indent << "Font Factor: " << this->FontFactor << "\n";
 }

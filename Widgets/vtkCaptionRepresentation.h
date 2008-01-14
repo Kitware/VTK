@@ -88,6 +88,12 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
+
+  // Description:
+  // Set/Get the factor that controls the overall size of the fonts 
+  // of the caption when the text actor's ScaledText is OFF 
+  vtkSetClampMacro(FontFactor, double, 0.1, 10.0);
+  vtkGetMacro(FontFactor, double);
   
 protected:
   vtkCaptionRepresentation();
@@ -99,9 +105,13 @@ protected:
   
   int PointWidgetState;
   int DisplayAttachmentPoint[2];
+  double FontFactor;
 
   // Internal representation for the anchor 
   vtkPointHandleRepresentation3D *AnchorRepresentation;
+
+  // Check and adjust boundaries according to the size of the caption text
+  virtual void AdjustCaptionBoundary();
 
 private:
   vtkCaptionRepresentation(const vtkCaptionRepresentation&);  //Not implemented
