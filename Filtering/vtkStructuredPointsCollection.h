@@ -33,8 +33,10 @@ public:
 
   // Description:
   // Add a pointer to a vtkStructuredPoints to the list.
-  void AddItem(vtkStructuredPoints *ds) {
-    this->vtkCollection::AddItem((vtkObject *)ds);};
+  void AddItem(vtkStructuredPoints *ds)
+    {
+      this->vtkCollection::AddItem(ds);
+    }
   
   // Description:
   // Get the next item in the collection. NULL is returned if the collection

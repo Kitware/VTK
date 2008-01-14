@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadric, "1.17");
+vtkCxxRevisionMacro(vtkSuperquadric, "1.18");
 vtkStandardNewMacro(vtkSuperquadric);
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
@@ -117,7 +117,7 @@ double vtkSuperquadric::EvaluateFunction(double xyz[3])
     val = -MAX_FVAL;
   }
   
-  return (double)(val);
+  return val;
 }
 
 // Description

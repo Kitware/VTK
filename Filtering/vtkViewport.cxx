@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.9");
+vtkCxxRevisionMacro(vtkViewport, "1.10");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light, 
@@ -259,14 +259,14 @@ int *vtkViewport::GetSize()
     vpu = vport[0];
     vpv = vport[1];  
     this->NormalizedDisplayToDisplay(vpu,vpv);
-    lowerLeft[0] = (int)(vpu+0.5);
-    lowerLeft[1] = (int)(vpv+0.5);
+    lowerLeft[0] = static_cast<int>(vpu+0.5);
+    lowerLeft[1] = static_cast<int>(vpv+0.5);
     double vpu2, vpv2;
     vpu2 = vport[2];
     vpv2 = vport[3];  
     this->NormalizedDisplayToDisplay(vpu2,vpv2);
-    this->Size[0] = (int)(vpu2 + 0.5) - lowerLeft[0];
-    this->Size[1] = (int)(vpv2 + 0.5) - lowerLeft[1];  
+    this->Size[0] = static_cast<int>(vpu2 + 0.5) - lowerLeft[0];
+    this->Size[1] = static_cast<int>(vpv2 + 0.5) - lowerLeft[1];  
     }
   else
     {
@@ -285,8 +285,10 @@ int *vtkViewport::GetOrigin()
     int* winSize = this->VTKWindow->GetSize();
 
     // Round the origin up a pixel
-    this->Origin[0] = (int) (this->Viewport[0] * (double) winSize[0] + 0.5);
-    this->Origin[1] = (int) (this->Viewport[1] * (double) winSize[1] + 0.5);
+    this->Origin[0] = static_cast<int>(this->Viewport[0] *
+                                       static_cast<double>(winSize[0]) + 0.5);
+    this->Origin[1] = static_cast<int>(this->Viewport[1] *
+                                       static_cast<double>(winSize[1]) + 0.5);
     }
   else
     {
@@ -308,9 +310,9 @@ double *vtkViewport::GetCenter()
     size = this->GetVTKWindow()->GetSize();
 
     this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
-                       /2.0*(double)size[0]);
+                       /2.0*size[0]);
     this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
-                       /2.0*(double)size[1]);
+                       /2.0*size[1]);
     }
   else
     {
@@ -637,15 +639,15 @@ void vtkViewport::ComputeAspect()
 
     vport = this->GetViewport();
 
-    lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
-    lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
-    upperRight[0] = (int)(vport[2]*size[0] + 0.5);
-    upperRight[1] = (int)(vport[3]*size[1] + 0.5);
+    lowerLeft[0] = static_cast<int>(vport[0]*size[0] + 0.5);
+    lowerLeft[1] = static_cast<int>(vport[1]*size[1] + 0.5);
+    upperRight[0] = static_cast<int>(vport[2]*size[0] + 0.5);
+    upperRight[1] = static_cast<int>(vport[3]*size[1] + 0.5);
     upperRight[0]--;
     upperRight[1]--;
 
-    aspect[0] = (double)(upperRight[0]-lowerLeft[0]+1)/
-      (double)(upperRight[1]-lowerLeft[1]+1)*this->PixelAspect[0];
+    aspect[0] = static_cast<double>(upperRight[0]-lowerLeft[0]+1)/
+      static_cast<double>(upperRight[1]-lowerLeft[1]+1)*this->PixelAspect[0];
     aspect[1] = 1.0*this->PixelAspect[1];
 
     this->SetAspect(aspect);
@@ -722,8 +724,8 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
   vtkViewportBound(vpu,vpv);
   // store the result as a pixel value
   this->NormalizedDisplayToDisplay(vpu,vpv);
-  *lowerLeftU = (int)(vpu+0.5);
-  *lowerLeftV = (int)(vpv+0.5);
+  *lowerLeftU = static_cast<int>(vpu+0.5);
+  *lowerLeftV = static_cast<int>(vpv+0.5);
   double vpu2, vpv2;
   // find the upper right corner of the viewport, taking into account the
   // lower left boundary of this tile
@@ -742,8 +744,8 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
   this->NormalizedDisplayToDisplay(vpu2,vpv2);
   // now compute the size of the intersection of the viewport with the
   // current tile
-  *usize = (int)(vpu2 + 0.5) - *lowerLeftU;
-  *vsize = (int)(vpv2 + 0.5) - *lowerLeftV;  
+  *usize = static_cast<int>(vpu2 + 0.5) - *lowerLeftU;
+  *vsize = static_cast<int>(vpv2 + 0.5) - *lowerLeftV;  
   if (*usize < 0)
     {
     *usize = 0;

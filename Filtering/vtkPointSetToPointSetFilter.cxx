@@ -17,7 +17,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.61");
+vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.62");
 
 //----------------------------------------------------------------------------
 // Construct object.
@@ -67,7 +67,7 @@ vtkPointSet *vtkPointSetToPointSetFilter::GetInput()
     return NULL;
     }
   
-  return (vtkPointSet *)(this->Inputs[0]);
+  return static_cast<vtkPointSet *>(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ vtkPolyData *vtkPointSetToPointSetFilter::GetPolyDataOutput()
     }
   if (ds->GetDataObjectType() == VTK_POLY_DATA)
     {
-    return (vtkPolyData *)ds;
+    return static_cast<vtkPolyData *>(ds);
     }
   return NULL;
 }
@@ -112,7 +112,7 @@ vtkStructuredGrid *vtkPointSetToPointSetFilter::GetStructuredGridOutput()
     }
   if (ds->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
-    return (vtkStructuredGrid *)ds;
+    return static_cast<vtkStructuredGrid *>(ds);
     }
   return NULL;
 }
@@ -128,7 +128,7 @@ vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
     }
   if (ds->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
-    return (vtkUnstructuredGrid *)ds;
+    return static_cast<vtkUnstructuredGrid *>(ds);
     }
   return NULL;
 }

@@ -22,7 +22,7 @@
 #include <vtkstd/iterator>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.73");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.74");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //=============================================================================
@@ -564,9 +564,12 @@ unsigned char *vtkColorTransferFunction::MapValue( double x )
   double rgb[3];
   this->GetColor( x, rgb );
   
-  this->UnsignedCharRGBAValue[0] = (unsigned char) (255.0*rgb[0] + 0.5);
-  this->UnsignedCharRGBAValue[1] = (unsigned char) (255.0*rgb[1] + 0.5);
-  this->UnsignedCharRGBAValue[2] = (unsigned char) (255.0*rgb[2] + 0.5);
+  this->UnsignedCharRGBAValue[0] =
+    static_cast<unsigned char>(255.0*rgb[0] + 0.5);
+  this->UnsignedCharRGBAValue[1] =
+    static_cast<unsigned char>(255.0*rgb[1] + 0.5);
+  this->UnsignedCharRGBAValue[2] =
+    static_cast<unsigned char>(255.0*rgb[2] + 0.5);
   this->UnsignedCharRGBAValue[3] = 255;
   return this->UnsignedCharRGBAValue;
 }
@@ -670,12 +673,15 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
       {
       if(usingLogScale)
         {
-        logX = logStart + (double(i)/double(size-1))*(logEnd-logStart);
-        x = pow((double)10.0, logX);
+        logX = logStart +
+          (static_cast<double>(i)/static_cast<double>(size-1))
+          *(logEnd-logStart);
+        x = pow(static_cast<double>(10.0), logX);
         }
       else
         {
-        x = xStart + (double(i)/double(size-1))*(xEnd-xStart);
+        x = xStart + (static_cast<double>(i)/static_cast<double>(size-1))
+          *(xEnd-xStart);
         }
       }
     else
@@ -683,7 +689,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
       if(usingLogScale)
         {
         logX = 0.5*(logStart+logEnd);
-        x = pow((double)10.0, logX);
+        x = pow(static_cast<double>(10.0), logX);
         }
       else
         {
@@ -1054,8 +1060,10 @@ const unsigned char *vtkColorTransferFunction::GetTable( double xStart, double x
 }
 
 //----------------------------------------------------------------------------
-void vtkColorTransferFunction::BuildFunctionFromTable( double xStart, double xEnd,
-                                                       int size, double *table)
+void vtkColorTransferFunction::BuildFunctionFromTable(double xStart,
+                                                      double xEnd,
+                                                      int size,
+                                                      double *table)
 {
   double inc = 0.0;
   double *tptr = table;
@@ -1064,7 +1072,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable( double xStart, double xEn
   
   if( size > 1 )
     {
-    inc = (xEnd-xStart)/(double)(size-1);
+    inc = (xEnd-xStart)/static_cast<double>(size-1);
     }
   
   int i;
@@ -1192,7 +1200,7 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
   double          rgb[3];
   unsigned char  *optr = output;
   T              *iptr = input;
-  unsigned char   alpha = (unsigned char)(self->GetAlpha()*255.0);
+  unsigned char   alpha = static_cast<unsigned char>(self->GetAlpha()*255.0);
   
   if(self->GetSize() == 0)
     {
@@ -1202,18 +1210,19 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 
   while (--i >= 0) 
     {
-    x = (double) *iptr;
+    x = static_cast<double>(*iptr);
     self->GetColor(x, rgb);
     
     if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
       {
-      *(optr++) = (unsigned char)(rgb[0]*255.0 + 0.5);
-      *(optr++) = (unsigned char)(rgb[1]*255.0 + 0.5);
-      *(optr++) = (unsigned char)(rgb[2]*255.0 + 0.5);
+      *(optr++) = static_cast<unsigned char>(rgb[0]*255.0 + 0.5);
+      *(optr++) = static_cast<unsigned char>(rgb[1]*255.0 + 0.5);
+      *(optr++) = static_cast<unsigned char>(rgb[2]*255.0 + 0.5);
       }
     else // LUMINANCE  use coeffs of (0.30  0.59  0.11)*255.0
       {
-      *(optr++) = (unsigned char)(rgb[0]*76.5 + rgb[1]*150.45 + rgb[2]*28.05 + 0.5); 
+      *(optr++) = static_cast<unsigned char>(rgb[0]*76.5 + rgb[1]*150.45 +
+                                             rgb[2]*28.05 + 0.5); 
       }
     
     if (outFormat == VTK_RGBA || outFormat == VTK_LUMINANCE_ALPHA)
@@ -1373,7 +1382,7 @@ void vtkColorTransferFunctionMagMapData(vtkColorTransferFunction* self,
     sum = 0;
     for (j = 0; j < inIncr; ++j)
       {
-      tmp = (double)(*input);  
+      tmp = static_cast<double>(*input);  
       sum += (tmp * tmp);
       ++input;
       }

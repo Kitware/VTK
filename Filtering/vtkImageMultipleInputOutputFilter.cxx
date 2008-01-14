@@ -18,7 +18,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.14");
+vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.15");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputOutputFilter::vtkImageMultipleInputOutputFilter()
@@ -50,7 +50,7 @@ vtkImageData *vtkImageMultipleInputOutputFilter::GetOutput(int idx)
     return NULL;
     }
   
-  return (vtkImageData*)(this->Outputs[idx]);
+  return static_cast<vtkImageData*>(this->Outputs[idx]);
 }
 
 
@@ -76,8 +76,8 @@ void vtkImageMultipleInputOutputFilter::ExecuteInformation()
     }
 
   // Let the subclass modify the default.
-  this->ExecuteInformation((vtkImageData**)(this->Inputs), 
-                           (vtkImageData**)(this->Outputs));
+  this->ExecuteInformation(reinterpret_cast<vtkImageData**>(this->Inputs), 
+                           reinterpret_cast<vtkImageData**>(this->Outputs));
 }
 
 // Call the alternate version of this method, and use the returned input
@@ -141,10 +141,12 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiInOutThreadedExecute( void *arg )
   int ext[6], splitExt[6], total;
   int threadId, threadCount;
   
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
+  threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
+  threadCount =
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg)->NumberOfThreads;
   
-  str = (vtkImageMultiThreadStruct *)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  str = static_cast<vtkImageMultiThreadStruct *>(
+    static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
   
   memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
          sizeof(int)*6);
@@ -192,8 +194,8 @@ void vtkImageMultipleInputOutputFilter::ExecuteData(vtkDataObject *out)
   vtkImageMultiThreadStruct str;
   
   str.Filter = this;
-  str.Inputs = (vtkImageData **)this->Inputs;
-  str.Outputs = (vtkImageData **)this->Outputs;
+  str.Inputs = reinterpret_cast<vtkImageData **>(this->Inputs);
+  str.Outputs = reinterpret_cast<vtkImageData **>(this->Outputs);
   
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);
   

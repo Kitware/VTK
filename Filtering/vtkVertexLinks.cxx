@@ -39,7 +39,7 @@ struct vtkVertexLinksInternals
 };
 
 
-vtkCxxRevisionMacro(vtkVertexLinks, "1.5");
+vtkCxxRevisionMacro(vtkVertexLinks, "1.6");
 vtkStandardNewMacro(vtkVertexLinks);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ unsigned long vtkVertexLinks::GetActualMemorySize()
   size *= sizeof(vtkIdType*);
   size += this->Internals->VertexLinkInfo.size()*sizeof(vtkVertexLinksInternals::vtkVertexLinkInfo);
 
-  return (unsigned long) ceil((float)size/1024.0); //kilobytes
+  return static_cast<unsigned long>(ceil(size/1024.0)); //kilobytes
 }
 
 //----------------------------------------------------------------------------

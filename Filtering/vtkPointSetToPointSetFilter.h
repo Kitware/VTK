@@ -62,7 +62,9 @@ public:
   // set, which is necessary for abstract filter objects.
   vtkPointSet *GetOutput();
   vtkPointSet *GetOutput(int idx)
-    {return (vtkPointSet *) this->vtkPointSetSource::GetOutput(idx); };
+    {
+      return this->vtkPointSetSource::GetOutput(idx);
+    }
 
   // Description:
   // Get the output as vtkPolyData. Performs run-time checking.

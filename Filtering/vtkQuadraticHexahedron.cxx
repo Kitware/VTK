@@ -24,7 +24,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.14");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -323,7 +323,8 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
+      this->EvaluateLocation(subId, pc, closestPoint,
+                             static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;

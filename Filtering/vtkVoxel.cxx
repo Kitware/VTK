@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.3");
+vtkCxxRevisionMacro(vtkVoxel, "1.4");
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,8 @@ int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
+      this->EvaluateLocation(subId, pc, closestPoint,
+                             static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;

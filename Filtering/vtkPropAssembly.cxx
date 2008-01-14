@@ -23,7 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.3");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.4");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -74,7 +74,7 @@ int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
   int renderedSomething=0;
 
   fraction = this->AllocatedRenderTime / 
-             (double)this->Parts->GetNumberOfItems();
+    static_cast<double>(this->Parts->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -124,7 +124,7 @@ int vtkPropAssembly::RenderVolumetricGeometry(vtkViewport *ren)
   int renderedSomething=0;
 
   fraction = this->AllocatedRenderTime / 
-             (double)this->Parts->GetNumberOfItems();
+    static_cast<double>(this->Parts->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -155,7 +155,7 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
-             (double)this->Parts->GetNumberOfItems();
+    static_cast<double>(this->Parts->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -186,7 +186,7 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
-             (double)this->Parts->GetNumberOfItems();
+    static_cast<double>(this->Parts->GetNumberOfItems());
   
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )

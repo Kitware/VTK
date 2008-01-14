@@ -21,7 +21,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.2");
+vtkCxxRevisionMacro(vtkPolyLine, "1.3");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -216,7 +216,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
-          if ( (theta=asin((double)vtkMath::Normalize(q))) == 0.0 ) 
+          if ( (theta=asin(static_cast<double>(vtkMath::Normalize(q)))) == 0.0 ) 
             { //no rotation, use previous normal
             normals->InsertTuple(linePts[j],normal);
             continue;

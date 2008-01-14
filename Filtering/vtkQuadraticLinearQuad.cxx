@@ -26,7 +26,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.6");
+vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.7");
 vtkStandardNewMacro (vtkQuadraticLinearQuad);
 
 //----------------------------------------------------------------------------
@@ -160,7 +160,8 @@ void vtkQuadraticLinearQuad::EvaluateLocation(int& vtkNotUsed(subId),
                                               double x[3], double *weights)
 {
   int i, j;
-  double *p = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *p =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   this->InterpolationFunctions(pcoords,weights);
 

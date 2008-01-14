@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.14");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -276,7 +276,8 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
+      this->EvaluateLocation(subId, pc, closestPoint,
+                             static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;

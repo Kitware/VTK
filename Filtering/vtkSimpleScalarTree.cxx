@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.8");
+vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.9");
 vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};
@@ -106,7 +106,8 @@ void vtkSimpleScalarTree::BuildTree()
   
   // Compute the number of levels in the tree
   //
-  numLeafs = (int) ceil((double)numCells/this->BranchingFactor);
+  numLeafs = static_cast<int>(
+    ceil(static_cast<double>(numCells)/this->BranchingFactor));
   for (prod=1, numNodes=1, this->Level=0; 
        prod < numLeafs && this->Level <= this->MaxLevel; this->Level++ )
     {
@@ -158,7 +159,8 @@ void vtkSimpleScalarTree::BuildTree()
     {
     parentOffset = offset - prod/this->BranchingFactor;
     prod /= this->BranchingFactor;
-    numParentLeafs = (int) ceil((double)numLeafs/this->BranchingFactor);
+    numParentLeafs = static_cast<int>(
+      ceil(static_cast<double>(numLeafs)/this->BranchingFactor));
 
     for ( leaf=0, node=0; node < numParentLeafs; node++ )
       {

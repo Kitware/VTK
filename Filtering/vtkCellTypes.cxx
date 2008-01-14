@@ -15,7 +15,7 @@
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
 
-vtkCxxRevisionMacro(vtkCellTypes, "1.3");
+vtkCxxRevisionMacro(vtkCellTypes, "1.4");
 vtkStandardNewMacro(vtkCellTypes);
 
 // This list should contain the cell class names in
@@ -278,7 +278,7 @@ unsigned long vtkCellTypes::GetActualMemorySize()
     size += this->LocationArray->GetActualMemorySize();
     }
 
-  return (unsigned long) ceil((float)size/1024.0); //kilobytes
+  return static_cast<unsigned long>(ceil(size/1024.0)); //kilobytes
 }
 
 

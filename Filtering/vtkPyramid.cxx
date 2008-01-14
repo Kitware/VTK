@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.3");
+vtkCxxRevisionMacro(vtkPyramid, "1.4");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -178,7 +178,8 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
+      this->EvaluateLocation(subId, pc, closestPoint,
+                             static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;
