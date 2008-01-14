@@ -138,6 +138,7 @@ int TestScenePicker(int argc, char* argv[])
 {
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetStencilCapable(1);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
 
   renWin->AddRenderer(ren);
@@ -158,15 +159,38 @@ int TestScenePicker(int argc, char* argv[])
   iren->AddObserver(vtkCommand::MouseMoveEvent, command);
 
   renWin->Render();
-  iren->Initialize();
 
-  // Check if scene picking works.
   int retVal = EXIT_SUCCESS;
+
+  int tryit = 1;
+  int rgba[4];
   int e[2] = {175, 215};
-  if (command->m_ActorDescription[picker->GetViewProp(e)] != "Head" ||
-      picker->GetCellId(e) != 50992)
+  renWin->GetColorBufferSizes(rgba);
+  if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
     {
-    retVal = EXIT_FAILURE;
+    cerr 
+      << "Must have at least 24 bit color depth for cell selection."
+      << endl;
+    tryit = 0;
+    }
+  if (!renWin->GetStencilCapable())
+    {
+    cerr 
+      << "Vertex selection will not work without stencil capable rendering."
+      << endl;
+    //tryit = 0; //test doesn't exercise vertex selection
+    }
+
+  iren->Initialize();
+  
+  if (tryit)
+    {  
+    // Check if scene picking works.
+    if (command->m_ActorDescription[picker->GetViewProp(e)] != "Head" ||
+        picker->GetCellId(e) != 50992)
+      {
+      retVal = EXIT_FAILURE;
+      }
     }
 
   for ( int i = 0; i < argc; ++i )
