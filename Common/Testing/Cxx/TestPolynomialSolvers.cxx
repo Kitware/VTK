@@ -17,7 +17,11 @@ void PrintPolynomial( double* P, unsigned int degP )
   unsigned int degPm1 = degP - 1;
   for ( unsigned int i = 0; i < degPm1; ++ i ) 
     {
-    if ( P[i] > 0 ) cout << "+" << P[i] << "*x**" << degP - i;
+    if ( P[i] > 0 ) 
+      {
+      if ( i ) cout << "+" << P[i] << "*x**" << degP - i;
+      else cout << P[i] << "*x**" << degP - i;
+      }
     else if ( P[i] < 0 ) cout << P[i] << "*x**" << degP - i;
     }   
 
@@ -181,12 +185,12 @@ int TestPolynomialSolvers( int, char *[] )
     {
     if ( fabs ( roots[i] ) - 4. > tolRoots )
       {
-      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ): root "<<roots[i]<<" != +/-4");
+      vtkGenericWarningMacro("FerrariSolve(1*x**4-32*x**2+256, ]-4;4] ): root "<<roots[i]<<" != +/-4");
       return 1;  
       }
     if ( mult[i] != 2 )
       {
-      vtkGenericWarningMacro("FerrariSolve(, ]-4;4] ): multiplicity "<<mult[i]<<" != 2");
+      vtkGenericWarningMacro("FerrariSolve(1*x**4-32*x**2+256, ]-4;4] ): multiplicity "<<mult[i]<<" != 2");
       return 1;  
       }
     }
@@ -239,7 +243,32 @@ int TestPolynomialSolvers( int, char *[] )
        << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
-  // 6. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
+  // 6. Solving x^4 + 3x^3 - 4x + 1e-18 = 0 illustrates how the Ferrari solver
+  // filters some numerical noise by noticing there is a double root.
+  // This also exercises a case not otherwise tested.
+  double P4_3[] = { 1., 3., -4., 0., 1.e-18 };
+  PrintPolynomial( P4_3, 4 );
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::FerrariSolve( P4_3 + 1, roots, mult, tolDirectSolvers );
+  timer->StopTimer();
+
+  if ( testIntValue != 3 )
+    {
+    vtkGenericWarningMacro("FerrariSolve(x^4 +3x^3 -3x^2 +1e-18 ) = "<<testIntValue<<" != 3");
+    return 1;
+    }
+  cout << "Ferrari tol=" << tolDirectSolvers
+               << ", " << testIntValue << " " 
+               << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) 
+    {
+    cout << roots[i]; 
+    if ( mult[i] > 1 ) cout << "(" << mult[i] << ")";
+    cout << "\n";
+    }
+
+  // 7. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
   // filters some numerical noise by noticing there is a double root (that
   // SolveCubic does not notice).
   double P3[] = { 1., -2.e-4, 1.e-8, 0.};
@@ -275,7 +304,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 7. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested
+  // 8. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested.
   double P3_2[] = { 1., 1., 1., 1.};
   PrintPolynomial( P3_2, 3 );
 
@@ -309,7 +338,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 8. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested
+  // 9. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested.
   double P3_3[] = { 1., -2.e-6 , .999999999999999e-12, 0.};
   PrintPolynomial( P3_3, 3 );
 
