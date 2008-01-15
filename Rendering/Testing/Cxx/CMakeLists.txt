@@ -7,6 +7,11 @@ SET(RenderingTests
 
 SET(RenderingTestsWithArguments)
 
+INCLUDE_DIRECTORIES(
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 IF(VTK_USE_DISPLAY)
   # For tests that actually use a vtkRenderWindow
   SET(RenderingTestsWithArguments
@@ -50,6 +55,20 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   ${RenderingTests};${RenderingTestsWithArguments}
   EXTRA_INCLUDE vtkTestDriver.h
   )
+
+SET (TEST_FBO_IMPLEMENTATION_EXE
+  TestFBOImplementation)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in 
+  ${CMAKE_CURRENT_BINARY_DIR}/TestFBOInclude.h
+  @ONLY IMMEDIATE ESCAPE_QUOTES)
+
+# This is used by TestFBO. Using a separate processes makes is possible to
+# avoid issues to OpenGL implementations segfaulting etc. from affecting the
+# test.
+ADD_EXECUTABLE(TestFBOImplementation
+  TestFBOImplementation.cxx)
+TARGET_LINK_LIBRARIES(TestFBOImplementation
+  vtkRendering)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
