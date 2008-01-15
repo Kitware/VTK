@@ -102,8 +102,12 @@ IF(JAVA_COMPILE)
       INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
       VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
       #ADD_DEPENDENCIES(VTKJava${kit} VTKJavaExecutable)
-      ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
+      #ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
       #ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
+      # Make sure all .java files are build before any .class files are built.
+      FOREACH(otherKit ${KITS})
+        ADD_DEPENDENCIES(VTKJava${kit} vtk${otherKit}JavaJavaClasses)
+      ENDFOREACH(otherKit)
     ENDFOREACH(kit)
 
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Java/vtkBuildAllDriver.java.in
