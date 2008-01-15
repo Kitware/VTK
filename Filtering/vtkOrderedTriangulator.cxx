@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.6");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.7");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -179,6 +179,7 @@ struct OTTetra
     this->Points[0] = this->Points[1] = this->Points[2] = this->Points[3] = 0;
     this->Neighbors[0] = this->Neighbors[1] =
       this->Neighbors[2] = this->Neighbors[3] = 0;
+    this->DeleteMe = 0;
     }
 
   // Center and radius squared of circumsphere of this tetra
@@ -200,8 +201,13 @@ struct OTTetra
   void GetFacePoints(int i, OTFace *face);
   int InCircumSphere(double x[3]);
   TetraClassification DetermineType(); //inside, outside
-  TetraListIterator ListIterator; //points to the list of tetras
+  int DeleteMe;
 };
+
+bool OTTetraIsMarked(const OTTetra *tetra)
+{
+  return tetra->DeleteMe == 1;
+}
 
 //---Class represents the Delaunay triangulation using points and tetras.
 // Additional support for the Delaunay triangulation process.
@@ -435,7 +441,6 @@ void vtkOrderedTriangulator::Initialize()
     {
     tetras[i] = new(this->Heap) OTTetra();
     this->Mesh->Tetras.push_front(tetras[i]);
-    tetras[i]->ListIterator = this->Mesh->Tetras.begin();
     tetras[i]->Center[0] = center[0];
     tetras[i]->Center[1] = center[1];
     tetras[i]->Center[2] = center[2];
@@ -823,7 +828,6 @@ OTTetra *vtkOTMesh::CreateTetra(OTPoint *p, OTFace *face)
 {
   OTTetra *tetra = new(this->Heap) OTTetra;
   this->Tetras.push_front(tetra);
-  tetra->ListIterator = this->Tetras.begin();
   tetra->Radius2 = vtkTetra::Circumsphere(p->P,
                                           face->Points[0]->P,
                                           face->Points[1]->P,
@@ -965,9 +969,10 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
     if ( tetra->CurrentPointId == p->InsertionId &&
          tetra->Type == OTTetra::InCavity )
       {
-      this->Tetras.erase(tetra->ListIterator);
+      tetra->DeleteMe = 1;
       }
     }
+  this->Tetras.remove_if(OTTetraIsMarked);
 
 #if 0
   //please leave this for debugging purposes
@@ -1713,4 +1718,3 @@ void vtkOrderedTriangulator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
 
 }
-
