@@ -194,6 +194,7 @@ public:
   // Get the position of the widget's label in display coordinates.
   double* GetLabelPosition();
   void GetLabelPosition(double pos[3]);
+  void GetWorldLabelPosition(double pos[3]);
 
 protected:
   vtkBiDimensionalRepresentation2D();
