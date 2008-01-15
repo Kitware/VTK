@@ -26,7 +26,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.41");
+vtkCxxRevisionMacro(vtkImageReader2, "1.42");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -300,7 +300,7 @@ void vtkImageReader2::SetFilePrefix(const char *prefix)
 
 //----------------------------------------------------------------------------
 // This function sets the pattern of the file name which turn a prefix
-// into a file name. "%s.%3d" would be the
+// into a file name. "%s.%03d" would be the
 // pattern of a series: image.001, image.002 ...
 void vtkImageReader2::SetFilePattern(const char *pattern)
 {
