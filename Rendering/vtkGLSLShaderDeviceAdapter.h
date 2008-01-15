@@ -63,6 +63,12 @@ protected:
   // Description:
   int GetAttributeLocation(const char* attrName);
 
+  friend class vtkGLSLShaderProgram;
+
+  // This is set by vtkGLSLShaderProgram to tell is we should use OpenGL2.0 API
+  // or extension API.
+  vtkSetMacro(UseOpenGL2, int);
+  vtkGetMacro(UseOpenGL2, int);
 private:
   vtkGLSLShaderDeviceAdapter(const vtkGLSLShaderDeviceAdapter&);
   // Not implemented
@@ -70,6 +76,8 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
+
+  int UseOpenGL2;
 //ETX
 };
 

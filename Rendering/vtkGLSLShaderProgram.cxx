@@ -64,7 +64,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.15");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.16");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -362,6 +362,10 @@ void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
     {
     return;
     }
+
+  vtkGLSLShaderDeviceAdapter* adapter = vtkGLSLShaderDeviceAdapter::SafeDownCast(
+    this->GetShaderDeviceAdapter());
+
   // Load extensions using vtkOpenGLExtensionManager
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   // How can I get access to the vtkRenderWindow from here?
@@ -373,6 +377,7 @@ void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
     extensions->LoadExtension("GL_VERSION_1_3");
     this->SetGLExtensionsLoaded(1);
     this->UseOpenGL2 = 1;
+    adapter->SetUseOpenGL2(1);
     }
   else if (   extensions->ExtensionSupported("GL_VERSION_1_3")
            && extensions->ExtensionSupported("GL_ARB_shading_language_100")
@@ -388,6 +393,7 @@ void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
     extensions->LoadExtension("GL_ARB_fragment_shader");
     this->SetGLExtensionsLoaded(1);
     this->UseOpenGL2 = 0;
+    adapter->SetUseOpenGL2(0);
     }
   else
     {
