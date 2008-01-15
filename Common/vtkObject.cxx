@@ -19,7 +19,9 @@
 #include "vtkGarbageCollector.h"
 #include "vtkTimeStamp.h"
 
-vtkCxxRevisionMacro(vtkObject, "1.93");
+#include <vtkstd/map>
+
+vtkCxxRevisionMacro(vtkObject, "1.93.12.1");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -54,7 +56,7 @@ int vtkObject::GetGlobalWarningDisplay()
 class vtkObserver
 {
  public:
-  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0), Visited(0) {}
+  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0) {}
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -63,7 +65,6 @@ class vtkObserver
   unsigned long Tag;
   vtkObserver *Next;
   float Priority;
-  int Visited;
 };
 
 void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
@@ -408,12 +409,27 @@ int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
 int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
                                    vtkObject *self)
 {
+  // When we invoke an event, the observer may add or remove observers.  To make
+  // sure that the iteration over the observers goes smoothly, we capture any
+  // change to the list with the ListModified ivar.  However, an observer may
+  // also do something that causes another event to be invoked in this object.
+  // That means that this method will be called recursively, which means that we
+  // will obliterate the ListModified flag that the first call is relying on.
+  // To get around this, save the previous ListModified value on the stack and
+  // then restore it before leaving.
+  int saveListModified = this->ListModified;
   this->ListModified = 0;
   
+  // We also need to save what observers we have called on the stack (least it
+  // get overridden in the event invocation).  Also make sure that we do not
+  // invoke any new observers that were added during another observer's
+  // invocation.
+  typedef vtkstd::map<unsigned long, bool> VisitedMapType;
+  VisitedMapType visited;
   vtkObserver *elem = this->Start;
   while (elem)
     {
-    elem->Visited = 0;
+    visited.insert(vtkstd::make_pair(elem->Tag, false));
     elem=elem->Next;
     }
   
@@ -423,10 +439,11 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     {
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
-    if (!elem->Visited &&
-        elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+    VisitedMapType::iterator vIter = visited.find(elem->Tag);
+    if ((vIter != visited.end()) && (vIter->second == false) &&
+        (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
       {
-      elem->Visited = 1;
+      vIter->second = true;
       vtkCommand* command = elem->Command;
       command->Register(command);
       command->SetAbortFlag(0);
@@ -436,6 +453,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       if(command->GetAbortFlag())
         {
         command->UnRegister();
+        this->ListModified = saveListModified;
         return 1;
         }
       command->UnRegister();
@@ -450,6 +468,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       elem = next;
       }
     }
+  this->ListModified = saveListModified;
   return 0;
 }
 
