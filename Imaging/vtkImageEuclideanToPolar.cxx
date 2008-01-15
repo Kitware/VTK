@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.28");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.29");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
@@ -56,8 +56,8 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      X = (double)(*inSI);
-      Y = (double)(inSI[1]);
+      X = static_cast<double>(*inSI);
+      Y = static_cast<double>(inSI[1]);
       
       if ((X == 0.0) && (Y == 0.0))
         {
@@ -74,8 +74,8 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
         R = sqrt(X*X + Y*Y);
         }
       
-      *outSI = (T)(Theta);
-      outSI[1] = (T)(R);
+      *outSI = static_cast<T>(Theta);
+      outSI[1] = static_cast<T>(R);
       inSI += maxC;
       outSI += maxC;
       }

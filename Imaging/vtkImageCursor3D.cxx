@@ -19,7 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.22");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.23");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------
@@ -62,9 +62,9 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
   double value;
   int rad = self->GetCursorRadius();
   
-  c0 = (int)(self->GetCursorPosition()[0]);
-  c1 = (int)(self->GetCursorPosition()[1]);
-  c2 = (int)(self->GetCursorPosition()[2]);
+  c0 = static_cast<int>(self->GetCursorPosition()[0]);
+  c1 = static_cast<int>(self->GetCursorPosition()[1]);
+  c2 = static_cast<int>(self->GetCursorPosition()[2]);
   value = self->GetCursorValue();
   
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
@@ -75,8 +75,8 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
       {
       if (idx >= min0 && idx <= max0)
         {
-        ptr = (T *)(outData->GetScalarPointer(idx, c1, c2));
-        *ptr = (T)(value);
+        ptr = static_cast<T *>(outData->GetScalarPointer(idx, c1, c2));
+        *ptr = static_cast<T>(value);
         }
       }
     }
@@ -88,8 +88,8 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
       {
       if (idx >= min1 && idx <= max1)
         {
-        ptr = (T *)(outData->GetScalarPointer(c0, idx, c2));
-        *ptr = (T)(value);
+        ptr = static_cast<T *>(outData->GetScalarPointer(c0, idx, c2));
+        *ptr = static_cast<T>(value);
         }
       }
     }
@@ -101,8 +101,8 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
       {
       if (idx >= min2 && idx <= max2)
         {
-        ptr = (T *)(outData->GetScalarPointer(c0, c1, idx));
-        *ptr = (T)(value);
+        ptr = static_cast<T *>(outData->GetScalarPointer(c0, c1, idx));
+        *ptr = static_cast<T>(value);
         }
       }
     }
@@ -128,7 +128,7 @@ int vtkImageCursor3D::RequestData(
   switch (outData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageCursor3DExecute(this,outData, (VTK_TT *)(ptr)));
+      vtkImageCursor3DExecute(this,outData, static_cast<VTK_TT *>(ptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

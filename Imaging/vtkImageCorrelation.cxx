@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.34");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.35");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // get some other info we need
@@ -183,7 +183,8 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
               {
               for (idxC = 0; idxC < maxC; idxC++)
                 {
-                *outPtr = *outPtr + (float)((*in1Ptr2) * (*in2Ptr2));
+                *outPtr = *outPtr +
+                  static_cast<float>((*in1Ptr2) * (*in2Ptr2));
                 in1Ptr2++;
                 in2Ptr2++;
                 }
@@ -223,7 +224,7 @@ void vtkImageCorrelation::ThreadedRequestData(
   in2Extent = inData[1][0]->GetWholeExtent();
   in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
   in2Ptr = inData[1][0]->GetScalarPointerForExtent(in2Extent);
-  outPtr = (float *)outData[0]->GetScalarPointerForExtent(outExt);
+  outPtr = static_cast<float *>(outData[0]->GetScalarPointerForExtent(outExt));
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
@@ -246,9 +247,9 @@ void vtkImageCorrelation::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageCorrelationExecute(this, inData[0][0], 
-                                 (VTK_TT *)(in1Ptr), 
+                                 static_cast<VTK_TT *>(in1Ptr), 
                                  inData[1][0], 
-                                 (VTK_TT *)(in2Ptr), 
+                                 static_cast<VTK_TT *>(in2Ptr), 
                                  outData[0], outPtr, outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

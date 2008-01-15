@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.39");
+vtkCxxRevisionMacro(vtkImageDifference, "1.40");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -43,9 +43,9 @@ vtkImageDifference::vtkImageDifference()
 // not so simple macro for calculating error
 #define vtkImageDifferenceComputeError(c1,c2) \
 /* compute the pixel to pixel difference first */ \
-r1 = abs(((int)(c1)[0] - (int)(c2)[0])); \
-g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
-b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
+  r1 = abs((static_cast<int>((c1)[0]) - static_cast<int>((c2)[0])));    \
+  g1 = abs((static_cast<int>((c1)[1]) - static_cast<int>((c2)[1])));    \
+  b1 = abs((static_cast<int>((c1)[2]) - static_cast<int>((c2)[2])));    \
 if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
 /* if averaging is on and we have neighbor info then compute */ \
 /* input1 to avg(input2) */ \
@@ -53,40 +53,40 @@ if (this->Averaging && \
     (idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
     (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
   {\
-  ar1 = (int)(c1)[0]; \
-  ag1 = (int)(c1)[1]; \
-  ab1 = (int)(c1)[2]; \
-  ar2 = (int)(c2)[0] + (int)(c2 - in2Inc0)[0] + (int)(c2 + in2Inc0)[0] + \
-        (int)(c2-in2Inc1)[0] + (int)(c2-in2Inc1-in2Inc0)[0] + (int)(c2-in2Inc1+in2Inc0)[0] + \
-        (int)(c2+in2Inc1)[0] + (int)(c2+in2Inc1-in2Inc0)[0] + (int)(c2+in2Inc1+in2Inc0)[0]; \
-  ag2 = (int)(c2)[1] + (int)(c2 - in2Inc0)[1] + (int)(c2 + in2Inc0)[1] + \
-        (int)(c2-in2Inc1)[1] + (int)(c2-in2Inc1-in2Inc0)[1] + (int)(c2-in2Inc1+in2Inc0)[1] + \
-        (int)(c2+in2Inc1)[1] + (int)(c2+in2Inc1-in2Inc0)[1] + (int)(c2+in2Inc1+in2Inc0)[1]; \
-  ab2 = (int)(c2)[2] + (int)(c2 - in2Inc0)[2] + (int)(c2 + in2Inc0)[2] + \
-        (int)(c2-in2Inc1)[2] + (int)(c2-in2Inc1-in2Inc0)[2] + (int)(c2-in2Inc1+in2Inc0)[2] + \
-        (int)(c2+in2Inc1)[2] + (int)(c2+in2Inc1-in2Inc0)[2] + (int)(c2+in2Inc1+in2Inc0)[2]; \
+    ar1 = static_cast<int>((c1)[0]);            \
+    ag1 = static_cast<int>((c1)[1]);            \
+    ab1 = static_cast<int>((c1)[2]);                                    \
+    ar2 = static_cast<int>((c2)[0]) + static_cast<int>((c2 - in2Inc0)[0]) + static_cast<int>((c2 + in2Inc0)[0]) + \
+      static_cast<int>((c2-in2Inc1)[0]) + static_cast<int>((c2-in2Inc1-in2Inc0)[0]) + static_cast<int>((c2-in2Inc1+in2Inc0)[0]) + \
+      static_cast<int>((c2+in2Inc1)[0]) + static_cast<int>((c2+in2Inc1-in2Inc0)[0]) + static_cast<int>((c2+in2Inc1+in2Inc0)[0]); \
+    ag2 = static_cast<int>((c2)[1]) + static_cast<int>((c2 - in2Inc0)[1]) + static_cast<int>((c2 + in2Inc0)[1]) + \
+      static_cast<int>((c2-in2Inc1)[1]) + static_cast<int>((c2-in2Inc1-in2Inc0)[1]) + static_cast<int>((c2-in2Inc1+in2Inc0)[1]) + \
+      static_cast<int>((c2+in2Inc1)[1]) + static_cast<int>((c2+in2Inc1-in2Inc0)[1]) + static_cast<int>((c2+in2Inc1+in2Inc0)[1]); \
+    ab2 = static_cast<int>((c2)[2]) + static_cast<int>((c2 - in2Inc0)[2]) + static_cast<int>((c2 + in2Inc0)[2]) + \
+      static_cast<int>((c2-in2Inc1)[2]) + static_cast<int>((c2-in2Inc1-in2Inc0)[2]) + static_cast<int>((c2-in2Inc1+in2Inc0)[2]) + \
+      static_cast<int>((c2+in2Inc1)[2]) + static_cast<int>((c2+in2Inc1-in2Inc0)[2]) + static_cast<int>((c2+in2Inc1+in2Inc0)[2]); \
   r1 = abs(ar1 - ar2/9); \
   g1 = abs(ag1 - ag2/9); \
   b1 = abs(ab1 - ab2/9); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
   /* Now compute the avg(input1) to avg(input2) comparison */ \
-  ar1 = (int)(c1)[0] + (int)(c1 - in1Inc0)[0] + (int)(c1 + in1Inc0)[0] + \
-        (int)(c1-in1Inc1)[0] + (int)(c1-in1Inc1-in1Inc0)[0] + (int)(c1-in1Inc1+in1Inc0)[0] + \
-        (int)(c1+in1Inc1)[0] + (int)(c1+in1Inc1-in1Inc0)[0] + (int)(c1+in1Inc1+in1Inc0)[0]; \
-  ag1 = (int)(int)(c1)[1] + (int)(c1 - in1Inc0)[1] + (int)(c1 + in1Inc0)[1] + \
-        (int)(c1-in1Inc1)[1] + (int)(c1-in1Inc1-in1Inc0)[1] + (int)(c1-in1Inc1+in1Inc0)[1] + \
-        (int)(c1+in1Inc1)[1] + (int)(c1+in1Inc1-in1Inc0)[1] + (int)(c1+in1Inc1+in1Inc0)[1]; \
-  ab1 = (int)(int)(c1)[2] + (int)(c1 - in1Inc0)[2] + (int)(c1 + in1Inc0)[2] + \
-        (int)(c1-in1Inc1)[2] + (int)(c1-in1Inc1-in1Inc0)[2] + (int)(c1-in1Inc1+in1Inc0)[2] + \
-        (int)(c1+in1Inc1)[2] + (int)(c1+in1Inc1-in1Inc0)[2] + (int)(c1+in1Inc1+in1Inc0)[2]; \
+  ar1 = static_cast<int>((c1)[0]) + static_cast<int>((c1 - in1Inc0)[0]) + static_cast<int>((c1 + in1Inc0)[0]) + \
+    static_cast<int>((c1-in1Inc1)[0]) + static_cast<int>((c1-in1Inc1-in1Inc0)[0]) + static_cast<int>((c1-in1Inc1+in1Inc0)[0]) + \
+    static_cast<int>((c1+in1Inc1)[0]) + static_cast<int>((c1+in1Inc1-in1Inc0)[0]) + static_cast<int>((c1+in1Inc1+in1Inc0)[0]); \
+  ag1 = static_cast<int>((c1)[1]) + static_cast<int>((c1 - in1Inc0)[1]) + static_cast<int>((c1 + in1Inc0)[1]) + \
+    static_cast<int>((c1-in1Inc1)[1]) + static_cast<int>((c1-in1Inc1-in1Inc0)[1]) + static_cast<int>((c1-in1Inc1+in1Inc0)[1]) + \
+    static_cast<int>((c1+in1Inc1)[1]) + static_cast<int>((c1+in1Inc1-in1Inc0)[1]) + static_cast<int>((c1+in1Inc1+in1Inc0)[1]); \
+  ab1 = static_cast<int>((c1)[2]) + static_cast<int>((c1 - in1Inc0)[2]) + static_cast<int>((c1 + in1Inc0)[2]) + \
+    static_cast<int>((c1-in1Inc1)[2]) + static_cast<int>((c1-in1Inc1-in1Inc0)[2]) + static_cast<int>((c1-in1Inc1+in1Inc0)[2]) + \
+    static_cast<int>((c1+in1Inc1)[2]) + static_cast<int>((c1+in1Inc1-in1Inc0)[2]) + static_cast<int>((c1+in1Inc1+in1Inc0)[2]); \
   r1 = abs(ar1/9 - ar2/9); \
   g1 = abs(ag1/9 - ag2/9); \
   b1 = abs(ab1/9 - ab2/9); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
   /* finally compute avg(input1) to input2) */ \
-  ar2 = (int)(c2)[0]; \
-  ag2 = (int)(c2)[1]; \
-  ab2 = (int)(c2)[2]; \
+  ar2 = static_cast<int>((c2)[0]);             \
+  ag2 = static_cast<int>((c2)[1]);             \
+  ab2 = static_cast<int>((c2)[2]);             \
   r1 = abs(ar1/9 - ar2); \
   g1 = abs(ag1/9 - ag2); \
   b1 = abs(ab1/9 - ab2); \
@@ -226,9 +226,12 @@ void vtkImageDifference::ThreadedRequestData(
       return;
       }
   
-  in1Ptr2 = (unsigned char *) inData[0][0]->GetScalarPointerForExtent(outExt);  
-  in2Ptr2 = (unsigned char *) inData[1][0]->GetScalarPointerForExtent(outExt);  
-  outPtr2 = (unsigned char *) outData[0]->GetScalarPointerForExtent(outExt);  
+  in1Ptr2 = static_cast<unsigned char *>(
+    inData[0][0]->GetScalarPointerForExtent(outExt));
+  in2Ptr2 = static_cast<unsigned char *>(
+    inData[1][0]->GetScalarPointerForExtent(outExt));
+  outPtr2 = static_cast<unsigned char *>(
+    outData[0]->GetScalarPointerForExtent(outExt));
 
   inData[0][0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
   inData[1][0]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
@@ -244,7 +247,7 @@ void vtkImageDifference::ThreadedRequestData(
   inMinX = inExt[0]; inMaxX = inExt[1];
   inMinY = inExt[2]; inMaxY = inExt[3];
 
-  target = (unsigned long)((max2 - min2 +1)*(max1 - min1 + 1)/50.0);
+  target = static_cast<unsigned long>((max2 - min2 +1)*(max1 - min1 + 1)/50.0);
   target++;
 
   for (idx2 = min2; idx2 <= max2; ++idx2)
@@ -342,9 +345,9 @@ void vtkImageDifference::ThreadedRequestData(
           {
           tb = 0;
           }
-        *outPtr0++ = (unsigned char)tr;
-        *outPtr0++ = (unsigned char)tg;
-        *outPtr0++ = (unsigned char)tb;
+        *outPtr0++ = static_cast<unsigned char>(tr);
+        *outPtr0++ = static_cast<unsigned char>(tg);
+        *outPtr0++ = static_cast<unsigned char>(tb);
         this->ThresholdedErrorPerThread[id] += (tr + tg + tb)/(3.0*255.0);
 
         in1Ptr0 += in1Inc0;

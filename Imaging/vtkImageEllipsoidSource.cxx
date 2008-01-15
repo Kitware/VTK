@@ -20,7 +20,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.35");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.36");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -132,8 +132,8 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   unsigned long count = 0;
   unsigned long target;
 
-  outVal = (T)(self->GetOutValue());
-  inVal = (T)(self->GetInValue());
+  outVal = static_cast<T>(self->GetOutValue());
+  inVal = static_cast<T>(self->GetInValue());
   center = self->GetCenter();
   radius = self->GetRadius();
 
@@ -141,7 +141,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   max0 = ext[1];
   data->GetContinuousIncrements(ext, inc0, inc1, inc2);
 
-  target = (unsigned long)((ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
+  target = static_cast<unsigned long>((ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
   target++;
 
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
@@ -149,11 +149,11 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
     // handle divide by zero
     if (radius[2] != 0.0)
       {
-      temp = ((double)idx2 - (double)(center[2])) / (double)(radius[2]);
+      temp = (static_cast<double>(idx2) - center[2]) / radius[2];
       }
     else
       {
-      if ((double)idx2 - center[2] == 0.0)
+      if (static_cast<double>(idx2) - center[2] == 0.0)
         {
         temp = 0.0;
         }
@@ -176,11 +176,11 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
       // handle divide by zero
       if (radius[1] != 0.0)
         {
-        temp = ((double)idx1 - (double)(center[1])) / (double)(radius[1]);
+        temp = (static_cast<double>(idx1) - center[1]) / radius[1];
         }
       else
         {
-        if ((double)idx1 - center[1] == 0.0)
+        if (static_cast<double>(idx1) - center[1] == 0.0)
           {
           temp = 0.0;
           }
@@ -196,11 +196,11 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
         // handle divide by zero
         if (radius[0] != 0.0)
           {
-          temp = ((double)idx0 - (double)(center[0])) / (double)(radius[0]);
+          temp = (static_cast<double>(idx0) - center[0]) / radius[0];
           }
         else
           {
-          if ((double)idx0 - center[0] == 0.0)
+          if (static_cast<double>(idx0) - center[0] == 0.0)
             {
             temp = 0.0;
             }
@@ -250,7 +250,8 @@ int vtkImageEllipsoidSource::RequestData(
   switch (data->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageEllipsoidSourceExecute(this, data, extent, (VTK_TT *)ptr));
+      vtkImageEllipsoidSourceExecute(this, data, extent,
+                                     static_cast<VTK_TT *>(ptr)));
     default:
       vtkErrorMacro("Execute: Unknown output ScalarType");
     }

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.33");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.34");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkImageDotProductExecute(vtkImageDotProduct *self,
       dot = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
         {
-        dot += (float)(*inSI1 * *inSI2);
+        dot += static_cast<float>(*inSI1 * *inSI2);
         ++inSI1;
         ++inSI2;
         }

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.34");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.35");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -89,12 +89,12 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
                                   0, this->KernelSize[1]-1, 
                                   0, this->KernelSize[2]-1);
-    this->Ellipse->SetCenter((float)(this->KernelSize[0]-1)*0.5,
-                             (float)(this->KernelSize[1]-1)*0.5,
-                             (float)(this->KernelSize[2]-1)*0.5);
-    this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
-                             (float)(this->KernelSize[1])*0.5,
-                             (float)(this->KernelSize[2])*0.5);
+    this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0]-1)*0.5,
+                             static_cast<float>(this->KernelSize[1]-1)*0.5,
+                             static_cast<float>(this->KernelSize[2]-1)*0.5);
+    this->Ellipse->SetRadius(static_cast<float>(this->KernelSize[0])*0.5,
+                             static_cast<float>(this->KernelSize[1])*0.5,
+                             static_cast<float>(this->KernelSize[2])*0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
     vtkInformation *ellipseOutInfo =
       this->Ellipse->GetExecutive()->GetOutputInformation(0);
@@ -172,16 +172,16 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  maskPtr = (unsigned char *)(mask->GetScalarPointer());
+  maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inArray->GetVoidPointer((outMin0-inExt[0])*inInc0 +
-                                        (outMin1-inExt[2])*inInc1 +
-                                        (outMin2-inExt[4])*inInc2));
+  inPtr = static_cast<T *>(inArray->GetVoidPointer((outMin0-inExt[0])*inInc0 +
+                                                   (outMin1-inExt[2])*inInc1 +
+                                                   (outMin2-inExt[4])*inInc2));
 
-  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-                           (outMax1-outMin1+1)/50.0);
+  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
+                                      (outMax1-outMin1+1)/50.0);
   target++;
   
   // loop through components
@@ -325,9 +325,10 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
     vtkTemplateMacro(
       vtkImageContinuousErode3DExecute(this, mask, 
                                        inData[0][0], 
-                                       (VTK_TT *)(inPtr), 
+                                       static_cast<VTK_TT *>(inPtr), 
                                        outData[0], outExt, 
-                                       (VTK_TT *)(outPtr),id, inArray,
+                                       static_cast<VTK_TT *>(outPtr),id,
+                                       inArray,
                                        inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

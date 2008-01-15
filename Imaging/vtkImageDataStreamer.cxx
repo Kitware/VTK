@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.36");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.37");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -125,7 +125,8 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
 
     // update the progress
     this->UpdateProgress(
-      (float)(this->CurrentDivision+1.0)/(float)this->NumberOfStreamDivisions);
+      static_cast<float>(this->CurrentDivision+1.0)
+      /static_cast<float>(this->NumberOfStreamDivisions));
     
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)

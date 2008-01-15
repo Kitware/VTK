@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.46");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.47");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -92,12 +92,12 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
                                   0, this->KernelSize[1]-1, 
                                   0, this->KernelSize[2]-1);
-    this->Ellipse->SetCenter((double)(this->KernelSize[0]-1)*0.5,
-                             (double)(this->KernelSize[1]-1)*0.5,
-                             (double)(this->KernelSize[2]-1)*0.5);
-    this->Ellipse->SetRadius((double)(this->KernelSize[0])*0.5,
-                             (double)(this->KernelSize[1])*0.5,
-                             (double)(this->KernelSize[2])*0.5);
+    this->Ellipse->SetCenter(static_cast<double>(this->KernelSize[0]-1)*0.5,
+                             static_cast<double>(this->KernelSize[1]-1)*0.5,
+                             static_cast<double>(this->KernelSize[2]-1)*0.5);
+    this->Ellipse->SetRadius(static_cast<double>(this->KernelSize[0])*0.5,
+                             static_cast<double>(this->KernelSize[1])*0.5,
+                             static_cast<double>(this->KernelSize[2])*0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
     vtkInformation *ellipseOutInfo =
       this->Ellipse->GetExecutive()->GetOutputInformation(0);
@@ -162,8 +162,8 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   numComps = outData->GetNumberOfScalarComponents();
 
   // Get ivars of this object (easier than making friends)
-  erodeValue = (T)(self->GetErodeValue());
-  dilateValue = (T)(self->GetDilateValue());
+  erodeValue = static_cast<T>(self->GetErodeValue());
+  dilateValue = static_cast<T>(self->GetDilateValue());
   kernelSize = self->GetKernelSize();
   kernelMiddle = self->GetKernelMiddle();
   hoodMin0 = - kernelMiddle[0];
@@ -174,14 +174,14 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  maskPtr = (unsigned char *)(mask->GetScalarPointer());
+  maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
+  inPtr = static_cast<T *>(inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
-  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-                           (outMax1-outMin1+1)/50.0);
+  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
+                                      (outMax1-outMin1+1)/50.0);
   target++;
   
   // loop through components
@@ -311,8 +311,9 @@ void vtkImageDilateErode3D::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageDilateErode3DExecute(this, mask, inData[0][0],
-                                   (VTK_TT *)(inPtr),outData[0], outExt, 
-                                   (VTK_TT *)(outPtr),id, inInfo));
+                                   static_cast<VTK_TT *>(inPtr),outData[0],
+                                   outExt, 
+                                   static_cast<VTK_TT *>(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.35");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.36");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -138,7 +138,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get increments to march through data 
@@ -182,12 +182,12 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
         for (idxC = 0; idxC < maxC; idxC++)
           {
           // do X axis
-          d = (double)(inPtr[useMin[idxC]]);
-          d -= (double)(inPtr[useMax[idxC]]);
+          d = static_cast<double>(inPtr[useMin[idxC]]);
+          d -= static_cast<double>(inPtr[useMax[idxC]]);
           sum += d * r[idxC];
           inPtr++;
           }
-        *outPtr = (T)sum;
+        *outPtr = static_cast<T>(sum);
         outPtr++;
         }
       outPtr += outIncY;
@@ -224,8 +224,8 @@ void vtkImageDivergence::ThreadedExecute (vtkImageData *inData,
     {
     vtkTemplateMacro(
       vtkImageDivergenceExecute(this, inData, 
-                                (VTK_TT *)(inPtr), outData, 
-                                (VTK_TT *)(outPtr), 
+                                static_cast<VTK_TT *>(inPtr), outData,
+                                static_cast<VTK_TT *>(outPtr),
                                 outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

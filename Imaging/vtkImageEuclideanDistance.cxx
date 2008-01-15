@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.23");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.24");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -165,9 +165,10 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
   else   
     // No initialization required. We just copy inData to outData.
     {
-    vtkImageEuclideanDistanceCopyData( self, 
-                                       inData, (T *)(inPtr), 
-                                       outData, outExt, (double *)(outPtr) );
+    vtkImageEuclideanDistanceCopyData( self,
+                                       inData, static_cast<T *>(inPtr),
+                                       outData, outExt,
+                                       static_cast<double *>(outPtr) );
     }
 }
 
@@ -203,10 +204,10 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
   inSize0 = outMax0 - outMin0 + 1;  
   maxDist = self->GetMaximumDistance();
 
-  buff= (double *)calloc(outMax0+1,sizeof(double));
+  buff= static_cast<double *>(calloc(outMax0+1,sizeof(double)));
     
   // precompute sq[]. Anisotropy is handled here by using Spacing information
-  sq = (double *)calloc(inSize0*2+2,sizeof(double));
+  sq = static_cast<double *>(calloc(inSize0*2+2,sizeof(double)));
   for(df=2*inSize0+1;df>inSize0;df--)
     {
     sq[df]=maxDist;
@@ -300,7 +301,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1]) 
             {
-            b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
+            b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
                       
             for(n=a;n<=b;n++) 
@@ -329,7 +330,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1]) 
             {
-            b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
+            b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0-b)<outMin0) {b=idx0-outMin0;}
                     
             for(n=a;n<=b;n++) 
@@ -389,11 +390,11 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(
   inSize0 = outMax0 - outMin0 + 1;  
   maxDist = self->GetMaximumDistance();
 
-  buff= (double *)calloc(outMax0+1,sizeof(double));
-  temp= (double *)calloc(outMax0+1,sizeof(double));
+  buff= static_cast<double *>(calloc(outMax0+1,sizeof(double)));
+  temp= static_cast<double *>(calloc(outMax0+1,sizeof(double)));
     
   // precompute sq[]. Anisotropy is handled here by using Spacing information
-  sq = (double *)calloc(inSize0*2+2,sizeof(double));
+  sq = static_cast<double *>(calloc(inSize0*2+2,sizeof(double)));
   for(df=2*inSize0+1;df>inSize0;df--) 
     {
     sq[df]=maxDist;
@@ -487,7 +488,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(
           
           if(buff[idx0]>buffer+sq[1]) 
             {
-            b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
+            b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
                       
             for(n=a;n<=b;n++) 
@@ -517,7 +518,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1]) 
             {
-            b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
+            b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0-b)<outMin0) b=idx0-outMin0;
                     
             for(n=a;n<=b;n++) 
@@ -617,9 +618,10 @@ int vtkImageEuclideanDistance::IterativeRequestData(
       {
       vtkTemplateMacro(
         vtkImageEuclideanDistanceInitialize(this, 
-                                            inData, (VTK_TT *)(inPtr), 
+                                            inData,
+                                            static_cast<VTK_TT *>(inPtr), 
                                             outData, outExt, 
-                                            (double *)(outPtr) ));
+                                            static_cast<double *>(outPtr) ));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return 1;
@@ -632,9 +634,10 @@ int vtkImageEuclideanDistance::IterativeRequestData(
         {    
         vtkTemplateMacro(
           vtkImageEuclideanDistanceCopyData(this, 
-                                            inData, (VTK_TT *)(inPtr), 
+                                            inData,
+                                            static_cast<VTK_TT *>(inPtr), 
                                             outData, outExt, 
-                                            (double *)(outPtr) ));
+                                            static_cast<double *>(outPtr) ));
         }
     }
   
@@ -643,11 +646,11 @@ int vtkImageEuclideanDistance::IterativeRequestData(
     {
     case VTK_EDT_SAITO:
       vtkImageEuclideanDistanceExecuteSaito( this, outData, outExt, 
-                                             (double *)(outPtr) );
+                                             static_cast<double *>(outPtr) );
       break;
     case VTK_EDT_SAITO_CACHED:
       vtkImageEuclideanDistanceExecuteSaitoCached( this, outData, outExt, 
-                                                   (double *)(outPtr) );
+                                                   static_cast<double *>(outPtr) );
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown Algorithm");

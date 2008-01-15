@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConvolve, "1.18");
+vtkCxxRevisionMacro(vtkImageConvolve, "1.19");
 vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
@@ -335,10 +335,11 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
   self->GetKernel7x7x7(kernel);
 
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
+  inPtr = static_cast<T *>(
+    inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
-  target = (unsigned long)(numComps*(outMax2 - outMin2 + 1)*
-                                    (outMax1 - outMin1 + 1)/50.0);
+  target = static_cast<unsigned long>(numComps*(outMax2 - outMin2 + 1)*
+                                      (outMax1 - outMin1 + 1)/50.0);
   target++;
   
   // loop through components
@@ -419,7 +420,7 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
             }
 
           // Set the output pixel to the correct value
-          *outPtr0 = (T)sum;
+          *outPtr0 = static_cast<T>(sum);
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
@@ -468,8 +469,8 @@ void vtkImageConvolve::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageConvolveExecute(this, inData[0][0],
-                              (VTK_TT *)(inPtr), outData[0], 
-                              (VTK_TT *)(outPtr),
+                              static_cast<VTK_TT *>(inPtr), outData[0], 
+                              static_cast<VTK_TT *>(outPtr),
                               outExt, id, inInfo));
 
     default:
