@@ -175,31 +175,8 @@ protected:
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
 
-  //BTX
-  static const int FILE_BIG_ENDIAN = 0;
-  static const int FILE_LITTLE_ENDIAN = 1;
-  static const int DIMENSION = 3;
-
-  static const int X          = 0; // Location X coordinate
-  static const int X_VELOCITY = 1; // Velocity in X direction
-  static const int Y          = 2; // Location Y coordinate
-  static const int Y_VELOCITY = 3; // Velocity in Y direction
-  static const int Z          = 4; // Location Z coordinate
-  static const int Z_VELOCITY = 5; // Velocity in Z direction
-  static const int MASS       = 6; // Mass of record item
-  static const int TAG        = 7; // Id of record item
-
-  static const int NUMBER_OF_VAR = 3; // Velocity, mass, tag
-  static const int NUMBER_OF_DATA = 8;
-  static const int BYTES_PER_DATA = 4;
-
-  static const int USE_VELOCITY = 0;
-  static const int USE_MASS = 1;
-  static const int USE_TAG = 2;
-  //ETX
-
-  vtkStdString *VariableNames;
-  vtkIdType ComponentNumber[NUMBER_OF_VAR]; // Components per variable
+  vtkStdString *VariableName;
+  vtkIdType *ComponentNumber; // Components per variable
 
   int MakeCells;
 

@@ -63,8 +63,32 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.4");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.5");
 vtkStandardNewMacro(vtkCosmoReader);
+
+namespace
+{
+  const int FILE_BIG_ENDIAN = 0;
+  const int FILE_LITTLE_ENDIAN = 1;
+  const int DIMENSION = 3;
+  
+  const int X          = 0; // Location X coordinate
+  const int X_VELOCITY = 1; // Velocity in X direction
+  const int Y          = 2; // Location Y coordinate
+  const int Y_VELOCITY = 3; // Velocity in Y direction
+  const int Z          = 4; // Location Z coordinate
+  const int Z_VELOCITY = 5; // Velocity in Z direction
+  const int MASS       = 6; // Mass of record item
+  const int TAG        = 7; // Id of record item
+  
+  const int NUMBER_OF_VAR = 3; // Velocity, mass, tag
+  const int NUMBER_OF_DATA = 8;
+  const int BYTES_PER_DATA = 4;
+  
+  const int USE_VELOCITY = 0;
+  const int USE_MASS = 1;
+  const int USE_TAG = 2;
+}
 
 //----------------------------------------------------------------------------
 vtkCosmoReader::vtkCosmoReader()
@@ -81,7 +105,8 @@ vtkCosmoReader::vtkCosmoReader()
   this->NumberOfVariables     = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->MakeCells = 0;
-  this->VariableNames = new vtkStdString[NUMBER_OF_VAR];
+  this->ComponentNumber = new vtkIdType[NUMBER_OF_VAR];
+  this->VariableName = new vtkStdString[NUMBER_OF_VAR];
 
 #ifdef VTK_USE_MPI
   MPI_Comm_rank(MPI_COMM_WORLD, &Rank);
@@ -98,7 +123,8 @@ vtkCosmoReader::~vtkCosmoReader()
   if (this->FileName)
     delete [] this->FileName;
   this->PointDataArraySelection->Delete();
-  delete[] this->VariableNames;
+  delete[] this->ComponentNumber;
+  delete[] this->VariableName;
 }
 
 //----------------------------------------------------------------------------
@@ -112,8 +138,8 @@ void vtkCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Variables: " << this->NumberOfVariables << endl;
   for (int i=0; i < this->NumberOfVariables; i++)
     {
-    os << "\tVariableNames[" << i << "] = " 
-       << this->VariableNames[i] << endl;
+    os << "\tVariableName[" << i << "] = " 
+       << this->VariableName[i] << endl;
     os << "\tComponentNumber[" << i << "] = " 
        << this->ComponentNumber[i] << endl;
     os << "\tPointDataArraySelection->GetArraySetting(" << i << ") = " 
@@ -171,18 +197,18 @@ int vtkCosmoReader::RequestInformation(
   // Fields associated with each particle point: velocity, mass, tag
   this->NumberOfVariables = NUMBER_OF_VAR;
 
-  this->VariableNames[0] = "velocity";
+  this->VariableName[0] = "velocity";
   this->ComponentNumber[0] = DIMENSION; // x, y, z velocities
 
-  this->VariableNames[1] = "mass";
+  this->VariableName[1] = "mass";
   this->ComponentNumber[1] = 1;         // mass of particle
 
-  this->VariableNames[2] = "tag";
+  this->VariableName[2] = "tag";
   this->ComponentNumber[2] = 1;         // tag id of particle
                                                                                 
   // Add scalar arrays for each field to both points and cells
   for (int i = 0; i < this->NumberOfVariables; i++)
-    this->PointDataArraySelection->AddArray(this->VariableNames[i].c_str());
+    this->PointDataArraySelection->AddArray(this->VariableName[i].c_str());
 
   vtkDebugMacro( << "RequestInformation: NumberOfNodes = "
                  << this->NumberOfNodes  << endl);
@@ -478,7 +504,7 @@ void vtkCosmoReader::DisableAllPointArrays()
 //----------------------------------------------------------------------------
 const char* vtkCosmoReader::GetPointArrayName(int index)
 {
-  return this->VariableNames[index].c_str();
+  return this->VariableName[index].c_str();
 }
 
 //----------------------------------------------------------------------------
