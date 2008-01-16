@@ -78,9 +78,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkCosmoReader_h
 
 #include "vtkUnstructuredGridAlgorithm.h"
-#include "vtkStdString.h"
 
 class vtkDataArraySelection;
+class vtkStdString;
 
 class VTK_IO_EXPORT vtkCosmoReader : public vtkUnstructuredGridAlgorithm
 {
@@ -198,7 +198,7 @@ protected:
   static const int USE_TAG = 2;
   //ETX
 
-  vtkStdString VariableName[NUMBER_OF_VAR]; // Name of data variables
+  vtkStdString *VariableNames;
   vtkIdType ComponentNumber[NUMBER_OF_VAR]; // Components per variable
 
   int MakeCells;
