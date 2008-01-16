@@ -61,7 +61,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.1");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.2");
 vtkStandardNewMacro(vtkCosmoReader);
 
 //----------------------------------------------------------------------------
@@ -306,8 +306,8 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       output->GetPointData()->SetScalars(tag);
     }
 
-  int numFloats = 7;
-  int numInts = 1;
+  const int numFloats = 7;
+  const int numInts = 1;
   float block[numFloats]; // x,xvel,y,yvel,z,zvel,mass
   int iBlock[numInts]; // id
   int j = 0;
