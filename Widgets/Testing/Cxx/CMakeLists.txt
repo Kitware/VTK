@@ -53,6 +53,7 @@ IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests     
     BoxWidget.cxx
     ImagePlaneWidget.cxx
+    TestContourWidget2.cxx
     TestImageTracerWidget.cxx
     TestImplicitPlaneWidget.cxx
     TestLineWidget.cxx
@@ -60,6 +61,7 @@ IF(NOT VTK_USE_DISPLAY)
     TestLogoWidgetDepthPeeling.cxx
     TestOrientationMarkerWidget.cxx
     TestOrthoPlanes.cxx
+    TestParallelopipedWidget.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
     TestScalarBarWidget.cxx
