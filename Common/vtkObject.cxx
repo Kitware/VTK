@@ -21,7 +21,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObject, "1.101");
+vtkCxxRevisionMacro(vtkObject, "1.102");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -521,7 +521,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
         elem->Command->GetPassiveObserver() &&
         (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
       {
-      vIter->second = true;;
+      vIter->second = true;
       vtkCommand* command = elem->Command;
       command->Register(command);
       elem->Command->Execute(self,event,callData);
@@ -529,6 +529,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       }
     if (this->ListModified)
       {
+      vtkGenericWarningMacro(<<"Passive observer should not call AddObserver or RemoveObserver in callback.");
       elem = this->Start;
       this->ListModified = 0;
       }
@@ -594,7 +595,7 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
           !elem->Command->GetPassiveObserver() &&
           (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
         {
-        vIter->second = true;;
+        vIter->second = true;
         vtkCommand* command = elem->Command;
         command->Register(command);
         command->SetAbortFlag(0);
