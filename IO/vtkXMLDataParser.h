@@ -129,6 +129,9 @@ public:
   vtkSetClampMacro(AttributesEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributesEncoding, int);
 
+  // Called when there is character data to handle.
+  virtual void CharacterDataHandler(const char* data, int length);
+
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();

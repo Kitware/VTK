@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.31");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.32");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -1056,4 +1056,15 @@ void vtkXMLDataParser::UpdateProgress(float progress)
 {
   this->Progress = progress;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataParser::CharacterDataHandler( 
+  const char* data, int length )
+{
+  unsigned int numOpen = this->NumberOfOpenElements;
+  if(numOpen > 0)
+    {
+    this->OpenElements[numOpen-1]->AddCharacterData(data, length);
+    }
 }
