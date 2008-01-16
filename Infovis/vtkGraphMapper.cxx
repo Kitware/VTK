@@ -39,7 +39,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.4");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.5");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -59,6 +59,8 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconTexture       = vtkSmartPointer<vtkTexture>::New();
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
+  this->VertexPointSize = 5;
+  this->EdgeLineWidth = 1;
   
   this->VertexMapper->SetScalarModeToUsePointData();
   this->VertexMapper->SetLookupTable(this->VertexLookupTable);
@@ -88,8 +90,6 @@ vtkGraphMapper::vtkGraphMapper()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
-  this->VertexPointSize = 5;
-  this->EdgeLineWidth = 1;
   
   // FIXME: Total hack for testing textures
 #if 0
