@@ -21,7 +21,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkObject, "1.100");
+vtkCxxRevisionMacro(vtkObject, "1.101");
 
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
@@ -490,7 +490,13 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     elem = elem->Next;
     }
 
-  // Loop once or twice, giving preference to focus holders, if any.
+  // Loop two or three times, giving preference to passive observers 
+  // and focus holders, if any.
+  //
+  // 0. Passive observer loop
+  //   Loop over all observers and execute those that are passive observers.
+  //   These observers should not affect the state of the system in any way,
+  //   and should not be allowed to abort the event.
   //
   // 1. Focus loop
   //   If there is a focus holder, loop over all observers and execute
@@ -502,12 +508,41 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   //   remaining observers. This loop will always get executed when there
   //   is no focus holder.
 
+  // 0. Passive observer loop
+  //
+  elem = this->Start;
+  vtkObserver *next;
+  while (elem)
+    {
+    // store the next pointer because elem could disappear due to Command
+    next = elem->Next;
+    VisitedMapType::iterator vIter = visited.find(elem->Tag);
+    if ((vIter != visited.end()) && (vIter->second == false) &&
+        elem->Command->GetPassiveObserver() &&
+        (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+      {
+      vIter->second = true;;
+      vtkCommand* command = elem->Command;
+      command->Register(command);
+      elem->Command->Execute(self,event,callData);
+      command->UnRegister();
+      }
+    if (this->ListModified)
+      {
+      elem = this->Start;
+      this->ListModified = 0;
+      }
+    else
+      {
+      elem = next;
+      }
+    }
+
   // 1. Focus loop
   //
   if (this->Focus1 || this->Focus2)
     {
     elem = this->Start;
-    vtkObserver *next;
     while (elem)
       {
       // store the next pointer because elem could disappear due to Command
@@ -550,13 +585,13 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   if (!focusHandled)
     {
     elem = this->Start;
-    vtkObserver *next;
     while (elem)
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
       VisitedMapType::iterator vIter = visited.find(elem->Tag);
       if ((vIter != visited.end()) && (vIter->second == false) &&
+          !elem->Command->GetPassiveObserver() &&
           (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
         {
         vIter->second = true;;

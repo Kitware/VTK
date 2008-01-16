@@ -39,7 +39,7 @@
 #include "vtkWorldPointPicker.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.11");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.12");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -330,6 +330,23 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
+  
+#if 0
+  vtkRenderer* r = this->CurrentRenderer;
+  if (r == NULL)
+    {
+    return;
+    }
+
+  if (!r->HasViewProp(this->Balloon))
+    {
+    r->AddActor(this->Balloon);
+    this->Balloon->SetRenderer(r);
+    }
+
+  double loc[2] = {x, y};
+  this->Balloon->EndWidgetInteraction(loc);
+#endif
   
   this->CurrentSelectedId = GetTreeMapIdAtPos(x,y);
 
