@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.9");
+vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.10");
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,8 @@ vtkTriQuadraticHexahedron::vtkTriQuadraticHexahedron ()
   this->Hex = vtkHexahedron::New ();
 
   this->Scalars = vtkDoubleArray::New ();
-  this->Scalars->SetNumberOfTuples (8);
+  this->Scalars->SetNumberOfTuples (8); // vertices of a linear hexahedron
+
 }
 
 //----------------------------------------------------------------------------
@@ -138,10 +139,23 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
   int i, j;
   double d, pt[3];
   double derivs[81];
+  double hexweights[8];
 
   //  set initial position for Newton's method
-  subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.5;
+  subId = 0;
+
+  // Use a tri-linear hexahederon to get good starting values
+  vtkHexahedron *hex = vtkHexahedron::New();
+  for(i = 0; i < 8; i++)
+    hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
+
+  hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
+  hex->Delete();
+
+  params[0]  = pcoords[0];
+  params[1]  = pcoords[1];
+  params[2]  = pcoords[2];
 
   //  enter iteration loop
   for (iteration = converged = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
@@ -176,6 +190,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
     d = vtkMath::Determinant3x3 (rcol, scol, tcol);
     if (fabs (d) < 1.e-20)
       {
+      vtkErrorMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 
@@ -195,6 +210,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
     else if ((fabs (pcoords[0]) > VTK_DIVERGED) ||
       (fabs (pcoords[1]) > VTK_DIVERGED) || (fabs (pcoords[2]) > VTK_DIVERGED))
       {
+      vtkErrorMacro (<<"Newton did not converged, iteration " << iteration << " det " << d);
       return -1;
       }
 
@@ -207,10 +223,12 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
       }
     }
 
+
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
   if (!converged)
     {
+      vtkErrorMacro (<<"Newton did not converged, iteration " << iteration << " det " << d);
     return -1;
     }
 
@@ -300,7 +318,7 @@ void vtkTriQuadraticHexahedron::Contour (double value,
     for (int j = 0; j < 8; j++)
       {
       this->Hex->Points->SetPoint (j, this->Points->GetPoint (LinearHexs[i][j]));
-      this->Hex->PointIds->SetId (j, LinearHexs[i][j]);
+      this->Hex->PointIds->SetId (j, this->PointIds->GetId(LinearHexs[i][j]));
       this->Scalars->SetValue (j, cellScalars->GetTuple1 (LinearHexs[i][j]));
       }
     this->Hex->Contour (value, this->Scalars, locator, verts, lines, polys,
@@ -326,7 +344,7 @@ void vtkTriQuadraticHexahedron::Clip (double value,
     for (int j = 0; j < 8; j++)
       {
       this->Hex->Points->SetPoint (j, this->Points->GetPoint (LinearHexs[i][j]));
-      this->Hex->PointIds->SetId (j, LinearHexs[i][j]);
+      this->Hex->PointIds->SetId (j, this->PointIds->GetId(LinearHexs[i][j]));
       this->Scalars->SetValue (j, cellScalars->GetTuple1 (LinearHexs[i][j]));
       }
     this->Hex->Clip (value, this->Scalars, locator, tets, inPd, outPd, inCd, cellId, outCd, insideOut);
@@ -614,10 +632,10 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs (double pcoords[3],
   derivs[17]= g3r_r * g1s * g2t;
   derivs[18]= g3r_r * g3s * g2t;
   derivs[19]= g1r_r * g3s * g2t;
-  derivs[20]= g2r_r * g1s * g2t;
+  derivs[20]= g1r_r * g2s * g2t;
   derivs[21]= g3r_r * g2s * g2t;
-  derivs[22]= g2r_r * g3s * g2t;
-  derivs[23]= g1r_r * g2s * g2t;
+  derivs[22]= g2r_r * g1s * g2t;
+  derivs[23]= g2r_r * g3s * g2t;
   derivs[24]= g2r_r * g2s * g1t;
   derivs[25]= g2r_r * g2s * g3t;
   derivs[26]= g2r_r * g2s * g2t;
@@ -643,10 +661,10 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs (double pcoords[3],
   derivs[44] = g3r * g1s_s * g2t;
   derivs[45] = g3r * g3s_s * g2t;
   derivs[46] = g1r * g3s_s * g2t;
-  derivs[47] = g2r * g1s_s * g2t;
+  derivs[47] = g1r * g2s_s * g2t;
   derivs[48] = g3r * g2s_s * g2t;
-  derivs[49] = g2r * g3s_s * g2t;
-  derivs[50] = g1r * g2s_s * g2t;
+  derivs[49] = g2r * g1s_s * g2t;
+  derivs[50] = g2r * g3s_s * g2t;
   derivs[51] = g2r * g2s_s * g1t;
   derivs[52] = g2r * g2s_s * g3t;
   derivs[53] = g2r * g2s_s * g2t;
@@ -672,13 +690,18 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs (double pcoords[3],
   derivs[71] = g3r * g1s * g2t_t;
   derivs[72] = g3r * g3s * g2t_t;
   derivs[73] = g1r * g3s * g2t_t;
-  derivs[74] = g2r * g1s * g2t_t;
+  derivs[74] = g1r * g2s * g2t_t;
   derivs[75] = g3r * g2s * g2t_t;
-  derivs[76] = g2r * g3s * g2t_t;
-  derivs[77] = g1r * g2s * g2t_t;
+  derivs[76] = g2r * g1s * g2t_t;
+  derivs[77] = g2r * g3s * g2t_t;
   derivs[78] = g2r * g2s * g1t_t;
   derivs[79] = g2r * g2s * g3t_t;
   derivs[80] = g2r * g2s * g2t_t;
+
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 81; i++)
+    derivs[i] *= 2;
+
 }
 
 //----------------------------------------------------------------------------

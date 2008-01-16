@@ -26,7 +26,33 @@
 // these midedge nodes correspond lie
 // on the edges defined by (0,1), (1,2), (2,3), (3,0), (4,5), (5,6), (6,7),
 // (7,4), (0,4), (1,5), (2,6), (3,7). The center face nodes lieing in quad
-// 20-(0,1,5,4), 21-(1,2,6,5), 22-(2,3,7,6) and 23-(3,0,4,7)
+// 22-(0,1,5,4), 21-(1,2,6,5), 23-(2,3,7,6) and 22-(3,0,4,7)
+//
+// \verbatim
+//
+// top 
+//  7--14--6
+//  |      |
+// 15      13
+//  |      |
+//  4--12--5
+//
+//  middle
+// 19--23--18
+//  |      |
+// 20      21
+//  |      |
+// 16--22--17
+//
+// bottom
+//  3--10--2
+//  |      |
+// 11      9 
+//  |      |
+//  0-- 8--1
+//  
+// \endverbatim
+//
 //
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
@@ -99,14 +125,14 @@ public:
 
   // Description:
   // @deprecated Replaced by vtkBiQuadraticQuadraticHexahedron::InterpolateFunctions as of VTK 5.2
-  static void InterpolationFunctions(double pcoords[3], double weights[20]);
+  static void InterpolationFunctions(double pcoords[3], double weights[24]);
   // Description:
   // @deprecated Replaced by vtkBiQuadraticQuadraticHexahedron::InterpolateDerivs as of VTK 5.2
   static void InterpolationDerivs(double pcoords[3], double derivs[72]);
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double weights[20])
+  virtual void InterpolateFunctions(double pcoords[3], double weights[24])
     {
     vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(pcoords,weights);
     }

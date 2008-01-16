@@ -28,7 +28,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.10");
+vtkCxxRevisionMacro (vtkQuadraticLinearWedge, "1.11");
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ vtkQuadraticLinearWedge::~vtkQuadraticLinearWedge ()
 // We are using 4 linear wedge
 static int LinearWedges[4][6] = {
     {0, 6, 8,  3,  9, 11},
-    {8, 6, 7, 11,  9, 10},
+    {6, 7, 8,  9, 10, 11},
     {6, 1, 7,  9,  4, 10},
     {8, 7, 2, 11, 10,  5}
 };
@@ -335,7 +335,7 @@ void vtkQuadraticLinearWedge::Contour (double value,
     for (int j=0; j<6; j++) //for each point of wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
+      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
       }
       this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys,
@@ -344,7 +344,7 @@ void vtkQuadraticLinearWedge::Contour (double value,
 }
 
 //----------------------------------------------------------------------------
-// Clip this quadratic wedge using scalar value provided. Like contouring,
+// Clip this quadratic-linear wedge using scalar value provided. Like contouring,
 // except that it cuts the wedge to produce tetrahedra.
 void vtkQuadraticLinearWedge::Clip (double value, vtkDataArray *cellScalars,
              vtkPointLocator * locator, vtkCellArray * tets,
@@ -357,7 +357,7 @@ void vtkQuadraticLinearWedge::Clip (double value, vtkDataArray *cellScalars,
     for (int j=0; j<6; j++) //for each of the six vertices of the wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
+      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
       }
       this->Wedge->Clip(value,this->Scalars,locator,tets,inPd,outPd,
@@ -639,7 +639,10 @@ void vtkQuadraticLinearWedge::InterpolationDerivs (double pcoords[3],
   derivs[33] = -(x + 1.0) * (x + y)   *  0.5;
   derivs[34] =  (x + 1.0) * (y + 1.0) *  0.5;
   derivs[35] = -(y + 1.0) * (x + y)   *  0.5;
-  
+
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 36; i++)
+    derivs[i] *= 2;  
 }
 
 //----------------------------------------------------------------------------

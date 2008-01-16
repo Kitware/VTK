@@ -30,6 +30,32 @@
 // (3,0,4,7;11,16,15,19), (0,1,2,3;8,9,10,11), (4,5,6,7;12,13,14,15).
 // The last point lies in the center of the cell (0,1,2,3,4,5,6,7).
 //
+// \verbatim
+//
+// top 
+//  7--14--6
+//  |      |
+// 15  25  13
+//  |      |
+//  4--12--5
+//
+//  middle
+// 19--23--18
+//  |      |
+// 20  26  21
+//  |      |
+// 16--22--17
+//
+// bottom
+//  3--10--2
+//  |      |
+// 11  24  9 
+//  |      |
+//  0-- 8--1
+//  
+// \endverbatim
+//
+
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
 // vtkQuadraticQuad vtkQuadraticPyramid vtkQuadraticWedge
@@ -99,7 +125,7 @@ public:
   static void InterpolationFunctions (double pcoords[3], double weights[27]);
   // Description:
   // @deprecated Replaced by vtkTriQuadraticHexahedron::InterpolateDerivs as of VTK 5.2
-  static void InterpolationDerivs (double pcoords[3], double derivs[71]);
+  static void InterpolationDerivs (double pcoords[3], double derivs[81]);
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
@@ -107,7 +133,7 @@ public:
     {
     vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords,weights);
     }
-  virtual void InterpolateDerivs (double pcoords[3], double derivs[71])
+  virtual void InterpolateDerivs (double pcoords[3], double derivs[81])
     {
     vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords,derivs);
     }
@@ -121,7 +147,7 @@ public:
   // Given parametric coordinates compute inverse Jacobian transformation
   // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
   // function derivatives.
-  void JacobianInverse (double pcoords[3], double **inverse, double derivs[71]);
+  void JacobianInverse (double pcoords[3], double **inverse, double derivs[81]);
 
 protected:
   vtkTriQuadraticHexahedron ();

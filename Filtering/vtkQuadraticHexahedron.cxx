@@ -24,7 +24,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.15");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
     {
     this->CellData->CopyData(inCd,cellId,i);
     }
-  
+
   //Interpolate new values
   double p[3];
   for ( numMidPts=0; numMidPts < 7; numMidPts++ )
@@ -703,6 +703,11 @@ void vtkQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   derivs[57] = -0.5*t*rp*sm;
   derivs[58] = -0.5*t*rp*sp;
   derivs[59] = -0.5*t*rm*sp;
+
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 60; i++)
+    derivs[i] *= 2;  
+
 }
 
 //----------------------------------------------------------------------------

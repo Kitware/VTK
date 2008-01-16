@@ -26,18 +26,18 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.7");
+vtkCxxRevisionMacro (vtkQuadraticLinearQuad, "1.8");
 vtkStandardNewMacro (vtkQuadraticLinearQuad);
 
 //----------------------------------------------------------------------------
-// Construct the quad with six points.
+// Construct the quadratic linear quad with six points.
 vtkQuadraticLinearQuad::vtkQuadraticLinearQuad ()
 {
   this->Edge = vtkQuadraticEdge::New();
   this->LinEdge = vtkLine::New ();
   this->Quad = vtkQuad::New ();
   this->Scalars = vtkDoubleArray::New ();
-  this->Scalars->SetNumberOfTuples (4); //Number of vertices of a linear quad
+  this->Scalars->SetNumberOfTuples (4); // vertices of a linear quad
   this->Points->SetNumberOfPoints (6);
   this->PointIds->SetNumberOfIds (6);
   for (int i = 0; i < 6; i++)
@@ -148,7 +148,16 @@ int vtkQuadraticLinearQuad::EvaluatePosition (double *x,
       pcoords[0] = 0.5 + (pcoords[0]/2.0);
       }
     pcoords[2] = 0.0;
-    this->EvaluateLocation (subId, pcoords, closestPoint, weights);
+    if(closestPoint!=0)
+      {
+      // Compute both closestPoint and weights
+      this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+      }
+    else
+      {
+      // Compute weigths only
+      this->InterpolationFunctions(pcoords,weights);
+      }
     }
 
   return returnStatus;

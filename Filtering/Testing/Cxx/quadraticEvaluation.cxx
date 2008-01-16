@@ -31,6 +31,16 @@
 
 #include <vtksys/ios/sstream>
 
+// New quadratic cells
+#include "vtkBiQuadraticQuad.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkTriQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+
+static void  ComputeDataValues(vtkPoints *pts, double *edgeValues);
+
 void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
 {
   double x[3];
@@ -55,6 +65,8 @@ int TestQE(ostream& strm)
   // actual test
   double dist2;
   int subId;
+  int i;
+  double *paramcoor;
 
   //-----------------------------------------------------------
   strm << "Test instantiation New() and NewInstance() Start" << endl;
@@ -78,13 +90,43 @@ int TestQE(ostream& strm)
 
   vtkQuadraticPyramid *pyra = vtkQuadraticPyramid::New();
   vtkQuadraticHexahedron *pyra2 = hex->NewInstance();
+  
+  // New quadratic cells
+  
+  vtkQuadraticLinearQuad *quadlin = vtkQuadraticLinearQuad::New();
+  vtkQuadraticLinearQuad *quadlin2 = quadlin->NewInstance();
+
+  vtkBiQuadraticQuad *biquad = vtkBiQuadraticQuad::New();
+  vtkBiQuadraticQuad *biquad2 = biquad->NewInstance();
+
+  vtkQuadraticLinearWedge *wedgelin = vtkQuadraticLinearWedge::New();
+  vtkQuadraticLinearWedge *wedgelin2 = wedgelin->NewInstance();
+
+  vtkBiQuadraticQuadraticWedge *biwedge = vtkBiQuadraticQuadraticWedge::New();
+  vtkBiQuadraticQuadraticWedge *biwedge2 = biwedge->NewInstance();
+
+
+  vtkTriQuadraticHexahedron *trihex = vtkTriQuadraticHexahedron::New();
+  vtkTriQuadraticHexahedron *trihex2 = trihex->NewInstance();
+
+
+  vtkBiQuadraticQuadraticHexahedron *bihex = vtkBiQuadraticQuadraticHexahedron::New();
+  vtkBiQuadraticQuadraticHexahedron *bihex2 = bihex->NewInstance();
+
+
 
   edge2->Delete();
   tri2->Delete();
   quad2->Delete();
+  quadlin2->Delete();
+  biquad2->Delete();
   tetra2->Delete();
   hex2->Delete();
+  trihex2->Delete();
+  bihex2->Delete();
   wedge2->Delete();
+  wedgelin2->Delete();
+  biwedge2->Delete();
   pyra2->Delete();
 
   strm << "Test instantiation New() and NewInstance() End" << endl;
@@ -315,6 +357,99 @@ int TestQE(ostream& strm)
   pyra->EvaluatePosition(pyraPoint[0], pyraClosest, subId, pyraPCoords, 
                          dist2, pyraWeights);
 
+  // New quadratic cells
+
+  // vtkQuadraticLinearQuad
+  double quadlinPCoords[3], quadlinWeights[6], quadlinPosition[3];
+  double quadlinPoint[1][3] = {{0.25, 0.33, 0.0}};
+  double quadlinClosest[3];
+  paramcoor = quadlin->GetParametricCoords();
+
+  for(i = 0; i < quadlin->GetNumberOfPoints(); i++)
+    quadlin->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < quadlin->GetNumberOfPoints(); i++)
+    quadlin->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  quadlin->EvaluatePosition(quadlinPoint[0], quadlinClosest, subId, quadlinPCoords, 
+                         dist2, quadlinWeights);
+
+  // vtkBiQuadraticQuad
+  double biquadPCoords[3], biquadWeights[6], biquadPosition[3];
+  double biquadPoint[1][3] = {{0.25, 0.33, 0.0}};
+  double biquadClosest[3];
+  paramcoor = biquad->GetParametricCoords();
+
+  for(i = 0; i < biquad->GetNumberOfPoints(); i++)
+    biquad->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < biquad->GetNumberOfPoints(); i++)
+    biquad->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  biquad->EvaluatePosition(biquadPoint[0], biquadClosest, subId, biquadPCoords, 
+                         dist2, biquadWeights);
+
+  // vtkQuadraticLinearWedge
+  double wedgelinPCoords[3], wedgelinWeights[12], wedgelinPosition[3];
+  double wedgelinPoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double wedgelinClosest[3];
+  paramcoor = wedgelin->GetParametricCoords();
+
+  for(i = 0; i < wedgelin->GetNumberOfPoints(); i++)
+    wedgelin->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < wedgelin->GetNumberOfPoints(); i++)
+    wedgelin->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  wedgelin->EvaluatePosition(wedgelinPoint[0], wedgelinClosest, subId, wedgelinPCoords, 
+                         dist2, wedgelinWeights);
+
+  // vtkBiQuadraticQuadraticWedge
+  double biwedgePCoords[3], biwedgeWeights[18], biwedgePosition[3];
+  double biwedgePoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double biwedgeClosest[3];
+  paramcoor = biwedge->GetParametricCoords();
+
+  for(i = 0; i < biwedge->GetNumberOfPoints(); i++)
+    biwedge->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < biwedge->GetNumberOfPoints(); i++)
+    biwedge->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  biwedge->EvaluatePosition(biwedgePoint[0], biwedgeClosest, subId, biwedgePCoords, 
+                         dist2, biwedgeWeights);
+
+  // vtkBiQuadraticQuadraticHexahedron
+  double bihexPCoords[3], bihexWeights[24], bihexPosition[3];
+  double bihexPoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double bihexClosest[3];
+  paramcoor = bihex->GetParametricCoords();
+
+  for(i = 0; i < bihex->GetNumberOfPoints(); i++)
+    bihex->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < bihex->GetNumberOfPoints(); i++)
+    bihex->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  bihex->EvaluatePosition(bihexPoint[0], bihexClosest, subId, bihexPCoords, 
+                         dist2, bihexWeights);
+
+  // vtkTriQuadraticHexahedron
+  double trihexPCoords[3], trihexWeights[27], trihexPosition[3];
+  double trihexPoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double trihexClosest[3];
+  paramcoor = trihex->GetParametricCoords();
+
+  for(i = 0; i < trihex->GetNumberOfPoints(); i++)
+    trihex->GetPointIds()->SetId(i,i);
+
+  for(i = 0; i < trihex->GetNumberOfPoints(); i++)
+    trihex->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
+
+  trihex->EvaluatePosition(trihexPoint[0], trihexClosest, subId, trihexPCoords, 
+                         dist2, trihexWeights);
+
+  
   strm << "Test vtkCell::EvaluatePosition End" << endl;
 
   //-------------------------------------------------------------
@@ -332,9 +467,6 @@ int TestQE(ostream& strm)
   tetra->EvaluateLocation(subId, tetraPCoords, tetraPosition, tetraWeights);
 
   // vtkQuadraticHexahedron
-  hexPCoords[0] = 0.25;
-  hexPCoords[1] = 0.33;
-  hexPCoords[2] = 0.75;
   hex->EvaluateLocation(subId, hexPCoords, hexPosition, hexWeights);
 
   // vtkQuadraticWedge
@@ -343,15 +475,36 @@ int TestQE(ostream& strm)
   // vtkQuadraticPyramid
   pyra->EvaluateLocation(subId, pyraPCoords, pyraPosition, pyraWeights);
 
+  // New quadratic cells
+
+  // vtkQuadraticLinearQuad
+  quadlin->EvaluateLocation(subId, quadlinPCoords, quadlinPosition, quadlinWeights);
+
+  // vtkBiQuadraticQuad
+  biquad->EvaluateLocation(subId, biquadPCoords, biquadPosition, biquadWeights);
+
+
+  // vtkQuadraticLinearWedge
+  wedgelin->EvaluateLocation(subId, wedgelinPCoords, wedgelinPosition, wedgelinWeights);
+
+  // vtkBiQuadraticQuadraticWedge
+  biwedge->EvaluateLocation(subId, biwedgePCoords, biwedgePosition, biwedgeWeights);
+
+  // vtkQuadraticLinearQuad
+  bihex->EvaluateLocation(subId, bihexPCoords, bihexPosition, bihexWeights);
+
+  // vtkBiQuadraticQuad
+  trihex->EvaluateLocation(subId, trihexPCoords, trihexPosition, trihexWeights);
+
   strm << "Test vtkCell::EvaluateLocation End" << endl;
 
   //-------------------------------------------------------------
   strm << "Test vtkCell::CellDerivs Start" << endl;
 
   // vtkQuadraticEdge - temporarily commented out
-//  double edgeValues[3], edgeDerivs[3];
-//  ComputeDataValues(edge->Points,edgeValues);
-//  edge->Derivatives(subId, edgePCoords, edgeValues, 1, edgeDerivs);
+  //double edgeValues[3], edgeDerivs[3];
+  //ComputeDataValues(edge->Points,edgeValues);
+  //edge->Derivatives(subId, edgePCoords, edgeValues, 1, edgeDerivs);
 
   // vtkQuadraticTriangle
   double triValues[6], triDerivs[3];
@@ -383,6 +536,39 @@ int TestQE(ostream& strm)
   ComputeDataValues(pyra->Points,pyraValues);
   pyra->Derivatives(subId, pyraPCoords, pyraValues, 1, pyraDerivs);
 
+  // New quadratic cells
+
+  // vtkQuadraticLinearQuad
+  double quadlinValues[6], quadlinDerivs[3];
+  ComputeDataValues(quadlin->Points,quadlinValues);
+  quadlin->Derivatives(subId, quadlinPCoords, quadlinValues, 1, quadlinDerivs);
+
+  // vtkBiQuadraticQuad
+  double biquadValues[9], biquadDerivs[3];
+  ComputeDataValues(biquad->Points,biquadValues);
+  biquad->Derivatives(subId, biquadPCoords, biquadValues, 1, biquadDerivs);
+
+  // vtkQuadraticLinearWedge
+  double wedgelinValues[12], wedgelinDerivs[3];
+  ComputeDataValues(wedgelin->Points, wedgelinValues);
+  wedgelin->Derivatives(subId, wedgelinPCoords, wedgelinValues, 1, wedgelinDerivs);
+
+  // vtkBiQuadraticQuadraticWedge
+  double biwedgeValues[18], biwedgeDerivs[3];
+  ComputeDataValues(biwedge->Points, biwedgeValues);
+  biwedge->Derivatives(subId, biwedgePCoords, biwedgeValues, 1, biwedgeDerivs);
+
+  // vtkBiQuadraticQuadraticHexahedron
+  double bihexValues[24], bihexDerivs[3];
+  ComputeDataValues(bihex->Points, bihexValues);
+  bihex->Derivatives(subId, bihexPCoords, bihexValues, 1, bihexDerivs);
+
+  // vtkTriQuadraticHexahedron
+  double trihexValues[27], trihexDerivs[3];
+  ComputeDataValues(trihex->Points, trihexValues);
+  trihex->Derivatives(subId, trihexPCoords, trihexValues, 1, trihexDerivs);
+
+
   strm << "Test vtkCell::CellDerivs End" << endl;
 
   edge->Delete();
@@ -390,8 +576,14 @@ int TestQE(ostream& strm)
   quad->Delete();
   tetra->Delete();
   hex->Delete();
+  bihex->Delete();
+  trihex->Delete();
   wedge->Delete();
+  wedgelin->Delete();
+  biwedge->Delete();
   pyra->Delete();
+  quadlin->Delete();
+  biquad->Delete();
 
   return 0;
 }

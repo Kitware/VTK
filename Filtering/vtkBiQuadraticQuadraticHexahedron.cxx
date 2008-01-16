@@ -30,7 +30,7 @@
 #include "vtkPoints.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.10");
+vtkCxxRevisionMacro(vtkBiQuadraticQuadraticHexahedron, "1.11");
 vtkStandardNewMacro(vtkBiQuadraticQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,8 @@ vtkBiQuadraticQuadraticHexahedron::vtkBiQuadraticQuadraticHexahedron()
   this->CellScalars = vtkDoubleArray::New();
   this->CellScalars->SetNumberOfTuples(27);
   this->Scalars = vtkDoubleArray::New();
-  this->Scalars->SetNumberOfTuples(8);
+  this->Scalars->SetNumberOfTuples(8); // vertices of a linear hexahedron
+
 }
 
 //----------------------------------------------------------------------------
@@ -221,10 +222,23 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
   int i, j;
   double  d, pt[3];
   double derivs[72];
+  double hexweights[8];
 
   //  set initial position for Newton's method
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.0;
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2]=0.5;
+
+  // Use a tri-linear hexahederon to get good starting values
+  vtkHexahedron *hex = vtkHexahedron::New();
+  for(i = 0; i < 8; i++)
+    hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
+
+  hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
+  hex->Delete();
+
+  params[0]  = pcoords[0];
+  params[1]  = pcoords[1];
+  params[2]  = pcoords[2];
 
   //  enter iteration loop
   for (iteration=converged=0;
@@ -260,6 +274,7 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
+      vtkErrorMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 
@@ -280,6 +295,7 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
              (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
+      vtkErrorMacro (<<"Newton did not converged, iteration " << iteration);
       return -1;
       }
 
@@ -296,6 +312,7 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
   //  outside of element
   if ( !converged )
     {
+    vtkErrorMacro (<<"Newton did not converged, iteration " << iteration);
     return -1;
     }
 
@@ -632,11 +649,12 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(double pcoords[3]
   weights[19] =(-0.25*(x*(1-x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((1+z)*(1-z));
 
   //Face center Nodes in xz and yz direction
-  weights[22] = 0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
-  weights[21] = 0.5*((1+y)*(1-y))*(1+x)  *((1+z)*(1-z));
-  weights[23] = 0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
   weights[20] = 0.5*((1+y)*(1-y))*(1-x)  *((1+z)*(1-z));
+  weights[21] = 0.5*((1+y)*(1-y))*(1+x)  *((1+z)*(1-z));
+  weights[22] = 0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
+  weights[23] = 0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
 }
+
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
@@ -650,92 +668,86 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   double y = 2.0*(pcoords[1]-0.5);
   double z = 2.0*(pcoords[2]-0.5);
 
-  //x-direction 
-  //The eight corner points
-  derivs[0]  =( 0.25*(1-2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
-  derivs[1]  =(-0.25*(1+2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
-  derivs[2]  =( 0.25*(1+2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
-  derivs[3]  =(-0.25*(1-2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*(-0.5*z*(1-z));
-  derivs[4]  =( 0.25*(1-2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
-  derivs[5]  =(-0.25*(1+2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
-  derivs[6]  =( 0.25*(1+2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
-  derivs[7]  =(-0.25*(1-2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y))*( 0.5*z*(1+z));
-  //The mid-edge nodes
-  derivs[8]  = 0.5*((-2*x))*(1-y) *      (-0.5*z*(1-z));
-  derivs[9]  = 0.5*((1+y)*(1-y))       * (-0.5*z*(1-z));
-  derivs[10] = 0.5*((-2*x))*(1+y) *      (-0.5*z*(1-z));
-  derivs[11] =-0.5*((1+y)*(1-y))       * (-0.5*z*(1-z));
-  derivs[12] = 0.5*((-2*x))*(1-y) *      ( 0.5*z*(1+z));
-  derivs[13] = 0.5*((1+y)*(1-y))       * ( 0.5*z*(1+z));
-  derivs[14] = 0.5*((-2*x))*(1+y) *      ( 0.5*z*(1+z));
-  derivs[15] =-0.5*((1+y)*(1-y))       * ( 0.5*z*(1+z));
-  derivs[16] =( 0.25*(1-2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
-  derivs[17] =(-0.25*(1+2*x)*(y*(1-y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
-  derivs[18] =( 0.25*(1+2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
-  derivs[19] =(-0.25*(1-2*x)*(y*(1+y)) - 0.25*(-2*x)*(1+y)*(1-y)) *((1+z)*(1-z));
-  //Face center Nodes in xz and yz direction
-  derivs[20] = 0.5*((-2*x))*(1-y)  *((1+z)*(1-z));
-  derivs[21] = 0.5*((1+y)*(1-y))   *((1+z)*(1-z));
-  derivs[22] = 0.5*((-2*x))*(1+y)  *((1+z)*(1-z));
-  derivs[23] =-0.5*((1+y)*(1-y))   *((1+z)*(1-z));
-  
-  //y-direction
-  //The eight Corner points
-  derivs[24] =( 0.25*(x*(1-x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
-  derivs[25] =(-0.25*(x*(1+x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
-  derivs[26] =( 0.25*(x*(1+x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
-  derivs[27] =(-0.25*(x*(1-x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y))*(-0.5*z*(1-z));
-  derivs[28] =( 0.25*(x*(1-x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*( 0.5*z*(1+z));
-  derivs[29] =(-0.25*(x*(1+x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y))*( 0.5*z*(1+z));
-  derivs[30] =( 0.25*(x*(1+x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y))*( 0.5*z*(1+z));
-  derivs[31] =(-0.25*(x*(1-x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y))*( 0.5*z*(1+z));
-  //The mid-edge nodes
-  derivs[32] =-0.5*((1+x)*(1-x))  *(-0.5*z*(1-z));
-  derivs[33] = 0.5*((-2*y))*(1+x) *(-0.5*z*(1-z));
-  derivs[34] = 0.5*((1+x)*(1-x))  *(-0.5*z*(1-z));
-  derivs[35] = 0.5*((-2*y))*(1-x) *(-0.5*z*(1-z));
-  derivs[36] =-0.5*((1+x)*(1-x))  *( 0.5*z*(1+z));
-  derivs[37] = 0.5*((-2*y))*(1+x) *( 0.5*z*(1+z));
-  derivs[38] = 0.5*((1+x)*(1-x))  *( 0.5*z*(1+z));
-  derivs[39] = 0.5*((-2*y))*(1-x) *( 0.5*z*(1+z));
-  derivs[40] =( 0.25*(x*(1-x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
-  derivs[41] =(-0.25*(x*(1+x))*(1-2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
-  derivs[42] =( 0.25*(x*(1+x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
-  derivs[43] =(-0.25*(x*(1-x))*(1+2*y) - 0.25*(1+x)*(1-x)*(-2*y)) *((1+z)*(1-z));
-  //Face center Nodes in xz and yz direction
-  derivs[44] =-0.5*((1+x)*(1-x))        * ((1+z)*(1-z));
-  derivs[45] = 0.5*((-2*y))*(1+x)  *      ((1+z)*(1-z));
-  derivs[46] = 0.5*((1+x)*(1-x))        * ((1+z)*(1-z));
-  derivs[47] = 0.5*((-2*y))*(1-x)  *      ((1+z)*(1-z));
-  
-  //z-direction
-  //The eight corner points
-  derivs[48] =( 0.25*(x*(1-x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));
-  derivs[49] =(-0.25*(x*(1+x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));
-  derivs[50] =( 0.25*(x*(1+x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));
-  derivs[51] =(-0.25*(x*(1-x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*(1-2*z));
-  derivs[52] =( 0.25*(x*(1-x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*( 0.5*(1+2*z));
-  derivs[53] =(-0.25*(x*(1+x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*( 0.5*(1+2*z));
-  derivs[54] =( 0.25*(x*(1+x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*( 0.5*(1+2*z));
-  derivs[55] =(-0.25*(x*(1-x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*( 0.5*(1+2*z));
-  //The mid-edge nodes
-  derivs[56] = 0.5*((1+x)*(1-x))*(1-y) *(-0.5*(1-2*z));
-  derivs[57] = 0.5*((1+y)*(1-y))*(1+x) *(-0.5*(1-2*z));
-  derivs[58] = 0.5*((1+x)*(1-x))*(1+y) *(-0.5*(1-2*z));
-  derivs[59] = 0.5*((1+y)*(1-y))*(1-x) *(-0.5*(1-2*z));
-  derivs[60] = 0.5*((1+x)*(1-x))*(1-y) *( 0.5*(1+2*z));
-  derivs[61] = 0.5*((1+y)*(1-y))*(1+x) *( 0.5*(1+2*z));
-  derivs[62] = 0.5*((1+x)*(1-x))*(1+y) *( 0.5*(1+2*z));
-  derivs[63] = 0.5*((1+y)*(1-y))*(1-x) *( 0.5*(1+2*z));
-  derivs[64] =( 0.25*(x*(1-x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((-2*z));
-  derivs[65] =(-0.25*(x*(1+x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((-2*z));
-  derivs[66] =( 0.25*(x*(1+x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((-2*z));
-  derivs[67] =(-0.25*(x*(1-x))*(y*(1+y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y)) *((-2*z));
-  //Face center Nodes in xz and yz direction
-  derivs[68] =0.5*((1+x)*(1-x))*(1-y)  *((-2*z));
-  derivs[69] =0.5*((1+y)*(1-y))*(1+x)  *((-2*z));
-  derivs[70] =0.5*((1+x)*(1-x))*(1+y)  *((-2*z));
-  derivs[71] =0.5*((1+y)*(1-y))*(1-x)  *((-2*z));
+  // x direction
+  derivs[0]  =-((y*y+(2*x-1)*y-2*x)*z*z+(-y*y+(1-2*x)*y+2*x)*z)/8;
+  derivs[1]  =((y*y+(-2*x-1)*y+2*x)*z*z+(-y*y+(2*x+1)*y-2*x)*z)/8;
+  derivs[2]  =((y*y+(2*x+1)*y+2*x)*z*z+(-y*y+(-2*x-1)*y-2*x)*z)/8;
+  derivs[3]  =-((y*y+(1-2*x)*y-2*x)*z*z+(-y*y+(2*x-1)*y+2*x)*z)/8;
+  derivs[4]  =-((y*y+(2*x-1)*y-2*x)*z*z+(y*y+(2*x-1)*y-2*x)*z)/8;
+  derivs[5]  =((y*y+(-2*x-1)*y+2*x)*z*z+(y*y+(-2*x-1)*y+2*x)*z)/8;
+  derivs[6]  =((y*y+(2*x+1)*y+2*x)*z*z+(y*y+(2*x+1)*y+2*x)*z)/8;
+  derivs[7]  =-((y*y+(1-2*x)*y-2*x)*z*z+(y*y+(1-2*x)*y-2*x)*z)/8;
+  derivs[8]  =((x*y-x)*z*z+(x-x*y)*z)/2;
+  derivs[9]  =-((y*y-1)*z*z+(1-y*y)*z)/4;
+  derivs[10]  =-((x*y+x)*z*z+(-x*y-x)*z)/2;
+  derivs[11]  =((y*y-1)*z*z+(1-y*y)*z)/4;
+  derivs[12]  =((x*y-x)*z*z+(x*y-x)*z)/2;
+  derivs[13]  =-((y*y-1)*z*z+(y*y-1)*z)/4;
+  derivs[14]  =-((x*y+x)*z*z+(x*y+x)*z)/2;
+  derivs[15]  =((y*y-1)*z*z+(y*y-1)*z)/4;
+  derivs[16]  =((y*y+(2*x-1)*y-2*x)*z*z-y*y+(1-2*x)*y+2*x)/4;
+  derivs[17]  =-((y*y+(-2*x-1)*y+2*x)*z*z-y*y+(2*x+1)*y-2*x)/4;
+  derivs[18]  =-((y*y+(2*x+1)*y+2*x)*z*z-y*y+(-2*x-1)*y-2*x)/4;
+  derivs[19]  =((y*y+(1-2*x)*y-2*x)*z*z-y*y+(2*x-1)*y+2*x)/4;
+  derivs[20]  =-((y*y-1)*z*z-y*y+1)/2;
+  derivs[21]  =((y*y-1)*z*z-y*y+1)/2;
+  derivs[22]  =(x-x*y)*z*z+x*y-x;
+  derivs[23]  =(x*y+x)*z*z-x*y-x;
+  // y direction
+  derivs[24]  =-(((2*x-2)*y+x*x-x)*z*z+((2-2*x)*y-x*x+x)*z)/8;
+  derivs[25]  =(((2*x+2)*y-x*x-x)*z*z+((-2*x-2)*y+x*x+x)*z)/8;
+  derivs[26]  =(((2*x+2)*y+x*x+x)*z*z+((-2*x-2)*y-x*x-x)*z)/8;
+  derivs[27]  =-(((2*x-2)*y-x*x+x)*z*z+((2-2*x)*y+x*x-x)*z)/8;
+  derivs[28]  =-(((2*x-2)*y+x*x-x)*z*z+((2*x-2)*y+x*x-x)*z)/8;
+  derivs[29]  =(((2*x+2)*y-x*x-x)*z*z+((2*x+2)*y-x*x-x)*z)/8;
+  derivs[30]  =(((2*x+2)*y+x*x+x)*z*z+((2*x+2)*y+x*x+x)*z)/8;
+  derivs[31]  =-(((2*x-2)*y-x*x+x)*z*z+((2*x-2)*y-x*x+x)*z)/8;
+  derivs[32]  =((x*x-1)*z*z+(1-x*x)*z)/4;
+  derivs[33]  =-((x+1)*y*z*z+(-x-1)*y*z)/2;
+  derivs[34]  =-((x*x-1)*z*z+(1-x*x)*z)/4;
+  derivs[35]  =((x-1)*y*z*z+(1-x)*y*z)/2;
+  derivs[36]  =((x*x-1)*z*z+(x*x-1)*z)/4;
+  derivs[37]  =-((x+1)*y*z*z+(x+1)*y*z)/2;
+  derivs[38]  =-((x*x-1)*z*z+(x*x-1)*z)/4;
+  derivs[39]  =((x-1)*y*z*z+(x-1)*y*z)/2;
+  derivs[40]  =(((2*x-2)*y+x*x-x)*z*z+(2-2*x)*y-x*x+x)/4;
+  derivs[41]  =-(((2*x+2)*y-x*x-x)*z*z+(-2*x-2)*y+x*x+x)/4;
+  derivs[42]  =-(((2*x+2)*y+x*x+x)*z*z+(-2*x-2)*y-x*x-x)/4;
+  derivs[43]  =(((2*x-2)*y-x*x+x)*z*z+(2-2*x)*y+x*x-x)/4;
+  derivs[44]  =(1-x)*y*z*z+(x-1)*y;
+  derivs[45]  =(x+1)*y*z*z+(-x-1)*y;
+  derivs[46]  =-((x*x-1)*z*z-x*x+1)/2;
+  derivs[47]  =((x*x-1)*z*z-x*x+1)/2;
+  // z direction
+  derivs[48]  =-(((2*x-2)*y*y+(2*x*x-2*x)*y-2*x*x+2)*z+(1-x)*y*y+(x-x*x)*y+x*x-1)/8;
+  derivs[49]  =(((2*x+2)*y*y+(-2*x*x-2*x)*y+2*x*x-2)*z+(-x-1)*y*y+(x*x+x)*y-x*x+1)/8;
+  derivs[50]  =(((2*x+2)*y*y+(2*x*x+2*x)*y+2*x*x-2)*z+(-x-1)*y*y+(-x*x-x)*y-x*x+1)/8;
+  derivs[51]  =-(((2*x-2)*y*y+(2*x-2*x*x)*y-2*x*x+2)*z+(1-x)*y*y+(x*x-x)*y+x*x-1)/8;
+  derivs[52]  =-(((2*x-2)*y*y+(2*x*x-2*x)*y-2*x*x+2)*z+(x-1)*y*y+(x*x-x)*y-x*x+1)/8;
+  derivs[53]  =(((2*x+2)*y*y+(-2*x*x-2*x)*y+2*x*x-2)*z+(x+1)*y*y+(-x*x-x)*y+x*x-1)/8;
+  derivs[54]  =(((2*x+2)*y*y+(2*x*x+2*x)*y+2*x*x-2)*z+(x+1)*y*y+(x*x+x)*y+x*x-1)/8;
+  derivs[55]  =-(((2*x-2)*y*y+(2*x-2*x*x)*y-2*x*x+2)*z+(x-1)*y*y+(x-x*x)*y-x*x+1)/8;
+  derivs[56]  =(((2*x*x-2)*y-2*x*x+2)*z+(1-x*x)*y+x*x-1)/4;
+  derivs[57]  =-(((2*x+2)*y*y-2*x-2)*z+(-x-1)*y*y+x+1)/4;
+  derivs[58]  =-(((2*x*x-2)*y+2*x*x-2)*z+(1-x*x)*y-x*x+1)/4;
+  derivs[59]  =(((2*x-2)*y*y-2*x+2)*z+(1-x)*y*y+x-1)/4;
+  derivs[60]  =(((2*x*x-2)*y-2*x*x+2)*z+(x*x-1)*y-x*x+1)/4;
+  derivs[61]  =-(((2*x+2)*y*y-2*x-2)*z+(x+1)*y*y-x-1)/4;
+  derivs[62]  =-(((2*x*x-2)*y+2*x*x-2)*z+(x*x-1)*y+x*x-1)/4;
+  derivs[63]  =(((2*x-2)*y*y-2*x+2)*z+(x-1)*y*y-x+1)/4;
+  derivs[64]  =((x-1)*y*y+(x*x-x)*y-x*x+1)*z/2;
+  derivs[65]  =-((x+1)*y*y+(-x*x-x)*y+x*x-1)*z/2;
+  derivs[66]  =-((x+1)*y*y+(x*x+x)*y+x*x-1)*z/2;
+  derivs[67]  =((x-1)*y*y+(x-x*x)*y-x*x+1)*z/2;
+  derivs[68]  =((1-x)*y*y+x-1)*z;
+  derivs[69]  =((x+1)*y*y-x-1)*z;
+  derivs[70]  =((1-x*x)*y+x*x-1)*z;
+  derivs[71]  =((x*x-1)*y+x*x-1)*z;
+
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 72; i++)
+    derivs[i] *= 2;
+
 }
 
 //----------------------------------------------------------------------------

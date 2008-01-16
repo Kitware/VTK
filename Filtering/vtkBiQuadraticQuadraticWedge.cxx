@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.10");
+vtkCxxRevisionMacro (vtkBiQuadraticQuadraticWedge, "1.11");
 vtkStandardNewMacro (vtkBiQuadraticQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -319,7 +319,7 @@ void vtkBiQuadraticQuadraticWedge::Contour (double value,
     for (int j=0; j<6; j++) //for each point of wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
+      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
       }
     this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys, inPd,outPd,inCd,cellId,outCd);
@@ -327,7 +327,7 @@ void vtkBiQuadraticQuadraticWedge::Contour (double value,
 }
 
 //----------------------------------------------------------------------------
-// Clip this quadratic wedge using scalar value provided. Like contouring, 
+// Clip this biquadratic wedge using scalar value provided. Like contouring, 
 // except that it cuts the wedge to produce tetrahedra.
 void
 vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
@@ -341,7 +341,7 @@ vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
     for (int j=0; j<6; j++) //for each of the six vertices of the wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
+      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearWedges[i][j]));
       }
     this->Wedge->Clip(value,this->Scalars,locator,tets,inPd,outPd, inCd,cellId,outCd,insideOut);
@@ -659,6 +659,9 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs (double pcoords[3], doubl
   derivs[52] =  (x + 1)*(y + 1) * (-2 * z);
   derivs[53] = -(y + 1)*(x + y) * (-2 * z);
 
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 54; i++)
+    derivs[i] *= 2;
 }
 
 //----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.17");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.18");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -344,7 +344,7 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
     {
     this->CellData->CopyData(inCd,cellId,i);
     }
-  
+
   //Interpolate new values
   double p[3];
   for ( numMidPts=0; numMidPts < 1; numMidPts++ )
@@ -763,6 +763,9 @@ void vtkQuadraticPyramid::InterpolationDerivs(double pcoords[3],
   derivs[37] = -0.5 * ( 1 + r ) * (1 + s ) * t;
   derivs[38] = -0.5 * ( 1 - r ) * (1 + s ) * t;
 
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  for(int i = 0; i < 39; i++)
+    derivs[i] *= 2;
 }
 
 static double vtkQPyramidCellPCoords[39] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0, 

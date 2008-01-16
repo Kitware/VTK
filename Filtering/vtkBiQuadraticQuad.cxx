@@ -26,7 +26,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.8");
+vtkCxxRevisionMacro(vtkBiQuadraticQuad, "1.9");
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 
 //----------------------------------------------------------------------------
@@ -137,7 +137,16 @@ int vtkBiQuadraticQuad::EvaluatePosition (double *x,
       pcoords[1] = 0.5 + (pcoords[1] / 2.0);
       }
     pcoords[2] = 0.0;
-    this->EvaluateLocation (subId, pcoords, closestPoint, weights);
+    if(closestPoint!=0)
+      {
+      // Compute both closestPoint and weights
+      this->EvaluateLocation(subId,pcoords,closestPoint,weights);
+      }
+    else
+      {
+      // Compute weigths only
+      this->InterpolationFunctions(pcoords,weights);
+      }
     }
 
   return returnStatus;
@@ -187,7 +196,7 @@ vtkBiQuadraticQuad::Contour (double value,
     for (int j=0; j<4; j++)
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
-      this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
+      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearQuads[i][j]));
       }
 
@@ -211,7 +220,7 @@ vtkBiQuadraticQuad::Clip (double value, vtkDataArray * cellScalars,
     for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
       {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
-      this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
+      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearQuads[i][j]));
       }
 
