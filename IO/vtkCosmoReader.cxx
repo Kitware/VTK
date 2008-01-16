@@ -61,7 +61,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.2");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.3");
 vtkStandardNewMacro(vtkCosmoReader);
 
 //----------------------------------------------------------------------------
@@ -337,7 +337,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     this->FileStream->read((char*) block, numFloats * sizeof(float));
 
     int returnValue = this->FileStream->gcount();
-    if (returnValue != numFloats * sizeof(float))
+    if (returnValue != numFloats * (int)sizeof(float))
       {
       cerr << "vtkCosmoReader Warning: read " << returnValue 
            << " floats" << endl;
@@ -348,7 +348,7 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     // Read the integer part of the data
     this->FileStream->read((char *)iBlock, numInts * sizeof(int));
     returnValue = this->FileStream->gcount();
-    if (returnValue != numInts * sizeof(int))
+    if (returnValue != numInts * (int)sizeof(int))
       {
       cerr << "vtkCosmoReader Warning: read " << returnValue << " ints" << endl;
       this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
