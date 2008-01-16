@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.7");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.8");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -203,11 +203,6 @@ struct OTTetra
   TetraClassification DetermineType(); //inside, outside
   int DeleteMe;
 };
-
-bool OTTetraIsMarked(const OTTetra *tetra)
-{
-  return tetra->DeleteMe == 1;
-}
 
 //---Class represents the Delaunay triangulation using points and tetras.
 // Additional support for the Delaunay triangulation process.
@@ -972,7 +967,19 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
       tetra->DeleteMe = 1;
       }
     }
-  this->Tetras.remove_if(OTTetraIsMarked);
+
+  TetraListIterator it;
+  for (it = this->Tetras.begin(); it != this->Tetras.end(); )
+    {
+    if ((*it)->DeleteMe)
+      {
+      it = this->Tetras.erase(it);
+      }
+    else
+      {
+      ++it;
+      }     
+    }
 
 #if 0
   //please leave this for debugging purposes
