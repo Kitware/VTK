@@ -131,10 +131,11 @@ public:
   void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event, vtkCommand *);
   int HasObserver(const char *event, vtkCommand *);
-  //ETX
+  //ETX 
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
+  void RemoveAllObservers(); //remove every last one of them
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
 
@@ -168,9 +169,21 @@ protected:
   virtual void RegisterInternal(vtkObjectBase*, int check);
   virtual void UnRegisterInternal(vtkObjectBase*, int check);
 
-  unsigned char Debug;     // Enable debug messages
-  vtkTimeStamp MTime;      // Keep track of modification time
-  vtkSubjectHelper *SubjectHelper;
+  unsigned char     Debug;      // Enable debug messages
+  vtkTimeStamp      MTime;      // Keep track of modification time
+  vtkSubjectHelper *SubjectHelper; // List of observers on this object
+
+  // Description:
+  // These methods allow a command to exclusively grab all events. (This
+  // method is typically used by widgets to grab events once an event
+  // sequence begins.)  These methods are provided in support of the 
+  // public methods found in the class vtkInteractorObserver. Note that
+  // these methods are designed to support vtkInteractorObservers since
+  // they use two separate vtkCommands to watch for mouse and keypress events.
+  //BTX
+  void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
+  void InternalReleaseFocus();
+  //ETX
 
 private:
   vtkObject(const vtkObject&);  // Not implemented.

@@ -92,6 +92,20 @@ public:
   void AbortFlagOff() 
     { this->SetAbortFlag(0); }
   
+  // Description:
+  // Set/Get the passive observer flag. If this is set to true, this
+  // indicates that this command does not change the state of the
+  // system in any way. Passive observers are processed first, and
+  // are not called even when another command has focus.
+  void SetPassiveObserver(int f)  
+    { this->PassiveObserver = f; }
+  int GetPassiveObserver() 
+    { return this->PassiveObserver; }
+  void PassiveObserverOn() 
+    { this->SetPassiveObserver(1); }
+  void PassiveObserverOff() 
+    { this->SetPassiveObserver(0); }
+  
 //BTX
   // Description:
   // All the currently defined events are listed here.  Developers can
@@ -167,6 +181,8 @@ public:
 
 protected:
   int AbortFlag;
+  int PassiveObserver;
+
   vtkCommand();
   virtual ~vtkCommand() {}
 

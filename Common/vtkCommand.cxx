@@ -85,7 +85,7 @@ static const char *vtkCommandEventStrings[] = {
 };
 
 //----------------------------------------------------------------
-vtkCommand::vtkCommand():AbortFlag(0)
+vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
 {
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("vtkCommand or subclass");
