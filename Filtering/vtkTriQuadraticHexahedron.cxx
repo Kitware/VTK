@@ -26,7 +26,7 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.10");
+vtkCxxRevisionMacro (vtkTriQuadraticHexahedron, "1.11");
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 
 //----------------------------------------------------------------------------
@@ -228,7 +228,8 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
   //  outside of element
   if (!converged)
     {
-      vtkErrorMacro (<<"Newton did not converged, iteration " << iteration << " det " << d);
+    if ( iteration == 0 ) d = 0.; // Avoid MSVC8 warning
+    vtkErrorMacro (<<"Newton did not converged, iteration " << iteration << " det " << d);
     return -1;
     }
 
