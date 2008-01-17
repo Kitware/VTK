@@ -34,7 +34,11 @@
 
 #include "vtkSQLDatabase.h"
 
-#include <mysql.h> // needed for MYSQL typedef
+#ifdef _WIN32
+# include <winsock.h> // mysql.h relies on the typedefs from here
+#endif
+
+#include <mysql.h> // needed for MYSQL typedefs
 
 class vtkSQLQuery;
 class vtkMySQLQuery;
