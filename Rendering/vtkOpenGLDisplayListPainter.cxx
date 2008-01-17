@@ -31,12 +31,13 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.6");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
 {
   this->DisplayListId = 0;
+  this->LastUsedTypeFlags = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -85,8 +86,9 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer* renderer, vtkActor
     this->GetMTime() > this->BuildTime ||
     this->GetInput()->GetMTime() > this->BuildTime ||
     actor->GetProperty()->GetMTime() > this->BuildTime ||
+    renderer->GetRenderWindow() != this->LastWindow.GetPointer() ||
     this->Information->GetMTime() > this->BuildTime || 
-    renderer->GetRenderWindow() != this->LastWindow.GetPointer())
+    this->LastUsedTypeFlags != typeflags)
     {
     this->ReleaseList();
     this->DisplayListId = glGenLists(1);
@@ -97,6 +99,7 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer* renderer, vtkActor
 
     this->BuildTime.Modified();
     this->LastWindow = renderer->GetRenderWindow();
+    this->LastUsedTypeFlags = typeflags;
     }
 
   // Time the actual drawing.

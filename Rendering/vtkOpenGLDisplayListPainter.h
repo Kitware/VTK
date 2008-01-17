@@ -49,6 +49,7 @@ protected:
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
     unsigned long typeflags);
 
+  unsigned long LastUsedTypeFlags;
 private:
   vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&); // Not implemented.
   void operator=(const vtkOpenGLDisplayListPainter&); // Not implemented.
