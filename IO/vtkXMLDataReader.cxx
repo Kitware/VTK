@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.34");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.35");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -527,7 +527,7 @@ int vtkXMLDataReader::ReadPieceData()
           if(!this->ReadArrayForCells(eNested, cellData->GetAbstractArray(a++)))
             {
             vtkErrorMacro("Cannot read cell data array \""
-              << cellData->GetArray(a-1)->GetName() << "\" from "
+              << cellData->GetAbstractArray(a-1)->GetName() << "\" from "
               << ePointData->GetName() << " in piece " << this->Piece
               << ".  The data array in the element may be too short.");
             return 0;
