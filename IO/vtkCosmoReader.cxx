@@ -63,7 +63,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.6");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.7");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -121,7 +121,9 @@ vtkCosmoReader::vtkCosmoReader()
 vtkCosmoReader::~vtkCosmoReader()
 {
   if (this->FileName)
+    {
     delete [] this->FileName;
+    }
   this->PointDataArraySelection->Delete();
   delete[] this->ComponentNumber;
   delete[] this->VariableName;
@@ -278,17 +280,27 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   
   // Make sure the set range of particles or halos is legal
   if (this->PositionRange[1] < 0)
+    {
     this->PositionRange[1] = this->NumberOfNodes - 1;
+    }
   if (this->PositionRange[0] < 0)
+    {
     this->PositionRange[0] = 0;
+    }
   if (this->PositionRange[0] > this->PositionRange[1])
+    {
     this->PositionRange[0] = 0;
+    }
 
   // Make sure the stride across the data is legal
   if (this->Stride <= 0)
+    {
     this->Stride = 1;
+    }
   if (this->Stride > this->PositionRange[1])
+    {
     this->Stride = 1;
+    }
 
   // Given the requested stride set the number of nodes to be used
   this->NumberOfNodes = (this->PositionRange[1] - this->PositionRange[0]) / 
@@ -312,7 +324,9 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     velocity->SetNumberOfTuples(this->NumberOfNodes);
     output->GetPointData()->AddArray(velocity);
     if (!output->GetPointData()->GetVectors())
+      {
       output->GetPointData()->SetVectors(velocity);
+      }
     }
   
   // Allocate mass array if requested, add to point and cell data
@@ -323,7 +337,9 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     mass->SetNumberOfTuples(this->NumberOfNodes);
     output->GetPointData()->AddArray(mass);
     if (!output->GetPointData()->GetScalars())
+      {
       output->GetPointData()->SetScalars(mass);
+      }
     }
 
   // Allocate tag array if requested, add to point and cell data
@@ -334,7 +350,9 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     tag->SetNumberOfTuples(this->NumberOfNodes);
     output->GetPointData()->AddArray(tag);
     if (!output->GetPointData()->GetScalars())
+      {
       output->GetPointData()->SetScalars(tag);
+      }
     }
 
   const int numFloats = 7;
@@ -344,6 +362,12 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
   int j = 0;
   double min[DIMENSION], max[DIMENSION];
   bool firstTime = true;
+
+  for (int i = 0; i < DIMENSION; i++)
+    {
+    min[i] = 0;
+    max[i] = -1;
+    }
 
   // Loop to read all particle data
   for (vtkIdType i = this->PositionRange[0]; 
@@ -359,10 +383,10 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 
     // If stride > 1 we use seek to position to read the data record
     if (this->Stride > 1)
-    {
+      {
       vtkIdType position = NUMBER_OF_DATA * i * BYTES_PER_DATA;
       this->FileStream->seekg(position, ios::beg);
-    }
+      }
 
     // Read the floating point part of the data
     this->FileStream->read((char*) block, numFloats * sizeof(float));
@@ -390,9 +414,18 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
     vtkByteSwap::Swap4LERange(block, numFloats);
 
     // Negative value is an error so wraparound if it occurs
-    if (block[X] < 0.0) block[X] = this->BoxSize + block[X];
-    if (block[Y] < 0.0) block[Y] = this->BoxSize + block[Y];
-    if (block[Z] < 0.0) block[Z] = this->BoxSize - block[Z];
+    if (block[X] < 0.0) 
+      {
+      block[X] = this->BoxSize + block[X];
+      }
+    if (block[Y] < 0.0) 
+      {
+      block[Y] = this->BoxSize + block[Y];
+      }
+    if (block[Z] < 0.0) 
+      {
+      block[Z] = this->BoxSize - block[Z];
+      }
 
     // Insert the location into the point array
     vtkIdType vtkPointID = 
@@ -412,12 +445,30 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
       }
     else
       {
-      if (min[0] > block[X]) min[0] = block[X];
-      if (max[0] < block[X]) max[0] = block[X];
-      if (min[1] > block[Y]) min[1] = block[Y];
-      if (max[1] < block[Y]) max[1] = block[Y];
-      if (min[2] > block[Z]) min[2] = block[Z];
-      if (max[2] < block[Z]) max[2] = block[Z];
+      if (min[0] > block[X]) 
+        {
+        min[0] = block[X];
+        }
+      if (max[0] < block[X]) 
+        {
+        max[0] = block[X];
+        }
+      if (min[1] > block[Y]) 
+        {
+        min[1] = block[Y];
+        }
+      if (max[1] < block[Y]) 
+        {
+        max[1] = block[Y];
+        }
+      if (min[2] > block[Z]) 
+        {
+        min[2] = block[Z];
+        }
+      if (max[2] < block[Z]) 
+        {
+        max[2] = block[Z];
+        }
       }
 
     // Store velocity data if requested
@@ -430,11 +481,15 @@ void vtkCosmoReader::ReadFile(vtkUnstructuredGrid *output)
 
     // Store mass data if requested
     if (this->PointDataArraySelection->GetArraySetting(USE_MASS))
+      {
       mass->SetComponent(vtkPointID, 0, block[MASS]);
+      }
 
     // Store tag data if requested
     if (this->PointDataArraySelection->GetArraySetting(USE_TAG))
+      {
       tag->SetComponent(vtkPointID, 0, iBlock[0]);
+      }
     } // end loop over PositionRange
 
   // Set the point extents on the output data
@@ -518,9 +573,13 @@ int vtkCosmoReader::GetPointArrayStatus(const char* name)
 void vtkCosmoReader::SetPointArrayStatus(const char* name, int status)
 {
   if (status)
+    {
     this->PointDataArraySelection->EnableArray(name);
+    }
   else
+    {
     this->PointDataArraySelection->DisableArray(name);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -533,7 +592,11 @@ vtkUnstructuredGrid* vtkCosmoReader::GetOutput()
 vtkUnstructuredGrid* vtkCosmoReader::GetOutput(int idx)
 {
   if (idx)
+    {
     return NULL;
+    }
   else
+    {
     return vtkUnstructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
+    }
 }
