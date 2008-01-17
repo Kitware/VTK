@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageIdealHighPass, "1.22");
+vtkCxxRevisionMacro(vtkImageIdealHighPass, "1.23");
 vtkStandardNewMacro(vtkImageIdealHighPass);
 
 //----------------------------------------------------------------------------
@@ -106,17 +106,17 @@ void vtkImageIdealHighPass::ThreadedRequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   inData[0][0]->GetSpacing(spacing);
 
-  inPtr = (double *)(inData[0][0]->GetScalarPointerForExtent(ext));
-  outPtr = (double *)(outData[0]->GetScalarPointerForExtent(ext));
+  inPtr = static_cast<double *>(inData[0][0]->GetScalarPointerForExtent(ext));
+  outPtr = static_cast<double *>(outData[0]->GetScalarPointerForExtent(ext));
 
   inData[0][0]->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
   outData[0]->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
   
   min0 = ext[0];
   max0 = ext[1];
-  mid0 = (double)(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
-  mid1 = (double)(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
-  mid2 = (double)(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
+  mid0 = static_cast<double>(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
+  mid1 = static_cast<double>(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
+  mid2 = static_cast<double>(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
   if ( this->CutOff[0] == 0.0)
     {
     norm0 = VTK_DOUBLE_MAX;
@@ -142,14 +142,15 @@ void vtkImageIdealHighPass::ThreadedRequestData(
     norm2 = 1.0 / ((spacing[2] * 2.0 * mid2) * this->CutOff[2]);
     }
   
-  target = (unsigned long)((ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
+  target = static_cast<unsigned long>(
+    (ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
   target++;
 
   // loop over all the pixels (keeping track of normalized distance to origin.
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
     // distance to min (this axis' contribution)
-    temp2 = (double)idx2;
+    temp2 = static_cast<double>(idx2);
     // Wrap back to 0.
     if (temp2 > mid2)
       {
@@ -169,7 +170,7 @@ void vtkImageIdealHighPass::ThreadedRequestData(
         count++;
         }
       // distance to min (this axis' contribution)
-      temp1 = (double)idx1;
+      temp1 = static_cast<double>(idx1);
       // Wrap back to 0.
       if (temp1 > mid1)
         {
@@ -182,7 +183,7 @@ void vtkImageIdealHighPass::ThreadedRequestData(
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
         // distance to min (this axis' contribution)
-        temp0 = (double)idx0;
+        temp0 = static_cast<double>(idx0);
         // Wrap back to 0.
         if (temp0 > mid0)
           {

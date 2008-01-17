@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.44");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.45");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get the dimensionality of the gradient.
@@ -203,24 +203,24 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
         for (idxC = 0; idxC < maxC; idxC++)
           {
           // do X axis
-          d = (double)(inPtr[useXMin]);
-          d -= (double)(inPtr[useXMax]);
+          d = static_cast<double>(inPtr[useXMin]);
+          d -= static_cast<double>(inPtr[useXMax]);
           d *= r[0]; // multiply by the data spacing
           sum = d * d;
           // do y axis
-          d = (double)(inPtr[useYMin]);
-          d -= (double)(inPtr[useYMax]);
+          d = static_cast<double>(inPtr[useYMin]);
+          d -= static_cast<double>(inPtr[useYMax]);
           d *= r[1]; // multiply by the data spacing
           sum += (d * d);
           if (axesNum == 3)
             {
             // do z axis
-            d = (double)(inPtr[useZMin]);
-            d -= (double)(inPtr[useZMax]);
+            d = static_cast<double>(inPtr[useZMin]);
+            d -= static_cast<double>(inPtr[useZMax]);
             d *= r[2]; // multiply by the data spacing
             sum += (d * d);
             }
-          *outPtr = (T)(sqrt(sum));
+          *outPtr = static_cast<T>(sqrt(sum));
           outPtr++;
           inPtr++;
           }
@@ -260,8 +260,10 @@ void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData *inData,
     {
     vtkTemplateMacro(
       vtkImageGradientMagnitudeExecute(this, 
-                                       inData, (VTK_TT *)(inPtr), outData, 
-                                       (VTK_TT *)(outPtr), outExt, id));
+                                       inData, static_cast<VTK_TT *>(inPtr),
+                                       outData,
+                                       static_cast<VTK_TT *>(outPtr), outExt,
+                                       id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.55");
+vtkCxxRevisionMacro(vtkImageGradient, "1.56");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get the dimensionality of the gradient.
@@ -201,23 +201,23 @@ void vtkImageGradientExecute(vtkImageGradient *self,
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
         // do X axis
-        d = (double)(inPtr[useXMin]);
-        d -= (double)(inPtr[useXMax]);
+        d = static_cast<double>(inPtr[useXMin]);
+        d -= static_cast<double>(inPtr[useXMax]);
         d *= r[0]; // multiply by the data spacing
         *outPtr = d;
         outPtr++;
 
         // do y axis
-        d = (double)(inPtr[useYMin]);
-        d -= (double)(inPtr[useYMax]);
+        d = static_cast<double>(inPtr[useYMin]);
+        d -= static_cast<double>(inPtr[useYMax]);
         d *= r[1]; // multiply by the data spacing
         *outPtr = d;
         outPtr++;
         if (axesNum == 3)
           {
           // do z axis
-          d = (double)(inPtr[useZMin]);
-          d -= (double)(inPtr[useZMax]);
+          d = static_cast<double>(inPtr[useZMin]);
+          d -= static_cast<double>(inPtr[useZMax]);
           d *= r[2]; // multiply by the data spacing
           *outPtr = d;
           outPtr++;
@@ -271,7 +271,8 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
 
   // Dispatch computation for the input scalar type.
   void* inPtr = input->GetScalarPointer();
-  double* outPtr = (double*)(output->GetScalarPointerForExtent(outExt));
+  double* outPtr = static_cast<double *>(
+    output->GetScalarPointerForExtent(outExt));
   switch(input->GetScalarType())
     {
     vtkTemplateMacro(

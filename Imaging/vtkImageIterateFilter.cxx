@@ -19,7 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.39");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.40");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -238,7 +238,8 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     }
   
   // create new ones (first and last set later to input and output)
-  this->IterationData = (vtkImageData **) new void *[num + 1];
+  this->IterationData =
+    reinterpret_cast<vtkImageData **>( new void *[num + 1]);
   this->IterationData[0] = this->IterationData[num] = NULL;
   for (idx = 1; idx < num; ++idx)
     {

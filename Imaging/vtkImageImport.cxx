@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.50");
+vtkCxxRevisionMacro(vtkImageImport, "1.51");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -91,7 +91,7 @@ vtkImageImport::~vtkImageImport()
 { 
   if ((this->ImportVoidPointer) && (!this->SaveUserArray))
     {
-    delete [] (char *)this->ImportVoidPointer;
+    delete [] static_cast<char *>(this->ImportVoidPointer);
     }
 }
 
@@ -268,7 +268,7 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
     if ((this->ImportVoidPointer) && (!this->SaveUserArray))
       {
       vtkDebugMacro (<< "Deleting the array...");
-      delete [] (char *)this->ImportVoidPointer;
+      delete [] static_cast<char *>(this->ImportVoidPointer);
       }
     else 
       {

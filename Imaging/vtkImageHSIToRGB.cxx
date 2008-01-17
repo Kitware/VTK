@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.5");
+vtkCxxRevisionMacro(vtkImageHSIToRGB, "1.6");
 vtkStandardNewMacro(vtkImageHSIToRGB);
 
 //----------------------------------------------------------------------------
@@ -59,9 +59,9 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      H = (double)(*inSI); ++inSI;
-      S = (double)(*inSI); ++inSI;
-      I = (double)(*inSI); ++inSI;
+      H = static_cast<double>(*inSI); ++inSI;
+      S = static_cast<double>(*inSI); ++inSI;
+      I = static_cast<double>(*inSI); ++inSI;
       
       // compute rgb assuming S = 1.0;
       if (H >= 0.0 && H <= third) // red -> green
@@ -122,9 +122,9 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
         }
       
       // assign output.
-      *outSI = (T)(R); ++outSI;
-      *outSI = (T)(G); ++outSI;
-      *outSI = (T)(B); ++outSI;
+      *outSI = static_cast<T>(R); ++outSI;
+      *outSI = static_cast<T>(G); ++outSI;
+      *outSI = static_cast<T>(B); ++outSI;
       
       for (idxC = 3; idxC <= maxC; idxC++)
         {

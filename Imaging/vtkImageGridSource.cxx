@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGridSource, "1.17");
+vtkCxxRevisionMacro(vtkImageGridSource, "1.18");
 vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------
@@ -89,8 +89,8 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
-  target = (unsigned long)((outExt[5]-outExt[4]+1)*
-                           (outExt[3]-outExt[2]+1)/50.0);
+  target = static_cast<unsigned long>((outExt[5]-outExt[4]+1)*
+                                      (outExt[3]-outExt[2]+1)/50.0);
   target++;
 
   // Loop through ouput pixel
@@ -156,9 +156,9 @@ void vtkImageGridSource::ExecuteData(vtkDataObject *output)
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
     {
-    vtkTemplateMacro(vtkImageGridSourceExecute( this, data,
-                                                (VTK_TT *)(outPtr), 
-                                                outExt, 0));
+    vtkTemplateMacro(vtkImageGridSourceExecute(this, data,
+                                               static_cast<VTK_TT *>(outPtr), 
+                                               outExt, 0));
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
     }

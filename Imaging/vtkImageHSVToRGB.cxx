@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.31");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.32");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
@@ -57,9 +57,9 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      H = (double)(*inSI) / max; ++inSI;
-      S = (double)(*inSI) / max; ++inSI;
-      V = (double)(*inSI) / max; ++inSI;
+      H = static_cast<double>(*inSI) / max; ++inSI;
+      S = static_cast<double>(*inSI) / max; ++inSI;
+      V = static_cast<double>(*inSI) / max; ++inSI;
 
       vtkMath::HSVToRGB(H, S, V, &R, &G, &B);
 
@@ -81,9 +81,9 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
         }
       
       // assign output.
-      *outSI = (T)(R); ++outSI;
-      *outSI = (T)(G); ++outSI;
-      *outSI = (T)(B); ++outSI;
+      *outSI = static_cast<T>(R); ++outSI;
+      *outSI = static_cast<T>(G); ++outSI;
+      *outSI = static_cast<T>(B); ++outSI;
       
       for (idxC = 3; idxC <= maxC; idxC++)
         {
