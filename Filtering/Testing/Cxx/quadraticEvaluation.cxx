@@ -69,6 +69,7 @@ int TestQE(ostream& strm)
   double *paramcoor;
 
   //-----------------------------------------------------------
+  cout << "Instantiation...\n"; cout.flush();
   strm << "Test instantiation New() and NewInstance() Start" << endl;
   vtkQuadraticEdge *edge = vtkQuadraticEdge::New();
   vtkQuadraticEdge *edge2 = edge->NewInstance();
@@ -133,6 +134,7 @@ int TestQE(ostream& strm)
 
 
   //-------------------------------------------------------------
+  cout << "EvalPosn...\n"; cout.flush();
   strm << "Test vtkCell::EvaluatePosition Start" << endl;
 
   // vtkQuadraticEdge
@@ -453,6 +455,7 @@ int TestQE(ostream& strm)
   strm << "Test vtkCell::EvaluatePosition End" << endl;
 
   //-------------------------------------------------------------
+  cout << "EvalLocn...\n"; cout.flush();
   strm << "Test vtkCell::EvaluateLocation Start" << endl;
   // vtkQuadraticEdge
   edge->EvaluateLocation(subId, edgePCoords, edgePosition, edgeWeights);
@@ -499,6 +502,7 @@ int TestQE(ostream& strm)
   strm << "Test vtkCell::EvaluateLocation End" << endl;
 
   //-------------------------------------------------------------
+  cout << "Derivs...\n"; cout.flush();
   strm << "Test vtkCell::CellDerivs Start" << endl;
 
   // vtkQuadraticEdge - temporarily commented out
@@ -584,6 +588,7 @@ int TestQE(ostream& strm)
   pyra->Delete();
   quadlin->Delete();
   biquad->Delete();
+  cout << "End...\n"; cout.flush();
 
   return 0;
 }
@@ -591,5 +596,6 @@ int TestQE(ostream& strm)
 int quadraticEvaluation(int,char *[])
 {
   vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  cout << "Starting...\n"; cout.flush();
   return TestQE(vtkmsg_with_warning_C4701);
 }
