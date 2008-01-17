@@ -144,14 +144,14 @@ public:
 
   // Description:
   // @deprecated Replaced by vtkAbstractPicker::GetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual vtkProp* const GetProp());
+  VTK_LEGACY(virtual vtkProp* GetProp());
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef GetPropW
 # undef GetPropA
   //BTX
-  VTK_LEGACY(virtual vtkProp* const GetPropA());
-  VTK_LEGACY(virtual vtkProp* const GetPropW());
+  VTK_LEGACY(virtual vtkProp* GetPropA());
+  VTK_LEGACY(virtual vtkProp* GetPropW());
   //ETX
 #endif
 

@@ -94,11 +94,11 @@ public:
 
   // Description:
   // @deprecated Replaced by vtkAssemblyNode::SetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual void const SetProp(vtkProp* prop));
+  VTK_LEGACY(virtual void SetProp(vtkProp* prop));
 
   // Description:
   // @deprecated Replaced by vtkAssemblyNode::GetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual vtkProp* const GetProp());
+  VTK_LEGACY(virtual vtkProp* GetProp());
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef SetPropW
@@ -106,10 +106,10 @@ public:
 # undef GetPropW
 # undef GetPropA
   //BTX
-  VTK_LEGACY(virtual void const SetPropA(vtkProp* prop));
-  VTK_LEGACY(virtual void const SetPropW(vtkProp* prop));
-  VTK_LEGACY(virtual vtkProp* const GetPropA());
-  VTK_LEGACY(virtual vtkProp* const GetPropW());
+  VTK_LEGACY(virtual void SetPropA(vtkProp* prop));
+  VTK_LEGACY(virtual void SetPropW(vtkProp* prop));
+  VTK_LEGACY(virtual vtkProp* GetPropA());
+  VTK_LEGACY(virtual vtkProp* GetPropW());
   //ETX
 #endif
 
