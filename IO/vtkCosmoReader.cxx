@@ -63,7 +63,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.5");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.6");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -79,7 +79,7 @@ namespace
   const int Z          = 4; // Location Z coordinate
   const int Z_VELOCITY = 5; // Velocity in Z direction
   const int MASS       = 6; // Mass of record item
-  const int TAG        = 7; // Id of record item
+//  const int TAG        = 7; // Id of record item
   
   const int NUMBER_OF_VAR = 3; // Velocity, mass, tag
   const int NUMBER_OF_DATA = 8;
@@ -155,8 +155,9 @@ void vtkCosmoReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Byte Order: " 
      << (this->ByteOrder ? "LITTLE ENDIAN" : "BIG ENDIAN") << endl;
   os << indent << "Rank: " << this->Rank << endl;
-  os << indent << "Total Nodes: " << this->TotalRank << endl;
-
+  os << indent << "Total Rank: " << this->TotalRank << endl;
+  os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
+  os << indent << "BoxSize: " << this->BoxSize << endl;
   os << indent << "MakeCells: " << (this->MakeCells?"on":"off") << endl;
 }
 
