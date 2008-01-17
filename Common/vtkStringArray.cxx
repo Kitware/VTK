@@ -67,7 +67,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.12");
+vtkCxxRevisionMacro(vtkStringArray, "1.13");
 vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
@@ -497,7 +497,7 @@ unsigned long vtkStringArray::GetActualMemorySize( void )
 unsigned long vtkStringArray::GetDataSize()
 {
   unsigned long size = 0;
-  unsigned long numStrs = this->GetSize();
+  unsigned long numStrs = this->GetMaxId() + 1;
   for (unsigned long i=0; i < numStrs; i++)
     {
     size += this->Array[i].size() + 1; // (+1) for termination character.
