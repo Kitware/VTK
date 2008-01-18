@@ -27,7 +27,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.54");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.55");
 
 class vtkTIFFReaderInternal
 {
@@ -515,8 +515,11 @@ void ReadScanlineImage(vtkTIFFReader *self, void *out,
     self->GetInternalImage()->SamplesPerPixel; // * self->GetInternalImage()->BitsPerSample;
   if ( self->GetInternalImage()->PlanarConfig == PLANARCONFIG_CONTIG )
     {
-    for ( row = height-1; row >= 0; row -- )
+    yy = internalExtents[2];
+    while ( yy <= internalExtents[3])
+    //for ( row = height-1; row >= 0; row -- )
       {
+      row = height-1-yy;
       if (TIFFReadScanline(self->GetInternalImage()->Image, buf, row, 0) <= 0)
         {
         cout << "Problem reading the row: " << row << endl;
@@ -526,9 +529,7 @@ void ReadScanlineImage(vtkTIFFReader *self, void *out,
       for (cc = 0; cc < isize; cc += c_inc )
         {
         if ( xx >= internalExtents[0] &&
-             xx <= internalExtents[1] &&
-             yy >= internalExtents[2] &&
-             yy <= internalExtents[3] )
+             xx <= internalExtents[1])
           {
           //unsigned char *c = static_cast<unsigned char *>(buf)+cc;
           inc = self->EvaluateImageAt( image,
