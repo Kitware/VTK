@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.11");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.12");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -659,10 +659,11 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
   this->SavedRGBFunction              = NULL;
   this->SavedGrayFunction             = NULL;
   this->SavedScalarOpacityFunction    = NULL;
+  this->SavedGradientOpacityFunction  = NULL;
   this->SavedColorChannels            = 0;
   this->SavedSampleDistance           = 0;
   this->SavedScalarOpacityDistance    = 0;
-  
+
   this->Volume1                       = NULL;
   this->Volume2                       = NULL;
   this->Volume3                       = NULL;

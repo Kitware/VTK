@@ -41,7 +41,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.15");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -52,6 +52,7 @@ vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D()
   this->Volume2Index                 =  0;
   this->Volume3Index                 =  0;
   this->ColorLookupIndex             =  0;
+  this->AlphaLookupIndex             =  0;
   this->RenderWindow                 = NULL;
 }
 
