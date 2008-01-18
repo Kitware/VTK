@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.48");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.49");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -35,6 +35,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->RandomMode = 0;
   this->MaximumNumberOfPoints = VTK_LARGE_ID;
   this->GenerateVertices = 0;
+  this->SingleVertexPerCell = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -137,8 +138,15 @@ int vtkMaskPoints::RequestData(
   if ( this->GenerateVertices )
     {
     vtkCellArray *verts = vtkCellArray::New();
-    verts->Allocate(verts->EstimateSize(1,id+1));
-    verts->InsertNextCell(id+1);
+    if (this->SingleVertexPerCell)
+      {
+      verts->Allocate(id*2);
+      }
+    else 
+      {
+      verts->Allocate(verts->EstimateSize(1,id+1));
+      verts->InsertNextCell(id+1);
+      }
     for ( ptId=0; ptId<(id+1) && !abort; ptId++)
       {
       if ( ! (ptId % progressInterval) ) //abort/progress
@@ -146,7 +154,15 @@ int vtkMaskPoints::RequestData(
         this->UpdateProgress (0.5+0.5*ptId/(id+1));
         abort = this->GetAbortExecute();
         }
-      verts->InsertCellPoint(ptId);
+      if (this->SingleVertexPerCell)
+        {
+          verts->InsertNextCell(1,&ptId);
+        }
+      else 
+        {
+        verts->InsertCellPoint(ptId);
+        }
+
       }
     output->SetVerts(verts);
     verts->Delete();
@@ -179,6 +195,8 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Vertices: " 
      << (this->GenerateVertices ? "On\n" : "Off\n");
+  os << indent << "SingleVertexPerCell: " 
+     << (this->SingleVertexPerCell ? "On\n" : "Off\n");
   os << indent << "MaximumNumberOfPoints: " 
      << this->MaximumNumberOfPoints << "\n";
   os << indent << "On Ratio: " << this->OnRatio << "\n";

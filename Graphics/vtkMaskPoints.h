@@ -64,6 +64,14 @@ public:
   vtkGetMacro(GenerateVertices,int);
   vtkBooleanMacro(GenerateVertices,int);
 
+  // Description:
+  // When vertex generation is enabled, by default vertices are produced
+  // as multi-vertex cells (more than one per cell), if you wish to have a single
+  // vertex per cell, enable this flag.
+  vtkSetMacro(SingleVertexPerCell,int);
+  vtkGetMacro(SingleVertexPerCell,int);
+  vtkBooleanMacro(SingleVertexPerCell,int);
+
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
@@ -76,6 +84,7 @@ protected:
   int RandomMode;  // turn on/off randomization
   vtkIdType MaximumNumberOfPoints;
   int GenerateVertices; //generate polydata verts
+  int SingleVertexPerCell;
 private:
   vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
   void operator=(const vtkMaskPoints&);  // Not implemented.
