@@ -23,6 +23,7 @@
 #include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkCharArray.h"
 #include "vtkExodusModel.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -723,7 +724,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.49");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.50");
 
 
 
@@ -1677,7 +1678,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.49");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.50");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -2470,7 +2471,24 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType vtkNotUsed(t
   
   elemBlockIdArray->Delete();
 
+  // Add QA record and INFO record metadata from the Exodus II file
+
+  vtkExodusIICacheKey qakey( -1, vtkExodusIIReader::QA_RECORDS, 0, 0 );
+
+  vtkDataArray* arr = this->GetCacheOrRead( qakey );
+
+  if ( arr )
+   ofieldData->AddArray(arr);
+
+  vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
+
+  arr = this->GetCacheOrRead( infokey );
+
+  if ( arr )
+   ofieldData->AddArray(arr);
+
   return status;
+
 }
 
 int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
@@ -4095,6 +4113,148 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       arr = 0;
       }
     }
+  else if ( key.ObjectType == vtkExodusIIReader::INFO_RECORDS )
+  {
+
+    // Get Exodus II INFO records.  Each INFO record is a single character string.
+
+    int num_info = 0;
+    float fdum;
+    char* cdum;
+    int i;
+
+    vtkCharArray* carr = vtkCharArray::New();
+    carr->SetName("Info_Records");
+    carr->SetNumberOfComponents( MAX_LINE_LENGTH+1 );
+
+    if( ex_inquire( exoid, EX_INQ_INFO, &num_info, &fdum, cdum) < 0 )
+    {
+
+      vtkErrorMacro( "Unable to get number of INFO records from ex_inquire" );
+      carr->Delete();
+      arr = 0;
+
+    }
+    else
+    {
+
+      if(num_info > 0)
+      {
+
+       carr->SetNumberOfTuples(num_info);
+
+       char** info = (char**) calloc(num_info, sizeof(char*));
+
+       for (i=0; i<num_info; i++)
+         info[i] = (char *) calloc ((MAX_LINE_LENGTH+1), sizeof(char));
+
+       if ( ex_get_info( exoid, info ) < 0 )
+       {
+
+         vtkErrorMacro( "Unable to read INFO records from ex_get_info");
+         carr->Delete();
+         arr = 0;
+
+       }
+       else
+       {
+
+         for(i=0; i<num_info; i++)
+           carr->InsertTupleValue(i, info[i]);
+
+         arr = carr;
+
+       }
+
+       for (i=0; i<num_info; i++)
+         free(info[i]);
+
+       free(info);
+
+     }
+     else
+     {
+
+      carr->Delete();
+      arr = 0;
+
+     }
+ 
+   }
+
+  }
+  else if ( key.ObjectType == vtkExodusIIReader::QA_RECORDS )
+  {
+
+    // Get Exodus II QA records.  Each QA record is made up of 4 character strings.
+
+    int num_qa_rec = 0;
+    float fdum;
+    char* cdum;
+    int i,j;
+
+    vtkCharArray* carr = vtkCharArray::New();
+    carr->SetName("Qa_Records");
+    carr->SetNumberOfComponents( MAX_STR_LENGTH+1 );
+
+    if ( ex_inquire( exoid, EX_INQ_QA, &num_qa_rec, &fdum, cdum) < 0 )
+    {
+
+      vtkErrorMacro( "Unable to get number of QA records from ex_inquire" );
+      carr->Delete();
+      arr = 0;
+
+    }
+    else
+    {
+
+      if( num_qa_rec > 0 )
+      {
+
+       carr->SetNumberOfTuples(num_qa_rec*4);
+       char* (*qa_record)[4] = (char* (*)[4]) calloc(num_qa_rec, sizeof(*qa_record));
+
+       for (i=0; i<num_qa_rec; i++)
+        for (j=0; j<4 ; j++)
+         qa_record[i][j] = (char *) calloc ((MAX_STR_LENGTH+1), sizeof(char));
+
+       if ( ex_get_qa( exoid, qa_record ) < 0 )
+       {
+
+         vtkErrorMacro( "Unable to read QA records from ex_get_qa");
+         carr->Delete();
+         arr = 0;
+
+       }
+       else
+       {
+
+        for(i=0; i<num_qa_rec; i++)
+         for (j=0; j<4 ; j++)
+          carr->InsertTupleValue( (i*4) + j, qa_record[i][j]); 
+
+        arr = carr;
+
+       }
+
+       for (i=0; i<num_qa_rec; i++)
+        for (j=0; j<4 ; j++)
+         free(qa_record[i][j]);
+
+       free(qa_record);
+
+    }
+    else
+    {
+
+      carr->Delete();
+      arr = 0;
+
+    }
+
+   }
+
+  }
   else
     {
     vtkWarningMacro( "You requested an array for objects of type " << key.ObjectType <<
@@ -5994,7 +6154,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.49");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.50");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
