@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.126");
+vtkCxxRevisionMacro(vtkMath, "1.127");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2734,12 +2734,12 @@ void vtkMath::LabToXYZ(double L, double a, double b,
 
   if ( pow(var_Z,3) > 0.008856 ) var_Z = pow(var_Z,3);
   else var_Z = ( var_Z - 16.0 / 116.0 ) / 7.787;
-  const double ref_X =  95.047;
-  const double ref_Y = 100.000;
-  const double ref_Z = 108.883;
-  *x = ref_X * var_X;     //ref_X =  95.047  Observer= 2 deg Illuminant= D65
-  *y = ref_Y * var_Y;     //ref_Y = 100.000
-  *z = ref_Z * var_Z;     //ref_Z = 108.883
+  const double ref_X = 0.9505;
+  const double ref_Y = 1.000;
+  const double ref_Z = 1.089;
+  *x = ref_X * var_X;     //ref_X = 0.9505  Observer= 2 deg Illuminant= D65
+  *y = ref_Y * var_Y;     //ref_Y = 1.000
+  *z = ref_Z * var_Z;     //ref_Z = 1.089
 }
 
 //-----------------------------------------------------------------------------
@@ -2754,12 +2754,12 @@ double *vtkMath::LabToXYZ(const double lab[3])
 void vtkMath::XYZToLab(double x, double y, double z,
                        double *L, double *a, double *b)
 {
-  const double ref_X =  95.047;
-  const double ref_Y = 100.000;
-  const double ref_Z = 108.883;
-  double var_X = x / ref_X;  //ref_X =  95.047  Observer= 2 deg, Illuminant= D65
-  double var_Y = y / ref_Y;  //ref_Y = 100.000
-  double var_Z = z / ref_Z;  //ref_Z = 108.883
+  const double ref_X = 0.9505;
+  const double ref_Y = 1.000;
+  const double ref_Z = 1.089;
+  double var_X = x / ref_X;  //ref_X = 0.9505  Observer= 2 deg, Illuminant= D65
+  double var_Y = y / ref_Y;  //ref_Y = 1.000
+  double var_Z = z / ref_Z;  //ref_Z = 1.089
 
   if ( var_X > 0.008856 ) var_X = pow(var_X, 1.0/3.0);
   else                    var_X = ( 7.787 * var_X ) + ( 16.0 / 116.0 );
@@ -2785,29 +2785,30 @@ double *vtkMath::XYZToLab(const double xyz[3])
 void vtkMath::XYZToRGB(double x, double y, double z,
                        double *r, double *g, double *b)
 {
-  //double ref_X =  95.047;        //Observer = 2 deg Illuminant = D65
-  //double ref_Y = 100.000;
-  //double ref_Z = 108.883;
+  //double ref_X = 0.9505;        //Observer = 2 deg Illuminant = D65
+  //double ref_Y = 1.000;
+  //double ref_Z = 1.089;
  
-  double var_X = x / 100;        //X = From 0 to ref_X
-  double var_Y = y / 100;        //Y = From 0 to ref_Y
-  double var_Z = z / 100;        //Z = From 0 to ref_Z
- 
-  double var_R = var_X *  3.2406 + var_Y * -1.5372 + var_Z * -0.4986;
-  double var_G = var_X * -0.9689 + var_Y *  1.8758 + var_Z *  0.0415;
-  double var_B = var_X *  0.0557 + var_Y * -0.2040 + var_Z *  1.0570;
- 
-  if ( var_R > 0.0031308 ) var_R = 1.055 * ( pow(var_R, ( 1 / 2.4 )) ) - 0.055;
-  else var_R = 12.92 * var_R;
-  if ( var_G > 0.0031308 ) var_G = 1.055 * ( pow(var_G ,( 1 / 2.4 )) ) - 0.055;
-  else  var_G = 12.92 * var_G;
-  if ( var_B > 0.0031308 ) var_B = 1.055 * ( pow(var_B, ( 1 / 2.4 )) ) - 0.055;
-  else var_B = 12.92 * var_B;
+  *r = x *  3.2406 + y * -1.5372 + z * -0.4986;
+  *g = x * -0.9689 + y *  1.8758 + z *  0.0415;
+  *b = x *  0.0557 + y * -0.2040 + z *  1.0570;
 
-  *r = var_R;
-  *g = var_G;
-  *b = var_B;
-
+  // The following performs a "gamma correction" specified by the sRGB color
+  // space.  sRGB is defined by a cononical definition of a display monitor and
+  // has been standardized by the International Electrotechnical Commission (IEC
+  // 61966-2-1).  However, it is a non-linear color space, which means that it
+  // will invalidate the color computations done by OpenGL.  Furthermore, most
+  // OS or display drivers will do some gamma correction on there own, so
+  // displaying these colors directly usually results in overly bright images.
+  // Thus, the non-linear RGB values are inappropriate for VTK, so the code is
+  // commented out.  If someone needs sRGB values in the future, there should be
+  // a separate set of color conversion functions for that.
+//   if (*r > 0.0031308) *r = 1.055 * (pow(*r, ( 1 / 2.4 ))) - 0.055;
+//   else *r = 12.92 * (*r);
+//   if (*g > 0.0031308) *g = 1.055 * (pow(*g ,( 1 / 2.4 ))) - 0.055;
+//   else  *g = 12.92 * )*g);
+//   if (*b > 0.0031308) *b = 1.055 * (pow(*b, ( 1 / 2.4 ))) - 0.055;
+//   else *b = 12.92 * (*b);
   
   // Clip colors. ideally we would do something that is perceptually closest
   // (since we can see colors outside of the display gamut), but this seems to
@@ -2839,25 +2840,27 @@ double *vtkMath::XYZToRGB(const double xyz[3])
 void vtkMath::RGBToXYZ(double r, double g, double b,
                        double *x, double *y, double *z)
 {
-  double var_R;
-  double var_G;
-  double var_B;
-
-  if ( r > 0.04045 ) var_R = pow(( r + 0.055 ) / 1.055, 2.4);
-  else               var_R = r / 12.92;
-  if ( g > 0.04045 ) var_G = pow(( g + 0.055 ) / 1.055, 2.4);
-  else               var_G = g / 12.92;
-  if ( b > 0.04045 ) var_B = pow(( b + 0.055 ) / 1.055, 2.4);
-  else               var_B = b / 12.92;
-
-  var_R = var_R * 100;
-  var_G = var_G * 100;
-  var_B = var_B * 100;
+  // The following performs an inverse "gamma correction" specified by the sRGB
+  // color space.  sRGB is defined by a cononical definition of a display
+  // monitor and has been standardized by the International Electrotechnical
+  // Commission (IEC 61966-2-1).  However, it is a non-linear color space, which
+  // means that it will invalidate the color computations done by OpenGL.
+  // Furthermore, most OS or display drivers will do some gamma correction on
+  // there own, so displaying these colors directly usually results in overly
+  // bright images.  Thus, the non-linear RGB values are inappropriate for VTK,
+  // so the code is commented out.  If someone needs sRGB values in the future,
+  // there should be a separate set of color conversion functions for that.
+//   if ( r > 0.04045 ) r = pow(( r + 0.055 ) / 1.055, 2.4);
+//   else               r = r / 12.92;
+//   if ( g > 0.04045 ) g = pow(( g + 0.055 ) / 1.055, 2.4);
+//   else               g = g / 12.92;
+//   if ( b > 0.04045 ) b = pow(( b + 0.055 ) / 1.055, 2.4);
+//   else               b = b / 12.92;
 
   //Observer. = 2 deg, Illuminant = D65
-  *x = var_R * 0.4124 + var_G * 0.3576 + var_B * 0.1805;
-  *y = var_R * 0.2126 + var_G * 0.7152 + var_B * 0.0722;
-  *z = var_R * 0.0193 + var_G * 0.1192 + var_B * 0.9505;
+  *x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+  *y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+  *z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 }
 
 //-----------------------------------------------------------------------------

@@ -85,25 +85,25 @@ int TestMath(int,char *[])
   // Test color conversion.
   int colorsPassed = 1;
 
-  colorsPassed &= TestColorConvert(Triple(1.0, 1.0, 1.0),               // RGB
+  colorsPassed &= TestColorConvert(Triple(1.0, 1.0, 1.0),             // RGB
                                    Triple(0.0, 0.0, 1.0),   // HSV (H ambiguous)
-                                   Triple(95.047, 100.0, 108.883),      // XYZ
-                                   Triple(100.0, 0.0, 0.0));            // L*ab
+                                   Triple(0.9505, 1.000, 1.089),      // XYZ
+                                   Triple(100.0, 0.0, 0.0));          // CIELAB
 
-  colorsPassed &= TestColorConvert(Triple(0.5, 0.5, 0.0),               // RGB
-                                   Triple(1.0/6.0, 1.0, 0.5),           // HSV
-                                   Triple(16.48, 19.86, 2.96),          // XYZ
-                                   Triple(51.68, -12.89, 56.52));       // L*ab
+  colorsPassed &= TestColorConvert(Triple(0.5, 0.5, 0.0),             // RGB
+                                   Triple(1.0/6.0, 1.0, 0.5),         // HSV
+                                   Triple(0.385, 0.464, 0.069),       // XYZ
+                                   Triple(73.8, -17.11, 74.99));      // CIELAB
 
-  colorsPassed &= TestColorConvert(Triple(0.25, 0.25, 0.5),             // RGB
-                                   Triple(2.0/3.0, 0.5, 0.5),           // HSV
-                                   Triple(7.78, 6.27, 21.05),           // XYZ
-                                   Triple(30.07, 18.51, -36.21));       // L*ab
+  colorsPassed &= TestColorConvert(Triple(0.25, 0.25, 0.5),           // RGB
+                                   Triple(2.0/3.0, 0.5, 0.5),         // HSV
+                                   Triple(0.283, 0.268, 0.510),       // XYZ
+                                   Triple(58.79, 11.39, -26.35));     // CIELAB
 
-  colorsPassed &= TestColorConvert(Triple(0.0, 0.0, 0.0),               // RGB
+  colorsPassed &= TestColorConvert(Triple(0.0, 0.0, 0.0),             // RGB
                                    Triple(0.0, 0.0, 0.0), // HSV (H&S ambiguous)
-                                   Triple(0.0, 0.0, 0.0),               // XYZ
-                                   Triple(0.0, 0.0, 0.0));              // L*ab
+                                   Triple(0.0, 0.0, 0.0),             // XYZ
+                                   Triple(0.0, 0.0, 0.0));            // CIELAB
                                    
   if (!colorsPassed)
     {
