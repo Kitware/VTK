@@ -289,6 +289,15 @@ public:
   void DeleteCell(vtkIdType cellId);
 
   // Description:
+  // The cells marked by calls to DeleteCell are stored in the Cell Array
+  // VTK_EMPTY_CELL, but they still exist in the polys array.
+  // Calling RemoveDeletedCells will travers the poly array and remove/compact
+  // the cell array as well as any cell data thus truly removing the cells
+  // from the polydata object. WARNING. This only handles the polys 
+  // at the moment
+  void RemoveDeletedCells();
+
+  // Description:
   // Add a point to the cell data structure (after cell pointers have been
   // built). This method adds the point and then allocates memory for the
   // links to the cells.  (To use this method, make sure points are available

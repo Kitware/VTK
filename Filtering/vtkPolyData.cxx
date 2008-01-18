@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.9");
+vtkCxxRevisionMacro(vtkPolyData, "1.10");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -2037,7 +2037,45 @@ void vtkPolyData::RemoveGhostCells(int level)
 
   this->Squeeze();
 }
+//----------------------------------------------------------------------------
+void  vtkPolyData::RemoveDeletedCells()
+{
+  if (!this->Cells )
+    {
+      return;
+    }
 
+  vtkCellData *newCellData;
+  newCellData = vtkCellData::New();
+  newCellData->CopyAllocate(this->CellData, this->GetNumberOfCells());
+  vtkCellArray *newPolys;
+  vtkIdType inCellId=0, outCellId=0;
+  vtkIdType npts=0;
+  vtkIdType *pts=0;
+
+  if (this->Polys)
+    {
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(this->Polys->GetSize());
+    vtkIdType c = 0;
+    for (this->Polys->InitTraversal(); this->Polys->GetNextCell(npts, pts); c++)
+      {
+        if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
+        { // Keep the cell.
+        newPolys->InsertNextCell(npts, pts);
+        newCellData->CopyData(this->CellData, inCellId, outCellId);
+        ++outCellId;
+        } // Keep this cell.
+      ++inCellId;
+      } // for all cells
+   this->SetPolys(newPolys);
+   newPolys->Delete();
+   newPolys = NULL;
+   }
+  // Save the results.
+  this->CellData->ShallowCopy(newCellData);
+  newCellData->Delete();
+}
 //----------------------------------------------------------------------------
 vtkPolyData* vtkPolyData::GetData(vtkInformation* info)
 {
