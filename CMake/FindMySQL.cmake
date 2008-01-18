@@ -24,6 +24,7 @@ FIND_PATH(MYSQL_INCLUDE_DIRECTORIES mysql.h
   /usr/local/include/mysql
   /usr/local/mysql/include
   "C:/Program Files/MySQL/include"
+  "C:/MySQL/include"
   DOC "Specify the directory containing mysql.h."
 )
 
@@ -36,6 +37,7 @@ FIND_LIBRARY( MYSQL_LIBRARY
   /usr/local/lib/mysql
   /usr/local/mysql/lib
   "C:/Program Files/MySQL/lib"
+  "C:/MySQL/lib/debug"
   DOC "Specify the mysql library here."
 )
 
