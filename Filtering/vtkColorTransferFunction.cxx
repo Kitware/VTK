@@ -22,7 +22,7 @@
 #include <vtkstd/iterator>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.74");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.75");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //=============================================================================
@@ -127,7 +127,8 @@ inline double vtkColorTransferFunctionAngleDiff(double a1, double a2)
 {
   double adiff = a1 - a2;
   if (adiff < 0.0) adiff = -adiff;
-  while (adiff >= vtkMath::DoublePi()) adiff -= vtkMath::DoublePi();
+  while (adiff >= 2*vtkMath::DoublePi()) adiff -= 2*vtkMath::DoublePi();
+  if (adiff > vtkMath::DoublePi()) adiff = 2*vtkMath::DoublePi() - adiff;
   return adiff;
 }
 
