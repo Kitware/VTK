@@ -147,6 +147,8 @@ public:
     MATERIAL = 62,
     HIERARCHY = 63,
     // extended values (not in Exodus headers) for use in cache keys:
+    QA_RECORDS = 103,          //!< Exodus II Quality Assurance (QA) string metadata
+    INFO_RECORDS = 104,        //!< Exodus II Information Records string metadata
     GLOBAL_TEMPORAL = 102,  //!< global data across timesteps
     NODAL_TEMPORAL = 101,      //!< nodal data across timesteps
     ELEM_BLOCK_TEMPORAL = 100,  //!< element data across timesteps
