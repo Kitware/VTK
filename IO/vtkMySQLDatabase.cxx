@@ -27,7 +27,7 @@
 #include <assert.h>
 #include <mysql.h>
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.3");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.4");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -229,9 +229,9 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
 
       this->Tables->InsertNextValue(row[0]);
       ++i;
-
-      mysql_free_result(tableResult);
       }
+      // Done with processing so free it
+      mysql_free_result(tableResult);
 
     return this->Tables;
     }
