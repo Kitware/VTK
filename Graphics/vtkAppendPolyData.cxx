@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.98");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.99");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -279,6 +279,12 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
 
   newPolys = vtkCellArray::New();
   pPolys = newPolys->WritePointer(numPolys, sizePolys);
+
+  if (!pPolys) 
+    {
+    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    return 0;
+    }
 
   // These are created manually for faster execution
   // Uses the properties of the last input
