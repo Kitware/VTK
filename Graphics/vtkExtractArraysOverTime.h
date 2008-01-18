@@ -109,10 +109,10 @@ protected:
   bool UseFastPath;
   vtkIdType SelectedId;
 
-  void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
+  virtual void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
                            vtkInformation* outInfo);
 
-  void ExecuteLocationAtTimeStep(vtkInformationVector** inputV, 
+  virtual void ExecuteLocationAtTimeStep(vtkInformationVector** inputV, 
                                  vtkInformation* outInfo);
 
   int Error;
