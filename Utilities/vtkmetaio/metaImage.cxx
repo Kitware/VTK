@@ -2795,7 +2795,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         currentIndex[movingDirection]+=subSamplingFactor;;
 
         // Check if we are still in the region
-        for(i=1;i<=m_NDims;i++)
+        for(i=1;i<m_NDims;i++)
           {
           if(currentIndex[i]>_indexMax[i])
             {
@@ -2929,7 +2929,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
       currentIndex[movingDirection]+=subSamplingFactor;
 
       // Check if we are still in the region
-      for(i=1;i<=m_NDims;i++)
+      for(i=1;i<m_NDims;i++)
         {
         if(currentIndex[i]>_indexMax[i])
           {
