@@ -60,7 +60,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Specifically for HP compiler, mask out
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
   "Filtering.vtkImageMultiple(Input|InputOutput)Filter.cxx.*warning.*more strictly aligned type"
-  "IO.vtkJPEGReader.cxx.*warning.*more strictly aligned type"
+  "IO.vtkJPEG(Reader|Writer).cxx.*warning.*more strictly aligned type"
   )
 
 IF(APPLE)
