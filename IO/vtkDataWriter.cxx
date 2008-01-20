@@ -41,7 +41,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.128");
+vtkCxxRevisionMacro(vtkDataWriter, "1.129");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -558,24 +558,20 @@ void vtkWriteDataArray(ostream *fp, T *data, int fileType,
       switch (sizeT)
         {
         case 2:
-          // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite2BERange(reinterpret_cast<short *>(data),
-                                         num*numComp, fp);
+          // no typecast needed here; method call takes void* data
+          vtkByteSwap::SwapWrite2BERange(data, num*numComp, fp);
           break;
         case 4:
-          // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite4BERange(reinterpret_cast<float *>(data),
-                                         num*numComp, fp);
+          // no typecast needed here; method call takes void* data
+          vtkByteSwap::SwapWrite4BERange(data, num*numComp, fp);
           break;
         case 8:
-          // typecast doesn't have to be valid here
-          vtkByteSwap::SwapWrite8BERange(reinterpret_cast<double *>(data),
-                                         num*numComp, fp);
+          // no typecast needed here; method call takes void* data
+          vtkByteSwap::SwapWrite8BERange(data, num*numComp, fp);
           break;
         default:
-          fp->write(reinterpret_cast<char *>(data),
-                    ( sizeof(T))*( num*numComp));
-
+          fp->write(reinterpret_cast<char*>(data), sizeof(T) * (num*numComp));
+          break;
         }
       }
     }
