@@ -72,6 +72,12 @@ vtkVariant::vtkVariant(const vtkVariant & other)
 
 const vtkVariant & vtkVariant::operator= (const vtkVariant & other)
 {
+  // Short circuit if assigning to self:
+  if (this == &other)
+    {
+    return *this;
+    }
+
   // First delete current variant item.
   if (this->Valid)
     {
