@@ -52,21 +52,21 @@
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This header file defines the interface that the Vtk_Sqlite library
+** This header file defines the interface that the SQLite library
 ** presents to client programs.  If a C-function, structure, datatype,
 ** or constant definition does not appear in this file, then it is
-** not a published API of Vtk_Sqlite, is subject to change without
-** notice, and should not be referenced by programs that use Vtk_Sqlite.
+** not a published API of SQLite, is subject to change without
+** notice, and should not be referenced by programs that use SQLite.
 **
 ** Some of the definitions that are in this file are marked as
 ** "experimental".  Experimental interfaces are normally new
-** features recently added to Vtk_Sqlite.  We do not anticipate changes 
+** features recently added to SQLite.  We do not anticipate changes 
 ** to experimental interfaces but reserve to make minor changes if
 ** experience from use "in the wild" suggest such changes are prudent.
 **
-** The official C-language API documentation for Vtk_Sqlite is derived
+** The official C-language API documentation for SQLite is derived
 ** from comments in this file.  This file is the authoritative source
-** on how Vtk_Sqlite interfaces are suppose to operate.
+** on how SQLite interfaces are suppose to operate.
 **
 ** The name of this file under configuration management is "vtk_sqlite.h.in".
 ** The makefile makes some minor changes to this file (such as inserting
@@ -100,7 +100,7 @@ extern "C" {
 /*
 ** CAPI3REF: Compile-Time Library Version Numbers
 **
-** The version of the Vtk_Sqlite library is contained in the vtk_sqlite3.h
+** The version of the SQLite library is contained in the vtk_sqlite3.h
 ** header file in a #define named VTK_SQLITE_VERSION.  The VTK_SQLITE_VERSION
 ** macro resolves to a string constant.
 **
@@ -109,7 +109,7 @@ extern "C" {
 ** is the release number.  The X.Y.Z might be followed by "alpha" or "beta".
 ** For example "3.1.1beta".
 **
-** The X value is always 3 in Vtk_Sqlite.  The X value only changes when
+** The X value is always 3 in SQLite.  The X value only changes when
 ** backwards compatibility is broken and we intend to never break
 ** backwards compatibility.  The Y value only changes when
 ** there are major feature enhancements that are forwards compatible
@@ -134,7 +134,7 @@ extern "C" {
 ** [VTK_SQLITE_VERSION] and [VTK_SQLITE_VERSION_NUMBER].  The values returned
 ** by this routines should only be different from the header values
 ** if you compile your program using an vtk_sqlite3.h header from a
-** different version of Vtk_Sqlite that the version of the library you
+** different version of SQLite that the version of the library you
 ** link against.
 **
 ** The vtk_sqlite3_version[] string constant contains the text of the
@@ -150,7 +150,7 @@ int vtk_sqlite3_libversion_number(void);
 /*
 ** CAPI3REF: Database Connection Handle
 **
-** Each open Vtk_Sqlite database is represented by pointer to an instance of the
+** Each open SQLite database is represented by pointer to an instance of the
 ** opaque structure named "vtk_sqlite3".  It is useful to think of an vtk_sqlite3
 ** pointer as an object.  The [vtk_sqlite3_open] interface is its constructor
 ** and [vtk_sqlite3_close] is its destructor.  There are many other interfaces
@@ -167,7 +167,7 @@ typedef struct vtk_sqlite3 vtk_sqlite3;
 ** Some compilers do not support the "long long" datatype.  So we have
 ** to do compiler-specific typedefs for 64-bit signed and unsigned integers.
 **
-** Many Vtk_Sqlite interface functions require a 64-bit integer arguments.
+** Many SQLite interface functions require a 64-bit integer arguments.
 ** Those interfaces are declared using this typedef.
 */
 #ifdef VTK_SQLITE_INT64_TYPE
@@ -266,10 +266,10 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 ** CAPI3REF: Result Codes
 ** KEYWORDS: VTK_SQLITE_OK
 **
-** Many Vtk_Sqlite functions return an integer result code from the set shown
+** Many SQLite functions return an integer result code from the set shown
 ** above in order to indicates success or failure.
 **
-** The result codes above are the only ones returned by Vtk_Sqlite in its
+** The result codes above are the only ones returned by SQLite in its
 ** default configuration.  However, the [vtk_sqlite3_extended_result_codes()]
 ** API can be used to set a database connectoin to return more detailed
 ** result codes.
@@ -280,7 +280,7 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 #define VTK_SQLITE_OK           0   /* Successful result */
 /* beginning-of-error-codes */
 #define VTK_SQLITE_ERROR        1   /* SQL error or missing database */
-#define VTK_SQLITE_INTERNAL     2   /* NOT USED. Internal logic error in Vtk_Sqlite */
+#define VTK_SQLITE_INTERNAL     2   /* NOT USED. Internal logic error in SQLite */
 #define VTK_SQLITE_PERM         3   /* Access permission denied */
 #define VTK_SQLITE_ABORT        4   /* Callback routine requested an abort */
 #define VTK_SQLITE_BUSY         5   /* The database file is locked */
@@ -312,11 +312,11 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 /*
 ** CAPI3REF: Extended Result Codes
 **
-** In its default configuration, Vtk_Sqlite API routines return one of 26 integer
+** In its default configuration, SQLite API routines return one of 26 integer
 ** result codes described at result-codes.  However, experience has shown that
 ** many of these result codes are too course-grained.  They do not provide as
 ** much information about problems as users might like.  In an effort to
-** address this, newer versions of Vtk_Sqlite (version 3.3.8 and later) include
+** address this, newer versions of SQLite (version 3.3.8 and later) include
 ** support for additional result codes that provide more detailed information
 ** about errors.  The extended result codes are enabled (or disabled) for 
 ** each database
@@ -325,7 +325,7 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 ** Some of the available extended result codes are listed above.
 ** We expect the number of extended result codes will be expand
 ** over time.  Software that uses extended result codes should expect
-** to see new result codes in future releases of Vtk_Sqlite.
+** to see new result codes in future releases of SQLite.
 ** 
 ** The symbolic name for an extended result code always contains a related
 ** primary result code as a prefix.  Primary result codes contain a single
@@ -353,7 +353,7 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 **
 ** This routine enables or disables the
 ** [VTK_SQLITE_IOERR_READ | extended result codes] feature.
-** By default, Vtk_Sqlite API routines return one of only 26 integer
+** By default, SQLite API routines return one of only 26 integer
 ** [VTK_SQLITE_OK | result codes].  When extended result codes
 ** are enabled by this routine, the repetoire of result codes can be
 ** much larger and can (hopefully) provide more detailed information
@@ -361,14 +361,14 @@ VTK_SQLITE_API int vtk_sqlite3_exec(
 **
 ** The second argument is a boolean value that turns extended result
 ** codes on and off.  Extended result codes are off by default for
-** backwards compatibility with older versions of Vtk_Sqlite.
+** backwards compatibility with older versions of SQLite.
 */
 int vtk_sqlite3_extended_result_codes(vtk_sqlite3*, int onoff);
 
 /*
 ** CAPI3REF: Last Insert Rowid
 **
-** Each entry in an Vtk_Sqlite table has a unique 64-bit signed integer key
+** Each entry in an SQLite table has a unique 64-bit signed integer key
 ** called the "rowid". The rowid is always available as an undeclared
 ** column named ROWID, OID, or _ROWID_.  If the table has a column of
 ** type INTEGER PRIMARY KEY then that column is another an alias for the
@@ -410,7 +410,7 @@ vtk_sqlite_int64 vtk_sqlite3_last_insert_rowid(vtk_sqlite3*);
 ** then the changes in the inner, recursive call are counted together
 ** with the changes in the outer call.
 **
-** Vtk_Sqlite implements the command "DELETE FROM table" without a WHERE clause
+** SQLite implements the command "DELETE FROM table" without a WHERE clause
 ** by dropping and recreating the table.  (This is much faster than going
 ** through and deleting individual elements from the table.)  Because of
 ** this optimization, the change count for "DELETE FROM table" will be
@@ -432,7 +432,7 @@ VTK_SQLITE_API int vtk_sqlite3_changes(vtk_sqlite3*);
 **
 ** See also the [vtk_sqlite3_change()] interface.
 **
-** Vtk_Sqlite implements the command "DELETE FROM table" without a WHERE clause
+** SQLite implements the command "DELETE FROM table" without a WHERE clause
 ** by dropping and recreating the table.  (This is much faster than going
 ** through and deleting individual elements form the table.)  Because of
 ** this optimization, the change count for "DELETE FROM table" will be
@@ -473,7 +473,7 @@ VTK_SQLITE_API void vtk_sqlite3_interrupt(vtk_sqlite3*);
 ** These routines are useful for command-line input to determine if the
 ** currently entered text forms one or more complete SQL statements or
 ** if additional input is needed before sending the statements into
-** Vtk_Sqlite for parsing. The algorithm is simple.  If the 
+** SQLite for parsing. The algorithm is simple.  If the 
 ** last token other than spaces and comments is a semicolon, then return 
 ** true.  Actually, the algorithm is a little more complicated than that
 ** in order to deal with triggers, but the basic idea is the same:  the
@@ -504,7 +504,7 @@ VTK_SQLITE_API int vtk_sqlite3_complete16(const void *sql);
 **
 ** The presence of a busy handler does not guarantee that
 ** it will be invoked when there is lock contention.
-** If Vtk_Sqlite determines that invoking the busy handler could result in
+** If SQLite determines that invoking the busy handler could result in
 ** a deadlock, it will return [VTK_SQLITE_BUSY] instead.
 ** Consider a scenario where one process is holding a read lock that
 ** it is trying to promote to a reserved lock and
@@ -513,15 +513,15 @@ VTK_SQLITE_API int vtk_sqlite3_complete16(const void *sql);
 ** because it is blocked by the second and the second process cannot
 ** proceed because it is blocked by the first.  If both processes
 ** invoke the busy handlers, neither will make any progress.  Therefore,
-** Vtk_Sqlite returns [VTK_SQLITE_BUSY] for the first process, hoping that this
+** SQLite returns [VTK_SQLITE_BUSY] for the first process, hoping that this
 ** will induce the first process to release its read lock and allow
 ** the second process to proceed.
 **
 ** The default busy callback is NULL.
 **
 ** The [VTK_SQLITE_BUSY] error is converted to [VTK_SQLITE_IOERR_BLOCKED] when
-** Vtk_Sqlite is in the middle of a large transaction where all the
-** changes will not fit into the in-memory cache.  Vtk_Sqlite will
+** SQLite is in the middle of a large transaction where all the
+** changes will not fit into the in-memory cache.  SQLite will
 ** already hold a RESERVED lock on the database file, but it needs
 ** to promote this lock to EXCLUSIVE so that it can spill cache
 ** pages into the database file without harm to concurrent
@@ -534,7 +534,7 @@ VTK_SQLITE_API int vtk_sqlite3_complete16(const void *sql);
 ** CorruptionFollowingBusyError</a> wiki page for a discussion of why
 ** this is important.
 **      
-** Vtk_Sqlite is re-entrant, so the busy handler may start a new query. 
+** SQLite is re-entrant, so the busy handler may start a new query. 
 ** (It is not clear why anyone would every want to do this, but it
 ** is allowed, in theory.)  But the busy handler may not close the
 ** database.  Closing the database from a busy handler will delete 
@@ -720,7 +720,7 @@ VTK_SQLITE_API char *vtk_sqlite3_snprintf(int,char*,const char*, ...);
 /*
 ** CAPI3REF: Memory Allocation Functions
 **
-** Vtk_Sqlite uses its own memory allocator.  On some installations, this
+** SQLite uses its own memory allocator.  On some installations, this
 ** memory allocator is identical to the standard malloc()/realloc()/free()
 ** and can be used interchangable.  On others, the implementations are
 ** different.  For maximum portability, it is best not to mix calls
@@ -733,7 +733,7 @@ VTK_SQLITE_API void vtk_sqlite3_free(void*);
 /*
 ** CAPI3REF: Compile-Time Authorization Callbacks
 ***
-** This routine registers a authorizer callback with the Vtk_Sqlite library.  
+** This routine registers a authorizer callback with the SQLite library.  
 ** The authorizer callback is invoked as SQL statements are being compiled
 ** by [vtk_sqlite3_prepare()] or its variants [vtk_sqlite3_prepare_v2()],
 ** [vtk_sqlite3_prepare16()] and [vtk_sqlite3_prepare16_v2()].  At various
@@ -794,7 +794,7 @@ int vtk_sqlite3_set_authorizer(
 **
 ** The [vtk_sqlite3_set_authorizer | authorizer callback function] must
 ** return either [VTK_SQLITE_OK] or one of these two constants in order
-** to signal Vtk_Sqlite whether or not the action is permitted.  See the
+** to signal SQLite whether or not the action is permitted.  See the
 ** [vtk_sqlite3_set_authorizer | authorizer documentation] for additional
 ** information.
 */
@@ -931,11 +931,11 @@ void vtk_sqlite3_progress_handler(vtk_sqlite3*, int, int(*)(void*), void*);
 */
 VTK_SQLITE_API int vtk_sqlite3_open(
   const char *filename,   /* Database filename (UTF-8) */
-  vtk_sqlite3 **ppDb          /* OUT: Vtk_Sqlite db handle */
+  vtk_sqlite3 **ppDb          /* OUT: SQLite db handle */
 );
 VTK_SQLITE_API int vtk_sqlite3_open16(
   const void *filename,   /* Database filename (UTF-16) */
-  vtk_sqlite3 **ppDb          /* OUT: Vtk_Sqlite db handle */
+  vtk_sqlite3 **ppDb          /* OUT: SQLite db handle */
 );
 
 /*
@@ -951,7 +951,7 @@ VTK_SQLITE_API int vtk_sqlite3_open16(
 ** The vtk_sqlite3_errmsg() and vtk_sqlite3_errmsg16() return English-langauge
 ** text that describes the error, as either UTF8 or UTF16 respectively.
 ** Memory to hold the error message string is managed internally.  The 
-** string may be overwritten or deallocated by subsequent calls to Vtk_Sqlite
+** string may be overwritten or deallocated by subsequent calls to SQLite
 ** interface functions.
 **
 ** Calls to many vtk_sqlite3_* functions set the error code and string returned
@@ -1001,7 +1001,7 @@ typedef struct vtk_sqlite3_stmt vtk_sqlite3_stmt;
 ** To execute an SQL query, it must first be compiled into a byte-code
 ** program using one of these routines. 
 **
-** The first argument "db" is an [vtk_sqlite3 | Vtk_Sqlite database handle] 
+** The first argument "db" is an [vtk_sqlite3 | SQLite database handle] 
 ** obtained from a prior call to [vtk_sqlite3_open()] or [vtk_sqlite3_open16()].
 ** The second argument "zSql" is the statement to be compiled, encoded
 ** as either UTF-8 or UTF-16.  The vtk_sqlite3_prepare() and vtk_sqlite3_prepare_v2()
@@ -1095,7 +1095,7 @@ int vtk_sqlite3_prepare16_v2(
 /*
 ** CAPI3REF:  Dynamically Typed Value Object
 **
-** Vtk_Sqlite uses dynamic typing for the values it stores.  Values can 
+** SQLite uses dynamic typing for the values it stores.  Values can 
 ** be integers, floating point values, strings, BLOBs, or NULL.  When
 ** passing around values internally, each value is represented as
 ** an instance of the vtk_sqlite3_value object.
@@ -1158,10 +1158,10 @@ typedef struct vtk_sqlite3_context vtk_sqlite3_context;
 **
 ** The fifth argument to vtk_sqlite3_bind_blob(), vtk_sqlite3_bind_text(), and
 ** vtk_sqlite3_bind_text16() is a destructor used to dispose of the BLOB or
-** text after Vtk_Sqlite has finished with it.  If the fifth argument is the
+** text after SQLite has finished with it.  If the fifth argument is the
 ** special value [VTK_SQLITE_STATIC], then the library assumes that the information
 ** is in static, unmanaged space and does not need to be freed.  If the
-** fifth argument has the value [VTK_SQLITE_TRANSIENT], then Vtk_Sqlite makes its
+** fifth argument has the value [VTK_SQLITE_TRANSIENT], then SQLite makes its
 ** own private copy of the data immediately, before the vtk_sqlite3_bind_*()
 ** routine returns.
 **
@@ -1306,7 +1306,7 @@ const void *vtk_sqlite3_column_name16(vtk_sqlite3_stmt*, int N);
 ** name of the attached database, table and column that query result
 ** column was extracted from.
 **
-** As with all other Vtk_Sqlite APIs, those postfixed with "16" return UTF-16
+** As with all other SQLite APIs, those postfixed with "16" return UTF-16
 ** encoded strings, the other functions return UTF-8.
 **
 ** These APIs are only available if the library was compiled with the 
@@ -1341,9 +1341,9 @@ const void *vtk_sqlite3_column_origin_name16(vtk_sqlite3_stmt*,int);
 ** result column (i==1), and a NULL pointer for the first result column
 ** (i==0).
 **
-** Vtk_Sqlite uses dynamic run-time typing.  So just because a column
+** SQLite uses dynamic run-time typing.  So just because a column
 ** is declared to contain a particular type does not mean that the
-** data stored in that column is of the declared type.  Vtk_Sqlite is
+** data stored in that column is of the declared type.  SQLite is
 ** strongly typed, but the typing is dynamic not static.  Type
 ** is associated with individual values, not with the containers
 ** used to hold those values.
@@ -1440,7 +1440,7 @@ int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt);
 /*
 ** CAPI3REF: Fundamental Datatypes
 **
-** Every value in Vtk_Sqlite has one of five fundamental datatypes:
+** Every value in SQLite has one of five fundamental datatypes:
 **
 ** <ul>
 ** <li> 64-bit signed integer
@@ -1452,9 +1452,9 @@ int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt);
 **
 ** These constants are codes for each of those types.
 **
-** Note that the VTK_SQLITE_TEXT constant was also used in Vtk_Sqlite version 2
+** Note that the VTK_SQLITE_TEXT constant was also used in SQLite version 2
 ** for a completely different meaning.  Software that links against both
-** Vtk_Sqlite version 2 and Vtk_Sqlite version 3 should use VTK_SQLITE3_TEXT not
+** SQLite version 2 and SQLite version 3 should use VTK_SQLITE3_TEXT not
 ** VTK_SQLITE_TEXT.
 */
 #define VTK_SQLITE_INTEGER  1
@@ -1490,7 +1490,7 @@ int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt);
 ** returned by vtk_sqlite3_column_type() is only meaningful if no type
 ** conversions have occurred as described below.  After a type conversion,
 ** the value returned by vtk_sqlite3_column_type() is undefined.  Future
-** versions of Vtk_Sqlite may change the behavior of vtk_sqlite3_column_type()
+** versions of SQLite may change the behavior of vtk_sqlite3_column_type()
 ** following a type conversion.
 **
 ** If the result is a BLOB or UTF-8 string then the vtk_sqlite3_column_bytes() 
@@ -1539,7 +1539,7 @@ int vtk_sqlite3_data_count(vtk_sqlite3_stmt *pStmt);
 ** </blockquote>
 **
 ** The table above makes reference to standard C library functions atoi()
-** and atof().  Vtk_Sqlite does not really use these functions.  It has its
+** and atof().  SQLite does not really use these functions.  It has its
 ** on equavalent internal routines.  The atoi() and atof() names are
 ** used in the table for brevity and because they are familiar to most
 ** C programmers.
@@ -1662,7 +1662,7 @@ VTK_SQLITE_API int vtk_sqlite3_reset(vtk_sqlite3_stmt *pStmt);
 ** more efficient with one encoding than another.  It is allowed to
 ** invoke vtk_sqlite_create_function() or vtk_sqlite3_create_function16() multiple
 ** times with the same function but with different values of eTextRep.
-** When multiple implementations of the same function are available, Vtk_Sqlite
+** When multiple implementations of the same function are available, SQLite
 ** will pick the one that involves the least amount of data conversion.
 ** If there is only a single implementation which does not care what
 ** text encoding is used, then the fourth argument should be
@@ -1683,7 +1683,7 @@ VTK_SQLITE_API int vtk_sqlite3_reset(vtk_sqlite3_stmt *pStmt);
 **
 ** It is permitted to register multiple implementations of the same
 ** functions with the same name but with either differing numbers of
-** arguments or differing perferred text encodings.  Vtk_Sqlite will use
+** arguments or differing perferred text encodings.  SQLite will use
 ** the implementation most closely matches the way in which the
 ** SQL function is used.
 */
@@ -1712,7 +1712,7 @@ int vtk_sqlite3_create_function16(
 ** CAPI3REF: Text Encodings
 **
 ** These constant define integer codes that represent the various
-** text encodings supported by Vtk_Sqlite.
+** text encodings supported by SQLite.
 */
 #define VTK_SQLITE_UTF8           1
 #define VTK_SQLITE_UTF16LE        2
@@ -1798,7 +1798,7 @@ int vtk_sqlite3_value_numeric_type(vtk_sqlite3_value*);
 ** same aggregate instance) the same buffer is returned.  The implementation
 ** of the aggregate can use the returned buffer to accumulate data.
 **
-** The buffer allocated is freed automatically by Vtk_Sqlite whan the aggregate
+** The buffer allocated is freed automatically by SQLite whan the aggregate
 ** query concludes.
 **
 ** The first parameter should be a copy of the 
@@ -1860,7 +1860,7 @@ void vtk_sqlite3_set_auxdata(vtk_sqlite3_context*, int, void*, void (*)(void*));
 ** argument is VTK_SQLITE_STATIC, it means that the content pointer is constant
 ** and will never change.  It does not need to be destroyed.  The 
 ** VTK_SQLITE_TRANSIENT value means that the content will likely change in
-** the near future and that Vtk_Sqlite should make its own private copy of
+** the near future and that SQLite should make its own private copy of
 ** the content before returning.
 **
 ** The typedef is necessary to work around problems in certain
@@ -1927,7 +1927,7 @@ void vtk_sqlite3_result_zeroblob(vtk_sqlite3_context*, int n);
 **
 ** A pointer to the user supplied routine must be passed as the fifth
 ** argument. If it is NULL, this is the same as deleting the collation
-** sequence (so that Vtk_Sqlite cannot call it anymore). Each time the user
+** sequence (so that SQLite cannot call it anymore). Each time the user
 ** supplied function is invoked, it is passed a copy of the void* passed as
 ** the fourth argument to vtk_sqlite3_create_collation() or
 ** vtk_sqlite3_create_collation16() as its first parameter.
@@ -2016,7 +2016,7 @@ int vtk_sqlite3_collation_needed16(
 ** called right after vtk_sqlite3_open().
 **
 ** The code to implement this API is not available in the public release
-** of Vtk_Sqlite.
+** of SQLite.
 */
 VTK_SQLITE_API int vtk_sqlite3_key(
   vtk_sqlite3 *db,                   /* Database to be rekeyed */
@@ -2029,7 +2029,7 @@ VTK_SQLITE_API int vtk_sqlite3_key(
 ** database is decrypted.
 **
 ** The code to implement this API is not available in the public release
-** of Vtk_Sqlite.
+** of SQLite.
 */
 VTK_SQLITE_API int vtk_sqlite3_rekey(
   vtk_sqlite3 *db,                   /* Database to be rekeyed */
@@ -2054,8 +2054,8 @@ VTK_SQLITE_API int vtk_sqlite3_sleep(int);
 **
 ** If this global variable is made to point to a string which is
 ** the name of a folder (a.ka. directory), then all temporary files
-** created by Vtk_Sqlite will be placed in that directory.  If this variable
-** is NULL pointer, then Vtk_Sqlite does a search for an appropriate temporary
+** created by SQLite will be placed in that directory.  If this variable
+** is NULL pointer, then SQLite does a search for an appropriate temporary
 ** file directory.
 **
 ** Once [vtk_sqlite3_open()] has been called, changing this variable will
@@ -2193,7 +2193,7 @@ int vtk_sqlite3_enable_shared_cache(int);
 ** used to cache database pages to improve performance).
 **
 ** This function is not a part of standard builds.  It is only created
-** if Vtk_Sqlite is compiled with the VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT macro.
+** if SQLite is compiled with the VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT macro.
 */
 int vtk_sqlite3_release_memory(int);
 
@@ -2201,7 +2201,7 @@ int vtk_sqlite3_release_memory(int);
 ** CAPI3REF:  Impose A Limit On Heap Size
 **
 ** Place a "soft" limit on the amount of heap memory that may be allocated by
-** Vtk_Sqlite within the current thread. If an internal allocation is requested 
+** SQLite within the current thread. If an internal allocation is requested 
 ** that would exceed the specified limit, [vtk_sqlite3_release_memory()] is invoked
 ** one or more times to free up some space before the allocation is made.
 **
@@ -2217,7 +2217,7 @@ int vtk_sqlite3_release_memory(int);
 ** [vtk_sqlite3_release_memory()] will only be called when memory is exhaused.
 ** The default value for the soft heap limit is zero.
 **
-** Vtk_Sqlite makes a best effort to honor the soft heap limit.  But if it
+** SQLite makes a best effort to honor the soft heap limit.  But if it
 ** is unable to reduce memory usage below the soft limit, execution will
 ** continue without error or notification.  This is why the limit is 
 ** called a "soft" limit.  It is advisory only.
@@ -2322,7 +2322,7 @@ int vtk_sqlite3_table_column_metadata(
 /*
 ** CAPI3REF: Load An Extension
 **
-** Attempt to load an Vtk_Sqlite extension library contained in the file
+** Attempt to load an SQLite extension library contained in the file
 ** zFile.  The entry point is zProc.  zProc may be 0 in which case the
 ** name of the entry point defaults to "vtk_sqlite3_extension_init".
 **
@@ -2379,7 +2379,7 @@ int vtk_sqlite3_enable_load_extension(vtk_sqlite3 *db, int onoff);
 ** Automatic extensions apply across all threads.
 **
 ** This interface is experimental and is subject to change or
-** removal in future releases of Vtk_Sqlite.
+** removal in future releases of SQLite.
 */
 int vtk_sqlite3_auto_extension(void *xEntryPoint);
 
@@ -2394,7 +2394,7 @@ int vtk_sqlite3_auto_extension(void *xEntryPoint);
 ** This call disabled automatic extensions in all threads.
 **
 ** This interface is experimental and is subject to change or
-** removal in future releases of Vtk_Sqlite.
+** removal in future releases of SQLite.
 */
 void vtk_sqlite3_reset_auto_extension(void);
 
@@ -2486,7 +2486,7 @@ struct vtk_sqlite3_module {
 ** the right-hand side of the corresponding aConstraint[] is evaluated
 ** and becomes the argvIndex-th entry in argv.  If aConstraintUsage[].omit
 ** is true, then the constraint is assumed to be fully handled by the
-** virtual table and is not checked again by Vtk_Sqlite.
+** virtual table and is not checked again by SQLite.
 **
 ** The idxNum and idxPtr values are recorded and passed into xFilter.
 ** vtk_sqlite3_free() is used to free idxPtr if needToFreeIdxPtr is true.
@@ -2534,13 +2534,13 @@ struct vtk_sqlite3_index_info {
 #define VTK_SQLITE_INDEX_CONSTRAINT_MATCH 64
 
 /*
-** This routine is used to register a new module name with an Vtk_Sqlite
+** This routine is used to register a new module name with an SQLite
 ** connection.  Module names must be registered before creating new
 ** virtual tables on the module, or before using preexisting virtual
 ** tables of the module.
 */
 int vtk_sqlite3_create_module(
-  vtk_sqlite3 *db,               /* Vtk_Sqlite connection to register module with */
+  vtk_sqlite3 *db,               /* SQLite connection to register module with */
   const char *zName,         /* Name of the module */
   const vtk_sqlite3_module *,    /* Methods for the module */
   void *                     /* Client data for xCreate/xConnect */
@@ -2552,7 +2552,7 @@ int vtk_sqlite3_create_module(
 ** even more experimental than the rest of the virtual tables API.
 */
 int vtk_sqlite3_create_module_v2(
-  vtk_sqlite3 *db,               /* Vtk_Sqlite connection to register module with */
+  vtk_sqlite3 *db,               /* SQLite connection to register module with */
   const char *zName,         /* Name of the module */
   const vtk_sqlite3_module *,    /* Methods for the module */
   void *,                    /* Client data for xCreate/xConnect */
@@ -2703,7 +2703,7 @@ int vtk_sqlite3_blob_bytes(vtk_sqlite3_blob *);
 ** z from the open blob, starting at offset iOffset.
 **
 ** On success, VTK_SQLITE_OK is returned. Otherwise, an 
-** [VTK_SQLITE_ERROR | Vtk_Sqlite error code] or an
+** [VTK_SQLITE_ERROR | SQLite error code] or an
 ** [VTK_SQLITE_IOERR_READ | extended error code] is returned.
 */
 int vtk_sqlite3_blob_read(vtk_sqlite3_blob *, void *z, int n, int iOffset);
@@ -2726,7 +2726,7 @@ int vtk_sqlite3_blob_read(vtk_sqlite3_blob *, void *z, int n, int iOffset);
 ** [VTK_SQLITE_ERROR] is returned and no data is written.
 **
 ** On success, VTK_SQLITE_OK is returned. Otherwise, an 
-** [VTK_SQLITE_ERROR | Vtk_Sqlite error code] or an
+** [VTK_SQLITE_ERROR | SQLite error code] or an
 ** [VTK_SQLITE_IOERR_READ | extended error code] is returned.
 */
 int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset);
@@ -2758,7 +2758,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 **
 *************************************************************************
 ** This file contains the C functions that implement date and time
-** functions for Vtk_Sqlite.  
+** functions for SQLite.  
 **
 ** There is only one exported symbol in this file - the function
 ** vtk_sqlite3RegisterDateTimeFunctions() found at the bottom of the file.
@@ -2766,7 +2766,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 **
 ** Id
 **
-** Vtk_Sqlite processes all times and dates as Julian Day numbers.  The
+** SQLite processes all times and dates as Julian Day numbers.  The
 ** dates and times are stored as the number of days since noon
 ** in Greenwich on November 24, 4714 B.C. according to the Gregorian
 ** calendar system. 
@@ -2806,7 +2806,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** Internal interface definitions for Vtk_Sqlite.
+** Internal interface definitions for SQLite.
 **
 ** @(#) Id
 */
@@ -2826,7 +2826,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 **
 *************************************************************************
 ** 
-** This file defines various limits of what Vtk_Sqlite can process.
+** This file defines various limits of what SQLite can process.
 **
 ** @(#) Id
 */
@@ -2982,7 +2982,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 #endif
 
 /*
-** Many people are failing to set -DNDEBUG=1 when compiling Vtk_Sqlite.
+** Many people are failing to set -DNDEBUG=1 when compiling SQLite.
 ** Setting NDEBUG makes the code smaller and run faster.  So the following
 ** lines are added to automatically set NDEBUG unless the -DVTK_SQLITE_DEBUG=1
 ** option is set.  Thus NDEBUG becomes an opt-in rather than an opt-out
@@ -3029,7 +3029,7 @@ int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset
 **
 *************************************************************************
 ** This is the header file for the generic hash-table implemenation
-** used in Vtk_Sqlite.
+** used in SQLite.
 **
 ** Id
 */
@@ -4124,8 +4124,8 @@ struct ThreadData {
 ** is a special table that holds the names and attributes of all
 ** user tables and indices.
 */
-#define MASTER_NAME       "vtk_sqlite_master"
-#define TEMP_MASTER_NAME  "vtk_sqlite_temp_master"
+#define MASTER_NAME       "sqlite_master"
+#define TEMP_MASTER_NAME  "sqlite_temp_master"
 
 /*
 ** The root-page of the master database table.
@@ -4191,7 +4191,7 @@ typedef struct WhereLevel WhereLevel;
 **
 ** This header file (together with is companion C source-code file
 ** "os.c") attempt to abstract the underlying operating system so that
-** the Vtk_Sqlite library will work on both POSIX and windows systems.
+** the SQLite library will work on both POSIX and windows systems.
 */
 #ifndef _VTK_SQLITE_OS_H_
 #define _VTK_SQLITE_OS_H_
@@ -4284,13 +4284,13 @@ typedef struct WhereLevel WhereLevel;
 ** prematurely, old temporary files can be easily identified. This can be done
 ** using -DTEMP_FILE_PREFIX=myprefix_ on the compiler command line.
 **
-** 2006-10-31:  The default prefix used to be "vtk_sqlite_".  But then
-** Mcafee started using Vtk_Sqlite in their anti-virus product and it
-** started putting files with the "vtk_sqlite" name in the c:/temp folder.
+** 2006-10-31:  The default prefix used to be "sqlite_".  But then
+** Mcafee started using SQLite in their anti-virus product and it
+** started putting files with the "sqlite" name in the c:/temp folder.
 ** This annoyed many windows users.  Those users would then do a 
-** Google search for "vtk_sqlite", find the telephone numbers of the
+** Google search for "sqlite", find the telephone numbers of the
 ** developers and call to wake them up at night and complain.
-** For this reason, the default name prefix is changed to be "vtk_sqlite" 
+** For this reason, the default name prefix is changed to be "sqlite" 
 ** spelled backwards.  So the temp files are still identified, but
 ** anybody smart enough to figure out the code is also likely smart
 ** enough to know that calling the developer will not help get rid
@@ -4488,7 +4488,7 @@ struct OsFile {
 ** shared locks begins at SHARED_FIRST. 
 **
 ** These #defines are available in vtk_sqlite_aux.h so that adaptors for
-** connecting Vtk_Sqlite to other operating systems can use the same byte
+** connecting SQLite to other operating systems can use the same byte
 ** ranges for locking.  In particular, the same locking strategy and
 ** byte ranges are used for Unix.  This leaves open the possiblity of having
 ** clients on win95, winNT, and unix all talking to the same shared file
@@ -4587,9 +4587,9 @@ VTK_SQLITE_PRIVATE   int vtk_sqlite3OsLockState(OsFile *id);
 
 /*
 ** When redefinable I/O is enabled, a single global instance of the
-** following structure holds pointers to the routines that Vtk_Sqlite 
+** following structure holds pointers to the routines that SQLite 
 ** uses to talk with the underlying operating system.  Modify this
-** structure (before using any Vtk_Sqlite API!) to accomodate perculiar
+** structure (before using any SQLite API!) to accomodate perculiar
 ** operating system interfaces or behaviors.
 */
 struct vtk_sqlite3OsVtbl {
@@ -4964,7 +4964,7 @@ struct FuncDef {
 };
 
 /*
-** Each Vtk_Sqlite module (virtual table definition) is defined by an
+** Each SQLite module (virtual table definition) is defined by an
 ** instance of the following structure, stored in the vtk_sqlite3.aModule
 ** hash table.
 */
@@ -5007,7 +5007,7 @@ struct Column {
 ** There may two seperate implementations of the collation function, one
 ** that processes text in UTF-8 encoding (CollSeq.xCmp) and another that
 ** processes text encoded in UTF-16 (CollSeq.xCmp16), using the machine
-** native byte order. When a collation sequence is invoked, Vtk_Sqlite selects
+** native byte order. When a collation sequence is invoked, SQLite selects
 ** the version that will require the least expensive encoding
 ** translations, if any.
 **
@@ -5184,7 +5184,7 @@ struct FKey {
 };
 
 /*
-** Vtk_Sqlite supports many different ways to resolve a contraint
+** SQLite supports many different ways to resolve a contraint
 ** error.  ROLLBACK processing means that a constraint violation
 ** causes the operation in process to fail and for the current transaction
 ** to be rolled back.  ABORT processing means the operation in process
@@ -5494,7 +5494,7 @@ typedef u64 Bitmask;
 ** With the addition of multiple database support, the following structure
 ** can also be used to describe a particular table such as the table that
 ** is modified by an INSERT, DELETE, or UPDATE statement.  In standard SQL,
-** such a table must be a simple name: ID.  But in Vtk_Sqlite, the table can
+** such a table must be a simple name: ID.  But in SQLite, the table can
 ** now be identified by a database name, a dot, then the table name: ID.ID.
 **
 ** The jointype starts out showing the join type between the current table
@@ -5938,7 +5938,7 @@ typedef struct {
 
 /*
  * This global flag is set for performance testing of triggers. When it is set
- * Vtk_Sqlite will perform the overhead of building new and old trigger references 
+ * SQLite will perform the overhead of building new and old trigger references 
  * even when no triggers exist
  */
 extern int vtk_sqlite3_always_code_trigger_setup;
@@ -7014,7 +7014,7 @@ static int isDate(int argc, vtk_sqlite3_value **argv, DateTime *p){
 
 /*
 ** The following routines implement the various date and time functions
-** of Vtk_Sqlite.
+** of SQLite.
 */
 
 /*
@@ -7406,7 +7406,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3RegisterDateTimeFunctions(vtk_sqlite3 *db){
 /*
 ** The following routines are convenience wrappers around methods
 ** of the OsFile object.  This is mostly just syntactic sugar.  All
-** of this would be completely automatic if Vtk_Sqlite were coded using
+** of this would be completely automatic if SQLite were coded using
 ** C++ instead of plain old C.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3OsClose(OsFile **pId){
@@ -7558,7 +7558,7 @@ void vtk_sqlite3_soft_heap_limit(int n){
 }
 
 /*
-** Release memory held by Vtk_Sqlite instances created by the current thread.
+** Release memory held by SQLite instances created by the current thread.
 */
 int vtk_sqlite3_release_memory(int n){
   return vtk_sqlite3PagerReleaseMemory(n);
@@ -8185,7 +8185,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3ThreadSafeFree(void *p){
 **
 ** The number of bytes allocated does not include any overhead inserted by 
 ** any malloc() wrapper functions that may be called. So the value returned
-** is the number of bytes that were available to Vtk_Sqlite using pointer p, 
+** is the number of bytes that were available to SQLite using pointer p, 
 ** regardless of how much memory was actually allocated.
 */
 #ifdef VTK_SQLITE_ENABLE_MEMORY_MANAGEMENT
@@ -9164,7 +9164,7 @@ VTK_SQLITE_API char *vtk_sqlite3_mprintf(const char *zFormat, ...){
 
 /*
 ** vtk_sqlite3_snprintf() works like snprintf() except that it ignores the
-** current locale settings.  This is important for Vtk_Sqlite because we
+** current locale settings.  This is important for SQLite because we
 ** are not able to use a "," as the decimal point in place of "." as
 ** specified by some locales.
 */
@@ -9214,7 +9214,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DebugPrintf(const char *zFormat, ...){
 **
 *************************************************************************
 ** This file contains code to implement a pseudo-random number
-** generator (PRNG) for Vtk_Sqlite.
+** generator (PRNG) for SQLite.
 **
 ** Random numbers are used by some of the database backends in order
 ** to generate random integer keys for tables or random filenames.
@@ -9233,7 +9233,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DebugPrintf(const char *zFormat, ...){
 ** well be good enough.  But maybe not.  Or maybe lrand48() has some
 ** subtle problems on some systems that could cause problems.  It is hard
 ** to know.  To minimize the risk of problems due to bad lrand48()
-** implementations, Vtk_Sqlite uses this random number generator based
+** implementations, SQLite uses this random number generator based
 ** on RC4, which we know works very well.
 **
 ** (Later):  Actually, OP_NewRowid does not depend on a good source of
@@ -9256,7 +9256,7 @@ static int randomByte(void){
   ** not need to contain a lot of randomness since we are not
   ** trying to do secure encryption or anything like that...
   **
-  ** Nothing in this file or anywhere else in Vtk_Sqlite does any kind of
+  ** Nothing in this file or anywhere else in SQLite does any kind of
   ** encryption.  The RC4 algorithm is being used as a PRNG (pseudo-random
   ** number generator) not as an encryption device.
   */
@@ -9549,7 +9549,7 @@ typedef struct VdbeFunc VdbeFunc;
 ** implement the SQL functions.
 **
 ** There is a typedef for this structure in vtk_sqlite.h.  So all routines,
-** even the public interface to Vtk_Sqlite, can use a pointer to this structure.
+** even the public interface to SQLite, can use a pointer to this structure.
 ** But this file is the only place where the internal details of this
 ** structure are known.
 **
@@ -9631,7 +9631,7 @@ struct Context {
 ** set to 2 for xDestroy method calls and 1 for all other methods. This
 ** variable is used for two purposes: to allow xDestroy methods to execute
 ** "DROP TABLE" statements and to prevent some nasty side effects of
-** malloc failure when Vtk_Sqlite is invoked recursively by a virtual table 
+** malloc failure when SQLite is invoked recursively by a virtual table 
 ** method function.
 */
 struct Vdbe {
@@ -10932,7 +10932,7 @@ VTK_SQLITE_PRIVATE void *vtk_sqlite3HexToBlob(const char *z){
 ** Return an error (non-zero) if the magic was not VTK_SQLITE_MAGIC_OPEN
 ** when this routine is called.
 **
-** This routine is called when entering an Vtk_Sqlite API.  The VTK_SQLITE_MAGIC_OPEN
+** This routine is called when entering an SQLite API.  The VTK_SQLITE_MAGIC_OPEN
 ** value indicates that the database connection passed into the API is
 ** open and is not being used by another thread.  By changing the value
 ** to VTK_SQLITE_MAGIC_BUSY we indicate that the connection is in use.
@@ -10944,7 +10944,7 @@ VTK_SQLITE_PRIVATE void *vtk_sqlite3HexToBlob(const char *z){
 ** condition so it is possible that the error is not detected.
 ** But usually the problem will be seen.  The result will be an
 ** error which can be used to debug the application that is
-** using Vtk_Sqlite incorrectly.
+** using SQLite incorrectly.
 **
 ** Ticket #202:  If db->magic is not a valid open value, take care not
 ** to modify the db structure at all.  It could be that db is a stale
@@ -11035,7 +11035,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3ReleaseThreadData(){
 **
 *************************************************************************
 ** This is the implementation of generic hash-tables
-** used in Vtk_Sqlite.
+** used in SQLite.
 **
 ** Id
 */
@@ -12508,7 +12508,7 @@ static int os2LockState( OsFile *id ){
 ** the specified file. This is almost always 512 bytes, but may be
 ** larger for some devices.
 **
-** Vtk_Sqlite code assumes this function cannot fail. It also assumes that
+** SQLite code assumes this function cannot fail. It also assumes that
 ** if two files are created in the same file-system directory (i.e.
 ** a database and it's journal file) that the sector size will be the
 ** same for both.
@@ -12645,7 +12645,7 @@ static ULONG mutexOwner;
 ** multi-threaded processes.  Only a single thread is allowed to
 ** executed code that is surrounded by EnterMutex() and LeaveMutex().
 **
-** Vtk_Sqlite uses only a single Mutex.  There is not much critical
+** SQLite uses only a single Mutex.  There is not much critical
 ** code and what little there is executes quickly and without blocking.
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3Os2EnterMutex(){
@@ -13227,7 +13227,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3GenericAllocationSize(void *p){ (void)p; retur
 ** to synchronize access for threads in separate processes, but not
 ** threads within the same process.
 **
-** To work around the problem, Vtk_Sqlite has to manage file locks internally
+** To work around the problem, SQLite has to manage file locks internally
 ** on its own.  Whenever a new database is opened, we have to find the
 ** specific inode of the database file (the inode is determined by the
 ** st_dev and st_ino fields of the stat structure that fstat() fills in)
@@ -14213,7 +14213,7 @@ static int full_fsync(int fd, int fullSync, int dataOnly){
 ** has been created by fsync-ing the directory that contains the file.
 ** If we do not do this and we encounter a power failure, the directory
 ** entry for the journal might not exist after we reboot.  The next
-** Vtk_Sqlite to access the file will not know that the journal exists (because
+** SQLite to access the file will not know that the journal exists (because
 ** the directory entry for the journal was never created) and the transaction
 ** will not roll back - possibly leading to database corruption.
 */
@@ -14378,7 +14378,7 @@ static int unixLock(OsFile *id, int locktype){
   /* The following describes the implementation of the various locks and
   ** lock transitions in terms of the POSIX advisory shared and exclusive
   ** lock primitives (called read-locks and write-locks below, to avoid
-  ** confusion with Vtk_Sqlite lock names). The algorithms are complicated
+  ** confusion with SQLite lock names). The algorithms are complicated
   ** slightly in order to be compatible with windows systems simultaneously
   ** accessing the same database file, in case that is ever required.
   **
@@ -15355,7 +15355,7 @@ static int unixLockState(OsFile *id){
 ** the specified file. This is almost always 512 bytes, but may be
 ** larger for some devices.
 **
-** Vtk_Sqlite code assumes this function cannot fail. It also assumes that
+** SQLite code assumes this function cannot fail. It also assumes that
 ** if two files are created in the same file-system directory (i.e.
 ** a database and it's journal file) that the sector size will be the
 ** same for both.
@@ -15723,7 +15723,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3UnixSleep(int ms){
 **                   access rules apply as for inMutex.
 **
 ** mutexMain    The main mutex.  Hold this mutex in order to get exclusive
-**              access to Vtk_Sqlite data structures.
+**              access to SQLite data structures.
 **
 ** mutexAux     An auxiliary mutex needed to access variables defined above.
 **
@@ -15751,7 +15751,7 @@ static pthread_mutex_t mutexAux = PTHREAD_MUTEX_INITIALIZER;  /* Aux mutex */
 ** multi-threaded processes.  Only a single thread is allowed to
 ** executed code that is surrounded by EnterMutex() and LeaveMutex().
 **
-** Vtk_Sqlite uses only a single Mutex.  There is not much critical
+** SQLite uses only a single Mutex.  There is not much critical
 ** code and what little there is executes quickly and without blocking.
 **
 ** As of version 3.3.2, this mutex must be recursive.
@@ -17624,7 +17624,7 @@ static int winLockState(OsFile *id){
 ** the specified file. This is almost always 512 bytes, but may be
 ** larger for some devices.
 **
-** Vtk_Sqlite code assumes this function cannot fail. It also assumes that
+** SQLite code assumes this function cannot fail. It also assumes that
 ** if two files are created in the same file-system directory (i.e.
 ** a database and it's journal file) that the sector size will be the
 ** same for both.
@@ -17773,7 +17773,7 @@ static int inMutex = 0;
 ** multi-threaded processes.  Only a single thread is allowed to
 ** executed code that is surrounded by EnterMutex() and LeaveMutex().
 **
-** Vtk_Sqlite uses only a single Mutex.  There is not much critical
+** SQLite uses only a single Mutex.  There is not much critical
 ** code and what little there is executes quickly and without blocking.
 **
 ** Version 3.3.1 and earlier used a simple mutex.  Beginning with
@@ -18365,7 +18365,7 @@ static const unsigned char aJournalMagic[] = {
 #endif
 
 /*
-** Page number PAGER_MJ_PGNO is never used in an Vtk_Sqlite database (it is
+** Page number PAGER_MJ_PGNO is never used in an SQLite database (it is
 ** reserved for working around a windows/posix incompatibility). It is
 ** used in the journal to signify that the remainder of the journal file 
 ** is devoted to storing a master journal name - there are no more pages to
@@ -19672,7 +19672,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerOpen(
 #endif
 
   /* We used to test if malloc() had already failed before proceeding. 
-  ** But the way this function is used in Vtk_Sqlite means that can never
+  ** But the way this function is used in SQLite means that can never
   ** happen. Furthermore, if the malloc-failed flag is already set, 
   ** either the call to vtk_sqliteStrDup() or vtk_sqliteMalloc() below will
   ** fail shortly and VTK_SQLITE_NOMEM returned anyway.
@@ -20618,7 +20618,7 @@ static int pager_recycle(Pager *pPager, int syncOk, PgHdr **ppPg){
 
 /*
 ** This function is called to free superfluous dynamically allocated memory
-** held by the pager system. Memory in use by any Vtk_Sqlite pager allocated
+** held by the pager system. Memory in use by any SQLite pager allocated
 ** by the current thread may be vtk_sqliteFree()ed.
 **
 ** nReq is the number of bytes of memory required. Once this much has
@@ -20649,7 +20649,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3PagerReleaseMemory(int nReq){
   */
   for(i=0; i<=1; i++){
 
-    /* Loop through all the Vtk_Sqlite pagers opened by the current thread. */
+    /* Loop through all the SQLite pagers opened by the current thread. */
     Pager *pPager = pTsdro->pPager;
     for( ; pPager && (nReq<0 || nReleased<nReq); pPager=pPager->pNext){
       PgHdr *pPg;
@@ -22475,7 +22475,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3PagerRefdump(Pager *pPager){
 ** The format of the file header is as follows:
 **
 **   OFFSET   SIZE    DESCRIPTION
-**      0      16     Header string: "Vtk_Sqlite format 3\000"
+**      0      16     Header string: "SQLite format 3\000"
 **     16       2     Page size in bytes.  
 **     18       1     File format write version
 **     19       1     File format read version
@@ -22645,7 +22645,7 @@ typedef struct BtLock BtLock;
 
 /*
 ** This is a magic string that appears at the beginning of every
-** Vtk_Sqlite database in order to identify the file as a real database.
+** SQLite database in order to identify the file as a real database.
 **
 ** You can change this value at compile-time by specifying a
 ** -DVTK_SQLITE_FILE_HEADER="..." on the compiler command-line.  The
@@ -22656,7 +22656,7 @@ typedef struct BtLock BtLock;
 ** will not be able to read databases created by your custom library.
 */
 #ifndef VTK_SQLITE_FILE_HEADER /* 123456789 123456 */
-#  define VTK_SQLITE_FILE_HEADER "Vtk_Sqlite format 3"
+#  define VTK_SQLITE_FILE_HEADER "SQLite format 3"
 #endif
 
 /*
@@ -22715,7 +22715,7 @@ struct MemPage {
 
 /* Btree handle */
 struct Btree {
-  vtk_sqlite3 *pVtk_Sqlite;
+  vtk_sqlite3 *pSQLite;
   BtShared *pBt;
   u8 inTrans;            /* TRANS_NONE, TRANS_READ or TRANS_WRITE */
 };
@@ -23006,7 +23006,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BtreeMoveToParent(BtCursor *pCur);
 
 /*
 ** The header string that appears at the beginning of every
-** Vtk_Sqlite database.
+** SQLite database.
 */
 static const char zMagicHeader[] = VTK_SQLITE_FILE_HEADER;
 
@@ -23069,8 +23069,8 @@ static int queryTableLock(Btree *p, Pgno iTab, u8 eLock){
   ** write-cursor does not change.
   */
   if( 
-    !p->pVtk_Sqlite || 
-    0==(p->pVtk_Sqlite->flags&VTK_SQLITE_ReadUncommitted) || 
+    !p->pSQLite || 
+    0==(p->pSQLite->flags&VTK_SQLITE_ReadUncommitted) || 
     eLock==WRITE_LOCK ||
     iTab==MASTER_ROOT
   ){
@@ -23110,8 +23110,8 @@ static int lockTable(Btree *p, Pgno iTable, u8 eLock){
   ** the ReadUncommitted flag.
   */
   if( 
-    (p->pVtk_Sqlite) && 
-    (p->pVtk_Sqlite->flags&VTK_SQLITE_ReadUncommitted) && 
+    (p->pSQLite) && 
+    (p->pSQLite->flags&VTK_SQLITE_ReadUncommitted) && 
     (eLock==READ_LOCK) &&
     iTable!=MASTER_ROOT
   ){
@@ -24018,7 +24018,7 @@ static void pageReinit(DbPage *pData, int pageSize){
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeOpen(
   const char *zFilename,  /* Name of the file containing the BTree database */
-  vtk_sqlite3 *pVtk_Sqlite,       /* Associated database handle */
+  vtk_sqlite3 *pSQLite,       /* Associated database handle */
   Btree **ppBtree,        /* Pointer to new Btree object written here */
   int flags               /* Options */
 ){
@@ -24049,7 +24049,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeOpen(
     return VTK_SQLITE_NOMEM;
   }
   p->inTrans = TRANS_NONE;
-  p->pVtk_Sqlite = pVtk_Sqlite;
+  p->pSQLite = pSQLite;
 
   /* Try to find an existing Btree structure opened on zFilename. */
 #if !defined(VTK_SQLITE_OMIT_SHARED_CACHE) && !defined(VTK_SQLITE_OMIT_DISKIO)
@@ -24940,7 +24940,7 @@ static int incrVacuumStep(BtShared *pBt, Pgno nFin){
 **
 ** If the incremental vacuum is finished after this function has run,
 ** VTK_SQLITE_DONE is returned. If it is not finished, but no error occured,
-** VTK_SQLITE_OK is returned. Otherwise an Vtk_Sqlite error code. 
+** VTK_SQLITE_OK is returned. Otherwise an SQLite error code. 
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeIncrVacuum(Btree *p){
   BtShared *pBt = p->pBt;
@@ -25178,7 +25178,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeRollback(Btree *p){
     ** all queries that may be using any of the cursors that failed to save.
     */
     while( pBt->pCursor ){
-      vtk_sqlite3 *db = pBt->pCursor->pBtree->pVtk_Sqlite;
+      vtk_sqlite3 *db = pBt->pCursor->pBtree->pSQLite;
       if( db ){
         vtk_sqlite3AbortOtherActiveVdbes(db, 0);
       }
@@ -25554,7 +25554,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDataSize(BtCursor *pCur, u32 *pSize){
 ** linked list of overflow pages. If possible, it uses the auto-vacuum
 ** pointer-map data instead of reading the content of page ovfl to do so. 
 **
-** If an error occurs an Vtk_Sqlite error code is returned. Otherwise:
+** If an error occurs an SQLite error code is returned. Otherwise:
 **
 ** Unless pPgnoNext is NULL, the page number of the next overflow 
 ** page in the linked list is written to *pPgnoNext. If page ovfl
@@ -27792,7 +27792,7 @@ static int balance_nonroot(MemPage *pPage){
         ** any cell). But it's important to pass the correct size to 
         ** insertCell(), so reparse the cell now.
         **
-        ** Note that this can never happen in an Vtk_Sqlite data file, as all
+        ** Note that this can never happen in an SQLite data file, as all
         ** cells are at least 4 bytes. It only happens in b-trees used
         ** to evaluate "IN (SELECT ...)" and similar clauses.
         */
@@ -28074,13 +28074,13 @@ static int balance(MemPage *pPage, int insert){
 static int checkReadLocks(Btree *pBtree, Pgno pgnoRoot, BtCursor *pExclude){
   BtCursor *p;
   BtShared *pBt = pBtree->pBt;
-  vtk_sqlite3 *db = pBtree->pVtk_Sqlite;
+  vtk_sqlite3 *db = pBtree->pSQLite;
   for(p=pBt->pCursor; p; p=p->pNext){
     if( p==pExclude ) continue;
     if( p->eState!=CURSOR_VALID ) continue;
     if( p->pgnoRoot!=pgnoRoot ) continue;
     if( p->wrFlag==0 ){
-      vtk_sqlite3 *dbOther = p->pBtree->pVtk_Sqlite;
+      vtk_sqlite3 *dbOther = p->pBtree->pSQLite;
       if( dbOther==0 ||
          (dbOther!=db && (dbOther->flags & VTK_SQLITE_ReadUncommitted)==0) ){
         return VTK_SQLITE_LOCKED;
@@ -32182,12 +32182,12 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeCursorMoveto(Cursor *p){
 ** vtk_sqlite3VdbeSerialLen()
 ** vtk_sqlite3VdbeSerialWrite()
 **
-** encapsulate the code that serializes values for storage in Vtk_Sqlite
+** encapsulate the code that serializes values for storage in SQLite
 ** data and index records. Each serialized value consists of a
 ** 'serial-type' and a blob of data. The serial type is an 8-byte unsigned
 ** integer, stored as a varint.
 **
-** In an Vtk_Sqlite index record, the serial type is stored directly before
+** In an SQLite index record, the serial type is stored directly before
 ** the blob of data that it corresponds to. In a table record, all serial
 ** types are stored at the start of the record, and the blobs of data at
 ** the end. Hence these functions allow the caller to handle the
@@ -32212,7 +32212,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeCursorMoveto(Cursor *p){
 **    N>=13 and odd        (N-13)/2        text
 **
 ** The 8 and 9 types were added in 3.3.0, file format 4.  Prior versions
-** of Vtk_Sqlite will not understand those serial types.
+** of SQLite will not understand those serial types.
 */
 
 /*
@@ -32281,7 +32281,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeSerialTypeLen(u32 serial_type){
 ** I am also told that newer versions of GCC that follow a different
 ** ABI get the byte order right.
 **
-** Developers using Vtk_Sqlite on an ARM7 should compile and run their
+** Developers using SQLite on an ARM7 should compile and run their
 ** application using -DVTK_SQLITE_DEBUG=1 at least once.  With DEBUG
 ** enabled, some asserts below will ensure that the byte order of
 ** floating point values is correct.
@@ -33501,7 +33501,7 @@ int vtk_sqlite3_bind_zeroblob(vtk_sqlite3_stmt *pStmt, int i, int n){
 
 /*
 ** Return the number of wildcards that can be potentially bound to.
-** This routine is added to support DBD::Vtk_Sqlite.  
+** This routine is added to support DBD::SQLite.  
 */
 int vtk_sqlite3_bind_parameter_count(vtk_sqlite3_stmt *pStmt){
   Vdbe *p = (Vdbe*)pStmt;
@@ -34188,7 +34188,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VdbeExec(
 ** big comment (similar to this one) will mark the point in the code where
 ** we transition back to normal indentation.
 **
-** The formatting of each case is important.  The makefile for Vtk_Sqlite
+** The formatting of each case is important.  The makefile for SQLite
 ** generates two C files "opcodes.h" and "opcodes.c" by scanning this
 ** file looking for lines that begin with "case OP_".  The opcodes.h files
 ** will be filled with #defines that give unique integer values to each
@@ -36228,7 +36228,7 @@ case OP_VerifyCookie: {       /* no-push */
     ** not reload the schema from the database file.
     **
     ** If virtual-tables are in use, this is not just an optimisation.
-    ** Often, v-tables store their data in other Vtk_Sqlite tables, which
+    ** Often, v-tables store their data in other SQLite tables, which
     ** are queried from within xNext() and other v-table methods using
     ** prepared queries. If such a query is out-of-date, we do not want to
     ** discard the database schema, as the user code implementing the
@@ -36902,7 +36902,7 @@ case OP_NewRowid: {
     ** source of random numbers.  Is a library function like lrand48()
     ** good enough?  Maybe. Maybe not. It's hard to know whether there
     ** might be subtle bugs is some implementations of lrand48() that
-    ** could cause problems. To avoid uncertainty, Vtk_Sqlite uses its own 
+    ** could cause problems. To avoid uncertainty, SQLite uses its own 
     ** random number generator based on the RC4 algorithm.
     **
     ** To promote locality of reference for repetitive inserts, the
@@ -37686,7 +37686,7 @@ case OP_Destroy: {
 */
 case OP_Clear: {        /* no-push */
 
-  /* For consistency with the way other features of Vtk_Sqlite operate
+  /* For consistency with the way other features of SQLite operate
   ** with a truncate, we will also skip the update callback.
   */
 #if 0
@@ -39150,7 +39150,7 @@ int vtk_sqlite3_blob_bytes(vtk_sqlite3_blob *pBlob){
 **
 *************************************************************************
 ** This file contains routines used for analyzing expressions and
-** for generating VDBE code that evaluates expressions in Vtk_Sqlite.
+** for generating VDBE code that evaluates expressions in SQLite.
 **
 ** Id
 */
@@ -42027,7 +42027,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AlterRenameTable(
   /* Make sure it is not a system table being altered, or a reserved name
   ** that the table is being renamed to.
   */
-  if( strlen(pTab->zName)>6 && 0==vtk_sqlite3StrNICmp(pTab->zName, "vtk_sqlite_", 7) ){
+  if( strlen(pTab->zName)>6 && 0==vtk_sqlite3StrNICmp(pTab->zName, "sqlite_", 7) ){
     vtk_sqlite3ErrorMsg(pParse, "table %s may not be altered", pTab->zName);
     goto exit_rename_table;
   }
@@ -42066,7 +42066,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AlterRenameTable(
   /* If this is a virtual table, invoke the xRename() function if
   ** one is defined. The xRename() callback will modify the names
   ** of any resources used by the v-table implementation (including other
-  ** Vtk_Sqlite tables) that are identified by the name of the virtual table.
+  ** SQLite tables) that are identified by the name of the virtual table.
   */
 #ifndef VTK_SQLITE_OMIT_VIRTUALTABLE
   if( isVirtualRename ){
@@ -42083,17 +42083,17 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AlterRenameTable(
   vtk_sqlite3NestedParse(pParse,
       "UPDATE %Q.%s SET "
 #ifdef VTK_SQLITE_OMIT_TRIGGER
-          "sql = vtk_sqlite_rename_table(sql, %Q), "
+          "sql = sqlite_rename_table(sql, %Q), "
 #else
           "sql = CASE "
-            "WHEN type = 'trigger' THEN vtk_sqlite_rename_trigger(sql, %Q)"
-            "ELSE vtk_sqlite_rename_table(sql, %Q) END, "
+            "WHEN type = 'trigger' THEN sqlite_rename_trigger(sql, %Q)"
+            "ELSE sqlite_rename_table(sql, %Q) END, "
 #endif
           "tbl_name = %Q, "
           "name = CASE "
             "WHEN type='table' THEN %Q "
-            "WHEN name LIKE 'vtk_sqlite_autoindex%%' AND type='index' THEN "
-             "'vtk_sqlite_autoindex_' || %Q || substr(name,%d+18,10) "
+            "WHEN name LIKE 'sqlite_autoindex%%' AND type='index' THEN "
+             "'sqlite_autoindex_' || %Q || substr(name,%d+18,10) "
             "ELSE name END "
       "WHERE tbl_name=%Q AND "
           "(type='table' OR type='index' OR type='trigger');", 
@@ -42105,25 +42105,25 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AlterRenameTable(
   );
 
 #ifndef VTK_SQLITE_OMIT_AUTOINCREMENT
-  /* If the vtk_sqlite_sequence table exists in this database, then update 
+  /* If the sqlite_sequence table exists in this database, then update 
   ** it with the new table name.
   */
-  if( vtk_sqlite3FindTable(db, "vtk_sqlite_sequence", zDb) ){
+  if( vtk_sqlite3FindTable(db, "sqlite_sequence", zDb) ){
     vtk_sqlite3NestedParse(pParse,
-        "UPDATE %Q.vtk_sqlite_sequence set name = %Q WHERE name = %Q",
+        "UPDATE %Q.sqlite_sequence set name = %Q WHERE name = %Q",
         zDb, zName, pTab->zName);
   }
 #endif
 
 #ifndef VTK_SQLITE_OMIT_TRIGGER
-  /* If there are TEMP triggers on this table, modify the vtk_sqlite_temp_master
+  /* If there are TEMP triggers on this table, modify the sqlite_temp_master
   ** table. Don't do this if the table being ALTERed is itself located in
   ** the temp database.
   */
   if( (zWhere=whereTempTriggers(pParse, pTab))!=0 ){
     vtk_sqlite3NestedParse(pParse, 
-        "UPDATE vtk_sqlite_temp_master SET "
-            "sql = vtk_sqlite_rename_trigger(sql, %Q), "
+        "UPDATE sqlite_temp_master SET "
+            "sql = sqlite_rename_trigger(sql, %Q), "
             "tbl_name = %Q "
             "WHERE %s;", zName, zName, zWhere);
     vtk_sqliteFree(zWhere);
@@ -42350,17 +42350,17 @@ exit_begin_add_column:
 #ifndef VTK_SQLITE_OMIT_ANALYZE
 
 /*
-** This routine generates code that opens the vtk_sqlite_stat1 table on cursor
+** This routine generates code that opens the sqlite_stat1 table on cursor
 ** iStatCur.
 **
-** If the vtk_sqlite_stat1 tables does not previously exist, it is created.
+** If the sqlite_stat1 tables does not previously exist, it is created.
 ** If it does previously exist, all entires associated with table zWhere
 ** are removed.  If zWhere==0 then all entries are removed.
 */
 static void openStatTable(
   Parse *pParse,          /* Parsing context */
   int iDb,                /* The database we are looking in */
-  int iStatCur,           /* Open the vtk_sqlite_stat1 table on this cursor */
+  int iStatCur,           /* Open the sqlite_stat1 table on this cursor */
   const char *zWhere      /* Delete entries associated with this table */
 ){
   vtk_sqlite3 *db = pParse->db;
@@ -42371,37 +42371,37 @@ static void openStatTable(
 
   if( v==0 ) return;
   pDb = &db->aDb[iDb];
-  if( (pStat = vtk_sqlite3FindTable(db, "vtk_sqlite_stat1", pDb->zName))==0 ){
-    /* The vtk_sqlite_stat1 tables does not exist.  Create it.  
+  if( (pStat = vtk_sqlite3FindTable(db, "sqlite_stat1", pDb->zName))==0 ){
+    /* The sqlite_stat1 tables does not exist.  Create it.  
     ** Note that a side-effect of the CREATE TABLE statement is to leave
     ** the rootpage of the new table on the top of the stack.  This is
     ** important because the OpenWrite opcode below will be needing it. */
     vtk_sqlite3NestedParse(pParse,
-      "CREATE TABLE %Q.vtk_sqlite_stat1(tbl,idx,stat)",
+      "CREATE TABLE %Q.sqlite_stat1(tbl,idx,stat)",
       pDb->zName
     );
     iRootPage = 0;  /* Cause rootpage to be taken from top of stack */
   }else if( zWhere ){
-    /* The vtk_sqlite_stat1 table exists.  Delete all entries associated with
+    /* The sqlite_stat1 table exists.  Delete all entries associated with
     ** the table zWhere. */
     vtk_sqlite3NestedParse(pParse,
-       "DELETE FROM %Q.vtk_sqlite_stat1 WHERE tbl=%Q",
+       "DELETE FROM %Q.sqlite_stat1 WHERE tbl=%Q",
        pDb->zName, zWhere
     );
     iRootPage = pStat->tnum;
   }else{
-    /* The vtk_sqlite_stat1 table already exists.  Delete all rows. */
+    /* The sqlite_stat1 table already exists.  Delete all rows. */
     iRootPage = pStat->tnum;
     vtk_sqlite3VdbeAddOp(v, OP_Clear, pStat->tnum, iDb);
   }
 
-  /* Open the vtk_sqlite_stat1 table for writing. Unless it was created
+  /* Open the sqlite_stat1 table for writing. Unless it was created
   ** by this vdbe program, lock it for writing at the shared-cache level. 
-  ** If this vdbe did create the vtk_sqlite_stat1 table, then it must have 
+  ** If this vdbe did create the sqlite_stat1 table, then it must have 
   ** already obtained a schema-lock, making the write-lock redundant.
   */
   if( iRootPage>0 ){
-    vtk_sqlite3TableLock(pParse, iDb, iRootPage, 1, "vtk_sqlite_stat1");
+    vtk_sqlite3TableLock(pParse, iDb, iRootPage, 1, "sqlite_stat1");
   }
   vtk_sqlite3VdbeAddOp(v, OP_Integer, iDb, 0);
   vtk_sqlite3VdbeAddOp(v, OP_OpenWrite, iStatCur, iRootPage);
@@ -42415,7 +42415,7 @@ static void openStatTable(
 static void analyzeOneTable(
   Parse *pParse,   /* Parser context */
   Table *pTab,     /* Table whose indices are to be analyzed */
-  int iStatCur,    /* Cursor that writes to the vtk_sqlite_stat1 table */
+  int iStatCur,    /* Cursor that writes to the sqlite_stat1 table */
   int iMem         /* Available memory locations begin here */
 ){
   Index *pIdx;     /* An index to being analyzed */
@@ -42507,7 +42507,7 @@ static void analyzeOneTable(
 
     /* Store the results.  
     **
-    ** The result is a single row of the vtk_sqlite_stat1 table.  The first
+    ** The result is a single row of the sqlite_stat1 table.  The first
     ** two columns are the names of the table and index.  The third column
     ** is a string composed of a list of integer statistics about the
     ** index.  The first integer in the list is the total number of entires
@@ -42519,7 +42519,7 @@ static void analyzeOneTable(
     **
     **        I = (K+D-1)/D
     **
-    ** If K==0 then no entry is made into the vtk_sqlite_stat1 table.  
+    ** If K==0 then no entry is made into the sqlite_stat1 table.  
     ** If K>0 then it is always the case the D>0 so division by zero
     ** is never possible.
     */
@@ -42673,7 +42673,7 @@ struct analysisInfo {
 
 /*
 ** This callback is invoked once for each index when reading the
-** vtk_sqlite_stat1 table.  
+** sqlite_stat1 table.  
 **
 **     argv[0] = name of the index
 **     argv[1] = results of analysis - on integer for each column
@@ -42708,7 +42708,7 @@ static int analysisLoader(void *pData, int argc, char **argv, char **azNotUsed){
 }
 
 /*
-** Load the content of the vtk_sqlite_stat1 table into the index hash tables.
+** Load the content of the sqlite_stat1 table into the index hash tables.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3AnalysisLoad(vtk_sqlite3 *db, int iDb){
   analysisInfo sInfo;
@@ -42722,16 +42722,16 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3AnalysisLoad(vtk_sqlite3 *db, int iDb){
     vtk_sqlite3DefaultRowEst(pIdx);
   }
 
-  /* Check to make sure the vtk_sqlite_stat1 table existss */
+  /* Check to make sure the sqlite_stat1 table existss */
   sInfo.db = db;
   sInfo.zDatabase = db->aDb[iDb].zName;
-  if( vtk_sqlite3FindTable(db, "vtk_sqlite_stat1", sInfo.zDatabase)==0 ){
+  if( vtk_sqlite3FindTable(db, "sqlite_stat1", sInfo.zDatabase)==0 ){
      return VTK_SQLITE_ERROR;
   }
 
 
-  /* Load new statistics out of the vtk_sqlite_stat1 table */
-  zSql = vtk_sqlite3MPrintf("SELECT idx, stat FROM %Q.vtk_sqlite_stat1",
+  /* Load new statistics out of the sqlite_stat1 table */
+  zSql = vtk_sqlite3MPrintf("SELECT idx, stat FROM %Q.sqlite_stat1",
                         sInfo.zDatabase);
   vtk_sqlite3SafetyOff(db);
   rc = vtk_sqlite3_exec(db, zSql, analysisLoader, &sInfo, 0);
@@ -42803,7 +42803,7 @@ static int resolveAttachExpr(NameContext *pName, Expr *pExpr)
 **
 **     ATTACH DATABASE x AS y KEY z
 **
-**     SELECT vtk_sqlite_attach(x, y, z)
+**     SELECT sqlite_attach(x, y, z)
 **
 ** If the optional "KEY z" syntax is omitted, an SQL NULL is passed as the
 ** third argument.
@@ -42970,7 +42970,7 @@ attach_error:
 **
 **     DETACH DATABASE x
 **
-**     SELECT vtk_sqlite_detach(x)
+**     SELECT sqlite_detach(x)
 */
 static void detachFunc(
   vtk_sqlite3_context *context,
@@ -43021,12 +43021,12 @@ detach_error:
 
 /*
 ** This procedure generates VDBE code for a single invocation of either the
-** vtk_sqlite_detach() or vtk_sqlite_attach() SQL user functions.
+** sqlite_detach() or sqlite_attach() SQL user functions.
 */
 static void codeAttach(
   Parse *pParse,       /* The parser context */
   int type,            /* Either VTK_SQLITE_ATTACH or VTK_SQLITE_DETACH */
-  const char *zFunc,   /* Either "vtk_sqlite_attach" or "vtk_sqlite_detach */
+  const char *zFunc,   /* Either "sqlite_attach" or "sqlite_detach */
   int nFunc,           /* Number of args to pass to zFunc */
   Expr *pAuthArg,      /* Expression to pass to authorization callback */
   Expr *pFilename,     /* Name of database file */
@@ -43096,7 +43096,7 @@ attach_end:
 **     DETACH pDbname
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3Detach(Parse *pParse, Expr *pDbname){
-  codeAttach(pParse, VTK_SQLITE_DETACH, "vtk_sqlite_detach", 1, pDbname, 0, 0, pDbname);
+  codeAttach(pParse, VTK_SQLITE_DETACH, "sqlite_detach", 1, pDbname, 0, 0, pDbname);
 }
 
 /*
@@ -43105,18 +43105,18 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Detach(Parse *pParse, Expr *pDbname){
 **     ATTACH p AS pDbname KEY pKey
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3Attach(Parse *pParse, Expr *p, Expr *pDbname, Expr *pKey){
-  codeAttach(pParse, VTK_SQLITE_ATTACH, "vtk_sqlite_attach", 3, p, p, pDbname, pKey);
+  codeAttach(pParse, VTK_SQLITE_ATTACH, "sqlite_attach", 3, p, p, pDbname, pKey);
 }
 #endif /* VTK_SQLITE_OMIT_ATTACH */
 
 /*
-** Register the functions vtk_sqlite_attach and vtk_sqlite_detach.
+** Register the functions sqlite_attach and sqlite_detach.
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3AttachFunctions(vtk_sqlite3 *db){
 #ifndef VTK_SQLITE_OMIT_ATTACH
   static const int enc = VTK_SQLITE_UTF8;
-  vtk_sqlite3CreateFunc(db, "vtk_sqlite_attach", 3, enc, db, attachFunc, 0, 0);
-  vtk_sqlite3CreateFunc(db, "vtk_sqlite_detach", 1, enc, db, detachFunc, 0, 0);
+  vtk_sqlite3CreateFunc(db, "sqlite_attach", 3, enc, db, attachFunc, 0, 0);
+  vtk_sqlite3CreateFunc(db, "sqlite_detach", 1, enc, db, detachFunc, 0, 0);
 #endif
 }
 
@@ -43511,7 +43511,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3AuthContextPop(AuthContext *pContext){
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This file contains C code routines that are called by the Vtk_Sqlite parser
+** This file contains C code routines that are called by the SQLite parser
 ** when syntax rules are reduced.  The routines in this file handle the
 ** following kinds of SQL syntax:
 **
@@ -44083,7 +44083,7 @@ VTK_SQLITE_PRIVATE char *vtk_sqlite3NameFromToken(Token *pName){
 }
 
 /*
-** Open the vtk_sqlite_master table stored in database number iDb for
+** Open the sqlite_master table stored in database number iDb for
 ** writing. The table is opened using cursor 0.
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3OpenMasterTable(Parse *p, int iDb){
@@ -44091,7 +44091,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3OpenMasterTable(Parse *p, int iDb){
   vtk_sqlite3TableLock(p, iDb, MASTER_ROOT, 1, SCHEMA_TABLE(iDb));
   vtk_sqlite3VdbeAddOp(v, OP_Integer, iDb, 0);
   vtk_sqlite3VdbeAddOp(v, OP_OpenWrite, 0, MASTER_ROOT);
-  vtk_sqlite3VdbeAddOp(v, OP_SetNumColumns, 0, 5); /* vtk_sqlite_master has 5 columns */
+  vtk_sqlite3VdbeAddOp(v, OP_SetNumColumns, 0, 5); /* sqlite_master has 5 columns */
 }
 
 /*
@@ -44166,13 +44166,13 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3TwoPartName(
 ** This routine is used to check if the UTF-8 string zName is a legal
 ** unqualified name for a new schema object (table, index, view or
 ** trigger). All names are legal except those that begin with the string
-** "vtk_sqlite_" (in upper, lower or mixed case). This portion of the namespace
+** "sqlite_" (in upper, lower or mixed case). This portion of the namespace
 ** is reserved for internal use.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3CheckObjectName(Parse *pParse, const char *zName){
   if( !pParse->db->init.busy && pParse->nested==0 
           && (pParse->db->flags & VTK_SQLITE_WriteSchema)==0
-          && 0==vtk_sqlite3StrNICmp(zName, "vtk_sqlite_", 7) ){
+          && 0==vtk_sqlite3StrNICmp(zName, "sqlite_", 7) ){
     vtk_sqlite3ErrorMsg(pParse, "object name reserved for internal use: %s", zName);
     return VTK_SQLITE_ERROR;
   }
@@ -44308,18 +44308,18 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3StartTable(
   if( pParse->pNewTable ) vtk_sqlite3DeleteTable(pParse->pNewTable);
   pParse->pNewTable = pTable;
 
-  /* If this is the magic vtk_sqlite_sequence table used by autoincrement,
+  /* If this is the magic sqlite_sequence table used by autoincrement,
   ** then record a pointer to this table in the main database structure
   ** so that INSERT can find the table easily.
   */
 #ifndef VTK_SQLITE_OMIT_AUTOINCREMENT
-  if( !pParse->nested && strcmp(zName, "vtk_sqlite_sequence")==0 ){
+  if( !pParse->nested && strcmp(zName, "sqlite_sequence")==0 ){
     pTable->pSchema->pSeqTab = pTable;
   }
 #endif
 
   /* Begin generating the code that will insert the table record into
-  ** the VTK_SQLITE_MASTER table.  Note in particular that we must go ahead
+  ** the SQLITE_MASTER table.  Note in particular that we must go ahead
   ** and allocate the record number for the table entry now.  Before any
   ** PRIMARY KEY or UNIQUE keywords are parsed.  Those keywords will cause
   ** indices to be created and the table record must come before the 
@@ -44351,7 +44351,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3StartTable(
     vtk_sqlite3VdbeAddOp(v, OP_SetCookie, iDb, 4);
     vtk_sqlite3VdbeResolveLabel(v, lbl);
 
-    /* This just creates a place-holder record in the vtk_sqlite_master table.
+    /* This just creates a place-holder record in the sqlite_master table.
     ** The record created does not contain anything yet.  It will be replaced
     ** by the real entry in code generated at vtk_sqlite3EndTable().
     **
@@ -44859,10 +44859,10 @@ static char *createTableStmt(Table *p, int isTemp){
 **
 ** An entry for the table is made in the master table on disk, unless
 ** this is a temporary table or db->init.busy==1.  When db->init.busy==1
-** it means we are reading the vtk_sqlite_master table because we just
-** connected to the database or because the vtk_sqlite_master table has
+** it means we are reading the sqlite_master table because we just
+** connected to the database or because the sqlite_master table has
 ** recently changed, so the entry for this table already exists in
-** the vtk_sqlite_master table.  We do not want to create it again.
+** the sqlite_master table.  We do not want to create it again.
 **
 ** If the pSelect argument is not NULL, it means that this routine
 ** was called to create a table generated from a 
@@ -44912,7 +44912,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3EndTable(
 #endif /* !defined(VTK_SQLITE_OMIT_CHECK) */
 
   /* If the db->init.busy is 1 it means we are reading the SQL off the
-  ** "vtk_sqlite_master" or "vtk_sqlite_temp_master" table on the disk.
+  ** "sqlite_master" or "sqlite_temp_master" table on the disk.
   ** So do not write to the disk again.  Extract the root page number
   ** for the table from the db->init.newTnum field.  (The page number
   ** should have been put there by the vtk_sqliteOpenCb routine.)
@@ -44922,7 +44922,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3EndTable(
   }
 
   /* If not initializing, then create a record for the new table
-  ** in the VTK_SQLITE_MASTER table of the database.  The record number
+  ** in the SQLITE_MASTER table of the database.  The record number
   ** for the new table entry should already be on the stack.
   **
   ** If this is a TEMPORARY table, write the entry into the auxiliary
@@ -44998,7 +44998,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3EndTable(
     }
 
     /* A slot for the record has already been allocated in the 
-    ** VTK_SQLITE_MASTER table.  We just need to update that slot with all
+    ** SQLITE_MASTER table.  We just need to update that slot with all
     ** the information we've collected.  The rowid for the preallocated
     ** slot is the 2nd item on the stack.  The top of the stack is the
     ** root page for the new table (or a 0 if this is a view).
@@ -45016,15 +45016,15 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3EndTable(
     vtk_sqliteFree(zStmt);
     vtk_sqlite3ChangeCookie(db, v, iDb);
 
-#ifndef VTK_SQLITE_OMIT_AUTOINCREMENT
-    /* Check to see if we need to create an vtk_sqlite_sequence table for
+#ifndef SQLITE_OMIT_AUTOINCREMENT
+    /* Check to see if we need to create an sqlite_sequence table for
     ** keeping track of autoincrement keys.
     */
     if( p->autoInc ){
       Db *pDb = &db->aDb[iDb];
       if( pDb->pSchema->pSeqTab==0 ){
         vtk_sqlite3NestedParse(pParse,
-          "CREATE TABLE %Q.vtk_sqlite_sequence(name,seq)",
+          "CREATE TABLE %Q.sqlite_sequence(name,seq)",
           pDb->zName
         );
       }
@@ -45249,7 +45249,7 @@ static void vtk_sqliteViewResetAll(vtk_sqlite3 *db, int idx){
 
 /*
 ** This function is called by the VDBE to adjust the internal schema
-** used by Vtk_Sqlite when the btree layer moves a table root page. The
+** used by SQLite when the btree layer moves a table root page. The
 ** root-page of a table or index in database iDb has changed from iFrom
 ** to iTo.
 **
@@ -45288,7 +45288,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3RootPageMoved(Db *pDb, int iFrom, int iTo){
 
 /*
 ** Write code to erase the table with root-page iTable from database iDb.
-** Also write code to modify the vtk_sqlite_master table and internal schema
+** Also write code to modify the sqlite_master table and internal schema
 ** if a root-page of another table is moved by the btree-layer whilst
 ** erasing iTable (this can happen with an auto-vacuum database).
 */ 
@@ -45298,7 +45298,7 @@ static void destroyRootPage(Parse *pParse, int iTable, int iDb){
 #ifndef VTK_SQLITE_OMIT_AUTOVACUUM
   /* OP_Destroy pushes an integer onto the stack. If this integer
   ** is non-zero, then it is the root page number of a table moved to
-  ** location iTable. The following code modifies the vtk_sqlite_master table to
+  ** location iTable. The following code modifies the sqlite_master table to
   ** reflect this.
   **
   ** The "#0" in the SQL is a special constant that means whatever value
@@ -45312,7 +45312,7 @@ static void destroyRootPage(Parse *pParse, int iTable, int iDb){
 
 /*
 ** Write VDBE code to erase table pTab and all associated indices on disk.
-** Code to update the vtk_sqlite_master tables and internal schema definitions
+** Code to update the sqlite_master tables and internal schema definitions
 ** in case a root-page belonging to another table is moved by the btree layer
 ** is also added (this can happen with an auto-vacuum database).
 */
@@ -45469,8 +45469,8 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DropTable(Parse *pParse, SrcList *pName, int 
 #endif
 
     /* Drop all triggers associated with the table being dropped. Code
-    ** is generated to remove entries from vtk_sqlite_master and/or
-    ** vtk_sqlite_temp_master if required.
+    ** is generated to remove entries from sqlite_master and/or
+    ** sqlite_temp_master if required.
     */
     pTrigger = pTab->pTrigger;
     while( pTrigger ){
@@ -45481,20 +45481,20 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DropTable(Parse *pParse, SrcList *pName, int 
     }
 
 #ifndef VTK_SQLITE_OMIT_AUTOINCREMENT
-    /* Remove any entries of the vtk_sqlite_sequence table associated with
+    /* Remove any entries of the sqlite_sequence table associated with
     ** the table being dropped. This is done before the table is dropped
-    ** at the btree level, in case the vtk_sqlite_sequence table needs to
+    ** at the btree level, in case the sqlite_sequence table needs to
     ** move as a result of the drop (can happen in auto-vacuum mode).
     */
     if( pTab->autoInc ){
       vtk_sqlite3NestedParse(pParse,
-        "DELETE FROM %s.vtk_sqlite_sequence WHERE name=%Q",
+        "DELETE FROM %s.sqlite_sequence WHERE name=%Q",
         pDb->zName, pTab->zName
       );
     }
 #endif
 
-    /* Drop all VTK_SQLITE_MASTER table and index entries that refer to the
+    /* Drop all SQLITE_MASTER table and index entries that refer to the
     ** table. The program name loops through the master table and deletes
     ** every row that refers to a table of the same name as the one being
     ** dropped. Triggers are handled seperately because a trigger can be
@@ -45508,7 +45508,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DropTable(Parse *pParse, SrcList *pName, int 
       destroyTable(pParse, pTab);
     }
 
-    /* Remove the table entry from Vtk_Sqlite's internal schema and modify
+    /* Remove the table entry from SQLite's internal schema and modify
     ** the schema cookie.
     */
     if( IsVirtual(pTab) ){
@@ -45830,7 +45830,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
   ** index or table with the same name.  
   **
   ** Exception:  If we are reading the names of permanent indices from the
-  ** vtk_sqlite_master table (because some other process changed the schema) and
+  ** sqlite_master table (because some other process changed the schema) and
   ** one of the index names collides with the name of a temporary table or
   ** index, then we will continue to process this index.
   **
@@ -45865,7 +45865,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
     for(pLoop=pTab->pIndex, n=1; pLoop; pLoop=pLoop->pNext, n++){}
     vtk_sqlite3_snprintf(sizeof(zBuf),zBuf,"_%d",n);
     zName = 0;
-    vtk_sqlite3SetString(&zName, "vtk_sqlite_autoindex_", pTab->zName, zBuf, (char*)0);
+    vtk_sqlite3SetString(&zName, "sqlite_autoindex_", pTab->zName, zBuf, (char*)0);
     if( zName==0 ) goto exit_create_index;
   }
 
@@ -46101,7 +46101,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateIndex(
       zStmt = 0;
     }
 
-    /* Add an entry in vtk_sqlite_master for this index
+    /* Add an entry in sqlite_master for this index
     */
     vtk_sqlite3NestedParse(pParse, 
         "INSERT INTO %Q.%s VALUES('index',%Q,%Q,#0,%Q);",
@@ -47985,7 +47985,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3GenerateIndexKey(
 **
 *************************************************************************
 ** This file contains the C functions that implement various SQL
-** functions of Vtk_Sqlite.  
+** functions of SQLite.  
 **
 ** There is only one exported symbol in this file - the function
 ** vtk_sqliteRegisterBuildinFunctions() found at the bottom of the file.
@@ -48599,7 +48599,7 @@ static void nullifFunc(
 
 /*
 ** Implementation of the VERSION(*) function.  The result is the version
-** of the Vtk_Sqlite library that is running.
+** of the SQLite library that is running.
 */
 static void versionFunc(
   vtk_sqlite3_context *context,
@@ -49312,7 +49312,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3RegisterBuiltinFunctions(vtk_sqlite3 *db){
     { "random",            -1, 0, VTK_SQLITE_UTF8,    0, randomFunc },
     { "randomblob",         1, 0, VTK_SQLITE_UTF8,    0, randomBlob },
     { "nullif",             2, 0, VTK_SQLITE_UTF8,    1, nullifFunc },
-    { "vtk_sqlite_version",     0, 0, VTK_SQLITE_UTF8,    0, versionFunc},
+    { "sqlite_version",     0, 0, VTK_SQLITE_UTF8,    0, versionFunc},
     { "quote",              1, 0, VTK_SQLITE_UTF8,    0, quoteFunc  },
     { "last_insert_rowid",  0, 0xff, VTK_SQLITE_UTF8, 0, last_insert_rowid },
     { "changes",            0, 0xff, VTK_SQLITE_UTF8, 0, changes           },
@@ -49491,7 +49491,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3IsLikeFunction(vtk_sqlite3 *db, Expr *pExpr, i
 **
 *************************************************************************
 ** This file contains C code routines that are called by the parser
-** to handle INSERT statements in Vtk_Sqlite.
+** to handle INSERT statements in SQLite.
 **
 ** Id
 */
@@ -49918,8 +49918,8 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Insert(
 #endif /* VTK_SQLITE_OMIT_XFER_OPT */
 
   /* If this is an AUTOINCREMENT table, look up the sequence number in the
-  ** vtk_sqlite_sequence table and store it in memory cell counterMem.  Also
-  ** remember the rowid of the vtk_sqlite_sequence table entry in memory cell
+  ** sqlite_sequence table and store it in memory cell counterMem.  Also
+  ** remember the rowid of the sqlite_sequence table entry in memory cell
   ** counterRowid.
   */
   counterMem = autoIncBegin(pParse, iDb, pTab);
@@ -50320,8 +50320,8 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Insert(
     }
   }
 
-  /* Update the vtk_sqlite_sequence table by storing the content of the
-  ** counter value in memory counterMem back into the vtk_sqlite_sequence
+  /* Update the sqlite_sequence table by storing the content of the
+  ** counter value in memory counterMem back into the sqlite_sequence
   ** table.
   */
   autoIncEnd(pParse, iDb, pTab, counterMem);
@@ -50389,7 +50389,7 @@ insert_cleanup:
 **                                cause vtk_sqlite3_exec() to return immediately
 **                                with VTK_SQLITE_CONSTRAINT.
 **
-**  any              FAIL         Vtk_Sqlite_exec() returns immediately with a
+**  any              FAIL         SQLite_exec() returns immediately with a
 **                                return code of VTK_SQLITE_CONSTRAINT.  The
 **                                transaction is not rolled back and any
 **                                prior changes are retained.
@@ -51096,9 +51096,9 @@ static int xferOptimization(
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** Main file for the Vtk_Sqlite library.  The routines in this file
+** Main file for the SQLite library.  The routines in this file
 ** implement the programmer interface to the library.  Routines in
-** other files are for internal use by Vtk_Sqlite and should not be
+** other files are for internal use by SQLite and should not be
 ** accessed by users of the library.
 **
 ** Id
@@ -51229,7 +51229,7 @@ exec_out:
 **
 *************************************************************************
 ** This file contains code used to dynamically load extensions into
-** the Vtk_Sqlite library.
+** the SQLite library.
 */
 #ifndef VTK_SQLITE_OMIT_LOAD_EXTENSION
 
@@ -51247,10 +51247,10 @@ exec_out:
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This header file defines the Vtk_Sqlite interface for use by
+** This header file defines the SQLite interface for use by
 ** shared libraries that want to be imported as extensions into
-** an Vtk_Sqlite instance.  Shared libraries that intend to be loaded
-** as extensions by Vtk_Sqlite should #include this file instead of 
+** an SQLite instance.  Shared libraries that intend to be loaded
+** as extensions by SQLite should #include this file instead of 
 ** vtk_sqlite3.h.
 **
 ** @(#) Id
@@ -51261,13 +51261,13 @@ exec_out:
 typedef struct vtk_sqlite3_api_routines vtk_sqlite3_api_routines;
 
 /*
-** The following structure hold pointers to all of the Vtk_Sqlite API
+** The following structure hold pointers to all of the SQLite API
 ** routines.
 **
 ** WARNING:  In order to maintain backwards compatibility, add new
 ** interfaces to the end of this structure only.  If you insert new
 ** interfaces in the middle of this structure, then older different
-** versions of Vtk_Sqlite will not be able to load each others shared
+** versions of SQLite will not be able to load each others shared
 ** libraries!
 */
 struct vtk_sqlite3_api_routines {
@@ -51398,7 +51398,7 @@ struct vtk_sqlite3_api_routines {
 ** redirected throught the global vtk_sqlite3_api structure.
 **
 ** This header file is also used by the loadext.c source file
-** (part of the main Vtk_Sqlite library - not an extension) so that
+** (part of the main SQLite library - not an extension) so that
 ** it can get access to the vtk_sqlite3_api_routines structure
 ** definition.  But the main library does not want to redefine
 ** the API.  So the redefinition macros are only valid if the
@@ -51539,7 +51539,7 @@ struct vtk_sqlite3_api_routines {
 
 /*
 ** Some API routines are omitted when various features are
-** excluded from a build of Vtk_Sqlite.  Substitute a NULL pointer
+** excluded from a build of SQLite.  Substitute a NULL pointer
 ** for any missing APIs.
 */
 #ifndef VTK_SQLITE_ENABLE_COLUMN_METADATA
@@ -51611,9 +51611,9 @@ struct vtk_sqlite3_api_routines {
 #endif
 
 /*
-** The following structure contains pointers to all Vtk_Sqlite API routines.
+** The following structure contains pointers to all SQLite API routines.
 ** A pointer to this structure is passed into extensions when they are
-** loaded so that the extension can make calls back into the Vtk_Sqlite
+** loaded so that the extension can make calls back into the SQLite
 ** library.
 **
 ** When adding new APIs, add them to the bottom of this structure
@@ -51766,7 +51766,7 @@ const vtk_sqlite3_api_routines vtk_sqlite3_apis = {
 };
 
 /*
-** Attempt to load an Vtk_Sqlite extension library contained in the file
+** Attempt to load an SQLite extension library contained in the file
 ** zFile.  The entry point is zProc.  zProc may be 0 in which case a
 ** default entry point name (vtk_sqlite3_extension_init) is used.  Use
 ** of the default name is recommended.
@@ -51789,7 +51789,7 @@ int vtk_sqlite3_load_extension(
   void **aHandle;
 
   /* Ticket #1863.  To avoid a creating security problems for older
-  ** applications that relink against newer versions of Vtk_Sqlite, the
+  ** applications that relink against newer versions of SQLite, the
   ** ability to run load_extension is turned off by default.  One
   ** must call vtk_sqlite3_enable_load_extension() to turn on extension
   ** loading.  Otherwise you get the following error.
@@ -52982,17 +52982,17 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Pragma(
   ** the schema-version and the user-version are 32-bit signed integers
   ** stored in the database header.
   **
-  ** The schema-cookie is usually only manipulated internally by Vtk_Sqlite. It
-  ** is incremented by Vtk_Sqlite whenever the database schema is modified (by
+  ** The schema-cookie is usually only manipulated internally by SQLite. It
+  ** is incremented by SQLite whenever the database schema is modified (by
   ** creating or dropping a table or index). The schema version is used by
-  ** Vtk_Sqlite each time a query is executed to ensure that the internal cache
+  ** SQLite each time a query is executed to ensure that the internal cache
   ** of the schema used when compiling the SQL query matches the schema of
   ** the database against which the compiled query is actually executed.
   ** Subverting this mechanism by using "PRAGMA schema_version" to modify
   ** the schema-version is potentially dangerous and may lead to program
   ** crashes or database corruption. Use with caution!
   **
-  ** The user-version is not used internally by Vtk_Sqlite. It may be used by
+  ** The user-version is not used internally by SQLite. It may be used by
   ** applications for any purpose.
   */
   if( vtk_sqlite3StrICmp(zLeft, "schema_version")==0 
@@ -53075,10 +53075,10 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Pragma(
 
 #ifdef VTK_SQLITE_SSE
   /*
-  ** Check to see if the vtk_sqlite_statements table exists.  Create it
+  ** Check to see if the sqlite_statements table exists.  Create it
   ** if it does not.
   */
-  if( vtk_sqlite3StrICmp(zLeft, "create_vtk_sqlite_statement_table")==0 ){
+  if( vtk_sqlite3StrICmp(zLeft, "create_sqlite_statement_table")==0 ){
     extern int vtk_sqlite3CreateStatementsTable(Parse*);
     vtk_sqlite3CreateStatementsTable(pParse);
   }else
@@ -53268,7 +53268,7 @@ static int vtk_sqlite3InitOne(vtk_sqlite3 *db, int iDb, char **pzErrMsg){
   ** The master database table has a structure like this
   */
   static const char master_schema[] = 
-     "CREATE TABLE vtk_sqlite_master(\n"
+     "CREATE TABLE sqlite_master(\n"
      "  type text,\n"
      "  name text,\n"
      "  tbl_name text,\n"
@@ -53278,7 +53278,7 @@ static int vtk_sqlite3InitOne(vtk_sqlite3 *db, int iDb, char **pzErrMsg){
   ;
 #ifndef VTK_SQLITE_OMIT_TEMPDB
   static const char temp_master_schema[] = 
-     "CREATE TEMP TABLE vtk_sqlite_temp_master(\n"
+     "CREATE TEMP TABLE sqlite_temp_master(\n"
      "  type text,\n"
      "  name text,\n"
      "  tbl_name text,\n"
@@ -53353,7 +53353,7 @@ static int vtk_sqlite3InitOne(vtk_sqlite3 *db, int iDb, char **pzErrMsg){
   **    meta[8]
   **    meta[9]
   **
-  ** Note: The #defined VTK_SQLITE_UTF* symbols in vtk_sqliteInt.h correspond to
+  ** Note: The #defined VTK_SQLITE_UTF* symbols in sqliteInt.h correspond to
   ** the possible values of meta[4].
   */
   if( rc==VTK_SQLITE_OK ){
@@ -53451,7 +53451,7 @@ static int vtk_sqlite3InitOne(vtk_sqlite3 *db, int iDb, char **pzErrMsg){
     ** current vtk_sqlite3_prepare() operation will fail, but the following one
     ** will attempt to compile the supplied statement against whatever subset
     ** of the schema was loaded before the error occured. The primary
-    ** purpose of this is to allow access to the vtk_sqlite_master table
+    ** purpose of this is to allow access to the sqlite_master table
     ** even when it's contents have been corrupted.
     */
     DbSetProperty(db, iDb, DB_SchemaLoaded);
@@ -53845,7 +53845,7 @@ int vtk_sqlite3_prepare16_v2(
 **
 *************************************************************************
 ** This file contains C code routines that are called by the parser
-** to handle SELECT statements in Vtk_Sqlite.
+** to handle SELECT statements in SQLite.
 **
 ** Id
 */
@@ -55054,7 +55054,7 @@ static int prepSelectStmt(Parse *pParse, Select *p){
       assert( pFrom->pSelect!=0 );
       if( pFrom->zAlias==0 ){
         pFrom->zAlias =
-          vtk_sqlite3MPrintf("vtk_sqlite_subquery_%p_", (void*)pFrom->pSelect);
+          vtk_sqlite3MPrintf("sqlite_subquery_%p_", (void*)pFrom->pSelect);
       }
       assert( pFrom->pTab==0 );
       pFrom->pTab = pTab = 
@@ -55480,7 +55480,7 @@ static CollSeq *multiSelectCollSeq(Parse *pParse, Select *p, int iCol){
 ** So if this routine is called with p equal to the t3 query, then
 ** pPrior will be the t2 query.  p->op will be TK_UNION in this case.
 **
-** Notice that because of the way Vtk_Sqlite parses compound SELECTs, the
+** Notice that because of the way SQLite parses compound SELECTs, the
 ** individual selects always group from left to right.
 */
 static int multiSelect(
@@ -57662,7 +57662,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3BeginTrigger(
   }
 
   /* Do not create a trigger on a system table */
-  if( vtk_sqlite3StrNICmp(pTab->zName, "vtk_sqlite_", 7)==0 ){
+  if( vtk_sqlite3StrNICmp(pTab->zName, "sqlite_", 7)==0 ){
     vtk_sqlite3ErrorMsg(pParse, "cannot create trigger on system table");
     pParse->nErr++;
     goto trigger_cleanup;
@@ -57764,7 +57764,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3FinishTrigger(
   }
 
   /* if we are not initializing, and this trigger is not on a TEMP table, 
-  ** build the vtk_sqlite_master entry
+  ** build the sqlite_master entry
   */
   if( !db->init.busy ){
     static const VdbeOpList insertTrig[] = {
@@ -57782,7 +57782,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3FinishTrigger(
     int addr;
     Vdbe *v;
 
-    /* Make an entry in the vtk_sqlite_master table */
+    /* Make an entry in the sqlite_master table */
     v = vtk_sqlite3GetVdbe(pParse);
     if( v==0 ) goto triggerfinish_cleanup;
     vtk_sqlite3BeginWriteOperation(pParse, 0, iDb);
@@ -58418,7 +58418,7 @@ static void updateVirtualTable(
 ** literal default values specified: a number, null or a string. (If a more
 ** complicated default expression value was provided, it is evaluated 
 ** when the ALTER TABLE is executed and one of the literal values written
-** into the vtk_sqlite_master table.)
+** into the sqlite_master table.)
 **
 ** Therefore, the P3 parameter is only required if the default value for
 ** the column is a literal number, string or null. The vtk_sqlite3ValueFromExpr()
@@ -59058,9 +59058,9 @@ static int execExecSql(vtk_sqlite3 *db, const char *zSql){
 ** collapse free space, etc.  It is modelled after the VACUUM command
 ** in PostgreSQL.
 **
-** In version 1.0.x of Vtk_Sqlite, the VACUUM command would call
+** In version 1.0.x of SQLite, the VACUUM command would call
 ** gdbm_reorganize() on all the database tables.  But beginning
-** with 2.0.0, Vtk_Sqlite no longer uses GDBM so this command has
+** with 2.0.0, SQLite no longer uses GDBM so this command has
 ** become a no-op.
 */
 VTK_SQLITE_PRIVATE void vtk_sqlite3Vacuum(Parse *pParse){
@@ -59133,17 +59133,17 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3RunVacuum(char **pzErrMsg, vtk_sqlite3 *db){
   */
   rc = execExecSql(db, 
       "SELECT 'CREATE TABLE vacuum_db.' || substr(sql,14,100000000) "
-      "  FROM vtk_sqlite_master WHERE type='table' AND name!='vtk_sqlite_sequence'"
+      "  FROM sqlite_master WHERE type='table' AND name!='sqlite_sequence'"
       "   AND rootpage>0"
   );
   if( rc!=VTK_SQLITE_OK ) goto end_of_vacuum;
   rc = execExecSql(db, 
       "SELECT 'CREATE INDEX vacuum_db.' || substr(sql,14,100000000)"
-      "  FROM vtk_sqlite_master WHERE sql LIKE 'CREATE INDEX %' ");
+      "  FROM sqlite_master WHERE sql LIKE 'CREATE INDEX %' ");
   if( rc!=VTK_SQLITE_OK ) goto end_of_vacuum;
   rc = execExecSql(db, 
       "SELECT 'CREATE UNIQUE INDEX vacuum_db.' || substr(sql,21,100000000) "
-      "  FROM vtk_sqlite_master WHERE sql LIKE 'CREATE UNIQUE INDEX %'");
+      "  FROM sqlite_master WHERE sql LIKE 'CREATE UNIQUE INDEX %'");
   if( rc!=VTK_SQLITE_OK ) goto end_of_vacuum;
 
   /* Loop through the tables in the main database. For each, do
@@ -59153,8 +59153,8 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3RunVacuum(char **pzErrMsg, vtk_sqlite3 *db){
   rc = execExecSql(db, 
       "SELECT 'INSERT INTO vacuum_db.' || quote(name) "
       "|| ' SELECT * FROM ' || quote(name) || ';'"
-      "FROM vtk_sqlite_master "
-      "WHERE type = 'table' AND name!='vtk_sqlite_sequence' "
+      "FROM sqlite_master "
+      "WHERE type = 'table' AND name!='sqlite_sequence' "
       "  AND rootpage>0"
 
   );
@@ -59164,13 +59164,13 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3RunVacuum(char **pzErrMsg, vtk_sqlite3 *db){
   */
   rc = execExecSql(db, 
       "SELECT 'DELETE FROM vacuum_db.' || quote(name) || ';' "
-      "FROM vacuum_db.vtk_sqlite_master WHERE name='vtk_sqlite_sequence' "
+      "FROM vacuum_db.sqlite_master WHERE name='sqlite_sequence' "
   );
   if( rc!=VTK_SQLITE_OK ) goto end_of_vacuum;
   rc = execExecSql(db, 
       "SELECT 'INSERT INTO vacuum_db.' || quote(name) "
       "|| ' SELECT * FROM ' || quote(name) || ';' "
-      "FROM vacuum_db.vtk_sqlite_master WHERE name=='vtk_sqlite_sequence';"
+      "FROM vacuum_db.sqlite_master WHERE name=='sqlite_sequence';"
   );
   if( rc!=VTK_SQLITE_OK ) goto end_of_vacuum;
 
@@ -59178,12 +59178,12 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3RunVacuum(char **pzErrMsg, vtk_sqlite3 *db){
   /* Copy the triggers, views, and virtual tables from the main database
   ** over to the temporary database.  None of these objects has any
   ** associated storage, so all we have to do is copy their entries
-  ** from the VTK_SQLITE_MASTER table.
+  ** from the SQLITE_MASTER table.
   */
   rc = execSql(db,
-      "INSERT INTO vacuum_db.vtk_sqlite_master "
+      "INSERT INTO vacuum_db.sqlite_master "
       "  SELECT type, name, tbl_name, rootpage, sql"
-      "    FROM vtk_sqlite_master"
+      "    FROM sqlite_master"
       "   WHERE type='view' OR type='trigger'"
       "      OR (type='table' AND rootpage=0)"
   );
@@ -59447,7 +59447,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VtabBeginParse(
 #ifndef VTK_SQLITE_OMIT_AUTHORIZATION
   /* Creating a virtual table invokes the authorization callback twice.
   ** The first invocation, to obtain permission to INSERT a row into the
-  ** vtk_sqlite_master table, has already been made by vtk_sqlite3StartTable().
+  ** sqlite_master table, has already been made by vtk_sqlite3StartTable().
   ** The second call, to obtain permission to create the table, is made now.
   */
   if( pTable->azModuleArg ){
@@ -59494,9 +59494,9 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VtabFinishParse(Parse *pParse, Token *pEnd){
   
   /* If the CREATE VIRTUAL TABLE statement is being entered for the
   ** first time (in other words if the virtual table is actually being
-  ** created now instead of just being read out of vtk_sqlite_master) then
+  ** created now instead of just being read out of sqlite_master) then
   ** do additional initialization work and store the statement text
-  ** in the vtk_sqlite_master table.
+  ** in the sqlite_master table.
   */
   if( !db->init.busy ){
     char *zStmt;
@@ -59511,13 +59511,13 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VtabFinishParse(Parse *pParse, Token *pEnd){
     zStmt = vtk_sqlite3MPrintf("CREATE VIRTUAL TABLE %T", &pParse->sNameToken);
 
     /* A slot for the record has already been allocated in the 
-    ** VTK_SQLITE_MASTER table.  We just need to update that slot with all
+    ** SQLITE_MASTER table.  We just need to update that slot with all
     ** the information we've collected.  
     **
     ** The top of the stack is the rootpage allocated by vtk_sqlite3StartTable().
     ** This value is always 0 and is ignored, a virtual table does not have a
     ** rootpage. The next entry on the stack is the rowid of the record
-    ** in the vtk_sqlite_master table.
+    ** in the sqlite_master table.
     */
     iDb = vtk_sqlite3SchemaToIndex(db, pTab->pSchema);
     vtk_sqlite3NestedParse(pParse,
@@ -59539,7 +59539,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3VtabFinishParse(Parse *pParse, Token *pEnd){
     vtk_sqlite3VdbeOp3(v, OP_VCreate, iDb, 0, pTab->zName, strlen(pTab->zName) + 1);
   }
 
-  /* If we are rereading the vtk_sqlite_master table create the in-memory
+  /* If we are rereading the sqlite_master table create the in-memory
   ** record of the table. If the module has already been registered,
   ** also call the xConnect method here.
   */
@@ -64677,7 +64677,7 @@ static void yy_reduce(
   ** without this code, their parser segfaults.  I'm not sure what there
   ** parser is doing to make this happen.  This is the second bug report
   ** from wireshark this week.  Clearly they are stressing Lemon in ways
-  ** that it has not been previously stressed...  (Vtk_Sqlite ticket #2172)
+  ** that it has not been previously stressed...  (SQLite ticket #2172)
   */
   memset(&yygotominor, 0, sizeof(yygotominor));
 
@@ -66107,7 +66107,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3KeywordCode(const unsigned char *z, int n){
 **
 ** Ticket #1066.  the SQL standard does not allow '$' in the
 ** middle of identfiers.  But many SQL implementations do. 
-** Vtk_Sqlite will allow '$' in identifiers for compatibility.
+** SQLite will allow '$' in identifiers for compatibility.
 ** But the feature is undocumented.
 */
 #ifdef VTK_SQLITE_ASCII
@@ -66552,9 +66552,9 @@ abort_parse:
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** Main file for the Vtk_Sqlite library.  The routines in this file
+** Main file for the SQLite library.  The routines in this file
 ** implement the programmer interface to the library.  Routines in
-** other files are for internal use by Vtk_Sqlite and should not be
+** other files are for internal use by SQLite and should not be
 ** accessed by users of the library.
 **
 ** Id
@@ -66608,7 +66608,7 @@ static int binCollFunc(
 ** Another built-in collating sequence: NOCASE. 
 **
 ** This collating sequence is intended to be used for "case independant
-** comparison". Vtk_Sqlite's knowledge of upper and lower case equivalents
+** comparison". SQLite's knowledge of upper and lower case equivalents
 ** extends only to the 26 characters used in the English language.
 **
 ** At the moment there is only a UTF-8 implementation.
@@ -66649,7 +66649,7 @@ int vtk_sqlite3_total_changes(vtk_sqlite3 *db){
 }
 
 /*
-** Close an existing Vtk_Sqlite database
+** Close an existing SQLite database
 */
 VTK_SQLITE_API int vtk_sqlite3_close(vtk_sqlite3 *db){
   HashElem *i;
@@ -66892,7 +66892,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3InvokeBusyHandler(BusyHandler *p){
 }
 
 /*
-** This routine sets the busy callback for an Vtk_Sqlite database to the
+** This routine sets the busy callback for an SQLite database to the
 ** given callback function with the given argument.
 */
 int vtk_sqlite3_busy_handler(
@@ -66911,7 +66911,7 @@ int vtk_sqlite3_busy_handler(
 
 #ifndef VTK_SQLITE_OMIT_PROGRESS_CALLBACK
 /*
-** This routine sets the progress callback for an Vtk_Sqlite database to the
+** This routine sets the progress callback for an SQLite database to the
 ** given callback function with the given argument. The progress callback will
 ** be invoked every nOps opcodes.
 */
@@ -66964,8 +66964,8 @@ VTK_SQLITE_API void vtk_sqlite3_interrupt(vtk_sqlite3 *db){
 }
 
 /*
-** Memory allocation routines that use Vtk_Sqlites internal memory
-** memory allocator.  Depending on how Vtk_Sqlite is compiled, the
+** Memory allocation routines that use SQLites internal memory
+** memory allocator.  Depending on how SQLite is compiled, the
 ** internal memory allocator might be just an alias for the
 ** system default malloc/realloc/free.  Or the built-in allocator
 ** might do extra stuff like put sentinals around buffers to 
@@ -67356,7 +67356,7 @@ VTK_SQLITE_API const void *vtk_sqlite3_errmsg16(vtk_sqlite3 *db){
 #endif /* VTK_SQLITE_OMIT_UTF16 */
 
 /*
-** Return the most recent error code generated by an Vtk_Sqlite routine. If NULL is
+** Return the most recent error code generated by an SQLite routine. If NULL is
 ** passed to this function, we assume a malloc() failed during vtk_sqlite3_open().
 */
 VTK_SQLITE_API int vtk_sqlite3_errcode(vtk_sqlite3 *db){
@@ -67773,7 +67773,7 @@ int vtk_sqlite3_collation_needed16(
 #ifndef VTK_SQLITE_OMIT_GLOBALRECOVER
 /*
 ** This function is now an anachronism. It used to be used to recover from a
-** malloc() failure, but Vtk_Sqlite now does this automatically.
+** malloc() failure, but SQLite now does this automatically.
 */
 int vtk_sqlite3_global_recover(){
   return VTK_SQLITE_OK;
