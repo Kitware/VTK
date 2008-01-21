@@ -33,7 +33,7 @@ public:
   MapOfStringToInt AttributeIndicesCache;
 };
 
-vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.2");
+vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.3");
 vtkStandardNewMacro(vtkGLSLShaderDeviceAdapter);
 
 #define GLSL_SHADER_DEVICE_ADAPTER(msg) \
@@ -105,50 +105,6 @@ static inline GLenum VTK2SignedOpenGLType(int type)
     case VTK_DOUBLE:            return GL_FLOAT;
 #elif VTK_SIZEOF_DOUBLE == 8
     case VTK_DOUBLE:            return GL_DOUBLE;
-#endif
-
-    default:                    return GL_FALSE;
-    }
-}
-
-static inline GLenum VTK2UnsignedOpenGLType(int type)
-{
-  switch (type)
-    {
-#if VTK_SIZEOF_CHAR == 1
-    case VTK_CHAR:              return GL_UNSIGNED_BYTE;
-    case VTK_UNSIGNED_CHAR:     return GL_UNSIGNED_BYTE;
-#elif VTK_SIZE_OF_CHAR == 2
-    case VTK_CHAR:              return GL_UNSIGNED_SHORT;
-    case VTK_UNSIGNED CHAR:     return GL_UNSIGNED_SHORT;
-#endif
-
-#if VTK_SIZEOF_SHORT == 1
-    case VTK_SHORT:             return GL_UNSIGNED_BYTE;
-    case VTK_UNSIGNED_SHORT:    return GL_UNSIGNED_BYTE;
-#elif VTK_SIZEOF_SHORT == 2
-    case VTK_SHORT:             return GL_UNSIGNED_SHORT;
-    case VTK_UNSIGNED_SHORT:    return GL_UNSIGNED_SHORT;
-#elif VTK_SIZEOF_SHORT == 4
-    case VTK_SHORT:             return GL_UNSIGNED_INT;
-    case VTK_UNSIGNED_SHORT:    return GL_UNSIGNED_INT;
-#endif
-
-#if VTK_SIZEOF_INT == 2
-    case VTK_INT:               return GL_UNSIGNED_SHORT;
-    case VTK_UNSIGNED_INT:      return GL_UNSIGNED_SHORT;
-#elif VTK_SIZEOF_INT == 4
-    case VTK_INT:               return GL_UNSIGNED_INT;
-    case VTK_UNSIGNED_INT:      return GL_UNSIGNED_INT;
-#endif
-
-#if VTK_SIZEOF_ID_TYPE == 4
-    case VTK_ID_TYPE:           return GL_UNSIGNED_INT;
-#endif
-
-#if VTK_SIZEOF_LONG == 4
-    case VTK_LONG:              return GL_UNSIGNED_INT;
-    case VTK_UNSIGNED_LONG:     return GL_UNSIGNED_INT;
 #endif
 
     default:                    return GL_FALSE;

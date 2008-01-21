@@ -25,7 +25,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCenteredSliderWidget, "1.2");
+vtkCxxRevisionMacro(vtkCenteredSliderWidget, "1.3");
 vtkStandardNewMacro(vtkCenteredSliderWidget);
 
 //------------------------------------------------------------
@@ -68,9 +68,8 @@ void vtkCenteredSliderWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------
 void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
 {
-  vtkCenteredSliderWidget *self = 
-    reinterpret_cast<vtkCenteredSliderWidget*>(w);
-  
+  vtkCenteredSliderWidget *self = vtkCenteredSliderWidget::SafeDownCast(w);
+
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
@@ -134,8 +133,7 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
 //---------------------------------------------------------------
 void vtkCenteredSliderWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkCenteredSliderWidget *self = 
-    reinterpret_cast<vtkCenteredSliderWidget*>(w);
+  vtkCenteredSliderWidget *self = vtkCenteredSliderWidget::SafeDownCast(w);
 
   // See whether we're active
   if ( self->WidgetState == vtkCenteredSliderWidget::Start )
@@ -157,8 +155,7 @@ void vtkCenteredSliderWidget::MoveAction(vtkAbstractWidget *w)
 //-----------------------------------------------------------------
 void vtkCenteredSliderWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkCenteredSliderWidget *self = 
-    reinterpret_cast<vtkCenteredSliderWidget*>(w);
+  vtkCenteredSliderWidget *self = vtkCenteredSliderWidget::SafeDownCast(w);
 
   if ( self->WidgetState == vtkCenteredSliderWidget::Start )
     {
@@ -188,10 +185,9 @@ void vtkCenteredSliderWidget::EndSelectAction(vtkAbstractWidget *w)
 
 void vtkCenteredSliderWidget::TimerAction(vtkAbstractWidget *w)
 {
-  vtkCenteredSliderWidget *self = 
-    reinterpret_cast<vtkCenteredSliderWidget*>(w);
+  vtkCenteredSliderWidget *self = vtkCenteredSliderWidget::SafeDownCast(w);
   int timerId = *(reinterpret_cast<int*>(self->CallData));
-  
+
   // If this is the timer event we are waiting for...
   if ( timerId == self->TimerId && 
        self->WidgetState == vtkCenteredSliderWidget::Sliding )

@@ -359,14 +359,14 @@ public:
   // Description:
   // @deprecated Replaced by vtkParallelRenderManager::StartServices()
   // as of VTK 5.0.
-  VTK_LEGACY(virtual void const StartService());
+  VTK_LEGACY(virtual void StartService());
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef StartServiceW
 # undef StartServiceA
   //BTX
-  VTK_LEGACY(virtual void const StartServiceA());
-  VTK_LEGACY(virtual void const StartServiceW());
+  VTK_LEGACY(virtual void StartServiceA());
+  VTK_LEGACY(virtual void StartServiceW());
   //ETX
 #endif
 

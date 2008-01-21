@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.54");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.55");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -1039,38 +1039,38 @@ static int IsInBounds(double x[3], double bounds[6])
 # ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #  undef SetProp
 #  undef GetProp
-void const vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
+void vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
-void const vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
+void vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
-vtkProp* const vtkCubeAxesActor2D::GetPropA()
+vtkProp* vtkCubeAxesActor2D::GetPropA()
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
   return this->GetViewProp();
 }
-vtkProp* const vtkCubeAxesActor2D::GetPropW()
+vtkProp* vtkCubeAxesActor2D::GetPropW()
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
   return this->GetViewProp();
 }
 # endif
-void const vtkCubeAxesActor2D::SetProp(vtkProp* prop)
+void vtkCubeAxesActor2D::SetProp(vtkProp* prop)
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
-vtkProp* const vtkCubeAxesActor2D::GetProp()
+vtkProp* vtkCubeAxesActor2D::GetProp()
 {
   VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
