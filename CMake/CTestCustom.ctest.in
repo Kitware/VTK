@@ -55,8 +55,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # the following warnings when built with the MS compilers. Qt guys should
   # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
   # results:
-  "include.Qt(Core|Gui).*warning C4127: conditional expression is constant"
-  
+  "include.[Qq]t([Cc]ore|[Gg]ui).*warning C4127: conditional expression is constant"
+
   # Specifically for HP compiler, mask out
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
   "Filtering.vtkImageMultiple(Input|InputOutput)Filter.cxx.*warning.*more strictly aligned type"
