@@ -53,11 +53,6 @@ ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.4)
 SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH "${VTK_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
 
-# Tell the CMake makefile generator to not have rules depend on
-# themselves.  This causes extra rebuilds when the include path
-# changes from turning a kit on or off.
-SET(CMAKE_SKIP_RULE_DEPENDENCY 1)
-
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
