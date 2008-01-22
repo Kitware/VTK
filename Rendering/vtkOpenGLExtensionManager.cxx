@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.29");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.30");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -180,7 +180,7 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
   // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
   // The driver reports it supports 1.5 but the 1.4 core promoted extension
-  // GL_EXT_blend_func_separate is implemented in software.
+  // GL_EXT_blend_func_separate is implemented in software (poor performance).
   // All the NV2x chipsets are probably affected. NV2x chipsets are used
   // in GeForce4 and Quadro4.
   // It will make this method return false with "GL_VERSION_1_4" and true
