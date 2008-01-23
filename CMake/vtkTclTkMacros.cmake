@@ -20,7 +20,7 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
   ELSE (TK_INTERNAL_PATH)
     SET (try_tk_internal_path ${VTK_TK_INTERNAL_DIR})
   ENDIF (TK_INTERNAL_PATH)
-  FOREACH (tcl_tk_minor_version_try "2" "3" "4")
+  FOREACH (tcl_tk_minor_version_try "2" "3" "4" "5")
     IF ("${try_tk_internal_path}" MATCHES "tk8\\.?${tcl_tk_minor_version_try}")
       SET (${tcl_tk_major_version} "8")
       SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
@@ -42,14 +42,14 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
 
   FOREACH(dir ${TCL_INCLUDE_PATH})
     IF(EXISTS "${dir}/tcl.h")
-      FILE(READ "${TCL_INCLUDE_PATH}/tcl.h" tcl_include_file)
+      FILE(READ "${dir}/tcl.h" tcl_include_file)
       STRING(REGEX REPLACE
         ".*#define TCL_VERSION[ \t]*\"([0-9][0-9]*\\.[0-9][0-9]*)\".*" "\\1"
         tcl_include_file "${tcl_include_file}")
       IF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
-        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\1" "${tcl_tk_major_version}"
+        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\1" ${tcl_tk_major_version}
           "${tcl_include_file}")
-        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" "${tcl_tk_minor_version}"
+        STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" ${tcl_tk_minor_version}
           "${tcl_include_file}")
       ENDIF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
     ENDIF(EXISTS "${dir}/tcl.h")
@@ -85,12 +85,15 @@ MACRO (VTK_GET_TCL_SUPPORT_FILES tcl_support_lib_dir list)
 
   # Tcl support files (*.tcl + encoding + tclIndex, etc.)
 
-  FILE (GLOB TCL_SUPPORT_FILES_TCL "${tcl_support_lib_dir}/*.tcl")
-  FILE (GLOB TCL_SUPPORT_FILES_ENC "${tcl_support_lib_dir}/encoding/*.enc")
+  FILE (GLOB TCL_SUPPORT_FILES_TCL  "${tcl_support_lib_dir}/*.tcl")
+  FILE (GLOB TCL_SUPPORT_FILES_ENC  "${tcl_support_lib_dir}/encoding/*.enc")
+  FILE (GLOB TCL_SUPPORT_FILES_MSGS "${tcl_support_lib_dir}/msgs/*.msg")
   SET (${list}
     "${tcl_support_lib_dir}/tclIndex" 
     ${TCL_SUPPORT_FILES_TCL} 
-    ${TCL_SUPPORT_FILES_ENC})
+    ${TCL_SUPPORT_FILES_ENC}
+    ${TCL_SUPPORT_FILES_MSGS}
+    )
 
 ENDMACRO (VTK_GET_TCL_SUPPORT_FILES)
 
@@ -98,10 +101,15 @@ MACRO (VTK_GET_TK_SUPPORT_FILES tk_support_lib_dir list)
 
   # Tk support files (*.tcl + tclIndex, etc.)
 
-  FILE (GLOB TK_SUPPORT_FILES_TCL "${tk_support_lib_dir}/*.tcl")
+  FILE (GLOB TK_SUPPORT_FILES_TCL  "${tk_support_lib_dir}/*.tcl")
+  FILE (GLOB TK_SUPPORT_FILES_MSGS "${tk_support_lib_dir}/msgs/*.msg")
+  FILE (GLOB TK_SUPPORT_FILES_TTK  "${tk_support_lib_dir}/ttk/*.tcl")
   SET (${list}
     "${tk_support_lib_dir}/tclIndex" 
-    ${TK_SUPPORT_FILES_TCL})
+    ${TK_SUPPORT_FILES_TCL}
+    ${TK_SUPPORT_FILES_MSGS}
+    ${TK_SUPPORT_FILES_TTK}
+    )
 
 ENDMACRO (VTK_GET_TK_SUPPORT_FILES)
 

@@ -1103,7 +1103,7 @@ ENDIF(VTK_USE_PARALLEL)
 # Configure Tcl wrapping support.
 
 MACRO (VTK_INCLUDE_TCL_TK_MODULES)
-  INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindTCL.cmake)
   SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
   IF(UNIX)
     # The tcl library needs the math library on unix.
@@ -1115,12 +1115,6 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry 
-          TCL_LIBRARY_DEBUG
-          TK_LIBRARY_DEBUG
-                  TCL_STUB_LIBRARY
-                  TCL_STUB_LIBRARY_DEBUG
-                  TK_STUB_LIBRARY
-                  TK_STUB_LIBRARY_DEBUG
           TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
@@ -1155,6 +1149,7 @@ ENDIF(VTK_WRAP_TCL)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
+    ${VTK_SOURCE_DIR}/CMake/FindTCL.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake
