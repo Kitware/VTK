@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion3D, "1.43");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion3D, "1.44");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion3D);
 
 //----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void vtkImageAnisotropicDiffusion3D::ThreadedRequestData(
     {
     if (!id)
       {
-      this->UpdateProgress((double)(this->NumberOfIterations - idx)
+      this->UpdateProgress(static_cast<double>(this->NumberOfIterations - idx)
                            /this->NumberOfIterations);
       }
     this->Iterate(in, out, ar[0], ar[1], ar[2], outExt, idx);
@@ -293,8 +293,9 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData *inData,
 
   for (idxC = 0; idxC < maxC; idxC++)
     {
-    inPtr2 = (double *)(inData->GetScalarPointer(min0, min1, min2));
-    outPtr2 = (double *)(outData->GetScalarPointer(min0, min1, min2));
+    inPtr2 = static_cast<double *>(inData->GetScalarPointer(min0, min1, min2));
+    outPtr2 =
+      static_cast<double *>(outData->GetScalarPointer(min0, min1, min2));
     inPtr2 += idxC;
     outPtr2 += idxC;
     
