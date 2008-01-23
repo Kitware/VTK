@@ -38,8 +38,8 @@ public:
 
   // Description:
   // Specify the polydata to convert into a stencil.
-  void SetInput(vtkPolyData *input);
-  vtkPolyData *GetInput();
+  virtual void SetInput(vtkPolyData *input);
+  virtual vtkPolyData *GetInput();
 
   // Description:
   // Set the tolerance for doing spatial searches of the polydata.
