@@ -5,11 +5,6 @@ PROJECT(VTK)
 # The matching ELSE/ENDIF should be the last lines in the file.
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
 
-# Tell the CMake makefile generator to not have rules depend on
-# themselves.  This causes extra rebuilds when the include path
-# changes from turning a kit on or off.
-SET(CMAKE_SKIP_RULE_DEPENDENCY 1)
-
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
