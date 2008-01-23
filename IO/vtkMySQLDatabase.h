@@ -124,8 +124,8 @@ public:
 
   // Description:
   // The port used for connecting to the database.
-  vtkSetClampMacro(Port, int, 0, VTK_INT_MAX);
-  vtkGetMacro(Port, int);
+  vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
+  vtkGetMacro(ServerPort, int);
   
   
   
@@ -152,7 +152,7 @@ private:
   char* UserName;
   char* Password;
   char* DatabaseName;
-  int Port;
+  int ServerPort;
   char* ConnectOptions;
 
   vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.

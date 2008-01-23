@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.4");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.5");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -42,7 +42,7 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->UserName = 0;
   this->Password = 0;
   this->DatabaseName = 0;
-  this->Port = -1;
+  this->ServerPort = -1;
   this->ConnectOptions = 0;
 }
 
@@ -71,7 +71,13 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(null)" << endl;
     }
-  os << indent << "URL: " << ( this->URL ? this->URL : "(null)" ) << endl;
+  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+  os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
+  os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
+  os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
+  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
+  os << indent << "ServerPort: " << this->ServerPort << endl;
+  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
 }
 
 // ----------------------------------------------------------------------

@@ -27,7 +27,7 @@
 #include <assert.h>
 #include <mysql.h>
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.5");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.6");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkMySQLDatabase::vtkMySQLDatabase()
   this->UserName = 0;
   this->Password = 0;
   this->DatabaseName = 0;
-  this->Port = -1;
+  this->ServerPort = -1;
   this->ConnectOptions = 0;
 }
 
@@ -163,9 +163,9 @@ bool vtkMySQLDatabase::Open()
     vtkErrorMacro("Cannot open database because Password is not set.");
     return false;
     }
-  if (this->Port <= 0)
+  if (this->ServerPort <= 0)
     {
-    vtkErrorMacro("Cannot open database because Port is not set.");
+    vtkErrorMacro("Cannot open database because ServerPort is not set.");
     return false;
     }
 
@@ -175,7 +175,7 @@ bool vtkMySQLDatabase::Open()
                         this->GetUserName(),
                         this->GetPassword(), 
                         this->GetDatabaseName(),
-                        this->GetPort(),
+                        this->GetServerPort(),
                         0, 0);
                                         
   if (this->Connection == NULL)
@@ -316,7 +316,7 @@ vtkStdString vtkMySQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += this->GetPort();
+  url += this->GetServerPort();
   url += "/";
   url += this->GetDatabaseName();
   return url;
@@ -331,6 +331,6 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
   os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
-  os << indent << "Port: " << this->Port << endl;
+  os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
 }
