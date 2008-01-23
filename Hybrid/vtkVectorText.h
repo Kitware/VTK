@@ -52,7 +52,6 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   char *Text;
-  char *Letters[127];
 
 private:
   vtkVectorText(const vtkVectorText&);  // Not implemented.
