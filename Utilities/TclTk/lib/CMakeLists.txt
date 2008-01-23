@@ -22,10 +22,10 @@ IF (TCL_FOUND AND TK_FOUND)
          "${TCL_LIBRARY_PATH}/../library"
          "${TCL_INCLUDE_PATH}/../library")
     FOREACH (dir ${TRY_DIRS})
-      IF (EXISTS "${dir}/ldAout.tcl")
+      IF (EXISTS "${dir}/auto.tcl")
         SET (VTK_TCL_SUPPORT_LIBRARY_PATH ${dir} CACHE INTERNAL
              "Path to the Tcl support library files.")
-      ENDIF (EXISTS "${dir}/ldAout.tcl")
+      ENDIF (EXISTS "${dir}/auto.tcl")
     ENDFOREACH (dir)
 
     GET_FILENAME_COMPONENT(TK_LIBRARY_PATH ${TK_LIBRARY} PATH)
@@ -43,7 +43,8 @@ IF (TCL_FOUND AND TK_FOUND)
 
     IF(VTK_TCL_SUPPORT_LIBRARY_PATH AND VTK_TK_SUPPORT_LIBRARY_PATH)
 
-      IF (CXX_TEST_PATH)
+      # required for the vtk.exe interpreter to work
+      IF(VTK_WRAP_TCL) 
         IF(NOT DEFINED TclTk_LIB_DIR)
           SET(TclTk_LIB_DIR "${PROJECT_BINARY_DIR}/lib")
         ENDIF(NOT DEFINED TclTk_LIB_DIR)
@@ -51,7 +52,7 @@ IF (TCL_FOUND AND TK_FOUND)
           ${VTK_TCL_SUPPORT_LIBRARY_PATH}
           ${VTK_TK_SUPPORT_LIBRARY_PATH}
           "${TclTk_LIB_DIR}")
-      ENDIF (CXX_TEST_PATH)
+      ENDIF(VTK_WRAP_TCL)
 
       IF(NOT VTK_INSTALL_NO_RUNTIME)
         VTK_COPY_TCL_TK_SUPPORT_FILES(
