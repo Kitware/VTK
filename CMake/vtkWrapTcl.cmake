@@ -154,13 +154,14 @@ ENDMACRO(VTK_WRAP_TCL3)
 IF (VTK_WRAP_TCL_FIND_LIBS)
   GET_FILENAME_COMPONENT(_CURRENT_DIR  "${CMAKE_CURRENT_LIST_FILE}" PATH)
   INCLUDE("${_CURRENT_DIR}/FindTCL.cmake")
-  IF(VTK_USE_TK AND NOT TK_FOUND)
-    MESSAGE(FATAL_ERROR "Tk not found. Install Tk development package or disable VTK_USE_TK")
-  ENDIF(VTK_USE_TK AND NOT TK_FOUND)
 
   IF(VTK_WRAP_TCL AND NOT TCL_FOUND)
-    MESSAGE(FATAL_ERROR "Tcl not found. Install Tcl development package or disable VTK_WRAP_TCL")
+    MESSAGE(FATAL_ERROR "Tcl was not found. Install the Tcl development package (see http://tcl.tk or ActiveState Tcl) and set the appropriate variables (TCL_INCLUDE_PATH, TCL_LIBRARY, TCL_TCLSH) or disable VTK_WRAP_TCL.")
   ENDIF(VTK_WRAP_TCL AND NOT TCL_FOUND)
+
+  IF(VTK_USE_TK AND NOT TK_FOUND)
+    MESSAGE(FATAL_ERROR "Tk was not found. Install the Tk development package (see http://tcl.tk or ActiveState Tcl) and set the appropriate variables (TK_INCLUDE_PATH, TK_LIBRARY, TK_WISH) or disable VTK_USE_TK.")
+  ENDIF(VTK_USE_TK AND NOT TK_FOUND)
 
   SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
   IF(TCL_LIBRARY_DEBUG)
@@ -179,10 +180,6 @@ IF (VTK_WRAP_TCL_FIND_LIBS)
   INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry
-          TCL_STUB_LIBRARY
-          TCL_STUB_LIBRARY_DEBUG
-          TK_STUB_LIBRARY
-          TK_STUB_LIBRARY_DEBUG
           TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)

@@ -8,8 +8,15 @@
 //
 //  Tk Icon
 //
+//  The BASE_NO_TK_ICON symbol can be defined to avoid
+//  creating an icon named "tk" in this resource file.
+//  The user can then create another icon named tk in
+//  another resource file and link both resource files.
+//  Tk will then use the custom icon instead of tk.ico.
 
+#ifndef BASE_NO_TK_ICON
 tk                      ICON    DISCARDABLE     "tk.ico"
+#endif
 
 #include <dlgs.h>
 
@@ -47,7 +54,7 @@ END
 // Bitmaps
 //
 
-buttons			BITMAP  DISCARDABLE	"buttons.bmp"
+buttons      BITMAP  DISCARDABLE  "buttons.bmp"
 
 //
 // Cursors
@@ -130,4 +137,6 @@ umbrella                CURSOR  DISCARDABLE     "cursor92.cur"
 ur_angle                CURSOR  DISCARDABLE     "cursor94.cur"
 watch                   CURSOR  DISCARDABLE     "cursor96.cur"
 xterm                   CURSOR  DISCARDABLE     "cursor98.cur"
+none                    CURSOR  DISCARDABLE     "cursor9a.cur"
+
 
