@@ -69,6 +69,9 @@
 #       include <time.h>
 #   endif
 #endif
+#if HAVE_INTTYPES_H
+#    include <inttypes.h>
+#endif
 #ifndef NO_UNISTD_H
 #   include <unistd.h>
 #else

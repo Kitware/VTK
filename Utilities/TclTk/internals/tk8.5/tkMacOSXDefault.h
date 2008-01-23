@@ -7,6 +7,7 @@
  * Copyright (c) 1991-1994 The Regents of the University of California.
  * Copyright (c) 1994-1997 Sun Microsystems, Inc.
  * Copyright 2001, Apple Computer, Inc.
+ * Copyright (c) 2006-2007 Daniel A. Steffen <das@users.sourceforge.net>
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -28,29 +29,29 @@
  * DISABLED -    Foreground color when widget is disabled.
  */
 
-#define BLACK    "Black"
-#define WHITE    "White"
-
-#define NORMAL_BG  "systemWindowBody"
-#define ACTIVE_BG  "#ececec"
-#define SELECT_BG  "systemHighlight"
-#define SELECT_FG  "systemHighlightText"
-#define INACTIVE_SELECT_BG "systemHighlightSecondary"
-#define TROUGH    "#c3c3c3"
-#define INDICATOR  "#b03060"
-#define DISABLED  "#a3a3a3"
+#define BLACK        "Black"
+#define WHITE        "White"
+#define NORMAL_BG      "systemWindowBody"
+#define ACTIVE_BG      "systemButtonFacePressed"
+#define ACTIVE_FG      "systemPushButtonPressedText"
+#define SELECT_BG      "systemHighlight"
+#define SELECT_FG      None
+#define INACTIVE_SELECT_BG    "systemHighlightSecondary"
+#define TROUGH        "#c3c3c3"
+#define INDICATOR      "#b03060"
+#define DISABLED      "#a3a3a3"
 
 /*
  * Defaults for labels, buttons, checkbuttons, and radiobuttons:
  */
 
 #define DEF_BUTTON_ANCHOR    "center"
-#define DEF_BUTTON_ACTIVE_BG_COLOR  "systemButtonText"
+#define DEF_BUTTON_ACTIVE_BG_COLOR  ACTIVE_BG
 #define DEF_BUTTON_ACTIVE_BG_MONO  BLACK
-#define DEF_BUTTON_ACTIVE_FG_COLOR  "systemButtonFace"
+#define DEF_BUTTON_ACTIVE_FG_COLOR  ACTIVE_FG
 #define DEF_CHKRAD_ACTIVE_FG_COLOR  DEF_BUTTON_ACTIVE_FG_COLOR
 #define DEF_BUTTON_ACTIVE_FG_MONO  WHITE
-//IGR#define DEF_BUTTON_BG_COLOR    "systemButtonFace"
+/* #define DEF_BUTTON_BG_COLOR  "systemButtonFace"*/
 #define DEF_BUTTON_BG_COLOR    WHITE
 #define DEF_BUTTON_BG_MONO    WHITE
 #define DEF_BUTTON_BITMAP    ""
@@ -61,10 +62,9 @@
 #define DEF_BUTTON_DEFAULT    "disabled"
 #define DEF_BUTTON_DISABLED_FG_COLOR  DISABLED
 #define DEF_BUTTON_DISABLED_FG_MONO  ""
-//IGR#define DEF_BUTTON_FG      "systemButtonText"
-#define DEF_BUTTON_FG      BLACK
+#define DEF_BUTTON_FG      "systemButtonText"
 #define DEF_CHKRAD_FG      DEF_BUTTON_FG
-#define DEF_BUTTON_FONT      "system"
+#define DEF_BUTTON_FONT      "TkDefaultFont"
 #define DEF_BUTTON_HEIGHT    "0"
 #define DEF_BUTTON_HIGHLIGHT_BG_COLOR  DEF_BUTTON_BG_COLOR
 #define DEF_BUTTON_HIGHLIGHT_BG_MONO  DEF_BUTTON_BG_MONO
@@ -127,7 +127,7 @@
 #define DEF_CANVAS_SELECT_MONO    BLACK
 #define DEF_CANVAS_SELECT_BD_COLOR  "1"
 #define DEF_CANVAS_SELECT_BD_MONO  "0"
-#define DEF_CANVAS_SELECT_FG_COLOR  BLACK
+#define DEF_CANVAS_SELECT_FG_COLOR  SELECT_FG
 #define DEF_CANVAS_SELECT_FG_MONO  WHITE
 #define DEF_CANVAS_TAKE_FOCUS    (char *) NULL
 #define DEF_CANVAS_WIDTH    "10c"
@@ -139,14 +139,14 @@
 /*
  * Defaults for entries:
  */
- 
-/* 
+
+/*
  * I test the following two values in TkpDrawEntryBorderAndFocus
- * to determine whether to use the native entry widget.  So if 
+ * to determine whether to use the native entry widget. So if
  * you change the defaults to be different from these, then you
  * won't get the native widget by default.
  */
- 
+
 #define MAC_OSX_FOCUS_WIDTH    3
 #define MAC_OSX_ENTRY_BORDER    2
 #define MAC_OSX_ENTRY_RELIEF    TK_RELIEF_SUNKEN
@@ -160,7 +160,7 @@
 #define DEF_ENTRY_DISABLED_BG_MONO  WHITE
 #define DEF_ENTRY_DISABLED_FG    DISABLED
 #define DEF_ENTRY_EXPORT_SELECTION  "1"
-#define DEF_ENTRY_FONT      "Helvetica 12"
+#define DEF_ENTRY_FONT      "TkTextFont"
 #define DEF_ENTRY_FG      BLACK
 #define DEF_ENTRY_HIGHLIGHT_BG    NORMAL_BG
 #define DEF_ENTRY_HIGHLIGHT    BLACK
@@ -221,7 +221,7 @@
 #define DEF_LABELFRAME_CLASS    "Labelframe"
 #define DEF_LABELFRAME_RELIEF    "groove"
 #define DEF_LABELFRAME_FG    "systemButtonText"
-#define DEF_LABELFRAME_FONT    "system"
+#define DEF_LABELFRAME_FONT    "TkDefaultFont"
 #define DEF_LABELFRAME_TEXT    ""
 #define DEF_LABELFRAME_LABELANCHOR  "nw"
 
@@ -229,14 +229,14 @@
  * Defaults for listboxes:
  */
 
-#define DEF_LISTBOX_ACTIVE_STYLE  "underline"
-#define DEF_LISTBOX_BG_COLOR    NORMAL_BG
+#define DEF_LISTBOX_ACTIVE_STYLE  "dotbox"
+#define DEF_LISTBOX_BG_COLOR    WHITE
 #define DEF_LISTBOX_BG_MONO    WHITE
 #define DEF_LISTBOX_BORDER_WIDTH  "1"
 #define DEF_LISTBOX_CURSOR    ""
 #define DEF_LISTBOX_DISABLED_FG    DISABLED
 #define DEF_LISTBOX_EXPORT_SELECTION  "1"
-#define DEF_LISTBOX_FONT    "application"
+#define DEF_LISTBOX_FONT    "TkTextFont"
 #define DEF_LISTBOX_FG      BLACK
 #define DEF_LISTBOX_HEIGHT    "10"
 #define DEF_LISTBOX_HIGHLIGHT_BG  NORMAL_BG
@@ -289,29 +289,29 @@
  * Defaults for menus overall:
  */
 
-#define DEF_MENU_ACTIVE_BG_COLOR  "SystemMenuActive"
+#define DEF_MENU_ACTIVE_BG_COLOR  "systemMenuActive"
 #define DEF_MENU_ACTIVE_BG_MONO    BLACK
 #define DEF_MENU_ACTIVE_BORDER_WIDTH  "0"
-#define DEF_MENU_ACTIVE_FG_COLOR  "SystemMenuActiveText"
+#define DEF_MENU_ACTIVE_FG_COLOR  "systemMenuActiveText"
 #define DEF_MENU_ACTIVE_FG_MONO    WHITE
-#define DEF_MENU_BG_COLOR    "SystemMenu"
+#define DEF_MENU_BG_COLOR    "systemMenu"
 #define DEF_MENU_BG_MONO    WHITE
 #define DEF_MENU_BORDER_WIDTH    "0"
 #define DEF_MENU_CURSOR      "arrow"
-#define DEF_MENU_DISABLED_FG_COLOR  "SystemMenuDisabled"
+#define DEF_MENU_DISABLED_FG_COLOR  "systemMenuDisabled"
 #define DEF_MENU_DISABLED_FG_MONO  ""
-#define DEF_MENU_FONT      "system"
-#define DEF_MENU_FG      "SystemMenuText"
+#define DEF_MENU_FONT      "menu" /* special: see tkMacOSXMenu.c */
+#define DEF_MENU_FG      "systemMenuText"
 #define DEF_MENU_POST_COMMAND    ""
 #define DEF_MENU_RELIEF      "flat"
-#define DEF_MENU_SELECT_COLOR    "SystemMenuActive"
+#define DEF_MENU_SELECT_COLOR    "systemMenuActive"
 #define DEF_MENU_SELECT_MONO    BLACK
 #define DEF_MENU_TAKE_FOCUS    "0"
 
 /*
  * FIXME: Turn the default back to 1 when we make tearoff menus work again.
  */
- 
+
 #define DEF_MENU_TEAROFF    "0"
 #define DEF_MENU_TEAROFF_CMD    (char *) NULL
 #define DEF_MENU_TITLE      ""
@@ -324,7 +324,7 @@
 #define DEF_MENUBUTTON_ANCHOR    "center"
 #define DEF_MENUBUTTON_ACTIVE_BG_COLOR  ACTIVE_BG
 #define DEF_MENUBUTTON_ACTIVE_BG_MONO  BLACK
-#define DEF_MENUBUTTON_ACTIVE_FG_COLOR  BLACK
+#define DEF_MENUBUTTON_ACTIVE_FG_COLOR  ACTIVE_FG
 #define DEF_MENUBUTTON_ACTIVE_FG_MONO  WHITE
 #define DEF_MENUBUTTON_BG_COLOR    NORMAL_BG
 #define DEF_MENUBUTTON_BG_MONO    WHITE
@@ -334,7 +334,7 @@
 #define DEF_MENUBUTTON_DIRECTION  "below"
 #define DEF_MENUBUTTON_DISABLED_FG_COLOR DISABLED
 #define DEF_MENUBUTTON_DISABLED_FG_MONO  ""
-#define DEF_MENUBUTTON_FONT    "system"
+#define DEF_MENUBUTTON_FONT    "TkDefaultFont"
 #define DEF_MENUBUTTON_FG    BLACK
 #define DEF_MENUBUTTON_HEIGHT    "0"
 #define DEF_MENUBUTTON_HIGHLIGHT_BG_COLOR DEF_MENUBUTTON_BG_COLOR
@@ -365,10 +365,10 @@
 #define DEF_MESSAGE_ASPECT    "150"
 #define DEF_MESSAGE_BG_COLOR    NORMAL_BG
 #define DEF_MESSAGE_BG_MONO    WHITE
-#define DEF_MESSAGE_BORDER_WIDTH  "2"
+#define DEF_MESSAGE_BORDER_WIDTH  "1"
 #define DEF_MESSAGE_CURSOR    ""
 #define DEF_MESSAGE_FG      BLACK
-#define DEF_MESSAGE_FONT    "system"
+#define DEF_MESSAGE_FONT    "TkDefaultFont"
 #define DEF_MESSAGE_HIGHLIGHT_BG  NORMAL_BG
 #define DEF_MESSAGE_HIGHLIGHT    BLACK
 #define DEF_MESSAGE_HIGHLIGHT_WIDTH  "0"
@@ -386,19 +386,19 @@
 
 #define DEF_PANEDWINDOW_BG_COLOR  NORMAL_BG
 #define DEF_PANEDWINDOW_BG_MONO    WHITE
-#define DEF_PANEDWINDOW_BORDERWIDTH  "2"
+#define DEF_PANEDWINDOW_BORDERWIDTH  "1"
 #define DEF_PANEDWINDOW_CURSOR    ""
 #define DEF_PANEDWINDOW_HANDLEPAD  "8"
 #define DEF_PANEDWINDOW_HANDLESIZE  "8"
 #define DEF_PANEDWINDOW_HEIGHT    ""
-#define DEF_PANEDWINDOW_OPAQUERESIZE  "0"
+#define DEF_PANEDWINDOW_OPAQUERESIZE  "1"
 #define DEF_PANEDWINDOW_ORIENT    "horizontal"
 #define DEF_PANEDWINDOW_RELIEF    "flat"
 #define DEF_PANEDWINDOW_SASHCURSOR  ""
-#define DEF_PANEDWINDOW_SASHPAD    "2"
-#define DEF_PANEDWINDOW_SASHRELIEF  "raised"
-#define DEF_PANEDWINDOW_SASHWIDTH  "2"
-#define DEF_PANEDWINDOW_SHOWHANDLE  "1"
+#define DEF_PANEDWINDOW_SASHPAD    "0"
+#define DEF_PANEDWINDOW_SASHRELIEF  "flat"
+#define DEF_PANEDWINDOW_SASHWIDTH  "3"
+#define DEF_PANEDWINDOW_SHOWHANDLE  "0"
 #define DEF_PANEDWINDOW_WIDTH    ""
 
 /*
@@ -425,11 +425,11 @@
 #define DEF_SCALE_BG_COLOR    NORMAL_BG
 #define DEF_SCALE_BG_MONO    WHITE
 #define DEF_SCALE_BIG_INCREMENT    "0"
-#define DEF_SCALE_BORDER_WIDTH    "2"
+#define DEF_SCALE_BORDER_WIDTH    "1"
 #define DEF_SCALE_COMMAND    ""
 #define DEF_SCALE_CURSOR    ""
 #define DEF_SCALE_DIGITS    "0"
-#define DEF_SCALE_FONT      "system"
+#define DEF_SCALE_FONT      "TkDefaultFont"
 #define DEF_SCALE_FG_COLOR    BLACK
 #define DEF_SCALE_FG_MONO    BLACK
 #define DEF_SCALE_FROM      "0"
@@ -465,26 +465,22 @@
 #define DEF_SCROLLBAR_ACTIVE_RELIEF  "raised"
 #define DEF_SCROLLBAR_BG_COLOR    NORMAL_BG
 #define DEF_SCROLLBAR_BG_MONO    WHITE
-/* #define DEF_SCROLLBAR_BORDER_WIDTH  "2" */
 #define DEF_SCROLLBAR_BORDER_WIDTH  "0"
 #define DEF_SCROLLBAR_COMMAND    ""
 #define DEF_SCROLLBAR_CURSOR    ""
 #define DEF_SCROLLBAR_EL_BORDER_WIDTH  "-1"
 #define DEF_SCROLLBAR_HIGHLIGHT_BG  NORMAL_BG
 #define DEF_SCROLLBAR_HIGHLIGHT    BLACK
-/* #define DEF_SCROLLBAR_HIGHLIGHT_WIDTH  "2" */
 #define DEF_SCROLLBAR_HIGHLIGHT_WIDTH  "0"
 #define DEF_SCROLLBAR_JUMP    "0"
 #define DEF_SCROLLBAR_ORIENT    "vertical"
-/*#define DEF_SCROLLBAR_RELIEF    "sunken" */
 #define DEF_SCROLLBAR_RELIEF    "flat"
 #define DEF_SCROLLBAR_REPEAT_DELAY  "300"
 #define DEF_SCROLLBAR_REPEAT_INTERVAL  "100"
 #define DEF_SCROLLBAR_TAKE_FOCUS  (char *) NULL
 #define DEF_SCROLLBAR_TROUGH_COLOR  TROUGH
 #define DEF_SCROLLBAR_TROUGH_MONO  WHITE
-/*#define DEF_SCROLLBAR_WIDTH    "15" */
-#define DEF_SCROLLBAR_WIDTH    "16"
+#define DEF_SCROLLBAR_WIDTH    "15"
 
 /*
  * Defaults for texts:
@@ -498,7 +494,7 @@
 #define DEF_TEXT_CURSOR      "xterm"
 #define DEF_TEXT_FG      BLACK
 #define DEF_TEXT_EXPORT_SELECTION  "1"
-#define DEF_TEXT_FONT      "Courier 12"
+#define DEF_TEXT_FONT      "TkFixedFont"
 #define DEF_TEXT_HEIGHT      "24"
 #define DEF_TEXT_HIGHLIGHT_BG    NORMAL_BG
 #define DEF_TEXT_HIGHLIGHT    BLACK
@@ -509,7 +505,7 @@
 #define DEF_TEXT_INSERT_OFF_TIME  "300"
 #define DEF_TEXT_INSERT_ON_TIME    "600"
 #define DEF_TEXT_INSERT_WIDTH    "1"
-#define DEF_TEXT_MAX_UNDO      "0"
+#define DEF_TEXT_MAX_UNDO    "0"
 #define DEF_TEXT_PADX      "1"
 #define DEF_TEXT_PADY      "1"
 #define DEF_TEXT_RELIEF      "flat"
@@ -529,7 +525,7 @@
 #define DEF_TEXT_TABS      ""
 #define DEF_TEXT_TABSTYLE    "tabular"
 #define DEF_TEXT_TAKE_FOCUS    (char *) NULL
-#define DEF_TEXT_UNDO        "0"
+#define DEF_TEXT_UNDO      "0"
 #define DEF_TEXT_WIDTH      "80"
 #define DEF_TEXT_WRAP      "char"
 #define DEF_TEXT_XSCROLL_COMMAND  ""
@@ -539,7 +535,7 @@
  * Defaults for canvas text:
  */
 
-#define DEF_CANVTEXT_FONT    "Helvetica 12"
+#define DEF_CANVTEXT_FONT    "TkDefaultFont"
 
 /*
  * Defaults for toplevels (most of the defaults for frames also apply
