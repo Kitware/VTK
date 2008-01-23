@@ -79,10 +79,6 @@ public:
   vtkSQLQuery* GetQueryInstance();
   
   // Description:
-  // Get the last error text from the database
-  const char* GetLastErrorText();
-  
-  // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
     
@@ -93,6 +89,27 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   bool IsSupported(int feature);
+  
+  // Description:
+  // Did the last operation generate an error
+  bool HasError();
+  
+  // Description:
+  // Get the last error text from the database
+  const char* GetLastErrorText();
+  
+  // Description:
+  // String representing database type (e.g. "sqlite").
+  vtkGetStringMacro(DatabaseType);
+
+  // Description:
+  // String representing the database filename.
+  vtkGetStringMacro(DatabaseFileName);
+  vtkSetStringMacro(DatabaseFileName);
+  
+  // Description:
+  // Get the URL of the database.
+  virtual vtkStdString GetURL();
 
 protected:
   vtkSQLiteDatabase();
@@ -100,6 +117,13 @@ protected:
 
 private:
   vtk_sqlite3 *SQLiteInstance;
+  
+  // We want this to be private, a user of this class
+  // should not be setting this for any reason
+  vtkSetStringMacro(DatabaseType);
+  
+  char* DatabaseType;
+  char* DatabaseFileName;
   
   vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
   void operator=(const vtkSQLiteDatabase &); // Not implemented.

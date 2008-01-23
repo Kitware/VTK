@@ -48,6 +48,7 @@
 #include "vtkObject.h"
 
 #include <vtkstd/string> // Because I really enjoy including headers
+#include "vtkStdString.h" // Because I also really enjoy including headers
 
 class vtkSQLQuery;
 class vtkStringArray;
@@ -128,9 +129,21 @@ public:
   // Return an empty query on this database.
   virtual vtkSQLQuery* GetQueryInstance() = 0;
   
-   // Description:
+  // Description:
+  // Did the last operation generate an error
+  virtual bool HasError() = 0;
+  
+  // Description:
   // Get the last error text from the database
+  // I'm using const so that people do NOT
+  // use the standard vtkGetStringMacro in their
+  // implementation, because 99% of the time that
+  // will not be the correct thing to do...
   virtual const char* GetLastErrorText() = 0;
+  
+  // Description:
+  // Get the type of the database (e.g. mysql, psql,..)
+  virtual char* GetDatabaseType() = 0;
   
   // Description:
   // Get the list of tables from the database
@@ -143,6 +156,10 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   virtual bool IsSupported(int vtkNotUsed(feature)) { return false; }
+  
+  // Description:
+  // Get the URL of the database.
+  virtual vtkStdString GetURL() = 0;
 
   // Description:
   // Create a the proper subclass given a URL
@@ -150,24 +167,10 @@ public:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
 
-  // Description:
-  // Get the URL of the database.
-  vtkGetStringMacro(URL);
 
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
-
-  // Description:
-  // Set the URL of the database.
-  vtkSetStringMacro(URL);
-
-  // Description:
-  // Set the last error text of the database.
-  vtkSetStringMacro(LastErrorText);
-
-  char* URL;
-  char *LastErrorText;
 
 private:
   vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.

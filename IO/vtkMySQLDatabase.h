@@ -74,10 +74,6 @@ public:
   vtkSQLQuery* GetQueryInstance();
   
   // Description:
-  // Get the last error text from the database
-  const char* GetLastErrorText();
-  
-  // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
     
@@ -88,17 +84,76 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   bool IsSupported(int feature);
+  
+  // Description:
+  // Did the last operation generate an error
+  bool HasError();
+  
+  // Description:
+  // Get the last error text from the database
+  const char* GetLastErrorText();
+  
+  // Description:
+  // String representing database type (e.g. "mysql").
+  vtkGetStringMacro(DatabaseType);
 
-protected:
-  vtkMySQLDatabase();
-  ~vtkMySQLDatabase();
+  // Description:
+  // The database server host name.
+  vtkSetStringMacro(HostName);
+  vtkGetStringMacro(HostName);
+
+  // Description:
+  // The user name for connecting to the database server.
+  vtkSetStringMacro(UserName);
+  vtkGetStringMacro(UserName);
+
+  // Description:
+  // The user's password for connecting to the database server.
+  vtkSetStringMacro(Password);
+  vtkGetStringMacro(Password);
+
+  // Description:
+  // The name of the database to connect to.
+  vtkSetStringMacro(DatabaseName);
+  vtkGetStringMacro(DatabaseName);
+
+  // Description:
+  // Additional options for the database.
+  vtkSetStringMacro(ConnectOptions);
+  vtkGetStringMacro(ConnectOptions);
+
+  // Description:
+  // The port used for connecting to the database.
+  vtkSetClampMacro(Port, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Port, int);
+  
+  
+  
+  // Description:
+  // Get the URL of the database.
+  virtual vtkStdString GetURL();
 
 private:
+  vtkMySQLDatabase();
+  ~vtkMySQLDatabase();
+  
+  // We want this to be private, a user of this class
+  // should not be setting this for any reason
+  vtkSetStringMacro(DatabaseType);
+  
   vtkStringArray *Tables;
   vtkStringArray *Record;
 
   MYSQL NullConnection;
   MYSQL *Connection;
+  
+  char* DatabaseType;
+  char* HostName;
+  char* UserName;
+  char* Password;
+  char* DatabaseName;
+  int Port;
+  char* ConnectOptions;
 
   vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.
   void operator=(const vtkMySQLDatabase &); // Not implemented.

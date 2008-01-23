@@ -34,7 +34,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkSQLiteQuery, "1.3");
+vtkCxxRevisionMacro(vtkSQLiteQuery, "1.4");
 vtkStandardNewMacro(vtkSQLiteQuery);
 
 // ----------------------------------------------------------------------
@@ -69,6 +69,22 @@ vtkSQLiteQuery::~vtkSQLiteQuery()
 void vtkSQLiteQuery::PrintSelf(ostream  &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  
+  os << indent << "Statement: ";
+  if (this->Statement)
+    {
+    cout << this->Statement << "\n";
+    }
+  else
+    {
+    cout << "(null)" << "\n";
+    }
+  os << indent << "InitialFetch: " << InitialFetch; 
+  os << indent << "InitialFetchResult: " << InitialFetchResult; 
+  os << indent << "TransactionInProgress: " << TransactionInProgress;  
+  os << indent << "LastErrorText: " 
+    << (this->LastErrorText ? this->LastErrorText : "NULL") << endl;
+
 }
 
 // ----------------------------------------------------------------------
@@ -129,7 +145,6 @@ bool vtkSQLiteQuery::Execute()
   else if (result != VTK_SQLITE_ROW)
     {
     this->SetLastErrorText(vtk_sqlite3_errmsg(db));
-
     vtkDebugMacro(<< "Execute(): vtk_sqlite3_step() returned error message "
                   << this->GetLastErrorText());
     this->Active = false;
@@ -311,31 +326,13 @@ vtkVariant vtkSQLiteQuery::DataValue(vtkIdType column)
 // ----------------------------------------------------------------------
 const char * vtkSQLiteQuery::GetLastErrorText()
 {
-  if (this->Database == NULL)
-    {
-    return "No database.";
-    }
-  else
-    {
-    return this->Database->GetLastErrorText();
-    }
+  return this->LastErrorText;
 }
 
 // ----------------------------------------------------------------------
 bool vtkSQLiteQuery::HasError()
 {
-  if (this->Database == NULL)
-    {
-    return false;
-    }
-  if (this->Statement == NULL)
-    {
-    return false;
-    }
-  else
-    {
-    return (this->GetLastErrorText() != NULL);
-    }
+  return (this->GetLastErrorText() != NULL);
 }
 
 // ----------------------------------------------------------------------

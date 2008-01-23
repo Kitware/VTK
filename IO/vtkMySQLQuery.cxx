@@ -58,7 +58,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.1");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.2");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -87,9 +87,6 @@ vtkMySQLQuery::PrintSelf(ostream  &os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
-
-// XXX YOU ARE HERE
-
 bool
 vtkMySQLQuery::Execute()
 {
@@ -414,14 +411,7 @@ vtkMySQLQuery::DataValue(vtkIdType column)
 const char *
 vtkMySQLQuery::GetLastErrorText()
 {
-  if (this->Database == NULL)
-    {
-    return "No database.";
-    }
-  else
-    {
-    return this->LastErrorText; 
-    }
+  return this->LastErrorText; 
 }
 
 // ----------------------------------------------------------------------
@@ -429,5 +419,5 @@ vtkMySQLQuery::GetLastErrorText()
 bool
 vtkMySQLQuery::HasError()
 {
-  return (this->LastErrorText != NULL);
+  return (this->GetLastErrorText() != NULL);
 }

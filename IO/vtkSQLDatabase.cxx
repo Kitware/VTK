@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.8");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.9");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -49,68 +49,70 @@ vtkSQLDatabase::~vtkSQLDatabase()
 void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  if ( this->URL )
-    {
-    os << indent << "URL: " << this->URL << endl;
-    }
-  else
-    {
-    os << indent << "URL: (none)" << endl;
-    }
-
-  if ( this->LastErrorText )
-    {
-    os << indent << "LastErrorText: " << this->LastErrorText << endl;
-    }
-  else
-    {
-    os << indent << "LastErrorText: (none)" << endl;
-    }
 }
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
   vtkstd::string protocol;
+  vtkstd::string username; 
+  vtkstd::string password;
+  vtkstd::string hostname; 
+  vtkstd::string dataport; 
+  vtkstd::string database;
   vtkstd::string dataglom;
-
-  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom ) )
+  vtkSQLDatabase* db = 0;
+  
+  // Sqlite is a bit special so lets get that out of the way :)
+  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << URL );
+    return 0;
+    }
+  if ( protocol == "sqlite" )
+    {
+    db = vtkSQLiteDatabase::New();
+    vtkSQLiteDatabase *sqlite_db = vtkSQLiteDatabase::SafeDownCast(db);
+    sqlite_db->SetDatabaseFileName(dataglom.c_str());
+    return db;
+    }
+    
+  // Okay now for all the other database types get more detailed info
+  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
+                                password, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return 0;
     }
   
-  vtkSQLDatabase* db = 0;
-  if ( protocol == "sqlite" )
-    {
-    db = vtkSQLiteDatabase::New();
-    }
 #ifdef VTK_USE_POSTGRES
-  else if ( protocol == "psql" )
+  if ( protocol == "psql" )
     {
     db = vtkPostgreSQLDatabase::New();
+    vtkPostgreSQLDatabase *post_db = vtkPostgreSQLDatabase::SafeDownCast(db);
+    post_db->SetUserName(username.c_str());
+    post_db->SetPassword(password.c_str());
+    post_db->SetHostName(hostname.c_str());
+    post_db->SetPort(atoi(dataport.c_str()));
+    post_db->SetDatabaseName(database.c_str());
     }
 #endif // VTK_USE_POSTGRES
 #ifdef VTK_USE_MYSQL
   else if ( protocol == "mysql" )
     {
     db = vtkMySQLDatabase::New();
+    vtkMySQLDatabase *mysql_db = vtkMySQLDatabase::SafeDownCast(db);
+    mysql_db->SetUserName(username.c_str());
+    mysql_db->SetPassword(password.c_str());
+    mysql_db->SetHostName(hostname.c_str());
+    mysql_db->SetPort(atoi(dataport.c_str()));
+    mysql_db->SetDatabaseName(database.c_str());
     }
 #endif // VTK_USE_MYSQL
   else
     {
     vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
     return 0;
-    }
-
-  if ( db )
-    {
-    db->SetURL( URL );
-    }
-  else
-    {
-    vtkGenericWarningMacro( "Unable to instantiate a database with URL: " << URL );
     }
 
   return db;

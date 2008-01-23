@@ -27,20 +27,28 @@
 #include <assert.h>
 #include <mysql.h>
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.4");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.5");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
 vtkMySQLDatabase::vtkMySQLDatabase()
 {
-  this->URL = NULL;
   this->Connection = NULL;
 
   mysql_init(& this->NullConnection);
   this->Tables = vtkStringArray::New();
   this->Tables->Register(this);
   this->Tables->Delete();
-  this->LastErrorText = NULL;
+  
+  // Initialize instance variables
+  this->DatabaseType = 0;
+  this->SetDatabaseType("mysql");
+  this->HostName = 0;
+  this->UserName = 0;
+  this->Password = 0;
+  this->DatabaseName = 0;
+  this->Port = -1;
+  this->ConnectOptions = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -50,9 +58,31 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
     {
     this->Close();
     }
+  if ( this->DatabaseType )
+    {
+    this->SetDatabaseType(0);
+    }
+  if ( this->HostName )
+    {
+    this->SetHostName(0);
+    }
+  if ( this->UserName )
+    {
+    this->SetUserName(0);
+    }
+  if ( this->Password )
+    {
+    this->SetPassword(0);
+    }
+  if ( this->DatabaseName )
+    {
+    this->SetDatabaseName(0);
+    }
+  if ( this->ConnectOptions )
+    {
+    this->SetConnectOptions(0);
+    }
 
-  this->SetURL( NULL );
-  this->SetLastErrorText(NULL);
   this->Tables->UnRegister(this);
 }
 
@@ -104,12 +134,6 @@ bool vtkMySQLDatabase::IsSupported(int feature)
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::Open()
 {
-  if  ( ! this->URL )
-    {
-    this->SetLastErrorText("Cannot open database because URL is null.");
-    vtkErrorMacro(<< this->GetLastErrorText());
-    return false;
-    }
 
   if ( this->IsOpen() )
     {
@@ -119,36 +143,45 @@ bool vtkMySQLDatabase::Open()
 
   assert(this->Connection == NULL);
 
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string password;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
-
-  bool parsing = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
-                                               protocol, username, password,
-                                               hostname, dataport, database );
-  if ( ! parsing || protocol != "mysql" )
+  if (!this->HostName)
     {
-    vtkGenericWarningMacro( "Invalid URL: " << this->URL );
-    return 0;
+    vtkErrorMacro("Cannot open database because HostName is not set.");
+    return false;
+    }
+  if (!this->DatabaseName)
+    {
+    vtkErrorMacro("Cannot open database because DatabaseName is not set.");
+    return false;
+    }
+  if (!this->UserName)
+    {
+    vtkErrorMacro("Cannot open database because UserName is not set.");
+    return false;
+    }
+  if (!this->Password)
+    {
+    vtkErrorMacro("Cannot open database because Password is not set.");
+    return false;
+    }
+  if (this->Port <= 0)
+    {
+    vtkErrorMacro("Cannot open database because Port is not set.");
+    return false;
     }
 
   this->Connection = 
     mysql_real_connect( & this->NullConnection, 
-                        hostname.c_str(),
-                        username.c_str(),
-                        password.c_str(), 
-                        database.c_str(),
-                        atoi( dataport.c_str() ),
+                        this->GetHostName(),
+                        this->GetUserName(),
+                        this->GetPassword(), 
+                        this->GetDatabaseName(),
+                        this->GetPort(),
                         0, 0);
                                         
   if (this->Connection == NULL)
     {
-    this->SetLastErrorText(mysql_error(& this->NullConnection));
-    vtkErrorMacro(<<"Open() failed with error " 
-                  << this->LastErrorText);
+    vtkErrorMacro(<<"Open() failed with error: " 
+                  << mysql_error(& this->NullConnection));
     return false;
     }
   else
@@ -181,16 +214,9 @@ bool vtkMySQLDatabase::IsOpen()
 // ----------------------------------------------------------------------
 vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 {
-  vtkMySQLQuery *query = 
-    vtkMySQLQuery::New();
+  vtkMySQLQuery *query = vtkMySQLQuery::New();
   query->SetDatabase(this);
   return query;
-}
-
-// ----------------------------------------------------------------------
-const char* vtkMySQLDatabase::GetLastErrorText()
-{
-  return this->LastErrorText;
 }
 
 // ----------------------------------------------------------------------
@@ -209,9 +235,8 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
 
     if (!tableResult)
       {
-      this->SetLastErrorText(mysql_error(this->Connection));
       vtkErrorMacro(<<"GetTables(): MySQL returned error: "
-                    << this->LastErrorText);
+                    << mysql_error(this->Connection));
       return this->Tables;
       }
 
@@ -253,9 +278,8 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
 
   if (!record)
     {
-    this->SetLastErrorText(mysql_error(this->Connection));
     vtkErrorMacro(<<"GetRecord: MySQL returned error: "
-                  << this->LastErrorText);
+                  << mysql_error(this->Connection));
     return results;
     }
 
@@ -269,8 +293,44 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
   return results;
 }
 
+
+bool vtkMySQLDatabase::HasError()
+{ 
+  return (mysql_errno(this->Connection)!=0);
+}
+
+const char* vtkMySQLDatabase::GetLastErrorText()
+{
+  return mysql_error(this->Connection);
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkMySQLDatabase::GetURL()
+{
+  vtkStdString url;
+  url = this->GetDatabaseType();
+  url += "://";
+  url += this->GetUserName();
+  url += ":";
+  url += this->GetPassword();
+  url += "@";
+  url += this->GetHostName();
+  url += ":";
+  url += this->GetPort();
+  url += "/";
+  url += this->GetDatabaseName();
+  return url;
+}
+
 // ----------------------------------------------------------------------
 void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+  os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
+  os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
+  os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
+  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
+  os << indent << "Port: " << this->Port << endl;
+  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
 }

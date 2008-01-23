@@ -27,14 +27,17 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.4");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.5");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
 {
-  this->URL = NULL;
   this->SQLiteInstance = NULL;
-  this->LastErrorText = NULL;
+
+  // Initialize instance variables
+  this->DatabaseType = 0;
+  this->SetDatabaseType("sqlite");
+  this->DatabaseFileName = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -44,9 +47,14 @@ vtkSQLiteDatabase::~vtkSQLiteDatabase()
     {
     this->Close();
     }
-
-  this->SetLastErrorText(NULL);
-  this->SetURL( NULL );
+  if ( this->DatabaseType )
+    {
+    this->SetDatabaseType(0);
+    }
+  if ( this->DatabaseFileName )
+    {
+    this->SetDatabaseFileName(0);
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -79,12 +87,6 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
 // ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::Open()
 {
-  if  ( ! this->URL )
-    {
-    this->SetLastErrorText("Cannot open database because URL is null.");
-    vtkErrorMacro(<< this->GetLastErrorText() );
-    return false;
-    }
 
   if ( this->IsOpen() )
     {
@@ -92,19 +94,13 @@ bool vtkSQLiteDatabase::Open()
     return true;
     }
 
-  vtkstd::string protocol;
-  vtkstd::string dataglom;
-
-  bool parsing = vtksys::SystemTools::ParseURLProtocol( static_cast<vtkstd::string>( URL ),
-                                                       protocol, dataglom );
-
-  if ( ! parsing || protocol != "sqlite" )
+  if (!this->DatabaseFileName)
     {
-    vtkGenericWarningMacro( "Invalid URL: " << this->URL );
-    return 0;
+    vtkErrorMacro("Cannot open database because DatabaseFileName is not set.");
+    return false;
     }
 
-  int result = vtk_sqlite3_open( dataglom.c_str(), & (this->SQLiteInstance) );
+  int result = vtk_sqlite3_open( this->DatabaseFileName, & (this->SQLiteInstance) );
 
   if ( result != VTK_SQLITE_OK )
     {
@@ -112,15 +108,12 @@ bool vtkSQLiteDatabase::Open()
                   << result << " and message is " 
                   << vtk_sqlite3_errmsg(this->SQLiteInstance) );
 
-    this->SetLastErrorText(vtk_sqlite3_errmsg(this->SQLiteInstance) );
-
     vtk_sqlite3_close( this->SQLiteInstance );
     return false;
     }
   else
     {
     vtkDebugMacro(<<"SQLite open() succeeded.");
-    this->SetLastErrorText(NULL);
     return true;
     }
 }
@@ -158,25 +151,11 @@ vtkSQLQuery * vtkSQLiteDatabase::GetQueryInstance()
 }
 
 // ----------------------------------------------------------------------
-const char * vtkSQLiteDatabase::GetLastErrorText()
-{
-  if (this->SQLiteInstance == NULL)
-    {
-    return "Database is not open.";
-    }
-  else
-    {
-    return this->LastErrorText;
-    }
-}
-
-// ----------------------------------------------------------------------
 vtkStringArray * vtkSQLiteDatabase::GetTables()
 {
   if (this->SQLiteInstance == NULL)
     {
     vtkErrorMacro(<<"GetTables(): Database is not open!");
-    this->SetLastErrorText("Database is not open.");
     return NULL;
     }
 
@@ -186,9 +165,8 @@ vtkStringArray * vtkSQLiteDatabase::GetTables()
 
   if (!status)
     {
-    this->SetLastErrorText(vtk_sqlite3_errmsg(this->SQLiteInstance) );
     vtkErrorMacro(<< "GetTables(): Database returned error: "
-                  << query->GetLastErrorText() );
+                  << vtk_sqlite3_errmsg(this->SQLiteInstance) );
     query->Delete();
     return NULL;
     }
@@ -201,7 +179,6 @@ vtkStringArray * vtkSQLiteDatabase::GetTables()
       results->InsertNextValue(query->DataValue(0).ToString() );
       }
     query->Delete();
-    this->SetLastErrorText(NULL);
     return results;
     }
 }
@@ -218,9 +195,8 @@ vtkStringArray * vtkSQLiteDatabase::GetRecord(const char *table)
   bool status = query->Execute();
   if (!status)
     {
-    this->SetLastErrorText(vtk_sqlite3_errmsg(this->SQLiteInstance) );
     vtkErrorMacro(<< "GetRecord(" << table << "): Database returned error: "
-                  << query->GetLastErrorText() );
+                  << vtk_sqlite3_errmsg(this->SQLiteInstance) );
     query->Delete();
     return NULL;
     }
@@ -242,16 +218,35 @@ vtkStringArray * vtkSQLiteDatabase::GetRecord(const char *table)
       }
 
     query->Delete();
-    this->SetLastErrorText(NULL);
     return results;
     }
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkSQLiteDatabase::GetURL()
+{
+  vtkStdString url;
+  url = this->GetDatabaseType();
+  url += "://";
+  url += this->GetDatabaseFileName();
+  return url;
+}
+
+bool vtkSQLiteDatabase::HasError()
+{ 
+  return (vtk_sqlite3_errcode(this->SQLiteInstance)!=VTK_SQLITE_OK);
+}
+
+const char* vtkSQLiteDatabase::GetLastErrorText()
+{
+  return vtk_sqlite3_errmsg(this->SQLiteInstance);
 }
 
 // ----------------------------------------------------------------------
 void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Database: ";
+  os << indent << "SQLiteInstance: ";
   if (this->SQLiteInstance)
     {
     cout << this->SQLiteInstance << "\n";
@@ -260,6 +255,10 @@ void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
     {
     cout << "(null)" << "\n";
     }
+  os << indent << "DatabaseType: " 
+    << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+  os << indent << "DatabaseFileName: " 
+    << (this->DatabaseFileName ? this->DatabaseFileName : "NULL") << endl;
 }
 
 

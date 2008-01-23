@@ -76,8 +76,46 @@ public:
   vtkSQLQuery* GetQueryInstance();
   
   // Description:
+  // Did the last operation generate an error
+  bool HasError();
+  
+  // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
+  
+  // Description:
+  // String representing database type (e.g. "psql").
+  vtkGetStringMacro(DatabaseType);
+
+  // Description:
+  // The database server host name.
+  vtkSetStringMacro(HostName);
+  vtkGetStringMacro(HostName);
+
+  // Description:
+  // The user name for connecting to the database server.
+  vtkSetStringMacro(UserName);
+  vtkGetStringMacro(UserName);
+
+  // Description:
+  // The user's password for connecting to the database server.
+  vtkSetStringMacro(Password);
+  vtkGetStringMacro(Password);
+
+  // Description:
+  // The name of the database to connect to.
+  vtkSetStringMacro(DatabaseName);
+  vtkGetStringMacro(DatabaseName);
+
+  // Description:
+  // Additional options for the database.
+  vtkSetStringMacro(ConnectOptions);
+  vtkGetStringMacro(ConnectOptions);
+
+  // Description:
+  // The port used for connecting to the database.
+  vtkSetClampMacro(Port, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Port, int);
   
   // Description:
   // Get the list of tables from the database
@@ -114,6 +152,15 @@ protected:
   vtkTimeStamp ConnectionMTime;
 
 private:
+
+  char* DatabaseType;
+  char* HostName;
+  char* UserName;
+  char* Password;
+  char* DatabaseName;
+  int Port;
+  char* ConnectOptions;
+  
   vtkPostgreSQLDatabase(const vtkPostgreSQLDatabase &); // Not implemented.
   void operator=(const vtkPostgreSQLDatabase &); // Not implemented.
 };
