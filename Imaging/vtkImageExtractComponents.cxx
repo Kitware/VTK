@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.36");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.37");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
   
   // Get increments to march through data 
@@ -247,8 +247,8 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
     {
     vtkTemplateMacro(
       vtkImageExtractComponentsExecute(this, inData, 
-                                       (VTK_TT *)(inPtr), outData, 
-                                       (VTK_TT *)(outPtr),
+                                       static_cast<VTK_TT *>(inPtr), outData, 
+                                       static_cast<VTK_TT *>(outPtr),
                                        outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

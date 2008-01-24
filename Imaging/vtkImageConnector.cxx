@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageConnector, "1.20");
+vtkCxxRevisionMacro(vtkImageConnector, "1.21");
 vtkStandardNewMacro(vtkImageConnector);
 
 //----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
     ++count;
     seed = this->PopSeed();
     // just in case the seed has not been marked visited.
-    *((unsigned char *)(seed->Pointer)) = this->ConnectedValue;
+    *(static_cast<unsigned char *>(seed->Pointer)) = this->ConnectedValue;
     // Add neighbors 
     newIndex[0] = seed->Index[0];
     newIndex[1] = seed->Index[1];
@@ -142,7 +142,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
       // check pixel below
       if (*pExtent < *pIndex)
         {
-        ptr = (unsigned char *)(seed->Pointer) - *pIncs;
+        ptr = static_cast<unsigned char *>(seed->Pointer) - *pIncs;
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           --(*pIndex);
@@ -155,7 +155,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
       // check above pixel
       if (*pExtent > *pIndex)
         {
-        ptr = (unsigned char *)(seed->Pointer) + *pIncs;
+        ptr = static_cast<unsigned char *>(seed->Pointer) + *pIncs;
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           ++(*pIndex);

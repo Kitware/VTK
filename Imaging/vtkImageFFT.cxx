@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.41");
+vtkCxxRevisionMacro(vtkImageFFT, "1.42");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
@@ -83,7 +83,8 @@ void vtkImageFFTExecute(vtkImageFFT *self,
   unsigned long target;
   double startProgress;
 
-  startProgress = self->GetIteration()/(double)(self->GetNumberOfIterations());
+  startProgress =
+    self->GetIteration()/static_cast<double>(self->GetNumberOfIterations());
 
   // Reorder axes (The outs here are just placeholdes
   self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
@@ -105,8 +106,8 @@ void vtkImageFFTExecute(vtkImageFFT *self,
   inComplex = new vtkImageComplex[inSize0];
   outComplex = new vtkImageComplex[inSize0];
 
-  target = (unsigned long)((outMax2-outMin2+1)*(outMax1-outMin1+1)
-                           * self->GetNumberOfIterations() / 50.0);
+  target = static_cast<unsigned long>((outMax2-outMin2+1)*(outMax1-outMin1+1)
+                                      * self->GetNumberOfIterations() / 50.0);
   target++;
 
   // loop over other axes
@@ -131,11 +132,11 @@ void vtkImageFFTExecute(vtkImageFFT *self,
       pComplex = inComplex;
       for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
         {
-        pComplex->Real = (double)(*inPtr0);
+        pComplex->Real = static_cast<double>(*inPtr0);
         pComplex->Imag = 0.0;
         if (numberOfComponents > 1)
           { // yes we have an imaginary input
-          pComplex->Imag = (double)(inPtr0[1]);;
+          pComplex->Imag = static_cast<double>(inPtr0[1]);;
           }
         inPtr0 += inInc0;
         ++pComplex;
@@ -149,8 +150,8 @@ void vtkImageFFTExecute(vtkImageFFT *self,
       pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
         {
-        *outPtr0 = (double)pComplex->Real;
-        outPtr0[1] = (double)pComplex->Imag;
+        *outPtr0 = static_cast<double>(pComplex->Real);
+        outPtr0[1] = static_cast<double>(pComplex->Imag);
         outPtr0 += outInc0;
         ++pComplex;
         }
@@ -202,8 +203,10 @@ void vtkImageFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(vtkImageFFTExecute(this, inData, inExt, 
-                                        (VTK_TT *)(inPtr), outData, outExt, 
-                                        (double *)(outPtr), threadId));
+                                        static_cast<VTK_TT *>(inPtr), outData,
+                                        outExt, 
+                                        static_cast<double *>(outPtr),
+                                        threadId));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.38");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.39");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   vtkIdType outIncX, outIncY, outIncZ;
   T constant;
   int inMinX, inMaxX, inMaxC;
-  constant = (T)(self->GetConstant());
+  constant = static_cast<T>(self->GetConstant());
   int state0, state1, state2, state3;
   unsigned long count = 0;
   unsigned long target;
@@ -59,7 +59,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   inMaxC = inData->GetNumberOfScalarComponents();
   inMinX = inExt[0] - outExt[0];
   inMaxX = inExt[1] - outExt[0];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
   
   // Get increments to march through data 
@@ -175,8 +175,9 @@ void vtkImageConstantPad::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageConstantPadExecute(this, 
-                                 inData[0][0], (VTK_TT *)(inPtr), outData[0], 
-                                 (VTK_TT *)(outPtr), outExt, inExt, id));
+                                 inData[0][0], static_cast<VTK_TT *>(inPtr),
+                                 outData[0], static_cast<VTK_TT *>(outPtr),
+                                 outExt, inExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

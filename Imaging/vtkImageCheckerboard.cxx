@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.14");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.15");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   threadOffsetY = outExt[2] - wholeExt[2];
   threadOffsetZ = outExt[4] - wholeExt[4];
 
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
   
   // Get increments to march through data 
@@ -209,10 +209,11 @@ void vtkImageCheckerboard::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageCheckerboardExecute2(this, inData[0][0], 
-                                   (VTK_TT *)(in1Ptr), inData[1][0], 
-                                   (VTK_TT *)(in2Ptr), 
+                                   static_cast<VTK_TT *>(in1Ptr),
+                                   inData[1][0], 
+                                   static_cast<VTK_TT *>(in2Ptr), 
                                    outData[0], 
-                                   (VTK_TT *)(outPtr), 
+                                   static_cast<VTK_TT *>(outPtr), 
                                    outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

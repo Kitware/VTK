@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.33");
+vtkCxxRevisionMacro(vtkImageExport, "1.34");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -147,14 +147,15 @@ void vtkImageExport::Export(void *output)
 
     for (int i = 0; i < zsize; i++)
       {
-      ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
+      ptr = static_cast<void *>(static_cast<char *>(ptr) + ysize*xsize*csize);
       for (int j = 0; j < ysize; j++)
         {
-        ptr = (void *)(((char *)ptr) - xsize*csize);
+        ptr = static_cast<void *>(static_cast<char *>(ptr) - xsize*csize);
         memcpy(output, ptr, xsize*csize);
-        output = (void *)(((char *)output) + xsize*csize);
+        output = static_cast<void *>(
+          static_cast<char *>(output) + xsize*csize);
         }
-      ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
+      ptr = static_cast<void *>(static_cast<char *>(ptr) + ysize*xsize*csize);
       }
     }
 }
@@ -470,7 +471,7 @@ void* vtkImageExport::BufferPointerCallback()
 {
   if (!this->GetInput())
     {
-    return (void*)NULL;
+    return static_cast<void *>(NULL);
     }
   else
     {

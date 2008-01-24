@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.29");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.30");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
@@ -116,12 +116,12 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   numberOfComponents = inData->GetNumberOfScalarComponents();
   
-  target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
+  target = static_cast<unsigned long>((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
   
   // loop over all the extra axes
-  inPtr2 = (short *)inData->GetScalarPointerForExtent(outExt);
-  outPtr2 = (short *)outData->GetScalarPointerForExtent(outExt);
+  inPtr2 = static_cast<short *>(inData->GetScalarPointerForExtent(outExt));
+  outPtr2 = static_cast<short *>(outData->GetScalarPointerForExtent(outExt));
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     inPtr1 = inPtr2;
