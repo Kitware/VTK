@@ -24,10 +24,14 @@
 // have access to tkInt.h
 // #include "tkInt.h"
 #ifdef _WIN32
+#ifdef  __cplusplus
 extern "C"
 {
+#endif
 #include "tkWinInt.h" 
+#ifdef  __cplusplus
 }
+#endif
 #endif
 
 #ifdef VTK_USE_CARBON
