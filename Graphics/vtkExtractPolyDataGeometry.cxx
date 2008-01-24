@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.23");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.24");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
@@ -120,6 +120,7 @@ int vtkExtractPolyDataGeometry::RequestData(
 
   output->SetPoints(inPts);
   outputPD->PassData(pd);
+  outputCD->CopyAllocate(cd);
 
   // Now loop over all cells to see whether they are inside the implicit
   // function. Copy if they are. Note: there is an awful hack here, that
