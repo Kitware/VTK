@@ -32,14 +32,16 @@
 
 int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 {
-  // This test requires a database named "test" to be present
-  // on a Postgres server running on the local machine. The
-  // default user must have permission to add and drop databases
-  // as well as tables in the databases. A new database "vtktest"
-  // will be created and then destroyed by this test.
+  // This test requires the user in VTK_PSQL_TEST_URL to have
+  // permission to create and drop the database named in that URL
+  // as well as tables in that database. That user must also be
+  // able to connect to the "template1" database (which initdb
+  // creates and should be present on all systems -- we do NOT
+  // support non-standard configurations where this is not true).
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
+  vtkStdString realDatabase = db->GetDatabaseName();
+  db->SetDatabaseName( "template1" ); // This is guaranteed to exist
   bool status = db->Open();
-
   if ( ! status )
     {
     cerr << "Couldn't open database.\n";
@@ -53,22 +55,34 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     cout << "+ " << dbNames->GetValue( dbi ) << endl;
     }
   dbNames->Delete();
-  if ( ! db->CreateDatabase( "vtktest", true ) )
+  if ( ! db->CreateDatabase( realDatabase.c_str(), true ) )
     {
     cerr << "Error: " << db->GetLastErrorText() << endl;
     }
 
   vtkSQLQuery* query = db->GetQueryInstance();
 
+  // Force a database connection open/close
+  // This also forces us to connect to the database named in the test URL.
+  vtkStdString fauxDatabase = realDatabase + "blarney";
+  db->SetDatabaseName( fauxDatabase.c_str() );
+  db->SetDatabaseName( realDatabase.c_str() );
+
+  // Test that bad queries fail without segfaulting...
   vtkStdString dropQuery( "DROP TABLE people" );
   cout << dropQuery << endl;
   query->SetQuery( dropQuery.c_str() );
   if ( ! query->Execute() )
     {
-    cerr << "Drop query failed" << endl;
-    return 1;
+    cout << "Drop query did not succeed (this result was expected). The last message: " << endl;
+    cout << "   " << query->GetLastErrorText() << endl;
+    }
+  else
+    {
+    cerr << "The query \"DROP TABLE people\" succeeded when it should not have.\n";
     }
 
+  // Test table creation, insertion, queries
   vtkStdString createQuery( "CREATE TABLE people (name TEXT, age INTEGER, weight FLOAT)" );
   cout << createQuery << endl;
   query->SetQuery( createQuery.c_str() );
@@ -81,7 +95,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   for ( int i = 0; i < 40; ++ i )
     {
     char insertQuery[200];
-    sprintf( insertQuery, "INSERT INTO people VALUES('John Doe %d', %d, %d)", i, i, 10 * i );
+    sprintf( insertQuery, "INSERT INTO people VALUES('John Manyjars %d', %d, %d)", i, i, 10 * i );
     cout << insertQuery << endl;
     query->SetQuery( insertQuery );
     if ( ! query->Execute() )
@@ -175,12 +189,15 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
       }
     }
 
-  db->Close();
-  db->Open();
   // Delete the database until we run the test again
-  if ( ! db->DropDatabase( "vtktest" ) )
+  if ( ! db->DropDatabase( realDatabase.c_str() ) )
     {
-    cerr << db->GetLastErrorText() << endl;
+    cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
+    cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
+    }
+  else
+    {
+    cout << "Drop of \"" << realDatabase.c_str() << "\" succeeded.\n";
     }
 
   reader->Delete();

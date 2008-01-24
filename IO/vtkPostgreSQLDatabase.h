@@ -77,7 +77,7 @@ public:
   
   // Description:
   // Did the last operation generate an error
-  bool HasError();
+  virtual bool HasError();
   
   // Description:
   // Get the last error text from the database
@@ -89,34 +89,49 @@ public:
 
   // Description:
   // The database server host name.
-  vtkSetStringMacro(HostName);
+  virtual void SetHostName( const char* );
   vtkGetStringMacro(HostName);
 
   // Description:
   // The user name for connecting to the database server.
-  vtkSetStringMacro(UserName);
+  virtual void SetUserName( const char* );
   vtkGetStringMacro(UserName);
 
   // Description:
   // The user's password for connecting to the database server.
-  vtkSetStringMacro(Password);
+  virtual void SetPassword( const char* );
   vtkGetStringMacro(Password);
 
   // Description:
   // The name of the database to connect to.
-  vtkSetStringMacro(DatabaseName);
+  virtual void SetDatabaseName( const char* );
   vtkGetStringMacro(DatabaseName);
 
   // Description:
   // Additional options for the database.
-  vtkSetStringMacro(ConnectOptions);
+  virtual void SetConnectOptions( const char* );
   vtkGetStringMacro(ConnectOptions);
 
   // Description:
   // The port used for connecting to the database.
-  vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
+  virtual void SetServerPort( int );
+  virtual int GetServerPortMinValue()
+    {
+    return 0;
+    }
+  virtual int GetServerPortMaxValue()
+    {
+    return VTK_INT_MAX;
+    }
   vtkGetMacro(ServerPort, int);
   
+  // Description:
+  // Get a URL referencing the current database connection.
+  // This is not well-defined if the HostName and DatabaseName
+  // have not been set. The URL will be of the form
+  // <code>'psql://'[username[':'password]'@']hostname[':'port]'/'database</code> .
+  virtual vtkStdString GetURL();
+
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
@@ -150,9 +165,6 @@ protected:
   vtkTimeStamp URLMTime;
   vtkPostgreSQLDatabasePrivate* Connection;
   vtkTimeStamp ConnectionMTime;
-
-private:
-
   char* DatabaseType;
   char* HostName;
   char* UserName;
@@ -161,8 +173,56 @@ private:
   int ServerPort;
   char* ConnectOptions;
   
+  vtkSetStringMacro(DatabaseType);
+
+private:
   vtkPostgreSQLDatabase(const vtkPostgreSQLDatabase &); // Not implemented.
   void operator=(const vtkPostgreSQLDatabase &); // Not implemented.
 };
+
+// This is basically the body of the SetStringMacro but with a
+// call to update an additional vtkTimeStamp. We inline the implementation
+// so that wrapping will work.
+#define vtkSetStringPlusMTimeMacro(className,name,timeStamp) \
+  inline void className::Set##name (const char* _arg) \
+  { \
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
+    if ( this->name == NULL && _arg == NULL) { return;} \
+    if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
+    if (this->name) { delete [] this->name; } \
+    if (_arg) \
+      { \
+          size_t n = strlen(_arg) + 1; \
+          char *cp1 =  new char[n]; \
+          const char *cp2 = (_arg); \
+          this->name = cp1; \
+          do { *cp1++ = *cp2++; } while ( --n ); \
+          } \
+     else \
+      { \
+          this->name = NULL; \
+          } \
+    this->Modified(); \
+    this->timeStamp.Modified(); \
+    this->Close(); /* Force a re-open on next query */ \
+    }
+
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,HostName,URLMTime);
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,UserName,URLMTime);
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,Password,URLMTime);
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,DatabaseName,URLMTime);
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,ConnectOptions,URLMTime);
+
+inline void vtkPostgreSQLDatabase::SetServerPort( int _arg )
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ServerPort to " << _arg );
+  if ( this->ServerPort != ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) ) )
+    {
+    this->ServerPort = ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) );
+    this->Modified();
+    this->URLMTime.Modified();
+    this->Close(); // Force a re-open on next query
+    }
+}
 
 #endif // __vtkPostgreSQLDatabase_h

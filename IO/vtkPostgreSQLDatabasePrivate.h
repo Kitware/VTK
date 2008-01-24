@@ -4,6 +4,7 @@
 #include "vtkObject.h"
 #include "vtkType.h"
 
+#define PQXX_ALLOW_LONG_LONG
 #include <pqxx/pqxx>
 
 /** Manage a connection to a Postgres database for the vtkPostgreSQLDatabase class.

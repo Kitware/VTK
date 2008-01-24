@@ -25,10 +25,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
+#define PQXX_ALLOW_LONG_LONG
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.5");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.6");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -54,8 +55,12 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
     this->Close();
     }
 
-  this->SetLastErrorText(NULL);
-  this->SetURL( NULL );
+  this->SetHostName( 0 );
+  this->SetUserName( 0 );
+  this->SetPassword( 0 );
+  this->SetDatabaseName( 0 );
+  this->SetConnectOptions( 0 );
+  this->SetDatabaseType( 0 );
 }
 
 // ----------------------------------------------------------------------
@@ -83,9 +88,9 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::Open()
 {
-  if  ( ! this->URL )
+  if ( ! this->HostName || ! this->DatabaseName )
     {
-    this->SetLastErrorText("Cannot open database because URL is null.");
+    //this->SetLastErrorText("Cannot open database because HostName and/or DatabaseName are null.");
     vtkErrorMacro(<< this->GetLastErrorText());
     return false;
     }
@@ -99,28 +104,30 @@ bool vtkPostgreSQLDatabase::Open()
     this->Close(); // close the old connection before opening a new one
     }
 
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string password;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
+  vtkstd::string options( "host=" );
+  options += this->HostName;
+  options += " dbname=";
+  options += this->DatabaseName;
 
-  bool parsing = vtksys::SystemTools::ParseURL( static_cast<vtkstd::string>( this->URL ),
-                                               protocol, username, password,
-                                               hostname, dataport, database );
-  if ( !  parsing  || protocol != "psql" )
+  if ( this->ServerPort )
     {
-    vtkGenericWarningMacro( "Invalid URL: " << this->URL );
-    return 0;
+    options += " port=";
+    options += this->ServerPort;
     }
-  
-  vtkstd::string options( "host=" + hostname );
-
-  if ( dataport.length() ) options += " port=" + dataport;
-  if ( database.length() ) options += " dbname=" + database;
-  if ( username.length() ) options += " user=" + username;
-  if ( password.length() ) options += " password=" + password;
+  if ( this->UserName && strlen( this->UserName ) > 0 )
+    {
+    options += " user=";
+    options += this->UserName;
+    }
+  if ( this->Password && strlen( this->Password ) > 0 )
+    {
+    options += " password=";
+    options += this->Password;
+    }
+  if ( this->ConnectOptions && strlen( this->ConnectOptions ) > 0 )
+    {
+    options += this->ConnectOptions;
+    }
 
   try
     {
@@ -129,11 +136,11 @@ bool vtkPostgreSQLDatabase::Open()
     }
   catch ( pqxx::sql_error& e )
     {
-    this->SetLastErrorText( e.what() );
+    this->Connection->SetLastErrorText( e.what() );
     return false;
     }
 
-  this->SetLastErrorText( NULL );
+  this->Connection->SetLastErrorText( NULL );
   return true;
 }
 
@@ -142,7 +149,7 @@ void vtkPostgreSQLDatabase::Close()
 {
   if ( this->Connection )
     {
-    //   this->Connection->Delete();
+    this->Connection->Delete();
     this->Connection = 0;
     this->URLMTime.Modified(); // Force a re-open to occur when Open() is called.
     }
@@ -163,6 +170,13 @@ vtkSQLQuery* vtkPostgreSQLDatabase::GetQueryInstance()
 }
 
 // ----------------------------------------------------------------------
+bool vtkPostgreSQLDatabase::HasError()
+{
+  // Assume that an unopened connection is not a symptom of failure.
+  return this->Connection ? this->Connection->LastErrorText != NULL : false;
+}
+
+// ----------------------------------------------------------------------
 const char* vtkPostgreSQLDatabase::GetLastErrorText()
 {
   if ( ! this->Connection )
@@ -173,6 +187,30 @@ const char* vtkPostgreSQLDatabase::GetLastErrorText()
     {
     return this->Connection->LastErrorText;
     }
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkPostgreSQLDatabase::GetURL()
+{
+  vtkStdString url = this->GetDatabaseType();
+  url += "://";
+  if ( this->HostName && this->DatabaseName )
+    {
+    if ( this->UserName )
+      {
+      url += this->UserName;
+      if ( this->Password )
+        {
+        url += ":";
+        url += this->Password;
+        }
+      url += "@";
+      }
+    url += this->HostName;
+    url += "/";
+    url += this->DatabaseName;
+    }
+  return url;
 }
 
 // ----------------------------------------------------------------------
@@ -199,7 +237,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     {
     vtkErrorMacro(<< "Database returned error: "
                   << query->GetLastErrorText());
-    this->SetLastErrorText( query->GetLastErrorText() );
+    this->Connection->SetLastErrorText( query->GetLastErrorText() );
     query->Delete();
     return 0;
     }
@@ -210,7 +248,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     results->InsertNextValue( query->DataValue( 0 ).ToString() );
     }
   query->Delete();
-  this->SetLastErrorText( 0 );
+  this->Connection->SetLastErrorText( 0 );
   return results;
 }
 
@@ -234,7 +272,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord( const char* table )
     {
     vtkErrorMacro(<< "GetRecord(" << table << "): Database returned error: "
                   << query->GetLastErrorText());
-    this->SetLastErrorText( query->GetLastErrorText() );
+    this->Connection->SetLastErrorText( query->GetLastErrorText() );
     query->Delete();
     return 0;
     }
@@ -249,7 +287,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord( const char* table )
     }
 
   query->Delete();
-  this->SetLastErrorText( 0 );
+  this->Connection->SetLastErrorText( 0 );
   return results;
 }
 
@@ -312,10 +350,40 @@ vtkStringArray* vtkPostgreSQLDatabase::GetDatabases()
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExisting )
 {
+  if ( ! dbName )
+    {
+    vtkErrorMacro( "Databases must have a non-NULL name" );
+    return false;
+    }
+
+  bool dropCurrentlyConnected = false;
+  if ( this->DatabaseName && ! strcmp( this->DatabaseName, dbName ) )
+    {
+    dropCurrentlyConnected = true;
+    if ( dropExisting )
+      {
+      // we can't drop a database we're connected to...
+      this->SetDatabaseName( "template1" );
+      this->Open();
+      }
+    else
+      {
+      // this will fail... let it. then report the error via LastErrorText
+      }
+    }
+
   if ( ! this->Connection )
     {
-    vtkErrorMacro( "Must be connected to a server to create a database." );
-    return false;
+    bool err = true;
+    if ( this->DatabaseName && this->HostName )
+      {
+      err = this->Open() ? false : true;
+      }
+    if ( err )
+      {
+      vtkErrorMacro( "Must be connected to a server to create a database." );
+      return false;
+      }
     }
 
   if ( dropExisting )
@@ -335,17 +403,43 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
     vtkErrorMacro( "Could not create database \"" << dbName << "\". " << this->GetLastErrorText() << "\n" );
     return false;
     }
-  this->SetLastErrorText( 0 );
+
+  if ( dropCurrentlyConnected )
+    {
+    this->SetDatabaseName( dbName );
+    this->Open();
+    }
+  this->Connection->SetLastErrorText( 0 );
   return true;
 }
 
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
 {
+  if ( ! dbName || strlen( dbName ) <= 0 )
+    {
+    vtkErrorMacro( "DropDatabase called with an empty database name" );
+    return false;
+    }
+
+  if ( ! strcmp( dbName, this->DatabaseName ) )
+    {
+    // Can't drop database we're connected to... connect to the default db.
+    this->SetDatabaseName( "template1" );
+    }
+
   if ( ! this->Connection )
     {
-    vtkErrorMacro( "Must be connected to a server to create a database." );
-    return false;
+    bool err = true;
+    if ( this->DatabaseName && this->HostName )
+      {
+      err = this->Open() ? false : true;
+      }
+    if ( err )
+      {
+      vtkErrorMacro( "Must be connected to a server to create a database." );
+      return false;
+      }
     }
 
   pqxx::nontransaction work( this->Connection->Connection );
@@ -358,9 +452,9 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
     }
   catch ( const vtkstd::exception& e )
     {
-    this->SetLastErrorText( e.what() );
+    this->Connection->SetLastErrorText( e.what() );
     return false;
     }
-  this->SetLastErrorText( 0 );
+  this->Connection->SetLastErrorText( 0 );
   return true;
 }
