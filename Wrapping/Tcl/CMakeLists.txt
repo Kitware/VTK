@@ -83,11 +83,6 @@ FOREACH(lib ${VTK_EXTRA_TCL_LIBRARIES})
   TARGET_LINK_LIBRARIES(vtk ${lib})
 ENDFOREACH(lib)
 
-IF(VTK_USE_X)
-  # Definitely needed in case we are linking against Tcl/Tk 8.5 static
-  TARGET_LINK_LIBRARIES(vtk -lXss -lXft)
-ENDIF(VTK_USE_X)
-
 # Setup install location for vtk tcl scripts.
 SET(VTK_TCL_INSTALL_DIR ${VTK_INSTALL_TCL_DIR}/tcl)
 
