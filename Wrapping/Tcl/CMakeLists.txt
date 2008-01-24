@@ -98,6 +98,10 @@ ENDFOREACH(lib)
 
 IF (VTK_USE_TK)
   TARGET_LINK_LIBRARIES(vtk ${VTK_TK_LIBRARIES})
+  IF(VTK_USE_X)
+    # Definitely needed in case we are linking against Tcl/Tk 8.5 static
+    TARGET_LINK_LIBRARIES(vtk -lXss -lXft)
+  ENDIF(VTK_USE_X)
 ENDIF (VTK_USE_TK)
 
 # Setup install location for vtk tcl scripts.
