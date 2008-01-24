@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.10");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.11");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -109,12 +109,8 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     mysql_db->SetDatabaseName(database.c_str());
     }
 #endif // VTK_USE_MYSQL
-  else
-    {
-    vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
-    return 0;
-    }
 
+  vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
   return db;
 }
 
