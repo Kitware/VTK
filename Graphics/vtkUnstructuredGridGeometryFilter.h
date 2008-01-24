@@ -14,13 +14,13 @@
 =========================================================================*/
 // .NAME vtkUnstructuredGridGeometryFilter - extract geometry from an unstructured grid
 // .SECTION Description
-// vtkUnstructuredGridGeometryFilter is a filter to extract
+// vtkUnstructuredGridGeometryFilter is a filter that extracts
 // geometry (and associated data) from an unstructured grid. It differs from
 // vtkGeometryFilter by not tessellating higher order faces: 2D faces of
 // quadratic 3D cells will be quadratic. A quadratic edge is extracted as a
 // quadratic edge. For that purpose, the output of this filter is an
 // unstructured grid, not a polydata.
-// Also, the face of a voxel is pixel, not a quad.
+// Also, the face of a voxel is a pixel, not a quad.
 // Geometry is obtained as follows: all 0D, 1D, and 2D cells are extracted.
 // All 2D faces that are used by only one 3D cell (i.e., boundary faces) are
 // extracted. It also is possible to specify conditions on point ids, cell ids,
