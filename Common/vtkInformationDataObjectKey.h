@@ -38,8 +38,10 @@ public:
   // Description:
   // Get/Set the value associated with this key in the given
   // information object.
+  //BTX
   void Set(vtkInformation* info, vtkDataObject*);
   vtkDataObject* Get(vtkInformation* info);
+  //ETX
   int Has(vtkInformation* info);
 
   // Description:
