@@ -38,9 +38,10 @@
 
 class vtkGraph;
 class vtkGraphEdge;
+//BTX
 struct vtkEdgeType;
 struct vtkOutEdgeType;
-
+//ETX
 class VTK_FILTERING_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
