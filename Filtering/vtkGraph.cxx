@@ -74,14 +74,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.8");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.9");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.8");
+vtkCxxRevisionMacro(vtkGraph, "1.9");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -495,8 +495,8 @@ vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
 void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
 {
   this->ForceOwnership();
-  vector<vtkOutEdgeType> outEdges;
-  vector<vtkOutEdgeType>::iterator it, itEnd;
+  vtksys_stl::vector<vtkOutEdgeType> outEdges;
+  vtksys_stl::vector<vtkOutEdgeType>::iterator it, itEnd;
   itEnd = this->Internals->Adjacency[v].OutEdges.end();
   for (vtkIdType i = 0; i < vertices->GetNumberOfTuples(); ++i)
     {
