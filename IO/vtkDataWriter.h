@@ -28,11 +28,12 @@
 
 #include "vtkWriter.h"
 
-class vtkDataSet;
-class vtkPoints;
 class vtkCellArray;
 class vtkDataArray;
+class vtkDataSet;
 class vtkFieldData;
+class vtkGraph;
+class vtkPoints;
 
 class VTK_IO_EXPORT vtkDataWriter : public vtkWriter
 {
@@ -168,6 +169,16 @@ public:
   // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
   // Returns 0 if error.
   int WritePointData(ostream *fp, vtkDataSet *ds);
+
+  // Description:
+  // Write the edge data (e.g., scalars, vectors, ...) of a vtk graph.
+  // Returns 0 if error.
+  int WriteEdgeData(ostream *fp, vtkGraph *g);
+
+  // Description:
+  // Write the vertex data (e.g., scalars, vectors, ...) of a vtk graph.
+  // Returns 0 if error.
+  int WriteVertexData(ostream *fp, vtkGraph *g);
 
   // Description:
   // Write out the field data.

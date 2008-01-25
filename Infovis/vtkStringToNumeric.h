@@ -53,6 +53,22 @@ public:
   vtkBooleanMacro(ConvertCellData, bool);
 
   // Description:
+  // Whether to detect and convert vertex data arrays.  Default is on.
+  virtual void SetConvertVertexData(bool b)
+    { this->SetConvertPointData(b); }
+  virtual bool GetConvertVertexData()
+    { return this->GetConvertPointData(); }
+  vtkBooleanMacro(ConvertVertexData, bool);
+
+  // Description:
+  // Whether to detect and convert edge data arrays.  Default is on.
+  virtual void SetConvertEdgeData(bool b)
+    { this->SetConvertCellData(b); }
+  virtual bool GetConvertEdgeData()
+    { return this->GetConvertCellData(); }
+  vtkBooleanMacro(ConvertEdgeData, bool);
+
+  // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
   virtual int ProcessRequest(vtkInformation* request, 
                              vtkInformationVector** inputVector,

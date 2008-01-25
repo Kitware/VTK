@@ -18,12 +18,13 @@
 ----------------------------------------------------------------------------*/
 #include "vtkGraphToPolyData.h"
 
-#include "vtkAbstractGraph.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -32,8 +33,9 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.7");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.8");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -45,7 +47,7 @@ vtkGraphToPolyData::vtkGraphToPolyData()
 
 int vtkGraphToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
 }
 
@@ -60,7 +62,7 @@ int vtkGraphToPolyData::RequestData(
   vtkInformation *arrowInfo = outputVector->GetInformationObject(1);
 
   // get the input and ouptut
-  vtkAbstractGraph *input = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -68,68 +70,76 @@ int vtkGraphToPolyData::RequestData(
     arrowInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDataArray* edgeGhostLevels = vtkDataArray::SafeDownCast(
-    input->GetCellData()->GetAbstractArray("vtkGhostLevels"));
+    input->GetEdgeData()->GetAbstractArray("vtkGhostLevels"));
 
   if (edgeGhostLevels == NULL)
     {
-    vtkCellArray* newLines = vtkCellArray::New();
-    vtkIdType points[2];
-    for (vtkIdType i = 0; i < input->GetNumberOfEdges(); i++)
+    vtkSmartPointer<vtkIdTypeArray> cells = 
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    cells->SetNumberOfTuples(3*input->GetNumberOfEdges());
+    vtkSmartPointer<vtkEdgeListIterator> it = 
+      vtkSmartPointer<vtkEdgeListIterator>::New();
+    input->GetEdges(it);
+    while (it->HasNext())
       {
-      points[0] = input->GetSourceVertex(i);
-      points[1] = input->GetTargetVertex(i);
-      newLines->InsertNextCell(2, points);
+      vtkEdgeType e = it->Next();
+      cells->SetValue(3*e.Id + 0, 2);
+      cells->SetValue(3*e.Id + 1, e.Source);
+      cells->SetValue(3*e.Id + 2, e.Target);
       }
+    vtkSmartPointer<vtkCellArray> newLines = 
+      vtkSmartPointer<vtkCellArray>::New();
+    newLines->SetCells(input->GetNumberOfEdges(), cells);
 
     // Send the data to output.
     output->SetPoints(input->GetPoints());
     output->SetLines(newLines);
 
     // Points correspond to vertices, so pass the data along.
-    output->GetPointData()->PassData(input->GetPointData());
+    output->GetPointData()->PassData(input->GetVertexData());
 
     // Cells correspond to edges, so pass the cell data along.
-    output->GetCellData()->PassData(input->GetCellData());
-
-    // Clean up.
-    newLines->Delete();
+    output->GetCellData()->PassData(input->GetEdgeData());
     }
   else
     {
     vtkIdType numEdges = input->GetNumberOfEdges();
-    vtkCellData* inputCellData = input->GetCellData();
-    vtkCellData* outputCellData = output->GetCellData();
+    vtkDataSetAttributes *inputCellData = input->GetEdgeData();
+    vtkCellData *outputCellData = output->GetCellData();
     outputCellData->CopyAllocate(inputCellData);
-    vtkCellArray* newLines = vtkCellArray::New();
+    vtkSmartPointer<vtkCellArray> newLines = 
+      vtkSmartPointer<vtkCellArray>::New();
     newLines->Allocate(newLines->EstimateSize(numEdges, 2));
     vtkIdType points[2];
 
     // Only create lines for non-ghost edges
-    for (vtkIdType i = 0; i < numEdges; i++)
+    vtkSmartPointer<vtkEdgeListIterator> it = 
+      vtkSmartPointer<vtkEdgeListIterator>::New();
+    input->GetEdges(it);
+    while (it->HasNext())
       {
-      if (edgeGhostLevels->GetComponent(i, 0) == 0) 
+      vtkEdgeType e = it->Next();
+      if (edgeGhostLevels->GetComponent(e.Id, 0) == 0) 
         {
-        points[0] = input->GetSourceVertex(i);
-        points[1] = input->GetTargetVertex(i);
+        points[0] = e.Source;
+        points[1] = e.Target;
         vtkIdType ind = newLines->InsertNextCell(2, points);
-        outputCellData->CopyData(inputCellData, i, ind);
+        outputCellData->CopyData(inputCellData, e.Id, ind);
         }
       } 
 
     // Send data to output
     output->SetPoints(input->GetPoints());
     output->SetLines(newLines);
-    output->GetPointData()->PassData(input->GetPointData());
+    output->GetPointData()->PassData(input->GetVertexData());
 
     // Clean up
-    newLines->Delete();
     output->Squeeze();
     }
 
   if (this->EdgeGlyphOutput)
     {
-    vtkIdType numEdges = input->GetNumberOfEdges();
-    vtkCellData* inputCellData = input->GetCellData();
+    vtkDataSetAttributes *inputCellData = input->GetEdgeData();
     
     vtkPointData* arrowPointData = arrowOutput->GetPointData();
     arrowPointData->CopyAllocate(inputCellData);
@@ -146,12 +156,16 @@ int vtkGraphToPolyData::RequestData(
     double targetPt[3] = {0, 0, 0};
     double pt[3] = {0, 0, 0};
     double orient[3] = {0, 0, 0};
-    for (vtkIdType i = 0; i < numEdges; i++)
+    vtkSmartPointer<vtkEdgeListIterator> it = 
+      vtkSmartPointer<vtkEdgeListIterator>::New();
+    input->GetEdges(it);
+    while (it->HasNext())
       {
-      if (!edgeGhostLevels || edgeGhostLevels->GetComponent(i, 0) == 0) 
+      vtkEdgeType e = it->Next();
+      if (!edgeGhostLevels || edgeGhostLevels->GetComponent(e.Id, 0) == 0) 
         {
-        vtkIdType source = input->GetSourceVertex(i);
-        vtkIdType target = input->GetTargetVertex(i);
+        vtkIdType source = e.Source;
+        vtkIdType target = e.Target;
         // Do not render arrows for self loops.
         if (source != target)
           {
@@ -164,7 +178,7 @@ int vtkGraphToPolyData::RequestData(
             }
           vtkIdType ind = newPoints->InsertNextPoint(pt);
           orientArr->InsertNextTuple(orient);
-          arrowPointData->CopyData(inputCellData, i, ind);
+          arrowPointData->CopyData(inputCellData, e.Id, ind);
           }
         }
       }    

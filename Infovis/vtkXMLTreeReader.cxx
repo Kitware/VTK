@@ -22,15 +22,17 @@
 #include "vtkBitArray.h"
 #include "vtkInformation.h"
 #include "vtkIdTypeArray.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
 #include <vtklibxml2/libxml/parser.h>
 #include <vtklibxml2/libxml/tree.h>
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.6");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -65,18 +67,18 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->XMLString ? this->XMLString : "(none)") << endl;
 }
 
-void vtkXMLTreeReaderProcessElement(vtkTree* tree,
-   vtkIdType parent, xmlNode* node, int readCharData, int maskArrays)
+void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
+   vtkIdType parent, xmlNode *node, int readCharData, int maskArrays)
 {
-  vtkPointData* data = tree->GetPointData();
-  vtkStringArray* nameArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::TagNameField));
+  vtkDataSetAttributes *data = tree->GetVertexData();
+  vtkStringArray *nameArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::TagNameField));
   vtkStdString content;
-  for (xmlNode* curNode = node; curNode; curNode = curNode->next)
+  for (xmlNode *curNode = node; curNode; curNode = curNode->next)
     {
     //cerr << "type=" << curNode->type << ",name=" << curNode->name << endl;
     if (curNode->content)
       {
-      const char* curContent = reinterpret_cast<const char*>(curNode->content);
+      const char *curContent = reinterpret_cast<const char*>(curNode->content);
       content += curContent;
       //cerr << "content=" << curNode->content << endl;
       }
@@ -87,32 +89,29 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
       }
 
     vtkIdType vertex = -1;
-    if (parent == -1)
+    vertex = tree->AddVertex();
+    if (parent != -1)
       {
-      vertex = tree->AddRoot();
-      }
-    else
-      {
-      vertex = tree->AddChild(parent);
+      tree->AddEdge(parent, vertex);
       }
 
     // Append the node tag and character data to the vtkPointData
     nameArr->InsertValue(vertex, reinterpret_cast<const char*>(curNode->name));
     
     // Add pedigree ids
-    vtkIdTypeArray* idArr = vtkIdTypeArray::SafeDownCast(data->GetAbstractArray("PedigreeVertexId"));
+    vtkIdTypeArray *idArr = vtkIdTypeArray::SafeDownCast(data->GetAbstractArray("PedigreeVertexId"));
     idArr->InsertValue(vertex, vertex);
     
     // Append the element attributes to the vtkPointData
-    for (xmlAttr* curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
+    for (xmlAttr *curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
       {
-      const char* name = reinterpret_cast<const char*>(curAttr->name);
+      const char *name = reinterpret_cast<const char*>(curAttr->name);
       int len = static_cast<int>(strlen(name));
-      char* validName = new char[len+8];
+      char *validName = new char[len+8];
       strcpy(validName, ".valid.");
       strcat(validName, name);
-      vtkStringArray* stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(name));
-      vtkBitArray* bitArr = 0;
+      vtkStringArray *stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(name));
+      vtkBitArray *bitArr = 0;
       if (maskArrays)
         {
         bitArr = vtkBitArray::SafeDownCast(data->GetAbstractArray(validName));
@@ -131,7 +130,7 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
           bitArr->Delete();
           }
         }
-      const char* value = reinterpret_cast<const char*>(curAttr->children->content);
+      const char *value = reinterpret_cast<const char*>(curAttr->children->content);
       stringArr->InsertValue(vertex, value);
       if (maskArrays)
         {
@@ -151,7 +150,7 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
 
   if (readCharData && parent >= 0)
     {
-    vtkStringArray* charArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::CharDataField));
+    vtkStringArray *charArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::CharDataField));
     charArr->InsertValue(parent, content);
     }
 }
@@ -159,7 +158,7 @@ void vtkXMLTreeReaderProcessElement(vtkTree* tree,
 int vtkXMLTreeReader::RequestData(
   vtkInformation*, 
   vtkInformationVector**, 
-  vtkInformationVector* outputVector)
+  vtkInformationVector *outputVector)
 {
   if (!this->FileName && !this->XMLString)
     {
@@ -179,41 +178,51 @@ int vtkXMLTreeReader::RequestData(
     doc = xmlReadMemory(this->XMLString, static_cast<int>(strlen(this->XMLString)), "noname.xml", NULL, 0);
     }
 
-  // Store the XML hierarchy into a vtkTree
-  vtkTree* output = vtkTree::GetData(outputVector);
-  vtkPointData* data = output->GetPointData();
+  // Store the XML hierarchy into a vtkMutableDirectedGraph,
+  // later to be placed in a vtkTree.
+  vtkSmartPointer<vtkMutableDirectedGraph> builder = 
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
-  vtkStringArray* nameArr = vtkStringArray::New();
+  vtkDataSetAttributes *data = builder->GetVertexData();
+  vtkStringArray *nameArr = vtkStringArray::New();
   nameArr->SetName(vtkXMLTreeReader::TagNameField);
   data->AddArray(nameArr);
   nameArr->Delete();
 
   if (this->ReadCharData)
     {
-    vtkStringArray* charArr = vtkStringArray::New();
+    vtkStringArray *charArr = vtkStringArray::New();
     charArr->SetName(vtkXMLTreeReader::CharDataField);
     data->AddArray(charArr);
     charArr->Delete();
     }
   
   // Add pedigree id array
-  vtkIdTypeArray* idArr = vtkIdTypeArray::New();
+  vtkIdTypeArray *idArr = vtkIdTypeArray::New();
   idArr->SetName("PedigreeVertexId");
   data->AddArray(idArr);
   idArr->Delete();
 
   // Get the root element node
-  xmlNode* rootElement = xmlDocGetRootElement(doc);
-  vtkXMLTreeReaderProcessElement(output, -1, rootElement, this->ReadCharData, this->MaskArrays);
+  xmlNode *rootElement = xmlDocGetRootElement(doc);
+  vtkXMLTreeReaderProcessElement(builder, -1, rootElement, this->ReadCharData, this->MaskArrays);
 
   // Make all the arrays the same size
   for (int i = 0; i < data->GetNumberOfArrays(); i++)
     {
-    vtkStringArray* stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(i));
-    if (stringArr && (stringArr->GetNumberOfTuples() < output->GetNumberOfVertices()))
+    vtkStringArray *stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(i));
+    if (stringArr && (stringArr->GetNumberOfTuples() < builder->GetNumberOfVertices()))
       {
-      stringArr->InsertValue(output->GetNumberOfVertices() - 1, vtkStdString(""));
+      stringArr->InsertValue(builder->GetNumberOfVertices() - 1, vtkStdString(""));
       }
+    }
+
+  // Move the XML hierarchy into a vtkTree
+  vtkTree *output = vtkTree::GetData(outputVector);
+  if (!output->CheckedShallowCopy(builder))
+    {
+    vtkErrorMacro(<<"Structure is not a valid tree!");
+    return 0;
     }
 
   return 1;

@@ -43,7 +43,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.46");
+vtkCxxRevisionMacro(vtkCommunicator, "1.47");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -185,7 +185,8 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
       return 0;
       
     //send elemental data objects
-    case VTK_GRAPH:
+    case VTK_DIRECTED_GRAPH:
+    case VTK_UNDIRECTED_GRAPH:
     case VTK_IMAGE_DATA: 
     case VTK_POLY_DATA:
     case VTK_RECTILINEAR_GRID:
@@ -418,7 +419,8 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
       return 0;
 
     //receive elemental data objects
-    case VTK_GRAPH:
+    case VTK_DIRECTED_GRAPH:
+    case VTK_UNDIRECTED_GRAPH:
     case VTK_IMAGE_DATA: 
     case VTK_POLY_DATA:
     case VTK_RECTILINEAR_GRID:

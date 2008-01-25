@@ -22,6 +22,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -59,7 +60,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.151");
+vtkCxxRevisionMacro(vtkDataReader, "1.152");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -915,6 +916,301 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
   return 1;
 }
 
+
+// Read the vertex data of a vtk data file. The number of vertices (from the 
+// graph) must match the number of vertices defined in vertex attributes (unless
+// no geometry was defined).
+int vtkDataReader::ReadVertexData(vtkGraph *g, int numVertices)
+{
+  char line[256];
+  vtkDataSetAttributes *a=g->GetVertexData();
+
+  vtkDebugMacro(<< "Reading vtk vertex data");
+    
+  //
+  // Read keywords until end-of-file
+  //
+  while (this->ReadString(line))
+    {
+    //
+    // read scalar data
+    //
+    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+      {
+      if ( ! this->ReadScalarData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read vector data
+    //
+    else if ( ! strncmp(line, "vectors", 7) )
+      {
+      if ( ! this->ReadVectorData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read 3x3 tensor data
+    //
+    else if ( ! strncmp(line, "tensors", 7) )
+      {
+      if ( ! this->ReadTensorData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read normals data
+    //
+    else if ( ! strncmp(line, "normals", 7) )
+      {
+      if ( ! this->ReadNormalData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read texture coordinates data
+    //
+    else if ( ! strncmp(line, "texture_coordinates", 19) )
+      {
+      if ( ! this->ReadTCoordsData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the global id data
+    //
+    else if ( ! strncmp(line, "global_ids", 10) )
+      {
+      if ( ! this->ReadGlobalIds(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the pedigree id data
+    //
+    else if ( ! strncmp(line, "pedigree_ids", 10) )
+      {
+      if ( ! this->ReadPedigreeIds(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read color scalars data
+    //
+    else if ( ! strncmp(line, "color_scalars", 13) )
+      {
+      if ( ! this->ReadCoScalarData(a, numVertices) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read lookup table. Associate with scalar data.
+    //
+    else if ( ! strncmp(line, "lookup_table", 12) )
+      {
+      if ( ! this->ReadLutData(a) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read field of data
+    //
+    else if ( ! strncmp(line, "field", 5) )
+      {
+      vtkFieldData *f;
+      if ( ! (f=this->ReadFieldData()) )
+        {
+        return 0;
+        }
+      for(int i=0; i<f->GetNumberOfArrays(); i++)
+        {
+        a->AddArray(f->GetArray(i));
+        }
+      f->Delete();
+      }
+    //
+    // maybe bumped into edge data
+    //
+    else if ( ! strncmp(line, "edge_data", 10) )
+      {
+      int npts;
+      if (!this->Read(&npts))
+        {
+        vtkErrorMacro(<<"Cannot read point data!");
+        return 0;
+        }
+
+      this->ReadEdgeData(g, npts);
+      }
+
+    else
+      {
+      vtkErrorMacro(<< "Unsupported vertex attribute type: " << line 
+                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// Read the edge data of a vtk data file. The number of edges (from the 
+// graph) must match the number of edges defined in edge attributes (unless
+// no geometry was defined).
+int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
+{
+  char line[256];
+  vtkDataSetAttributes *a=g->GetEdgeData();
+
+  vtkDebugMacro(<< "Reading vtk edge data");
+    
+  //
+  // Read keywords until end-of-file
+  //
+  while (this->ReadString(line))
+    {
+    //
+    // read scalar data
+    //
+    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+      {
+      if ( ! this->ReadScalarData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read vector data
+    //
+    else if ( ! strncmp(line, "vectors", 7) )
+      {
+      if ( ! this->ReadVectorData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read 3x3 tensor data
+    //
+    else if ( ! strncmp(line, "tensors", 7) )
+      {
+      if ( ! this->ReadTensorData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read normals data
+    //
+    else if ( ! strncmp(line, "normals", 7) )
+      {
+      if ( ! this->ReadNormalData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read texture coordinates data
+    //
+    else if ( ! strncmp(line, "texture_coordinates", 19) )
+      {
+      if ( ! this->ReadTCoordsData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the global id data
+    //
+    else if ( ! strncmp(line, "global_ids", 10) )
+      {
+      if ( ! this->ReadGlobalIds(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the pedigree id data
+    //
+    else if ( ! strncmp(line, "pedigree_ids", 10) )
+      {
+      if ( ! this->ReadPedigreeIds(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read color scalars data
+    //
+    else if ( ! strncmp(line, "color_scalars", 13) )
+      {
+      if ( ! this->ReadCoScalarData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read lookup table. Associate with scalar data.
+    //
+    else if ( ! strncmp(line, "lookup_table", 12) )
+      {
+      if ( ! this->ReadLutData(a) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read field of data
+    //
+    else if ( ! strncmp(line, "field", 5) )
+      {
+      vtkFieldData *f;
+      if ( ! (f=this->ReadFieldData()) )
+        {
+        return 0;
+        }
+      for(int i=0; i<f->GetNumberOfArrays(); i++)
+        {
+        a->AddArray(f->GetArray(i));
+        }
+      f->Delete();
+      }
+    //
+    // maybe bumped into vertex data
+    //
+    else if ( ! strncmp(line, "vertex_data", 10) )
+      {
+      int npts;
+      if (!this->Read(&npts))
+        {
+        vtkErrorMacro(<<"Cannot read vertex data!");
+        return 0;
+        }
+
+      this->ReadVertexData(g, npts);
+      }
+
+    else
+      {
+      vtkErrorMacro(<< "Unsupported vertex attribute type: " << line 
+                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
 // General templated function to read data of various types.
 template <class T>
 int vtkReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
@@ -1434,6 +1730,40 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     }
 
   vtkDebugMacro(<<"Read " << ps->GetNumberOfPoints() << " points");
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  return 1;
+}
+
+// Read point coordinates. Return 0 if error.
+int vtkDataReader::ReadPoints(vtkGraph *g, int numPts)
+{
+  char line[256];
+  vtkDataArray *data;
+
+  if (!this->ReadString(line)) 
+    {
+    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    return 0;
+    }
+
+  data = vtkDataArray::SafeDownCast(
+    this->ReadArray(line, numPts, 3));
+  if ( data != NULL )
+    {
+    vtkPoints *points=vtkPoints::New();
+    points->SetData(data);
+    data->Delete();
+    g->SetPoints(points);
+    points->Delete();
+    }
+  else
+    {
+    return 0;
+    }
+
+  vtkDebugMacro(<<"Read " << g->GetNumberOfVertices() << " points");
   float progress = this->GetProgress();
   this->UpdateProgress(progress + 0.5*(1.0 - progress));
 

@@ -18,12 +18,14 @@
 ----------------------------------------------------------------------------*/
 #include "vtkBoostBiconnectedComponents.h"
 
-#include <vtkCellData.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkIdTypeArray.h>
+#include "vtkCellData.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPointData.h"
+#include "vtkVertexListIterator.h"
 
 #include "vtkGraph.h"
 #include "vtkGraphToBoostAdapter.h"
@@ -37,7 +39,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.6");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.7");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -61,20 +63,19 @@ int vtkBoostBiconnectedComponents::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkGraph *input = vtkGraph::SafeDownCast(
+  vtkUndirectedGraph *input = vtkUndirectedGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkGraph *output = vtkGraph::SafeDownCast(
+  vtkUndirectedGraph *output = vtkUndirectedGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Send the data to output.
   output->ShallowCopy(input);
 
-  // Biconnected components only works on undirected graphs,
-  // so treat the graph as undirected.
-  output->SetDirected(false);
+  // TODO:
+  // Biconnected components only works on undirected graphs.
+  // Currently this will fail if given a directed graph as input.
 
   // Run the boost algorithm
-  vtkBoostUndirectedGraph g(output);
   typedef vector_property_map<vtkIdType> PMap;
   PMap p;
   vtkGraphEdgePropertyMapHelper<PMap> helper(p);
@@ -94,10 +95,10 @@ int vtkBoostBiconnectedComponents::RequestData(
 #if BOOST_VERSION >= 103301
 #if BOOST_VERSION < 103401
   res = biconnected_components(
-    g, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+    output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
 #else
   res = biconnected_components(
-    g, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
+    output, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
 #endif
 #endif
   size_t numComp = res.first;
@@ -117,7 +118,6 @@ int vtkBoostBiconnectedComponents::RequestData(
     {
     edgeComps->InsertNextValue(helper.pmap[e]);
     }
-  //edgeComps->SetArray(&(helper.pmap[0]), output->GetNumberOfEdges(), 1);
   output->GetEdgeData()->AddArray(edgeComps);
   edgeComps->Delete();
 
@@ -135,20 +135,22 @@ int vtkBoostBiconnectedComponents::RequestData(
     vertComps->SetName("biconnected component");
     }
   vertComps->Allocate(output->GetNumberOfVertices());
-  for (vtkIdType u = 0; u < output->GetNumberOfVertices(); u++)
+  vtkVertexListIterator *vertIt = vtkVertexListIterator::New();
+  vtkOutEdgeIterator *edgeIt = vtkOutEdgeIterator::New();
+  output->GetVertices(vertIt);
+  while (vertIt->HasNext())
     {
-    const vtkIdType* edges;
-    vtkIdType nedges;
-    output->GetIncidentEdges(u, nedges, edges);
+    vtkIdType u = vertIt->Next();
+    output->GetOutEdges(u, edgeIt);
     int comp;
-    if (nedges > 0)
+    if (edgeIt->HasNext())
       {
-      int edgeIndex =0;
-      int value = edgeComps->GetValue(edges[edgeIndex]);
-      while( (value == -1) && (edgeIndex < nedges-1))
+      vtkOutEdgeType e = edgeIt->Next();
+      int value = edgeComps->GetValue(e.Id);
+      while( (value == -1) && edgeIt->HasNext() )
         {
-        edgeIndex++;
-        value = edgeComps->GetValue(edges[edgeIndex]);
+        e = edgeIt->Next();
+        value = edgeComps->GetValue(e.Id);
         }
       comp = value;
       }
@@ -159,6 +161,8 @@ int vtkBoostBiconnectedComponents::RequestData(
       }
     vertComps->InsertNextValue(comp);
     }
+  vertIt->Delete();
+  edgeIt->Delete();
 
   // Articulation points belong to multiple biconnected components.
   // Indicate these by assigning a component value of -1.
@@ -171,9 +175,6 @@ int vtkBoostBiconnectedComponents::RequestData(
 
   output->GetVertexData()->AddArray(vertComps);
   vertComps->Delete();
-
-  // Set the graph back to the correct directedness
-  output->SetDirected(input->GetDirected());
 
   return 1;
 }

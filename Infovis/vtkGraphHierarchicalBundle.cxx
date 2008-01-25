@@ -20,21 +20,23 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
+#include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkIdTypeArray.h"
-#include "vtkAbstractGraph.h"
-#include "vtkTree.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtkTree.h"
 
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.4");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.5");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -48,7 +50,7 @@ int vtkGraphHierarchicalBundle::FillInputPortInformation(int port, vtkInformatio
 {
   if (port == 0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     return 1;
     }
   else if (port == 1)
@@ -89,7 +91,7 @@ int vtkGraphHierarchicalBundle::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkAbstractGraph *graph = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *graph = vtkGraph::SafeDownCast(
     graphInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkTree *tree = vtkTree::SafeDownCast(
     treeInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -198,10 +200,14 @@ int vtkGraphHierarchicalBundle::RequestData(
   vtkCellArray* newLines = vtkCellArray::New();
   vtkIdList* sourceList = vtkIdList::New();
   vtkIdList* targetList = vtkIdList::New();
-  for (vtkIdType i = 0; i < graph->GetNumberOfEdges(); i++)
+  vtkSmartPointer<vtkEdgeListIterator> edges =
+    vtkSmartPointer<vtkEdgeListIterator>::New();
+  graph->GetEdges(edges);
+  while (edges->HasNext())
     {
-    unsigned int graphSourceIndex = graph->GetSourceVertex(i);
-    unsigned int graphTargetIndex = graph->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    unsigned int graphSourceIndex = e.Source;
+    unsigned int graphTargetIndex = e.Target;
 
     // Do not render loops
     if (graphSourceIndex == graphTargetIndex)
@@ -262,7 +268,7 @@ int vtkGraphHierarchicalBundle::RequestData(
 
     // Create the new cell
     vtkIdType cellId = newLines->InsertNextCell(cellPoints);
-    output->GetCellData()->CopyData(graph->GetEdgeData(), i, cellId);
+    output->GetCellData()->CopyData(graph->GetEdgeData(), e.Id, cellId);
 
     double cellPointsD = static_cast<double>(cellPoints);
     double sourcePt[3];

@@ -25,6 +25,7 @@
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkIdTypeArray.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -71,7 +72,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   VTK_CREATE(vtkRenderer, ren);
   
   cerr << "Creating test graph..." << endl;
-  VTK_CREATE(vtkGraph, graph);
+  VTK_CREATE(vtkMutableUndirectedGraph, graph);
   graph->AddVertex();
   graph->AddVertex();
   graph->AddVertex();
@@ -100,7 +101,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   cerr << "Testing threshold selection..." << endl;
   VTK_CREATE(vtkSelection, threshold);
   threshold->SetContentType(vtkSelection::THRESHOLDS);
-  threshold->SetFieldType(vtkSelection::POINT);
+  threshold->SetFieldType(vtkSelection::VERTEX);
   VTK_CREATE(vtkDoubleArray, thresholdArr);
   thresholdArr->SetName("value");
   thresholdArr->InsertNextValue(0.0);
@@ -116,7 +117,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   cerr << "Testing indices selection..." << endl;
   VTK_CREATE(vtkSelection, indices);
   indices->SetContentType(vtkSelection::INDICES);
-  indices->SetFieldType(vtkSelection::POINT);
+  indices->SetFieldType(vtkSelection::VERTEX);
   VTK_CREATE(vtkIdTypeArray, indicesArr);
   indicesArr->InsertNextValue(0);
   indicesArr->InsertNextValue(2);
@@ -133,6 +134,8 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   VTK_CREATE(vtkRenderWindow, win);
   win->AddRenderer(ren);
   win->SetInteractor(iren);
+
+  win->Render();
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

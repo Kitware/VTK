@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAbstractGraphAlgorithm.cxx
+  Module:    vtkUndirectedGraphAlgorithm.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,25 +16,21 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
-#include "vtkAbstractGraphAlgorithm.h"
+#include "vtkUndirectedGraphAlgorithm.h"
 
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkAbstractGraph.h"
+#include "vtkUndirectedGraph.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-#include "vtkTree.h"
-#include "vtkGraph.h"
-
-vtkCxxRevisionMacro(vtkAbstractGraphAlgorithm, "1.3");
-vtkStandardNewMacro(vtkAbstractGraphAlgorithm);
+vtkCxxRevisionMacro(vtkUndirectedGraphAlgorithm, "1.1");
+vtkStandardNewMacro(vtkUndirectedGraphAlgorithm);
 
 //----------------------------------------------------------------------------
-vtkAbstractGraphAlgorithm::vtkAbstractGraphAlgorithm()
+vtkUndirectedGraphAlgorithm::vtkUndirectedGraphAlgorithm()
 {
   // by default assume filters have one input and one output
   // subclasses that deviate should modify this setting
@@ -43,18 +39,18 @@ vtkAbstractGraphAlgorithm::vtkAbstractGraphAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractGraphAlgorithm::~vtkAbstractGraphAlgorithm()
+vtkUndirectedGraphAlgorithm::~vtkUndirectedGraphAlgorithm()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUndirectedGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::ProcessRequest(vtkInformation* request,
+int vtkUndirectedGraphAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {
@@ -69,12 +65,6 @@ int vtkAbstractGraphAlgorithm::ProcessRequest(vtkInformation* request,
     return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
 
-  // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
-    return this->RequestDataObject(request, inputVector, outputVector);
-    }
-
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
@@ -85,30 +75,30 @@ int vtkAbstractGraphAlgorithm::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::FillOutputPortInformation(
+int vtkUndirectedGraphAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkAbstractGraph");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUndirectedGraph");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::FillInputPortInformation(
+int vtkUndirectedGraphAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUndirectedGraph");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractGraph* vtkAbstractGraphAlgorithm::GetOutput(int index)
+vtkUndirectedGraph* vtkUndirectedGraphAlgorithm::GetOutput(int index)
 {
-  return vtkAbstractGraph::SafeDownCast(this->GetOutputDataObject(index));
+  return vtkUndirectedGraph::SafeDownCast(this->GetOutputDataObject(index));
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractGraphAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkUndirectedGraphAlgorithm::SetInput(int index, vtkDataObject* input)
 {
   if (input)
     {
@@ -122,7 +112,7 @@ void vtkAbstractGraphAlgorithm::SetInput(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::RequestInformation(
+int vtkUndirectedGraphAlgorithm::RequestInformation(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
@@ -132,7 +122,7 @@ int vtkAbstractGraphAlgorithm::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::RequestUpdateExtent(
+int vtkUndirectedGraphAlgorithm::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
@@ -153,49 +143,11 @@ int vtkAbstractGraphAlgorithm::RequestUpdateExtent(
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
-int vtkAbstractGraphAlgorithm::RequestData(
+int vtkUndirectedGraphAlgorithm::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector* vtkNotUsed( outputVector ) )
 {
   return 0;
 }
-
-//----------------------------------------------------------------------------
-int vtkAbstractGraphAlgorithm::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-    {
-    return 0;
-    }
-  vtkAbstractGraph *input = vtkAbstractGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  if (input)
-    {
-    // for each output
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      
-      if (!output || !output->IsA(input->GetClassName())) 
-        {
-        output = input->NewInstance();
-        output->SetPipelineInformation(info);
-        output->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
-        }
-      }
-    return 1;
-    }
-  return 0;
-}
-
 

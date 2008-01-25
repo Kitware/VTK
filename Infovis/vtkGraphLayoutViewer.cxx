@@ -18,7 +18,7 @@
 ----------------------------------------------------------------------------*/
 #include "vtkGraphLayoutViewer.h"
 
-#include "vtkAbstractGraph.h"
+#include "vtkGraph.h"
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkCamera.h"
@@ -54,7 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 
-vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.18");
+vtkCxxRevisionMacro(vtkGraphLayoutViewer, "1.19");
 vtkStandardNewMacro(vtkGraphLayoutViewer);
 
 
@@ -156,7 +156,7 @@ void vtkGraphLayoutViewer::SetLabelsOff()
 
 // Description:
 // Get the graph output of the layout filter
-vtkAbstractGraph* vtkGraphLayoutViewer::GetGraphAfterLayout()
+vtkGraph* vtkGraphLayoutViewer::GetGraphAfterLayout()
 {
   if (this->GraphLayout)
     {
@@ -194,13 +194,13 @@ void vtkGraphLayoutViewer::UpdateLayout()
     }
 }
 
-void vtkGraphLayoutViewer::SetInput(vtkAbstractGraph *graph)
+void vtkGraphLayoutViewer::SetInput(vtkGraph *graph)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the InputInitialize() call in the middle :)
   if (graph != this->Input)
     {
-    vtkAbstractGraph *tmp = this->Input;
+    vtkGraph *tmp = this->Input;
     this->Input = graph;
     if (this->Input != NULL)
       {

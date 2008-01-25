@@ -39,7 +39,7 @@
 #include "vtkWorldPointPicker.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.12");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeMapHover, "1.13");
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 
 //----------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
   if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
     {
 
-    vtkAbstractArray* absArray = this->Layout->GetOutput()->GetPointData()->GetAbstractArray(this->LabelField);
+    vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
     if (absArray != NULL && id > -1)
       {
       vtkStdString str;
@@ -354,7 +354,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   // send out an event with that id as data
   vtkIdType id = this->CurrentSelectedId;
   vtkAbstractArray* absArray = 
-    this->Layout->GetOutput()->GetPointData()->GetAbstractArray(
+    this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(
       "PedigreeVertexId");
   if (absArray)
     {

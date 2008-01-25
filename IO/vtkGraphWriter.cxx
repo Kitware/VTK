@@ -16,6 +16,8 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
+#include "vtkDirectedGraph.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkGraphWriter, "1.4");
+vtkCxxRevisionMacro(vtkGraphWriter, "1.5");
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()
@@ -56,20 +58,18 @@ void vtkGraphWriter::WriteData()
     return;
     }
 
-  *fp << "DATASET GRAPH\n"; 
-
-  if(input->GetDirected())
+  if(vtkDirectedGraph::SafeDownCast(input))
     {
-    *fp << "DIRECTED\n";
+    *fp << "DATASET DIRECTED_GRAPH\n";
     }
   else
     {
-    *fp << "UNDIRECTED\n";
+    *fp << "DATASET UNDIRECTED_GRAPH\n";
     }
   
   int error_occurred = 0;
 
-  if(!error_occurred && !this->WriteDataSetData(fp, input))
+  if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))
     {
     error_occurred = 1;
     }
@@ -83,16 +83,20 @@ void vtkGraphWriter::WriteData()
     *fp << "VERTICES " << vertex_count << "\n";
     const vtkIdType edge_count = input->GetNumberOfEdges();
     *fp << "EDGES " << edge_count << "\n";
-    for(int edge = 0; edge != edge_count; ++edge)
+    vtkEdgeListIterator *it = vtkEdgeListIterator::New();
+    input->GetEdges(it);
+    while (it->HasNext())
       {
-      *fp << input->GetSourceVertex(edge) << " " << input->GetTargetVertex(edge) << "\n";
+      vtkEdgeType e = it->Next();
+      *fp << e.Source << " " << e.Target << "\n";
       }
+    it->Delete();
     }
-  if(!error_occurred && !this->WriteCellData(fp, input))
+  if(!error_occurred && !this->WriteEdgeData(fp, input))
     {
     error_occurred = 1;
     }
-  if(!error_occurred && !this->WritePointData(fp, input))
+  if(!error_occurred && !this->WriteVertexData(fp, input))
     {
     error_occurred = 1;
     }

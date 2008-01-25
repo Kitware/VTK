@@ -19,6 +19,7 @@
 
 #include "vtkTreeFieldAggregator.h"
 
+#include "vtkAdjacentVertexIterator.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
@@ -29,6 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
@@ -36,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.8");
+vtkCxxRevisionMacro(vtkTreeFieldAggregator, "1.9");
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 
 vtkTreeFieldAggregator::vtkTreeFieldAggregator()
@@ -124,18 +126,23 @@ int vtkTreeFieldAggregator::RequestData(
     arr->Delete();
     }
 
-  vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
-  vtkIdType nchildren;
-  const vtkIdType* children;
+  // Set up DFS iterator that traverses
+  // children before the parent (i.e. bottom-up).
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+    vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(output);
   dfs->SetMode(vtkTreeDFSIterator::FINISH);
+
+  // Create a iterator for getting children.
+  vtkSmartPointer<vtkAdjacentVertexIterator> it =
+    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+
+  // Iterator through the tree, aggregating child values into parent.
   while (dfs->HasNext())
     {
     vtkIdType vertex = dfs->Next();
-    output->GetChildren(vertex, nchildren, children);
-
     double value = 0;
-    if (nchildren == 0)
+    if (output->IsLeaf(vertex))
       {
       value = vtkTreeFieldAggregator::GetDoubleValue(arr, vertex);
       if (this->LogScale)
@@ -149,14 +156,14 @@ int vtkTreeFieldAggregator::RequestData(
       }
     else
       {
-      for (vtkIdType i = 0; i < nchildren; i++)
+      output->GetChildren(vertex, it);
+      while (it->HasNext())
         {
-        value += vtkTreeFieldAggregator::GetDoubleValue(arr, children[i]);
+        value += vtkTreeFieldAggregator::GetDoubleValue(arr, it->Next());
         }
       }
     vtkTreeFieldAggregator::SetDoubleValue(arr, vertex, value);
     }
-  dfs->Delete();
 
   return 1;
 }

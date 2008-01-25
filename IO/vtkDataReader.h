@@ -36,6 +36,7 @@ class vtkCharArray;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkFieldData;
+class vtkGraph;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
@@ -240,6 +241,22 @@ public:
   // Description:
   // Read point coordinates. Return 0 if error.
   int ReadPoints(vtkPointSet *ps, int numPts);
+
+  // Description:
+  // Read point coordinates. Return 0 if error.
+  int ReadPoints(vtkGraph *g, int numPts);
+
+  // Description:
+  // Read the vertex data of a vtk data file. The number of vertices (from the
+  // graph) must match the number of vertices defined in vertex attributes
+  // (unless no geometry was defined).
+  int ReadVertexData(vtkGraph *g, int numVertices);
+
+  // Description:
+  // Read the edge data of a vtk data file. The number of edges (from the
+  // graph) must match the number of edges defined in edge attributes
+  // (unless no geometry was defined).
+  int ReadEdgeData(vtkGraph *g, int numEdges);
 
   // Description:
   // Read a bunch of "cells". Return 0 if error.

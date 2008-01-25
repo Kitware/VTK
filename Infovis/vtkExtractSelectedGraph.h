@@ -68,6 +68,11 @@ protected:
     vtkInformationVector**, 
     vtkInformationVector*);
   
+  int RequestDataObject(
+    vtkInformation*, 
+    vtkInformationVector**, 
+    vtkInformationVector*);
+  
   bool RemoveIsolatedVertices;
 
 private:

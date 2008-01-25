@@ -16,11 +16,11 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkGraphMapper - map vtkAbstractGraph and derived 
+// .NAME vtkGraphMapper - map vtkGraph and derived 
 // classes to graphics primitives
 
 // .SECTION Description
-// vtkGraphMapper is a mapper to map vtkAbstractGraph 
+// vtkGraphMapper is a mapper to map vtkGraph 
 // (and all derived classes) to graphics primitives. 
 
 #ifndef __vtkGraphMapper_h
@@ -30,7 +30,7 @@
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
-class vtkAbstractGraph;
+class vtkGraph;
 class vtkGlyph2D;
 class vtkGraphToPolyData;
 class vtkCellCenters;
@@ -99,9 +99,14 @@ public:
 
   // Description:
   // Set the Input of this mapper.
-  void SetInput(vtkAbstractGraph *input);
-  vtkAbstractGraph *GetInput();
+  void SetInput(vtkGraph *input);
+  vtkGraph *GetInput();
   
+  // Description:
+  // Return bounding box (array of six doubles) of data expressed as
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  virtual double *GetBounds();
+
 protected:
   vtkGraphMapper();
   ~vtkGraphMapper();
@@ -135,7 +140,7 @@ protected:
   vtkSmartPointer<vtkLookupTable>       VertexLookupTable;
   //ETX
 
-  //virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void ReportReferences(vtkGarbageCollector*);
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);

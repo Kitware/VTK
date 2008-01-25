@@ -25,6 +25,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkKdTree.h"
@@ -49,7 +50,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.7");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.8");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -122,7 +123,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   vtkAbstractArray *abstractData;
   vtkDataArray *numericData;
   vtkStringArray *stringData;
-  vtkDataSet *input=this->GetInput();
+  vtkDataObject *input = this->GetExecutive()->GetInputData(0, 0);
 
   if ( ! input )
     {
@@ -140,8 +141,16 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   input->Update();
 
   // Input might have changed
-  input = this->GetInput();
-  vtkPointData *pd=input->GetPointData();
+  input = this->GetExecutive()->GetInputData(0, 0);
+  vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
+  vtkGraph *gInput = vtkGraph::SafeDownCast(input);
+  if (!dsInput && !gInput)
+    {
+    vtkErrorMacro(<<"Input must be vtkDataSet or vtkGraph.");
+    return;
+    }
+  vtkDataSetAttributes *pd = 
+    dsInput ? dsInput->GetPointData() : gInput->GetVertexData();
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
@@ -308,7 +317,8 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       vtkDebugMacro(<<"Using default format string " << FormatString.c_str());
       } // Done building default format string
 
-    this->NumberOfLabels = input->GetNumberOfPoints();
+    this->NumberOfLabels = 
+      dsInput ? dsInput->GetNumberOfPoints() : gInput->GetNumberOfVertices();
     if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
       {
       // delete old stuff
@@ -461,7 +471,14 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       {
       double* dc;
       double pti[3];
-      input->GetPoint(i, pti);
+      if (dsInput)
+        {
+        dsInput->GetPoint(i, pti);
+        }
+      else
+        {
+        gInput->GetPoint(i, pti);
+        }
       coord->SetValue(pti);
       dc = coord->GetComputedDoubleDisplayValue(0);
       pts->InsertNextPoint(dc[0], dc[1], 0);
@@ -554,7 +571,14 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   for (i = 0; i < this->NumberOfLabels; i++)
     {
-    input->GetPoint(i,x);
+    if (dsInput)
+      {
+      dsInput->GetPoint(i,x);
+      }
+    else
+      {
+      gInput->GetPoint(i,x);
+      }
     if ((1.0 / scale) < this->Cutoff[i])
       {
       actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
@@ -599,8 +623,10 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
 {
   int i;
   double x[3];
-  vtkDataSet *input=this->GetInput();
-  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkDataObject *input = this->GetExecutive()->GetInputData(0, 0);
+  vtkGraph *gInput = vtkGraph::SafeDownCast(input);
+  vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
+  vtkIdType numPts = dsInput ? dsInput->GetNumberOfPoints() : gInput->GetNumberOfVertices();
 
   // Determine the current scale
   double scale = this->GetCurrentScale(viewport) / this->ReferenceScale;
@@ -615,7 +641,14 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
     }
   for (i=0; i<this->NumberOfLabels && i<numPts; i++)
     {
-    input->GetPoint(i,x);
+    if (dsInput)
+      {
+      dsInput->GetPoint(i, x);
+      }
+    else
+      {
+      gInput->GetPoint(i, x);
+      }
     actor->SetPosition(x);
     double* display = actor->GetPositionCoordinate()->GetComputedDoubleDisplayValue(viewport);
     double screenX = display[0];

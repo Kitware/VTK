@@ -20,6 +20,7 @@
 #include "vtkActor.h"
 #include "vtkBoxLayoutStrategy.h"
 #include "vtkIntArray.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -27,6 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSliceAndDiceLayoutStrategy.h"
+#include "vtkSmartPointer.h"
 #include "vtkSquarifyLayoutStrategy.h"
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
@@ -34,7 +36,6 @@
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
 
-#include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -63,30 +64,36 @@ int TestTreeMapLayoutStrategy(int argc, char* argv[])
   VTK_CREATE(vtkRenderer, ren);
   
   // Create input
-  VTK_CREATE(vtkTree, tree);
+  VTK_CREATE(vtkMutableDirectedGraph, builder);
   VTK_CREATE(vtkIntArray, sizeArr);
   sizeArr->SetName("size");
-  tree->GetVertexData()->AddArray(sizeArr);
-  tree->AddRoot();
+  builder->GetVertexData()->AddArray(sizeArr);
+  builder->AddVertex();
   sizeArr->InsertNextValue(0);
-  tree->AddChild(0);
+  builder->AddChild(0);
   sizeArr->InsertNextValue(15);
-  tree->AddChild(0);
+  builder->AddChild(0);
   sizeArr->InsertNextValue(50);
-  tree->AddChild(0);
+  builder->AddChild(0);
   sizeArr->InsertNextValue(0);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(2);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(12);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(10);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(8);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(6);
-  tree->AddChild(3);
+  builder->AddChild(3);
   sizeArr->InsertNextValue(4);
+
+  VTK_CREATE(vtkTree, tree);
+  if (!tree->CheckedShallowCopy(builder))
+    {
+    cerr << "Invalid tree structure." << endl;
+    }
   
   VTK_CREATE(vtkTreeFieldAggregator, agg);
   agg->SetInput(tree);

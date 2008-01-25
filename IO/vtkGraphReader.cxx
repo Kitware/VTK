@@ -20,10 +20,13 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkGraphReader, "1.3");
+vtkCxxRevisionMacro(vtkGraphReader, "1.4");
 vtkStandardNewMacro(vtkGraphReader);
 
 #ifdef read
@@ -33,12 +36,10 @@ vtkStandardNewMacro(vtkGraphReader);
 //----------------------------------------------------------------------------
 vtkGraphReader::vtkGraphReader()
 {
-  vtkGraph *output = vtkGraph::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
+  // We don't know the output type yet.
+  // It could be vtkDirectedGraph or vtkUndirectedGraph.
+  // We will set it in RequestInformation().
+
 }
 
 //----------------------------------------------------------------------------
@@ -101,65 +102,27 @@ int vtkGraphReader::RequestData(
     }
 
   vtkDebugMacro(<<"Reading vtk graph ...");
-
-  if(!this->OpenVTKFile() || !this->ReadHeader())
-    {
-    return 1;
-    }
-  
-  // Read table-specific stuff
   char line[256];
-  if(!this->ReadString(line))
+
+  bool directed = true;
+  if (!this->ReadGraphDirectedness(directed))
     {
-    vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile();
     return 1;
     }
 
-  if(strncmp(this->LowerCase(line),"dataset", (unsigned long)7))
+  vtkSmartPointer<vtkMutableDirectedGraph> dir_builder = 
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkMutableUndirectedGraph> undir_builder = 
+    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+  vtkGraph *builder = 0;
+  if (directed)
     {
-    vtkErrorMacro(<< "Unrecognized keyword: " << line);
-    this->CloseVTKFile();
-    return 1;
-    }
-
-  if(!this->ReadString(line))
-    {
-    vtkErrorMacro(<<"Data file ends prematurely!");
-    this->CloseVTKFile ();
-    return 1;
-    }
-
-  if(strncmp(this->LowerCase(line),"graph", 5))
-    {
-    vtkErrorMacro(<< "Cannot read dataset type: " << line);
-    this->CloseVTKFile();
-    return 1;
-    }
-
-  vtkGraph* const output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if(!this->ReadString(line))
-    {
-    vtkErrorMacro(<<"Data file ends prematurely!");
-    this->CloseVTKFile();
-    return 1;
-    }
-
-  if(!strncmp(this->LowerCase(line),"directed", 8))
-    {
-    output->SetDirected(true);
-    }
-  else if(!strncmp(this->LowerCase(line), "undirected", 10))
-    {
-    output->SetDirected(false);
+    builder = dir_builder;
     }
   else
     {
-    vtkErrorMacro(<< "Unrecognized keyword: " << line);
-    this->CloseVTKFile();
-    return 1;
+    builder = undir_builder;
     }
 
   int done = 0;
@@ -173,7 +136,14 @@ int vtkGraphReader::RequestData(
     if(!strncmp(this->LowerCase(line), "field", 5))
       {
       vtkFieldData* const field_data = this->ReadFieldData();
-      output->SetFieldData(field_data);
+      if (directed)
+        {
+        dir_builder->SetFieldData(field_data);
+        }
+      else
+        {
+        undir_builder->SetFieldData(field_data);
+        }
       field_data->Delete();
       continue;
       }
@@ -188,7 +158,7 @@ int vtkGraphReader::RequestData(
         return 1;
         }
 
-      this->ReadPoints(output, point_count);
+      this->ReadPoints(builder, point_count);
       continue;
       }
       
@@ -201,7 +171,17 @@ int vtkGraphReader::RequestData(
         this->CloseVTKFile ();
         return 1;
         }
-      output->SetNumberOfVertices(vertex_count);
+      for (vtkIdType v = 0; v < vertex_count; ++v)
+        {
+        if (directed)
+          {
+          dir_builder->AddVertex();
+          }
+        else
+          {
+          undir_builder->AddVertex();
+          }
+        }
       continue;
       }
 
@@ -225,47 +205,124 @@ int vtkGraphReader::RequestData(
           return 1;
           }
         
-        output->AddEdge(source, target);
+        if (directed)
+          {
+          dir_builder->AddEdge(source, target);
+          }
+        else
+          {
+          undir_builder->AddEdge(source, target);
+          }
         }
       continue;
       }
 
-    if(!strncmp(this->LowerCase(line), "point_data", 10))
+    if(!strncmp(this->LowerCase(line), "vertex_data", 10))
       {
-      int point_count = 0;
-      if(!this->Read(&point_count))
+      int vertex_count = 0;
+      if(!this->Read(&vertex_count))
         {
-        vtkErrorMacro(<<"Cannot read number of points!");
-        this->CloseVTKFile ();
+        vtkErrorMacro(<<"Cannot read number of vertices!");
+        this->CloseVTKFile();
         return 1;
         }
 
-      this->ReadPointData(output, point_count);
+
+      this->ReadVertexData(builder, vertex_count);
       continue;
       }
       
-    if(!strncmp(this->LowerCase(line), "cell_data", 9))
+    if(!strncmp(this->LowerCase(line), "edge_data", 9))
       {
-      int cell_count = 0;
-      if(!this->Read(&cell_count))
+      int edge_count = 0;
+      if(!this->Read(&edge_count))
         {
-        vtkErrorMacro(<<"Cannot read number of points!");
-        this->CloseVTKFile ();
+        vtkErrorMacro(<<"Cannot read number of edges!");
+        this->CloseVTKFile();
         return 1;
         }
 
-      this->ReadCellData(output, cell_count);
+      this->ReadEdgeData(builder, edge_count);
       continue;
       }
-      
+
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 
-  vtkDebugMacro(<< "Read " << output->GetNumberOfVertices() <<" vertices and "
-                << output->GetNumberOfEdges() <<" edges.\n");
+  vtkDebugMacro(<< "Read " 
+    << builder->GetNumberOfVertices() 
+    << " vertices and "
+    << builder->GetNumberOfEdges() 
+    << " edges.\n");
 
   this->CloseVTKFile ();
 
+  // Copy builder into output.
+  vtkGraph* const output = vtkGraph::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  bool valid = true;
+  if (directed)
+    {
+    valid = output->CheckedShallowCopy(dir_builder);
+    }
+  else
+    {
+    valid = output->CheckedShallowCopy(undir_builder);
+    }
+
+  if (!valid)
+    {
+    vtkErrorMacro(<<"Invalid graph structure, returning empty graph.");
+    }
+      
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphReader::ReadGraphDirectedness(bool & directed)
+  {
+  if(!this->OpenVTKFile() || !this->ReadHeader())
+    {
+    return 0;
+    }
+  
+  // Read graph-specific stuff
+  char line[256];
+  if(!this->ReadString(line))
+    {
+    vtkErrorMacro(<<"Data file ends prematurely!");
+    this->CloseVTKFile();
+    return 0;
+    }
+
+  if(strncmp(this->LowerCase(line),"dataset", (unsigned long)7))
+    {
+    vtkErrorMacro(<< "Unrecognized keyword: " << line);
+    this->CloseVTKFile();
+    return 0;
+    }
+
+  if(!this->ReadString(line))
+    {
+    vtkErrorMacro(<<"Data file ends prematurely!");
+    this->CloseVTKFile ();
+    return 0;
+    }
+
+  if(!strncmp(this->LowerCase(line),"directed_graph", 14))
+    {
+    directed = true;
+    }
+  else if(!strncmp(this->LowerCase(line), "undirected_graph", 16))
+    {
+    directed = false;
+    }
+  else
+    {
+    vtkErrorMacro(<< "Cannot read type: " << line);
+    this->CloseVTKFile();
+    return 0;
+    }
   return 1;
 }
 
@@ -274,6 +331,50 @@ int vtkGraphReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphReader::RequestDataObject(vtkInformation *, 
+                                      vtkInformationVector **,
+                                      vtkInformationVector *)
+{
+  bool directed = true;
+  if (!this->ReadGraphDirectedness(directed))
+    {
+    this->CloseVTKFile();
+    return 1;
+    }
+  this->CloseVTKFile();
+
+  vtkGraph *output = 0;
+  if (directed)
+    {
+    output = vtkDirectedGraph::New();
+    }
+  else
+    {
+    output = vtkUndirectedGraph::New();
+    }
+  this->SetOutput(output);
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty.
+  output->ReleaseData();
+  output->Delete();
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphReader::ProcessRequest(vtkInformation* request,
+                                     vtkInformationVector** inputVector,
+                                     vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------

@@ -24,6 +24,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkGraph.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
@@ -41,7 +42,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.129");
+vtkCxxRevisionMacro(vtkDataWriter, "1.130");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -506,6 +507,300 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if ( pedigreeIds )
     {
     if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numPts) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write field
+  //
+  if ( field )
+    {
+    if ( ! this->WriteFieldData(fp, field) )
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// Write the vertex data (e.g., scalars, vectors, ...) of a vtk graph.
+// Returns 0 if error.
+int vtkDataWriter::WriteVertexData(ostream *fp, vtkGraph *ds)
+{
+  int numVertices;
+  vtkDataArray *scalars;
+  vtkDataArray *vectors;
+  vtkDataArray *normals;
+  vtkDataArray *tcoords;
+  vtkDataArray *tensors;
+  vtkDataArray *globalIds;
+  vtkAbstractArray *pedigreeIds;
+  vtkFieldData *field;
+  vtkDataSetAttributes *cd=ds->GetVertexData();
+
+  vtkDebugMacro(<<"Writing vertex data...");
+
+  numVertices = ds->GetNumberOfVertices();
+  if(numVertices <= 0)
+    {
+    vtkDebugMacro(<<"No vertex data to write!");
+    return 1;
+    }
+    
+  scalars = cd->GetScalars();
+  if(scalars && scalars->GetNumberOfTuples() <= 0)
+    scalars = 0;
+    
+  vectors = cd->GetVectors();
+  if(vectors && vectors->GetNumberOfTuples() <= 0)
+    vectors = 0;
+    
+  normals = cd->GetNormals();
+  if(normals && normals->GetNumberOfTuples() <= 0)
+    normals = 0;
+    
+  tcoords = cd->GetTCoords();
+  if(tcoords && tcoords->GetNumberOfTuples() <= 0)
+    tcoords = 0;
+    
+  tensors = cd->GetTensors();
+  if(tensors && tensors->GetNumberOfTuples() <= 0)
+    tensors = 0;
+    
+  globalIds = cd->GetGlobalIds();
+  if(globalIds && globalIds->GetNumberOfTuples() <= 0)
+    globalIds = 0;
+    
+  pedigreeIds = cd->GetPedigreeIds();
+  if(pedigreeIds && pedigreeIds->GetNumberOfTuples() <= 0)
+    pedigreeIds = 0;
+    
+  field = cd;
+  if(field && field->GetNumberOfTuples() <= 0)
+    field = 0;
+
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || field))
+    {
+    vtkDebugMacro(<<"No cell data to write!");
+    return 1;
+    }
+
+  *fp << "VERTEX_DATA " << numVertices << "\n";
+  //
+  // Write scalar data
+  //
+  if( scalars )
+    {
+    if ( ! this->WriteScalarData(fp, scalars, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write vector data
+  //
+  if( vectors )
+    {
+    if ( ! this->WriteVectorData(fp, vectors, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write normals
+  //
+  if ( normals )
+    {
+    if ( ! this->WriteNormalData(fp, normals, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write texture coords
+  //
+  if ( tcoords )
+    {
+    if ( ! this->WriteTCoordData(fp, tcoords, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write tensors
+  //
+  if ( tensors )
+    {
+    if ( ! this->WriteTensorData(fp, tensors, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write global ids
+  //
+  if ( globalIds )
+    {
+    if ( ! this->WriteGlobalIdData(fp, globalIds, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write pedigree ids
+  //
+  if ( pedigreeIds )
+    {
+    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numVertices) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write field
+  //
+  if ( field )
+    {
+    if ( ! this->WriteFieldData(fp, field) )
+      {
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// Write the edge data (e.g., scalars, vectors, ...) of a vtk graph.
+// Returns 0 if error.
+int vtkDataWriter::WriteEdgeData(ostream *fp, vtkGraph *g)
+{
+  int numEdges;
+  vtkDataArray *scalars;
+  vtkDataArray *vectors;
+  vtkDataArray *normals;
+  vtkDataArray *tcoords;
+  vtkDataArray *tensors;
+  vtkDataArray *globalIds;
+  vtkAbstractArray *pedigreeIds;
+  vtkFieldData *field;
+  vtkDataSetAttributes *cd=g->GetEdgeData();
+
+  vtkDebugMacro(<<"Writing edge data...");
+
+  numEdges = g->GetNumberOfEdges();
+  if(numEdges <= 0)
+    {
+    vtkDebugMacro(<<"No edge data to write!");
+    return 1;
+    }
+    
+  scalars = cd->GetScalars();
+  if(scalars && scalars->GetNumberOfTuples() <= 0)
+    scalars = 0;
+    
+  vectors = cd->GetVectors();
+  if(vectors && vectors->GetNumberOfTuples() <= 0)
+    vectors = 0;
+    
+  normals = cd->GetNormals();
+  if(normals && normals->GetNumberOfTuples() <= 0)
+    normals = 0;
+    
+  tcoords = cd->GetTCoords();
+  if(tcoords && tcoords->GetNumberOfTuples() <= 0)
+    tcoords = 0;
+    
+  tensors = cd->GetTensors();
+  if(tensors && tensors->GetNumberOfTuples() <= 0)
+    tensors = 0;
+    
+  globalIds = cd->GetGlobalIds();
+  if(globalIds && globalIds->GetNumberOfTuples() <= 0)
+    globalIds = 0;
+    
+  pedigreeIds = cd->GetPedigreeIds();
+  if(pedigreeIds && pedigreeIds->GetNumberOfTuples() <= 0)
+    pedigreeIds = 0;
+    
+  field = cd;
+  if(field && field->GetNumberOfTuples() <= 0)
+    field = 0;
+
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || field))
+    {
+    vtkDebugMacro(<<"No edge data to write!");
+    return 1;
+    }
+
+  *fp << "EDGE_DATA " << numEdges << "\n";
+  //
+  // Write scalar data
+  //
+  if( scalars )
+    {
+    if ( ! this->WriteScalarData(fp, scalars, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write vector data
+  //
+  if( vectors )
+    {
+    if ( ! this->WriteVectorData(fp, vectors, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write normals
+  //
+  if ( normals )
+    {
+    if ( ! this->WriteNormalData(fp, normals, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write texture coords
+  //
+  if ( tcoords )
+    {
+    if ( ! this->WriteTCoordData(fp, tcoords, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write tensors
+  //
+  if ( tensors )
+    {
+    if ( ! this->WriteTensorData(fp, tensors, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write global ids
+  //
+  if ( globalIds )
+    {
+    if ( ! this->WriteGlobalIdData(fp, globalIds, numEdges) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write pedigree ids
+  //
+  if ( pedigreeIds )
+    {
+    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numEdges) )
       {
       return 0;
       }

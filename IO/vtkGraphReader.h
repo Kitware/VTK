@@ -52,11 +52,23 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
+  // Override ProcessRequest to handle request data object event
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *);
+
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
+
+  // Create output (a directed or undirected graph).
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
+                                vtkInformationVector *);
+
+  // Read beginning of file to determine whether the graph is directed.
+  virtual int ReadGraphDirectedness(bool & directed);
+
   
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:

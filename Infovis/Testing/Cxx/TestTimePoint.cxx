@@ -215,7 +215,7 @@ int TestTimePoint(int, char*[])
   graph->GetVertexData()->AddArray(dateTimeArray);
 
   timeToString->SetInput(graph);
-  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "datetime");
+  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "datetime");
   timeToString->SetOutputArrayName("datetime [to string]");
   timeToString->SetISO8601Format(vtkTimePointUtility::ISO8601_DATE);
   timeToString->Update();

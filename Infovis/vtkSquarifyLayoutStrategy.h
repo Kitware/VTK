@@ -68,7 +68,7 @@ private:
     vtkDataArray *coordsArray,
     vtkDataArray *sizeArray,
     vtkIdType nchildren,
-    const vtkIdType* children,
+    vtkIdType parent,
     vtkIdType begin, 
     float minX, float maxX, 
     float minY, float maxY);

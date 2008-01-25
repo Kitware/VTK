@@ -19,26 +19,28 @@
 
 #include "vtkCommunity2DLayoutStrategy.h"
 
+#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkBitArray.h"
 #include "vtkDataArray.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkFastSplatter.h"
+#include "vtkFloatArray.h"
+#include "vtkGraph.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkAbstractGraph.h"
-#include "vtkGraph.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
-#include "vtkFastSplatter.h"
-#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -242,19 +244,23 @@ void vtkCommunity2DLayoutStrategy::Initialize()
     }
     
   // Load up the edge data structures
-  for (vtkIdType i=0; i<numEdges; ++i)
+  vtkSmartPointer<vtkEdgeListIterator> edges =
+    vtkSmartPointer<vtkEdgeListIterator>::New();
+  this->Graph->GetEdges(edges);
+  while (edges->HasNext())
     {
-    this->EdgeArray[i].from = this->Graph->GetSourceVertex(i);
-    this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    this->EdgeArray[e.Id].from = e.Source;
+    this->EdgeArray[e.Id].to = e.Target;
     
     if (weightArray != NULL)
       {
-      weight = weightArray->GetTuple1(i);
-      this->EdgeArray[i].weight = weight / maxWeight;
+      weight = weightArray->GetTuple1(e.Id);
+      this->EdgeArray[e.Id].weight = weight / maxWeight;
       }
     else
       {
-      this->EdgeArray[i].weight = 1.0;
+      this->EdgeArray[e.Id].weight = 1.0;
       }
     }
     

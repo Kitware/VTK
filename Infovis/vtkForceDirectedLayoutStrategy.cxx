@@ -19,19 +19,22 @@
 
 #include "vtkForceDirectedLayoutStrategy.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
-
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -145,11 +148,31 @@ void vtkForceDirectedLayoutStrategy::Initialize()
     }
 
   // Get the edges
-  for (vtkIdType i = 0; i < numEdges; i++)
+  vtkSmartPointer<vtkEdgeListIterator> edges =
+    vtkSmartPointer<vtkEdgeListIterator>::New();
+  this->Graph->GetEdges(edges);
+  while (edges->HasNext())
     {
-    e[i].t = this->Graph->GetSourceVertex(i);
-    e[i].u = this->Graph->GetTargetVertex(i);
+    vtkEdgeType edge = edges->Next();
+    //cerr << edge.Id << ": " << edge.Source << "," << edge.Target << endl;
+    e[edge.Id].t = edge.Source;
+    e[edge.Id].u = edge.Target;
     }
+
+  //cerr << endl << endl;
+  //vtkSmartPointer<vtkOutEdgeIterator> it =
+  //  vtkSmartPointer<vtkOutEdgeIterator>::New();
+  //for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
+  //  {
+  //  this->Graph->GetOutEdges(i, it);
+  //  cerr << i << ": ";
+  //  while (it->HasNext())
+  //    {
+  //    vtkOutEdgeType edge = it->Next();
+  //    cerr << edge.Target << " ";
+  //    }
+  //  cerr << endl;
+  //  }
 
   // More variable definitions
   double volume = (this->GraphBounds[1] - this->GraphBounds[0]) *

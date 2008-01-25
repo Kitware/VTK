@@ -26,19 +26,20 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTreeWriter, "1.3");
+vtkCxxRevisionMacro(vtkTreeWriter, "1.4");
 vtkStandardNewMacro(vtkTreeWriter);
 
 void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)
 {
-  Stream << Vertex << " " << Tree->GetParent(Vertex) << "\n";
+  if (Vertex != Tree->GetRoot())
+    {
+    Stream << Vertex << " " << Tree->GetParent(Vertex) << "\n";
+    }
   
-  vtkIdType count = 0;
-  const vtkIdType* children = 0;
-  Tree->GetChildren(Vertex, count, children);
+  vtkIdType count = Tree->GetNumberOfChildren(Vertex);
   for(vtkIdType child = 0; child != count; ++child)
     {
-    WriteEdges(Stream, Tree, children[child]);
+    WriteEdges(Stream, Tree, Tree->GetChild(Vertex, child));
     }
 }
 
@@ -73,7 +74,7 @@ void vtkTreeWriter::WriteData()
   
   int error_occurred = 0;
 
-  if(!error_occurred && !this->WriteDataSetData(fp, input))
+  if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))
     {
     error_occurred = 1;
     }
@@ -83,15 +84,15 @@ void vtkTreeWriter::WriteData()
     }
   if(!error_occurred)
     {
-    const vtkIdType vertex_count = input->GetNumberOfVertices();
-    *fp << "EDGES " << vertex_count << "\n";
+    const vtkIdType edge_count = input->GetNumberOfEdges();
+    *fp << "EDGES " << edge_count << "\n";
     this->WriteEdges(*fp, input, input->GetRoot());
     }
-  if (!error_occurred && !this->WriteCellData(fp, input))
+  if (!error_occurred && !this->WriteEdgeData(fp, input))
     {
     error_occurred = 1;
     }
-  if (!error_occurred && !this->WritePointData(fp, input))
+  if (!error_occurred && !this->WriteVertexData(fp, input))
     {
     error_occurred = 1;
     }

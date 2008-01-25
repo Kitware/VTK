@@ -18,21 +18,22 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkBoxLayoutStrategy.h"
+
+#include "vtkAdjacentVertexIterator.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
+#include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
-
-#include "vtkTree.h"
-
-vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
@@ -46,11 +47,12 @@ vtkBoxLayoutStrategy::~vtkBoxLayoutStrategy()
 void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree, 
   vtkDataArray *coordsArray)
 {
-  vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+    vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
-  vtkIdType nchildren;
-  const vtkIdType* children;
+  vtkSmartPointer<vtkAdjacentVertexIterator> children =
+    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
   while (dfs->HasNext())
     {
     vtkIdType vertex = dfs->Next();
@@ -73,8 +75,8 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
     float xSpace = parentMaxX - parentMinX;
     float ySpace = parentMaxY - parentMinY;
 
-    inputTree->GetChildren(vertex, nchildren, children);
-    if (nchildren > 0)
+    vtkIdType nchildren = inputTree->GetNumberOfChildren(vertex);
+    if (!inputTree->IsLeaf(vertex))
       {
       // Divide the available space with simple algo
       int xDivisions = (int)(sqrt((float)nchildren)+1); // Ceiling
@@ -85,20 +87,23 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
         --xDivisions;
       if (xDivisions*(yDivisions-1) >= nchildren)
         --yDivisions;
-        
+      
+      // Get the children
+      inputTree->GetChildren(vertex, children);
+
       // Now break up the space evenly and pack
       float xDelta = xSpace / xDivisions;
       float yDelta = ySpace / yDivisions;
-      int childIndex = 0;
       for (int i = 0; i < yDivisions; i++)
         {
         for (int j = 0; j < xDivisions; j++)
           {
           // Check to see if we have more children
-          if (childIndex >= nchildren)
+          if (!children->HasNext())
             {
             break;
             }
+          vtkIdType child = children->Next();
           
           // Give children their positions
           coords[0] = 
@@ -110,16 +115,11 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
           coords[3] = 
             parentMinY + ySpace - yDelta*i;// maxY
           
-          int id = children[childIndex];
-          coordsArray->SetTuple(id, coords);
-        
-          // Increment child count
-          ++childIndex;
+          coordsArray->SetTuple(child, coords);        
           }
         }
       }
     }
-  dfs->Delete();
 }
 
 void vtkBoxLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

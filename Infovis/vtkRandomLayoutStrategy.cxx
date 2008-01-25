@@ -19,19 +19,19 @@
 
 #include "vtkRandomLayoutStrategy.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
-
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()
@@ -50,7 +50,8 @@ vtkRandomLayoutStrategy::~vtkRandomLayoutStrategy()
 // Random graph layout method
 // Fixme: Temporary Hack
 void vtkRandomLayoutStrategy::Layout() {}; 
-void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
+
+void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 {
   if (graph == NULL)
     {
@@ -61,7 +62,7 @@ void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
   // as the graph bounds.
   if ( this->AutomaticBoundsComputation )
     {
-    vtkPoints* pts = graph->GetPoints();
+    vtkPoints *pts = graph->GetPoints();
     pts->GetBounds(this->GraphBounds);
     }
 
@@ -76,7 +77,7 @@ void vtkRandomLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
   // Generate the points, either x,y,0 or x,y,z
   vtkMath::RandomSeed(this->RandomSeed);
 
-  vtkPoints* newPoints = vtkPoints::New();
+  vtkPoints *newPoints = vtkPoints::New();
   for (int i=0; i< graph->GetNumberOfVertices(); i++)
     {
     double x, y, z, r;

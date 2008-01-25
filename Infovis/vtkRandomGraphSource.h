@@ -104,10 +104,16 @@ protected:
   bool IncludeEdgeWeights;
   bool AllowSelfLoops;
 
-  int RequestData(
+  virtual int RequestData(
     vtkInformation*, 
     vtkInformationVector**, 
     vtkInformationVector*);
+
+  // Description:
+  // Creates directed or undirected output based on Directed flag.
+  virtual int RequestDataObject(vtkInformation*, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
 
 private:
   vtkRandomGraphSource(const vtkRandomGraphSource&); // Not implemented

@@ -22,8 +22,11 @@
 #include "vtkCommand.h"
 #include "vtkDataArrayTemplate.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractSelectedThresholds.h"
 #include "vtkExtractSelection.h"
 #include "vtkFieldData.h"
+#include "vtkGraph.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -45,7 +48,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.7");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.8");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -332,9 +335,35 @@ int vtkConvertSelection::Convert(
       {
       dsa = vtkDataSet::SafeDownCast(data)->GetPointData();
       }
-    else // vtkSelection::FIELD
+    else if (input->GetFieldType() == vtkSelection::FIELD)
       {
       fd = data->GetFieldData();
+      }
+    else
+      {
+      vtkErrorMacro("Inappropriate selection type for a vtkDataSet");
+      return 0;
+      }
+    }
+  else if (vtkGraph::SafeDownCast(data))
+    {
+    if (!input->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
+        input->GetFieldType() == vtkSelection::EDGE)
+      {
+      dsa = vtkGraph::SafeDownCast(data)->GetEdgeData();
+      }
+    else if (input->GetFieldType() == vtkSelection::VERTEX)
+      {
+      dsa = vtkGraph::SafeDownCast(data)->GetVertexData();
+      }
+    else if (input->GetFieldType() == vtkSelection::FIELD)
+      {
+      fd = data->GetFieldData();
+      }
+    else
+      {
+      vtkErrorMacro("Inappropriate selection type for a vtkGraph");
+      return 0;
       }
     }
   else
@@ -346,7 +375,7 @@ int vtkConvertSelection::Convert(
       }
     else
       {
-      vtkErrorMacro("Can only select points or cells from a subclass of vtkDataSet");
+      vtkErrorMacro("Inappropriate selection type for a non-dataset, non-graph");
       return 0;
       }
     }
@@ -357,14 +386,12 @@ int vtkConvertSelection::Convert(
   
   VTK_CREATE(vtkIdTypeArray, indices);
   
-  // TODO: Only use vtkExtractSelection filter for frustum and locations selections
   if (input->GetContentType() == vtkSelection::FRUSTUM || 
-      input->GetContentType() == vtkSelection::THRESHOLDS ||
       input->GetContentType() == vtkSelection::LOCATIONS)
     {
     if (!vtkDataSet::SafeDownCast(data))
       {
-      vtkErrorMacro("Can only convert from frustum, thresholds, or locations if the input is a vtkDataSet");
+      vtkErrorMacro("Can only convert from frustum or locations if the input is a vtkDataSet");
       return 0;
       }
     // Use the extract selection filter to create an index selection
@@ -372,6 +399,42 @@ int vtkConvertSelection::Convert(
     this->ConvertToIndexSelection(input, vtkDataSet::SafeDownCast(data), indexSelection);
     // TODO: We should shallow copy this, but the method is not defined.
     indices->DeepCopy(indexSelection->GetSelectionList());
+    }
+  else if (input->GetContentType() == vtkSelection::THRESHOLDS)
+    {
+    vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(input->GetSelectionList());
+    if (!lims)
+      {
+      vtkErrorMacro("Thresholds selection requires vtkDoubleArray selection list.");
+      return 0;
+      }
+    vtkDataArray *dataArr = 0;
+    if (dsa)
+      {
+      dataArr = vtkDataArray::SafeDownCast(dsa->GetAbstractArray(lims->GetName()));
+      }
+    else if (fd)
+      {
+      dataArr = vtkDataArray::SafeDownCast(fd->GetAbstractArray(lims->GetName()));
+      }
+    if (!dataArr)
+      {
+      vtkErrorMacro("Could not find vtkDataArray for thresholds selection.");
+      return 0;
+      }
+    int inverse = 0;
+    if (input->GetProperties()->Has(vtkSelection::INVERSE()))
+      {
+      inverse = input->GetProperties()->Get(vtkSelection::INVERSE());
+      }
+    for (vtkIdType id = 0; id < dataArr->GetNumberOfTuples(); id++)
+      {
+      int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(dataArr, id, lims);
+      if (keepPoint ^ inverse)
+        {
+        indices->InsertNextValue(id);
+        }
+      }
     }
   else if (input->GetContentType() == vtkSelection::INDICES)
     {
@@ -387,11 +450,11 @@ int vtkConvertSelection::Convert(
     for (vtkIdType col = 0; col < selTable->GetNumberOfColumns(); col++)
       {
       vtkAbstractArray* dataArr = 0;
-      if (dsa && input->GetContentType() == vtkSelection::VALUES)
+      if (dsa)
         {
         dataArr = dsa->GetAbstractArray(selTable->GetColumn(col)->GetName());
         }
-      else if (fd && input->GetContentType() == vtkSelection::VALUES)
+      else if (fd)
         {
         dataArr = fd->GetAbstractArray(selTable->GetColumn(col)->GetName());
         }

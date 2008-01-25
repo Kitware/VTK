@@ -23,40 +23,47 @@
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractSelection.h"
 #include "vtkGraph.h"
-#include "vtkGraphIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkSelection.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTree.h"
+#include "vtkVertexListIterator.h"
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.15");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
-
+//----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
 {
   this->SetNumberOfInputPorts(2);
   this->RemoveIsolatedVertices = true;
 }
 
+//----------------------------------------------------------------------------
 vtkExtractSelectedGraph::~vtkExtractSelectedGraph()
 {
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     return 1;
     }
   else if (port == 1)
@@ -67,17 +74,62 @@ int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* 
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractSelectedGraph::SetSelectionConnection(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection(1, in);
 }
 
+//----------------------------------------------------------------------------
+int vtkExtractSelectedGraph::RequestDataObject(
+  vtkInformation*, 
+  vtkInformationVector** inputVector , 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkGraph *input = vtkGraph::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (input)
+    {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkGraph *output = vtkGraph::SafeDownCast(
+      info->Get(vtkDataObject::DATA_OBJECT()));
+    
+    // Output a vtkDirectedGraph if the input is a tree.
+    if (!output 
+        || (vtkTree::SafeDownCast(input) && !vtkDirectedGraph::SafeDownCast(output)) 
+        || (!vtkTree::SafeDownCast(input) && !output->IsA(input->GetClassName())))
+      {
+      if (vtkTree::SafeDownCast(input))
+        {
+        output = vtkDirectedGraph::New();
+        }
+      else
+        {
+        output = input->NewInstance();
+        }
+      output->SetPipelineInformation(info);
+      output->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+      }
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestData(
   vtkInformation* vtkNotUsed(request), 
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  vtkAbstractGraph* input = vtkAbstractGraph::GetData(inputVector[0]);
+  vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
 
   // If there is nothing in the list, there is nothing to select.
@@ -115,8 +167,9 @@ int vtkExtractSelectedGraph::RequestData(
     }
     
   // Convert the selection to an INDICES selection
-  vtkSelection* indexSelection = 
-    vtkConvertSelection::ToIndexSelection(selection, input);
+  vtkSmartPointer<vtkSelection> indexSelection;
+  indexSelection.TakeReference(
+    vtkConvertSelection::ToIndexSelection(selection, input));
   if (!indexSelection)
     {
     vtkErrorMacro("Selection conversion to INDICES failed.");
@@ -138,11 +191,24 @@ int vtkExtractSelectedGraph::RequestData(
     }
   vtkIdType selectSize = selectArr->GetNumberOfTuples();
   
-  vtkGraph* output = vtkGraph::GetData(outputVector);
+  bool directed = false;
+  if (vtkDirectedGraph::SafeDownCast(input))
+    {
+    directed = true;
+    }
 
-  output->SetDirected(input->GetDirected());
-  output->GetFieldData()->PassData(input->GetFieldData());
-
+  vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder = 
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder = 
+    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+  vtkGraph *builder = 0;
+  if (directed)
+    {
+    builder = dirBuilder;
+    }
+  else
+    {
+    }
 
   if (selection->GetProperties()->Has(vtkSelection::FIELD_TYPE()) && 
       selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == vtkSelection::CELL)
@@ -152,62 +218,73 @@ int vtkExtractSelectedGraph::RequestData(
     //
     
     // Copy all vertices
-    output->SetNumberOfVertices(input->GetNumberOfVertices());
-        
-    vtkCellData* inputEdgeData = input->GetEdgeData();
-    vtkCellData* outputEdgeData = output->GetEdgeData();
-    outputEdgeData->CopyAllocate(inputEdgeData);
-
-    // Copy unselected edges
-    if(inverse)
+    for (vtkIdType v = 0; v < input->GetNumberOfVertices(); ++v)
       {
-      for (vtkIdType i = 0; i < inputEdgeData->GetNumberOfTuples(); i++)
+      if (directed)
         {
-        if(selectArr->LookupValue(i) < 0 )
-          {
-          vtkIdType source = input->GetSourceVertex(i);
-          vtkIdType target = input->GetTargetVertex(i);
-          vtkIdType outputEdge = output->AddEdge(source, target);
-          outputEdgeData->CopyData(inputEdgeData, i, outputEdge);
-          }
+        dirBuilder->AddVertex();
+        }
+      else
+        {
+        undirBuilder->AddVertex();
         }
       }
-    // Copy selected edges
+        
+    vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
+    vtkDataSetAttributes *builderEdgeData = 0;
+    if (directed)
+      {
+      builderEdgeData = dirBuilder->GetEdgeData();
+      }
     else
       {
-      for (vtkIdType i = 0; i < selectSize; i++)
+      builderEdgeData = undirBuilder->GetEdgeData();
+      }
+
+    builderEdgeData->CopyAllocate(inputEdgeData);
+
+    // Copy unselected edges
+    vtkSmartPointer<vtkEdgeListIterator> edges =
+      vtkSmartPointer<vtkEdgeListIterator>::New();
+    input->GetEdges(edges);
+    while (edges->HasNext())
+      {
+      vtkEdgeType e = edges->Next();
+      if ((inverse && selectArr->LookupValue(e.Id) < 0) ||
+          (!inverse && selectArr->LookupValue(e.Id) >= 0))
         {
-        vtkIdType inputEdge = selectArr->GetValue(i);
-        if (inputEdge < input->GetNumberOfEdges())
+        vtkEdgeType outputEdge;
+        if (directed)
           {
-          vtkIdType source = input->GetSourceVertex(inputEdge);
-          vtkIdType target = input->GetTargetVertex(inputEdge);
-          vtkIdType outputEdge = output->AddEdge(source, target);
-          outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
+          outputEdge = dirBuilder->AddEdge(e.Source, e.Target);
           }
+        else
+          {
+          outputEdge = undirBuilder->AddEdge(e.Source, e.Target);
+          }
+        builderEdgeData->CopyData(inputEdgeData, e.Id, outputEdge.Id);
         }
       }
 
     // Remove isolated vertices
     if (this->RemoveIsolatedVertices)
       {
-      output->GetVertexData()->DeepCopy(input->GetVertexData());
-      output->GetPoints()->DeepCopy(input->GetPoints());
-      vtkIdTypeArray* isolated = vtkIdTypeArray::New();
-      for (vtkIdType i = 0; i < output->GetNumberOfVertices(); i++)
-        {
-        if (output->GetDegree(i) == 0)
-          {
-          isolated->InsertNextValue(i);
-          }
-        }
-      output->RemoveVertices(isolated->GetPointer(0), isolated->GetNumberOfTuples());
-      isolated->Delete();
+      // TODO: Implement this (requires rebuilding the graph without the
+      // isolated vertices).
+      vtkErrorMacro(<<"RemoveIsolatedVertices is not implemented.");
       }
     else
       {
-      output->GetVertexData()->PassData(input->GetVertexData());
-      output->GetPoints()->ShallowCopy(input->GetPoints());
+      if (directed)
+        {
+        dirBuilder->GetVertexData()->PassData(input->GetVertexData());
+        dirBuilder->GetPoints()->ShallowCopy(input->GetPoints());
+        }
+      else
+        {
+        undirBuilder->GetVertexData()->PassData(input->GetVertexData());
+        undirBuilder->GetPoints()->ShallowCopy(input->GetPoints());
+        }
       }
     }
   else
@@ -217,22 +294,43 @@ int vtkExtractSelectedGraph::RequestData(
     //
     
     double pt[3];
-    vtkPoints* inputPoints = input->GetPoints();
-    vtkPoints* outputPoints = vtkPoints::New();
-    vtkPointData* inputVertexData = input->GetVertexData();
-    vtkPointData* outputVertexData = output->GetVertexData();
-    outputVertexData->CopyAllocate(inputVertexData);
+    vtkPoints *inputPoints = input->GetPoints();
+    vtkSmartPointer<vtkPoints> outputPoints = 
+      vtkSmartPointer<vtkPoints>::New();
+    vtkDataSetAttributes *inputVertexData = input->GetVertexData();
+    vtkDataSetAttributes *builderVertexData = 0;
+    if (directed)
+      {
+      builderVertexData = dirBuilder->GetVertexData();
+      }
+    else
+      {
+      builderVertexData = undirBuilder->GetVertexData();
+      }
+    builderVertexData->CopyAllocate(inputVertexData);
     vtksys_stl::map<vtkIdType, vtkIdType> idMap;
 
     // Copy unselected vertices
     if(inverse)
       {
-      for (vtkIdType i = 0; i < inputVertexData->GetNumberOfTuples(); i++)
+      vtkSmartPointer<vtkVertexListIterator> vertices = 
+        vtkSmartPointer<vtkVertexListIterator>::New();
+      input->GetVertices(vertices);
+      while (vertices->HasNext())
         {
+        vtkIdType i = vertices->Next();
         if(selectArr->LookupValue(i) < 0)
           {
-          vtkIdType outputVertex = output->AddVertex();
-          outputVertexData->CopyData(inputVertexData, i, outputVertex);
+          vtkIdType outputVertex = -1;
+          if (directed)
+            {
+            outputVertex = dirBuilder->AddVertex();
+            }
+          else
+            {
+            outputVertex = undirBuilder->AddVertex();
+            }
+          builderVertexData->CopyData(inputVertexData, i, outputVertex);
           idMap[i] = outputVertex;
           inputPoints->GetPoint(i, pt);
           outputPoints->InsertNextPoint(pt);
@@ -247,101 +345,96 @@ int vtkExtractSelectedGraph::RequestData(
         vtkIdType inputVertex = selectArr->GetValue(i);
         if (inputVertex < input->GetNumberOfVertices())
           {
-          vtkIdType outputVertex = output->AddVertex();
-          outputVertexData->CopyData(inputVertexData, inputVertex, outputVertex);
+          vtkIdType outputVertex = -1;
+          if (directed)
+            {
+            outputVertex = dirBuilder->AddVertex();
+            }
+          else
+            {
+            outputVertex = undirBuilder->AddVertex();
+            }
+          builderVertexData->CopyData(inputVertexData, inputVertex, outputVertex);
           idMap[inputVertex] = outputVertex;
           inputPoints->GetPoint(inputVertex, pt);
           outputPoints->InsertNextPoint(pt);
           }
         }
       }
-    output->SetPoints(outputPoints);
-    outputPoints->Delete();
-    
-    // Make a directed shallow copy of the graph so GetOutEdges()
-    // returns every edge no more than once.
-    vtkAbstractGraph* copy = input;
-    bool madeCopy = false;
-    if (vtkGraph::SafeDownCast(input) && !input->GetDirected())
+    if (directed)
       {
-      copy = vtkGraph::New();
-      copy->ShallowCopy(input);
-      vtkGraph::SafeDownCast(copy)->SetDirected(true);
-      madeCopy = true;
+      dirBuilder->SetPoints(outputPoints);
       }
-  
-    vtkCellData* inputEdgeData = input->GetEdgeData();
-    vtkCellData* outputEdgeData = output->GetEdgeData();
-    outputEdgeData->CopyAllocate(inputEdgeData);
-    vtkGraphIdList* edgeList = vtkGraphIdList::New();
-
-    // Copy any edges that connect UNSELECTED vertices
-    if(inverse)
-      {
-      vtksys_stl::map<vtkIdType, vtkIdType>::iterator mapIter = idMap.begin();
-      while(mapIter != idMap.end())
-        {
-        vtkIdType inputVertex = mapIter->first;
-        vtkIdType outputVertex = mapIter->second;
-        copy->GetOutEdges(inputVertex, edgeList);
-        for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
-          {
-          vtkIdType inputEdge = edgeList->GetId(j);
-          vtkIdType oppInputVertex = input->GetOppositeVertex(inputEdge, inputVertex);
-          if (idMap.count(oppInputVertex) > 0)
-            {
-            vtkIdType oppOutputVertex = idMap[oppInputVertex];
-            vtkIdType outputEdge = output->AddEdge(outputVertex, oppOutputVertex);
-            outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
-            }
-          }
-        mapIter++;
-        }
-      }
-    // Copy any edges that connect SELECTED vertices
     else
       {
-      for (vtkIdType i = 0; i < selectSize; i++)
-        {
-        vtkIdType inputVertex = selectArr->GetValue(i);
-        if (idMap.count(inputVertex) > 0)
-          {
-          vtkIdType outputVertex = idMap[inputVertex];
-          copy->GetOutEdges(inputVertex, edgeList);
-          for (vtkIdType j = 0; j < edgeList->GetNumberOfIds(); j++)
-            {
-            vtkIdType inputEdge = edgeList->GetId(j);
-            vtkIdType oppInputVertex = input->GetOppositeVertex(inputEdge, inputVertex);
-            if (idMap.count(oppInputVertex) > 0)
-              {
-              vtkIdType oppOutputVertex = idMap[oppInputVertex];
-              vtkIdType outputEdge = output->AddEdge(outputVertex, oppOutputVertex);
-              outputEdgeData->CopyData(inputEdgeData, inputEdge, outputEdge);
-              }
-            }
-          }
-        }
+      undirBuilder->SetPoints(outputPoints);
       }
-    edgeList->Delete();
-    
-    // Clean up
-    if (madeCopy)
+
+    // Copy edges whose source and target are selected.
+    vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
+    vtkDataSetAttributes *builderEdgeData = 0;
+    if (directed)
       {
-      copy->Delete();
+      builderEdgeData = dirBuilder->GetVertexData();
+      }
+    else
+      {
+      builderEdgeData = undirBuilder->GetVertexData();
+      }
+    builderEdgeData->CopyAllocate(inputEdgeData);
+
+    vtkSmartPointer<vtkEdgeListIterator> edges = 
+      vtkSmartPointer<vtkEdgeListIterator>::New();
+    input->GetEdges(edges);
+    while (edges->HasNext())
+      {
+      vtkEdgeType e = edges->Next();
+      if (idMap.count(e.Source) > 0 && idMap.count(e.Target) > 0)
+        {
+        vtkEdgeType outputEdge;
+        if (directed)
+          {
+          outputEdge = dirBuilder->AddEdge(idMap[e.Source], idMap[e.Target]);
+          }
+        else
+          {
+          outputEdge = undirBuilder->AddEdge(idMap[e.Source], idMap[e.Target]);
+          }
+        builderEdgeData->CopyData(inputEdgeData, e.Id, outputEdge.Id);
+        }
+      }    
+    }
+
+  // Pass constructed graph to output.
+  vtkGraph* output = vtkGraph::GetData(outputVector);
+  if (directed)
+    {
+    if (!output->CheckedShallowCopy(dirBuilder))
+      {
+      vtkErrorMacro(<<"Invalid graph structure.");
+      return 0;
       }
     }
+  else
+    {
+    if (!output->CheckedShallowCopy(undirBuilder))
+      {
+      vtkErrorMacro(<<"Invalid graph structure.");
+      return 0;
+      }
+    }
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   // Clean up
   output->Squeeze();
-  indexSelection->Delete();
 
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "RemoveIsolatedVertices: " 
      << (this->RemoveIsolatedVertices ? "on" : "off") << endl;
 }
-

@@ -6,11 +6,10 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_LIBS vtkCommon)
 
 SET( Kit_SRCS
-vtkAbstractGraph.cxx
-vtkAbstractGraphAlgorithm.cxx
 vtkAbstractMapper.cxx
 vtkActor2D.cxx
 vtkActor2DCollection.cxx
+vtkAdjacentVertexIterator.cxx
 vtkAlgorithm.cxx
 vtkAlgorithmOutput.cxx
 vtkBiQuadraticQuad.cxx
@@ -51,6 +50,9 @@ vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
 vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
+vtkDirectedGraph.cxx
+vtkDirectedGraphAlgorithm.cxx
+vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
 vtkExecutive.cxx
 vtkExplicitCell.cxx
@@ -69,8 +71,8 @@ vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
 vtkGeometricErrorMetric.cxx
 vtkGraph.cxx
+vtkGraphEdge.cxx
 vtkGraphAlgorithm.cxx
-vtkGraphIdList.cxx
 vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
@@ -100,6 +102,7 @@ vtkImplicitSelectionLoop.cxx
 vtkImplicitSum.cxx
 vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
+vtkInEdgeIterator.cxx
 vtkInformation.cxx
 vtkInformationExecutivePortKey.cxx
 vtkInformationExecutivePortVectorKey.cxx
@@ -115,8 +118,11 @@ vtkMultiGroupDataInformation.cxx
 vtkMultiGroupDataIterator.cxx
 vtkMultiGroupDataSet.cxx
 vtkMultiGroupDataSetAlgorithm.cxx
+vtkMutableDirectedGraph.cxx
+vtkMutableUndirectedGraph.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
+vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
@@ -191,6 +197,8 @@ vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTriQuadraticHexahedron.cxx
 vtkTrivialProducer.cxx
+vtkUndirectedGraph.cxx
+vtkUndirectedGraphAlgorithm.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
@@ -198,16 +206,15 @@ vtkUnstructuredGridSource.cxx
 vtkUnstructuredGridToPolyDataFilter.cxx
 vtkUnstructuredGridToUnstructuredGridFilter.cxx
 vtkVertex.cxx
-vtkVertexLinks.cxx
 vtkViewDependentErrorMetric.cxx
 vtkVoxel.cxx
 vtkWedge.cxx
+vtkVertexListIterator.cxx
 vtkViewport.cxx
 vtkGenericInterpolatedVelocityField.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-vtkAbstractGraph
 vtkAbstractMapper
 vtkCell
 vtkCell3D
@@ -233,6 +240,7 @@ vtkGenericDataSet
 vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
+vtkGraph
 vtkHierarchicalDataSetAlgorithm
 vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor

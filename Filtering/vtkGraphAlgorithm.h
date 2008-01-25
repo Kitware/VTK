@@ -16,7 +16,7 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkGraphAlgorithm - Superclass for algorithms that produce only Graph as output
+// .NAME vtkGraphAlgorithm - Superclass for algorithms that produce only graph as output
 //
 // .SECTION Description
 // vtkGraphAlgorithm is a convenience class to make writing algorithms
@@ -98,6 +98,12 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
+
+  // Description:
+  // By default, creates the same output type as the input type.
+  virtual int RequestDataObject(vtkInformation*, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

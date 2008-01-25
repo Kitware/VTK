@@ -18,7 +18,6 @@
 ----------------------------------------------------------------------------*/
 #include "vtkTreeMapToPolyData.h"
 
-#include "vtkAbstractGraph.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
@@ -30,7 +29,7 @@
 #include "vtkPointData.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.5");
+vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.6");
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
@@ -82,11 +81,11 @@ int vtkTreeMapToPolyData::RequestData(
   vtkDataArray* levelArray = NULL;
   if (this->LevelsFieldName)
     {
-    levelArray = inputTree->GetPointData()->GetArray(this->LevelsFieldName);
+    levelArray = inputTree->GetVertexData()->GetArray(this->LevelsFieldName);
     }
   
   // Now set the point coordinates, normals, and insert the cell
-  vtkDataArray *coordArray = inputTree->GetPointData()->GetArray(this->RectanglesFieldName);
+  vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->RectanglesFieldName);
   for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
     {
     // Grab coords from the input
@@ -136,7 +135,7 @@ int vtkTreeMapToPolyData::RequestData(
     }
 
   // Pass the input point data to the output cell data :)
-  outputPoly->GetCellData()->PassData(inputTree->GetPointData());
+  outputPoly->GetCellData()->PassData(inputTree->GetVertexData());
   
   // Set the output points and cells
   outputPoly->SetPoints(outputPoints);

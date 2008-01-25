@@ -21,8 +21,10 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -32,7 +34,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.2");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.3");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -80,26 +82,34 @@ int vtkTableToTreeFilter::RequestData(
   vtkTree* tree = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Start by making a simple chain
-  tree->AddRoot();
-  for (vtkIdType vertex = 1; vertex < table->GetNumberOfRows(); vertex++)
+  // Create a mutable graph for building the tree
+  vtkSmartPointer<vtkMutableDirectedGraph> builder =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+
+  // The tree will have one more vertex than the number of rows
+  // in the table (the extra vertex is the new root.
+  for (vtkIdType v = 0; v <= table->GetNumberOfRows(); ++v)
     {
-    tree->AddChild(vertex - 1);
+    builder->AddVertex();
     }
 
-  // Add a new vertex to be the root
-  vtkIdType root = tree->AddChild(table->GetNumberOfRows() - 1);
-  tree->SetRoot(root);
+  // Make a star, originating at the new root (the last vertex).
+  vtkIdType root = table->GetNumberOfRows();
+  for (vtkIdType v = 0; v < table->GetNumberOfRows(); ++v)
+    {
+    builder->AddEdge(root, v);
+    }
 
   // Insert a row in the table for the new root.
   // This modifies the input, but it might be ok because we are 
   // just extending the arrays.
   table->InsertNextBlankRow();
 
-  // Convert the tree from a path to a star
-  for (vtkIdType vertex = 0; vertex < table->GetNumberOfRows() - 1; vertex++)
+  // Move the structure of the mutable graph into the tree.
+  if (!tree->CheckedShallowCopy(builder))
     {
-    tree->SetParent(vertex, root);
+    vtkErrorMacro(<<"Built graph is not a valid tree!");
+    return 0;
     }
 
   // Copy the table data into the tree vertex data

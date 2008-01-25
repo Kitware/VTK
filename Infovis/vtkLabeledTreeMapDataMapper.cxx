@@ -28,6 +28,7 @@
 #include "vtkLabeledTreeMapDataMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStringArray.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
@@ -36,7 +37,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.12");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.13");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -335,9 +336,9 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   // Input might have changed
   input = this->GetInputTree();
-  vtkPointData *pd=input->GetPointData();
+  vtkDataSetAttributes *pd = input->GetVertexData();
   // Get the treeMap info
-  tempData = pd->GetArray(this->RectanglesFieldName,i);
+  tempData = pd->GetArray(this->RectanglesFieldName, i);
   if (!tempData)
     {
     vtkErrorMacro(<< "Input Tree does not have box information.");
@@ -445,7 +446,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     // the number of vertices in the tree - Note that we may 
     // not create the actual mappers
     
-    numVertices = input->GetNumberOfPoints();
+    numVertices = input->GetNumberOfVertices();
     if ( numVertices > this->NumberOfLabelsAllocated )
       {
       // delete old stuff

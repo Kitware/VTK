@@ -27,8 +27,8 @@
 // have been discovered already.
 //
 // After setting up the iterator, the normal mode of operation is to
-// set up a "while(iter->HasNext())" loop, with the statement
-// "vtkIdType vertex = iter->Next()" inside the loop.
+// set up a <code>while(iter->HasNext())</code> loop, with the statement
+// <code>vtkIdType vertex = iter->Next()</code> inside the loop.
 
 
 #ifndef __vtkTreeDFSIterator_h

@@ -23,6 +23,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
@@ -38,7 +39,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.40");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.41");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -380,6 +381,34 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
       return fd->GetAbstractArray(name);
       }
     
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
+        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES)
+      {
+      vtkGraph *inputG = vtkGraph::SafeDownCast(input);
+      if (!inputG)
+        {
+        vtkErrorMacro("Attempt to get vertex or edge data from a non-graph");
+        return NULL;
+        }
+      vtkFieldData *fd = 0;
+      if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
+        {
+        fd = inputG->GetVertexData();
+        }
+      else
+        {
+        fd = inputG->GetEdgeData();
+        }
+      return fd->GetAbstractArray(name);
+      }
+
+    if (vtkGraph::SafeDownCast(input) && 
+        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+      {
+      return vtkGraph::SafeDownCast(input)->
+        GetVertexData()->GetAbstractArray(name);
+      }
+
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
     if (!inputDS)
       {

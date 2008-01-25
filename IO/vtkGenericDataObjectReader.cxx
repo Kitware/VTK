@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkGenericDataObjectReader.h"
+#include "vtkDirectedGraph.h"
 #include "vtkGraph.h"
 #include "vtkGraphReader.h"
 #include "vtkImageData.h"
@@ -32,10 +33,11 @@
 #include "vtkTableReader.h"
 #include "vtkTree.h"
 #include "vtkTreeReader.h"
+#include "vtkUndirectedGraph.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.2");
+vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.3");
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
@@ -117,8 +119,11 @@ int vtkGenericDataObjectReader::RequestDataObject(
     {
     switch (outputType)
       {
-      case VTK_GRAPH:
-        output = vtkGraph::New();
+      case VTK_DIRECTED_GRAPH:
+        output = vtkDirectedGraph::New();
+        break;
+      case VTK_UNDIRECTED_GRAPH:
+        output = vtkUndirectedGraph::New();
         break;
       case VTK_IMAGE_DATA:
         output = vtkImageData::New();
@@ -175,7 +180,8 @@ int vtkGenericDataObjectReader::RequestInformation(
   int retVal;
   switch (this->ReadOutputType())
     {
-    case VTK_GRAPH:
+    case VTK_UNDIRECTED_GRAPH:
+    case VTK_DIRECTED_GRAPH:
       reader = vtkGraphReader::New();
       break;
     case VTK_IMAGE_DATA:
@@ -231,9 +237,14 @@ int vtkGenericDataObjectReader::RequestData(
 
   switch (this->ReadOutputType())
     {
-    case VTK_GRAPH:
+    case VTK_DIRECTED_GRAPH:
       {
-      ReadData<vtkGraphReader, vtkGraph>("vtkGraph", this, this->MTime, output);
+      ReadData<vtkGraphReader, vtkDirectedGraph>("vtkDirectedGraph", this, this->MTime, output);
+      return 1;
+      }
+    case VTK_UNDIRECTED_GRAPH:
+      {
+      ReadData<vtkGraphReader, vtkUndirectedGraph>("vtkUndirectedGraph", this, this->MTime, output);
       return 1;
       }
     case VTK_IMAGE_DATA:
@@ -314,9 +325,13 @@ int vtkGenericDataObjectReader::ReadOutputType()
 
     this->CloseVTKFile();
     
-    if(!strncmp(this->LowerCase(line), "graph", 5))
+    if(!strncmp(this->LowerCase(line), "directed_graph", 5))
       {
-      return VTK_GRAPH;
+      return VTK_DIRECTED_GRAPH;
+      }
+    if(!strncmp(this->LowerCase(line), "undirected_graph", 5))
+      {
+      return VTK_UNDIRECTED_GRAPH;
       }
     if(!strncmp(this->LowerCase(line), "polydata",8))
       {

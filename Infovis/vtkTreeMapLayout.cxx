@@ -19,6 +19,7 @@
 
 #include "vtkTreeMapLayout.h"
 
+#include "vtkAdjacentVertexIterator.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -31,7 +32,7 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayout, "1.6");
+vtkCxxRevisionMacro(vtkTreeMapLayout, "1.7");
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
@@ -72,9 +73,9 @@ int vtkTreeMapLayout::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
     
   // Storing the inputTree and outputTree handles
-  vtkTree* inputTree = vtkTree::SafeDownCast(
+  vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree* outputTree = vtkTree::SafeDownCast(
+  vtkTree *outputTree = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy the input into the output
@@ -85,7 +86,7 @@ int vtkTreeMapLayout::RequestData(
   coordsArray->SetName(this->RectanglesFieldName);
   coordsArray->SetNumberOfComponents(4);
   coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
-  vtkPointData* data = outputTree->GetPointData(); 
+  vtkDataSetAttributes *data = outputTree->GetVertexData(); 
   data->AddArray(coordsArray);
   coordsArray->Delete();
   
@@ -108,7 +109,6 @@ void vtkTreeMapLayout::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
 {
-
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
   if (!otree) 
@@ -118,7 +118,7 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     }
 
   //Get the four tuple array for the points
-  vtkDataArray *array = otree->GetPointData()->
+  vtkDataArray *array = otree->GetVertexData()->
     GetArray(this->RectanglesFieldName);
   if (!array)
     {
@@ -151,12 +151,11 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     binfo[3] = blimits[3];
     }
 
-  vtkIdType n;
-  const vtkIdType* children;
-  otree->GetChildren(vertex, n, children);
-  for (vtkIdType i = 0; i < n; ++i) 
+  vtkAdjacentVertexIterator *it = vtkAdjacentVertexIterator::New();
+  otree->GetAdjacentVertices(vertex, it);
+  while (it->HasNext()) 
     {
-    child = children[i];
+    child = it->Next();
     boxInfo->GetTupleValue(child, blimits); // Get the extents of the child
     if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||
             (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
@@ -166,10 +165,9 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     // If we are here then the point is contained by the child
     // So recurse down the children of this vertex
     vertex = child;
-    otree->GetChildren(vertex, n, children);
-    i = -1; // Remember that the for loop is going to increment this
-            // Note: This is an odd way to do recursion 
+    otree->GetAdjacentVertices(vertex, it);
     }
+  it->Delete();
 
   return vertex;
 }
@@ -185,7 +183,7 @@ void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)
     }
 
   //Get the four tuple array for the points
-  vtkDataArray *array = otree->GetPointData()->
+  vtkDataArray *array = otree->GetVertexData()->
     GetArray(this->RectanglesFieldName);
   if (!array)
     {

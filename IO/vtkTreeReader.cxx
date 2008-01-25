@@ -20,10 +20,12 @@
 #include "vtkTree.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTreeReader, "1.2");
+vtkCxxRevisionMacro(vtkTreeReader, "1.3");
 vtkStandardNewMacro(vtkTreeReader);
 
 #ifdef read
@@ -176,19 +178,17 @@ int vtkTreeReader::RequestData(
       if(!this->Read(&edge_count))
         {
         vtkErrorMacro(<<"Cannot read number of edges!");
-        this->CloseVTKFile ();
+        this->CloseVTKFile();
         return 1;
         }
-        
-      // Create all of the table vertices (with no particular order or topology)
-      vtkIdType root_id = 0;
-      if(edge_count)
+
+      vtkSmartPointer<vtkMutableDirectedGraph> builder = 
+        vtkSmartPointer<vtkMutableDirectedGraph>::New();
+
+      // Create all of the tree vertices (number of edges + 1)
+      for(int edge = 0; edge <= edge_count; ++edge)
         {
-        root_id = output->AddRoot();
-        }
-      for(int edge = 1; edge < edge_count; ++edge)
-        {
-        output->AddChild(root_id);
+        builder->AddVertex();
         }
 
       // Reparent the existing vertices so their order and topology match the original      
@@ -203,51 +203,44 @@ int vtkTreeReader::RequestData(
           return 1;
           }
 
-        // Set the ID of the root vertex ...
-        if(!edge)
-          {
-          if(child != parent)
-            {
-            vtkErrorMacro(<<"First vertex must be root vertex!");
-            this->CloseVTKFile();
-            return 1;
-            }
-            
-          output->SetRoot(child);
-          }
-        else
-          {
-          output->SetParent(child, parent);
-          }
+        builder->AddEdge(parent, child);
         }
+
+      if (!output->CheckedShallowCopy(builder))
+        {
+        vtkErrorMacro(<<"Edges do not create a valid tree.");
+        this->CloseVTKFile();
+        return 1;
+        }
+
       continue;
       }
 
-    if(!strncmp(this->LowerCase(line), "point_data", 10))
+    if(!strncmp(this->LowerCase(line), "vertex_data", 10))
       {
-      int point_count = 0;
-      if(!this->Read(&point_count))
+      int vertex_count = 0;
+      if(!this->Read(&vertex_count))
         {
-        vtkErrorMacro(<<"Cannot read number of points!");
+        vtkErrorMacro(<<"Cannot read number of vertices!");
         this->CloseVTKFile ();
         return 1;
         }
 
-      this->ReadPointData(output, point_count);
+      this->ReadVertexData(output, vertex_count);
       continue;
       }
       
-    if(!strncmp(this->LowerCase(line), "cell_data", 9))
+    if(!strncmp(this->LowerCase(line), "edge_data", 9))
       {
-      int cell_count = 0;
-      if(!this->Read(&cell_count))
+      int edge_count = 0;
+      if(!this->Read(&edge_count))
         {
-        vtkErrorMacro(<<"Cannot read number of points!");
+        vtkErrorMacro(<<"Cannot read number of edges!");
         this->CloseVTKFile ();
         return 1;
         }
 
-      this->ReadCellData(output, cell_count);
+      this->ReadEdgeData(output, edge_count);
       continue;
       }
 

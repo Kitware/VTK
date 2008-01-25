@@ -18,14 +18,26 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkPruneTreeFilter.h"
-#include "vtkTree.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
+
 #include "vtkCellData.h"
 #include "vtkInformation.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTree.h"
+#include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.3");
+#include <vtksys/stl/utility>
+#include <vtksys/stl/vector>
+
+using vtksys_stl::make_pair;
+using vtksys_stl::pair;
+using vtksys_stl::vector;
+
+vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.4");
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
 
@@ -49,7 +61,6 @@ int vtkPruneTreeFilter::RequestData(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  // Store the XML hieredgehy into a vtkTree
   vtkTree* inputTree = vtkTree::GetData(inputVector[0]);
   vtkTree* outputTree = vtkTree::GetData(outputVector);
 
@@ -60,10 +71,49 @@ int vtkPruneTreeFilter::RequestData(
     return 0;
     }
 
-  outputTree->DeepCopy(inputTree);
+  // Structure for building the tree.
+  vtkSmartPointer<vtkMutableDirectedGraph> builder =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
-  // Now, prune the tree
-  outputTree->RemoveVertexAndDescendants(this->ParentVertex);
+  // Child iterator.
+  vtkSmartPointer<vtkOutEdgeIterator> it =
+    vtkSmartPointer<vtkOutEdgeIterator>::New();
+
+  // Get the input and builder vertex and edge data.
+  vtkDataSetAttributes *inputVertexData = inputTree->GetVertexData();
+  vtkDataSetAttributes *inputEdgeData = inputTree->GetEdgeData();
+  vtkDataSetAttributes *builderVertexData = builder->GetVertexData();
+  vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
+  builderVertexData->CopyAllocate(inputVertexData);
+  builderEdgeData->CopyAllocate(inputEdgeData);
+
+  // Build a tree starting at the parent vertex.
+  vector< pair<vtkIdType, vtkIdType> > vertStack;
+  vertStack.push_back(make_pair(this->ParentVertex, builder->AddVertex()));
+  while (!vertStack.empty())
+    {
+    vtkIdType tree_v = vertStack.back().first;
+    vtkIdType v = vertStack.back().second;
+    builderVertexData->CopyData(inputVertexData, tree_v, v);
+    vertStack.pop_back();
+    inputTree->GetOutEdges(tree_v, it);
+    while (it->HasNext())
+      {
+      vtkOutEdgeType tree_e = it->Next();
+      vtkIdType tree_child = tree_e.Target;
+      vtkIdType child = builder->AddVertex();
+      vtkEdgeType e = builder->AddEdge(v, child);
+      builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
+      vertStack.push_back(make_pair(tree_child, child));
+      }
+    }
+
+  // Copy the structure into the output.
+  if (!outputTree->CheckedShallowCopy(builder))
+    {
+    vtkErrorMacro(<<"Invalid tree structure.");
+    return 0;
+    }
 
   return 1;
 }

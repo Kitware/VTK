@@ -16,192 +16,115 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-// .NAME vtkTree - A graph representing a hierarchical tree.
+// .NAME vtkTree - A rooted tree data structure.
 //
 // .SECTION Description
-// The tree contains a root vertex, and each vertex may contain one or more
-// children vertices.
+// vtkTree is a connected directed graph with no cycles. A tree is a type of
+// directed graph, so works with all graph algorithms.
 //
-// .SECTION Thanks
-// Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
-// Sandia National Laboratories for their help in developing this class API.
+// vtkTree is a read-only data structure.
+// To construct a tree, create an instance of vtkMutableDirectedGraph.
+// Add vertices and edges with AddVertex() and AddEdge(). You may alternately
+// start by adding a single vertex as the root then call graph->AddChild(parent)
+// which adds a new vertex and connects the parent to the child.
+// The tree MUST have all edges in the proper direction, from parent to child.
+// After building the tree, call tree->CheckedShallowCopy(graph) to copy the
+// structure into a vtkTree. This method will return false if the graph is
+// an invalid tree.
+//
+// vtkTree provides some convenience methods for obtaining the parent and
+// children of a vertex, for finding the root, and determining if a vertex
+// is a leaf (a vertex with no children).
+//
+// .SECTION See Also
+// vtkDirectedGraph vtkMutableDirectedGraph vtkGraph
 
 #ifndef __vtkTree_h
 #define __vtkTree_h
 
-#include "vtkAbstractGraph.h"
+#include "vtkDirectedGraph.h"
 
-class vtkIdList;
-class vtkVertexLinks;
+class vtkIdTypeArray;
 
-class VTK_FILTERING_EXPORT vtkTree : public vtkAbstractGraph
+class VTK_FILTERING_EXPORT vtkTree : public vtkDirectedGraph
 {
 public:
-  static vtkTree* New();
-  vtkTypeRevisionMacro(vtkTree,vtkAbstractGraph);
+  static vtkTree *New();
+  vtkTypeRevisionMacro(vtkTree, vtkDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_TREE;}
+  virtual int GetDataObjectType() {return VTK_TREE;}
 
   // Description:
-  // The number of vertices in the graph.
-  virtual vtkIdType GetNumberOfVertices();
+  // Get the root vertex of the tree.
+  vtkGetMacro(Root, vtkIdType);
 
   // Description:
-  // The number of edges in the graph.
-  virtual vtkIdType GetNumberOfEdges();
+  // Get the number of children of a vertex.
+  vtkIdType GetNumberOfChildren(vtkIdType v)
+    { return this->GetOutDegree(v); }
 
   // Description:
-  // Fill vertices with the vertex IDs of every vertex adjacent to a certain vertex.
-  // For an undirected graph, these all return the same vertices.
-  virtual void GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertices);
-  virtual void GetInVertices(vtkIdType vertex, vtkGraphIdList* vertices);
-  virtual void GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertices);
+  // Get the i-th child of a parent vertex.
+  vtkIdType GetChild(vtkIdType v, vtkIdType i);
 
   // Description:
-  virtual void GetAdjacentVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
-  virtual void GetInVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
-  virtual void GetOutVertices(vtkIdType vertex, vtkIdType& nverts, const vtkIdType*& verts);
+  // Get the child vertices of a vertex.
+  // This is a convenience method that functions exactly like
+  // GetAdjacentVertices.
+  void GetChildren(vtkIdType v, vtkAdjacentVertexIterator *it)
+    { this->GetAdjacentVertices(v, it); }
 
   // Description:
-  // Fill edges with the edge IDs of every edge incident to a certain vertex.
-  // For an undirected graph, these all return the same edges.
-  virtual void GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edges);
-  virtual void GetInEdges(vtkIdType vertex, vtkGraphIdList* edges);
-  virtual void GetOutEdges(vtkIdType vertex, vtkGraphIdList* edges);
+  // Get the parent of a vertex.
+  vtkIdType GetParent(vtkIdType v);
 
   // Description:
-  // Get the total, or number of incoming or outgoing edges incident to a vertex.
-  // For an undirected graph, these all return the same value.
-  virtual vtkIdType GetDegree(vtkIdType vertex);
-  virtual vtkIdType GetInDegree(vtkIdType vertex);
-  virtual vtkIdType GetOutDegree(vtkIdType vertex);
-
-  // Description:
-  // Return the source vertex of an edge.
-  virtual vtkIdType GetSourceVertex(vtkIdType edge);
-
-  // Description:
-  // Return the target vertex of an edge.
-  virtual vtkIdType GetTargetVertex(vtkIdType edge);
-
-  // Description:
-  // Return the other vertex adjacent to an edge.
-  virtual vtkIdType GetOppositeVertex(vtkIdType edge, vtkIdType vertex);
-
-  // Description:
-  // A tree is always considered to have edges directed from the parent
-  // to the child, so return true.
-  bool GetDirected() { return true; }
-
-  // Description:
-  // Get the ID of the root vertex of the tree.
-  vtkIdType GetRoot();
-
-  // Description:
-  // Get an ID list storing the children of a parent vertex.
-  void GetChildren(vtkIdType parent, vtkIdType& nchildren, const vtkIdType*& children);
-
-  // Description:
-  // Get the number of children for this vertex.
-  vtkIdType GetNumberOfChildren(vtkIdType parent);
-
-  // Description:
-  // Get the child vertex ID at a particular index.
-  // The index may range from 0 to GetNumberOfChildern(parent)-1.
-  vtkIdType GetChild(vtkIdType parent, vtkIdType index);
-
-  // Description:
-  // Reorders the children relative to the parent.
-  // The children array must have length GetNumberOfChildren(parent),
-  // and must contain the parent's existing child ids.
-  void ReorderChildren(vtkIdType parent, vtkIdList* children);
-
-  // Description:
-  // Get the ID of the parent of a child vertex.
-  // The parent of the root vertex is defined to be the root vertex itself.
-  // Returns -1 if the child's id is < 0 or greater than the number of vertices
-  // in the tree.
-  vtkIdType GetParent(vtkIdType child);
+  // Get the edge connecting the vertex to its parent.
+  vtkEdgeType GetParentEdge(vtkIdType v);
 
   // Description:
   // Get the level of the vertex in the tree.  The root vertex has level 0.
   // Returns -1 if the vertex id is < 0 or greater than the number of vertices
   // in the tree.
-  vtkIdType GetLevel(vtkIdType vertex);
-
+  vtkIdType GetLevel(vtkIdType v);
+  
   // Description:
-  // Return whether the tree is a leaf (i.e. if it has no children).
+  // Return whether the vertex is a leaf (i.e. it has no children).
   bool IsLeaf(vtkIdType vertex);
-
-  // Description:
-  // Add a root vertex to the tree, and return the ID of the root.
-  // The root must be the first vertex added to the tree.
-  vtkIdType AddRoot();
-
-  // Description:
-  // Add a child to a parent vertex and return the ID of the child.
-  vtkIdType AddChild(vtkIdType parent);
-
-  // Description:
-  // Remove a subtree of the tree rooted at a certain vertex.
-  void RemoveVertexAndDescendants(vtkIdType vertex);
-
-  // Description:
-  // Detach a child vertex from its current parent, and attach
-  // it to a new parent.
-  void SetParent(vtkIdType child, vtkIdType parent);
-
-  // Description:
-  // Set the root of the tree by reversing edges on the path
-  // from the new root to the old root.
-  void SetRoot(vtkIdType root);
-
-  // Description:
-  // Reset the tree to be empty.
-  virtual void Initialize();
-
-  // Description:
-  // Create a shallow copy of the tree.
-  virtual void ShallowCopy(vtkDataObject* object);
-
-  // Description:
-  // Create a deep copy of the tree.
-  virtual void DeepCopy(vtkDataObject* object);
-
-  // Description:
-  // Copy the geometric and topological structure of the tree.
-  virtual void CopyStructure(vtkDataSet* ds);
-
-  // Description:
-  // Get the id of the edge linking the vertex to its parent.
-  vtkIdType GetParentEdge(vtkIdType vertex);
 
   //BTX
   // Description:
-  // Retrieve the tree from vtkInformation.
-  static vtkTree* GetData(vtkInformation* info);
-  static vtkTree* GetData(vtkInformationVector* v, int i=0);
+  // Retrieve a graph from an information vector.
+  static vtkTree *GetData(vtkInformation *info);
+  static vtkTree *GetData(vtkInformationVector *v, int i=0);
   //ETX
+
+  // Description:
+  // Reorder the children of a parent vertex.
+  // The children array must contain all the children of parent,
+  // just in a different order.
+  // This does not change the topology of the tree.
+  virtual void ReorderChildren(vtkIdType parent, vtkIdTypeArray *children);
 
 protected:
   vtkTree();
   ~vtkTree();
 
-  vtkVertexLinks* VertexLinks;
+  // Description:
+  // Check the storage, and accept it if it is a valid
+  // tree.
+  virtual bool IsStructureValid(vtkGraph *g);
 
-  vtkIdType AddVertex();
-  void RemoveVertex(vtkIdType vertex);
-  void RemoveVertices(vtkIdType* vertices, vtkIdType size);
-
-
+  // Description:
+  // The root of the tree.
   vtkIdType Root;
-private:
-  vtkTree(const vtkTree &);         // Not implemented.
-  void operator=(const vtkTree &);  // Not implemented.
-};
 
+private:
+  vtkTree(const vtkTree&);  // Not implemented.
+  void operator=(const vtkTree&);  // Not implemented.
+};
 
 #endif

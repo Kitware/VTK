@@ -38,13 +38,13 @@
 #ifndef __vtkBoostBiconnectedComponents_h
 #define __vtkBoostBiconnectedComponents_h
 
-#include "vtkGraphAlgorithm.h"
+#include "vtkUndirectedGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostBiconnectedComponents : public vtkGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkBoostBiconnectedComponents : public vtkUndirectedGraphAlgorithm 
 {
 public:
   static vtkBoostBiconnectedComponents *New();
-  vtkTypeRevisionMacro(vtkBoostBiconnectedComponents, vtkGraphAlgorithm);
+  vtkTypeRevisionMacro(vtkBoostBiconnectedComponents, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

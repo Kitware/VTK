@@ -20,29 +20,28 @@
 
 #include "vtkSimple2DLayoutStrategy.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkCommand.h>
-#include <vtkDataArray.h>
-#include <vtkFloatArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkMath.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-
-#include "vtkAbstractGraph.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCommand.h"
+#include "vtkDataArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkFloatArray.h"
 #include "vtkGraph.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.22");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.23");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
 #define MIN(x, y)       ((x) < (y) ? (x) : (y))
 #endif
-
 
 // Cool-down function.
 static inline float CoolDown(float t, float r) 
@@ -89,7 +88,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   vtkMath::RandomSeed(this->RandomSeed);
 
   // Set up some quick access variables
-  vtkPoints* pts = this->Graph->GetPoints();
+  vtkPoints *pts = this->Graph->GetPoints();
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
@@ -174,18 +173,22 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
     
   // Load up the edge data structures
-  for (vtkIdType i=0; i<numEdges; ++i)
+  vtkSmartPointer<vtkEdgeListIterator> edges =
+    vtkSmartPointer<vtkEdgeListIterator>::New();
+  this->Graph->GetEdges(edges);
+  while (edges->HasNext())
     {
-    this->EdgeArray[i].from = this->Graph->GetSourceVertex(i);
-    this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    this->EdgeArray[e.Id].from = e.Source;
+    this->EdgeArray[e.Id].to = e.Target;
     if (weightArray != NULL)
       {
-      weight = weightArray->GetTuple1(i);
-      this->EdgeArray[i].weight = weight / maxWeight;
+      weight = weightArray->GetTuple1(e.Id);
+      this->EdgeArray[e.Id].weight = weight / maxWeight;
       }
     else
       {
-      this->EdgeArray[i].weight = 1.0;
+      this->EdgeArray[e.Id].weight = 1.0;
       }
     }
     

@@ -34,8 +34,9 @@
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
 class vtkFastSplatter;
-class vtkImageData;
 class vtkFloatArray;
+class vtkGraphToPolyData;
+class vtkImageData;
 
 class VTK_INFOVIS_EXPORT vtkFast2DLayoutStrategy : public vtkGraphLayoutStrategy 
 {
@@ -135,6 +136,7 @@ private:
   } vtkLayoutEdge;
   
   // This class 'has a' vtkFastSplatter for the density grid
+  vtkSmartPointer<vtkGraphToPolyData>     GraphToPoly;
   vtkSmartPointer<vtkFastSplatter>        DensityGrid;
   vtkSmartPointer<vtkImageData>           SplatImage;
   vtkSmartPointer<vtkFloatArray>          RepulsionArray;

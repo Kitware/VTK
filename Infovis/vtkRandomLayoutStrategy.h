@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Set the graph to layout.
-  void SetGraph(vtkAbstractGraph *graph);
+  void SetGraph(vtkGraph *graph);
 
   // Description:
   // Perform the random layout.

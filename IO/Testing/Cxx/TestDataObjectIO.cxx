@@ -2,12 +2,15 @@
 #include <vtkCubeSource.h>
 #include <vtkDataObjectWriter.h>
 #include <vtkDelaunay3D.h>
+#include <vtkDirectedGraph.h>
+#include <vtkEdgeListIterator.h>
 #include <vtkGenericDataObjectReader.h>
 #include <vtkGenericDataObjectWriter.h>
 #include <vtkGraph.h>
 #include <vtkImageData.h>
 #include <vtkImageNoiseSource.h>
 #include <vtkIntArray.h>
+#include <vtkMutableDirectedGraph.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRandomGraphSource.h>
@@ -16,10 +19,11 @@
 #include <vtkStructuredGrid.h>
 #include <vtkTable.h>
 #include <vtkTree.h>
+#include <vtkUndirectedGraph.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVariant.h>
 
-void InitializeData(vtkGraph* Data)
+void InitializeData(vtkDirectedGraph* Data)
 {
   vtkRandomGraphSource* const source = vtkRandomGraphSource::New();
   source->SetNumberOfVertices(5);
@@ -35,9 +39,27 @@ void InitializeData(vtkGraph* Data)
   source->Delete();
 }
 
+void InitializeData(vtkUndirectedGraph* Data)
+{
+  vtkRandomGraphSource* const source = vtkRandomGraphSource::New();
+  source->SetNumberOfVertices(5);
+  source->SetNumberOfEdges(10);
+  source->IncludeEdgeWeightsOn();
+  source->DirectedOff();
+  source->UseEdgeProbabilityOff();
+  source->StartWithTreeOff();
+  source->AllowSelfLoopsOff();
+  source->Update();
+  
+  Data->ShallowCopy(source->GetOutput());
+  source->Delete();
+}
+
 bool CompareData(vtkGraph* Output, vtkGraph* Input)
 {
-  if(Input->GetDirected() != Output->GetDirected())
+  bool inputDirected = (vtkDirectedGraph::SafeDownCast(Input) != 0);
+  bool outputDirected = (vtkDirectedGraph::SafeDownCast(Output) != 0);
+  if(inputDirected != outputDirected)
     return false;
 
   if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
@@ -46,20 +68,26 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
-  if(Input->GetPointData()->GetNumberOfArrays() != Output->GetPointData()->GetNumberOfArrays())
+  if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
     return false;
     
-  if(Input->GetCellData()->GetNumberOfArrays() != Output->GetCellData()->GetNumberOfArrays())
+  if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     return false;
 
-  for(int edge = 0; edge != Input->GetNumberOfEdges(); ++edge)
+  vtkEdgeListIterator *inputEdges = vtkEdgeListIterator::New();
+  vtkEdgeListIterator *outputEdges = vtkEdgeListIterator::New();
+  while(inputEdges->HasNext())
     {
-    if(Input->GetSourceVertex(edge) != Output->GetSourceVertex(edge))
+    vtkEdgeType inputEdge = inputEdges->Next();
+    vtkEdgeType outputEdge = outputEdges->Next();
+    if(inputEdge.Source != outputEdge.Source)
       return false;
       
-    if(Input->GetTargetVertex(edge) != Output->GetTargetVertex(edge))
+    if(inputEdge.Target != outputEdge.Target)
       return false;
     }
+  inputEdges->Delete();
+  outputEdges->Delete();
 
   return true;
 }
@@ -181,12 +209,22 @@ bool CompareData(vtkTable* Output, vtkTable* Input)
 
 void InitializeData(vtkTree* Data)
 {
-  const vtkIdType vertex0 = Data->AddRoot();
-  Data->AddChild(vertex0);
-  const vtkIdType vertex2 = Data->AddChild(vertex0);
-  Data->AddChild(vertex0);
-  Data->AddChild(vertex0);
-  Data->SetRoot(vertex2);
+  vtkMutableDirectedGraph *g = vtkMutableDirectedGraph::New();
+  for (vtkIdType i = 0; i < 5; ++i)
+    {
+    g->AddVertex();
+    }
+  g->AddEdge(2, 0);
+  g->AddEdge(0, 1);
+  g->AddEdge(0, 3);
+  g->AddEdge(0, 4);
+
+  if (!Data->CheckedShallowCopy(g))
+    {
+    cerr << "Invalid tree structure." << endl;
+    }
+
+  g->Delete();
 }
 
 bool CompareData(vtkTree* Output, vtkTree* Input)
@@ -197,10 +235,10 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
-  if(Input->GetPointData()->GetNumberOfArrays() != Output->GetPointData()->GetNumberOfArrays())
+  if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
     return false;
     
-  if(Input->GetCellData()->GetNumberOfArrays() != Output->GetCellData()->GetNumberOfArrays())
+  if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     return false;
   
   if(Input->GetRoot() != Output->GetRoot())
@@ -256,9 +294,14 @@ bool TestDataObjectSerialization()
   reader->SetFileName(filename);
   reader->Update();
   
-  DataT* const input_data = DataT::SafeDownCast(reader->GetOutput());
+  vtkDataObject *obj = reader->GetOutput();
+  DataT* const input_data = DataT::SafeDownCast(obj);
   if(!input_data)
+    {
+    reader->Delete();
+    output_data->Delete();  
     return false;
+    }
 
   const bool result = CompareData(output_data, input_data);
     
@@ -272,9 +315,14 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 {
   int result = 0;
   
-  if(!TestDataObjectSerialization<vtkGraph>())
+  if(!TestDataObjectSerialization<vtkDirectedGraph>())
     {
-    cerr << "Error: failure serializing vtkGraph" << endl;
+    cerr << "Error: failure serializing vtkDirectedGraph" << endl;
+    result = 1;
+    }
+  if(!TestDataObjectSerialization<vtkUndirectedGraph>())
+    {
+    cerr << "Error: failure serializing vtkUndirectedGraph" << endl;
     result = 1;
     }
   if(!TestDataObjectSerialization<vtkImageData>())

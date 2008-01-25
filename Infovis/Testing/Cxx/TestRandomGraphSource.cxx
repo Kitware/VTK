@@ -16,13 +16,13 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
+#include "vtkAdjacentVertexIterator.h"
 #include "vtkBitArray.h"
 #include "vtkGraph.h"
-#include "vtkGraphIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkRandomGraphSource.h"
-
 #include "vtkSmartPointer.h"
+
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -77,15 +77,15 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   stack->SetNumberOfTuples(g->GetNumberOfVertices());
   vtkIdType top = 0;
   stack->SetValue(top, 0);
-  VTK_CREATE(vtkGraphIdList, adj);
+  VTK_CREATE(vtkAdjacentVertexIterator, adj);
   while (top >= 0)
     {
     vtkIdType u = stack->GetValue(top);
     top--;
     g->GetAdjacentVertices(u, adj);
-    for (int ind = 0; ind < adj->GetNumberOfIds(); ind++)
+    while (adj->HasNext())
       {
-      vtkIdType v = adj->GetId(ind);
+      vtkIdType v = adj->Next();
       if (!visited->GetValue(v))
         {
         visited->SetValue(v, 1);

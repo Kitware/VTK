@@ -19,6 +19,7 @@
 
 #include "vtkKdTreeSelector.h"
 
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -28,7 +29,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.7");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.8");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -129,16 +130,32 @@ int vtkKdTreeSelector::RequestData(
       vtkErrorMacro("No input, but building kd-tree from input");
       return 0;
       }
-    vtkPointSet* input = vtkPointSet::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
     if (input == NULL)
       {
       vtkErrorMacro("Input is NULL");
       return 0;
       }
+    vtkGraph *graph = vtkGraph::SafeDownCast(input);
+    vtkPointSet *pointSet = vtkPointSet::SafeDownCast(input);
+    if (!graph && !pointSet)
+      {
+      vtkErrorMacro("Input must be a graph or point set");
+      return 0;
+      }
+
+    vtkPoints *points = 0;
+    if (graph)
+      {
+      points = graph->GetPoints();
+      }
+    else
+      {
+      points = pointSet->GetPoints();
+      }
 
     // If no points, there is nothing to do
-    if (input->GetPoints() == NULL || input->GetNumberOfPoints() == 0)
+    if (points == NULL || points->GetNumberOfPoints() == 0)
       {
       return 1;
       }
@@ -151,14 +168,21 @@ int vtkKdTreeSelector::RequestData(
         this->KdTree = vtkKdTree::New();
         }
       this->KdTree->Initialize();
-      this->KdTree->BuildLocatorFromPoints(input->GetPoints());
+      this->KdTree->BuildLocatorFromPoints(points);
       }
     
     // Look for selection field
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
         this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
       {
-      field = input->GetPointData()->GetAbstractAttribute(this->SelectionAttribute);
+      if (graph)
+        {
+        field = graph->GetVertexData()->GetAbstractAttribute(this->SelectionAttribute);
+        }
+      else
+        {
+        field = pointSet->GetPointData()->GetAbstractAttribute(this->SelectionAttribute);
+        }
       if (field == NULL)
         {
         vtkErrorMacro("Could not find attribute " << this->SelectionAttribute);
@@ -167,7 +191,14 @@ int vtkKdTreeSelector::RequestData(
       }
     if (this->SelectionFieldName)
       {
-      field = input->GetPointData()->GetAbstractArray(this->SelectionFieldName);
+      if (graph)
+        {
+        field = graph->GetVertexData()->GetAbstractArray(this->SelectionFieldName);
+        }
+      else
+        {
+        field = pointSet->GetPointData()->GetAbstractArray(this->SelectionFieldName);
+        }
       if (field == NULL)
         {
         vtkErrorMacro("SelectionFieldName field not found");
@@ -249,7 +280,7 @@ int vtkKdTreeSelector::FillInputPortInformation(
   int vtkNotUsed(port), 
   vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }

@@ -43,7 +43,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
-class vtkAbstractGraph;
+class vtkGraph;
 class vtkGraphLayout;
 class vtkGraphLayoutStrategy;
 class vtkGraphToPolyData;
@@ -72,7 +72,7 @@ public:
   
   // Description:
   // Set the input data to the viewer.
-  virtual void SetInput(vtkAbstractGraph *arg);
+  virtual void SetInput(vtkGraph *arg);
 
   // Description:
   // Set your own renderwindow
@@ -141,13 +141,13 @@ public:
   // Get the graph output of the layout filter
   // Note: This function may return NULL if no
   // layout strategy is registered with this class
-  vtkAbstractGraph* GetGraphAfterLayout();
+  vtkGraph* GetGraphAfterLayout();
 
 protected:
   vtkGraphLayoutViewer();
   ~vtkGraphLayoutViewer();
   
-  vtkAbstractGraph*                         Input;
+  vtkGraph*                         Input;
   vtkRenderWindow*                          RenderWindow;
   vtkGraphLayoutStrategy*                   GraphLayoutStrategy;
   //BTX

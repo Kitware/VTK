@@ -18,20 +18,22 @@
 ----------------------------------------------------------------------------*/
 #include "vtkBoostBreadthFirstSearch.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
-#include <vtkSelection.h>
-#include <vtkStringArray.h>
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkFloatArray.h"
+#include "vtkDataArray.h"
+#include "vtkSelection.h"
+#include "vtkStringArray.h"
 
 #include "vtkGraphToBoostAdapter.h"
-#include "vtkGraph.h"
+#include "vtkDirectedGraph.h"
+#include "vtkUndirectedGraph.h"
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/breadth_first_search.hpp>
@@ -41,7 +43,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.7");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.8");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
@@ -284,14 +286,14 @@ int vtkBoostBreadthFirstSearch::RequestData(
   my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
   
   // Is the graph directed or undirected
-  if (output->GetDirected())
+  if (vtkDirectedGraph::SafeDownCast(output))
     {
-    vtkBoostDirectedGraph g(output);
+    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
     breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
     }
   else
     {
-    vtkBoostUndirectedGraph g(output);
+    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
     breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
     }
 

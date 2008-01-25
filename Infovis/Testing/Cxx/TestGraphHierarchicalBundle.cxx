@@ -27,6 +27,7 @@
 #include "vtkInteractorStyleImage.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyDataMapper.h"
@@ -164,7 +165,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
   // Create the graph.
   
-  vtkAbstractGraph* graph = 0;
+  vtkGraph *graph = 0;
   if (treeType == RANDOM_TREE)
     {
     VTK_CREATE(vtkRandomGraphSource, source);
@@ -185,7 +186,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     }
   else if (treeType == STRUCTURED_TREE)
     {
-    vtkGraph* g = vtkGraph::New();
+    vtkMutableDirectedGraph* g = vtkMutableDirectedGraph::New();
     for (vtkIdType v = 0; v < numVertices; v++)
       {
       g->AddVertex();
@@ -213,10 +214,10 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   //  }
 
   // Create the tree.
-  VTK_CREATE(vtkTree, tree);
+  VTK_CREATE(vtkMutableDirectedGraph, tree);
   if (treeType == RANDOM_TREE)
     {
-    tree->AddRoot();
+    tree->AddVertex();
     for (vtkIdType i = 1; i < numVertices; i++)
       {
       vtkIdType parent = static_cast<vtkIdType>(vtkMath::Random(0, tree->GetNumberOfVertices()));
@@ -227,7 +228,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   else if (treeType == STRUCTURED_TREE)
     {
     vtkIdType i;
-    tree->AddRoot();
+    tree->AddVertex();
     for (i = 0; i < levelOneVertices; i++)
       {
       tree->AddChild(0);
@@ -255,28 +256,30 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     kitNames->InsertNextValue("VolumeRendering");
     kitNames->InsertNextValue("Widgets");
 
-    tree->AddRoot();
-    vtkIdType i;
-    for (i = 1; i < graph->GetNumberOfVertices(); i++)
+    // Add vertices representing classes.
+    for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
       {
-      tree->AddChild(i-1);
+      tree->AddVertex();
       }
+
     VTK_CREATE(vtkStringArray, extendedNameArray);
     extendedNameArray->DeepCopy(graph->GetVertexData()->GetAbstractArray("name"));
     extendedNameArray->SetName("name");
-    tree->AddChild(i-1);
+
+    // Add root.
     extendedNameArray->InsertNextValue("VTK");
-    // Reverse the entire path
-    tree->SetRoot(i);
-    vtkIdType root = tree->GetRoot();
+    vtkIdType root = tree->AddVertex();
+
+    // Add kit vertices.
     for (vtkIdType k = 0; k < kitNames->GetNumberOfValues(); k++)
       {
       tree->AddChild(root);
       extendedNameArray->InsertNextValue(kitNames->GetValue(k));
       }
+
     vtkStringArray* fileArray = vtkStringArray::SafeDownCast(
       graph->GetVertexData()->GetAbstractArray("filename"));
-    for (i = 0; i < graph->GetNumberOfVertices(); i++)
+    for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
       {
       vtkStdString curFile = fileArray->GetValue(i);
       bool found = false;
@@ -286,7 +289,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
         vtkStdString kit = kitNames->GetValue(k);
         if (curFile.substr(0, kit.length()) == kit)
           {
-          tree->SetParent(i, root + 1 + k);
+          tree->AddEdge(root + 1 + k, i);
           found = true;
           break;
           }
@@ -300,6 +303,12 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     tree->GetVertexData()->AddArray(extendedNameArray);
     }
 
+  VTK_CREATE(vtkTree, realTree);
+  if (!realTree->CheckedShallowCopy(tree))
+    {
+    cerr << "Invalid tree structure." << endl;
+    }
+
   VTK_CREATE(vtkTreeLayoutStrategy, treeStrategy);
   treeStrategy->SetAngle(angle);
   treeStrategy->SetRadial(radial);
@@ -307,7 +316,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   treeStrategy->SetLeafSpacing(leafSpacing);
 
   VTK_CREATE(vtkGraphLayout, treeLayout);
-  treeLayout->SetInput(tree);
+  treeLayout->SetInput(realTree);
   treeLayout->SetLayoutStrategy(treeStrategy);
 
   VTK_CREATE(vtkGraphHierarchicalBundle, bundle);

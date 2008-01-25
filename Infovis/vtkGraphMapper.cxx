@@ -18,13 +18,13 @@
 ----------------------------------------------------------------------------*/
 #include "vtkGraphMapper.h"
 
-#include "vtkAbstractGraph.h"
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkGraphToPolyData.h"
+#include "vtkDirectedGraph.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGlyph2D.h"
+#include "vtkGraphToPolyData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -36,10 +36,11 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
+#include "vtkUndirectedGraph.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.5");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.6");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -215,7 +216,7 @@ void vtkGraphMapper::SetEdgeLineWidth(int width)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphMapper::SetInput(vtkAbstractGraph *input)
+void vtkGraphMapper::SetInput(vtkGraph *input)
 {
   if(input)
     {
@@ -229,10 +230,10 @@ void vtkGraphMapper::SetInput(vtkAbstractGraph *input)
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractGraph *vtkGraphMapper::GetInput()
+vtkGraph *vtkGraphMapper::GetInput()
 {
-  vtkAbstractGraph *inputGraph =
-  vtkAbstractGraph::SafeDownCast(this->Superclass::GetInputAsDataSet());
+  vtkGraph *inputGraph =
+  vtkGraph::SafeDownCast(this->Superclass::GetInputAsDataSet());
   return inputGraph;
 }
 
@@ -251,14 +252,32 @@ void vtkGraphMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
 {
   // make sure that we've been properly initialized
-  if ( !this->GetInput() )
+  if ( !this->GetExecutive()->GetInputData(0, 0) )
     {
     vtkErrorMacro(<< "No input!\n");
     return;
     } 
     
   // Update the pipeline up until the graph to poly data
-  this->GraphToPoly->SetInput(this->GetInput());
+  vtkGraph *input = vtkGraph::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+  if (!input)
+    {
+    vtkErrorMacro(<< "Input is not a graph!\n");
+    return;
+    }
+  vtkGraph *graph = 0;
+  if (vtkDirectedGraph::SafeDownCast(input))
+    {
+    graph = vtkDirectedGraph::New();
+    }
+  else
+    {
+    graph = vtkUndirectedGraph::New();
+    }
+  graph->ShallowCopy(input);
+
+  this->GraphToPoly->SetInput(graph);
+  graph->Delete();
   this->GraphToPoly->Update();
   vtkPolyData* pd = this->GraphToPoly->GetOutput();
  
@@ -418,37 +437,40 @@ unsigned long vtkGraphMapper::GetMTime()
 int vtkGraphMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAbstractGraph");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
 }
 
-#if 0
+//----------------------------------------------------------------------------
+double *vtkGraphMapper::GetBounds()
+{
+  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  vtkGraph *graph = vtkGraph::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+  if (!graph) 
+    {
+    return bounds;
+    }
+  else
+    {
+    if (!this->Static)
+      {
+      this->Update();
+      }
+    graph->GetBounds(this->Bounds);
+    return this->Bounds;
+    }
+}
+
+#if 1
 //----------------------------------------------------------------------------
 void vtkGraphMapper::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   // These filters share our input and are therefore involved in a
   // reference loop.
-  vtkGarbageCollectorReport(collector, this->GraphToPoly,
-                            "GraphToPoly");
-  vtkGarbageCollectorReport(collector, this->VertexGlyph,
-                            "VertexGlyph");           
-  vtkGarbageCollectorReport(collector, this->EdgeMapper,
-                            "EdgeMapper");
-  vtkGarbageCollectorReport(collector, this->VertexMapper,
-                            "VertexMapper");
-  vtkGarbageCollectorReport(collector, this->OutlineMapper,
-                            "OutlineMapper");
-  vtkGarbageCollectorReport(collector, this->EdgeActor,
-                            "EdgeActor");
-  vtkGarbageCollectorReport(collector, this->VertexActor,
-                            "VertexActor");
-  vtkGarbageCollectorReport(collector, this->OutlineActor,
-                            "OutlineActor");
-  vtkGarbageCollectorReport(collector, this->EdgeLookupTable,
-                            "EdgeLookupTable");
-  vtkGarbageCollectorReport(collector, this->VertexLookupTable,
-                            "VertexLookupTable");
+  //vtkGarbageCollectorReport(collector, this->GraphToPoly,
+  //                          "GraphToPoly");
 }
 
 #endif

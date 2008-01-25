@@ -37,7 +37,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.3");
+vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.4");
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
 vtkBoostConnectedComponents::vtkBoostConnectedComponents()
@@ -67,9 +67,9 @@ int vtkBoostConnectedComponents::RequestData(
   output->ShallowCopy(input);
 
   // Compute connected components.
-  if (input->GetDirected())
+  if (vtkDirectedGraph::SafeDownCast(input))
     {
-    vtkBoostDirectedGraph g(output);
+    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     vtkIntArray* comps = vtkIntArray::New();
     comps->SetName("component");
     vector_property_map<default_color_type> color;
@@ -81,7 +81,7 @@ int vtkBoostConnectedComponents::RequestData(
     }
   else
     {
-    vtkBoostUndirectedGraph g(output);
+    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     vtkIntArray* comps = vtkIntArray::New();
     comps->SetName("component");
     vector_property_map<default_color_type> color;

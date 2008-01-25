@@ -22,6 +22,7 @@
 #include "vtkGraph.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkGraphWriter.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -79,8 +80,7 @@ void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg,
 int TestGraphAlgorithms(int argc, char* argv[])
 {
   // Create the test graph
-  VTK_CREATE(vtkGraph, g);
-  g->SetDirected(false);
+  VTK_CREATE(vtkMutableUndirectedGraph, g);
 
   VTK_CREATE(vtkPoints, pts);
   g->AddVertex();

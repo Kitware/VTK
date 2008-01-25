@@ -35,7 +35,7 @@
 
 #include "vtkObject.h"
 
-class vtkAbstractGraph;
+class vtkGraph;
 
 class VTK_INFOVIS_EXPORT vtkGraphLayoutStrategy : public vtkObject 
 {
@@ -45,7 +45,7 @@ public:
 
   // Description:
   // Setting the graph for the layout strategy
-  virtual void SetGraph(vtkAbstractGraph *graph);
+  virtual void SetGraph(vtkGraph *graph);
   
   // Description:
   // This method allows the layout strategy to
@@ -77,8 +77,8 @@ protected:
   vtkGraphLayoutStrategy();
   ~vtkGraphLayoutStrategy();
   
-  vtkAbstractGraph *Graph;
-  char*  EdgeWeightField;
+  vtkGraph *Graph;
+  char     *EdgeWeightField;
 
 private:
 

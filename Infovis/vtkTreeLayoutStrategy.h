@@ -92,7 +92,7 @@ protected:
   bool Radial;
   double LogSpacingValue;
   double LeafSpacing;
-  char* DistanceArrayName;
+  char *DistanceArrayName;
 
 private:
 

@@ -18,21 +18,24 @@
 ----------------------------------------------------------------------------*/
 #include "vtkBoostBreadthFirstSearchTree.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkIdTypeArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
-#include <vtkStringArray.h>
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkFloatArray.h"
+#include "vtkDataArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 
 #include "vtkGraphToBoostAdapter.h"
 #include "vtkGraph.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkTree.h"
+#include "vtkUndirectedGraph.h"
 
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/vector_property_map.hpp>
@@ -40,7 +43,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.3");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.4");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 
@@ -53,10 +56,10 @@ public:
   bfs_tree_builder() 
   { }
 
-  bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkTree* t, vtkIdType root) 
+  bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkMutableDirectedGraph* t, vtkIdType root) 
     : graph_to_tree(g2t), tree_to_graph(t2g), tree(t), graph(g)
   {
-    vtkIdType tree_root = t->AddRoot();
+    vtkIdType tree_root = t->AddVertex();
     put(graph_to_tree, root, tree_root);
     put(tree_to_graph, tree_root, root);
     tree->GetVertexData()->CopyData(graph->GetVertexData(), root, tree_root);
@@ -73,13 +76,8 @@ public:
     vtkIdType tree_u = get(graph_to_tree, u);
 
     // Create the target vertex in the tree.
-    vtkIdType tree_v = tree->AddChild(tree_u);
-
-    // Find the vtkGraph edge id for the edge.
-    vtkIdType graph_e = vtkGraph_edge_id(e);
-
-    // The tree edge will always equal the tree vertex minus one.
-    vtkIdType tree_e = tree_v - 1;
+    vtkIdType tree_v = tree->AddVertex();
+    vtkEdgeType tree_e = tree->AddEdge(tree_u, tree_v);
 
     // Store the mapping from graph to tree.
     put(graph_to_tree, v, tree_v);
@@ -87,14 +85,14 @@ public:
 
     // Copy the vertex and edge data from the graph to the tree.
     tree->GetVertexData()->CopyData(graph->GetVertexData(), v, tree_v);
-    tree->GetEdgeData()->CopyData(graph->GetEdgeData(), graph_e, tree_e);
+    tree->GetEdgeData()->CopyData(graph->GetEdgeData(), e.Id, tree_e.Id);
   }
 
 private:
   IdMap graph_to_tree;
   IdMap tree_to_graph;
-  vtkTree* tree;
-  vtkGraph* graph;
+  vtkMutableDirectedGraph *tree;
+  vtkGraph *graph;
 };
 
 // Constructor/Destructor
@@ -192,8 +190,6 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   // get the input and ouptut
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Now figure out the origin vertex of the 
   // breadth first search
@@ -211,11 +207,6 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
     this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue); 
    }
 
-  // Initialize copying data into tree
-  output->GetFieldData()->PassData(input->GetFieldData());
-  output->GetVertexData()->CopyAllocate(input->GetVertexData());
-  output->GetEdgeData()->CopyAllocate(input->GetEdgeData());
-  
   // Create tree to graph id map array
   vtkIdTypeArray* treeToGraphIdMap = vtkIdTypeArray::New();
   
@@ -227,28 +218,45 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
  
   // Create a queue to hand off to the BFS
   queue<int> q;
-  
+
+  // Create the mutable graph to build the tree
+  vtkSmartPointer<vtkMutableDirectedGraph> temp = 
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  // Initialize copying data into tree
+  temp->GetFieldData()->PassData(input->GetFieldData());
+  temp->GetVertexData()->CopyAllocate(input->GetVertexData());
+  temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
+    
   // Create the visitor which will build the tree
   bfs_tree_builder<vtkIdTypeArray*> builder(
-      graphToTreeIdMap, treeToGraphIdMap, input, output, this->OriginVertexIndex);
+      graphToTreeIdMap, treeToGraphIdMap, input, temp, this->OriginVertexIndex);
 
-  // Is the graph directed or undirected
-  if (input->GetDirected())
+  // Run the algorithm
+  if (vtkDirectedGraph::SafeDownCast(input))
     {
-    vtkBoostDirectedGraph g(input);
+    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
     breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
     }
   else
     {
-    vtkBoostUndirectedGraph g(input);
+    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     breadth_first_search(g, this->OriginVertexIndex, q, builder, color);
     }
-  
+
   // If the user wants it, store the mapping back to graph vertices
   if (this->CreateGraphVertexIdArray)
     {
     treeToGraphIdMap->SetName("GraphVertexId");
-    output->GetVertexData()->AddArray(treeToGraphIdMap);
+    temp->GetVertexData()->AddArray(treeToGraphIdMap);
+    }
+
+  // Copy the builder graph structure into the output tree
+  vtkTree *output = vtkTree::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!output->CheckedShallowCopy(temp))
+    {
+    vtkErrorMacro(<<"Invalid tree.");
+    return 0;
     }
 
   // Clean up

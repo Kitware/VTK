@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 
+#include  "vtkDirectedGraph.h"
 #include  "vtkPolyData.h"
 #include  "vtkStructuredPoints.h"
 #include  "vtkStructuredGrid.h"
@@ -37,11 +38,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkHyperOctree.h"
 #include  "vtkTemporalDataSet.h"
 #include  "vtkTable.h"
+#include  "vtkUndirectedGraph.h"
 #include  "vtkGraph.h"
 #include  "vtkTree.h"
 #include  "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.3");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.4");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -71,6 +73,8 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkGraph", 
   "vtkTree", 
   "vtkSelection",
+  "vtkDirectedGraph", 
+  "vtkUndirectedGraph", 
   NULL
 };
 
@@ -199,10 +203,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkTable::New();
     }
-  else if(strcmp(type, "vtkGraph") == 0)
-    {
-    return vtkGraph::New();
-    }
   else if(strcmp(type, "vtkTree") == 0)
     {
     return vtkTree::New();
@@ -210,6 +210,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkSelection") == 0)
     {
     return vtkSelection::New();
+    }
+  else if(strcmp(type, "vtkDirectedGraph") == 0)
+    {
+    return vtkDirectedGraph::New();
+    }
+  else if(strcmp(type, "vtkUndirectedGraph") == 0)
+    {
+    return vtkUndirectedGraph::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {

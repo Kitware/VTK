@@ -17,6 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 #include "vtkCircularLayoutStrategy.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGraphLayout.h"
@@ -25,10 +26,10 @@
 #include "vtkRandomGraphSource.h"
 #include "vtkRandomLayoutStrategy.h"
 #include "vtkSimple2DLayoutStrategy.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTreeLayoutStrategy.h"
 
-#include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -45,7 +46,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputConnection(source->GetOutputPort());
-  vtkAbstractGraph* output = NULL;
+  vtkGraph *output = NULL;
   double pt[3] = {0.0, 0.0, 0.0};
   double pt2[3] = {0.0, 0.0, 0.0};
   double eps = 1.0e-6;
@@ -77,10 +78,13 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->SetLayoutStrategy(fast);
   layout->Update();
   output = layout->GetOutput();
-  for (vtkIdType i = 0; i < numEdges; i++)
+  VTK_CREATE(vtkEdgeListIterator, edges);
+  output->GetEdges(edges);
+  while (edges->HasNext())
     {
-    vtkIdType u = output->GetSourceVertex(i);
-    vtkIdType v = output->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    vtkIdType u = e.Source;
+    vtkIdType v = e.Target;
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
@@ -109,10 +113,12 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->SetLayoutStrategy(force);
   layout->Update();
   output = layout->GetOutput();
-  for (vtkIdType i = 0; i < numEdges; i++)
+  output->GetEdges(edges);
+  while (edges->HasNext())
     {
-    vtkIdType u = output->GetSourceVertex(i);
-    vtkIdType v = output->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    vtkIdType u = e.Source;
+    vtkIdType v = e.Target;
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
@@ -168,10 +174,12 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->SetLayoutStrategy(simple);
   layout->Update();
   output = layout->GetOutput();
-  for (vtkIdType i = 0; i < numEdges; i++)
+  output->GetEdges(edges);
+  while (edges->HasNext())
     {
-    vtkIdType u = output->GetSourceVertex(i);
-    vtkIdType v = output->GetTargetVertex(i);
+    vtkEdgeType e = edges->Next();
+    vtkIdType u = e.Source;
+    vtkIdType v = e.Target;
     output->GetPoint(u, pt);
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));

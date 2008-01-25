@@ -19,10 +19,10 @@
 // .NAME vtkGraphHierarchicalBundle - layout graph arcs in bundles
 //
 // .SECTION Description
-// This algorithm creates a vtkPolyData from a vtkAbstractGraph.  As opposed to
+// This algorithm creates a vtkPolyData from a vtkGraph.  As opposed to
 // vtkGraphToPolyData, which converts each arc into a straight line, each arc
 // is converted to a polyline, following a tree structure.  The filter requires
-// both a vtkAbstractGraph and vtkTree as input.  The tree vertices must be a
+// both a vtkGraph and vtkTree as input.  The tree vertices must be a
 // superset of the graph vertices.  A common example is when the graph vertices
 // correspond to the leaves of the tree, but the internal vertices of the tree
 // represent groupings of graph vertices.  The algorithm matches the vertices
@@ -31,7 +31,7 @@
 // corresponding offsets (i.e. node i in the graph must correspond to node i in
 // the tree).
 //
-// The vtkAbstractGraph defines the topology of the output vtkPolyData (i.e.
+// The vtkGraph defines the topology of the output vtkPolyData (i.e.
 // the connections between nodes) while the vtkTree defines the geometry (i.e.
 // the location of nodes and arc routes).  Thus, the tree must have been
 // assigned vertex locations, but the graph does not need locations, in fact

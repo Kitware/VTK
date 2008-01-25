@@ -30,7 +30,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkSquarifyLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
 vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy()
@@ -63,11 +63,8 @@ void vtkSquarifyLayoutStrategy::Layout(vtkTree *inputTree,
   coordsArray->SetTuple(rootId, coords);
   
   // Now layout the children vertices
-  vtkIdType nchildren;
-  const vtkIdType* children;
-  inputTree->GetChildren(rootId, nchildren, children);
   this->AddBorder(coords);
-  this->LayoutChildren(inputTree, coordsArray, sizeArray, nchildren, children, 0,
+  this->LayoutChildren(inputTree, coordsArray, sizeArray, inputTree->GetNumberOfChildren(rootId), rootId, 0,
                        coords[0], coords[1], coords[2], coords[3]);
 }
 
@@ -76,7 +73,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   vtkDataArray *coordsArray,
   vtkDataArray *sizeArray,
   vtkIdType nchildren,
-  const vtkIdType* children,
+  vtkIdType parent,
   vtkIdType begin, 
   float minX, float maxX, 
   float minY, float maxY)
@@ -86,7 +83,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   if ((sizeX == 0.0) || (sizeY == 0.0)) 
     {
     vtkErrorMacro(<< "Invalid Box Sizes for Vertex: "
-                  << children[begin] << " ("
+                  << tree->GetChild(parent, begin) << " ("
                   << sizeX << ", " << sizeY << ")");
     return;
     }
@@ -94,7 +91,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   float total = 0;
   for (vtkIdType i = begin; i < nchildren; i++)
     {
-    total += static_cast<float>(sizeArray->GetTuple1(children[i]));
+    total += static_cast<float>(sizeArray->GetTuple1(tree->GetChild(parent, i)));
     }
   float factor = (sizeX * sizeY) / total;
   
@@ -106,7 +103,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   while (rowError <= oldRowError && cur < nchildren)
     {
     oldCurTotal = curTotal;
-    curTotal += factor * static_cast<float>(sizeArray->GetTuple1(children[cur]));
+    curTotal += factor * static_cast<float>(sizeArray->GetTuple1(tree->GetChild(parent, cur)));
 
     oldRowError = rowError;
     // Compute the new row error
@@ -114,7 +111,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
     float width = vertical ? (curTotal / sizeX) : (curTotal / sizeY);
     for (vtkIdType i = begin; i <= cur; i++)
       {
-      float curHeight = factor * static_cast<float>(sizeArray->GetTuple1(children[i])) / width;
+      float curHeight = factor * static_cast<float>(sizeArray->GetTuple1(tree->GetChild(parent, i))) / width;
       float ratio1 = curHeight / width;
       float ratio2 = width / curHeight;
       float curError = (ratio1 > ratio2) ? ratio1 : ratio2;
@@ -125,14 +122,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
       }
     cur++;
     }
-  /*
-  if (rowError <= oldRowError)
-    {
-    cur = children->GetNumberOfIds();
-    }
-    */
   if (rowError > oldRowError)
-  //else
     {
     cur--;
     curTotal = oldCurTotal;
@@ -158,7 +148,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
   float position = 0;
   for (vtkIdType j = begin; j < cur; j++)
     {
-    int id = children[j];
+    int id = tree->GetChild(parent, j);
     part += factor * static_cast<float>(sizeArray->GetTuple1(id));
     oldPosition = position;
     // Give children their positions
@@ -189,18 +179,16 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
         }
       coords[0] = rowMinX;                   // minX
       coords[1] = rowMaxX;                   // maxX
-      coords[2] = rowMaxY - position;     // minY
-      coords[3] = rowMaxY - oldPosition;        // maxY
+      coords[2] = rowMaxY - position;        // minY
+      coords[3] = rowMaxY - oldPosition;     // maxY
       }
 
     coordsArray->SetTuple(id, coords);
-    vtkIdType numNewChildren;
-    const vtkIdType* newChildren;
-    tree->GetChildren(id, numNewChildren, newChildren);
+    vtkIdType numNewChildren = tree->GetNumberOfChildren(id);
     if (numNewChildren > 0)
       {
       this->AddBorder(coords);
-      this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, newChildren, 0,
+      this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, id, 0,
         coords[0], coords[1], coords[2], coords[3]);
       }
     }
@@ -225,7 +213,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
       restMinY = rowMinY;
       restMaxY = rowMaxY;
       }
-    this->LayoutChildren(tree, coordsArray, sizeArray, nchildren, children, cur,
+    this->LayoutChildren(tree, coordsArray, sizeArray, nchildren, parent, cur,
       restMinX, restMaxX, restMinY, restMaxY);
     }
 }

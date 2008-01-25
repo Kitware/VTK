@@ -40,7 +40,7 @@ public:
   stack<vtkTreeDFSIteratorPosition> Stack;
 };
 
-vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.6");
+vtkCxxRevisionMacro(vtkTreeDFSIterator, "1.7");
 vtkStandardNewMacro(vtkTreeDFSIterator);
 
 vtkTreeDFSIterator::vtkTreeDFSIterator()
@@ -168,11 +168,9 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
       this->Internals->Stack.pop();
       //cout << "popped " << pos.Vertex << "," << pos.Index << " off the stack" << endl;
 
-      vtkIdType nchildren;
-      const vtkIdType* children;
-      this->Tree->GetChildren(pos.Vertex, nchildren, children);
+      vtkIdType nchildren = this->Tree->GetNumberOfChildren(pos.Vertex);
       while (pos.Index < nchildren && 
-             this->Color->GetValue(children[pos.Index]) != this->WHITE)
+             this->Color->GetValue(this->Tree->GetChild(pos.Vertex, pos.Index)) != this->WHITE)
         {
         pos.Index++;
         }
@@ -198,7 +196,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
         this->Internals->Stack.push(pos);
 
         // Found a white vertex; make it gray, add it to the stack
-        vtkIdType found = children[pos.Index];
+        vtkIdType found = this->Tree->GetChild(pos.Vertex, pos.Index);
         //cout << "DFS coloring " << found << " gray (adjacency)" << endl;
         this->Color->SetValue(found, this->GRAY);
         this->Internals->Stack.push(vtkTreeDFSIteratorPosition(found, 0));

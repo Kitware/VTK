@@ -16,7 +16,6 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
-
 #include "vtkTreeLayoutView.h"
 
 #include "vtkActor.h"
@@ -27,6 +26,7 @@
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
@@ -44,13 +44,18 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.5");
+#include <vtksys/stl/set>
+
+using vtksys_stl::set;
+
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.6");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -149,9 +154,9 @@ vtkTreeLayoutView::vtkTreeLayoutView()
 
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
   this->ExtractSelectedGraph->SetInputConnection(0, this->GraphLayout->GetOutputPort());
-  vtkSelection* empty = vtkSelection::New();
+  vtkSelection *empty = vtkSelection::New();
   empty->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  vtkIdTypeArray* arr = vtkIdTypeArray::New();
+  vtkIdTypeArray *arr = vtkIdTypeArray::New();
   empty->SetSelectionList(arr);
   arr->Delete();
   this->ExtractSelectedGraph->SetInput(1, empty);
@@ -198,7 +203,7 @@ vtkTreeLayoutView::~vtkTreeLayoutView()
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetLabelArrayName(const char* name)
+void vtkTreeLayoutView::SetLabelArrayName(const char *name)
 {
   this->LabelMapper->SetFieldDataName(name);
 }
@@ -234,7 +239,7 @@ void vtkTreeLayoutView::LabelVisibilityOff()
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetVertexColorArrayName(const char* name)
+void vtkTreeLayoutView::SetVertexColorArrayName(const char *name)
 {
   this->SetVertexColorArrayNameInternal(name);
   this->VertexMapper->SetScalarModeToUsePointFieldData();
@@ -272,7 +277,7 @@ void vtkTreeLayoutView::ColorVerticesOff()
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetEdgeColorArrayName(const char* name)
+void vtkTreeLayoutView::SetEdgeColorArrayName(const char *name)
 {
   this->SetEdgeColorArrayNameInternal(name);
   this->EdgeMapper->SetScalarModeToUseCellFieldData();
@@ -376,20 +381,20 @@ const char* vtkTreeLayoutView::GetDistanceArrayName()
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetDistanceArrayName(const char* name)
+void vtkTreeLayoutView::SetDistanceArrayName(const char *name)
 {
   this->TreeStrategy->SetDistanceArrayName(name);
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetupRenderWindow(vtkRenderWindow* win)
+void vtkTreeLayoutView::SetupRenderWindow(vtkRenderWindow *win)
 {
   this->Superclass::SetupRenderWindow(win);
   win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
+void vtkTreeLayoutView::AddInputConnection(vtkAlgorithmOutput *conn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
@@ -411,7 +416,7 @@ void vtkTreeLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::RemoveInputConnection(vtkAlgorithmOutput* conn)
+void vtkTreeLayoutView::RemoveInputConnection(vtkAlgorithmOutput *conn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) > 0 &&
       this->GraphLayout->GetInputConnection(0, 0) == conn)
@@ -440,9 +445,9 @@ void vtkTreeLayoutView::MapToXYPlane(
 {
   this->Coordinate->SetViewport(this->Renderer);
   this->Coordinate->SetValue(displayX, displayY);
-  double* pt = this->Coordinate->GetComputedWorldValue(0);
+  double *pt = this->Coordinate->GetComputedWorldValue(0);
 
-  vtkCamera* camera = this->Renderer->GetActiveCamera();
+  vtkCamera *camera = this->Renderer->GetActiveCamera();
   double cameraPos[3];
   camera->GetPosition(cameraPos);
 
@@ -458,15 +463,15 @@ void vtkTreeLayoutView::MapToXYPlane(
 
 //----------------------------------------------------------------------------
 void vtkTreeLayoutView::ProcessEvents(
-  vtkObject* caller, 
+  vtkObject *caller, 
   unsigned long eventId, 
-  void* callData)
+  void *callData)
 {
   if (caller == this->InteractorStyle && eventId == vtkCommand::SelectionChangedEvent
       && this->GraphLayout->GetNumberOfInputConnections(0) > 0)
     {
     // Create the selection
-    unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
+    unsigned int *rect = reinterpret_cast<unsigned int*>(callData);
     bool singleSelectMode = false;
     unsigned int pos1X = rect[0];
     unsigned int pos1Y = rect[1];
@@ -497,12 +502,12 @@ void vtkTreeLayoutView::ProcessEvents(
     double dist2 = radiusX*radiusX + radiusY*radiusY;
     this->KdTreeSelector->SetSingleSelectionThreshold(dist2);
     this->KdTreeSelector->Update();
-    vtkSelection* selection = this->KdTreeSelector->GetOutput();
+    vtkSelection *selection = this->KdTreeSelector->GetOutput();
     selection->Register(0);
     
     // If the selection is empty, do a visible cell selection
     // to attempt to pick up an edge.
-    vtkAbstractArray* list = selection->GetSelectionList();
+    vtkAbstractArray *list = selection->GetSelectionList();
     if (list->GetNumberOfTuples() == 0)
       {
       // The edge actor must be opaque for visible cell selector.
@@ -519,34 +524,55 @@ void vtkTreeLayoutView::ProcessEvents(
       this->VisibleCellSelector->SetProcessorId(0);
       this->VisibleCellSelector->SetRenderPasses(0, 0, 0, 0, 1);
       this->VisibleCellSelector->Select();  
-      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      vtkSmartPointer<vtkIdTypeArray> ids = 
+        vtkSmartPointer<vtkIdTypeArray>::New();
       this->VisibleCellSelector->GetSelectedIds(ids);
       
       // Set the opacity back to the original value.
       this->EdgeActor->GetProperty()->SetOpacity(opacity);
       
-      vtkIdTypeArray* selectedIds = vtkIdTypeArray::New();
-      vtkAbstractGraph* graph = this->GraphLayout->GetOutput();
+      vtkGraph *graph = this->GraphLayout->GetOutput();
+
+      // Extract edge ids from the list given by the visible cell selector.
+      vtkSmartPointer<vtkIdTypeArray> selectedEdges = 
+        vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
         {
-        vtkIdType edge = ids->GetValue(4*i+3);
-        vtkIdType source = graph->GetSourceVertex(edge);
-        vtkIdType target = graph->GetTargetVertex(edge);
-        selectedIds->InsertNextValue(source);
-        selectedIds->InsertNextValue(target);
-        if (singleSelectMode)
+        selectedEdges->InsertNextValue(ids->GetValue(4*i+3));
+        }
+
+      // Convert edge ids to vertex ids.
+      set<vtkIdType> selectedVertexSet;
+      vtkSmartPointer<vtkEdgeListIterator> edges = 
+        vtkSmartPointer<vtkEdgeListIterator>::New();
+      graph->GetEdges(edges);
+      while (edges->HasNext())
+        {
+        vtkEdgeType e = edges->Next();
+        if (selectedEdges->LookupValue(e.Id) >= 0)
           {
-          break;
+          selectedVertexSet.insert(e.Source);
+          if (singleSelectMode)
+            {
+            break;
+            }
           }
+        }
+
+      vtkSmartPointer<vtkIdTypeArray> selectedVertices = 
+        vtkSmartPointer<vtkIdTypeArray>::New();
+      set<vtkIdType>::iterator it = selectedVertexSet.begin();
+      set<vtkIdType>::iterator itEnd = selectedVertexSet.end();
+      for (; it != itEnd; ++it)
+        {
+        selectedVertices->InsertNextValue(*it);
         }
   
       selection->Delete();
       selection = vtkSelection::New();
       selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
       selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-      selection->SetSelectionList(selectedIds);
-      ids->Delete();
-      selectedIds->Delete();      
+      selection->SetSelectionList(selectedVertices);
       }
     
     // If this is a union selection, append the selection

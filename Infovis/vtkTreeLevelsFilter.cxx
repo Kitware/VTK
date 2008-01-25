@@ -32,7 +32,7 @@
 #include "vtkTree.h"
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkTreeLevelsFilter, "1.2");
+vtkCxxRevisionMacro(vtkTreeLevelsFilter, "1.3");
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 
 vtkTreeLevelsFilter::vtkTreeLevelsFilter()
@@ -50,9 +50,9 @@ int vtkTreeLevelsFilter::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
   // Storing the inputTree and outputTree handles
-  vtkTree* inputTree = vtkTree::SafeDownCast(
+  vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree* outputTree = vtkTree::SafeDownCast(
+  vtkTree *outputTree = vtkTree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Copy the input to the output.
@@ -64,7 +64,7 @@ int vtkTreeLevelsFilter::RequestData(
   levelArray->SetName("level");
   levelArray->SetNumberOfComponents(1);
   levelArray->SetNumberOfTuples(outputTree->GetNumberOfVertices());
-  vtkPointData* data = outputTree->GetPointData(); 
+  vtkDataSetAttributes *data = outputTree->GetVertexData(); 
   data->AddArray(levelArray);
   
   // Add the 1-tuple array that will marks each

@@ -20,6 +20,7 @@
 #include "vtkTreeLayoutStrategy.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkAdjacentVertexIterator.h"
 #ifdef VTK_USE_BOOST
 #include "vtkBoostBreadthFirstSearchTree.h"
 #endif
@@ -28,10 +29,12 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -68,7 +71,7 @@ void vtkTreeLayoutStrategy::Layout()
 #endif
     }
   
-  vtkPoints* newPoints = vtkPoints::New();
+  vtkPoints *newPoints = vtkPoints::New();
   newPoints->SetNumberOfPoints(tree->GetNumberOfVertices());
 
   // Check if the distance array is defined.
@@ -162,6 +165,8 @@ void vtkTreeLayoutStrategy::Layout()
     maxHeight = (pow(spacing, maxLevel+1.0) - 1.0)/(spacing - 1.0) - 1.0;
     }
 
+  vtkSmartPointer<vtkAdjacentVertexIterator> it =
+    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
   double curPlace = 0;
   iter->SetMode(vtkTreeDFSIterator::FINISH);
   while (iter->HasNext())
@@ -208,27 +213,28 @@ void vtkTreeLayoutStrategy::Layout()
       else
         {
         curPlace += internalSpacing;
-        vtkIdType nchildren;
-        const vtkIdType* children;
-        tree->GetChildren(vertex, nchildren, children);
+        tree->GetChildren(vertex, it);
         double minAng = 2*vtkMath::Pi();
         double maxAng = 0.0;
         double angSinSum = 0.0;
         double angCosSum = 0.0;
-        for (vtkIdType c = 0; c < nchildren; c++)
+        bool first = true;
+        while (it->HasNext())
           {
+          vtkIdType child = it->Next();
           double pt[3];
-          newPoints->GetPoint(children[c], pt);
+          newPoints->GetPoint(child, pt);
           double leafAngle = atan2(pt[1], pt[0]);
           if (leafAngle < 0)
             {
             leafAngle += 2*vtkMath::Pi();
             }
-          if (c == 0)
+          if (first)
             {
             minAng = leafAngle;
+            first = false;
             }
-          if (c == nchildren - 1)
+          if (!it->HasNext())
             {
             maxAng = leafAngle;
             }
@@ -261,15 +267,14 @@ void vtkTreeLayoutStrategy::Layout()
       else
         {
         curPlace += internalSpacing;
-        vtkIdType nchildren;
-        const vtkIdType* children;
-        tree->GetChildren(vertex, nchildren, children);
+        tree->GetChildren(vertex, it);
         double minX = VTK_DOUBLE_MAX;
         double maxX = VTK_DOUBLE_MIN;
-        for (vtkIdType c = 0; c < nchildren; c++)
+        while (it->HasNext())
           {
+          vtkIdType child = it->Next();
           double pt[3];
-          newPoints->GetPoint(children[c], pt);
+          newPoints->GetPoint(child, pt);
           if (pt[0] < minX)
             {
             minX = pt[0];

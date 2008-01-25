@@ -47,6 +47,11 @@ public:
   // Constructor
   static vtkExtractSelectedThresholds *New();
 
+  // Description:
+  // Function for determining whether a value in a data array passes
+  // the threshold test(s) provided in lims.
+  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
+
 protected:
   vtkExtractSelectedThresholds();
   ~vtkExtractSelectedThresholds();
@@ -66,8 +71,6 @@ protected:
                    int usePointScalars);
   int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
                     vtkDataSet *output);
-
-  int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 

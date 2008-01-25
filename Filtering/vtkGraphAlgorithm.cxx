@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkGraphAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkGraphAlgorithm, "1.4");
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -63,6 +63,12 @@ int vtkGraphAlgorithm::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
@@ -150,4 +156,42 @@ int vtkGraphAlgorithm::RequestData(
 {
   return 0;
 }
+
+//----------------------------------------------------------------------------
+int vtkGraphAlgorithm::RequestDataObject(
+  vtkInformation*, 
+  vtkInformationVector** inputVector , 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkGraph *input = vtkGraph::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (input)
+    {
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkGraph *output = vtkGraph::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      
+      if (!output || !output->IsA(input->GetClassName())) 
+        {
+        output = input->NewInstance();
+        output->SetPipelineInformation(info);
+        output->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
+
 

@@ -18,8 +18,8 @@
 ----------------------------------------------------------------------------*/
 #include "vtkVertexDegree.h"
 
-#include "vtkAbstractGraph.h"
 #include "vtkCommand.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVertexDegree, "1.4");
+vtkCxxRevisionMacro(vtkVertexDegree, "1.5");
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
@@ -52,9 +52,9 @@ int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkAbstractGraph *input = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *output = vtkGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
     
   // Do a shallow copy of the input to the output

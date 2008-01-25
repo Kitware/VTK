@@ -30,16 +30,16 @@
 #ifndef __vtkGraphLayout_h
 #define __vtkGraphLayout_h
 
-#include "vtkAbstractGraphAlgorithm.h"
+#include "vtkGraphAlgorithm.h"
 
 class vtkGraphLayoutStrategy;
 class vtkEventForwarderCommand;
 
-class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkAbstractGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkGraphAlgorithm 
 {
 public:
   static vtkGraphLayout *New();
-  vtkTypeRevisionMacro(vtkGraphLayout, vtkAbstractGraphAlgorithm);
+  vtkTypeRevisionMacro(vtkGraphLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -71,9 +71,9 @@ protected:
   
 private:
 
-  vtkAbstractGraph *LastInput;
+  vtkGraph *LastInput;
   unsigned long LastInputMTime;
-  vtkAbstractGraph *InternalGraph;
+  vtkGraph *InternalGraph;
   bool StrategyChanged;
 
   vtkGraphLayout(const vtkGraphLayout&);  // Not implemented.

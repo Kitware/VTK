@@ -32,6 +32,7 @@
 #include "vtkKdNode.h"
 #include "vtkKdTree.h"
 #include "vtkLookupTable.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -56,7 +57,7 @@
 //
 // Make a vtkTree from a kd-tree
 //
-void BuildTree(vtkIdType parent, vtkKdNode* parentVertex, vtkTree* tree, vtkFloatArray* rectArray)
+void BuildTree(vtkIdType parent, vtkKdNode *parentVertex, vtkMutableDirectedGraph *tree, vtkFloatArray *rectArray)
 {
   double bounds[6];
   parentVertex->GetBounds(bounds);
@@ -188,16 +189,22 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   // Create kd-tree actor
   //
 
-  VTK_CREATE(vtkTree, tree);
+  VTK_CREATE(vtkMutableDirectedGraph, tree);
   VTK_CREATE(vtkFloatArray, rectArray);
   rectArray->SetName("rectangles");
   rectArray->SetNumberOfComponents(4);
-  tree->GetPointData()->AddArray(rectArray);
+  tree->GetVertexData()->AddArray(rectArray);
   vtkKdNode* top = kdTree->GetCuts()->GetKdNodeTree();
-  BuildTree(tree->AddRoot(), top, tree, rectArray);
+  BuildTree(tree->AddVertex(), top, tree, rectArray);
+
+  VTK_CREATE(vtkTree, realTree);
+  if (!realTree->CheckedShallowCopy(tree))
+    {
+    cerr << "Invalid tree structure." << endl;
+    }
 
   VTK_CREATE(vtkTreeLevelsFilter, treeLevels);
-  treeLevels->SetInput(tree);
+  treeLevels->SetInput(realTree);
 
   VTK_CREATE(vtkTreeMapToPolyData, treePoly);
   treePoly->SetInputConnection(treeLevels->GetOutputPort());

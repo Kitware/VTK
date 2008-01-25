@@ -19,20 +19,20 @@
 
 #include "vtkGraphLayout.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkEventForwarderCommand.h>
-#include <vtkFloatArray.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkEventForwarderCommand.h"
+#include "vtkFloatArray.h"
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkGraphLayout, "1.7");
+vtkCxxRevisionMacro(vtkGraphLayout, "1.8");
 vtkStandardNewMacro(vtkGraphLayout);
 
 // ----------------------------------------------------------------------
@@ -147,9 +147,9 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkAbstractGraph *input = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkAbstractGraph *output = vtkAbstractGraph::SafeDownCast(
+  vtkGraph *output = vtkGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Is this a completely new input?  Is it the same input as the last

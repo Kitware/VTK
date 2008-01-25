@@ -56,16 +56,36 @@ public:
   vtkGetMacro(PassThrough, int);
   vtkBooleanMacro(PassThrough, int);
 
+  //BTX
+  enum {
+    DIRECTED_OUTPUT,
+    UNDIRECTED_OUTPUT,
+    USE_INPUT_TYPE
+  };
+  //ETX
+
+  // Description:
+  // Directedness flag, used to signal whether the output graph is directed or undirected.
+  // DIRECTED_OUTPUT expects that this filter is generating a directed graph.
+  // UNDIRECTED_OUTPUT expects that this filter is generating an undirected graph.
+  // DIRECTED_OUTPUT and UNDIRECTED_OUTPUT flags should only be set on the client
+  // filter.  Server filters should be set to USE_INPUT_TYPE since they have valid 
+  // input and the directedness is determined from the input type.
+  vtkSetMacro(OutputType, int);
+  vtkGetMacro(OutputType, int);
+
 protected:
   vtkCollectGraph();
   ~vtkCollectGraph();
 
   int PassThrough;
+  int OutputType;
 
   // Data generation method
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;

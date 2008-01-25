@@ -19,17 +19,21 @@
 #include "vtkRandomGraphSource.h"
 
 #include "vtkCellData.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.7");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.8");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -76,12 +80,25 @@ int
 vtkRandomGraphSource::RequestData(
   vtkInformation*, 
   vtkInformationVector**, 
-  vtkInformationVector* outputVector)
+  vtkInformationVector *outputVector)
 {
-  // Generate the graph
-  vtkGraph* output = vtkGraph::GetData(outputVector);
-  output->SetNumberOfVertices(this->NumberOfVertices);
-  output->SetDirected(this->Directed);
+  // Create a mutable graph of the appropriate type.
+  vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
+    vtkSmartPointer<vtkMutableDirectedGraph>::New();
+  vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
+    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+    
+  for (vtkIdType i = 0; i < this->NumberOfVertices; ++i)
+    {
+    if (this->Directed)
+      {
+      dirBuilder->AddVertex();
+      }
+    else
+      {
+      undirBuilder->AddVertex();
+      }
+    }
 
   if (this->StartWithTree)
     {
@@ -89,7 +106,14 @@ vtkRandomGraphSource::RequestData(
       {
       // Pick a random vertex in [0, i-1].
       int j = static_cast<vtkIdType>(vtkMath::Random(0, i));
-      output->AddEdge(j, i);
+      if (this->Directed)
+        {
+        dirBuilder->AddEdge(j, i);
+        }
+      else
+        {
+        undirBuilder->AddEdge(j, i);
+        }
       }
     }
 
@@ -103,7 +127,14 @@ vtkRandomGraphSource::RequestData(
         double r = vtkMath::Random();
         if (r < this->EdgeProbability)
           {
-          output->AddEdge(i, j);
+          if (this->Directed)
+            {
+            dirBuilder->AddEdge(i, j);
+            }
+          else
+            {
+            undirBuilder->AddEdge(i, j);
+            }
           }
         }
       }
@@ -156,11 +187,37 @@ vtkRandomGraphSource::RequestData(
         if (existingEdges.find(newEdge) == existingEdges.end())
           {
           vtkDebugMacro(<<"Adding edge " << s << " to " << t);
-          output->AddEdge(s, t);
+          if (this->Directed)
+            {
+            dirBuilder->AddEdge(s, t);
+            }
+          else
+            {
+            undirBuilder->AddEdge(s, t);
+            }
           existingEdges.insert(newEdge);
           newEdgeFound = true;
           }
         }
+      }
+    }
+
+  // Copy the structure into the output.
+  vtkGraph *output = vtkGraph::GetData(outputVector);
+  if (this->Directed)
+    {
+    if (!output->CheckedShallowCopy(dirBuilder))
+      {
+      vtkErrorMacro(<<"Invalid structure.");
+      return 0;
+      }
+    }
+  else
+    {
+    if (!output->CheckedShallowCopy(undirBuilder))
+      {
+      vtkErrorMacro(<<"Invalid structure.");
+      return 0;
       }
     }
 
@@ -178,4 +235,32 @@ vtkRandomGraphSource::RequestData(
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+int vtkRandomGraphSource::RequestDataObject(
+  vtkInformation*, 
+  vtkInformationVector**, 
+  vtkInformationVector* )
+{
+  vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
+  if (!current 
+    || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
+    || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
+    {
+    vtkGraph *output = 0;
+    if (this->Directed)
+      {
+      output = vtkDirectedGraph::New();
+      }
+    else
+      {
+      output = vtkUndirectedGraph::New();
+      }
+    this->GetExecutive()->SetOutputData(0, output);
+    output->Delete();
+    }
+
+  return 1;
+}
+
 

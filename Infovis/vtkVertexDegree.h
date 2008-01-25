@@ -24,14 +24,14 @@
 #ifndef __vtkVertexDegree_h
 #define __vtkVertexDegree_h
 
-#include "vtkAbstractGraphAlgorithm.h"
+#include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkVertexDegree : public vtkAbstractGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkVertexDegree : public vtkGraphAlgorithm 
 {
 public:
   static vtkVertexDegree *New();
 
-  vtkTypeRevisionMacro(vtkVertexDegree, vtkAbstractGraphAlgorithm);
+  vtkTypeRevisionMacro(vtkVertexDegree, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

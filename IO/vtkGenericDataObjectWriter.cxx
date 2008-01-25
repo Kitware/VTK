@@ -36,7 +36,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectWriter, "1.1");
+vtkCxxRevisionMacro(vtkGenericDataObjectWriter, "1.2");
 vtkStandardNewMacro(vtkGenericDataObjectWriter);
 
 template<typename WriterT, typename DataT>
@@ -76,7 +76,8 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_GENERIC_DATA_SET:
       vtkErrorMacro(<< "Cannot write generic data set");
       return;
-    case VTK_GRAPH:
+    case VTK_DIRECTED_GRAPH:
+    case VTK_UNDIRECTED_GRAPH:
       writer = CreateWriter<vtkGraphWriter, vtkGraph>(input);
       break;
     case VTK_HIERARCHICAL_BOX_DATA_SET:

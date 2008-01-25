@@ -19,6 +19,7 @@
 
 #include "vtkSliceAndDiceLayoutStrategy.h"
 
+#include "vtkAdjacentVertexIterator.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -28,10 +29,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkSliceAndDiceLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
 vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()
@@ -58,11 +60,14 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
   // Get the size array
   vtkDataArray* sizeArray = inputTree->GetVertexData()->GetArray(this->SizeFieldName);
 
-  vtkTreeDFSIterator* dfs = vtkTreeDFSIterator::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+    vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(inputTree);
   float coords[4];
-  vtkIdType nchildren;
-  const vtkIdType* children;
+
+  vtkSmartPointer<vtkAdjacentVertexIterator> it =
+    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+
   while (dfs->HasNext())
     {
     vtkIdType vertex = dfs->Next();
@@ -86,21 +91,22 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
     float xSpace = parentMaxX - parentMinX;
     float ySpace = parentMaxY - parentMinY;
 
-    inputTree->GetChildren(vertex, nchildren, children);
-
+    inputTree->GetChildren(vertex, it);
     float total = 0;
-    for (int i = 0; i < nchildren; i++)
+    while (it->HasNext())
       {
-      total += static_cast<float>(sizeArray->GetTuple1(children[i]));
+      total += static_cast<float>(sizeArray->GetTuple1(it->Next()));
       }
     
+    inputTree->GetChildren(vertex, it);
     // Give children their positions
     float part = 0;
     float oldDelta = 0;
     float delta = 0;
-    for (int i = 0; i < nchildren; i++)
+    while (it->HasNext())
       {
-      part += static_cast<float>(sizeArray->GetTuple1(children[i]));
+      vtkIdType child = it->Next();
+      part += static_cast<float>(sizeArray->GetTuple1(child));
       oldDelta = delta;
       if (vertical)
         {
@@ -118,8 +124,7 @@ void vtkSliceAndDiceLayoutStrategy::Layout(vtkTree *inputTree,
         coords[2] = parentMaxY - delta;        // maxY
         coords[3] = parentMaxY - oldDelta;     // minY
         }
-      coordsArray->SetTuple(children[i], coords);
+      coordsArray->SetTuple(child, coords);
       }
     }
-  dfs->Delete();
 }

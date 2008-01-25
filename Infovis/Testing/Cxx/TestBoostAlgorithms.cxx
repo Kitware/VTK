@@ -22,9 +22,9 @@
 #include "vtkBoostConnectedComponents.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
-#include "vtkGraph.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkGraphWriter.h"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -32,6 +32,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+
 #include <boost/version.hpp>
 
 #if BOOST_VERSION >= 103301
@@ -41,7 +42,8 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void RenderGraph(vtkRenderer* ren, vtkGraphAlgorithm* alg, 
+template <typename Algorithm>
+void RenderGraph(vtkRenderer* ren, Algorithm* alg, 
   double xoffset, double yoffset, 
   const char* vertColorArray, double vertMin, double vertMax, 
   const char* edgeColorArray, double edgeMin, double edgeMax)
@@ -86,8 +88,7 @@ void RenderGraph(vtkRenderer* ren, vtkGraphAlgorithm* alg,
 int TestBoostAlgorithms(int argc, char* argv[])
 {
   // Create the test graph
-  VTK_CREATE(vtkGraph, g);
-  g->SetDirected(false);
+  VTK_CREATE(vtkMutableUndirectedGraph, g);
 
   VTK_CREATE(vtkPoints, pts);
   g->AddVertex();
@@ -120,28 +121,30 @@ int TestBoostAlgorithms(int argc, char* argv[])
 #if BOOST_VERSION >= 103301
   VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
   biconn->SetInput(g);
-  RenderGraph(ren, biconn, 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
+  RenderGraph(ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
 #endif
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);
   bfs->SetInput(g);
-  RenderGraph(ren, bfs, 2, 0, "BFS", 0, 3, NULL, 0, 0);
+  RenderGraph(ren, bfs.GetPointer(), 2, 0, "BFS", 0, 3, NULL, 0, 0);
 
   // Test centrality
   VTK_CREATE(vtkBoostBrandesCentrality, centrality);
   centrality->SetInput(g);
-  RenderGraph(ren, centrality, 0, 2, "centrality", 0, 1, NULL, 0, 0);
+  RenderGraph(ren, centrality.GetPointer(), 0, 2, "centrality", 0, 1, NULL, 0, 0);
 
   // Test connected components
   VTK_CREATE(vtkBoostConnectedComponents, comp);
   comp->SetInput(g);
-  RenderGraph(ren, comp, 2, 2, "component", 0, 2, NULL, 0, 0);
+  RenderGraph(ren, comp.GetPointer(), 2, 2, "component", 0, 2, NULL, 0, 0);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);
   win->AddRenderer(ren);
   win->SetInteractor(iren);
+
+  win->Render();
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

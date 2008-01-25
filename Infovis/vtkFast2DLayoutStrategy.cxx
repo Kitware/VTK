@@ -19,25 +19,28 @@
 
 #include "vtkFast2DLayoutStrategy.h"
 
+#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkBitArray.h"
 #include "vtkDataArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkFastSplatter.h"
+#include "vtkFloatArray.h"
+#include "vtkGraph.h"
+#include "vtkGraphToPolyData.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkAbstractGraph.h"
-#include "vtkGraph.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkTree.h"
-#include "vtkFastSplatter.h"
-#include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.17");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.18");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -61,6 +64,7 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
 {
 
   // Create internal vtk classes
+  this->GraphToPoly = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->DensityGrid = vtkSmartPointer<vtkFastSplatter>::New();
   this->SplatImage = vtkSmartPointer<vtkImageData>::New();
   this->RepulsionArray = vtkSmartPointer<vtkFloatArray>::New();
@@ -241,18 +245,22 @@ void vtkFast2DLayoutStrategy::Initialize()
     }
     
   // Load up the edge data structures
-  for (vtkIdType i=0; i<numEdges; ++i)
+  vtkSmartPointer<vtkEdgeListIterator> it = 
+    vtkSmartPointer<vtkEdgeListIterator>::New();
+  this->Graph->GetEdges(it);
+  while (it->HasNext())
     {
-    this->EdgeArray[i].from = this->Graph->GetSourceVertex(i);
-    this->EdgeArray[i].to = this->Graph->GetTargetVertex(i);
+    vtkEdgeType e = it->Next();
+    this->EdgeArray[e.Id].from = e.Source;
+    this->EdgeArray[e.Id].to = e.Target;
     if (weightArray != NULL)
       {
-      weight = weightArray->GetTuple1(i);
-      this->EdgeArray[i].weight = weight / maxWeight;
+      weight = weightArray->GetTuple1(e.Id);
+      this->EdgeArray[e.Id].weight = weight / maxWeight;
       }
     else
       {
-      this->EdgeArray[i].weight = 1.0;
+      this->EdgeArray[e.Id].weight = 1.0;
       }
     }
     
@@ -281,8 +289,11 @@ void vtkFast2DLayoutStrategy::Layout()
     return;
     }
     
-  // Set my graph as input into the density grid
-  this->DensityGrid->SetInput(this->Graph);
+  // Set my graph as input into the graph to polydata
+  this->GraphToPoly->SetInput(this->Graph);
+
+  // Set the polydata graph as input to the fast splatter
+  this->DensityGrid->SetInputConnection(this->GraphToPoly->GetOutputPort());
   
   // Set up some variables
   vtkPoints* pts = this->Graph->GetPoints();

@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests  
     TestDataObjectToTable
     TestExtractSelectedGraph
+    TestGraph
     TestGraphAlgorithms   
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
@@ -32,7 +33,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestBoostAdapter
       TestBoostAlgorithms
-      #TestBoostTreeLayoutStrategy
       )
   ENDIF (VTK_USE_BOOST)
   SET(VTK_HAS_UINT64_ARRAY 0)

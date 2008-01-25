@@ -18,17 +18,17 @@
 ----------------------------------------------------------------------------*/
 #include "vtkGraphLayoutStrategy.h"
 
-#include "vtkAbstractGraph.h"
+#include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.6");
 
-void vtkGraphLayoutStrategy::SetGraph(vtkAbstractGraph *graph)
+void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
   // except for the call to Initialize in the middle :)
   if (graph != this->Graph)
     {
-    vtkAbstractGraph *tmp = this->Graph;
+    vtkGraph *tmp = this->Graph;
     this->Graph = graph;
     if (this->Graph != NULL)
       {

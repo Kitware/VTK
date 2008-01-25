@@ -16,523 +16,555 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
+
 #include "vtkGraph.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkAdjacentVertexIterator.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
-#include "vtkGraphIdList.h"
+#include "vtkInEdgeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkVertexLinks.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPoints.h"
+#include "vtkVertexListIterator.h"
 
-#include <vtkstd/algorithm>
+#include <vtksys/stl/vector>
+#include <vtksys/stl/utility>
 
-// 
-// Standard functions
-//
+using vtksys_stl::pair;
+using vtksys_stl::make_pair;
+using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkGraph, "1.7");
-vtkStandardNewMacro(vtkGraph);
+double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 
 //----------------------------------------------------------------------------
-
-void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
+// private class vtkVertexAdjacencyList
+//----------------------------------------------------------------------------
+class vtkVertexAdjacencyList
 {
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "Edges: " << endl;
-  this->Edges->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexLinks: " << endl;
-  this->VertexLinks->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Directed: " << (this->Directed ? "yes" : "no") << endl;
-}
+public:
+  vector<vtkInEdgeType> InEdges;
+  vector<vtkOutEdgeType> OutEdges;
+};
 
 //----------------------------------------------------------------------------
+// private class vtkGraphInternals
+//----------------------------------------------------------------------------
+class vtkGraphInternals : public vtkObject
+{
+public:
+  static vtkGraphInternals *New();
+  vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
+  vector<vtkVertexAdjacencyList> Adjacency;
+  vtkIdType NumberOfEdges;
 
+protected:
+  vtkGraphInternals()
+    { this->NumberOfEdges = 0; }
+  ~vtkGraphInternals()
+    { }
+
+private:
+  vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
+  void operator=(const vtkGraphInternals&);  // Not implemented.
+};
+
+vtkStandardNewMacro(vtkGraphInternals);
+vtkCxxRevisionMacro(vtkGraphInternals, "1.8");
+
+//----------------------------------------------------------------------------
+// class vtkGraph
+//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
+vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
+vtkCxxRevisionMacro(vtkGraph, "1.8");
+//----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
-  this->Directed = 0;
-  this->Edges = vtkIdTypeArray::New();
-  this->Edges->SetNumberOfComponents(2);
-  this->VertexLinks = vtkVertexLinks::New();
+  this->VertexData = vtkDataSetAttributes::New();
+  this->EdgeData = vtkDataSetAttributes::New();
+  this->Points = 0;
+  vtkMath::UninitializeBounds(this->Bounds);
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
+  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+
+  this->Internals = vtkGraphInternals::New();
 }
 
 //----------------------------------------------------------------------------
-
-void vtkGraph::Initialize()
-{
-  this->Superclass::Initialize();
-  this->Directed = 0;
-  this->Edges->Delete();
-  this->Edges = vtkIdTypeArray::New();
-  this->Edges->SetNumberOfComponents(2);
-  this->VertexLinks->Delete();
-  this->VertexLinks = vtkVertexLinks::New();
-}
-
-//----------------------------------------------------------------------------
-
 vtkGraph::~vtkGraph()
 {
-  if (this->Edges)
+  this->VertexData->Delete();
+  this->EdgeData->Delete();
+  if (this->Points)
     {
-    this->Edges->Delete();
-    this->Edges = NULL;
+    this->Points->Delete();
     }
-  if (this->VertexLinks)
+  this->Internals->Delete();
+}
+
+//----------------------------------------------------------------------------
+double *vtkGraph::GetPoint(vtkIdType ptId)
+{
+  if (this->Points)
     {
-    this->VertexLinks->Delete();
-    this->VertexLinks = NULL;
+    return this->Points->GetPoint(ptId);
+    }
+  return this->DefaultPoint;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetPoint(vtkIdType ptId, double x[3])
+{
+  if (this->Points)
+    {
+    this->Points->GetPoint(ptId, x);
+    }
+  else
+    {
+    for (int i = 0; i < 3; i++)
+      {
+      x[i] = this->DefaultPoint[i];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkPoints *vtkGraph::GetPoints()
+{
+  if (!this->Points)
+    {
+    this->Points = vtkPoints::New();
+    }
+  if (this->Points->GetNumberOfPoints() != this->GetNumberOfVertices())
+    {
+    this->Points->SetNumberOfPoints(this->GetNumberOfVertices());
+    for (vtkIdType i = 0; i < this->GetNumberOfVertices(); i++)
+      {
+      this->Points->SetPoint(i, 0, 0, 0);
+      }
+    }
+  return this->Points;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ComputeBounds()
+{
+  double *bounds;
+
+  if ( this->Points )
+    {
+    bounds = this->Points->GetBounds();
+    for (int i=0; i<6; i++)
+      {
+      this->Bounds[i] = bounds[i];
+      }
+    this->ComputeTime.Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+double *vtkGraph::GetBounds()
+{
+  this->ComputeBounds();
+  return this->Bounds;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetBounds(double bounds[6])
+{
+  this->ComputeBounds();
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
+}
+
+//----------------------------------------------------------------------------
+unsigned long int vtkGraph::GetMTime()
+{
+  unsigned long int doTime = vtkDataObject::GetMTime();
+
+  if ( this->VertexData->GetMTime() > doTime )
+    {
+    doTime = this->VertexData->GetMTime();
+    }
+  if ( this->EdgeData->GetMTime() > doTime )
+    {
+    doTime = this->EdgeData->GetMTime();
+    }
+  if ( this->Points ) 
+    {
+    if ( this->Points->GetMTime() > doTime )
+      {
+      doTime = this->Points->GetMTime();
+      }
+    }
+
+  return doTime;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::Initialize()
+{
+  this->ForceOwnership();
+  Superclass::Initialize();
+  this->EdgeData->Initialize();
+  this->VertexData->Initialize();
+  this->Internals->NumberOfEdges = 0;
+  this->Internals->Adjacency.clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
+{
+  if (it)
+    {
+    it->Initialize(this, v);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType & nedges)
+{
+  nedges = this->Internals->Adjacency[v].OutEdges.size();
+  if (nedges > 0)
+    {
+    edges = &(this->Internals->Adjacency[v].OutEdges[0]);
+    }
+  else
+    {
+    edges = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetOutDegree(vtkIdType v)
+{
+  return this->Internals->Adjacency[v].OutEdges.size();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetDegree(vtkIdType v)
+{
+  return this->Internals->Adjacency[v].InEdges.size() +
+         this->Internals->Adjacency[v].OutEdges.size();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
+{
+  if (it)
+    {
+    it->Initialize(this, v);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges)
+{
+  nedges = this->Internals->Adjacency[v].InEdges.size();
+  if (nedges > 0)
+    {
+    edges = &(this->Internals->Adjacency[v].InEdges[0]);
+    }
+  else
+    {
+    edges = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetInDegree(vtkIdType v)
+{
+  return this->Internals->Adjacency[v].InEdges.size();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetAdjacentVertices(vtkIdType v, vtkAdjacentVertexIterator *it)
+{
+  if (it)
+    {
+    it->Initialize(this, v);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetEdges(vtkEdgeListIterator *it)
+{
+  if (it)
+    {
+    it->SetGraph(this);
     }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetNumberOfEdges()
 {
-  return this->Edges->GetNumberOfTuples();
+  return this->Internals->NumberOfEdges;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetVertices(vtkVertexListIterator *it)
+{
+  if (it)
+    {
+    it->SetGraph(this);
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetNumberOfVertices()
 {
-  return this->VertexLinks->GetNumberOfVertices();
+  return this->Internals->Adjacency.size();
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetAdjacentVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
+bool vtkGraph::CheckedShallowCopy(vtkGraph *g)
 {
-  vertexIds->Reset();
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
-  for (vtkIdType i = 0; i < nedges; i++)
+  if (!g)
     {
-    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
+    return false;
     }
+  bool valid = this->IsStructureValid(g);
+  if (valid)
+    {
+    this->CopyInternal(g, false);
+    }
+  return valid;
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::GetInVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
+bool vtkGraph::CheckedDeepCopy(vtkGraph *g)
 {
-  if (!this->Directed)
+  if (!g)
     {
-    this->GetAdjacentVertices(vertex, vertexIds);
+    return false;
+    }
+  bool valid = this->IsStructureValid(g);
+  if (valid)
+    {
+    this->CopyInternal(g, true);
+    }
+  return valid;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ShallowCopy(vtkDataObject *obj)
+{
+  vtkGraph *g = vtkGraph::SafeDownCast(obj);
+  if (!g)
+    {
+    vtkErrorMacro("Can only shallow copy from vtkGraph subclass.");
     return;
     }
-  vertexIds->Reset();
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
-  for (vtkIdType i = 0; i < nedges; i++)
+  bool valid = this->IsStructureValid(g);
+  if (valid)
     {
-    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetOutVertices(vtkIdType vertex, vtkGraphIdList* vertexIds)
-{
-  if (!this->Directed)
-    {
-    this->GetAdjacentVertices(vertex, vertexIds);
-    return;
-    }
-  vertexIds->Reset();
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
-  for (vtkIdType i = 0; i < nedges; i++)
-    {
-    vertexIds->InsertNextId(this->GetOppositeVertex(edges[i], vertex));
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetIncidentEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
-{
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
-  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetIncidentEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
-{
-  this->VertexLinks->GetAdjacent(vertex, nedges, edges);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetDegree(vtkIdType vertex)
-{
-  return this->VertexLinks->GetDegree(vertex);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetInEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
-{
-  if (!this->Directed)
-    {
-    this->GetIncidentEdges(vertex, edgeIds);
-    return;
-    }
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
-  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetInEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
-{
-  if (!this->Directed)
-    {
-    this->GetIncidentEdges(vertex, nedges, edges);
-    return;
-    }
-  this->VertexLinks->GetInAdjacent(vertex, nedges, edges);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetInDegree(vtkIdType vertex)
-{
-  if (!this->Directed)
-    {
-    return this->GetDegree(vertex);
-    }
-  return this->VertexLinks->GetInDegree(vertex);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetOutEdges(vtkIdType vertex, vtkGraphIdList* edgeIds)
-{
-  if (!this->Directed)
-    {
-    this->GetIncidentEdges(vertex, edgeIds);
-    return;
-    }
-  vtkIdType nedges;
-  const vtkIdType* edges;
-  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
-  edgeIds->SetArray(const_cast<vtkIdType*>(edges), nedges, true);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::GetOutEdges(vtkIdType vertex, vtkIdType& nedges, const vtkIdType*& edges)
-{
-  if (!this->Directed)
-    {
-    this->GetIncidentEdges(vertex, nedges, edges);
-    return;
-    }
-  this->VertexLinks->GetOutAdjacent(vertex, nedges, edges);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetOutDegree(vtkIdType vertex)
-{
-  if (!this->Directed)
-    {
-    return this->GetDegree(vertex);
-    }
-  return this->VertexLinks->GetOutDegree(vertex);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetSourceVertex(vtkIdType edge)
-{
-  return this->Edges->GetValue(2*edge);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetTargetVertex(vtkIdType edge)
-{
-  return this->Edges->GetValue(2*edge + 1);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetOppositeVertex(vtkIdType edge, vtkIdType vertex)
-{
-  if (this->GetSourceVertex(edge) != vertex)
-    {
-    return this->GetSourceVertex(edge);
-    }
-  return this->GetTargetVertex(edge);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::SetNumberOfVertices(vtkIdType vertices)
-{
-  if (vertices >= this->GetNumberOfVertices())
-    {
-    for (vtkIdType i = this->GetNumberOfVertices(); i < vertices; i++)
-      {
-      this->AddVertex();
-      }
+    this->CopyInternal(g, false);
     }
   else
     {
-    for (vtkIdType i = this->GetNumberOfVertices() - 1; i >= vertices; i--)
-      {
-      this->RemoveVertex(i);
-      }
+    vtkErrorMacro("Invalid graph structure for this type of graph.");
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::ShallowCopy(vtkDataObject *dataObject)
+void vtkGraph::DeepCopy(vtkDataObject *obj)
 {
-  vtkGraph* graph = vtkGraph::SafeDownCast(dataObject);
-
-  if ( graph != NULL )
+  vtkGraph *g = vtkGraph::SafeDownCast(obj);
+  if (!g)
     {
-    if (this->Edges)
-      {
-      this->Edges->Delete();
-      }
-    this->Edges = graph->Edges;
-    if (this->Edges)
-      {
-      this->Edges->Register(this);
-      }
-
-    if (this->VertexLinks)
-      {
-      this->VertexLinks->Delete();
-      }
-    this->VertexLinks = graph->VertexLinks;
-    if (this->VertexLinks)
-      {
-      this->VertexLinks->Register(this);
-      }
-
-    this->Directed = graph->Directed;
-
+    vtkErrorMacro("Can only shallow copy from vtkGraph subclass.");
+    return;
     }
-
-  // Do superclass
-  this->Superclass::ShallowCopy(dataObject);
+  bool valid = this->IsStructureValid(g);
+  if (valid)
+    {
+    this->CopyInternal(g, true);
+    }
+  else
+    {
+    vtkErrorMacro("Invalid graph structure for this type of graph.");
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::DeepCopy(vtkDataObject *dataObject)
+void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
 {
-  vtkGraph* graph = vtkGraph::SafeDownCast(dataObject);
-
-  if ( graph != NULL )
+  if (deep)
     {
-    this->Edges->DeepCopy(graph->Edges);
-    this->VertexLinks->DeepCopy(graph->VertexLinks);
-    this->Directed = graph->Directed;
+    vtkDataObject::DeepCopy(g);
     }
-
-  // Do superclass
-  this->Superclass::DeepCopy(dataObject);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::CopyStructure(vtkDataSet* ds)
-{
-  vtkGraph* graph = vtkGraph::SafeDownCast(ds);
-
-  if (graph != NULL)
+  else
     {
-    this->Edges->DeepCopy(graph->Edges);
-    this->VertexLinks->DeepCopy(graph->VertexLinks);
-    this->Directed = graph->Directed;
+    vtkDataObject::ShallowCopy(g);
     }
-
-  // Do superclass
-  this->Superclass::CopyStructure(ds);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddVertex()
-{
-  return this->VertexLinks->AddVertex();
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddEdge(vtkIdType source, vtkIdType target)
-{
-  if (source > this->GetNumberOfVertices() - 1 || target > this->GetNumberOfVertices() - 1)
+  // Copy on write.
+  this->SetInternals(g->Internals);
+  if (deep)
     {
-    this->SetNumberOfVertices(source > target ? source + 1 : target + 1);
+    this->EdgeData->DeepCopy(g->EdgeData);
+    this->VertexData->DeepCopy(g->VertexData);
     }
-
-  //cout << "inserting edge from " << source << " to " << target << endl;
-  vtkIdType edge = this->Edges->InsertNextValue(source) / 2;
-  this->Edges->InsertNextValue(target);
-
-  // Insert the edge into the adjacency lists
-  this->VertexLinks->AddOutAdjacent(source, edge);
-  this->VertexLinks->AddInAdjacent(target, edge);
-
-  return edge;
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::RemoveVertex(vtkIdType vertex)
-{
-  // Delete any edges adjacent to the vertex.
-  // We need to remove the const for sorting the edges.
-  // Remove the out edges, then the in edges.
-  vtkIdType out;
-  const vtkIdType* outEdges;
-  this->VertexLinks->GetOutAdjacent(vertex, out, outEdges);
-  this->RemoveEdges(const_cast<vtkIdType*>(outEdges), out);
-  vtkIdType in;
-  const vtkIdType* inEdges;
-  this->VertexLinks->GetInAdjacent(vertex, in, inEdges);
-  this->RemoveEdges(const_cast<vtkIdType*>(inEdges), in);
-
-  // Move the final vertex on top of the deleted vertex
-  vtkIdType movedVertex = this->VertexLinks->RemoveVertex(vertex);
-
-  if (movedVertex != vertex)
+  else
     {
-    vtkIdType vertexDegree;
-    const vtkIdType* vertexEdges;
-    this->VertexLinks->GetAdjacent(vertex, vertexDegree, vertexEdges);
-    for (vtkIdType e = 0; e < this->VertexLinks->GetInDegree(vertex); e++)
+    this->EdgeData->ShallowCopy(g->EdgeData);
+    this->VertexData->ShallowCopy(g->VertexData);
+    }
+  if (g->Points)
+    {
+    if (!this->Points)
       {
-      this->Edges->SetValue(2*vertexEdges[e] + 1, vertex);
+      this->Points = vtkPoints::New();
       }
-    for (vtkIdType e = this->VertexLinks->GetInDegree(vertex); e < vertexDegree; e++)
+    if (deep)
       {
-      this->Edges->SetValue(2*vertexEdges[e], vertex);
+      this->Points->DeepCopy(g->Points);
+      }
+    else
+      {
+      this->Points->ShallowCopy(g->Points);
       }
     }
-
-  // Move the data of the final vertex on top of the data of the deleted vertex
-  for (int i = 0; i < this->GetPointData()->GetNumberOfArrays(); i++)
+  else if (this->Points)
     {
-    vtkAbstractArray* aa = this->GetPointData()->GetAbstractArray(i);
-    aa->SetTuple(vertex, movedVertex, aa);
-    aa->SetNumberOfTuples(aa->GetNumberOfTuples() - 1);
-    }
-  if (this->Points)
-    {
-    this->Points->SetPoint(vertex, this->Points->GetPoint(movedVertex));
-    // NOTE:
-    // vtkPoints does not have a resize method, so we have to do this the slow way.
-    // The fast way would be:
-    //this->Points->Resize(this->Points->GetNumberOfPoints() - 1);
-    vtkPoints* newPoints = vtkPoints::New();
-    for (vtkIdType i = 0; i < this->Points->GetNumberOfPoints() - 1; i++)
-      {
-      newPoints->InsertNextPoint(this->Points->GetPoint(i));
-      }
     this->Points->Delete();
-    this->Points = newPoints;
+    this->Points = 0;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveEdge(vtkIdType edge)
+void vtkGraph::Squeeze()
 {
-  // Remove the edge from the source edge list
-  vtkIdType source = this->Edges->GetValue(2*edge);
-  this->VertexLinks->RemoveOutAdjacent(source, edge);
-  vtkIdType target = this->Edges->GetValue(2*edge + 1);
-  this->VertexLinks->RemoveInAdjacent(target, edge);
-
-  // Move the final edge on top of the deleted edge
-  vtkIdType movedEdge = this->GetNumberOfEdges() - 1;
-  vtkIdType movedSource = this->Edges->GetValue(2*movedEdge);
-  vtkIdType movedTarget = this->Edges->GetValue(2*movedEdge + 1);
-
-  this->Edges->SetValue(2*edge, movedSource);
-  this->Edges->SetValue(2*edge + 1, movedTarget);
-  this->Edges->SetNumberOfTuples(this->Edges->GetNumberOfTuples() - 1);
-
-  // Modify the adjacency lists to reflect the id change
-  for (vtkIdType e = 0; e < this->VertexLinks->GetOutDegree(movedSource); e++)
+  if ( this->Points )
     {
-    if (this->VertexLinks->GetOutAdjacent(movedSource, e) == movedEdge)
-      {
-      this->VertexLinks->SetOutAdjacent(movedSource, e, edge);
-      break;
-      }
+    this->Points->Squeeze();
     }
-  for (vtkIdType e = 0; e < this->VertexLinks->GetInDegree(movedTarget); e++)
-    {
-    if (this->VertexLinks->GetInAdjacent(movedTarget, e) == movedEdge)
-      {
-      this->VertexLinks->SetInAdjacent(movedTarget, e, edge);
-      break;
-      }
-    }
-
-  // Move the data of the final edge on top of the data of the deleted edge
-  for (int i = 0; i < this->GetCellData()->GetNumberOfArrays(); i++)
-    {
-    vtkAbstractArray* aa = this->GetCellData()->GetAbstractArray(i);
-    aa->SetTuple(edge, movedEdge, aa);
-    aa->SetNumberOfTuples(aa->GetNumberOfTuples() - 1);
-    }
+  this->EdgeData->Squeeze();
+  this->VertexData->Squeeze();
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::RemoveVertices(vtkIdType* vertices, vtkIdType size)
-{
-  // Sort the vertices
-  vtkstd::sort(vertices, vertices + size);
-
-  // Delete the vertices in reverse order
-  for (vtkIdType i = size - 1; i >= 0; i--)
-    {
-    // Don't delete the same vertex twice
-    if (i == size - 1 || vertices[i] != vertices[i+1])
-      {
-      this->RemoveVertex(vertices[i]);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::RemoveEdges(vtkIdType* edges, vtkIdType size)
-{
-  // Sort the edges
-  vtkstd::sort(edges, edges + size);
-
-  // Delete the edges in reverse order
-  for (vtkIdType i = size - 1; i >= 0; i--)
-    {
-    // Don't delete the same edge twice.
-    // This may happen if there are loops in the graph.
-    if (i == size - 1 || edges[i] != edges[i+1])
-      {
-      this->RemoveEdge(edges[i]);
-      }
-    }
-}
-
-void vtkGraph::ClearVertex(vtkIdType vertex)
-{
-  // Delete any edges adjacent to the vertex.
-  // We need to remove the const for sorting the edges.
-  // Remove the out edges, then the in edges.
-  vtkIdType out;
-  const vtkIdType* outEdges;
-  this->VertexLinks->GetOutAdjacent(vertex, out, outEdges);
-  this->RemoveEdges(const_cast<vtkIdType*>(outEdges), out);
-  vtkIdType in;
-  const vtkIdType* inEdges;
-  this->VertexLinks->GetInAdjacent(vertex, in, inEdges);
-  this->RemoveEdges(const_cast<vtkIdType*>(inEdges), in);
-}
-
-//----------------------------------------------------------------------------
-vtkGraph* vtkGraph::GetData(vtkInformation* info)
+vtkGraph *vtkGraph::GetData(vtkInformation *info)
 {
   return info? vtkGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
 }
 
 //----------------------------------------------------------------------------
-vtkGraph* vtkGraph::GetData(vtkInformationVector* v, int i)
+vtkGraph *vtkGraph::GetData(vtkInformationVector *v, int i)
 {
   return vtkGraph::GetData(v->GetInformationObject(i));
 }
 
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::AddVertexInternal()
+{
+  this->ForceOwnership();
+  this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
+  return this->Internals->Adjacency.size() - 1;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
+{
+  this->ForceOwnership();
+  vtkIdType edgeId = this->Internals->NumberOfEdges;
+  this->Internals->NumberOfEdges++;
+  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+  if (directed)
+    {
+    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
+    }
+  else if (u != v)
+    {
+    // Avoid storing self-loops twice in undirected graphs.
+    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+    }
+  return vtkEdgeType(u, v, edgeId);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
+{
+  this->ForceOwnership();
+  vector<vtkOutEdgeType> outEdges;
+  vector<vtkOutEdgeType>::iterator it, itEnd;
+  itEnd = this->Internals->Adjacency[v].OutEdges.end();
+  for (vtkIdType i = 0; i < vertices->GetNumberOfTuples(); ++i)
+    {
+    vtkIdType vert = vertices->GetValue(i);
+    // Find the matching edge
+    for (it = this->Internals->Adjacency[v].OutEdges.begin(); it != itEnd; ++it)
+      {
+      if (it->Target == vert)
+        {
+        outEdges.push_back(*it);
+        break;
+        }
+      }
+    }
+  if (outEdges.size() != this->Internals->Adjacency[v].OutEdges.size())
+    {
+    vtkErrorMacro("Invalid reorder list.");
+    return;
+    }
+  this->Internals->Adjacency[v].OutEdges = outEdges;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraph::IsSameStructure(vtkGraph *other)
+{
+  return (this->Internals == other->Internals);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ForceOwnership()
+{
+  // If the reference count == 1, we own it and can change it.
+  // If the reference count > 1, we must make a copy to avoid
+  // changing the structure of other graphs.
+  if (this->Internals->GetReferenceCount() > 1)
+    {
+    vtkGraphInternals *internals = vtkGraphInternals::New();
+    internals->Adjacency = this->Internals->Adjacency;
+    internals->NumberOfEdges = this->Internals->NumberOfEdges;
+    this->SetInternals(internals);
+    internals->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+// Supporting operators
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+bool operator==(vtkEdgeBase e1, vtkEdgeBase e2)
+{
+  return e1.Id == e2.Id;
+}
+
+//----------------------------------------------------------------------------
+bool operator!=(vtkEdgeBase e1, vtkEdgeBase e2)
+{
+  return e1.Id != e2.Id;
+}
+
+//----------------------------------------------------------------------------
+ostream& operator<<(ostream& out, vtkEdgeBase e)
+{
+  return out << e.Id;
+}

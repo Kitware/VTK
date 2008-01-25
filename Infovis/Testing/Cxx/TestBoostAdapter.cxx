@@ -27,7 +27,6 @@
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/transitive_closure.hpp>
-// #include <boost/graph/sequential_vertex_coloring.hpp>
 #include <boost/property_map.hpp>
 #include <boost/vector_property_map.hpp>
 
@@ -37,7 +36,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkTimerLog.h"
-#include "vtkTreeToBoostAdapter.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -222,6 +220,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
   
   TestTraversal(g, repeat, errors);
   
+#if 0
   timer->StartTimer();
   while (num_edges(g) > 0)
     {
@@ -238,6 +237,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     }
   timer->StopTimer();
   cerr << "vertex deletion: " << timer->GetElapsedTime() / numVertices  << " sec." << endl;
+#endif
 }
 
 int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -260,29 +260,32 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cerr << "...done." << endl << endl;
 
   cerr << "Testing undirected graph adapter..." << endl;
-  vtkGraph* ug = vtkGraph::New();
-  ug->SetDirected(false);
-  vtkBoostUndirectedGraph ugBoost(ug);
-  TestGraph(ugBoost, numVertices, numEdges, repeat, errors);
+  vtkMutableUndirectedGraph* ug = vtkMutableUndirectedGraph::New();
+  TestGraph(ug, numVertices, numEdges, repeat, errors);
   ug->Delete();
   cerr << "...done." << endl << endl;
 
   cerr << "Testing directed graph adapter..." << endl;
-  vtkGraph* dg = vtkGraph::New();
-  dg->SetDirected(true);
-  vtkBoostDirectedGraph dgBoost(dg);
-  TestGraph(dgBoost, numVertices, numEdges, repeat, errors);
+  vtkMutableDirectedGraph* dg = vtkMutableDirectedGraph::New();
+  TestGraph(dg, numVertices, numEdges, repeat, errors);
   dg->Delete();
   cerr << "...done." << endl << endl;
   
   cerr << "Testing tree adapter..." << endl;
-  vtkTree* t = vtkTree::New();
-  t->AddRoot();
+  vtkMutableDirectedGraph *builder = vtkMutableDirectedGraph::New();
+  builder->AddVertex();
   for (vtkIdType i = 1; i < numVertices; i++)
     {
-    t->AddChild(static_cast<vtkIdType>(vtkMath::Random(0, i)));
+    builder->AddChild(static_cast<vtkIdType>(vtkMath::Random(0, i)));
+    }
+  vtkTree* t = vtkTree::New();
+  if (!t->CheckedShallowCopy(builder))
+    {
+    cerr << "Invalid tree structure!" << endl;
+    ++errors;
     }
   TestTraversal(t, repeat, errors);
+  builder->Delete();
   t->Delete();
   cerr << "...done." << endl << endl;
   
