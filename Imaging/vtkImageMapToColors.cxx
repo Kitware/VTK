@@ -22,7 +22,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.29");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.30");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -189,7 +189,7 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   extY = outExt[3] - outExt[2] + 1;
   extZ = outExt[5] - outExt[4] + 1;
 
-  target = (unsigned long)(extZ*extY/50.0);
+  target = static_cast<unsigned long>(extZ*extY/50.0);
   target++;
 
   // Get increments to march through data
@@ -206,7 +206,8 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 
   // Loop through output pixels
   outPtr1 = outPtr;
-  inPtr1 = (void *) ((char *) inPtr + self->GetActiveComponent()*scalarSize);
+  inPtr1 = static_cast<void *>(
+    static_cast<char *>(inPtr) + self->GetActiveComponent()*scalarSize);
   for (idxZ = 0; idxZ < extZ; idxZ++)
     {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
@@ -227,9 +228,8 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
           (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
         {
         unsigned char *outPtr2 = outPtr1 + numberOfOutputComponents - 1;
-        unsigned char *inPtr2 = (unsigned char *)inPtr1
-                                      - self->GetActiveComponent()*scalarSize
-                                      + numberOfComponents - 1;
+        unsigned char *inPtr2 = static_cast<unsigned char *>(inPtr1)
+          - self->GetActiveComponent()*scalarSize + numberOfComponents - 1;
         for (int i = 0; i < extX; i++)
           {
           *outPtr2 = (*outPtr2 * *inPtr2)/255;
@@ -238,10 +238,11 @@ void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
           }
         }
       outPtr1 += outIncY + extX*numberOfOutputComponents;
-      inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
+      inPtr1 = static_cast<void *>(
+        static_cast<char *>(inPtr1) + inIncY + rowLength);
       }
     outPtr1 += outIncZ;
-    inPtr1 = (void *) ((char *) inPtr1 + inIncZ);
+    inPtr1 = static_cast<void *>(static_cast<char *>(inPtr1) + inIncZ);
     }
 }
 
@@ -261,7 +262,8 @@ void vtkImageMapToColors::ThreadedRequestData(
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   vtkImageMapToColorsExecute(this, inData[0][0], inPtr,
-                             outData[0], (unsigned char *)outPtr, outExt, id);
+                             outData[0], static_cast<unsigned char *>(outPtr),
+                             outExt, id);
 }
 
 //----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.41");
+vtkCxxRevisionMacro(vtkImageMask, "1.42");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
       {
       idx1 = 0;
       }
-    maskedValue[idx0] = (T)(v[idx1]);
+    maskedValue[idx0] = static_cast<T>(v[idx1]);
     }
   pixSize = numC * sizeof(T);
   maskState = self->GetNotMask();
@@ -134,7 +134,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   num1 = ext[3] - ext[2] + 1;
   num2 = ext[5] - ext[4] + 1;
 
-  target = (unsigned long)(num2*num1/50.0);
+  target = static_cast<unsigned long>(num2*num1/50.0);
   target++;
 
   // Loop through ouput pixels
@@ -187,7 +187,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
             // Do an over operation
             for ( idxC = 0; idxC < numC; ++idxC )
               {
-              *outPtr = (T) ( oneMinusMaskAlpha * *in1Ptr + maskedValue[idxC] * maskAlpha );
+              *outPtr = static_cast<T>(oneMinusMaskAlpha * *in1Ptr + maskedValue[idxC] * maskAlpha );
               ++outPtr;
               ++in1Ptr;
               }
@@ -269,9 +269,9 @@ void vtkImageMask::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageMaskExecute(this, outExt, inData[0][0], 
-                          (VTK_TT *)(inPtr1), inData[1][0], 
-                          (unsigned char *)(inPtr2),
-                          outData[0], (VTK_TT *)(outPtr),id));
+                          static_cast<VTK_TT *>(inPtr1), inData[1][0], 
+                          static_cast<unsigned char *>(inPtr2),
+                          outData[0], static_cast<VTK_TT *>(outPtr),id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

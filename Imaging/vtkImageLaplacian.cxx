@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.34");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.35");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get the dimensionality of the gradient.
@@ -156,24 +156,24 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
           {
           // do X axis
           d = -2.0*(*inPtr);
-          d += (double)(inPtr[useXMin]);
-          d += (double)(inPtr[useXMax]);
+          d += static_cast<double>(inPtr[useXMin]);
+          d += static_cast<double>(inPtr[useXMax]);
           sum = d * r[0];
 
           // do y axis
           d = -2.0*(*inPtr);
-          d += (double)(inPtr[useYMin]);
-          d += (double)(inPtr[useYMax]);
+          d += static_cast<double>(inPtr[useYMin]);
+          d += static_cast<double>(inPtr[useYMax]);
           sum = sum + d * r[1];
           if (axesNum == 3)
             {
             // do z axis
             d = -2.0*(*inPtr);
-            d += (double)(inPtr[useZMin]);
-            d += (double)(inPtr[useZMax]);
+            d += static_cast<double>(inPtr[useZMin]);
+            d += static_cast<double>(inPtr[useZMax]);
             sum = sum + d * r[2];
             }
-          *outPtr = (T)sum;
+          *outPtr = static_cast<T>(sum);
           inPtr++;
           outPtr++;
           }
@@ -215,8 +215,8 @@ void vtkImageLaplacian::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageLaplacianExecute( this, inData[0][0],
-                                (VTK_TT *)(inPtr), outData[0],
-                                (VTK_TT *)(outPtr),
+                                static_cast<VTK_TT *>(inPtr), outData[0],
+                                static_cast<VTK_TT *>(outPtr),
                                 outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.35");
+vtkCxxRevisionMacro(vtkImageLogic, "1.36");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  T trueValue = (T)(self->GetOutputTrueValue());
+  T trueValue = static_cast<T>(self->GetOutputTrueValue());
   int op = self->GetOperation();
 
   // Loop through ouput pixels
@@ -106,7 +106,7 @@ void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  T trueValue = (T)(self->GetOutputTrueValue());
+  T trueValue = static_cast<T>(self->GetOutputTrueValue());
   int op = self->GetOperation();
 
   // Loop through ouput pixels

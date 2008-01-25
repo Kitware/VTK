@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.33");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.34");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
@@ -135,9 +135,9 @@ int vtkImageGaussianSource::RequestData(
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (double *)data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = static_cast<double *>(data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
   
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Loop through ouput pixels

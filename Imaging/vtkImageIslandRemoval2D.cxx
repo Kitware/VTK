@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.48");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.49");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -93,8 +93,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 
   squareNeighborhood = self->GetSquareNeighborhood();
   area = self->GetAreaThreshold();
-  islandValue = (T)(self->GetIslandValue());
-  replaceValue = (T)(self->GetReplaceValue());
+  islandValue = static_cast<T>(self->GetIslandValue());
+  replaceValue = static_cast<T>(self->GetReplaceValue());
   // In case all 8 neighbors get added before we test the number.
   pixels = new vtkImage2DIslandPixel [area + 8]; 
   
@@ -114,7 +114,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
         outPtr0 = outPtr1;
         for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
           {
-          *outPtr0 = (T)(0);  // Unvisited
+          *outPtr0 = static_cast<T>(0);  // Unvisited
           outPtr0 += outInc0;
           }
         outPtr1 += outInc1;
@@ -130,8 +130,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     return;
     }
                        
-  target = (unsigned long)(maxC*(outExt[5]-outExt[4]+1)*
-                           (outExt[3]-outExt[2]+1)/50.0);
+  target = static_cast<unsigned long>(maxC*(outExt[5]-outExt[4]+1)*
+                                      (outExt[3]-outExt[2]+1)/50.0);
   target++;
 
   // Loop though all pixels looking for islands
@@ -168,8 +168,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
               // Start an island search
               // Save first pixel.
               newPixel = pixels;
-              newPixel->inPtr = (void *)(inPtr0);
-              newPixel->outPtr = (void *)(outPtr0);
+              newPixel->inPtr = static_cast<void *>(inPtr0);
+              newPixel->outPtr = static_cast<void *>(outPtr0);
               newPixel->idx0 = outIdx0;
               newPixel->idx1 = outIdx1;
               numPixels = 1;
@@ -184,10 +184,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 // left
                 if (nextPixel->idx0 > outExt[0])
                   {
-                  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0;
+                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0;
                   if ( *inNeighborPtr == islandValue)
                     {
-                    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0;
+                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0;
                     if ( *outNeighborPtr == 2)
                       {
                       // This is part of a bigger island.
@@ -198,8 +198,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = (void *)(inNeighborPtr);
-                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0 - 1;
                       newPixel->idx1 = nextPixel->idx1;
                       *outNeighborPtr = 1;  // visited don't know
@@ -209,10 +209,11 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 // right
                 if (nextPixel->idx0 < outExt[1])
                   {
-                  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0;
+                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0;
                   if ( *inNeighborPtr == islandValue)
                     {
-                    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0;
+                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr)
+                      + outInc0;
                     if ( *outNeighborPtr == 2)
                       {
                       // This is part of a bigger island.
@@ -223,8 +224,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = (void *)(inNeighborPtr);
-                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0 + 1;
                       newPixel->idx1 = nextPixel->idx1;
                       *outNeighborPtr = 1;  // visited don't know
@@ -234,10 +235,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 // up
                 if (nextPixel->idx1 > outExt[2])
                   {
-                  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc1;
+                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc1;
                   if ( *inNeighborPtr == islandValue)
                     {
-                    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc1;
+                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc1;
                     if ( *outNeighborPtr == 2)
                       {
                       // This is part of a bigger island.
@@ -248,8 +249,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = (void *)(inNeighborPtr);
-                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0;
                       newPixel->idx1 = nextPixel->idx1 - 1;
                       *outNeighborPtr = 1;  // visited don't know
@@ -259,10 +260,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 // down
                 if (nextPixel->idx1 < outExt[3])
                   {
-                  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc1;
+                  inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc1;
                   if ( *inNeighborPtr == islandValue)
                     {
-                    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc1;
+                    outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc1;
                     if ( *outNeighborPtr == 2)
                       {
                       // This is part of a bigger island.
@@ -273,8 +274,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                       // New pixel to add
                       ++newPixel;
                       ++numPixels;
-                      newPixel->inPtr = (void *)(inNeighborPtr);
-                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                      newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                       newPixel->idx0 = nextPixel->idx0;
                       newPixel->idx1 = nextPixel->idx1 + 1;
                       *outNeighborPtr = 1;  // visited don't know
@@ -287,10 +288,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   // upper left
                   if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 > outExt[2])
                     {
-                    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 - inInc1;
+                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0 - inInc1;
                     if ( *inNeighborPtr == islandValue)
                       {
-                      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 -outInc1;
+                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0 -outInc1;
                       if ( *outNeighborPtr == 2)
                         {
                         // This is part of a bigger island.
@@ -301,8 +302,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = (void *)(inNeighborPtr);
-                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 - 1;
                         newPixel->idx1 = nextPixel->idx1 - 1;
                         *outNeighborPtr = 1;  // visited don't know
@@ -312,10 +313,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   // upper right
                   if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 > outExt[2])
                     {
-                    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 - inInc1;
+                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0 - inInc1;
                     if ( *inNeighborPtr == islandValue)
                       {
-                      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 -outInc1;
+                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc0 -outInc1;
                       if ( *outNeighborPtr == 2)
                         {
                         // This is part of a bigger island.
@@ -326,8 +327,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = (void *)(inNeighborPtr);
-                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 + 1;
                         newPixel->idx1 = nextPixel->idx1 - 1;
                         *outNeighborPtr = 1;  // visited don't know
@@ -337,10 +338,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   // lower left
                   if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 < outExt[3])
                     {
-                    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 + inInc1;
+                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) - inInc0 + inInc1;
                     if ( *inNeighborPtr == islandValue)
                       {
-                      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 +outInc1;
+                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) - outInc0 +outInc1;
                       if ( *outNeighborPtr == 2)
                         {
                         // This is part of a bigger island.
@@ -351,8 +352,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = (void *)(inNeighborPtr);
-                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 - 1;
                         newPixel->idx1 = nextPixel->idx1 + 1;
                         *outNeighborPtr = 1;  // visited don't know
@@ -362,10 +363,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   // lower right
                   if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 < outExt[3])
                     {
-                    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 + inInc1;
+                    inNeighborPtr = static_cast<T *>(nextPixel->inPtr) + inInc0 + inInc1;
                     if ( *inNeighborPtr == islandValue)
                       {
-                      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 +outInc1;
+                      outNeighborPtr = static_cast<T *>(nextPixel->outPtr) + outInc0 +outInc1;
                       if ( *outNeighborPtr == 2)
                         {
                         // This is part of a bigger island.
@@ -376,8 +377,8 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                         // New pixel to add
                         ++newPixel;
                         ++numPixels;
-                        newPixel->inPtr = (void *)(inNeighborPtr);
-                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->inPtr = static_cast<void *>(inNeighborPtr);
+                        newPixel->outPtr = static_cast<void *>(outNeighborPtr);
                         newPixel->idx0 = nextPixel->idx0 + 1;
                         newPixel->idx1 = nextPixel->idx1 + 1;
                         *outNeighborPtr = 1;  // visited don't know
@@ -408,7 +409,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
               nextPixel = pixels;
               for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
                 {
-                *((T *)(nextPixel->outPtr)) = keepValue;
+                *(static_cast<T *>(nextPixel->outPtr)) = keepValue;
                 ++nextPixel;
                 }
               }
@@ -519,9 +520,9 @@ int vtkImageIslandRemoval2D::RequestData(
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageIslandRemoval2DExecute( this, inData, 
-                                      (VTK_TT *)(inPtr), outData, 
-                                      (VTK_TT *)(outPtr), outExt));
+      vtkImageIslandRemoval2DExecute(this, inData, 
+                                     static_cast<VTK_TT *>(inPtr), outData, 
+                                     static_cast<VTK_TT *>(outPtr), outExt));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
@@ -529,15 +530,6 @@ int vtkImageIslandRemoval2D::RequestData(
 
   return 1;
 }
-
-
-
-
-
-
-
-
-
 
 
 

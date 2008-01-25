@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.21");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.22");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
@@ -68,7 +68,8 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   unsigned long target;
   double startProgress;
 
-  startProgress = this->GetIteration()/(double)(this->GetNumberOfIterations());
+  startProgress = this->GetIteration()/
+    static_cast<double>(this->GetNumberOfIterations());
   
   // this filter expects that the input be doubles.
   if (inData->GetScalarType() != VTK_DOUBLE)
@@ -92,7 +93,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
 
   // Get stuff needed to loop through the pixel
   numberOfComponents = outData->GetNumberOfScalarComponents();
-  outPtr0 = (double *)(outData->GetScalarPointerForExtent(outExt));
+  outPtr0 = static_cast<double *>(outData->GetScalarPointerForExtent(outExt));
   wholeExtent = this->GetOutput()->GetWholeExtent();
   // permute to make the filtered axis come first
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
@@ -109,8 +110,8 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   inCoords[1] = outExt[2];
   inCoords[2] = outExt[4];
   
-  target = (unsigned long)((max2-min2+1)*(max0-min0+1)
-                           * this->GetNumberOfIterations() / 50.0);
+  target = static_cast<unsigned long>((max2-min2+1)*(max0-min0+1)
+                                      * this->GetNumberOfIterations() / 50.0);
   target++;
 
   // loop over the filtered axis first
@@ -123,7 +124,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
       inIdx0 -= (wholeMax0 - wholeMin0 + 1);
       }
     inCoords[this->Iteration] = inIdx0;
-    inPtr0 = (double *)(inData->GetScalarPointer(inCoords));
+    inPtr0 = static_cast<double *>(inData->GetScalarPointer(inCoords));
     
     // loop over other axes
     inPtr2 = inPtr0;

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.46");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.47");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
   for (x = min; x <= max; ++x)
     {
     sum += kernel[x-min] = 
-      exp(- ((double)(x*x)) / (std * std * 2.0));
+      exp(- (static_cast<double>(x*x)) / (std * std * 2.0));
     }
 
   // normalize
@@ -126,7 +126,8 @@ void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int *inExt,
   // Expand filtered axes
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    radius = (int)(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
+    radius = static_cast<int>(this->StandardDeviations[idx]
+                              * this->RadiusFactors[idx]);
     inExt[idx*2] -= radius;
     if (inExt[idx*2] < wholeExtent[idx*2])
       {
@@ -209,11 +210,11 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
         // too bad this short loop has to be the inner most loop
         for (idxK = 0; idxK < kernelSize; ++idxK)
           {
-          sum += *ptrK * (double)(*inPtrK);
+          sum += *ptrK * static_cast<double>(*inPtrK);
           ++ptrK;
           inPtrK += inIncK;
           }
-        *outPtr0 = (T)(sum);
+        *outPtr0 = static_cast<T>(sum);
         inPtr0 += inInc0;
         outPtr0 += outInc0;
         }
@@ -227,7 +228,8 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
           { // yes
           *pcycle -= target;
           *pcount += target;
-          self->UpdateProgress((double)(*pcount) / (double)total);
+          self->UpdateProgress(static_cast<double>(*pcount) /
+                               static_cast<double>(total));
           //fprintf(stderr, "count: %d, total: %d, progress: %f\n",
           //*pcount, total, (double)(*pcount) / (double)total);
           }
@@ -297,7 +299,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   wholeMax = wholeExtent[axis*2+1];  
 
   // allocate memory for the kernel
-  radius = (int)(this->StandardDeviations[axis] * this->RadiusFactors[axis]);
+  radius = static_cast<int>(this->StandardDeviations[axis]
+                            * this->RadiusFactors[axis]);
   size = 2*radius + 1;
   kernel = new double[size];
   
@@ -331,7 +334,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       {
       this->ComputeKernel(kernel, -radius+kernelLeftClip, 
                           radius-kernelRightClip,
-                          (double)(this->StandardDeviations[axis]));
+                          static_cast<double>(this->StandardDeviations[axis]));
       kernelSize = size - kernelLeftClip - kernelRightClip;
       }
     previousClipped = currentClipped;
@@ -342,15 +345,17 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       {
       vtkTemplateMacro(
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                                      inData, (VTK_TT*)(inPtr),
-                                      outData, outExt, (VTK_TT*)(outPtr),
+                                      inData, static_cast<VTK_TT*>(inPtr),
+                                      outData, outExt,
+                                      static_cast<VTK_TT*>(outPtr),
                                       pcycle, target, pcount, total)
         );
       default:
         vtkErrorMacro("Unknown scalar type");
         return;
       }
-    outPtr = (void *)((unsigned char *)outPtr + outIncA);
+    outPtr = static_cast<void *>(
+      static_cast<unsigned char *>(outPtr) + outIncA);
     }
   
   // get rid of temporary kernel

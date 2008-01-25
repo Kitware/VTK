@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.26");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.27");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------
@@ -57,11 +57,11 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
       // Pixel operation
       if (*inSI > 0)
         {
-        *outSI = (T)(c*log((double)(*inSI)+1.0));
+        *outSI = static_cast<T>(c*log(static_cast<double>(*inSI)+1.0));
         }
       else
         {
-        *outSI = (T)(-c*log(1.0-(double)(*inSI)));
+        *outSI = static_cast<T>(-c*log(1.0-static_cast<double>(*inSI)));
         }
       
       outSI++;
