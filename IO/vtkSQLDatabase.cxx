@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.11");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.12");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -95,10 +95,11 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     post_db->SetHostName(hostname.c_str());
     post_db->SetServerPort(atoi(dataport.c_str()));
     post_db->SetDatabaseName(database.c_str());
+    return db;
     }
 #endif // VTK_USE_POSTGRES
 #ifdef VTK_USE_MYSQL
-  else if ( protocol == "mysql" )
+  if ( protocol == "mysql" )
     {
     db = vtkMySQLDatabase::New();
     vtkMySQLDatabase *mysql_db = vtkMySQLDatabase::SafeDownCast(db);
@@ -107,6 +108,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     mysql_db->SetHostName(hostname.c_str());
     mysql_db->SetServerPort(atoi(dataport.c_str()));
     mysql_db->SetDatabaseName(database.c_str());
+    return db;
     }
 #endif // VTK_USE_MYSQL
 
