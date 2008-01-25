@@ -74,14 +74,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.9");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.10");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.9");
+vtkCxxRevisionMacro(vtkGraph, "1.10");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -545,6 +545,16 @@ void vtkGraph::ForceOwnership()
 void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "VertexData: " << (this->VertexData ? "" : "(none)") << endl;
+  if (this->VertexData)
+    {
+    this->VertexData->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "EdgeData: " << (this->EdgeData ? "" : "(none)") << endl;
+  if (this->EdgeData)
+    {
+    this->EdgeData->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 //----------------------------------------------------------------------------
