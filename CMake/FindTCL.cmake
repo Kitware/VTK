@@ -125,6 +125,8 @@ SET (TCLTK_POSSIBLE_INCLUDE_PATHS
   "${TK_LIBRARY_PATH_PARENT}/include"
   "${TCL_INCLUDE_PATH}"
   "${TK_INCLUDE_PATH}"
+  ${TCL_FRAMEWORK_INCLUDES} 
+  ${TK_FRAMEWORK_INCLUDES} 
   "${TCL_TCLSH_PATH_PARENT}/include"
   "${TK_WISH_PATH_PARENT}/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ActiveState\\ActiveTcl\\${ActiveTcl_CurrentVersion}]/include"
@@ -134,7 +136,6 @@ SET (TCLTK_POSSIBLE_INCLUDE_PATHS
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.3;Root]/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.2;Root]/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Scriptics\\Tcl\\8.0;Root]/include"
-  ${TCL_FRAMEWORK_INCLUDES} 
   "$ENV{ProgramFiles}/Tcl/include"
   "C:/Program Files/Tcl/include"
   "C:/Tcl/include"
