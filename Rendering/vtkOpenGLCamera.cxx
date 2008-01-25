@@ -26,7 +26,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.67");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.68");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -55,10 +55,12 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
           if(ren->GetRenderWindow()->GetDoubleBuffer())
             {
             glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
+            glReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
             }
           else
             {
             glDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
+            glReadBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
             }
           }
         else
@@ -66,10 +68,12 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
            if(ren->GetRenderWindow()->GetDoubleBuffer())
             {
             glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
+            glReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
             }
           else
             {
             glDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
+            glReadBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
             }
           }
         break;
@@ -88,10 +92,20 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     if (ren->GetRenderWindow()->GetDoubleBuffer())
       {
       glDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
+      
+      // Reading back buffer means back left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(win->GetBackBuffer()));
       }
     else
       {
       glDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
+      
+      // Reading front buffer means front left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
       }
     }
   
