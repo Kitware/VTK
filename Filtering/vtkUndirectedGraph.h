@@ -62,6 +62,12 @@ public:
   static vtkUndirectedGraph *GetData(vtkInformationVector *v, int i=0);
   //ETX
 
+  // Description:
+  // Initialize the iterator to get the incoming edges to a vertex.
+  // For an undirected graph, this is all incident edges.
+  virtual void GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
+    { Superclass::GetInEdges(v, it); }
+
 protected:
   vtkUndirectedGraph();
   ~vtkUndirectedGraph();
