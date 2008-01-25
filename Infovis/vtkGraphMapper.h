@@ -106,6 +106,8 @@ public:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
+  virtual void GetBounds(double* bounds)
+    { Superclass::GetBounds(bounds); }
 
 protected:
   vtkGraphMapper();
