@@ -82,7 +82,7 @@ private:
   vector<vtkView*> Views;
 };
 
-char *TreeLayoutViewEventLog =
+char TreeLayoutViewEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 298 13 0 0 0 0 0\n"

@@ -33,7 +33,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char *GraphLayoutViewEventLog = 
+char GraphLayoutViewEventLog[] = 
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 291 110 0 0 0 0 0\n"

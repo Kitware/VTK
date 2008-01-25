@@ -34,7 +34,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char *TreeMapViewEventLog = 
+char TreeMapViewEventLog[] = 
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
