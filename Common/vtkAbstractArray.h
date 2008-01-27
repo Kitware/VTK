@@ -94,6 +94,9 @@ public:
   // Description:
   // Set the number of tuples (a component group) in the array. Note that 
   // this may allocate space depending on the number of components.
+  // Also note that if allocation is performed no copy is performed so
+  // existing data will be last (if data conservation is sought, one may
+  //  use the Resize method instead).
   virtual void SetNumberOfTuples(vtkIdType number) = 0;
 
   // Description:
