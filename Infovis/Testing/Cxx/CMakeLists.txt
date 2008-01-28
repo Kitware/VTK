@@ -3,6 +3,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Infovis)
   # add tests that do not require data
   SET(MyTests  
+    TestAssignCoordinates
     TestDataObjectToTable
     TestExtractSelectedGraph
     TestGraph
@@ -13,6 +14,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestInteractorStyleTreeMapHover
     TestKdTreeBoxSelection
     TestRandomGraphSource
+    TestSQLGraphReader
+    TestStringToCategory
     TestTable
     TestTreeMapLayoutStrategy
     TestThresholdTable
@@ -22,10 +25,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
+      TestChacoGraphReader
       TestDelimitedTextReader
       TestFixedWidthTextReader
       TestStringToNumeric
+      TestTableToGraph
       TestTreeMapViewer
+      TestTulipReader
       )
   ENDIF (VTK_DATA_ROOT)
   IF (VTK_USE_BOOST)

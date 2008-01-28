@@ -1,0 +1,77 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkAssignCoordinates.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*----------------------------------------------------------------------------
+ Copyright (c) Sandia Corporation
+ See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+----------------------------------------------------------------------------*/
+// .NAME vtkAssignCoordinates - Given two(or three) arrays take the values
+// in those arrays and simply assign them to the coordinates of the vertices.
+//
+// .SECTION Description
+// Given two(or three) arrays take the values in those arrays and simply assign 
+// them to the coordinates of the vertices. Yes you could do this with the array 
+// calculator, but your mom wears army boots so we're not going to.  
+
+#ifndef __vtkAssignCoordinates_h
+#define __vtkAssignCoordinates_h
+
+#include "vtkGraphAlgorithm.h"
+
+class VTK_INFOVIS_EXPORT vtkAssignCoordinates : public vtkGraphAlgorithm 
+{
+public:
+  static vtkAssignCoordinates *New();
+
+  vtkTypeRevisionMacro(vtkAssignCoordinates, vtkGraphAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set the x coordinate array name. 
+  vtkSetStringMacro(XCoordArrayName);
+  vtkGetStringMacro(XCoordArrayName);
+  
+  // Description:
+  // Set the y coordinate array name. 
+  vtkSetStringMacro(YCoordArrayName);
+  vtkGetStringMacro(YCoordArrayName);
+  
+  // Description:
+  // Set the z coordinate array name. 
+  vtkSetStringMacro(ZCoordArrayName);
+  vtkGetStringMacro(ZCoordArrayName);
+  
+  // Description:
+  // Set if you want a random jitter
+  vtkSetMacro(Jitter,bool);
+
+protected:
+  vtkAssignCoordinates();
+  ~vtkAssignCoordinates();
+  
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+private:
+
+  char* XCoordArrayName;
+  char* YCoordArrayName;
+  char* ZCoordArrayName;
+  bool Jitter;
+
+  vtkAssignCoordinates(const vtkAssignCoordinates&);  // Not implemented.
+  void operator=(const vtkAssignCoordinates&);  // Not implemented.
+};
+
+#endif
+

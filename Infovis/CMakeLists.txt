@@ -6,7 +6,9 @@ SET(KIT_JAVA_LIBS vtkWidgetsJava)
 SET(KIT_LIBS vtkWidgets vtklibxml2)
 
 SET( Kit_SRCS
+vtkAssignCoordinates.cxx
 vtkBoxLayoutStrategy.cxx
+vtkChacoGraphReader.cxx
 vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
 vtkCommunity2DLayoutStrategy.cxx
@@ -34,8 +36,11 @@ vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
+vtkSQLGraphReader.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
+vtkTableToGraph.cxx
 vtkTableToTreeFilter.cxx
 vtkThresholdTable.cxx
 vtkTimePointUtility.cxx
@@ -46,6 +51,7 @@ vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
+vtkTulipReader.cxx
 vtkVertexDegree.cxx
 vtkViewTheme.cxx
 vtkXMLTreeReader.cxx
