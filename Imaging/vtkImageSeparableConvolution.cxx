@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.20");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.21");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -29,12 +29,12 @@ vtkCxxSetObjectMacro(vtkImageSeparableConvolution,ZKernel,vtkFloatArray);
 
 
 // Actually do the convolution
-void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
+void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
 {
 
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )
   
-  int center = (int) ( (kernelSize - 1 ) / 2.0 );
+  int center = static_cast<int>((kernelSize - 1) / 2.0);
   int i, j, k, kStart, iStart, iEnd, count;
   
   for ( i = 0; i < imageSize; ++i )
@@ -163,7 +163,7 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   if ( KernelArray )
     {
     kernelSize = KernelArray->GetNumberOfTuples();
-    kernelSize = (int) ( ( kernelSize - 1 ) / 2.0 ); 
+    kernelSize = static_cast<int>((kernelSize - 1) / 2.0); 
     }
   
   int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
@@ -215,7 +215,8 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   
-  target = (unsigned long)((inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
+  target = static_cast<unsigned long>(
+    (inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
   target++;
 
   vtkFloatArray* KernelArray = NULL;
@@ -253,8 +254,8 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
   
   // loop over all the extra axes
-  inPtr2 = (T *)inData->GetScalarPointerForExtent(inExt);
-  outPtr2 = (float *)outData->GetScalarPointerForExtent(outExt);
+  inPtr2 = static_cast<T *>(inData->GetScalarPointerForExtent(inExt));
+  outPtr2 = static_cast<float *>(outData->GetScalarPointerForExtent(outExt));
   for (idx2 = inMin2; idx2 <= inMax2; ++idx2)
     {
     inPtr1 = inPtr2;
@@ -270,7 +271,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
       imagePtr = image;
       for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
         {
-        *imagePtr = (float)(*inPtr0);
+        *imagePtr = static_cast<float>(*inPtr0);
         inPtr0 += inInc0;
         ++imagePtr;
         }

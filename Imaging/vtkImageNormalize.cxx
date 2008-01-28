@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.19");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.20");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
       sum = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
         {
-        sum += (float)(*inSI) * (float)(*inSI);
+        sum += static_cast<float>(*inSI) * static_cast<float>(*inSI);
         inSI++;
         }
       if (sum > 0.0)
@@ -90,7 +90,7 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
       // now divide to normalize.
       for (idxC = 0; idxC < maxC; idxC++)
         {
-        *outSI = (float)(*inVect) * sum;
+        *outSI = static_cast<float>(*inVect) * sum;
         inVect++;
         outSI++;
         }

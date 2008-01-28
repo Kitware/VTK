@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.47");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.48");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -257,16 +257,17 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   middleMin2 = inExt[4] + kernelMiddle[2];
   middleMax2 = inExt[5] - (kernelSize[2] - 1) + kernelMiddle[2];
   
-  target = (unsigned long)((outExt[5] - outExt[4] + 1)*
-    (outExt[3] - outExt[2] + 1)/50.0);
+  target = static_cast<unsigned long>((outExt[5] - outExt[4] + 1)*
+                                      (outExt[3] - outExt[2] + 1)/50.0);
   target++;
   
   NumberOfElements = self->GetNumberOfElements();
 
   // loop through pixel of output
-  inPtr = (T *)inArray->GetVoidPointer((hoodMin0 - inExt[0])* inInc0 + 
-                                       (hoodMin1 - inExt[2])* inInc1 +
-                                       (hoodMin2 - inExt[4])* inInc2);
+  inPtr = static_cast<T *>(
+    inArray->GetVoidPointer((hoodMin0 - inExt[0])* inInc0 + 
+                            (hoodMin1 - inExt[2])* inInc1 +
+                            (hoodMin2 - inExt[4])* inInc2));
   inPtr2 = inPtr;
   for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
     {
@@ -321,7 +322,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
             }
         
           // Replace this pixel with the hood median
-          *outPtr = (T)(*Median);
+          *outPtr = static_cast<T>(*Median);
           outPtr++;
           }
         
@@ -399,9 +400,9 @@ void vtkImageMedian3D::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageMedian3DExecute(this,inData[0][0],
-                              (VTK_TT *)(inPtr), 
-                              outData[0], (VTK_TT *)(outPtr),outExt, id,
-                              inArray));
+                              static_cast<VTK_TT *>(inPtr), 
+                              outData[0], static_cast<VTK_TT *>(outPtr),
+                              outExt, id,inArray));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

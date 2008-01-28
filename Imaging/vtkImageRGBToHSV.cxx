@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.30");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.31");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -56,9 +56,9 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      R = (double)(*inSI) / max; inSI++;
-      G = (double)(*inSI) / max; inSI++;
-      B = (double)(*inSI) / max; inSI++;
+      R = static_cast<double>(*inSI) / max; inSI++;
+      G = static_cast<double>(*inSI) / max; inSI++;
+      B = static_cast<double>(*inSI) / max; inSI++;
 
       vtkMath::RGBToHSV(R, G, B, &H, &S, &V);
 
@@ -80,9 +80,9 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
         }
       
       // assign output.
-      *outSI = (T)(H); outSI++;
-      *outSI = (T)(S); outSI++;
-      *outSI = (T)(V); outSI++;
+      *outSI = static_cast<T>(H); outSI++;
+      *outSI = static_cast<T>(S); outSI++;
+      *outSI = static_cast<T>(V); outSI++;
       
       for (idxC = 3; idxC <= maxC; idxC++)
         {

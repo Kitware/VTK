@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.55");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.56");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -86,17 +86,17 @@ int vtkImageMathematics::RequestInformation (
 template <class TValue, class TIvar>
 void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *data)
 {
-  if (ivar < (TIvar) data->GetScalarTypeMin())
+  if (ivar < static_cast<TIvar>(data->GetScalarTypeMin()))
     {
-    value = (TValue) data->GetScalarTypeMin();
+    value = static_cast<TValue>(data->GetScalarTypeMin());
     }
-  else if (ivar > (TIvar) data->GetScalarTypeMax())
+  else if (ivar > static_cast<TIvar>(data->GetScalarTypeMax()))
     {
-    value = (TValue) data->GetScalarTypeMax();
+    value = static_cast<TValue>(data->GetScalarTypeMax());
     }
   else
     {
-    value = (TValue) ivar;
+    value = static_cast<TValue>(ivar);
     }
 }
 
@@ -128,7 +128,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
     }
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get increments to march through data
@@ -165,7 +165,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
           case VTK_INVERT:
             if (*in1Ptr)
               {
-              *outPtr = (T)(1.0 / *in1Ptr);
+              *outPtr = static_cast<T>(1.0 / *in1Ptr);
               }
             else
               {
@@ -175,36 +175,36 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
                 }
               else
                 {
-                *outPtr = (T)outData->GetScalarTypeMax();
+                *outPtr = static_cast<T>(outData->GetScalarTypeMax());
                 }
               }
             break;
           case VTK_SIN:
-            *outPtr = (T)(sin((double)*in1Ptr));
+            *outPtr = static_cast<T>(sin(static_cast<double>(*in1Ptr)));
             break;
           case VTK_COS:
-            *outPtr = (T)(cos((double)*in1Ptr));
+            *outPtr = static_cast<T>(cos(static_cast<double>(*in1Ptr)));
             break;
           case VTK_EXP:
-            *outPtr = (T)(exp((double)*in1Ptr));
+            *outPtr = static_cast<T>(exp(static_cast<double>(*in1Ptr)));
             break;
           case VTK_LOG:
-            *outPtr = (T)(log((double)*in1Ptr));
+            *outPtr = static_cast<T>(log(static_cast<double>(*in1Ptr)));
             break;
           case VTK_ABS:
-            *outPtr = (T)(fabs((double)*in1Ptr));
+            *outPtr = static_cast<T>(fabs(static_cast<double>(*in1Ptr)));
             break;
           case VTK_SQR:
-            *outPtr = (T)(*in1Ptr * *in1Ptr);
+            *outPtr = static_cast<T>(*in1Ptr * *in1Ptr);
             break;
           case VTK_SQRT:
-            *outPtr = (T)(sqrt((double)*in1Ptr));
+            *outPtr = static_cast<T>(sqrt(static_cast<double>(*in1Ptr)));
             break;
           case VTK_ATAN:
-            *outPtr = (T)(atan((double)*in1Ptr));
+            *outPtr = static_cast<T>(atan(static_cast<double>(*in1Ptr)));
             break;
           case VTK_MULTIPLYBYK:
-            *outPtr = (T)(doubleConstantk * (double) *in1Ptr);
+            *outPtr = static_cast<T>(doubleConstantk * static_cast<double>( *in1Ptr));
             break;
           case VTK_ADDC:
             *outPtr = constantc + *in1Ptr;
@@ -214,7 +214,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
             break;
           case VTK_CONJUGATE:
             outPtr[0] = in1Ptr[0];
-            outPtr[1] = (T)(-1.0*(double)(in1Ptr[1]));
+            outPtr[1] = static_cast<T>(-1.0*static_cast<double>(in1Ptr[1]));
             // Why bother trying to figure out the continuous increments.
             outPtr++;
             in1Ptr++;
@@ -266,7 +266,7 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get increments to march through data
@@ -310,12 +310,12 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
               {
               if ( divideByZeroToC )
                 {
-                *outPtr = (T) constantc;
+                *outPtr = static_cast<T>(constantc);
                 }
               else
                 {
                 // *outPtr = (T)(*in1Ptr / 0.00001);
-                *outPtr = (T)outData->GetScalarTypeMax();
+                *outPtr = static_cast<T>(outData->GetScalarTypeMax());
                 }
               }
             break;
@@ -346,7 +346,8 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
                 }
               else
                 {
-                *outPtr =  (T)atan2((double)*in1Ptr,(double)*in2Ptr);
+                *outPtr =  static_cast<T>(atan2(static_cast<double>(*in1Ptr),
+                                                static_cast<double>(*in2Ptr)));
                 }
             break;
           case VTK_COMPLEX_MULTIPLY:
@@ -453,9 +454,13 @@ void vtkImageMathematics::ThreadedRequestData(
     switch (inData[0][0]->GetScalarType())
       {
       vtkTemplateMacro(
-        vtkImageMathematicsExecute2(this,inData[0][0], (VTK_TT *)(inPtr1),
-                                    inData[1][0], (VTK_TT *)(inPtr2),
-                                    outData[0], (VTK_TT *)(outPtr), outExt, id));
+        vtkImageMathematicsExecute2(this,inData[0][0],
+                                    static_cast<VTK_TT *>(inPtr1),
+                                    inData[1][0],
+                                    static_cast<VTK_TT *>(inPtr2),
+                                    outData[0],
+                                    static_cast<VTK_TT *>(outPtr), outExt,
+                                    id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -484,8 +489,10 @@ void vtkImageMathematics::ThreadedRequestData(
     switch (inData[0][0]->GetScalarType())
       {
       vtkTemplateMacro(
-        vtkImageMathematicsExecute1(this, inData[0][0], (VTK_TT *)(inPtr1),
-                                    outData[0], (VTK_TT *)(outPtr), outExt, id));
+        vtkImageMathematicsExecute1(this, inData[0][0],
+                                    static_cast<VTK_TT *>(inPtr1),
+                                    outData[0], static_cast<VTK_TT *>(outPtr),
+                                    outExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.36");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.37");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   maxX = outExt[1] - outExt[0]; 
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
   
   // Get increments to march through data 
@@ -105,7 +105,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       inIdxStart[idx] = wExtent[idx*2+1] - inIdxStart[idx] + wExtent[idx*2];
       }
     }
-  inPtr = (T *)inData->GetScalarPointer(inIdxStart[0], inIdxStart[1], inIdxStart[2]);
+  inPtr = static_cast<T *>(inData->GetScalarPointer(inIdxStart[0], inIdxStart[1], inIdxStart[2]));
   
   // Loop through ouput pixels
   inPtrZ = inPtr;
@@ -242,7 +242,8 @@ void vtkImageMirrorPad::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageMirrorPadExecute(this, inData[0][0], wExt,
-                               outData[0], (VTK_TT *)(outPtr), outExt, id));
+                               outData[0], static_cast<VTK_TT *>(outPtr),
+                               outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

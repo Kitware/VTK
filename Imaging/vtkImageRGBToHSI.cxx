@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.5");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.6");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
@@ -58,9 +58,9 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      R = (double)(*inSI); inSI++;
-      G = (double)(*inSI); inSI++;
-      B = (double)(*inSI); inSI++;
+      R = static_cast<double>(*inSI); inSI++;
+      G = static_cast<double>(*inSI); inSI++;
+      B = static_cast<double>(*inSI); inSI++;
       // Saturation
       temp = R;
       if (G < temp)
@@ -81,7 +81,7 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
         S = max * (1.0 - (3.0 * temp / sumRGB));
         }
       
-      temp = (double)(R + G + B);
+      temp = static_cast<double>(R + G + B);
       // Intensity is easy
       I = temp / 3.0;
       
@@ -101,9 +101,9 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
         }
       
       // assign output.
-      *outSI = (T)(H); outSI++;
-      *outSI = (T)(S); outSI++;
-      *outSI = (T)(I); outSI++;
+      *outSI = static_cast<T>(H); outSI++;
+      *outSI = static_cast<T>(S); outSI++;
+      *outSI = static_cast<T>(I); outSI++;
       
       for (idxC = 3; idxC <= maxC; idxC++)
         {

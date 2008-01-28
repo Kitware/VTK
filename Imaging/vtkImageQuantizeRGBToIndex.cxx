@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.44");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.45");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -53,7 +53,10 @@ public:
   void SetImageIncrement( vtkIdType v[3] )
     { memcpy( this->ImageIncrement, v, 3*sizeof(vtkIdType) ); };
 
-  void SetImageType( double type ) { this->ImageType = (int)type; };
+  void SetImageType(double type)
+    {
+      this->ImageType = static_cast<int>(type);
+    }
 
   void SetImage( void *image ) { this->Image = image; };
 
@@ -91,11 +94,15 @@ public:
        return this->Child1->GetIndex(c); };
     
 
-  void GetAverageColor( int c[3] ) 
-    { if ( this->AverageCount ) {
-      c[0] = (int)(this->AverageColor[0] / this->AverageCount);
-      c[1] = (int)(this->AverageColor[1] / this->AverageCount);
-      c[2] = (int)(this->AverageColor[2] / this->AverageCount); } };
+  void GetAverageColor(int c[3])
+    {
+      if(this->AverageCount)
+        {
+        c[0] = static_cast<int>(this->AverageColor[0] / this->AverageCount);
+        c[1] = static_cast<int>(this->AverageColor[1] / this->AverageCount);
+        c[2] = static_cast<int>(this->AverageColor[2] / this->AverageCount);
+        }
+    }
 
   void StartColorAveraging() 
     {if (this->Child1) 
@@ -168,31 +175,37 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
           v[0] = *(rgbPtr++) - bounds[0];
           v[1] = *(rgbPtr++) - bounds[2];
           v[2] = *(rgbPtr++) - bounds[4];
-          if ( (int)v[0] < max[0] && (int)v[1] < max[1] && (int)v[2] < max[2] )
+          if ( static_cast<int>(v[0]) < max[0] &&
+               static_cast<int>(v[1]) < max[1] &&
+               static_cast<int>(v[2]) < max[2] )
             {
-            histogram[0][(unsigned char)v[0]]++;  
-            histogram[1][(unsigned char)v[1]]++;  
-            histogram[2][(unsigned char)v[2]]++;  
+            histogram[0][static_cast<unsigned char>(v[0])]++;  
+            histogram[1][static_cast<unsigned char>(v[1])]++;  
+            histogram[2][static_cast<unsigned char>(v[2])]++;  
             }
           }
         else if ( type == VTK_UNSIGNED_SHORT )
           {
-          v[0] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[0];
-          v[1] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[2];
-          v[2] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[4];
-          if ((int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
+          v[0] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[0];
+          v[1] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[2];
+          v[2] = ((static_cast<unsigned short>(*(rgbPtr++)))>>8) - bounds[4];
+          if (static_cast<int>(v[0]) < max[0] &&
+              static_cast<int>(v[1]) < max[1] &&
+              static_cast<int>(v[2]) < max[2] )
             {
-            histogram[0][(unsigned short)v[0]]++;  
-            histogram[1][(unsigned short)v[1]]++;  
-            histogram[2][(unsigned short)v[2]]++;  
+            histogram[0][static_cast<unsigned short>(v[0])]++;  
+            histogram[1][static_cast<unsigned short>(v[1])]++;  
+            histogram[2][static_cast<unsigned short>(v[2])]++;  
             }
           }
         else
           {
-          value[0] = (int)( *(rgbPtr++) * 255.5 ) - bounds[0];
-          value[1] = (int)( *(rgbPtr++) * 255.5 ) - bounds[2];
-          value[2] = (int)( *(rgbPtr++) * 255.5 ) - bounds[4];
-          if ( (int)(value[0]) < max[0] && (int)(value[1]) < max[1] && (int)(value[2]) < max[2] )
+          value[0] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[0];
+          value[1] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[2];
+          value[2] = static_cast<int>( *(rgbPtr++) * 255.5 ) - bounds[4];
+          if ( static_cast<int>(value[0]) < max[0] &&
+               static_cast<int>(value[1]) < max[1] &&
+               static_cast<int>(value[2]) < max[2] )
             {
             histogram[0][value[0]]++;
             histogram[1][value[1]]++;
@@ -282,7 +295,8 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
       for ( axis = 0; axis < 3; axis++ )
         {
         dev = leafNodes[leaf]->GetStdDev( axis );
-        weight = (double)(leafNodes[leaf]->GetCount())/(double)(totalCount);
+        weight = static_cast<double>(leafNodes[leaf]->GetCount())
+          /static_cast<double>(totalCount);
         dev *= weight;
         if ( dev > maxdev )
           {
@@ -326,15 +340,15 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
           {
           if ( type == VTK_UNSIGNED_CHAR )
             {
-            rgb[c]  = (int)(*rgbPtr);
+            rgb[c]  = static_cast<int>(*rgbPtr);
             }
           else if ( type == VTK_UNSIGNED_SHORT )
             {
-            rgb[c] = ((unsigned short)(*rgbPtr))>>8;
+            rgb[c] = (static_cast<unsigned short>(*rgbPtr))>>8;
             }
           else
             {
-            rgb[c] = (int)(*rgbPtr * 255.5);
+            rgb[c] = static_cast<int>(*rgbPtr * 255.5);
             }
           rgbPtr++;       
           }
@@ -410,7 +424,7 @@ void vtkColorQuantizeNode::ComputeStdDev()
     {
     vtkTemplateMacro(
       vtkImageQuantizeRGBToIndexHistogram(
-        (VTK_TT *)this->Image, this->ImageExtent, 
+        static_cast<VTK_TT *>(this->Image), this->ImageExtent, 
         this->ImageIncrement, this->ImageType,
         this->Bounds, this->Histogram ));
     }
@@ -429,7 +443,7 @@ void vtkColorQuantizeNode::ComputeStdDev()
       }
     if (count>0)
       {
-      mean /= (double)count;
+      mean /= static_cast<double>(count);
       }
     else
       {
@@ -460,9 +474,9 @@ void vtkColorQuantizeNode::ComputeStdDev()
     for ( j = 0; j <= (this->Bounds[i*2 + 1] - this->Bounds[i*2]); j++ )
       {
       count += this->Histogram[i][j];
-      this->StdDev[i] += (double)this->Histogram[i][j] * 
-        ((double)j+this->Bounds[i*2]-mean) * 
-        ((double)j+this->Bounds[i*2]-mean); 
+      this->StdDev[i] += static_cast<double>(this->Histogram[i][j]) * 
+        (static_cast<double>(j)+this->Bounds[i*2]-mean) * 
+        (static_cast<double>(j)+this->Bounds[i*2]-mean); 
       if ( this->Median[i] == -1 && count > medianCount )
         {
         this->Median[i] = j + this->Bounds[i*2];
@@ -482,7 +496,7 @@ void vtkColorQuantizeNode::ComputeStdDev()
     // Do the final division and square root to get the standard deviation
     if (count>0)
       {
-      this->StdDev[i] /= (double)count;
+      this->StdDev[i] /= static_cast<double>(count);
       }
     else
       {
@@ -505,14 +519,14 @@ void vtkColorQuantizeNode::Divide( int axis, int nextIndex )
 
   memcpy( newBounds, this->Bounds, 6*sizeof(int) );
 
-  newBounds[axis*2 + 1] = (int)(this->Median[axis]);  
+  newBounds[axis*2 + 1] = static_cast<int>(this->Median[axis]);  
   this->Child1->SetBounds( newBounds );
 
-  newBounds[axis*2] = (int)(this->Median[axis] + 1);
-  newBounds[axis*2 + 1] = (int)(this->Bounds[axis*2 + 1]);
+  newBounds[axis*2] = static_cast<int>(this->Median[axis] + 1);
+  newBounds[axis*2 + 1] = static_cast<int>(this->Bounds[axis*2 + 1]);
   this->Child2->SetBounds( newBounds );
 
-  this->SplitPoint = (int)(this->Median[axis]);
+  this->SplitPoint = static_cast<int>(this->Median[axis]);
   this->Axis = axis;
 
   this->Child1->SetIndex( this->Index );
@@ -619,9 +633,10 @@ int vtkImageQuantizeRGBToIndex::RequestData(
   switch ( this->InputType )
     {
     vtkTemplateMacro(
-      vtkImageQuantizeRGBToIndexExecute( this, 
-                                         inData, (VTK_TT *)(inPtr), 
-                                         outData, (unsigned short *)(outPtr)));
+      vtkImageQuantizeRGBToIndexExecute(this, 
+                                        inData, static_cast<VTK_TT *>(inPtr), 
+                                        outData,
+                                        static_cast<unsigned short *>(outPtr)));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
       return 1;

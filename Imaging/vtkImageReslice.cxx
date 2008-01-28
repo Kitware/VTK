@@ -36,7 +36,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.73");
+vtkCxxRevisionMacro(vtkImageReslice, "1.74");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -50,40 +50,40 @@ inline int vtkResliceFloor(double x, F &f)
 {
 #if defined mips || defined sparc || defined __ppc__
   x += 2147483648.0;
-  unsigned int i = (unsigned int)(x);
+  unsigned int i = static_cast<unsigned int>(x);
   f = x - i;
-  return (int)(i - 2147483648U);
+  return static_cast<int>(i - 2147483648U);
 #elif defined i386 || defined _M_IX86
   union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
-  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+  return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #elif defined ia64 || defined __ia64__ || defined IA64
   x += 103079215104.0;
-  long long i = (long long)(x);
+  long long i = static_cast<long long>(x);
   f = x - i;
-  return (int)(i - 103079215104LL);
+  return static_cast<int>(i - 103079215104LL);
 #else
   double y = floor(x);
   f = x - y;
-  return (int)(y);
+  return static_cast<int>(y);
 #endif
 }
 
 inline int vtkResliceRound(double x)
 {
 #if defined mips || defined sparc || defined __ppc__
-  return (int)((unsigned int)(x + 2147483648.5) - 2147483648U);
+  return static_cast<int>(static_cast<unsigned int>(x + 2147483648.5) - 2147483648U);
 #elif defined i386 || defined _M_IX86
   union { double d; unsigned int i[2]; } dual;
   dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
-  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+  return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #elif defined ia64 || defined __ia64__ || defined IA64
   x += 103079215104.5;
-  long long i = (long long)(x);
-  return (int)(i - 103079215104LL);
+  long long i = static_cast<long long>(x);
+  return static_cast<int>(i - 103079215104LL);
 #else
-  return (int)(floor(x+0.5));
+  return static_cast<int>(floor(x+0.5));
 #endif
 }
 
@@ -355,7 +355,7 @@ unsigned long int vtkImageReslice::GetMTime()
     mTime = ( time > mTime ? time : mTime );
     if (this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       { // this is for people who directly modify the transform matrix
-      time = ((vtkHomogeneousTransform *)this->ResliceTransform)
+      time = (static_cast<vtkHomogeneousTransform *>(this->ResliceTransform))
         ->GetMatrix()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }    
@@ -1853,7 +1853,7 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
 
   // for the progress meter
-  target = (unsigned long)
+  target = static_cast<unsigned long>
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
   
@@ -1882,9 +1882,11 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
         }
       // clear the pixels to background color and go to next row
       setpixels(outPtr, background, numscalars, outExt[1]-outExt[0]+1);
-      outPtr = (void *)((char *)outPtr + outIncY*scalarSize);
+      outPtr = static_cast<void *>(
+        static_cast<char *>(outPtr) + outIncY*scalarSize);
       }
-    outPtr = (void *)((char *)outPtr + outIncZ*scalarSize);
+    outPtr = static_cast<void *>(
+      static_cast<char *>(outPtr) + outIncZ*scalarSize);
     }
 
   vtkFreeBackgroundPixel(self, &background);
@@ -1951,7 +1953,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   inData->GetExtent(inExt);
   
   // for the progress meter
-  target = (unsigned long)
+  target = static_cast<unsigned long>
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
   
@@ -2025,9 +2027,11 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                       point, mode, background);
           } 
         }
-      outPtr = (void *)((char *)outPtr + outIncY*scalarSize);
+      outPtr = static_cast<void *>(
+        static_cast<char *>(outPtr) + outIncY*scalarSize);
       }
-    outPtr = (void *)((char *)outPtr + outIncZ*scalarSize);
+    outPtr = static_cast<void *>(
+      static_cast<char *>(outPtr) + outIncZ*scalarSize);
     }
 
   vtkFreeBackgroundPixel(self, &background);
@@ -2128,7 +2132,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   // find maximum input range
   inData->GetExtent(inExt);
 
-  target = (unsigned long)
+  target = static_cast<unsigned long>
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
   
@@ -2246,19 +2250,21 @@ void vtkOptimizedExecute(vtkImageReslice *self,
                 inIdY >= 0 && inIdY < inExtY &&
                 inIdZ >= 0 && inIdZ < inExtZ)
               {
-              inPtrTmp = (void *)((char *)inPtr + \
-                                  (inIdX*inInc[0] + 
-                                   inIdY*inInc[1] +
-                                   inIdZ*inInc[2])*scalarSize);
+              inPtrTmp = static_cast<void *>(static_cast<char *>(inPtr) +
+                                             (inIdX*inInc[0] + 
+                                              inIdY*inInc[1] +
+                                              inIdZ*inInc[2])*scalarSize);
               }
 
             setpixels(outPtr, inPtrTmp, numscalars, 1);
             }
           }
         }
-      outPtr = (void *)((char *)outPtr + outIncY*scalarSize);
+      outPtr = static_cast<void *>(
+        static_cast<char *>(outPtr) + outIncY*scalarSize);
       }
-    outPtr = (void *)((char *)outPtr + outIncZ*scalarSize);
+    outPtr = static_cast<void *>(
+      static_cast<char *>(outPtr) + outIncZ*scalarSize);
     }
   
   vtkFreeBackgroundPixel(self, &background);
@@ -3102,7 +3108,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   // for tracking progress
   unsigned long count = 0;
-  unsigned long target = (unsigned long)
+  unsigned long target = static_cast<unsigned long>
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;
   
@@ -3155,9 +3161,11 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
         setpixels(outPtr, background, numscalars, outExt[1] - clipExt[1]);
         }
 
-      outPtr = (void *)((char *)outPtr + outInc[1]*scalarSize);
+      outPtr = static_cast<void *>(
+        static_cast<char *>(outPtr) + outInc[1]*scalarSize);
       }
-    outPtr = (void *)((char *)outPtr + outInc[2]*scalarSize);
+    outPtr = static_cast<void *>(
+      static_cast<char *>(outPtr) + outInc[2]*scalarSize);
     }
 
   vtkFreeBackgroundPixel(self, &background);
@@ -3278,8 +3286,8 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
     if (this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       {
       transform->PostMultiply();
-      transform->Concatenate(((vtkHomogeneousTransform *)
-                              this->ResliceTransform)->GetMatrix());
+      transform->Concatenate(
+        static_cast<vtkHomogeneousTransform *>(this->ResliceTransform)->GetMatrix());
       }
     else
       {

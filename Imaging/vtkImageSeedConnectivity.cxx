@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.32");
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.33");
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------
@@ -169,8 +169,10 @@ int vtkImageSeedConnectivity::RequestData(
   inData->GetIncrements(inInc0, inInc1, inInc2);
   this->GetOutput()->GetExtent(min0, max0, min1, max1, min2, max2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  inPtr2 = (unsigned char *)(inData->GetScalarPointer(min0,min1,min2));
-  outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
+  inPtr2 = static_cast<unsigned char *>(
+    inData->GetScalarPointer(min0,min1,min2));
+  outPtr2 = static_cast<unsigned char *>(
+    outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     inPtr1 = inPtr2;
@@ -221,7 +223,8 @@ int vtkImageSeedConnectivity::RequestData(
       {
       seed->Index[2] = max2;
       }
-    outPtr0 = (unsigned char *)(outData->GetScalarPointer(seed->Index));
+    outPtr0 = static_cast<unsigned char *>(
+      outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
       {
       if (*outPtr0 == temp1)
@@ -257,7 +260,8 @@ int vtkImageSeedConnectivity::RequestData(
 
   //-------
   // Threshold to convert intermediate values into OutputUnconnectedValues
-  outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
+  outPtr2 = static_cast<unsigned char *>(
+    outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     outPtr1 = outPtr2;

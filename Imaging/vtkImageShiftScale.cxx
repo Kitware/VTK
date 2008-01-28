@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.53");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.54");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
       while (outSI != outSIEnd)
         {
         // Pixel operation
-        double val = ((double)(*inSI) + shift) * scale;
+        double val = (static_cast<double>(*inSI) + shift) * scale;
         if (val > typeMax)
           {
           val = typeMax;
@@ -109,7 +109,7 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
           {
           val = typeMin;
           }
-        *outSI = (OT)(val);
+        *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;
         }
@@ -119,7 +119,8 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
       while (outSI != outSIEnd)
         {
         // Pixel operation
-        *outSI = (OT)(((double)(*inSI) + shift) * scale);
+        *outSI = static_cast<OT>(
+          (static_cast<double>(*inSI) + shift) * scale);
         ++outSI;
         ++inSI;
         }
