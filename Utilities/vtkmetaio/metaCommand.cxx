@@ -1149,7 +1149,7 @@ ListOptionsSimplified()
     while(it != m_OptionVector.end())
       {
       if( (count == 1 && ( (*it).tag.size() > 0 || (*it).longtag.size() > 0 ))
-         || (count == 2 && ( (*it).tag.size() == 0 || (*it).longtag.size() == 0 )) )
+         || (count == 2 && ( (*it).tag.size() == 0 && (*it).longtag.size() == 0 )) )
         {
         if(!(*it).required)
           {
