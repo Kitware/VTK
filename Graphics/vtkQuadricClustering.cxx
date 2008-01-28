@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtkstd/set> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.79");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.80");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -1603,5 +1603,8 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Use Feature Points: " 
      << (this->UseFeaturePoints ? "On\n" : "Off\n");
   os << indent << "Copy Cell Data : " << this->CopyCellData << endl;
+
+  os << indent << "Prevent Duplicate Cells : " 
+     << (this->PreventDuplicateCells ? "On\n" : "Off\n");
 }
 

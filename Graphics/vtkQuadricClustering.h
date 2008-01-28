@@ -67,9 +67,15 @@
 // a fan of triangles from the first point in the polygons. If the polygon is
 // concave, this can produce bad results. In this case, use vtkTriangleFilter
 // to triangulate the polygons first.
+//
+// The filter also treats polylines and vertices.
+//
+// Note that for certain types of geometry (e.g., a mostly 2D plane with
+// jitter in the normal direction), the decimator can perform badly. In this
+// sitation, set the number of bins in the normal direction to one.
 
 // .SECTION See Also
-// vtkQuadricDecimation vtkDecimatePro vtkDecimate
+// vtkQuadricDecimation vtkDecimatePro vtkDecimate vtkQuadricLODActor
 
 #ifndef __vtkQuadricClustering_h
 #define __vtkQuadricClustering_h
@@ -85,6 +91,8 @@ class vtkCellSet;
 class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 {
 public:
+  // Description:
+  // Standard instantition, type and print methods.
   vtkTypeRevisionMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricClustering *New();
@@ -199,7 +207,7 @@ public:
   // Specify a boolean indicating whether to remove duplicate cells
   // (i.e. triangles).  This is a little slower, and takes more memory, but
   // in some cases can reduce the number of cells produced by an order of
-  // magnitude.
+  // magnitude. By default, this flag is true.
   vtkSetMacro(PreventDuplicateCells,int);
   vtkGetMacro(PreventDuplicateCells,int);
   vtkBooleanMacro(PreventDuplicateCells,int);
