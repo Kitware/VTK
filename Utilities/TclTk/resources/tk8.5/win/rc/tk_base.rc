@@ -3,7 +3,8 @@
 //  Base resources needed by Tk whether it's a DLL or a static library.
 //
 
-#include <windows.h>
+// PATCHED
+// #include <windows.h>
 
 //
 //  Tk Icon
@@ -54,7 +55,7 @@ END
 // Bitmaps
 //
 
-buttons      BITMAP  DISCARDABLE  "buttons.bmp"
+buttons			BITMAP  DISCARDABLE	"buttons.bmp"
 
 //
 // Cursors
