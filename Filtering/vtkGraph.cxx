@@ -33,10 +33,7 @@
 #include "vtkVertexListIterator.h"
 
 #include <vtksys/stl/vector>
-#include <vtksys/stl/utility>
 
-using vtksys_stl::pair;
-using vtksys_stl::make_pair;
 using vtksys_stl::vector;
 
 double vtkGraph::DefaultPoint[3] = {0, 0, 0};
@@ -74,14 +71,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.10");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.11");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.10");
+vtkCxxRevisionMacro(vtkGraph, "1.11");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
