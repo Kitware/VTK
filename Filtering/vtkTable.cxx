@@ -19,20 +19,21 @@
 
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkTable.h"
+
+#include "vtkAbstractArray.h"
+#include "vtkDataArray.h"
+#include "vtkFieldData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 #include "vtkVariantArray.h"
-#include <vtkFieldData.h>
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkDataArray.h>
-#include <vtkAbstractArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
 
 //
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.9");
+vtkCxxRevisionMacro(vtkTable, "1.10");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -40,11 +41,19 @@ vtkStandardNewMacro(vtkTable);
 vtkTable::vtkTable()
 {
   this->Rows = 0;
+  this->RowArray = vtkVariantArray::New();
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+}
+
+//----------------------------------------------------------------------------
+
+vtkTable::~vtkTable()
+{
+  this->RowArray->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -94,17 +103,28 @@ vtkIdType vtkTable::GetNumberOfRows()
 
 vtkVariantArray* vtkTable::GetRow(vtkIdType row)
 {
-  vtkVariantArray* varr = vtkVariantArray::New();
+  this->RowArray->SetNumberOfTuples(0);
   for (int i = 0; i < this->FieldData->GetNumberOfArrays(); i++)
     {
-    varr->InsertNextValue(this->GetValue(row, i));
+    this->RowArray->InsertNextValue(this->GetValue(row, i));
     }
-  return varr;
+  return this->RowArray;
 }
 
 //----------------------------------------------------------------------------
 
-void vtkTable::SetRow(vtkIdType row, vtkVariantArray* values)
+void vtkTable::GetRow(vtkIdType row, vtkVariantArray *values)
+{
+  values->SetNumberOfTuples(0);
+  for (int i = 0; i < this->FieldData->GetNumberOfArrays(); i++)
+    {
+    values->InsertNextValue(this->GetValue(row, i));
+    }
+}
+
+//----------------------------------------------------------------------------
+
+void vtkTable::SetRow(vtkIdType row, vtkVariantArray *values)
 {
   for (int i = 0; i < this->GetNumberOfColumns(); i++)
     {

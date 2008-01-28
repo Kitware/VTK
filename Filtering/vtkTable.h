@@ -71,11 +71,16 @@ public:
 
   // Description:
   // Get a row of the table as a vtkVariantArray which has one entry for each column.
+  // NOTE: This version of the method is NOT thread safe.
   vtkVariantArray* GetRow(vtkIdType row);
 
   // Description:
+  // Get a row of the table as a vtkVariantArray which has one entry for each column.
+  void GetRow(vtkIdType row, vtkVariantArray *values);
+
+  // Description:
   // Set a row of the table with a vtkVariantArray which has one entry for each column.
-  void SetRow(vtkIdType row, vtkVariantArray* values);
+  void SetRow(vtkIdType row, vtkVariantArray *values);
 
   // Description:
   // Insert a blank row at the end of the table.
@@ -157,12 +162,19 @@ public:
 
 protected:
   vtkTable();
-  ~vtkTable() {}
+  ~vtkTable();
+
+  // Description:
+  // Holds row information returned by GetRow().
+  vtkVariantArray *RowArray;
+
+  // Description:
+  // The number of rows in the table.
+  vtkIdType Rows;
+
 private:
   vtkTable(const vtkTable&); // Not implemented
   void operator=(const vtkTable&); // Not implemented
-
-  vtkIdType Rows;
 };
 
 #endif

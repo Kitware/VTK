@@ -118,7 +118,6 @@ void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
         exit(1);
         }
       }
-    arr->Delete();
     }
 }
 
