@@ -32,19 +32,15 @@
 #include <vtksys/ios/fstream>
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/map>
-using vtksys_ios::fstream;
-using vtksys_ios::stringstream;
-using vtksys_ios::ostringstream;
-using vtksys_stl::map;
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkTulipReader, "1.1");
+vtkCxxRevisionMacro(vtkTulipReader, "1.2");
 vtkStandardNewMacro(vtkTulipReader);
 
 vtkTulipReader::vtkTulipReader()
@@ -59,7 +55,7 @@ vtkTulipReader::~vtkTulipReader()
   this->SetFileName(0);
 }
 
-void vtkTulipReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTulipReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   
@@ -84,7 +80,7 @@ struct vtkTulipReaderToken
   double DoubleValue;
 };
 
-void vtkTulipReaderNextToken(istream& in, vtkTulipReaderToken& tok)
+void vtkTulipReaderNextToken(vtksys_ios::istream& in, vtkTulipReaderToken& tok)
 {
   char ch = in.peek();
   while (!in.eof() && (ch == ';' || isspace(ch)))
@@ -120,7 +116,7 @@ void vtkTulipReaderNextToken(istream& in, vtkTulipReaderToken& tok)
   else if (isdigit(ch) || ch == '.')
     {
     bool isDouble = false;
-    stringstream ss;
+    vtksys_ios::stringstream ss;
     while (isdigit(ch) || ch == '.')
       {
       in.get();
@@ -169,7 +165,7 @@ int vtkTulipReader::RequestData(
     return 0;
     }
 
-  ifstream fin(this->FileName);
+  vtksys_ios::ifstream fin(this->FileName);
   if(!fin.is_open())
     {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
@@ -180,8 +176,8 @@ int vtkTulipReader::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
-  map<int, vtkIdType> nodeIdMap;
-  map<int, vtkIdType> edgeIdMap;
+  vtksys_stl::map<int, vtkIdType> nodeIdMap;
+  vtksys_stl::map<int, vtkIdType> edgeIdMap;
   vtkTulipReaderToken tok;
   vtkTulipReaderNextToken(fin, tok);
   while (tok.Type != vtkTulipReaderToken::END_OF_FILE)
@@ -341,7 +337,7 @@ int vtkTulipReader::RequestData(
 }
 
 static int
-my_getline(istream& in, vtkStdString &out, char delimiter)
+my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;

@@ -29,9 +29,6 @@
 
 #include <vtksys/ios/fstream>
 #include <vtksys/ios/sstream>
-using vtksys_ios::fstream;
-using vtksys_ios::stringstream;
-using vtksys_ios::ostringstream;
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -41,9 +38,9 @@ using vtksys_ios::ostringstream;
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkChacoGraphReader, "1.1");
+vtkCxxRevisionMacro(vtkChacoGraphReader, "1.2");
 vtkStandardNewMacro(vtkChacoGraphReader);
 
 vtkChacoGraphReader::vtkChacoGraphReader()
@@ -58,7 +55,7 @@ vtkChacoGraphReader::~vtkChacoGraphReader()
   this->SetFileName(0);
 }
 
-void vtkChacoGraphReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkChacoGraphReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   
@@ -77,7 +74,7 @@ int vtkChacoGraphReader::RequestData(
     return 0;
     }
 
-  ifstream fin(this->FileName);
+  vtksys_ios::ifstream fin(this->FileName);
   if(!fin.is_open())
     {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
@@ -90,7 +87,7 @@ int vtkChacoGraphReader::RequestData(
   // Get the header line
   vtkStdString line;
   my_getline(fin, line);
-  stringstream firstLine;
+  vtksys_ios::stringstream firstLine;
   firstLine << line;
   vtkIdType numVerts;
   vtkIdType numEdges;
@@ -108,7 +105,7 @@ int vtkChacoGraphReader::RequestData(
   vtkIntArray** vertArr = new vtkIntArray*[vertWeights];
   for (int vw = 0; vw < vertWeights; vw++)
     {
-    ostringstream oss;
+    vtksys_ios::ostringstream oss;
     oss << "weight " << (vw+1);
     vertArr[vw] = vtkIntArray::New();
     vertArr[vw]->SetName(oss.str().c_str());
@@ -118,7 +115,7 @@ int vtkChacoGraphReader::RequestData(
   vtkIntArray** edgeArr = new vtkIntArray*[edgeWeights];
   for (int ew = 0; ew < edgeWeights; ew++)
     {
-    ostringstream oss;
+    vtksys_ios::ostringstream oss;
     oss << "weight " << (ew+1);
     edgeArr[ew] = vtkIntArray::New();
     edgeArr[ew]->SetName(oss.str().c_str());
@@ -136,7 +133,7 @@ int vtkChacoGraphReader::RequestData(
   for (vtkIdType u = 0; u < numVerts; u++)
     {
     my_getline(fin, line);
-    stringstream stream;
+    vtksys_ios::stringstream stream;
     stream << line;
     //cerr << "read line " << stream.str() << endl;
     int weight;
@@ -182,7 +179,7 @@ int vtkChacoGraphReader::RequestData(
 }
 
 static int
-my_getline(istream& in, vtkStdString &out, char delimiter)
+my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;

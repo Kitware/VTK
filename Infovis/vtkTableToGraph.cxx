@@ -44,17 +44,11 @@
 #include <vtksys/stl/map>
 #include <vtksys/stl/set>
 #include <vtksys/stl/vector>
-using vtksys_stl::map;
-using vtksys_stl::make_pair;
-using vtksys_stl::pair;
-using vtksys_stl::set;
-using vtksys_stl::sort;
-using vtksys_stl::vector;
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.1");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.2");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -309,8 +303,8 @@ class vtkTableToGraphCompare
 {
 public:
   bool operator()(
-    const pair<vtkStdString, vtkVariant>& a, 
-    const pair<vtkStdString, vtkVariant>& b) const
+    const vtksys_stl::pair<vtkStdString, vtkVariant>& a, 
+    const vtksys_stl::pair<vtkStdString, vtkVariant>& b) const
   {
     if (a.first != b.first)
       {
@@ -335,9 +329,9 @@ vtkIdType vtkTableToGraphInsertVertices(
   vtkStdString domain,               // The domain for the column
   int hidden,                        // Whether this is a hidden column
   MutableGraph g,                    // The builder graph
-  map<pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
                                      // A map of domain-value pairs to graph id
-  map<pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
                                      // A map of domain-value pairs to hidden vertex id
   vtkIdType & curHiddenVertex,       // The current hidden vertex id
   vtkStringArray* domainArr,         // An array that holds the domain of each vertex
@@ -354,7 +348,7 @@ vtkIdType vtkTableToGraphInsertVertices(
   for (vtkIdType i = 0; i < size; i++)
     {
     T v = arr[i];
-    pair<vtkStdString, vtkVariant> value(domain, vtkVariant(v));
+    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, vtkVariant(v));
     
     if (hidden)
       {
@@ -451,7 +445,7 @@ int vtkTableToGraph::RequestData(
     this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
   
   // Find all the hidden types
-  set<vtkStdString> hiddenTypes;
+  vtksys_stl::set<vtkStdString> hiddenTypes;
   if (linkHidden)
     {
     for (vtkIdType h = 0; h < linkHidden->GetNumberOfTuples(); h++)
@@ -514,8 +508,8 @@ int vtkTableToGraph::RequestData(
     }
 
   // Go through all possible values in the columns in the link graph.
-  map<pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> vertexMap;
-  map<pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> hiddenMap;
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> vertexMap;
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> hiddenMap;
   vtkIdType curHiddenVertex = 0;
   for (vtkIdType c = 0; c < linkColumn->GetNumberOfTuples(); c++)
     {
@@ -568,8 +562,8 @@ int vtkTableToGraph::RequestData(
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
   edgeTableData->ShallowCopy(edgeTable->GetFieldData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
-  map<vtkIdType, vector< pair<vtkIdType, vtkIdType> > > hiddenInEdges;
-  map<vtkIdType, vector<vtkIdType> > hiddenOutEdges;
+  vtksys_stl::map<vtkIdType, vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
+  vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> > hiddenOutEdges;
   int numHiddenToHiddenEdges = 0;
   VTK_CREATE(vtkEdgeListIterator, edges);
   for (vtkIdType r = 0; r < edgeTable->GetNumberOfRows(); r++)
@@ -620,8 +614,8 @@ int vtkTableToGraph::RequestData(
         vtkExtendedTemplateMacro(valueTarget = vtkTableToGraphGetValue(
           static_cast<VTK_TT*>(columnTarget->GetVoidPointer(0)), r));
         }
-      pair<vtkStdString, vtkVariant> lookupSource(typeSource, vtkVariant(valueSource));
-      pair<vtkStdString, vtkVariant> lookupTarget(typeTarget, vtkVariant(valueTarget));
+      vtksys_stl::pair<vtkStdString, vtkVariant> lookupSource(typeSource, vtkVariant(valueSource));
+      vtksys_stl::pair<vtkStdString, vtkVariant> lookupTarget(typeTarget, vtkVariant(valueTarget));
       vtkIdType source = -1;
       vtkIdType target = -1;
       if (!hiddenSource && vertexMap.count(lookupSource) > 0)
@@ -663,7 +657,7 @@ int vtkTableToGraph::RequestData(
         }
       else if (!hiddenSource && hiddenTarget)
         {
-        hiddenInEdges[target].push_back(make_pair(source, r));
+        hiddenInEdges[target].push_back(vtksys_stl::make_pair(source, r));
         }
       else
         {
@@ -683,14 +677,14 @@ int vtkTableToGraph::RequestData(
     }
 
   // Now add hidden edges.
-  map<vtkIdType, vector<vtkIdType> >::iterator out, outEnd;
+  vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> >::iterator out, outEnd;
   out = hiddenOutEdges.begin();
   outEnd = hiddenOutEdges.end();
   for (; out != outEnd; ++out)
     {
-    vector<vtkIdType> outVerts = out->second;
-    vector< pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
-    vector<vtkIdType>::size_type i, j;
+    vtksys_stl::vector<vtkIdType> outVerts = out->second;
+    vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
+    vtksys_stl::vector<vtkIdType>::size_type i, j;
     for (i = 0; i < inVerts.size(); ++i)
       {
       vtkIdType inVertId = inVerts[i].first;
