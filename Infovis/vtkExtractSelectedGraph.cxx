@@ -44,7 +44,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.15");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.16");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -201,14 +201,6 @@ int vtkExtractSelectedGraph::RequestData(
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder = 
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  vtkGraph *builder = 0;
-  if (directed)
-    {
-    builder = dirBuilder;
-    }
-  else
-    {
-    }
 
   if (selection->GetProperties()->Has(vtkSelection::FIELD_TYPE()) && 
       selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == vtkSelection::CELL)
