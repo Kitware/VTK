@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.42");
+vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.43");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------
@@ -165,9 +165,10 @@ void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (double *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = static_cast<double *>(
+    data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
 
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Loop through ouput pixels
@@ -184,7 +185,7 @@ void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
       yContrib = this->Direction[1] * (idxY + outExt[2]);
       for (idxX = 0; idxX <= maxX; idxX++)
         {
-        xContrib = this->Direction[0] * (double)(idxX + outExt[0]);
+        xContrib = this->Direction[0] * static_cast<double>(idxX + outExt[0]);
         // find dot product
         sum = zContrib + yContrib + xContrib;
         

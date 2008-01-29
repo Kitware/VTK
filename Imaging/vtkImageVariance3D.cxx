@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.32");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.33");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -85,12 +85,12 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
                                   0, this->KernelSize[1]-1, 
                                   0, this->KernelSize[2]-1);
-    this->Ellipse->SetCenter((float)(this->KernelSize[0]-1)*0.5,
-                             (float)(this->KernelSize[1]-1)*0.5,
-                             (float)(this->KernelSize[2]-1)*0.5);
-    this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
-                             (float)(this->KernelSize[1])*0.5,
-                             (float)(this->KernelSize[2])*0.5);
+    this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0]-1)*0.5,
+                             static_cast<float>(this->KernelSize[1]-1)*0.5,
+                             static_cast<float>(this->KernelSize[2]-1)*0.5);
+    this->Ellipse->SetRadius(static_cast<float>(this->KernelSize[0])*0.5,
+                             static_cast<float>(this->KernelSize[1])*0.5,
+                             static_cast<float>(this->KernelSize[2])*0.5);
 
     // make sure scalars have been allocated (needed if multithreaded is used)
     vtkInformation *ellipseOutInfo =
@@ -181,14 +181,15 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  maskPtr = (unsigned char *)(mask->GetScalarPointer());
+  maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
+  inPtr = static_cast<T *>(
+    inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
-  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-                           (outMax1-outMin1+1)/50.0);
+  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
+                                      (outMax1-outMin1+1)/50.0);
   target++;
   
   // loop through components
@@ -246,7 +247,8 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
                   {
                   if (*maskPtr0)
                     {
-                    diff = (float)(*hoodPtr0) - (float)(*inPtr0);
+                    diff = static_cast<float>(*hoodPtr0)
+                      - static_cast<float>(*inPtr0);
                     sum += diff * diff;
                     ++icount;
                     }
@@ -261,7 +263,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
             hoodPtr2 += inInc2;
             maskPtr2 += maskInc2;
             }
-          *outPtr0 = sum / (float)icount;
+          *outPtr0 = sum / static_cast<float>(icount);
           
           inPtr0 += inInc0;
           outPtr0 += outInc0;
@@ -317,9 +319,10 @@ void vtkImageVariance3D::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageVariance3DExecute( this, mask, inData[0][0], 
-                                 (VTK_TT *)(inPtr), outData[0], outExt,
-                                 (float *)(outPtr),id, inInfo));
+      vtkImageVariance3DExecute(this, mask, inData[0][0], 
+                                static_cast<VTK_TT *>(inPtr), outData[0],
+                                outExt,
+                                static_cast<float *>(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

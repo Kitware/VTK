@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.33");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.34");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -114,14 +114,14 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
     {
     start2 += (imageMax2-imageMin2+1);
     }
-  inPtr2 = (T *)(inData->GetScalarPointer(start0, start1, start2));
+  inPtr2 = static_cast<T *>(inData->GetScalarPointer(start0, start1, start2));
   
   min0 = outExt[0];
   max0 = outExt[1];
   inMaxC = inData->GetNumberOfScalarComponents();
   maxC = outData->GetNumberOfScalarComponents();
-  target = (unsigned long)((outExt[5]-outExt[4]+1)*
-                           (outExt[3]-outExt[2]+1)/50.0);
+  target = static_cast<unsigned long>((outExt[5]-outExt[4]+1)*
+                                      (outExt[3]-outExt[2]+1)/50.0);
   target++;
   
   inIdx2 = start2;
@@ -242,9 +242,9 @@ void vtkImageWrapPad::ThreadedRequestData (
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageWrapPadExecute( this, inData[0][0], 
-                              (VTK_TT *)inPtr, outData[0], 
-                              (VTK_TT *)(outPtr), outExt, id));
+      vtkImageWrapPadExecute(this, inData[0][0], 
+                             static_cast<VTK_TT *>(inPtr), outData[0], 
+                             static_cast<VTK_TT *>(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageWeightedSum, "1.8");
+vtkCxxRevisionMacro(vtkImageWeightedSum, "1.9");
 vtkStandardNewMacro(vtkImageWeightedSum);
 
 vtkCxxSetObjectMacro(vtkImageWeightedSum,Weights,vtkDoubleArray);
@@ -79,7 +79,8 @@ void vtkImageWeightedSumExecute(vtkImageWeightedSum *self,
   T* inSIFast[256];
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
 
-  double *weights = ((vtkDoubleArray *)self->GetWeights())->GetPointer(0);
+  double *weights =
+    static_cast<vtkDoubleArray *>(self->GetWeights())->GetPointer(0);
   double totalWeight = self->CalculateTotalWeight();
   int normalize = self->GetNormalizeByWeight();
   vtkImageIterator<T> *inIts;

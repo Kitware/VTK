@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.16");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.17");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -159,8 +159,8 @@ int vtkImageToImageStencil::RequestData(
 
   // for keeping track of progress
   unsigned long count = 0;
-  unsigned long target = (unsigned long)
-    ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
+  unsigned long target = static_cast<unsigned long>(
+    (extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
   target++;
 
   for (int idZ = extent[4]; idZ <= extent[5]; idZ++)

@@ -22,7 +22,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.38");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.39");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
@@ -114,8 +114,8 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                                    wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   
-  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-                           (outMax1-outMin1+1)/50.0);
+  target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
+                                      (outMax1-outMin1+1)/50.0);
   target++;
 
   inPtrC = inPtr;
@@ -143,18 +143,18 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
           if (*inPtr0)
             {
             // neighbors independant of boundaries
-            n[0] = (idx0>wholeMin0) ? (float)*(inPtr0-inInc0) : 0;
+            n[0] = (idx0>wholeMin0) ? static_cast<float>(*(inPtr0-inInc0)) : 0;
             n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
-              ? (float)*(inPtr0-inInc0-inInc1) : 0;
-            n[2] = (idx1>wholeMin1) ? (float)*(inPtr0-inInc1) : 0;
+              ? static_cast<float>(*(inPtr0-inInc0-inInc1)) : 0;
+            n[2] = (idx1>wholeMin1) ? static_cast<float>(*(inPtr0-inInc1)) : 0;
             n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
-              ? (float)*(inPtr0-inInc1+inInc0) : 0;
-            n[4] = (idx0<wholeMax0) ? (float)*(inPtr0+inInc0) : 0;
+              ? static_cast<float>(*(inPtr0-inInc1+inInc0)) : 0;
+            n[4] = (idx0<wholeMax0) ? static_cast<float>(*(inPtr0+inInc0)) : 0;
             n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
-              ? (float)*(inPtr0+inInc0+inInc1) : 0;
-            n[6] = (idx1<wholeMax1) ? (float)*(inPtr0+inInc1) : 0;
+              ? static_cast<float>(*(inPtr0+inInc0+inInc1)) : 0;
+            n[6] = (idx1<wholeMax1) ? static_cast<float>(*(inPtr0+inInc1)) : 0;
             n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
-              ? (float)*(inPtr0+inInc1-inInc0) : 0;
+              ? static_cast<float>(*(inPtr0+inInc1-inInc0)) : 0;
             
             // Lets try a case table. (shifting bits would be faster)
             erodeCase = 0;
@@ -282,7 +282,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
           {
           if (*inPtr0 <= 1)
             {
-            *outPtr0 = (T)(0.0);
+            *outPtr0 = static_cast<T>(0.0);
             }
           else
             {
@@ -350,9 +350,9 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   switch (tempData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageSkeleton2DExecute( this, tempData,
-                                 (VTK_TT *)(inPtr), outData, outExt, 
-                                 (VTK_TT *)(outPtr), id));
+      vtkImageSkeleton2DExecute(this, tempData,
+                                static_cast<VTK_TT *>(inPtr), outData, outExt, 
+                                static_cast<VTK_TT *>(outPtr), id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       tempData->Delete();
@@ -369,4 +369,3 @@ void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Prune: " << (this->Prune ? "On\n" : "Off\n");
 
 }
-

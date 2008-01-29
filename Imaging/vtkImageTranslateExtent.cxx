@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.26");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.27");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ int vtkImageTranslateExtent::RequestInformation (
     extent[2*idx] += this->Translation[idx];
     extent[2*idx+1] += this->Translation[idx];
     // change origin so the data does not shift
-    origin[idx] -= (double)(this->Translation[idx]) * spacing[idx];
+    origin[idx] -= static_cast<double>(this->Translation[idx]) * spacing[idx];
     }
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);

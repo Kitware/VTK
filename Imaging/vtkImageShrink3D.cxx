@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.69");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.70");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -189,11 +189,11 @@ int vtkImageShrink3D::RequestInformation (
       }
     // Scale the output extent
     wholeExtent[2*idx] = 
-      (int)(ceil((double)(wholeExtent[2*idx] - this->Shift[idx]) 
-                 / (double)(this->ShrinkFactors[idx])));
-    wholeExtent[2*idx+1] = (int)(floor(
-     (double)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
-         / (double)(this->ShrinkFactors[idx])));
+      static_cast<int>(ceil(static_cast<double>(wholeExtent[2*idx] - this->Shift[idx]) 
+                 / static_cast<double>(this->ShrinkFactors[idx])));
+    wholeExtent[2*idx+1] = static_cast<int>(floor(
+     static_cast<double>(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
+         / static_cast<double>(this->ShrinkFactors[idx])));
      // make sure WholeExtent is valid when the ShrinkFactors are set on an
      // axis with no Extent beforehand
      if (wholeExtent[2*idx+1]<wholeExtent[2*idx])
@@ -201,7 +201,7 @@ int vtkImageShrink3D::RequestInformation (
        wholeExtent[2*idx+1] = wholeExtent[2*idx];
        }
     // Change the data spacing
-    spacing[idx] *= (double)(this->ShrinkFactors[idx]);
+    spacing[idx] *= static_cast<double>(this->ShrinkFactors[idx]);
     }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent,6);
@@ -288,13 +288,13 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 
   maxX = outExt[1] - outExt[0];
   maxC = inData->GetNumberOfScalarComponents();
-  target = (unsigned long)(maxC*(outExt[5] - outExt[4] + 1)*
-                           (outExt[3] - outExt[2] + 1)/50.0);
+  target = static_cast<unsigned long>(maxC*(outExt[5] - outExt[4] + 1)*
+                                      (outExt[3] - outExt[2] + 1)/50.0);
   target++;
   
   if (self->GetMean())
     {
-    norm = 1.0 / (double)(factor0 * factor1 * factor2);
+    norm = 1.0 / static_cast<double>(factor0 * factor1 * factor2);
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
       {
@@ -328,14 +328,14 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
                   {
-                  sum += (double)(*inPtr0);
+                  sum += static_cast<double>(*inPtr0);
                   inPtr0 += inInc0;
                   }
                 inPtr1 += inInc1;
                 }
               inPtr2 += inInc2;
               }
-            *outPtr2 = (T)(sum * norm);
+            *outPtr2 = static_cast<T>(sum * norm);
             tmpPtr0 += tmpInc0;
             outPtr2 += maxC;
             }
@@ -372,7 +372,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
             {
-            minValue = (T) self->GetOutput()->GetScalarTypeMax();
+            minValue = static_cast<T>(self->GetOutput()->GetScalarTypeMax());
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
@@ -430,7 +430,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
           tmpPtr0 = tmpPtr1;
           for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
             {
-            maxValue = (T) self->GetOutput()->GetScalarTypeMin();
+            maxValue = static_cast<T>(self->GetOutput()->GetScalarTypeMin());
             // Loop through neighborhood pixels
             inPtr2 = tmpPtr0;
             for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
@@ -600,14 +600,14 @@ void vtkImageShrink3D::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageShrink3DExecute( this, 
-                               inData[0][0],
-                               (VTK_TT *)(inPtr), 
-                               outData[0], 
-                               (VTK_TT *)(outPtr),
-                               outExt, 
-                               id, 
-                               inInfo) );
+      vtkImageShrink3DExecute(this, 
+                              inData[0][0],
+                              static_cast<VTK_TT *>(inPtr), 
+                              outData[0], 
+                              static_cast<VTK_TT *>(outPtr),
+                              outExt, 
+                              id, 
+                              inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.37");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.38");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   min2 = outExt[4];   max2 = outExt[5];
 
   // We want the input pixel to correspond to output
-  inPtr = (T *)(inData->GetScalarPointer(min0,min1,min2));
+  inPtr = static_cast<T *>(inData->GetScalarPointer(min0,min1,min2));
 
   // The data spacing is important for computing the gradient.
   // Scale so it has the same range as gradient.
@@ -110,7 +110,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   r1 = 0.125 / r[1];
   // ignore r2
 
-  target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
+  target = static_cast<unsigned long>((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
 
   // loop through pixels of output
@@ -146,8 +146,8 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         inPtrL = inPtr0 + inInc0L;
         inPtrR = inPtr0 + inInc0R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (double)(inPtrR[inInc1L] + inPtrR[inInc1R]);
-        sum -= (double)(inPtrL[inInc1L] + inPtrL[inInc1R]);
+        sum += static_cast<double>(inPtrR[inInc1L] + inPtrR[inInc1R]);
+        sum -= static_cast<double>(inPtrL[inInc1L] + inPtrL[inInc1R]);
 
         *outPtrV = sum * r0;
         ++outPtrV;
@@ -155,8 +155,8 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         inPtrL = inPtr0 + inInc1L;
         inPtrR = inPtr0 + inInc1R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (double)(inPtrR[inInc0L] + inPtrR[inInc0R]);
-        sum -= (double)(inPtrL[inInc0L] + inPtrL[inInc0R]);
+        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]);
+        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]);
         *outPtrV = static_cast<double>(sum * r1);
 
         outPtr0 += outInc0;
@@ -212,8 +212,8 @@ void vtkImageSobel2D::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageSobel2DExecute(this, inData[0][0], 
-                             (VTK_TT *)(inPtr), outData[0], outExt, 
-                             (double *)(outPtr),id, inInfo));
+                             static_cast<VTK_TT *>(inPtr), outData[0], outExt, 
+                             static_cast<double *>(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

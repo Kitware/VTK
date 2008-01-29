@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.49");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.50");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -224,10 +224,12 @@ int vtkShepardMethod::RequestData(
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      double amin = (double)((px[i] - maxDistance) - origin[i]) / spacing[i];
-      double amax = (double)((px[i] + maxDistance) - origin[i]) / spacing[i];
-      min[i] = (int) amin;
-      max[i] = (int) amax;
+      double amin = static_cast<double>(
+        (px[i] - maxDistance) - origin[i]) / spacing[i];
+      double amax = static_cast<double>(
+        (px[i] + maxDistance) - origin[i]) / spacing[i];
+      min[i] = static_cast<int>(amin);
+      max[i] = static_cast<int>(amax);
       
       if (min[i] < amin)
         {
@@ -250,8 +252,10 @@ int vtkShepardMethod::RequestData(
 
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      min[i] = (int) ((double)((px[i] - maxDistance) - origin[i]) / spacing[i]);
-      max[i] = (int) ((double)((px[i] + maxDistance) - origin[i]) / spacing[i]);
+      min[i] = static_cast<int>(
+        static_cast<double>((px[i] - maxDistance) - origin[i]) / spacing[i]);
+      max[i] = static_cast<int>(
+        static_cast<double>((px[i] + maxDistance) - origin[i]) / spacing[i]);
       if (min[i] < 0)
         {
         min[i] = 0;

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.21");
+vtkCxxRevisionMacro(vtkImageStencil, "1.22");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -140,11 +140,12 @@ void vtkAllocBackground(vtkImageStencil *self, T *&background,
       {
       if (scalarType == VTK_FLOAT || scalarType == VTK_DOUBLE)
         {
-        background[i] = (T)self->GetBackgroundColor()[i];
+        background[i] = static_cast<T>(self->GetBackgroundColor()[i]);
         }
       else
         { // round float to nearest int
-        background[i] = (T)floor(self->GetBackgroundColor()[i] + 0.5);
+        background[i] =
+          static_cast<T>(floor(self->GetBackgroundColor()[i] + 0.5));
         }
       }
     else
@@ -199,8 +200,8 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numscalars = inData->GetNumberOfScalarComponents();
 
-  target = (unsigned long)
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target = static_cast<unsigned long>(
+    (outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
   target++;  
   
   // set color for area outside of input volume extent
@@ -355,16 +356,16 @@ void vtkImageStencil::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageStencilExecute( this, 
-                              inData[0][0],
-                              (VTK_TT *)(inPtr), 
-                              inData2, 
-                              (VTK_TT *)(inPtr2), 
-                              outData[0], 
-                              (VTK_TT *)(outPtr), 
-                              outExt, 
-                              id, 
-                              outInfo) );
+      vtkImageStencilExecute(this, 
+                             inData[0][0],
+                             static_cast<VTK_TT *>(inPtr), 
+                             inData2, 
+                             static_cast<VTK_TT *>(inPtr2), 
+                             outData[0], 
+                             static_cast<VTK_TT *>(outPtr), 
+                             outExt, 
+                             id, 
+                             outInfo));
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;

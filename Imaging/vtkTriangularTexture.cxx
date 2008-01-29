@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTriangularTexture, "1.30");
+vtkCxxRevisionMacro(vtkTriangularTexture, "1.31");
 vtkStandardNewMacro(vtkTriangularTexture);
 
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
@@ -81,7 +81,7 @@ void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
         {
         opacity = 1.0;
         }
-      AGrayValue[1] = (unsigned char) (opacity * 255);
+      AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
       }         
@@ -133,7 +133,7 @@ void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
         opacity = 1.0;
         }
       opacity = 1.0 - opacity;
-      AGrayValue[1] = (unsigned char) (opacity * 255);
+      AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
       }         

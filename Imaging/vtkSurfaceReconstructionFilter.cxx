@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.36");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.37");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -401,9 +401,10 @@ int vtkSurfaceReconstructionFilter::RequestData(
   if(this->SampleSpacing<=0.0)
     {
     // spacing guessed as cube root of (volume divided by number of points)
-    this->SampleSpacing = pow((double)(bounds[1]-bounds[0])*
+    this->SampleSpacing = pow(static_cast<double>(bounds[1]-bounds[0])*
                               (bounds[3]-bounds[2])*(bounds[5]-bounds[4]) /
-                              (double)COUNT, (double)(1.0/3.0));
+                              static_cast<double>(COUNT),
+                              static_cast<double>(1.0/3.0));
  
     vtkDebugMacro(<<"Estimated sample spacing as: " << this->SampleSpacing );
     }
@@ -420,7 +421,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
   int dim[3];
   for(i=0;i<3;i++)
     {
-    dim[i] = (int)((bottomright[i]-topleft[i])/this->SampleSpacing);
+    dim[i] = static_cast<int>((bottomright[i]-topleft[i])/this->SampleSpacing);
     }
   
   vtkDebugMacro(<<"Created output volume of dimensions: ("
@@ -448,7 +449,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
   // for sampling around the edge)
   vtkPointLocator *locator = vtkPointLocator::New();
   vtkPoints *newPts = vtkPoints::New();
-  locator->InitPointInsertion(newPts,bounds,(int)COUNT);
+  locator->InitPointInsertion(newPts,bounds,static_cast<int>(COUNT));
   for(i=0;i<COUNT;i++)
     {
     locator->InsertPoint(i,surfacePoints[i].loc);

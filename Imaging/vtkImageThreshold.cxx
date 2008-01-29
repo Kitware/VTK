@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.51");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.52");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -146,69 +146,70 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
   IT temp;
   
   // Make sure the thresholds are valid for the input scalar range
-  if (static_cast<double>(self->GetLowerThreshold()) < inData->GetScalarTypeMin())
+  if (static_cast<double>(self->GetLowerThreshold())
+      < inData->GetScalarTypeMin())
     {
-    lowerThreshold = (IT) inData->GetScalarTypeMin();
+    lowerThreshold = static_cast<IT>(inData->GetScalarTypeMin());
     }
   else 
     {
     if (static_cast<double>(self->GetLowerThreshold()) >
         inData->GetScalarTypeMax())
       {
-      lowerThreshold = (IT) inData->GetScalarTypeMax();
+      lowerThreshold = static_cast<IT>(inData->GetScalarTypeMax());
       }
     else
       {
-      lowerThreshold = (IT) self->GetLowerThreshold();
+      lowerThreshold = static_cast<IT>(self->GetLowerThreshold());
       }
     }
   if (static_cast<double>(self->GetUpperThreshold())
       > inData->GetScalarTypeMax())
     {
-    upperThreshold = (IT) inData->GetScalarTypeMax();
+    upperThreshold = static_cast<IT>(inData->GetScalarTypeMax());
     }
   else 
     {
     if (static_cast<double>(self->GetUpperThreshold())
         < inData->GetScalarTypeMin())
       {
-      upperThreshold = (IT) inData->GetScalarTypeMin();
+      upperThreshold = static_cast<IT>(inData->GetScalarTypeMin());
       }
     else
       {
-      upperThreshold = (IT) self->GetUpperThreshold();
+      upperThreshold = static_cast<IT>(self->GetUpperThreshold());
       }
     }
   
   // Make sure the replacement values are within the output scalar range
   if (static_cast<double>(self->GetInValue()) < outData->GetScalarTypeMin())
     {
-    inValue = (OT) outData->GetScalarTypeMin();
+    inValue = static_cast<OT>(outData->GetScalarTypeMin());
     }
   else 
     {
     if (static_cast<double>(self->GetInValue()) > outData->GetScalarTypeMax())
       {
-      inValue = (OT) outData->GetScalarTypeMax();
+      inValue = static_cast<OT>(outData->GetScalarTypeMax());
       }
     else
       {
-      inValue = (OT) self->GetInValue();
+      inValue = static_cast<OT>(self->GetInValue());
       }
     }
   if (static_cast<double>(self->GetOutValue()) > outData->GetScalarTypeMax())
     {
-    outValue = (OT) outData->GetScalarTypeMax();
+    outValue = static_cast<OT>(outData->GetScalarTypeMax());
     }
   else 
     {
     if (static_cast<double>(self->GetOutValue()) < outData->GetScalarTypeMin())
       {
-      outValue = (OT) outData->GetScalarTypeMin();
+      outValue = static_cast<OT>(outData->GetScalarTypeMin());
       }
     else
       {
-      outValue = (OT) self->GetOutValue();
+      outValue = static_cast<OT>(self->GetOutValue());
       }
     }
   
@@ -231,7 +232,7 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
           }
         else
           {
-          *outSI = (OT)(temp);
+          *outSI = static_cast<OT>(temp);
           }
         }
       else
@@ -243,7 +244,7 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
           }
         else
           {
-          *outSI = (OT)(temp);
+          *outSI = static_cast<OT>(temp);
           }
         }
       ++inSI;
@@ -264,10 +265,10 @@ void vtkImageThresholdExecute1(vtkImageThreshold *self,
   switch (outData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageThresholdExecute( self, inData,
-                                outData, outExt, id, 
-                                static_cast<T *>(0), 
-                                static_cast<VTK_TT *>(0)));
+      vtkImageThresholdExecute(self, inData,
+                               outData, outExt, id, 
+                               static_cast<T *>(0), 
+                               static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
@@ -290,12 +291,12 @@ void vtkImageThreshold::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageThresholdExecute1( this, 
-                                 inData[0][0], 
-                                 outData[0], 
-                                 outExt, 
-                                 id,
-                                 static_cast<VTK_TT *>(0) ));
+      vtkImageThresholdExecute1(this, 
+                                inData[0][0], 
+                                outData[0], 
+                                outExt, 
+                                id,
+                                static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
