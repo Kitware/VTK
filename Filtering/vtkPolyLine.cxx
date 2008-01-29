@@ -21,7 +21,7 @@
 #include "vtkLine.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.3");
+vtkCxxRevisionMacro(vtkPolyLine, "1.4");
 vtkStandardNewMacro(vtkPolyLine);
 
 //----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ vtkPolyLine::~vtkPolyLine()
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals)
 {
-  return this->GenerateSlidingNormals(pts, lines, normals, 0);
+  return vtkPolyLine::GenerateSlidingNormals(pts, lines, normals, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -98,8 +98,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
           if ( vtkMath::Normalize(sNext) == 0.0 )
             {
-            vtkErrorMacro(
-              <<"Coincident points in polyline...can't compute normals");
+            vtkGenericWarningMacro(<<"Coincident points in polyline...can't compute normals");
             return 0;
             }
 
@@ -192,7 +191,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
           if ( vtkMath::Normalize(sNext) == 0.0 )
             {
-            vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
+            vtkGenericWarningMacro(<<"Coincident points in polyline...can't compute normals");
             return 0;
             }
 
@@ -200,7 +199,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
           vtkMath::Cross(sPrev,normal,w);
           if ( vtkMath::Normalize(w) == 0.0 ) 
             {
-            vtkErrorMacro(<<"normal and sPrev coincident");
+            vtkGenericWarningMacro(<<"normal and sPrev coincident");
             return 0;
             }
 
@@ -216,7 +215,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
-          if ( (theta=asin(static_cast<double>(vtkMath::Normalize(q)))) == 0.0 ) 
+          if ( (theta=asin((double)vtkMath::Normalize(q))) == 0.0 ) 
             { //no rotation, use previous normal
             normals->InsertTuple(linePts[j],normal);
             continue;
