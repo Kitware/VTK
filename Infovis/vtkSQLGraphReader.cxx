@@ -32,7 +32,7 @@
 #include "vtkTableToGraph.h"
 #include "vtkUndirectedGraph.h"
 
-vtkCxxRevisionMacro(vtkSQLGraphReader, "1.1");
+vtkCxxRevisionMacro(vtkSQLGraphReader, "1.2");
 vtkStandardNewMacro(vtkSQLGraphReader);
 
 vtkSQLGraphReader::vtkSQLGraphReader()
@@ -73,6 +73,23 @@ void vtkSQLGraphReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Directed: " << this->Directed << endl;
+  os << indent << "CollapseEdges: " << this->CollapseEdges << endl;
+  os << indent << "XField: " << (this->XField ? this->XField : "(null)") << endl;
+  os << indent << "YField: " << (this->YField ? this->YField : "(null)") << endl;
+  os << indent << "ZField: " << (this->ZField ? this->ZField : "(null)") << endl;
+  os << indent << "VertexIdField: " << (this->VertexIdField ? this->VertexIdField : "(null)") << endl;
+  os << indent << "SourceField: " << (this->SourceField ? this->SourceField : "(null)") << endl;
+  os << indent << "TargetField: " << (this->TargetField ? this->TargetField : "(null)") << endl;
+  os << indent << "EdgeQuery: " << (this->EdgeQuery ? "" : "(null)") << endl;
+  if (this->EdgeQuery)
+    {
+    this->EdgeQuery->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "VertexQuery: " << (this->VertexQuery ? "" : "(null)") << endl;
+  if (this->VertexQuery)
+    {
+    this->VertexQuery->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 vtkCxxSetObjectMacro(vtkSQLGraphReader, VertexQuery, vtkSQLQuery);

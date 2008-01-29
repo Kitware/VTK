@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.3");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.4");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -773,4 +773,9 @@ void vtkTableToGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Directed: " << this->Directed << endl;
+  os << indent << "LinkGraph: " << (this->LinkGraph ? "" : "(null)") << endl;
+  if (this->LinkGraph)
+    {
+    this->LinkGraph->PrintSelf(os, indent.GetNextIndent());
+    }
 }

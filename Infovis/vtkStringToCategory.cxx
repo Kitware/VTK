@@ -35,7 +35,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkStringToCategory, "1.1");
+vtkCxxRevisionMacro(vtkStringToCategory, "1.2");
 vtkStandardNewMacro(vtkStringToCategory);
 
 vtkStringToCategory::vtkStringToCategory()
@@ -193,4 +193,5 @@ int vtkStringToCategory::RequestDataObject(
 void vtkStringToCategory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "CategoryArrayName: " << (this->CategoryArrayName ? this->CategoryArrayName : "(null)") << endl;
 }
