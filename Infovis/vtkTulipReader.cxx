@@ -33,6 +33,10 @@
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/map>
 
+#if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0560)
+#include <ctype.h> // for isspace, isdigit
+#endif
+
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
@@ -40,7 +44,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkTulipReader, "1.2");
+vtkCxxRevisionMacro(vtkTulipReader, "1.3");
 vtkStandardNewMacro(vtkTulipReader);
 
 vtkTulipReader::vtkTulipReader()
