@@ -286,9 +286,10 @@ public:
   // Add/Remove/Query the window/level presets that may have been associated
   // to a medical image. Window is also known as 'width', level is also known
   // as 'center'. The same window/level pair can not be added twice.
-  // As a convenience, a comment can be associated to a preset.
+  // As a convenience, a comment (aka Explanation) can be associated to a preset.
   // For ex: DICOM Window Center (0028,1050) = 00045\000470
   //         DICOM Window Width  (0028,1051) = 0106\03412
+  //         DICOM Window Center Width Explanation (0028,1055) = WINDOW1\WINDOW2
   virtual void AddWindowLevelPreset(double w, double l);
   virtual void RemoveWindowLevelPreset(double w, double l);
   virtual void RemoveAllWindowLevelPresets();

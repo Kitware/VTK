@@ -107,6 +107,12 @@ public:
     }
   void Print(ostream &os, vtkIndent indent)
     {
+    os << indent << "WindowLevel: \n";
+    for( WindowLevelPresetPoolIterator it = WindowLevelPresetPool.begin(); it != WindowLevelPresetPool.end(); ++it )
+      {
+      const WindowLevelPreset &wlp = *it;
+      os << indent << "Window:" << wlp.Window << endl;
+      }
     os << indent << "UID(s): ";
     for( VolumeSliceUIDType::const_iterator it = UID.begin();
       it != UID.end();
