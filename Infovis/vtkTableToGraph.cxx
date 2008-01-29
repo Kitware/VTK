@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.2");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.3");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -465,12 +465,12 @@ int vtkTableToGraph::RequestData(
   // Calculate the percent time based on whether there are hidden types
   double createVertexTime = 0.25;
   double createEdgeTime = 0.75;
-  double removeHiddenTime = 0.0;
+  double hiddenTime = 0.0;
   if (hiddenTypes.size() > 0)
     {
     createVertexTime = 0.1;
     createEdgeTime = 0.3;
-    removeHiddenTime = 0.6;
+    hiddenTime = 0.6;
     }
 
   VTK_CREATE(vtkStringArray, domainArr);
@@ -680,6 +680,8 @@ int vtkTableToGraph::RequestData(
   vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> >::iterator out, outEnd;
   out = hiddenOutEdges.begin();
   outEnd = hiddenOutEdges.end();
+  int curHidden = 0;
+  int numHidden = hiddenOutEdges.size();
   for (; out != outEnd; ++out)
     {
     vtksys_stl::vector<vtkIdType> outVerts = out->second;
@@ -703,6 +705,12 @@ int vtkTableToGraph::RequestData(
         builder->GetEdgeData()->CopyData(edgeTableData, inEdgeId, newEdge.Id);
         }
       }
+    if (curHidden % 100 == 0)
+      {
+      double progress = createVertexTime + createEdgeTime + hiddenTime * curHidden / numHidden;
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+      }
+    ++curHidden;
     }
 
   // Copy structure into output graph.
