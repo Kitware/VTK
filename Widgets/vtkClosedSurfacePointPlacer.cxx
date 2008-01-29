@@ -26,7 +26,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkClosedSurfacePointPlacer, "1.3");
+vtkCxxRevisionMacro(vtkClosedSurfacePointPlacer, "1.4");
 vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes,vtkPlaneCollection);
 
@@ -292,10 +292,11 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
 }
   
 //----------------------------------------------------------------------
-int vtkClosedSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
-                                                      double displayPos[2],
-                                                      double worldPos[3],
-                                                      double worldOrient[9] )
+int vtkClosedSurfacePointPlacer
+::ComputeWorldPosition( vtkRenderer *,
+                        double vtkNotUsed(displayPos)[2],
+                        double vtkNotUsed(worldPos)[3],
+                        double vtkNotUsed(worldOrient)[9] )
 {
   vtkErrorMacro( << "This placer needs a reference world position.");
   return 0;
