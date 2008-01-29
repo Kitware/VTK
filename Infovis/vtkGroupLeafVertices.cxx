@@ -31,18 +31,11 @@
 #include "vtkTable.h"
 #include "vtkTree.h"
 
-#include <vtksys/stl/set>
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-using vtksys_stl::pair;
-using vtksys_stl::make_pair;
-using vtksys_stl::set;
-using vtksys_stl::map;
-using vtksys_stl::vector;
-
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.3");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.4");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 
@@ -101,7 +94,6 @@ int vtkGroupLeafVertices::RequestData(
   // Create builder to extend the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
-  builder->DeepCopy(input);
 
   // Get the input and builder vertex and edge data.
   vtkDataSetAttributes *inputVertexData = input->GetVertexData();
@@ -119,9 +111,9 @@ int vtkGroupLeafVertices::RequestData(
 
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
-  map<pair<vtkIdType, vtkStdString>, vtkIdType> group_vertices;
-  vector< pair<vtkIdType, vtkIdType> > vertStack;
-  vertStack.push_back(make_pair(input->GetRoot(), builder->AddVertex()));
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkStdString>, vtkIdType> group_vertices;
+  vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
+  vertStack.push_back(vtksys_stl::make_pair(input->GetRoot(), builder->AddVertex()));
   vtkSmartPointer<vtkOutEdgeIterator> it =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   while (!vertStack.empty())
@@ -142,7 +134,7 @@ int vtkGroupLeafVertices::RequestData(
         // and recurse.
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(make_pair(tree_child, child));
+        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
         }
       else
         {
@@ -150,9 +142,9 @@ int vtkGroupLeafVertices::RequestData(
         // Look for a group vertex.  If there isn't one already, make one.
         vtkIdType group_vertex = -1;
         vtkStdString str = stringArr->GetValue(tree_child);
-        if (group_vertices.count(make_pair(v, str)) > 0)
+        if (group_vertices.count(vtksys_stl::make_pair(v, str)) > 0)
           {
-          group_vertex = group_vertices[make_pair(v, str)];
+          group_vertex = group_vertices[vtksys_stl::make_pair(v, str)];
           }
         else
           {
@@ -160,7 +152,7 @@ int vtkGroupLeafVertices::RequestData(
           treeTable->InsertNextBlankRow();
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
-          group_vertices[make_pair(v, str)] = group_vertex;
+          group_vertices[vtksys_stl::make_pair(v, str)] = group_vertex;
           if (nameStringArr)
             {
             nameStringArr->InsertValue(group_vertex, str);
@@ -168,7 +160,7 @@ int vtkGroupLeafVertices::RequestData(
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(make_pair(tree_child, child));
+        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
         }
       }
     }
