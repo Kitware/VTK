@@ -36,7 +36,6 @@ vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
-vtkSQLGraphReader.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
@@ -97,6 +96,7 @@ ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
 IF(VTK_HAS_UINT64_ARRAY)
   SET(Kit_SRCS
     ${Kit_SRCS}
+    vtkSQLGraphReader.cxx    # depends on vtkRowQueryToTable, which depends on uint64 array
     vtkStringToTimePoint.cxx
     vtkTimePointToString.cxx
   )

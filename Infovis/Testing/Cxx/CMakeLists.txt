@@ -14,7 +14,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestInteractorStyleTreeMapHover
     TestKdTreeBoxSelection
     TestRandomGraphSource
-    TestSQLGraphReader
     TestStringToCategory
     TestTable
     TestTreeMapLayoutStrategy
@@ -58,6 +57,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF(VTK_HAS_UINT64_ARRAY)
     # add these tests only if vtkTypeUInt64Array exists
     SET(MyTests ${MyTests}
+      TestSQLGraphReader
       TestTimePoint
       )    
   ENDIF(VTK_HAS_UINT64_ARRAY)
