@@ -231,6 +231,7 @@ vtkTransformTextureCoords.cxx
 vtkTriangleFilter.cxx
 vtkTriangularTCoords.cxx
 vtkTubeFilter.cxx
+vtkUncertaintyTubeFilter.cxx
 vtkUnstructuredGridGeometryFilter.cxx
 vtkVectorDot.cxx
 vtkVectorNorm.cxx

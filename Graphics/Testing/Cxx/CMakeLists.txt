@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestTessellator.cxx
+    TestUncertaintyTubeFilter.cxx
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
