@@ -23,23 +23,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkImageData.h"
 
-#if !defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
-#else
-# include <io.h> /* unlink */
-#endif
+#include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.60");
+vtkCxxRevisionMacro(vtkImageWriter, "1.61");
 vtkStandardNewMacro(vtkImageWriter);
-
-#ifdef write
-#undef write
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 
 //----------------------------------------------------------------------------
 vtkImageWriter::vtkImageWriter()
@@ -507,7 +494,7 @@ void vtkImageWriter::DeleteFiles()
   
   if (this->FileName)
     {
-    unlink(this->FileName);
+    vtksys::SystemTools::RemoveFile(this->FileName);
     }
   else
     {
@@ -519,7 +506,7 @@ void vtkImageWriter::DeleteFiles()
       for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
         {
         sprintf(fileName, this->FilePattern, this->FilePrefix, i);
-        unlink(fileName);
+        vtksys::SystemTools::RemoveFile(fileName);
         }
       delete [] fileName;
       }
@@ -530,7 +517,7 @@ void vtkImageWriter::DeleteFiles()
       for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
         {
         sprintf(fileName, this->FilePattern, i);
-        unlink(fileName);
+        vtksys::SystemTools::RemoveFile(fileName);
         }
       delete [] fileName;
       }
