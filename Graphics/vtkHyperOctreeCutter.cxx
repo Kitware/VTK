@@ -43,7 +43,7 @@
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.5");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.6");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -479,8 +479,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         cell->Contour(value, cellScalars, this->Locator, 
                       this->NewVerts, this->NewLines, this->NewPolys,
                       inPD, this->OutPD,
-                      (vtkCellData*)(this->InCD), cellId, 
-                      (vtkCellData*)(this->OutCD));
+                      static_cast<vtkCellData*>(this->InCD), cellId, 
+                      static_cast<vtkCellData*>(this->OutCD));
         }
       else
         {
@@ -493,8 +493,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           cell->Contour(value, cellScalars, this->Locator, 
                         this->NewVerts, this->NewLines, this->NewPolys,
                         inPD, this->OutPD,
-                        (vtkCellData*)(this->InCD), cellId, 
-                        (vtkCellData*)(this->OutCD));
+                        static_cast<vtkCellData*>(this->InCD), cellId, 
+                        static_cast<vtkCellData*>(this->OutCD));
           ++iter;
           }
         }
@@ -1089,9 +1089,9 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             {
             this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,this->NewPolys,
-                                 inPD,(vtkPointData*)(this->OutPD),
-                                 (vtkCellData*)(this->InCD),cellId,
-                                 (vtkCellData*)(this->OutCD));
+                                 inPD,static_cast<vtkPointData *>(this->OutPD),
+                                 static_cast<vtkCellData *>(this->InCD),cellId,
+                                 static_cast<vtkCellData *>(this->OutCD));
             done=this->Triangulator->GetNextTetra(0,this->Tetra,
                                                   this->CellScalars,
                                                   this->TetScalars)==0;
@@ -1113,9 +1113,10 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
               this->Tetra->Contour(value, this->TetScalars, this->Locator, 
                                    this->NewVerts,this->NewLines,
                                    this->NewPolys,inPD,
-                                   (vtkPointData*)(this->OutPD),
-                                   (vtkCellData*)(this->InCD),cellId,
-                                   (vtkCellData*)(this->OutCD));
+                                   static_cast<vtkPointData *>(this->OutPD),
+                                   static_cast<vtkCellData *>(this->InCD),
+                                   cellId,
+                                   static_cast<vtkCellData *>(this->OutCD));
               ++iter;
               }
             done=this->Triangulator->GetNextTetra(0,this->Tetra,
@@ -1148,14 +1149,14 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         
         vtkPointData *inPD=this->Input->GetPointData(); // void
         
-        if ( this->SortBy == VTK_SORT_BY_CELL )
+        if(this->SortBy == VTK_SORT_BY_CELL)
           {
           double value = this->ContourValues->GetValue(this->Iter);
           this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                  this->NewVerts,this->NewLines,this->NewPolys,
-                                 inPD,(vtkPointData*)(this->OutPD),
-                                 (vtkCellData*)(this->InCD),cellId,
-                                 (vtkCellData*)(this->OutCD));
+                                 inPD,static_cast<vtkPointData *>(this->OutPD),
+                                 static_cast<vtkCellData *>(this->InCD),cellId,
+                                 static_cast<vtkCellData *>(this->OutCD));
           }
         else
           {
@@ -1167,9 +1168,10 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             this->Polygon->Contour(value, this->CellScalars, this->Locator, 
                                    this->NewVerts,this->NewLines,
                                    this->NewPolys,inPD,
-                                   (vtkPointData*)(this->OutPD),
-                                   (vtkCellData*)(this->InCD),
-                                   cellId,(vtkCellData*)(this->OutCD));
+                                   static_cast<vtkPointData *>(this->OutPD),
+                                   static_cast<vtkCellData *>(this->InCD),
+                                   cellId,
+                                   static_cast<vtkCellData *>(this->OutCD));
             
             ++iter;
             }
@@ -1252,7 +1254,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
     int allGreater=1; // bool
     int numContours=0; // initialized to removed warnings
     
-    if ( this->SortBy == VTK_SORT_BY_VALUE )
+    if(this->SortBy == VTK_SORT_BY_VALUE)
       {
       numContours=this->ContourValues->GetNumberOfContours();
       int iter=0;
@@ -1270,7 +1272,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       {
       double s = this->CutFunction->FunctionValue(this->Pts->GetPoint(i));
       
-      if ( this->SortBy == VTK_SORT_BY_CELL )
+      if(this->SortBy == VTK_SORT_BY_CELL)
         {
         double value = this->ContourValues->GetValue(this->Iter);
         if(s>value)
@@ -1316,7 +1318,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         cutChildren=0;
         while(iter<numContours)
           {
-          cutChildren=cutChildren||(!this->AllLess[iter] && !this->AllGreater[iter]);
+          cutChildren=cutChildren||(!this->AllLess[iter] &&
+                                    !this->AllGreater[iter]);
           ++iter;
           }
         }

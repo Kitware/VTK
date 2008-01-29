@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.8");
+vtkCxxRevisionMacro(vtkGenericClip, "1.9");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericClip,Locator,vtkPointLocator);
@@ -305,7 +305,7 @@ int vtkGenericClip::RequestData(
     cell = cellIt->GetCell();
     if ( !(cellId % updateTime) )
       {
-      this->UpdateProgress((double)cellId / numCells);
+      this->UpdateProgress(static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
       }
 

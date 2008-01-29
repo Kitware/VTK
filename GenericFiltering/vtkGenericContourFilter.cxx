@@ -35,7 +35,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.8");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.9");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 vtkCxxSetObjectMacro(vtkGenericContourFilter,Locator,vtkPointLocator);
@@ -235,7 +235,7 @@ int vtkGenericContourFilter::RequestData(
     {
     if ( !(count % updateCount) )
       {
-      this->UpdateProgress((double)count / numCells);
+      this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
       }
     

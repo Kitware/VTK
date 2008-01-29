@@ -153,7 +153,7 @@ private:
   void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
 };
   
-vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeContourFilter, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 
 //----------------------------------------------------------------------------
@@ -322,15 +322,14 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
   
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if(this->Locator == NULL)
     {
     this->CreateDefaultLocator();
     }
   
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
-  
  
-  this->InCD=(vtkCellData*)(this->Input->GetLeafData());
+  this->InCD=static_cast<vtkCellData*>(this->Input->GetLeafData());
   // Scalars are added to this, so we need to make a copy.
   this->InPD = vtkPointData::New();
   // Since the dataset API returns the dual, cell and point data are switched.
@@ -1288,7 +1287,7 @@ int vtkHyperOctreeContourFilter::FillInputPortInformation(int,
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.4");
+vtkCxxRevisionMacro(vtkHyperOctreeContourPointsGrabber, "1.5");
 vtkStandardNewMacro(vtkHyperOctreeContourPointsGrabber);
 
 //-----------------------------------------------------------------------------

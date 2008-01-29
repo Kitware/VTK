@@ -29,7 +29,7 @@
 #include "vtkCellType.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeLimiter, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeLimiter);
 
 //----------------------------------------------------------------------------
@@ -376,7 +376,7 @@ void vtkHyperOctreeLimiter::AddInteriorAttributes(vtkHyperOctreeCursor *incursor
         {
         double now = this->AccumScratch[pos];
         //cerr << "w " << now << endl;
-        double contr = (double)ida->GetComponent(iid, j) * weight;
+        double contr = static_cast<double>(ida->GetComponent(iid, j)) * weight;
         //cerr << "c " << contr << endl;
         this->AccumScratch[pos++] = now + contr;
         }
@@ -393,7 +393,7 @@ void vtkHyperOctreeLimiter::AddInteriorAttributes(vtkHyperOctreeCursor *incursor
       for (int j = 0; j < ncomp; j++)
         {
         double now = this->AccumScratch[pos];
-        double contr = (double)ida->GetComponent(iid, j) * weight;
+        double contr = static_cast<double>(ida->GetComponent(iid, j)) * weight;
         this->AccumScratch[pos++] = now+contr;
         }
       }

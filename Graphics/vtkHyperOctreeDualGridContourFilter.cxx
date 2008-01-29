@@ -72,7 +72,7 @@ public:
   vtkstd::set<vtkIdType> Set;
 };
 
-vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeDualGridContourFilter, "1.3");
 vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);
 
 //----------------------------------------------------------------------------
@@ -357,13 +357,16 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
     {
     // Note: we have to extent points on boundary of tree !!!
     scalars[iter] = this->InScalars->GetComponent(vertMap[iter],0);
-    levelDim = (double)(1<<neighborhood[iter].GetLevel());
+    levelDim = static_cast<double>(1<<neighborhood[iter].GetLevel());
     points[HEX_VOX_PERMUTATION[iter]][0] 
-       = this->Origin[0] + ((double)(*xyzIds++)+0.5)*(this->Size[0])/levelDim;
+       = this->Origin[0] +
+      (static_cast<double>(*xyzIds++)+0.5)*(this->Size[0])/levelDim;
     points[HEX_VOX_PERMUTATION[iter]][1] 
-       = this->Origin[1] + ((double)(*xyzIds++)+0.5)*(this->Size[1])/levelDim;
+       = this->Origin[1] +
+      (static_cast<double>(*xyzIds++)+0.5)*(this->Size[1])/levelDim;
     points[HEX_VOX_PERMUTATION[iter]][2] 
-       = this->Origin[2] + ((double)(*xyzIds++)+0.5)*(this->Size[2])/levelDim;
+       = this->Origin[2] +
+      (static_cast<double>(*xyzIds++)+0.5)*(this->Size[2])/levelDim;
     // We need to skip over unused 4th id.
     ++xyzIds;
     }

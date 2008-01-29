@@ -39,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.12");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.13");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter,Locator,vtkPointLocator);
@@ -319,7 +319,7 @@ int vtkGenericGeometryFilter::RequestData(
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((double)cellId/numCells);
+      this->UpdateProgress(static_cast<double>(cellId)/numCells);
       abort = this->GetAbortExecute();
       }
 

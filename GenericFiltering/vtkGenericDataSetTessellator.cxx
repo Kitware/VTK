@@ -33,7 +33,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.14");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.15");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 vtkCxxSetObjectMacro(vtkGenericDataSetTessellator,Locator,vtkPointLocator);
@@ -177,7 +177,7 @@ int vtkGenericDataSetTessellator::RequestData(
     {
     if ( !(count % updateCount) )
       {
-      this->UpdateProgress((double)count / numCells);
+      this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
       }
       

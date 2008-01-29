@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.8");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.9");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkGenericCutter,Locator,vtkPointLocator);
@@ -220,7 +220,8 @@ int vtkGenericCutter::RequestData(
   vtkIdType numCells=input->GetNumberOfCells();
   int numContours = this->ContourValues->GetNumberOfContours();
   
-  vtkIdType estimatedSize = (vtkIdType) pow ((double) numCells, .75) * numContours;
+  vtkIdType estimatedSize = static_cast<vtkIdType>(
+    pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -312,7 +313,7 @@ int vtkGenericCutter::RequestData(
     {
     if ( !(count % updateCount) )
       {
-      this->UpdateProgress((double)count / numCells);
+      this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
       }
     

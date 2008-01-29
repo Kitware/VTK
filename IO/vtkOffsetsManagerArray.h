@@ -58,7 +58,7 @@ public:
   // Construct with default (unsigned long)-1  MTime
   OffsetsManager()
     {
-    this->LastMTime = (unsigned long)-1; //almost invalid state
+      this->LastMTime = static_cast<unsigned long>(-1); //almost invalid state
     }
   ~OffsetsManager()
     {

@@ -27,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.5");
+vtkCxxRevisionMacro(vtkHyperOctreeFractalSource, "1.6");
 vtkStandardNewMacro(vtkHyperOctreeFractalSource);
 
 //----------------------------------------------------------------------------
@@ -337,9 +337,9 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
           if (values[valueIdx] == 0.0)
             {
             double sample[3];
-            sample[0] = origin[0] + newSize[0]*(double)(ix);
-            sample[1] = origin[1] + newSize[1]*(double)(iy);
-            sample[2] = origin[2] + newSize[2]*(double)(iz);
+            sample[0] = origin[0] + newSize[0]*static_cast<double>(ix);
+            sample[1] = origin[1] + newSize[1]*static_cast<double>(iy);
+            sample[2] = origin[2] + newSize[2]*static_cast<double>(iz);
             values[valueIdx] = this->EvaluateWorldPoint(sample);
             }
           }  
@@ -368,9 +368,9 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
             }
           }
         }
-      newOrigin[0] = origin[0] + (double)(xStart)*newSize[0];
-      newOrigin[1] = origin[1] + (double)(yStart)*newSize[1];
-      newOrigin[2] = origin[2] + (double)(zStart)*newSize[2];
+      newOrigin[0] = origin[0] + static_cast<double>(xStart)*newSize[0];
+      newOrigin[1] = origin[1] + static_cast<double>(yStart)*newSize[1];
+      newOrigin[2] = origin[2] + static_cast<double>(zStart)*newSize[2];
         
       cursor->ToChild(ii);
       this->Subdivide(cursor,level+1,output, 
@@ -393,17 +393,23 @@ void vtkHyperOctreeFractalSource::Subdivide(vtkHyperOctreeCursor *cursor,
     float fVal = 0.0;
     if (this->Dimension == 3)
       {
-      fVal = ((float)(val) * 4 
-               + (float)(cornerVals[0]) + (float)(cornerVals[1])
-               + (float)(cornerVals[2]) + (float)(cornerVals[3])
-               + (float)(cornerVals[4]) + (float)(cornerVals[5])
-               + (float)(cornerVals[6]) + (float)(cornerVals[7])) / 12.0;
+      fVal = (static_cast<float>(val) * 4 
+              + static_cast<float>(cornerVals[0])
+              + static_cast<float>(cornerVals[1])
+              + static_cast<float>(cornerVals[2])
+              + static_cast<float>(cornerVals[3])
+              + static_cast<float>(cornerVals[4])
+              + static_cast<float>(cornerVals[5])
+              + static_cast<float>(cornerVals[6])
+              + static_cast<float>(cornerVals[7])) / 12.0;
       }
     else if (this->Dimension == 2)
       {
-      fVal = ((float)(val) * 2 
-               + (float)(cornerVals[0]) + (float)(cornerVals[1])
-               + (float)(cornerVals[2]) + (float)(cornerVals[3])) / 6.0;
+      fVal = (static_cast<float>(val) * 2 
+              + static_cast<float>(cornerVals[0])
+              + static_cast<float>(cornerVals[1])
+              + static_cast<float>(cornerVals[2])
+              + static_cast<float>(cornerVals[3])) / 6.0;
       }
     vtkIdType id=cursor->GetLeafId();
     output->GetLeafData()->GetScalars()->InsertTuple1(id,fVal);
@@ -458,10 +464,10 @@ float vtkHyperOctreeFractalSource::EvaluateSet(double p[4])
 
   if (count == this->MaximumNumberOfIterations)
     {
-    return (float)count;
+    return static_cast<float>(count);
     }
 
-  return (float)count + (float)((4.0 - v0)/(v1 - v0));
+  return static_cast<float>(count) + static_cast<float>((4.0 - v0)/(v1 - v0));
 }
 
 //-----------------------------------------------------------------------------

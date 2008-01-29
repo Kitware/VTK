@@ -30,7 +30,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.6");
+vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.7");
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ int vtkGenericProbeFilter::RequestData(
     {
     if ( !(ptId % progressInterval) )
       {
-      this->UpdateProgress((double)ptId/numPts);
+      this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = GetAbortExecute();
       }
 
@@ -215,7 +215,7 @@ int vtkGenericProbeFilter::RequestData(
   // depends on source scalartype not input scalartype
   if (output->IsA("vtkImageData"))
     {
-    vtkImageData *out = (vtkImageData*)output;
+    vtkImageData *out = static_cast<vtkImageData *>(output);
     vtkDataArray *s = outputPD->GetScalars();
     out->SetScalarType(s->GetDataType());
     out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
