@@ -91,6 +91,8 @@ ENDIF(VTK_USE_BOOST)
 
 #-----------------------------------------------------------------------------
 # Include directories from the build tree.
+# ${VTK_BINARY_DIR}/Utilities is needed to access vtksys, which is prefixed
+# (i.e. include "vtksys/DynamicLoader.hxx")
 SET(VTK_INCLUDE_DIRS_BUILD_TREE
   ${VTK_BINARY_DIR}
   ${VTK_BINARY_DIR}/Common
