@@ -52,8 +52,10 @@ public:
   // If offset is specified, it is added to attribute pointer \c after
   // it has been casted to the proper type.
   virtual void SendAttribute(const char* attrname,
-    int components, int type, 
-    const void* attribute, unsigned long offset=0);
+                             int components,
+                             int type,
+                             const void *attribute,
+                             unsigned long offset=0);
    
 //BTX
 protected:
@@ -64,11 +66,7 @@ protected:
   int GetAttributeLocation(const char* attrName);
 
   friend class vtkGLSLShaderProgram;
-
-  // This is set by vtkGLSLShaderProgram to tell is we should use OpenGL2.0 API
-  // or extension API.
-  vtkSetMacro(UseOpenGL2, int);
-  vtkGetMacro(UseOpenGL2, int);
+  
 private:
   vtkGLSLShaderDeviceAdapter(const vtkGLSLShaderDeviceAdapter&);
   // Not implemented
@@ -76,8 +74,6 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-
-  int UseOpenGL2;
 //ETX
 };
 

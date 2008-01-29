@@ -33,18 +33,17 @@ public:
   MapOfStringToInt AttributeIndicesCache;
 };
 
-vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.3");
+vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.4");
 vtkStandardNewMacro(vtkGLSLShaderDeviceAdapter);
 
 #define GLSL_SHADER_DEVICE_ADAPTER(msg) \
-  /*cout << __LINE__ << " vtkGLSLShaderDeviceAdapter " << msg << endl;*/
+  /* cout << __LINE__ << " vtkGLSLShaderDeviceAdapter " << msg << endl; */
 
 //---------------------------------------------------------------------------
 vtkGLSLShaderDeviceAdapter::vtkGLSLShaderDeviceAdapter()
 {
   GLSL_SHADER_DEVICE_ADAPTER("constructor");
   this->Internal = new vtkInternal();
-  this->UseOpenGL2 = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -120,16 +119,8 @@ int vtkGLSLShaderDeviceAdapter::GetAttributeLocation(const char *attributeName)
     {
     GLSL_SHADER_DEVICE_ADAPTER(
       "GetAttributeLocation Program " << glslProgram->GetProgram());
-    if (this->UseOpenGL2)
-      {
-      return vtkgl::GetAttribLocation(glslProgram->GetProgram(), attributeName);
-      }
-    else
-      {
-      return vtkgl::GetAttribLocationARB(glslProgram->GetProgram(), attributeName);
-      }
+    return vtkgl::GetAttribLocation(glslProgram->GetProgram(), attributeName);
     }
-
   return -1;
 }
 
@@ -140,9 +131,11 @@ void vtkGLSLShaderDeviceAdapter::PrepareForRender()
 }
 
 //---------------------------------------------------------------------------
-void vtkGLSLShaderDeviceAdapter::SendAttribute(
-  const char* attrname, int components, int type, const void* attribute, 
-  unsigned long offset/*=0*/)
+void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
+                                               int components,
+                                               int type,
+                                               const void *attribute, 
+                                               unsigned long offset)
 {
   if (components <=0 || components > 4)
     {
@@ -173,110 +166,114 @@ void vtkGLSLShaderDeviceAdapter::SendAttribute(
     switch (VTK2SignedOpenGLType(type))
       {
     case GL_SHORT:
-      if (this->UseOpenGL2)
+      switch (components)
         {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1sv(index, (const GLshort *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2sv(index, (const GLshort *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3sv(index, (const GLshort *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4sv(index, (const GLshort *)attribute + offset);  break;
-          }
-        }
-      else
-        {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1svARB(index, (const GLshort *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2svARB(index, (const GLshort *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3svARB(index, (const GLshort *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4svARB(index, (const GLshort *)attribute + offset);  break;
-          }
+        case 1:
+          vtkgl::VertexAttrib1sv(index, static_cast<const GLshort *>(attribute)
+                                 + offset);
+          break;
+        case 2:
+          vtkgl::VertexAttrib2sv(index, static_cast<const GLshort *>(attribute)
+                                 + offset);
+          break;
+        case 3:
+          vtkgl::VertexAttrib3sv(index, static_cast<const GLshort *>(attribute)
+                                 + offset);
+          break;
+        case 4:
+          vtkgl::VertexAttrib4sv(index, static_cast<const GLshort *>(attribute)
+                                 + offset);
+          break;
         }
       break;
-    case GL_FLOAT:
-      switch(components)
-        {
-      case 1:
-        GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
-          << ((float*)attribute)[offset] );
+      case GL_FLOAT:
+        switch(components)
+          {
+          case 1:
+            GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
+                                        << static_cast<const float*>(attribute)[offset] );
+            break;
+          case 2:
+            GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
+                                        << static_cast<const float*>(attribute)[offset] << " "
+                                        << static_cast<const float*>(attribute)[offset+1] );
+            break;
+          case 3:
+            GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
+                                        << static_cast<const float*>(attribute)[offset] << " "
+                                        << static_cast<const float*>(attribute)[offset+1] << " "
+                                        << static_cast<const float*>(attribute)[offset+2] );
+            break;
+          case 4:
+            GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
+                                        << static_cast<const float*>(attribute)[offset] << " "
+                                        << static_cast<const float*>(attribute)[offset+1] << " "
+                                        << static_cast<const float*>(attribute)[offset+2] << " "
+                                        << static_cast<const float*>(attribute)[offset+3] );
+            break;
+          default:
+            GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
+                                        << static_cast<const float*>(attribute)[offset] << " UNSUPPORTED NUMBER OF COMPONENTS");
+          }
+        switch (components)
+          {
+          case 1:
+            vtkgl::VertexAttrib1fv(index,
+                                   static_cast<const GLfloat *>(attribute)
+                                   + offset);
+            break;
+          case 2:
+            vtkgl::VertexAttrib2fv(index,
+                                   static_cast<const GLfloat *>(attribute)
+                                   + offset);
+            break;
+          case 3:
+            vtkgl::VertexAttrib3fv(index,
+                                   static_cast<const GLfloat *>(attribute)
+                                   + offset);
+            break;
+          case 4:
+            vtkgl::VertexAttrib4fv(index,
+                                   static_cast<const GLfloat *>(attribute)
+                                   + offset);
+            break;
+          }
         break;
-      case 2:
-        GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
-          << ((float*)attribute)[offset] << " "
-          << ((float*)attribute)[offset+1] );
-        break;
-      case 3:
-        GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
-          << ((float*)attribute)[offset] << " "
-          << ((float*)attribute)[offset+1] << " "
-          << ((float*)attribute)[offset+2] );
-        break;
-      case 4:
-        GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
-          << ((float*)attribute)[offset] << " "
-          << ((float*)attribute)[offset+1] << " "
-          << ((float*)attribute)[offset+2] << " "
-          << ((float*)attribute)[offset+3] );
+      case GL_DOUBLE:
+        if(components == 3)
+          {
+          GLSL_SHADER_DEVICE_ADAPTER("SendingAttribute index " << index << " ["
+                                     << static_cast<const GLdouble *>(attribute)[offset] << " "
+                                     << static_cast<const GLdouble *>(attribute)[offset+1] << " "
+                                     << static_cast<const GLdouble *>(attribute)[offset+2] << "]");
+          }
+        switch (components)
+          {
+          case 1:
+            vtkgl::VertexAttrib1dv(index,
+                                   static_cast<const GLdouble *>(attribute)
+                                   + offset);
+            break;
+          case 2:
+            vtkgl::VertexAttrib2dv(index,
+                                   static_cast<const GLdouble *>(attribute)
+                                   + offset);
+            break;
+          case 3:
+            vtkgl::VertexAttrib3dv(index,
+                                   static_cast<const GLdouble *>(attribute)
+                                   + offset);
+            break;
+          case 4:
+            vtkgl::VertexAttrib4dv(index,
+                                   static_cast<const GLdouble *>(attribute)
+                                   + offset);
+            break;
+          }
         break;
       default:
-        GLSL_SHADER_DEVICE_ADAPTER( "SENDING " << components << " ATTRIBUTES "
-          << ((float*)attribute)[offset] << " UNSUPPORTED NUMBER OF COMPONENTS");
-        }
-
-      if (this->UseOpenGL2)
-        {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1fv(index, (const GLfloat *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2fv(index, (const GLfloat *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3fv(index, (const GLfloat *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4fv(index, (const GLfloat *)attribute + offset);  break;
-          }
-        }
-      else
-        {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1fvARB(index, (const GLfloat *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2fvARB(index, (const GLfloat *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3fvARB(index, (const GLfloat *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4fvARB(index, (const GLfloat *)attribute + offset);  break;
-          }
-        }
-      break;
-    case GL_DOUBLE:
-      if(components == 3)
-        {
-        GLSL_SHADER_DEVICE_ADAPTER("SendingAttribute index " << index << " ["
-          << ((const GLdouble *)attribute)[offset] << " "
-          << ((const GLdouble *)attribute)[offset+1] << " "
-          << ((const GLdouble *)attribute)[offset+2] << "]");
-        }
-      if (this->UseOpenGL2)
-        {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1dv(index, (const GLdouble *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2dv(index, (const GLdouble *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3dv(index, (const GLdouble *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4dv(index, (const GLdouble *)attribute + offset);  break;
-          }
-        }
-      else
-        {
-        switch (components)
-          {
-        case 1: vtkgl::VertexAttrib1dvARB(index, (const GLdouble *)attribute + offset);  break;
-        case 2: vtkgl::VertexAttrib2dvARB(index, (const GLdouble *)attribute + offset);  break;
-        case 3: vtkgl::VertexAttrib3dvARB(index, (const GLdouble *)attribute + offset);  break;
-        case 4: vtkgl::VertexAttrib4dvARB(index, (const GLdouble *)attribute + offset);  break;
-          }
-        }
-      break;
-    default:
-      vtkErrorMacro("Unsupported type for vertex attribute: " << type);
-      return;
+        vtkErrorMacro("Unsupported type for vertex attribute: " << type);
+        return;
       }
     }
   else

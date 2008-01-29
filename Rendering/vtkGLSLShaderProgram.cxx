@@ -64,7 +64,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.16");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.17");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -72,7 +72,6 @@ vtkGLSLShaderProgram::vtkGLSLShaderProgram()
   : Program(0),
     Info(NULL)
 {
-  this->UseOpenGL2 = 1;
   vtkGLSLShaderDeviceAdapter* adapter = vtkGLSLShaderDeviceAdapter::New();
   this->SetShaderDeviceAdapter(adapter);
   adapter->Delete();
@@ -96,14 +95,7 @@ void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->IsProgram())
     {
-    if (this->UseOpenGL2)
-      {
-      vtkgl::DeleteProgram(this->Program);
-      }
-    else
-      {
-      vtkgl::DeleteObjectARB(this->Program);
-      }
+    vtkgl::DeleteProgram(this->Program);
     this->Program = 0;
     }
   this->Superclass::ReleaseGraphicsResources(w);
@@ -112,61 +104,26 @@ void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::Link()
 {
-
 }
 
 //-----------------------------------------------------------------------------
 int vtkGLSLShaderProgram::IsProgram()
 {
-  if( this->Program )
-    {
-    if (this->UseOpenGL2)
-      {
-      if( vtkgl::IsProgram( static_cast<GLuint>(this->Program) ) == GL_TRUE )
-        {
-        return true;
-        }
-      }
-    else
-      {
-      glGetError();
-      GLint objectType;
-      vtkgl::GetObjectParameterivARB(this->Program,
-                                     vtkgl::OBJECT_TYPE_ARB, &objectType);
-      if (   (glGetError() == GL_NO_ERROR)
-          && ((GLenum)objectType == vtkgl::PROGRAM_OBJECT_ARB))
-        {
-        return true;
-        }
-      }
-    }
-  return false;
+  return this->Program &&
+    vtkgl::IsProgram( static_cast<GLuint>(this->Program) ) == GL_TRUE;
 }
 
 //-----------------------------------------------------------------------------
 int vtkGLSLShaderProgram::IsLinked()
 {
-  if( this->IsProgram() == false )
+  if(!this->IsProgram())
     {
     return false;
     }
-
   GLint value = 0;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
-                        vtkgl::LINK_STATUS, &value);
-    }
-  else
-    {
-    vtkgl::GetObjectParameterivARB(this->Program,
-                                   vtkgl::OBJECT_LINK_STATUS_ARB, &value);
-    }
-  if( value == 1 )
-    {
-    return true;
-    }
-  return false;
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
+                      vtkgl::LINK_STATUS, &value);
+  return value==1;
 }
 
 //-----------------------------------------------------------------------------
@@ -197,17 +154,9 @@ void vtkGLSLShaderProgram::GetProgramInfo()
 
   // how many objects are attached?
   GLint numObjects = 0;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
-                        vtkgl::ATTACHED_SHADERS, &numObjects);
-    }
-  else
-    {
-    vtkgl::GetObjectParameterivARB(this->Program,
-                                   vtkgl::OBJECT_ATTACHED_OBJECTS_ARB,
-                                   &numObjects);
-    }
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+                      vtkgl::ATTACHED_SHADERS, &numObjects);
+  
   char numStr[256];
   sprintf( numStr, "%d", static_cast<int>(numObjects) );
   infoString += "Number of attached objects: ";
@@ -217,30 +166,14 @@ void vtkGLSLShaderProgram::GetProgramInfo()
 
   // Anything in the info log?
   GLint maxLength = 0;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
-                        vtkgl::INFO_LOG_LENGTH, &maxLength);
-    }
-  else
-    {
-    vtkgl::GetObjectParameterivARB(this->Program,
-                                   vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,
-                                   &maxLength);
-    }
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
+                      vtkgl::INFO_LOG_LENGTH, &maxLength);
+  
   vtkgl::GLchar* info = new vtkgl::GLchar[maxLength];
 
   GLsizei charsWritten;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramInfoLog( static_cast<GLuint>(this->Program), maxLength, 
-                              &charsWritten, info );
-    }
-  else
-    {
-    vtkgl::GetInfoLogARB(this->Program, maxLength, NULL, info);
-    }
-
+  vtkgl::GetProgramInfoLog( static_cast<GLuint>(this->Program), maxLength, 
+                            &charsWritten, info );
   if( info )
     {
     infoString += static_cast<char*>(info);
@@ -264,18 +197,11 @@ void vtkGLSLShaderProgram::GetInfoLog()
   int infologLength = 0;
   int charsWritten  = 0;
   vtkgl::GLchar *infoLog = NULL;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
-                        vtkgl::INFO_LOG_LENGTH,
-                        reinterpret_cast<GLint*>(&infologLength));
-    }
-  else
-    {
-    vtkgl::GetObjectParameterivARB(this->Program,
-                                   vtkgl::OBJECT_INFO_LOG_LENGTH_ARB,
-                                   reinterpret_cast<GLint*>(&infologLength));
-    }
+  
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
+                      vtkgl::INFO_LOG_LENGTH,
+                      reinterpret_cast<GLint*>(&infologLength));
+  
   if(infologLength > 0)
     {
     infoLog = new vtkgl::GLchar[infologLength];
@@ -284,18 +210,10 @@ void vtkGLSLShaderProgram::GetInfoLog()
       printf("ERROR: Could not allocate InfoLog buffer\n");
       return;
       }
-    if (this->UseOpenGL2)
-      {
-      vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->Program),
-                               infologLength, 
-                               reinterpret_cast<GLsizei*>(&charsWritten),
-                               infoLog);
-      }
-    else
-      {
-      vtkgl::GetInfoLogARB(this->Program, infologLength, NULL, infoLog);
-      }
-
+    vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->Program),
+                             infologLength, 
+                             reinterpret_cast<GLsizei*>(&charsWritten),
+                             infoLog);
     this->SetInfo( infoLog );
     delete [] infoLog;
     }
@@ -313,33 +231,14 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
   // find out what's attached
   GLint numObjects = 0;
   GLint writtenObjects = 0;
-  if (this->UseOpenGL2)
-    {
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
-                        vtkgl::ATTACHED_SHADERS, &numObjects);
-    }
-  else
-    {
-    vtkgl::GetObjectParameterivARB(this->Program,
-                                   vtkgl::OBJECT_ATTACHED_OBJECTS_ARB,
-                                   &numObjects);
-    }
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+                      vtkgl::ATTACHED_SHADERS, &numObjects);
+  
   vtkstd::vector<GLuint> attachedObjects(numObjects);
   if( numObjects > 0 )
     {
-    if (this->UseOpenGL2)
-      {
-      vtkgl::GetAttachedShaders(static_cast<GLuint>(this->Program), numObjects, 
-                                &writtenObjects, &attachedObjects[0]);
-      }
-    else
-      {
-      vtkstd::vector<vtkgl::GLhandleARB> tmpArray(numObjects);
-      vtkgl::GetAttachedObjectsARB(this->Program, numObjects,
-                                   &writtenObjects, &tmpArray[0]);
-      // This is lame but minimizes code duplication.
-      vtkstd::copy(tmpArray.begin(), tmpArray.end(), attachedObjects.begin());
-      }
+    vtkgl::GetAttachedShaders(static_cast<GLuint>(this->Program), numObjects, 
+                              &writtenObjects, &attachedObjects[0]);
     }
 
   vtkstd::vector<GLuint>::iterator it = attachedObjects.begin();
@@ -358,28 +257,23 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
 {
-  if( this->GetGLExtensionsLoaded() == 1 )
+  if(this->GetGLExtensionsLoaded())
     {
     return;
     }
-
-  vtkGLSLShaderDeviceAdapter* adapter = vtkGLSLShaderDeviceAdapter::SafeDownCast(
-    this->GetShaderDeviceAdapter());
 
   // Load extensions using vtkOpenGLExtensionManager
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   // How can I get access to the vtkRenderWindow from here?
   extensions->SetRenderWindow( renWin );
-  if(   extensions->ExtensionSupported("GL_VERSION_2_0")
+  if(extensions->ExtensionSupported("GL_VERSION_2_0")
      && extensions->ExtensionSupported("GL_VERSION_1_3") )
     {
     extensions->LoadExtension("GL_VERSION_2_0");
     extensions->LoadExtension("GL_VERSION_1_3");
     this->SetGLExtensionsLoaded(1);
-    this->UseOpenGL2 = 1;
-    adapter->SetUseOpenGL2(1);
     }
-  else if (   extensions->ExtensionSupported("GL_VERSION_1_3")
+  else if (extensions->ExtensionSupported("GL_VERSION_1_3")
            && extensions->ExtensionSupported("GL_ARB_shading_language_100")
            && extensions->ExtensionSupported("GL_ARB_shader_objects")
            && extensions->ExtensionSupported("GL_ARB_vertex_shader")
@@ -387,13 +281,11 @@ void vtkGLSLShaderProgram::LoadExtensions( vtkRenderWindow* renWin )
     {
     // Support older drivers that implement GLSL but not all of OpenGL 2.0.
     extensions->LoadExtension("GL_VERSION_1_3");
-    extensions->LoadExtension("GL_ARB_shading_language_100");
-    extensions->LoadExtension("GL_ARB_shader_objects");
-    extensions->LoadExtension("GL_ARB_vertex_shader");
-    extensions->LoadExtension("GL_ARB_fragment_shader");
+    extensions->LoadCorePromotedExtension("GL_ARB_shading_language_100");
+    extensions->LoadCorePromotedExtension("GL_ARB_shader_objects");
+    extensions->LoadCorePromotedExtension("GL_ARB_vertex_shader");
+    extensions->LoadCorePromotedExtension("GL_ARB_fragment_shader");
     this->SetGLExtensionsLoaded(1);
-    this->UseOpenGL2 = 0;
-    adapter->SetUseOpenGL2(0);
     }
   else
     {
@@ -415,14 +307,7 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
   // Get a gl identifier for the shader program if we don't already have one.
   if(!this->IsProgram())
     {
-    if (this->UseOpenGL2)
-      {
-      this->Program = static_cast<unsigned int>(vtkgl::CreateProgram());
-      }
-    else
-      {
-      this->Program = vtkgl::CreateProgramObjectARB();
-      }
+    this->Program = static_cast<unsigned int>(vtkgl::CreateProgram());
     }
   
   if(!this->IsProgram())
@@ -443,23 +328,13 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
       vtkErrorMacro("GLSL Shader program cannot contain a non-GLSL shader.");
       continue;
       }
-
-    // Make sure the shader knows which functions to use.
-    shader->SetUseOpenGL2(this->UseOpenGL2);
     
     if (shader->Compile())
       {
       if (!this->IsAttached(shader))
         {
-        if (this->UseOpenGL2)
-          {
-          vtkgl::AttachShader(static_cast<GLuint>(this->Program), 
-                              shader->GetHandle());
-          }
-        else
-          {
-          vtkgl::AttachObjectARB(this->Program, shader->GetHandle());
-          }
+        vtkgl::AttachShader(static_cast<GLuint>(this->Program), 
+                            shader->GetHandle());
         }
       }
     }
@@ -469,27 +344,11 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     // if either a vertex or a fragment program is attached (or both)
     // link the program.
     GLint numObjects = 0;
-    if (this->UseOpenGL2)
-      {
-      vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
-                          vtkgl::ATTACHED_SHADERS, &numObjects);
-      }
-    else
-      {
-      vtkgl::GetObjectParameterivARB(this->Program,
-                                     vtkgl::OBJECT_ATTACHED_OBJECTS_ARB,
-                                     &numObjects);
-      }
+    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+                        vtkgl::ATTACHED_SHADERS, &numObjects);
     if (numObjects>0)
       {
-      if (this->UseOpenGL2)
-        {
-        vtkgl::LinkProgram(static_cast<GLuint>(this->Program));
-        }
-      else
-        {
-        vtkgl::LinkProgramARB(this->Program);
-        }
+      vtkgl::LinkProgram(static_cast<GLuint>(this->Program));
       if (!this->IsLinked())
         {
         this->GetInfoLog();
@@ -502,14 +361,7 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
   if( this->IsLinked() )
     {
     // check to see if this is the active program
-    if (this->UseOpenGL2)
-      {
-      vtkgl::UseProgram(static_cast<GLuint>(this->Program));
-      }
-    else
-      {
-      vtkgl::UseProgramObjectARB(this->Program);
-      }
+    vtkgl::UseProgram(static_cast<GLuint>(this->Program));
     }
 
   // handle attributes and uniform variables
@@ -557,14 +409,7 @@ void vtkGLSLShaderProgram::PostRender(vtkActor* actor, vtkRenderer*)
   if (this->IsProgram())
     {
     // this unloads the shader program.
-    if (this->UseOpenGL2)
-      {
-      vtkgl::UseProgram(0);
-      }
-    else
-      {
-      vtkgl::UseProgramObjectARB(0);
-      }
+    vtkgl::UseProgram(0);
     }
 
   // Disable any textures that may have been enabled.

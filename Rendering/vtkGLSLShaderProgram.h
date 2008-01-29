@@ -80,7 +80,6 @@ protected:
   virtual vtkShader* NewShader();
 
   virtual void LoadExtensions(vtkRenderWindow*);
-  int UseOpenGL2;
 
   unsigned int Program;
   int IsProgram();
