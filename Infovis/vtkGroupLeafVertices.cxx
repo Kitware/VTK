@@ -35,7 +35,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.4");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.5");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 
@@ -103,6 +103,19 @@ int vtkGroupLeafVertices::RequestData(
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
 
+  // Get the builder's name array.
+  vtkStringArray *outputNameArr = 0;
+  if (nameStringArr)
+    {
+    char *name = nameStringArr->GetName();
+    outputNameArr = vtkStringArray::SafeDownCast(builderVertexData->GetAbstractArray(name));
+    if (outputNameArr == NULL)
+      {
+      vtkErrorMacro(<< "Could not find the name array in the builder.");
+      return 0;
+      }
+    }
+
   // Make the builder's field data a table
   // so we can call InsertNextBlankRow.
   vtkSmartPointer<vtkTable> treeTable = 
@@ -153,9 +166,9 @@ int vtkGroupLeafVertices::RequestData(
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
           group_vertices[vtksys_stl::make_pair(v, str)] = group_vertex;
-          if (nameStringArr)
+          if (outputNameArr)
             {
-            nameStringArr->InsertValue(group_vertex, str);
+            outputNameArr->InsertValue(group_vertex, str);
             }
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
