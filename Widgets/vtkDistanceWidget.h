@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDistanceWidget.h
+  Module:    vtkDistanceWidget.h,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -106,6 +106,7 @@ public:
   // Methods to change the whether the widget responds to interaction.
   // Overridden to pass the state to component widgets.
   virtual void SetProcessEvents(int);
+
 protected:
   vtkDistanceWidget();
   ~vtkDistanceWidget();

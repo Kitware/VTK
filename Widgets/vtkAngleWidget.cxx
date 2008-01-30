@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAngleWidget.cxx
+  Module:    vtkAngleWidget.cxx,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkAngleWidget.h"
 #include "vtkAngleRepresentation2D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
@@ -24,8 +23,9 @@
 #include "vtkCoordinate.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
-vtkCxxRevisionMacro(vtkAngleWidget, "1.15");
+vtkCxxRevisionMacro(vtkAngleWidget, "1.13");
 vtkStandardNewMacro(vtkAngleWidget);
 
 
@@ -191,64 +191,174 @@ void vtkAngleWidget::SetEnabled(int enabling)
       }
     }
 
-  // Done in this wierd order to get everything to work right. This invocation creates the
-  // default representation.
-  this->Superclass::SetEnabled(enabling);
 
-  if ( enabling )
+
+
+  if ( enabling ) //----------------
     {
+    if ( this->Enabled ) //already enabled, just return
+      {
+      return;
+      }
+
+    if ( ! this->Interactor )
+      {
+      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
+      return;
+      }
+
+    int X=this->Interactor->GetEventPosition()[0];
+    int Y=this->Interactor->GetEventPosition()[1];
+
+    if ( ! this->CurrentRenderer )
+      {
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
+      }
+
+    // We're ready to enable
+    this->Enabled = 1;
+    this->CreateDefaultRepresentation();
+    this->WidgetRep->SetRenderer(this->CurrentRenderer);
+
+    // listen for the events found in the EventTranslator
+    if ( ! this->Parent )
+      {
+      this->EventTranslator->AddEventsToInteractor(this->Interactor,
+        this->EventCallbackCommand,this->Priority);
+      }
+    else
+      {
+      this->EventTranslator->AddEventsToParent(this->Parent,
+        this->EventCallbackCommand,this->Priority);
+      }
+
+    if ( this->ManagesCursor )
+      {
+      this->WidgetRep->ComputeInteractionState(X, Y);
+      this->SetCursor(this->WidgetRep->GetInteractionState());
+      }
+
+    vtkAngleRepresentation *rep = 
+        static_cast<vtkAngleRepresentation*>(this->WidgetRep);
+
+    // Set the renderer, representation and interactor on the child widgets.
     if (this->Point1Widget)
       {
-      this->Point1Widget->SetRepresentation(
-        reinterpret_cast<vtkAngleRepresentation*>
-        (this->WidgetRep)->GetPoint1Representation());
+      this->Point1Widget->SetRepresentation(rep->GetPoint1Representation());
       this->Point1Widget->SetInteractor(this->Interactor);
       this->Point1Widget->GetRepresentation()->SetRenderer(
         this->CurrentRenderer);
       }
+    
     if (this->CenterWidget)
       {
-      this->CenterWidget->SetRepresentation(
-        reinterpret_cast<vtkAngleRepresentation*>
-        (this->WidgetRep)->GetCenterRepresentation());
+      this->CenterWidget->SetRepresentation(rep->GetCenterRepresentation());
       this->CenterWidget->SetInteractor(this->Interactor);
       this->CenterWidget->GetRepresentation()->SetRenderer(
         this->CurrentRenderer);
       }
+
     if (this->Point2Widget)
       {
-      this->Point2Widget->SetRepresentation(
-        reinterpret_cast<vtkAngleRepresentation*>
-        (this->WidgetRep)->GetPoint2Representation());
+      this->Point2Widget->SetRepresentation(rep->GetPoint2Representation());
       this->Point2Widget->SetInteractor(this->Interactor);
       this->Point2Widget->GetRepresentation()->SetRenderer(
         this->CurrentRenderer);
-      }
-    }
-  else //disabling widget
-    {
-    if (this->WidgetRep)
+      }    
+
+    if (rep)
       {
-      reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-        Ray1VisibilityOff();
-      reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-        Ray2VisibilityOff();
-      reinterpret_cast<vtkAngleRepresentation*>(this->WidgetRep)->
-        ArcVisibilityOff();
+      rep->SetRay1Visibility(
+          this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
+      rep->SetRay2Visibility(
+          this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
+      rep->SetArcVisibility( 
+          this->WidgetState != vtkAngleWidget::Start ? 1 : 0);
       }
+    
+
+    if ( this->WidgetState != vtkAngleWidget::Start )
+      {
       if (this->Point1Widget)
         {
-        this->Point1Widget->SetEnabled(0);
+        this->Point1Widget->SetEnabled(1);
         }
       if (this->CenterWidget)
         {
-        this->CenterWidget->SetEnabled(0);
+        this->CenterWidget->SetEnabled(1);
         }
       if (this->Point2Widget)
         {
-        this->Point2Widget->SetEnabled(0);
+        this->Point2Widget->SetEnabled(1);
         }
+      }    
+
+    this->WidgetRep->BuildRepresentation();
+    this->CurrentRenderer->AddViewProp(this->WidgetRep);
+
+    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
+
+  else //disabling------------------
+    {
+    if ( ! this->Enabled ) //already disabled, just return
+      {
+      return;
+      }
+
+    this->Enabled = 0;
+
+    // don't listen for events any more
+    if ( ! this->Parent )
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      }
+    else
+      {
+      this->Parent->RemoveObserver(this->EventCallbackCommand);
+      }
+
+    this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+
+
+    if (vtkAngleRepresentation *rep = 
+        static_cast<vtkAngleRepresentation*>(this->WidgetRep))
+      {
+      rep->Ray1VisibilityOff();
+      rep->Ray2VisibilityOff();
+      rep->ArcVisibilityOff();
+      }
+
+    if (this->Point1Widget)
+      {
+      this->Point1Widget->SetEnabled(0);
+      }
+    
+    if (this->CenterWidget)
+      {
+      this->CenterWidget->SetEnabled(0);
+      }
+    
+    if (this->Point2Widget)
+      {
+      this->Point2Widget->SetEnabled(0);
+      }
+    
+    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->SetCurrentRenderer(NULL);
+    }
+
+
+  // Should only render if there is no parent
+  if ( this->Interactor && !this->Parent )
+    {
+    this->Interactor->Render();
+    }  
 }
 
 //----------------------------------------------------------------------
@@ -284,7 +394,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
     e[1] = static_cast<double>(Y);
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->StartWidgetInteraction(e);
     self->CurrentHandle = 0;
-    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->Ray1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
     self->CurrentHandle++;
@@ -293,7 +403,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   // If defining we are placing the second or third point
   else if ( self->WidgetState == vtkAngleWidget::Define )
     {
-    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
     if ( self->CurrentHandle == 1 )
       {
       double e[2];

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDistanceWidget.cxx
+  Module:    vtkDistanceWidget.cxx,v
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkDistanceWidget.h"
 #include "vtkDistanceRepresentation2D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
@@ -24,8 +23,9 @@
 #include "vtkHandleRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
-vtkCxxRevisionMacro(vtkDistanceWidget, "1.11");
+vtkCxxRevisionMacro(vtkDistanceWidget, "1.10");
 vtkStandardNewMacro(vtkDistanceWidget);
 
 
@@ -149,12 +149,38 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       }
     }
 
-  // Done in this weird order to get everything to work right. This invocation
-  // creates the default representation.
-  this->Superclass::SetEnabled(enabling);
-
-  if ( enabling )
+  if ( enabling ) //----------------
     {
+    if ( this->Enabled ) //already enabled, just return
+      {
+      return;
+      }
+
+    if ( ! this->Interactor )
+      {
+      vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
+      return;
+      }
+    
+    int X=this->Interactor->GetEventPosition()[0];
+    int Y=this->Interactor->GetEventPosition()[1];
+
+    if ( ! this->CurrentRenderer )
+      {
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
+      }
+
+    // We're ready to enable
+    this->Enabled = 1;
+    this->CreateDefaultRepresentation();
+    this->WidgetRep->SetRenderer(this->CurrentRenderer);
+
+    // Set the renderer, interactor and representation on the two handle 
+    // widgets.
     this->Point1Widget->SetRepresentation(
       reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
       GetPoint1Representation());
@@ -166,12 +192,77 @@ void vtkDistanceWidget::SetEnabled(int enabling)
       GetPoint2Representation());
     this->Point2Widget->SetInteractor(this->Interactor);
     this->Point2Widget->GetRepresentation()->SetRenderer(this->CurrentRenderer);
+    
+    // listen for the events found in the EventTranslator
+    if ( ! this->Parent )
+      {
+      this->EventTranslator->AddEventsToInteractor(this->Interactor,
+        this->EventCallbackCommand,this->Priority);
+      }
+    else
+      {
+      this->EventTranslator->AddEventsToParent(this->Parent,
+        this->EventCallbackCommand,this->Priority);
+      }
+
+    if ( this->ManagesCursor )
+      {
+      this->WidgetRep->ComputeInteractionState(X, Y);
+      this->SetCursor(this->WidgetRep->GetInteractionState());
+      }
+
+    this->WidgetRep->BuildRepresentation();
+    this->CurrentRenderer->AddViewProp(this->WidgetRep);
+
+    if ( this->WidgetState == vtkDistanceWidget::Start )
+      {
+      reinterpret_cast<vtkDistanceRepresentation*>(this->WidgetRep)->
+        VisibilityOff();
+      }
+    else
+      {
+      this->Point1Widget->SetEnabled(1);
+      this->Point2Widget->SetEnabled(1);
+      }
+    
+    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  else
+
+  else //disabling------------------
     {
+    vtkDebugMacro(<<"Disabling widget");
+
+    if ( ! this->Enabled ) //already disabled, just return
+      {
+      return;
+      }
+
+    this->Enabled = 0;
+
+    // don't listen for events any more
+    if ( ! this->Parent )
+      {
+      this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      }
+    else
+      {
+      this->Parent->RemoveObserver(this->EventCallbackCommand);
+      }
+
+    this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+
     this->Point1Widget->SetEnabled(0);
-    this->Point2Widget->SetEnabled(0);
+    this->Point2Widget->SetEnabled(0);    
+    
+    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->SetCurrentRenderer(NULL);
     }
+
+  // Should only render if there is no parent
+  if ( this->Interactor && !this->Parent )
+    {
+    this->Interactor->Render();
+    }  
 }
 
 // The following methods are the callbacks that the measure widget responds to
