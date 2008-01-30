@@ -26,8 +26,9 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkBox.h"
+#include "vtkMergePoints.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.5");
+vtkCxxRevisionMacro(vtkPolygon, "1.6");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -107,6 +108,57 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
     v0[0] = v1[0]; v0[1] = v1[1]; v0[2] = v1[2];
     v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
     p->GetPoint(pts[(i+2)%numPts],v2);
+
+    // order is important!!! to maintain consistency with polygon vertex order 
+    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
+    bx = v0[0] - v1[0]; by = v0[1] - v1[1]; bz = v0[2] - v1[2];
+
+    n[0] += (ay * bz - az * by);
+    n[1] += (az * bx - ax * bz);
+    n[2] += (ax * by - ay * bx);
+    }
+
+  vtkMath::Normalize(n);
+}
+
+//----------------------------------------------------------------------------
+// Compute the polygon normal from a points list, and a list of point ids
+// that index into the points list. This version will handle non-convex
+// polygons.
+void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3])
+{
+  vtkIdType i, numPts = ids->GetNumberOfTuples();
+  double v0[3], v1[3], v2[3];
+  double ax, ay, az, bx, by, bz;
+// 
+// Check for special triangle case. Saves extra work.
+// 
+  n[0] = n[1] = n[2] = 0.0;
+  if ( numPts == 2 || numPts == 1 ) 
+    {
+    return;
+    }
+
+  if ( numPts == 3 ) 
+    {
+    p->GetPoint(ids->GetValue(0),v0);
+    p->GetPoint(ids->GetValue(1),v1);
+    p->GetPoint(ids->GetValue(2),v2);
+    vtkTriangle::ComputeNormal(v0, v1, v2, n);
+    return;
+    }
+
+  //  Because polygon may be concave, need to accumulate cross products to 
+  //  determine true normal.
+  //
+  p->GetPoint(ids->GetValue(0),v1); //set things up for loop
+  p->GetPoint(ids->GetValue(1),v2);
+
+  for (i=0; i < numPts; i++) 
+    {
+    v0[0] = v1[0]; v0[1] = v1[1]; v0[2] = v1[2];
+    v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
+    p->GetPoint(ids->GetValue((i+2)%numPts),v2);
 
     // order is important!!! to maintain consistency with polygon vertex order 
     ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
@@ -222,7 +274,7 @@ int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(),
-                             static_cast<vtkDoubleArray *>(this->Points->GetData())
+                             ((vtkDoubleArray *)this->Points->GetData())
                              ->GetPointer(0), this->GetBounds(),n)
         == VTK_POLYGON_INSIDE) )
     {
@@ -405,8 +457,8 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
 #define VTK_POLYGON_CERTAIN 1
 #define VTK_POLYGON_UNCERTAIN 0
 #define VTK_POLYGON_RAY_TOL 1.e-03 //Tolerance for ray firing
-#define VTK_POLYGON_MAX_ITER 10    //Maximum iterations for ray-firing
-#define VTK_POLYGON_VOTE_THRESHOLD 2
+#define VTK_POLYGON_MAX_ITER 200    //Maximum iterations for ray-firing
+#define VTK_POLYGON_VOTE_THRESHOLD 8
 
 #ifndef TRUE
 #define FALSE 0
@@ -610,11 +662,166 @@ int vtkPolygon::Triangulate(vtkIdList *outTris)
   
   if ( !success ) //degenerate triangle encountered
     {
-    vtkWarningMacro(<< "Degenerate polygon encountered during triangulation");
+    vtkDebugMacro(<< "Degenerate polygon encountered during triangulation");
     }
 
   outTris->DeepCopy(this->Tris);
   return success;
+}
+
+//----------------------------------------------------------------------------
+// Split into non-degenerate polygons prior to triangulation
+//
+int vtkPolygon::NonDegenerateTriangulate(vtkIdList *outTris)
+{
+  double pt[3], bounds[6];
+  vtkIdType ptId, numPts;
+
+  // ComputeBounds does not give the correct bounds
+  // So we do it manually
+  bounds[0]= VTK_DOUBLE_MAX;
+  bounds[1]=-VTK_DOUBLE_MAX;
+  bounds[2]= VTK_DOUBLE_MAX;
+  bounds[3]=-VTK_DOUBLE_MAX;
+  bounds[4]= VTK_DOUBLE_MAX;
+  bounds[5]=-VTK_DOUBLE_MAX;
+
+  numPts = this->GetNumberOfPoints();
+
+  for(int i=0; i<numPts; i++)
+    {
+    this->Points->GetPoint(i,pt);
+
+    if(pt[0] < bounds[0]) { bounds[0] = pt[0]; }
+    if(pt[1] < bounds[2]) { bounds[2] = pt[1]; }
+    if(pt[2] < bounds[4]) { bounds[4] = pt[2]; }
+    if(pt[0] > bounds[1]) { bounds[1] = pt[0]; }
+    if(pt[1] > bounds[3]) { bounds[3] = pt[1]; }
+    if(pt[2] > bounds[5]) { bounds[5] = pt[2]; }
+    }
+
+  outTris->Reset();
+  outTris->Allocate(3*(2*numPts-4));
+
+  vtkPoints *newPts = vtkPoints::New();
+  newPts->Allocate(numPts);
+
+  vtkMergePoints *mergePoints = vtkMergePoints::New();
+  mergePoints->InitPointInsertion(newPts,bounds);
+  mergePoints->SetDivisions(10,10,10);
+
+  vtkIdTypeArray *matchingIds = vtkIdTypeArray::New();
+  matchingIds->SetNumberOfTuples(numPts);
+
+  int numDuplicatePts = 0;
+
+  for(int i=0; i<numPts; i++)
+    {
+    this->Points->GetPoint(i,pt);
+    if(mergePoints->InsertUniquePoint(pt,ptId))
+      {
+      matchingIds->SetValue(i,ptId+numDuplicatePts);
+      }
+    else
+      {
+      matchingIds->SetValue(i,ptId+numDuplicatePts);
+      numDuplicatePts++;
+      }
+    }
+
+  mergePoints->Delete();
+  newPts->Delete();
+ 
+  int numPtsRemoved = 0;
+  vtkIdType tri[3];
+
+  while(numPtsRemoved < numPts)
+    {
+    vtkIdType start = 0;
+    vtkIdType end = numPts-1;
+
+    for(;start<numPts;start++)
+      {
+      if(matchingIds->GetValue(start) >= 0)
+        {
+        break;
+        }
+      }
+
+    if(start >= end)
+      {
+      vtkErrorMacro("ERROR: start >= end");
+      break;
+      }
+
+    for(int i=start; i<numPts; i++)
+      {
+      if(matchingIds->GetValue(i) < 0)
+        {
+        continue;
+        }
+
+      if(matchingIds->GetValue(i) != i)
+        {
+        start = (matchingIds->GetValue(i) + 1) % numPts;
+        end = i;
+ 
+        while(matchingIds->GetValue(start) < 0)
+          {
+          start++;
+          }
+
+        break;
+        }
+      }
+
+    vtkPolygon *polygon = vtkPolygon::New();
+    polygon->Points->SetDataTypeToDouble();
+
+    int numPolygonPts = start<end ? end-start+1 : end-start+numPts+1;
+
+    for(int i=0; i<numPolygonPts; i++)
+      {
+      ptId = start+i;
+
+      if(matchingIds->GetValue(ptId) >= 0)
+        {
+        numPtsRemoved++;
+        matchingIds->SetValue(ptId,-1);
+
+        polygon->PointIds->InsertNextId(ptId);
+        polygon->Points->InsertNextPoint(this->Points->GetPoint(ptId));
+        }
+      }
+
+    vtkIdList *outTriangles = vtkIdList::New();
+    outTriangles->Allocate(3*(2*polygon->GetNumberOfPoints()-4));
+
+    polygon->Triangulate(outTriangles);
+
+    int outNumTris = outTriangles->GetNumberOfIds();
+
+    for(int i=0; i<outNumTris; i+=3)
+      {
+      tri[0] = outTriangles->GetId(i);
+      tri[1] = outTriangles->GetId(i+1);
+      tri[2] = outTriangles->GetId(i+2);
+
+      tri[0] = polygon->PointIds->GetId(tri[0]);
+      tri[1] = polygon->PointIds->GetId(tri[1]);
+      tri[2] = polygon->PointIds->GetId(tri[2]);
+
+      outTris->InsertNextId(tri[0]);
+      outTris->InsertNextId(tri[1]);
+      outTris->InsertNextId(tri[2]);
+      }
+
+    polygon->Delete();
+    outTriangles->Delete();
+    }
+
+  matchingIds->Delete();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -1016,7 +1223,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(x, this->Points->GetNumberOfPoints(), 
-                             static_cast<vtkDoubleArray *>(this->Points->GetData())
+                             ((vtkDoubleArray *)this->Points->GetData())
                              ->GetPointer(0), this->GetBounds(),n)
         == VTK_POLYGON_INSIDE) )
     {
@@ -1426,6 +1633,74 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, double *pts,double bounds[
 }
 
 //----------------------------------------------------------------------------
+// Compute the area of the polygon (oriented in 3D space). It uses an
+// efficient approach where the area is computed in 2D and then projected into
+// 3D space.
+double vtkPolygon::ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
+                               double n[3])
+{
+  if ( numPts < 3 )
+    {
+    return 0.0;
+    }
+  else
+    {
+    double area=0.0;
+    double nx, ny, nz;
+    int coord, i;
+
+    vtkPolygon::ComputeNormal(p,numPts, pts, n);
+
+    // Select the projection direction
+    nx = (n[0] > 0.0 ? n[0] : -n[0]);     // abs x-coord
+    ny = (n[1] > 0.0 ? n[1] : -n[1]);     // abs y-coord
+    nz = (n[2] > 0.0 ? n[2] : -n[2]);     // abs z-coord
+
+    coord = (nx > ny ? (nx > nz ? 0 : 2) : (ny > nz ? 1 : 2));
+
+    // compute area of the 2D projection
+    double x0[3], x1[3], x2[3], *v0, *v1, *v2;
+    v0 = x0;
+    v1 = x1;
+    v2 = x2;
+
+    for (i=0; i<numPts; i++)
+      {
+      p->GetPoint(pts[i],v0);
+      p->GetPoint(pts[(i+1)%numPts],v1);
+      p->GetPoint(pts[(i+2)%numPts],v2);
+      switch (coord) 
+        {
+        case 0:
+          area += v1[1] * (v2[2] - v0[2]);
+          continue;
+        case 1:
+          area += v1[0] * (v2[2] - v0[2]);
+          continue;
+        case 2:
+          area += v1[0] * (v2[1] - v0[1]);
+          continue;
+        }
+      }
+
+    // scale to get area before projection
+    switch (coord) 
+      {
+      case 0:
+        area /= (2.0*nx);
+        break;
+      case 1:
+        area /= (2.0*ny);
+        break;
+      case 2:
+        area /= (2.0*nz);
+      }
+    return fabs(area);
+    }//general polygon
+}
+
+
+//----------------------------------------------------------------------------
 void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1445,6 +1720,134 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
   this->TriScalars->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
+}
+
+//----------------------------------------------------------------------------
+// Compute the polygon centroid from a points list, and a list of point ids
+// that index into the points list. 
+void vtkPolygon::ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *p, double c[3])
+{
+  vtkIdType i, numPts = ids->GetNumberOfTuples();
+  double p0[3];
+  double a = 1.0 / (double)numPts;
+  c[0] = c[1] = c[2] = 0.0;
+  for (i=0; i < numPts; i++) 
+    {
+    p->GetPoint(ids->GetValue(i),p0);
+
+    c[0] += p0[0];
+    c[1] += p0[1];
+    c[2] += p0[2];
+    }
+
+  c[0] *= a;
+  c[1] *= a;
+  c[2] *= a;
+}
+
+//----------------------------------------------------------------------------
+double vtkPolygon::DistanceToPolygon(double x[3], int numPts, double *pts,
+                                     double bounds[6], double closest[3])
+{
+  // First check to see if the point is inside the polygon
+  // do a quick bounds check
+  if ( x[0] >= bounds[0] && x[0] <= bounds[1] ||
+       x[1] >= bounds[2] || x[1] <= bounds[3] ||
+       x[2] >= bounds[4] || x[2] <= bounds[5])
+    {
+    double n[3];
+    vtkPolygon::ComputeNormal(numPts, pts, n);
+    if ( vtkPolygon::PointInPolygon(x,numPts,pts,bounds,n) )
+      {
+      closest[0] = x[0];
+      closest[1] = x[1];
+      closest[2] = x[2];
+      return 0.0;
+      }
+    }
+  
+  // Not inside, compute the distance of the point to the edges.
+  double minDist2=VTK_LARGE_FLOAT;
+  double *p0, *p1, dist2, t, c[3];
+  for (int i=0; i<numPts; i++)
+    {
+    p0 = pts + 3*i;
+    p1 = pts + 3*((i+1)%numPts);
+    dist2 = vtkLine::DistanceToLine(x, p0, p1, t, c);
+    if ( dist2 < minDist2 )
+      {
+      minDist2 = dist2;
+      closest[0] = c[0];
+      closest[1] = c[1];
+      closest[2] = c[2];
+      }
+    }
+
+  return sqrt(minDist2);
+}
+
+//----------------------------------------------------------------------------
+int vtkPolygon::IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
+                                       double tol, double p0[3], double p1[3])
+{
+  // Intersect the six total edges of the two triangles against each other. Two points are
+  // all that are required.
+  double *x[2], pcoords[3], t, x0[3], x1[3];
+  x[0] = p0; x[1] = p1;
+  int subId, idx=0;
+  double t2 = tol*tol;
+
+  // Loop over edges of second polygon and intersect against first polygon
+  vtkIdType i, numPts = cell2->Points->GetNumberOfPoints();
+  for (i=0; i<numPts; i++)
+    {
+    cell2->Points->GetPoint(i,x0);
+    cell2->Points->GetPoint((i+1)%numPts,x1);
+
+    if ( cell1->IntersectWithLine(x0,x1,tol,t,x[idx],pcoords,subId) )
+      {
+      if ( idx == 0 )
+        {
+        idx++;
+        }
+      else if ( ((x[1][0]-x[0][0])*(x[1][0]-x[0][0]) + (x[1][1]-x[0][1])*(x[1][1]-x[0][1]) + 
+                 (x[1][2]-x[0][2])*(x[1][2]-x[0][2])) > t2 )
+        {
+        return 2;
+        }
+      }//if edge intersection
+    }//over all edges
+  
+  // Loop over edges of first polygon and intersect against second polygon
+  numPts = cell1->Points->GetNumberOfPoints();
+  for (i=0; i<numPts; i++)
+    {
+    cell1->Points->GetPoint(i,x0);
+    cell1->Points->GetPoint((i+1)%numPts,x1);
+
+    if ( cell2->IntersectWithLine(x0,x1,tol,t,x[idx],pcoords,subId) )
+      {
+      if ( idx == 0 )
+        {
+        idx++;
+        }
+      else if ( ((x[1][0]-x[0][0])*(x[1][0]-x[0][0]) + (x[1][1]-x[0][1])*(x[1][1]-x[0][1]) + 
+                 (x[1][2]-x[0][2])*(x[1][2]-x[0][2])) > t2 )
+        {
+        return 2;
+        }
+      }//if edge intersection
+    }//over all edges
+  
+  // Evaluate what we got
+  if ( idx == 1 )
+    {
+    return 1; //everything intersecting at single point
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------

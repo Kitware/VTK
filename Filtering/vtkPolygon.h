@@ -25,6 +25,7 @@
 #include "vtkCell.h"
 
 class vtkDoubleArray;
+class vtkIdTypeArray;
 class vtkLine;
 class vtkPoints;
 class vtkQuad;
@@ -79,6 +80,7 @@ public:
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
                             double n[3]);
   static void ComputeNormal(vtkPoints *p, double n[3]);
+  static void ComputeNormal(vtkIdTypeArray *ids, vtkPoints *pts, double n[3]);
 
   // Description:
   // Compute the polygon normal from an array of points. This version assumes
@@ -86,10 +88,21 @@ public:
   static void ComputeNormal(int numPts, double *pts, double n[3]);
 
   // Description:
+  // Compute the centroid of a set of points.
+  static void ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts, 
+                              double centroid[3]);
+
+  // Description:
   // Compute interpolation weights using 1/r**2 normalized sum.
   // @deprecated Replaced by vtkPolygon::InterpolateFunctions as of VTK 5.2
   VTK_LEGACY(void ComputeWeights(double x[3], double *weights));
 
+  // Description:
+  // Compute the area of a polygon in 3D. The area is returned, as well as
+  // the normal (a side effect of using this method). If you desire to
+  // compute the area of a triangle, use vtkTriangleArea which is faster.
+  static double ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
+                            double normal[3]);
 
   // Description:
   // Create a local s-t coordinate system for a polygon. The point p0 is
@@ -116,6 +129,18 @@ public:
   int Triangulate(vtkIdList *outTris);
 
   // Description:
+  // Same as Triangulate(vtkIdList *outTris)
+  // but with a first pass to split the polygon into non-degenerate polygons.
+  int NonDegenerateTriangulate(vtkIdList *outTris);
+
+  // Description:
+  // Compute the distance of a point to a polygon. The closest point on
+  // the polygon is also returned. The bounds should be provided to 
+  // accelerate the computation.
+  static double DistanceToPolygon(double x[3], int numPts, double *pts,
+                                  double bounds[6], double closest[3]);
+
+  // Description:
   // Method intersects two polygons. You must supply the number of points and
   // point coordinates (npts, *pts) and the bounding box (bounds) of the two
   // polygons. Also supply a tolerance squared for controlling
@@ -126,6 +151,20 @@ public:
                                          int npts2, double *pts2,
                                          double bounds2[3], double tol,
                                          double x[3]);
+
+  // Description:
+
+  // Intersect two convex 2D polygons to produce a line segment as output.
+  // The return status of the methods indicated no intersection (returns 0);
+  // a single point of intersection (returns 1); or a line segment (i.e., two
+  // points of intersection, returns 2). The points of intersection are
+  // returned in the arrays p0 and p1.  If less than two points of
+  // intersection are generated then p1 and/or p0 may be
+  // indeterminiate. Finally, if the two convex polygons are parallel, then 
+  // "0" is returned (i.e., no intersection) even if the triangles lie on one
+  // another.  
+  static int IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
+                                    double tol, double p0[3], double p1[3]);
 
 protected:
   vtkPolygon();
