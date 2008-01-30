@@ -78,6 +78,9 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   pd->GetPointData()->SetScalars(s);
   pd->GetPointData()->SetVectors(v);
   newPts->Delete();
+  lines->Delete();
+  s->Delete();
+  v->Delete();
 
   vtkUncertaintyTubeFilter *utf = vtkUncertaintyTubeFilter::New();
   utf->SetInput(pd);
