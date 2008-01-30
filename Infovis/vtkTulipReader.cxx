@@ -44,7 +44,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkTulipReader, "1.3");
+vtkCxxRevisionMacro(vtkTulipReader, "1.4");
 vtkStandardNewMacro(vtkTulipReader);
 
 vtkTulipReader::vtkTulipReader()
@@ -184,9 +184,8 @@ int vtkTulipReader::RequestData(
   vtksys_stl::map<int, vtkIdType> edgeIdMap;
   vtkTulipReaderToken tok;
   vtkTulipReaderNextToken(fin, tok);
-  while (tok.Type != vtkTulipReaderToken::END_OF_FILE)
+  while (tok.Type == vtkTulipReaderToken::OPEN_PAREN)
     {
-    assert(tok.Type == vtkTulipReaderToken::OPEN_PAREN);
     vtkTulipReaderNextToken(fin, tok);
     assert(tok.Type == vtkTulipReaderToken::KEYWORD);
     if (tok.StringValue == "nodes")
