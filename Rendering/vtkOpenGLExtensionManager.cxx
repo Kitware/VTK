@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.31");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -629,14 +629,20 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
 GLboolean IsProgramFromARBToPromoted(GLuint program)
 {
   GLint param;
-  vtkgl::GetObjectParameterivARB(program, vtkgl::OBJECT_TYPE_ARB, &param);
+  // in this case, vtkgl::GetProgramiv has been initialized with the pointer to
+  // "GetObjectParameterivARB" by LoadCorePromotedExtension()
+  // but vtkgl::GetObjectParameterivARB hasn't been initialized.
+  vtkgl::GetProgramiv(program, vtkgl::OBJECT_TYPE_ARB, &param);
   return param==static_cast<GLint>(vtkgl::PROGRAM_OBJECT_ARB);
 }
 
 GLboolean IsShaderFromARBToPromoted(GLuint shader)
 {
   GLint param;
-  vtkgl::GetObjectParameterivARB(shader, vtkgl::OBJECT_TYPE_ARB, &param);
+  // in this case, vtkgl::GetShaderiv has been initialized with the pointer to
+  // "GetObjectParameterivARB" by LoadCorePromotedExtension()
+  // but vtkgl::GetObjectParameterivARB hasn't been initialized.
+  vtkgl::GetShaderiv(shader, vtkgl::OBJECT_TYPE_ARB, &param);
   return param==static_cast<GLint>(vtkgl::SHADER_OBJECT_ARB);
 }
 
