@@ -48,8 +48,10 @@ public:
 
   // Description:
   // Specify a list of file names.  Each file must be a single slice,
-  // and each slice must of the same size. The files must be in the
+  // and each slice must be of the same size. The files must be in the
   // correct order.
+  // Use SetFileName when reading a volume (multiple slice), since
+  // DataExtent will be modified after a SetFileNames call.
   virtual void SetFileNames(vtkStringArray *);
   vtkGetObjectMacro(FileNames, vtkStringArray);
 
