@@ -306,7 +306,9 @@ const char *vtkMedicalImageProperties::GetUserDefinedNameByIndex(unsigned int id
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::Clear()
 {
+  this->SetStudyDate(NULL);
   this->SetAcquisitionDate(NULL);
+  this->SetStudyTime(NULL);
   this->SetAcquisitionTime(NULL);
   this->SetConvolutionKernel(NULL);
   this->SetEchoTime(NULL);
@@ -349,7 +351,9 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
 
   this->Clear();
 
+  this->SetStudyDate(p->GetStudyDate());
   this->SetAcquisitionDate(p->GetAcquisitionDate());
+  this->SetStudyTime(p->GetStudyTime());
   this->SetAcquisitionTime(p->GetAcquisitionTime());
   this->SetConvolutionKernel(p->GetConvolutionKernel());
   this->SetEchoTime(p->GetEchoTime());
