@@ -67,6 +67,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestCellDerivs
       TestCurvatures
       TestDiscreteMarchingCubes
+      TestFillHolesFilter
       TestGraphLayoutFilter
       TestGridSynchronizedTemplates3D
       TestImageMarchingCubes

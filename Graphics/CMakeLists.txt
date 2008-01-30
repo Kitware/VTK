@@ -51,6 +51,7 @@ vtkDataSetEdgeSubdivisionCriterion.cxx
 vtkDataSetSurfaceFilter.cxx
 vtkDataSetToDataObjectFilter.cxx
 vtkDataSetTriangleFilter.cxx
+vtkDecimatePolylineFilter.cxx
 vtkDecimatePro.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
@@ -81,6 +82,7 @@ vtkExtractUnstructuredGrid.cxx
 vtkExtractVectorComponents.cxx
 vtkFeatureEdges.cxx
 vtkFieldDataToAttributeDataFilter.cxx
+vtkFillHolesFilter.cxx
 vtkGeodesicPath.cxx
 vtkGeometryFilter.cxx
 vtkGlyph2D.cxx
