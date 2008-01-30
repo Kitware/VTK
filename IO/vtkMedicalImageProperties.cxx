@@ -179,6 +179,8 @@ public:
       {
       const WindowLevelPreset &wlp = *it;
       os << indent << "Window:" << wlp.Window << endl;
+      os << indent << "Level:" << wlp.Level << endl;
+      os << indent << "Comment:" << wlp.Comment << endl;
       }
     os << indent << "UID(s): ";
     for( VolumeSliceUIDType::const_iterator it = UID.begin();
