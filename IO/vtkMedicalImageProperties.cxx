@@ -18,6 +18,7 @@
 #include <vtksys/stl/string>
 #include <vtksys/stl/map>
 #include <vtksys/stl/vector>
+#include <vtksys/stl/set>
 #include <time.h> // for strftime
 #include <ctype.h> // for isdigit
 #include <assert.h>
@@ -45,6 +46,72 @@ public:
     double Level;
     vtksys_stl::string Comment;
   };
+
+  class UserDefinedValue
+  {
+  public:
+    UserDefinedValue(const char *name = 0, const char *value = 0):Name(name ? name : ""),Value(value ? value : "") {}
+    vtkstd::string Name;
+    vtkstd::string Value;
+    // order for the vtkstd::set
+    bool operator<(const UserDefinedValue &udv) const
+      {
+      return Name < udv.Name;
+      }
+  };
+  typedef vtkstd::set< UserDefinedValue > UserDefinedValues;
+  UserDefinedValues Mapping;
+  void AddUserDefinedValue(const char *name, const char *value)
+    {
+    if( name && *name && value && *value )
+      {
+      Mapping.insert( UserDefinedValues::value_type(name, value) );
+      }
+    // else raise a warning ?
+    }
+  const char *GetUserDefinedValue(const char *name) const
+    {
+    if( name && *name )
+      {
+      UserDefinedValue key(name);
+      UserDefinedValues::const_iterator it = Mapping.find( key );
+      assert( strcmp(it->Name.c_str(), name) == 0 );
+      return it->Value.c_str();
+      }
+    return NULL;
+    }
+  unsigned int GetNumberOfUserDefinedValues() const
+    {
+    return Mapping.size();
+    }
+  const char *GetUserDefinedNameByIndex(unsigned int idx)
+    {
+    if( idx < Mapping.size() )
+      {
+      UserDefinedValues::const_iterator it = Mapping.begin();
+      while( idx )
+        {
+        it++;
+        idx--;
+        }
+      return it->Name.c_str();
+      }
+    return NULL;
+    }
+  const char *GetUserDefinedValueByIndex(unsigned int idx)
+    {
+    if( idx < Mapping.size() )
+      {
+      UserDefinedValues::const_iterator it = Mapping.begin();
+      while( idx )
+        {
+        it++;
+        idx--;
+        }
+      return it->Value.c_str();
+      }
+    return NULL;
+    }
 
   typedef vtkstd::vector<WindowLevelPreset> WindowLevelPresetPoolType;
   typedef vtkstd::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
@@ -159,7 +226,9 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
 {
   this->Internals = new vtkMedicalImagePropertiesInternals;
 
+  this->StudyDate              = NULL;
   this->AcquisitionDate        = NULL;
+  this->StudyTime              = NULL;
   this->AcquisitionTime        = NULL;
   this->ConvolutionKernel      = NULL;
   this->EchoTime               = NULL;
@@ -200,6 +269,36 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
     }
 
   this->Clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::AddUserDefinedValue(const char *name, const char *value)
+{
+  this->Internals->AddUserDefinedValue(name, value);
+}
+
+//----------------------------------------------------------------------------
+const char *vtkMedicalImageProperties::GetUserDefinedValue(const char *name)
+{
+  return this->Internals->GetUserDefinedValue(name);
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkMedicalImageProperties::GetNumberOfUserDefinedValues()
+{
+  return this->Internals->GetNumberOfUserDefinedValues();
+}
+
+//----------------------------------------------------------------------------
+const char *vtkMedicalImageProperties::GetUserDefinedValueByIndex(unsigned int idx)
+{
+  return this->Internals->GetUserDefinedValueByIndex(idx);
+}
+
+//----------------------------------------------------------------------------
+const char *vtkMedicalImageProperties::GetUserDefinedNameByIndex(unsigned int idx)
+{
+  return this->Internals->GetUserDefinedNameByIndex(idx);
 }
 
 //----------------------------------------------------------------------------
@@ -758,10 +857,22 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     os << this->ImageNumber;
     }
 
+  os << "\n" << indent << "StudyDate: ";
+  if (this->StudyDate)
+    {
+    os << this->StudyDate;
+    }
+
   os << "\n" << indent << "AcquisitionDate: ";
   if (this->AcquisitionDate)
     {
     os << this->AcquisitionDate;
+    }
+
+  os << "\n" << indent << "StudyTime: ";
+  if (this->StudyTime)
+    {
+    os << this->StudyTime;
     }
 
   os << "\n" << indent << "AcquisitionTime: ";

@@ -96,6 +96,13 @@ public:
   int GetPatientBirthDateDay();
 
   // Description:
+  // Study Date
+  // Format: yyyymmdd
+  // For ex: DICOM (0008,0020) = 20030617
+  vtkSetStringMacro(StudyDate);
+  vtkGetStringMacro(StudyDate);
+
+  // Description:
   // Acquisition Date
   // Format: yyyymmdd
   // For ex: DICOM (0008,0022) = 20030617
@@ -109,6 +116,13 @@ public:
   int GetAcquisitionDateDay();
 
   // Description:
+  // Study Time
+  // Format: hhmmss.frac (any trailing component(s) can be ommited)
+  // For ex: DICOM (0008,0030) = 162552.0705 or 230012, or 0012
+  vtkSetStringMacro(StudyTime);
+  vtkGetStringMacro(StudyTime);
+
+  // Description:
   // Acquisition time
   // Format: hhmmss.frac (any trailing component(s) can be ommited)
   // For ex: DICOM (0008,0032) = 162552.0705 or 230012, or 0012
@@ -116,7 +130,7 @@ public:
   vtkGetStringMacro(AcquisitionTime);
 
   // Description:
-  // Image Date
+  // Image Date aka Content Date
   // Format: yyyymmdd
   // For ex: DICOM (0008,0023) = 20030617
   vtkSetStringMacro(ImageDate);
@@ -278,6 +292,18 @@ public:
   vtkSetStringMacro(Exposure);
   vtkGetStringMacro(Exposure);
 
+  // Interface to allow insertion of user define values, for instance in DICOM one would want to 
+  // store the Protocol Name (0018,1030), in this case one would do:
+  // AddUserDefinedValue( "Protocol Name", "T1W/SE/1024" );
+  void AddUserDefinedValue(const char *name, const char *value);
+  // Get a particular user value
+  const char *GetUserDefinedValue(const char *name);
+  // Get the number of user defined values
+  unsigned int GetNumberOfUserDefinedValues();
+  // Get a name/value by index
+  const char *GetUserDefinedNameByIndex(unsigned int idx);
+  const char *GetUserDefinedValueByIndex(unsigned int idx);
+
   // Description:
   // Copy the contents of p to this instance.
   virtual void DeepCopy(vtkMedicalImageProperties *p);
@@ -327,7 +353,9 @@ protected:
   vtkMedicalImageProperties();
   ~vtkMedicalImageProperties();
 
+  char *StudyDate;
   char *AcquisitionDate;
+  char *StudyTime;
   char *AcquisitionTime;
   char *ConvolutionKernel;
   char *EchoTime;
