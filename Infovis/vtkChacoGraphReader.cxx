@@ -16,6 +16,29 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
+// .NAME vtkChacoGraphReader - Reads chaco graph files.
+//
+// .SECTION Description
+// vtkChacoGraphReader reads in files in the CHACO format.
+// An example is the following:
+// <code>
+// 10 13
+// 2 6 10
+// 1 3
+// 2 4 8
+// 3 5
+// 4 6 10
+// 1 5 7
+// 6 8
+// 3 7 9
+// 8 10
+// 1 5 9
+// </code>
+// The first line gives the number of vertices and edges in the graph.
+// Each additional line is the connectivity list for each vertex in the graph.
+// Vertex 1 is connected to 2, 6, and 10, vertex 2 is connected to 1 and 3, etc.
+// NOTE: Chaco ids start with 1, while VTK ids start at 0, so VTK ids will be
+// one less than the chaco ids.
 
 #include "vtkChacoGraphReader.h"
 
@@ -40,7 +63,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkChacoGraphReader, "1.2");
+vtkCxxRevisionMacro(vtkChacoGraphReader, "1.3");
 vtkStandardNewMacro(vtkChacoGraphReader);
 
 vtkChacoGraphReader::vtkChacoGraphReader()
