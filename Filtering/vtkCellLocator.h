@@ -171,6 +171,21 @@ public:
   virtual int GetNumberOfBuckets(void);
 
   // Description:
+  // Return a list of unique cell ids inside of a given bounding box. The
+  // user must provide the vtkIdList to populate. This method returns data
+  // only after the locator has been built.
+  void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+
+  // Description:
+  // Given a finite line defined by the two points (p1,p2), return the list
+  // of unique cell ids in the buckets containing the line. It is possible
+  // that an empty cell list is returned. The user must provide the vtkIdList
+  // to populate. This method returns data only after the locator has been
+  // built.
+  void FindCellsAlongLine(double p1[3], double p2[3], double tolerance,
+                          vtkIdList *cells);
+
+  // Description:
   // Satisfy vtkLocator abstract interface.
   void FreeSearchStructure();
   void BuildLocator();
