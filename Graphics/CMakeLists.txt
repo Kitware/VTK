@@ -160,6 +160,7 @@ vtkPointsProjectedHull.cxx
 vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
+vtkPolyDataPointSampler.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx
 vtkProgrammableAttributeDataFilter.cxx
@@ -185,6 +186,7 @@ vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx
 vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
+vtkSelectEnclosedPoints.cxx
 vtkSelectPolyData.cxx
 vtkSelectionLink.cxx
 vtkSelectionSource.cxx
