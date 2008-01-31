@@ -27,7 +27,7 @@
 #include "vtkSphere.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkFillHolesFilter, "1.1");
+vtkCxxRevisionMacro(vtkFillHolesFilter, "1.2");
 vtkStandardNewMacro(vtkFillHolesFilter);
 
 //------------------------------------------------------------------------
@@ -112,7 +112,7 @@ int vtkFillHolesFilter::RequestData(
   
   // grab all free edges and place them into a temporary polydata
   int abort=0;
-  vtkIdType cellId, p1, p2, numNei, i, newId, numCells=newPolys->GetNumberOfCells();
+  vtkIdType cellId, p1, p2, numNei, i, numCells=newPolys->GetNumberOfCells();
   vtkIdType progressInterval=numCells/20+1;
   vtkIdList *neighbors = vtkIdList::New();
   neighbors->Allocate(VTK_CELL_SIZE);
@@ -135,7 +135,7 @@ int vtkFillHolesFilter::RequestData(
 
       if ( numNei < 1 )
         {
-        newId = newLines->InsertNextCell(2);
+        newLines->InsertNextCell(2);
         newLines->InsertCellPoint(p1);
         newLines->InsertCellPoint(p2);
         }
