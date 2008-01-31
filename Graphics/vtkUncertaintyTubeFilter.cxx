@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkUncertaintyTubeFilter, "1.1");
+vtkCxxRevisionMacro(vtkUncertaintyTubeFilter, "1.2");
 vtkStandardNewMacro(vtkUncertaintyTubeFilter);
 
 //
@@ -332,7 +332,7 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
   vtkCellArray *newStrips;
   vtkIdType i, npts, ptOffset=0;
   int cellId, j, id, k, i1, i2;
-  double x[3], v[3],  r1[3], r2[3];
+  double x[3], r1[3], r2[3];
   double xT[3], normal[3], *vector, t;
   double theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkIdType numPts;
@@ -373,7 +373,6 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
       for (j=0; j<3; j++) //compute point in center of tube
         {
         x[j] = sPtr->X[j];
-        v[j] = sPtr->V[0][j];
         r1[j] = sPtr->V[1][j];
         r2[j] = sPtr->V[2][j];
         }
