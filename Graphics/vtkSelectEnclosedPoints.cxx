@@ -30,7 +30,7 @@
 #include "vtkMath.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkSelectEnclosedPoints, "1.1");
+vtkCxxRevisionMacro(vtkSelectEnclosedPoints, "1.2");
 vtkStandardNewMacro(vtkSelectEnclosedPoints);
 
 //----------------------------------------------------------------------------
@@ -388,5 +388,7 @@ void vtkSelectEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Inside Out: "
      << (this->InsideOut ? "On\n" : "Off\n");
+  
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 
