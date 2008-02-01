@@ -62,6 +62,10 @@ public:
   // Set the dataset pointer for a given node. This method does
   // not remove the existing parent/child links. It only replaces
   // the dataset pointer.
+  // The information carried by the vtkAMRBox is redundant with the extent
+  // of the vtkUniformGrid. However, in case of parallel computation, the
+  // vtkAMRBox is defined on each processor whereas the vtkUniformGrid is
+  // defined only on the processor that owns it.
   void SetDataSet(unsigned int level, unsigned int id, 
                   vtkAMRBox& box, vtkUniformGrid* dataSet);
   void SetDataSet(unsigned int level, unsigned int id, vtkDataObject* dataSet)
@@ -70,7 +74,8 @@ public:
     }
 
   // Description:
-  // Get a dataset given a level and an id.
+  // Get a dataset given a level and an id. In case of parallel computation,
+  // the dataset can be a null pointer whereas the vtkAMRBox is always defined.
   vtkUniformGrid* GetDataSet(unsigned int level,
                              unsigned int id,
                              vtkAMRBox& box);
