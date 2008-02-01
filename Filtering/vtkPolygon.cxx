@@ -28,7 +28,7 @@
 #include "vtkBox.h"
 #include "vtkMergePoints.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.6");
+vtkCxxRevisionMacro(vtkPolygon, "1.7");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -274,9 +274,9 @@ int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(),
-                             ((vtkDoubleArray *)this->Points->GetData())
-                             ->GetPointer(0), this->GetBounds(),n)
-        == VTK_POLYGON_INSIDE) )
+                             static_cast<vtkDoubleArray *>(
+                               this->Points->GetData())->GetPointer(0),
+                             this->GetBounds(),n) == VTK_POLYGON_INSIDE) )
     {
     if (closestPoint)
       {
@@ -1223,9 +1223,9 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(x, this->Points->GetNumberOfPoints(), 
-                             ((vtkDoubleArray *)this->Points->GetData())
-                             ->GetPointer(0), this->GetBounds(),n)
-        == VTK_POLYGON_INSIDE) )
+                             static_cast<vtkDoubleArray *>(
+                               this->Points->GetData())->GetPointer(0),
+                             this->GetBounds(),n) == VTK_POLYGON_INSIDE) )
     {
     return 1;
     }
@@ -1725,11 +1725,13 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Compute the polygon centroid from a points list, and a list of point ids
 // that index into the points list. 
-void vtkPolygon::ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *p, double c[3])
+void vtkPolygon::ComputeCentroid(vtkIdTypeArray *ids,
+                                 vtkPoints *p,
+                                 double c[3])
 {
   vtkIdType i, numPts = ids->GetNumberOfTuples();
   double p0[3];
-  double a = 1.0 / (double)numPts;
+  double a = 1.0 / static_cast<double>(numPts);
   c[0] = c[1] = c[2] = 0.0;
   for (i=0; i < numPts; i++) 
     {

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.84");
+vtkCxxRevisionMacro(vtkCellLocator, "1.85");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -1730,7 +1730,7 @@ void vtkCellLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
     {
     for (j=0; j<3; j++) 
       {
-      ijk[i][j] = (int)((p[i][j] - this->Bounds[2*j]) / this->H[j]);
+      ijk[i][j] = static_cast<int>((p[i][j] - this->Bounds[2*j]) / this->H[j]);
     
       if (ijk[i][j] < 0)
         {
@@ -1847,7 +1847,7 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double tol,
     for (loop = 0; loop <3; loop++)
       {
       hitPosition[loop] = hitPosition[loop]*this->NumberOfDivisions + 1.0;
-      pos[loop] = (int)hitPosition[loop];
+      pos[loop] = static_cast<int>(hitPosition[loop]);
       // Adjust right boundary condition: if we intersect from the top, right,
       // or back; then pos must be adjusted to a valid octant index 
       if (pos[loop] > this->NumberOfDivisions)
