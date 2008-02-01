@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.84");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.85");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -539,12 +539,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           // The Mac OS X 10.4.9->10.4.10, 10.5.0->10.5.1
           // versions of the ATI driver, known not to work
-          if(strstr(gl_version, "1.5 ATI-1.4.18") ||
-             strstr(gl_version, "2.0 ATI-1.5.16") ||
-             strstr(gl_version, "2.0 ATI-1.5.18"))
-            {
-            this->DepthPeelingIsSupported = 0;
-            }
+          // 1.5 ATI-1.4.18, 2.0 ATI-1.5.16, 2.0 ATI-1.5.18
+          this->DepthPeelingIsSupported = 0;
           }
         else if(isATIFireGLV3300)
           {
@@ -557,15 +553,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           {
           // The Mac OS X 10.4.8->10.4.11, 10.5.0->10.5.1
           // versions of the ATI driver, known not to work
-          if(strstr(gl_version, "2.0 ATI-1.4.40") ||
-             strstr(gl_version, "2.0 ATI-1.4.52") ||
-             strstr(gl_version, "2.0 ATI-1.4.56") ||
-             strstr(gl_version, "2.0 ATI-1.4.58") ||
-             strstr(gl_version, "2.0 ATI-1.5.16") ||
-             strstr(gl_version, "2.0 ATI-1.5.18"))
-            {
-            this->DepthPeelingIsSupported = 0;
-            }
+          // 2.0 ATI-1.4.40, 2.0 ATI-1.4.52, 2.0 ATI-1.4.56,
+          // 2.0 ATI-1.4.58
+          // 2.0 ATI-1.5.16, 2.0 ATI-1.5.18,
+          this->DepthPeelingIsSupported = 0;
           }
         else if(isATIRadeonX300X550)
           {
