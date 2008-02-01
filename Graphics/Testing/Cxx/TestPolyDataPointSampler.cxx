@@ -103,6 +103,7 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   
   ss->Delete();
   sampler->Delete();
+  stripper->Delete();
   sampler2->Delete();
   mapper->Delete();
   mapper2->Delete();
