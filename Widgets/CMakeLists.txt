@@ -39,6 +39,7 @@ vtkConstrainedPointHandleRepresentation.cxx
 vtkDistanceWidget.cxx
 vtkDistanceRepresentation.cxx
 vtkDistanceRepresentation2D.cxx
+vtkEllipsoidTensorProbeRepresentation.cxx
 vtkEvent.cxx
 vtkFocalPlanePointPlacer.cxx
 vtkHandleRepresentation.cxx
@@ -87,6 +88,8 @@ vtkSliderWidget.cxx
 vtkSphereHandleRepresentation.cxx
 vtkSphereWidget.cxx
 vtkSplineWidget.cxx
+vtkTensorProbeWidget.cxx
+vtkTensorProbeRepresentation.cxx
 vtkTerrainDataPointPlacer.cxx
 vtkTerrainContourLineInterpolator.cxx
 vtkTextRepresentation.cxx
@@ -112,6 +115,7 @@ vtkDistanceRepresentation
 vtkHandleRepresentation
 vtkPolyDataSourceWidget
 vtkSliderRepresentation
+vtkTensorProbeRepresentation
 vtkWidgetRepresentation
 ABSTRACT
 )

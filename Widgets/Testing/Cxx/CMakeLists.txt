@@ -45,6 +45,7 @@ IF (VTK_DATA_ROOT)
     TestScalarBarWidget.cxx
 #    TestSeedWidget2.cxx
     TestSplineWidget.cxx
+    TestTensorProbeWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 
