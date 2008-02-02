@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.38");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.39");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -488,8 +488,7 @@ int vtkArrayCalculator::RequestData(
   else
     {
     output->CopyStructure(input);
-    output->GetPointData()->PassData(inPD);
-    output->GetCellData()->PassData(inCD);
+    output->CopyAttributes(input);
     
     resultArray->SetName(this->ResultArrayName);
     if (attributeDataType == 0)

@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.30");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.31");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -72,9 +72,8 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   //
 
   vtkPolyData *inputDS = vtkPolyData::New();
-    inputDS->CopyStructure (input);
-    inputDS->GetPointData()->PassData(input->GetPointData());
-    inputDS->GetCellData()->PassData(input->GetCellData());
+  inputDS->CopyStructure (input);
+  inputDS->CopyAttributes(input);
 
   int abort=0;
   for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
@@ -141,8 +140,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
      
   output->SetPoints(inputDS->GetPoints());
   output->SetPolys(inputDS->GetPolys());
-  output->GetPointData()->PassData(inputDS->GetPointData());
-  output->GetCellData()->PassData(inputDS->GetCellData());
+  output->CopyAttributes(inputDS);
   
   if (input->GetGhostLevel() > updateGhostLevel && ghostLevels != NULL)
     { 
