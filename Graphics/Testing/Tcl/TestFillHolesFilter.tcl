@@ -55,8 +55,8 @@ fill SetHoleSize 20.0
 
 # Mapping and actor
 vtkPolyDataMapper map
-    map SetInput pd
-#    map SetInputConnection [fill GetOutputPort]
+#    map SetInput pd
+    map SetInputConnection [fill GetOutputPort]
 vtkActor actor
     actor SetMapper map
     [actor GetProperty] SetColor 1 0 0
@@ -65,7 +65,7 @@ vtkActor actor
 #
 ren1 AddActor actor
 ren1 SetBackground 1 1 1
-renWin SetSize 500 500
+renWin SetSize 300 300
 renWin Initialize
 
 # render the image
