@@ -22,8 +22,9 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.46");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.47");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -59,6 +60,8 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->FontFactor = 1.0;
   this->LabelFactor = 0.75;
 
+  this->SizeFontRelativeToAxis = 0;
+
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetBold(1);
   this->LabelTextProperty->SetItalic(1);
@@ -76,7 +79,6 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->TitleActor->SetMapper(this->TitleMapper);
   
   // To avoid deleting/rebuilding create once up front
-
   this->NumberOfLabelsBuilt = 0;
   this->LabelMappers = new vtkTextMapper * [VTK_MAX_LABELS];
   this->LabelActors = new vtkActor2D * [VTK_MAX_LABELS];
@@ -308,47 +310,40 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     return;
     }
 
+  // Check to see whether we have to rebuild everything
+  // Viewport change may not require rebuild
   positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
-       viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
+  int *lastPosition = 
+    this->PositionCoordinate->GetComputedViewportValue(viewport);
+  int *lastPosition2 =
+    this->Position2Coordinate->GetComputedViewportValue(viewport);
+  if (lastPosition[0] != this->LastPosition[0] ||
+      lastPosition[1] != this->LastPosition[1] ||
+      lastPosition2[0] != this->LastPosition2[0] ||
+      lastPosition2[1] != this->LastPosition2[1] )
     {
-    // Check to see whether we have to rebuild everything
-    // Viewport change may not require rebuild
-    int *lastPosition = 
-      this->PositionCoordinate->GetComputedViewportValue(viewport);
-    int *lastPosition2 =
-      this->Position2Coordinate->GetComputedViewportValue(viewport);
-    if (lastPosition[0] != this->LastPosition[0] ||
-        lastPosition[1] != this->LastPosition[1] ||
-        lastPosition2[0] != this->LastPosition2[0] ||
-        lastPosition2[1] != this->LastPosition2[1] )
-      {
-      positionsHaveChanged = 1;
-      }
+    positionsHaveChanged = 1;
     }
   
-  size = viewport->GetSize();
-
   // See whether fonts have to be rebuilt (font size depends on viewport size)
-
+  viewportSizeHasChanged = 0;
+  size = viewport->GetSize();
   if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1])
     {
     viewportSizeHasChanged = 1;
     this->LastSize[0] = size[0];
     this->LastSize[1] = size[1];
     }
-  else
-    {
-    viewportSizeHasChanged = 0;
-    }
 
-  if (!positionsHaveChanged && !viewportSizeHasChanged &&
-      this->GetMTime() < this->BuildTime &&
-      (!this->LabelVisibility || 
-       this->LabelTextProperty->GetMTime() < this->BuildTime) &&
-      (!this->TitleVisibility || 
-       this->TitleTextProperty->GetMTime() < this->BuildTime))
+  if ( ! viewport->GetVTKWindow() ||
+       (!positionsHaveChanged && !viewportSizeHasChanged &&
+        viewport->GetMTime() < this->BuildTime &&
+        viewport->GetVTKWindow()->GetMTime() < this->BuildTime &&
+        this->GetMTime() < this->BuildTime &&
+        (!this->LabelVisibility || 
+         this->LabelTextProperty->GetMTime() < this->BuildTime) &&
+        (!this->TitleVisibility || 
+         this->TitleTextProperty->GetMTime() < this->BuildTime)) )
     {
     return;
     }
@@ -371,7 +366,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   // Generate the axis and tick marks.
   // We'll do our computation in viewport coordinates. First determine the
   // location of the endpoints.
-
   x = this->PositionCoordinate->GetComputedViewportValue(viewport);
   p1[0] = (double)x[0]; 
   p1[1] = (double)x[1]; 
@@ -386,6 +380,14 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   this->LastPosition2[0] = x[0]; 
   this->LastPosition2[1] = x[1];
 
+  double *xp1, *xp2, len;
+  if ( this->SizeFontRelativeToAxis )
+    {
+    xp1 = this->PositionCoordinate->GetComputedDoubleDisplayValue(viewport);
+    xp2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
+    len = sqrt((xp2[0]-xp1[0])*(xp2[0]-xp1[0]) + (xp2[1]-xp1[1])*(xp2[1]-xp1[1]));
+    }
+
   vtkPoints *pts = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
   this->Axis->SetPoints(pts);
@@ -394,7 +396,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   lines->Delete();
 
   // Generate point along axis (as well as tick points)
-
   deltaX = p2[0] - p1[0];
   deltaY = p2[1] - p1[1];
 
@@ -408,7 +409,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     }
 
   // First axis point
-
   ptIds[0] = pts->InsertNextPoint(p1); 
   xTick[0] = p1[0] + this->TickLength*sin(theta);
   xTick[1] = p1[1] - this->TickLength*cos(theta);
@@ -437,7 +437,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     }
 
   // Last axis point
-
   ptIds[1] = pts->InsertNextPoint(p2); 
   xTick[0] = p2[0] + this->TickLength*sin(theta);
   xTick[1] = p2[1] - this->TickLength*cos(theta);
@@ -461,7 +460,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     }
 
   // Build the labels
-
   if (this->LabelVisibility)
     {
     // Update the labels text. Do it only if the range has been adjusted,
@@ -470,7 +468,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     // but at this point the check on LabelFormat is "included" in
     // UpdateAdjustedRange(), which is the function that update
     // AdjustedRangeBuildTime or not.
-
     unsigned long labeltime = this->AdjustedRangeBuildTime;
     if (this->AdjustedRangeBuildTime > this->BuildTime)
       {
@@ -490,7 +487,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       }
 
     // Copy prop and text prop eventually
-
     for (i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
         this->LabelActors[i]->SetProperty(this->GetProperty());
@@ -512,21 +508,41 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     // Resize the mappers if needed (i.e. viewport has changed, than
     // font size should be changed, or label text property has changed,
     // or some of the labels have changed (got bigger for example)
-
-    if (viewportSizeHasChanged ||
+    if (positionsHaveChanged || viewportSizeHasChanged ||
         this->LabelTextProperty->GetMTime() > this->BuildTime ||
         labeltime > this->BuildTime)
       {
-      vtkTextMapper::SetMultipleRelativeFontSize(viewport, 
-                                                 this->LabelMappers, 
-                                                 this->AdjustedNumberOfLabels,
-                                                 size,
-                                                 this->LastMaxLabelSize,
-                                                 0.015*this->FontFactor*this->LabelFactor);
+      if ( ! this->SizeFontRelativeToAxis )
+        {
+        vtkTextMapper::SetMultipleRelativeFontSize(viewport, 
+                                                   this->LabelMappers, 
+                                                   this->AdjustedNumberOfLabels,
+                                                   size,
+                                                   this->LastMaxLabelSize,
+                                                   0.015*this->FontFactor*this->LabelFactor);
+        }
+      else
+        {
+         int minFontSize=1000, fontSize, minLabel;
+         for (i = 0; i < this->AdjustedNumberOfLabels; i++)
+          {
+          fontSize = this->LabelMappers[i]->
+            SetConstrainedFontSize(viewport, (1.0/this->AdjustedNumberOfLabels)*len, 0.2*len);
+          if ( fontSize < minFontSize )
+            {
+            minFontSize = fontSize;
+            minLabel = i;
+            }
+          }
+         for (i=0; i<this->AdjustedNumberOfLabels; i++)
+           {
+           this->LabelMappers[i]->GetTextProperty()->SetFontSize(minFontSize);
+           }
+         this->LabelMappers[minLabel]->GetSize(viewport,this->LastMaxLabelSize);
+        }
       }
     
     // Position the mappers
-
     for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
       pts->GetPoint((this->NumberOfMinorTicks+1) * 2 * i + 1, xTick);
@@ -541,7 +557,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     } // If labels visible
 
   // Now build the title
-
   if (this->Title != NULL && this->Title[0] != 0 && this->TitleVisibility)
     {
     this->TitleMapper->SetInput(this->Title);
@@ -558,10 +573,18 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
         this->TitleTextProperty);
       }
 
-    if (viewportSizeHasChanged ||
+    if (positionsHaveChanged || viewportSizeHasChanged ||
         this->TitleTextProperty->GetMTime() > this->BuildTime)
       {
-      vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015*this->FontFactor);
+      if ( ! this->SizeFontRelativeToAxis )
+        {
+        vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015*this->FontFactor);
+        }
+      else
+        {
+        this->TitleMapper->SetConstrainedFontSize(viewport, 0.33*len, 0.2*len);
+        this->TitleMapper->GetSize(viewport, stringSize);
+        }
       }
     else
       {

@@ -269,6 +269,13 @@ public:
                                  int *stringSize);
 
   // Description:
+  // Specify whether to size the fonts relative to the viewport or relative to
+  // length of the axis. By default, fonts are resized relative to the axis.
+  vtkSetMacro(SizeFontRelativeToAxis,int);
+  vtkGetMacro(SizeFontRelativeToAxis,int);
+  vtkBooleanMacro(SizeFontRelativeToAxis,int);
+
+  // Description:
   // Shallow copy of an axis actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
@@ -307,6 +314,8 @@ protected:
   int   LastSize[2];
   int   LastMaxLabelSize[2];
   
+  int  SizeFontRelativeToAxis;
+
   virtual void BuildAxis(vtkViewport *viewport);
   static double ComputeStringOffset(double width, double height, double theta);
   static void SetOffsetPosition(double xTick[3], double theta, 
