@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 
-vtkCxxRevisionMacro(vtkBarChartActor, "1.1");
+vtkCxxRevisionMacro(vtkBarChartActor, "1.2");
 vtkStandardNewMacro(vtkBarChartActor);
 
 vtkCxxSetObjectMacro(vtkBarChartActor,Input,vtkDataObject);
@@ -664,6 +664,13 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Input: " << this->Input << "\n";
+
+  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
+
+  os << indent << "Title Visibility: " 
+     << (this->TitleVisibility ? "On\n" : "Off\n");
+  
   if (this->TitleTextProperty)
     {
     os << indent << "Title Text Property:\n";
@@ -674,6 +681,9 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Title Text Property: (none)\n";
     }
 
+  os << indent << "Label Visibility: " 
+     << (this->LabelVisibility ? "On\n" : "Off\n");
+  
   if (this->LabelTextProperty)
     {
     os << indent << "Label Text Property:\n";
@@ -684,10 +694,13 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Label Text Property: (none)\n";
     }
 
-  os << indent << "Input: " << this->Input << "\n";
-  os << indent << "Position2 Coordinate: " 
-     << this->Position2Coordinate << "\n";
-  this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Legend Visibility: " 
+     << (this->LegendVisibility ? "On\n" : "Off\n");
   
-  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
+  os << indent << "Legend Actor: " 
+     << this->LegendActor << "\n";
+  this->LegendActor->PrintSelf(os, indent.GetNextIndent());
+  
+  os << indent << "YTitle: " << (this->YTitle ? this->YTitle : "(none)") << "\n";
+
 }
