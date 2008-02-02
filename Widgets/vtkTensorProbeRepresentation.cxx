@@ -30,7 +30,7 @@
 #define min(x,y) ((x<y) ? (x) : (y))
 #define max(x,y) ((x>y) ? (x) : (y))
 
-vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.2");
 
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
@@ -121,7 +121,7 @@ void vtkTensorProbeRepresentation
   vtkIdType minCellId = max( this->ProbeCellId - maxSpeed, 0 );
   vtkIdType maxCellId = min( this->ProbeCellId + maxSpeed, npts-1 );
 
-  double closestT, closestDist = VTK_DOUBLE_MAX, 
+  double closestT=0.0, closestDist = VTK_DOUBLE_MAX, 
          pprev[3]= {0.0, 0.0, 0.0}, t, closestPt[3], dist, 
          x[3] = { displayPos[0], displayPos[1], 0.0 };
          
