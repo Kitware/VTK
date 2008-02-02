@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.85");
+vtkCxxRevisionMacro(vtkCellLocator, "1.86");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -434,7 +434,8 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
   double *weights = weightsArray;
   int nWeights = 6, nPoints;
   vtkIdList *cellIds;
-  int stat, minStat=0;
+  int stat;
+  //int minStat=0; //save this variable it is used for debugging
   
   cachedPoint[0] = 0.0;
   cachedPoint[1] = 0.0;
@@ -544,6 +545,7 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
                                               dist2, weights);
                 
                 if ( stat != -1 && dist2 < minDist2 ) 
+// This commented out code works better in many cases                                
 //                if ( stat != -1 && ((stat == minStat && dist2 < minDist2) ||
 //                     (stat == 1 && minStat == 0)) )
                   {
@@ -554,7 +556,7 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
                   cachedPoint[1] = point[1];
                   cachedPoint[2] = point[2];
                   refinedRadius2 = dist2;
-                  minStat = stat;
+//                  minStat = stat;
                   }
                 }
               } // if (!this->CellHasBeenVisited[cellId])
@@ -1768,7 +1770,7 @@ void vtkCellLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double tol,
+void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNotUsed(tol),
                                         vtkIdList *cells)
 {
   cells->Reset();
@@ -1790,7 +1792,7 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double tol,
   int pos[3];
   int bestDir;
   double stopDist, currDist;
-  double deltaT, length, maxLength=0.0;
+  double length, maxLength=0.0;
   
   // convert the line into i,j,k coordinates
   tMax = 0.0;
@@ -1811,8 +1813,6 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double tol,
     }
   
   // create a parametric range around the tolerance
-  deltaT = tol/maxLength;
-
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
     {
