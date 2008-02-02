@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.13");
+vtkCxxRevisionMacro(vtkDataSet, "1.14");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -58,6 +58,13 @@ void vtkDataSet::Initialize()
 
   this->CellData->Initialize();
   this->PointData->Initialize();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSet::CopyAttributes(vtkDataSet *ds)
+{
+  this->GetPointData()->PassData(ds->GetPointData());
+  this->GetCellData()->PassData(ds->GetCellData());
 }
 
 //----------------------------------------------------------------------------

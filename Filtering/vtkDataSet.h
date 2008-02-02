@@ -61,6 +61,12 @@ public:
   virtual void CopyStructure(vtkDataSet *ds) = 0;
 
   // Description:
+  // Copy the attributes associated with the specified dataset to this
+  // instance of vtkDataSet.
+  // THIS METHOD IS NOT THREAD SAFE.
+  virtual void CopyAttributes(vtkDataSet *ds);
+
+  // Description:
   // Determine the number of points composing the dataset.
   // THIS METHOD IS THREAD SAFE
   virtual vtkIdType GetNumberOfPoints() = 0;
