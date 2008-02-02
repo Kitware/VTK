@@ -1,7 +1,10 @@
 SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests   
+  TestBarChartActor.cxx
   TestImageStencilData.cxx
+  TestPieChartActor.cxx
+  TestSpiderPlotActor.cxx
   X3DTest.cxx  
   )
 IF (VTK_DATA_ROOT)

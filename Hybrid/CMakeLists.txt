@@ -58,6 +58,7 @@ vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
 vtkAxisActor.cxx
 vtkAxesActor.cxx
+vtkBarChartActor.cxx
 vtkCaptionActor2D.cxx
 vtkCornerAnnotation.cxx
 vtkCubeAxesActor.cxx
@@ -74,6 +75,7 @@ vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
 vtkLSDynaReader.cxx
 vtkPCAAnalysisFilter.cxx
+vtkPieChartActor.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
 vtkProjectedTerrainPath.cxx
@@ -81,6 +83,7 @@ vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
 vtkRenderLargeImage.cxx
+vtkSpiderPlotActor.cxx
 vtkTemporalDataSetCache.cxx
 vtkTemporalInterpolator.cxx
 vtkTemporalShiftScale.cxx
