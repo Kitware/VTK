@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.47");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.48");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -284,6 +284,9 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfMinorTicks: " << this->NumberOfMinorTicks
      << endl;
   os << indent << "TitlePosition: " << this->TitlePosition << endl;
+
+  os << indent << "Size Font Relative To Axis: " 
+     << (this->SizeFontRelativeToAxis ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
