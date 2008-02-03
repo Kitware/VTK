@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 
-vtkCxxRevisionMacro(vtkSpiderPlotActor, "1.1");
+vtkCxxRevisionMacro(vtkSpiderPlotActor, "1.2");
 vtkStandardNewMacro(vtkSpiderPlotActor);
 
 vtkCxxSetObjectMacro(vtkSpiderPlotActor,Input,vtkDataObject);
@@ -672,7 +672,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   this->LegendActor->GetProperty()->DeepCopy(this->GetProperty());
 
   double r, *color;
-  vtkIdType firstId;
+  vtkIdType firstId=0;
   char buf[1024];
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
