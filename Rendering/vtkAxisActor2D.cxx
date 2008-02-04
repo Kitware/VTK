@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.48");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.49");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -383,7 +383,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   this->LastPosition2[0] = x[0]; 
   this->LastPosition2[1] = x[1];
 
-  double *xp1, *xp2, len;
+  double *xp1, *xp2, len=0.0;
   if ( this->SizeFontRelativeToAxis )
     {
     xp1 = this->PositionCoordinate->GetComputedDoubleDisplayValue(viewport);
@@ -530,7 +530,9 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
          for (i = 0; i < this->AdjustedNumberOfLabels; i++)
           {
           fontSize = this->LabelMappers[i]->
-            SetConstrainedFontSize(viewport, (1.0/this->AdjustedNumberOfLabels)*len, 0.2*len);
+            SetConstrainedFontSize(viewport, 
+                                   static_cast<int>((1.0/this->AdjustedNumberOfLabels)*len), 
+                                   static_cast<int>(0.2*len) );
           if ( fontSize < minFontSize )
             {
             minFontSize = fontSize;
@@ -585,7 +587,9 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
         }
       else
         {
-        this->TitleMapper->SetConstrainedFontSize(viewport, 0.33*len, 0.2*len);
+        this->TitleMapper->SetConstrainedFontSize(viewport, 
+                                                  static_cast<int>(0.33*len), 
+                                                  static_cast<int>(0.2*len) );
         this->TitleMapper->GetSize(viewport, stringSize);
         }
       }
