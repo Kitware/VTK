@@ -45,6 +45,7 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   newPts->SetPoint( 8, 1,8,4);
   newPts->SetPoint( 9, 1,16,5);
 
+  vtkMath::RandomSeed(1177);
   vtkDoubleArray *s = vtkDoubleArray::New();
   s->SetNumberOfComponents(1);
   s->SetNumberOfTuples(10);

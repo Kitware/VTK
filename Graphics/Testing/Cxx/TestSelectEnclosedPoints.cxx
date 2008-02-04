@@ -59,6 +59,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   actor->GetProperty()->SetRepresentationToWireframe();
 
   // Generate some random points
+  vtkMath::RandomSeed(1177);
   vtkPoints *points = vtkPoints::New();
   for (int i=0; i < 500; i++) 
     {
@@ -95,7 +96,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   pointsActor->GetProperty()->SetColor(1,0,0);
 
   // Add actors
-  renderer->AddActor(actor);
+//  renderer->AddActor(actor);
   renderer->AddActor(pointsActor);
   
   // Standard testing code.

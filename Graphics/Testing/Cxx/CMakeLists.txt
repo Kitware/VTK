@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     CellLocator.cxx
     PointLocator.cxx
     FrustumClip.cxx
+    NicoleTest.cxx
     RGrid.cxx
     TestAppendSelection.cxx
     TestClipHyperOctree.cxx
