@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 
-vtkCxxRevisionMacro(vtkBarChartActor, "1.2");
+vtkCxxRevisionMacro(vtkBarChartActor, "1.3");
 vtkStandardNewMacro(vtkBarChartActor);
 
 vtkCxxSetObjectMacro(vtkBarChartActor,Input,vtkDataObject);
@@ -543,8 +543,8 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
       this->BarMappers[i]->GetTextProperty()->ShallowCopy(this->LabelTextProperty);
       this->BarMappers[i]->GetTextProperty()->SetJustificationToCentered();
       this->BarMappers[i]->GetTextProperty()->SetVerticalJustificationToTop();
-      tsize[0] = barWidth;
-      tsize[1] = barWidth;
+      tsize[0] = static_cast<int>(barWidth);
+      tsize[1] = static_cast<int>(barWidth);
       fontSize = this->BarMappers[i]->SetConstrainedFontSize(
         viewport, tsize[0], tsize[1]);
       minFontSize = (fontSize < minFontSize ? fontSize : minFontSize);
@@ -587,8 +587,8 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     }
 
   // We could do some caching here, but hey, that's just the title
-  tsize[0] = 0.25*d1;
-  tsize[1] = 0.15*d2;
+  tsize[0] = static_cast<int>(0.25*d1);
+  tsize[1] = static_cast<int>(0.15*d2);
   this->TitleMapper->SetConstrainedFontSize(viewport, tsize[0], tsize[1]);
 
   this->TitleActor->GetPositionCoordinate()->

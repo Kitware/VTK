@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 
-vtkCxxRevisionMacro(vtkSpiderPlotActor, "1.2");
+vtkCxxRevisionMacro(vtkSpiderPlotActor, "1.3");
 vtkStandardNewMacro(vtkSpiderPlotActor);
 
 vtkCxxSetObjectMacro(vtkSpiderPlotActor,Input,vtkDataObject);
@@ -617,8 +617,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
         }
       this->LabelMappers[i]->GetTextProperty()->
         ShallowCopy(this->LabelTextProperty);
-      tsize[0] = 0.15*d1;
-      tsize[1] = 0.15*d2;
+      tsize[0] = static_cast<int>(0.15*d1);
+      tsize[1] = static_cast<int>(0.15*d2);
       fontSize = this->LabelMappers[i]->SetConstrainedFontSize(
         viewport, tsize[0], tsize[1]);
       minFontSize = (fontSize < minFontSize ? fontSize : minFontSize);
@@ -771,8 +771,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     }
 
   // We could do some caching here, but hey, that's just the title
-  tsize[0] = 0.25*d1;
-  tsize[1] = 0.15*d2;
+  tsize[0] = static_cast<int>(0.25*d1);
+  tsize[1] = static_cast<int>(0.15*d2);
   this->TitleMapper->SetConstrainedFontSize(viewport, tsize[0], tsize[1]);
 
   this->TitleActor->GetPositionCoordinate()->

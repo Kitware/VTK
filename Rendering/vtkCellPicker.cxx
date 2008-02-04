@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkAbstractVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.37");
+vtkCxxRevisionMacro(vtkCellPicker, "1.38");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
@@ -101,7 +101,7 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
           }
         tMin = t;
         pDistMin = pDist;
-        cout << "cell id: " << minCellId << "\n";
+//        cout << "cell id: " << minCellId << "\n";
         }//if minimum, maximum
       }//if a close cell
     }//for all cells

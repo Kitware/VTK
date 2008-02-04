@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPieChartActor, "1.1");
+vtkCxxRevisionMacro(vtkPieChartActor, "1.2");
 vtkStandardNewMacro(vtkPieChartActor);
 
 vtkCxxSetObjectMacro(vtkPieChartActor,Input,vtkDataObject);
@@ -492,8 +492,8 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
         }
       this->PieceMappers[i]->GetTextProperty()->
         ShallowCopy(this->LabelTextProperty);
-      tsize[0] = 0.15*d1;
-      tsize[1] = 0.15*d2;
+      tsize[0] = static_cast<int>(0.15*d1);
+      tsize[1] = static_cast<int>(0.15*d2);
       fontSize = this->PieceMappers[i]->SetConstrainedFontSize(
         viewport, tsize[0], tsize[1]);
       minFontSize = (fontSize < minFontSize ? fontSize : minFontSize);
@@ -552,7 +552,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     {
     thetaM = (i==0 ? 0.0 : this->Fractions[i-1] * 2.0*vtkMath::Pi());
     theta = this->Fractions[i] * 2.0*vtkMath::Pi();
-    numDivs = 32 * (theta-thetaM) / vtkMath::Pi();
+    numDivs = static_cast<vtkIdType>(32 * (theta-thetaM) / vtkMath::Pi());
     numDivs = (numDivs < 2 ? 2 : numDivs);
     delTheta = (theta - thetaM) / numDivs;
     
@@ -604,8 +604,8 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     }
 
   // We could do some caching here, but hey, that's just the title
-  tsize[0] = 0.25*d1;
-  tsize[1] = 0.15*d2;
+  tsize[0] = static_cast<int>(0.25*d1);
+  tsize[1] = static_cast<int>(0.15*d2);
   this->TitleMapper->SetConstrainedFontSize(viewport, tsize[0], tsize[1]);
 
   this->TitleActor->GetPositionCoordinate()->
