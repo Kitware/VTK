@@ -27,7 +27,7 @@
 // of the search.
 //
 // .SECTION See Also
-// vtkGraph vtkGraphToBoostAdapter
+// vtkGraph vtkBoostGraphAdapter
 
 #ifndef __vtkBoostBreadthFirstSearchTree_h
 #define __vtkBoostBreadthFirstSearchTree_h

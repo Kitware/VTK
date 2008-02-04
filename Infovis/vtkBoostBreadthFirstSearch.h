@@ -25,7 +25,7 @@
 // a 'source' vertex on the input graph (a vtkGraph).
 //
 // .SECTION See Also
-// vtkGraph vtkGraphToBoostAdapter
+// vtkGraph vtkBoostGraphAdapter
 
 #ifndef __vtkBoostBreadthFirstSearch_h
 #define __vtkBoostBreadthFirstSearch_h

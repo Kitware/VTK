@@ -26,7 +26,7 @@
 // the input graph (a vtkGraph).
 
 // .SECTION See Also
-// vtkGraph vtkGraphToBoostAdapter
+// vtkGraph vtkBoostGraphAdapter
 
 #ifndef __vtkBoostBrandesCentrality_h
 #define __vtkBoostBrandesCentrality_h
