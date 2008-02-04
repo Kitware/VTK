@@ -29,7 +29,7 @@
 #include "vtkDataArray.h"
 #include "vtkStringArray.h"
 
-#include "vtkGraphToBoostAdapter.h"
+#include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
 
@@ -39,7 +39,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.3");
+vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.4");
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
 // Constructor/Destructor

@@ -30,7 +30,7 @@
 #include "vtkSelection.h"
 #include "vtkStringArray.h"
 
-#include "vtkGraphToBoostAdapter.h"
+#include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
 
@@ -43,7 +43,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.8");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 

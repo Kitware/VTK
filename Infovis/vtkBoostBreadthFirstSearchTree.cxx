@@ -31,11 +31,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
-#include "vtkGraphToBoostAdapter.h"
-#include "vtkGraph.h"
+#include "vtkBoostGraphAdapter.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkTree.h"
 #include "vtkUndirectedGraph.h"
+#include "vtkTree.h"
 
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/vector_property_map.hpp>
@@ -43,7 +42,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.4");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.5");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 

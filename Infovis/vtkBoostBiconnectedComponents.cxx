@@ -28,7 +28,7 @@
 #include "vtkVertexListIterator.h"
 
 #include "vtkGraph.h"
-#include "vtkGraphToBoostAdapter.h"
+#include "vtkBoostGraphAdapter.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/vector_property_map.hpp>
 #include <boost/version.hpp>
@@ -39,7 +39,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.7");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.8");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()

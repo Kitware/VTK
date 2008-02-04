@@ -30,14 +30,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include "vtkGraphToBoostAdapter.h"
-#include "vtkGraph.h"
+#include "vtkBoostGraphAdapter.h"
 #include <boost/graph/strong_components.hpp>
 #include <boost/vector_property_map.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.4");
+vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.5");
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
 vtkBoostConnectedComponents::vtkBoostConnectedComponents()
