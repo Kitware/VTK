@@ -24,8 +24,8 @@
 // vtkUndirectedGraph* depending on whether your graph is directed or undirected.
 // You may then use these objects directly in boost graph algorithms.
 
-#ifndef __vtkGraphToBoostAdapter_h
-#define __vtkGraphToBoostAdapter_h
+#ifndef __vtkBoostGraphAdapter_h
+#define __vtkBoostGraphAdapter_h
 
 #include "vtkDirectedGraph.h"
 #include "vtkDoubleArray.h"
@@ -633,4 +633,4 @@ namespace boost {
 } // namespace boost
 
 
-#endif // __vtkGraphToBoostAdapter_h
+#endif // __vtkBoostGraphAdapter_h

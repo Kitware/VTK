@@ -31,7 +31,7 @@
 #include <boost/vector_property_map.hpp>
 
 #include "vtkGraph.h"
-#include "vtkGraphToBoostAdapter.h"
+#include "vtkBoostGraphAdapter.h"
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
