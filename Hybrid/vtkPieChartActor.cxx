@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkPieChartActor, "1.2");
+vtkCxxRevisionMacro(vtkPieChartActor, "1.3");
 vtkStandardNewMacro(vtkPieChartActor);
 
 vtkCxxSetObjectMacro(vtkPieChartActor,Input,vtkDataObject);
@@ -487,7 +487,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
         }
       else
         {
-        sprintf(label,"%d",i);
+        sprintf(label,"%d",static_cast<int>(i));
         this->PieceMappers[i]->SetInput(label);
         }
       this->PieceMappers[i]->GetTextProperty()->
@@ -567,7 +567,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       }
     else
       {
-      sprintf(label,"%d",i);
+      sprintf(label,"%d",static_cast<int>(i));
       this->LegendActor->SetEntryString(i,label);
       }
 

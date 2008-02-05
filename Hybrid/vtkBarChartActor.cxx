@@ -33,7 +33,7 @@
 #include <vtkstd/vector>
 
 
-vtkCxxRevisionMacro(vtkBarChartActor, "1.3");
+vtkCxxRevisionMacro(vtkBarChartActor, "1.4");
 vtkStandardNewMacro(vtkBarChartActor);
 
 vtkCxxSetObjectMacro(vtkBarChartActor,Input,vtkDataObject);
@@ -517,7 +517,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
       }
     else
       {
-      sprintf(label,"%d",i);
+      sprintf(label,"%d",static_cast<int>(i));
       this->LegendActor->SetEntryString(i,label);
       }
     }
@@ -537,7 +537,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
         }
       else
         {
-        sprintf(label,"%d",i);
+        sprintf(label,"%d",static_cast<int>(i));
         this->BarMappers[i]->SetInput(label);
         }
       this->BarMappers[i]->GetTextProperty()->ShallowCopy(this->LabelTextProperty);
