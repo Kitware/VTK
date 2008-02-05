@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.49");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.50");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -526,7 +526,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
         }
       else
         {
-         int minFontSize=1000, fontSize, minLabel;
+         int minFontSize=1000, fontSize, minLabel=0;
          for (i = 0; i < this->AdjustedNumberOfLabels; i++)
           {
           fontSize = this->LabelMappers[i]->
