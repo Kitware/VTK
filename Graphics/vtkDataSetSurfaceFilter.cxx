@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.58");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.59");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -266,13 +266,17 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
     }
-  
+ 
+  int originalPassThroughCellIds = this->PassThroughCellIds;
   if (this->UseStrips)
     {
     outStrips = vtkCellArray::New();
     outStrips->Allocate(cellArraySize);
     output->SetStrips(outStrips);
     outStrips->Delete();
+
+    // disable cell ids passing since we are using tstrips.
+    this->PassThroughCellIds = 0;
     }
   else
     {
@@ -348,6 +352,8 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     this->OriginalPointIds->Delete();
     this->OriginalPointIds = NULL;
     }
+
+  this->PassThroughCellIds = originalPassThroughCellIds;
 
   return 1;
 }
