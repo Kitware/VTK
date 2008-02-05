@@ -28,6 +28,7 @@
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -38,7 +39,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.25");
+vtkCxxRevisionMacro(vtkInformation, "1.26");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -340,6 +341,13 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationStringVectorKey* key, int)
+{
+  key->ShallowCopy(from, this);
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::CopyEntries(vtkInformation* from,
                                  vtkInformationKeyVectorKey* key, int deep)
 {
@@ -432,6 +440,36 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
     }
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
+
+// String vector key is slightly different to make it backwards compatible with
+// the scalar string key.
+void vtkInformation::Append(vtkInformationStringVectorKey* key,
+                            const char* value)
+  {
+  key->Append(this, value);
+  }
+void vtkInformation::Set(vtkInformationStringVectorKey* key,
+    const char* value, int idx)
+  {
+  key->Set(this, value, idx);
+  }
+const char* vtkInformation::Get(vtkInformationStringVectorKey* key, int idx)
+  {
+  return key->Get(this, idx);
+  }
+int vtkInformation::Length(vtkInformationStringVectorKey* key)
+  {
+  return key->Length(this);
+  }
+void vtkInformation::Remove(vtkInformationStringVectorKey* key)
+  {
+  key->Remove(this);
+  }
+int vtkInformation::Has(vtkInformationStringVectorKey* key)
+  {
+  return key->Has(this);
+  }
+
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 #define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
@@ -571,6 +609,13 @@ void vtkInformation::Append(vtkInformationKeyVectorKey* key,
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
+                            vtkInformationStringVectorKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
                                   vtkInformationDataObjectKey* value)
 {
@@ -648,6 +693,13 @@ void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::AppendUnique(vtkInformationKeyVectorKey* key,
+                                  vtkInformationStringVectorKey* value)
+{
+  key->AppendUnique(this, value);
+}
+
+//----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationKey* key)
 {
   return key;
@@ -709,6 +761,12 @@ vtkInformationKey* vtkInformation::GetKey(vtkInformationStringKey* key)
 
 //----------------------------------------------------------------------------
 vtkInformationKey* vtkInformation::GetKey(vtkInformationUnsignedLongKey* key)
+{
+  return key;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationKey* vtkInformation::GetKey(vtkInformationStringVectorKey* key)
 {
   return key;
 }

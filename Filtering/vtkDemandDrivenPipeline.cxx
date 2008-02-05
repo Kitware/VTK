@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.54");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.55");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -789,7 +789,8 @@ int vtkDemandDrivenPipeline::InputTypeIsValid
   vtkDataObject* input = this->GetInputData(port, index, inInfoVec);
 
   // Enforce required type, if any.
-  if(const char* dt = info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()))
+  if(info->Has(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) 
+     && info->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) > 0)
     {
     // The input cannot be NULL unless the port is optional.
     if(!input && !info->Get(vtkAlgorithm::INPUT_IS_OPTIONAL()))
@@ -797,19 +798,33 @@ int vtkDemandDrivenPipeline::InputTypeIsValid
       vtkErrorMacro("Input for connection index " << index
                     << " on input port index " << port
                     << " for algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ") is NULL, but a " << dt
+                    << "(" << this->Algorithm << ") is NULL, but a " 
+                    << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0)
                     << " is required.");
       return 0;
       }
 
-    // The input must be of required type or NULL.
-    if(input && !input->IsA(dt))
+    // The input must be one of the required types or NULL.
+    bool foundMatch = false;
+    if(input)
+      {
+      int size = info->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+      for(int i = 0; i < size; ++i)
+        {
+        if(input->IsA(info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), i)))
+          {
+          foundMatch = true;
+          }
+        }
+      }
+    if(input && !foundMatch)
       {
       vtkErrorMacro("Input for connection index " << index
                     << " on input port index " << port
                     << " for algorithm " << this->Algorithm->GetClassName()
                     << "(" << this->Algorithm << ") is of type "
-                    << input->GetClassName() << ", but a " << dt
+                    << input->GetClassName() << ", but a " 
+                    << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0)
                     << " is required.");
       return 0;
       }

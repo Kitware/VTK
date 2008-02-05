@@ -47,6 +47,7 @@ class vtkInformationKeyVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationRequestKey;
 class vtkInformationStringKey;
+class vtkInformationStringVectorKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
 
@@ -83,6 +84,7 @@ public:
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
+  VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep=0);
   VTK_COMMON_EXPORT void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
 
   // Description:
@@ -134,6 +136,15 @@ public:
   VTK_COMMON_EXPORT int Length(vtkInformationIntegerVectorKey* key);
   VTK_COMMON_EXPORT void Remove(vtkInformationIntegerVectorKey* key);
   VTK_COMMON_EXPORT int Has(vtkInformationIntegerVectorKey* key);
+
+  // Description:
+  // Get/Set a string-vector-valued entry.
+  VTK_COMMON_EXPORT void Append(vtkInformationStringVectorKey* key, const char* value);
+  VTK_COMMON_EXPORT void Set(vtkInformationStringVectorKey* key, const char* value, int idx = 0);
+  VTK_COMMON_EXPORT const char*  Get(vtkInformationStringVectorKey* key, int idx = 0);
+  VTK_COMMON_EXPORT int Length(vtkInformationStringVectorKey* key);
+  VTK_COMMON_EXPORT void Remove(vtkInformationStringVectorKey* key);
+  VTK_COMMON_EXPORT int Has(vtkInformationStringVectorKey* key);
 
   // Description:
   // Get/Set an integer-pointer-valued entry.
@@ -199,6 +210,8 @@ public:
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationIntegerVectorKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
+  VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationStringVectorKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationObjectBaseKey* value);
   VTK_COMMON_EXPORT void Append(vtkInformationKeyVectorKey* key,
@@ -220,6 +233,8 @@ public:
                     vtkInformationIntegerVectorKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, 
                     vtkInformationStringKey* value);
+  VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, 
+                    vtkInformationStringVectorKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationObjectBaseKey* value);
   VTK_COMMON_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
@@ -272,6 +287,7 @@ public:
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationRequestKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationStringKey* key);
+  VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationStringVectorKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationKey* key);
   VTK_COMMON_EXPORT static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
 

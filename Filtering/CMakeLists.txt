@@ -124,6 +124,7 @@ vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx
+vtkPassInputTypeAlgorithm.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx

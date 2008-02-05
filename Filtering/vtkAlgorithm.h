@@ -41,6 +41,7 @@ class vtkInformation;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
+class vtkInformationStringVectorKey;
 class vtkInformationVector;
 
 class VTK_FILTERING_EXPORT vtkAlgorithm : public vtkObject
@@ -183,7 +184,7 @@ public:
   static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
-  static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
+  static vtkInformationStringVectorKey* INPUT_REQUIRED_DATA_TYPE();
   static vtkInformationInformationVectorKey* INPUT_ARRAYS_TO_PROCESS();
   static vtkInformationIntegerKey* INPUT_PORT();
   static vtkInformationIntegerKey* INPUT_CONNECTION();

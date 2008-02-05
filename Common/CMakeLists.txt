@@ -89,6 +89,7 @@ vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
 vtkInformationRequestKey.cxx
 vtkInformationStringKey.cxx
+vtkInformationStringVectorKey.cxx
 vtkInformationUnsignedLongKey.cxx
 vtkInformationVector.cxx
 vtkInitialValueProblemSolver.cxx
@@ -265,6 +266,7 @@ vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
 vtkInformationRequestKey
 vtkInformationStringKey
+vtkInformationStringVectorKey
 vtkInformationUnsignedLongKey
 vtkInitialValueProblemSolver
 vtkLinearTransform

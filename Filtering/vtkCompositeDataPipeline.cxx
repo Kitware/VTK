@@ -82,7 +82,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.67");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.68");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,COMPOSITE_DATA_INFORMATION,ObjectBase);
@@ -516,20 +516,31 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
       {
       vtkInformation* inPortInfo = 
         this->Algorithm->GetInputPortInformation(i);
-      const char* inputType = 
-        inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-      if (inputType)
+      if (inPortInfo->Has(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) 
+          && inPortInfo->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) > 0)
         {
         // the filter upstream will iterate
-        if (strcmp(inputType, "vtkTemporalDataSet") == 0)
+        if (strcmp(inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0), "vtkTemporalDataSet") == 0)
           {
           vtkDebugMacro(<< "ShouldIterateOverInput returns 0 (Temporal)");
           return false;
           }
         vtkInformation* inInfo = this->GetInputInformation(i, 0);
         vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-        // If input does not match required input type
-        if (input && !input->IsA(inputType))
+        // If input does not match a required input type
+        bool foundMatch = false;
+        if(input)
+          {
+          int size = inPortInfo->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+          for(int i = 0; i < size; ++i)
+            {
+            if(input->IsA(inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), i)))
+              {
+              foundMatch = true;
+              }
+            }
+          }
+        if (input && !foundMatch)
           {
           // If input is composite
           if (vtkCompositeDataSet::SafeDownCast(input))
