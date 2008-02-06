@@ -22,7 +22,6 @@ vtkForceDirectedLayoutStrategy.cxx
 vtkGraphHierarchicalBundle.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
-vtkGraphLayoutViewer.cxx
 vtkGraphMapper.cxx
 vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
@@ -60,22 +59,12 @@ vtkXMLTreeReader.cxx
 IF(VTK_USE_BOOST)
   SET(Kit_SRCS
     ${Kit_SRCS}
+    vtkBoostBiconnectedComponents.cxx
     vtkBoostBrandesCentrality.cxx
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
   )
-  
-  # Biconnected Components only exists in Boost 1.33 or later
-  IF(NOT BOOST_VERSION LESS 103301)
-    SET(Kit_SRCS
-      ${Kit_SRCS}
-      vtkBoostBiconnectedComponents.cxx
-    )
-  ELSE (NOT BOOST_VERSION LESS 103301)
-    MESSAGE("This version of boost does not support Biconnected components")
-  ENDIF(NOT BOOST_VERSION LESS 103301)
-
 ENDIF(VTK_USE_BOOST)
 
 # Add these classes only if vtkTypeUInt64Array exists

@@ -34,10 +34,7 @@
 #include "vtkSmartPointer.h"
 
 #include <boost/version.hpp>
-
-#if BOOST_VERSION >= 103301
-  #include "vtkBoostBiconnectedComponents.h"
-#endif
+#include "vtkBoostBiconnectedComponents.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -118,11 +115,10 @@ int TestBoostAlgorithms(int argc, char* argv[])
 
   // Test biconnected components
   // Only available in Boost 1.33 or later
-#if BOOST_VERSION >= 103301
   VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
   biconn->SetInput(g);
   RenderGraph(ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
-#endif
+
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);

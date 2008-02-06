@@ -39,7 +39,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.8");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.9");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
@@ -87,20 +87,24 @@ int vtkBoostBiconnectedComponents::RequestData(
   for (vtkIdType e = 0; e < output->GetNumberOfEdges(); e++)
     {
     helper.pmap[e] = -1;
-    }
+    }  
     
   // Call BGL biconnected_components.
-  // It does not exist prior to Boost 1.33.1
-  // It's signature changed as of Boost 1.34.1
-#if BOOST_VERSION >= 103301
-#if BOOST_VERSION < 103401
+  // It appears that the signature for this
+  // algorithm has changed in 1.32, 1.33, and 1.34 ;p
+  
+#if BOOST_VERSION < 103300      // Boost 1.32.x
+  // TODO I have no idea what the 1.32 signature is suppose to be
+  // res = biconnected_components(
+  //  output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+#elif BOOST_VERSION < 103400    // Boost 1.33.x
   res = biconnected_components(
     output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
-#else
+#else                           // Anything after Boost 1.34.x      
   res = biconnected_components(
     output, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
 #endif
-#endif
+
   size_t numComp = res.first;
   
   // Create the edge attribute array
