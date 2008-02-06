@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.112");
+vtkCxxRevisionMacro(vtkCamera, "1.113");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -105,7 +105,7 @@ vtkCamera *vtkCamera::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkCamera");
-  return (vtkCamera*)ret;
+  return static_cast<vtkCamera *>(ret);
 }
 
 //----------------------------------------------------------------------------
