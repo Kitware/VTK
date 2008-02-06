@@ -16,6 +16,7 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -25,9 +26,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPassInputTypeAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkPassInputTypeAlgorithm, "1.2");
 vtkStandardNewMacro(vtkPassInputTypeAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -48,6 +50,62 @@ vtkDataObject* vtkPassInputTypeAlgorithm::GetOutput()
 vtkDataObject* vtkPassInputTypeAlgorithm::GetOutput(int port)
 {
   return vtkDataObject::SafeDownCast(this->GetOutputDataObject(port));
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkImageData
+vtkImageData *vtkPassInputTypeAlgorithm::GetImageDataOutput() 
+{
+  return vtkImageData::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkPolyData.
+vtkPolyData *vtkPassInputTypeAlgorithm::GetPolyDataOutput() 
+{
+  return vtkPolyData::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkStructuredPoints.
+vtkStructuredPoints *vtkPassInputTypeAlgorithm::GetStructuredPointsOutput() 
+{
+  return vtkStructuredPoints::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkStructuredGrid.
+vtkStructuredGrid *vtkPassInputTypeAlgorithm::GetStructuredGridOutput()
+{
+  return vtkStructuredGrid::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkUnstructuredGrid.
+vtkUnstructuredGrid *vtkPassInputTypeAlgorithm::GetUnstructuredGridOutput()
+{
+  return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkRectilinearGrid. 
+vtkRectilinearGrid *vtkPassInputTypeAlgorithm::GetRectilinearGridOutput()
+{
+  return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkTable. 
+vtkTable *vtkPassInputTypeAlgorithm::GetTableOutput()
+{
+  return vtkTable::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkGraph. 
+vtkGraph *vtkPassInputTypeAlgorithm::GetGraphOutput()
+{
+  return vtkGraph::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------

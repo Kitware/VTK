@@ -35,12 +35,14 @@
 #include "vtkAlgorithm.h"
 
 class vtkDataObject;
+class vtkGraph;
 class vtkImageData;
 class vtkPolyData;
 class vtkStructuredPoints;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
+class vtkTable;
 
 class VTK_FILTERING_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgorithm
 {
@@ -53,6 +55,38 @@ public:
   // Get the output data object for a port on this algorithm.
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int);
+
+  // Description:
+  // Get the output as vtkPolyData.
+  vtkPolyData *GetPolyDataOutput();
+
+  // Description:
+  // Get the output as vtkStructuredPoints.
+  vtkStructuredPoints *GetStructuredPointsOutput();
+
+  // Description:
+  // Get the output as vtkStructuredPoints.
+  vtkImageData *GetImageDataOutput();
+
+  // Description:
+  // Get the output as vtkStructuredGrid.
+  vtkStructuredGrid *GetStructuredGridOutput();
+
+  // Description:
+  // Get the output as vtkUnstructuredGrid.
+  vtkUnstructuredGrid *GetUnstructuredGridOutput();
+
+  // Description:
+  // Get the output as vtkRectilinearGrid. 
+  vtkRectilinearGrid *GetRectilinearGridOutput();
+
+  // Description:
+  // Get the output as vtkTable.
+  vtkTable *GetTableOutput();
+
+  // Description:
+  // Get the output as vtkGraph. 
+  vtkGraph *GetGraphOutput();
 
   // Description:
   // Get the input data object. This method is not recommended for use, but
