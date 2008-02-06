@@ -27,14 +27,14 @@
 #ifndef __vtkAssignCoordinates_h
 #define __vtkAssignCoordinates_h
 
-#include "vtkGraphAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkAssignCoordinates : public vtkGraphAlgorithm 
+class VTK_INFOVIS_EXPORT vtkAssignCoordinates : public vtkPassInputTypeAlgorithm 
 {
 public:
   static vtkAssignCoordinates *New();
 
-  vtkTypeRevisionMacro(vtkAssignCoordinates, vtkGraphAlgorithm);
+  vtkTypeRevisionMacro(vtkAssignCoordinates, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -61,6 +61,7 @@ protected:
   ~vtkAssignCoordinates();
   
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
 

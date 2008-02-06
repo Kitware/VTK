@@ -71,14 +71,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.11");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.12");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.11");
+vtkCxxRevisionMacro(vtkGraph, "1.12");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -390,6 +390,26 @@ void vtkGraph::DeepCopy(vtkDataObject *obj)
   else
     {
     vtkErrorMacro("Invalid graph structure for this type of graph.");
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::CopyStructure(vtkGraph *g)
+{
+  // Copy on write.
+  this->SetInternals(g->Internals);
+  if (g->Points)
+    {
+    if (!this->Points)
+      {
+      this->Points = vtkPoints::New();
+      }
+    this->Points->ShallowCopy(g->Points);
+    }
+  else if (this->Points)
+    {
+    this->Points->Delete();
+    this->Points = 0;
     }
 }
 

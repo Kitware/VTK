@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include "vtkProgrammableFilter.h"
+
+#include "vtkGraph.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
@@ -22,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableFilter, "1.23");
+vtkCxxRevisionMacro(vtkProgrammableFilter, "1.24");
 vtkStandardNewMacro(vtkProgrammableFilter);
 
 // Construct programmable filter with empty execute method.
@@ -76,6 +78,12 @@ vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridInput()
   return (vtkRectilinearGrid *)this->GetInput();
 }
 
+// Get the input as a concrete type.
+vtkGraph *vtkProgrammableFilter::GetGraphInput()
+{
+  return (vtkGraph *)this->GetInput();
+}
+
 // Specify the function to use to operate on the point attribute data. Note
 // that the function takes a single (void *) argument.
 void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *), void *arg)
@@ -118,22 +126,34 @@ int vtkProgrammableFilter::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and ouptut
-  vtkDataSet *input = 0;
   if (inInfo)
     {
-    input = vtkDataSet::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkDataObject *objInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    if (vtkDataSet::SafeDownCast(objInput))
+      {
+      vtkDataSet *dsInput = vtkDataSet::SafeDownCast(objInput);
+      vtkDataSet *dsOutput = vtkDataSet::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      // First, copy the input to the output as a starting point
+      if (dsInput && dsOutput && dsInput->GetDataObjectType() == dsOutput->GetDataObjectType())
+        {
+        dsOutput->CopyStructure( dsInput );
+        }
+      }
+    if (vtkGraph::SafeDownCast(objInput))
+      {
+      vtkGraph *graphInput = vtkGraph::SafeDownCast(objInput);
+      vtkGraph *graphOutput = vtkGraph::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      // First, copy the input to the output as a starting point
+      if (graphInput && graphOutput && graphInput->GetDataObjectType() == graphOutput->GetDataObjectType())
+        {
+        graphOutput->CopyStructure( graphInput );
+        }
+      }
     }
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Executing programmable filter");
-
-  // First, copy the input to the output as a starting point
-  if (input && input->GetDataObjectType() == output->GetDataObjectType())
-    {
-    output->CopyStructure( input );
-    }
 
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
@@ -143,4 +163,14 @@ int vtkProgrammableFilter::RequestData(
 
   return 1;
 }
+
+int vtkProgrammableFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  // This algorithm may accept a vtkDataSet or vtkGraph.
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  return 1;  
+}
+
 

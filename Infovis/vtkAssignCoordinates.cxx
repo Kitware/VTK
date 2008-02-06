@@ -25,9 +25,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAssignCoordinates, "1.1");
+vtkCxxRevisionMacro(vtkAssignCoordinates, "1.2");
 vtkStandardNewMacro(vtkAssignCoordinates);
 
 vtkAssignCoordinates::vtkAssignCoordinates()
@@ -54,18 +55,38 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkGraph *output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
     
   // Do a shallow copy of the input to the output
-  // and then create new points on the output
   output->ShallowCopy(input);
-  vtkPoints* newPoints = vtkPoints::New();
-  newPoints->DeepCopy(input->GetPoints());
-  output->SetPoints(newPoints);
-  newPoints->Delete();
+  
+  // Create new points on the output
+  vtkDataSetAttributes *data = 0;
+  vtkPoints* pts = vtkPoints::New();
+  if (vtkPointSet::SafeDownCast(input))
+    {
+    vtkPointSet *psInput = vtkPointSet::SafeDownCast(input);
+    vtkPointSet *psOutput = vtkPointSet::SafeDownCast(output);
+    pts->DeepCopy(psInput->GetPoints());
+    psOutput->SetPoints(pts);
+    pts->Delete();
+    data = psOutput->GetPointData();
+    }
+  else if (vtkGraph::SafeDownCast(input))
+    {
+    vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
+    vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
+    pts->DeepCopy(graphInput->GetPoints());
+    graphOutput->SetPoints(pts);
+    pts->Delete();
+    data = graphOutput->GetVertexData();
+    }
+  else
+    {
+    vtkErrorMacro(<<"Input must be graph or point set.");
+    return 0;
+    }
     
   // I need at least one coordinate array
   if (!this->XCoordArrayName || strlen(XCoordArrayName) == 0)
@@ -74,7 +95,7 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     }
     
   // Okay now check for coordinate arrays
-  vtkDataArray* XArray = output->GetVertexData()->GetArray(this->XCoordArrayName);
+  vtkDataArray* XArray = data->GetArray(this->XCoordArrayName);
   
   // Does the array exist at all?  
   if (XArray == NULL)
@@ -87,7 +108,7 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataArray* YArray = 0;
   if (this->YCoordArrayName && strlen(YCoordArrayName) > 0)
     {
-    YArray = output->GetVertexData()->GetArray(this->YCoordArrayName);
+    YArray = data->GetArray(this->YCoordArrayName);
     
     // Does the array exist at all?  
     if (YArray == NULL)
@@ -101,7 +122,7 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataArray* ZArray = 0;
   if (this->ZCoordArrayName && strlen(ZCoordArrayName) > 0)
     {
-    ZArray = output->GetVertexData()->GetArray(this->ZCoordArrayName);
+    ZArray = data->GetArray(this->ZCoordArrayName);
     
     // Does the array exist at all?  
     if (ZArray == NULL)
@@ -112,8 +133,8 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     }
           
   // Generate the points, either x,0,0 or x,y,0 or x,y,z
-  vtkPoints* pts = output->GetPoints();
-  for (int i=0; i< input->GetNumberOfVertices(); i++)
+  int numPts = pts->GetNumberOfPoints();
+  for (int i = 0; i < numPts; i++)
     {
     double rx,ry,rz;
     if (Jitter)
@@ -151,6 +172,15 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     
     return 1;
 } 
+
+int vtkAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  // This algorithm may accept a vtkPointSet or vtkGraph.
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  return 1;  
+}
 
 void vtkAssignCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {

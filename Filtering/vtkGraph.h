@@ -278,6 +278,11 @@ public:
   // Deep copies the data object into this graph.
   // If it is an incompatible graph, reports an error.
   virtual void DeepCopy(vtkDataObject *obj);
+  
+  // Description:
+  // Does a shallow copy of the topological information,
+  // but not the associated attributes.
+  virtual void CopyStructure(vtkGraph *g);
 
   // Description:
   // Performs the same operation as ShallowCopy(),

@@ -37,13 +37,15 @@
 #ifndef __vtkProgrammableFilter_h
 #define __vtkProgrammableFilter_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkDataSetAlgorithm
+class vtkGraph;
+
+class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkProgrammableFilter *New();
-  vtkTypeRevisionMacro(vtkProgrammableFilter,vtkDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkProgrammableFilter,vtkPassInputTypeAlgorithm);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note
@@ -77,11 +79,16 @@ public:
   // Get the input as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridInput();
 
+  // Description:
+  // Get the input as a concrete type.
+  vtkGraph *GetGraphInput();
+
 protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);

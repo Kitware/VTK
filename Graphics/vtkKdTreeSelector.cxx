@@ -29,7 +29,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.8");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.9");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -280,7 +280,10 @@ int vtkKdTreeSelector::FillInputPortInformation(
   int vtkNotUsed(port), 
   vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  // Input (if specified) may be a point set or graph.
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
