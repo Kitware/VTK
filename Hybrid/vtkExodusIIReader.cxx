@@ -724,7 +724,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.51");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.52");
 
 
 
@@ -1678,7 +1678,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.51");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.52");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
                      CachedConnectivity,
@@ -2917,8 +2917,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
       ped->DeepCopy( arr );
       ped->SetName( vtkExodusIIReader::GetPedigreeElementIdArrayName() );
 
-      cd->AddArray( ped );
       cd->SetGlobalIds( arr );
+      cd->SetPedigreeIds( ped );
       ped->FastDelete();
 
       status -= 2;
@@ -2939,8 +2939,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
       ped->DeepCopy( arr );
       ped->SetName( vtkExodusIIReader::GetPedigreeNodeIdArrayName() );
 
-      pd->AddArray( ped );
       pd->SetGlobalIds( arr );
+      pd->SetPedigreeIds( ped );
       ped->FastDelete();
 
       status -= 4;
@@ -6135,7 +6135,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.51");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.52");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
