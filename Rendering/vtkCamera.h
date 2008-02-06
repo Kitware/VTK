@@ -251,8 +251,21 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Return the matrix of the view transform.
+  // The ViewTransform depends on only three ivars:  the Position, the
+  // FocalPoint, and the ViewUp vector.  All the other methods are there
+  // simply for the sake of the users' convenience.
   virtual vtkMatrix4x4 *GetViewTransformMatrix();
 
+  // Description:
+  // Return the view transform.
+  // The ViewTransform depends on only three ivars:  the Position, the
+  // FocalPoint, and the ViewUp vector.  All the other methods are there
+  // simply for the sake of the users' convenience.
+  virtual vtkTransform *GetViewTransformObject()
+    {
+      return this->ViewTransform;
+    }
+  
   // Description:
   // Return the perspective transform matrix, which converts from camera
   // coordinates to viewport coordinates.  The 'aspect' is the
@@ -330,8 +343,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Update the viewport
   virtual void UpdateViewport(vtkRenderer *vtkNotUsed(ren)) {}
-
-  virtual vtkTransform *GetViewTransformObject() {return this->ViewTransform;};
 
   // Description:
   // Set the Left Eye setting
