@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.3");
+vtkCxxRevisionMacro(vtkLine, "1.4");
 vtkStandardNewMacro(vtkLine);
 
 //----------------------------------------------------------------------------
@@ -553,7 +553,7 @@ double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
   // If parametric coordinate is within 0<=p<=1, then the point is closest to
   // the line.  Otherwise, it's closest to a point at the end of the line.
   //
-  else if ( (t=num/denom) < 0.0 )
+  else if ( denom <= 0.0 || (t=num/denom) < 0.0 )
     {
     closest = p1;
     }
