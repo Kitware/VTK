@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.11");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.12");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -135,12 +135,11 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Manage the picking stuff
   //
-  this->PlanePicker = vtkCellPicker::New();
-  this->PlanePicker->SetTolerance(0.005); //need some fluff
-  this->PlanePicker->AddPickList(this->TexturePlaneActor);
-  this->PlanePicker->PickFromListOn();
-  this->PlanePicker->Register(this);
-  this->PlanePicker->Delete();
+  this->PlanePicker = NULL;
+  vtkCellPicker* picker = vtkCellPicker::New();
+  picker->SetTolerance(0.005); //need some fluff
+  this->SetPicker(picker);
+  picker->Delete();
 
   // Set up the initial properties
   //
@@ -319,10 +318,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     // Add the image data annotation
     this->CurrentRenderer->AddViewProp(this->TextActor);
 
-    if ( this->PlanePicker )
-      {
-      this->TexturePlaneActor->PickableOn();
-      }
+    this->TexturePlaneActor->PickableOn();
 
     this->InvokeEvent(vtkCommand::EnableEvent,0);
 
@@ -357,10 +353,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     //turn off the image data annotation
     this->CurrentRenderer->RemoveViewProp(this->TextActor);
 
-    if ( this->PlanePicker )
-      {
-      this->TexturePlaneActor->PickableOff();
-      }
+    this->TexturePlaneActor->PickableOff();
 
     this->InvokeEvent(vtkCommand::DisableEvent,0);
     this->SetCurrentRenderer(NULL);
@@ -1610,12 +1603,13 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
+void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
 {
-  if (this->PlanePicker != picker)
+  // we have to have a picker for slice motion, window level and cursor to work
+  if (this->PlanePicker != picker && picker != NULL)
     {
     // to avoid destructor recursion
-    vtkCellPicker *temp = this->PlanePicker;
+    vtkAbstractPropPicker *temp = this->PlanePicker;
     this->PlanePicker = picker;
     if (temp != 0)
       {
@@ -1624,7 +1618,6 @@ void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)
     if (this->PlanePicker != 0)
       {
       this->PlanePicker->Register(this);
-      this->PlanePicker->SetTolerance(0.005); //need some fluff
       this->PlanePicker->AddPickList(this->TexturePlaneActor);
       this->PlanePicker->PickFromListOn();
       }

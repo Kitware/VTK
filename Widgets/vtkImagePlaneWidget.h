@@ -99,7 +99,7 @@
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
-class vtkCellPicker;
+class vtkAbstractPropPicker;
 class vtkDataSetMapper;
 class vtkImageData;
 class vtkImageMapToColors;
@@ -303,7 +303,7 @@ public:
   // a set of three orthogonal planes can share the same picker so that
   // picking is performed correctly.  The default internal picker can be
   // re-set/allocated by setting to 0 (NULL).
-  void SetPicker(vtkCellPicker*);
+  void SetPicker(vtkAbstractPropPicker*);
 
   // Description:
   // Set/Get the internal lookuptable (lut) to one defined by the user, or,
@@ -524,7 +524,7 @@ protected:
   void BuildRepresentation();
 
   // Do the picking
-  vtkCellPicker *PlanePicker;
+  vtkAbstractPropPicker *PlanePicker;
 
   // Methods to manipulate the plane
   void WindowLevel(int X, int Y);
