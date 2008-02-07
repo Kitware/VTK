@@ -35,13 +35,13 @@
 
 class vtkActor;
 class vtkActor2D;
-class vtkCellCenters;
 class vtkCircularLayoutStrategy;
 class vtkClustering2DLayoutStrategy;
 class vtkCoordinate;
 class vtkCommunity2DLayoutStrategy;
 class vtkConstrained2DLayoutStrategy;
 class vtkDynamic2DLabelMapper;
+class vtkEdgeCenters;
 class vtkExtractSelectedGraph;
 class vtkFast2DLayoutStrategy;
 class vtkForceDirectedLayoutStrategy;
@@ -238,7 +238,7 @@ protected:
   vtkSmartPointer<vtkPassThroughLayoutStrategy>    PassThroughStrategy;
   vtkSmartPointer<vtkCircularLayoutStrategy>       CircularStrategy;
   vtkSmartPointer<vtkVertexDegree>                 VertexDegree;
-  vtkSmartPointer<vtkCellCenters>                  CellCenters;
+  vtkSmartPointer<vtkEdgeCenters>                  EdgeCenters;
   vtkSmartPointer<vtkActor>                        GraphActor;
   vtkSmartPointer<vtkGraphMapper>                  GraphMapper;
   vtkSmartPointer<vtkDynamic2DLabelMapper>         VertexLabelMapper;

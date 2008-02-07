@@ -57,14 +57,14 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
-#include "vtkCellCenters.h"
+#include "vtkEdgeCenters.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.11");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.12");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -81,7 +81,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->PassThroughStrategy    = vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();
   this->CircularStrategy       = vtkSmartPointer<vtkCircularLayoutStrategy>::New();
   this->VertexDegree           = vtkSmartPointer<vtkVertexDegree>::New();
-  this->CellCenters            = vtkSmartPointer<vtkCellCenters>::New();
+  this->EdgeCenters            = vtkSmartPointer<vtkEdgeCenters>::New();
   this->GraphMapper            = vtkSmartPointer<vtkGraphMapper>::New();
   this->GraphActor             = vtkSmartPointer<vtkActor>::New();
   this->VertexLabelMapper      = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
@@ -153,8 +153,8 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->GraphActor->SetMapper(this->GraphMapper);
   this->VertexLabelMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->VertexLabelActor->SetMapper(this->VertexLabelMapper);
-  this->CellCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
-  this->EdgeLabelMapper->SetInputConnection(this->CellCenters->GetOutputPort());
+  this->EdgeCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
+  this->EdgeLabelMapper->SetInputConnection(this->EdgeCenters->GetOutputPort());
   this->EdgeLabelActor->SetMapper(this->EdgeLabelMapper);
 
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());

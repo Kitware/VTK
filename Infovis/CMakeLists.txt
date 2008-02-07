@@ -15,6 +15,7 @@ vtkCommunity2DLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
+vtkEdgeCenters.cxx
 vtkExtractSelectedGraph.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx

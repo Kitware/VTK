@@ -25,6 +25,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
@@ -1081,13 +1082,28 @@ int TestGraphLayoutView(int argc, char* argv[])
   reader->SetMaskArrays(true);
   reader->Update();
   vtkTree* t = reader->GetOutput();
+  VTK_CREATE(vtkStringArray, label);
+  label->SetName("edge label");
   VTK_CREATE(vtkIdTypeArray, dist);
   dist->SetName("distance");
   for (vtkIdType i = 0; i < t->GetNumberOfEdges(); i++)
     {
     dist->InsertNextValue(i);
+    switch (i % 3)
+      {
+      case 0:
+        label->InsertNextValue("a");
+        break;
+      case 1:
+        label->InsertNextValue("b");
+        break;
+      case 2:
+        label->InsertNextValue("c");
+        break;
+      }
     }
   t->GetEdgeData()->AddArray(dist);
+  t->GetEdgeData()->AddArray(label);
   
   VTK_CREATE(vtkStringToNumeric, numeric);
   numeric->SetInput(t);
@@ -1104,6 +1120,8 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->ColorVerticesOn();
   view->SetEdgeColorArrayName("distance");
   view->ColorEdgesOn();
+  view->SetEdgeLabelArrayName("edge label");
+  view->EdgeLabelVisibilityOn();
   view->SetupRenderWindow(win);
   view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
 
