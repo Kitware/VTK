@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.44");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.45");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -50,6 +50,12 @@ int vtkExtractGrid::RequestUpdateExtent(
   int rate[3];
 
   inWholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  // Temporary fix for multi-block datasets. If the WHOLE_EXTENT is not
+  // defined, exit gracefully instead of crashing.
+  if (!inWholeExt)
+    {
+    return 1;
+    }
   outWholeExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   updateExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
