@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObserverMediator.h" 
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.36");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.37");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -44,7 +44,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->CurrentRenderer = NULL;
   this->DefaultRenderer = NULL;
 
-  this->Priority = 0.0;
+  this->Priority = 0.0f;
 
   this->KeyPressActivation = 1;
   this->KeyPressActivationValue = 'i';

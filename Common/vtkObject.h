@@ -122,9 +122,9 @@ public:
   // information.)
   //BTX
   unsigned long AddObserver(unsigned long event, vtkCommand *, 
-                            float priority=0.0);
+                            float priority=0.0f);
   unsigned long AddObserver(const char *event, vtkCommand *, 
-                            float priority=0.0);
+                            float priority=0.0f);
   vtkCommand *GetCommand(unsigned long tag);
   void RemoveObserver(vtkCommand*);
   void RemoveObservers(unsigned long event, vtkCommand *);

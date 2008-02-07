@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.154");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.155");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -68,7 +68,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->Renderers = vtkRendererCollection::New();
   this->NumberOfLayers = 1;
   this->CurrentCursor = VTK_CURSOR_DEFAULT;
-  this->AnaglyphColorSaturation = 0.65;
+  this->AnaglyphColorSaturation = 0.65f;
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();

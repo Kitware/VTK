@@ -24,14 +24,14 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLActor, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.31");
 vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
-  float opacity;
+  double opacity;
 
   // get opacity
   opacity = this->GetProperty()->GetOpacity();

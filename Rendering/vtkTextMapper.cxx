@@ -18,7 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.55");
+vtkCxxRevisionMacro(vtkTextMapper, "1.56");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -266,7 +266,7 @@ int vtkTextMapper::SetRelativeFontSize(vtkTextMapper *tmapper,
                                        vtkViewport *viewport,  int *targetSize, 
                                        int *stringSize, float sizeFactor)
 {
-  sizeFactor = (sizeFactor <= 0.0 ? 0.015 : sizeFactor);
+  sizeFactor = (sizeFactor <= 0.0f ? 0.015f : sizeFactor);
 
   int fontSize, targetWidth, targetHeight;
   // Find the best size for the font
@@ -460,7 +460,7 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
 void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport, 
                                                vtkActor2D *actor)    
 {
-  float offset = 0.0;
+  float offset = 0.0f;
   int size[2];
   // make sure LineSize is up to date 
   this->GetMultiLineSize(viewport,size);
@@ -475,13 +475,13 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
   switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP:
-      offset = 0.0;
+      offset = 0.0f;
       break;
     case VTK_TEXT_CENTERED:
-      offset = (-this->NumberOfLines + 1.0) / 2.0;
+      offset = (-this->NumberOfLines + 1.0f) / 2.0f;
       break;
     case VTK_TEXT_BOTTOM:
-      offset = -this->NumberOfLines + 1.0;
+      offset = -this->NumberOfLines + 1.0f;
       break;
     }
 
