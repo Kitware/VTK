@@ -65,6 +65,8 @@ class vtkFunctionParser;
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
+#define VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA 3
+#define VTK_ATTRIBUTE_MODE_USE_EDGE_DATA 4
 
 class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm 
 {
@@ -128,6 +130,8 @@ public:
   // By default (AttributeModeToDefault), the filter uses point
   // data. Alternatively you can explicitly set the filter to use point data
   // (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
+  // For graphs you can set the filter to use vertex data
+  // (AttributeModeToUseVertexData) or edge data (AttributeModeToUseEdgeData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
   void SetAttributeModeToDefault() 
@@ -136,6 +140,10 @@ public:
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
   void SetAttributeModeToUseCellData() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+  void SetAttributeModeToUseVertexData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA);};
+  void SetAttributeModeToUseEdgeData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
   const char *GetAttributeModeAsString();
 
   // Description:

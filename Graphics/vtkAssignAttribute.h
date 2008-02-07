@@ -54,16 +54,16 @@
 #ifndef __vtkAssignAttribute_h
 #define __vtkAssignAttribute_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkAssignAttribute : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkAssignAttribute,vtkDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -89,7 +89,9 @@ public:
   enum AttributeLocation
   {
     POINT_DATA=0,
-    CELL_DATA=1
+    CELL_DATA=1,
+    VERTEX_DATA=2,
+    EDGE_DATA=3
   };
 //ETX
 
@@ -108,6 +110,7 @@ protected:
 
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
 
   char* FieldName;
   int FieldType;
