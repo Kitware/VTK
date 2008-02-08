@@ -148,7 +148,7 @@ class METAIO_EXPORT MetaTube : public MetaObject
 
     bool m_Root;         // "Root = "            0
 
-    int m_NPoints;      // "NPoints = "         0
+    size_t m_NPoints;      // "NPoints = "         0
 
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 

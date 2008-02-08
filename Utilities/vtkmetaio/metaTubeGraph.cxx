@@ -361,8 +361,8 @@ M_Read(void)
                         << METAIO_STREAM::endl;
     }
 
-  int j;
-  for(j = 0; j < pntDim; j++) 
+  unsigned int j;
+  for(j = 0; j < (unsigned int)pntDim; j++) 
     {
     if(!strcmp(pntVal[j], "node") || !strcmp(pntVal[j], "Node"))
       {

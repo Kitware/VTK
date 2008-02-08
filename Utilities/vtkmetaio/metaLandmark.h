@@ -132,7 +132,7 @@ class METAIO_EXPORT MetaLandmark : public MetaObject
 
     bool  M_Write(void);
 
-    int m_NPoints;      // "NPoints = "         0
+    size_t m_NPoints;      // "NPoints = "         0
 
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 

@@ -317,7 +317,7 @@ template <class T>
 bool MET_InitWriteField(MET_FieldRecordType * _mf, 
                                    const char *_name, 
                                    MET_ValueEnumType _type, 
-                                   int _length, 
+                                   size_t _length, 
                                    T *_v)
   {
   strncpy(_mf->name, _name,254);
@@ -330,7 +330,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
   _mf->terminateRead = false;
   if(_type == MET_FLOAT_MATRIX)
     {
-    int i;
+    unsigned int i;
     for(i=0; i < 255 && i < _length*_length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
@@ -338,7 +338,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
     }
   else if(_type != MET_STRING)
     {
-    int i;
+    unsigned int i;
     for(i=0; i < 255 && i < _length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
