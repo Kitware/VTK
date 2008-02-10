@@ -55,36 +55,28 @@ static char IOPeventLog[] =
 "MiddleButtonReleaseEvent 179 135 0 0 0 0 i\n"
 "RightButtonPressEvent 179 135 0 0 0 0 i\n"
 "MouseMoveEvent 180 135 0 0 0 0 i\n"
+"MouseMoveEvent 181 136 0 0 0 0 i\n"
+"MouseMoveEvent 181 137 0 0 0 0 i\n"
+"MouseMoveEvent 181 138 0 0 0 0 i\n"
+"MouseMoveEvent 181 139 0 0 0 0 i\n"
+"MouseMoveEvent 181 140 0 0 0 0 i\n"
 "MouseMoveEvent 180 140 0 0 0 0 i\n"
-"MouseMoveEvent 180 145 0 0 0 0 i\n"
-"MouseMoveEvent 180 150 0 0 0 0 i\n"
-"MouseMoveEvent 180 155 0 0 0 0 i\n"
-"MouseMoveEvent 181 160 0 0 0 0 i\n"
-"MouseMoveEvent 181 165 0 0 0 0 i\n"
-"MouseMoveEvent 181 170 0 0 0 0 i\n"
-"MouseMoveEvent 181 175 0 0 0 0 i\n"
-"MouseMoveEvent 181 180 0 0 0 0 i\n"
-"MouseMoveEvent 181 185 0 0 0 0 i\n"
-"MouseMoveEvent 181 190 0 0 0 0 i\n"
-"MouseMoveEvent 181 195 0 0 0 0 i\n"
-"MouseMoveEvent 181 200 0 0 0 0 i\n"
-"MouseMoveEvent 180 207 0 0 0 0 i\n"
-"MouseMoveEvent 175 207 0 0 0 0 i\n"
-"MouseMoveEvent 170 207 0 0 0 0 i\n"
-"MouseMoveEvent 165 207 0 0 0 0 i\n"
-"MouseMoveEvent 160 207 0 0 0 0 i\n"
-"MouseMoveEvent 155 209 0 0 0 0 i\n"
-"MouseMoveEvent 150 209 0 0 0 0 i\n"
-"MouseMoveEvent 145 210 0 0 0 0 i\n"
-"MouseMoveEvent 140 211 0 0 0 0 i\n"
-"MouseMoveEvent 135 213 0 0 0 0 i\n"
-"MouseMoveEvent 130 214 0 0 0 0 i\n"
-"MouseMoveEvent 125 215 0 0 0 0 i\n"
-"MouseMoveEvent 120 216 0 0 0 0 i\n"
-"MouseMoveEvent 115 216 0 0 0 0 i\n"
-"MouseMoveEvent 110 217 0 0 0 0 i\n"
+"MouseMoveEvent 175 135 0 0 0 0 i\n"
+"MouseMoveEvent 170 130 0 0 0 0 i\n"
+"MouseMoveEvent 165 130 0 0 0 0 i\n"
+"MouseMoveEvent 160 130 0 0 0 0 i\n"
+"MouseMoveEvent 155 125 0 0 0 0 i\n"
+"MouseMoveEvent 150 120 0 0 0 0 i\n"
+"MouseMoveEvent 145 115 0 0 0 0 i\n"
+"MouseMoveEvent 140 110 0 0 0 0 i\n"
+"RightButtonReleaseEvent 140 110 0 0 0 0 i\n"
+"MouseMoveEvent 135 120 0 0 0 0 i\n"
+"MouseMoveEvent 130 135 0 0 0 0 i\n"
+"MouseMoveEvent 125 170 0 0 0 0 i\n"
+"MouseMoveEvent 120 180 0 0 0 0 i\n"
+"MouseMoveEvent 115 190 0 0 0 0 i\n"
+"MouseMoveEvent 110 200 0 0 0 0 i\n"
 "MouseMoveEvent 106 218 0 0 0 0 i\n"
-"RightButtonReleaseEvent 106 218 0 0 0 0 i\n"
 "LeftButtonPressEvent 106 218 0 0 0 0 i\n"
 "MouseMoveEvent 107 219 0 0 0 0 i\n"
 "MouseMoveEvent 110 218 0 0 0 0 i\n"
@@ -338,6 +330,45 @@ static char IOPeventLog[] =
 "MiddleButtonReleaseEvent 86 274 0 0 0 0 Shift_L\n"
 ;
 
+//----------------------------------------------------------------------------
+class vtkOrthoPlanesCallback : public vtkCommand
+{
+public:
+  static vtkOrthoPlanesCallback *New()
+  { return new vtkOrthoPlanesCallback; }
+
+  void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
+                void *vtkNotUsed( callData ) )
+  {
+    vtkImagePlaneWidget* self =
+      reinterpret_cast< vtkImagePlaneWidget* >( caller );
+    if(!self) return;
+    double w = self->GetWindow();
+    double l = self->GetLevel();
+    if ( self == this->WidgetX )
+      {
+      this->WidgetY->SetWindowLevel(w,l,1);
+      this->WidgetZ->SetWindowLevel(w,l,1);
+      }
+    else if( self == this->WidgetY )
+      {
+      this->WidgetX->SetWindowLevel(w,l,1);
+      this->WidgetZ->SetWindowLevel(w,l,1);
+      }
+    else if (self == this->WidgetZ)
+      {
+      this->WidgetX->SetWindowLevel(w,l,1);
+      this->WidgetY->SetWindowLevel(w,l,1);
+      }
+  }
+
+  vtkOrthoPlanesCallback():WidgetX( 0 ), WidgetY( 0 ), WidgetZ ( 0 ) {}
+
+  vtkImagePlaneWidget* WidgetX;
+  vtkImagePlaneWidget* WidgetY;
+  vtkImagePlaneWidget* WidgetZ;
+};
+
 int TestOrthoPlanes( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
@@ -431,6 +462,15 @@ int TestOrthoPlanes( int argc, char *argv[] )
     orthoPlanes->SetPlane(1, planeWidgetY);
     orthoPlanes->SetPlane(2, planeWidgetZ);
     orthoPlanes->ResetPlanes();
+
+   vtkOrthoPlanesCallback* cbk = vtkOrthoPlanesCallback::New();
+   cbk->WidgetX = planeWidgetX;
+   cbk->WidgetY = planeWidgetY;
+   cbk->WidgetZ = planeWidgetZ;
+   planeWidgetX->AddObserver( vtkCommand::EndInteractionEvent, cbk );
+   planeWidgetY->AddObserver( vtkCommand::EndInteractionEvent, cbk );
+   planeWidgetZ->AddObserver( vtkCommand::EndInteractionEvent, cbk );
+   cbk->Delete();
 
   double wl[2];
   planeWidgetZ->GetWindowLevel(wl);
