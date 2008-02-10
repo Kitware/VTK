@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.13");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.14");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1447,6 +1447,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   this->OriginalWindow = range[1] - range[0];
   this->OriginalLevel = 0.5*(range[0] + range[1]);
+  
   if( fabs( this->OriginalWindow ) < 0.001 )
     {
     this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
@@ -1456,8 +1457,6 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
    this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
    }
 
-  this->CurrentWindow = this->OriginalWindow;
-  this->CurrentLevel = this->OriginalLevel;
   this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
   this->Reslice->SetInput(this->ImageData);
@@ -1766,6 +1765,7 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 
     this->OriginalWindow = range[1] - range[0];
     this->OriginalLevel = 0.5*(range[0] + range[1]);
+
     if( fabs( this->OriginalWindow ) < 0.001 )
       {
       this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
@@ -1775,8 +1775,6 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
       this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
       }
 
-    this->CurrentWindow = this->OriginalWindow;
-    this->CurrentLevel = this->OriginalLevel;
     this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
     }
 }
