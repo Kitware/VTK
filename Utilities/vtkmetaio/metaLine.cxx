@@ -332,7 +332,7 @@ M_Read(void)
     int i=0;
     int d;
     unsigned int k;
-    for(int j=0; j<m_NPoints; j++) 
+    for(unsigned int j=0; j<m_NPoints; j++) 
     {
       LinePnt* pnt = new LinePnt(m_NDims);
       

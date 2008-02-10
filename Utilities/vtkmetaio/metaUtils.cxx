@@ -196,7 +196,7 @@ char* MET_ReadSubType(METAIO_STREAM::istream &_fp)
   _fp.getline( s, 500 );
   METAIO_STL::string value = s;
   size_t position = value.find("=");
-  if(position!=-1)
+  if(position!=METAIO_STL::string::npos)
     {
     value = value.substr(position+2,value.size()-position);
     }

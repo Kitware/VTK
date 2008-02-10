@@ -430,7 +430,7 @@ M_Read(void)
     strcpy(m_PointDim,(char *)(mF->value));
   }
 
-  int j;
+  unsigned int j;
 
   if(m_BinaryData)
   {

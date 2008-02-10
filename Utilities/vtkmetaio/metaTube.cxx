@@ -515,7 +515,7 @@ M_Read(void)
     i=0;
     int d;
     unsigned int k;
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<(int)m_NPoints; j++) 
       {
       TubePnt* pnt = new TubePnt(m_NDims);
       
@@ -620,7 +620,7 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<m_NPoints; j++) 
+    for(j=0; j<(int)m_NPoints; j++) 
       {
       if(m_Event)
         {

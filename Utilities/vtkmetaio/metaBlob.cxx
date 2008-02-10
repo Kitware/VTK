@@ -303,7 +303,7 @@ M_Read(void)
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal); 
  
     
-  int j;
+  unsigned int j;
   for(j = 0; j < pntDim; j++) 
   {
     if(!strcmp(pntVal[j], "x") || !strcmp(pntVal[j], "X"))
@@ -322,7 +322,7 @@ M_Read(void)
 
   for(i=0;i<pntDim;i++)
     {
-      delete [] pntVal[i];
+    delete [] pntVal[i];
     }
  
   delete [] pntVal;
