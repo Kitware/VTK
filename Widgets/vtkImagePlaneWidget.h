@@ -351,9 +351,13 @@ public:
 
   // Description:
   // Set/Get the current window and level values.  Set should
-  // only be called after SetInput.
-  void SetWindowLevel(double window, double level);
+  // only be called after SetInput.  If a shared lookup table is being used,
+  // a callback is required to update the window level values without having
+  // to update the lookup table again.
+  void SetWindowLevel(double window, double level, int copy = 0);
   void GetWindowLevel(double wl[2]);
+  double GetWindow(){return this->CurrentWindow;}
+  double GetLevel(){return this->CurrentLevel;}
 
   // Description:
   // Get the image coordinate position and voxel value.  Currently only
@@ -501,17 +505,21 @@ protected:
   virtual void StopWindowLevel();
 
   // controlling ivars
-  int   Interaction; // Is the widget responsive to mouse events  
-  int   PlaneOrientation;
-  int   RestrictPlaneToVolume;
+  int    Interaction; // Is the widget responsive to mouse events
+  int    PlaneOrientation;
+  int    RestrictPlaneToVolume;
   double OriginalWindow;
   double OriginalLevel;
   double CurrentWindow;
   double CurrentLevel;
-  int   ResliceInterpolate;
-  int   TextureInterpolate;
-  int   UserControlledLookupTable;
-  int   DisplayText;
+  double InitialWindow;
+  double InitialLevel;
+  int    StartWindowLevelPositionX;
+  int    StartWindowLevelPositionY;
+  int    ResliceInterpolate;
+  int    TextureInterpolate;
+  int    UserControlledLookupTable;
+  int    DisplayText;
 
   // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
@@ -525,6 +533,9 @@ protected:
 
   // Do the picking
   vtkAbstractPropPicker *PlanePicker;
+
+  // for negative window values.
+  void InvertTable();
 
   // Methods to manipulate the plane
   void WindowLevel(int X, int Y);

@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.12");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.13");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -929,6 +929,10 @@ void vtkImagePlaneWidget::StartWindowLevel()
     this->State = vtkImagePlaneWidget::WindowLevelling;
     this->HighlightPlane(1);
     this->ActivateText(1);
+    this->InitialWindow = this->CurrentWindow;
+    this->InitialLevel = this->CurrentLevel;
+    this->StartWindowLevelPositionX = X;
+    this->StartWindowLevelPositionY = Y;
     this->WindowLevel(X,Y);
     this->ManageTextDisplay();
     }
@@ -1056,48 +1060,126 @@ void vtkImagePlaneWidget::OnMouseMove()
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 {
-  double range[2];
-  this->LookupTable->GetTableRange(range);
-  double window = range[1] - range[0];
-  double level = 0.5*(range[0] + range[1]);
+  int *size = this->CurrentRenderer->GetSize();
+  double window = this->InitialWindow;
+  double level = this->InitialLevel;
 
-  double owin = this->OriginalWindow;
+  // Compute normalized delta
 
-  level = level + (X - this->Interactor->GetLastEventPosition()[0])*owin/500.0;
-  window = 
-    window + (this->Interactor->GetLastEventPosition()[1] - Y)*owin/250.0;
+  double dx = 4.0 * ( X - this->StartWindowLevelPositionX ) / size[0];
+  double dy = 4.0 *( this->StartWindowLevelPositionY - Y ) / size[1];
 
-  if ( window == 0.0 )
+  // Scale by current values
+
+  if ( fabs( window ) > 0.01 )
     {
-    window = 0.001;
+    dx = dx * window;
+    }
+  else
+    {
+    dx = dx * ( window < 0 ? -0.01 : 0.01 );
+    }
+  if ( fabs( level ) > 0.01 )
+    {
+    dy = dy * level;
+    }
+  else
+    {
+    dy = dy * ( level < 0 ? -0.01 : 0.01 );
     }
 
-  double rmin = level - window*0.5;
-  double rmax = level + window*0.5;
+  // Abs so that direction does not flip
 
-  if( rmin < rmax )
+  if ( window < 0.0 )
     {
-    this->CurrentWindow = window;
-    this->CurrentLevel = level;
-    if (!this->UserControlledLookupTable)
+    dx = -1 * dx;
+    }
+  if ( level < 0.0 )
+    {
+    dy = -1 * dy;
+    }
+
+  // Compute new window level
+
+  double newWindow = dx + window;
+  double newLevel = level - dy;
+
+  if ( fabs( newWindow ) < 0.01 )
+    {
+    newWindow = 0.01 * ( newWindow < 0 ? -1 : 1 );
+    }
+  if ( fabs( newLevel ) < 0.01 )
+    {
+    newLevel = 0.01 * ( newLevel < 0 ? -1 : 1 );
+    }
+  
+  if ( !this->UserControlledLookupTable )
+    {
+    if (( newWindow < 0 && this->CurrentWindow > 0 ) || \
+        ( newWindow > 0 && this->CurrentWindow < 0 ))
       {
-      this->LookupTable->SetTableRange(rmin,rmax);
+      this->InvertTable();
       }
+
+    double rmin = newLevel - 0.5*fabs( newWindow );
+    double rmax = rmin + fabs( newWindow );
+    this->LookupTable->SetTableRange( rmin, rmax );
     }
+
+  this->CurrentWindow = newWindow;
+  this->CurrentLevel = newLevel;
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetWindowLevel(double window, double level)
+void vtkImagePlaneWidget::InvertTable()
 {
-  double rmin = level - window*0.5;
-  double rmax = level + window*0.5;
-  this->CurrentWindow = window;
-  this->OriginalWindow  = window;
-  this->CurrentLevel = level;
-  this->OriginalLevel  = level;
-  this->LookupTable->SetTableRange(rmin,rmax);
+  int index = this->LookupTable->GetNumberOfTableValues()-1;
+  int count = 0;
+  vtkLookupTable* lut = vtkLookupTable::New();
+  lut->DeepCopy( this->LookupTable );
+  while ( index >= 0 )
+    {
+    this->LookupTable->SetTableValue( count++, lut->GetTableValue( index-- ) );
+    }
 
-  if(this->Enabled)
+  this->LookupTable->Build();
+  lut->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkImagePlaneWidget::SetWindowLevel(double window, double level, int copy)
+{
+  if ( copy )
+    {
+    this->CurrentWindow = window;
+    this->CurrentLevel = level;
+    return;
+    }
+    
+  if ( this->CurrentWindow == window && this->CurrentLevel == level )
+    {
+    return;
+    }
+
+  // if the new window is negative and the old window was positive invert table
+  if ( ( window < 0 && this->CurrentWindow > 0 ) || \
+       ( window > 0 && this->CurrentWindow < 0 ) && \
+        !this->UserControlledLookupTable )
+    {
+    this->InvertTable();
+    }
+
+  this->CurrentWindow = window;
+  this->CurrentLevel = level;
+
+  if ( !this->UserControlledLookupTable )
+    {
+    double rmin = this->CurrentLevel - 0.5*fabs( this->CurrentWindow );
+    double rmax = rmin + fabs( this->CurrentWindow );
+    this->LookupTable->SetTableRange( rmin, rmax );
+    }
+
+  if ( this->Enabled )
     {
     this->Interactor->Render();
     }
@@ -1106,10 +1188,8 @@ void vtkImagePlaneWidget::SetWindowLevel(double window, double level)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::GetWindowLevel(double wl[2])
 {
-  double range[2];
-  this->LookupTable->GetTableRange(range);
-  wl[0] = range[1] - range[0];
-  wl[1] = 0.5*(range[0]+range[1]);
+  wl[0] = this->CurrentWindow;
+  wl[1] = this->CurrentLevel;
 }
 
 //----------------------------------------------------------------------------
@@ -1367,6 +1447,18 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   this->OriginalWindow = range[1] - range[0];
   this->OriginalLevel = 0.5*(range[0] + range[1]);
+  if( fabs( this->OriginalWindow ) < 0.001 )
+    {
+    this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
+    }
+  if( fabs( this->OriginalLevel ) < 0.001 )
+   {
+   this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
+   }
+
+  this->CurrentWindow = this->OriginalWindow;
+  this->CurrentLevel = this->OriginalLevel;
+  this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
   this->Reslice->SetInput(this->ImageData);
   int interpolate = this->ResliceInterpolate;
@@ -1674,6 +1766,18 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 
     this->OriginalWindow = range[1] - range[0];
     this->OriginalLevel = 0.5*(range[0] + range[1]);
+    if( fabs( this->OriginalWindow ) < 0.001 )
+      {
+      this->OriginalWindow = 0.001 * ( this->OriginalWindow < 0.0 ? -1 : 1 );
+      }
+    if( fabs( this->OriginalLevel ) < 0.001 )
+      {
+      this->OriginalLevel = 0.001 * ( this->OriginalLevel < 0.0 ? -1 : 1 );
+      }
+
+    this->CurrentWindow = this->OriginalWindow;
+    this->CurrentLevel = this->OriginalLevel;
+    this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
     }
 }
 
