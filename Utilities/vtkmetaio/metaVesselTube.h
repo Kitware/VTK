@@ -164,7 +164,7 @@ class METAIO_EXPORT MetaVesselTube : public MetaObject
 
     bool  m_Artery;         // "Artery = "            true
 
-    size_t m_NPoints;      // "NPoints = "         0
+    int   m_NPoints;      // "NPoints = "         0
 
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 

@@ -132,7 +132,7 @@ class METAIO_EXPORT MetaBlob : public MetaObject
 
     bool  M_Write(void);
 
-    size_t m_NPoints;      // "NPoints = "         0
+    int   m_NPoints;      // "NPoints = "         0
 
     char m_PointDim[255]; // "PointDim = "       "x y z r"
 

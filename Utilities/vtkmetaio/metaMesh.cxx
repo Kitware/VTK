@@ -365,7 +365,7 @@ M_SetupWriteFields(void)
     m_Fields.push_back(mF);
   }
 
-  m_NPoints = m_PointList.size();
+  m_NPoints = (int)m_PointList.size();
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "NPoints", MET_INT,m_NPoints);
   m_Fields.push_back(mF);
@@ -430,7 +430,7 @@ M_Read(void)
     strcpy(m_PointDim,(char *)(mF->value));
   }
 
-  unsigned int j;
+  int j;
 
   if(m_BinaryData)
   {
@@ -636,7 +636,7 @@ M_Read(void)
       int i=0;
       int d;
       int td;
-      for(j=0; j<m_NCells; j++) 
+      for(j=0; j<(int)m_NCells; j++) 
         {
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(n);
@@ -673,7 +673,7 @@ M_Read(void)
       }
     else
       {
-      for(j=0; j<m_NCells; j++) 
+      for(j=0; j<(int)m_NCells; j++) 
         {     
         int v;   
         int n = MET_CellSize[celltype];
@@ -759,7 +759,7 @@ M_Read(void)
     int i=0;
     int d;
     int td;
-    for(j=0; j<m_NCellLinks; j++) 
+    for(j=0; j<(int)m_NCellLinks; j++) 
       {
       MeshCellLink* link = new MeshCellLink();
    
@@ -800,7 +800,7 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<m_NCellLinks; j++) 
+    for(j=0; j<(int)m_NCellLinks; j++) 
       {     
       int v;   
       MeshCellLink* link = new MeshCellLink();
@@ -888,7 +888,7 @@ M_Read(void)
   int i=0;
   int td;
 
-  for(j=0; j<m_NPointData; j++)  
+  for(j=0; j<(int)m_NPointData; j++)  
     {
     MeshDataBase* pd;
     
@@ -1055,7 +1055,7 @@ M_Read(void)
     }
   
   i=0;
-  for(j=0; j<m_NCellData; j++)  
+  for(j=0; j<(int)m_NCellData; j++)  
     {
     MeshDataBase* cd;
 

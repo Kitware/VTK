@@ -282,7 +282,7 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     bool  M_Write(void);
 
-    size_t m_NPoints;   
+    int m_NPoints;   
     int m_NCells; 
     int m_NCellLinks;
     int m_NPointData;
