@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.127");
+vtkCxxRevisionMacro(vtkMath, "1.128");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -112,6 +112,14 @@ void vtkMath::RandomSeed(long s)
   vtkMath::Random();
   vtkMath::Random();
   vtkMath::Random();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Return the current seed used by the random number generator.
+long vtkMath::GetSeed()
+{
+  return vtkMath::Seed;
 }
 
 //----------------------------------------------------------------------------

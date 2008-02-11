@@ -437,6 +437,10 @@ public:
   static void RandomSeed(long s);  
 
   // Description:
+  // Return the current seed used by the random number generator.
+  static long GetSeed();
+  
+  // Description:
   // Generate random numbers between 0.0 and 1.0.
   // This is used to provide portability across different systems.
   static double Random();  
