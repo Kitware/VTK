@@ -9,6 +9,8 @@ IF(DESIRED_QT_VERSION MATCHES 0)
   MESSAGE("Please set the DESIRED_QT_VERSION")
 ELSE(DESIRED_QT_VERSION MATCHES 0)
   
+SET ( QT_USE_QTSQL 1 )
+
 INCLUDE( ${CMAKE_ROOT}/Modules/FindQt${DESIRED_QT_VERSION}.cmake )
 
 IF(NOT QT_FOUND)
@@ -18,17 +20,42 @@ ELSE(NOT QT_FOUND)
 # set up sources to build
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
-    QVTKWidget.cxx )
+    QVTKWidget.cxx
+    vtkQtAbstractModelAdapter.cxx
+    vtkQtInitialization.cxx
+    vtkQtSQLDatabase.cxx
+    vtkQtSQLQuery.cxx
+    vtkQtTableModelAdapter.cxx
+    vtkQtTimePointUtility.cxx
+    vtkQtTreeModelAdapter.cxx 
+    )
 
 SET ( QVTKMocHeaders
     QVTKWidget.h 
-    vtkEventQtSlotConnect.h)
+    vtkEventQtSlotConnect.h
+    vtkQtAbstractModelAdapter.h
+    vtkQtTableModelAdapter.h
+    vtkQtTreeModelAdapter.h
+    )
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 
 IF(DESIRED_QT_VERSION MATCHES 4)
 
+  # add additional files depending on infovis and/or views
+  IF(VTK_USE_VIEWS)
+    SET( QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtItemView.cxx
+      vtkQtListView.cxx
+      vtkQtTableView.cxx
+      vtkQtTreeView.cxx
+      ) 
+    SET ( QVTKMocHeaders ${QVTKMocHeaders}
+      vtkQtItemView.h
+      )
+  ENDIF(VTK_USE_VIEWS)
+  
   # help CMake fine QtDesigner on Mac (binary install)
   FIND_PATH(QT_QTDESIGNER_INCLUDE_DIR QDesignerComponents
             PATHS ${QT_LIBRARY_DIR}/QtDesigner.framework/Headers
@@ -79,11 +106,12 @@ ELSE(DESIRED_QT_VERSION MATCHES 4)
   QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
   
   SET(QT_LIBS ${QT_QT_LIBRARY})
-  
+
 ENDIF(DESIRED_QT_VERSION MATCHES 4)
 
 SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
+
 
 ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 
@@ -99,7 +127,12 @@ TARGET_LINK_LIBRARIES( QVTK
   vtkImaging 
   vtkCommon)
 
-
+# add extra dependencies if necessary
+IF(DESIRED_QT_VERSION MATCHES 4)
+  IF(VTK_USE_VIEWS)
+    TARGET_LINK_LIBRARIES( QVTK vtkViews )
+  ENDIF(VTK_USE_VIEWS)
+ENDIF(DESIRED_QT_VERSION MATCHES 4)
 
 # build plugin
 SET(QT_PLUGIN_LIBS ${QT_LIBS})
@@ -203,8 +236,14 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
 
+# recurse into testing directory if testing is on
+IF(DESIRED_QT_VERSION MATCHES 4)
+  IF(BUILD_TESTING)
+    SUBDIRS(Testing/Cxx)
+  ENDIF(BUILD_TESTING)
+ENDIF(DESIRED_QT_VERSION MATCHES 4)
+
 ENDIF(NOT QT_FOUND)
 
 ENDIF(DESIRED_QT_VERSION MATCHES 0)
-
 

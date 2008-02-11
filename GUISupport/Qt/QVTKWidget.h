@@ -45,15 +45,7 @@ class vtkImageData;
 #include <Carbon/Carbon.h>    // Event handling for dirty region
 #endif
 
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
-#if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
-#define QVTK_EXPORT __declspec( dllexport )
-#else
-#define QVTK_EXPORT __declspec( dllimport ) 
-#endif
-#else
-#define QVTK_EXPORT
-#endif
+#include "QVTKWin32Header.h"
 
 //! QVTKWidget displays a VTK window in a Qt window.
 class QVTK_EXPORT QVTKWidget : public QWidget

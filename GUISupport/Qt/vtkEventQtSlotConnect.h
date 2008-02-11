@@ -48,15 +48,7 @@ class QObject;
 class vtkCallbackCommand;
 class vtkQtConnections;
 
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
-#if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
-#define QVTK_EXPORT __declspec( dllexport )
-#else
-#define QVTK_EXPORT __declspec( dllimport ) 
-#endif
-#else
-#define QVTK_EXPORT
-#endif
+#include "QVTKWin32Header.h"
 
 // manage connections between VTK object events and Qt slots
 class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
