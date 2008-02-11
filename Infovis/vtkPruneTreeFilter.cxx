@@ -33,7 +33,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.5");
+vtkCxxRevisionMacro(vtkPruneTreeFilter, "1.6");
 vtkStandardNewMacro(vtkPruneTreeFilter);
 
 
@@ -83,9 +83,12 @@ int vtkPruneTreeFilter::RequestData(
   builderVertexData->CopyAllocate(inputVertexData);
   builderEdgeData->CopyAllocate(inputEdgeData);
 
-  // Build a tree starting at the parent vertex.
+  // Build a copy of the tree, skipping the parent vertex to remove.
   vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
-  vertStack.push_back(vtksys_stl::make_pair(this->ParentVertex, builder->AddVertex()));
+  if (inputTree->GetRoot() != this->ParentVertex)
+    {
+    vertStack.push_back(vtksys_stl::make_pair(inputTree->GetRoot(), builder->AddVertex()));
+    }
   while (!vertStack.empty())
     {
     vtkIdType tree_v = vertStack.back().first;
@@ -97,10 +100,13 @@ int vtkPruneTreeFilter::RequestData(
       {
       vtkOutEdgeType tree_e = it->Next();
       vtkIdType tree_child = tree_e.Target;
-      vtkIdType child = builder->AddVertex();
-      vtkEdgeType e = builder->AddEdge(v, child);
-      builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-      vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+      if (tree_child != this->ParentVertex)
+        {
+        vtkIdType child = builder->AddVertex();
+        vtkEdgeType e = builder->AddEdge(v, child);
+        builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
+        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+        }
       }
     }
 

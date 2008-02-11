@@ -34,7 +34,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -134,7 +134,11 @@ void vtkTreeLayoutStrategy::Layout()
     alpha = 0.0;
     }
   double internalCountInterp = alpha*(internalCount - 1) + (1.0 - alpha)*(internalCount - lastLeafLevel);
-  double internalSpacing = (1.0 - this->LeafSpacing) / internalCountInterp;
+  double internalSpacing = 0.0;
+  if (internalCountInterp != 0.0)
+    {
+    internalSpacing = (1.0 - this->LeafSpacing) / internalCountInterp;    
+    }
   
   // Divide the spacing between tree leaves among all leaf nodes.
   // This is similar to the interpolation for internal spacing.
