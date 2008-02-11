@@ -13,6 +13,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestGroupLeafVertices
     TestInteractorStyleTreeMapHover
     TestKdTreeBoxSelection
+    TestPassThrough
     TestPruneTreeFilter
     TestRandomGraphSource
     TestStringToCategory

@@ -30,6 +30,7 @@ vtkInteractorStyleTreeMapHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
+vtkPassThrough.cxx
 vtkPassThroughLayoutStrategy.cxx
 vtkPruneTreeFilter.cxx
 vtkRandomGraphSource.cxx
