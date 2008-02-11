@@ -38,6 +38,8 @@ int TestBarChartActor( int argc, char * argv [] )
   vtkFloatArray *bitter = vtkFloatArray::New();
   bitter->SetNumberOfTuples(numTuples);
 
+  cout << "Seed=" << vtkMath::GetSeed() << endl;
+  
   for (int i=0; i<numTuples; i++)
     {
     bitter->SetTuple1(i, vtkMath::Random(7,100));
