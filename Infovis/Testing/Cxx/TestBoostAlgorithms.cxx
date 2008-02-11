@@ -19,6 +19,7 @@
 #include "vtkActor.h"
 #include "vtkBoostBrandesCentrality.h"
 #include "vtkBoostBreadthFirstSearch.h"
+#include "vtkBoostBreadthFirstSearchTree.h"
 #include "vtkBoostConnectedComponents.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
@@ -134,6 +135,13 @@ int TestBoostAlgorithms(int argc, char* argv[])
   VTK_CREATE(vtkBoostConnectedComponents, comp);
   comp->SetInput(g);
   RenderGraph(ren, comp.GetPointer(), 2, 2, "component", 0, 2, NULL, 0, 0);
+
+  // Test breadth first search tree
+  VTK_CREATE(vtkBoostBreadthFirstSearchTree, bfsTree);
+  bfsTree->SetInput(g);
+  VTK_CREATE(vtkBoostBreadthFirstSearch, bfs2);
+  bfs2->SetInputConnection(bfsTree->GetOutputPort());
+  RenderGraph(ren, bfs2.GetPointer(), 0, 4, "BFS", 0, 3, NULL, 0, 0);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);

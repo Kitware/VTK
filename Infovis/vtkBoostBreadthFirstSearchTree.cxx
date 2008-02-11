@@ -26,6 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
@@ -42,7 +43,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.5");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.6");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 
@@ -58,6 +59,9 @@ public:
   bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkMutableDirectedGraph* t, vtkIdType root) 
     : graph_to_tree(g2t), tree_to_graph(t2g), tree(t), graph(g)
   {
+    double x[3];
+    graph->GetPoints()->GetPoint(root, x);
+    tree->GetPoints()->InsertNextPoint(x);
     vtkIdType tree_root = t->AddVertex();
     put(graph_to_tree, root, tree_root);
     put(tree_to_graph, tree_root, root);
@@ -73,6 +77,13 @@ public:
 
     // Get the source vertex id (it has already been visited).
     vtkIdType tree_u = get(graph_to_tree, u);
+
+    // Add the point before the vertex so that
+    // points match the number of vertices, so that GetPoints()
+    // doesn't reallocate and zero-out points.
+    double x[3];
+    graph->GetPoints()->GetPoint(v, x);
+    tree->GetPoints()->InsertNextPoint(x);
 
     // Create the target vertex in the tree.
     vtkIdType tree_v = tree->AddVertex();
