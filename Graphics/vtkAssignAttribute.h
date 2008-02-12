@@ -86,12 +86,14 @@ public:
 
 
 //BTX
+  // Always keep NUM_ATTRIBUTE_LOCS as the last entry
   enum AttributeLocation
   {
     POINT_DATA=0,
     CELL_DATA=1,
     VERTEX_DATA=2,
-    EDGE_DATA=3
+    EDGE_DATA=3,
+    NUM_ATTRIBUTE_LOCS
   };
 //ETX
 
@@ -118,7 +120,7 @@ protected:
   int InputAttributeType;
   int AttributeLocation;
 
-  static char AttributeLocationNames[2][12];
+  static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
   vtkAssignAttribute(const vtkAssignAttribute&);  // Not implemented.

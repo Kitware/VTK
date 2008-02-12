@@ -25,12 +25,14 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.20");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.21");
 vtkStandardNewMacro(vtkAssignAttribute);
 
-char vtkAssignAttribute::AttributeLocationNames[2][12] 
+char vtkAssignAttribute::AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12] 
 = { "POINT_DATA",
-    "CELL_DATA" };
+    "CELL_DATA",
+    "VERTEX_DATA",
+    "EDGE_DATA"};
 
 char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20]  = { {0} };
 
@@ -78,8 +80,8 @@ void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
     return;
     }
 
-  if ( (attributeLoc !=  vtkAssignAttribute::POINT_DATA) &&
-       (attributeLoc !=  vtkAssignAttribute::CELL_DATA) )
+  if ( (attributeLoc < 0) ||
+       (attributeLoc > vtkAssignAttribute::NUM_ATTRIBUTE_LOCS) )
     {
     vtkErrorMacro("The source for the field is wrong.");
     return;
@@ -107,8 +109,8 @@ void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType,
     return;
     }
 
-  if ( (attributeLoc !=  vtkAssignAttribute::POINT_DATA) &&
-       (attributeLoc !=  vtkAssignAttribute::CELL_DATA) )
+  if ( (attributeLoc < 0) ||
+       (attributeLoc > vtkAssignAttribute::NUM_ATTRIBUTE_LOCS) )
     {
     vtkErrorMacro("The source for the field is wrong.");
     return;
@@ -131,7 +133,7 @@ void vtkAssignAttribute::Assign(const char* name,
     }
 
   int numAttr = vtkDataSetAttributes::NUM_ATTRIBUTES;
-  int numAttributeLocs = 2;
+  int numAttributeLocs = vtkAssignAttribute::NUM_ATTRIBUTE_LOCS;
   int i;
 
   // Convert strings to ints and call the appropriate Assign()
