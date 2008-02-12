@@ -37,8 +37,6 @@ int TestBarChartActor( int argc, char * argv [] )
 
   vtkFloatArray *bitter = vtkFloatArray::New();
   bitter->SetNumberOfTuples(numTuples);
-
-  cout << "Seed=" << vtkMath::GetSeed() << endl;
   
   for (int i=0; i<numTuples; i++)
     {
@@ -57,8 +55,10 @@ int TestBarChartActor( int argc, char * argv [] )
   actor->GetLegendActor()->SetNumberOfEntries(numTuples);
   for (int i=0; i<numTuples; i++)
     {
-    actor->SetBarColor(i, vtkMath::Random(0,1), vtkMath::Random(0,1), 
-                         vtkMath::Random(0,1));
+    double red=vtkMath::Random(0,1);
+    double green=vtkMath::Random(0,1);
+    double blue=vtkMath::Random(0,1);
+    actor->SetBarColor(i,red,green,blue);
     }
   actor->SetBarLabel(0,"oil");
   actor->SetBarLabel(1,"gas");
