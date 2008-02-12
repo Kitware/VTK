@@ -55,7 +55,10 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   for (int i=0; i<10; i++)
     {
     s->SetTuple1(i, vtkMath::Random(0,1));
-    v->SetTuple3(i, vtkMath::Random(0.0,2), vtkMath::Random(0.0,2), vtkMath::Random(0.0,2));
+    double x=vtkMath::Random(0.0,2);
+    double y=vtkMath::Random(0.0,2);
+    double z=vtkMath::Random(0.0,2);
+    v->SetTuple3(i,x,y,z);
     }
 
   vtkCellArray *lines = vtkCellArray::New();

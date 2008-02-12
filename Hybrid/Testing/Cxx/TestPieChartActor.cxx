@@ -55,8 +55,10 @@ int TestPieChartActor( int argc, char * argv [] )
   actor->GetLegendActor()->SetNumberOfEntries(numTuples);
   for (int i=0; i<numTuples; i++)
     {
-    actor->SetPieceColor(i, vtkMath::Random(0,1), vtkMath::Random(0,1), 
-                         vtkMath::Random(0,1));
+    double red=vtkMath::Random(0,1);
+    double green=vtkMath::Random(0,1);
+    double blue=vtkMath::Random(0,1);
+    actor->SetPieceColor(i,red,green,blue);
     }
   actor->SetPieceLabel(0,"oil");
   actor->SetPieceLabel(1,"gas");

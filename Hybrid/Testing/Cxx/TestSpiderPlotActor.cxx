@@ -86,7 +86,10 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   actor->GetLegendActor()->SetNumberOfEntries(numTuples);
   for (int i=0; i<numTuples; i++)
     {
-    actor->SetPlotColor(i, vtkMath::Random(0,255), vtkMath::Random(0,255), vtkMath::Random(0,255));
+    double red=vtkMath::Random(0,255);
+    double green=vtkMath::Random(0,255);
+    double blue=vtkMath::Random(0,255);
+    actor->SetPlotColor(i,red,green,blue);
     }
   actor->LegendVisibilityOn();
 
