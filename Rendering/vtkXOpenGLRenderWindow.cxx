@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.90");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.91");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1001,7 +1001,8 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
     }
 
   if(this->Internal->PixmapContextId ||
-     this->Internal->PbufferContextId 
+     this->Internal->PbufferContextId || 
+     this->OffScreenUseFrameBuffer 
 #ifdef VTK_OPENGL_HAS_OSMESA
      || this->Internal->OffScreenContextId
 #endif
