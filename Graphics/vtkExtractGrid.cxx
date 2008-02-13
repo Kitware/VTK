@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.45");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.46");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -375,13 +375,31 @@ int vtkExtractGrid::RequestData(
     {
     uExt[5] = uExt[5] + 1;
     }
+  // Fix the boundary case
+  if (uExt[5] > inExt[5] && uExt[4] > inExt[4])
+    {
+    uExt[4]--;
+    uExt[5]--;
+    }
   if (uExt[2] == uExt[3])
     {
     uExt[3] = uExt[3] + 1;
     }
+  // Fix the boundary case
+  if (uExt[3] > inExt[3] && uExt[2] > inExt[2])
+    {
+    uExt[2]--;
+    uExt[3]--;
+    }
   if (uExt[0] == uExt[1])
     {
     uExt[1] = uExt[1] + 1;
+    }
+  // Fix the boundary case
+  if (uExt[1] > inExt[1] && uExt[0] > inExt[0])
+    {
+    uExt[0]--;
+    uExt[1]--;
     }
   // No need to consider IncludeBoundary for cell data.
   for ( k=uExt[4]; k < uExt[5]; ++k )
