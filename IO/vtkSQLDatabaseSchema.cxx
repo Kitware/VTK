@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.1");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.2");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -83,7 +83,6 @@ void vtkSQLDatabaseSchema::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Name: " << this->Name << "\n";
   os << indent << "Internals: " << this->Internals << "\n";
-  //os << indent << "Tables: " << this->GetNumberOfTables() << "entries.\n";
 }
 
 // ----------------------------------------------------------------------
@@ -322,6 +321,12 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
       }
     }
   return tblHandle;
+}
+
+// ----------------------------------------------------------------------
+void vtkSQLDatabaseSchema::Reset()
+{
+  this->Internals->Tables.clear();
 }
 
 // ----------------------------------------------------------------------
