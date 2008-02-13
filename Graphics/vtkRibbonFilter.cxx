@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.80");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.81");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -176,7 +176,7 @@ int vtkRibbonFilter::RequestData(
   //
   numNewCells = inLines->GetNumberOfCells();
   outCD->CopyNormalsOff();
-  outPD->CopyAllocate(pd,numNewCells);
+  outCD->CopyAllocate(cd,numNewCells);
 
   //  Create points along each polyline that are connected into NumberOfSides
   //  triangle strips. Texture coordinates are optionally generated.
