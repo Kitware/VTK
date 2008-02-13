@@ -39,6 +39,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // The size of points or vertices
+  vtkSetMacro(PointSize, double);
+  vtkGetMacro(PointSize, double);
+
+  // Description:
+  // The width of lines or edges
+  vtkSetMacro(LineWidth, double);
+  vtkGetMacro(LineWidth, double);
+
+  // Description:
   // The color and opacity of points or vertices when not mapped through
   // a lookup table.
   vtkSetVector3Macro(PointColor, double);
@@ -121,6 +131,9 @@ public:
 protected:
   vtkViewTheme();
   ~vtkViewTheme();
+
+  double PointSize;
+  double LineWidth;
 
   double PointColor[3];
   double PointOpacity;

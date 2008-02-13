@@ -21,11 +21,14 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.1");
+vtkCxxRevisionMacro(vtkViewTheme, "1.2");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
 {
+  this->PointSize = 5;
+  this->LineWidth = 1;
+  
   this->PointColor[0] = this->PointColor[1] = this->PointColor[2] = 1;
   this->PointOpacity = 1;
   this->PointHueRange[0] = 0.667;
@@ -151,6 +154,10 @@ vtkViewTheme* vtkViewTheme::CreateMellowTheme()
 void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "PointSize: "
+     << this->PointSize << endl;
+  os << indent << "LineWidth: "
+     << this->LineWidth << endl;
   os << indent << "PointColor: " 
      << this->PointColor[0] << "," 
      << this->PointColor[1] << "," 
@@ -212,3 +219,4 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
      << this->EdgeLabelColor[1] << "," 
      << this->EdgeLabelColor[2] << endl;
 }
+
