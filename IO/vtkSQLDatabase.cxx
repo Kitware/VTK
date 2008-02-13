@@ -1,21 +1,21 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkSQLDatabase.cxx
+Program:   Visualization Toolkit
+Module:    vtkSQLDatabase.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+  Copyright (c) Sandia Corporation
+  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  ----------------------------------------------------------------------------*/
 
 #include "vtkToolkits.h"
 #include "vtkSQLDatabase.h"
@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.12");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.13");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -79,7 +79,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
-                                password, hostname, dataport, database) )
+                                        password, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return 0;

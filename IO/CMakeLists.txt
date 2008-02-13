@@ -89,7 +89,6 @@ vtkPNGReader.cxx
 vtkPNGWriter.cxx
 vtkPNMReader.cxx
 vtkPNMWriter.cxx
-
 vtkParticleReader.cxx
 vtkPolyDataReader.cxx
 vtkPolyDataWriter.cxx
@@ -101,6 +100,7 @@ vtkRowQuery.cxx
 vtkSESAMEReader.cxx
 vtkShaderCodeLibrary.cxx
 vtkSQLDatabase.cxx
+vtkSQLDatabaseSchema.cxx
 vtkSQLiteDatabase.cxx
 vtkSQLiteQuery.cxx
 vtkSQLQuery.cxx

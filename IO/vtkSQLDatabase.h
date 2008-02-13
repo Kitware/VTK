@@ -1,22 +1,22 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkSQLDatabase.h
+Program:   Visualization Toolkit
+Module:    vtkSQLDatabase.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-// .NAME vtkSQLDatabase - maintains a connection to an sql database
+  Copyright (c) Sandia Corporation
+  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  ----------------------------------------------------------------------------*/
+// .NAME vtkSQLDatabase - maintain a connection to an sql database
 //
 // .SECTION Description
 // Abstract base class for all SQL database connection classes.
@@ -47,8 +47,9 @@
 
 #include "vtkObject.h"
 
-#include <vtkstd/string> // Because I really enjoy including headers
-#include "vtkStdString.h" // Because I also really enjoy including headers
+#include <vtkstd/string> 
+#include <vtkstd/vector> 
+#include "vtkStdString.h"
 
 class vtkSQLQuery;
 class vtkStringArray;
@@ -69,47 +70,9 @@ class vtkStringArray;
 
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
-public:
+ public:
   vtkTypeRevisionMacro(vtkSQLDatabase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-//BTX
-// Basic data types for database columns
-  enum DatabaseColumnType
-    {
-      SERIAL,
-      SMALLINT,
-      INTEGER,
-      BIGINT,
-      VARCHAR,
-      TEXT,
-      REAL,
-      DOUBLE,
-      BLOB,
-      TIME,
-      DATE,
-      TIMESTAMP,
-    };
-
-// Types of indices that can be generated for database tables
-  enum DatabaseIndexType
-    {
-      INDEX,       // Non-unique index of values in named columns
-      UNIQUE,      // Index of values in named columns required to have at most one entry per pair of valid values.
-      PRIMARY_KEY, // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
-    };
-
-// Events where database triggers can be registered.
-  enum DatabaseTriggerType
-    {
-      BEFORE_INSERT, // Just before a row is inserted
-      AFTER_INSERT,  // Just after a row is inserted
-      BEFORE_UPDATE, // Just before a row's values are changed
-      AFTER_UPDATE,  // Just after a row's values are changed
-      BEFORE_DELETE, // Just before a row is deleted
-      AFTER_DELETE,  // Just after a row is deleted
-    };
-//ETX
 
   // Description:
   // Open a new connection to the database.
@@ -167,12 +130,11 @@ public:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
 
-
-protected:
+ protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
 
-private:
+ private:
   vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.
   void operator=(const vtkSQLDatabase &); // Not implemented.
 };
