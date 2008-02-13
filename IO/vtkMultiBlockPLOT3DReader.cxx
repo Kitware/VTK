@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.9");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.10");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -544,16 +544,12 @@ int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
   this->SkipByteCount(fp);
   for(i=0; i<numGrid; i++)
     {
-    int ni, nj, nk;
+    int ni, nj, nk=1;
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
     if (!this->TwoDimensionalGeometry)
       {
       this->ReadIntBlock(fp, 1, &nk);
-      }
-    else
-      {
-      nk = 1;
       }
     vtkDebugMacro("Geometry, block " << i << " dimensions: "
                   << ni << " " << nj << " " << nk);
@@ -616,10 +612,13 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
   this->SkipByteCount(fp);
   for(int i=0; i<numGrid; i++)
     {
-    int ni, nj, nk;
+    int ni, nj, nk=1;
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
-    this->ReadIntBlock(fp, 1, &nk);
+    if (!this->TwoDimensionalGeometry)
+      {
+      this->ReadIntBlock(fp, 1, &nk);
+      }
     vtkDebugMacro("Q, block " << i << " dimensions: "
                   << ni << " " << nj << " " << nk);
 
@@ -1041,6 +1040,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       nthOutput->GetPointData()->AddArray(se);
       se->Delete();
 
+      this->SkipByteCount(qFp);
       
       if ( this->FunctionList->GetNumberOfTuples() > 0 )
         {

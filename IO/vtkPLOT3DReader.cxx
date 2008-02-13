@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkDataArrayCollection.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.86");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.87");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -558,16 +558,12 @@ int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
   this->SkipByteCount(fp);
   for(i=0; i<numGrid; i++)
     {
-    int ni, nj, nk;
+    int ni, nj, nk=1;
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
     if (!this->TwoDimensionalGeometry)
       {
       this->ReadIntBlock(fp, 1, &nk);
-      }
-    else
-      {
-      nk = 1;
       }
     vtkDebugMacro("Geometry, block " << i << " dimensions: "
                   << ni << " " << nj << " " << nk);
@@ -600,10 +596,13 @@ int vtkPLOT3DReader::ReadQHeader(FILE* fp)
   this->SkipByteCount(fp);
   for(int i=0; i<numGrid; i++)
     {
-    int ni, nj, nk;
+    int ni, nj, nk=1;
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
-    this->ReadIntBlock(fp, 1, &nk);
+    if (!this->TwoDimensionalGeometry)
+      {
+      this->ReadIntBlock(fp, 1, &nk);
+      }
     vtkDebugMacro("Q, block " << i << " dimensions: "
                   << ni << " " << nj << " " << nk);
 
@@ -1034,7 +1033,8 @@ void vtkPLOT3DReader::Execute()
       nthOutput->GetPointData()->AddArray(se);
       se->Delete();
 
-      
+      this->SkipByteCount(qFp);
+ 
       if ( this->FunctionList->GetNumberOfTuples() > 0 )
         {
         int fnum;
