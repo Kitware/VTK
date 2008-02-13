@@ -43,7 +43,7 @@ vtkIndent vtkIndent::GetNextIndent()
     {
     indent = VTK_NUMBER_OF_BLANKS;
     }
-  return indent;
+  return vtkIndent(indent);
 }
  
 // Print out the indentation. Basically output a bunch of spaces.

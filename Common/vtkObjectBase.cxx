@@ -128,9 +128,9 @@ void vtkObjectBase::Print(ostream& os)
 {
   vtkIndent indent;
 
-  this->PrintHeader(os,0); 
+  this->PrintHeader(os,vtkIndent(0)); 
   this->PrintSelf(os, indent.GetNextIndent());
-  this->PrintTrailer(os,0);
+  this->PrintTrailer(os,vtkIndent(0));
 }
 
 void vtkObjectBase::PrintHeader(ostream& os, vtkIndent indent)
@@ -174,7 +174,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.17\n";
+  os << "vtkObjectBase 1.18\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
