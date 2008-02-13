@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.21");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.22");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12] 
@@ -39,10 +39,10 @@ char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20
 vtkAssignAttribute::vtkAssignAttribute()
 {
   this->FieldName = 0;
-  this->AttributeLocation = -1;
+  this->AttributeLocationAssignment = -1;
   this->AttributeType = -1;
   this->InputAttributeType = -1;
-  this->FieldType = -1;
+  this->FieldTypeAssignment = -1;
 
   //convert the attribute names to uppercase for local use
   if (vtkAssignAttribute::AttributeNames[0][0] == 0) 
@@ -93,8 +93,8 @@ void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
   strcpy(this->FieldName, fieldName);
 
   this->AttributeType = attributeType;
-  this->AttributeLocation = attributeLoc;
-  this->FieldType = vtkAssignAttribute::NAME;
+  this->AttributeLocationAssignment = attributeLoc;
+  this->FieldTypeAssignment = vtkAssignAttribute::NAME;
 }
 
 void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType, 
@@ -119,8 +119,8 @@ void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType,
   this->Modified();
   this->AttributeType = attributeType;
   this->InputAttributeType = inputAttributeType;
-  this->AttributeLocation = attributeLoc;
-  this->FieldType = vtkAssignAttribute::ATTRIBUTE;
+  this->AttributeLocationAssignment = attributeLoc;
+  this->FieldTypeAssignment = vtkAssignAttribute::ATTRIBUTE;
 }
 
 void vtkAssignAttribute::Assign(const char* name, 
@@ -196,10 +196,10 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if ((this->AttributeType != -1) &&
-      (this->AttributeLocation != -1) && (this->FieldType != -1))
+      (this->AttributeLocationAssignment != -1) && (this->FieldTypeAssignment != -1))
     {
     int fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-    switch (this->AttributeLocation)
+    switch (this->AttributeLocationAssignment)
       {
       case POINT_DATA:
         fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_POINTS;
@@ -214,12 +214,12 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
         fieldAssociation = vtkDataObject::FIELD_ASSOCIATION_EDGES;
         break;
       }
-    if (this->FieldType == vtkAssignAttribute::NAME && this->FieldName)
+    if (this->FieldTypeAssignment == vtkAssignAttribute::NAME && this->FieldName)
       {
       vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
         this->FieldName, this->AttributeType);
       }
-    else if (this->FieldType == vtkAssignAttribute::ATTRIBUTE  && 
+    else if (this->FieldTypeAssignment == vtkAssignAttribute::ATTRIBUTE  && 
       this->InputAttributeType != -1)
       {
       vtkInformation *inputAttributeInfo = vtkDataObject::GetActiveFieldInformation(
@@ -264,7 +264,7 @@ int vtkAssignAttribute::RequestData(
       }
     dsOutput->GetPointData()->PassData( dsInput->GetPointData() );
     dsOutput->GetCellData()->PassData( dsInput->GetCellData() );
-    switch (this->AttributeLocation)
+    switch (this->AttributeLocationAssignment)
       {
       case vtkAssignAttribute::POINT_DATA:
         ods = dsOutput->GetPointData();
@@ -282,7 +282,7 @@ int vtkAssignAttribute::RequestData(
     vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
     vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
     graphOutput->ShallowCopy( graphInput );
-    switch (this->AttributeLocation)
+    switch (this->AttributeLocationAssignment)
       {
       case vtkAssignAttribute::VERTEX_DATA:
         ods = graphOutput->GetVertexData();
@@ -297,14 +297,14 @@ int vtkAssignAttribute::RequestData(
     }
 
   if ((this->AttributeType != -1) &&
-      (this->AttributeLocation != -1) && (this->FieldType != -1))
+      (this->AttributeLocationAssignment != -1) && (this->FieldTypeAssignment != -1))
     {
     // Get the appropriate output DataSetAttributes
-    if (this->FieldType == vtkAssignAttribute::NAME && this->FieldName)
+    if (this->FieldTypeAssignment == vtkAssignAttribute::NAME && this->FieldName)
       {
       ods->SetActiveAttribute(this->FieldName, this->AttributeType);
       }
-    else if (this->FieldType == vtkAssignAttribute::ATTRIBUTE  && 
+    else if (this->FieldTypeAssignment == vtkAssignAttribute::ATTRIBUTE  && 
              (this->InputAttributeType != -1))
       {
       // If labeling an attribute as another attribute, we
@@ -345,9 +345,9 @@ void vtkAssignAttribute::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  os << indent << "Field type: " << this->FieldType << endl;
+  os << indent << "Field type: " << this->FieldTypeAssignment << endl;
   os << indent << "Attribute type: " << this->AttributeType << endl;
   os << indent << "Input attribute type: " << this->InputAttributeType
      << endl;
-  os << indent << "Attribute location: " << this->AttributeLocation << endl;
+  os << indent << "Attribute location: " << this->AttributeLocationAssignment << endl;
 }

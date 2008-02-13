@@ -115,10 +115,10 @@ protected:
   int FillInputPortInformation(int, vtkInformation *);
 
   char* FieldName;
-  int FieldType;
+  int FieldTypeAssignment;
   int AttributeType;
   int InputAttributeType;
-  int AttributeLocation;
+  int AttributeLocationAssignment;
 
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
