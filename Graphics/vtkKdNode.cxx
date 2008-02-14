@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.5");
+vtkCxxRevisionMacro(vtkKdNode, "1.6");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -390,7 +390,11 @@ double vtkKdNode::_GetDistance2ToBoundary(
         }
       }
 
-    minDistance *= minDistance;
+    // if there are no inner boundaries we dont want to square.
+    if(minDistance != VTK_LARGE_FLOAT)
+      {
+      minDistance *= minDistance;
+      }
 
     if (p)
       {
