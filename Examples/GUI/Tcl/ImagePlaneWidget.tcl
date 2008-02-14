@@ -94,9 +94,12 @@ vtkImagePlaneWidget planeWidgetZ
 set current_widget planeWidgetZ
 set mode_widget  planeWidgetZ
 
-planeWidgetX AddObserver EndInteractionEvent WindowLevelXCallback
-planeWidgetY AddObserver EndInteractionEvent WindowLevelYCallback
-planeWidgetZ AddObserver EndInteractionEvent WindowLevelZCallback
+planeWidgetX AddObserver EndWindowLevelEvent WindowLevelXCallback
+planeWidgetY AddObserver EndWindowLevelEvent WindowLevelYCallback
+planeWidgetZ AddObserver EndWindowLevelEvent WindowLevelZCallback
+planeWidgetX AddObserver ResetWindowLevelEvent WindowLevelXCallback
+planeWidgetY AddObserver ResetWindowLevelEvent WindowLevelYCallback
+planeWidgetZ AddObserver ResetWindowLevelEvent WindowLevelZCallback
 
 # Create the RenderWindow and Renderer
 #
