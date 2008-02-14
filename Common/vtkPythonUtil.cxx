@@ -51,6 +51,10 @@
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 #endif
 
+#if PY_VERSION_HEX < 0x02050000
+  typedef int Py_ssize_t;
+#endif
+
 //#define VTKPYTHONDEBUG
 
 //--------------------------------------------------------------------
