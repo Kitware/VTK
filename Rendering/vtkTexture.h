@@ -44,7 +44,7 @@
 #include "vtkImageAlgorithm.h"
 
 class vtkImageData;
-class vtkLookupTable;
+class vtkScalarsToColors;
 class vtkRenderer;
 class vtkUnsignedCharArray;
 class vtkWindow;
@@ -121,8 +121,8 @@ public:
 
   // Description:
   // Specify the lookup table to convert scalars if necessary
-  void SetLookupTable(vtkLookupTable *);
-  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+  void SetLookupTable(vtkScalarsToColors *);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
   // Description:
   // Get Mapped Scalars
@@ -140,7 +140,7 @@ protected:
   int   Interpolate;
   int   Quality;
   int   MapColorScalarsThroughLookupTable;
-  vtkLookupTable *LookupTable;
+  vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *MappedScalars;
   
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable

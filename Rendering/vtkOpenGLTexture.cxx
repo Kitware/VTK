@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.65");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.66");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -95,7 +95,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
        ren->GetRenderWindow() != this->RenderWindow)
     {
     int bytesPerPixel;
-    int *size;
+    int size[3];
     vtkDataArray *scalars;
     unsigned char *dataPtr;
     int rowLength;
@@ -104,15 +104,29 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     unsigned short xs,ys;
     GLuint tempIndex=0;
 
-    // get some info
-    size = input->GetDimensions();
-    scalars = input->GetPointData()->GetScalars();
+    // Get the scalars the user choose to color with.
+    scalars = this->GetInputArrayToProcess(0, input);
 
     // make sure scalars are non null
     if (!scalars) 
       {
       vtkErrorMacro(<< "No scalar values found for texture input!");
       return;
+      }
+
+    // get some info
+    input->GetDimensions(size);
+
+    if (input->GetNumberOfCells() == scalars->GetNumberOfTuples())
+      {
+      // we are using cell scalars. Adjust image size for cells.
+      for (int kk=0; kk < 3; kk++)
+        {
+        if (size[kk]>1)
+          {
+          size[kk]--;
+          }
+        }
       }
 
     bytesPerPixel = scalars->GetNumberOfComponents();

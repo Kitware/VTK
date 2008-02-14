@@ -35,7 +35,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkPainter, "1.4");
+vtkCxxRevisionMacro(vtkPainter, "1.5");
 vtkCxxSetObjectMacro(vtkPainter, Input, vtkDataObject);
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
@@ -78,9 +78,10 @@ vtkPainter::vtkPainter()
   this->TimeToDraw = 0.0;
   this->Timer = vtkTimerLog::New();
 
-  this->Information = vtkInformation::New();
-  this->Information->Register(this);
-  this->Information->Delete();
+  this->Information = NULL;
+  vtkInformation* temp = vtkInformation::New();
+  this->SetInformation(temp);
+  temp->Delete();
 
   vtkPainter::STATIC_DATA()->Set(this->Information, 0);
   vtkPainter::CONSERVE_MEMORY()->Set(this->Information, 0);
@@ -95,6 +96,7 @@ vtkPainter::~vtkPainter()
   this->Observer->Delete();
 
   this->SetDelegatePainter(NULL);
+  this->SetInformation(NULL);
 
   if (this->LastWindow)
     {
@@ -103,7 +105,6 @@ vtkPainter::~vtkPainter()
     }
 
   this->Timer->Delete();
-  this->Information->Delete();
 }
 
 //-----------------------------------------------------------------------------

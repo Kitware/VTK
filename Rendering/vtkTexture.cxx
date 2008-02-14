@@ -14,15 +14,16 @@
 =========================================================================*/
 #include "vtkTexture.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkExecutive.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.53");
-
+vtkCxxRevisionMacro(vtkTexture, "1.54");
+vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkTexture);
@@ -42,8 +43,14 @@ vtkTexture::vtkTexture()
   this->SelfAdjustingTableRange = 0;
 
   this->SetNumberOfOutputPorts(0);
+
+  // By default select active point scalars.
+  this->SetInputArrayToProcess(0,0,0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
+    vtkDataSetAttributes::SCALARS);
 }
 
+//----------------------------------------------------------------------------
 vtkTexture::~vtkTexture()
 {
   if (this->MappedScalars)
@@ -57,6 +64,7 @@ vtkTexture::~vtkTexture()
     }
 }
 
+//----------------------------------------------------------------------------
 // return the correct type of Texture 
 vtkTexture *vtkTexture::New()
 {  
@@ -65,6 +73,7 @@ vtkTexture *vtkTexture::New()
   return (vtkTexture*)ret;
 }
 
+//----------------------------------------------------------------------------
 vtkImageData *vtkTexture::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -74,17 +83,7 @@ vtkImageData *vtkTexture::GetInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0)); 
 }
 
-void vtkTexture::SetLookupTable(vtkLookupTable *lut)
-{
-  if ( this->LookupTable != lut ) 
-    {
-    if ( this->LookupTable != NULL ) {this->LookupTable->UnRegister(this);}
-    this->LookupTable = lut;
-    if ( this->LookupTable != NULL ) {this->LookupTable->Register(this);}
-    this->Modified();
-    }
-}
-
+//----------------------------------------------------------------------------
 void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -104,7 +103,8 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "32Bit\n";
       break;
     }
-  os << indent << "MapColorScalarsThroughLookupTable: " << (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
+  os << indent << "MapColorScalarsThroughLookupTable: " << 
+    (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
 
   if ( this->GetInput() )
     {
@@ -134,11 +134,9 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
 {
-  int numPts = scalars->GetNumberOfTuples();
-  vtkUnsignedCharArray *mappedScalars;
-
   // if there is no lookup table, create one
   if (this->LookupTable == NULL)
     {
@@ -152,30 +150,30 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
     {
     this->SelfAdjustingTableRange = 0;
     }
-  // if there is no pixmap, create one
-  if (!this->MappedScalars)
+  // Delete old colors
+  if (this->MappedScalars)
     {
-    this->MappedScalars = vtkUnsignedCharArray::New();
-    this->MappedScalars->SetNumberOfComponents(4);
+    this->MappedScalars->Delete();
+    this->MappedScalars = 0;
     }      
   
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
   if (this->SelfAdjustingTableRange)
     {
-    this->LookupTable->SetTableRange (scalars->GetRange(0));
+    this->LookupTable->SetRange(scalars->GetRange(0));
     }
   
   // map the scalars to colors
-  mappedScalars = this->MappedScalars;
-  mappedScalars->SetNumberOfTuples(numPts);
-  unsigned char *cptr = (unsigned char *)mappedScalars->GetVoidPointer(0);
-
-  this->LookupTable->MapScalarsThroughTable(scalars,cptr);
+  this->MappedScalars = this->LookupTable->MapScalars(scalars,
+    this->MapColorScalarsThroughLookupTable?
+    VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DEFAULT, -1);
   
-  return cptr;
+  return this->MappedScalars? reinterpret_cast<unsigned char*>(
+    this->MappedScalars->GetVoidPointer(0)): NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkTexture::Render(vtkRenderer *ren)
 {
   vtkImageData *input = this->GetInput();
