@@ -27,13 +27,21 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.27");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.28");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
 {
   this->VectorMode = VTK_VECTOR_MODE_COMPUTE_GRADIENT;
   this->TensorMode = VTK_TENSOR_MODE_COMPUTE_GRADIENT;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
+
+  // by default process active point vectors
+  this->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::VECTORS);
 }
 
 int vtkCellDerivatives::RequestData(
@@ -53,12 +61,14 @@ int vtkCellDerivatives::RequestData(
 
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkDataArray *inScalars=pd->GetScalars();
-  vtkDataArray *inVectors=pd->GetVectors();
-  vtkDoubleArray *outVectors=NULL;
+  vtkDataArray *inScalars=this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray *inVectors=this->GetInputArrayToProcess(1, inputVector);
+  vtkDoubleArray *outGradients=NULL;
+  vtkDoubleArray *outVorticity=NULL;
+  vtkDoubleArray *outVectorGradients=NULL;
   vtkDoubleArray *outTensors=NULL;
   vtkIdType numCells=input->GetNumberOfCells();
-  int computeScalarDerivs=1, computeVectorDerivs=1, subId;
+  int computeScalarDerivs=1, computeVectorDerivs=1, computeVorticity=1, subId;
 
   // Initialize
   vtkDebugMacro(<<"Computing cell derivatives");
@@ -74,43 +84,54 @@ int vtkCellDerivatives::RequestData(
     }
 
   // Figure out what to compute
-  if ( !inScalars || this->VectorMode == VTK_VECTOR_MODE_PASS_VECTORS )
+  if ( inScalars && this->VectorMode == VTK_VECTOR_MODE_COMPUTE_GRADIENT )
+    {
+    cout << "InScalars: " << inScalars->GetName() << endl;
+    outGradients = vtkDoubleArray::New();
+    outGradients->SetNumberOfComponents(3);
+    outGradients->SetNumberOfTuples(numCells);
+    outGradients->SetName("ScalarGradient");
+    }
+  else
     {
     computeScalarDerivs = 0;
     }
+
+  if ( inVectors && this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
+    {
+    cout << "InVectors: " << inVectors->GetName() << endl;
+    outVorticity = vtkDoubleArray::New();
+    outVorticity->SetNumberOfComponents(3);
+    outVorticity->SetNumberOfTuples(numCells);
+    outVorticity->SetName("Vorticity");
+    }
   else
     {
-    if ( this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
-      {
-      computeScalarDerivs = 0;
-      }
-    outVectors = vtkDoubleArray::New();
-    outVectors->SetNumberOfComponents(3);
-    outVectors->SetNumberOfTuples(numCells);
-    outVectors->SetName("Vorticity");
-    outCD->SetVectors(outVectors);
-    outVectors->Delete(); //okay reference counted
-    outCD->CopyVectorsOff();
+    computeVorticity = 0;
     }
 
-  if ( !inVectors || (this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS &&
-              this->VectorMode != VTK_VECTOR_MODE_COMPUTE_VORTICITY) )
-    {
-    computeVectorDerivs = 0;
-    }
-  else
+  if (inVectors && ( this->TensorMode == VTK_TENSOR_MODE_COMPUTE_GRADIENT ||
+                     this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN ))
     {
     outTensors = vtkDoubleArray::New();
     outTensors->SetNumberOfComponents(9);
     outTensors->SetNumberOfTuples(numCells);
-    outTensors->SetName("Tensors");
-    outCD->SetTensors(outTensors);
-    outTensors->Delete(); //okay reference counted
-    outCD->CopyTensorsOff();
+    if ( this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN )
+      {
+      outTensors->SetName("Strain");
+      }
+    else
+      {
+      outTensors->SetName("VectorGradient");
+      }
+    }
+  else
+    {
+    computeVectorDerivs = 0;
     }
 
   // If just passing data forget the loop
-  if ( computeScalarDerivs || computeVectorDerivs )
+  if ( computeScalarDerivs || computeVectorDerivs || computeVorticity )
     {
     double pcoords[3], derivs[9], w[3], *scalars, *vectors;
     vtkGenericCell *cell = vtkGenericCell::New();
@@ -146,10 +167,10 @@ int vtkCellDerivatives::RequestData(
         inScalars->GetTuples(cell->PointIds, cellScalars);
         scalars = cellScalars->GetPointer(0);
         cell->Derivatives(subId, pcoords, scalars, 1, derivs);
-        outVectors->SetTuple(cellId, derivs);
+        outGradients->SetTuple(cellId, derivs);
         }
 
-      if ( computeVectorDerivs )
+      if ( computeVectorDerivs || computeVorticity )
         {
         inVectors->GetTuples(cell->PointIds, cellVectors);
         vectors = cellVectors->GetPointer(0);
@@ -185,12 +206,12 @@ int vtkCellDerivatives::RequestData(
           outTensors->InsertTuple(cellId, tens->T);
           }
 
-        if ( this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
+        if ( computeVorticity )
           {
           w[0] = derivs[7] - derivs[5];
           w[1] = derivs[2] - derivs[6];
           w[2] = derivs[3] - derivs[1];
-          outVectors->SetTuple(cellId, w);
+          outVorticity->SetTuple(cellId, w);
           }
         }
       }//for all cells
@@ -204,6 +225,21 @@ int vtkCellDerivatives::RequestData(
   // Pass appropriate data through to output
   outPD->PassData(pd);
   outCD->PassData(cd);
+  if (outGradients)
+    {
+    outCD->SetVectors(outGradients);
+    outGradients->Delete();
+    }
+  if (outVorticity)
+    {
+    outCD->SetVectors(outVorticity);
+    outVorticity->Delete();
+    }
+  if (outTensors)
+    {
+    outCD->SetTensors(outTensors);
+    outTensors->Delete();
+    }
 
   return 1;
 }
