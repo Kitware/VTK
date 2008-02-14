@@ -21,10 +21,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSQLDatabaseSchema.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.5");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.6");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -34,27 +35,27 @@ public:
   {
     vtkSQLDatabaseSchema::DatabaseColumnType Type; // DCT: OK to use ColumnType enums instead of int here
     int Size; // used when required, ignored otherwise (e.g. varchar)
-    vtkstd::string Name; // DCT: Note use of string instead of char* here to avoid leaks on destruction.
-    vtkstd::string Attributes; // may have implementation-specific stuff
+    vtkStdString Name; // DCT: Note use of string instead of char* here to avoid leaks on destruction.
+    vtkStdString Attributes; // may have implementation-specific stuff
   };
 
   struct Index
   {
     vtkSQLDatabaseSchema::DatabaseIndexType Type;
-    vtkstd::string Name;
-    vtkstd::vector<vtkstd::string> ColumnNames;
+    vtkStdString Name;
+    vtkstd::vector<vtkStdString> ColumnNames;
   };
 
   struct Trigger
   {
     vtkSQLDatabaseSchema::DatabaseTriggerType Type;
-    vtkstd::string Name;
-    vtkstd::string Action; // may have implementation-specific stuff
+    vtkStdString Name;
+    vtkStdString Action; // may have implementation-specific stuff
   };
 
   struct Table
   {
-    vtkstd::string Name;
+    vtkStdString Name;
     vtkstd::vector<Column> Columns;
     vtkstd::vector<Index> Indices;
     vtkstd::vector<Trigger> Triggers;
@@ -192,7 +193,7 @@ int vtkSQLDatabaseSchema::GetTableHandleFromName( const char* tblName )
 {
   int i;
   int ntab = this->Internals->Tables.size();
-  vtkstd::string tblNameStr( tblName );
+  vtkStdString tblNameStr( tblName );
   for ( i = 0; i < ntab; ++i )
     {
     if ( this->Internals->Tables[i].Name == tblNameStr )
@@ -216,7 +217,7 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName,
 
   int i;
   int nidx = this->Internals->Tables[tblHandle].Indices.size();
-  vtkstd::string idxNameStr( idxName );
+  vtkStdString idxNameStr( idxName );
   for ( i = 0; i < nidx ; ++ i )
     {
     if ( this->Internals->Tables[tblHandle].Indices[i].Name == idxNameStr )
@@ -239,7 +240,7 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
 
   int i;
   int ncol = this->Internals->Tables[tblHandle].Columns.size();
-  vtkstd::string colNameStr( colName );
+  vtkStdString colNameStr( colName );
   for ( i = 0; i < ncol ; ++ i )
     {
     if ( this->Internals->Tables[tblHandle].Columns[i].Name == colNameStr )
@@ -262,7 +263,7 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName( const char* tblName,
 
   int i;
   int ntrg = this->Internals->Tables[tblHandle].Triggers.size();
-  vtkstd::string trgNameStr( trgName );
+  vtkStdString trgNameStr( trgName );
   for ( i = 0; i < ntrg ; ++ i )
     {
     if ( this->Internals->Tables[tblHandle].Triggers[i].Name == trgNameStr )
