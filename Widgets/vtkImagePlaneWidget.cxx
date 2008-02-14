@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.14");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.15");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -403,28 +403,60 @@ void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove();
       break;
+    case vtkCommand::CharEvent:
+      self->OnChar();
+      break;
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImagePlaneWidget::OnChar()
+{
+  vtkRenderWindowInteractor *i = this->Interactor;
+
+  if ( i->GetKeyCode() == 'r' || i->GetKeyCode() == 'R' )
+    {
+    if ( i->GetShiftKey() || i->GetControlKey() )
+      {
+      this->SetWindowLevel( this->OriginalWindow, this->OriginalLevel );
+      double wl[2] = { this->CurrentWindow, this->CurrentLevel };
+
+      this->EventCallbackCommand->SetAbortFlag(1);
+      this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, wl);
+      }
+    else
+      {
+      this->Interactor->GetInteractorStyle()->OnChar();
+      }
+    }
+  else
+    {
+    this->Interactor->GetInteractorStyle()->OnChar();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImagePlaneWidget::AddObservers(void)
 {
-    // listen for the following events
-    vtkRenderWindowInteractor *i = this->Interactor;
-    if (i)
+  // listen for the following events
+  vtkRenderWindowInteractor *i = this->Interactor;
+  if (i)
     {
-        i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
                        this->Priority);
-        i->AddObserver(vtkCommand::LeftButtonPressEvent,
+    i->AddObserver(vtkCommand::LeftButtonPressEvent,
                        this->EventCallbackCommand, this->Priority);
-        i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
                        this->EventCallbackCommand, this->Priority);
-        i->AddObserver(vtkCommand::MiddleButtonPressEvent,
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent,
                        this->EventCallbackCommand, this->Priority);
-        i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
                        this->EventCallbackCommand, this->Priority);
-        i->AddObserver(vtkCommand::RightButtonPressEvent,
+    i->AddObserver(vtkCommand::RightButtonPressEvent,
                        this->EventCallbackCommand, this->Priority);
-        i->AddObserver(vtkCommand::RightButtonReleaseEvent,
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent,
+                       this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::CharEvent,
                        this->EventCallbackCommand, this->Priority);
     }
 }
@@ -917,6 +949,9 @@ void vtkImagePlaneWidget::StartWindowLevel()
       }
     }
 
+  this->InitialWindow = this->CurrentWindow;
+  this->InitialLevel = this->CurrentLevel;
+
   if( ! found || path == 0 )
     {
     this->State = vtkImagePlaneWidget::Outside;
@@ -929,17 +964,17 @@ void vtkImagePlaneWidget::StartWindowLevel()
     this->State = vtkImagePlaneWidget::WindowLevelling;
     this->HighlightPlane(1);
     this->ActivateText(1);
-    this->InitialWindow = this->CurrentWindow;
-    this->InitialLevel = this->CurrentLevel;
     this->StartWindowLevelPositionX = X;
     this->StartWindowLevelPositionY = Y;
-    this->WindowLevel(X,Y);
     this->ManageTextDisplay();
     }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
+
+  double wl[2] = { this->CurrentWindow, this->CurrentLevel };
+  this->InvokeEvent(vtkCommand::StartWindowLevelEvent,wl);
+
   this->Interactor->Render();
 }
 
@@ -958,7 +993,10 @@ void vtkImagePlaneWidget::StopWindowLevel()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
+
+  double wl[2] = { this->CurrentWindow, this->CurrentLevel };
+  this->InvokeEvent(vtkCommand::EndWindowLevelEvent,wl);
+
   this->Interactor->Render();
 }
 
@@ -1052,7 +1090,16 @@ void vtkImagePlaneWidget::OnMouseMove()
   // Interact, if desired
   //
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,0);
+
+  if ( this->State == vtkImagePlaneWidget::WindowLevelling )
+    {
+    double wl[2] = { this->CurrentWindow, this->CurrentLevel };
+    this->InvokeEvent(vtkCommand::WindowLevelEvent,wl);
+    }
+  else
+    {
+    this->InvokeEvent(vtkCommand::InteractionEvent,0);
+    }
 
   this->Interactor->Render();
 }
@@ -1697,7 +1744,7 @@ void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
 {
   // we have to have a picker for slice motion, window level and cursor to work
-  if (this->PlanePicker != picker && picker != NULL)
+  if (this->PlanePicker != picker)
     {
     // to avoid destructor recursion
     vtkAbstractPropPicker *temp = this->PlanePicker;
@@ -1706,11 +1753,22 @@ void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
       {
       temp->UnRegister(this);
       }
-    if (this->PlanePicker != 0)
+
+    int delPicker = 0;
+    if (this->PlanePicker == 0)
       {
-      this->PlanePicker->Register(this);
-      this->PlanePicker->AddPickList(this->TexturePlaneActor);
-      this->PlanePicker->PickFromListOn();
+      this->PlanePicker = vtkCellPicker::New();
+      vtkCellPicker::SafeDownCast(this->PlanePicker)->SetTolerance(0.005);
+      delPicker = 1;
+      }
+
+    this->PlanePicker->Register(this);
+    this->PlanePicker->AddPickList(this->TexturePlaneActor);
+    this->PlanePicker->PickFromListOn();
+
+    if ( delPicker )
+      {
+      this->PlanePicker->Delete();
       }
     }
 }

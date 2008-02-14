@@ -51,17 +51,23 @@
 // With shift key modifier: uniform plane scaling is enabled.  Moving the mouse
 // up enlarges the plane while downward movement shrinks it.
 //
-// Window-level is achieved by using the right mouse button.
+// Window-level is achieved by using the right mouse button.  Window-level
+// values can be reset by shift + 'r' or control + 'r' while regular reset
+// camera is maintained with 'r' or 'R'.
 // The left mouse button can be used to query the underlying image data
 // with a snap-to cross-hair cursor.  Currently, the nearest point in the input
 // image data to the mouse cursor generates the cross-hairs.  With oblique
 // slicing, this behaviour may appear unsatisfactory. Text display of
 // window-level and image coordinates/data values are provided by a text
 // actor/mapper pair.
+//
 // Events that occur outside of the widget (i.e., no part of the widget is
 // picked) are propagated to any other registered obsevers (such as the
 // interaction style). Turn off the widget by pressing the "i" key again
-// (or invoke the Off() method).
+// (or invoke the Off() method). To support interactive manipulation of
+// objects, this class invokes the events StartInteractionEvent,
+// InteractionEvent, and EndInteractionEvent as well as StartWindowLevelEvent,
+// WindowLevelEvent, EndWindowLevelEvent and ResetWindowLevelEvent.
 //
 // The vtkImagePlaneWidget has several methods that can be used in
 // conjunction with other VTK objects. The GetPolyData() method can be used
@@ -232,7 +238,7 @@ public:
   // Specify whether to interpolate the texture or not. When off, the
   // reslice interpolation is nearest neighbour regardless of how the
   // interpolation is set through the API. Set before setting the
-  // vtkImageData imput. Default is On.
+  // vtkImageData input. Default is On.
   vtkSetMacro(TextureInterpolate,int);
   vtkGetMacro(TextureInterpolate,int);
   vtkBooleanMacro(TextureInterpolate,int);
@@ -250,19 +256,19 @@ public:
   // polygons, where res is the resolution of the plane. These point values
   // are guaranteed to be up-to-date when either the InteractionEvent or
   // EndInteraction events are invoked. The user provides the vtkPolyData and
-  // the points and polyplane are added to it.
+  // the points and polygons are added to it.
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Satisfies superclass API.  This returns a pointer to the underlying
-  // PolyData.  Make changes to this before calling the initial PlaceWidget()
+  // vtkPolyData.  Make changes to this before calling the initial PlaceWidget()
   // to have the initial placement follow suit.  Or, make changes after the
   // widget has been initialised and call UpdatePlacement() to realise.
   vtkPolyDataAlgorithm* GetPolyDataAlgorithm();
 
   // Description:
   // Satisfies superclass API.  This will change the state of the widget to
-  // match changes that have been made to the underlying PolyDataSource
+  // match changes that have been made to the underlying vtkPolyDataSource
   void UpdatePlacement(void);
 
   // Description:
@@ -315,8 +321,8 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:
-  // Enable/disable text display of window-level, image coords and values in a
-  // render window.
+  // Enable/disable text display of window-level, image coordinates and
+  // scalar values in a render window.
   vtkSetMacro(DisplayText,int);
   vtkGetMacro(DisplayText,int);
   vtkBooleanMacro(DisplayText,int);
@@ -350,7 +356,7 @@ public:
   vtkGetObjectMacro(TexturePlaneProperty,vtkProperty);
 
   // Description:
-  // Set/Get the current window and level values.  Set should
+  // Set/Get the current window and level values.  SetWindowLevel should
   // only be called after SetInput.  If a shared lookup table is being used,
   // a callback is required to update the window level values without having
   // to update the lookup table again.
@@ -386,7 +392,7 @@ public:
   // centered probing, the cursor snaps to the nearest voxel and the reported
   // cursor coordinates are extent based.  With continuous probing, voxel data
   // is interpolated using vtkDataSetAttributes' InterpolatePoint method and
-  // the reported coordinates are 3D spacial continuous.
+  // the reported coordinates are 3D spatial continuous.
   vtkSetMacro(UseContinuousCursor,int);
   vtkGetMacro(UseContinuousCursor,int);
   vtkBooleanMacro(UseContinuousCursor,int);
@@ -496,6 +502,7 @@ protected:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  virtual void OnChar();
 
   virtual void StartCursor();
   virtual void StopCursor();
