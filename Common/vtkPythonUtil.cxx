@@ -19,6 +19,7 @@
 
 #include "vtkSystemIncludes.h"
 
+#include "vtkDataArray.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
@@ -429,6 +430,79 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
 #endif  
 }
 
+static Py_ssize_t
+array_getsegcount(PyObject *pself, Py_ssize_t *lenp)
+{
+  PyVTKObject *self = (PyVTKObject*)pself;
+  vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
+  if (da)
+    {
+    if (lenp)
+      {
+      *lenp = da->GetNumberOfTuples()*
+        da->GetNumberOfComponents()*
+        da->GetDataTypeSize();
+      }
+
+    return 1;
+    }
+
+  if (lenp)
+    {
+    *lenp = 0;
+    }
+  return 0;
+}
+
+static Py_ssize_t
+array_getreadbuf(PyObject *pself, Py_ssize_t segment, void **ptrptr)
+{
+  if (segment != 0) 
+    {
+    PyErr_SetString(PyExc_ValueError,
+                    "accessing non-existing array segment");
+    return -1;
+    }
+
+  PyVTKObject *self = (PyVTKObject*)pself;
+  vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
+  if (da)
+    {
+    *ptrptr = da->GetVoidPointer(0);
+    return da->GetNumberOfTuples()*
+      da->GetNumberOfComponents()*
+      da->GetDataTypeSize();
+    }
+  return -1;
+}
+
+
+static Py_ssize_t
+array_getwritebuf(PyObject *pself, Py_ssize_t segment, void **ptrptr)
+{
+  return array_getreadbuf(pself, segment, ptrptr);
+}
+
+static Py_ssize_t
+array_getcharbuf(PyObject *, Py_ssize_t , const char **)
+{
+  return -1;
+}
+
+static PyBufferProcs array_as_buffer = {
+#if PY_VERSION_HEX >= 0x02050000
+  (readbufferproc)array_getreadbuf,    /*bf_getreadbuffer*/
+  (writebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
+  (segcountproc)array_getsegcount,            /*bf_getsegcount*/
+  (charbufferproc)array_getcharbuf,    /*bf_getcharbuffer*/
+#else
+  (getreadbufferproc)array_getreadbuf,    /*bf_getreadbuffer*/
+  (getwritebufferproc)array_getwritebuf,  /*bf_getwritebuffer*/
+  (getsegcountproc)array_getsegcount,         /*bf_getsegcount*/
+  (getcharbufferproc)array_getcharbuf,    /*bf_getcharbuffer*/
+#endif
+};
+
 //--------------------------------------------------------------------
 static PyTypeObject PyVTKObjectType = {
   PyObject_HEAD_INIT(&PyType_Type)
@@ -450,7 +524,7 @@ static PyTypeObject PyVTKObjectType = {
   (reprfunc)PyVTKObject_PyString,        // tp_string
   (getattrofunc)PyVTKObject_PyGetAttr,   // tp_getattro
   (setattrofunc)PyVTKObject_PySetAttr,   // tp_setattro
-  0,                                     // tp_as_buffer
+  &array_as_buffer,                      // tp_as_buffer
 #if PY_VERSION_HEX >= 0x02010000
   Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
 #else
