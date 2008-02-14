@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.33");
+vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.34");
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------
@@ -349,7 +349,11 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       }
 
     if (N == 2)
-      { // two landmarks, construct a similarity transformation
+      {
+      // two landmarks: construct a similarity transformation
+      // by defining a line segment in each image between the
+      // two landmarks and finding the transformation that
+      // matches these line segments to each other
       double s0[3],t0[3],s1[3],t1[3];
       this->SourceLandmarks->GetPoint(0,s0);
       this->TargetLandmarks->GetPoint(0,t0);
@@ -368,44 +372,63 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         rt += dt[i]*dt[i];
         }
 
-      // normalize the two vectors
+      // lengths of vector
       rs = sqrt(rs);
-      ds[0] /= rs; ds[1] /= rs; ds[2] /= rs; 
       rt = sqrt(rt);
-      dt[0] /= rt; dt[1] /= rt; dt[2] /= rt; 
 
-      double w,x,y,z;
-      // take dot & cross product
-      w = ds[0]*dt[0] + ds[1]*dt[1] + ds[2]*dt[2];
-      x = ds[1]*dt[2] - ds[2]*dt[1];
-      y = ds[2]*dt[0] - ds[0]*dt[2];
-      z = ds[0]*dt[1] - ds[1]*dt[0];
+      // initialize scale and quaternion orientation for transform
+      double r = 1;
+      double w = 1, x = 0, y = 0, z = 0;
 
-      double r = sqrt(x*x + y*y + z*z);
-      double theta = atan2(r,w);
-
-      // construct quaternion
-      w = cos(theta/2);
-      if (r != 0)
+      // find rotation and scale only if both vectors are nonzero
+      if (rs == 0.0)
         {
-        r = sin(theta/2)/r;
-        x = x*r;
-        y = y*r;
-        z = z*r;
+        vtkWarningMacro("Source landmarks coincide, "
+                        "refusing to do infinite scale");
         }
-      else // rotation by 180 degrees
+      else if (rt == 0.0)
         {
-        // rotate around a vector perpendicular to ds
-        vtkMath::Perpendiculars(ds,dt,0,0);
-        r = sin(theta/2);
-        x = dt[0]*r;
-        y = dt[1]*r;
-        z = dt[2]*r;
+        vtkWarningMacro("Target landmarks coincide, "
+                        "refusing to do zero scale");
+        }
+      else
+        {
+        // scale factor for transform
+        r = rt/rs;
+
+        // find rotation between the two vectors
+        ds[0] /= rs; ds[1] /= rs; ds[2] /= rs;
+        dt[0] /= rt; dt[1] /= rt; dt[2] /= rt;
+
+        // take dot & cross product
+        w = ds[0]*dt[0] + ds[1]*dt[1] + ds[2]*dt[2];
+        x = ds[1]*dt[2] - ds[2]*dt[1];
+        y = ds[2]*dt[0] - ds[0]*dt[2];
+        z = ds[0]*dt[1] - ds[1]*dt[0];
+
+        double f = sqrt(x*x + y*y + z*z);
+        double theta = atan2(f,w);
+
+        // construct quaternion for rotation between vectors
+        w = cos(theta/2);
+        if (f != 0)
+          {
+          f = sin(theta/2)/f;
+          x = x*f;
+          y = y*f;
+          z = z*f;
+          }
+        else // rotation by 180 degrees
+          {
+          // rotate around a vector perpendicular to ds
+          vtkMath::Perpendiculars(ds,dt,0,0);
+          f = sin(theta/2);
+          x = dt[0]*f;
+          y = dt[1]*f;
+          z = dt[2]*f;
+          }
         }
       
-      // now r is scale factor for matrix
-      r = rt/rs;
-
       // build a rotation + scale matrix
       A[0][0] = (w*w + x*x - y*y - z*z)*r;
       A[0][1] = (x*y + w*z)*2*r;
