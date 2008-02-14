@@ -47,9 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObject.h"
 
-#include <vtkstd/string> 
-#include <vtkstd/vector> 
-#include "vtkStdString.h"
+#include "vtkStdString.h" // Because a method returns a vtkStdString
 
 class vtkSQLQuery;
 class vtkStringArray;
