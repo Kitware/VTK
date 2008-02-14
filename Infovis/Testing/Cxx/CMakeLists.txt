@@ -43,6 +43,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestBoostAdapter
       TestBoostAlgorithms
       )
+
+    IF(VTK_DATA_ROOT)
+      SET(MyTests ${MyTests}
+        TestBoostSplitTableField
+        )
+    ENDIF(VTK_DATA_ROOT)
   ENDIF (VTK_USE_BOOST)
   SET(VTK_HAS_UINT64_ARRAY 0)
   IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
