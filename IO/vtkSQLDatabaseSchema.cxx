@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.3");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.4");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -192,9 +192,10 @@ int vtkSQLDatabaseSchema::GetTableHandleFromName( const char* tblName )
 {
   int i;
   int ntab = this->Internals->Tables.size();
+  vtkstd::string tblNameStr( tblName );
   for ( i = 0; i < ntab; ++i )
     {
-    if ( this->Internals->Tables[i].Name == tblName )
+    if ( this->Internals->Tables[i].Name == tblNameStr )
       {
       return i;
       }
@@ -215,9 +216,10 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName,
 
   int i;
   int nidx = this->Internals->Tables[tblHandle].Indices.size();
+  vtkstd::string idxNameStr( idxName );
   for ( i = 0; i < nidx ; ++ i )
     {
-    if ( this->Internals->Tables[tblHandle].Indices[i].Name == idxName )
+    if ( this->Internals->Tables[tblHandle].Indices[i].Name == idxNameStr )
       {
       return i;
       }
@@ -237,9 +239,10 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
 
   int i;
   int ncol = this->Internals->Tables[tblHandle].Columns.size();
+  vtkstd::string colNameStr( colName );
   for ( i = 0; i < ncol ; ++ i )
     {
-    if ( this->Internals->Tables[tblHandle].Columns[i].Name == colName )
+    if ( this->Internals->Tables[tblHandle].Columns[i].Name == colNameStr )
       {
       return i;
       }
@@ -259,9 +262,10 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName( const char* tblName,
 
   int i;
   int ntrg = this->Internals->Tables[tblHandle].Triggers.size();
+  vtkstd::string trgNameStr( trgName );
   for ( i = 0; i < ntrg ; ++ i )
     {
-    if ( this->Internals->Tables[tblHandle].Triggers[i].Name == trgName )
+    if ( this->Internals->Tables[tblHandle].Triggers[i].Name == trgNameStr )
       {
       return i;
       }
