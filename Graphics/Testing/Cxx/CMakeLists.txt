@@ -11,6 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     FrustumClip.cxx
     RGrid.cxx
     TestAppendSelection.cxx
+    TestAssignAttribute.cxx
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
     TestDelaunay2D.cxx

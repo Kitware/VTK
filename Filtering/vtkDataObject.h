@@ -457,6 +457,8 @@ public:
   static vtkInformationDoubleVectorKey* DATA_TIME_STEPS();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
+  static vtkInformationInformationVectorKey* VERTEX_DATA_VECTOR();
+  static vtkInformationInformationVectorKey* EDGE_DATA_VECTOR();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();

@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.37");
+vtkCxxRevisionMacro(vtkDataObject, "1.38");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -51,6 +51,8 @@ vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
+vtkInformationKeyMacro(vtkDataObject, VERTEX_DATA_VECTOR, InformationVector);
+vtkInformationKeyMacro(vtkDataObject, EDGE_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ARRAY_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ASSOCIATION, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ATTRIBUTE_TYPE, Integer);
@@ -103,7 +105,9 @@ const char vtkDataObject
   "vtkDataObject::FIELD_ASSOCIATION_POINTS",
   "vtkDataObject::FIELD_ASSOCIATION_CELLS",
   "vtkDataObject::FIELD_ASSOCIATION_NONE",
-  "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS"
+  "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS",
+  "vtkDataObject::FIELD_ASSOCIATION_VERTICES",
+  "vtkDataObject::FIELD_ASSOCIATION_EDGES"
 };
 
 //----------------------------------------------------------------------------
@@ -408,6 +412,16 @@ void vtkDataObject::CopyInformationToPipeline(vtkInformation *request,
         {
         output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
         }
+      // copy vertex data.
+      if (input->Has(VERTEX_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, VERTEX_DATA_VECTOR(), 1);
+        }
+      // copy edge data.
+      if (input && input->Has(EDGE_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, EDGE_DATA_VECTOR(), 1);
+        }
       // copy the actual time
       if (input->Has(DATA_TIME_STEPS()))
         {
@@ -438,6 +452,14 @@ vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
   else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
     {
     fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_VERTICES)
+    {
+    fieldDataInfoVector = info->Get(VERTEX_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+    {
+    fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
     }
   else
     {
@@ -479,6 +501,14 @@ vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
     {
     fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
     }
+  else if (fieldAssociation == FIELD_ASSOCIATION_VERTICES)
+    {
+    fieldDataInfoVector = info->Get(VERTEX_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+    {
+    fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
+    }
   else
     {
     vtkGenericWarningMacro("Unrecognized field association!");
@@ -518,6 +548,14 @@ void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
   else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
     {
     fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_VERTICES)
+    {
+    fieldDataInfoVector = info->Get(VERTEX_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+    {
+    fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
     }
   else
     {
@@ -561,6 +599,14 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
     {
     fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
     }
+  else if (fieldAssociation == FIELD_ASSOCIATION_VERTICES)
+    {
+    fieldDataInfoVector = info->Get(VERTEX_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+    {
+    fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
+    }
   else
     {
     vtkGenericWarningMacro("Unrecognized field association!");
@@ -573,9 +619,17 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
       {
       info->Set(POINT_DATA_VECTOR(), fieldDataInfoVector);
       }
-    else // (fieldAssociation == FIELD_ASSOCIATION_CELLS)
+    else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
       {
       info->Set(CELL_DATA_VECTOR(), fieldDataInfoVector);
+      }
+    else if (fieldAssociation == FIELD_ASSOCIATION_VERTICES)
+      {
+      info->Set(VERTEX_DATA_VECTOR(), fieldDataInfoVector);
+      }
+    else // if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+      {
+      info->Set(EDGE_DATA_VECTOR(), fieldDataInfoVector);
       }
     fieldDataInfoVector->Delete();
     }
