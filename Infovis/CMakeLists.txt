@@ -26,6 +26,7 @@ vtkGraphLayoutStrategy.cxx
 vtkGraphMapper.cxx
 vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
+vtkISIReader.cxx
 vtkInteractorStyleTreeMapHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
@@ -33,6 +34,7 @@ vtkMergeTables.cxx
 vtkPassThrough.cxx
 vtkPassThroughLayoutStrategy.cxx
 vtkPruneTreeFilter.cxx
+vtkRISReader.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx

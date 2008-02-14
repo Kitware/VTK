@@ -28,7 +28,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}
       TestChacoGraphReader
       TestDelimitedTextReader
+      TestISIReader
       TestFixedWidthTextReader
+      TestRISReader
       TestStringToNumeric
       TestTableToGraph
       TestTreeMapViewer
