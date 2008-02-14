@@ -337,27 +337,28 @@ public:
   { return new vtkWidgetWindowLevelCallback; }
 
   void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
-                void *vtkNotUsed( callData ) )
+                void *callData )
   {
     vtkImagePlaneWidget* self =
       reinterpret_cast< vtkImagePlaneWidget* >( caller );
     if(!self) return;
-    double w = self->GetWindow();
-    double l = self->GetLevel();
+
+    double* wl = static_cast<double*>( callData );
+
     if ( self == this->WidgetX )
       {
-      this->WidgetY->SetWindowLevel(w,l,1);
-      this->WidgetZ->SetWindowLevel(w,l,1);
+      this->WidgetY->SetWindowLevel(wl[0],wl[1],1);
+      this->WidgetZ->SetWindowLevel(wl[0],wl[1],1);
       }
     else if( self == this->WidgetY )
       {
-      this->WidgetX->SetWindowLevel(w,l,1);
-      this->WidgetZ->SetWindowLevel(w,l,1);
+      this->WidgetX->SetWindowLevel(wl[0],wl[1],1);
+      this->WidgetZ->SetWindowLevel(wl[0],wl[1],1);
       }
     else if (self == this->WidgetZ)
       {
-      this->WidgetX->SetWindowLevel(w,l,1);
-      this->WidgetY->SetWindowLevel(w,l,1);
+      this->WidgetX->SetWindowLevel(wl[0],wl[1],1);
+      this->WidgetY->SetWindowLevel(wl[0],wl[1],1);
       }
   }
 
@@ -460,9 +461,9 @@ int ImagePlaneWidget( int argc, char *argv[] )
    cbk->WidgetX = planeWidgetX;
    cbk->WidgetY = planeWidgetY;
    cbk->WidgetZ = planeWidgetZ;
-   planeWidgetX->AddObserver( vtkCommand::EndInteractionEvent, cbk );
-   planeWidgetY->AddObserver( vtkCommand::EndInteractionEvent, cbk );
-   planeWidgetZ->AddObserver( vtkCommand::EndInteractionEvent, cbk );
+   planeWidgetX->AddObserver( vtkCommand::EndWindowLevelEvent, cbk );
+   planeWidgetY->AddObserver( vtkCommand::EndWindowLevelEvent, cbk );
+   planeWidgetZ->AddObserver( vtkCommand::EndWindowLevelEvent, cbk );
    cbk->Delete();
 
   double wl[2];
