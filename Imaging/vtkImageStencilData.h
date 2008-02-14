@@ -105,47 +105,9 @@ public:
   vtkGetVector6Macro(Extent, int);
 
   // Description:
-  // Save the previous data spacing.  This should be called only by
-  // vtkImageStencilSource.
-  vtkSetVector3Macro(OldSpacing, double);
-  vtkGetVector3Macro(OldSpacing, double);
-
-  // Description: 
-  // Save the previous data origin.  This should be called only by
-  // vtkImageStencilSource.
-  vtkSetVector3Macro(OldOrigin, double);
-  vtkGetVector3Macro(OldOrigin, double);
-
-  // Description:
   // Allocate space for the sub-extents.  This is called by
   // vtkImageStencilSource.
   void AllocateExtents();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // Propagate the update back up the pipeline, and perform the actual 
-  // work of updating on the way down. When the propagate arrives at a
-  // port, block and wait for the asynchronous update to finish on the
-  // other side.
-  // This propagation may early terminate based on the PipelineMTime.
-  void UpdateData();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // The update extent for this object is propagated up the pipeline.
-  // This propagation may early terminate based on the PipelineMTime.
-  void PropagateUpdateExtent();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // Propagate back up the pipeline for ports and trigger the update on the
-  // other side of the port to allow for asynchronous parallel processing in
-  // the pipeline.
-  // This propagation may early terminate based on the PipelineMTime.
-  void TriggerAsynchronousUpdate();
 
   //BTX
   // Description:
@@ -177,17 +139,6 @@ protected:
   // itself. 
   virtual void InternalAdd( vtkImageStencilData * );
   
-  // Description:
-  // Check to see of the Spacing and Origin are different
-  // from the OldSpacing and OldOrigin.
-  int SpacingOrOriginHasChanged();
-
-  // Description:
-  // Previous Spacing and Origin values, so that it is possible to
-  // know when an update is required because they have changed.
-  double OldSpacing[3];
-  double OldOrigin[3];
-
   // Description:
   // The Spacing and Origin of the data.
   double Spacing[3];

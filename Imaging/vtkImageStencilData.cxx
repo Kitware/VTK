@@ -22,19 +22,19 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.25");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.26");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
 vtkImageStencilData::vtkImageStencilData()
 {
-  this->Spacing[0] = this->OldSpacing[0] = 1;
-  this->Spacing[1] = this->OldSpacing[1] = 1;
-  this->Spacing[2] = this->OldSpacing[2] = 1;
+  this->Spacing[0] = 1;
+  this->Spacing[1] = 1;
+  this->Spacing[2] = 1;
 
-  this->Origin[0] = this->OldOrigin[0] = 0;
-  this->Origin[1] = this->OldOrigin[1] = 0;
-  this->Origin[2] = this->OldOrigin[2] = 0;
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
+  this->Origin[2] = 0;
 
   this->NumberOfExtentEntries = 0;
   this->ExtentLists = NULL;
@@ -77,15 +77,6 @@ void vtkImageStencilData::PrintSelf(ostream& os, vtkIndent indent)
      << this->Origin[1] << ", "
      << this->Origin[2] << ")\n";
 
-  os << indent << "OldSpacing: (" 
-     << this->OldSpacing[0] << ", "
-     << this->OldSpacing[1] << ", "
-     << this->OldSpacing[2] << ")\n";
-
-  os << indent << "OldOrigin: (" 
-     << this->OldOrigin[0] << ", "
-     << this->OldOrigin[1] << ", "
-     << this->OldOrigin[2] << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -209,91 +200,6 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
       }
     }
   memcpy(this->Extent, s->GetExtent(), 6*sizeof(int));
-}
-
-//----------------------------------------------------------------------------
-// Override from vtkDataObject because we have to handle the Spacing
-// and Origin as well as the UpdateExtent.
-void vtkImageStencilData::PropagateUpdateExtent()
-{
-#if 0
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the update extent to the source 
-  // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent() || 
-       this->SpacingOrOriginHasChanged() || 
-       this->LastUpdateExtentWasOutsideOfTheExtent)
-    {
-    if (this->Source)
-      {
-      this->Source->PropagateUpdateExtent(this);
-      }
-    }
-  
-  // update the value of this ivar
-  this->LastUpdateExtentWasOutsideOfTheExtent = 
-    this->UpdateExtentIsOutsideOfTheExtent();
-#else
-  this->Superclass::PropagateUpdateExtent();
-#endif
-}
-
-//----------------------------------------------------------------------------
-// Override from vtkDataObject because we have to handle the Spacing
-// and Origin as well as the UpdateExtent.
-void vtkImageStencilData::TriggerAsynchronousUpdate()
-{
-#if 0
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the trigger to the source
-  // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent() || 
-       this->SpacingOrOriginHasChanged())
-    {
-    if (this->Source)
-      {
-      this->Source->TriggerAsynchronousUpdate();
-      }
-    }
-#else
-  this->Superclass::TriggerAsynchronousUpdate();
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencilData::UpdateData()
-{
-#if 0
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the UpdateData to the source
-  // if there is one.
-  if (this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-      this->UpdateExtentIsOutsideOfTheExtent() ||
-      this->SpacingOrOriginHasChanged())
-    {
-    if (this->Source)
-      {
-      this->Source->UpdateData(this);
-      }
-    }
-#else
-  this->Superclass::UpdateData();
-#endif
-}
-
-//----------------------------------------------------------------------------
-int vtkImageStencilData::SpacingOrOriginHasChanged()
-{
-  double *spacing = this->Spacing;
-  double *origin = this->Origin;
-  double *ospacing = this->OldSpacing;
-  double *oorigin = this->OldOrigin;
-
-  return (spacing[0] != ospacing[0] || origin[0] != oorigin[0] ||
-          spacing[1] != ospacing[1] || origin[1] != oorigin[1] ||
-          spacing[2] != ospacing[2] || origin[2] != oorigin[2]);
 }
 
 //----------------------------------------------------------------------------
