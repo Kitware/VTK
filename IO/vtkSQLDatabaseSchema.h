@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObject.h"
 
-#include <cstdarg>
+#include <cstdarg> // Because one method has a variable list of arguments 
 
 class vtkSQLDatabaseSchemaInternals;
 
