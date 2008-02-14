@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.6");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.7");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -286,7 +286,11 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
   const char* name;
   const char* attr;
 
+#if !defined(__sgi) || defined(__GNUC__)
   va_list args;
+#else // SGI CC
+  vtkstd::va_list args;
+#endif // SGI CC
   va_start( args, tblName );
   while ( ( token = va_arg( args, int ) ) != END_TABLE_TOKEN )
     {
