@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.4");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.5");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -106,21 +106,21 @@ int vtkSQLDatabaseSchema::AddColumnToIndex( int tblHandle,
     return -1;
     }
 
-  vtkSQLDatabaseSchemaInternals::Table& table( this->Internals->Tables[tblHandle] );
-  if ( colHandle < 0 || colHandle >= static_cast<int>( table.Columns.size() ) )
+  vtkSQLDatabaseSchemaInternals::Table* table = &this->Internals->Tables[tblHandle];
+  if ( colHandle < 0 || colHandle >= static_cast<int>( table->Columns.size() ) )
     {
     vtkErrorMacro( "Can not add non-existent column " << colHandle << " in table " << tblHandle );
     return -1;
     }
 
-  if ( idxHandle < 0 || idxHandle >= static_cast<int>( table.Indices.size() ) )
+  if ( idxHandle < 0 || idxHandle >= static_cast<int>( table->Indices.size() ) )
     {
     vtkErrorMacro( "Can not add column to non-existent index " << idxHandle << " of table " << tblHandle );
     return -1;
     }
 
-  table.Indices[idxHandle].ColumnNames.push_back( table.Columns[colHandle].Name );
-  return static_cast<int>( table.Indices[idxHandle].ColumnNames.size() - 1 );
+  table->Indices[idxHandle].ColumnNames.push_back( table->Columns[colHandle].Name );
+  return static_cast<int>( table->Indices[idxHandle].ColumnNames.size() - 1 );
 }
 
 // ----------------------------------------------------------------------
@@ -139,11 +139,11 @@ int vtkSQLDatabaseSchema::AddColumnToTable( int tblHandle,
   // DCT: This trick avoids copying a Column structure the way push_back would:
   int colHandle = this->Internals->Tables[tblHandle].Columns.size();
   this->Internals->Tables[tblHandle].Columns.resize( colHandle + 1 );
-  vtkSQLDatabaseSchemaInternals::Column& result( this->Internals->Tables[tblHandle].Columns[colHandle] );
-  result.Type = static_cast<DatabaseColumnType>( colType );
-  result.Size = colSize;
-  result.Name = colName;
-  result.Attributes = colOpts;
+  vtkSQLDatabaseSchemaInternals::Column* column = &this->Internals->Tables[tblHandle].Columns[colHandle];
+  column->Type = static_cast<DatabaseColumnType>( colType );
+  column->Size = colSize;
+  column->Name = colName;
+  column->Attributes = colOpts;
   return colHandle;
 }
 
@@ -160,9 +160,9 @@ int vtkSQLDatabaseSchema::AddIndexToTable( int tblHandle,
 
   int idxHandle = this->Internals->Tables[tblHandle].Indices.size();
   this->Internals->Tables[tblHandle].Indices.resize( idxHandle + 1 );
-  vtkSQLDatabaseSchemaInternals::Index& result( this->Internals->Tables[tblHandle].Indices[idxHandle] );
-  result.Type = static_cast<DatabaseIndexType>( idxType );
-  result.Name = idxName;
+  vtkSQLDatabaseSchemaInternals::Index* index = &this->Internals->Tables[tblHandle].Indices[idxHandle];
+  index->Type = static_cast<DatabaseIndexType>( idxType );
+  index->Name = idxName;
   return idxHandle;
 }
 
@@ -180,10 +180,10 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
 
   int trgHandle = this->Internals->Tables[tblHandle].Triggers.size();
   this->Internals->Tables[tblHandle].Triggers.resize( trgHandle + 1 );
-  vtkSQLDatabaseSchemaInternals::Trigger& result( this->Internals->Tables[tblHandle].Triggers[trgHandle] );
-  result.Type = static_cast<DatabaseTriggerType>( trgType );
-  result.Name = trgName;
-  result.Action = trgAction;
+  vtkSQLDatabaseSchemaInternals::Trigger* trigger = &this->Internals->Tables[tblHandle].Triggers[trgHandle];
+  trigger->Type = static_cast<DatabaseTriggerType>( trgType );
+  trigger->Name = trgName;
+  trigger->Action = trgAction;
   return trgHandle;
 }
 
