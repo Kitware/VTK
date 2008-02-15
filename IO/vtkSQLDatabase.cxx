@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.14");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.15");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -151,7 +151,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     // Loop over all columns of the current table
     bool firstCol = true;
     int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
-    if ( ! numCol )
+    if ( numCol < 0 )
       {
       return false;
       }
@@ -169,7 +169,9 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
       queryStr += " ";
 
-      queryStr += ""; // colTypeName( colHandle->Type );int GetColumnType( int tableIndex, int colIndex ); 
+      int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+      // FIXME: get the backend-specific column type string
+      queryStr += colType;
 
       vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
       if ( attStr )
@@ -178,7 +180,52 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
         queryStr += attStr;
         }
       }
+
+    // Loop over all indices of the current table
+    int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
+    if ( numIdx < 0 )
+      {
+      return false;
+      }
+    for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
+      {
+      queryStr += ", ";
+      int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle ); 
+      // FIXME: get the backend-specific column type string
+      queryStr += idxType;
+
+      // FIXME: eventually handle named constraints
+      queryStr += "(";
+
+      // Loop over all column names of the current index
+      bool firstCnm = true;
+      int numCnms = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
+      if ( numCnms < 0 )
+        {
+        return false;
+        }
+      for ( int cnmHandle = 0; cnmHandle < numCnms; ++ cnmHandle )
+        {
+        if ( firstCnm )
+          {
+          firstCnm = false;
+          }
+        else
+          {
+          queryStr += ",";
+          }
+        queryStr += schema->GetIndexColumnNameFromHandle( tblHandle, idxHandle, cnmHandle );
+        }
+      queryStr += ")";
+      }
+    queryStr += ")";
+    
+    // Execute the query
+    query->SetQuery( queryStr );
+    query->Execute();
     }
+  
+  // FIXME: eventually handle triggers
 
   // Commit the transaction.
   if ( ! query->CommitTransaction() )
