@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.10");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.11");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -89,6 +89,12 @@ void vtkSQLDatabaseSchema::PrintSelf( ostream& os, vtkIndent indent )
 // ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTable( const char* tblName )
 {
+  if ( ! tblName )
+    {
+    vtkErrorMacro( "Cannot add table with empty name" );
+    return -1;
+    }
+
   vtkSQLDatabaseSchemaInternals::Table newTab;
   int tblHandle = this->Internals->Tables.size();
   newTab.Name = tblName;
@@ -131,6 +137,12 @@ int vtkSQLDatabaseSchema::AddColumnToTable( int tblHandle,
                                             int colSize, 
                                             const char* colOpts )
 {
+  if ( ! colName )
+    {
+    vtkErrorMacro( "Cannot add column with empty name to table " << tblHandle );
+    return -1;
+    }
+
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
     vtkErrorMacro( "Cannot add column to non-existent table " << tblHandle );
@@ -173,6 +185,12 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
                                              const char* trgName, 
                                              const char* trgAction )
 {
+  if ( ! trgName )
+    {
+    vtkErrorMacro( "Cannot add trigger with empty name to table " << tblHandle );
+    return -1;
+    }
+
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
     vtkErrorMacro( "Cannot add trigger to non-existent table " << tblHandle );
