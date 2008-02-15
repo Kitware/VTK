@@ -31,7 +31,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_MAX_SPHERE_RESOLUTION 1024*1024
+#define VTK_MAX_SPHERE_RESOLUTION 1024
 
 class VTK_GRAPHICS_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm 
 {
