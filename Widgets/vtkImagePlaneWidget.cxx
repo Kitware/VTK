@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.15");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.16");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1180,17 +1180,22 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::InvertTable()
 {
-  int index = this->LookupTable->GetNumberOfTableValues()-1;
-  int count = 0;
-  vtkLookupTable* lut = vtkLookupTable::New();
-  lut->DeepCopy( this->LookupTable );
-  while ( index >= 0 )
+  int index = this->LookupTable->GetNumberOfTableValues();
+  unsigned char swap[4];
+  size_t num = 4*sizeof(unsigned char);
+  vtkUnsignedCharArray* table = this->LookupTable->GetTable();
+  for ( int count = 0; count < --index; count++ )
     {
-    this->LookupTable->SetTableValue( count++, lut->GetTableValue( index-- ) );
+    unsigned char *rgba1 = table->GetPointer(4*count);
+    unsigned char *rgba2 = table->GetPointer(4*index);
+    memcpy( swap,  rgba1, num );
+    memcpy( rgba1, rgba2, num );
+    memcpy( rgba2, swap,  num );
     }
 
-  this->LookupTable->Build();
-  lut->Delete();
+  // force the lookuptable to update its InsertTime to avoid
+  // rebuilding the array
+  this->LookupTable->SetTableValue( 0, this->LookupTable->GetTableValue( 0 ) );
 }
 
 //----------------------------------------------------------------------------
