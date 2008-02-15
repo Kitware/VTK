@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.15");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.16");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -153,6 +153,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
     if ( numCol < 0 )
       {
+      query->RollbackTransaction();
       return false;
       }
     for ( int colHandle = 0; colHandle < numCol; ++ colHandle )
@@ -185,23 +186,37 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
     if ( numIdx < 0 )
       {
+      query->RollbackTransaction();
       return false;
       }
     for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
       {
       queryStr += ", ";
-      int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle ); 
-      // FIXME: get the backend-specific column type string
-      queryStr += idxType;
+      switch ( schema->GetIndexTypeFromHandle( tblHandle, idxHandle ) )
+        {
+        case 0:
+          queryStr += "PRIMARY KEY ";
+          break;
+        case 1:
+          queryStr += "UNIQUE ";
+          break;
+        case 2:
+          queryStr += "INDEX ";
+          break;
+        default:
+          query->RollbackTransaction();
+          return false;
+        }
 
-      // FIXME: eventually handle named constraints
-      queryStr += "(";
+      queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+      queryStr += " (";
 
       // Loop over all column names of the current index
       bool firstCnm = true;
       int numCnms = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
       if ( numCnms < 0 )
         {
+        query->RollbackTransaction();
         return false;
         }
       for ( int cnmHandle = 0; cnmHandle < numCnms; ++ cnmHandle )
@@ -222,7 +237,12 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     
     // Execute the query
     query->SetQuery( queryStr );
-    query->Execute();
+    if ( ! query->Execute() )
+      {
+      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query" );
+      query->RollbackTransaction();
+      return false;
+      }
     }
   
   // FIXME: eventually handle triggers

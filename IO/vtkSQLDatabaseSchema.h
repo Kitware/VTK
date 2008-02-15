@@ -163,6 +163,11 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
                               const char* idxName );
 
   // Description:
+  // Given the handles of a table and an index, get the name of the index.
+  const char* GetIndexNameFromHandle( int tblHandle, 
+                                      int idxHandle );
+
+  // Description:
   // Given the handles of a table and an index, get the type of the index.
   int GetIndexTypeFromHandle( int tblHandle, 
                               int idxHandle );

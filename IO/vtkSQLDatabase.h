@@ -58,7 +58,7 @@ class vtkSQLQuery;
 class vtkStringArray;
 
 // This is a list of features that each database may or may not
-// support.  As yet (December 2007) we don't provide access to most of
+// support.  As yet (February 2008) we don't provide access to most of
 // them.  
 #define VTK_SQL_FEATURE_TRANSACTIONS            1000
 #define VTK_SQL_FEATURE_QUERY_SIZE              1001

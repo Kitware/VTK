@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.9");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.10");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -240,6 +240,25 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName,
 }
 
 // ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetIndexNameFromHandle( int tblHandle, 
+                                                          int idxHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get name of an index in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( idxHandle < 0 || idxHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Indices.size() ) )
+    {
+    vtkErrorMacro( "Cannot get name of non-existent index " << idxHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].Name;
+}
+
+// ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetIndexTypeFromHandle( int tblHandle, 
                                                   int idxHandle )
 {
@@ -308,25 +327,6 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
 }
 
 // ----------------------------------------------------------------------
-int vtkSQLDatabaseSchema::GetColumnTypeFromHandle( int tblHandle, 
-                                                   int colHandle )
-{
-  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
-    {
-    vtkErrorMacro( "Cannot get type of a column in non-existent table " << tblHandle );
-    return -1;
-    }
-  
-  if ( colHandle < 0 || colHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Columns.size() ) )
-    {
-    vtkErrorMacro( "Cannot get type of non-existent column " << colHandle << " in table " << tblHandle );
-    return -1;
-    }
-  
-  return static_cast<int>( this->Internals->Tables[tblHandle].Columns[colHandle].Type );
-}
-
-// ----------------------------------------------------------------------
 const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle( int tblHandle, 
                                                            int colHandle )
 {
@@ -343,6 +343,25 @@ const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle( int tblHandle,
     }
   
   return this->Internals->Tables[tblHandle].Columns[colHandle].Name;
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetColumnTypeFromHandle( int tblHandle, 
+                                                   int colHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get type of a column in non-existent table " << tblHandle );
+    return -1;
+    }
+  
+  if ( colHandle < 0 || colHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Columns.size() ) )
+    {
+    vtkErrorMacro( "Cannot get type of non-existent column " << colHandle << " in table " << tblHandle );
+    return -1;
+    }
+  
+  return static_cast<int>( this->Internals->Tables[tblHandle].Columns[colHandle].Type );
 }
 
 // ----------------------------------------------------------------------
