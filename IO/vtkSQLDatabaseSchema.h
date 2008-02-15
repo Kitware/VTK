@@ -158,22 +158,38 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   const char* GetTableNameFromHandle( int tblHandle );
 
   // Description:
-  // Given the names of an index and a table, get the handle of the index in this table.
+  // Given the names of a table and an index, get the handle of the index in this table.
   int GetIndexHandleFromName( const char* tblName, 
                               const char* idxName );
 
   // Description:
-  // Given the names of a column and a table, get the handle of the column in this table.
+  // Given the handles of a table and an index, get the type of the index.
+  int GetIndexTypeFromHandle( int tblHandle, 
+                              int idxHandle );
+
+  // Description:
+  // Given the handles of a table, an index, and a column name, get the column name.
+  const char* GetIndexColumnNameFromHandle( int tblHandle, 
+                                            int idxHandle,
+                                            int cnmHandle );
+
+  // Description:
+  // Given the names of a table and a column, get the handle of the column in this table.
   int GetColumnHandleFromName( const char* tblName, 
                                const char* colName );
 
   // Description:
-  // Given the handles of a column and a table, get the name of the column.
+  // Given the handles of a table and a column, get the name of the column.
   const char* GetColumnNameFromHandle( int tblHandle, 
                                        int colHandle );
 
   // Description:
-  // Given the handles of a column and a table, get the attributes of the column.
+  // Given the handles of a table and a column, get the type of the column.
+  int GetColumnTypeFromHandle( int tblHandle, 
+                               int colHandle );
+
+  // Description:
+  // Given the handles of a table and a column, get the attributes of the column.
   const char* GetColumnAttributesFromHandle( int tblHandle, 
                                              int colHandle );
 
@@ -195,8 +211,13 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   int GetNumberOfColumnsInTable( int tblHandle );
 
   // Description:
-  // Get the number of columns in a particular table .
+  // Get the number of indices in a particular table .
   int GetNumberOfIndicesInTable( int tblHandle );
+
+  // Description:
+  // Get the number of column names associated to a particular index in a particular table .
+  int GetNumberOfColumnNamesInIndex( int tblHandle, 
+                                     int idxHandle );
 
   // Description:
   // Get the number of trigger in a particular table .

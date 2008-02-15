@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.8");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.9");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -33,7 +33,7 @@ class vtkSQLDatabaseSchemaInternals
 public:
   struct Column
   {
-    vtkSQLDatabaseSchema::DatabaseColumnType Type; // DCT: OK to use ColumnType enums instead of int here
+    vtkSQLDatabaseSchema::DatabaseColumnType Type;
     int Size; // used when required, ignored otherwise (e.g. varchar)
     vtkStdString Name; // DCT: Note use of string instead of char* here to avoid leaks on destruction.
     vtkStdString Attributes; // may have implementation-specific stuff
@@ -240,6 +240,51 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName,
 }
 
 // ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetIndexTypeFromHandle( int tblHandle, 
+                                                  int idxHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get type of an index in non-existent table " << tblHandle );
+    return -1;
+    }
+  
+  if ( idxHandle < 0 || idxHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Indices.size() ) )
+    {
+    vtkErrorMacro( "Cannot get type of non-existent index " << idxHandle << " in table " << tblHandle );
+    return -1;
+    }
+  
+  return static_cast<int>( this->Internals->Tables[tblHandle].Indices[idxHandle].Type );
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetIndexColumnNameFromHandle( int tblHandle, 
+                                                                int idxHandle,
+                                                                int cnmHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get column name of an index in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( idxHandle < 0 || idxHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Indices.size() ) )
+    {
+    vtkErrorMacro( "Cannot get column name of non-existent index " << idxHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  if ( cnmHandle < 0 || cnmHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames.size() ) )
+    {
+    vtkErrorMacro( "Cannot get column name of non-existent column " << cnmHandle << " of index " << idxHandle << " in table " << tblHandle );
+    return 0;
+    }
+
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames[cnmHandle];
+}
+
+// ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName, 
                                                    const char* colName )
 {
@@ -260,6 +305,25 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
       }
     }
   return -1;
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetColumnTypeFromHandle( int tblHandle, 
+                                                   int colHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get type of a column in non-existent table " << tblHandle );
+    return -1;
+    }
+  
+  if ( colHandle < 0 || colHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Columns.size() ) )
+    {
+    vtkErrorMacro( "Cannot get type of non-existent column " << colHandle << " in table " << tblHandle );
+    return -1;
+    }
+  
+  return static_cast<int>( this->Internals->Tables[tblHandle].Columns[colHandle].Type );
 }
 
 // ----------------------------------------------------------------------
@@ -298,7 +362,6 @@ const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle( int tblHandle,
     }
   
   return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes;
-
 }
 
 // ----------------------------------------------------------------------
@@ -416,6 +479,24 @@ int vtkSQLDatabaseSchema::GetNumberOfIndicesInTable( int tblHandle )
     }
 
   return this->Internals->Tables[tblHandle].Indices.size();
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema:: GetNumberOfColumnNamesInIndex( int tblHandle, int idxHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get the number of column names in index of non-existent table " << tblHandle );
+    return -1;
+    }
+
+  if ( idxHandle < 0 || idxHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Indices.size() ) )
+    {
+    vtkErrorMacro( "Cannot get the number of column names of non-existent index " << idxHandle << " in table " << tblHandle );
+    return -1;
+    }
+
+  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames.size();
 }
 
 // ----------------------------------------------------------------------
