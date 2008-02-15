@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.7");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.8");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -103,20 +103,20 @@ int vtkSQLDatabaseSchema::AddColumnToIndex( int tblHandle,
 {
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
-    vtkErrorMacro( "Can not add column to index of non-existent table " << tblHandle );
+    vtkErrorMacro( "Cannot add column to index of non-existent table " << tblHandle );
     return -1;
     }
 
   vtkSQLDatabaseSchemaInternals::Table* table = &this->Internals->Tables[tblHandle];
   if ( colHandle < 0 || colHandle >= static_cast<int>( table->Columns.size() ) )
     {
-    vtkErrorMacro( "Can not add non-existent column " << colHandle << " in table " << tblHandle );
+    vtkErrorMacro( "Cannot add non-existent column " << colHandle << " in table " << tblHandle );
     return -1;
     }
 
   if ( idxHandle < 0 || idxHandle >= static_cast<int>( table->Indices.size() ) )
     {
-    vtkErrorMacro( "Can not add column to non-existent index " << idxHandle << " of table " << tblHandle );
+    vtkErrorMacro( "Cannot add column to non-existent index " << idxHandle << " of table " << tblHandle );
     return -1;
     }
 
@@ -133,7 +133,7 @@ int vtkSQLDatabaseSchema::AddColumnToTable( int tblHandle,
 {
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
-    vtkErrorMacro( "Can not add column to non-existent table " << tblHandle );
+    vtkErrorMacro( "Cannot add column to non-existent table " << tblHandle );
     return -1;
     }
 
@@ -155,7 +155,7 @@ int vtkSQLDatabaseSchema::AddIndexToTable( int tblHandle,
 {
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
-    vtkErrorMacro( "Can not add index to non-existent table " << tblHandle );
+    vtkErrorMacro( "Cannot add index to non-existent table " << tblHandle );
     return -1;
     }
 
@@ -175,7 +175,7 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
 {
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
-    vtkErrorMacro( "Can not add trigger to non-existent table " << tblHandle );
+    vtkErrorMacro( "Cannot add trigger to non-existent table " << tblHandle );
     return -1;
     }
 
@@ -204,6 +204,17 @@ int vtkSQLDatabaseSchema::GetTableHandleFromName( const char* tblName )
   return -1;
 }
 
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetTableNameFromHandle( int tblHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get name of non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Name;
+}
 
 // ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName, 
@@ -249,6 +260,45 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
       }
     }
   return -1;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetColumnNameFromHandle( int tblHandle, 
+                                                           int colHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get name of a column in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( colHandle < 0 || colHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Columns.size() ) )
+    {
+    vtkErrorMacro( "Cannot get name of non-existent column " << colHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Name;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetColumnAttributesFromHandle( int tblHandle,  
+                                                                 int colHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get attributes of a column in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( colHandle < 0 || colHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Columns.size() ) )
+    {
+    vtkErrorMacro( "Cannot get attributes of non-existent column " << colHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Attributes;
+
 }
 
 // ----------------------------------------------------------------------
@@ -342,4 +392,40 @@ void vtkSQLDatabaseSchema::Reset()
 int vtkSQLDatabaseSchema::GetNumberOfTables()
 {
   return this->Internals->Tables.size();
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetNumberOfColumnsInTable( int tblHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get the number of columns of non-existent table " << tblHandle );
+    return -1;
+    }
+
+  return this->Internals->Tables[tblHandle].Columns.size();
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetNumberOfIndicesInTable( int tblHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get the number of indices of non-existent table " << tblHandle );
+    return -1;
+    }
+
+  return this->Internals->Tables[tblHandle].Indices.size();
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetNumberOfTriggersInTable( int tblHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get the number of triggers of non-existent table " << tblHandle );
+    return -1;
+    }
+
+  return this->Internals->Tables[tblHandle].Triggers.size();
 }

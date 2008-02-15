@@ -40,7 +40,6 @@
 
 #include "vtkSQLDatabase.h"
 
-class vtkSQLQuery;
 class vtkPostgreSQLQuery;
 class vtkStringArray;
 class vtkPostgreSQLDatabasePrivate;
@@ -82,7 +81,7 @@ public:
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
-  
+
   // Description:
   // String representing database type (e.g. "psql").
   vtkGetStringMacro(DatabaseType);

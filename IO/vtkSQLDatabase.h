@@ -33,6 +33,9 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // The subclass should also provide API to set connection parameters.
 //
+// This class also provides the function EffectSchema to transform a 
+// database schema into a SQL database.
+//
 // .SECTION Thanks
 // Thanks to Andrew Wilson from Sandia National Laboratories for his work
 // on the database classes and for the SQLite example. Thanks to David Thompson 
@@ -41,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION See Also
 // vtkSQLQuery
+// vtkSQLDatabaseSchema
 
 #ifndef __vtkSQLDatabase_h
 #define __vtkSQLDatabase_h
@@ -49,6 +53,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStdString.h" // Because a method returns a vtkStdString
 
+class vtkSQLDatabaseSchema;
 class vtkSQLQuery;
 class vtkStringArray;
 
@@ -128,6 +133,10 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
 
+  // Description:
+  // Effect a database schema
+  virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
+  
  protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();

@@ -29,11 +29,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMySQLDatabase.h"
 #endif // VTK_USE_MYSQL
 
+#include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.13");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.14");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -116,3 +120,72 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   return db;
 }
 
+// ----------------------------------------------------------------------
+bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExists )
+{
+  dropIfExists = false; // Unused for now
+
+  if ( ! this->IsOpen() )
+    {
+    vtkGenericWarningMacro( "Unable to effect the schema: no database is open" );
+    return false;
+    }
+  
+  // Instantiate an empty query and begin the transaction.
+  vtkSQLQuery* query = this->GetQueryInstance();
+  if ( ! query->BeginTransaction() )
+    {
+    vtkGenericWarningMacro( "Unable to effect the schema: unable to begin transaction" );
+    return false;
+    }
+ 
+  // Loop over all tables of the schema and create them
+  int numTbl = schema->GetNumberOfTables();
+  for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
+    {
+    // Construct the query string for this table
+    vtkStdString queryStr( "CREATE TABLE " );
+    queryStr += schema->GetTableNameFromHandle( tblHandle );
+    queryStr += " (";
+
+    // Loop over all columns of the current table
+    bool firstCol = true;
+    int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
+    if ( ! numCol )
+      {
+      return false;
+      }
+    for ( int colHandle = 0; colHandle < numCol; ++ colHandle )
+      {
+      if ( ! firstCol )
+        {
+        queryStr += ", ";
+        }
+      else
+        {
+        firstCol = false;
+        }
+      
+      queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
+      queryStr += " ";
+
+      queryStr += ""; // colTypeName( colHandle->Type );int GetColumnType( int tableIndex, int colIndex ); 
+
+      vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+      if ( attStr )
+        {
+        queryStr += " ";
+        queryStr += attStr;
+        }
+      }
+    }
+
+  // Commit the transaction.
+  if ( ! query->CommitTransaction() )
+    {
+    vtkGenericWarningMacro( "Unable to effect the schema: unable to commit transaction" );
+    return false;
+    }
+
+  return true;
+}

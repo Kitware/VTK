@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.6");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.7");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -458,3 +458,4 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
   this->Connection->SetLastErrorText( 0 );
   return true;
 }
+

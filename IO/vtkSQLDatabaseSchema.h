@@ -150,21 +150,35 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   }
 
   // Description:
-  // Given a table name, get its handle
+  // Given a table name, get its handle.
   int GetTableHandleFromName( const char* tblName );
 
   // Description:
-  // Given the names of an index and a table, get the handle of the index in this table
+  // Given a table hanlde, get its name.
+  const char* GetTableNameFromHandle( int tblHandle );
+
+  // Description:
+  // Given the names of an index and a table, get the handle of the index in this table.
   int GetIndexHandleFromName( const char* tblName, 
                               const char* idxName );
 
   // Description:
-  // Given the names of a column and a table, get the handle of the column in this table
+  // Given the names of a column and a table, get the handle of the column in this table.
   int GetColumnHandleFromName( const char* tblName, 
                                const char* colName );
 
   // Description:
-  // Given the names of a trigger and a table, get the handle of the trigger in this table
+  // Given the handles of a column and a table, get the name of the column.
+  const char* GetColumnNameFromHandle( int tblHandle, 
+                                       int colHandle );
+
+  // Description:
+  // Given the handles of a column and a table, get the attributes of the column.
+  const char* GetColumnAttributesFromHandle( int tblHandle, 
+                                             int colHandle );
+
+  // Description:
+  // Given the names of a trigger and a table, get the handle of the trigger in this table.
   int GetTriggerHandleFromName( const char* tblName, 
                                 const char* trgName );
 
@@ -174,7 +188,19 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
 
   // Description:
   // Get the number of tables.
-  virtual int GetNumberOfTables();
+  int GetNumberOfTables();
+
+  // Description:
+  // Get the number of columns in a particular table .
+  int GetNumberOfColumnsInTable( int tblHandle );
+
+  // Description:
+  // Get the number of columns in a particular table .
+  int GetNumberOfIndicesInTable( int tblHandle );
+
+  // Description:
+  // Get the number of trigger in a particular table .
+  int GetNumberOfTriggersInTable( int tblHandle );
 
   // Description:
   // Set/Get the name of the schema.
