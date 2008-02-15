@@ -128,16 +128,6 @@ public:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
 
-  // Description:
-  // For each column type indexed in vtkSQLDatabaseSchema, return the 
-  // corresponding SQL backend-specific string.
-  virtual vtkStdString GetColumnTypeString( int ) 
-    {
-    vtkErrorMacro("FIXME");
-    // TEMPORARY COMPILATION FIX.
-    return vtkStdString();
-    }
-
 protected:
   vtkQtSQLDatabase();
   ~vtkQtSQLDatabase();
