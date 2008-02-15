@@ -32,7 +32,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -40,7 +40,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.9");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -300,7 +300,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
   // Get a quick pointer to the biconnected array
   //vtkIdTypeArray *biConn = vtkIdTypeArray::SafeDownCast(
   //  this->Graph->GetVertexData()->GetArray("biconnected component"));
-  vtkIntArray *community = vtkIntArray::SafeDownCast(
+  vtkIdTypeArray *community = vtkIdTypeArray::SafeDownCast(
     this->Graph->GetVertexData()->GetArray("community"));
   if (community == NULL)
     {
