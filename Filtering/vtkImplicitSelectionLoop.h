@@ -53,6 +53,8 @@ class vtkPolygon;
 class VTK_FILTERING_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
+  // Description:
+  // Standard VTK methods for printing and type information.
   vtkTypeRevisionMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -85,7 +87,8 @@ public:
   vtkBooleanMacro(AutomaticNormalGeneration,int);
 
   // Description:
-  // Set / get the normal used to determine what is inside and what is outside.
+  // Set / get the normal used to determine whether a point is inside or outside
+  // the selection loop.
   vtkSetVector3Macro(Normal,double);
   vtkGetVectorMacro(Normal,double,3);
 
@@ -106,7 +109,7 @@ private:
   vtkPolygon *Polygon;
 
   double Origin[3];
-  double Bounds[6];
+  double Bounds[6]; //bounds of the projected polyon
   double DeltaX;
   double DeltaY;
   double DeltaZ;

@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 
-vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.20");
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.21");
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
 vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 
@@ -102,7 +102,7 @@ void vtkImplicitSelectionLoop::Initialize()
 // Evaluate plane equations. Return smallest absolute value.
 double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
 {
-  int i, numPts=this->Polygon->Points->GetNumberOfPoints();
+  int i, numPts;
   double xProj[3];
   double t, dist2, minDist2, closest[3];
   int inside=0;
@@ -111,6 +111,8 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
     {
     this->Initialize();
     }
+  // Initialize may change the number of points
+  numPts = this->Polygon->Points->GetNumberOfPoints();
 
   // project point onto plane
   vtkPlane::ProjectPoint(x, this->Origin, this->Normal, xProj);
