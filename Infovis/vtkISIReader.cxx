@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkISIReader, "1.1");
+vtkCxxRevisionMacro(vtkISIReader, "1.2");
 vtkStandardNewMacro(vtkISIReader);
 
 // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
@@ -186,7 +186,7 @@ int vtkISIReader::RequestData(
 
 static istream& my_getline(istream& input, vtkstd::string& output, char delimiter)
 {
-  output.clear();
+  output = "";
   
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
