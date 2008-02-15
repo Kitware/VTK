@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.4");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.5");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -322,86 +322,58 @@ vtkVariant vtkTableToGraphGetValue(T* arr, vtkIdType index)
 }
 
 //---------------------------------------------------------------------------
-template <typename T, typename MutableGraph>
-vtkIdType vtkTableToGraphInsertVertices(
+template <typename T>
+void vtkTableToGraphFindVertices(
   T* arr,                            // The raw edge table column
   vtkIdType size,                    // The size of the edge table column
-  vtkStdString domain,               // The domain for the column
-  int hidden,                        // Whether this is a hidden column
-  MutableGraph g,                    // The builder graph
   vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
                                      // A map of domain-value pairs to graph id
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
-                                     // A map of domain-value pairs to hidden vertex id
-  vtkIdType & curHiddenVertex,       // The current hidden vertex id
-  vtkStringArray* domainArr,         // An array that holds the domain of each vertex
-  vtkStringArray* valueArr,          // An array that holds the string value of each vertex
-  vtkVariantArray* variantValueArr,  // An array that holds the actual value of each vertex
-  vtkDataSetAttributes* vertexTableData)     // A point data storing the input vertex table
+  vtkStringArray *domainArr,         // The domain of each vertex
+  vtkStringArray *stringValueArr,    // The string value of each vertex
+  vtkVariantArray *variantValueArr,  // The variant value of each vertex
+  vtkIdType & curVertex,             // The current vertex id
+  vtkTable *vertexTable,  // An array that holds the actual value of each vertex
+  vtkStdString domain)  // The domain of the array
 {
-  vtkIdType notFound = 0;
-  vtkAbstractArray* tableArr = 0;
-  if (vertexTableData)
-    {
-    tableArr = vertexTableData->GetAbstractArray(domain);
-    }
   for (vtkIdType i = 0; i < size; i++)
     {
     T v = arr[i];
-    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, vtkVariant(v));
-    
-    if (hidden)
+    vtkVariant val(v);
+    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+    if (vertexMap.count(value) == 0)
       {
-      if (hiddenMap.count(value) == 0)
-        {
-        hiddenMap[value] = curHiddenVertex;
-        ++curHiddenVertex;
-        }
-      }
-    else
-      {
-      if (vertexMap.count(value) == 0)
-        {
-        bool addVertex = true;
-        vtkIdType outputVertexId = g->GetNumberOfVertices();
-        
-        // If we have a vertex table,
-        // look for the value in the vertex table data.
-        if (vertexTableData)
-          {
-          addVertex = false;
-          if (tableArr)
-            {
-            vtkVariant var(v);
-            vtkIdType inputVertexId = tableArr->LookupValue(var);
-            if(inputVertexId >= 0)
-              {
-              g->GetVertexData()->CopyData(vertexTableData, inputVertexId, outputVertexId);
-              addVertex = true;
-              }
-            else
-              {
-              addVertex = false;
-              }
-            }
-          if (!addVertex)
-            {
-            notFound++;
-            }
-          }
-
-        if (addVertex)
-          {
-          vtkIdType vertex = g->AddVertex();
-          domainArr->InsertNextValue(domain);
-          valueArr->InsertNextValue(vtkVariant(v).ToString());
-          variantValueArr->InsertNextValue(vtkVariant(v));
-          vertexMap[value] = vertex;
-          }
-        }
+      vtkIdType row = vertexTable->InsertNextBlankRow();
+      vertexTable->SetValueByName(row, domain, val);
+      vertexMap[value] = row;
+      domainArr->InsertNextValue(domain);
+      stringValueArr->InsertNextValue(val.ToString());
+      variantValueArr->InsertNextValue(val);
+      curVertex = row;
       }
     }
-  return notFound;
+}
+
+//---------------------------------------------------------------------------
+template <typename T>
+void vtkTableToGraphFindHiddenVertices(
+  T* arr,                            // The raw edge table column
+  vtkIdType size,                    // The size of the edge table column
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
+                                     // A map of domain-value pairs to hidden vertex id
+  vtkIdType & curHiddenVertex,       // The current hidden vertex id
+  vtkStdString domain)  // The domain of the array
+{
+  for (vtkIdType i = 0; i < size; i++)
+    {
+    T v = arr[i];
+    vtkVariant val(v);
+    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+    if (hiddenMap.count(value) == 0)
+      {
+      hiddenMap[value] = curHiddenVertex;
+      ++curHiddenVertex;
+      }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -473,14 +445,188 @@ int vtkTableToGraph::RequestData(
     hiddenTime = 0.6;
     }
 
+  // Create the auxiliary arrays.  These arrays summarize the
+  // meaning of each row in the vertex table.
+  // Domain contains the domain string of the vertex.
+  // Value contains the string value of each vertex (appropriate for labeling).
+  // Variant value contains the raw value of the vertex as a variant.
   VTK_CREATE(vtkStringArray, domainArr);
   domainArr->SetName("domain");
-  
-  VTK_CREATE(vtkStringArray, valueArr);
-  valueArr->SetName("value");
-  
+  VTK_CREATE(vtkStringArray, stringValueArr);
+  stringValueArr->SetName("value");
   VTK_CREATE(vtkVariantArray, variantValueArr);
   variantValueArr->SetName("variantvalue");
+  
+  // Create the lookup maps for vertices and hidden vertices.
+  // When edges are added later, we need to be able to lookup the
+  // vertex ID for any domain-value pair.
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, 
+    vtkIdType, vtkTableToGraphCompare> vertexMap;
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, 
+    vtkIdType, vtkTableToGraphCompare> hiddenMap;
+  
+  // Set up the vertex table.  If we have one, just populate the 
+  // auxiliary arrays and vetex maps.
+  // If we are not provided one, create one using values found in
+  // the edge table.
+  vtkIdType numVertices = 0;
+  vtkIdType numHiddenVertices = 0;
+  if (!vertexTable)
+    {
+    // If we don't have a vertex table, 
+    // create one by going through edge table columns.
+    vertexTable = vtkTable::New();
+    vtkIdType curVertex = 0;
+    vtkIdType curHiddenVertex = 0;
+    for (vtkIdType c = 0; c < linkColumn->GetNumberOfTuples(); c++)
+      {
+      vtkStdString domain = "globaldomain";
+      if (linkDomain)
+        {
+        domain = linkDomain->GetValue(c);
+        }
+      int hidden = 0;
+      if (linkHidden)
+        {
+        hidden = linkHidden->GetValue(c);
+        }
+      vtkStdString column = linkColumn->GetValue(c);
+      vtkAbstractArray *arr = edgeTable->GetColumnByName(column);
+      if (!arr)
+        {
+        vtkErrorMacro( "vtkTableToGraph cannot find edge array: " << column.c_str());
+        vertexTable->Delete();
+        return 0;
+        }
+      // For each new domain, add a variant array for that domain 
+      // containing the values for only that domain.
+      vtkVariantArray *domainValuesArr = 
+        vtkVariantArray::SafeDownCast(vertexTable->GetColumnByName(domain));
+      if (!domainValuesArr && !hidden)
+        {
+        domainValuesArr = vtkVariantArray::New();
+        domainValuesArr->SetName(domain);
+        for (vtkIdType i = 0; i < vertexTable->GetNumberOfRows(); ++i)
+          {
+          domainValuesArr->InsertNextValue(vtkVariant());
+          }
+        vertexTable->AddColumn(domainValuesArr);
+        domainValuesArr->Delete();
+        }
+      if (hidden)
+        {
+        // If these vertices will be hidden, add vertices to the hiddenMap
+        // but don't update the vertex table.
+        switch(arr->GetDataType())
+          {
+          vtkExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
+            static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
+            arr->GetNumberOfTuples(), hiddenMap, curHiddenVertex,
+            domain));
+          }
+        }
+      else
+        {
+        // If the vertices are not hidden, add vertices to the vertexMap,
+        // auxiliary arrays, and add rows to the vertex table.
+        switch(arr->GetDataType())
+          {
+          vtkExtendedTemplateMacro(vtkTableToGraphFindVertices(
+            static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
+            arr->GetNumberOfTuples(), vertexMap, domainArr, 
+            stringValueArr, variantValueArr, curVertex,
+            vertexTable, domain));
+          }
+        }
+      double progress = createVertexTime * ((c + 1.0)/linkColumn->GetNumberOfTuples());
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+      }
+    numVertices = curVertex + 1;
+    numHiddenVertices = curHiddenVertex + 1;
+    }
+  else
+    {
+    // The domain is what links the edge and vertex table,
+    // so error if we don't have it.
+    if (!linkDomain)
+      {
+      vtkErrorMacro("Domain is required when you have a vertex table");
+      return 0;
+      }
+    
+    // We know the number of vertices, so set the auxiliary array sizes.
+    vtkIdType numRows = vertexTable->GetNumberOfRows();
+    domainArr->SetNumberOfTuples(numRows);
+    stringValueArr->SetNumberOfTuples(numRows);
+    variantValueArr->SetNumberOfTuples(numRows);
+    
+    // Keep track of the current hidden vertex id.
+    vtkIdType curHiddenVertex = 0;
+    
+    // For each new domain encountered, iterate through the values
+    // of that column, adding vertices for each new value encountered.
+    vtksys_stl::set<vtkStdString> domainSet;
+    for (vtkIdType c = 0; c < linkDomain->GetNumberOfTuples(); c++)
+      {
+      vtkStdString domain = linkDomain->GetValue(c);
+      if (domainSet.count(domain) > 0)
+        {
+        continue;
+        }
+      domainSet.insert(domain);
+      int hidden = 0;
+      if (linkHidden)
+        {
+        hidden = linkHidden->GetValue(c);
+        }
+      
+      if (!hidden)
+        {
+        // If the domain is not hidden, find unique values in the vertex table
+        // column.  If there are multiple matches in the column, only the
+        // first vertex with that value will be used.
+        vtkAbstractArray* arr = vertexTable->GetColumnByName(domain);
+        if (!arr)
+          {
+          vtkErrorMacro("vtkTableToGraph cannot find vertex array: " << domain.c_str());
+          return 0;
+          }
+        for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i)
+          {
+          vtkVariant val = vertexTable->GetValueByName(i, domain);
+          vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+          if (vertexMap.count(value) == 0 && val.IsValid() && val.ToString().length() > 0)
+            {
+            vertexMap[value] = i;
+            domainArr->InsertValue(i, domain);
+            stringValueArr->InsertValue(i, val.ToString());
+            variantValueArr->InsertValue(i, val);
+            }
+          }
+        }
+      else
+        {
+        // If the domain is hidden, we look through the edge table to 
+        // find new hidden vertices which will not be correllated to the
+        // vertex table.
+        vtkStdString column = linkColumn->GetValue(c);
+        vtkAbstractArray* edgeArr = edgeTable->GetColumnByName(column);
+        if (!edgeArr)
+          {
+          vtkErrorMacro( "vtkTableToGraph cannot find edge array: " << column.c_str());
+          return 0;
+          }
+        switch(edgeArr->GetDataType())
+          {
+          vtkExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
+            static_cast<VTK_TT*>(edgeArr->GetVoidPointer(0)), 
+            edgeArr->GetNumberOfTuples(), hiddenMap, curHiddenVertex, domain));
+          } // end switch
+        } // end else !hidden
+      double progress = createVertexTime * ((c + 1.0)/linkDomain->GetNumberOfTuples());
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+      } // end for each domain
+    } // end else !vertexTable
 
   // Create builder for the graph
   VTK_CREATE(vtkMutableDirectedGraph, dirBuilder);
@@ -495,70 +641,29 @@ int vtkTableToGraph::RequestData(
     builder = undirBuilder;
     }
 
-  // Copy vertex data table into attributes.
-  vtkDataSetAttributes *vertexTableData = 0;
-  if (vertexTable && vertexTable->GetNumberOfRows() > 0)
+  // Add the correct number of vertices to the graph based on the number of
+  // rows in the vertex table.
+  builder->GetVertexData()->PassData(vertexTable->GetFieldData());
+  for (vtkIdType i = 0; i < vertexTable->GetNumberOfRows(); ++i)
     {
-    vertexTableData = vtkDataSetAttributes::New();
-    for (vtkIdType c = 0; c < vertexTable->GetNumberOfColumns(); c++)
-      {
-      vertexTableData->AddArray(vertexTable->GetColumn(c));
-      }
-    builder->GetVertexData()->CopyAllocate(vertexTableData);
-    }
-
-  // Go through all possible values in the columns in the link graph.
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> vertexMap;
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare> hiddenMap;
-  vtkIdType curHiddenVertex = 0;
-  for (vtkIdType c = 0; c < linkColumn->GetNumberOfTuples(); c++)
-    {
-    vtkStdString domain;
-    if (linkDomain)
-      {
-      domain = linkDomain->GetValue(c);
-      }
-    int hidden = 0;
-    if (linkHidden)
-      {
-      hidden = linkHidden->GetValue(c);
-      }
-    vtkStdString column = linkColumn->GetValue(c);
-    vtkAbstractArray* arr = edgeTable->GetColumnByName(column);
-    if (!arr)
-      {
-      vtkErrorMacro( "vtkTableToGraph cannot find array: " << column.c_str());
-      return 0;
-      }
     if (this->Directed)
       {
-      switch(arr->GetDataType())
-        {
-        vtkExtendedTemplateMacro(vtkTableToGraphInsertVertices(
-          static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
-          arr->GetNumberOfTuples(), domain, hidden, dirBuilder, vertexMap, hiddenMap,
-          curHiddenVertex, domainArr, valueArr, variantValueArr, vertexTableData));
-        }
+      dirBuilder->AddVertex();
       }
     else
       {
-      switch(arr->GetDataType())
-        {
-        vtkExtendedTemplateMacro(vtkTableToGraphInsertVertices(
-          static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
-          arr->GetNumberOfTuples(), domain, hidden, undirBuilder, vertexMap, hiddenMap,
-          curHiddenVertex, domainArr, valueArr, variantValueArr, vertexTableData));
-        }
+      undirBuilder->AddVertex();
       }
-    double progress = createVertexTime * c / linkColumn->GetNumberOfTuples();
-    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-    }  
-
-  builder->GetVertexData()->AddArray(valueArr);
+    }
+  
+  // Add the auxiliary arrays to the vertex table.
+  builder->GetVertexData()->AddArray(stringValueArr);
   builder->GetVertexData()->AddArray(variantValueArr);
   builder->GetVertexData()->AddArray(domainArr);
 
-  // Now go through the table, adding edges
+  // Now go through the edge table, adding edges.
+  // For each row in the edge table, add one edge to the
+  // output graph for each edge in the link graph.
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
   edgeTableData->ShallowCopy(edgeTable->GetFieldData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
@@ -724,9 +829,9 @@ int vtkTableToGraph::RequestData(
     }
 
   // Clean up
-  if (vertexTableData)
+  if (!vertexTableInfo)
     {
-    vertexTableData->Delete();
+    vertexTable->Delete();
     }
   
   return 1;

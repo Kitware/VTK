@@ -34,10 +34,10 @@
 //
 // The link graph contains the following arrays:
 //
-// The "column" array has the names of the columns to connect in each table row.
+// (1) The "column" array has the names of the columns to connect in each table row.
 // This array is required.
 //
-// The optional "domain" array provides user-defined domain names for each column.
+// (2) The optional "domain" array provides user-defined domain names for each column.
 // Matching domains in multiple columns will merge vertices with the same
 // value from those columns.  By default, all columns are in the same domain.
 // If a vertex table is supplied, the domain indicates the column in the vertex
@@ -45,11 +45,18 @@
 // vertex table but no domain names, the output will be an empty graph.
 // Hidden columns do not need valid domain names.
 //
-// The optional "hidden" array is a bit array specifying whether the column should be
+// (3) The optional "hidden" array is a bit array specifying whether the column should be
 // hidden.  The resulting graph will contain edges representing connections
 // "through" the hidden column, but the vertices for that column will not 
 // be present.  By default, no columns are hidden.  Hiding a column
 // in a particular domain hides all columns in that domain.
+//
+// The output graph will contain three additional arrays in the vertex data.
+// The "domain" column is a string array containing the domain of each vertex.
+// The "value" column is a string version of the distinct value that, along
+// with the domain, defines that vertex. The "variantvalue" column also contains
+// the distinguishing value, but as a vtkVariant holding the raw value instead
+// of being converted to a string.
 
 #ifndef __vtkTableToGraph_h
 #define __vtkTableToGraph_h
