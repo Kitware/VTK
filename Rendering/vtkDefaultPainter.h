@@ -19,7 +19,8 @@
 // Sets up a default pipeline of painters to mimick the behaiour of 
 // old vtkPolyDataMapper. The chain is as follows:
 // input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
-// vtkDisplayListPainter --> vtkCoincidentTopologyResolutionPainter -->
+// vtkDisplayListPainter --> vtkCompositePainter -->
+// vtkCoincidentTopologyResolutionPainter -->
 // vtkLightingPainter --> vtkRepresentationPainter --> 
 // <Delegate of vtkDefaultPainter>.
 // Typically, the delegate of the default painter be one that is capable of r
@@ -33,10 +34,11 @@
 
 class vtkClipPlanesPainter;
 class vtkCoincidentTopologyResolutionPainter;
+class vtkCompositePainter;
 class vtkDisplayListPainter;
 class vtkLightingPainter;
-class vtkScalarsToColorsPainter;
 class vtkRepresentationPainter;
+class vtkScalarsToColorsPainter;
 
 class VTK_RENDERING_EXPORT vtkDefaultPainter : public vtkPainter
 {
@@ -76,6 +78,11 @@ public:
   // Painter used to convert polydata to Wireframe/Points representation.
   void SetRepresentationPainter(vtkRepresentationPainter*);
   vtkGetObjectMacro(RepresentationPainter, vtkRepresentationPainter);
+
+  // Description:
+  // Get/Set the painter used to handle composite datasets.
+  void SetCompositePainter(vtkCompositePainter*);
+  vtkGetObjectMacro(CompositePainter, vtkCompositePainter);
 
   // Description:
   // Set/Get the painter to which this painter should propagare its draw calls.
@@ -121,10 +128,11 @@ protected:
 
   vtkClipPlanesPainter* ClipPlanesPainter;
   vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
+  vtkCompositePainter* CompositePainter;
   vtkDisplayListPainter* DisplayListPainter;
   vtkLightingPainter* LightingPainter;
-  vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkRepresentationPainter* RepresentationPainter;
+  vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkTimeStamp ChainBuildTime;
 
   vtkPainter* DefaultPainterDelegate;

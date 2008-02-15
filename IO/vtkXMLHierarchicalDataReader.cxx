@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
+  Program:   Visualization Toolkit
   Module:    vtkXMLHierarchicalDataReader.cxx
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -14,13 +14,10 @@
 =========================================================================*/
 #include "vtkXMLHierarchicalDataReader.h"
 
-#include "vtkCompositeDataPipeline.h"
-#include "vtkHierarchicalDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.5");
 vtkStandardNewMacro(vtkXMLHierarchicalDataReader);
-
+vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.6");
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalDataReader::vtkXMLHierarchicalDataReader()
 {
@@ -35,11 +32,5 @@ vtkXMLHierarchicalDataReader::~vtkXMLHierarchicalDataReader()
 void vtkXMLHierarchicalDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkXMLHierarchicalDataReader::GetDataSetName()
-{
-  return "vtkHierarchicalDataSet";
 }
 

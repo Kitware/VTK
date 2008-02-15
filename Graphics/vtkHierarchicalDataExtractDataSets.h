@@ -14,24 +14,25 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataExtractDataSets - extract a number of datasets
 // .SECTION Description
-// Legacy class. Use vtkMultiGroupDataExtractDataSets instead.
+// Legacy class. Use vtkExtractDataSets instead.
 //
 // .SECTION See Also
-// vtkMultiGroupDataExtractDataSets
+// vtkExtractDataSets
 
 #ifndef __vtkHierarchicalDataExtractDataSets_h
 #define __vtkHierarchicalDataExtractDataSets_h
 
-#include "vtkMultiGroupDataExtractDataSets.h"
+#include "vtkExtractDataSets.h"
 
 //BTX
 struct vtkHierarchicalDataExtractDataSetsInternals;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractDataSets : public vtkMultiGroupDataExtractDataSets 
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractDataSets : 
+  public vtkExtractDataSets 
 {
 public:
-  vtkTypeRevisionMacro(vtkHierarchicalDataExtractDataSets,vtkMultiGroupDataExtractDataSets);
+  vtkTypeRevisionMacro(vtkHierarchicalDataExtractDataSets,vtkExtractDataSets);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkHierarchicalDataExtractDataSets *New();
 

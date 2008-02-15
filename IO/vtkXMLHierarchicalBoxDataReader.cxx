@@ -20,29 +20,23 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.7");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.8");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
-
-struct vtkXMLHierarchicalBoxDataReaderInternals
-{
-  vtkstd::vector<vtkXMLDataElement*> Refinements;
-};
 
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataReader::vtkXMLHierarchicalBoxDataReader()
 {
-  this->Internal = new vtkXMLHierarchicalBoxDataReaderInternals;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataReader::~vtkXMLHierarchicalBoxDataReader()
 {
-  delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
@@ -66,106 +60,191 @@ int vtkXMLHierarchicalBoxDataReader::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalBoxDataReader::ReadXMLData()
+// This only reads 0.* version files.
+void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element, 
+  vtkCompositeDataSet* composite, const char* filePath, 
+  unsigned int &dataSetIndex)
 {
-  this->Superclass::ReadXMLData();
+  vtkHierarchicalBoxDataSet* hbox = 
+    vtkHierarchicalBoxDataSet::SafeDownCast(composite);
 
-  vtkExecutive* exec = this->GetExecutive();
-  vtkInformation* info = exec->GetOutputInformation(0);
+  unsigned int numElems = element->GetNumberOfNestedElements();
+  unsigned int cc;
 
-  vtkDataObject* doOutput = 
-    info->Get(vtkDataObject::DATA_OBJECT());
-  vtkHierarchicalBoxDataSet* hb = 
-    vtkHierarchicalBoxDataSet::SafeDownCast(doOutput);
-  if (!hb)
+  // Read refinement ratios for each level.
+  for (cc=0; cc < numElems; cc++)
     {
+    vtkXMLDataElement* childXML = element->GetNestedElement(cc);
+    if (!childXML || !childXML->GetName() ||
+      strcmp(childXML->GetName(), "RefinementRatio") != 0)
+      {
+      continue;
+      }
+    int level=0;
+    int refinement_ratio=0;
+    if (childXML->GetScalarAttribute("level", level) &&
+      childXML->GetScalarAttribute("refinement", refinement_ratio) &&
+      refinement_ratio)
+      {
+      hbox->SetRefinementRatio(level, refinement_ratio);
+      }
+    }
+
+  // Read uniform grids.
+  for (cc=0; cc < numElems; cc++)
+    {
+    vtkXMLDataElement* childXML = element->GetNestedElement(cc);
+    if (!childXML || !childXML->GetName() ||
+      strcmp(childXML->GetName(), "DataSet") != 0)
+      {
+      continue;
+      }
+    int level=0;
+    int index=0;
+    int box[6];
+
+    if (childXML->GetScalarAttribute("group", level) &&
+      childXML->GetScalarAttribute("dataset", index) &&
+      childXML->GetVectorAttribute("amr_box", 6, box))
+      {
+      vtkAMRBox amrBox;
+      amrBox.LoCorner[0] = box[0];
+      amrBox.HiCorner[0] = box[1];
+      amrBox.LoCorner[1] = box[2];
+      amrBox.HiCorner[1] = box[3];
+      amrBox.LoCorner[2] = box[4];
+      amrBox.HiCorner[2] = box[5];
+
+      vtkSmartPointer<vtkUniformGrid> childDS = 0;
+      if (this->ShouldReadDataSet(dataSetIndex))
+        {
+        vtkDataSet* ds = this->ReadDataset(childXML, filePath);
+        if (ds && !ds->IsA("vtkUniformGrid"))
+          {
+          vtkErrorMacro("vtkHierarchicalBoxDataSet can only contain "
+            "vtkUniformGrid.");
+          continue;
+          }
+        childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
+        }
+      hbox->SetDataSet(level, index, amrBox, childDS); 
+      }
+    dataSetIndex++;
+    }
+  hbox->GenerateVisibilityArrays();
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element, 
+  vtkCompositeDataSet* composite, const char* filePath, 
+  unsigned int &dataSetIndex)
+{
+  vtkHierarchicalBoxDataSet* hbox = 
+    vtkHierarchicalBoxDataSet::SafeDownCast(composite);
+  if (!hbox)
+    {
+    vtkErrorMacro("Dataset must be a vtkHierarchicalBoxDataSet.");
     return;
     }
 
-  vtkstd::vector<vtkXMLDataElement*>::iterator d;
-  for(d=this->Internal->Refinements.begin();
-      d != this->Internal->Refinements.end(); ++d)
+  if (this->GetFileMajorVersion() < 1)
     {
-    vtkXMLDataElement* ds = *d;
+    // Read legacy file.
+    this->ReadVersion0(element, composite, filePath, dataSetIndex);
+    return;
+    }
 
-    int level = 0;
-    int refinement = 0;
-
-    if (!ds->GetScalarAttribute("level", level))
+  unsigned int maxElems = element->GetNumberOfNestedElements();
+  // Iterate over levels.
+  for (unsigned int cc=0; cc < maxElems; ++cc)
+    {
+    vtkXMLDataElement* childXML = element->GetNestedElement(cc);
+    if (!childXML || !childXML->GetName() || 
+      strcmp(childXML->GetName(), "Block") != 0)
       {
       continue;
       }
 
-    if (ds->GetScalarAttribute("refinement", refinement))
+    int level = 0;
+    if (!childXML->GetScalarAttribute("level", level))
       {
-      hb->SetRefinementRatio(level, refinement);
+      level = hbox->GetNumberOfLevels();
+      }
+
+    int refinement_ratio = 0;
+    if (!childXML->GetScalarAttribute("refinement_ratio", refinement_ratio))
+      {
+      vtkWarningMacro("Missing refinement_ratio for level " << level);
+      }
+    if (refinement_ratio >=2)
+      {
+      hbox->SetRefinementRatio(level, refinement_ratio);
+      }
+
+    // Now read the datasets within this level.
+    unsigned int numDatasets = childXML->GetNumberOfNestedElements();
+    for (unsigned int kk=0; kk < numDatasets; ++kk)
+      {
+      vtkXMLDataElement* datasetXML = childXML->GetNestedElement(kk);
+      if (!datasetXML || !datasetXML->GetName() || 
+        strcmp(datasetXML->GetName(), "DataSet") != 0)
+        {
+        continue;
+        }
+      int index = 0;
+      if (!datasetXML->GetScalarAttribute("index", index))
+        {
+        index = hbox->GetNumberOfDataSets(level);
+        }
+      int box[6];
+      vtkAMRBox amrBox;
+      if (datasetXML->GetVectorAttribute("amr_box", 6, box))
+        {
+        amrBox.LoCorner[0] = box[0];
+        amrBox.HiCorner[0] = box[1];
+        amrBox.LoCorner[1] = box[2];
+        amrBox.HiCorner[1] = box[3];
+        amrBox.LoCorner[2] = box[4];
+        amrBox.HiCorner[2] = box[5];
+        }
+      else
+        {
+        vtkWarningMacro("Missing amr box for level " << level << ",  dataset " << index);
+        }
+
+      vtkSmartPointer<vtkUniformGrid> childDS = 0;
+      if (this->ShouldReadDataSet(dataSetIndex))
+        {
+        vtkDataSet* ds = this->ReadDataset(datasetXML, filePath);
+        if (ds && !ds->IsA("vtkUniformGrid"))
+          {
+          vtkErrorMacro("vtkHierarchicalBoxDataSet can only contain "
+            "vtkUniformGrid.");
+          continue;
+          }
+        childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
+        }
+      hbox->SetDataSet(level, index, amrBox, childDS); 
+      dataSetIndex++;
       }
     }
 
-  hb->GenerateVisibilityArrays();
+  hbox->GenerateVisibilityArrays();
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalBoxDataReader::ReadPrimaryElement(
-  vtkXMLDataElement* ePrimary)
+vtkDataSet* vtkXMLHierarchicalBoxDataReader::ReadDataset(
+  vtkXMLDataElement* xmlElem, const char* filePath)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
-
-  int numNested = ePrimary->GetNumberOfNestedElements();
-  int i;
-  this->Internal->Refinements.clear();
-  for(i=0; i < numNested; ++i)
+  vtkDataSet* ds = this->Superclass::ReadDataset(xmlElem, filePath);
+  if (ds && ds->IsA("vtkImageData"))
     {
-    vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "RefinementRatio") == 0) 
-      { 
-      this->Internal->Refinements.push_back(eNested);
-      }
+    // Convert vtkImageData to vtkUniformGrid as needed by
+    // vtkHierarchicalBoxDataSet.
+    vtkUniformGrid* ug = vtkUniformGrid::New();
+    ug->ShallowCopy(ds);
+    ds->Delete();
+    return ug;
     }
-
-  return 1;
+  return ds;
 }
-
-//----------------------------------------------------------------------------
-void vtkXMLHierarchicalBoxDataReader::HandleDataSet(vtkXMLDataElement* ds,
-                                                  int level, int dsId, 
-                                                  vtkMultiGroupDataSet* output,
-                                                  vtkDataSet* data)
-{
-  vtkImageData* image = 0;
-  if (data)
-    {
-    image = vtkImageData::SafeDownCast(data);
-    if (!image)
-      {
-      vtkErrorMacro("HierarchicalBoxDataSet can only contain image data."
-                    << " The file contains: " << data->GetClassName()
-                    << ". Ignoring dataset.");
-      }
-    }
-
-  vtkUniformGrid* ugrid = vtkUniformGrid::New();
-  ugrid->ShallowCopy(image);
-
-  int box[6];
-  if (ds->GetVectorAttribute("amr_box", 6, box))
-    {
-    vtkHierarchicalBoxDataSet* hbds = 
-      vtkHierarchicalBoxDataSet::SafeDownCast(output);
-    vtkAMRBox abox;
-    abox.LoCorner[0] = box[0];
-    abox.HiCorner[0] = box[1];
-    abox.LoCorner[1] = box[2];
-    abox.HiCorner[1] = box[3];
-    abox.LoCorner[2] = box[4];
-    abox.HiCorner[2] = box[5];
-    hbds->SetDataSet(level, dsId, abox, ugrid);
-    }
-  else
-    {
-    output->SetDataSet(level, dsId, data);
-    }
-
-  ugrid->Delete();
-}
-

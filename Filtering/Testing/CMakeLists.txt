@@ -17,16 +17,14 @@ IF(PYTHON_EXECUTABLE)
     vtkAMRBox.h
     vtkApplyFilterCommandInternal.h
     vtkCellType.h
+    vtkCompositeDataSetInternals.h
+    vtkDataObjectCollection.h
     vtkDataSetCollection.h
     vtkFilteringInformationKeyManager.h
     vtkImageIterator.h
     vtkImageProgressIterator.h
     vtkMarchingCubesCases.h
     vtkMarchingSquaresCases.h
-    vtkMultiBlockDataSetInternal.h
-    vtkMultiGroupDataSetInternal.h
-    vtkDataObjectCollection.h
-    vtkHierarchicalBoxDataSetInternal.h
     vtkStructuredPoints.h
     )
 ENDIF(PYTHON_EXECUTABLE)

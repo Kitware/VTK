@@ -25,8 +25,8 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkHierarchicalDataExtractDataSets.h"
-#include "vtkHierarchicalDataSetGeometryFilter.h"
+#include "vtkExtractBlock.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkPolyDataMapper.h"
@@ -70,8 +70,8 @@ int TestMultiBlock(int argc, char* argv[])
   delete[] qname;
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom = 
-    vtkHierarchicalDataSetGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom = 
+    vtkCompositeDataGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();
@@ -91,8 +91,8 @@ int TestMultiBlock(int argc, char* argv[])
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom2 = 
-    vtkHierarchicalDataSetGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom2 = 
+    vtkCompositeDataGeometryFilter::New();
   geom2->SetInputConnection(0, ocf->GetOutputPort(0));
 
   // Rendering objects
@@ -104,10 +104,9 @@ int TestMultiBlock(int argc, char* argv[])
   ren->AddActor(ocActor);
 
   // extract a block
-  vtkHierarchicalDataExtractDataSets* eds = 
-    vtkHierarchicalDataExtractDataSets::New();
+  vtkExtractBlock* eds = vtkExtractBlock::New();
   eds->SetInputConnection(0, reader->GetOutputPort(0));
-  eds->AddDataSet(1, 0);
+  eds->AddIndex(2);
 
   // contour
   vtkContourFilter* contour = vtkContourFilter::New();
@@ -115,8 +114,8 @@ int TestMultiBlock(int argc, char* argv[])
   contour->SetValue(0, 149);
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom3 = 
-    vtkHierarchicalDataSetGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom3 = 
+    vtkCompositeDataGeometryFilter::New();
   geom3->SetInputConnection(0, contour->GetOutputPort(0));
 
   // Rendering objects

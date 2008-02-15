@@ -23,7 +23,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkMultiGroupDataInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -33,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.10");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.11");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -744,18 +743,6 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
-
-  int numBlocks = this->Internal->Blocks.size();
-  vtkMultiGroupDataInformation *compInfo =
-    vtkMultiGroupDataInformation::New();
-  info->Set(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION(),compInfo);
-  compInfo->SetNumberOfGroups(numBlocks);
-  for (int i=0; i<numBlocks; i++)
-    {
-    compInfo->SetNumberOfDataSets(i, 1);
-    }
-  compInfo->Delete();
-
   return 1;
 }
 
@@ -1065,7 +1052,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   for(i=0; i<numBlocks; i++)
     {
     vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
-    mb->SetDataSet(i, 0, nthOutput);
+    mb->SetBlock(i, nthOutput);
     }
 
   this->Internal->Blocks.clear();

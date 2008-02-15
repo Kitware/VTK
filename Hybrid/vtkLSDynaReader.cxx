@@ -110,7 +110,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.17");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.18");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1480,7 +1480,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.17");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.18");
 // ============================================== End of XML Summary reader class
 
 
@@ -1510,6 +1510,7 @@ vtkLSDynaReader::vtkLSDynaReader()
 
 vtkLSDynaReader::~vtkLSDynaReader()
 {
+  this->SetInputDeck(0);
   delete this->P;
   this->P = 0;
 }
@@ -4769,7 +4770,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
   if ( p->NumberOfCells[celltype] == 0 )
     {
     // no work to do, just add the dataset as-is.
-    mbds->SetDataSet( celltype, 0, target );
+    mbds->SetBlock ( celltype, target );
     return;
     }
 
@@ -4779,7 +4780,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
     if ( celltype == vtkLSDynaReader::RIGID_BODY || celltype == vtkLSDynaReader::ROAD_SURFACE )
       {
       // no deletion data for these cell types, just add the dataset as-is.
-      mbds->SetDataSet( celltype, 0, target );
+      mbds->SetBlock( celltype, target );
       return;
       }
     }
@@ -4826,7 +4827,7 @@ void vtkLSDynaReader::PartFilter( vtkMultiBlockDataSet* mbds, int celltype )
   thresh->Update();
   temp->Delete();
 
-  mbds->SetDataSet( celltype, 0, thresh->GetOutput() );
+  mbds->SetBlock( celltype, thresh->GetOutput() );
   thresh->Delete();
 }
 
@@ -5019,25 +5020,25 @@ int vtkLSDynaReader::RequestData(
     }
   else if ( needToRunPartFilter == 0 )
     {
-#define VTK_LSDYNA_SETBLOCK(mds,x,m,n,mtype) \
+#define VTK_LSDYNA_SETBLOCK(mds,x,m,mtype) \
   if ( ! x ) \
     { \
     mtype* tmpDS = mtype::New(); \
-    mds->SetDataSet(m, n, tmpDS);               \
+    mds->SetBlock(m, tmpDS);               \
     tmpDS->FastDelete(); \
     } \
   else \
     { \
-    mds->SetDataSet(m, n, x);                   \
+    mds->SetBlock(m, x);                   \
     }
 
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,      0,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 1,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      2,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  3,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,4,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      5,0,vtkUnstructuredGrid);
-    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  6,0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputSolid,      0,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputThickShell, 1,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputShell,      2,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRigidBody,  3,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputRoadSurface,4,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputBeams,      5,vtkUnstructuredGrid);
+    VTK_LSDYNA_SETBLOCK(mbds,this->OutputParticles,  6,vtkUnstructuredGrid);
 
 #undef VTK_LSDYNA_SETBLOCK
     }

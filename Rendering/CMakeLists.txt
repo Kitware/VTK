@@ -37,6 +37,8 @@ SET( Kit_SRCS
   vtkClipPlanesPainter.cxx
   vtkCoincidentTopologyResolutionPainter.cxx
   vtkCompositePainter.cxx
+  vtkCompositePolyDataMapper2.cxx
+  vtkCompositePolyDataMapper.cxx
   vtkCullerCollection.cxx
   vtkCuller.cxx
   vtkDataSetMapper.cxx
@@ -87,8 +89,6 @@ SET( Kit_SRCS
   vtkLODProp3D.cxx
   vtkMapperCollection.cxx
   vtkMapper.cxx
-  vtkMultiGroupPolyDataMapper.cxx
-  vtkMultiGroupPolyDataMapper2.cxx
   vtkOBJExporter.cxx
   vtkObserverMediator.cxx
   vtkOOGLExporter.cxx

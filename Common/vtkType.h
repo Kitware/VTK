@@ -81,6 +81,7 @@
 #define VTK_SELECTION                      22
 #define VTK_DIRECTED_GRAPH                 23
 #define VTK_UNDIRECTED_GRAPH               24
+#define VTK_MULTIPIECE_DATA_SET            25
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

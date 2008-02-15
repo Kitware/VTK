@@ -34,9 +34,9 @@
 #include "vtkSphere.h"
 #include "vtkCamera.h"
 
-#include "vtkHierarchicalDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkHierarchicalPolyDataMapper.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkHyperOctreeSurfaceFilter.h"
 
 #include "vtkFieldData.h"
@@ -267,18 +267,17 @@ int TestHyperOctreeIO(int argc, char* argv[])
     contour->SetValue(2,8.0);
     }
 
-  vtkHierarchicalDataSet *hds=vtkHierarchicalDataSet::New();
-  hds->SetNumberOfLevels(1);
-  hds->SetNumberOfDataSets(0,1);
+  vtkMultiBlockDataSet *hds=vtkMultiBlockDataSet::New();
+  hds->SetNumberOfBlocks(1);
 
   if (skipreader)
     {
-    hds->SetDataSet(0,0,source->GetOutput());
+    hds->SetBlock(0, source->GetOutput());
     contour->SetInputConnection(0, source->GetOutputPort(0));
     }
   else
     {
-    hds->SetDataSet(0,0,readerX->GetOutput());
+    hds->SetBlock(0, readerX->GetOutput());
     contour->SetInputConnection(0, readerX->GetOutputPort(0));
     }
 
@@ -310,7 +309,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   cmapper->SetLookupTable(lut);
   cmapper->SetScalarModeToUseCellData();
 
-  vtkHierarchicalPolyDataMapper *smapper=vtkHierarchicalPolyDataMapper::New();
+  vtkCompositePolyDataMapper *smapper=vtkCompositePolyDataMapper::New();
   smapper->SetInputConnection(0,surface->GetOutputPort(0));
   smapper->SetLookupTable(lut);
   smapper->SetScalarModeToUseCellData();

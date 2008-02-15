@@ -14,20 +14,20 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataLevelFilter - generate scalars from levels
 // .SECTION Description
-// Legacy class. Use vtkMultiGroupDataGroupIdScalars instead.
+// Legacy class. Use vtkLevelIdScalars instead.
 //
 // .SECTION See Also
-// vtkMultiGroupDataGroupIdScalars
+// vtkLevelIdScalars
 
 #ifndef __vtkHierarchicalDataLevelFilter_h
 #define __vtkHierarchicalDataLevelFilter_h
 
-#include "vtkMultiGroupDataGroupIdScalars.h"
+#include "vtkLevelIdScalars.h"
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataLevelFilter : public vtkMultiGroupDataGroupIdScalars 
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataLevelFilter : public vtkLevelIdScalars 
 {
 public:
-  vtkTypeRevisionMacro(vtkHierarchicalDataLevelFilter,vtkMultiGroupDataGroupIdScalars);
+  vtkTypeRevisionMacro(vtkHierarchicalDataLevelFilter,vtkLevelIdScalars);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

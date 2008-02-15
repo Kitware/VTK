@@ -14,23 +14,25 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataSetGeometryFilter - extract geometry from hierarchical data
 // .SECTION Description
-// Legacy class. Use vtkMultiGroupDataGeometryFilter instead.
+// Legacy class. Use vtkCompositeDataGeometryFilter instead.
 //
 // .SECTION See Also
-// vtkMultiGroupDataGeometryFilter
+// vtkCompositeDataGeometryFilter
 
 #ifndef __vtkHierarchicalDataSetGeometryFilter_h
 #define __vtkHierarchicalDataSetGeometryFilter_h
 
-#include "vtkMultiGroupDataGeometryFilter.h"
+#include "vtkCompositeDataGeometryFilter.h"
 
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataSetGeometryFilter : public vtkMultiGroupDataGeometryFilter
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataSetGeometryFilter : 
+  public vtkCompositeDataGeometryFilter
 {
 public:
   static vtkHierarchicalDataSetGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkHierarchicalDataSetGeometryFilter,vtkMultiGroupDataGeometryFilter);
+  vtkTypeRevisionMacro(vtkHierarchicalDataSetGeometryFilter,
+    vtkCompositeDataGeometryFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

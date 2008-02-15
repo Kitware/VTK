@@ -19,10 +19,11 @@
 
 #include "vtkGenericEnSightReader.h"
 
+class vtkDataSet;
 class vtkDataSetCollection;
-class vtkMultiBlockDataSet;
-class vtkIdList;
 class vtkEnSightReaderCellIdsType;
+class vtkIdList;
+class vtkMultiBlockDataSet;
 
 class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
@@ -232,6 +233,19 @@ protected:
 
   // Get the vtkIdList for the given output index and cell type.
   vtkIdList* GetCellIds(int index, int cellType);
+
+  // Description:
+  // Convenience method use to convert the readers from VTK 5 multiblock API 
+  // to the current composite data infrastructure.
+  void AddToBlock(vtkMultiBlockDataSet* output, 
+    unsigned int blockNo, unsigned int datasetNo, 
+    vtkDataSet* dataset);
+
+  // Description:
+  // Convenience method use to convert the readers from VTK 5 multiblock API 
+  // to the current composite data infrastructure.
+  vtkDataSet* GetDataSetFromBlock(vtkMultiBlockDataSet* output,
+    unsigned int blockNo, unsigned int datasetNo);
   
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file

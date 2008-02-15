@@ -15,10 +15,10 @@
 // .NAME vtkMultiBlockMergeFilter - merges multiblock inputs into a single multiblock output
 // .SECTION Description
 // vtkMultiBlockMergeFilter is an M to 1 filter similar to 
-// vtkMultiGroupDataGroupFilters. However where as that class creates N groups 
+// vtkMultiBlockDataGroupFilter. However where as that class creates N groups 
 // in the output for N inputs, this creates 1 group in the output with N 
-// datasets inside it. In actuality if the inputs have M groups, this will 
-// produce M groups, each of which has N datasets. Inside the merged group, 
+// datasets inside it. In actuality if the inputs have M blocks, this will 
+// produce M blocks, each of which has N datasets. Inside the merged group, 
 // the i'th data set comes from the i'th data set in the i'th input.
 
 #ifndef __vtkMultiBlockMergeFilter_h
@@ -56,7 +56,11 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  int IsMultiPiece(vtkMultiBlockDataSet*);
 
+  int Merge(unsigned int numPieces, unsigned int pieceNo, 
+    vtkMultiBlockDataSet* output, 
+    vtkMultiBlockDataSet* input);
 private:
   vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&);  // Not implemented.
   void operator=(const vtkMultiBlockMergeFilter&);  // Not implemented.

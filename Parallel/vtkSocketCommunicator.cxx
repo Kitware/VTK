@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.70");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.71");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -1008,8 +1008,8 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.70 $";
-  int version;
+  const char revision[] = "$Revision: 1.71 $";
+  int version=0;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;
 }

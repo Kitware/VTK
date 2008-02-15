@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.15");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.16");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -232,7 +232,7 @@ int vtkFLUENTReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
-  output->SetNumberOfDataSets(0, this->CellZones->value.size());
+  output->SetNumberOfBlocks(this->CellZones->value.size());
   //vtkUnstructuredGrid *Grid[CellZones.size()];
 
   vtkstd::vector< vtkUnstructuredGrid * > grid;
@@ -377,7 +377,7 @@ int vtkFLUENTReader::RequestData(
   for(int addTo = 0; addTo < (int)this->CellZones->value.size(); addTo++)
     {
     grid[addTo]->SetPoints(Points);
-    output->SetDataSet(0, addTo, grid[addTo]);
+    output->SetBlock(addTo, grid[addTo]);
     grid[addTo]->Delete();
     }
   return 1;

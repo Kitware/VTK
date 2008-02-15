@@ -39,7 +39,7 @@ vtkLookupTable pvTemp104
   pvTemp104 SetTableRange 0 1
   pvTemp104 SetVectorComponent 0
   pvTemp104 Build
-vtkMultiGroupPolyDataMapper pvTemp87
+vtkCompositePolyDataMapper pvTemp87
   pvTemp87 SetInputConnection [pvTemp79 GetOutputPort]
   pvTemp87 SetImmediateModeRendering 1
   pvTemp87 SetScalarRange 0 1

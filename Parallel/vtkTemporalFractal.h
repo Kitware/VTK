@@ -19,23 +19,25 @@
 // mandelbrot to create cell data. I scale the fractal array to look like a
 // volme fraction.
 // I may also add block id and level as extra cell arrays.
+// This source produces a vtkHierarchicalBoxDataSet when 
+// GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
 
 #ifndef __vtkTemporalFractal_h
 #define __vtkTemporalFractal_h
 
 #include "vtkTemporalDataSetAlgorithm.h"
 
-class vtkIntArray;
-class vtkUniformGrid;
-class vtkRectilinearGrid;
+class vtkCompositeDataSet;
 class vtkDataSet;
-class vtkHierarchicalDataSet;
+class vtkHierarchicalBoxDataSet;
+class vtkIntArray;
+class vtkRectilinearGrid;
+class vtkUniformGrid;
 
 class VTK_PARALLEL_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalFractal *New();
-  
   vtkTypeRevisionMacro(vtkTemporalFractal,vtkTemporalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -118,12 +120,12 @@ protected:
   virtual int RequestData(vtkInformation *request, 
                           vtkInformationVector **inputVector, 
                           vtkInformationVector *outputVector);
-  virtual int RequestOneTimeStep(vtkHierarchicalDataSet *output,
+  virtual int RequestOneTimeStep(vtkCompositeDataSet *output,
                                  vtkInformation *request, 
                                  vtkInformationVector **inputVector, 
                                  vtkInformationVector *outputVector);
   
-  void Traverse(int &blockId, int level, vtkHierarchicalDataSet* output, 
+  void Traverse(int &blockId, int level, vtkDataObject* output, 
                 int x0,int x1, int y0,int y1, int z0,int z1,
                 int onFace[6]);
 
@@ -137,12 +139,16 @@ protected:
   void SetBlockInfo(vtkUniformGrid *grid, int level, int* ext,int onFace[6]);
   void SetRBlockInfo(vtkRectilinearGrid *grid, int level, int* ext,
                      int onFace[6]);
+
+
+  void AddDataSet(vtkDataObject* output, unsigned int level, int extents[6],
+    vtkDataSet* dataSet);
   
-  void AddVectorArray(vtkHierarchicalDataSet *output);
-  void AddTestArray(vtkHierarchicalDataSet *output);
-  void AddFractalArray(vtkHierarchicalDataSet *output);
-  void AddBlockIdArray(vtkHierarchicalDataSet *output);
-  void AddDepthArray(vtkHierarchicalDataSet *output);
+  void AddVectorArray(vtkHierarchicalBoxDataSet *output);
+  void AddTestArray(vtkHierarchicalBoxDataSet *output);
+  void AddFractalArray(vtkCompositeDataSet* output);
+  void AddBlockIdArray(vtkHierarchicalBoxDataSet *output);
+  void AddDepthArray(vtkHierarchicalBoxDataSet *output);
   
   void AddGhostLevelArray(vtkDataSet *grid,
                           int dim[3],

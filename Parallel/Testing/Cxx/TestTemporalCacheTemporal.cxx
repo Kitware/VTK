@@ -18,7 +18,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkInformation.h"
-#include "vtkMultiGroupDataGeometryFilter.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -107,8 +107,8 @@ int TestTemporalCacheTemporal(int , char *[])
   contour->SetInputConnection(cache2->GetOutputPort());
   contour->ThresholdByUpper(0.5);
 
-  vtkSmartPointer<vtkMultiGroupDataGeometryFilter> geom = 
-    vtkSmartPointer<vtkMultiGroupDataGeometryFilter>::New();
+  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom = 
+    vtkSmartPointer<vtkCompositeDataGeometryFilter>::New();
   geom->SetInputConnection(contour->GetOutputPort());
 
   // map them

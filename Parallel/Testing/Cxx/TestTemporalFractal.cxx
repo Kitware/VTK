@@ -23,7 +23,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkActor.h"
-#include "vtkMultiGroupDataGeometryFilter.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkSmartPointer.h"
 #include "vtkTemporalDataSet.h"
 #include "vtkThreshold.h"
@@ -63,8 +63,8 @@ int TestTemporalFractal(int argc, char *argv[])
   contour->SetInputConnection(interp->GetOutputPort());
   contour->ThresholdByUpper(0.5);
 
-  vtkSmartPointer<vtkMultiGroupDataGeometryFilter> geom = 
-    vtkSmartPointer<vtkMultiGroupDataGeometryFilter>::New();
+  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom = 
+    vtkSmartPointer<vtkCompositeDataGeometryFilter>::New();
   geom->SetInputConnection(contour->GetOutputPort());
 
   // map them

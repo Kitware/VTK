@@ -23,10 +23,6 @@
 #include "vtkDataObjectTypes.h"
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMultiGroupDataSet.h"
-#include "vtkHierarchicalBoxDataSet.h"
-#include "vtkHierarchicalDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
@@ -41,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.55");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.56");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);

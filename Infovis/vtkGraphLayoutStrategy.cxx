@@ -20,7 +20,7 @@
 
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkGraphLayoutStrategy, "1.7");
 
 void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 {
@@ -53,6 +53,7 @@ vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
 {
   // Unregister vtk objects that were passed in
   this->SetGraph(NULL);
+  this->SetEdgeWeightField(NULL);
 }
 
 void vtkGraphLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

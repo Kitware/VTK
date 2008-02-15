@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkHierarchicalPolyDataMapper - a class that renders hierarchical polygonal data
 // .SECTION Description
-// Legacy class. Use vtkMultiGroupPolyDataMapper instead.
+// Legacy class. Use vtkCompositePolyDataMapper instead.
 //
 // .SECTION see also
 // vtkPolyDataMapper
@@ -22,14 +22,14 @@
 #ifndef __vtkHierarchicalPolyDataMapper_h
 #define __vtkHierarchicalPolyDataMapper_h
 
-#include "vtkMultiGroupPolyDataMapper.h"
+#include "vtkCompositePolyDataMapper.h"
 
-class VTK_RENDERING_EXPORT vtkHierarchicalPolyDataMapper : public vtkMultiGroupPolyDataMapper 
+class VTK_RENDERING_EXPORT vtkHierarchicalPolyDataMapper : public vtkCompositePolyDataMapper 
 {
 
 public:
   static vtkHierarchicalPolyDataMapper *New();
-  vtkTypeRevisionMacro(vtkHierarchicalPolyDataMapper, vtkMultiGroupPolyDataMapper);
+  vtkTypeRevisionMacro(vtkHierarchicalPolyDataMapper, vtkCompositePolyDataMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

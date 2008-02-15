@@ -17,12 +17,13 @@
 // .SECTION Description
 // This is a painter that converts scalars to 
 // colors. It enable/disables coloring state depending on the ScalarMode.
+// This painter is composite dataset enabled.
 
 #ifndef __vtkScalarsToColorsPainter_h
 #define __vtkScalarsToColorsPainter_h
 
-#include "vtkPolyDataPainter.h"
-
+#include "vtkPainter.h"
+#include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 class vtkDataArray;
 class vtkImageData;
 class vtkInformationDoubleVectorKey;
@@ -32,12 +33,11 @@ class vtkInformationStringKey;
 class vtkPolyData;
 class vtkScalarsToColors;
 
-class VTK_RENDERING_EXPORT vtkScalarsToColorsPainter : 
-  public vtkPolyDataPainter
+class VTK_RENDERING_EXPORT vtkScalarsToColorsPainter : public vtkPainter
 {
 public:
   static vtkScalarsToColorsPainter* New();
-  vtkTypeRevisionMacro(vtkScalarsToColorsPainter, vtkPolyDataPainter);
+  vtkTypeRevisionMacro(vtkScalarsToColorsPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -101,12 +101,21 @@ public:
   // Set the light-model color mode. 
   static vtkInformationIntegerKey* SCALAR_MATERIAL_MODE();
 
+//BTX
 protected:
   vtkScalarsToColorsPainter();
   virtual ~vtkScalarsToColorsPainter(); 
  
-  void MapScalarsToTexture(vtkDataArray* scalars, double alpha,
-    int multiply_with_alpha);
+  // Description:
+  // Create a new shallow-copied clone for data with no scalars.
+  vtkDataObject* NewClone(vtkDataObject* data);
+
+  // Description:
+  // Create texture coordinates for the output assuming a texture for the
+  // lookuptable has already been created correctly.
+  // this->LookupTable is the lookuptable used.
+  void MapScalarsToTexture(vtkPolyData* output,
+    vtkDataArray* scalars, vtkPolyData* input);
 
   // Description:
   // Called just before RenderInternal(). We build the Color array here.
@@ -116,7 +125,9 @@ protected:
   // Generates the colors, if needed. 
   // If multiply_with_alpha is set, the colors are multiplied with 
   // alpha.
-  virtual void MapScalars(double alpha, int multiply_with_alpha);
+  virtual void MapScalars(vtkPolyData* output,
+    double alpha, int multiply_with_alpha,
+    vtkPolyData* input);
 
   // Description:
   // Called before RenderInternal() if the Information has been changed
@@ -143,7 +154,21 @@ protected:
   // that makes a more informed decision for alpha blending
   // depending on extensions available, for example.
   virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
-  
+
+  // Description:
+  // Returns if we can use texture maps for scalar coloring. Note this doesn't 
+  // say we "will" use scalar coloring. It says, if we do use scalar coloring, 
+  // we will use a 1D texture.
+  // When rendering multiblock datasets, if any 2 blocks provide different
+  // lookup tables for the scalars, then also we cannot use textures. This case 
+  // can be handled if required. 
+  int CanUseTextureMapForColoring(vtkDataObject* input);
+
+
+  // Description:
+  // Should not be called if CanUseTextureMapForColoring() returns 0.
+  void UpdateColorTextureMap(double alpha, int multiply_with_alpha);
+
   // Methods to set the ivars. These are purposefully protected.
   // The only means of affecting these should be using teh vtkInformation 
   // object.
@@ -159,7 +184,7 @@ protected:
   vtkSetStringMacro(ArrayName);
   vtkSetMacro(ArrayComponent, int);
 
-  vtkPolyData* OutputData;
+  vtkDataObject* OutputData;
 
   int ArrayAccessMode;
   int ArrayComponent;
@@ -167,7 +192,10 @@ protected:
   char* ArrayName;
   
   vtkScalarsToColors *LookupTable;
-  vtkImageData* ColorTextureMap;
+  // Lookup table provided via the scalars. This gets preference over the one
+  // set on the mapper by the user.
+  vtkSmartPointer<vtkScalarsToColors> ScalarsLookupTable;
+  vtkSmartPointer<vtkImageData> ColorTextureMap;
   int ColorMode;
   int InterpolateScalarsBeforeMapping;
   int ScalarMode;
@@ -177,10 +205,15 @@ protected:
   int UseLookupTableScalarRange;
 
   vtkTimeStamp OutputUpdateTime;
+
+  // This is set when MapScalars decides to use vertex colors for atleast on
+  // dataset in the current pass.
+  int UsingScalarColoring;
   
 private:
   vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&); // Not implemented.
   void operator=(const vtkScalarsToColorsPainter&); // Not implemented.
+//ETX
 };
 
 #endif

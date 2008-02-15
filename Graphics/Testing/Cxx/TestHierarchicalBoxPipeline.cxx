@@ -99,7 +99,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   // cell 2 point and contour
   vtkHierarchicalDataExtractLevel* el = vtkHierarchicalDataExtractLevel::New();
   el->SetInputConnection(0, reader->GetOutputPort(0));
-  el->SetLevelRange(2,2);
+  el->AddLevel(2);
 
   vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
   c2p->SetInputConnection(0, el->GetOutputPort(0));

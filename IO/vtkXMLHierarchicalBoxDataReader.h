@@ -26,17 +26,13 @@
 #ifndef __vtkXMLHierarchicalBoxDataReader_h
 #define __vtkXMLHierarchicalBoxDataReader_h
 
-#include "vtkXMLHierarchicalDataReader.h"
+#include "vtkXMLCompositeDataReader.h"
 
-//BTX
-struct vtkXMLHierarchicalBoxDataReaderInternals;
-//ETX
-
-class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLHierarchicalDataReader
+class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();
-  vtkTypeRevisionMacro(vtkXMLHierarchicalBoxDataReader,vtkXMLHierarchicalDataReader);
+  vtkTypeRevisionMacro(vtkXMLHierarchicalBoxDataReader,vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -46,17 +42,24 @@ protected:
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();
 
-  virtual void ReadXMLData();
-  virtual int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   virtual int FillOutputPortInformation(int, vtkInformation* info);
 
-  virtual void HandleDataSet(
-    vtkXMLDataElement* ds, int level, int dsId, 
-    vtkMultiGroupDataSet* output, vtkDataSet* data);
-  
-private:
-  vtkXMLHierarchicalBoxDataReaderInternals* Internal;
+  // Read the XML element for the subtree of a the composite dataset.
+  // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
+  virtual void ReadComposite(vtkXMLDataElement* element, 
+    vtkCompositeDataSet* composite, const char* filePath, 
+    unsigned int &dataSetIndex);
 
+  // Read the vtkDataSet (a leaf) in the composite dataset.
+  virtual vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath);
+
+  // Read v0.1
+  virtual void ReadVersion0(vtkXMLDataElement* element, 
+    vtkCompositeDataSet* composite, const char* filePath, 
+    unsigned int &dataSetIndex);
+
+
+private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataReader&);  // Not implemented.
 

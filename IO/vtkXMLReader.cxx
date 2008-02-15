@@ -33,8 +33,44 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.47");
+vtkCxxRevisionMacro(vtkXMLReader, "1.48");
+//-----------------------------------------------------------------------------
+static void ReadStringVersion(const char* version, int& major, int& minor)
+{
+  if (!version)
+    {
+    major = -1;
+    minor = -1;
+    }
+  // Extract the major and minor version numbers.
+  size_t length = strlen(version);
+  const char* begin = version;
+  const char* end = version + length;
+  const char* s;
 
+  for(s=begin; (s != end) && (*s != '.'); ++s);
+
+  if(s > begin)
+    {
+    vtksys_ios::stringstream str;
+    str.write(begin, s-begin);
+    str >> major;
+    if(!str)
+      {
+      major = 0;
+      }
+    }
+  if(++s < end)
+    {
+    vtksys_ios::stringstream str;
+    str.write(s, end-s);
+    str >> minor;
+    if(!str)
+      {
+      minor = 0;
+      }
+    }
+}
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
 {
@@ -77,6 +113,9 @@ vtkXMLReader::vtkXMLReader()
   this->TimeSteps = 0;
   this->CurrentTimeStep = 0;
   this->TimeStepWasReadOnce = 0;
+
+  this->FileMinorVersion = -1;
+  this->FileMajorVersion = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -533,6 +572,8 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
     return 0;
     }
 
+  ::ReadStringVersion(version, this->FileMajorVersion, this->FileMinorVersion);
+
   // Setup the compressor if there is one.
   const char* compressor = eVTKFile->GetAttribute("compressor");
   if(compressor)
@@ -671,37 +712,9 @@ int vtkXMLReader::CanReadFile(const char* name)
 //----------------------------------------------------------------------------
 int vtkXMLReader::CanReadFileVersionString(const char* version)
 {
-  // Extract the major and minor version numbers.
-  size_t length = strlen(version);
   int major = 0;
   int minor = 0;
-  const char* begin = version;
-  const char* end = version + length;
-  const char* s;
-  
-  for(s=begin; (s != end) && (*s != '.'); ++s);
-  
-  if(s > begin)
-    {
-    vtksys_ios::stringstream str;
-    str.write(begin, s-begin);
-    str >> major;
-    if(!str)
-      {
-      major = 0;
-      }
-    }
-  if(++s < end)
-    {
-    vtksys_ios::stringstream str;
-    str.write(s, end-s);
-    str >> minor;
-    if(!str)
-      {
-      minor = 0;
-      }
-    }
-  
+  ::ReadStringVersion(version, major, minor);
   return this->CanReadFileVersion(major, minor);
 }
 

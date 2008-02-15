@@ -21,7 +21,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTemporalDataSet, "1.2");
+vtkCxxRevisionMacro(vtkTemporalDataSet, "1.3");
 vtkStandardNewMacro(vtkTemporalDataSet);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,17 @@ vtkTemporalDataSet*
 vtkTemporalDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkTemporalDataSet::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+void vtkTemporalDataSet::SetTimeStep(unsigned int timestep, vtkDataObject* dobj)
+{
+  if (dobj && dobj->IsA("vtkTemporalDataSet"))
+    {
+    vtkErrorMacro("vtkTemporalDataSet cannot be added as a timestep.");
+    return;
+    }
+  this->Superclass::SetChild(timestep, dobj);
 }
 
 //----------------------------------------------------------------------------

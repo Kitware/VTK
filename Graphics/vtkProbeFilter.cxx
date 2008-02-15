@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.92");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.93");
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
@@ -245,7 +245,7 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source,
     if (maskArray[ptId] == static_cast<char>(1))
       {
       // skip points which have already been probed with success.
-      // This is helpful for multigroup dataset probing.
+      // This is helpful for multiblock dataset probing.
       continue;
       }
 

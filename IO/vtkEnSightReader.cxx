@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.72");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.73");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1970,6 +1970,45 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
   
   // Return the requested vtkIdList.
   return (*this->CellIds)[cellIdsIndex].GetPointer();
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSightReader::AddToBlock(vtkMultiBlockDataSet* output, 
+  unsigned int blockNo, unsigned int datasetNo, 
+  vtkDataSet* dataset)
+{
+  vtkDataObject* blockDO = output->GetBlock(blockNo);
+  vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(blockDO);
+  if (blockDO && !block)
+    {
+    vtkErrorMacro("Block already has a vtkDataSet assigned to it.");
+    return;
+    }
+
+  if (!block)
+    {
+    block = vtkMultiBlockDataSet::New();
+    output->SetBlock(blockNo, block);
+    block->Delete();
+    }
+
+  block->SetBlock(datasetNo, dataset);
+}
+
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkEnSightReader::GetDataSetFromBlock(
+  vtkMultiBlockDataSet* output,
+  unsigned int blockno, unsigned int datasetNo)
+{
+  vtkDataObject* blockDO = output->GetBlock(blockno);
+  vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(blockDO);
+  if (block)
+    {
+    return vtkDataSet::SafeDownCast(block->GetBlock(datasetNo));
+    }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------

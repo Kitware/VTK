@@ -58,7 +58,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.10");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.11");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -133,6 +133,7 @@ vtkOpenFOAMReader::~vtkOpenFOAMReader()
   vtkDebugMacro(<<"DeConstructor");
   this->Points->Delete();
   this->CellDataArraySelection->Delete();
+  this->SetFileName(0);
   delete [] this->Steps;
 
   delete this->TimeStepData;
@@ -3428,8 +3429,7 @@ void vtkOpenFOAMReader::CreateDataSet(vtkMultiBlockDataSet *output)
       }
     data->Delete();
     }
-  //output->SetNumberOfDataSets(0,output->GetNumberOfDataSets(0));
-  output->SetDataSet(0, output->GetNumberOfDataSets(0), internalMesh);
+  output->SetBlock(output->GetNumberOfBlocks(), internalMesh);
 
   //Boundary Meshes
   for(int i = 0; i < (int)numBoundaries; i++)
@@ -3447,7 +3447,7 @@ void vtkOpenFOAMReader::CreateDataSet(vtkMultiBlockDataSet *output)
         }
       data->Delete();
       }
-    output->SetDataSet(0, output->GetNumberOfDataSets(0), boundaryMesh);
+    output->SetBlock(output->GetNumberOfBlocks(), boundaryMesh);
     boundaryMesh->Delete();
     }
 
@@ -3457,22 +3457,19 @@ void vtkOpenFOAMReader::CreateDataSet(vtkMultiBlockDataSet *output)
   for(int i = 0; i < (int)numPointZones; i++)
     {
     vtkUnstructuredGrid * pointMesh = this->GetPointZoneMesh(timeState, i);
-    output->SetDataSet(0, output->GetNumberOfDataSets(0),
-                       pointMesh);
+    output->SetBlock(output->GetNumberOfBlocks(), pointMesh);
     pointMesh->Delete();
     }
   for(int i = 0; i < (int)numFaceZones; i++)
     {
     vtkUnstructuredGrid * faceMesh = this->GetFaceZoneMesh(timeState, i);
-    output->SetDataSet(0, output->GetNumberOfDataSets(0),
-                       faceMesh);
+    output->SetBlock(output->GetNumberOfBlocks(), faceMesh);
     faceMesh->Delete();
     }
   for(int i = 0; i < (int)numCellZones; i++)
     {
     vtkUnstructuredGrid * cellMesh = this->GetCellZoneMesh(timeState, i);
-    output->SetDataSet(0, output->GetNumberOfDataSets(0),
-                       cellMesh);
+    output->SetBlock(output->GetNumberOfBlocks(), cellMesh);
     cellMesh->Delete();
     }
   return;

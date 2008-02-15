@@ -15,7 +15,7 @@
 // .NAME vtkHierarchicalBoxDataSet - hierarchical dataset of vtkUniformGrids
 // .SECTION Description
 // vtkHierarchicalBoxDataSet is a concrete implementation of
-// vtkHierarchicalDataSet. The dataset type is restricted to
+// vtkCompositeDataSet. The dataset type is restricted to
 // vtkUniformGrid. Each dataset has an associated vtkAMRBox that represents
 // it's region (similar to extent) in space.
 // .SECTION Warning
@@ -35,43 +35,62 @@
 #ifndef __vtkHierarchicalBoxDataSet_h
 #define __vtkHierarchicalBoxDataSet_h
 
-#include "vtkHierarchicalDataSet.h"
+#include "vtkCompositeDataSet.h"
 
-//BTX
-struct vtkHierarchicalBoxDataSetInternal;
-//ETX
-class vtkDataObject;
-class vtkInformationIdTypeKey;
-class vtkUniformGrid;
 class vtkAMRBox;
+class vtkInformationIdTypeKey;
+class vtkInformationIntegerKey;
+class vtkInformationIntegerVectorKey;
+class vtkUniformGrid;
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet : public vtkHierarchicalDataSet
+class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet : public vtkCompositeDataSet
 {
 public:
   static vtkHierarchicalBoxDataSet *New();
-
-  vtkTypeRevisionMacro(vtkHierarchicalBoxDataSet,vtkHierarchicalDataSet);
+  vtkTypeRevisionMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
+  // Description:
+  // Set the number of refinement levels. This call might cause
+  // allocation if the new number of levels is larger than the
+  // current one.
+  void SetNumberOfLevels(unsigned int numLevels);
+
+  // Description:
+  // Returns the number of levels.
+  unsigned int GetNumberOfLevels();
+
+  // Description:
+  // Set the number of data set at a given level.
+  void SetNumberOfDataSets(unsigned int level, unsigned int numdatasets);
+
+  // Description:
+  // Returns the number of data sets available at any level.
+  unsigned int GetNumberOfDataSets(unsigned int level);
+
+  // Description:
+  // Sets the data set at the location pointed by the iterator.
+  // The iterator does not need to be iterating over this dataset itself. It can
+  // be any composite datasite with similar structure (achieve by using
+  // CopyStructure).
+  // Un-hiding superclass overload.
+  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
+    { this->Superclass::SetDataSet(iter, dataObj); }
+
 //BTX
   // Description:
-  // Set the dataset pointer for a given node. This method does
-  // not remove the existing parent/child links. It only replaces
-  // the dataset pointer.
+  // Set the dataset pointer for a given node. This will resize the number of
+  // levels and the number of datasets in the level to fit level, id requested. 
   // The information carried by the vtkAMRBox is redundant with the extent
   // of the vtkUniformGrid. However, in case of parallel computation, the
   // vtkAMRBox is defined on each processor whereas the vtkUniformGrid is
   // defined only on the processor that owns it.
   void SetDataSet(unsigned int level, unsigned int id, 
                   vtkAMRBox& box, vtkUniformGrid* dataSet);
-  void SetDataSet(unsigned int level, unsigned int id, vtkDataObject* dataSet)
-    {
-    this->Superclass::SetDataSet(level, id, dataSet);
-    }
 
   // Description:
   // Get a dataset given a level and an id. In case of parallel computation,
@@ -79,12 +98,34 @@ public:
   vtkUniformGrid* GetDataSet(unsigned int level,
                              unsigned int id,
                              vtkAMRBox& box);
-//ETX
-  vtkDataObject* GetDataSet(unsigned int level, unsigned int id)
-    { return this->Superclass::GetDataSet(level, id); }
 
-  vtkDataObject* GetDataSet(vtkInformation* index)
-    { return this->Superclass::GetDataSet(index); }
+  // Description:
+  // Returns the AMR box for the location pointer by the iterator.
+  vtkAMRBox GetAMRBox(vtkCompositeDataIterator* iter);
+
+//ETX
+
+// Description:
+// Get meta-data associated with a level. This may allocate a new
+// vtkInformation object if none is already present. Use HasLevelMetaData to
+// avoid unnecessary allocations.
+  vtkInformation* GetLevelMetaData(unsigned int level)
+    { return this->GetChildMetaData(level); }
+
+  // Description:
+  // Returns if meta-data exists for a given level.
+  int HasLevelMetaData(unsigned int level)
+    { return this->HasChildMetaData(level); }
+
+  // Description:
+  // Get meta-data associated with a dataset.  This may allocate a new
+  // vtkInformation object if none is already present. Use HasMetaData to
+  // avoid unnecessary allocations.
+  vtkInformation* GetMetaData(unsigned int level, unsigned int index);
+
+  // Description:
+  // Returns if meta-data exists for a given dataset under a given level.
+  int HasMetaData(unsigned int level, unsigned int index);
 
   // Description:
   // Sets the refinement of a given level. The spacing at level
@@ -100,24 +141,17 @@ public:
   int GetRefinementRatio(unsigned int level);
 
   // Description:
+  // Returns the refinement ratio for the position pointed by the iterator.
+  int GetRefinementRatio(vtkCompositeDataIterator* iter);
+
+  // Description:
   // Blank lower level cells if they are overlapped by higher
   // level ones.
   void GenerateVisibilityArrays();
 
-  // Description:
-  // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
-
   static vtkInformationIntegerVectorKey* BOX();
+  static vtkInformationIntegerKey* REFINEMENT_RATIO();
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
-
-  // Description:
-  // Returns the total number of points of all blocks. This will
-  // iterate over all blocks and call GetNumberOfPoints() so it
-  // might be expensive. Does not include the number of blanked
-  // points.
-  virtual vtkIdType GetNumberOfPoints();
 
   //BTX
   // Description:
@@ -128,11 +162,27 @@ public:
 
   // Description:
   // Copy the cached scalar range into range.
-  virtual void GetScalarRange(double range[2]);
+  virtual void GetScalarRange(double range[]);
   
   // Description:
   // Return the cached range.
   virtual double *GetScalarRange();
+
+  // Description:
+  // Unhiding superclass method.
+  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
+    { return this->Superclass::GetDataSet(iter); }
+
+  // Description:
+  // Unhiding superclass method.
+  virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
+    { return this->Superclass::GetMetaData(iter); }
+
+
+  // Description:
+  // Unhiding superclass method.
+  virtual int HasMetaData(vtkCompositeDataIterator* iter)
+    { return this->Superclass::HasMetaData(iter); }
   
 protected:
   vtkHierarchicalBoxDataSet();
@@ -142,8 +192,6 @@ protected:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
   virtual void ComputeScalarRange();
-  
-  vtkHierarchicalBoxDataSetInternal* BoxInternal;
   
   // Cached scalar range
   double ScalarRange[2];

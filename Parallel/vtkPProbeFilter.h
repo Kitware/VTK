@@ -18,14 +18,14 @@
 #ifndef __vtkPProbeFilter_h
 #define __vtkPProbeFilter_h
 
-#include "vtkMultiGroupProbeFilter.h"
+#include "vtkCompositeDataProbeFilter.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPProbeFilter : public vtkMultiGroupProbeFilter
+class VTK_PARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFilter
 {
 public:
-  vtkTypeRevisionMacro(vtkPProbeFilter,vtkMultiGroupProbeFilter);
+  vtkTypeRevisionMacro(vtkPProbeFilter,vtkCompositeDataProbeFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

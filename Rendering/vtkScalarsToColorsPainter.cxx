@@ -17,6 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGraphicsFactory.h"
@@ -34,10 +35,39 @@
 #include "vtkProperty.h"
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkCompositeDataIterator.h"
+
+#define COLOR_TEXTURE_MAP_SIZE 256
+
+//-----------------------------------------------------------------------------
+static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
+{
+  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
+  if (!colors || colors->GetNumberOfComponents() != 4)
+    {
+    return;
+    }
+  unsigned char* ptr = colors->GetPointer(0);
+  vtkIdType numValues = colors->GetNumberOfTuples() *
+    colors->GetNumberOfComponents();
+  if (numValues <= 4)
+    {
+    return;
+    }
+  for (vtkIdType cc=0; cc < numValues; cc+=4, ptr+=4)
+    {
+    double alpha = (0x0ff & ptr[3])/255.0;
+    ptr[0] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[0])*alpha));
+    ptr[1] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[1])*alpha));
+    ptr[2] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[2])*alpha));
+    }
+}
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.8");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.9");
+vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MODE, Integer);
@@ -63,7 +93,7 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->InterpolateScalarsBeforeMapping = 0;
   this->LookupTable = NULL;
   
-  this->OutputData = vtkPolyData::New();
+  this->OutputData = 0;
   
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
   this->UseLookupTableScalarRange = 1; 
@@ -71,10 +101,8 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->ScalarRange[1] = 1.0;
   this->ScalarMaterialMode = VTK_MATERIALMODE_DEFAULT;
 
+  this->UsingScalarColoring = 0;
   this->ScalarVisibility = 1;
-
-  this->ColorTextureMap = 0;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -86,13 +114,7 @@ vtkScalarsToColorsPainter::~vtkScalarsToColorsPainter()
     this->OutputData = 0;
     }
   this->SetLookupTable(NULL);
-
-  if (this->ColorTextureMap)
-    {
-    this->ColorTextureMap->UnRegister(this);
-    this->ColorTextureMap = NULL;
-    }
-
+  this->ColorTextureMap = 0;
   this->SetArrayName(0);
 }
 
@@ -101,47 +123,6 @@ vtkScalarsToColorsPainter* vtkScalarsToColorsPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkScalarsToColorsPainter");
   return (vtkScalarsToColorsPainter*)o;
-}
-
-//-----------------------------------------------------------------------------
-int vtkScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(vtkActor* actor)
-{
-  if (actor && (actor->GetTexture() || 
-      actor->GetProperty()->GetNumberOfTextures() > 0))
-    {
-    return 0;
-    }
-  return 1;
-}
-
-//-----------------------------------------------------------------------------
-void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
-  vtkActor* actor)
-{
-  // If the input polydata has changed, the output should also reflect
-  if (this->OutputUpdateTime < this->MTime ||
-    this->OutputUpdateTime < this->GetInput()->GetMTime())
-    {
-    this->OutputData->ShallowCopy(this->GetInputAsPolyData());
-
-    // scalars passed thru this filter are colors, which will be buit in
-    // the pre-rendering stage.
-    this->OutputData->GetPointData()->SetScalars(NULL);
-    this->OutputData->GetCellData()->SetScalars(NULL);
-
-    // field data is only passed when coloring
-    // TriangleStrips with colors for each triangle.
-    this->OutputData->GetFieldData()->Initialize();
-    this->OutputUpdateTime.Modified();
-    } 
-
-  // Build the colors.
-  // As per the vtkOpenGLPolyDataMapper's claim, this
-  // it not a very expensive task, as the colors are cached
-  // and hence we do this always.
-  this->MapScalars(actor->GetProperty()->GetOpacity(),
-    this->GetPremultiplyColorsWithAlpha(actor)); 
-  this->Superclass::PrepareForRendering(renderer, actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -215,41 +196,298 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
-static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
+int vtkScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(vtkActor* actor)
 {
-  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
-  if (!colors || colors->GetNumberOfComponents() != 4)
+  if (actor && (actor->GetTexture() || 
+      actor->GetProperty()->GetNumberOfTextures() > 0))
     {
+    return 0;
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+vtkDataObject* vtkScalarsToColorsPainter::NewClone(vtkDataObject* data)
+{
+  if (data->IsA("vtkDataSet"))
+    {
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(data);
+    vtkDataSet* clone = ds->NewInstance();
+    clone->ShallowCopy(ds);
+    // scalars passed thru this filter are colors, which will be buit in
+    // the pre-rendering stage.
+    clone->GetCellData()->SetScalars(0);
+    clone->GetPointData()->SetScalars(0);
+    // field data is only passed when coloring
+    // TriangleStrips with colors for each triangle.
+    clone->GetFieldData()->Initialize();
+    return clone;
+    }
+  else if (data->IsA("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(data);
+    vtkCompositeDataSet* clone = cd->NewInstance();
+    clone->CopyStructure(cd);
+    vtkCompositeDataIterator* iter = cd->NewIterator();
+    for (iter->InitTraversal(); 
+      !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      vtkDataObject* leafClone = this->NewClone(iter->GetCurrentDataObject());
+      clone->SetDataSet(iter, leafClone);
+      leafClone->Delete();
+      }
+    iter->Delete();
+    return clone;
+    }
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
+  vtkActor* actor)
+{
+  vtkDataObject* input = this->GetInput();
+  if (!input)
+    {
+    vtkErrorMacro("No input present.");
     return;
     }
-  unsigned char* ptr = colors->GetPointer(0);
-  vtkIdType numValues = colors->GetNumberOfTuples() *
-    colors->GetNumberOfComponents();
-  if (numValues <= 4)
+
+  // If the input polydata has changed, the output should also reflect
+  if (!this->OutputData ||
+    !this->OutputData->IsA(input->GetClassName()) || 
+    this->OutputUpdateTime < this->MTime ||
+    this->OutputUpdateTime < this->GetInput()->GetMTime())
     {
+    if (this->OutputData)
+      {
+      this->OutputData->Delete();
+      this->OutputData = 0;
+      }
+    // Create a shallow-copied clone with no output scalars.
+    this->OutputData = this->NewClone(input);
+    this->OutputUpdateTime.Modified();
+    } 
+
+  if (!this->ScalarVisibility)
+    {
+    // Nothing to do here.
+    this->ColorTextureMap = 0;
+    this->Superclass::PrepareForRendering(renderer, actor);
     return;
     }
-  for (vtkIdType cc=0; cc < numValues; cc+=4, ptr+=4)
+
+  // Build the colors.
+  // As per the vtkOpenGLPolyDataMapper's claim, this
+  // it not a very expensive task, as the colors are cached
+  // and hence we do this always.
+
+  // Determine if we are going to use a texture for coloring or use vertex
+  // colors. This need to be determine before we iterate over all the blocks in
+  // the composite dataset to ensure that we emply the technique for all the
+  // blocks.
+  this->ScalarsLookupTable = 0;
+  int useTexture = this->CanUseTextureMapForColoring(input);
+  if (useTexture)
     {
-    double alpha = (0x0ff & ptr[3])/255.0;
-    ptr[0] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[0])*alpha));
-    ptr[1] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[1])*alpha));
-    ptr[2] = static_cast<unsigned char>(0x0ff & static_cast<int>((0x0ff&ptr[2])*alpha));
+    // Ensure that the ColorTextureMap has been created and updated correctly.
+    // ColorTextureMap depends on the LookupTable. Hence it can be generated
+    // independent of the input.
+    this->UpdateColorTextureMap(actor->GetProperty()->GetOpacity(),
+          this->GetPremultiplyColorsWithAlpha(actor));
+    }
+  else
+    {
+    // Remove texture map if present.
+    this->ColorTextureMap = 0;
+    }
+
+  this->UsingScalarColoring = 0;
+
+  // Now if we have composite data, we need to MapScalars for all leaves.
+  if (input->IsA("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input);
+    vtkCompositeDataSet* cdOutput = 
+      vtkCompositeDataSet::SafeDownCast(this->OutputData);
+    vtkCompositeDataIterator* iter = cdInput->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+      iter->GoToNextItem())
+      {
+      vtkPolyData* pdInput = vtkPolyData::SafeDownCast(
+        iter->GetCurrentDataObject());
+      vtkPolyData* pdOutput = vtkPolyData::SafeDownCast(
+        cdOutput->GetDataSet(iter));
+      if (pdInput && pdOutput)
+        {
+        this->MapScalars(pdOutput, actor->GetProperty()->GetOpacity(),
+          this->GetPremultiplyColorsWithAlpha(actor),
+          pdInput);
+        }
+      }
+
+    iter->Delete();
+    }
+  else
+    {
+    this->MapScalars(vtkPolyData::SafeDownCast(this->OutputData),
+      actor->GetProperty()->GetOpacity(),
+      this->GetPremultiplyColorsWithAlpha(actor),
+      vtkPolyData::SafeDownCast(input));
+    }
+  this->Superclass::PrepareForRendering(renderer, actor);
+}
+
+//-----------------------------------------------------------------------------
+// Returns if we can use texture maps for scalar coloring. Note this doesn't say
+// we "will" use scalar coloring. It says, if we do use scalar coloring, we will
+// use a 1D texture.
+// When rendering multiblock datasets, if any 2 blocks provide different
+// lookup tables for the scalars, then also we cannot use textures. This case can
+// be handled if required. 
+int vtkScalarsToColorsPainter::CanUseTextureMapForColoring(vtkDataObject* input)
+{
+  if (!this->InterpolateScalarsBeforeMapping)
+    {
+    return 0; // user doesn't want us to use texture maps at all.
+    }
+
+  if (input->IsA("vtkDataSet"))
+    {
+    int cellFlag=0;
+    vtkDataSet* ds = static_cast<vtkDataSet*>(input);
+    vtkDataArray* scalars = vtkAbstractMapper::GetScalars(ds,
+      this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+      this->ArrayName, cellFlag);
+
+    if (!scalars)
+      {
+      // no scalars on  this dataset, we don't care if texture is used at all.
+      return 1;
+      }
+
+    if (cellFlag)
+      {
+      return 0; // cell data colors, don't use textures.
+      }
+
+    if (this->ColorMode == VTK_COLOR_MODE_DEFAULT && 
+      vtkUnsignedCharArray::SafeDownCast(scalars))
+      { 
+      // Don't use texture is direct coloring using RGB unsigned chars is
+      // requested. 
+      return 0;
+      }
+
+    if (this->ScalarsLookupTable && scalars->GetLookupTable() &&
+      (this->ScalarsLookupTable.GetPointer() != scalars->GetLookupTable()))
+      {
+      // Two datasets are requesting different lookup tables to color with.
+      // We don't handle this case right now for composite datasets.
+      this->ScalarsLookupTable = 0;
+      return 0;
+      }
+    
+    if (scalars->GetLookupTable())
+      {
+      this->ScalarsLookupTable = scalars->GetLookupTable();
+      }
+    }
+  else if (input->IsA("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataIterator* iter = 
+      static_cast<vtkCompositeDataSet*>(input)->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+      iter->GoToNextItem())
+      {
+      if (!this->CanUseTextureMapForColoring(iter->GetCurrentDataObject()))
+        {
+        iter->Delete();
+        return 0;
+        }
+      }
+    iter->Delete();
+    }
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+// Should not be called if CanUseTextureMapForColoring() returns 0.
+void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
+  int multiply_with_alpha)
+{
+  if (this->ScalarsLookupTable)
+    {
+    this->SetLookupTable(this->ScalarsLookupTable);
+    }
+  else
+    {
+    // this creates a default one if none present.
+    this->GetLookupTable()->Build();
+    }
+
+  if (!this->UseLookupTableScalarRange)
+    {
+    this->LookupTable->SetRange(this->ScalarRange);
+    }
+  
+  double* range = this->LookupTable->GetRange();
+
+  // If the lookup table has changed, the recreate the color texture map.
+  // Set a new lookup table changes this->MTime.
+  if (this->ColorTextureMap == 0 || 
+    this->GetMTime() > this->ColorTextureMap->GetMTime() ||
+    this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime() ||
+    this->LookupTable->GetAlpha() != alpha)
+    {
+    this->LookupTable->SetAlpha(alpha);
+    this->ColorTextureMap = 0;
+
+    // Get the texture map from the lookup table.
+    // Create a dummy ramp of scalars.
+    // In the future, we could extend vtkScalarsToColors.
+    double k = (range[1]-range[0]) / (double)(COLOR_TEXTURE_MAP_SIZE-1);
+    vtkFloatArray* tmp = vtkFloatArray::New();
+    tmp->SetNumberOfTuples(COLOR_TEXTURE_MAP_SIZE);
+    float* ptr = tmp->GetPointer(0);
+    for (int i = 0; i < COLOR_TEXTURE_MAP_SIZE; ++i)
+      {
+      *ptr = range[0] + ((float)(i)) * k;
+      ++ptr;
+      }
+    this->ColorTextureMap = vtkSmartPointer<vtkImageData>::New();
+    this->ColorTextureMap->SetExtent(0,COLOR_TEXTURE_MAP_SIZE-1, 
+      0,0, 0,0);
+    this->ColorTextureMap->SetNumberOfScalarComponents(4);
+    this->ColorTextureMap->SetScalarTypeToUnsignedChar();
+    vtkDataArray* colors = 
+      this->LookupTable->MapScalars(tmp, this->ColorMode, 0);
+    if (multiply_with_alpha)
+      {
+      vtkMulitplyColorsWithAlpha(colors);
+      }
+
+    this->ColorTextureMap->GetPointData()->SetScalars(colors);
+    colors->Delete();
+    tmp->Delete();
     }
 }
 
 //-----------------------------------------------------------------------------
 // This method has the same functionality as the old vtkMapper::MapScalars.
-void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha)
+void vtkScalarsToColorsPainter::MapScalars(vtkPolyData* output,
+  double alpha, int multiply_with_alpha,
+  vtkPolyData* input)
 {
   int cellFlag;
-  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(this->GetInputAsPolyData(),
+  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
     this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
     this->ArrayName, cellFlag);
 
-  vtkPointData* oppd = this->OutputData->GetPointData();
-  vtkCellData* opcd = this->OutputData->GetCellData();
-  vtkFieldData* opfd = this->OutputData->GetFieldData();
+  vtkPointData* oppd = output->GetPointData();
+  vtkCellData* opcd  = output->GetCellData();
+  vtkFieldData* opfd = output->GetFieldData();
 
   int arraycomponent = this->ArrayComponent;
   // This is for a legacy feature: selection of the array component to color by
@@ -260,63 +498,36 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
     arraycomponent = 0;
     }
   
-  if (!this->ScalarVisibility || scalars == 0 || this->GetInputAsPolyData() == 0)
+  if (!this->ScalarVisibility || scalars == 0 || input == 0)
     {
-    // no color info to pass thru.
-    // Earlier, I was cleaning up the output scalars here.
-    // However, if any entity affecting colors was changed, this->SetupPipeline()
-    // would have caught it before this method call and cleaned up the
-    // scalars, so no need to check/clean then again.
-    if ( this->ColorTextureMap )
-      {
-      this->ColorTextureMap->UnRegister(this);
-      this->ColorTextureMap = 0;
-      }
     return;
     }
-  
+
+  // Let subclasses know that scalar coloring was employed in the current pass.
+  this->UsingScalarColoring = 1;
+  if (this->ColorTextureMap)
+    {
+    // Implies that we have verified that we must use texture map for scalar
+    // coloring. Just create texture coordinates for the input dataset.
+    this->MapScalarsToTexture(output, scalars, input);
+    return;
+    }
+ 
+  vtkScalarsToColors* lut = 0;
   // Get the lookup table.
   if (scalars->GetLookupTable())
     {
-    this->SetLookupTable(scalars->GetLookupTable());
+    lut = scalars->GetLookupTable();
     }
   else
     {
-    if (this->LookupTable == NULL)
-      {
-      this->CreateDefaultLookupTable();
-      }
-    this->LookupTable->Build();
+    lut = this->GetLookupTable();
+    lut->Build();
     }
   
   if (!this->UseLookupTableScalarRange)
     {
-    this->LookupTable->SetRange(this->ScalarRange);
-    }
-
-  // Decide betweeen texture color or vertex color.
-  // Cell data always uses vertext color.
-  // Only point data can use both texture and vertex coloring.
-  if (this->InterpolateScalarsBeforeMapping && cellFlag==0)
-    {
-    // Only use texture color if we are mapping scalars.
-    // Directly coloring with RGB unsigned chars should not use texture.
-    if ( this->ColorMode != VTK_COLOR_MODE_DEFAULT || 
-         (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
-      { // Texture color option.
-      this->MapScalarsToTexture(scalars, alpha, multiply_with_alpha);
-      return;
-      }
-    }
-
-  // Vertex colors are being used.
-  // Get rid of texure Color arrays.  Only texture or vertex coloring 
-  // can be active at one time.  The existence of the array is the 
-  // signal to use that technique.
-  if ( this->ColorTextureMap )
-    {
-    this->ColorTextureMap->UnRegister(this);
-    this->ColorTextureMap = 0;
+    lut->SetRange(this->ScalarRange);
     }
 
   // Try to reuse the old colors.
@@ -334,16 +545,11 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
     colors = opfd->GetArray("Color");
     }
   
-  if (colors && this->LookupTable->GetAlpha() == alpha)
+  if (colors && lut->GetAlpha() == alpha)
     {
-    // (this->GetMTime() < colors->GetMTime() &&
-    //  this->GetInputAsPolyData()->GetMTime() < colors->GetMTime())
-    // checks are redundant, since if the PolyData or this->MTime changed,
-    // this->SetupPipeline would have caught it and got rid of all the
-    // scalars in the output, hence, the control would never reach here.
     if (this->GetMTime() < colors->GetMTime() &&
-      this->GetInputAsPolyData()->GetMTime() < colors->GetMTime() &&
-      this->LookupTable->GetMTime() < colors->GetMTime())
+      input->GetMTime() < colors->GetMTime() &&
+      lut->GetMTime() < colors->GetMTime())
       {
       // using old colors.
       return;
@@ -352,9 +558,8 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
  
   // Get rid of old colors.
   colors = 0;
-  this->LookupTable->SetAlpha(alpha);
-  colors = this->LookupTable->
-    MapScalars(scalars, this->ColorMode, arraycomponent);
+  lut->SetAlpha(alpha);
+  colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
   if (multiply_with_alpha)
     {
     // It is possible that the LUT simply returns the scalars as the
@@ -394,28 +599,9 @@ void vtkScalarsToColorsPainter::MapScalars(double alpha, int multiply_with_alpha
 }
 
 //-----------------------------------------------------------------------------
-// Specify a lookup table for the mapper to use.
-void vtkScalarsToColorsPainter::SetLookupTable(vtkScalarsToColors *lut)
-{
-  if ( this->LookupTable != lut ) 
-    {
-    if ( this->LookupTable) 
-      {
-      this->LookupTable->UnRegister(this);
-      }
-    this->LookupTable = lut;
-    if (lut)
-      {
-      lut->Register(this);
-      }
-    this->Modified();
-    }
-}
-
-//-----------------------------------------------------------------------------
 vtkScalarsToColors *vtkScalarsToColorsPainter::GetLookupTable()
 {
-  if ( this->LookupTable == 0 )
+  if (this->LookupTable == 0)
     {
     this->CreateDefaultLookupTable();
     }
@@ -425,14 +611,9 @@ vtkScalarsToColors *vtkScalarsToColorsPainter::GetLookupTable()
 //-----------------------------------------------------------------------------
 void vtkScalarsToColorsPainter::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable) 
-    {
-    this->LookupTable->UnRegister(this);
-    }
-  this->LookupTable = vtkLookupTable::New();
-  // Consistent Register/UnRegisters.
-  this->LookupTable->Register(this);
-  this->LookupTable->Delete();
+  vtkLookupTable* lut = vtkLookupTable::New();
+  this->SetLookupTable(lut);
+  lut->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -488,76 +669,23 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 }
 
 //-----------------------------------------------------------------------------
-#define ColorTextureMapSize 256
-
-void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
-  double alpha, int multiply_with_alpha)
+void vtkScalarsToColorsPainter::MapScalarsToTexture(
+  vtkPolyData* output, vtkDataArray* scalars, vtkPolyData* input)
 {
-  vtkPolyData* input = this->GetInputAsPolyData();
-  
-  // this->SetupPipeline() assures that output has no scalars
-  // of any kind, so no need to clean up the output scalars again. 
-
-  double* range = this->LookupTable->GetRange();
-
-  // If the lookup table has changed, the recreate the color texture map.
-  // Set a new lookup table changes this->MTime.
-  if (this->ColorTextureMap == 0 || 
-    this->GetMTime() > this->ColorTextureMap->GetMTime() ||
-    this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime() ||
-    this->LookupTable->GetAlpha() != alpha)
-    {
-    this->LookupTable->SetAlpha(alpha);
-    if ( this->ColorTextureMap )
-      {
-      this->ColorTextureMap->UnRegister(this);
-      this->ColorTextureMap = 0;
-      }
-    // Get the texture map from the lookup table.
-    // Create a dummy ramp of scalars.
-    // In the future, we could extend vtkScalarsToColors.
-    double k = (range[1]-range[0]) / (double)(ColorTextureMapSize-1);
-    vtkFloatArray* tmp = vtkFloatArray::New();
-    tmp->SetNumberOfTuples(ColorTextureMapSize);
-    float* ptr = tmp->GetPointer(0);
-    for (int i = 0; i < ColorTextureMapSize; ++i)
-      {
-      *ptr = range[0] + ((float)(i)) * k;
-      ++ptr;
-      }
-    this->ColorTextureMap = vtkImageData::New();
-    this->ColorTextureMap->SetExtent(0,ColorTextureMapSize-1, 
-      0,0, 0,0);
-    this->ColorTextureMap->SetNumberOfScalarComponents(4);
-    this->ColorTextureMap->SetScalarTypeToUnsignedChar();
-    vtkDataArray* colors = 
-      this->LookupTable->MapScalars(tmp, this->ColorMode, 0);
-    if (multiply_with_alpha)
-      {
-      vtkMulitplyColorsWithAlpha(colors);
-      }
-
-    this->ColorTextureMap->GetPointData()->SetScalars(colors);
-    colors->Delete();
-    // Consistent register and unregisters
-    this->ColorTextureMap->Register(this);
-    this->ColorTextureMap->Delete();
-    tmp->Delete();
-    }
-
   // Create new coordinates if necessary.
   // Need to compare lookup table incase the range has changed.
-  vtkDataArray* tcoords = this->OutputData->GetPointData()->GetTCoords();
+  vtkDataArray* tcoords = output->GetPointData()->GetTCoords();
 
   if (tcoords == 0 ||
     this->GetMTime() > tcoords->GetMTime() ||
     input->GetMTime() > tcoords->GetMTime() ||
     this->LookupTable->GetMTime() > tcoords->GetMTime())
     {
+    double* range = this->LookupTable->GetRange();
     // Get rid of old colors
     if ( tcoords )
       {
-      this->OutputData->GetPointData()->SetTCoords(NULL);
+      output->GetPointData()->SetTCoords(NULL);
       tcoords = 0;
       }
 
@@ -567,9 +695,9 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
     vtkIdType num = scalars->GetNumberOfTuples();
     vtkFloatArray* dtcoords = vtkFloatArray::New();
     dtcoords->SetNumberOfTuples(num);
-    this->OutputData->GetPointData()->SetTCoords(dtcoords);
+    output->GetPointData()->SetTCoords(dtcoords);
     dtcoords->Delete();
-    float* output = dtcoords->GetPointer(0);
+    float* tcptr = dtcoords->GetPointer(0);
     int scalarComponent;
     // Although I like the feature of applying magnitude to single component
     // scalars, it is not how the old MapScalars for vertex coloring works.
@@ -586,7 +714,7 @@ void vtkScalarsToColorsPainter::MapScalarsToTexture(vtkDataArray* scalars,
       {
       vtkTemplateMacro(
         vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(void_input),
-          output, num, numComps,
+          tcptr, num, numComps,
           scalarComponent, range)
       );
     case VTK_BIT:

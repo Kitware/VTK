@@ -17,17 +17,18 @@
 #include "vtkActor.h"
 #include "vtkClipPlanesPainter.h"
 #include "vtkCoincidentTopologyResolutionPainter.h"
+#include "vtkCompositePainter.h"
 #include "vtkDisplayListPainter.h"
 #include "vtkGarbageCollector.h"
-#include "vtkObjectFactory.h"
 #include "vtkLightingPainter.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkScalarsToColorsPainter.h"
 #include "vtkRepresentationPainter.h"
+#include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.5");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.6");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
@@ -39,6 +40,7 @@ vtkCxxSetObjectMacro(vtkDefaultPainter, CoincidentTopologyResolutionPainter,
   vtkCoincidentTopologyResolutionPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, LightingPainter, vtkLightingPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, RepresentationPainter, vtkRepresentationPainter);
+vtkCxxSetObjectMacro(vtkDefaultPainter, CompositePainter, vtkCompositePainter);
 //-----------------------------------------------------------------------------
 vtkDefaultPainter::vtkDefaultPainter()
 {
@@ -49,6 +51,7 @@ vtkDefaultPainter::vtkDefaultPainter()
   this->LightingPainter = 0;
   this->RepresentationPainter = 0;
   this->DefaultPainterDelegate = 0;
+  this->CompositePainter = 0;
 
   vtkScalarsToColorsPainter* scp = vtkScalarsToColorsPainter::New();
   this->SetScalarsToColorsPainter(scp);
@@ -74,6 +77,10 @@ vtkDefaultPainter::vtkDefaultPainter()
   vtkRepresentationPainter* vp = vtkRepresentationPainter::New();
   this->SetRepresentationPainter(vp);
   vp->Delete();
+
+  vtkCompositePainter* cpp = vtkCompositePainter::New();
+  this->SetCompositePainter(cpp);
+  cpp->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -86,6 +93,7 @@ vtkDefaultPainter::~vtkDefaultPainter()
   this->SetLightingPainter(0);
   this->SetRepresentationPainter(0);
   this->SetDefaultPainterDelegate(0);
+  this->SetCompositePainter(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -118,6 +126,19 @@ void vtkDefaultPainter::BuildPainterChain()
     }
 
   painter = this->GetDisplayListPainter();
+  if (painter)
+    {
+    if (prevPainter)
+      {
+      prevPainter->SetDelegatePainter(painter);
+      }
+    prevPainter = painter;
+    headPainter = (headPainter)? headPainter : painter;
+    }
+
+  // We are always putting in the composite painter since it does not have any
+  // significant overhead for non-composite datasets.
+  painter = this->GetCompositePainter();
   if (painter)
     {
     if (prevPainter)
@@ -220,6 +241,8 @@ void vtkDefaultPainter::ReportReferences(vtkGarbageCollector* collector)
     "ScalarsToColors Painter");
   vtkGarbageCollectorReport(collector, this->RepresentationPainter,
     "Wireframe Painter");
+  vtkGarbageCollectorReport(collector, this->CompositePainter,
+    "Composite Painter");
 }
 
 //-------------------------------------------------------------------------
@@ -320,6 +343,17 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << endl ;
     this->ScalarsToColorsPainter->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+  os << indent << "CompositePainter: ";
+  if (this->CompositePainter)
+    {
+    os << endl;
+    this->CompositePainter->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {

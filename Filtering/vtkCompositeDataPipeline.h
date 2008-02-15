@@ -22,10 +22,8 @@
 // execution can be summarized as follows: 
 //
 // * REQUEST_INFORMATION: The producers have to provide information about
-// the contents of the composite dataset in this pass. This is accomplished
-// by creating and populating a vtkMultiGroupDataInformation and setting
-// it using the COMPOSITE_DATA_INFORMATION() key in the output information
-// vector. Sources that can produce more than one piece (note that a piece is
+// the contents of the composite dataset in this pass. 
+// Sources that can produce more than one piece (note that a piece is
 // different than a block; each piece consistes of 0 or more blocks) should
 // set MAXIMUM_NUMBER_OF_PIECES to -1.
 //
@@ -36,9 +34,9 @@
 // vtkCompositeDataPipeline is assigned to a simple filter, 
 // it will invoke the  vtkStreamingDemandDrivenPipeline passes in a loop, 
 // passing a different block each time and will collect the results in a 
-// composite dataset (vtkMultiGroupDataSet).
+// composite dataset. 
 // .SECTION See also
-//  vtkMultiGroupDataInformation vtkCompositeDataSet vtkMultiGroupDataSet
+//  vtkCompositeDataSet
 
 #ifndef __vtkCompositeDataPipeline_h
 #define __vtkCompositeDataPipeline_h
@@ -46,7 +44,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 class vtkCompositeDataSet;
-class vtkMultiGroupDataSet;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
@@ -81,8 +78,6 @@ public:
 
   // Description:
   // vtkCompositeDataPipeline specific keys
-  static vtkInformationObjectBaseKey*    COMPOSITE_DATA_INFORMATION();
-  static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
   static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
 
 protected:
@@ -170,6 +165,18 @@ protected:
   int SuppressResetPipelineInformation;
 
   virtual void ResetPipelineInformation(int port, vtkInformation*);
+
+  // Description:
+  // Tries to create the best possible composite data output for the given input
+  // and non-composite algorithm output. Returns a new instance on success.
+  // Don't use this method for creating vtkTemporalDataSet. It's main purpose is
+  // to determine if vtkHierarchicalBoxDataSet can be propagated as
+  // vtkHierarchicalBoxDataSet in the output (if the algorithm can produce
+  // vtkUniformGrid given vtkUniformGrid inputs) or if it should be downgraded
+  // to a vtkMultiBlockDataSet.
+  vtkCompositeDataSet* CreateOutputCompositeDataSet(
+    vtkCompositeDataSet* input, int compositePort);
+
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.

@@ -25,7 +25,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkHierarchicalDataExtractLevel.h"
+#include "vtkExtractLevel.h"
 #include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkHierarchicalPolyDataMapper.h"
@@ -79,6 +79,9 @@ int main(int argc, char* argv[])
 
   // corner outline
   vtkOutlineCornerFilter* ocf = vtkOutlineCornerFilter::New();
+  vtkCompositeDataPipeline* pipeline = vtkCompositeDataPipeline::New();
+  ocf->SetExecutive(pipeline);
+  pipeline->Delete();
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
   // Rendering objects
@@ -92,14 +95,20 @@ int main(int argc, char* argv[])
   ren->AddActor(ocActor);
 
   // cell 2 point and contour
-  vtkHierarchicalDataExtractLevel* el = vtkHierarchicalDataExtractLevel::New();
+  vtkExtractLevel* el = vtkExtractLevel::New();
   el->SetInputConnection(0, reader->GetOutputPort(0));
-  el->SetLevelRange(2,2);
+  el->AddLevel(2);
 
   vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
+  pipeline = vtkCompositeDataPipeline::New();
+  c2p->SetExecutive(pipeline);
+  pipeline->Delete();
   c2p->SetInputConnection(0, el->GetOutputPort(0));
 
   vtkContourFilter* contour = vtkContourFilter::New();
+  pipeline = vtkCompositeDataPipeline::New();
+  contour->SetExecutive(pipeline);
+  pipeline->Delete();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));
   contour->SetValue(0, -0.013);
   contour->SetInputArrayToProcess(

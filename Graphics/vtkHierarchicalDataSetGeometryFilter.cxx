@@ -16,17 +16,19 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.6");
 vtkStandardNewMacro(vtkHierarchicalDataSetGeometryFilter);
-
+//-----------------------------------------------------------------------------
 vtkHierarchicalDataSetGeometryFilter::vtkHierarchicalDataSetGeometryFilter()
 {
 }
 
+//-----------------------------------------------------------------------------
 vtkHierarchicalDataSetGeometryFilter::~vtkHierarchicalDataSetGeometryFilter()
 {
 }
 
+//-----------------------------------------------------------------------------
 void vtkHierarchicalDataSetGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

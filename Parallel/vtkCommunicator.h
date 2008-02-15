@@ -31,12 +31,14 @@
 
 #include "vtkObject.h"
 
-class vtkDataSet;
-class vtkImageData;
-class vtkDataObject;
-class vtkDataArray;
 class vtkBoundingBox;
 class vtkCharArray;
+class vtkDataArray;
+class vtkDataObject;
+class vtkDataSet;
+class vtkImageData;
+class vtkMultiBlockDataSet;
+class vtkTemporalDataSet;
 
 class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
 {
@@ -797,10 +799,16 @@ protected:
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
+  int SendMultiBlockDataSet(vtkMultiBlockDataSet* data, int remoteHandle, int tag);
+  int SendTemporalDataSet(vtkTemporalDataSet* data, int remoteHandle, int tag);
   int ReceiveDataObject(vtkDataObject* data, 
                         int remoteHandle, int tag, int type=-1);
   int ReceiveElementalDataObject(vtkDataObject* data, 
                                  int remoteHandle, int tag);
+  int ReceiveMultiBlockDataSet(
+    vtkMultiBlockDataSet* data, int remoteHandle, int tag);
+  int ReceiveTemporalDataSet(
+    vtkTemporalDataSet* data, int remoteHandle, int tag);
 
   int MaximumNumberOfProcesses;
   int NumberOfProcesses;

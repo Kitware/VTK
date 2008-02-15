@@ -17,33 +17,31 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 
-#include  "vtkDirectedGraph.h"
-#include  "vtkPolyData.h"
-#include  "vtkStructuredPoints.h"
-#include  "vtkStructuredGrid.h"
-#include  "vtkRectilinearGrid.h"
-#include  "vtkUnstructuredGrid.h"
-#include  "vtkPiecewiseFunction.h"
-#include  "vtkImageData.h"
+#include  "vtkCompositeDataSet.h"
 #include  "vtkDataObject.h"
 #include  "vtkDataSet.h"
-#include  "vtkPointSet.h"
-#include  "vtkUniformGrid.h"
-#include  "vtkCompositeDataSet.h"
-#include  "vtkMultiGroupDataSet.h"
-#include  "vtkMultiBlockDataSet.h"
-#include  "vtkHierarchicalDataSet.h"
-#include  "vtkHierarchicalBoxDataSet.h"
+#include  "vtkDirectedGraph.h"
 #include  "vtkGenericDataSet.h"
-#include  "vtkHyperOctree.h"
-#include  "vtkTemporalDataSet.h"
-#include  "vtkTable.h"
-#include  "vtkUndirectedGraph.h"
 #include  "vtkGraph.h"
-#include  "vtkTree.h"
+#include  "vtkHierarchicalBoxDataSet.h"
+#include  "vtkHyperOctree.h"
+#include  "vtkImageData.h"
+#include  "vtkMultiBlockDataSet.h"
+#include  "vtkPiecewiseFunction.h"
+#include  "vtkPointSet.h"
+#include  "vtkPolyData.h"
+#include  "vtkRectilinearGrid.h"
 #include  "vtkSelection.h"
+#include  "vtkStructuredGrid.h"
+#include  "vtkStructuredPoints.h"
+#include  "vtkTable.h"
+#include  "vtkTemporalDataSet.h"
+#include  "vtkTree.h"
+#include  "vtkUndirectedGraph.h"
+#include  "vtkUniformGrid.h"
+#include  "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.4");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.5");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -62,9 +60,9 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPointSet",
   "vtkUniformGrid",
   "vtkCompositeDataSet", 
-  "vtkMultiGroupDataSet", 
+  "vtkMultiGroupDataSet", // OBSOLETE
   "vtkMultiBlockDataSet", 
-  "vtkHierarchicalDataSet",
+  "vtkHierarchicalDataSet", // OBSOLETE
   "vtkHierarchicalBoxDataSet", 
   "vtkGenericDataSet", 
   "vtkHyperOctree", 
@@ -175,17 +173,9 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkUniformGrid::New();
     }
-  else if(strcmp(type, "vtkMultiGroupDataSet") == 0)
-    {
-    return vtkMultiGroupDataSet::New();
-    }
   else if(strcmp(type, "vtkMultiBlockDataSet") == 0)
     {
     return vtkMultiBlockDataSet::New();
-    }
-  else if(strcmp(type, "vtkHierarchicalDataSet") == 0)
-    {
-    return vtkHierarchicalDataSet::New();
     }
   else if(strcmp(type, "vtkHierarchicalBoxDataSet") == 0)
     {

@@ -20,22 +20,24 @@
 
 #include "vtkTemporalInterpolator.h"
 
-#include "vtkTemporalDataSet.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointSet.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkPointSet.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTemporalDataSet.h"
 
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.10");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.11");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -214,10 +216,10 @@ int vtkTemporalInterpolator::RequestData(
       {
       // pass the lowest data
       vtkDebugMacro(<<"Interpolation time below/== range : " << inTimes[0]);
-      vtkDataObject *in1 = inData->GetDataSet(0,0);
+      vtkDataObject *in1 = inData->GetTimeStep(0);
       out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
-      outData->SetDataSet(upIdx,0,out1);
+      outData->SetTimeStep(upIdx, out1);
 //      outData->ShallowCopy(out1);
       out1->Delete();
       }
@@ -226,10 +228,10 @@ int vtkTemporalInterpolator::RequestData(
       {
       // pass the highest data
       vtkDebugMacro(<<"Interpolation time above/== range : " << inTimes[numInTimes-1] << " of " << numInTimes);
-      vtkDataObject *in1 = inData->GetDataSet(numInTimes-1,0);
+      vtkDataObject *in1 = inData->GetTimeStep(numInTimes-1);
       out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
-      outData->SetDataSet(upIdx,0,out1);
+      outData->SetTimeStep(upIdx, out1);
 //      outData->ShallowCopy(out1);
       out1->Delete();
       }
@@ -246,23 +248,23 @@ int vtkTemporalInterpolator::RequestData(
         {
         // pass the match
         vtkDebugMacro(<<"Interpolation time " << inTimes[i]);
-        vtkDataObject *in1 = inData->GetDataSet(i,0);
+        vtkDataObject *in1 = inData->GetTimeStep(i);
         out1 = in1->NewInstance();
         out1->ShallowCopy(in1);
-        outData->SetDataSet(upIdx,0,out1);
+        outData->SetTimeStep(upIdx, out1);
 //        outData->ShallowCopy(out1);
         out1->Delete();
         }
       else
         {
         // interpolate i-1 and i
-        vtkDataObject *in1 = inData->GetDataSet(i-1,0);
-        vtkDataObject *in2 = inData->GetDataSet(i,0);
+        vtkDataObject *in1 = inData->GetTimeStep(i-1);
+        vtkDataObject *in2 = inData->GetTimeStep(i);
         double ratio = (upTimes[upIdx]-inTimes[i-1])/(inTimes[i] - inTimes[i-1]);
         vtkDebugMacro(<<"Interpolation times " << inTimes[i-1] << "->" << inTimes[i] 
           << " : " << upTimes[upIdx] << " Interpolation ratio " << ratio );
         out1 = this->InterpolateDataObject(in1,in2,ratio);
-        outData->SetDataSet(upIdx,0,out1);
+        outData->SetTimeStep(upIdx, out1);
 //        outData->ShallowCopy(out1);
         out1->Delete();
         }
@@ -406,50 +408,43 @@ vtkDataObject *vtkTemporalInterpolator
     vtkDataSet *inds2 = vtkDataSet::SafeDownCast(in2);
     return this->InterpolateDataSet(inds1, inds2, ratio);
     }
-  else if (vtkMultiGroupDataSet::SafeDownCast(in1)) 
+  else if (vtkCompositeDataSet::SafeDownCast(in1)) 
     {
-    vtkMultiGroupDataSet *mgds[2];
-    mgds[0] = vtkMultiGroupDataSet::SafeDownCast(in1);
-    mgds[1] = vtkMultiGroupDataSet::SafeDownCast(in2);
+    vtkCompositeDataSet*mgds[2];
+    mgds[0] = vtkCompositeDataSet::SafeDownCast(in1);
+    mgds[1] = vtkCompositeDataSet::SafeDownCast(in2);
 
+    // It is essential that mgds[0] an mgds[1] has the same structure.
     //
     // We need to loop over blocks etc and build up a new dataset
     //
-    vtkMultiGroupDataSet *output = mgds[0]->NewInstance();
-    int numGroups = mgds[0]->GetNumberOfGroups();
-    output->SetNumberOfGroups(numGroups);
-    //
-    for (int g=0; g<numGroups; ++g) 
+    vtkCompositeDataSet *output = mgds[0]->NewInstance();
+    output->CopyStructure(mgds[0]);
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(mgds[0]->NewIterator());
+
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-      int numDataSets = mgds[0]->GetNumberOfDataSets(g);
-      output->SetNumberOfDataSets(g,numDataSets);
-      for (int d=0; d<numDataSets; ++d) 
+      vtkDataObject* dataobj1 = iter->GetCurrentDataObject();
+      vtkDataObject* dataobj2 = mgds[1]->GetDataSet(iter);
+      if (!dataobj1 || !dataobj2) 
         {
-        // These multigroup dataset can have null data, it's bad, but
-        // we'll just skip the rest of that bundle
-        vtkDataObject *dataobj1 = mgds[0]->GetDataSet(g,d);
-        vtkDataObject *dataobj2 = mgds[1]->GetDataSet(g,d);
-        if (!dataobj1 || !dataobj2) 
-          {
-          vtkWarningMacro
-            (
-             "The MultiGroup datasets were not identical in structure : Group " 
-             << g << " Dataset " << d << " was skipped");
-          continue;
-          }
-        vtkDataObject *result = 
-          this->InterpolateDataObject(dataobj1, dataobj2, ratio);
-        if (result) 
-          {
-          output->SetDataSet(g, d, result); 
-          result->Delete();
-          }
-        else 
-          {
-          vtkErrorMacro(<<"Unexpected error during interpolation");
-          // need to clear up memory we may have allocated and lost :(
-          return NULL;
-          }
+        vtkWarningMacro(
+          "The composite datasets were not identical in structure.");
+        continue;
+        }
+      vtkDataObject *result = 
+        this->InterpolateDataObject(dataobj1, dataobj2, ratio);
+      if (result)
+        {
+        output->SetDataSet(iter, result);
+        result->Delete();
+        }
+      else
+        {
+        vtkErrorMacro(<<"Unexpected error during interpolation");
+        // need to clear up memory we may have allocated and lost :(
+        return NULL;
         }
       }
     return output;

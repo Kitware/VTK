@@ -17,21 +17,21 @@
 // vtkTemporalDataSet is a vtkCompositeDataSet that stores
 // multiple time steps of data. 
 // .SECTION See Also
-// vtkMultiGroupDataSet
+// vtkCompositeDataSet
 
 #ifndef __vtkTemporalDataSet_h
 #define __vtkTemporalDataSet_h
 
-#include "vtkMultiGroupDataSet.h"
+#include "vtkCompositeDataSet.h"
 
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkTemporalDataSet : public vtkMultiGroupDataSet
+class VTK_FILTERING_EXPORT vtkTemporalDataSet : public vtkCompositeDataSet
 {
 public:
   static vtkTemporalDataSet *New();
 
-  vtkTypeRevisionMacro(vtkTemporalDataSet,vtkMultiGroupDataSet);
+  vtkTypeRevisionMacro(vtkTemporalDataSet,vtkCompositeDataSet);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,15 +43,34 @@ public:
   // Set the number of time steps in theis dataset
   void SetNumberOfTimeSteps(unsigned int numLevels)
     {
-      this->SetNumberOfGroups(numLevels);
+      this->SetNumberOfChildren(numLevels);
     }
 
   // Description:
   // Returns the number of time steps.
   unsigned int GetNumberOfTimeSteps()
     {
-      return this->GetNumberOfGroups();
+      return this->GetNumberOfChildren();
     }
+
+  // Description:
+  // Set a data object as a timestep. Cannot be vtkTemporalDataSet.
+  void SetTimeStep(unsigned int timestep, vtkDataObject* dobj);
+
+  // Description:
+  // Get a timestep.
+  vtkDataObject* GetTimeStep(unsigned int timestep)
+    { return this->GetChild(timestep); }
+
+  // Description:
+  // Get timestep meta-data.
+  vtkInformation* GetMetaData(unsigned int timestep)
+    { return this->Superclass::GetChildMetaData(timestep); }
+
+  // Description:
+  // Returns if timestep meta-data is present.
+  int HasMetaData(unsigned int timestep)
+    { return this->Superclass::HasChildMetaData(timestep); }
 
   //BTX
   // Description:
@@ -63,6 +82,17 @@ public:
   // Description:
   // The extent type is a 3D extent
   virtual int GetExtentType() { return VTK_TIME_EXTENT; };
+
+  // Description:
+  // Unhiding superclass method.
+  virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
+    { return this->Superclass::GetMetaData(iter); }
+
+
+  // Description:
+  // Unhiding superclass method.
+  virtual int HasMetaData(vtkCompositeDataIterator* iter)
+    { return this->Superclass::HasMetaData(iter); }
 
 protected:
   vtkTemporalDataSet();

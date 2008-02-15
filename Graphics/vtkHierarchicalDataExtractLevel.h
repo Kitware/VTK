@@ -14,52 +14,20 @@
 =========================================================================*/
 // .NAME vtkHierarchicalDataExtractLevel - extact levels between min and max
 // .SECTION Description
-// Legacy class. Use vtkMultiGroupDataExtractGroup instead.
-// .SECTION See Also
-// vtkMultiGroupDataExtractGroup
+// Legacy class. Use vtkExtractLevel instead.
 
 #ifndef __vtkHierarchicalDataExtractLevel_h
 #define __vtkHierarchicalDataExtractLevel_h
 
-#include "vtkMultiGroupDataExtractGroup.h"
+#include "vtkExtractLevel.h"
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractLevel : public vtkMultiGroupDataExtractGroup 
+class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractLevel : public vtkExtractLevel 
 {
 public:
-  vtkTypeRevisionMacro(vtkHierarchicalDataExtractLevel,vtkMultiGroupDataExtractGroup);
+  vtkTypeRevisionMacro(vtkHierarchicalDataExtractLevel,vtkExtractLevel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkHierarchicalDataExtractLevel *New();
-
-  // Description:
-  // Minimum level to be extacted
-  void SetMinLevel(unsigned int level)
-    {
-      this->Superclass::SetMinGroup(level);
-    }
-  unsigned int GetMinLevel()
-    {
-      return this->Superclass::GetMinGroup();
-    }
-
-  // Description:
-  // Maximum level to be extacted
-  void SetMaxLevel(unsigned int level)
-    {
-      this->Superclass::SetMaxGroup(level);
-    }
-  unsigned int GetMaxLevel()
-    {
-      return this->Superclass::GetMaxGroup();
-    }
-
-  // Description:
-  // Sets the min and max levels
-  void SetLevelRange(unsigned int min, unsigned int max)
-    {
-      this->SetMinLevel(min);
-      this->SetMaxLevel(max);
-    }
 
 protected:
   vtkHierarchicalDataExtractLevel();

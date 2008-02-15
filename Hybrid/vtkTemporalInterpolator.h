@@ -78,7 +78,7 @@ protected:
 
   // Description:
   // General interpolation routine for any tiype on input data. This is
-  // called recursively when heirarchical/multigroup data is encountered
+  // called recursively when heirarchical/multiblock data is encountered
   vtkDataObject *InterpolateDataObject(vtkDataObject *in1, 
                                        vtkDataObject *in2,
                                        double ratio);

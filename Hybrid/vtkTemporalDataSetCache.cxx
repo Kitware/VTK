@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.5");
+vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.6");
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
 //----------------------------------------------------------------------------
@@ -245,7 +245,7 @@ int vtkTemporalDataSetCache::RequestData(
     CacheType::iterator pos = this->Cache.find(upTimes[i]);
     if (pos != this->Cache.end())
       {
-      outData->SetDataSet(i,0,pos->second.second);
+      outData->SetTimeStep(i, pos->second.second);
       // update the m time in the cache
       pos->second.first = outData->GetUpdateTime();
       }
@@ -260,11 +260,11 @@ int vtkTemporalDataSetCache::RequestData(
           {
           if (temporal) 
             {
-            outData->SetDataSet(i,0,temporal->GetDataSet(j,0));
+            outData->SetTimeStep(i, temporal->GetTimeStep(j));
             }
           else
             {
-            outData->SetDataSet(i,0,input);
+            outData->SetTimeStep(i, input);
             }
           found = 1;
           break;
@@ -304,14 +304,14 @@ int vtkTemporalDataSetCache::RequestData(
           {
           this->Cache[inTimes[j]] = 
             vtkstd::pair<unsigned long, vtkDataObject *>
-            (outData->GetUpdateTime(), temporal->GetDataSet(j,0));
-          vtkDataObject *dobj = temporal->GetDataSet(j,0);
+            (outData->GetUpdateTime(), temporal->GetTimeStep(j));
+          vtkDataObject *dobj = temporal->GetTimeStep(j);
           if (!dobj)
             {
             vtkErrorMacro(<<"The dataset is invalid");
             return 0;
             }
-          temporal->GetDataSet(j,0)->Register(this);
+          temporal->GetTimeStep(j)->Register(this);
           }
         else
           {

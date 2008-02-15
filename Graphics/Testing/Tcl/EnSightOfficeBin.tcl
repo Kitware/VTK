@@ -22,7 +22,7 @@ vtkOnePieceExtentTranslator translator
 
 vtkStructuredGridOutlineFilter outline
 #    outline SetInputConnection [reader GetOutputPort]
-outline SetInput [[reader GetOutput] GetDataSet 0 0]
+outline SetInput [[[reader GetOutput] GetBlock 0] GetBlock 0]
 vtkPolyDataMapper mapOutline
     mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -32,7 +32,7 @@ vtkActor outlineActor
 # Create source for streamtubes
 vtkStreamPoints streamer
 #    streamer SetInputConnection [reader GetOutputPort]
-streamer SetInput [[reader GetOutput] GetDataSet 0 0]
+streamer SetInput [[[reader GetOutput] GetBlock 0] GetBlock 0]
     streamer SetStartPosition 0.1 2.1 0.5
     streamer SetMaximumPropagationTime 500
     streamer SetTimeIncrement 0.5
@@ -48,7 +48,7 @@ vtkGlyph3D cones
 vtkPolyDataMapper mapCones
     mapCones SetInputConnection [cones GetOutputPort]
 #    eval mapCones SetScalarRange [[reader GetOutput] GetScalarRange]
-eval mapCones SetScalarRange [[[reader GetOutput] GetDataSet 0 0] GetScalarRange]
+eval mapCones SetScalarRange [[[[reader GetOutput] GetBlock 0] GetBlock 0] GetScalarRange]
 vtkActor conesActor
     conesActor SetMapper mapCones
 

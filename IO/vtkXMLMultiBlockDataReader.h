@@ -26,20 +26,31 @@
 #ifndef __vtkXMLMultiBlockDataReader_h
 #define __vtkXMLMultiBlockDataReader_h
 
-#include "vtkXMLMultiGroupDataReader.h"
+#include "vtkXMLCompositeDataReader.h"
 
 class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLMultiGroupDataReader
+class VTK_IO_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLMultiBlockDataReader* New();
-  vtkTypeRevisionMacro(vtkXMLMultiBlockDataReader,vtkXMLMultiGroupDataReader);
+  vtkTypeRevisionMacro(vtkXMLMultiBlockDataReader,vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkXMLMultiBlockDataReader();
   ~vtkXMLMultiBlockDataReader();  
+
+  // Read the XML element for the subtree of a the composite dataset.
+  // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
+  virtual void ReadComposite(vtkXMLDataElement* element, 
+    vtkCompositeDataSet* composite, const char* filePath, 
+    unsigned int &dataSetIndex);
+
+  // Reads file version < 1.0.
+  virtual void ReadVersion0(vtkXMLDataElement* element, 
+    vtkCompositeDataSet* composite, const char* filePath, 
+    unsigned int &dataSetIndex);
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();

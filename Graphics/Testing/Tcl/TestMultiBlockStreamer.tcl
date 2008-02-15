@@ -80,7 +80,7 @@ for {set i 0} {$i<3} {incr i 1} {
     ExtractGrid$i Update
     vtkStructuredGrid sg$i
     sg$i ShallowCopy [ExtractGrid$i GetOutput]
-    mbds SetDataSet $i 0 sg$i
+    mbds SetBlock $i sg$i
     sg$i Delete
 }
 

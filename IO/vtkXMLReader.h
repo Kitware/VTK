@@ -142,6 +142,12 @@ protected:
   virtual void DestroyXMLParser();
   void SetupCompressor(const char* type);
   int CanReadFileVersionString(const char* version);
+
+  // Returns the major version for the file being read. -1 when invalid.
+  vtkGetMacro(FileMajorVersion, int);
+
+  // Returns the minor version for the file being read. -1 when invalid.
+  vtkGetMacro(FileMinorVersion, int);
   
   // Utility methods for subclasses.
   int IntersectExtents(int* extent1, int* extent2, int* result);
@@ -264,7 +270,9 @@ private:
   // The stream used to read the input if it is in a file.
   ifstream* FileStream;  
   int TimeStepWasReadOnce;
-  
+
+  int FileMajorVersion;
+  int FileMinorVersion;
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
   void operator=(const vtkXMLReader&);  // Not implemented.

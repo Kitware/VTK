@@ -63,7 +63,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.23");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.24");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -429,15 +429,15 @@ int vtkTemporalStreamTracer::SetupInputs(vtkInformation* inInfo,
       inInfo->Get(vtkDataObject::DATA_OBJECT())->GetClassName());
     return 0;
     }
-  if (td->GetNumberOfGroups()<2)
+  if (td->GetNumberOfTimeSteps()<2)
     {
     vtkDebugMacro(<<"Input didn't have 2 timesteps/groups");
     return 1;
     }
 
   vtkDataObject *input[2];
-  input[0] = td->GetDataSet(0,0);
-  input[1] = td->GetDataSet(1,0);
+  input[0] = td->GetTimeStep(0);
+  input[1] = td->GetTimeStep(1);
   for (int i=0; i<2; i++) 
     {
     vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(input[i]);
@@ -454,8 +454,7 @@ int vtkTemporalStreamTracer::SetupInputs(vtkInformation* inInfo,
       vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
       this->InputDataT[i] = mb;
       mb->SetNumberOfBlocks(1);
-      mb->SetNumberOfDataSets(0, 1);
-      mb->SetDataSet(0, 0, copy);
+      mb->SetBlock(0, copy);
       copy->Delete();
       }
     else

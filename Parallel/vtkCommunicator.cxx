@@ -16,6 +16,8 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCharArray.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
 #include "vtkDoubleArray.h"
@@ -26,24 +28,24 @@
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
+#include "vtkTemporalDataSet.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkDataObjectTypes.h"
-#include "vtkMultiGroupDataSet.h"
 
-#include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.47");
+vtkCxxRevisionMacro(vtkCommunicator, "1.48");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -180,6 +182,9 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_MULTIGROUP_DATA_SET: // obsolete
+    case VTK_HIERARCHICAL_DATA_SET: //obsolete
     default:
       vtkWarningMacro(<< "Cannot send " << data->GetClassName());
       return 0;
@@ -199,52 +204,61 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
       
     //for composite types send type, structure, and then iterate 
     //over the internal dataobjects, sending each one (recursively)
-    case VTK_MULTIGROUP_DATA_SET:
-    case VTK_HIERARCHICAL_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIBLOCK_DATA_SET:
-    case VTK_TEMPORAL_DATA_SET:
-    {
-      int rc = 1;
-      vtkMultiGroupDataSet *hdObj = 
-        vtkMultiGroupDataSet::SafeDownCast(data);
+      return this->SendMultiBlockDataSet(
+        vtkMultiBlockDataSet::SafeDownCast(data), remoteHandle, tag);
 
-      int numgroups = hdObj->GetNumberOfGroups();
-      int *gptrs = new int[numgroups];
-      for (int i = 0; i < numgroups; i++)
-        {
-        gptrs[i] = hdObj->GetNumberOfDataSets(i);
-        }
-      this->Send(&numgroups, 1, remoteHandle, tag);
-      this->Send(gptrs, numgroups, remoteHandle, tag);
-      
-      for (int i = 0; i < numgroups; i++)
-        {
-        int *dtptrs = new int[gptrs[i]];
-        for (int j = 0; j < gptrs[i]; j++)
-          {
-          dtptrs[j] = -1;
-          if (hdObj->GetDataSet(i,j))
-            {
-            dtptrs[j] = hdObj->GetDataSet(i,j)->GetDataObjectType();
-            }              
-          }
-        
-        this->Send(dtptrs, gptrs[i], remoteHandle, tag);
-        delete[] dtptrs;
-        
-        for (int j = 0; j < gptrs[i]; j++)
-          {
-          if (hdObj->GetDataSet(i,j))
-            {
-            rc &= this->Send(hdObj->GetDataSet(i, j), remoteHandle, tag);
-            }
-          }
-        }      
-      delete[] gptrs;
-      return rc;
+    case VTK_TEMPORAL_DATA_SET:
+      return this->SendTemporalDataSet(
+        vtkTemporalDataSet::SafeDownCast(data), remoteHandle, tag);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::SendMultiBlockDataSet(vtkMultiBlockDataSet* mbds,
+  int remoteHandle, int tag)
+{
+  int returnCode = 1;
+  int numblocks = static_cast<int>(mbds->GetNumberOfBlocks());
+
+  // Tell the receiver the number of blocks to expect.
+  returnCode = this->Send(&numblocks, 1, remoteHandle, tag);
+  for (int cc=0; (cc < numblocks) && returnCode; cc++)
+    {
+    vtkDataObject* block = mbds->GetBlock(cc);
+    int dataType = (block? block->GetDataObjectType() : 0);
+    returnCode = returnCode && this->Send(&dataType, 1, remoteHandle, tag);
+    if (block)
+      {
+      // Now, send the actual block data.
+      remoteHandle = returnCode && this->Send(block, remoteHandle, tag);
+      }
     }
+  return returnCode;
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::SendTemporalDataSet(vtkTemporalDataSet* mbds,
+  int remoteHandle, int tag)
+{
+  int returnCode = 1;
+  int numblocks = static_cast<int>(mbds->GetNumberOfTimeSteps());
+
+  // Tell the receiver the number of timesteps to expect.
+  returnCode = (returnCode && this->Send(&numblocks, 1, remoteHandle, tag));
+  for (int cc=0; cc < numblocks && returnCode; cc++)
+    {
+    vtkDataObject* block = mbds->GetTimeStep(cc);
+    int dataType = (block? block->GetDataObjectType() : 0);
+    returnCode = returnCode && this->Send(&dataType, 1, remoteHandle, tag);
+    if (block)
+      {
+      // Now, send the actual block data.
+      remoteHandle = returnCode && this->Send(block, remoteHandle, tag);
+      }
+    }
+
+  return returnCode;
 }
 
 //----------------------------------------------------------------------------
@@ -412,6 +426,9 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_MULTIGROUP_DATA_SET: //obsolete.
+    case VTK_HIERARCHICAL_DATA_SET: // obsolete.
     default:
       vtkWarningMacro(
         << "Cannot receive " 
@@ -433,46 +450,69 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
 
     //for composite types receive type, structure, and then iterate 
     //over the internal dataobjects, receiving each recursively as needed
-    case VTK_MULTIGROUP_DATA_SET:
-    case VTK_HIERARCHICAL_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIBLOCK_DATA_SET:
+      return this->ReceiveMultiBlockDataSet(
+        vtkMultiBlockDataSet::SafeDownCast(data), remoteHandle, tag);
+
     case VTK_TEMPORAL_DATA_SET:
+      return this->ReceiveTemporalDataSet(
+        vtkTemporalDataSet::SafeDownCast(data), remoteHandle, tag);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::ReceiveMultiBlockDataSet(
+  vtkMultiBlockDataSet* mbds, int remoteHandle, int tag)
+{
+  int returnCode = 1;
+
+  int numblocks = 0;
+  returnCode = this->Receive(&numblocks, 1, remoteHandle, tag);
+  for (int cc=0; (cc < numblocks) && returnCode; cc++)
     {
-      int numgroups = 0;
-      this->Receive(&numgroups, 1, remoteHandle, tag);
-      
-      int *gptrs = new int[numgroups];
-      this->Receive(gptrs, numgroups, remoteHandle, tag);
-      
-      vtkMultiGroupDataSet *hdObj = 
-        vtkMultiGroupDataSet::SafeDownCast(data);
-      hdObj->SetNumberOfGroups(numgroups);
-      for (int i = 0; i < numgroups; i++)
+    int dataType = 0;
+    returnCode = returnCode && this->Receive(&dataType, 1, remoteHandle, tag);
+    if (dataType)
+      {
+      vtkDataObject* dObj = vtkDataObjectTypes::NewDataObject(dataType);
+      returnCode = returnCode && this->Receive(dObj, remoteHandle, tag);
+      if (dObj->IsA("vtkDataSet"))
         {
-        hdObj->SetNumberOfDataSets(i, gptrs[i]);
-        int *dtptrs = new int[gptrs[i]];
-        this->Receive(dtptrs, gptrs[i], remoteHandle, tag);
- 
-        for (int j = 0; j < gptrs[i]; j++)
-          {
-          if (dtptrs[j] != -1)
-            {
-            vtkDataObject *dObj = 
-              vtkDataObjectTypes::NewDataObject(dtptrs[j]);
-            this->Receive(dObj, remoteHandle, tag);
-            hdObj->SetDataSet(i, j, dObj);
-            dObj->Delete();
-            }
-          }
-        
-        delete[] dtptrs;
+        mbds->SetBlock(cc, vtkDataSet::SafeDownCast(dObj));
         }
-      
-      delete[] gptrs;
-      return 1;
+      else if (dObj->IsA("vtkMultiBlockDataSet"))
+        {
+        mbds->SetBlock(cc, vtkMultiBlockDataSet::SafeDownCast(dObj));
+        }
+      dObj->Delete();
+      }
     }
+
+  return returnCode;
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::ReceiveTemporalDataSet(
+  vtkTemporalDataSet* mbds, int remoteHandle, int tag)
+{
+  int returnCode = 1;
+
+  int numblocks = 0;
+  returnCode = this->Receive(&numblocks, 1, remoteHandle, tag);
+  for (int cc=0; (cc < numblocks) && returnCode; cc++)
+    {
+    int dataType = 0;
+    returnCode = returnCode && this->Receive(&dataType, 1, remoteHandle, tag);
+    if (dataType)
+      {
+      vtkDataObject* dObj = vtkDataObjectTypes::NewDataObject(dataType);
+      returnCode = returnCode && this->Receive(dObj, remoteHandle, tag);
+      mbds->SetTimeStep(cc, dObj);
+      dObj->Delete();
+      }
     }
+
+  return returnCode;
 }
 
 //----------------------------------------------------------------------------

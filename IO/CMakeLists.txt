@@ -125,6 +125,7 @@ vtkUnstructuredGridWriter.cxx
 vtkVolume16Reader.cxx
 vtkVolumeReader.cxx
 vtkWriter.cxx
+vtkXMLCompositeDataReader.cxx
 vtkXMLDataElement.cxx
 vtkXMLDataParser.cxx
 vtkXMLDataReader.cxx
@@ -141,7 +142,9 @@ vtkXMLMaterialParser.cxx
 vtkXMLMaterialReader.cxx
 vtkXMLMultiBlockDataReader.cxx
 vtkXMLMultiGroupDataReader.cxx
-vtkXMLMultiGroupDataWriter.cxx
+vtkXMLCompositeDataWriter.cxx
+vtkXMLMultiBlockDataWriter.cxx
+vtkXMLHierarchicalBoxDataWriter.cxx
 vtkXMLPDataReader.cxx
 vtkXMLPDataSetWriter.cxx
 vtkXMLPDataWriter.cxx
@@ -192,6 +195,8 @@ vtkSQLDatabase
 vtkSQLQuery
 vtkVolumeReader
 vtkWriter
+vtkXMLCompositeDataReader.cxx
+vtkXMLCompositeDataWriter
 vtkXMLDataReader
 vtkXMLPDataReader
 vtkXMLPDataWriter

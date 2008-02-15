@@ -18,7 +18,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkInformation.h"
-#include "vtkMultiGroupPolyDataMapper.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -84,7 +84,7 @@ public:
   vtkstd::vector<double> TimeStepValues;
 };
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.3");
+vtkCxxRevisionMacro(vtkTemporalSphereSource, "1.4");
 vtkStandardNewMacro(vtkTemporalSphereSource);
 //----------------------------------------------------------------------------
 vtkTemporalSphereSource::vtkTemporalSphereSource()
@@ -232,8 +232,8 @@ int TestTemporalCacheSimple(int , char *[])
   interp->SetInputConnection(cache->GetOutputPort());
   
   // map them
-  vtkSmartPointer<vtkMultiGroupPolyDataMapper> mapper = 
-    vtkSmartPointer<vtkMultiGroupPolyDataMapper>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper = 
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputConnection(interp->GetOutputPort());
   
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
