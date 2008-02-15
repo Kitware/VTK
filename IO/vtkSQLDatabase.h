@@ -129,8 +129,10 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 
   // Description:
   // For each column type indexed in vtkSQLDatabaseSchema, return the 
-  // corresponding SQL backend-specific string.
-  virtual vtkStdString GetColumnTypeString( int colType ) = 0;
+  // corresponding SQL string.
+  // NB: a minimal set of common SQL types is provided; the backend-specific
+  // GetColumnTypeString functions allow for more types.
+  virtual vtkStdString GetColumnTypeString( int colType );
  
   // Description:
   // Create a the proper subclass given a URL.

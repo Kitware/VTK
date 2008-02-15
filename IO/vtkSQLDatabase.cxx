@@ -19,6 +19,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkToolkits.h"
 #include "vtkSQLDatabase.h"
+#include "vtkSQLQuery.h"
+
+#include "vtkSQLDatabaseSchema.h"
+
 #include "vtkSQLiteDatabase.h"
 
 #ifdef VTK_USE_POSTGRES
@@ -29,15 +33,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMySQLDatabase.h"
 #endif // VTK_USE_MYSQL
 
-#include "vtkSQLDatabaseSchema.h"
-#include "vtkSQLQuery.h"
-
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.17");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.18");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -53,6 +54,28 @@ vtkSQLDatabase::~vtkSQLDatabase()
 void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkSQLDatabase::GetColumnTypeString( int colType )
+{
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL: return 0;
+    case vtkSQLDatabaseSchema::SMALLINT: return "INTEGER";
+    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT: return "INTEGER";
+    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT: return 0;
+    case vtkSQLDatabaseSchema::REAL: return "DOUBLE";
+    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE";
+    case vtkSQLDatabaseSchema::BLOB: return 0;
+    case vtkSQLDatabaseSchema::TIME: return "TIME";
+    case vtkSQLDatabaseSchema::DATE: return "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP";
+    }
+
+    return 0;
 }
 
 // ----------------------------------------------------------------------
