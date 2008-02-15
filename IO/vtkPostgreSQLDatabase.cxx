@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.7");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.8");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -211,6 +211,28 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     url += this->DatabaseName;
     }
   return url;
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkPostgreSQLDatabase::GetColumnTypeString( int colType )
+{
+  switch ( colType )
+    {
+    case  0: return "SERIAL";
+    case  1: return "SMALLINT";
+    case  2: return "INTEGER";
+    case  3: return "BIGINT";
+    case  4: return "VARCHAR";
+    case  5: return "TEXT";
+    case  6: return "REAL";
+    case  7: return "DOUBLE PRECISION";
+    case  8: return "BYTEA";
+    case  9: return "TIME";
+    case 10: return "DATE";
+    case 11: return "TIMESTAMP WITH TIME ZONE";
+    }
+
+  return 0;
 }
 
 // ----------------------------------------------------------------------

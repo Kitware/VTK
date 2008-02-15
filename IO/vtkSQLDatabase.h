@@ -51,7 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObject.h"
 
-#include "vtkStdString.h" // Because a method returns a vtkStdString
+#include "vtkStdString.h" // Because at least one method returns a vtkStdString
 
 class vtkSQLDatabaseSchema;
 class vtkSQLQuery;
@@ -88,7 +88,7 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual void Close() = 0;
   
   // Description:
-  // Return whether the database has an open connection
+  // Return whether the database has an open connection.
   virtual bool IsOpen() = 0;
 
   // Description:
@@ -108,15 +108,15 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual const char* GetLastErrorText() = 0;
   
   // Description:
-  // Get the type of the database (e.g. mysql, psql,..)
+  // Get the type of the database (e.g. mysql, psql,..).
   virtual char* GetDatabaseType() = 0;
   
   // Description:
-  // Get the list of tables from the database
+  // Get the list of tables from the database.
   virtual vtkStringArray* GetTables() = 0;
     
   // Description:
-  // Get the list of fields for a particular table
+  // Get the list of fields for a particular table.
   virtual vtkStringArray* GetRecord(const char *table) = 0;
 
   // Description:
@@ -128,15 +128,20 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual vtkStdString GetURL() = 0;
 
   // Description:
-  // Create a the proper subclass given a URL
+  // For each column type indexed in vtkSQLDatabaseSchema, return the 
+  // corresponding SQL backend-specific string.
+  virtual vtkStdString GetColumnTypeString( int colType ) = 0;
+ 
+  // Description:
+  // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
 
   // Description:
-  // Effect a database schema
+  // Effect a database schema.
   virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
-  
+
  protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();

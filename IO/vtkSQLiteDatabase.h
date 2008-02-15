@@ -111,6 +111,11 @@ public:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
 
+  // Description:
+  // For each column type indexed in vtkSQLDatabaseSchema, return the 
+  // corresponding SQLite-specific string.
+  virtual vtkStdString GetColumnTypeString( int colType );
+
 protected:
   vtkSQLiteDatabase();
   ~vtkSQLiteDatabase();

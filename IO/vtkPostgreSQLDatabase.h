@@ -132,6 +132,11 @@ public:
   virtual vtkStdString GetURL();
 
   // Description:
+  // For each column type indexed in vtkSQLDatabaseSchema, return the 
+  // corresponding PostgreSQL-specific string.
+  virtual vtkStdString GetColumnTypeString( int colType );
+
+  // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
     

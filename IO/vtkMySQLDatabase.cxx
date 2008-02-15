@@ -27,7 +27,7 @@
 #include <assert.h>
 #include <mysql.h>
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.6");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.7");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -320,6 +320,28 @@ vtkStdString vtkMySQLDatabase::GetURL()
   url += "/";
   url += this->GetDatabaseName();
   return url;
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkMySQLDatabase::GetColumnTypeString( int colType )
+{
+  switch ( colType )
+    {
+    case  0: return 0;
+    case  1: return "SMALLINT";
+    case  2: return "INTEGER";
+    case  3: return "BIGINT";
+    case  4: return "VARCHAR";
+    case  5: return "TEXT";
+    case  6: return "DOUBLE";
+    case  7: return "DOUBLE PRECISION";
+    case  8: return "BLOB";
+    case  9: return "TIME";
+    case 10: return "DATE";
+    case 11: return "TIMESTAMP";
+    }
+
+    return 0;
 }
 
 // ----------------------------------------------------------------------

@@ -127,11 +127,14 @@ public:
   vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
   vtkGetMacro(ServerPort, int);
   
-  
-  
   // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
+
+  // Description:
+  // For each column type indexed in vtkSQLDatabaseSchema, return the 
+  // corresponding MySQL-specific string.
+  virtual vtkStdString GetColumnTypeString( int colType );
 
 private:
   vtkMySQLDatabase();

@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.16");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.17");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -171,8 +171,19 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       queryStr += " ";
 
       int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
-      // FIXME: get the backend-specific column type string
-      queryStr += colType;
+
+      vtkStdString colStr = this->GetColumnTypeString( colType );
+      if ( colStr )
+        {
+        queryStr += " ";
+        queryStr += colStr;
+        }
+      else // if ( colStr )
+        {
+        vtkGenericWarningMacro( "Unable to effect the schema: unsupported data type " << colType );
+        query->RollbackTransaction();
+        return false;
+        }
 
       vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
       if ( attStr )
