@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.28");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.29");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
@@ -65,7 +65,6 @@ int vtkCellDerivatives::RequestData(
   vtkDataArray *inVectors=this->GetInputArrayToProcess(1, inputVector);
   vtkDoubleArray *outGradients=NULL;
   vtkDoubleArray *outVorticity=NULL;
-  vtkDoubleArray *outVectorGradients=NULL;
   vtkDoubleArray *outTensors=NULL;
   vtkIdType numCells=input->GetNumberOfCells();
   int computeScalarDerivs=1, computeVectorDerivs=1, computeVorticity=1, subId;
@@ -86,7 +85,6 @@ int vtkCellDerivatives::RequestData(
   // Figure out what to compute
   if ( inScalars && this->VectorMode == VTK_VECTOR_MODE_COMPUTE_GRADIENT )
     {
-    cout << "InScalars: " << inScalars->GetName() << endl;
     outGradients = vtkDoubleArray::New();
     outGradients->SetNumberOfComponents(3);
     outGradients->SetNumberOfTuples(numCells);
@@ -99,7 +97,6 @@ int vtkCellDerivatives::RequestData(
 
   if ( inVectors && this->VectorMode == VTK_VECTOR_MODE_COMPUTE_VORTICITY )
     {
-    cout << "InVectors: " << inVectors->GetName() << endl;
     outVorticity = vtkDoubleArray::New();
     outVorticity->SetNumberOfComponents(3);
     outVorticity->SetNumberOfTuples(numCells);
