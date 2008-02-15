@@ -30,7 +30,7 @@ class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractBlock);
-vtkCxxRevisionMacro(vtkExtractBlock, "1.1");
+vtkCxxRevisionMacro(vtkExtractBlock, "1.2");
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
 //----------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
@@ -87,9 +87,9 @@ void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc,
     vtkCompositeDataIterator* iter = cinput->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-      vtkDataObject* inputNode = iter->GetCurrentDataObject();
-      vtkDataObject* clone = inputNode->NewInstance();
-      clone->ShallowCopy(inputNode);
+      vtkDataObject* curNode = iter->GetCurrentDataObject();
+      vtkDataObject* clone = curNode->NewInstance();
+      clone->ShallowCopy(curNode);
       coutput->SetDataSet(iter, clone);
       clone->Delete();
       }
