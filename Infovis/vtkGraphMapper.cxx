@@ -40,7 +40,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.6");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.7");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void vtkGraphMapper::ColorEdgesOff()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphMapper::SetVertexPointSize(int size)
+void vtkGraphMapper::SetVertexPointSize(float size)
 {
   this->VertexPointSize = size;
   this->VertexActor->GetProperty()->SetPointSize(this->GetVertexPointSize());
@@ -209,7 +209,7 @@ void vtkGraphMapper::SetVertexPointSize(int size)
 }
   
 //----------------------------------------------------------------------------
-void vtkGraphMapper::SetEdgeLineWidth(int width)
+void vtkGraphMapper::SetEdgeLineWidth(float width)
 {
   this->EdgeLineWidth = width;
   this->EdgeActor->GetProperty()->SetLineWidth(this->GetEdgeLineWidth());

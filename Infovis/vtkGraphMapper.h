@@ -75,13 +75,13 @@ public:
   
   // Description:
   // Get/Set the vertex point size
-  vtkGetMacro(VertexPointSize,int);
-  void SetVertexPointSize(int size);
+  vtkGetMacro(VertexPointSize,float);
+  void SetVertexPointSize(float size);
   
   // Description:
   // Get/Set the edge line width
-  vtkGetMacro(EdgeLineWidth,int);
-  void SetEdgeLineWidth(int width);
+  vtkGetMacro(EdgeLineWidth,float);
+  void SetEdgeLineWidth(float width);
   
   // Description:
   // Apply the theme to this view.
@@ -151,8 +151,8 @@ private:
   vtkGraphMapper(const vtkGraphMapper&);  // Not implemented.
   void operator=(const vtkGraphMapper&);  // Not implemented.
   
-  int VertexPointSize;
-  int EdgeLineWidth;
+  float VertexPointSize;
+  float EdgeLineWidth;
 };
 
 #endif
