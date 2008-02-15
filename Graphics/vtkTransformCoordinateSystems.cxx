@@ -21,7 +21,7 @@
 #include "vtkViewport.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.1");
+vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.2");
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
 
 vtkCxxSetObjectMacro(vtkTransformCoordinateSystems,Viewport,vtkViewport);
@@ -166,4 +166,42 @@ unsigned long vtkTransformCoordinateSystems::GetMTime()
 void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Input Coordinate System: ";
+  if ( this->InputCoordinateSystem == VTK_DISPLAY )
+    {
+    os << " DISPLAY\n";
+    }
+  else if ( this->InputCoordinateSystem == VTK_WORLD )
+    {
+    os << " WORLD\n";
+    }
+  else //if ( this->InputCoordinateSystem == VTK_VIEWPORT )
+    {
+    os << " VIEWPORT\n";
+    }
+  
+  os << indent << "Output Coordinate System: ";
+  if ( this->OutputCoordinateSystem == VTK_DISPLAY )
+    {
+    os << " DISPLAY\n";
+    }
+  else if ( this->OutputCoordinateSystem == VTK_WORLD )
+    {
+    os << " WORLD\n";
+    }
+  else //if ( this->OutputCoordinateSystem == VTK_VIEWPORT )
+    {
+    os << " VIEWPORT\n";
+    }
+  
+  os << indent << "Viewport: ";
+  if (this->Viewport)
+    {
+    os << this->Viewport << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }

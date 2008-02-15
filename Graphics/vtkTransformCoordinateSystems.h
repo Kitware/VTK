@@ -16,7 +16,8 @@
 // .SECTION Description
 // This filter transforms points from one coordinate system to another. The user
 // must specify the coordinate systems in which the input and output are
-// specified.
+// specified. The user must also specify the VTK viewport (i.e., renderer) in
+// which the transformation occurs.
 //
 // .SECTION See Also
 // vtkCoordinate vtkTransformFilter vtkTransformPolyData vtkPolyDataMapper2D
@@ -54,7 +55,7 @@ public:
     {this->SetInputCoordinateSystem(VTK_WORLD);}
     
   // Description:
-  // Set/get the coordinate system in which to transform the output.
+  // Set/get the coordinate system to which to transform the output.
   // The current options are World, Viewport, and Display. By default the
   // output coordinate system is Display.
   vtkSetMacro(OutputCoordinateSystem, int);
