@@ -20,6 +20,7 @@
 #include "vtkFastSplatter.h"
 
 #include "vtkExtentTranslator.h"
+#include "vtkGraph.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -40,7 +41,7 @@
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
 #endif
 
-vtkCxxRevisionMacro(vtkFastSplatter, "1.4");
+vtkCxxRevisionMacro(vtkFastSplatter, "1.5");
 vtkStandardNewMacro(vtkFastSplatter);
 
 //-----------------------------------------------------------------------------
@@ -100,7 +101,9 @@ int vtkFastSplatter::FillInputPortInformation(int port,
   switch(port)
     {
     case 0:
-      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+      info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+      info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+      info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
       break;
     case 1:
       info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
@@ -400,8 +403,17 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Get the input and output objects.
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPointSet *input
-    = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPoints* points = 0;
+  if(vtkPointSet* const input =
+    vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+    {
+    points = input->GetPoints();
+    }
+  else if(vtkGraph* const graph =
+    vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+    {
+    points = graph->GetPoints();
+    }
 
   vtkInformation *splatInfo = inputVector[1]->GetInformationObject(0);
   vtkImageData *splatImage
@@ -424,7 +436,7 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
     }
   else
     {
-    bounds = input->GetBounds();
+    bounds = points->GetBounds();
     }
     
   // Compute origin and spacing from bounds
@@ -474,7 +486,6 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
     static_cast<unsigned int *>(this->Buckets->GetScalarPointer());
 
   // Count how many points in the input lie in each pixel of the output image.
-  vtkPoints *points = input->GetPoints();
   void *p = points->GetVoidPointer(0);
   switch (points->GetDataType())
     {
