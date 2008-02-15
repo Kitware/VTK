@@ -19,6 +19,8 @@
 #include "vtkMySQLDatabase.h"
 #include "vtkMySQLQuery.h"
 
+#include "vtkSQLDatabaseSchema.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
@@ -27,7 +29,7 @@
 #include <assert.h>
 #include <mysql.h>
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.7");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.8");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -325,20 +327,20 @@ vtkStdString vtkMySQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetColumnTypeString( int colType )
 {
-  switch ( colType )
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case  0: return 0;
-    case  1: return "SMALLINT";
-    case  2: return "INTEGER";
-    case  3: return "BIGINT";
-    case  4: return "VARCHAR";
-    case  5: return "TEXT";
-    case  6: return "DOUBLE";
-    case  7: return "DOUBLE PRECISION";
-    case  8: return "BLOB";
-    case  9: return "TIME";
-    case 10: return "DATE";
-    case 11: return "TIMESTAMP";
+    case vtkSQLDatabaseSchema::SERIAL: return 0;
+    case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
+    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
+    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT: return "TEXT";
+    case vtkSQLDatabaseSchema::REAL: return "DOUBLE";
+    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE PRECISION";
+    case vtkSQLDatabaseSchema::BLOB: return "BLOB";
+    case vtkSQLDatabaseSchema::TIME: return "TIME";
+    case vtkSQLDatabaseSchema::DATE: return "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP";
     }
 
     return 0;

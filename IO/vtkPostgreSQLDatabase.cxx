@@ -20,6 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPostgreSQLDatabasePrivate.h"
 #include "vtkPostgreSQLQuery.h"
 
+#include "vtkSQLDatabaseSchema.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
@@ -29,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.8");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.9");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -216,20 +218,20 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
 // ----------------------------------------------------------------------
 vtkStdString vtkPostgreSQLDatabase::GetColumnTypeString( int colType )
 {
-  switch ( colType )
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case  0: return "SERIAL";
-    case  1: return "SMALLINT";
-    case  2: return "INTEGER";
-    case  3: return "BIGINT";
-    case  4: return "VARCHAR";
-    case  5: return "TEXT";
-    case  6: return "REAL";
-    case  7: return "DOUBLE PRECISION";
-    case  8: return "BYTEA";
-    case  9: return "TIME";
-    case 10: return "DATE";
-    case 11: return "TIMESTAMP WITH TIME ZONE";
+    case vtkSQLDatabaseSchema::SERIAL: return "SERIAL";
+    case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
+    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
+    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT: return "TEXT";
+    case vtkSQLDatabaseSchema::REAL: return "REAL";
+    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE";
+    case vtkSQLDatabaseSchema::BLOB: return "BYTEA";
+    case vtkSQLDatabaseSchema::TIME: return "TIME";
+    case vtkSQLDatabaseSchema::DATE: return "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP WITH TIME ZONE";
     }
 
   return 0;
