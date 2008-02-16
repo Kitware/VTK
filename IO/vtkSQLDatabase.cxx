@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.18");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.19");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -268,12 +268,13 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       queryStr += ")";
       }
     queryStr += ")";
-    
+
     // Execute the query
     query->SetQuery( queryStr );
     if ( ! query->Execute() )
       {
-      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query" );
+      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+        << query->GetLastErrorText() );
       query->RollbackTransaction();
       return false;
       }
@@ -284,7 +285,8 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
   // Commit the transaction.
   if ( ! query->CommitTransaction() )
     {
-    vtkGenericWarningMacro( "Unable to effect the schema: unable to commit transaction" );
+    vtkGenericWarningMacro( "Unable to effect the schema: unable to commit transaction.\nDetails: "
+      << query->GetLastErrorText() );
     return false;
     }
 

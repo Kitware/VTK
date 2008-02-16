@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.9");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.10");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -227,7 +227,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnTypeString( int colType )
     case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
     case vtkSQLDatabaseSchema::TEXT: return "TEXT";
     case vtkSQLDatabaseSchema::REAL: return "REAL";
-    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE";
+    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE PRECISION";
     case vtkSQLDatabaseSchema::BLOB: return "BYTEA";
     case vtkSQLDatabaseSchema::TIME: return "TIME";
     case vtkSQLDatabaseSchema::DATE: return "DATE";

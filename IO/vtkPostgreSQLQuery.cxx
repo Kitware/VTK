@@ -33,7 +33,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.2");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.3");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
@@ -484,13 +484,13 @@ bool vtkPostgreSQLQuery::BeginTransaction()
   assert( db );
 
   this->Transactor = new vtkPostgreSQLQueryPrivate( db );
-  if ( this->Transactor )
+  if ( ! this->Transactor )
     {
     vtkErrorMacro(<<"Cannot create a new transaction.");
     return false;
     }
 
-  return true;
+  return this->Transactor->BeginTransaction();
 }
  
 // ----------------------------------------------------------------------
