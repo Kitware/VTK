@@ -73,6 +73,7 @@ vtkImplicitModeller.cxx
 vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
+vtkLegendScaleActor.cxx
 vtkLSDynaReader.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPieChartActor.cxx

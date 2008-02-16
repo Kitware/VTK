@@ -3,6 +3,7 @@ SET(KIT Hybrid)
 SET(MyTests   
   TestBarChartActor.cxx
   TestImageStencilData.cxx
+  TestLegendScaleActor.cxx
   TestPieChartActor.cxx
   TestSpiderPlotActor.cxx
   X3DTest.cxx  
