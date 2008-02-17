@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.12");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.13");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -77,12 +77,20 @@ vtkSQLDatabaseSchema::~vtkSQLDatabaseSchema()
   this->SetName( 0 );
   delete this->Internals;
 }
-
+  
 // ----------------------------------------------------------------------
 void vtkSQLDatabaseSchema::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "Name: " << this->Name << "\n";
+  os << indent << "Name: ";
+  if (this->Name)
+    {
+    os << this->Name << "\n";
+    }
+  else
+    {
+    os << "(null)" << "\n";
+    }
   os << indent << "Internals: " << this->Internals << "\n";
 }
 

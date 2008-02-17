@@ -29,7 +29,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.8");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.9");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -278,11 +278,11 @@ void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "SQLiteInstance: ";
   if (this->SQLiteInstance)
     {
-    cout << this->SQLiteInstance << "\n";
+    os << this->SQLiteInstance << "\n";
     }
   else
     {
-    cout << "(null)" << "\n";
+    os << "(null)" << "\n";
     }
   os << indent << "DatabaseType: " 
     << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
