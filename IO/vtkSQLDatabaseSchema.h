@@ -204,6 +204,11 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
                                 const char* trgName );
 
   // Description:
+  // Given the handles of a table and a trigger, get the name of the trigger.
+  const char* GetTriggerNameFromHandle( int tblHandle, 
+                                        int trgHandle );
+
+  // Description:
   // Reset the schema to its initial, empty state.
   void Reset();
 

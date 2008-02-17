@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.11");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.12");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 class vtkSQLDatabaseSchemaInternals
@@ -422,6 +422,25 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName( const char* tblName,
       }
     }
   return -1;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetTriggerNameFromHandle( int tblHandle, 
+                                                            int trgHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get name of a trigger in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( trgHandle < 0 || trgHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Triggers.size() ) )
+    {
+    vtkErrorMacro( "Cannot get name of non-existent trigger " << trgHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Name;
 }
 
 
