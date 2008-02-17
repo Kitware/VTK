@@ -32,7 +32,7 @@
 #include "vtkCellData.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkLegendScaleActor, "1.1");
+vtkCxxRevisionMacro(vtkLegendScaleActor, "1.2");
 vtkStandardNewMacro(vtkLegendScaleActor);
 
 
@@ -492,4 +492,85 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Label Mode: ";
+  if ( this->LabelMode == DISTANCE )
+    {
+    os << "Distance\n";
+    }
+  else //if ( this->LabelMode == DISTANCE )
+    {
+    os << "XY_Coordinates\n";
+    }
+  
+  os << indent << "Right Axis Visibility: " 
+     << (this->RightAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Top Axis Visibility: " 
+     << (this->TopAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Left Axis Visibility: " 
+     << (this->LeftAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Bottom Axis Visibility: " 
+     << (this->BottomAxisVisibility ? "On\n" : "Off\n");
+  os << indent << "Legend Visibility: " 
+     << (this->LegendVisibility ? "On\n" : "Off\n");
+  
+  os << indent << "Right Border Offset: " << this->RightBorderOffset << "\n";
+  os << indent << "Top Border Offset: " << this->TopBorderOffset << "\n";
+  os << indent << "Left Border Offset: " << this->LeftBorderOffset << "\n";
+  os << indent << "Bottom Border Offset: " << this->BottomBorderOffset << "\n";
+
+  os << indent << "Legend Title Property: ";
+  if ( this->LegendTitleProperty )
+    {
+    os << this->LegendTitleProperty << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "Legend Label Property: ";
+  if ( this->LegendLabelProperty )
+    {
+    os << this->LegendLabelProperty << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  
+  os << indent << "Right Axis: ";
+  if ( this->RightAxis )
+    {
+    os << this->RightAxis << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "Top Axis: ";
+  if ( this->TopAxis )
+    {
+    os << this->TopAxis << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "Left Axis: ";
+  if ( this->LeftAxis )
+    {
+    os << this->LeftAxis << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "Bottom Axis: ";
+  if ( this->BottomAxis )
+    {
+    os << this->BottomAxis << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }
