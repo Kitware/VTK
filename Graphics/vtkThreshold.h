@@ -121,6 +121,14 @@ public:
   vtkSetMacro(AllScalars,int);
   vtkGetMacro(AllScalars,int);
   vtkBooleanMacro(AllScalars,int);
+
+  // Description:
+  // Set the data type of the output points (See the data types defined in 
+  // vtkType.h). The default data type is float.
+  void SetPointsDataTypeToDouble() { this->SetPointsDataType( VTK_DOUBLE ); }
+  void SetPointsDataTypeToFloat()  { this->SetPointsDataType( VTK_FLOAT  ); }
+  vtkSetMacro( PointsDataType, int );
+  vtkGetMacro( PointsDataType, int );
   
 protected:
   vtkThreshold();
@@ -137,6 +145,7 @@ protected:
   int    AttributeMode;
   int    ComponentMode;
   int    SelectedComponent;
+  int    PointsDataType;
   
   //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);
