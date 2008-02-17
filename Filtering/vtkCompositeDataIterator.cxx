@@ -141,7 +141,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkCompositeDataIterator);
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.4");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.5");
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
@@ -197,7 +197,7 @@ void vtkCompositeDataIterator::GoToFirstItem()
     }
 
   vtkInternals::vtkLocation loc(this->DataSet->Internals->Children,
-    this->Reverse);
+    this->Reverse != 0);
   this->Internals->LocationStack.push_back(loc);
 
   this->Internals->EnsureStackValidity();
@@ -271,7 +271,7 @@ void vtkCompositeDataIterator::NextInternal()
       if (this->TraverseSubTree)
         {
         vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(loc.Data());
-        vtkInternals::vtkLocation subLoc(cds->Internals->Children, this->Reverse);
+        vtkInternals::vtkLocation subLoc(cds->Internals->Children, this->Reverse != 0);
         this->Internals->LocationStack.push_back(subLoc);
         }
       else
