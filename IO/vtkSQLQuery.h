@@ -77,6 +77,12 @@ public:
   bool IsActive() { return this->Active; }
 
   // Description:
+  // Execute the query.  This must be performed
+  // before any field name or data access functions
+  // are used.
+  virtual bool Execute() = 0;
+
+  // Description:
   // Begin, commit, or roll back a transaction.  If the underlying
   // database does not support transactions these calls will do
   // nothing.
