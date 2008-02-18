@@ -55,14 +55,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     }
   
   // Define the correct (reference) columns and types
-  vtkstd::set<vtkStdString> colRefs;
-  colRefs.insert( vtkStdString ( "SomeNmbr" ) );
-  colRefs.insert( vtkStdString ( "SomeName" ) );
-  colRefs.insert( vtkStdString ( "TableKey" ) );
-  vtkstd::set<int> typRefs;
-  typRefs.insert( static_cast<int>( vtkSQLDatabaseSchema::BIGINT ) );
-  typRefs.insert( static_cast<int>( vtkSQLDatabaseSchema::SERIAL ) );
-  typRefs.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
+  vtkstd::set<vtkStdString> colNames;
+  colNames.insert( vtkStdString ( "SomeNmbr" ) );
+  colNames.insert( vtkStdString ( "SomeName" ) );
+  colNames.insert( vtkStdString ( "TableKey" ) );
+  vtkstd::set<int> colTypes;
+  colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::BIGINT ) );
+  colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::SERIAL ) );
+  colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
 
   // Loop over all columns of the previously created table
   int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
@@ -79,10 +79,10 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << colName
          << "\n";
 
-    vtkstd::set<vtkStdString>::iterator sit = colRefs.find( colName );
-    if ( sit != colRefs.end() )
+    vtkstd::set<vtkStdString>::iterator sit = colNames.find( colName );
+    if ( sit != colNames.end() )
       {
-      colRefs.erase ( sit );
+      colNames.erase ( sit );
       }
     else
       {
@@ -95,10 +95,10 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << colType
          << "\n";
 
-    vtkstd::set<int>::iterator iit = typRefs.find( colType );
-    if ( iit != typRefs.end() )
+    vtkstd::set<int>::iterator iit = colTypes.find( colType );
+    if ( iit != colTypes.end() )
       {
-      typRefs.erase ( iit );
+      colTypes.erase ( iit );
       }
     else
       {
@@ -122,6 +122,12 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << "\n";
     }
 
+  // Define the correct (reference) triggers and types
+  vtkstd::set<vtkStdString> trgNames;
+  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
+  vtkstd::set<int> trgTypes;
+  trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
+
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
   if ( numTrg != 1 )
@@ -132,9 +138,37 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   
   for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
     {
+    vtkStdString trgName = schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
     cerr << "Trigger name: " 
-         << schema->GetTriggerNameFromHandle( tblHandle, trgHandle )
+         << trgName
          << "\n";
+
+    vtkstd::set<vtkStdString>::iterator sit = trgNames.find( trgName );
+    if ( sit != trgNames.end() )
+      {
+      trgNames.erase ( sit );
+      }
+    else
+      {
+      cerr << "Could not retrieve trigger name " << trgName  << " in test schema.\n";
+      status = false;
+      }
+
+    int trgType = schema->GetTriggerTypeFromHandle( tblHandle, trgHandle );
+    cerr << "Trigger type: " 
+         << trgType
+         << "\n";
+
+    vtkstd::set<int>::iterator iit = trgTypes.find( trgType );
+    if ( iit != trgTypes.end() )
+      {
+      trgTypes.erase ( iit );
+      }
+    else
+      {
+      cerr << "Could not retrieve trigger type " << trgType  << " in test schema.\n";
+      status = false;
+      }
     }
 
   schema->Delete();
