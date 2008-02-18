@@ -29,10 +29,11 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
-#include <vtklibxml2/libxml/parser.h>
-#include <vtklibxml2/libxml/tree.h>
+#include "vtk_libxml2.h"
+#include VTKLIBXML2_HEADER(parser.h)
+#include VTKLIBXML2_HEADER(tree.h)
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.7");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
