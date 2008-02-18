@@ -17,15 +17,22 @@ vtkSphereSource sphere
   sphere SetPhiResolution 150
   sphere SetThetaResolution 150
 
+vtkPlaneSource plane
+plane SetXResolution 150
+plane SetYResolution 150
+
 vtkPolyDataMapper mapper
   mapper SetInputConnection [sphere GetOutputPort]
+  mapper SetInputConnection [plane GetOutputPort]
 
 vtkQuadricLODActor actor
   actor SetMapper mapper
-eval [actor GetProperty] SetDiffuseColor $tomato
-[actor GetProperty] SetDiffuse .8
-[actor GetProperty] SetSpecular .4
-[actor GetProperty] SetSpecularPower 30
+  actor DeferLODConstructionOff
+  [actor GetProperty] SetRepresentationToWireframe
+  eval [actor GetProperty] SetDiffuseColor $tomato
+  [actor GetProperty] SetDiffuse .8
+  [actor GetProperty] SetSpecular .4
+  [actor GetProperty] SetSpecularPower 30
 
 # Add the actors to the renderer, set the background and size
 #
