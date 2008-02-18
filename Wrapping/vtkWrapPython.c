@@ -775,6 +775,7 @@ static const char *quote_string(const char *comment, int maxlen)
 void outputFunction2(FILE *fp, FileInfo *data)
 {
   int i, j, k, is_static, is_vtkobject, fnum, occ, backnum, goto_used;
+  int all_legacy;
   FunctionInfo *theFunc;
   FunctionInfo *backFunc;
 
@@ -825,8 +826,9 @@ void outputFunction2(FILE *fp, FileInfo *data)
       {
       fprintf(fp,"\n");
 
-      /* check whether all signatures are static methods */
+      /* check whether all signatures are static methods or legacy */
       is_static = 1;
+      all_legacy = 1;
       for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
         {
         /* is it the same name */
@@ -838,9 +840,19 @@ void outputFunction2(FILE *fp, FileInfo *data)
             {
             is_static = 0;
             }
+
+          /* check for legacy */
+          if (!wrappedFunctions[occ]->IsLegacy)
+            {
+            all_legacy = 0;
+            }
           }
         }
-        
+
+      if(all_legacy)
+        {
+        fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
       fprintf(fp,"static PyObject *Py%s_%s(PyObject *%s, PyObject *args)\n",
               data->ClassName,currentFunction->Name,
               (is_static ? "" : "self"));
@@ -864,7 +876,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 
           currentFunction = wrappedFunctions[occ];
 
-          if(currentFunction->IsLegacy)
+          if(currentFunction->IsLegacy && !all_legacy)
             {
             fprintf(fp,"#if defined(VTK_LEGACY_REMOVE)\n");
 
@@ -1097,13 +1109,17 @@ void outputFunction2(FILE *fp, FileInfo *data)
             {
             fprintf(fp," break%d:\n",occ);
             }
-          if(currentFunction->IsLegacy)
+          if(currentFunction->IsLegacy && !all_legacy)
             {
             fprintf(fp,"#endif\n");
             }
           }
         }
       fprintf(fp,"  return NULL;\n}\n");
+      if(all_legacy)
+        {
+        fprintf(fp,"#endif\n");
+        }
       fprintf(fp,"\n");
 
       /* clear all occurances of this method from further consideration */
