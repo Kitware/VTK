@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.20");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.21");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -130,10 +130,19 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     {
     db = vtkMySQLDatabase::New();
     vtkMySQLDatabase *mysql_db = vtkMySQLDatabase::SafeDownCast(db);
-    mysql_db->SetUserName(username.c_str());
-    mysql_db->SetPassword(password.c_str());
+    if ( username.size() )
+      {
+      mysql_db->SetUserName(username.c_str());
+      }
+    if ( password.size() )
+      {
+      mysql_db->SetPassword(password.c_str());
+      }
+    if ( dataport.size() )
+      {
+      mysql_db->SetServerPort(atoi(dataport.c_str()));
+      }
     mysql_db->SetHostName(hostname.c_str());
-    mysql_db->SetServerPort(atoi(dataport.c_str()));
     mysql_db->SetDatabaseName(database.c_str());
     return db;
     }
@@ -187,7 +196,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
         {
         firstCol = false;
         }
-      
+
       queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
       queryStr += " ";
 
@@ -226,18 +235,18 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
       queryStr += ", ";
       switch ( schema->GetIndexTypeFromHandle( tblHandle, idxHandle ) )
         {
-        case 0:
-          queryStr += "PRIMARY KEY ";
-          break;
-        case 1:
-          queryStr += "UNIQUE ";
-          break;
-        case 2:
-          queryStr += "INDEX ";
-          break;
-        default:
-          query->RollbackTransaction();
-          return false;
+      case vtkSQLDatabaseSchema::PRIMARY_KEY:
+        queryStr += "PRIMARY KEY ";
+        break;
+      case vtkSQLDatabaseSchema::UNIQUE:
+        queryStr += "UNIQUE ";
+        break;
+      case vtkSQLDatabaseSchema::INDEX:
+        queryStr += "INDEX ";
+        break;
+      default:
+        query->RollbackTransaction();
+        return false;
         }
 
       queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );

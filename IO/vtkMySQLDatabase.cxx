@@ -28,8 +28,10 @@
 
 #include <assert.h>
 #include <mysql.h>
+
+#define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.8");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.9");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -44,13 +46,16 @@ vtkMySQLDatabase::vtkMySQLDatabase()
   
   // Initialize instance variables
   this->DatabaseType = 0;
-  this->SetDatabaseType("mysql");
+  this->SetDatabaseType( "mysql" );
   this->HostName = 0;
   this->UserName = 0;
   this->Password = 0;
   this->DatabaseName = 0;
-  this->ServerPort = -1;
   this->ConnectOptions = 0;
+  // Default: connect to local machine on standard port
+  this->SetHostName( "localhost" );
+  this->ServerPort = VTK_MYSQL_DEFAULT_PORT;
+  //this->SetPassword( "" );
 }
 
 // ----------------------------------------------------------------------
@@ -60,30 +65,12 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
     {
     this->Close();
     }
-  if ( this->DatabaseType )
-    {
-    this->SetDatabaseType(0);
-    }
-  if ( this->HostName )
-    {
-    this->SetHostName(0);
-    }
-  if ( this->UserName )
-    {
-    this->SetUserName(0);
-    }
-  if ( this->Password )
-    {
-    this->SetPassword(0);
-    }
-  if ( this->DatabaseName )
-    {
-    this->SetDatabaseName(0);
-    }
-  if ( this->ConnectOptions )
-    {
-    this->SetConnectOptions(0);
-    }
+  this->SetDatabaseType( 0 );
+  this->SetHostName( 0 );
+  this->SetUserName( 0 );
+  this->SetPassword( 0 );
+  this->SetDatabaseName( 0 );
+  this->SetConnectOptions( 0 );
 
   this->Tables->UnRegister(this);
 }
@@ -145,34 +132,8 @@ bool vtkMySQLDatabase::Open()
 
   assert(this->Connection == NULL);
 
-  if (!this->HostName)
-    {
-    vtkErrorMacro("Cannot open database because HostName is not set.");
-    return false;
-    }
-  if (!this->DatabaseName)
-    {
-    vtkErrorMacro("Cannot open database because DatabaseName is not set.");
-    return false;
-    }
-  if (!this->UserName)
-    {
-    vtkErrorMacro("Cannot open database because UserName is not set.");
-    return false;
-    }
-  if (!this->Password)
-    {
-    vtkErrorMacro("Cannot open database because Password is not set.");
-    return false;
-    }
-  if (this->ServerPort <= 0)
-    {
-    vtkErrorMacro("Cannot open database because ServerPort is not set.");
-    return false;
-    }
-
   this->Connection = 
-    mysql_real_connect( & this->NullConnection, 
+    mysql_real_connect( &this->NullConnection, 
                         this->GetHostName(),
                         this->GetUserName(),
                         this->GetPassword(), 
@@ -216,7 +177,7 @@ bool vtkMySQLDatabase::IsOpen()
 // ----------------------------------------------------------------------
 vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 {
-  vtkMySQLQuery *query = vtkMySQLQuery::New();
+  vtkMySQLQuery* query = vtkMySQLQuery::New();
   query->SetDatabase(this);
   return query;
 }
@@ -225,17 +186,17 @@ vtkSQLQuery* vtkMySQLDatabase::GetQueryInstance()
 vtkStringArray* vtkMySQLDatabase::GetTables()
 {
   this->Tables->Resize(0);
-  if (!this->IsOpen())
+  if ( ! this->IsOpen() )
     {
     vtkErrorMacro(<<"GetTables(): Database is closed!");
     return this->Tables;
     }
   else
     {
-    MYSQL_RES *tableResult = mysql_list_tables(this->Connection,
-                                               NULL);
+    MYSQL_RES* tableResult = mysql_list_tables(
+      this->Connection, NULL );
 
-    if (!tableResult)
+    if ( ! tableResult )
       {
       vtkErrorMacro(<<"GetTables(): MySQL returned error: "
                     << mysql_error(this->Connection));
@@ -245,20 +206,20 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
     MYSQL_ROW row;
     int i=0;
 
-    while (tableResult)
+    while ( tableResult )
       {
-      mysql_data_seek(tableResult, i);
-      row = mysql_fetch_row(tableResult);
-      if (!row) 
+      mysql_data_seek( tableResult, i );
+      row = mysql_fetch_row( tableResult );
+      if ( ! row )
         {
         break;
         }
 
-      this->Tables->InsertNextValue(row[0]);
-      ++i;
+      this->Tables->InsertNextValue( row[0] );
+      ++ i;
       }
       // Done with processing so free it
-      mysql_free_result(tableResult);
+      mysql_free_result( tableResult );
 
     return this->Tables;
     }
@@ -312,13 +273,32 @@ vtkStdString vtkMySQLDatabase::GetURL()
   vtkStdString url;
   url = this->GetDatabaseType();
   url += "://";
-  url += this->GetUserName();
-  url += ":";
-  url += this->GetPassword();
-  url += "@";
-  url += this->GetHostName();
-  url += ":";
-  url += this->GetServerPort();
+  if ( this->GetUserName() && strlen( this->GetUserName() ) )
+    {
+    url += this->GetUserName();
+    if ( this->GetPassword() && strlen( this->GetPassword() ) )
+      {
+      url += ":";
+      url += this->GetPassword();
+      }
+    url += "@";
+    }
+  if ( this->GetHostName() && strlen( this->GetHostName() ) )
+    {
+    url += this->GetHostName();
+    }
+  else
+    {
+    url += "localhost";
+    }
+  if (
+    this->GetServerPort() >= 0 &&
+    this->GetServerPort() != VTK_MYSQL_DEFAULT_PORT
+    )
+    {
+    url += ":";
+    url += this->GetServerPort();
+    }
   url += "/";
   url += this->GetDatabaseName();
   return url;
