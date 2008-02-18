@@ -173,7 +173,6 @@ vtkProgrammableSource.cxx
 vtkProjectedTexture.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx
-vtkQuadricLODActor.cxx
 vtkQuantizePolyDataPoints.cxx
 vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx

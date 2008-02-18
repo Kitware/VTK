@@ -22,6 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestLeaderActor2D
       TestOnePoint
       TestParallelCoordinates
+      TestQuadricLODActor
       TestStyleTerrain
       TestTiling
       TestTriangleStripCellColor

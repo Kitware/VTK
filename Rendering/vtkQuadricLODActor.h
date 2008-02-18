@@ -52,7 +52,7 @@ class vtkPolyDataMapper;
 class vtkCamera;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkQuadricLODActor : public vtkActor
+class VTK_RENDERING_EXPORT vtkQuadricLODActor : public vtkActor
 {
 public:
   // Description:

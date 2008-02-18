@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.3");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.1");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
