@@ -48,6 +48,7 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
+  TestSQLDatabaseSchema.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -80,6 +81,8 @@ IF (VTK_DATA_ROOT)
          -V ${VTK_DATA_ROOT}/Baseline/${KIT}/TestPLYReader.png)
   ENDIF (VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
+
+ADD_TEST(TestSQLDatabaseSchema ${CXX_TEST_PATH}/${KIT}CxxTests TestSQLDatabaseSchema)
 
 IF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   ADD_TEST(TestAVIWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestAVIWriter)
