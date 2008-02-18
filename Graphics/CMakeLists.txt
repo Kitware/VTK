@@ -173,6 +173,7 @@ vtkProgrammableSource.cxx
 vtkProjectedTexture.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx
+vtkQuadricLODActor.cxx
 vtkQuantizePolyDataPoints.cxx
 vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
@@ -230,6 +231,7 @@ vtkThreshold.cxx
 vtkThresholdPoints.cxx
 vtkThresholdTextureCoords.cxx
 vtkTimeSourceExample.cxx
+vtkTransformCoordinateSystems.cxx
 vtkTransformFilter.cxx
 vtkTransformPolyDataFilter.cxx
 vtkTransformTextureCoords.cxx
