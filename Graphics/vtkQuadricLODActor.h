@@ -25,7 +25,9 @@
 // algorithm to take into account the dimensionality of the data (e.g., 2D,
 // x-y surfaces may be binned into n x n x 1 to reduce extra polygons in the
 // z-direction). Finally, the filter may optionally be set in "Static" mode
-// (this is analogous to the 
+// (this works with the vtkMapper::SetStatic() method). Setting Static on results
+// in a one time execution of the Mapper's pipeline. After that, the pipeline
+// no longer updates. 
 //
 // .SECTION Caveats
 // By default the algorithm is set up to pre-compute the LODs. That is, on
@@ -91,7 +93,7 @@ public:
   // Description:
   // Specify the ratio of short edge of input bounding box, to long edge, which
   // is used to collapse the data dimension (and set the quadric bin size to
-  // one). By default, this value is 0.10.
+  // one). By default, this value is 0.05.
   vtkSetClampMacro(CollapseDimensionRatio,double,0.0,1.0);
   vtkGetMacro(CollapseDimensionRatio,double);
 

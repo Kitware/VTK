@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.2");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.3");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->MaximumDisplayListSize = 25000;
   this->DeferLODConstruction = 0;
   this->DataDimension = 3;
-  this->CollapseDimensionRatio = 0.10;
+  this->CollapseDimensionRatio = 0.05;
   this->DataConfiguration = UNKNOWN;
   this->PropType = ACTOR;
   this->Camera = NULL;
@@ -208,39 +208,63 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
     // Construct the LOD
     vtkPolyData *pd = vtkPolyData::SafeDownCast(this->Mapper->GetInput());
-    double bounds[6], h[3];
-    pd->GetBounds(bounds);
-    h[0] = bounds[1] - bounds[0];
-    h[1] = bounds[3] - bounds[2];
-    h[2] = bounds[5] - bounds[4];
-    double hMax = (h[0]>h[1] ? (h[0]>h[2]?h[0]:h[2]) : (h[1]>h[2]?h[1]:h[2]));
-    int nDivs[3], numSmallDims=0;
-    for (int i=0; i<3; i++)
-      {
-      if ( (10.0*h[i]) <= hMax )
-        {
-        nDivs[i] = 1;
-        numSmallDims++;
-        }
-      else
-        {
-        nDivs[i] = dim;
-        }
-      }
 
-    // Optimize binning depending on data dimension and data aspect ratio
-    if ( this->DataDimension == 2 && numSmallDims == 1 )
+    // First see if there is an explicit description of the data configuration.
+    if ( this->DataConfiguration == XLINE )
       {
-      this->LODFilter->SetNumberOfDivisions(nDivs[0],nDivs[1],1);
+      this->LODFilter->SetNumberOfDivisions(dim,1,1);
       }
-    else if ( this->DataDimension == 1 && numSmallDims == 2 )
+    else if ( this->DataConfiguration == YLINE )
       {
-      this->LODFilter->SetNumberOfDivisions(nDivs[0],nDivs[1],nDivs[2]);
+      this->LODFilter->SetNumberOfDivisions(1,dim,1);
       }
-    else //if ( this->DataDimension >= 3 || numSmallDims <= 0 )
+    else if ( this->DataConfiguration == ZLINE )
+      {
+      this->LODFilter->SetNumberOfDivisions(1,1,dim);
+      }
+    else if ( this->DataConfiguration == XYPLANE )
+      {
+      this->LODFilter->SetNumberOfDivisions(dim,dim,1);
+      }
+    else if ( this->DataConfiguration == YZPLANE )
+      {
+      this->LODFilter->SetNumberOfDivisions(1,dim,dim);
+      }
+    else if ( this->DataConfiguration == XZPLANE )
+      {
+      this->LODFilter->SetNumberOfDivisions(dim,1,dim);
+      }
+    else if ( this->DataConfiguration == XYZVOLUME )
       {
       this->LODFilter->SetNumberOfDivisions(dim,dim,dim);
       }
+    else //no explicit description
+      {
+      // If here, we analyze the data to see if we can optimize binning.  The
+      // binning is optimized depending on data dimension and data aspect
+      // ratio.
+      double bounds[6], h[3];
+      pd->GetBounds(bounds);
+      h[0] = bounds[1] - bounds[0];
+      h[1] = bounds[3] - bounds[2];
+      h[2] = bounds[5] - bounds[4];
+      double hMax = (h[0]>h[1] ? (h[0]>h[2]?h[0]:h[2]) : (h[1]>h[2]?h[1]:h[2]));
+      int nDivs[3], numSmallDims=0;
+      for (int i=0; i<3; i++)
+        {
+        if ( h[i] <= (this->CollapseDimensionRatio*hMax) )
+          {
+          nDivs[i] = 1;
+          numSmallDims++;
+          }
+        else
+          {
+          nDivs[i] = dim;
+          }
+        }
+      this->LODFilter->SetNumberOfDivisions(nDivs);
+      }//data configuration not explicitly specified
+    
     vtkDebugMacro("QC bin size: " << dim);
     this->LODFilter->AutoAdjustNumberOfDivisionsOff();
     this->LODFilter->SetInput(pd);
