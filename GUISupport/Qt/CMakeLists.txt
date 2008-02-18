@@ -21,27 +21,36 @@ ELSE(NOT QT_FOUND)
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
     QVTKWidget.cxx
-    vtkQtAbstractModelAdapter.cxx
-    vtkQtInitialization.cxx
-    vtkQtSQLDatabase.cxx
-    vtkQtSQLQuery.cxx
-    vtkQtTableModelAdapter.cxx
-    vtkQtTimePointUtility.cxx
-    vtkQtTreeModelAdapter.cxx 
     )
 
 SET ( QVTKMocHeaders
     QVTKWidget.h 
     vtkEventQtSlotConnect.h
-    vtkQtAbstractModelAdapter.h
-    vtkQtTableModelAdapter.h
-    vtkQtTreeModelAdapter.h
     )
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 
 IF(DESIRED_QT_VERSION MATCHES 4)
+
+  # add files that require Qt 4
+  SET ( QVTKLibSrcs
+      ${QVTKLibSrcs}
+      vtkQtAbstractModelAdapter.cxx
+      vtkQtInitialization.cxx
+      vtkQtSQLDatabase.cxx
+      vtkQtSQLQuery.cxx
+      vtkQtTableModelAdapter.cxx
+      vtkQtTimePointUtility.cxx
+      vtkQtTreeModelAdapter.cxx 
+      )
+    
+  SET ( QVTKMocHeaders
+      ${QVTKMocHeaders}
+      vtkQtAbstractModelAdapter.h
+      vtkQtTableModelAdapter.h
+      vtkQtTreeModelAdapter.h
+      )
 
   # add additional files depending on infovis and/or views
   IF(VTK_USE_VIEWS)
