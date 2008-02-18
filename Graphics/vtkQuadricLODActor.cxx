@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.1");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.2");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
@@ -146,6 +146,13 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   allowedTime = this->AllocatedRenderTime;
   double frameRate = ren->GetRenderWindow()->GetInteractor()->GetDesiredUpdateRate();
   frameRate = (frameRate < 1.0 ? 1.0 : (frameRate > 75 ? 75.0 : frameRate));
+  int interactiveRender = 0;
+  // interactive renders are defined when compared with the desired update rate. Here we use
+  // a generous fudge factor to insure that the LOD kicks in.
+  if ( allowedTime <= (1.1/frameRate) )
+    {
+    interactiveRender = 1;
+    }
 
   // Use display lists if it makes sense
   vtkIdType nCells = this->GetDisplayListSize(static_cast<vtkPolyData*>(this->Mapper->GetInput()));
@@ -159,7 +166,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     }
 
   // Build LOD only if necessary
-  if ( (allowedTime < 1.0 || !this->DeferLODConstruction) && 
+  if ( (interactiveRender || !this->DeferLODConstruction) && 
        (this->GetMTime() > this->BuildTime || 
         this->Mapper->GetMTime() > this->BuildTime ||
         this->CachedInteractiveFrameRate < 0.9*frameRate || this->CachedInteractiveFrameRate > 1.1*frameRate) )
@@ -262,7 +269,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   bestMapper = this->Mapper;
   fullTime = bestTime = bestMapper->GetTimeToDraw();
 
-  if ( (allowedTime < 1.0) )
+  if ( interactiveRender )
     {//use lod
     bestMapper = this->LODMapper;
     bestTime = bestMapper->GetTimeToDraw();
@@ -339,7 +346,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Static : " << (this->Static ? "On\n" : "Off\n");
 
   os << indent << "Data dimension: " << this->DataDimension << "\n";
-  os << indent << "Collapse Dimension Ration: " << this->CollapseDimensionRatio << "\n";
+  os << indent << "Collapse Dimension Ratio: " << this->CollapseDimensionRatio << "\n";
 
   os << indent << "Data Configuration: ";
   if ( this->DataConfiguration == XYZVOLUME )
