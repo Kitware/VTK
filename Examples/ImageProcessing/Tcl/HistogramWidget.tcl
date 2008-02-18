@@ -14,6 +14,7 @@ proc vtkHistogramWidget {widget {width 512} {height 192}} {
     set canvas [::vtk::new_widget_object $widget vtkImageCanvasSource2D Canvas]
     $canvas SetScalarTypeToUnsignedChar
     $canvas SetNumberOfScalarComponents 3
+    $canvas SetExtent 0 [expr $width - 1] 0 [expr $height - 1] 0 0
 
     set viewer [::vtk::new_widget_object $widget vtkImageViewer Viewer]
     $viewer SetInputConnection [$canvas GetOutputPort]
