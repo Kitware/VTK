@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.15");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.16");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
@@ -462,19 +462,36 @@ int vtkSQLDatabaseSchema::GetTriggerTypeFromHandle( int tblHandle,
   if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
     {
     vtkErrorMacro( "Cannot get type of a trigger in non-existent table " << tblHandle );
-    return 0;
+    return -1;
     }
   
   if ( trgHandle < 0 || trgHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Triggers.size() ) )
     {
     vtkErrorMacro( "Cannot get type of non-existent trigger " << trgHandle << " in table " << tblHandle );
-    return 0;
+    return -1;
     }
   
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Type;
 }
 
-
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle( int tblHandle, 
+                                                              int trgHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get action of a trigger in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( trgHandle < 0 || trgHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Triggers.size() ) )
+    {
+    vtkErrorMacro( "Cannot get action of non-existent trigger " << trgHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action;
+}
 
 // ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
