@@ -124,7 +124,8 @@ public:
   const char* GetAttributeValue(int idx);
 
   // Description:
-  // Remove all attributes.
+  // Remove one or all attributes.
+  virtual void RemoveAttribute(const char *name);
   virtual void RemoveAllAttributes();
 
   // Description:
@@ -157,13 +158,21 @@ public:
   virtual void RemoveAllNestedElements();
 
   // Description:
-  // Find a nested element with the given id, given name, or given name and id.
+  // Find the first nested element with the given id, given name, or given
+  // name and id.
+  // WARNING: the search is only performed on the children, not 
+  // the grand-children.
   vtkXMLDataElement* FindNestedElement(const char* id);
   vtkXMLDataElement* FindNestedElementWithName(const char* name);
   vtkXMLDataElement* FindNestedElementWithNameAndId(
     const char* name, const char* id);
   vtkXMLDataElement* FindNestedElementWithNameAndAttribute(
     const char* name, const char* att_name, const char* att_value);
+
+  // Description:
+  // Find the first nested element with given name.
+  // WARNING: the search is performed on the whole XML tree.
+  vtkXMLDataElement* LookupElementWithName(const char* name);
   
   // Description:
   // Lookup the element with the given id, starting at this scope.
@@ -198,7 +207,11 @@ public:
   // created by this vtkXMLDataParser.
   vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
-  
+
+  // Description:
+  // Prints element tree as XML.
+  void PrintXML(ostream& os, vtkIndent indent);
+    
 protected:
   vtkXMLDataElement();
   ~vtkXMLDataElement();  
@@ -236,8 +249,6 @@ protected:
   // Method used by vtkXMLFileParser to setup the element.
   void ReadXMLAttributes(const char** atts, int encoding);  
   void SeekInlineDataPosition(vtkXMLDataParser* parser);
-  
-  void PrintXML(ostream& os, vtkIndent indent);
   
   // Internal utility methods.
   vtkXMLDataElement* LookupElementInScope(const char* id);
