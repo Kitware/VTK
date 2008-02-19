@@ -3,7 +3,7 @@ SET(UKIT INFOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL)
 SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
 SET(KIT_JAVA_LIBS vtkWidgetsJava)
-SET(KIT_LIBS vtkWidgets vtklibxml2)
+SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES})
 
 SET( Kit_SRCS
 vtkAssignCoordinates.cxx
