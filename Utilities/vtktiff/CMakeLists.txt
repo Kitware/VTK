@@ -35,17 +35,17 @@ IF(NOT UNIX)
 ELSE (NOT UNIX)
   SET(common_SRCS ${common_SRCS} tif_unix.c tif_fax3sm.c)
   IF(NOT CMAKE_CROSSCOMPILING)
-    ADD_EXECUTABLE(mkg3states mkg3states.c)
-    EXPORT(TARGETS mkg3states FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    ADD_EXECUTABLE(vtkmkg3states mkg3states.c)
+    EXPORT(TARGETS vtkmkg3states FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
   ENDIF(NOT CMAKE_CROSSCOMPILING)
 
-  GET_TARGET_PROPERTY(mkg3statesExe mkg3states LOCATION)
+  GET_TARGET_PROPERTY(vtkmkg3statesExe vtkmkg3states LOCATION)
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-    COMMAND ${mkg3statesExe}
+    COMMAND ${vtkmkg3statesExe}
     ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
-    DEPENDS mkg3states
+    DEPENDS vtkmkg3states
     )
 ENDIF (NOT UNIX)
 
