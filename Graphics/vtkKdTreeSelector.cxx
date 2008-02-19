@@ -29,7 +29,7 @@
 #include "vtkPointSet.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkKdTreeSelector, "1.9");
+vtkCxxRevisionMacro(vtkKdTreeSelector, "1.10");
 vtkStandardNewMacro(vtkKdTreeSelector);
 
 vtkKdTreeSelector::vtkKdTreeSelector()
@@ -121,6 +121,7 @@ int vtkKdTreeSelector::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkAbstractArray* field = NULL;
+  vtkGraph* graph = NULL;
 
   if (this->BuildKdTreeFromInput)
     {
@@ -136,7 +137,7 @@ int vtkKdTreeSelector::RequestData(
       vtkErrorMacro("Input is NULL");
       return 0;
       }
-    vtkGraph *graph = vtkGraph::SafeDownCast(input);
+    graph = vtkGraph::SafeDownCast(input);
     vtkPointSet *pointSet = vtkPointSet::SafeDownCast(input);
     if (!graph && !pointSet)
       {
@@ -236,7 +237,14 @@ int vtkKdTreeSelector::RequestData(
 
   // Fill the selection with the found ids
   vtkSelection* output = vtkSelection::GetData(outputVector);
-  output->GetProperties()->Set(output->FIELD_TYPE(), vtkSelection::POINT);
+  if (graph)
+    {
+    output->GetProperties()->Set(output->FIELD_TYPE(), vtkSelection::VERTEX);
+    }
+  else
+    {
+    output->GetProperties()->Set(output->FIELD_TYPE(), vtkSelection::POINT);
+    }
   if (field)
     {
     vtkAbstractArray* arr = vtkAbstractArray::CreateArray(field->GetDataType());
