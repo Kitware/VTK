@@ -41,6 +41,23 @@ public class vtkPanel extends Canvas implements
     }
   }
 
+  // Allow access to display lock() and unlock().
+  // Call these whenever you call something that causes
+  // a Render().
+  // e.g.
+  // panel.lock();
+  // // Code that causes a render
+  // panel.unlock();
+  public void lock()
+  {
+    Lock();
+  }
+        
+  public void unlock()
+  {
+    UnLock();
+  }
+
   protected native int RenderCreate(vtkRenderWindow id0);
   protected native int Lock();
   protected native int UnLock();
