@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.10");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.11");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -213,6 +213,40 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     url += this->DatabaseName;
     }
   return url;
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                                     int tblHandle,
+                                                     int colHandle )
+{
+  // With PostgreSQL, the column name must be enclosed between backquotes
+  vtkStdString queryStr = "`";
+  queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
+  queryStr += "` ";
+
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+
+  vtkStdString colTypeStr = this->GetColumnTypeString( colType );
+  if ( colTypeStr )
+    {
+    queryStr += " ";
+    queryStr += colTypeStr;
+    }
+  else // if ( colTypeStr )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return 0;
+    }
+  
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr )
+    {
+    queryStr += " ";
+    queryStr += attStr;
+    }
+
+  return queryStr;
 }
 
 // ----------------------------------------------------------------------

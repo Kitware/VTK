@@ -132,6 +132,15 @@ public:
   virtual vtkStdString GetURL();
 
   // Description:
+  // Return the SQL string with the syntax to create a column inside a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements the PostgreSQL-specific syntax:
+  // `<column name>` <type> <column attributes>
+  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                               int tblHandle,
+                                               int colHandle );
+ 
+  // Description:
   // For each column type indexed in vtkSQLDatabaseSchema, return the 
   // corresponding PostgreSQL-specific string.
   virtual vtkStdString GetColumnTypeString( int colType );

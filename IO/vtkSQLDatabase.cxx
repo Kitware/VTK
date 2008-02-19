@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.22");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.23");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -62,8 +62,6 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
                                                      int colHandle )
 {
   vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
-
-  queryStr += " ";
 
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
 
