@@ -21,7 +21,7 @@
 #include "vtkViewport.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.2");
+vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.3");
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
 
 vtkCxxSetObjectMacro(vtkTransformCoordinateSystems,Viewport,vtkViewport);
@@ -65,7 +65,7 @@ int vtkTransformCoordinateSystems::RequestData(
 
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkIdType numPts, numCells;
+  vtkIdType numPts;
 
   vtkDebugMacro(<<"Executing transform coordinates filter");
 
@@ -83,7 +83,6 @@ int vtkTransformCoordinateSystems::RequestData(
     }
 
   numPts = inPts->GetNumberOfPoints();
-  numCells = input->GetNumberOfCells();
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
