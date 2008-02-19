@@ -6,6 +6,7 @@ package require vtk
 
 vtkPNGReader reader
 reader SetDataSpacing 0.8 0.8 1.5
+reader SetDataOrigin 0.0 0.0 0.0
 reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkSphereSource sphere
@@ -22,6 +23,8 @@ stripper SetInputConnection [triangle GetOutputPort]
 
 vtkPolyDataToImageStencil dataToStencil
 dataToStencil SetInputConnection [stripper GetOutputPort]
+dataToStencil SetOutputSpacing 0.8 0.8 1.5
+dataToStencil SetOutputOrigin 0.0 0.0 0.0
 
 vtkImageStencil stencil
 stencil SetInputConnection [reader GetOutputPort]

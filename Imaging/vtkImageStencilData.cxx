@@ -17,12 +17,15 @@
 #include "vtkImageStencilSource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkDemandDrivenPipeline.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.26");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.27");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -40,10 +43,11 @@ vtkImageStencilData::vtkImageStencilData()
   this->ExtentLists = NULL;
   this->ExtentListLengths = NULL;
 
-  int extent[6] = {0, -1, 0, -1, 0, -1};
-  memcpy(this->Extent, extent, 6*sizeof(int));
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
+
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  memcpy(this->Extent, extent, 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
@@ -107,6 +111,73 @@ void vtkImageStencilData::Initialize()
     {
     int extent[6] = {0, -1, 0, -1, 0, -1};
     memcpy(this->Extent, extent, 6*sizeof(int));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::CopyInformationToPipeline(vtkInformation* request,
+                                                    vtkInformation* input,
+                                                    vtkInformation* output,
+                                                    int forceCopy)
+{
+  // Let the superclass copy whatever it wants.
+  this->Superclass::CopyInformationToPipeline(request, input, output, forceCopy);
+
+  // Set default pipeline information during a request for information.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    // Copy settings from the input if available.  Otherwise use our
+    // current settings.
+
+    if(input && input->Has(ORIGIN()))
+      {
+      output->CopyEntry(input, ORIGIN());
+      }
+    else if (!output->Has(ORIGIN()) || forceCopy)
+      {
+      // Set origin (only if it is not set).
+      output->Set(ORIGIN(), this->GetOrigin(), 3);
+      }
+
+    if(input && input->Has(SPACING()))
+      {
+      output->CopyEntry(input, SPACING());
+      }
+    else if (!output->Has(SPACING()) || forceCopy)
+      {
+      // Set spacing (only if it is not set).
+      output->Set(SPACING(), this->GetSpacing(), 3);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::CopyInformationFromPipeline(vtkInformation* request)
+{
+  // Let the superclass copy whatever it wants.
+  this->Superclass::CopyInformationFromPipeline(request);
+
+  // Copy pipeline information to data information before the producer
+  // executes.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    this->CopyOriginAndSpacingFromPipeline();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::CopyOriginAndSpacingFromPipeline()
+{
+  // Copy origin and spacing from pipeline information to the internal
+  // copies.
+  vtkInformation* info = this->PipelineInformation;
+  if(info->Has(SPACING()))
+    {
+    this->SetSpacing(info->Get(SPACING()));
+    }
+  if(info->Has(ORIGIN()))
+    {
+    this->SetOrigin(info->Get(ORIGIN()));
     }
 }
 

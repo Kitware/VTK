@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageStencilSource - helper class for clipping images
+// .NAME vtkImageStencilSource - generate an image stencil
 // .SECTION Description
-// vtkImageStencilSource is a helper class for vtkImageToImageFilter
-// classes.  Given a clipping object such as a vtkImplicitFunction, it
+// vtkImageStencilSource is a superclass for filters that generate image
+// stencils.  Given a clipping object such as a vtkImplicitFunction, it
 // will set up a list of clipping extents for each x-row through the
 // image data.  The extents for each x-row can be retrieved via the 
 // GetNextExtent() method after the extent lists have been built
@@ -66,9 +66,11 @@ protected:
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
+
 private:
   vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
   void operator=(const vtkImageStencilSource&);  // Not implemented.
 };
 
 #endif
+

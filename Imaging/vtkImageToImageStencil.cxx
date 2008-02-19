@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.17");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.18");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -211,22 +211,29 @@ int vtkImageToImageStencil::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkImageToImageStencil::RequestInformation(
   vtkInformation *,
-  vtkInformationVector **,
+  vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // this is an odd source that can produce any requested size.  so its whole
-  // extent is essentially infinite. This would not be a great source to
-  // connect to some sort of writer or viewer. For a sanity check we will
-  // limit the size produced to something reasonable (depending on your
-  // definition of reasonable)
+  int wholeExtent[6];
+  double spacing[3];
+  double origin[3];
+
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+              wholeExtent);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
+  inInfo->Get(vtkDataObject::ORIGIN(), origin);
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               0, VTK_LARGE_INTEGER >> 2,
-               0, VTK_LARGE_INTEGER >> 2,
-               0, VTK_LARGE_INTEGER >> 2);
+               wholeExtent, 6);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
+
   return 1;
 }
 

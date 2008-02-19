@@ -109,6 +109,15 @@ public:
   // vtkImageStencilSource.
   void AllocateExtents();
 
+  // Description:
+  // Override these to handle origin, spacing, scalar type, and scalar
+  // number of components.  See vtkDataObject for details.
+  virtual void CopyInformationToPipeline(vtkInformation* request,
+                                         vtkInformation* input,
+                                         vtkInformation* output,
+                                         int forceCopy);
+  virtual void CopyInformationFromPipeline(vtkInformation* request);
+
   //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
@@ -133,6 +142,10 @@ public:
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();
+
+  // Description:
+  // Get important info from pipeline.
+  void CopyOriginAndSpacingFromPipeline();
 
   // Description:
   // Merges portions of the stencil that are within Self's extents into 

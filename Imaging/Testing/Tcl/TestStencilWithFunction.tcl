@@ -16,17 +16,13 @@ sphere SetRadius 80
 
 vtkImplicitFunctionToImageStencil functionToStencil
 functionToStencil SetInput sphere
-
-# test manual updating of stencil
-set stencilOriginal [functionToStencil GetOutput]
-$stencilOriginal SetSpacing 0.8 0.8 1.5
-$stencilOriginal SetOrigin  0.0 0.0 0.0
-$stencilOriginal SetUpdateExtent 0 255 0 255 0 0
-$stencilOriginal Update
+functionToStencil SetInformationInput [reader GetOutput]
 
 # test making a copying of the stencil (for coverage)
+set stencilOriginal [functionToStencil GetOutput]
+$stencilOriginal Update
 set stencilCopy [$stencilOriginal NewInstance]
-$stencilCopy DeepCopy $stencilOriginal
+$stencilCopy DeepCopy [functionToStencil GetOutput]
 
 vtkImageShiftScale shiftScale
 shiftScale SetInputConnection [reader GetOutputPort]
@@ -36,7 +32,7 @@ vtkImageStencil stencil
 stencil SetInputConnection [reader GetOutputPort]
 stencil SetBackgroundInput [shiftScale GetOutput]
 stencil SetStencil $stencilCopy
-$stencilCopy UnRegister reader
+$stencilCopy Delete
 
 vtkImageViewer viewer
 viewer SetInputConnection [stencil GetOutputPort]
