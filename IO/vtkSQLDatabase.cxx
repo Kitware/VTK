@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.21");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.22");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -54,6 +54,39 @@ vtkSQLDatabase::~vtkSQLDatabase()
 void vtkSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                                     int tblHandle,
+                                                     int colHandle )
+{
+  vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
+
+  queryStr += " ";
+
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+
+  vtkStdString colTypeStr = this->GetColumnTypeString( colType );
+  if ( colTypeStr )
+    {
+    queryStr += " ";
+    queryStr += colTypeStr;
+    }
+  else // if ( colTypeStr )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return 0;
+    }
+  
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr )
+    {
+    queryStr += " ";
+    queryStr += attStr;
+    }
+
+  return queryStr;
 }
 
 // ----------------------------------------------------------------------
@@ -75,7 +108,7 @@ vtkStdString vtkSQLDatabase::GetColumnTypeString( int colType )
     case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP";
     }
 
-    return 0;
+  return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -192,34 +225,21 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
         {
         queryStr += ", ";
         }
-      else
+      else // ( ! firstCol )
         {
         firstCol = false;
         }
 
-      queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
-      queryStr += " ";
-
-      int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
-
-      vtkStdString colStr = this->GetColumnTypeString( colType );
+      // Get column creation syntax (backend-dependent)
+      vtkStdString colStr = this->GetColumnSpecification( schema, tblHandle, colHandle );
       if ( colStr )
         {
-        queryStr += " ";
         queryStr += colStr;
         }
       else // if ( colStr )
         {
-        vtkGenericWarningMacro( "Unable to effect the schema: unsupported data type " << colType );
         query->RollbackTransaction();
         return false;
-        }
-
-      vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-      if ( attStr )
-        {
-        queryStr += " ";
-        queryStr += attStr;
         }
       }
 
@@ -235,23 +255,23 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
       queryStr += ", ";
       switch ( schema->GetIndexTypeFromHandle( tblHandle, idxHandle ) )
         {
-      case vtkSQLDatabaseSchema::PRIMARY_KEY:
-        queryStr += "PRIMARY KEY ";
-        break;
-      case vtkSQLDatabaseSchema::UNIQUE:
-        queryStr += "UNIQUE ";
-        break;
-      case vtkSQLDatabaseSchema::INDEX:
-        queryStr += "INDEX ";
-        break;
-      default:
-        query->RollbackTransaction();
-        return false;
+        case vtkSQLDatabaseSchema::PRIMARY_KEY:
+          queryStr += "PRIMARY KEY ";
+          break;
+        case vtkSQLDatabaseSchema::UNIQUE:
+          queryStr += "UNIQUE ";
+          break;
+        case vtkSQLDatabaseSchema::INDEX:
+          queryStr += "INDEX ";
+          break;
+        default:
+          query->RollbackTransaction();
+          return false;
         }
-
+        
       queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
       queryStr += " (";
-
+        
       // Loop over all column names of the current index
       bool firstCnm = true;
       int numCnms = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
@@ -281,7 +301,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
     if ( ! query->Execute() )
       {
       vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
-        << query->GetLastErrorText() );
+                              << query->GetLastErrorText() );
       query->RollbackTransaction();
       return false;
       }
@@ -293,7 +313,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
   if ( ! query->CommitTransaction() )
     {
     vtkGenericWarningMacro( "Unable to effect the schema: unable to commit transaction.\nDetails: "
-      << query->GetLastErrorText() );
+                            << query->GetLastErrorText() );
     return false;
     }
 

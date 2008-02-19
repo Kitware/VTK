@@ -128,6 +128,16 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual vtkStdString GetURL() = 0;
 
   // Description:
+  // Return the SQL string with the syntax to create a column inside a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements a minimally-portable syntax. It must be
+  // overwritten for those SQL backends which have a different syntax.
+  // Most notably, PostgreSQL is one of those.
+  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                               int tblHandle,
+                                               int colHandle );
+ 
+  // Description:
   // For each column type indexed in vtkSQLDatabaseSchema, return the 
   // corresponding SQL string.
   // NB: a minimal set of common SQL types is provided; the backend-specific
