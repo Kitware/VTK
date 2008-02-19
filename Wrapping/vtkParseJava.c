@@ -555,6 +555,7 @@ void outputFunction(FILE *fp, FileInfo *data)
           fprintf(fp,"id%i",i);
           }
         fprintf(fp,");\n");
+        fprintf(fp,"\n    if (temp == 0) return null;");
         fprintf(fp,"\n    %s obj = null;", currentFunction->ReturnClass);
         fprintf(fp,"\n    java.lang.ref.WeakReference ref = (java.lang.ref.WeakReference)vtkGlobalJavaHash.PointerToReference.get(new Long(temp));");
         fprintf(fp,"\n    if (ref != null) {");
