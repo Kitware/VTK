@@ -158,13 +158,21 @@ public:
   virtual void RemoveAllNestedElements();
 
   // Description:
-  // Find a nested element with the given id, given name, or given name and id.
+  // Find the first nested element with the given id, given name, or given
+  // name and id.
+  // WARNING: the search is only performed on the children, not 
+  // the grand-children.
   vtkXMLDataElement* FindNestedElement(const char* id);
   vtkXMLDataElement* FindNestedElementWithName(const char* name);
   vtkXMLDataElement* FindNestedElementWithNameAndId(
     const char* name, const char* id);
   vtkXMLDataElement* FindNestedElementWithNameAndAttribute(
     const char* name, const char* att_name, const char* att_value);
+
+  // Description:
+  // Find the first nested element with given name.
+  // WARNING: the search is performed on the whole XML tree.
+  vtkXMLDataElement* LookupElementWithName(const char* name);
   
   // Description:
   // Lookup the element with the given id, starting at this scope.

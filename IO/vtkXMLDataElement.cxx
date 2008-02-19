@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.29");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.30");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -556,6 +556,32 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
   
   delete [] name;
   return start;
+}
+
+//----------------------------------------------------------------------------
+vtkXMLDataElement* vtkXMLDataElement::LookupElementWithName(const char* name)
+{
+  if (!name)
+    {
+    return NULL;
+    }
+
+  int i;
+  for (i = 0; i < this->NumberOfNestedElements; ++i)
+    {
+    const char *nname = this->NestedElements[i]->GetName();
+    if (nname && !strcmp(nname, name))
+      {
+      return this->NestedElements[i];
+      }
+    vtkXMLDataElement *found = 
+      this->NestedElements[i]->LookupElementWithName(name);
+    if (found)
+      {
+      return found;
+      }
+    }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
