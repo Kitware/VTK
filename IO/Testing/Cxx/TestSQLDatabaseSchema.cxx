@@ -34,19 +34,20 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
   schema->SetName( "TestSchema" );
   tblHandle = schema->AddTableMultipleArguments( "StrangeTable",
-                                                 vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
-                                                 vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
-                                                 vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
-                                                 vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
-                                                 vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
-                                                 vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-                                                 vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
-                                                 vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
-                                                 vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
-                                                 vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-                                                 vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT, "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
-                                                 vtkSQLDatabaseSchema::END_TABLE_TOKEN
-                                                 );
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+    vtkSQLDatabaseSchema::END_TABLE_TOKEN
+  );
 
   if ( tblHandle < 0 )
     {
@@ -228,5 +229,4 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   schema->Delete();
 
   return status ? 0 : 1;
-  return 0;
 }
