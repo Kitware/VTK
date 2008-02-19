@@ -163,6 +163,8 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   trgNames.insert( vtkStdString ( "InsertTrigger" ) );
   vtkstd::set<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
+  vtkstd::set<vtkStdString> trgActions;
+  trgActions.insert( vtkStdString( "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr" ) );
 
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
@@ -203,6 +205,22 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     else
       {
       cerr << "Could not retrieve trigger type " << trgType  << " from test schema.\n";
+      status = false;
+      }
+
+    vtkStdString trgAction = schema->GetTriggerActionFromHandle( tblHandle, trgHandle );
+    cerr << "Trigger action: " 
+         << trgAction
+         << "\n";
+
+    sit = trgActions.find( trgAction );
+    if ( sit != trgActions.end() )
+      {
+      trgActions.erase ( sit );
+      }
+    else
+      {
+      cerr << "Could not retrieve trigger action " << trgAction  << " from test schema.\n";
       status = false;
       }
     }
