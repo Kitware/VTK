@@ -134,8 +134,11 @@ public:
   // Description:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
-  // NB: this method implements the MySQL-specific syntax:
+  // NB1: this method implements the MySQL-specific syntax:
   // `<column name>` <type> <column attributes>
+  // NB2: if a column has type SERIAL in the schema, this will be turned
+  // into INT AUTO_INCREMENT NOT NULL. Therefore, one should not pass
+  // NOT NULL as an attribute of a column whose type is SERIAL.
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
