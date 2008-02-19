@@ -86,7 +86,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
     else
       {
-      cerr << "Could not retrieve column name " << colName  << " in test schema.\n";
+      cerr << "Could not retrieve column name " << colName  << " from test schema.\n";
       status = false;
       }
 
@@ -102,10 +102,18 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
     else
       {
-      cerr << "Could not retrieve column type " << colType  << " in test schema.\n";
+      cerr << "Could not retrieve column type " << colType  << " from test schema.\n";
       status = false;
       }
     }
+
+  // Define the correct (reference) indices and types
+  vtkstd::set<vtkStdString> idxNames;
+  idxNames.insert( vtkStdString ( "BigKey" ) );
+  idxNames.insert( vtkStdString ( "ReverseLookup" ) );
+  vtkstd::set<int> idxTypes;
+  idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::PRIMARY_KEY ) );
+  idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::UNIQUE ) );
 
   // Loop over all indices of the previously created table
   int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
@@ -117,9 +125,37 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   
   for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
     {
+    vtkStdString idxName = schema->GetIndexNameFromHandle( tblHandle, idxHandle );
     cerr << "Index name: " 
-         << schema->GetIndexNameFromHandle( tblHandle, idxHandle )
+         << idxName
          << "\n";
+
+    vtkstd::set<vtkStdString>::iterator sit = idxNames.find( idxName );
+    if ( sit != idxNames.end() )
+      {
+      idxNames.erase ( sit );
+      }
+    else
+      {
+      cerr << "Could not retrieve index name " << idxName  << " from test schema.\n";
+      status = false;
+      }
+
+    int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
+    cerr << "Index type: " 
+         << idxType
+         << "\n";
+
+    vtkstd::set<int>::iterator iit = idxTypes.find( idxType );
+    if ( iit != idxTypes.end() )
+      {
+      idxTypes.erase ( iit );
+      }
+    else
+      {
+      cerr << "Could not retrieve index type " << idxType  << " from test schema.\n";
+      status = false;
+      }
     }
 
   // Define the correct (reference) triggers and types
@@ -150,7 +186,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
     else
       {
-      cerr << "Could not retrieve trigger name " << trgName  << " in test schema.\n";
+      cerr << "Could not retrieve trigger name " << trgName  << " from test schema.\n";
       status = false;
       }
 
@@ -166,7 +202,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
     else
       {
-      cerr << "Could not retrieve trigger type " << trgType  << " in test schema.\n";
+      cerr << "Could not retrieve trigger type " << trgType  << " from test schema.\n";
       status = false;
       }
     }
