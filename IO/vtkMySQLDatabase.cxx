@@ -31,7 +31,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.9");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.10");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -305,13 +305,47 @@ vtkStdString vtkMySQLDatabase::GetURL()
 }
 
 // ----------------------------------------------------------------------
+vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                                       int tblHandle,
+                                                       int colHandle )
+{
+  // With MySQL, the column name must be enclosed between backquotes
+  vtkStdString queryStr = "`";
+  queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
+  queryStr += "` ";
+
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+
+  vtkStdString colTypeStr = this->GetColumnTypeString( colType );
+  if ( colTypeStr )
+    {
+    queryStr += " ";
+    queryStr += colTypeStr;
+    }
+  else // if ( colTypeStr )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return 0;
+    }
+  
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr )
+    {
+    queryStr += " ";
+    queryStr += attStr;
+    }
+
+  return queryStr;
+}
+
+// ----------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetColumnTypeString( int colType )
 {
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL: return 0;
+    case vtkSQLDatabaseSchema::SERIAL: return "INT AUTO_INCREMENT NOT NULL";
     case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
-    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
+    case vtkSQLDatabaseSchema::INTEGER: return "INT";
     case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
     case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
     case vtkSQLDatabaseSchema::TEXT: return "TEXT";
