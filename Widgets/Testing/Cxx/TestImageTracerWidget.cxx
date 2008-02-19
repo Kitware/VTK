@@ -457,6 +457,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   vtkPolyDataToImageStencil* dataToStencil = vtkPolyDataToImageStencil::New();
     dataToStencil->SetInputConnection(extrude->GetOutputPort());
+    dataToStencil->SetOutputSpacing(3.2, 3.2, 1.5);
 
   vtkImageStencil* stencil = vtkImageStencil::New();
     stencil->SetInputConnection(extract->GetOutputPort());
