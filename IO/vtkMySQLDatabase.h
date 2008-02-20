@@ -131,7 +131,7 @@ public:
   // "CREATE TABLE" SQL statement.
   // NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
   // used when b = false.
-  virtual vtkStdString GetTablePreamble( bool b ) { return b ? 0 :"IF NOT EXISTS "; }
+  virtual vtkStdString GetTablePreamble( bool b ) { return b ? vtkStdString() :"IF NOT EXISTS "; }
  
   // Description:
   // Return the SQL string with the syntax to create a column inside a
