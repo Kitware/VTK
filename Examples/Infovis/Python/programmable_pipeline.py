@@ -28,9 +28,9 @@ view.AddRepresentationFromInputConnection(create_index.GetOutputPort())
 view.SetVertexLabelArrayName("index")
 view.SetVertexLabelVisibility(True)
 
-#theme = vtkViewTheme.CreateMellowTheme()
-#view.ApplyViewTheme(theme)
-#theme.FastDelete()
+theme = vtkViewTheme.CreateMellowTheme()
+view.ApplyViewTheme(theme)
+theme.FastDelete()
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)
