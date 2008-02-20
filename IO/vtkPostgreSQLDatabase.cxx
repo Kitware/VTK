@@ -26,12 +26,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStringArray.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <vtksys/ios/sstream>
 
 #define PQXX_ALLOW_LONG_LONG
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.16");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.17");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -92,7 +93,8 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema
                                                             int tblHandle,
                                                             int colHandle )
 {
-  vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
+  vtksys_ios::ostringstream queryStr;
+  queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
@@ -139,8 +141,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema
   
   if ( colTypeStr.size() )
     {
-    queryStr += " ";
-    queryStr += colTypeStr;
+    queryStr << " " << colTypeStr;
     }
   else // if ( colTypeStr.size() )
     {
@@ -156,13 +157,13 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema
       colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::SMALLINT:  
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::INTEGER:   
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::BIGINT:    
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::VARCHAR:   
       colSizeType = -1;
@@ -171,16 +172,16 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema
       colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::REAL:      
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::DOUBLE:    
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::BLOB:      
       colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::TIME:      
-      colSizeType =  0;
+      colSizeType =  1;
       break;
     case vtkSQLDatabaseSchema::DATE:      
       colSizeType =  0;
@@ -206,20 +207,17 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
       {
-      queryStr += "(";
-      queryStr += colSize;
-      queryStr += ")";
+      queryStr << "(" << colSize << ")";
       }
     }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
   if ( attStr.size() )
     {
-    queryStr += " ";
-    queryStr += attStr;
+    queryStr << " " << attStr;
     }
 
-  return queryStr;
+  return queryStr.str();
 }
 
 // ----------------------------------------------------------------------

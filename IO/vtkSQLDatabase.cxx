@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.31");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.32");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -141,13 +141,13 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
       colSizeType = -1;
       break;
     case vtkSQLDatabaseSchema::REAL:      
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::DOUBLE:    
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::BLOB:      
-      colSizeType =  1;
+      colSizeType =  0;
       break;
     case vtkSQLDatabaseSchema::TIME:      
       colSizeType =  0;
