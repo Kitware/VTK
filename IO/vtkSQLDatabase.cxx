@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.27");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.28");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -111,7 +111,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
     queryStr += " ";
     queryStr += colTypeStr;
     }
-  else // if ( colTypeStr )
+  else // if ( colTypeStr.size() )
     {
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
     return vtkStdString();
@@ -357,8 +357,8 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     {
     // Construct the query string for this table
     vtkStdString queryStr( "CREATE TABLE " );
-    queryStr += schema->GetTableNameFromHandle( tblHandle );
     queryStr += this->GetTablePreamble( dropIfExists );
+    queryStr += schema->GetTableNameFromHandle( tblHandle );
     queryStr += " (";
 
     // Loop over all columns of the current table
