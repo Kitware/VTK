@@ -44,7 +44,7 @@
 
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.16");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.17");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -284,7 +284,7 @@ int vtkExtractSelectedGraph::RequestData(
     //
     // Vertex selection
     //
-    
+   
     double pt[3];
     vtkPoints *inputPoints = input->GetPoints();
     vtkSmartPointer<vtkPoints> outputPoints = 
@@ -367,11 +367,11 @@ int vtkExtractSelectedGraph::RequestData(
     vtkDataSetAttributes *builderEdgeData = 0;
     if (directed)
       {
-      builderEdgeData = dirBuilder->GetVertexData();
+      builderEdgeData = dirBuilder->GetEdgeData();
       }
     else
       {
-      builderEdgeData = undirBuilder->GetVertexData();
+      builderEdgeData = undirBuilder->GetEdgeData();
       }
     builderEdgeData->CopyAllocate(inputEdgeData);
 
