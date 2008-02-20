@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.20");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.21");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -405,10 +405,10 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
       colSizeType =  1;
       break;
     case vtkSQLDatabaseSchema::REAL:      
-      colSizeType =  1;
+      colSizeType =  0; // Eventually will make DB schemata handle (M,D) sizes
       break;
     case vtkSQLDatabaseSchema::DOUBLE:    
-      colSizeType =  1;
+      colSizeType =  0; // Eventually will make DB schemata handle (M,D) sizes
       break;
     case vtkSQLDatabaseSchema::BLOB:      
       colSizeType =  1;
