@@ -17,6 +17,10 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+// Check for Qt SQL module before defining this class.
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_SQL)
+
 #include "vtkQtSQLQuery.h"
 
 #include "vtkCharArray.h"
@@ -42,7 +46,7 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkQtSQLQuery, "1.1");
+vtkCxxRevisionMacro(vtkQtSQLQuery, "1.2");
 vtkStandardNewMacro(vtkQtSQLQuery);
 
 vtkQtSQLQuery::vtkQtSQLQuery()
@@ -223,3 +227,4 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     }
 }
 
+#endif // (QT_EDITION & QT_MODULE_SQL)

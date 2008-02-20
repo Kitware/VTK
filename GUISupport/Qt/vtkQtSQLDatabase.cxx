@@ -17,6 +17,10 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+// Check for Qt SQL module before defining this class.
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_SQL)
+
 #include "vtkQtSQLDatabase.h"
 
 #include "vtkObjectFactory.h"
@@ -28,7 +32,7 @@
 #include <QtSql/QtSql>
 #include <QtSql/QSqlError>
 
-vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.1");
+vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.2");
 vtkStandardNewMacro(vtkQtSQLDatabase);
 
 int vtkQtSQLDatabase::id = 0;
@@ -257,3 +261,4 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   return url;
 }
 
+#endif // (QT_EDITION & QT_MODULE_SQL)

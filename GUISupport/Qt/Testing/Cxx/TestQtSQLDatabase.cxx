@@ -18,6 +18,9 @@
 ----------------------------------------------------------------------------*/
 // Tests vtkQtSQLDatabase.
 
+// Check for Qt SQL module before defining this test.
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_SQL)
 #include "vtkQtSQLDatabase.h"
 #include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
@@ -271,6 +274,13 @@ int TestQtSQLDatabase(int argc, char* argv[])
   reader->Delete();
   query->Delete();
   db->Delete();
-
   return 0;
 }
+#else
+#include "vtkObject.h" // for cerr.
+int TestQtSQLDatabase(int, char*[])
+{
+  cerr << "QT_MODULE_SQL not enabled in this edition, so nothing to test." << endl;
+  return 0;
+}
+#endif // (QT_EDITION & QT_MODULE_SQL)

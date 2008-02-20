@@ -24,6 +24,10 @@
 #ifndef __vtkQtSQLDatabase_h
 #define __vtkQtSQLDatabase_h
 
+// Check for Qt SQL module before defining this class.
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_SQL)
+
 #include "QVTKWin32Header.h"
 #include "vtkSQLDatabase.h"
 
@@ -166,5 +170,6 @@ private:
   void operator=(const vtkQtSQLDatabase &); // Not implemented.
 };
 
+#endif // (QT_EDITION & QT_MODULE_SQL)
 #endif // __vtkQtSQLDatabase_h
 

@@ -24,6 +24,10 @@
 #ifndef __vtkQtSQLQuery_h
 #define __vtkQtSQLQuery_h
 
+// Check for Qt SQL module before defining this class.
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_SQL)
+
 #include "QVTKWin32Header.h"
 #include "vtkSQLQuery.h"
 #include "vtkType.h"
@@ -94,5 +98,6 @@ private:
   void operator=(const vtkQtSQLQuery &); // Not implemented.
 };
 
+#endif // (QT_EDITION & QT_MODULE_SQL)
 #endif // __vtkQtSQLQuery_h
 
