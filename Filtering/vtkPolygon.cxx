@@ -28,7 +28,7 @@
 #include "vtkBox.h"
 #include "vtkMergePoints.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.7");
+vtkCxxRevisionMacro(vtkPolygon, "1.8");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -457,8 +457,8 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
 #define VTK_POLYGON_CERTAIN 1
 #define VTK_POLYGON_UNCERTAIN 0
 #define VTK_POLYGON_RAY_TOL 1.e-03 //Tolerance for ray firing
-#define VTK_POLYGON_MAX_ITER 200    //Maximum iterations for ray-firing
-#define VTK_POLYGON_VOTE_THRESHOLD 8
+#define VTK_POLYGON_MAX_ITER 10    //Maximum iterations for ray-firing
+#define VTK_POLYGON_VOTE_THRESHOLD 2
 
 #ifndef TRUE
 #define FALSE 0
