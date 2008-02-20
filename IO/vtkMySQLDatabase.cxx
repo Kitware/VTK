@@ -31,7 +31,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.10");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.11");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -343,7 +343,7 @@ vtkStdString vtkMySQLDatabase::GetColumnTypeString( int colType )
 {
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL: return "INT AUTO_INCREMENT NOT NULL";
+    case vtkSQLDatabaseSchema::SERIAL: return "INT NOT NULL AUTO_INCREMENT";
     case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
     case vtkSQLDatabaseSchema::INTEGER: return "INT";
     case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
