@@ -31,7 +31,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.16");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.17");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -439,7 +439,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     
     // At this point, we have either a valid size if required, or a possibly null valid size
     // if not required. Thus, skip sizing in the latter case.
-    if ( colSize < 0 )
+    if ( colSize > 0 )
       {
       queryStr += "(";
       queryStr += colSize;
