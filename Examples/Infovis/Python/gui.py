@@ -15,6 +15,7 @@ edge_slider = window.findChild(QtGui.QSlider, "edgeCount")
 source = vtkRandomGraphSource()
 source.SetNumberOfVertices(vertex_slider.value())
 source.SetNumberOfEdges(edge_slider.value())
+source.SetStartWithTree(True)
 
 # Define event-handlers that update the pipeline in response to widget events ...
 def change_vertex_count(count):
