@@ -108,6 +108,7 @@ SET( Kit_SRCS
   vtkProp3D.cxx
   vtkProperty.cxx
   vtkPropPicker.cxx
+  vtkQuadricLODActor.cxx
   vtkQuaternionInterpolator.cxx
   vtkRenderedAreaPicker.cxx
   vtkRendererCollection.cxx
