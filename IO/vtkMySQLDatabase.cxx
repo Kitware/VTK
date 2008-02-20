@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.18");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.19");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -423,12 +423,11 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
       colSizeType =  0;
       break;
     }
-  cerr << "colsizeType is " << colSizeType << "\n";
+
   // Specify size if allowed or required
   if ( colSizeType )
     {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
-    cerr << "colsize is " << colSize << "\n";
     // IF size is provided but absurd, 
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
