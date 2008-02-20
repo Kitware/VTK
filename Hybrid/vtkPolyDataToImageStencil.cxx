@@ -12,21 +12,67 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPolyDataToImageStencil.h"
+/*=========================================================================
 
-#include "vtkGarbageCollector.h"
+Copyright (c) 2008 Atamai, Inc.
+
+Use, modification and redistribution of the software, in source or
+binary forms, are permitted provided that the following terms and
+conditions are met:
+
+1) Redistribution of the source code, in verbatim or modified
+   form, must retain the above copyright notice, this license,
+   the following disclaimer, and any notices that refer to this
+   license and/or the following disclaimer.  
+
+2) Redistribution in binary form must include the above copyright
+   notice, a copy of this license and the following disclaimer
+   in the documentation or with other materials provided with the
+   distribution.
+
+3) Modified copies of the source code must be clearly marked as such,
+   and must not be misrepresented as verbatim copies of the source code.
+
+THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE SOFTWARE "AS IS"
+WITHOUT EXPRESSED OR IMPLIED WARRANTY INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  IN NO EVENT SHALL ANY COPYRIGHT HOLDER OR OTHER PARTY WHO MAY
+MODIFY AND/OR REDISTRIBUTE THE SOFTWARE UNDER THE TERMS OF THIS LICENSE
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, LOSS OF DATA OR DATA BECOMING INACCURATE
+OR LOSS OF PROFIT OR BUSINESS INTERRUPTION) ARISING IN ANY WAY OUT OF
+THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
+
+=========================================================================*/
+#include "vtkPolyDataToImageStencil.h"
 #include "vtkImageStencilData.h"
+#include "vtkObjectFactory.h"
+
+// don't need all of these
+#include "vtkLine.h"
+#include "vtkCellArray.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkMergePoints.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
+#include "vtkGenericCell.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkOBBTree.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkFastNumericConversion.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.21");
+#include <vtkstd/vector>
+#include <vtkstd/algorithm>
+
+
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -34,9 +80,6 @@ vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
 //----------------------------------------------------------------------------
 vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
-  this->OBBTree = NULL;
-  this->Tolerance = 1e-3;
-
   // InformationInput is an input used only for its information.
   // The vtkImageStencilSource produces a structured data
   // set with a specific "Spacing" and "Origin", and the
@@ -63,35 +106,16 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
   this->OutputWholeExtent[3] = VTK_LARGE_INTEGER >> 2;
   this->OutputWholeExtent[4] = 0;
   this->OutputWholeExtent[5] = VTK_LARGE_INTEGER >> 2;
+
+#ifndef VTK_LEGACY_REMOVE
+  this->Tolerance = 1e-3;
+#endif
 }
 
 //----------------------------------------------------------------------------
 vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil()
 {
   this->SetInformationInput(NULL);
-
-  if (this->OBBTree)
-    {
-    this->OBBTree->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-
-    os << indent << "InformationInput: " << this->InformationInput << "\n";
-  os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
-    this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
-  os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
-    this->OutputOrigin[1] << " " << this->OutputOrigin[2] << "\n";
-  os << indent << "OutputWholeExtent: " << this->OutputWholeExtent[0] << " " <<
-    this->OutputWholeExtent[1] << " " << this->OutputWholeExtent[2] << " " <<
-    this->OutputWholeExtent[3] << " " << this->OutputWholeExtent[4] << " " <<
-    this->OutputWholeExtent[5] << "\n";
-  os << indent << "Input: " << this->GetInput() << "\n";
-  os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -108,6 +132,30 @@ void vtkPolyDataToImageStencil::SetInput(vtkPolyData *input)
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkPolyDataToImageStencil::SetTolerance(double tolerance)
+{
+  VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, "VTK 5.2");
+
+  if (tolerance == this->Tolerance)
+    {
+    return;
+    }
+  
+  this->Tolerance = tolerance;
+  this->Modified();
+}
+#endif /* VTK_LEGACY_REMOVE */
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double vtkPolyDataToImageStencil::GetTolerance()
+{
+  return this->Tolerance;
+}
+#endif /* VTK_LEGACY_REMOVE */
+
+//----------------------------------------------------------------------------
 vtkPolyData *vtkPolyDataToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
@@ -120,57 +168,401 @@ vtkPolyData *vtkPolyDataToImageStencil::GetInput()
 }
 
 //----------------------------------------------------------------------------
-static inline
-void vtkAddEntryToList(int *&clist, int &clistlen, int &clistmaxlen, int r)
+void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
+                                          vtkIndent indent)
 {
-  if (clistlen >= clistmaxlen)
-    { // need to allocate more space
-    clistmaxlen *= 2;
-    int *newclist = new int[clistmaxlen];
-    for (int k = 0; k < clistlen; k++)
-      {
-      newclist[k] = clist[k];
-      }
-    delete [] clist;
-    clist = newclist;
+  this->Superclass::PrintSelf(os,indent);
+
+    os << indent << "InformationInput: " << this->InformationInput << "\n";
+  os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
+    this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
+  os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
+    this->OutputOrigin[1] << " " << this->OutputOrigin[2] << "\n";
+  os << indent << "OutputWholeExtent: " << this->OutputWholeExtent[0] << " " <<
+    this->OutputWholeExtent[1] << " " << this->OutputWholeExtent[2] << " " <<
+    this->OutputWholeExtent[3] << " " << this->OutputWholeExtent[4] << " " <<
+    this->OutputWholeExtent[5] << "\n";
+  os << indent << "Input: " << this->GetInput() << "\n";
+#ifndef VTK_LEGACY_REMOVE
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+#endif /* VTK_LEGACY_REMOVE */
+}
+
+//----------------------------------------------------------------------------
+// This method was taken from vtkCutter and slightly modified
+void vtkPolyDataToImageStencil::DataSetCutter(
+  vtkDataSet *input, vtkPolyData *output, double z, vtkMergePoints *locator)
+{
+  vtkIdType cellId, i;
+  vtkPoints *cellPts;
+  vtkDoubleArray *cellScalars;
+  vtkGenericCell *cell;
+  vtkCellArray *newVerts, *newLines, *newPolys;
+  vtkPoints *newPoints;
+  double s;
+  vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
+  int numCellPts;
+  vtkPointData *inPD, *outPD;
+  vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
+  vtkIdList *cellIds;
+  
+  cellScalars=vtkDoubleArray::New();
+
+  // Create objects to hold output of contour operation
+  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
+  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
     }
 
-  if (clistlen > 0 && r <= clist[clistlen-1])
-    { // chop out zero-length extents
-    clistlen--;
-    }
-  else
+  newPoints = vtkPoints::New();
+  newPoints->Allocate(estimatedSize,estimatedSize/2);
+  newVerts = vtkCellArray::New();
+  newVerts->Allocate(estimatedSize,estimatedSize/2);
+  newLines = vtkCellArray::New();
+  newLines->Allocate(estimatedSize,estimatedSize/2);
+  newPolys = vtkCellArray::New();
+  newPolys->Allocate(estimatedSize,estimatedSize/2);
+
+  // Interpolate data along edge.
+  inPD = input->GetPointData();
+  outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+    
+  // locator used to merge potentially duplicate points
+  //
+  locator->InitPointInsertion (newPoints, input->GetBounds());
+
+  // Compute some information for progress methods
+  //
+  cell = vtkGenericCell::New();
+  
+  // Loop over all cells; get scalar values for all cell points
+  // and process each cell.
+  //
+  for (cellId=0; cellId < numCells; cellId++)
     {
-    clist[clistlen++] = r;
+    input->GetCell(cellId,cell);
+    cellPts = cell->GetPoints();
+    cellIds = cell->GetPointIds();
+
+    numCellPts = cellPts->GetNumberOfPoints();
+    cellScalars->SetNumberOfTuples(numCellPts);
+    for (i=0; i < numCellPts; i++)
+      {
+      // scalar value is distance from the specified z plane
+      s = input->GetPoint(cellIds->GetId(i))[2] - z;
+      cellScalars->SetTuple(i,&s);
+      }
+
+    cell->Contour(0.0, cellScalars, locator, 
+                  newVerts, newLines, newPolys, inPD, outPD,
+                  inCD, cellId, outCD);
+    }
+
+  // Update ourselves.  Because we don't know upfront how many verts, lines,
+  // polys we've created, take care to reclaim memory. 
+  //
+  cell->Delete();
+  cellScalars->Delete();
+
+  output->SetPoints(newPoints);
+  newPoints->Delete();
+
+  if (newVerts->GetNumberOfCells())
+    {
+    output->SetVerts(newVerts);
+    }
+  newVerts->Delete();
+
+  if (newLines->GetNumberOfCells())
+    {
+    output->SetLines(newLines);
+    }
+  newLines->Delete();
+
+  if (newPolys->GetNumberOfCells())
+    {
+    output->SetPolys(newPolys);
+    }
+  newPolys->Delete();
+
+  locator->Initialize();//release any extra memory
+  output->Squeeze();
+}
+
+//----------------------------------------------------------------------------
+static void vtkFloatingEndPointScanConvertLine2D(
+  double pt1[2], double pt2[2],
+  int z, int extent[6],
+  vtkstd::vector< vtkstd::vector<double> >& zyBucket)
+{
+  double x1 = pt1[0];
+  double x2 = pt2[0];
+  double y1 = pt1[1];
+  double y2 = pt2[1];
+
+  // swap end points if necessary
+  if (y1 > y2)
+    {
+    x1 = pt2[0];
+    x2 = pt1[0];
+    y1 = pt2[1];
+    y2 = pt1[1];
+    }
+
+  // check for parallel to the x-axis
+  if (y1 == y2)
+    {
+    return;
+    }
+  
+  // Integer y values for start and end of line
+  int Ay = vtkFastNumericConversion::QuickFloor(y1 + 1.0);
+  int By = vtkFastNumericConversion::QuickFloor(y2);
+
+  // Precalculate to avoid division at each step in the loop
+  double inverseDenominator = 1.0/(y2 - y1);
+
+  // Take z coordinate and extents into account for bucket index
+  int idx0 = (z - extent[4])*(extent[3] - extent[2]) - extent[2];
+
+  // Go along y and place each x in the proper (y,z) bucket.
+  for( int y = Ay; y <= By; y++ )
+    {
+    double x = ( (y2 - y)*x1 + (y - y1)*x2 )*inverseDenominator; 
+    zyBucket[idx0 + y].push_back( x );
     }
 }
 
 //----------------------------------------------------------------------------
-static
-void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
-                           int extent[6], double origin[3], double spacing[3],
-                           int dim)
+void vtkPolyDataToImageStencil::ThreadedExecute(
+  vtkImageStencilData *data,
+  int extent[6],
+  int id)
 {
-  int clistmaxlen = 2;
-  clistlen = 0;
-  clist = new int[clistmaxlen];
+  // Description of algorithm:
+  // 1) cut the polydata at each z slice to create polylines
+  // 2) find all "loose ends" and connect them to make polygons
+  //    (if the input polydata is closed, there will be no loose ends) 
+  // 3) go through all line segments, and for each integer y value on
+  //    a line segment, store the x value at that point in a bucket
+  // 4) for each (y,z) integer index, find all the stored x values
+  //    and use them to create the vtkStencilData
+    
+  double *spacing = data->GetSpacing();
+  double *origin = data->GetOrigin();
 
-  int npoints = points->GetNumberOfPoints();
-  for (int idP = 0; idP < npoints; idP++)
+  // if we have no data then return
+  if (!this->GetInput()->GetNumberOfPoints())
     {
-    double point[3];
-    points->GetPoint(idP, point);
-    int r = (int)ceil((point[dim] - origin[dim])/spacing[dim]);
-    if (r < extent[2*dim])
-      {
-      r = extent[2*dim];
-      }
-    if (r > extent[2*dim+1])
-      {
-      break;
-      }
-    vtkAddEntryToList(clist, clistlen, clistmaxlen, r);
+    return;
     }
+
+  // Only divide once
+  double invspacing[3];
+  invspacing[0] = 1.0/spacing[0];
+  invspacing[1] = 1.0/spacing[1];
+  invspacing[2] = 1.0/spacing[2];
+
+  // get the input data
+  vtkPolyData *input = this->GetInput();
+
+  // the locator to use with the data
+  vtkMergePoints *locator = vtkMergePoints::New();
+
+  // the output produced by cutting the polydata with the Z plane
+  vtkPolyData *slice = vtkPolyData::New();
+
+  // Determine data dimensions
+  int dims[3];
+  dims[0] = (extent[1] - extent[0]) + 1;
+  dims[1] = (extent[3] - extent[2]) + 1;
+  dims[2] = (extent[5] - extent[4]) + 1;
+
+  // This vector stores all line segments by recording all "x"
+  // positions on the surface for each (y,z) integer position.
+  vtkstd::vector< vtkstd::vector<double> > zyBucket(dims[1]*dims[2]);
+
+  // Loop through the slices
+  int idxY, idxZ;
+  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    {
+    double z = idxZ*spacing[2] + origin[2];
+
+    slice->PrepareForNewData();
+
+    // Step 1: Cut the data into slices
+    this->DataSetCutter(input, slice, z, locator);
+    
+    if (!slice->GetNumberOfLines())
+      {
+      continue;
+      }
+     
+    slice->BuildLinks( 0 );
+    vtkCellArray *lines = slice->GetLines();
+    lines->InitTraversal();
+    
+    vtkPoints *points = slice->GetPoints();
+    vtkIdType numberOfPoints = points->GetNumberOfPoints();
+    
+    vtkIdList *cellIdList = vtkIdList::New();
+    vtkIdList *pointIdList = vtkIdList::New();
+
+    // Step 2: Find and connect all the loose ends
+    vtkIdList *looseEndIdList = vtkIdList::New();
+
+    for (int i = 0; i < numberOfPoints; i++)
+      {
+      vtkIdType currentPointId = i; 
+      slice->GetPointCells(currentPointId , cellIdList );
+      if(cellIdList->GetNumberOfIds() < 2)
+        {
+        // store the loose end
+        looseEndIdList->InsertNextId(currentPointId);
+        }
+      }
+
+    while (looseEndIdList->GetNumberOfIds() >= 2)
+      {
+      vtkIdType firstLooseEndId = looseEndIdList->GetId(0);
+      vtkIdType secondLooseEndId = looseEndIdList->GetId(1);
+
+      // first loose end in the list
+      double firstLooseEnd[3];
+      slice->GetPoint( firstLooseEndId, firstLooseEnd );
+
+      // second loose end in the list
+      double secondLooseEnd[3];
+      slice->GetPoint( secondLooseEndId, secondLooseEnd );
+
+      looseEndIdList->DeleteId( firstLooseEndId );
+
+      double minimumDistance = vtkMath::Distance2BetweenPoints(
+        firstLooseEnd, secondLooseEnd );
+      
+      for(int j = 2; j < looseEndIdList->GetNumberOfIds(); j++)
+        {
+        vtkIdType currentLooseEndId = looseEndIdList->GetId( j );
+        double currentLooseEnd[3];
+        slice->GetPoint( looseEndIdList->GetId( j ), currentLooseEnd );
+        if (vtkMath::Distance2BetweenPoints( firstLooseEnd, currentLooseEnd )
+            < minimumDistance)
+          {
+          minimumDistance = vtkMath::Distance2BetweenPoints( firstLooseEnd,
+                                                             currentLooseEnd );
+          secondLooseEndId = currentLooseEndId;
+          }
+        }
+      looseEndIdList->DeleteId( secondLooseEndId );
+      lines->InsertNextCell( 2 );
+      lines->InsertCellPoint( firstLooseEndId );
+      lines->InsertCellPoint( secondLooseEndId );
+      }
+
+    // Step 3: Go through all the line segments for this slice,
+    // and for each integer y position on the line segment,
+    // drop the corresponding x position into the (y,z) bucket.
+    lines->InitTraversal();
+    vtkIdType *pts = 0;
+    vtkIdType npts = 0;
+
+    while ( lines->GetNextCell(npts, pts) )
+      {
+      double point1[3], point2[3];
+      slice->GetPoint(pts[0], point1);
+      slice->GetPoint(pts[1], point2);
+      
+      double fend1[2], fend2[2];
+      fend1[0] =  (point1[0] - origin[0])*invspacing[0];
+      fend1[1] =  (point1[1] - origin[1])*invspacing[1];
+      fend2[0] = (point2[0] - origin[0])*invspacing[0];
+      fend2[1] = (point2[1] - origin[1])*invspacing[1];
+      
+      vtkFloatingEndPointScanConvertLine2D(fend1, fend2, idxZ, extent,
+                                           zyBucket);
+      }
+
+    cellIdList->Delete();
+    looseEndIdList->Delete();
+    pointIdList->Delete();
+    }
+
+  // Step 4: The final part of the algorithm is to fill in the
+  // stencil, i.e. rasterization of the polyhedron.
+  int r1, r2, lastr2;
+  for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
+    {
+    for (idxY = extent[2]; idxY <= extent[3]; idxY++)
+      {
+      vtkstd::vector<double>& xList =
+        zyBucket[(idxZ - extent[4])*dims[1] + (idxY - extent[2])];
+
+      if (xList.empty())
+        {
+        continue;
+        }
+          
+      // handle pairs
+      lastr2 = extent[0] - 1;
+      if (xList.size() % 2 == 0)
+        {
+        vtkstd::sort(xList.begin(), xList.end());
+
+        vtkstd::vector<double>::iterator xIter = xList.begin();
+        while (xIter != xList.end())
+          {
+          // Take ceil() of first value in pair
+          r1 = -vtkFastNumericConversion::QuickFloor(- *xIter);
+          xIter++;
+          // Take floor() of second value in pair
+          r2 = vtkFastNumericConversion::QuickFloor(*xIter);
+          xIter++;
+
+          // extents are not allowed to overlap
+          if (r1 == lastr2)
+            {
+            r1++;
+            // eliminate empty extents
+            if (r1 > r2)
+              {
+              continue;
+              }
+            }
+
+          data->InsertNextExtent(r1, r2, idxY, idxZ);
+
+          lastr2 = r2;
+          }
+        }
+      }
+    }
+
+  slice->Delete();
+  locator->Delete();
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataToImageStencil::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  this->Superclass::RequestData(request, inputVector, outputVector);
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  int extent[6];
+  data->GetExtent(extent);
+  this->ThreadedExecute(data, extent, 0);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -212,180 +604,12 @@ int vtkPolyDataToImageStencil::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataToImageStencil::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  this->Superclass::RequestData(request, inputVector, outputVector);
-
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // need to build the OBB tree
-  vtkPolyData *polydata = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageStencilData *data = vtkImageStencilData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (this->OBBTree == NULL)
-    {
-    this->OBBTree = vtkOBBTree::New();
-    }
-  this->OBBTree->SetDataSet(polydata);
-  this->OBBTree->SetTolerance(this->Tolerance);
-  this->OBBTree->BuildLocator();
-
-  // for keeping track of progress
-  unsigned long count = 0;
-  int extent[6];
-  data->GetExtent(extent);
-  unsigned long target = (unsigned long)
-    ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
-  target++;
-
-  // if we have no data then return
-  if (!polydata->GetNumberOfPoints())
-    {
-    return 1;
-    }
-  
-  double *spacing = data->GetSpacing();
-  double *origin = data->GetOrigin();
-
-  vtkOBBTree *tree = this->OBBTree;
-  vtkPoints *points = vtkPoints::New();
-
-  double p0[3],p1[3];
-
-  p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
-  p1[1] = p0[1] = extent[2]*spacing[1] + origin[1];
-  p0[2] = extent[4]*spacing[2] + origin[2];
-  p1[2] = extent[5]*spacing[2] + origin[2];
-
-  int zstate = tree->InsideOrOutside(p0);
-  if (zstate == 0)
-    {
-    zstate = -1;
-    }
-  int *zlist = 0;
-  int zlistlen = 0;
-  int zlistidx = 0;
-  if (extent[4] < extent[5])
-    {
-    tree->IntersectWithLine(p0, p1, points, 0);
-    vtkTurnPointsIntoList(points, zlist, zlistlen,
-                          extent, origin, spacing, 2);
-    }
-
-  for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
-    {
-    if (zlistidx < zlistlen && idZ >= zlist[zlistidx])
-      {
-      zstate = -zstate;
-      zlistidx++;
-      }
-
-    p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
-    p0[1] = extent[2]*spacing[1] + origin[1];
-    p1[1] = extent[3]*spacing[1] + origin[1];
-    p1[2] = p0[2] = idZ*spacing[2] + origin[2];
-
-    int ystate = zstate;
-    int *ylist = 0;
-    int ylistlen = 0;
-    int ylistidx = 0;
-    if (extent[2] != extent[3])
-      {
-      tree->IntersectWithLine(p0, p1, points, 0);
-      vtkTurnPointsIntoList(points, ylist, ylistlen,
-                            extent, origin, spacing, 1);
-      }
-
-    for (int idY = extent[2]; idY <= extent[3]; idY++)
-      {
-      if (ylistidx < ylistlen && idY >= ylist[ylistidx])
-        {
-        ystate = -ystate;
-        ylistidx++;
-        }
-
-      if (count%target == 0) 
-        {
-        this->UpdateProgress(count/(50.0*target));
-        }
-      count++;
-
-      p0[1] = p1[1] = idY*spacing[1] + origin[1];
-      p0[2] = p1[2] = idZ*spacing[2] + origin[2];
-      p0[0] = extent[0]*spacing[0] + origin[0];
-      p1[0] = extent[1]*spacing[0] + origin[0];
-
-      int xstate = ystate;
-      int *xlist = 0;
-      int xlistlen = 0;
-      int xlistidx = 0;
-      tree->IntersectWithLine(p0, p1, points, 0);
-      vtkTurnPointsIntoList(points, xlist, xlistlen,
-                            extent, origin, spacing, 0);
-
-      // now turn 'xlist' into sub-extents:
-      int r1 = extent[0];
-      int r2 = extent[1];
-      for (xlistidx = 0; xlistidx < xlistlen; xlistidx++)
-        {
-        xstate = -xstate;
-        if (xstate < 0)
-          { // sub extent starts
-          r1 = xlist[xlistidx];
-          }
-        else
-          { // sub extent ends
-          r2 = xlist[xlistidx] - 1;
-          data->InsertNextExtent(r1, r2, idY, idZ);
-          }
-        }
-      if (xstate < 0)
-        { // if inside at end, cap off the sub extent
-        data->InsertNextExtent(r1, extent[1], idY, idZ);
-        }      
-
-      if (xlist)
-        {
-        delete [] xlist;
-        }
-
-      } // for idY
-
-    if (ylist)
-      {
-      delete [] ylist;
-      }
-
-    } // for idZ
-
-  if (zlist)
-    {
-    delete [] zlist;
-    }
-  points->Delete();
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataToImageStencil::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  // This filter shares our input and is therefore involved in a
-  // reference loop.
-  vtkGarbageCollectorReport(collector, this->OBBTree, "OBBTree");
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyDataToImageStencil::FillInputPortInformation(int,
-                                                        vtkInformation* info)
+int vtkPolyDataToImageStencil::FillInputPortInformation(
+  int,
+  vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+
+
