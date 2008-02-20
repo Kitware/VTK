@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.12");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.13");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -85,6 +85,93 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                                     int tblHandle,
+                                                     int colHandle )
+{
+  vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
+
+  // Figure out column type
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  vtkStdString colTypeStr = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colTypeStr = "SERIAL";
+    case vtkSQLDatabaseSchema::SMALLINT:  colTypeStr = "SMALLINT";
+    case vtkSQLDatabaseSchema::INTEGER:   colTypeStr = "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT:    colTypeStr = "BIGINT";
+    case vtkSQLDatabaseSchema::VARCHAR:   colTypeStr = "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT:      colTypeStr = "TEXT";
+    case vtkSQLDatabaseSchema::REAL:      colTypeStr = "REAL";
+    case vtkSQLDatabaseSchema::DOUBLE:    colTypeStr = "DOUBLE PRECISION";
+    case vtkSQLDatabaseSchema::BLOB:      colTypeStr = "BYTEA";
+    case vtkSQLDatabaseSchema::TIME:      colTypeStr = "TIME";
+    case vtkSQLDatabaseSchema::DATE:      colTypeStr = "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: colTypeStr = "TIMESTAMP WITH TIME ZONE";
+    }
+  
+  if ( colTypeStr )
+    {
+    queryStr += " ";
+    queryStr += colTypeStr;
+    }
+  else // if ( colTypeStr )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return 0;
+    }
+  
+  // Decide whether size is allowed, required, or unused
+  int colSizeType = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colSizeType =  0;
+    case vtkSQLDatabaseSchema::SMALLINT:  colSizeType =  1;
+    case vtkSQLDatabaseSchema::INTEGER:   colSizeType =  1;
+    case vtkSQLDatabaseSchema::BIGINT:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::VARCHAR:   colSizeType = -1;
+    case vtkSQLDatabaseSchema::TEXT:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::REAL:      colSizeType =  1;
+    case vtkSQLDatabaseSchema::DOUBLE:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::BLOB:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIME:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::DATE:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIMESTAMP: colSizeType =  0;
+    }
+
+  // Specify size if allowed or required
+  if ( colSizeType )
+    {
+    int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
+    // IF size is provided but absurd, 
+    // OR, if size is required but not provided OR absurd,
+    // THEN assign the default size.
+    if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
+      {
+      colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
+      }
+    
+    // At this point, we have either a valid size if required, or a possibly null valid size
+    // if not required. Thus, skip sizing in the latter case.
+    if ( colSize < 0 )
+      {
+      queryStr += "(";
+      queryStr += colSize;
+      queryStr += ")";
+      }
+    }
+
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr )
+    {
+    queryStr += " ";
+    queryStr += attStr;
+    }
+
+  return queryStr;
 }
 
 // ----------------------------------------------------------------------
@@ -213,28 +300,6 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     url += this->DatabaseName;
     }
   return url;
-}
-
-// ----------------------------------------------------------------------
-vtkStdString vtkPostgreSQLDatabase::GetColumnTypeString( int colType )
-{
-  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
-    {
-    case vtkSQLDatabaseSchema::SERIAL: return "SERIAL";
-    case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
-    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
-    case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
-    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
-    case vtkSQLDatabaseSchema::TEXT: return "TEXT";
-    case vtkSQLDatabaseSchema::REAL: return "REAL";
-    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE PRECISION";
-    case vtkSQLDatabaseSchema::BLOB: return "BYTEA";
-    case vtkSQLDatabaseSchema::TIME: return "TIME";
-    case vtkSQLDatabaseSchema::DATE: return "DATE";
-    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP WITH TIME ZONE";
-    }
-
-  return 0;
 }
 
 // ----------------------------------------------------------------------

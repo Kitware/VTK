@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.24");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.25");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -63,9 +63,25 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
 {
   vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
+  // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
-
-  vtkStdString colTypeStr = this->GetColumnTypeString( colType );
+  vtkStdString colTypeStr = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colTypeStr = 0;
+    case vtkSQLDatabaseSchema::SMALLINT:  colTypeStr = "INTEGER";
+    case vtkSQLDatabaseSchema::INTEGER:   colTypeStr = "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT:    colTypeStr = "INTEGER";
+    case vtkSQLDatabaseSchema::VARCHAR:   colTypeStr = "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT:      colTypeStr = "VARCHAR";
+    case vtkSQLDatabaseSchema::REAL:      colTypeStr = "FLOAT";
+    case vtkSQLDatabaseSchema::DOUBLE:    colTypeStr = "DOUBLE";
+    case vtkSQLDatabaseSchema::BLOB:      colTypeStr = 0;
+    case vtkSQLDatabaseSchema::TIME:      colTypeStr = "TIME";
+    case vtkSQLDatabaseSchema::DATE:      colTypeStr = "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: colTypeStr = "TIMESTAMP";
+    }
+  
   if ( colTypeStr )
     {
     queryStr += " ";
@@ -77,6 +93,46 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
     return 0;
     }
   
+  // Decide whether size is allowed, required, or unused
+  int colSizeType = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colSizeType =  0;
+    case vtkSQLDatabaseSchema::SMALLINT:  colSizeType =  1;
+    case vtkSQLDatabaseSchema::INTEGER:   colSizeType =  1;
+    case vtkSQLDatabaseSchema::BIGINT:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::VARCHAR:   colSizeType = -1;
+    case vtkSQLDatabaseSchema::TEXT:      colSizeType = -1;
+    case vtkSQLDatabaseSchema::REAL:      colSizeType =  1;
+    case vtkSQLDatabaseSchema::DOUBLE:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::BLOB:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIME:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::DATE:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIMESTAMP: colSizeType =  0;
+    }
+
+  // Specify size if allowed or required
+  if ( colSizeType )
+    {
+    int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
+    // IF size is provided but absurd, 
+    // OR, if size is required but not provided OR absurd,
+    // THEN assign the default size.
+    if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
+      {
+      colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
+      }
+    
+    // At this point, we have either a valid size if required, or a possibly null valid size
+    // if not required. Thus, skip sizing in the latter case.
+    if ( colSize < 0 )
+      {
+      queryStr += "(";
+      queryStr += colSize;
+      queryStr += ")";
+      }
+    }
+
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
   if ( attStr )
     {
@@ -95,16 +151,17 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
   vtkStdString queryStr = ", ";
 
   int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
+
   switch ( idxType )
     {
     case vtkSQLDatabaseSchema::PRIMARY_KEY:
       queryStr += "PRIMARY KEY ";
       break;
-    case vtkSQLDatabaseSchema::UNIQUE: // Not supported by all SQL backends
-      return 0;
-    case vtkSQLDatabaseSchema::INDEX:
-      queryStr += "INDEX ";
+    case vtkSQLDatabaseSchema::UNIQUE:
+      queryStr += "UNIQUE ";
       break;
+    case vtkSQLDatabaseSchema::INDEX: // Not supported by all SQL backends
+      return 0;
     default:
       return 0;
     }
@@ -136,28 +193,6 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
   queryStr += ")";
 
   return queryStr;
-}
-
-// ----------------------------------------------------------------------
-vtkStdString vtkSQLDatabase::GetColumnTypeString( int colType )
-{
-  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
-    {
-    case vtkSQLDatabaseSchema::SERIAL: return 0;
-    case vtkSQLDatabaseSchema::SMALLINT: return "INTEGER";
-    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
-    case vtkSQLDatabaseSchema::BIGINT: return "INTEGER";
-    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
-    case vtkSQLDatabaseSchema::TEXT: return 0;
-    case vtkSQLDatabaseSchema::REAL: return "DOUBLE";
-    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE";
-    case vtkSQLDatabaseSchema::BLOB: return 0;
-    case vtkSQLDatabaseSchema::TIME: return "TIME";
-    case vtkSQLDatabaseSchema::DATE: return "DATE";
-    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP";
-    }
-
-  return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -235,7 +270,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 }
 
 // ----------------------------------------------------------------------
-bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed(dropIfExists) )
+bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExists )
 {
   if ( ! this->IsOpen() )
     {
@@ -258,6 +293,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
     // Construct the query string for this table
     vtkStdString queryStr( "CREATE TABLE " );
     queryStr += schema->GetTableNameFromHandle( tblHandle );
+    queryStr += this->GetTablePreamble( dropIfExists );
     queryStr += " (";
 
     // Loop over all columns of the current table
@@ -340,3 +376,4 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
 
   return true;
 }
+

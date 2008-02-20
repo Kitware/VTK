@@ -194,6 +194,11 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
                                int colHandle );
 
   // Description:
+  // Given the handles of a table and a column, get the size of the column.
+  int GetColumnSizeFromHandle( int tblHandle, 
+                               int colHandle );
+
+  // Description:
   // Given the handles of a table and a column, get the attributes of the column.
   const char* GetColumnAttributesFromHandle( int tblHandle, 
                                              int colHandle );

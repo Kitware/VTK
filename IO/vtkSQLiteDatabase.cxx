@@ -29,7 +29,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.9");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.10");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -57,6 +57,112 @@ vtkSQLiteDatabase::~vtkSQLiteDatabase()
     {
     this->SetDatabaseFileName(0);
     }
+}
+
+// ----------------------------------------------------------------------
+void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "SQLiteInstance: ";
+  if (this->SQLiteInstance)
+    {
+    os << this->SQLiteInstance << "\n";
+    }
+  else
+    {
+    os << "(null)" << "\n";
+    }
+  os << indent << "DatabaseType: " 
+    << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+  os << indent << "DatabaseFileName: " 
+    << (this->DatabaseFileName ? this->DatabaseFileName : "NULL") << endl;
+}
+
+// ----------------------------------------------------------------------
+vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                                     int tblHandle,
+                                                     int colHandle )
+{
+  vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
+
+  // Figure out column type
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  vtkStdString colTypeStr = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colTypeStr = 0;
+    case vtkSQLDatabaseSchema::SMALLINT:  colTypeStr = "SMALLINT";
+    case vtkSQLDatabaseSchema::INTEGER:   colTypeStr = "INTEGER";
+    case vtkSQLDatabaseSchema::BIGINT:    colTypeStr = "BIGINT";
+    case vtkSQLDatabaseSchema::VARCHAR:   colTypeStr = "VARCHAR";
+    case vtkSQLDatabaseSchema::TEXT:      colTypeStr = "TEXT";
+    case vtkSQLDatabaseSchema::REAL:      colTypeStr = "REAL";
+    case vtkSQLDatabaseSchema::DOUBLE:    colTypeStr = "DOUBLE";
+    case vtkSQLDatabaseSchema::BLOB:      colTypeStr = "BLOB";
+    case vtkSQLDatabaseSchema::TIME:      colTypeStr = "TIME";
+    case vtkSQLDatabaseSchema::DATE:      colTypeStr = "DATE";
+    case vtkSQLDatabaseSchema::TIMESTAMP: colTypeStr = "TIMESTAMP";
+    }
+  
+  if ( colTypeStr )
+    {
+    queryStr += " ";
+    queryStr += colTypeStr;
+    }
+  else // if ( colTypeStr )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return 0;
+    }
+  
+  // Decide whether size is allowed, required, or unused
+  int colSizeType = 0;
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    colSizeType =  0;
+    case vtkSQLDatabaseSchema::SMALLINT:  colSizeType =  1;
+    case vtkSQLDatabaseSchema::INTEGER:   colSizeType =  1;
+    case vtkSQLDatabaseSchema::BIGINT:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::VARCHAR:   colSizeType = -1;
+    case vtkSQLDatabaseSchema::TEXT:      colSizeType = -1;
+    case vtkSQLDatabaseSchema::REAL:      colSizeType =  1;
+    case vtkSQLDatabaseSchema::DOUBLE:    colSizeType =  1;
+    case vtkSQLDatabaseSchema::BLOB:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIME:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::DATE:      colSizeType =  0;
+    case vtkSQLDatabaseSchema::TIMESTAMP: colSizeType =  0;
+    }
+
+  // Specify size if allowed or required
+  if ( colSizeType )
+    {
+    int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
+    // IF size is provided but absurd, 
+    // OR, if size is required but not provided OR absurd,
+    // THEN assign the default size.
+    if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
+      {
+      colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
+      }
+    
+    // At this point, we have either a valid size if required, or a possibly null valid size
+    // if not required. Thus, skip sizing in the latter case.
+    if ( colSize < 0 )
+      {
+      queryStr += "(";
+      queryStr += colSize;
+      queryStr += ")";
+      }
+    }
+
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr )
+    {
+    queryStr += " ";
+    queryStr += attStr;
+    }
+
+  return queryStr;
 }
 
 // ----------------------------------------------------------------------
@@ -239,28 +345,6 @@ vtkStdString vtkSQLiteDatabase::GetURL()
 }
 
 // ----------------------------------------------------------------------
-vtkStdString vtkSQLiteDatabase::GetColumnTypeString( int colType )
-{
-  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
-    {
-    case vtkSQLDatabaseSchema::SERIAL: return 0;
-    case vtkSQLDatabaseSchema::SMALLINT: return "SMALLINT";
-    case vtkSQLDatabaseSchema::INTEGER: return "INTEGER";
-    case vtkSQLDatabaseSchema::BIGINT: return "BIGINT";
-    case vtkSQLDatabaseSchema::VARCHAR: return "VARCHAR";
-    case vtkSQLDatabaseSchema::TEXT: return "TEXT";
-    case vtkSQLDatabaseSchema::REAL: return "REAL";
-    case vtkSQLDatabaseSchema::DOUBLE: return "DOUBLE";
-    case vtkSQLDatabaseSchema::BLOB: return "BLOB";
-    case vtkSQLDatabaseSchema::TIME: return "TIME";
-    case vtkSQLDatabaseSchema::DATE: return "DATE";
-    case vtkSQLDatabaseSchema::TIMESTAMP: return "TIMESTAMP";
-    }
-
-  return 0;
-}
-
-// ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::HasError()
 { 
   return (vtk_sqlite3_errcode(this->SQLiteInstance)!=VTK_SQLITE_OK);
@@ -270,27 +354,3 @@ const char* vtkSQLiteDatabase::GetLastErrorText()
 {
   return vtk_sqlite3_errmsg(this->SQLiteInstance);
 }
-
-// ----------------------------------------------------------------------
-void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "SQLiteInstance: ";
-  if (this->SQLiteInstance)
-    {
-    os << this->SQLiteInstance << "\n";
-    }
-  else
-    {
-    os << "(null)" << "\n";
-    }
-  os << indent << "DatabaseType: " 
-    << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
-  os << indent << "DatabaseFileName: " 
-    << (this->DatabaseFileName ? this->DatabaseFileName : "NULL") << endl;
-}
-
-
-
-  
-    

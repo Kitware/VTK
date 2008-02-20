@@ -71,6 +71,10 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
 #define VTK_SQL_FEATURE_TRIGGERS                1009
 
+// Default size for columns types which require a size to be specified 
+// (i.e., VARCHAR), when no size has been specified
+#define VTK_SQL_DEFAULT_COLUMN_SIZE 32
+
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
  public:
@@ -128,6 +132,14 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual vtkStdString GetURL() = 0;
 
   // Description:
+  // Return the SQL string with the syntax of the preamble following a
+  // "CREATE TABLE" SQL statement.
+  // NB: by default, this method returns an empty string.
+  // It must be overwritten for those SQL backends which allow such
+  // preambles such as, e.g., MySQL.
+  virtual vtkStdString GetTablePreamble( bool ) { return 0; }
+ 
+  // Description:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB: this method implements the following minimally-portable syntax:
@@ -148,13 +160,6 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                               int tblHandle,
                                               int idxHandle );
- 
-  // Description:
-  // For each column type indexed in vtkSQLDatabaseSchema, return the 
-  // corresponding SQL string.
-  // NB: a minimal set of common SQL types is provided; the backend-specific
-  // GetColumnTypeString functions allow for more types.
-  virtual vtkStdString GetColumnTypeString( int colType );
  
   // Description:
   // Create a the proper subclass given a URL.

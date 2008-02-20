@@ -132,6 +132,13 @@ public:
   virtual vtkStdString GetURL();
 
   // Description:
+  // Return the SQL string with the syntax of the preamble following a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
+  // used when b = false.
+  virtual vtkStdString GetTablePreamble( bool b ) { return b ? 0 :" IF NOT EXISTS"; }
+ 
+  // Description:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB1: this method implements the MySQL-specific syntax:
@@ -151,16 +158,12 @@ public:
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                               int tblHandle,
                                               int idxHandle );
- 
-  // Description:
-  // For each column type indexed in vtkSQLDatabaseSchema, return the 
-  // corresponding MySQL-specific string.
-  virtual vtkStdString GetColumnTypeString( int colType );
 
-private:
+ protected:
   vtkMySQLDatabase();
   ~vtkMySQLDatabase();
-  
+
+private:
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);

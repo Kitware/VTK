@@ -112,10 +112,14 @@ public:
   virtual vtkStdString GetURL();
 
   // Description:
-  // For each column type indexed in vtkSQLDatabaseSchema, return the 
-  // corresponding SQLite-specific string.
-  virtual vtkStdString GetColumnTypeString( int colType );
-
+  // Return the SQL string with the syntax to create a column inside a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements the SQLite-specific syntax:
+  // <column name> <column type> <column attributes>
+  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                               int tblHandle,
+                                               int colHandle );
+ 
 protected:
   vtkSQLiteDatabase();
   ~vtkSQLiteDatabase();
