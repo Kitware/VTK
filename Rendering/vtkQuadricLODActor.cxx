@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.1");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.2");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
@@ -48,7 +48,6 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->Static = 0;
   this->MaximumDisplayListSize = 25000;
   this->DeferLODConstruction = 0;
-  this->DataDimension = 3;
   this->CollapseDimensionRatio = 0.05;
   this->DataConfiguration = UNKNOWN;
   this->PropType = ACTOR;
@@ -369,7 +368,6 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Static : " << (this->Static ? "On\n" : "Off\n");
 
-  os << indent << "Data dimension: " << this->DataDimension << "\n";
   os << indent << "Collapse Dimension Ratio: " << this->CollapseDimensionRatio << "\n";
 
   os << indent << "Data Configuration: ";

@@ -25,15 +25,16 @@
 // algorithm to take into account the dimensionality of the data (e.g., 2D,
 // x-y surfaces may be binned into n x n x 1 to reduce extra polygons in the
 // z-direction). Finally, the filter may optionally be set in "Static" mode
-// (this works with the vtkMapper::SetStatic() method). Setting Static on results
+// (this works with the vtkMapper::SetStatic() method). `Enabling Static results
 // in a one time execution of the Mapper's pipeline. After that, the pipeline
-// no longer updates. 
+// no longer updated (unless manually forced to do so). 
 //
 // .SECTION Caveats
 // By default the algorithm is set up to pre-compute the LODs. That is, on
 // the first render (whether a full resolution render or interactive render)
-// the LOD is computed if necessary. This can be changed so that the LOD
-// construction is deferred until the first interactive render.
+// the LOD is computed. This behavior can be changed so that the LOD
+// construction is deferred until the first interactive render. Either way,
+// when the LOD is constructed, the user may notice a short pause.
 //
 // This class can be used as a direct replacement for vtkActor. It may also be
 // used as a replacement for vtkFollower's (the ability to track a camera is 
@@ -82,21 +83,6 @@ public:
   vtkGetMacro(Static,int);
   vtkBooleanMacro(Static,int);
 
-  // Description:
-  // Provide a hint as to the dimension of the data that is being processed
-  // into a LOD. This allows the vtkQuadricClustering method to do a better
-  // job of decimating the data. The hint will only be followed if the input
-  // data is consistent with the CollapseDimensionRatio.
-  vtkSetClampMacro(DataDimension,int,0,3);
-  vtkGetMacro(DataDimension,int);
-
-  // Description:
-  // Specify the ratio of short edge of input bounding box, to long edge, which
-  // is used to collapse the data dimension (and set the quadric bin size to
-  // one). By default, this value is 0.05.
-  vtkSetClampMacro(CollapseDimensionRatio,double,0.0,1.0);
-  vtkGetMacro(CollapseDimensionRatio,double);
-
 //BTX
   enum DataConfigurationEnum
   {
@@ -107,13 +93,17 @@ public:
   };
 //ETX
   // Description:
-  // Force the binning of the quadric clustering according to application 
+  // Force the binning of the quadric clustering according to application
   // knowledge relative to the dimension of the data. For example, if you
   // know your data lies in a 2D x-y plane, the performance of the quadric
   // clustering algorithm can be greatly improved by indicating this (i.e.,
   // the number of resulting triangles, and the quality of the decimation
-  // version is better). Setting this parameter overrides the data dimension
-  // hint.
+  // version is better). Setting this parameter forces the binning to be
+  // configured consistent with the dimnesionality of the data, and the
+  // collapse dimension ratio is ignored. Specifying the value of
+  // DataConfiguration to UNKNOWN (the default value) means that the class
+  // will attempt to figure the dimension of the class automatically using
+  // the CollapseDimensionRatio ivar.
   vtkSetClampMacro(DataConfiguration,int,UNKNOWN,XYZVOLUME);
   vtkGetMacro(DataConfiguration,int);
   void SetDataConfigurationToUnknown()
@@ -132,6 +122,15 @@ public:
     {this->SetDataConfiguration(XZPLANE);}
   void SetDataConfigurationToXYZVolume()
     {this->SetDataConfiguration(XYZVOLUME);}
+
+  // Description:
+  // If the data configuration is set to UNKNOWN, this class attempts to
+  // figure out the dimensionality of the data using CollapseDimensionRatio.
+  // This ivar is the ratio of short edge of the input bounding box to its
+  // long edge, which is then used to collapse the data dimension (and set the
+  // quadric bin size in that direction to one). By default, this value is 0.05.
+  vtkSetClampMacro(CollapseDimensionRatio,double,0.0,1.0);
+  vtkGetMacro(CollapseDimensionRatio,double);
 
   // Description:
   // This class will create a vtkQuadricClustering algorithm automatically.
@@ -212,7 +211,6 @@ protected:
   int Static;
   
   // The dimension of the data
-  int DataDimension;
   double CollapseDimensionRatio;
   int DataConfiguration;
   
