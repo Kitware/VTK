@@ -25,13 +25,14 @@
 #include "vtkStringArray.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <vtksys/ios/sstream>
 
 #include <assert.h>
 #include <mysql.h>
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.17");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.18");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -323,9 +324,8 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
                                                        int colHandle )
 {
   // With MySQL, the column name must be enclosed between backquotes
-  vtkStdString queryStr = "`";
-  queryStr += schema->GetColumnNameFromHandle( tblHandle, colHandle );
-  queryStr += "` ";
+  vtksys_ios::ostringstream queryStr;
+  queryStr << "`" << schema->GetColumnNameFromHandle( tblHandle, colHandle ) << "` ";
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
@@ -373,8 +373,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
 
   if ( colTypeStr.size() )
     {
-    queryStr += " ";
-    queryStr += colTypeStr;
+    queryStr << " " << colTypeStr;
     }
   else // if ( colTypeStr.size() )
     {
@@ -424,11 +423,12 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
       colSizeType =  0;
       break;
     }
-
+  cerr << "colsizeType is " << colSizeType << "\n";
   // Specify size if allowed or required
   if ( colSizeType )
     {
     int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
+    cerr << "colsize is " << colSize << "\n";
     // IF size is provided but absurd, 
     // OR, if size is required but not provided OR absurd,
     // THEN assign the default size.
@@ -441,20 +441,17 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
       {
-      queryStr += "(";
-      queryStr += colSize;
-      queryStr += ")";
+      queryStr << "(" << colSize << ")";
       }
     }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
   if ( attStr.size() )
     {
-    queryStr += " ";
-    queryStr += attStr;
+    queryStr << " " << attStr;
     }
 
-  return queryStr;
+  return queryStr.str();
 }
 
 // ----------------------------------------------------------------------
