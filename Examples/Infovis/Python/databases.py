@@ -1,11 +1,5 @@
 from vtk import *
 
-import os
-if os.name == 'posix':
-  from libvtksnlInfovisPython import *
-else:
-  from vtksnlInfovisPython import *
-
 database = vtkSQLDatabase.CreateFromURL("mysql://enron:enron@vizdb.srn.sandia.gov:3306/enron")
 database.Open()
 
