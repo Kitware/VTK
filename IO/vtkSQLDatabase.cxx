@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.28");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.29");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -146,7 +146,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
       colSizeType =  1;
       break;
     case vtkSQLDatabaseSchema::BLOB:      
-      colSizeType =  0;
+      colSizeType =  1;
       break;
     case vtkSQLDatabaseSchema::TIME:      
       colSizeType =  0;
