@@ -19,9 +19,8 @@
 #include "vtkXMLUtilities.h"
 
 #include <ctype.h>
-#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.24.6.2");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.24.6.3");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -139,11 +138,12 @@ void vtkXMLDataElement::ReadXMLAttributes(const char** atts, int encoding)
         }
       else
         {
-        vtksys_ios::ostringstream str;
+        ostrstream str;
         vtkXMLUtilities::EncodeString(
           atts[i+1], VTK_ENCODING_UTF_8, str, this->GetAttributeEncoding(), 0);
         str << ends;
-        this->SetAttribute(atts[i], str.str().c_str());
+        this->SetAttribute(atts[i], str.str());
+        str.rdbuf()->freeze(0);
         }
       }
     }
@@ -622,8 +622,8 @@ template <class T>
 int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
   if(!str || !length || !data) { return 0; }
-  vtksys_ios::stringstream vstr;
-  vstr << str;  
+  strstream vstr;
+  vstr << str << ends;  
   int i;
   for(i=0;i < length;++i)
     {
@@ -891,15 +891,15 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
     { 
     return; 
     }
-  vtksys_ios::stringstream vstr;
+  strstream vstr;
   vstr << data[0];
   for(int i = 1; i < length; ++i)
     {
     vstr << ' ' << data[i];
     }
-
-  elem->SetAttribute(name, vstr.str().c_str());
-
+  vstr << ends;
+  elem->SetAttribute(name, vstr.str());
+  vstr.rdbuf()->freeze(0);
 }
 
 //----------------------------------------------------------------------------
