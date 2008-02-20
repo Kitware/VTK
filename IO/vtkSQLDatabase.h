@@ -153,13 +153,18 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // Description:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
-  // NB: this method implements the following minimally-portable syntax:
+  // NB1: this method implements the following minimally-portable syntax:
   // <index type> [<index name>] (<column name 1>,... )
   // It must be overwritten for those SQL backends which have a different 
   // syntax such as, e.g., MySQL.
+  // NB2: this method does not assume that INDEX creation is supported
+  // within a CREATE TABLE statement. Therefore, should such an INDEX arise
+  // in the schema, a CREATE INDEX statement is returned and skipped is 
+  // set to true. Otherwise, skipped will always be returned false.
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                               int tblHandle,
-                                              int idxHandle );
+                                              int idxHandle,
+                                              bool& skipped );
  
   // Description:
   // Create a the proper subclass given a URL.

@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.25");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.26");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -146,27 +146,41 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
 // ----------------------------------------------------------------------
 vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                                     int tblHandle,
-                                                    int idxHandle )
+                                                    int idxHandle,
+                                                    bool& skipped )
 {
-  vtkStdString queryStr = ", ";
+  vtkStdString queryStr;
 
   int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
-
   switch ( idxType )
     {
     case vtkSQLDatabaseSchema::PRIMARY_KEY:
-      queryStr += "PRIMARY KEY ";
+      queryStr = ", PRIMARY KEY ";
+      skipped = false;
       break;
     case vtkSQLDatabaseSchema::UNIQUE:
-      queryStr += "UNIQUE ";
+      queryStr = ", UNIQUE ";
+      skipped = false;
       break;
-    case vtkSQLDatabaseSchema::INDEX: // Not supported by all SQL backends
-      return 0;
+    case vtkSQLDatabaseSchema::INDEX:
+      // Not supported within a CREATE TABLE statement by all SQL backends: 
+      // must be created later with a CREATE INDEX statement
+      queryStr = "CREATE INDEX ";
+      skipped = true;
+      break;
     default:
       return 0;
     }
   
   queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+
+  // CREATE INDEX <index name> ON <table name> syntax
+  if ( skipped )
+    {
+    queryStr += " ON ";
+    queryStr += schema->GetTableNameFromHandle( tblHandle );
+    }
+
   queryStr += " (";
         
   // Loop over all column names of the index
@@ -286,6 +300,9 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     return false;
     }
  
+  // In case INDEX indices are encountered in the schema
+  vtkstd::vector<vtkStdString> idxStatements;
+
   // Loop over all tables of the schema and create them
   int numTbl = schema->GetNumberOfTables();
   for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
@@ -330,6 +347,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
 
     // Loop over all indices of the current table
+    bool skipped = false;
     int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
     if ( numIdx < 0 )
       {
@@ -339,17 +357,25 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
       {
       // Get index creation syntax (backend-dependent)
-      vtkStdString idxStr = this->GetIndexSpecification( schema, tblHandle, idxHandle );
+      vtkStdString idxStr = this->GetIndexSpecification( schema, tblHandle, idxHandle, skipped );
       if ( idxStr )
         {
-        queryStr += idxStr;
+        if ( skipped )
+          {
+          // Must create this index later
+          idxStatements.push_back( idxStr );
+          continue;
+          }
+        else // if ( skipped )
+          {
+          queryStr += idxStr;
+          }
         }
       else // if ( idxStr )
         {
         query->RollbackTransaction();
         return false;
         }
-
       }
     queryStr += ")";
 
@@ -363,7 +389,21 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       return false;
       }
     }
-  
+
+  // Now, execute the CREATE INDEX statement -- if any
+  for ( vtkstd::vector<vtkStdString>::iterator it = idxStatements.begin();
+        it != idxStatements.end(); ++ it )
+    {
+    query->SetQuery( *it );
+    if ( ! query->Execute() )
+      {
+      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+                              << query->GetLastErrorText() );
+      query->RollbackTransaction();
+      return false;
+      }
+    }
+ 
   // FIXME: eventually handle triggers
 
   // Commit the transaction.

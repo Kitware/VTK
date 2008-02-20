@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.13");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.14");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -89,8 +89,8 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                                     int tblHandle,
-                                                     int colHandle )
+                                                            int tblHandle,
+                                                            int colHandle )
 {
   vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
 

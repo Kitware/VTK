@@ -153,11 +153,14 @@ public:
   // Description:
   // Return the SQL string with the syntax to create an index inside a
   // "CREATE TABLE" SQL statement.
-  // NB: this method implements the MySQL-specific syntax:
+  // NB1: this method implements the MySQL-specific syntax:
   // <index type> [<index name>]  (`<column name 1>`,... )
+  // NB2: since MySQL supports INDEX creation within a CREATE TABLE statement,
+  // skipped is always returned false.
   virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                               int tblHandle,
-                                              int idxHandle );
+                                              int idxHandle,
+                                              bool& skipped );
 
  protected:
   vtkMySQLDatabase();

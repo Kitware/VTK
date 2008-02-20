@@ -31,7 +31,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.13");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.14");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -412,8 +412,10 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
 // ----------------------------------------------------------------------
 vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
                                                       int tblHandle,
-                                                      int idxHandle )
+                                                      int idxHandle,
+                                                      bool& skipped )
 {
+  skipped = false;
   vtkStdString queryStr = ", ";
 
   int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
