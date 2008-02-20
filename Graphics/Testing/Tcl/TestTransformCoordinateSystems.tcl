@@ -46,12 +46,12 @@ ren1 AddActor glyphActor
 ren1 SetBackground 0 0 0
 
 renWin SetSize 300 300
+iren Initialize
 renWin Render
 
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
-iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
