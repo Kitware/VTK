@@ -37,8 +37,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStdString.h"
 
 #include <vtksys/SystemTools.hxx>
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.30");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.31");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -61,7 +62,8 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
                                                      int tblHandle,
                                                      int colHandle )
 {
-  vtkStdString queryStr = schema->GetColumnNameFromHandle( tblHandle, colHandle );
+  vtksys_ios::ostringstream queryStr;
+  queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
@@ -108,8 +110,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
   
   if ( colTypeStr.size() )
     {
-    queryStr += " ";
-    queryStr += colTypeStr;
+    queryStr << " " << colTypeStr;
     }
   else // if ( colTypeStr.size() )
     {
@@ -175,20 +176,17 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
     // if not required. Thus, skip sizing in the latter case.
     if ( colSize > 0 )
       {
-      queryStr += "(";
-      queryStr += colSize;
-      queryStr += ")";
+      queryStr << "(" << colSize << ")";
       }
     }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
   if ( attStr.size() )
     {
-    queryStr += " ";
-    queryStr += attStr;
+    queryStr << " " << attStr;
     }
 
-  return queryStr;
+  return queryStr.str();
 }
 
 // ----------------------------------------------------------------------
