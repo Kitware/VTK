@@ -131,12 +131,23 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB: this method implements the following minimally-portable syntax:
-  // <column name> <type> <column attributes>
+  // <column name> <column type> <column attributes>
   // It must be overwritten for those SQL backends which have a different 
-  // syntax such as, e.g., PostgreSQL.
+  // syntax such as, e.g., MySQL.
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
+ 
+  // Description:
+  // Return the SQL string with the syntax to create an index inside a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements the following minimally-portable syntax:
+  // <index type> [<index name>] (<column name 1>,... )
+  // It must be overwritten for those SQL backends which have a different 
+  // syntax such as, e.g., MySQL.
+  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                              int tblHandle,
+                                              int idxHandle );
  
   // Description:
   // For each column type indexed in vtkSQLDatabaseSchema, return the 

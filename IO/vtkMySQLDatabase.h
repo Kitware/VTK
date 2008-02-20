@@ -135,13 +135,22 @@ public:
   // Return the SQL string with the syntax to create a column inside a
   // "CREATE TABLE" SQL statement.
   // NB1: this method implements the MySQL-specific syntax:
-  // `<column name>` <type> <column attributes>
+  // `<column name>` <column type> <column attributes>
   // NB2: if a column has type SERIAL in the schema, this will be turned
   // into INT NOT NULL AUTO_INCREMENT. Therefore, one should not pass
   // NOT NULL as an attribute of a column whose type is SERIAL.
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
+ 
+  // Description:
+  // Return the SQL string with the syntax to create an index inside a
+  // "CREATE TABLE" SQL statement.
+  // NB: this method implements the MySQL-specific syntax:
+  // <index type> [<index name>]  (`<column name 1>`,... )
+  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                              int tblHandle,
+                                              int idxHandle );
  
   // Description:
   // For each column type indexed in vtkSQLDatabaseSchema, return the 

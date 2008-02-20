@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.23");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.24");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -88,6 +88,57 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
 }
 
 // ----------------------------------------------------------------------
+vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                                    int tblHandle,
+                                                    int idxHandle )
+{
+  vtkStdString queryStr = ", ";
+
+  int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
+  switch ( idxType )
+    {
+    case vtkSQLDatabaseSchema::PRIMARY_KEY:
+      queryStr += "PRIMARY KEY ";
+      break;
+    case vtkSQLDatabaseSchema::UNIQUE: // Not supported by all SQL backends
+      return 0;
+    case vtkSQLDatabaseSchema::INDEX:
+      queryStr += "INDEX ";
+      break;
+    default:
+      return 0;
+    }
+  
+  queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+  queryStr += " (";
+        
+  // Loop over all column names of the index
+  int numCnm = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
+  if ( numCnm < 0 )
+    {
+    vtkGenericWarningMacro( "Unable to get index specification: index has incorrect number of columns " << numCnm );
+    return 0;
+    }
+
+  bool firstCnm = true;
+  for ( int cnmHandle = 0; cnmHandle < numCnm; ++ cnmHandle )
+    {
+    if ( firstCnm )
+      {
+      firstCnm = false;
+      }
+    else
+      {
+      queryStr += ",";
+      }
+    queryStr += schema->GetIndexColumnNameFromHandle( tblHandle, idxHandle, cnmHandle );
+    }
+  queryStr += ")";
+
+  return queryStr;
+}
+
+// ----------------------------------------------------------------------
 vtkStdString vtkSQLDatabase::GetColumnTypeString( int colType )
 {
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
@@ -121,7 +172,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   vtkstd::string dataglom;
   vtkSQLDatabase* db = 0;
   
-  // Sqlite is a bit special so lets get that out of the way :)
+  // SQLite is a bit special so lets get that out of the way :)
   if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
@@ -210,13 +261,14 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
     queryStr += " (";
 
     // Loop over all columns of the current table
-    bool firstCol = true;
     int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
     if ( numCol < 0 )
       {
       query->RollbackTransaction();
       return false;
       }
+
+    bool firstCol = true;
     for ( int colHandle = 0; colHandle < numCol; ++ colHandle )
       {
       if ( ! firstCol )
@@ -250,47 +302,18 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool vtkNotUsed
       }
     for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
       {
-      queryStr += ", ";
-      switch ( schema->GetIndexTypeFromHandle( tblHandle, idxHandle ) )
+      // Get index creation syntax (backend-dependent)
+      vtkStdString idxStr = this->GetIndexSpecification( schema, tblHandle, idxHandle );
+      if ( idxStr )
         {
-        case vtkSQLDatabaseSchema::PRIMARY_KEY:
-          queryStr += "PRIMARY KEY ";
-          break;
-        case vtkSQLDatabaseSchema::UNIQUE:
-          queryStr += "UNIQUE ";
-          break;
-        case vtkSQLDatabaseSchema::INDEX:
-          queryStr += "INDEX ";
-          break;
-        default:
-          query->RollbackTransaction();
-          return false;
+        queryStr += idxStr;
         }
-        
-      queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
-      queryStr += " (";
-        
-      // Loop over all column names of the current index
-      bool firstCnm = true;
-      int numCnms = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
-      if ( numCnms < 0 )
+      else // if ( idxStr )
         {
         query->RollbackTransaction();
         return false;
         }
-      for ( int cnmHandle = 0; cnmHandle < numCnms; ++ cnmHandle )
-        {
-        if ( firstCnm )
-          {
-          firstCnm = false;
-          }
-        else
-          {
-          queryStr += ",";
-          }
-        queryStr += schema->GetIndexColumnNameFromHandle( tblHandle, idxHandle, cnmHandle );
-        }
-      queryStr += ")";
+
       }
     queryStr += ")";
 
