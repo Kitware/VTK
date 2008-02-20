@@ -34,15 +34,10 @@
 
 #include "vtkSQLDatabase.h"
 
-#ifdef _WIN32
-# include <winsock.h> // mysql.h relies on the typedefs from here
-#endif
-
-#include <mysql.h> // needed for MYSQL typedefs
-
 class vtkSQLQuery;
 class vtkMySQLQuery;
 class vtkStringArray;
+class vtkMySQLDatabasePrivate;
 
 class VTK_IO_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
 {
@@ -174,9 +169,6 @@ private:
   vtkStringArray *Tables;
   vtkStringArray *Record;
 
-  MYSQL NullConnection;
-  MYSQL *Connection;
-  
   char* DatabaseType;
   char* HostName;
   char* UserName;
@@ -184,6 +176,10 @@ private:
   char* DatabaseName;
   int ServerPort;
   char* ConnectOptions;
+
+//BTX
+  vtkMySQLDatabasePrivate* const Private;
+//ETX
 
   vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.
   void operator=(const vtkMySQLDatabase &); // Not implemented.

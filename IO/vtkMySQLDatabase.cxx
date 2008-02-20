@@ -17,6 +17,7 @@
   See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
   ----------------------------------------------------------------------------*/
 #include "vtkMySQLDatabase.h"
+#include "vtkMySQLDatabasePrivate.h"
 #include "vtkMySQLQuery.h"
 
 #include "vtkSQLDatabaseSchema.h"
@@ -28,19 +29,16 @@
 #include <vtksys/ios/sstream>
 
 #include <assert.h>
-#include <mysql.h>
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.19");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.20");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
-vtkMySQLDatabase::vtkMySQLDatabase()
+vtkMySQLDatabase::vtkMySQLDatabase() :
+  Private(new vtkMySQLDatabasePrivate())
 {
-  this->Connection = NULL;
-
-  mysql_init(& this->NullConnection);
   this->Tables = vtkStringArray::New();
   this->Tables->Register(this);
   this->Tables->Delete();
@@ -74,6 +72,8 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   this->SetConnectOptions( 0 );
 
   this->Tables->UnRegister(this);
+
+  delete this->Private;
 }
 
 // ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ bool vtkMySQLDatabase::IsSupported(int feature)
     case VTK_SQL_FEATURE_PREPARED_QUERIES:
     {
     if (mysql_get_client_version() >= 40108 &&
-        mysql_get_server_version(& this->NullConnection) >= 40100)
+        mysql_get_server_version(& this->Private->NullConnection) >= 40100)
       {
       return true;
       }
@@ -144,10 +144,10 @@ bool vtkMySQLDatabase::Open()
     return true;
     }
 
-  assert(this->Connection == NULL);
+  assert(this->Private->Connection == NULL);
 
-  this->Connection = 
-    mysql_real_connect( &this->NullConnection, 
+  this->Private->Connection = 
+    mysql_real_connect( &this->Private->NullConnection, 
                         this->GetHostName(),
                         this->GetUserName(),
                         this->GetPassword(), 
@@ -155,10 +155,10 @@ bool vtkMySQLDatabase::Open()
                         this->GetServerPort(),
                         0, 0);
                                         
-  if (this->Connection == NULL)
+  if (this->Private->Connection == NULL)
     {
     vtkErrorMacro(<<"Open() failed with error: " 
-                  << mysql_error(& this->NullConnection));
+                  << mysql_error(& this->Private->NullConnection));
     return false;
     }
   else
@@ -177,15 +177,15 @@ void vtkMySQLDatabase::Close()
     }
   else
     {
-    mysql_close(this->Connection);
-    this->Connection = NULL;
+    mysql_close(this->Private->Connection);
+    this->Private->Connection = NULL;
     }
 }
 
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::IsOpen()
 {
-  return (this->Connection != NULL);
+  return (this->Private->Connection != NULL);
 }
 
 // ----------------------------------------------------------------------
@@ -208,12 +208,12 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
   else
     {
     MYSQL_RES* tableResult = mysql_list_tables(
-      this->Connection, NULL );
+      this->Private->Connection, NULL );
 
     if ( ! tableResult )
       {
       vtkErrorMacro(<<"GetTables(): MySQL returned error: "
-                    << mysql_error(this->Connection));
+                    << mysql_error(this->Private->Connection));
       return this->Tables;
       }
 
@@ -251,12 +251,12 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
     }
 
   MYSQL_RES *record = 
-    mysql_list_fields(this->Connection, table, 0);
+    mysql_list_fields(this->Private->Connection, table, 0);
 
   if (!record)
     {
     vtkErrorMacro(<<"GetRecord: MySQL returned error: "
-                  << mysql_error(this->Connection));
+                  << mysql_error(this->Private->Connection));
     return results;
     }
 
@@ -273,12 +273,12 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char *table)
 
 bool vtkMySQLDatabase::HasError()
 { 
-  return (mysql_errno(this->Connection)!=0);
+  return (mysql_errno(this->Private->Connection)!=0);
 }
 
 const char* vtkMySQLDatabase::GetLastErrorText()
 {
-  return mysql_error(this->Connection);
+  return mysql_error(this->Private->Connection);
 }
 
 // ----------------------------------------------------------------------

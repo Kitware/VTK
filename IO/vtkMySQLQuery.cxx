@@ -15,6 +15,7 @@
 
 #include "vtkMySQLQuery.h"
 #include "vtkMySQLDatabase.h"
+#include "vtkMySQLDatabasePrivate.h"
 #include <vtkObjectFactory.h>
 #include <vtkStringArray.h>
 #include <vtkVariant.h>
@@ -58,7 +59,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.2");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.3");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -110,7 +111,7 @@ vtkMySQLQuery::Execute()
     return false;
     }
 
-  MYSQL *db = dbContainer->Connection;
+  MYSQL *db = dbContainer->Private->Connection;
   assert(db != NULL);
 
   vtkDebugMacro(<<"Execute(): Query ready to execute.");
@@ -209,7 +210,7 @@ vtkMySQLQuery::GetFieldType(int column)
       return VTK_VOID;
       }
     
-    MYSQL *db = dbContainer->Connection;
+    MYSQL *db = dbContainer->Private->Connection;
     assert(db != NULL);
 
     MYSQL_FIELD *field = mysql_fetch_field_direct(this->Internals->Result, 
@@ -320,7 +321,7 @@ vtkMySQLQuery::NextRow()
       this->SetLastErrorText("Database is closed.");
       return VTK_VOID;
       }
-    MYSQL *db = dbContainer->Connection;
+    MYSQL *db = dbContainer->Private->Connection;
     assert(db != NULL);
 
 
