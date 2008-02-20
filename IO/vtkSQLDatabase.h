@@ -137,7 +137,7 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // NB: by default, this method returns an empty string.
   // It must be overwritten for those SQL backends which allow such
   // preambles such as, e.g., MySQL.
-  virtual vtkStdString GetTablePreamble( bool ) { return 0; }
+  virtual vtkStdString GetTablePreamble( bool ) { return vtkStdString(); }
  
   // Description:
   // Return the SQL string with the syntax to create a column inside a

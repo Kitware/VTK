@@ -31,7 +31,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.14");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.15");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -329,33 +329,57 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
-  vtkStdString colTypeStr = 0;
+  vtkStdString colTypeStr;
 
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    colTypeStr = "INT NOT NULL AUTO_INCREMENT";
-    case vtkSQLDatabaseSchema::SMALLINT:  colTypeStr = "SMALLINT";
-    case vtkSQLDatabaseSchema::INTEGER:   colTypeStr = "INT";
-    case vtkSQLDatabaseSchema::BIGINT:    colTypeStr = "BIGINT";
-    case vtkSQLDatabaseSchema::VARCHAR:   colTypeStr = "VARCHAR";
-    case vtkSQLDatabaseSchema::TEXT:      colTypeStr = "VARCHAR";
-    case vtkSQLDatabaseSchema::REAL:      colTypeStr = "FLOAT";
-    case vtkSQLDatabaseSchema::DOUBLE:    colTypeStr = "DOUBLE PRECISION";
-    case vtkSQLDatabaseSchema::BLOB:      colTypeStr = "BLOB";
-    case vtkSQLDatabaseSchema::TIME:      colTypeStr = "TIME";
-    case vtkSQLDatabaseSchema::DATE:      colTypeStr = "DATE";
-    case vtkSQLDatabaseSchema::TIMESTAMP: colTypeStr = "TIMESTAMP";
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colTypeStr = "INT NOT NULL AUTO_INCREMENT";
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colTypeStr = "SMALLINT";
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colTypeStr = "INT";
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colTypeStr = "BIGINT";
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colTypeStr = "VARCHAR";
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colTypeStr = "VARCHAR";
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colTypeStr = "FLOAT";
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colTypeStr = "DOUBLE PRECISION";
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colTypeStr = "BLOB";
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colTypeStr = "TIME";
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colTypeStr = "DATE";
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colTypeStr = "TIMESTAMP";
+      break;
     }
 
-  if ( colTypeStr )
+  if ( colTypeStr.size() )
     {
     queryStr += " ";
     queryStr += colTypeStr;
     }
-  else // if ( colTypeStr )
+  else // if ( colTypeStr.size() )
     {
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
-    return 0;
+    return vtkStdString();
     }
   
   // Decide whether size is allowed, required, or unused
@@ -363,18 +387,42 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
 
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    colSizeType =  0;
-    case vtkSQLDatabaseSchema::SMALLINT:  colSizeType =  1;
-    case vtkSQLDatabaseSchema::INTEGER:   colSizeType =  1;
-    case vtkSQLDatabaseSchema::BIGINT:    colSizeType =  1;
-    case vtkSQLDatabaseSchema::VARCHAR:   colSizeType = -1;
-    case vtkSQLDatabaseSchema::TEXT:      colSizeType = -1;
-    case vtkSQLDatabaseSchema::REAL:      colSizeType =  1;
-    case vtkSQLDatabaseSchema::DOUBLE:    colSizeType =  1;
-    case vtkSQLDatabaseSchema::BLOB:      colSizeType =  1;
-    case vtkSQLDatabaseSchema::TIME:      colSizeType =  0;
-    case vtkSQLDatabaseSchema::DATE:      colSizeType =  0;
-    case vtkSQLDatabaseSchema::TIMESTAMP: colSizeType =  0;
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colSizeType = -1;
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colSizeType = -1;
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colSizeType =  0;
+      break;
     }
 
   // Specify size if allowed or required
@@ -400,7 +448,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-  if ( attStr )
+  if ( attStr.size() )
     {
     queryStr += " ";
     queryStr += attStr;
@@ -431,7 +479,7 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
       queryStr += "INDEX ";
       break;
     default:
-      return 0;
+      return vtkStdString();
     }
   
   queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
@@ -442,7 +490,7 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
   if ( numCnm < 0 )
     {
     vtkGenericWarningMacro( "Unable to get index specification: index has incorrect number of columns " << numCnm );
-    return 0;
+    return vtkStdString();
     }
 
   bool firstCnm = true;

@@ -29,7 +29,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.10");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.11");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -87,50 +87,98 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
 
   // Figure out column type
   int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
-  vtkStdString colTypeStr = 0;
+  vtkStdString colTypeStr;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    colTypeStr = 0;
-    case vtkSQLDatabaseSchema::SMALLINT:  colTypeStr = "SMALLINT";
-    case vtkSQLDatabaseSchema::INTEGER:   colTypeStr = "INTEGER";
-    case vtkSQLDatabaseSchema::BIGINT:    colTypeStr = "BIGINT";
-    case vtkSQLDatabaseSchema::VARCHAR:   colTypeStr = "VARCHAR";
-    case vtkSQLDatabaseSchema::TEXT:      colTypeStr = "TEXT";
-    case vtkSQLDatabaseSchema::REAL:      colTypeStr = "REAL";
-    case vtkSQLDatabaseSchema::DOUBLE:    colTypeStr = "DOUBLE";
-    case vtkSQLDatabaseSchema::BLOB:      colTypeStr = "BLOB";
-    case vtkSQLDatabaseSchema::TIME:      colTypeStr = "TIME";
-    case vtkSQLDatabaseSchema::DATE:      colTypeStr = "DATE";
-    case vtkSQLDatabaseSchema::TIMESTAMP: colTypeStr = "TIMESTAMP";
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colTypeStr = 0;
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colTypeStr = "SMALLINT";
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colTypeStr = "INTEGER";
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colTypeStr = "BIGINT";
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colTypeStr = "VARCHAR";
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colTypeStr = "TEXT";
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colTypeStr = "REAL";
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colTypeStr = "DOUBLE";
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colTypeStr = "BLOB";
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colTypeStr = "TIME";
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colTypeStr = "DATE";
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colTypeStr = "TIMESTAMP";
     }
   
-  if ( colTypeStr )
+  if ( colTypeStr.size() )
     {
     queryStr += " ";
     queryStr += colTypeStr;
     }
-  else // if ( colTypeStr )
+  else // if ( colTypeStr.size() )
     {
     vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
-    return 0;
+    return vtkStdString();
     }
   
   // Decide whether size is allowed, required, or unused
   int colSizeType = 0;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    case vtkSQLDatabaseSchema::SERIAL:    colSizeType =  0;
-    case vtkSQLDatabaseSchema::SMALLINT:  colSizeType =  1;
-    case vtkSQLDatabaseSchema::INTEGER:   colSizeType =  1;
-    case vtkSQLDatabaseSchema::BIGINT:    colSizeType =  1;
-    case vtkSQLDatabaseSchema::VARCHAR:   colSizeType = -1;
-    case vtkSQLDatabaseSchema::TEXT:      colSizeType = -1;
-    case vtkSQLDatabaseSchema::REAL:      colSizeType =  1;
-    case vtkSQLDatabaseSchema::DOUBLE:    colSizeType =  1;
-    case vtkSQLDatabaseSchema::BLOB:      colSizeType =  0;
-    case vtkSQLDatabaseSchema::TIME:      colSizeType =  0;
-    case vtkSQLDatabaseSchema::DATE:      colSizeType =  0;
-    case vtkSQLDatabaseSchema::TIMESTAMP: colSizeType =  0;
+    break;
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colSizeType = -1;
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colSizeType = -1;
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colSizeType =  0;
+      break;
     }
 
   // Specify size if allowed or required
@@ -156,7 +204,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
     }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-  if ( attStr )
+  if ( attStr.size() )
     {
     queryStr += " ";
     queryStr += attStr;
