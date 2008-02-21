@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.2");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.3");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
@@ -131,10 +131,10 @@ inline vtkIdType vtkQuadricLODActor::GetDisplayListSize(vtkPolyData *pd)
 //----------------------------------------------------------------------------
 void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 {
-  float allowedTime, bestTime, fullTime;
+  float allowedTime, bestTime;
   vtkMatrix4x4 *matrix;
   vtkMapper *bestMapper;
-  
+
   if ( !this->Mapper )
     {
     vtkErrorMacro("No mapper for actor.");
@@ -190,8 +190,8 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->LODActor->SetProperty(this->GetProperty());
     this->LODActor->SetBackfaceProperty(this->BackfaceProperty);
 
-    // This table has been emprically defined. It specifies a quadric clustering
-    // bin size go along with a desired frame rate.
+    // This table has been empirically defined. It specifies a quadric
+    // clustering bin size go along with a desired frame rate.
     static int NumTableEntries = 7;
     static double FPSTable[] = { 0.0,  5.0, 10.0, 17.5, 25.0, 50.0, 75.0};
     static double DIMTable[] = {75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0};
@@ -290,7 +290,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // Timings might become out of date, but we rely on them to be consistent
   // across renders.
   bestMapper = this->Mapper;
-  fullTime = bestTime = bestMapper->GetTimeToDraw();
+  bestTime = bestMapper->GetTimeToDraw();
 
   if ( interactiveRender )
     {//use lod
@@ -351,7 +351,7 @@ void vtkQuadricLODActor::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 void vtkQuadricLODActor::SetCamera(vtkCamera *camera)
 {
-  vtkFollower *follower = static_cast<vtkFollower*>(this->LODActor);
+  vtkFollower *follower = vtkFollower::SafeDownCast(this->LODActor);
   if (follower)
     {
     follower->SetCamera(camera);
@@ -437,4 +437,3 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
 }
-
