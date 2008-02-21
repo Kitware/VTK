@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkImageData.h"
+#include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -352,6 +353,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   // 4) for each (y,z) integer index, find all the stored x values
   //    and use them to create the vtkStencilData
     
+  // the spacing and origin of the generated stencil
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
 
@@ -390,6 +392,11 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   int idxY, idxZ;
   for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
+    if (id == 0 && extent[4] != extent[5])
+      {
+      this->UpdateProgress((idxZ - extent[4])*1.0/(extent[5] - extent[4]));
+      }
+
     double z = idxZ*spacing[2] + origin[2];
 
     slice->PrepareForNewData();
@@ -560,6 +567,8 @@ int vtkPolyDataToImageStencil::RequestData(
 
   int extent[6];
   data->GetExtent(extent);
+  // ThreadedExecute is only called from a single thread for
+  // now, but it could as easily be called from ThreadedRequestData
   this->ThreadedExecute(data, extent, 0);
 
   return 1;

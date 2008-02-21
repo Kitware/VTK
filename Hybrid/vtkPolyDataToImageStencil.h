@@ -14,7 +14,7 @@
 =========================================================================*/
 /*=========================================================================
 
-Copyright (c) 2004 Atamai, Inc.
+Copyright (c) 2008 Atamai, Inc.
 
 Use, modification and redistribution of the software, in source or
 binary forms, are permitted provided that the following terms and
@@ -51,12 +51,14 @@ POSSIBILITY OF SUCH DAMAGES.
 #define __vtkPolyDataToImageStencil_h
 
 #include "vtkImageStencilSource.h"
-#include "vtkPolyData.h"
 
 class vtkMergePoints;
+class vtkDataSet;
+class vtkPolyData;
 class vtkImageData;
 
-class VTK_EXPORT vtkPolyDataToImageStencil : public vtkImageStencilSource
+class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil :
+  public vtkImageStencilSource
 {
 public:
   static vtkPolyDataToImageStencil* New();
