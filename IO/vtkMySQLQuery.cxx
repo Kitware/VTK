@@ -59,7 +59,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.3");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.4");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -367,12 +367,16 @@ vtkMySQLQuery::DataValue(vtkIdType column)
     assert(this->Internals->CurrentRow);
     vtkVariant result;
 
+    // Initialize base as a VTK_VOID value... only populate with
+    // data when a column value is non-NULL.
+    vtkVariant base;
+    if ( this->Internals->CurrentRow[column] )
+      base = vtkVariant( this->Internals->CurrentRow[column] );
+
     // It would be a royal pain to try to convert the string to each
     // different value in turn.  Fortunately, there is already code in
     // vtkVariant to do exactly that using the C++ standard library
     // sstream.  We'll exploit that.
-    vtkVariant base(this->Internals->CurrentRow[column]);
-
     switch (this->GetFieldType(column))
       {
       case VTK_INT:
