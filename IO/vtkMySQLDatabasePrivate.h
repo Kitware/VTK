@@ -1,13 +1,15 @@
 #ifndef __vtkMySQLDatabasePrivate_h
 #define __vtkMySQLDatabasePrivate_h
 
+#include "vtkObject.h"
+
 #ifdef _WIN32
 # include <winsock.h> // mysql.h relies on the typedefs from here
 #endif
 
 #include <mysql.h> // needed for MYSQL typedefs
 
-class vtkMySQLDatabasePrivate
+class VTK_IO_EXPORT vtkMySQLDatabasePrivate : public vtkObject
 {
 public:
   vtkMySQLDatabasePrivate() :
