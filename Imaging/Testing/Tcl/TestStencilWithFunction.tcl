@@ -32,7 +32,7 @@ vtkImageStencil stencil
 stencil SetInputConnection [reader GetOutputPort]
 stencil SetBackgroundInput [shiftScale GetOutput]
 stencil SetStencil $stencilCopy
-$stencilCopy Delete
+$stencilCopy UnRegister stencil
 
 vtkImageViewer viewer
 viewer SetInputConnection [stencil GetOutputPort]
