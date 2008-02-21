@@ -30,7 +30,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.13");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.14");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -143,7 +143,6 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
   int colSizeType = 0;
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
-    break;
     case vtkSQLDatabaseSchema::SERIAL:    
       colSizeType =  0;
       break;
