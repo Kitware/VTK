@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.32");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.33");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -364,6 +364,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     if ( numCol < 0 )
       {
       query->RollbackTransaction();
+      query->Delete();
       return false;
       }
 
@@ -388,6 +389,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       else // if ( colStr.size() )
         {
         query->RollbackTransaction();
+        query->Delete();
         return false;
         }
       }
@@ -398,6 +400,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     if ( numIdx < 0 )
       {
       query->RollbackTransaction();
+      query->Delete();
       return false;
       }
     for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
@@ -420,6 +423,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       else // if ( idxStr.size() )
         {
         query->RollbackTransaction();
+        query->Delete();
         return false;
         }
       }
@@ -432,6 +436,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
                               << query->GetLastErrorText() );
       query->RollbackTransaction();
+      query->Delete();
       return false;
       }
     }
@@ -446,6 +451,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
                               << query->GetLastErrorText() );
       query->RollbackTransaction();
+      query->Delete();
       return false;
       }
     }
@@ -457,9 +463,11 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     {
     vtkGenericWarningMacro( "Unable to effect the schema: unable to commit transaction.\nDetails: "
                             << query->GetLastErrorText() );
+    query->Delete();
     return false;
     }
 
+  query->Delete();
   return true;
 }
 
