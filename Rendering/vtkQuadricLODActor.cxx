@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
 
-vtkCxxRevisionMacro(vtkQuadricLODActor, "1.3");
+vtkCxxRevisionMacro(vtkQuadricLODActor, "1.4");
 vtkStandardNewMacro(vtkQuadricLODActor);
 
 //---------------------------------------------------------------------------
@@ -200,7 +200,8 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       {
       if (frameRate >= FPSTable[i] && frameRate <= FPSTable[i+1] )
         {
-        dim = DIMTable[i] + (frameRate-FPSTable[i])/(FPSTable[i+1]-FPSTable[i]) * (DIMTable[i+1]-DIMTable[i]);
+        dim = static_cast<int>((DIMTable[i] + 
+                                (frameRate-FPSTable[i])/(FPSTable[i+1]-FPSTable[i]) * (DIMTable[i+1]-DIMTable[i])));
         break;
         }
       }
