@@ -74,7 +74,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.24");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.25");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -329,7 +329,7 @@ static void vtkFloatingEndPointScanConvertLine2D(
   double inverseDenominator = 1.0/(y2 - y1);
 
   // Take z coordinate and extents into account for bucket index
-  int idx0 = (z - extent[4])*(extent[3] - extent[2]) - extent[2];
+  int idx0 = (z - extent[4])*(extent[3] - extent[2] + 1) - extent[2];
 
   // Go along y and place each x in the proper (y,z) bucket.
   for( int y = Ay; y <= By; y++ )
@@ -343,7 +343,7 @@ static void vtkFloatingEndPointScanConvertLine2D(
 void vtkPolyDataToImageStencil::ThreadedExecute(
   vtkImageStencilData *data,
   int extent[6],
-  int id)
+  int threadId)
 {
   // Description of algorithm:
   // 1) cut the polydata at each z slice to create polylines
@@ -393,7 +393,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   int idxY, idxZ;
   for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
-    if (id == 0 && extent[4] != extent[5])
+    if (threadId == 0 && extent[4] != extent[5])
       {
       this->UpdateProgress((idxZ - extent[4])*1.0/(extent[5] - extent[4]));
       }
