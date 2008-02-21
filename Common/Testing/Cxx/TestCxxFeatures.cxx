@@ -599,7 +599,14 @@ void TestVoidReturnOuter()
 # pragma warning (disable:858) // type qualifier on return is meaningless
 #endif
 
+
+// aCC warns "type qualifier on return type is meaningless" - just omit the
+// function on aCC builds since there is no way to suppress the warning via
+// pragmas...
+#if !defined(__HP_aCC)
 void const TestVoidConstReturn() {}
+#endif
+
 
 #if defined(__INTEL_COMPILER)
 # pragma warning (pop)
