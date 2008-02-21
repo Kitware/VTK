@@ -52,6 +52,7 @@ vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
 vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
+vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
 vtkDirectedGraph.cxx
 vtkEdgeListIterator.cxx

@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkAdjacentVertexIterator.h"
+#include "vtkDirectedAcyclicGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInEdgeIterator.h"
 #include "vtkMutableDirectedGraph.h"
@@ -164,6 +165,7 @@ int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_CREATE(vtkDirectedGraph, dg);
   VTK_CREATE(vtkUndirectedGraph, ug);
   VTK_CREATE(vtkTree, t);
+  VTK_CREATE(vtkDirectedAcyclicGraph, dag);
 
   for (vtkIdType i = 0; i < 10; ++i)
     {
@@ -183,7 +185,7 @@ int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mdgTree->AddEdge(3, 8);
   mdgTree->AddEdge(3, 9);
 
-  // Not a tree since 8 and 9 form a disjoint cycle.
+  // Not a tree or DAG since 8 and 9 form a disjoint cycle.
   mdgNotTree->AddEdge(0, 1);
   mdgNotTree->AddEdge(0, 2);
   mdgNotTree->AddEdge(0, 3);
@@ -250,6 +252,21 @@ int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (ug->CheckedShallowCopy(mdgTree))
     {
     cerr << "ERROR: Can set directed graph to undirected graph." << endl;
+    ++errors;
+    }
+  if (!dag->CheckedShallowCopy(mdgTree))
+    {
+    cerr << "ERROR: Cannot set valid DAG." << endl;
+    ++errors;
+    }
+  if (dag->CheckedShallowCopy(mdgNotTree))
+    {
+    cerr << "ERROR: Can set invalid DAG." << endl;
+    ++errors;
+    }
+  if (dag->CheckedShallowCopy(mug))
+    {
+    cerr << "ERROR: Can set undirected graph to DAG." << endl;
     ++errors;
     }
   cerr << "... done." << endl;
