@@ -29,7 +29,7 @@
 
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkDirectedAcyclicGraph, "1.2");
+vtkCxxRevisionMacro(vtkDirectedAcyclicGraph, "1.3");
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
 //----------------------------------------------------------------------------
 vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph()
@@ -103,8 +103,7 @@ bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
   // Cormen, Leiserson, Rivest, p. 486).
   vtkIdType numVerts = g->GetNumberOfVertices();
   vector<int> color(numVerts, DFS_BLACK);
-  vtkIdType s, u, v;
-  bool cycle = false;
+  vtkIdType s, u;
   vtkSmartPointer<vtkOutEdgeIterator> adj = 
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (u = 0; u < numVerts; ++u)
