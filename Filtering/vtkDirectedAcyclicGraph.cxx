@@ -29,7 +29,7 @@
 
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkDirectedAcyclicGraph, "1.1");
+vtkCxxRevisionMacro(vtkDirectedAcyclicGraph, "1.2");
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
 //----------------------------------------------------------------------------
 vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph()
@@ -59,7 +59,7 @@ enum { DFS_WHITE, DFS_GRAY, DFS_BLACK };
 bool vtkDirectedAcyclicGraphDFSVisit(
   vtkGraph *g,
   vtkIdType u, 
-  vtksys_stl::vector<vtkIdType> color, 
+  vtksys_stl::vector<int> color, 
   vtkOutEdgeIterator *adj)
 {
   color[u] = DFS_GRAY;
