@@ -12,6 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkTensorProbeWidget - a widget to probe tensors on a polyline
+// .SECTION Description
+// The class is used to probe tensors on a trajectory. The representation
+// (vtkTensorProbeRepresentation) is free to choose its own method of 
+// rendering the tensors. For instance vtkEllipsoidTensorProbeRepresentation
+// renders the tensors as ellipsoids. The interactions of the widget are 
+// controlled by the left mouse button. A left click on the tensor selects
+// it. It can dragged around the trajectory to probe the tensors on it.
+// 
+// For instance dragging the ellipsoid around with 
+// vtkEllipsoidTensorProbeRepresentation will manifest itself with the 
+// ellipsoid shape changing as needed along the trajectory.
 
 #ifndef __vtkTensorProbeWidget_h
 #define __vtkTensorProbeWidget_h
@@ -50,8 +62,6 @@ public:
 protected:
   vtkTensorProbeWidget();
   ~vtkTensorProbeWidget();
-
-  vtkPolyData * Trajetory;
 
   // 1 when the probe has been selected, for instance when dragging it around
   int           Selected;
