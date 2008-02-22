@@ -91,10 +91,11 @@ public:
   void GetDisplayBounds(double bounds[6]);
 
   // Description:
-  // Return the slice number (and max slice number) computed from the display
+  // Return the slice number (& min/max slice number) computed from the display
   // extent.
   int GetSliceNumber();
   int GetSliceNumberMax();
+  int GetSliceNumberMin();
   
   //BTX
   // Description:
