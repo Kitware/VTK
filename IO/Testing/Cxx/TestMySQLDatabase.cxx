@@ -22,17 +22,20 @@
 // this test.
 
 #include "vtkMySQLDatabase.h"
-#include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLQuery.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkToolkits.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkToolkits.h"
 
 int TestMySQLDatabase( int, char ** const )
 {
-  vtkMySQLDatabase* db = vtkMySQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_MYSQL_TEST_URL ) );
+  vtkSmartPointer<vtkMySQLDatabase> db;
+  db.TakeReference(vtkMySQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_MYSQL_TEST_URL ) ) );
+
   bool status = db->Open();
 
   if ( ! status )
@@ -41,7 +44,10 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  vtkSQLQuery* query = db->GetQueryInstance();
+  vtkSmartPointer<vtkSQLQuery> query;
+  query.TakeReference(db->GetQueryInstance());
+
+/*  
   vtkStdString createQuery( "CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)" );
   cout << createQuery << endl;
   query->SetQuery( createQuery.c_str() );
@@ -113,7 +119,8 @@ int TestMySQLDatabase( int, char ** const )
     cerr << query->GetFieldName( col );
     }
   cerr << endl;
-  vtkVariantArray* va = vtkVariantArray::New();
+
+  vtkSmartPointer<vtkVariantArray> va = vtkSmartPointer<vtkVariantArray>::New();
   while ( query->NextRow( va ) )
     {
     for ( int field = 0; field < va->GetNumberOfValues(); ++ field )
@@ -126,10 +133,9 @@ int TestMySQLDatabase( int, char ** const )
       }
     cerr << endl;
     }
-  va->Delete();
 
   cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
-  vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
+  vtkSmartPointer<vtkRowQueryToTable> reader = vtkSmartPointer<vtkRowQueryToTable>::New();
   reader->SetQuery( query );
   reader->Update();
   vtkTable* table = reader->GetOutput();
@@ -150,10 +156,7 @@ int TestMySQLDatabase( int, char ** const )
 
   query->SetQuery( "DROP TABLE people" );
   query->Execute();
-
-  reader->Delete();
-  query->Delete();
-  db->Delete();
+*/
 
   return 0;
 }
