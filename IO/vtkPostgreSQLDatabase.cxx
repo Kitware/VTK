@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.17");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.18");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -43,7 +43,7 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->DatabaseType = 0;
   this->SetDatabaseType("psql");
   this->HostName = 0;
-  this->UserName = 0;
+  this->User = 0;
   this->Password = 0;
   this->DatabaseName = 0;
   this->ServerPort = -1;
@@ -59,7 +59,7 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
     }
 
   this->SetHostName( 0 );
-  this->SetUserName( 0 );
+  this->SetUser( 0 );
   this->SetPassword( 0 );
   this->SetDatabaseName( 0 );
   this->SetConnectOptions( 0 );
@@ -81,7 +81,7 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
     }
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
-  os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
+  os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
   os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
@@ -249,10 +249,10 @@ bool vtkPostgreSQLDatabase::Open()
     options += " port=";
     options += this->ServerPort;
     }
-  if ( this->UserName && strlen( this->UserName ) > 0 )
+  if ( this->User && strlen( this->User ) > 0 )
     {
     options += " user=";
-    options += this->UserName;
+    options += this->User;
     }
   if ( this->Password && strlen( this->Password ) > 0 )
     {
@@ -331,9 +331,9 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
   url += "://";
   if ( this->HostName && this->DatabaseName )
     {
-    if ( this->UserName )
+    if ( this->User )
       {
-      url += this->UserName;
+      url += this->User;
       if ( this->Password )
         {
         url += ":";

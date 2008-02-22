@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.33");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.34");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -294,7 +294,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     {
     db = vtkPostgreSQLDatabase::New();
     vtkPostgreSQLDatabase *post_db = vtkPostgreSQLDatabase::SafeDownCast(db);
-    post_db->SetUserName(username.c_str());
+    post_db->SetUser(username.c_str());
     post_db->SetPassword(password.c_str());
     post_db->SetHostName(hostname.c_str());
     post_db->SetServerPort(atoi(dataport.c_str()));
@@ -309,7 +309,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     vtkMySQLDatabase *mysql_db = vtkMySQLDatabase::SafeDownCast(db);
     if ( username.size() )
       {
-      mysql_db->SetUserName(username.c_str());
+      mysql_db->SetUser(username.c_str());
       }
     if ( password.size() )
       {

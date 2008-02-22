@@ -99,8 +99,8 @@ public:
 
   // Description:
   // The user name for connecting to the database server.
-  vtkSetStringMacro(UserName);
-  vtkGetStringMacro(UserName);
+  vtkSetStringMacro(User);
+  vtkGetStringMacro(User);
 
   // Description:
   // The user's password for connecting to the database server.
@@ -171,7 +171,7 @@ private:
 
   char* DatabaseType;
   char* HostName;
-  char* UserName;
+  char* User;
   char* Password;
   char* DatabaseName;
   int ServerPort;

@@ -93,8 +93,8 @@ public:
 
   // Description:
   // The user name for connecting to the database server.
-  virtual void SetUserName( const char* );
-  vtkGetStringMacro(UserName);
+  virtual void SetUser( const char* );
+  vtkGetStringMacro(User);
 
   // Description:
   // The user's password for connecting to the database server.
@@ -175,7 +175,7 @@ protected:
   vtkTimeStamp ConnectionMTime;
   char* DatabaseType;
   char* HostName;
-  char* UserName;
+  char* User;
   char* Password;
   char* DatabaseName;
   int ServerPort;
@@ -216,7 +216,7 @@ private:
     }
 
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,HostName,URLMTime);
-vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,UserName,URLMTime);
+vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,User,URLMTime);
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,Password,URLMTime);
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,DatabaseName,URLMTime);
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,ConnectOptions,URLMTime);

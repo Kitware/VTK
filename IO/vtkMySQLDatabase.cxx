@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.21");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.22");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkMySQLDatabase::vtkMySQLDatabase() :
   this->DatabaseType = 0;
   this->SetDatabaseType( "mysql" );
   this->HostName = 0;
-  this->UserName = 0;
+  this->User = 0;
   this->Password = 0;
   this->DatabaseName = 0;
   this->ConnectOptions = 0;
@@ -66,7 +66,7 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
     }
   this->SetDatabaseType( 0 );
   this->SetHostName( 0 );
-  this->SetUserName( 0 );
+  this->SetUser( 0 );
   this->SetPassword( 0 );
   this->SetDatabaseName( 0 );
   this->SetConnectOptions( 0 );
@@ -82,7 +82,7 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
-  os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
+  os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
   os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
@@ -149,7 +149,7 @@ bool vtkMySQLDatabase::Open()
   this->Private->Connection = 
     mysql_real_connect( &this->Private->NullConnection, 
                         this->GetHostName(),
-                        this->GetUserName(),
+                        this->GetUser(),
                         this->GetPassword(), 
                         this->GetDatabaseName(),
                         this->GetServerPort(),
@@ -287,9 +287,9 @@ vtkStdString vtkMySQLDatabase::GetURL()
   vtkStdString url;
   url = this->GetDatabaseType();
   url += "://";
-  if ( this->GetUserName() && strlen( this->GetUserName() ) )
+  if ( this->GetUser() && strlen( this->GetUser() ) )
     {
-    url += this->GetUserName();
+    url += this->GetUser();
     if ( this->GetPassword() && strlen( this->GetPassword() ) )
       {
       url += ":";
