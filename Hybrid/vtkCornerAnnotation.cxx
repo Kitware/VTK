@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3.4.3");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3.4.4");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -130,8 +130,8 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
     }
   if (ia)
     {
-    slice = ia->GetSliceNumber() + 1;
-    slice_max = ia->GetWholeZMax() + 1;
+    slice = ia->GetSliceNumber() - ia->GetSliceNumberMin() + 1;
+    slice_max = ia->GetSliceNumberMax() - ia->GetSliceNumberMin() + 1;
     ia_input = ia->GetInput();
     if (!wl_input && ia_input)
       {
@@ -646,7 +646,7 @@ void vtkCornerAnnotation::SetText(int i, const char *text)
 }
 
 //----------------------------------------------------------------------------
-char* vtkCornerAnnotation::GetText(int i)
+const char* vtkCornerAnnotation::GetText(int i)
 {
   if (i < 0 || i > 3)
     {
@@ -659,8 +659,7 @@ char* vtkCornerAnnotation::GetText(int i)
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::ClearAllTexts()
 {
-  int i;
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     this->SetText(i, "");
     }
@@ -669,8 +668,7 @@ void vtkCornerAnnotation::ClearAllTexts()
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::CopyAllTextsFrom(vtkCornerAnnotation *ca)
 {
-  int i;
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     this->SetText(i, ca->GetText(i));
     }

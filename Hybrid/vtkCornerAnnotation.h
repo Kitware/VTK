@@ -84,7 +84,7 @@ public:
   // Description:
   // Set/Get the text to be displayed for each corner
   void SetText(int i, const char *text);
-  char* GetText(int i);
+  const char* GetText(int i);
   void ClearAllTexts();
   void CopyAllTextsFrom(vtkCornerAnnotation *ca);
 
