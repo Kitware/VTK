@@ -30,7 +30,7 @@ class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractBlock);
-vtkCxxRevisionMacro(vtkExtractBlock, "1.2");
+vtkCxxRevisionMacro(vtkExtractBlock, "1.3");
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
 //----------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
@@ -150,6 +150,10 @@ int vtkExtractBlock::RequestData(
     if (this->Indices->find(iter->GetCurrentFlatIndex()) != this->Indices->end())
       {
       iter->GetCurrentMetaData()->Set(DONT_PRUNE(), 1);
+      }
+    else if (iter->HasCurrentMetaData() && iter->GetCurrentMetaData()->Has(DONT_PRUNE()))
+      {
+      iter->GetCurrentMetaData()->Remove(DONT_PRUNE());
       }
     }
   iter->Delete();
