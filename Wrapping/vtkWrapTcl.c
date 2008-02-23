@@ -144,7 +144,7 @@ void use_hints(FILE *fp)
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
-        fprintf(fp,",(int)temp%i[%i]",MAX_ARGS,i);
+        fprintf(fp,",static_cast<int>(temp%i[%i])",MAX_ARGS,i);
         }
       fprintf(fp,");\n");
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
@@ -421,7 +421,7 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     case 0x303:
-      fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, (char*)temp%i, TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS); 
+      fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS); 
       fprintf(fp,"      }\n    else\n      {\n");
       fprintf(fp,"      Tcl_ResetResult(interp);\n      }\n"); 
       break;
@@ -433,7 +433,7 @@ void return_result(FILE *fp)
       break;
     case 0x109:
     case 0x309:  
-      fprintf(fp,"      vtkTclGetObjectFromPointer(interp,(void *)temp%i,\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
+      fprintf(fp,"      vtkTclGetObjectFromPointer(interp,static_cast<void *>(temp%i),\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
       break;
 
     /* handle functions returning vectors */
@@ -444,7 +444,7 @@ void return_result(FILE *fp)
       use_hints(fp);
       break;
     default:
-      fprintf(fp,"    Tcl_SetResult(interp, (char *) \"unable to return result.\", TCL_VOLATILE);\n");
+      fprintf(fp,"    Tcl_SetResult(interp, static_cast<char *>(\"unable to return result.\"), TCL_VOLATILE);\n");
       break;
     }
 }
@@ -500,29 +500,29 @@ void get_args(FILE *fp, int i)
     case 0x13:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
-      fprintf(fp,"    temp%i = (unsigned char)tempi;\n",i);
+      fprintf(fp,"    temp%i = static_cast<unsigned char>(tempi);\n",i);
       break;
     case 0x14: case 0x1A: case 0x1B: case 0x1C:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
-      fprintf(fp,"    temp%i = (unsigned int)tempi;\n",i);
+      fprintf(fp,"    temp%i = static_cast<unsigned int>(tempi);\n",i);
       break;
     case 0x15:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
-      fprintf(fp,"    temp%i = (unsigned short)tempi;\n",i);
+      fprintf(fp,"    temp%i = static_cast<unsigned short>(tempi);\n",i);
       break;
     case 0x16:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
-      fprintf(fp,"    temp%i = (unsigned long)tempi;\n",i);
+      fprintf(fp,"    temp%i = static_cast<unsigned long>(tempi);\n",i);
       break;
     case 0x303:
       fprintf(fp,"    temp%i = argv[%i];\n",i,start_arg);
       break;
     case 0x109:
     case 0x309:
-      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],(char *) \"%s\",interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
+      fprintf(fp,"    temp%i = static_cast<%s *>(vtkTclGetPointerFromObject(argv[%i],static_cast<char *>(\"%s\"),interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
               currentFunction->ArgClasses[i]);
       break;
     case 0x2:    
@@ -557,22 +557,22 @@ void get_args(FILE *fp, int i)
             case 0x13:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
-              fprintf(fp,"    temp%i[%i] = (unsigned char)tempi;\n",i,j);
+              fprintf(fp,"    temp%i[%i] = static_cast<unsigned char>(tempi);\n",i,j);
               break;
             case 0x14: case 0x1A:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
-              fprintf(fp,"    temp%i[%i] = (unsigned int)tempi;\n",i,j);
+              fprintf(fp,"    temp%i[%i] = static_cast<unsigned int>(tempi);\n",i,j);
               break;
             case 0x15:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
-              fprintf(fp,"    temp%i[%i] = (unsigned short)tempi;\n",i,j);
+              fprintf(fp,"    temp%i[%i] = static_cast<unsigned short>(tempi);\n",i,j);
               break;
             case 0x16:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
-              fprintf(fp,"    temp%i[%i] = (unsigned long)tempi;\n",i,j);
+              fprintf(fp,"    temp%i[%i] = static_cast<unsigned long>(tempi);\n",i,j);
               break;
             }
           start_arg++;
@@ -709,7 +709,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         }
       else if (currentFunction->ArgTypes[i] == 0x5000)
         {
-        fprintf(fp,"vtkTclVoidFunc,(void *)temp%i",i);
+        fprintf(fp,"vtkTclVoidFunc,static_cast<void *>(temp%i)",i);
         }
       else
         {
@@ -777,13 +777,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"#else\n");
       fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
       fprintf(fp,"#endif\n");
-      fprintf(fp,"  return ((ClientData)temp);\n}\n\n");
+      fprintf(fp,"  return static_cast<ClientData>(temp);\n}\n\n");
       }
     else
       {
       fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
       fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
-      fprintf(fp,"  return ((ClientData)temp);\n}\n\n");
+      fprintf(fp,"  return static_cast<ClientData>(temp);\n}\n\n");
       }
     }
   
@@ -796,7 +796,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n    {\n");
   fprintf(fp,"    Tcl_DeleteCommand(interp,argv[0]);\n");
   fprintf(fp,"    return TCL_OK;\n    }\n");
-  fprintf(fp,"   return %sCppCommand((%s *)(((vtkTclCommandArgStruct *)cd)->Pointer),interp, argc, argv);\n}\n",data->ClassName,data->ClassName);
+  fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->ClassName,data->ClassName);
   
   fprintf(fp,"\nint VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->ClassName,data->ClassName);
   fprintf(fp,"  int    tempi;\n");
@@ -808,20 +808,20 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  tempd = 0; tempd = tempd;\n");
   fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
 
-  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp, (char *) \"Could not find requested method.\", TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
+  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp, static_cast<char *>(\"Could not find requested method.\"), TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
 
   /* stick in the typecasting and delete functionality here */
   fprintf(fp,"  if (!interp)\n    {\n");
   fprintf(fp,"    if (!strcmp(\"DoTypecasting\",argv[0]))\n      {\n");
   fprintf(fp,"      if (!strcmp(\"%s\",argv[1]))\n        {\n",
           data->ClassName);
-  fprintf(fp,"        argv[2] = (char *)((void *)op);\n");
+  fprintf(fp,"        argv[2] = static_cast<char *>(static_cast<void *>(op));\n");
   fprintf(fp,"        return TCL_OK;\n        }\n");
 
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"      if (%sCppCommand((%s *)op,interp,argc,argv) == TCL_OK)\n        {\n",
+    fprintf(fp,"      if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n        {\n",
             data->SuperClasses[i],data->SuperClasses[i]);
     fprintf(fp,"        return TCL_OK;\n        }\n");      
     }
@@ -832,7 +832,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"  if (!strcmp(\"GetSuperClassName\",argv[1]))\n");
     fprintf(fp,"    {\n");
-    fprintf(fp,"    Tcl_SetResult(interp,(char *) \"%s\", TCL_VOLATILE);\n",data->SuperClasses[0]);
+    fprintf(fp,"    Tcl_SetResult(interp,static_cast<char *>(\"%s\"), TCL_VOLATILE);\n",data->SuperClasses[0]);
     fprintf(fp,"    return TCL_OK;\n");
     fprintf(fp,"    }\n\n");      
     }
@@ -848,7 +848,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   /* add the ListInstances method */
   fprintf(fp,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n    {\n");
-  fprintf(fp,"    vtkTclListInstances(interp,(ClientData)%sCommand);\n",data->ClassName);
+  fprintf(fp,"    vtkTclListInstances(interp,reinterpret_cast<ClientData>(%sCommand));\n",data->ClassName);
   fprintf(fp,"    return TCL_OK;\n    }\n");
   
   /* add the ListMethods method */
@@ -905,7 +905,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* try superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"\n  if (%sCppCommand((%s *)op,interp,argc,argv) == TCL_OK)\n",
+    fprintf(fp,"\n  if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n",
             data->SuperClasses[i], data->SuperClasses[i]);
     fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
     }
