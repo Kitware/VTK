@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.79");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.80");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -181,7 +181,7 @@ int vtkDecimatePro::RequestData(
     }
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
   this->CosAngle = 
-    cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+    cos (vtkMath::DegreesToRadians() * this->FeatureAngle);
   this->Split = ( this->Splitting && !this->PreserveTopology );
   this->VertexDegree = this->Degree;
   this->TheSplitAngle = this->SplitAngle;
@@ -245,7 +245,7 @@ int vtkDecimatePro::RequestData(
   if ( this->AccumulateError )
     {
     this->VertexError = vtkDoubleArray::New();
-    this->VertexError->Allocate(numPts,((vtkIdType)0.25*numPts));
+    this->VertexError->Allocate(numPts,static_cast<vtkIdType>(0.25*numPts));
     for (i=0; i<numPts; i++)
       {
       this->VertexError->SetValue(i, 0.0);
@@ -321,7 +321,7 @@ int vtkDecimatePro::RequestData(
         totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2,
                                               CollapseTris);
         
-        reduction = (double) totalEliminated / numTris;
+        reduction = static_cast<double>(totalEliminated) / numTris;
         this->NumberOfRemainingTris = numTris - totalEliminated;
         
         //see whether we've found inflection
@@ -461,7 +461,7 @@ void vtkDecimatePro::SplitMesh()
   vtkIdType *cells;
   unsigned short int ncells;
 
-  this->CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
+  this->CosAngle = cos (vtkMath::DegreesToRadians() * this->SplitAngle);
   for ( ptId=0; ptId < this->Mesh->GetNumberOfPoints(); ptId++ )
     {
     this->Mesh->GetPoint(ptId,this->X);
@@ -1287,7 +1287,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l1[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( ((double) fabs((double)val)) < this->Tolerance )
+        if ( fabs(val) < this->Tolerance )
           {
           return 0;
           }
@@ -1310,7 +1310,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l2[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( ((double) fabs((double)val)) < this->Tolerance )
+        if ( fabs(val) < this->Tolerance )
           {
           return 0;
           }
@@ -1481,11 +1481,11 @@ void vtkDecimatePro::InitializeQueue(vtkIdType numPts)
 {
   if ( !this->PreserveTopology && this->Splitting ) 
     {
-    numPts = (vtkIdType) ((double)numPts*1.25);
+    numPts = static_cast<vtkIdType>(numPts*1.25);
     }
 
   this->Queue = vtkPriorityQueue::New();
-  this->Queue->Allocate(numPts, (vtkIdType)((double)0.25*numPts));
+  this->Queue->Allocate(numPts, static_cast<vtkIdType>(0.25*numPts));
 }
 
 int vtkDecimatePro::Pop(double &error)
@@ -1513,7 +1513,7 @@ int vtkDecimatePro::Pop(double &error)
 
     this->SplitState = VTK_STATE_SPLIT;
     this->SplitMesh();
-    this->CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->SplitAngle);
+    this->CosAngle = cos (vtkMath::DegreesToRadians() * this->SplitAngle);
 
     // Now that things are split, insert the vertices. (Have to do this
     // otherwise error calculation is incorrect.)

@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.87");
+vtkCxxRevisionMacro(vtkCutter, "1.88");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkCutter,Locator,vtkPointLocator)
@@ -360,7 +360,7 @@ int vtkCutter::RequestData(
     }
   if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
-    int dim = ((vtkRectilinearGrid*)input)->GetDataDimension();
+    int dim = static_cast<vtkRectilinearGrid *>(input)->GetDataDimension();
     if ( dim == 3 )
       {
       this->RectilinearGridCutter(input, output);
@@ -438,7 +438,8 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 
   // Create objects to hold output of contour operation
   //
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75) * numContours;
+  estimatedSize = static_cast<vtkIdType>(
+    pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -511,7 +512,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
         if ( !(++cut % progressInterval) )
           {
           vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((double)cut/numCuts);
+          this->UpdateProgress (static_cast<double>(cut)/numCuts);
           abortExecute = this->GetAbortExecute();
           }
 
@@ -592,7 +593,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
           if (dimensionality == 3 && !(++cut % progressInterval) )
             {
             vtkDebugMacro(<<"Cutting #" << cut);
-            this->UpdateProgress ((double)cut/numCuts);
+            this->UpdateProgress (static_cast<double>(cut)/numCuts);
             abortExecute = this->GetAbortExecute();
             }
           value = this->ContourValues->GetValue(iter);
@@ -666,7 +667,8 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
   // Create objects to hold output of contour operation
   //
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75) * numContours;
+  estimatedSize = static_cast<vtkIdType>(
+    pow(static_cast<double>(numCells),.75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -720,7 +722,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   vtkIdType progressInterval = numCuts/20 + 1;
   int cut=0;
 
-  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
+  vtkUnstructuredGrid *grid = static_cast<vtkUnstructuredGrid *>(input);
   vtkIdType *cellArrayPtr = grid->GetCells()->GetPointer();
   double *scalarArrayPtr = cutScalars->GetPointer(0);
   double tempScalar;
@@ -743,7 +745,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         if ( !(++cut % progressInterval) )
           {
           vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((double)cut/numCuts);
+          this->UpdateProgress (static_cast<double>(cut)/numCuts);
           abortExecute = this->GetAbortExecute();
           }
 
@@ -787,7 +789,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
             if ( !(++cut % progressInterval) )
               {
               vtkDebugMacro(<<"Cutting #" << cut);
-              this->UpdateProgress ((double)cut/numCuts);
+              this->UpdateProgress (static_cast<double>(cut)/numCuts);
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);
@@ -887,7 +889,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
             if (dimensionality == 3 && !(++cut % progressInterval) )
               {
               vtkDebugMacro(<<"Cutting #" << cut);
-              this->UpdateProgress ((double)cut/numCuts);
+              this->UpdateProgress (static_cast<double>(cut)/numCuts);
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);

@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.73");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.74");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 // Structure used to represent sphere around tetrahedron
@@ -330,7 +330,7 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
     return -1;
     }
 
-  tetra = (vtkTetra *)Mesh->GetCell(tetraId);
+  tetra = static_cast<vtkTetra *>(Mesh->GetCell(tetraId));
   for ( j=0; j < 4; j++ ) //load the points
     {
     tetra->Points->GetPoint(j,p[j]);
@@ -467,7 +467,7 @@ int vtkDelaunay3D::RequestData(
     if ( ! (ptId % 250) ) 
       {
       vtkDebugMacro(<<"point #" << ptId);
-      this->UpdateProgress ((double)ptId/numPoints);
+      this->UpdateProgress (static_cast<double>(ptId)/numPoints);
       if (this->GetAbortExecute()) 
         {
         break;

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.16");
+vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.17");
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
 static double butterflyWeights[8] =
@@ -222,8 +222,8 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
     {
     for (j = 0; j < K; j++)
       {
-      weights[j] = (.25 +  cos (2.0 * VTK_PI * (double) shift[j] / (double) K)
-                   + .5 * cos (4.0 * VTK_PI * (double) shift[j] / (double) K)) / (double) K;
+      weights[j] = (.25 +  cos (2.0 * VTK_PI * shift[j] / static_cast<double>(K))
+                    + .5 * cos (4.0 * VTK_PI * shift[j] / static_cast<double>(K))) / static_cast<double>(K);
       }
     }
   else if (K == 4)

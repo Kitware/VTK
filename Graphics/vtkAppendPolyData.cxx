@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.101");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.102");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -672,19 +672,20 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest,
     //
 
     case VTK_DOUBLE:
-      dDest = (double*)(dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
+      dDest = static_cast<double*>(
+        dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
       //
       switch (src->GetDataType())
         {
         case VTK_FLOAT:
-          fSrc = (float*)(src->GetVoidPointer(0));
+          fSrc = static_cast<float*>(src->GetVoidPointer(0));
           for (p=0; p<vals; p++)
             {
-              dDest[p] = (double) fSrc[p];
+            dDest[p] = static_cast<double>(fSrc[p]);
             }
           break;
         case VTK_DOUBLE:
-          dSrc = (double*)(src->GetVoidPointer(0));
+          dSrc = static_cast<double*>(src->GetVoidPointer(0));
           memcpy(dDest, dSrc, vals*sizeof(double));
           break;
         default:
@@ -711,7 +712,7 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
     return pDest;
     }
 
-  pSrc = (vtkIdType*)(src->GetPointer());
+  pSrc = src->GetPointer();
   end = pSrc + src->GetNumberOfConnectivityEntries();
   pNum = pSrc;
   

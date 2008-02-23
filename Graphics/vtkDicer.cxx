@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDicer, "1.33");
+vtkCxxRevisionMacro(vtkDicer, "1.34");
 
 // Instantiate object.
 vtkDicer::vtkDicer()
@@ -39,20 +39,26 @@ void vtkDicer::UpdatePieceMeasures(vtkDataSet *input)
 
   if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
     {
-    this->NumberOfPieces = (int) ceil((double)numPts/this->NumberOfPointsPerPiece);
-    this->MemoryLimit = (unsigned long) ceil((double)memSize/this->NumberOfPieces);
+    this->NumberOfPieces = static_cast<int>(
+      ceil(static_cast<double>(numPts)/this->NumberOfPointsPerPiece));
+    this->MemoryLimit = static_cast<unsigned long>(
+      ceil(static_cast<double>(memSize)/this->NumberOfPieces));
     }
 
   else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
     {
-    this->NumberOfPointsPerPiece = (int) ceil((double)numPts/this->NumberOfPieces);
-    this->MemoryLimit = (unsigned long) ceil((double)memSize/this->NumberOfPieces);
+    this->NumberOfPointsPerPiece = static_cast<int>(
+      ceil(static_cast<double>(numPts)/this->NumberOfPieces));
+    this->MemoryLimit = static_cast<unsigned long>(
+      ceil(static_cast<double>(memSize)/this->NumberOfPieces));
     }
 
   else //this->DiceMode == VTK_DICE_MODE_MEMORY_LIMIT
     {
-    this->NumberOfPieces = (int) ceil((double)memSize/this->MemoryLimit);
-    this->NumberOfPointsPerPiece = (int) ceil((double)numPts/this->NumberOfPieces);
+    this->NumberOfPieces = static_cast<int>(
+      ceil(static_cast<double>(memSize)/this->MemoryLimit));
+    this->NumberOfPointsPerPiece = static_cast<int>(
+      ceil(static_cast<double>(numPts)/this->NumberOfPieces));
     }
 }
 

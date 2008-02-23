@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.21");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.22");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
@@ -249,7 +249,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
     {
     if ( !(cellId % updateTime) )
       {
-      this->UpdateProgress((float)cellId / numCells);
+      this->UpdateProgress(static_cast<float>(cellId) / numCells);
       abort = this->GetAbortExecute();
       }
 

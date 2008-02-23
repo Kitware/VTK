@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.73");
+vtkCxxRevisionMacro(vtkConeSource, "1.74");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -196,8 +196,8 @@ int vtkConeSource::RequestData(
       for (i=0; i < this->Resolution; i++) 
         {
         x[0] = xbot;
-        x[1] = this->Radius * cos ((double)i*angle);
-        x[2] = this->Radius * sin ((double)i*angle);
+        x[1] = this->Radius * cos (i*angle);
+        x[2] = this->Radius * sin (i*angle);
         // Reverse the order
         pts[this->Resolution - i - 1] = newPoints->InsertNextPoint(x);
         }
@@ -209,13 +209,13 @@ int vtkConeSource::RequestData(
       {
       // we need to create the points also
       x[0] = xbot;
-      x[1] = this->Radius * cos ((double)start*angle);
-      x[2] = this->Radius * sin ((double)start*angle);
+      x[1] = this->Radius * cos (start*angle);
+      x[2] = this->Radius * sin (start*angle);
       pts[1] = newPoints->InsertNextPoint(x);
       for (i = start; i <= end; ++i)
         {
-        x[1] = this->Radius * cos ((double)(i+1)*angle);
-        x[2] = this->Radius * sin ((double)(i+1)*angle);
+        x[1] = this->Radius * cos ((i+1)*angle);
+        x[2] = this->Radius * sin ((i+1)*angle);
         pts[2] = newPoints->InsertNextPoint(x);
         newPolys->InsertNextCell(3,pts);
         pts[1] = pts[2];
@@ -256,10 +256,11 @@ int vtkConeSource::RequestData(
       }
     else
       {
-      t->RotateWXYZ((double)180.0, (this->Direction[0]+vMag)/2.0,
+      t->RotateWXYZ(180.0, (this->Direction[0]+vMag)/2.0,
                     this->Direction[1]/2.0, this->Direction[2]/2.0);
       }
-    float *ipts = ((vtkFloatArray *)newPoints->GetData())->GetPointer(0);
+    float *ipts=
+      static_cast<vtkFloatArray *>(newPoints->GetData())->GetPointer(0);
     for (i=0; i<numPts; i++, ipts+=3)
       {
       t->TransformPoint(ipts,ipts);
@@ -304,7 +305,7 @@ int vtkConeSource::RequestInformation(
 //----------------------------------------------------------------------------
 void vtkConeSource::SetAngle(double angle)
 {
-  this->SetRadius (this->Height * tan ((double) angle*vtkMath::DegreesToRadians()));
+  this->SetRadius (this->Height * tan (angle*vtkMath::DegreesToRadians()));
 }
 
 //----------------------------------------------------------------------------

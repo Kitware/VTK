@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.13");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.14");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ int vtkBlankStructuredGridWithImage::RequestData(
     }
   
   // Get the image, set it as the blanking array.
-  unsigned char *data = (unsigned char *)image->GetScalarPointer();
+  unsigned char *data=static_cast<unsigned char *>(image->GetScalarPointer());
   vtkUnsignedCharArray *dataArray = vtkUnsignedCharArray::New();
   dataArray->SetArray(data, gridDims[0]*gridDims[1]*gridDims[2], 1);
 

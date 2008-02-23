@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.75");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.76");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ vtkDataSetCollection *vtkAppendFilter::GetInputList()
     {
     if (this->GetInput(idx))
       {
-      this->InputList->AddItem((vtkDataSet*)(this->GetInput(idx)));
+      this->InputList->AddItem(this->GetInput(idx));
       }
     }  
   

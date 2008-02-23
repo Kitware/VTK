@@ -30,7 +30,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.28");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.29");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -130,7 +130,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
   int abort=0;
   for (k = 0; k < numSlices && !abort; k++)
     {
-    this->UpdateProgress((double)k / numSlices);
+    this->UpdateProgress(static_cast<double>(k) / numSlices);
     abort = this->GetAbortExecute();
 
     for (j = 0; j < dimensions[1]; j++)
@@ -199,7 +199,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
 void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
                                                    vtkUnstructuredGrid *output)
 {
-  vtkPointSet *input = (vtkPointSet*) dataSetInput; //has to be
+  vtkPointSet *input = static_cast<vtkPointSet*>(dataSetInput); //has to be
   vtkIdType numCells = input->GetNumberOfCells();
   vtkGenericCell *cell;
   vtkIdType newCellId, j;
@@ -273,7 +273,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
     {
     if ( !(cellId % updateTime) )
       {
-      this->UpdateProgress((double)cellId / numCells);
+      this->UpdateProgress(static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
       }
 

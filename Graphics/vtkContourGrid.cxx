@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.32");
+vtkCxxRevisionMacro(vtkContourGrid, "1.33");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -109,7 +109,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   vtkDataArray *cellScalars;
-  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
+  vtkUnstructuredGrid *grid = static_cast<vtkUnstructuredGrid *>(input);
   //In this case, we know that the input is an unstructured grid.
   vtkIdType numPoints, cellArrayIt = 0;
   int needCell = 0;
@@ -122,7 +122,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   // Create objects to hold output of contour operation. First estimate
   // allocation size.
   //
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
+  estimatedSize=static_cast<vtkIdType>(pow(static_cast<double>(numCells),.75));
   estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
@@ -222,7 +222,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
         
         if (dimensionality == 3 &&  ! (cellId % 5000) ) 
           {
-          self->UpdateProgress ((double)cellId/numCells);
+          self->UpdateProgress (static_cast<double>(cellId)/numCells);
           if (self->GetAbortExecute())
             {
             abortExecute = 1;
@@ -364,10 +364,10 @@ int vtkContourGrid::RequestData(
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      vtkContourGridExecute( this, input, output, inScalars,
-                             (VTK_TT *)(scalarArrayPtr), numContours, values,
-                             computeScalars, useScalarTree, 
-                             scalarTree));
+      vtkContourGridExecute(this, input, output, inScalars,
+                            static_cast<VTK_TT *>(scalarArrayPtr),
+                            numContours, values,computeScalars, useScalarTree, 
+                            scalarTree));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

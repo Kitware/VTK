@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDiskSource, "1.34");
+vtkCxxRevisionMacro(vtkDiskSource, "1.35");
 vtkStandardNewMacro(vtkDiskSource);
 
 vtkDiskSource::vtkDiskSource()
@@ -68,14 +68,13 @@ int vtkDiskSource::RequestData(
 
   // Create disk
   //
-  theta = 2.0 * vtkMath::Pi() / ((double)this->CircumferentialResolution);
-  deltaRadius = (this->OuterRadius - this->InnerRadius) / 
-                       ((double)this->RadialResolution);
+  theta = 2.0 * vtkMath::Pi() / this->CircumferentialResolution;
+  deltaRadius = (this->OuterRadius - this->InnerRadius)/this->RadialResolution;
 
   for (i=0; i < this->CircumferentialResolution; i++) 
     {
-    cosTheta = cos((double)i*theta);
-    sinTheta = sin((double)i*theta);
+    cosTheta = cos(i*theta);
+    sinTheta = sin(i*theta);
     for (j=0; j <= this->RadialResolution; j++)
       {
       x[0] = (this->InnerRadius + j*deltaRadius) * cosTheta;

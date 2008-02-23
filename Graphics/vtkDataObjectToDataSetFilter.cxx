@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.45");
+vtkCxxRevisionMacro(vtkDataObjectToDataSetFilter, "1.46");
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
 //----------------------------------------------------------------------------
@@ -1192,7 +1192,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
          this->CellTypeComponentRange[0] == 0 && 
          this->CellTypeComponentRange[1] == da->GetMaxId() )
       {
-      types = ((vtkIntArray *)da)->GetPointer(0);
+      types = static_cast<vtkIntArray *>(da)->GetPointer(0);
       }
     // Otherwise, we'll copy the data by inserting it into a vtkCellArray
     else
@@ -1202,7 +1202,8 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
       for (i=this->CellTypeComponentRange[0]; 
            i <= this->CellTypeComponentRange[1]; i++)
         {
-        types[i] = (int) da->GetComponent(i,this->CellTypeArrayComponent);
+        types[i] =
+          static_cast<int>(da->GetComponent(i,this->CellTypeArrayComponent));
         }
       }
     this->CellTypeComponentRange[0] = this->CellTypeComponentRange[1] = -1;
@@ -1234,7 +1235,10 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
 }
 
 //----------------------------------------------------------------------------
-vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da, int comp, vtkIdType compRange[2])
+vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(
+  vtkDataArray *da,
+  int comp,
+  vtkIdType compRange[2])
 {
   int j, min, max, numComp=da->GetNumberOfComponents();
   vtkCellArray *carray;
@@ -1257,7 +1261,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da,
   if ( da->GetDataType() == VTK_ID_TYPE && da->GetNumberOfComponents() == 1 
     && comp == 0 && compRange[0] == 0 && compRange[1] == max )
     {
-    vtkIdTypeArray *ia = (vtkIdTypeArray *)da;
+    vtkIdTypeArray *ia = static_cast<vtkIdTypeArray *>(da);
     for (ncells=i=0; i<ia->GetMaxId(); i+=(npts+1))
       {
       ncells++;
@@ -1270,7 +1274,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da,
     {
     for (i=min; i<max; i+=(npts+1))
       {
-      npts = (int) da->GetComponent(i,comp);
+      npts = static_cast<int>(da->GetComponent(i,comp));
       if ( npts <= 0 )
         {
         vtkErrorMacro(<<"Error constructing cell array");
@@ -1282,7 +1286,8 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da,
         carray->InsertNextCell(npts);
         for (j=1; j<=npts; j++)
           {
-          carray->InsertCellPoint((int)da->GetComponent(i+j,comp));
+          carray->InsertCellPoint(static_cast<int>(
+                                    da->GetComponent(i+j,comp)));
           }
         }
       }
@@ -1389,9 +1394,9 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject *input)
     
     for (int i=0; i<3; i++)
       {
-      this->Dimensions[i] = (int)(fieldArray->GetComponent(
-                                    this->DimensionsComponentRange[0]+i,
-                                    this->DimensionsArrayComponent));
+      this->Dimensions[i] = static_cast<int>(
+        fieldArray->GetComponent(this->DimensionsComponentRange[0]+i,
+                                 this->DimensionsArrayComponent));
       }
     }
 

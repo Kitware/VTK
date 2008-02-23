@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.29");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.30");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
@@ -153,7 +153,7 @@ int vtkCellDerivatives::RequestData(
       if ( ! (cellId % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing cell #" << cellId);
-        this->UpdateProgress ((double)cellId/numCells);
+        this->UpdateProgress (static_cast<double>(cellId)/numCells);
         }
 
       input->GetCell(cellId, cell);

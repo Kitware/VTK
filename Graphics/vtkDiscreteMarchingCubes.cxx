@@ -42,7 +42,7 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.2");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.3");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -117,7 +117,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
-    self->UpdateProgress ((vtkFloatingPointType) k / ((vtkFloatingPointType) dims[2] - 1));
+    self->UpdateProgress (static_cast<vtkFloatingPointType>(k)/(dims[2] - 1));
     if (self->GetAbortExecute())
       {
       break;
@@ -300,7 +300,8 @@ int vtkDiscreteMarchingCubes::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   // estimate the number of points from the volume dimensions
-  estimatedSize = (int) pow ((vtkFloatingPointType) (dims[0] * dims[1] * dims[2]), .75);
+  estimatedSize = static_cast<int>(
+    pow (static_cast<vtkFloatingPointType>(dims[0] * dims[1] * dims[2]), .75));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {

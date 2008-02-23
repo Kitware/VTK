@@ -34,7 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.72");
+vtkCxxRevisionMacro(vtkClipVolume, "1.73");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -285,7 +285,7 @@ int vtkClipVolume::RequestData(
   for ( k=0; k < numKCells && !abort; k++)
     {
     // Check for progress and abort on every z-slice
-    this->UpdateProgress((double)k / numKCells);
+    this->UpdateProgress(static_cast<double>(k) / numKCells);
     abort = this->GetAbortExecute();
     for ( j=0; j < numJCells; j++)
       {

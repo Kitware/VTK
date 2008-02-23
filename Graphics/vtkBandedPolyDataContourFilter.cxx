@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.55");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.56");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -260,7 +260,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     this->ClipValues[i] = this->ContourValues->GetValue(i-1);
     }
 
-  qsort((void *)this->ClipValues, this->NumberOfClipValues, sizeof(double), 
+  qsort(this->ClipValues, this->NumberOfClipValues, sizeof(double), 
         vtkCompareClipValues);
 
   // toss out values which are too close together, currently within FLT_EPSILON%
@@ -286,7 +286,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   //
   // Estimate allocation size, stolen from vtkContourGrid...
   //
-  estimatedSize = (vtkIdType) pow ((double) numCells, .9);
+  estimatedSize=static_cast<vtkIdType>(pow(static_cast<double>(numCells),.9));
   estimatedSize *= this->NumberOfClipValues;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
@@ -510,7 +510,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
       {
       if  ( ! (++count % updateCount) )
         {
-        this->UpdateProgress(0.1 + 0.45*((double)count/numPolys));
+        this->UpdateProgress(0.1 + 0.45*(static_cast<double>(count)/numPolys));
         }
 
       for (i=0; i<npts; i++)
@@ -559,7 +559,8 @@ int vtkBandedPolyDataContourFilter::RequestData(
       {
       if  ( ! (++count % updateCount) )
         {
-        this->UpdateProgress(0.55 + 0.45*((double)count/numPolys));
+        this->UpdateProgress(0.55 +
+                             0.45*(static_cast<double>(count)/numPolys));
         }
 
       //Create a new polygon that includes all the points including the

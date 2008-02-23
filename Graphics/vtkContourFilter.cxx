@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.126");
+vtkCxxRevisionMacro(vtkContourFilter, "1.127");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -369,7 +369,7 @@ int vtkContourFilter::RequestData(
     vtkContourGrid *cgrid;
 
     cgrid = vtkContourGrid::New();
-    cgrid->SetInput((vtkUnstructuredGrid *)input);
+    cgrid->SetInput(input);
     for (i = 0; i < numContours; i++)
       {
       cgrid->SetValue(i, values[i]);
@@ -396,7 +396,8 @@ int vtkContourFilter::RequestData(
     // Create objects to hold output of contour operation. First estimate
     // allocation size.
     //
-    estimatedSize = (vtkIdType) pow ((double) numCells, .75);
+    estimatedSize=
+      static_cast<vtkIdType>(pow(static_cast<double>(numCells),.75));
     estimatedSize *= numContours;
     estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
     if (estimatedSize < 1024)
@@ -481,7 +482,7 @@ int vtkContourFilter::RequestData(
           if (dimensionality == 3 &&  ! (cellId % 5000) ) 
             {
             vtkDebugMacro(<<"Contouring #" << cellId);
-            this->UpdateProgress ((double)cellId/numCells);
+            this->UpdateProgress (static_cast<double>(cellId)/numCells);
             abortExecute = this->GetAbortExecute();
             }
         

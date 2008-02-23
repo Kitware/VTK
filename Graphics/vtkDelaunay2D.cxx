@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.71");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.72");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -412,14 +412,15 @@ int vtkDelaunay2D::RequestData(
   for (ptId=0; ptId<8; ptId++)
     {
     x[0] = center[0]
-      + radius*cos((double)(45.0*ptId)*vtkMath::DegreesToRadians());
+      + radius*cos(45.0*ptId*vtkMath::DegreesToRadians());
     x[1] = center[1]
-      + radius*sin((double)(45.0*ptId)*vtkMath::DegreesToRadians());
+      + radius*sin(45.0*ptId*vtkMath::DegreesToRadians());
     x[2] = center[2];
     points->InsertPoint(numPoints+ptId,x);
     }
   // We do this for speed accessing points
-  this->Points = ((vtkDoubleArray *)points->GetData())->GetPointer(0);
+  this->Points =
+    static_cast<vtkDoubleArray *>(points->GetData())->GetPointer(0);
 
   triangles = vtkCellArray::New();
   triangles->Allocate(triangles->EstimateSize(2*numPoints,3));
@@ -533,7 +534,7 @@ int vtkDelaunay2D::RequestData(
     if ( ! (ptId % 1000) ) 
       {
       vtkDebugMacro(<<"point #" << ptId);
-      this->UpdateProgress ((double)ptId/numPoints);
+      this->UpdateProgress (static_cast<double>(ptId)/numPoints);
       if (this->GetAbortExecute()) 
         {
         break;

@@ -29,7 +29,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.14");
+vtkCxxRevisionMacro(vtkCurvatures, "1.15");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
       {
         if (num_neighb[v]>0)
           {
-          Hf = 0.5*meanCurvatureData[v]/(double)num_neighb[v];
+          Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
           if (this->InvertMeanCurvature)
             {
             meanCurvatureData[v] = -Hf;
@@ -337,8 +337,10 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
   output->GetPointData()->SetActiveScalars("Maximum_Curvature");
   maximumCurvature->Delete();
   
-  vtkDoubleArray *gauss = (vtkDoubleArray *)output->GetPointData()->GetArray("Gauss_Curvature");
-  vtkDoubleArray *mean = (vtkDoubleArray *)output->GetPointData()->GetArray("Mean_Curvature");
+  vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
+    output->GetPointData()->GetArray("Gauss_Curvature"));
+  vtkDoubleArray *mean = static_cast<vtkDoubleArray *>(
+    output->GetPointData()->GetArray("Mean_Curvature"));
   double k, h, k_max,tmp;
   
   for (vtkIdType i = 0; i<numPts; i++)
@@ -376,8 +378,10 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
   output->GetPointData()->SetActiveScalars("Minimum_Curvature");
   minimumCurvature->Delete();
   
-  vtkDoubleArray *gauss = (vtkDoubleArray *)output->GetPointData()->GetArray("Gauss_Curvature");
-  vtkDoubleArray *mean = (vtkDoubleArray *)output->GetPointData()->GetArray("Mean_Curvature");
+  vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
+    output->GetPointData()->GetArray("Gauss_Curvature"));
+  vtkDoubleArray *mean = static_cast<vtkDoubleArray *>(
+    output->GetPointData()->GetArray("Mean_Curvature"));
   double k, h, k_min,tmp;
   
   for (vtkIdType i = 0; i<numPts; i++)

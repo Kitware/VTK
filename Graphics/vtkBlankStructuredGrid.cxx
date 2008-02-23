@@ -22,7 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.13");
+vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.14");
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -129,7 +129,7 @@ int vtkBlankStructuredGrid::RequestData(
   switch (dataArray->GetDataType())
     {
     vtkTemplateMacro(
-      vtkBlankStructuredGridExecute(this, (VTK_TT *)(dptr), numPts,
+      vtkBlankStructuredGridExecute(this, static_cast<VTK_TT *>(dptr), numPts,
                                     numComp, this->Component, 
                                     this->MinBlankingValue, 
                                     this->MaxBlankingValue, blanking));

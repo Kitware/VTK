@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCylinderSource, "1.54");
+vtkCxxRevisionMacro(vtkCylinderSource, "1.55");
 vtkStandardNewMacro(vtkCylinderSource);
 
 vtkCylinderSource::vtkCylinderSource (int res)
@@ -97,7 +97,7 @@ int vtkCylinderSource::RequestData(
   for (i=0; i<this->Resolution; i++)
     {
     // x coordinate
-    nbot[0] = ntop[0] = cos((double)i*angle);
+    nbot[0] = ntop[0] = cos(i*angle);
     xbot[0] = (nbot[0] * this->Radius) + center[0]; 
     xtop[0] = (ntop[0] * this->Radius) + center[0]; 
     tcbot[0] = tctop[0] = fabs(2.0*i/this->Resolution - 1.0);
@@ -110,7 +110,7 @@ int vtkCylinderSource::RequestData(
     tctop[1] = 1.0;
 
     // z coordinate
-    nbot[2] = ntop[2] = -sin((double)i*angle);
+    nbot[2] = ntop[2] = -sin(i*angle);
     xbot[2] = (nbot[2] * this->Radius) + center[2]; 
     xtop[2] = (ntop[2] * this->Radius) + center[2]; 
 
@@ -141,7 +141,7 @@ int vtkCylinderSource::RequestData(
     for (i=0; i<this->Resolution; i++)
       {
       // x coordinate
-      xbot[0] = xtop[0] = this->Radius * cos((double)i*angle);
+      xbot[0] = xtop[0] = this->Radius * cos(i*angle);
       nbot[0] = ntop[0] = 0.0;
       tcbot[0] = tctop[0] = xbot[0];
       xbot[0] += center[0]; xtop[0] += center[0];
@@ -154,7 +154,7 @@ int vtkCylinderSource::RequestData(
       xbot[1] += center[1]; xtop[1] += center[1];
 
       // z coordinate
-      xbot[2] = xtop[2] = -this->Radius * sin((double)i*angle);
+      xbot[2] = xtop[2] = -this->Radius * sin(i*angle);
       tcbot[1] = tctop[1] = xbot[2];
       xbot[2] += center[2]; xtop[2] += center[2];
       nbot[2] = 0.0;
