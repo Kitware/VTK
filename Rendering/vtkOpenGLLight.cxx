@@ -25,7 +25,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLLight, "1.23");
+vtkCxxRevisionMacro(vtkOpenGLLight, "1.24");
 vtkStandardNewMacro(vtkOpenGLLight);
 #endif
 
@@ -58,17 +58,17 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   color[1] = this->Intensity * this->AmbientColor[1];
   color[2] = this->Intensity * this->AmbientColor[2];
   color[3] = 1.0;
-  glLightfv((GLenum)light_index, GL_AMBIENT, color);
+  glLightfv(static_cast<GLenum>(light_index), GL_AMBIENT, color);
 
   color[0] = this->Intensity * this->DiffuseColor[0];
   color[1] = this->Intensity * this->DiffuseColor[1];
   color[2] = this->Intensity * this->DiffuseColor[2];
-  glLightfv((GLenum)light_index, GL_DIFFUSE, color);
+  glLightfv(static_cast<GLenum>(light_index), GL_DIFFUSE, color);
 
   color[0] = this->Intensity * this->SpecularColor[0];
   color[1] = this->Intensity * this->SpecularColor[1];
   color[2] = this->Intensity * this->SpecularColor[2];
-  glLightfv((GLenum)light_index, GL_SPECULAR, color);
+  glLightfv(static_cast<GLenum>(light_index), GL_SPECULAR, color);
 
   // define the light source
   if (!this->Positional)
@@ -78,10 +78,10 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     Info[2]  = -dz;
     Info[3]  = 0.0;
 
-    glLightf((GLenum)light_index, GL_SPOT_EXPONENT, 0);
-    glLightf((GLenum)light_index, GL_SPOT_CUTOFF, 180);
+    glLightf(static_cast<GLenum>(light_index), GL_SPOT_EXPONENT, 0);
+    glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180);
 
-    glLightfv((GLenum)light_index, GL_POSITION, Info );
+    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, Info );
     }
   else
     {
@@ -90,13 +90,13 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     Info[1]  = this->Position[1];
     Info[2]  = this->Position[2];
     Info[3]  = 1.0;
-    glLightfv((GLenum)light_index, GL_POSITION, Info );
+    glLightfv(static_cast<GLenum>(light_index), GL_POSITION, Info );
 
-    glLightf((GLenum)light_index, 
+    glLightf(static_cast<GLenum>(light_index), 
              GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
-    glLightf((GLenum)light_index, 
+    glLightf(static_cast<GLenum>(light_index), 
              GL_LINEAR_ATTENUATION, this->AttenuationValues[1]);
-    glLightf((GLenum)light_index, 
+    glLightf(static_cast<GLenum>(light_index), 
              GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
 
     // set up spot parameters if neccesary
@@ -105,13 +105,15 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
       Info[0] = dx;
       Info[1] = dy;
       Info[2] = dz;
-      glLightfv((GLenum)light_index, GL_SPOT_DIRECTION, Info );
-      glLightf((GLenum)light_index, GL_SPOT_EXPONENT, this->Exponent);
-      glLightf((GLenum)light_index, GL_SPOT_CUTOFF, this->ConeAngle);
+      glLightfv(static_cast<GLenum>(light_index), GL_SPOT_DIRECTION, Info );
+      glLightf(static_cast<GLenum>(light_index), GL_SPOT_EXPONENT,
+               this->Exponent);
+      glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF,
+               this->ConeAngle);
       }
     else
       {
-      glLighti((GLenum)light_index, GL_SPOT_CUTOFF, 180);
+      glLighti(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180);
       }
     }
 

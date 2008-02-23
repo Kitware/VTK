@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.36");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.37");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -151,7 +151,7 @@ int vtkSelectVisiblePoints::RequestData(
 
     if ( ! (ptId % progressInterval) ) 
       {
-      this->UpdateProgress((double)ptId/numPts);
+      this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = this->GetAbortExecute();
       }
 
@@ -164,8 +164,8 @@ int vtkSelectVisiblePoints::RequestData(
         // Access the value from the captured zbuffer.  Note, we only
         // captured a portion of the zbuffer, so we need to offset dx by
         // the selection window.
-        z = zPtr[(int)dx[0] - selection[0]
-                 + ((int)dx[1] - selection[2])
+        z = zPtr[static_cast<int>(dx[0]) - selection[0]
+                 + (static_cast<int>(dx[1]) - selection[2])
                  *(selection[1] - selection[0] + 1)];
         }
       else

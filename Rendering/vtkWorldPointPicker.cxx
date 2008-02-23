@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkWorldPointPicker, "1.21");
+vtkCxxRevisionMacro(vtkWorldPointPicker, "1.22");
 vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker()
@@ -47,7 +47,8 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
-  z = renderer->GetZ ((int) selectionX, (int) selectionY);
+  z = renderer->GetZ (static_cast<int>(selectionX),
+                      static_cast<int>(selectionY));
   
   // if z is 1.0, we assume the user has picked a point on the
   // screen that has not been rendered into. Use the camera's focal

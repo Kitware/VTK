@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.81");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.82");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -170,7 +170,7 @@ void vtkVRMLExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
+      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fp);
       }
     }
@@ -289,7 +289,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
   else
     {
-    pd = (vtkPolyData *)ds;
+    pd = static_cast<vtkPolyData *>(ds);
     }
 
   pm = vtkPolyDataMapper::New();
@@ -490,7 +490,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", (int)indx[i]);
+        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
         }
       fprintf(fp,"-1,\n");
       }
@@ -540,8 +540,9 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
           i2 = i - 1;
           }
         // treating vtkIdType as int
-        fprintf(fp,"              %i, %i, %i, -1,\n", (int)indx[i1], 
-                (int)indx[i2], (int)indx[i]);
+        fprintf(fp,"              %i, %i, %i, -1,\n",
+                static_cast<int>(indx[i1]), 
+                static_cast<int>(indx[i2]),static_cast<int>(indx[i]));
         }
       }
     fprintf(fp,"            ]\n");
@@ -575,7 +576,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", (int)indx[i]);
+        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
         }
       fprintf(fp,"-1,\n");
       }

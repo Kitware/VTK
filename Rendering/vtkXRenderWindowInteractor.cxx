@@ -29,7 +29,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.131");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.132");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -81,16 +81,31 @@ OptionsRec      Options;
 
 XtResource resources[] =
 {
-        {(char *) "visual", (char *) "Visual", XtRVisual, sizeof (Visual *),
-        XtOffsetOf (OptionsRec, visual), XtRImmediate, NULL},
-        {(char *) "depth", (char *) "Depth", XtRInt, sizeof (int),
-        XtOffsetOf (OptionsRec, depth), XtRImmediate, NULL},
+  {static_cast<char *>("visual"),
+   static_cast<char *>("Visual"),
+   XtRVisual,
+   sizeof (Visual *),
+   XtOffsetOf (OptionsRec, visual),
+   XtRImmediate,
+   NULL},
+  {static_cast<char *>("depth"),
+   static_cast<char *>("Depth"),
+   XtRInt,
+   sizeof (int),
+   XtOffsetOf (OptionsRec, depth),
+   XtRImmediate,
+   NULL},
 };
 
 XrmOptionDescRec Desc[] =
 {
-        {(char *) "-visual", (char *) "*visual", XrmoptionSepArg, NULL},
-        {(char *) "-depth", (char *) "*depth", XrmoptionSepArg, NULL}
+  {static_cast<char *>("-visual"),
+   static_cast<char *>("*visual"),
+   XrmoptionSepArg,
+   NULL},
+  {static_cast<char *>("-depth"),
+   static_cast<char *>("*depth"),
+   XrmoptionSepArg, NULL}
 };
 
 
@@ -290,7 +305,7 @@ void vtkXRenderWindowInteractor::Initialize()
     }
 
   this->Initialized = 1;
-  ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
+  ren = static_cast<vtkXOpenGLRenderWindow *>(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
   if (vtkXRenderWindowInteractor::App)
@@ -407,7 +422,8 @@ void vtkXRenderWindowInteractor::Enable()
                     EnterWindowMask | LeaveWindowMask | 
                     PointerMotionHintMask | PointerMotionMask,
                     True,  // True means we also observe ClientMessage
-                    vtkXRenderWindowInteractorCallback,(XtPointer)this);
+                    vtkXRenderWindowInteractorCallback,
+                    static_cast<XtPointer>(this));
 
    // Setup for capturing the window deletion
   this->KillAtom = XInternAtom(this->DisplayId,"WM_DELETE_WINDOW",False);
@@ -442,7 +458,8 @@ void vtkXRenderWindowInteractor::Disable()
                     ExposureMask | ButtonReleaseMask |
                     EnterWindowMask | LeaveWindowMask | 
                     PointerMotionHintMask | PointerMotionMask,
-                    True,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+                       True,vtkXRenderWindowInteractorCallback,
+                       static_cast<XtPointer>(this));
 
   this->Enabled = 0;
   this->Modified();
@@ -488,7 +505,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   int timerId = me->GetVTKTimerId(platformTimerId);
   if (me->Enabled) 
     {
-    me->InvokeEvent(vtkCommand::TimerEvent,(void*)&timerId);
+    me->InvokeEvent(vtkCommand::TimerEvent,&timerId);
     }
   
   if ( ! me->IsOneShotTimer(timerId) )
@@ -507,7 +524,7 @@ int vtkXRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
   XtIntervalId xid =
     this->AddTimeOut(vtkXRenderWindowInteractor::App, duration,
                      vtkXRenderWindowInteractorTimer,
-                     (XtPointer)this);
+                     static_cast<XtPointer>(this));
   return this->Internal->CreateLocalId(xid);
 }
 
@@ -527,7 +544,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
   vtkXRenderWindowInteractor *me;
   int xp, yp;
 
-  me = (vtkXRenderWindowInteractor *)client_data;
+  me = static_cast<vtkXRenderWindowInteractor *>(client_data);
   
   switch (event->type) 
     {

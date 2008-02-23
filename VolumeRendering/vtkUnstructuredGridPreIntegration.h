@@ -171,12 +171,12 @@ inline float *vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(
 inline float *vtkUnstructuredGridPreIntegration::GetTableEntry(
   double scalar_front, double scalar_back, double length, int component)
 {
-  int sfi = (int)(  scalar_front
+  int sfi = static_cast<int>(  scalar_front
                     *this->IntegrationTableScalarScale[component]
                   + this->IntegrationTableScalarShift[component] + 0.5);
-  int sbi = (int)(  scalar_back*this->IntegrationTableScalarScale[component]
+  int sbi =  static_cast<int>(  scalar_back*this->IntegrationTableScalarScale[component]
                   + this->IntegrationTableScalarShift[component] + 0.5);
-  int li = (int)(length*this->IntegrationTableLengthScale + 0.5);
+  int li =  static_cast<int>(length*this->IntegrationTableLengthScale + 0.5);
   return this->GetIndexedTableEntry(sfi, sbi, li, component);
 }
 

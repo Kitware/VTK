@@ -96,9 +96,9 @@ public:
       {
       //proc
       ret = 
-        (((vtkIdType)Byte[0])<<16) |
-        (((vtkIdType)Byte[1])<< 8) |
-        (((vtkIdType)Byte[2])    );
+        (static_cast<vtkIdType>(Byte[0])<<16) |
+        (static_cast<vtkIdType>(Byte[1])<< 8) |
+        (static_cast<vtkIdType>(Byte[2])    );
       if (ret != 0) //account for the fact that a miss is stored as 0
         {
         ret --;
@@ -108,9 +108,9 @@ public:
       {
       //actor
       ret = 
-        (((vtkIdType)Byte[3])<<16) |
-        (((vtkIdType)Byte[4])<< 8) |
-        (((vtkIdType)Byte[5])    );
+        (static_cast<vtkIdType>(Byte[3])<<16) |
+        (static_cast<vtkIdType>(Byte[4])<< 8) |
+        (static_cast<vtkIdType>(Byte[5])    );
       if (ret != 0)
         {
         ret --;
@@ -121,28 +121,28 @@ public:
       //cell id, convert from 3 24 bit fields to two 32 bit ones
       //throwing away upper 8 bits, but accounting for miss stored in 0
       vtkIdType hField;
-      hField = 
-        (((vtkIdType)Byte[6])<<16) |
-        (((vtkIdType)Byte[7])<< 8) |
-        (((vtkIdType)Byte[8])    );
+      hField =
+        (static_cast<vtkIdType>(Byte[6])<<16) |
+        (static_cast<vtkIdType>(Byte[7])<< 8) |
+        (static_cast<vtkIdType>(Byte[8])    );
       if (hField != 0) 
         {
         hField --;
         }
       vtkIdType mField;
-      mField = 
-        (((vtkIdType)Byte[ 9])<<16) |
-        (((vtkIdType)Byte[10])<< 8) |
-        (((vtkIdType)Byte[11])    );
+      mField =
+        (static_cast<vtkIdType>(Byte[ 9])<<16) |
+        (static_cast<vtkIdType>(Byte[10])<< 8) |
+        (static_cast<vtkIdType>(Byte[11])    );
       if (mField != 0) 
         {
         mField --;
         }
       vtkIdType lField;
-      lField = 
-        (((vtkIdType)Byte[12])<<16) |
-        (((vtkIdType)Byte[13])<< 8) |
-        (((vtkIdType)Byte[14])    );
+      lField =
+        (static_cast<vtkIdType>(Byte[12])<<16) |
+        (static_cast<vtkIdType>(Byte[13])<< 8) |
+        (static_cast<vtkIdType>(Byte[14])    );
       if (lField != 0) 
         {
         lField --;
@@ -199,7 +199,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.24");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.25");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -514,9 +514,9 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
         if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
           {          
           vtkIdType vertid = 
-            (((vtkIdType)vert[0])<<16) |
-            (((vtkIdType)vert[1])<< 8) |
-            (((vtkIdType)vert[2])    ) - 1;
+            (static_cast<vtkIdType>(vert[0])<<16) |
+            (static_cast<vtkIdType>(vert[1])<< 8) |
+            (static_cast<vtkIdType>(vert[2])    ) - 1;
           //cerr << "found vertex " << vertid << endl;
           hitrecords.find(nhit)->visverts.insert(vertid);
           }
@@ -877,10 +877,10 @@ void vtkVisibleCellSelector::GetPixelSelection(
   
   // Check if its within the rendered area
 
-  if ((unsigned int)displayPos[0] < this->X0 || 
-      (unsigned int)displayPos[0] > this->X1 ||
-      (unsigned int)displayPos[1] < this->Y0 || 
-      (unsigned int)displayPos[1] > this->Y1)
+  if (static_cast<unsigned int>(displayPos[0]) < this->X0 ||
+      static_cast<unsigned int>(displayPos[0]) > this->X1 ||
+      static_cast<unsigned int>(displayPos[1]) < this->Y0 || 
+      static_cast<unsigned int>(displayPos[1]) > this->Y1)
     {
     return;
     }
@@ -924,10 +924,10 @@ void vtkVisibleCellSelector::GetPixelSelection(
 
     // vertId
     if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
-      {          
-      vertId = (((vtkIdType)vert[0])<<16) |
-               (((vtkIdType)vert[1])<< 8) |
-               (((vtkIdType)vert[2])    ) - 1;
+      {
+      vertId = (static_cast<vtkIdType>(vert[0])<<16) |
+        (static_cast<vtkIdType>(vert[1])<< 8) |
+        (static_cast<vtkIdType>(vert[2])    ) - 1;
       }
     }
 }
@@ -950,7 +950,8 @@ void vtkVisibleCellSelector::PrintSelf(ostream& os, vtkIndent indent)
 
   for (int i = 0; i < 5; i++)
     {
-    os << indent << "PixBuffer[" << i << "]: " << (void*)PixBuffer[i] << endl;
+    os << indent << "PixBuffer[" << i << "]: "
+       << static_cast<void*>(PixBuffer[i]) << endl;
     }
 
   os << indent << "SelectedIds: " << this->SelectedIds << endl;

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 
-vtkCxxRevisionMacro(vtkClipPlanesPainter, "1.2");
+vtkCxxRevisionMacro(vtkClipPlanesPainter, "1.3");
 vtkCxxSetObjectMacro(vtkClipPlanesPainter, ClippingPlanes, vtkPlaneCollection);
 
 // Needed when we don't use the vtkStandardNewMacro.
@@ -42,7 +42,7 @@ vtkClipPlanesPainter::~vtkClipPlanesPainter()
 vtkClipPlanesPainter* vtkClipPlanesPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkClipPlanesPainter");
-  return (vtkClipPlanesPainter*)o;
+  return static_cast<vtkClipPlanesPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

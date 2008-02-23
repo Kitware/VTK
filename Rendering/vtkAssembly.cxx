@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.58");
+vtkCxxRevisionMacro(vtkAssembly, "1.59");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -93,13 +93,13 @@ int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
   // for allocating render time between components
   // simple equal allocation
   fraction = this->AllocatedRenderTime 
-    / (double)(this->Paths->GetNumberOfItems());
+    / static_cast<double>(this->Paths->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( prop3D->GetVisibility() )
       {
       prop3D->SetAllocatedRenderTime(fraction, ren);
@@ -128,7 +128,7 @@ int vtkAssembly::HasTranslucentPolygonalGeometry()
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( prop3D->GetVisibility() )
       {
       result = prop3D->HasTranslucentPolygonalGeometry();
@@ -156,13 +156,13 @@ int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
   // for allocating render time between components
   // simple equal allocation
   fraction = this->AllocatedRenderTime 
-    / (double)(this->Paths->GetNumberOfItems());
+    / static_cast<double>(this->Paths->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( prop3D->GetVisibility() )
       {
       prop3D->SetAllocatedRenderTime(fraction, ren);
@@ -194,13 +194,13 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   // for allocating render time between components
   // simple equal allocation
   fraction = this->AllocatedRenderTime 
-    / (double)(this->Paths->GetNumberOfItems());
+    / static_cast<double>(this->Paths->GetNumberOfItems());
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( prop3D->GetVisibility() )
       {
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
@@ -237,7 +237,7 @@ void vtkAssembly::GetActors(vtkPropCollection *ac)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( (actor = vtkActor::SafeDownCast(prop3D)) != NULL )
       {
       ac->AddItem(actor);
@@ -255,7 +255,7 @@ void vtkAssembly::GetVolumes(vtkPropCollection *ac)
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( (volume = vtkVolume::SafeDownCast(prop3D)) != NULL )
       {
       ac->AddItem(volume);
@@ -370,7 +370,7 @@ double *vtkAssembly::GetBounds()
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
-    prop3D = (vtkProp3D *)path->GetLastNode()->GetViewProp();
+    prop3D = static_cast<vtkProp3D *>(path->GetLastNode()->GetViewProp());
     if ( prop3D->GetVisibility() )
       {
       propVisible = 1;

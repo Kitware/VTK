@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.35");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.36");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -55,7 +55,7 @@ void vtkOpenGLImageActor::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->Index && renWin)
     {
-    ((vtkRenderWindow *) renWin)->MakeCurrent();
+    static_cast<vtkRenderWindow *>(renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1
     // free any textures
     if (glIsTexture(this->Index))
@@ -157,7 +157,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     {
     xsize = ext[xdim*2+1] - ext[xdim*2] + 1;
     // xsize and ysize must be a power of 2 in OpenGL
-    xs = (unsigned short)xsize;
+    xs = static_cast<unsigned short>(xsize);
     while (!(xs & 0x01))
       {
       xs = xs >> 1;
@@ -173,7 +173,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     // can we make y a power of two also ?
     ysize = (this->ComputedDisplayExtent[ydim*2+1] -
              this->ComputedDisplayExtent[ydim*2] + 1);
-    ys = (unsigned short)ysize;
+    ys = static_cast<unsigned short>(ysize);
     while (!(ys & 0x01))
       {
       ys = ys >> 1;
@@ -200,8 +200,8 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
         reuseTexture = 1;
         }
 #endif
-      return (unsigned char *)
-        this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent);
+      return static_cast<unsigned char *>(
+        this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
       }
     }
   
@@ -252,8 +252,8 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   if (reuseTexture && contiguous)
     {
     release = 0;
-    return (unsigned char *)
-      this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent);
+    return static_cast<unsigned char *>(
+      this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
     }
 
   // allocate the memory
@@ -263,8 +263,8 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   // copy the input data to the memory
   vtkIdType inIncX, inIncY, inIncZ;
   int idxZ, idxY, idxR;
-  unsigned char *inPtr = (unsigned char *)
-    this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent);
+  unsigned char *inPtr = static_cast<unsigned char *>(
+    this->Input->GetScalarPointerForExtent(this->ComputedDisplayExtent));
   this->Input->GetContinuousIncrements(this->ComputedDisplayExtent, 
                                        inIncX, inIncY, inIncZ);
   int rowLength = numComp*(this->ComputedDisplayExtent[1] -
@@ -352,15 +352,16 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
       // get a unique display list id
 #ifdef GL_VERSION_1_1
       glGenTextures(1, &tempIndex);
-      this->Index = (long) tempIndex;
+      this->Index = static_cast<long>(tempIndex);
       glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
       this->Index = glGenLists(1);
-      glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
-      glNewList ((GLuint) this->Index, GL_COMPILE);
+      glDeleteLists (static_cast<GLuint>(this->Index),
+                     static_cast<GLsizei>(0));
+      glNewList (static_cast<GLuint>(this->Index), GL_COMPILE);
 #endif
 
-      ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))
+      static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())
         ->RegisterTextureResource( this->Index );
       }
     
@@ -403,16 +404,17 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
 #ifdef GL_VERSION_1_1
       glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
-      glTexSubImage2D(  GL_TEXTURE_2D, 0,
-                        0, 0, xsize, ysize, format, 
-                        GL_UNSIGNED_BYTE, (const GLvoid *)data );
+      glTexSubImage2D(GL_TEXTURE_2D, 0,
+                      0, 0, xsize, ysize, format, 
+                      GL_UNSIGNED_BYTE,
+                      static_cast<const GLvoid *>(data));
 #endif
       }
     else
       {
-      glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
-                    xsize, ysize, 0, format, 
-                    GL_UNSIGNED_BYTE, (const GLvoid *)data );
+      glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
+                   xsize, ysize, 0, format, 
+                   GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(data));
       this->TextureSize[0] = xsize;
       this->TextureSize[1] = ysize;
       }
@@ -432,12 +434,12 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
 #ifdef GL_VERSION_1_1
   glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
-  glCallList ((GLuint) this->Index);
+  glCallList(static_cast<GLuint>(this->Index));
 #endif
   
   // don't accept fragments if they have zero opacity. this will stop the
   // zbuffer from be blocked by totally transparent texture fragments.
-  glAlphaFunc (GL_GREATER, (GLclampf) 0);
+  glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
   // now bind it 
@@ -507,7 +509,7 @@ int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
   // Test the texture to see if it fits in memory
   glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8, 
                 size[0], size[1],
-                0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)NULL );
+                0, GL_RGBA, GL_UNSIGNED_BYTE,NULL );
   
   GLint params = 0;
   glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,

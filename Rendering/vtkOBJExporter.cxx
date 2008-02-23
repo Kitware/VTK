@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.57");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.58");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -108,7 +108,7 @@ void vtkOBJExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
+      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fpObj, fpMtl, idStart);
       }
     }
@@ -176,7 +176,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     }
   else
     {
-    pd = (vtkPolyData *)ds;
+    pd = static_cast<vtkPolyData *>(ds);
     }
 
   // write out the points
@@ -187,7 +187,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     p = points->GetPoint(i);
     fprintf (fpObj, "v %g %g %g\n", p[0], p[1], p[2]);
     }
-  idNext = idStart + (int)(points->GetNumberOfPoints());
+  idNext = idStart + static_cast<int>(points->GetNumberOfPoints());
   points->Delete();
   
   // write out the point data
@@ -228,7 +228,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fpObj,"%i ", ((int)indx[i])+idStart);
+        fprintf(fpObj,"%i ", static_cast<int>(indx[i])+idStart);
         }
       fprintf(fpObj,"\n");
       }
@@ -246,8 +246,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
         for (i = 0; i < npts; i++)
           {
           // treating vtkIdType as int
-          fprintf(fpObj,"%i/%i ",((int)indx[i])+idStart,
-                  ((int)indx[i]) + idStart);
+          fprintf(fpObj,"%i/%i ",static_cast<int>(indx[i])+idStart,
+                  static_cast<int>(indx[i]) + idStart);
           }
         }
       else
@@ -255,7 +255,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
         for (i = 0; i < npts; i++)
           {
           // treating vtkIdType as int
-          fprintf(fpObj,"%i ", ((int)indx[i])+idStart);
+          fprintf(fpObj,"%i ", static_cast<int>(indx[i])+idStart);
           }
         }
       fprintf(fpObj,"\n");
@@ -276,14 +276,15 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i/%i/%i ", ((int)indx[i])+idStart, 
-                    ((int)indx[i]) + idStart, ((int)indx[i]) + idStart);
+            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i])+idStart, 
+                    static_cast<int>(indx[i])+ idStart,
+                    static_cast<int>(indx[i]) + idStart);
             }
           else
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i//%i ",((int)indx[i])+idStart,
-                    ((int)indx[i]) + idStart);
+            fprintf(fpObj,"%i//%i ",static_cast<int>(indx[i])+idStart,
+                    static_cast<int>(indx[i]) + idStart);
             }
           }
         else
@@ -291,13 +292,13 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i/%i ", ((int)indx[i])+idStart, 
-                    ((int)indx[i]) + idStart);
+            fprintf(fpObj,"%i/%i ", static_cast<int>(indx[i])+idStart, 
+                    static_cast<int>(indx[i]) + idStart);
             }
           else
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"%i ", ((int)indx[i])+idStart);
+            fprintf(fpObj,"%i ", static_cast<int>(indx[i])+idStart);
             }
           }
         }
@@ -328,22 +329,22 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i/%i/%i ", ((int)indx[i1]) + idStart, 
-                    ((int)indx[i1]) + idStart, ((int)indx[i1]) + idStart);
-            fprintf(fpObj,"%i/%i/%i ", ((int)indx[i2])+ idStart, 
-                    ((int)indx[i2]) + idStart, ((int)indx[i2]) + idStart);
-            fprintf(fpObj,"%i/%i/%i\n", ((int)indx[i]) + idStart, 
-                    ((int)indx[i]) + idStart, ((int)indx[i]) + idStart);
+            fprintf(fpObj,"f %i/%i/%i ", static_cast<int>(indx[i1]) + idStart, 
+                    static_cast<int>(indx[i1]) + idStart, static_cast<int>(indx[i1]) + idStart);
+            fprintf(fpObj,"%i/%i/%i ", static_cast<int>(indx[i2])+ idStart, 
+                    static_cast<int>(indx[i2]) + idStart, static_cast<int>(indx[i2]) + idStart);
+            fprintf(fpObj,"%i/%i/%i\n", static_cast<int>(indx[i]) + idStart, 
+                    static_cast<int>(indx[i]) + idStart, static_cast<int>(indx[i]) + idStart);
             }
           else
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i//%i ", ((int)indx[i1]) + idStart,
-                    ((int)indx[i1]) + idStart);
-            fprintf(fpObj,"%i//%i ", ((int)indx[i2]) + idStart,
-                    ((int)indx[i2]) + idStart);
-            fprintf(fpObj,"%i//%i\n",((int)indx[i]) + idStart,
-                    ((int)indx[i]) + idStart);
+            fprintf(fpObj,"f %i//%i ", static_cast<int>(indx[i1]) + idStart,
+                    static_cast<int>(indx[i1]) + idStart);
+            fprintf(fpObj,"%i//%i ", static_cast<int>(indx[i2]) + idStart,
+                    static_cast<int>(indx[i2]) + idStart);
+            fprintf(fpObj,"%i//%i\n",static_cast<int>(indx[i]) + idStart,
+                    static_cast<int>(indx[i]) + idStart);
             }
           }
         else
@@ -351,18 +352,18 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           if (tcoords)
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i/%i ", ((int)indx[i1]) + idStart,
-                    ((int)indx[i1]) + idStart);
-            fprintf(fpObj,"%i/%i ", ((int)indx[i2]) + idStart,
-                    ((int)indx[i2]) + idStart);
-            fprintf(fpObj,"%i/%i\n", ((int)indx[i]) + idStart,
-                    ((int)indx[i]) + idStart);
+            fprintf(fpObj,"f %i/%i ", static_cast<int>(indx[i1]) + idStart,
+                    static_cast<int>(indx[i1]) + idStart);
+            fprintf(fpObj,"%i/%i ", static_cast<int>(indx[i2]) + idStart,
+                    static_cast<int>(indx[i2]) + idStart);
+            fprintf(fpObj,"%i/%i\n", static_cast<int>(indx[i]) + idStart,
+                    static_cast<int>(indx[i]) + idStart);
             }
           else
             {
             // treating vtkIdType as int
-            fprintf(fpObj,"f %i %i %i\n", ((int)indx[i1]) + idStart, 
-                    ((int)indx[i2]) + idStart, ((int)indx[i]) + idStart);
+            fprintf(fpObj,"f %i %i %i\n", static_cast<int>(indx[i1]) + idStart, 
+                    static_cast<int>(indx[i2]) + idStart, static_cast<int>(indx[i]) + idStart);
             }
           }
         }

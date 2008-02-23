@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.43");
+vtkCxxRevisionMacro(vtkTextActor, "1.44");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -162,7 +162,7 @@ void vtkTextActor::SetMapper(vtkMapper2D *mapper)
 {
   if (mapper && mapper->IsA("vtkPolyDataMapper2D"))
     {
-    this->SetMapper( (vtkPolyDataMapper2D *)mapper );
+    this->SetMapper( static_cast<vtkPolyDataMapper2D *>(mapper) );
     }
   else
     {
@@ -352,7 +352,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
           {
           size[1] = this->MinimumSize[1];
           }    
-        int max_height = (int)(this->MaximumLineHeight * (float)size[1]);
+        int max_height = static_cast<int>(this->MaximumLineHeight * size[1]);
 
         int fsize = this->FreeTypeUtilities->GetConstrainedFontSize(
           this->Input, this->TextProperty, this->Orientation, size[0],
@@ -519,10 +519,10 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     // compuet TCoords
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
       (this->Rectangle->GetPointData()->GetTCoords());
-    tc->InsertComponent(1,1, ((double)dims[1])/p2dims[1]);
-    tc->InsertComponent(2,0, ((double)dims[0])/p2dims[0]);  
-    tc->InsertComponent(2,1, ((double)dims[1])/p2dims[1]);
-    tc->InsertComponent(3,0, ((double)dims[0])/p2dims[0]);  
+    tc->InsertComponent(1,1, static_cast<double>(dims[1])/p2dims[1]);
+    tc->InsertComponent(2,0, static_cast<double>(dims[0])/p2dims[0]);  
+    tc->InsertComponent(2,1, static_cast<double>(dims[1])/p2dims[1]);
+    tc->InsertComponent(3,0, static_cast<double>(dims[0])/p2dims[0]);  
     }
   else
     {
@@ -559,32 +559,32 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
       case 0:
         break;
       case 1:
-        xo = (double)(maxWidth - dims[0]) * 0.5;
+        xo = (maxWidth - dims[0]) * 0.5;
         break;
       case 2:
-        xo = (double)(maxWidth - dims[0]);
+        xo = (maxWidth - dims[0]);
         break;
       case 3:
-        yo = (double)(maxHeight - dims[1]) * 0.5;
+        yo = (maxHeight - dims[1]) * 0.5;
         break;
       case 4:
-        xo = (double)(maxWidth - dims[0]) * 0.5;
-        yo = (double)(maxHeight - dims[1]) * 0.5;
+        xo = (maxWidth - dims[0]) * 0.5;
+        yo = (maxHeight - dims[1]) * 0.5;
         break;
       case 5:
-        xo = (double)(maxWidth - dims[0]);
-        yo = (double)(maxHeight - dims[1]) * 0.5;
+        xo = (maxWidth - dims[0]);
+        yo = (maxHeight - dims[1]) * 0.5;
         break;
       case 6:
-        yo = (double)(maxHeight - dims[1]);
+        yo = (maxHeight - dims[1]);
         break;
       case 7:
-        xo = (double)(maxWidth - dims[0]) * 0.5;
-        yo = (double)(maxHeight - dims[1]);
+        xo = (maxWidth - dims[0]) * 0.5;
+        yo = (maxHeight - dims[1]);
         break;
       case 8:
-        xo = (double)(maxWidth - dims[0]);
-        yo = (double)(maxHeight - dims[1]);
+        xo = (maxWidth - dims[0]);
+        yo = (maxHeight - dims[1]);
         break;
       default:
         vtkErrorMacro(<< "Bad alignment point value.");
@@ -613,32 +613,32 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
       case 0:
         break;
       case 1:
-        xo = -(double)(dims[0]) * 0.5;
+        xo = -dims[0] * 0.5;
         break;
       case 2:
-        xo = -(double)(dims[0]);
+        xo = -dims[0];
         break;
       case 3:
-        yo = -(double)(dims[1]) * 0.5;
+        yo = -dims[1] * 0.5;
         break;
       case 4:
-        yo = -(double)(dims[1]) * 0.5;
-        xo = -(double)(dims[0]) * 0.5;
+        yo = -dims[1] * 0.5;
+        xo = -dims[0] * 0.5;
         break;
       case 5:
-        yo = -(double)(dims[1]) * 0.5;
-        xo = -(double)(dims[0]);
+        yo = -dims[1] * 0.5;
+        xo = -dims[0];
         break;
       case 6:
-        yo = -(double)(dims[1]);
+        yo = -dims[1];
         break;
       case 7:
-        yo = -(double)(dims[1]);
-        xo = -(double)(dims[0]) * 0.5;
+        yo = -dims[1];
+        xo = -dims[0] * 0.5;
         break;
       case 8:
-        yo = -(double)(dims[1]);
-        xo = -(double)(dims[0]);
+        yo = -dims[1];
+        xo = -dims[0];
         break;
       default:
         vtkErrorMacro(<< "Bad alignment point value.");
@@ -647,13 +647,17 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     yo += this->TextProperty->GetLineOffset();
     } //end unscaled text case  
 
-  x = xo; y = yo;      
+  x = xo;
+  y = yo;      
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
-  x = xo; y = yo + (double)(dims[1]);      
+  x = xo;
+  y = yo + dims[1];
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
-  x = xo + (double)(dims[0]); y = yo + (double)(dims[1]);      
+  x = xo + dims[0];
+  y = yo + dims[1];
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
-  x = xo + (double)(dims[0]); y = yo;
+  x = xo + dims[0];
+  y = yo;
   this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
 }
 

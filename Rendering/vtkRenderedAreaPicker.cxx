@@ -35,7 +35,7 @@
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.8");
+vtkCxxRevisionMacro(vtkRenderedAreaPicker, "1.9");
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
           {
           if (mapper)
             {
-            this->Prop3Ds->AddItem((vtkProp3D *)prop);
+            this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
             }
           else if (imageActor)
             {

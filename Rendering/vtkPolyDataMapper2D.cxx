@@ -20,7 +20,7 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.43");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.44");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -117,7 +117,7 @@ vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkImagingFactory::CreateInstance("vtkPolyDataMapper2D");
-  return (vtkPolyDataMapper2D*)ret;
+  return static_cast<vtkPolyDataMapper2D *>(ret);
 }
 
 

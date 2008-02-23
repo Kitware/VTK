@@ -50,7 +50,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.8");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.9");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -533,8 +533,8 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         float* ptj = reinterpret_cast<float*>(pts->GetVoidPointer(3*indexJ));
         float absX = (pti[0] - ptj[0]) > 0 ? (pti[0] - ptj[0]) : -(pti[0] - ptj[0]);
         float absY = (pti[1] - ptj[1]) > 0 ? (pti[1] - ptj[1]) : -(pti[1] - ptj[1]);
-        float xScale = 2*absX/(float)(this->LabelWidth[indexI] + this->LabelWidth[indexJ]);
-        float yScale = 2*absY/(float)(this->LabelHeight[indexI] + this->LabelHeight[indexJ]);
+        float xScale = 2*absX/(this->LabelWidth[indexI] + this->LabelWidth[indexJ]);
+        float yScale = 2*absY/(this->LabelHeight[indexI] + this->LabelHeight[indexJ]);
         float maxScale = xScale < yScale ? yScale : xScale;
         if (maxScale < this->Cutoff[indexJ] && maxScale < this->Cutoff[indexI])
           {

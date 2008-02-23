@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.34");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.35");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -205,7 +205,7 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelForward()
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = this->MotionFactor * 0.2 * this->MouseWheelMotionFactor;
-  this->Dolly(pow((double)1.1, factor));
+  this->Dolly(pow(1.1, factor));
   this->EndDolly();
   this->ReleaseFocus();
 }
@@ -223,7 +223,7 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelBackward()
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = this->MotionFactor * -0.2 * this->MouseWheelMotionFactor;
-  this->Dolly(pow((double)1.1, factor));
+  this->Dolly(pow(1.1, factor));
   this->EndDolly();
   this->ReleaseFocus();
 }
@@ -246,8 +246,8 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   double delta_elevation = -20.0 / size[1];
   double delta_azimuth = -20.0 / size[0];
   
-  double rxf = (double)dx * delta_azimuth * this->MotionFactor;
-  double ryf = (double)dy * delta_elevation * this->MotionFactor;
+  double rxf = dx * delta_azimuth * this->MotionFactor;
+  double ryf = dy * delta_elevation * this->MotionFactor;
   
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   camera->Azimuth(rxf);
@@ -280,12 +280,12 @@ void vtkInteractorStyleTrackballCamera::Spin()
   double *center = this->CurrentRenderer->GetCenter();
 
   double newAngle = 
-    atan2((double)rwi->GetEventPosition()[1] - (double)center[1],
-          (double)rwi->GetEventPosition()[0] - (double)center[0]);
+    atan2(rwi->GetEventPosition()[1] - center[1],
+          rwi->GetEventPosition()[0] - center[0]);
 
   double oldAngle = 
-    atan2((double)rwi->GetLastEventPosition()[1] - (double)center[1],
-          (double)rwi->GetLastEventPosition()[0] - (double)center[0]);
+    atan2(rwi->GetLastEventPosition()[1] - center[1],
+          rwi->GetLastEventPosition()[0] - center[0]);
   
   newAngle *= vtkMath::RadiansToDegrees();
   oldAngle *= vtkMath::RadiansToDegrees();
@@ -318,16 +318,16 @@ void vtkInteractorStyleTrackballCamera::Pan()
                               viewFocus);
   focalDepth = viewFocus[2];
 
-  this->ComputeDisplayToWorld((double)rwi->GetEventPosition()[0], 
-                              (double)rwi->GetEventPosition()[1],
+  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0], 
+                              rwi->GetEventPosition()[1],
                               focalDepth, 
                               newPickPoint);
     
   // Has to recalc old mouse point since the viewport has moved,
   // so can't move it outside the loop
 
-  this->ComputeDisplayToWorld((double)rwi->GetLastEventPosition()[0],
-                              (double)rwi->GetLastEventPosition()[1],
+  this->ComputeDisplayToWorld(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1],
                               focalDepth, 
                               oldPickPoint);
   
@@ -366,8 +366,8 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   double *center = this->CurrentRenderer->GetCenter();
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
-  double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);
-  this->Dolly(pow((double)1.1, dyf));
+  double dyf = this->MotionFactor * dy / center[1];
+  this->Dolly(pow(1.1, dyf));
 }
 
 //----------------------------------------------------------------------------

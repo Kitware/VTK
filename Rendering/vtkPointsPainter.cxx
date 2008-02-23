@@ -27,7 +27,7 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPointsPainter);
-vtkCxxRevisionMacro(vtkPointsPainter, "1.3");
+vtkCxxRevisionMacro(vtkPointsPainter, "1.4");
 //-----------------------------------------------------------------------------
 vtkPointsPainter::vtkPointsPainter()
 {
@@ -60,7 +60,7 @@ vtkPointsPainter::~vtkPointsPainter()
       { \
       cellNum += 10000; \
       count = 0; \
-      this->UpdateProgress((double)cellNum/totalCells); \
+      this->UpdateProgress(static_cast<double>(cellNum)/totalCells);    \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         break; \

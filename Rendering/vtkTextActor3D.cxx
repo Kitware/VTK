@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.6");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.7");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -245,8 +245,8 @@ int vtkTextActor3D::UpdateImageActor()
     if (img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
         text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
       {
-      new_img_dims[0] = 1 << (int)ceil(log((double)text_size[0]) / log(2.0));
-      new_img_dims[1] = 1 << (int)ceil(log((double)text_size[1]) / log(2.0));
+      new_img_dims[0] = 1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0])) / log(2.0)));
+      new_img_dims[1] = 1 << static_cast<int>(ceil(log(static_cast<double>(text_size[1])) / log(2.0)));
       new_img_dims[2] = 1;
       if (new_img_dims[0] != img_dims[0] || 
           new_img_dims[1] != img_dims[1] ||

@@ -31,7 +31,7 @@
 #include "vtkTimerLog.h"
 
 vtkStandardNewMacro(vtkTStripsPainter);
-vtkCxxRevisionMacro(vtkTStripsPainter, "1.4");
+vtkCxxRevisionMacro(vtkTStripsPainter, "1.5");
 //-----------------------------------------------------------------------------
 vtkTStripsPainter::vtkTStripsPainter()
 {
@@ -105,7 +105,7 @@ vtkTStripsPainter::~vtkTStripsPainter()
       { \
       cellNum += 10000; \
       count = 0; \
-      this->UpdateProgress((double)(cellNum-cellNumStart)/totalCells); \
+      this->UpdateProgress(static_cast<double>(cellNum-cellNumStart)/totalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         break; \

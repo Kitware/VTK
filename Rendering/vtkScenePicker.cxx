@@ -58,7 +58,7 @@ protected:
   bool InteractiveRender;
 };
 
-vtkCxxRevisionMacro(vtkScenePicker, "1.2");
+vtkCxxRevisionMacro(vtkScenePicker, "1.3");
 vtkStandardNewMacro(vtkScenePicker);
 
 //----------------------------------------------------------------------------
@@ -172,10 +172,10 @@ void vtkScenePicker::PickRender()
   int size[2] = { this->Renderer->GetRenderWindow()->GetSize()[0],
                   this->Renderer->GetRenderWindow()->GetSize()[1] };
 
-  int rx1 = (int)(vp[0]*(size[0] - 1));
-  int ry1 = (int)(vp[1]*(size[1] - 1));
-  int rx2 = (int)(vp[2]*(size[0] - 1));
-  int ry2 = (int)(vp[3]*(size[1] - 1));
+  int rx1 = static_cast<int>(vp[0]*(size[0] - 1));
+  int ry1 = static_cast<int>(vp[1]*(size[1] - 1));
+  int rx2 = static_cast<int>(vp[2]*(size[0] - 1));
+  int ry2 = static_cast<int>(vp[3]*(size[1] - 1));
 
   this->PickRender( rx1,ry1,rx2,ry2 );
 }
@@ -190,7 +190,7 @@ void vtkScenePicker::PickRender(
   
   this->VisibleCellSelector->SetRenderPasses(
           0,1,0,1,1,this->EnableVertexPicking);
-  this->VisibleCellSelector->SetArea((int)x0,(int)y0,(int)x1,(int)y1);
+  this->VisibleCellSelector->SetArea(x0,y0,x1,y1);
   this->VisibleCellSelector->Select();
   this->NeedToUpdate = true;
   this->FirstTime    = false;

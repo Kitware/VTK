@@ -23,7 +23,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkWindows.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.33");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -73,7 +73,7 @@ double CPIDControl::PIDCalc(double dX, double dFinalX)
   m_iVelCount++;
   if(m_iVelCount >= 10)
   {
-    m_dVelAvg = m_dVelSum/(double)m_iVelCount;
+    m_dVelAvg = m_dVelSum/m_iVelCount;
     m_iVelCount = 0;
     m_dVelSum = 0.0;
   }
@@ -501,7 +501,7 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(vtkCamera *cam)
   // we want to steer by an amount proportional to window viewangle and size
   // compute dx and dy increments relative to last mouse click
   int *size = this->Interactor->GetSize();
-  double scalefactor = 5*cam->GetViewAngle()/(double)size[0];
+  double scalefactor = 5*cam->GetViewAngle()/size[0];
   double dx = - (thispos[0] - lastpos[0])*scalefactor*aspeed;
   double dy =   (thispos[1] - lastpos[1])*scalefactor*aspeed;
 

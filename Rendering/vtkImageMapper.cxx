@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.53");
+vtkCxxRevisionMacro(vtkImageMapper, "1.54");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -109,7 +109,7 @@ vtkImageMapper* vtkImageMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageMapper");
-  return (vtkImageMapper*)ret;
+  return static_cast<vtkImageMapper *>(ret);
 }
 
 double vtkImageMapper::GetColorShift()

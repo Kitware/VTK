@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkGraphicsFactory.h"
 
-vtkCxxRevisionMacro(vtkLight, "1.52");
+vtkCxxRevisionMacro(vtkLight, "1.53");
 
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
@@ -64,7 +64,7 @@ vtkLight::vtkLight()
 
   this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
 
-  this->TransformMatrix = (vtkMatrix4x4 *)NULL;
+  this->TransformMatrix = NULL;
 }
 
 vtkLight::~vtkLight()
@@ -95,7 +95,7 @@ vtkLight *vtkLight::New()
 { 
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkLight");
-  return (vtkLight*)ret;
+  return static_cast<vtkLight *>(ret);
 }
 
 // Preserve VTK's old way of setting light color

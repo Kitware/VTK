@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.33");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -241,10 +241,10 @@ void vtkInteractorStyleJoystickActor::Rotate()
                                                        outsidept));
   
   double nxf = 
-    ((double)rwi->GetEventPosition()[0] - (double)disp_obj_center[0]) / radius;
+    (rwi->GetEventPosition()[0] - disp_obj_center[0]) / radius;
 
   double nyf = 
-    ((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1]) / radius;
+    (rwi->GetEventPosition()[1] - disp_obj_center[1]) / radius;
   
   if (nxf > 1.0)
     {
@@ -346,8 +346,7 @@ void vtkInteractorStyleJoystickActor::Spin()
   
   double *center = this->CurrentRenderer->GetCenter();
   
-  double yf = 
-    ((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1]) / (double)center[1];
+  double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
 
   if (yf > 1.0)
     {
@@ -407,8 +406,8 @@ void vtkInteractorStyleJoystickActor::Pan()
   this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
                               disp_obj_center);
 
-  this->ComputeDisplayToWorld((double)rwi->GetEventPosition()[0], 
-                              (double)rwi->GetEventPosition()[1],
+  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0], 
+                              rwi->GetEventPosition()[1],
                               disp_obj_center[2],
                               new_pick_point);
   
@@ -466,9 +465,8 @@ void vtkInteractorStyleJoystickActor::Dolly()
   
   double *center = this->CurrentRenderer->GetCenter();
   
-  double yf = 
-    ((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1]) / (double)center[1];
-  double dollyFactor = pow((double)1.1, yf);
+  double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
+  double dollyFactor = pow(1.1, yf);
 
   dollyFactor -= 1.0;
   motion_vector[0] = (view_point[0] - view_focus[0]) * dollyFactor;
@@ -521,9 +519,8 @@ void vtkInteractorStyleJoystickActor::UniformScale()
   
   double *center = this->CurrentRenderer->GetCenter();
     
-  double yf = 
-    ((double)rwi->GetEventPosition()[1] - (double)disp_obj_center[1]) / (double)center[1];
-  double scaleFactor = pow((double)1.1, yf);
+  double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
+  double scaleFactor = pow(1.1, yf);
   
   double **rotate = NULL;
   

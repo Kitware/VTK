@@ -36,7 +36,7 @@
 #include "vtkPoints.h"
 #include "vtkExtractSelectedFrustum.h"
 
-vtkCxxRevisionMacro(vtkAreaPicker, "1.14");
+vtkCxxRevisionMacro(vtkAreaPicker, "1.15");
 vtkStandardNewMacro(vtkAreaPicker);
 
 //--------------------------------------------------------------------------
@@ -263,7 +263,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
             picked = 1;
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
-              this->Prop3Ds->AddItem((vtkProp3D *)prop);
+              this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
               //cerr << "picked a mapper" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
@@ -287,7 +287,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                   this->DataSet = NULL;
                   }              
                 }
-              ((vtkProp3D *)propCandidate)->Pick();
+              static_cast<vtkProp3D *>(propCandidate)->Pick();
               this->InvokeEvent(vtkCommand::PickEvent,NULL);
               }
             }

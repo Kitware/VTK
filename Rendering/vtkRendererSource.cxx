@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.62");
+vtkCxxRevisionMacro(vtkRendererSource, "1.63");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -127,14 +127,19 @@ void vtkRendererSource::RequestData(vtkInformation*,
     }
   
   // Get origin, aspect ratio and dimensions from this->Input
-  dims[0] = (int)(x2 - x1 + 1); dims[1] = (int)(y2 -y1 + 1); dims[2] = 1;
+  dims[0] = static_cast<int>(x2 - x1 + 1);
+  dims[1] = static_cast<int>(y2 -y1 + 1);
+  dims[2] = 1;
   output->SetDimensions(dims);
 
   // Allocate data.  Scalar type is FloatScalars.
   numOutPts = dims[0] * dims[1];
 
-  pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
-                                                          (int)x2,(int)y2,1);
+  pixels = (this->Input->GetRenderWindow())->GetPixelData(static_cast<int>(x1),
+                                                          static_cast<int>(y1),
+                                                          static_cast<int>(x2),
+                                                          static_cast<int>(y2)
+                                                          ,1);
 
   // allocate scalars
   int nb_comp = output->GetNumberOfScalarComponents();
@@ -150,7 +155,8 @@ void vtkRendererSource::RequestData(vtkInformation*,
   if (this->DepthValues || this->DepthValuesInScalars)
     {
     float *zBuf = (this->Input->GetRenderWindow())->GetZbufferData(
-      (int)x1,(int)y1, (int)x2,(int)y2);
+      static_cast<int>(x1),static_cast<int>(y1),static_cast<int>(x2),
+      static_cast<int>(y2));
 
     // If RGBZ is requested, intermix RGB with shift/scaled Z
     if (this->DepthValuesInScalars)

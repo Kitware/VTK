@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkInstantiatorNewMacro(vtkRepresentationPainter);
-vtkCxxRevisionMacro(vtkRepresentationPainter, "1.2");
+vtkCxxRevisionMacro(vtkRepresentationPainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkRepresentationPainter::vtkRepresentationPainter()
 {
@@ -33,7 +33,7 @@ vtkRepresentationPainter::~vtkRepresentationPainter()
 vtkRepresentationPainter* vtkRepresentationPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkRepresentationPainter");
-  return (vtkRepresentationPainter*)o;
+  return static_cast<vtkRepresentationPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

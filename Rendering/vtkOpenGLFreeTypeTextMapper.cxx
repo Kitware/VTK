@@ -90,7 +90,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.46");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.47");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -192,10 +192,10 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     entry->LargestDescender = lly;
     }
   
-  this->LastSize[0] = size[0] = (int)font->Advance(this->Input);
+  this->LastSize[0] = size[0] = static_cast<int>(font->Advance(this->Input));
   this->LastSize[1] = size[1] =
-    (int)(entry->LargestAscender - entry->LargestDescender);
-  this->LastLargestDescender = (int)entry->LargestDescender;
+    static_cast<int>(entry->LargestAscender - entry->LargestDescender);
+  this->LastLargestDescender = static_cast<int>(entry->LargestDescender);
 
   this->SizeBuildTime.Modified();
 }
@@ -254,7 +254,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   int pos[2];
   pos[0] = actorPos[0];
-  pos[1] = (int)(actorPos[1] - tprop->GetLineOffset());
+  pos[1] =  static_cast<int>(actorPos[1] - tprop->GetLineOffset());
 
   switch (tprop->GetJustification())
     {
@@ -335,10 +335,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   if(viewport->GetIsPicking())
     {
-    float x1 = 2.0 * (float)actorPos[0] / vsize[0] - 1;
-    float y1 = 2.0 * ((float)actorPos[1] - tprop->GetLineOffset())/vsize[1] - 1;
-    float width = 2.0 * (float)size[0] / vsize[0];
-    float height = 2.0 * (float)size[1] / vsize[1];
+    float x1 = (2.0 * actorPos[0]) / vsize[0] - 1.0;
+    float y1 = 2.0 * (actorPos[1] - tprop->GetLineOffset())/vsize[1] - 1.0;
+    float width = (2.0 * size[0]) / vsize[0];
+    float height = (2.0 * size[1]) / vsize[1];
     glRectf(x1, y1, x1 + width, y1 + height);
 
     // Clean up and return after drawing the rectangle
@@ -408,10 +408,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // Set the color here since load/render glyphs is done
     // on demand and this color has to be consistent for a given font entry.
     
-    glColor4ub((unsigned char)(shadow_color[0] * 255.0),
-               (unsigned char)(shadow_color[1] * 255.0), 
-               (unsigned char)(shadow_color[2] * 255.0), 
-               (unsigned char)(tprop_opacity * 255.0));
+    glColor4ub(static_cast<unsigned char>(shadow_color[0] * 255.0),
+               static_cast<unsigned char>(shadow_color[1] * 255.0), 
+               static_cast<unsigned char>(shadow_color[2] * 255.0), 
+               static_cast<unsigned char>(tprop_opacity * 255.0));
 
     // Required for clipping to work correctly
 
@@ -447,10 +447,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // Set the color here since load/render glyphs is done
   // on demand and this color has to be consistent for a given font entry.
 
-  glColor4ub((unsigned char)(tprop_color[0] * 255.0),
-             (unsigned char)(tprop_color[1] * 255.0), 
-             (unsigned char)(tprop_color[2] * 255.0), 
-             (unsigned char)(tprop_opacity * 255.0));
+  glColor4ub(static_cast<unsigned char>(tprop_color[0] * 255.0),
+             static_cast<unsigned char>(tprop_color[1] * 255.0), 
+             static_cast<unsigned char>(tprop_color[2] * 255.0), 
+             static_cast<unsigned char>(tprop_opacity * 255.0));
 
   // Required for clipping to work correctly
 

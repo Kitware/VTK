@@ -49,7 +49,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkCellCenterDepthSort, "1.3");
+vtkCxxRevisionMacro(vtkCellCenterDepthSort, "1.4");
 vtkStandardNewMacro(vtkCellCenterDepthSort);
 
 vtkCellCenterDepthSort::vtkCellCenterDepthSort()
@@ -214,7 +214,8 @@ vtkIdTypeArray *vtkCellCenterDepthSort::GetNextCells()
     {
     vtkIdType left = partition.first;
     vtkIdType right = partition.second - 1;
-    float pivot = cellDepths[(vtkIdType)vtkMath::Random(left, right)];
+    float pivot = cellDepths[static_cast<vtkIdType>(
+                               vtkMath::Random(left, right))];
     while (left <= right)
       {
       while ((left <= right) && (cellDepths[left] < pivot)) left++;

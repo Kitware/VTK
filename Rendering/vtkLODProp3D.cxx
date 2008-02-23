@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.46");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.47");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -295,7 +295,7 @@ double vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
 // are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, double time )
 {
-  return this->AddLOD( m, p, (vtkProperty *) NULL, (vtkTexture *)NULL, time );
+  return this->AddLOD( m, p, NULL, NULL, time );
 }
 
 // Convenience method to set an actor LOD without a texture.
@@ -303,7 +303,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, double time )
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
                          vtkProperty *back, double time )
 {
-  return this->AddLOD( m, p, back, (vtkTexture *)NULL, time );
+  return this->AddLOD( m, p, back, NULL, time );
 }
 
 // Convenience method to set an actor LOD without a backface property.
@@ -311,22 +311,21 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
                          vtkTexture *t, double time )
 {
-  return this->AddLOD( m, p, (vtkProperty *)NULL, t, time );
+  return this->AddLOD( m, p, NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, double time )
 {
-  return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, t, time );
+  return this->AddLOD( m, NULL, NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a texture or a property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, double time )
 {
-  return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, 
-      (vtkTexture *)NULL, time );
+  return this->AddLOD( m, NULL, NULL, NULL, time );
 } 
 
 // The real method for adding an actor LOD.
@@ -360,7 +359,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
     actor->SetTexture( t );
     }
 
-  this->LODs[index].Prop3D        = (vtkProp3D *)actor;
+  this->LODs[index].Prop3D        = actor;
   this->LODs[index].Prop3DType    = VTK_LOD_ACTOR_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
@@ -379,7 +378,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, double time )
 {
-  return this->AddLOD( m, (vtkVolumeProperty *)NULL, time );
+  return this->AddLOD( m, NULL, time );
 }
 
 // The real method for adding a volume LOD.
@@ -403,7 +402,7 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
     volume->SetProperty( p );
     }
 
-  this->LODs[index].Prop3D        = (vtkProp3D *)volume;
+  this->LODs[index].Prop3D        = volume;
   this->LODs[index].Prop3DType    = VTK_LOD_VOLUME_TYPE;
   this->LODs[index].ID            = this->CurrentIndex++;
   this->LODs[index].EstimatedTime = time;
@@ -434,7 +433,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
     return;
     }
 
-  ((vtkActor *)this->LODs[index].Prop3D)->SetMapper( m );
+  static_cast<vtkActor *>(this->LODs[index].Prop3D)->SetMapper( m );
 }
 
 // Get the mapper for an LOD that is an actor
@@ -456,7 +455,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
     return;
     }
 
-  *m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
+  *m = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetMapper();
 }
 
 // Set the mapper for an LOD that is a volume
@@ -475,7 +474,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkAbstractVolumeMapper *m )
     return;
     }
 
-  ((vtkVolume *)this->LODs[index].Prop3D)->SetMapper( m );
+  static_cast<vtkVolume *>(this->LODs[index].Prop3D)->SetMapper( m );
 }
 
 // Get the mapper for an LOD that is an actor
@@ -496,7 +495,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkAbstractVolumeMapper **m )
     return;
     }
 
-  *m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
+  *m = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetMapper();
 }
 
 // Get the mapper for an LOD that is an AbstractMapper3D
@@ -513,11 +512,11 @@ vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 
   if ( this->LODs[index].Prop3DType == VTK_LOD_ACTOR_TYPE )
     {
-        m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
+        m = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetMapper();
     }
   else if ( this->LODs[index].Prop3DType == VTK_LOD_VOLUME_TYPE )
     {
-        m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
+        m = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetMapper();
     }
 
   return m;
@@ -539,7 +538,7 @@ void vtkLODProp3D::SetLODProperty( int id, vtkProperty *p )
     return;
     }
 
-  ((vtkActor *)this->LODs[index].Prop3D)->SetProperty( p );
+  static_cast<vtkActor *>(this->LODs[index].Prop3D)->SetProperty( p );
 }
 
 // Get the property for an LOD that is an actor
@@ -558,7 +557,7 @@ void vtkLODProp3D::GetLODProperty( int id, vtkProperty **p )
     return;
     }
 
-  *p = ((vtkActor *)this->LODs[index].Prop3D)->GetProperty();
+  *p = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetProperty();
 }
 
 // Set the property for an LOD that is a volume
@@ -577,7 +576,7 @@ void vtkLODProp3D::SetLODProperty( int id, vtkVolumeProperty *p )
     return;
     }
 
-  ((vtkVolume *)this->LODs[index].Prop3D)->SetProperty( p );
+  static_cast<vtkVolume *>(this->LODs[index].Prop3D)->SetProperty( p );
 }
 
 // Get the property for an LOD that is an actor
@@ -596,7 +595,7 @@ void vtkLODProp3D::GetLODProperty( int id, vtkVolumeProperty **p )
     return;
     }
 
-  *p = ((vtkVolume *)this->LODs[index].Prop3D)->GetProperty();
+  *p = static_cast<vtkVolume *>(this->LODs[index].Prop3D)->GetProperty();
 }
 
 // Set the texture for an LOD that is an actor
@@ -615,7 +614,7 @@ void vtkLODProp3D::SetLODTexture( int id, vtkTexture *t )
     return;
     }
 
-  ((vtkActor *)this->LODs[index].Prop3D)->SetTexture( t );
+  static_cast<vtkActor *>(this->LODs[index].Prop3D)->SetTexture( t );
 }
 
 // Get the texture for an LOD that is an actor
@@ -634,7 +633,7 @@ void vtkLODProp3D::GetLODTexture( int id, vtkTexture **t )
     return;
     }
 
-  *t = ((vtkActor *)this->LODs[index].Prop3D)->GetTexture();
+  *t = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetTexture();
 }
 
 // Set the backface property for an LOD that is an actor
@@ -653,7 +652,7 @@ void vtkLODProp3D::SetLODBackfaceProperty( int id, vtkProperty *t )
     return;
     }
 
-  ((vtkActor *)this->LODs[index].Prop3D)->SetBackfaceProperty( t );
+  static_cast<vtkActor *>(this->LODs[index].Prop3D)->SetBackfaceProperty( t );
 }
 
 // Get the backface property for an LOD that is an actor
@@ -672,7 +671,7 @@ void vtkLODProp3D::GetLODBackfaceProperty( int id, vtkProperty **t )
     return;
     }
 
-  *t = ((vtkActor *)this->LODs[index].Prop3D)->GetBackfaceProperty();
+  *t = static_cast<vtkActor *>(this->LODs[index].Prop3D)->GetBackfaceProperty();
 }
 
 void vtkLODProp3D::EnableLOD( int id )

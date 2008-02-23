@@ -27,7 +27,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLClipPlanesPainter);
-vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLClipPlanesPainter, "1.5");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLClipPlanesPainter::vtkOpenGLClipPlanesPainter()
@@ -65,7 +65,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer* renderer,
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    glEnable((GLenum)(GL_CLIP_PLANE0+i));
+    glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 
   if ( clipPlanes )
@@ -80,7 +80,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer* renderer,
 
     for (i = 0; i < numClipPlanes; i++)
       {    
-      plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+      plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
       plane->GetOrigin(origin);
       plane->GetNormal(normal);
@@ -95,7 +95,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer* renderer,
       planeEquation[3] = -(planeEquation[0]*origin[0]+
         planeEquation[1]*origin[1]+
         planeEquation[2]*origin[2]);
-      glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+      glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
 
       glPopMatrix();
       }
@@ -107,7 +107,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer* renderer,
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    glDisable((GLenum)(GL_CLIP_PLANE0+i));
+    glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 }
 

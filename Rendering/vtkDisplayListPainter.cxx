@@ -22,7 +22,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkDisplayListPainter);
-vtkCxxRevisionMacro(vtkDisplayListPainter, "1.2");
+vtkCxxRevisionMacro(vtkDisplayListPainter, "1.3");
 vtkInformationKeyMacro(vtkDisplayListPainter, IMMEDIATE_MODE_RENDERING, Integer);
 //----------------------------------------------------------------------------
 vtkDisplayListPainter::vtkDisplayListPainter()
@@ -39,7 +39,7 @@ vtkDisplayListPainter::~vtkDisplayListPainter()
 vtkDisplayListPainter* vtkDisplayListPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkDisplayListPainter");
-  return (vtkDisplayListPainter*)o;
+  return static_cast<vtkDisplayListPainter *>(o);
 }
 
 //----------------------------------------------------------------------------

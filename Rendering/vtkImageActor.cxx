@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.23");
+vtkCxxRevisionMacro(vtkImageActor, "1.24");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -31,7 +31,7 @@ vtkImageActor* vtkImageActor::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkImageActor");
-  return (vtkImageActor*)ret;
+  return static_cast<vtkImageActor *>(ret);
 }
 
 vtkImageActor::vtkImageActor()

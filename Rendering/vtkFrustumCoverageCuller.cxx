@@ -20,7 +20,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.33");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.34");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -112,13 +112,12 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
         center[0] = (bounds[0] + bounds[1]) / 2.0;
         center[1] = (bounds[2] + bounds[3]) / 2.0;
         center[2] = (bounds[4] + bounds[5]) / 2.0;
-        radius = 0.5 * sqrt( (double)
-                           ( bounds[1] - bounds[0] ) *
-                           ( bounds[1] - bounds[0] ) +
-                           ( bounds[3] - bounds[2] ) *
-                           ( bounds[3] - bounds[2] ) +
-                           ( bounds[5] - bounds[4] ) *
-                           ( bounds[5] - bounds[4] ) );
+        radius = 0.5 * sqrt( ( bounds[1] - bounds[0] ) *
+                             ( bounds[1] - bounds[0] ) +
+                             ( bounds[3] - bounds[2] ) *
+                             ( bounds[3] - bounds[2] ) +
+                             ( bounds[5] - bounds[4] ) *
+                             ( bounds[5] - bounds[4] ) );
         for ( i = 0; i < 6; i++ )
           {
           // Compute how far the center of the sphere is from this plane

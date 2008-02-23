@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.54");
+vtkCxxRevisionMacro(vtkTexture, "1.55");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -70,7 +70,7 @@ vtkTexture *vtkTexture::New()
 {  
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkTexture");
-  return (vtkTexture*)ret;
+  return static_cast<vtkTexture *>(ret);
 }
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->GetInput() )
     {
-    os << indent << "Input: (" << (void *)this->GetInput() << ")\n";
+    os << indent << "Input: (" << static_cast<void *>(this->GetInput()) << ")\n";
     }
   else
     {

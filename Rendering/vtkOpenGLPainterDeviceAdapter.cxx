@@ -36,7 +36,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.20");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void vtkOpenGLPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 // Note that some VTK polygon types (e.g. VTK_EMPTY_CELL and VTK_PIXEL) have no
 // analogue in OpenGL.  Using them will undoubtedly result in an OpenGL error.
 static const GLenum VTK2OpenGLPrimitive[] = {
-  (GLenum)0xFFFF,       // 0 - VTK_EMPTY_CELL
+  static_cast<GLenum>(0xFFFF),       // 0 - VTK_EMPTY_CELL
   GL_POINTS,            // 1 - VTK_VERTEX
   GL_POINTS,            // 2 - VTK_POLY_VERTEX
   GL_LINES,             // 3 - VTK_LINE
@@ -74,7 +74,7 @@ static const GLenum VTK2OpenGLPrimitive[] = {
   GL_TRIANGLES,         // 5 - VTK_TRIANGLE
   GL_TRIANGLE_STRIP,    // 6 - VTK_TRIANGLE_STRIP
   GL_POLYGON,           // 7 - VTK_POLYGON
-  (GLenum)0xFFFF,       // 8 - VTK_PIXEL
+  static_cast<GLenum>(0xFFFF),       // 8 - VTK_PIXEL
   GL_QUADS,             // 9 - VTK_QUAD
   GL_LINE_LOOP          // 10 - VTK_TETRA
 };
@@ -279,33 +279,57 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
         case GL_SHORT:
           switch (numcomp)
             {
-            case 2: glVertex2sv((const GLshort *)attribute + offset);  break;
-            case 3: glVertex3sv((const GLshort *)attribute + offset);  break;
-            case 4: glVertex4sv((const GLshort *)attribute + offset);  break;
+            case 2:
+              glVertex2sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 3:
+              glVertex3sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 4:
+              glVertex4sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
             }
           break;
         case GL_INT:
           switch (numcomp)
             {
-            case 2: glVertex2iv((const GLint *)attribute + offset);  break;
-            case 3: glVertex3iv((const GLint *)attribute + offset);  break;
-            case 4: glVertex4iv((const GLint *)attribute + offset);  break;
+            case 2:
+              glVertex2iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 3:
+              glVertex3iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 4:
+              glVertex4iv(static_cast<const GLint *>(attribute) + offset);
+              break;
             }
           break;
         case GL_FLOAT:
           switch (numcomp)
             {
-            case 2: glVertex2fv((const GLfloat *)attribute + offset);  break;
-            case 3: glVertex3fv((const GLfloat *)attribute + offset);  break;
-            case 4: glVertex4fv((const GLfloat *)attribute + offset);  break;
+            case 2:
+              glVertex2fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 3:
+              glVertex3fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 4:
+              glVertex4fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
             }
           break;
         case GL_DOUBLE:
           switch (numcomp)
             {
-            case 2: glVertex2dv((const GLdouble *)attribute + offset);  break;
-            case 3: glVertex3dv((const GLdouble *)attribute + offset);  break;
-            case 4: glVertex4dv((const GLdouble *)attribute + offset);  break;
+            case 2:
+              glVertex2dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 3:
+              glVertex3dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 4:
+              glVertex4dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
             }
           break;
         default:
@@ -322,15 +346,20 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
       switch (VTK2SignedOpenGLType(type))
         {
         case GL_BYTE:
-          glNormal3bv((const GLbyte *)attribute + offset);  break;
+          glNormal3bv(static_cast<const GLbyte *>(attribute) + offset);
+          break;
         case GL_SHORT:
-          glNormal3sv((const GLshort *)attribute + offset);  break;
+          glNormal3sv(static_cast<const GLshort *>(attribute) + offset);
+          break;
         case GL_INT:
-          glNormal3iv((const GLint *)attribute + offset);  break;
+          glNormal3iv(static_cast<const GLint *>(attribute) + offset);
+          break;
         case GL_FLOAT:
-          glNormal3fv((const GLfloat *)attribute + offset);  break;
+          glNormal3fv(static_cast<const GLfloat *>(attribute) + offset);
+          break;
         case GL_DOUBLE:
-          glNormal3dv((const GLdouble *)attribute + offset);  break;
+          glNormal3dv(static_cast<const GLdouble *>(attribute) + offset);
+          break;
         default:
           vtkErrorMacro("Unsupported type for normals: " << type);
           return;
@@ -347,57 +376,73 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
         case GL_BYTE:
           switch (numcomp)
             {
-            case 3: glColor3bv((const GLbyte *)attribute + offset);  break;
-            case 4: glColor4bv((const GLbyte *)attribute + offset);  break;
+            case 3: glColor3bv(static_cast<const GLbyte *>(attribute) + offset);
+              break;
+            case 4: glColor4bv(static_cast<const GLbyte *>(attribute) + offset);
+              break;
             }
           break;
         case GL_UNSIGNED_BYTE:
           switch (numcomp)
             {
-            case 3: glColor3ubv((const GLubyte *)attribute + offset);  break;
-            case 4: glColor4ubv((const GLubyte *)attribute + offset);  break;
+            case 3: glColor3ubv(static_cast<const GLubyte *>(attribute) + offset);
+              break;
+            case 4: glColor4ubv(static_cast<const GLubyte *>(attribute) + offset);
+              break;
             }
           break;
         case GL_SHORT:
           switch (numcomp)
             {
-            case 3: glColor3sv((const GLshort *)attribute + offset);  break;
-            case 4: glColor4sv((const GLshort *)attribute + offset);  break;
+            case 3: glColor3sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 4: glColor4sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
             }
           break;
         case GL_UNSIGNED_SHORT:
           switch (numcomp)
             {
-            case 3: glColor3usv((const GLushort *)attribute + offset);  break;
-            case 4: glColor4usv((const GLushort *)attribute + offset);  break;
+            case 3: glColor3usv(static_cast<const GLushort *>(attribute) + offset);
+              break;
+            case 4: glColor4usv(static_cast<const GLushort *>(attribute) + offset);
+              break;
             }
           break;
         case GL_INT:
           switch (numcomp)
             {
-            case 3: glColor3iv((const GLint *)attribute + offset);  break;
-            case 4: glColor4iv((const GLint *)attribute + offset);  break;
+            case 3: glColor3iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 4: glColor4iv(static_cast<const GLint *>(attribute) + offset);
+              break;
             }
           break;
         case GL_UNSIGNED_INT:
           switch (numcomp)
             {
-            case 3: glColor3uiv((const GLuint *)attribute + offset);  break;
-            case 4: glColor4uiv((const GLuint *)attribute + offset);  break;
+            case 3: glColor3uiv(static_cast<const GLuint *>(attribute) + offset);
+              break;
+            case 4: glColor4uiv(static_cast<const GLuint *>(attribute) + offset);
+              break;
             }
           break;
         case GL_FLOAT:
           switch (numcomp)
             {
-            case 3: glColor3fv((const GLfloat *)attribute + offset);  break;
-            case 4: glColor4fv((const GLfloat *)attribute + offset);  break;
+            case 3: glColor3fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 4: glColor4fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
             }
           break;
         case GL_DOUBLE:
           switch (numcomp)
             {
-            case 3: glColor3dv((const GLdouble *)attribute + offset);  break;
-            case 4: glColor4dv((const GLdouble *)attribute + offset);  break;
+            case 3: glColor3dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 4: glColor4dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
             }
           break;
         default:
@@ -416,37 +461,69 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
         case GL_SHORT:
           switch (numcomp)
             {
-            case 1: glTexCoord1sv((const GLshort *)attribute + offset);  break;
-            case 2: glTexCoord2sv((const GLshort *)attribute + offset);  break;
-            case 3: glTexCoord3sv((const GLshort *)attribute + offset);  break;
-            case 4: glTexCoord4sv((const GLshort *)attribute + offset);  break;
+            case 1:
+              glTexCoord1sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 2:
+              glTexCoord2sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 3:
+              glTexCoord3sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
+            case 4:
+              glTexCoord4sv(static_cast<const GLshort *>(attribute) + offset);
+              break;
             }
           break;
         case GL_INT:
           switch (numcomp)
             {
-            case 1: glTexCoord1iv((const GLint *)attribute + offset);  break;
-            case 2: glTexCoord2iv((const GLint *)attribute + offset);  break;
-            case 3: glTexCoord3iv((const GLint *)attribute + offset);  break;
-            case 4: glTexCoord4iv((const GLint *)attribute + offset);  break;
+            case 1:
+              glTexCoord1iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 2:
+              glTexCoord2iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 3:
+              glTexCoord3iv(static_cast<const GLint *>(attribute) + offset);
+              break;
+            case 4:
+              glTexCoord4iv(static_cast<const GLint *>(attribute) + offset);
+              break;
             }
           break;
         case GL_FLOAT:
           switch (numcomp)
             {
-            case 1: glTexCoord1fv((const GLfloat *)attribute + offset);  break;
-            case 2: glTexCoord2fv((const GLfloat *)attribute + offset);  break;
-            case 3: glTexCoord3fv((const GLfloat *)attribute + offset);  break;
-            case 4: glTexCoord4fv((const GLfloat *)attribute + offset);  break;
+            case 1:
+              glTexCoord1fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 2:
+              glTexCoord2fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 3:
+              glTexCoord3fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
+            case 4:
+              glTexCoord4fv(static_cast<const GLfloat *>(attribute) + offset);
+              break;
             }
           break;
         case GL_DOUBLE:
           switch (numcomp)
             {
-            case 1: glTexCoord1dv((const GLdouble *)attribute + offset);  break;
-            case 2: glTexCoord2dv((const GLdouble *)attribute + offset);  break;
-            case 3: glTexCoord3dv((const GLdouble *)attribute + offset);  break;
-            case 4: glTexCoord4dv((const GLdouble *)attribute + offset);  break;
+            case 1:
+              glTexCoord1dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 2:
+              glTexCoord2dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 3:
+              glTexCoord3dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
+            case 4:
+              glTexCoord4dv(static_cast<const GLdouble *>(attribute) + offset);
+              break;
             }
           break;
         default:
@@ -590,7 +667,8 @@ void vtkOpenGLPainterDeviceAdapter::DisableAttributeArray(int index)
 void vtkOpenGLPainterDeviceAdapter::DrawArrays(int mode, vtkIdType first,
                                                vtkIdType count)
 {
-  glDrawArrays(VTK2OpenGLPrimitive[mode], (GLint)first, (GLsizei)count);
+  glDrawArrays(VTK2OpenGLPrimitive[mode],static_cast<GLint>(first),
+               static_cast<GLsizei>(count));
 }
 
 void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
@@ -609,11 +687,10 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
         // This seems really inefficient for handling vtkIdType when they
         // are 64 bit, but OpenGL does not handle 64 bit indices.  What
         // else can I do?
-        vtkIdType *oldarray = (vtkIdType *)indices;
-        GLuint *newarray;
-        newarray = new GLuint[count];
+        vtkIdType *oldarray = static_cast<vtkIdType *>(indices);
+        GLuint *newarray = new GLuint[count];
         vtkstd::copy(oldarray, oldarray + count, newarray);
-        glDrawElements(VTK2OpenGLPrimitive[mode], (GLsizei)count,
+        glDrawElements(VTK2OpenGLPrimitive[mode], static_cast<GLsizei>(count),
                        GL_UNSIGNED_INT, newarray);
         delete[] newarray;
         return;
@@ -624,7 +701,8 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
         return;
         }
     }
-  glDrawElements(VTK2OpenGLPrimitive[mode], (GLsizei)count, gltype, indices);
+  glDrawElements(VTK2OpenGLPrimitive[mode],static_cast<GLsizei>(count), gltype,
+                 indices);
 }
 
 //-----------------------------------------------------------------------------
@@ -724,8 +802,8 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
 
     float nf[2];   //put verts just in front of associated cells
     glGetFloatv(GL_DEPTH_RANGE, nf);
-    this->RangeNear = (double)nf[0];
-    this->RangeFar = (double)nf[1];
+    this->RangeNear = nf[0];
+    this->RangeFar = nf[1];
     glDepthRange(0.0, nf[1]*0.98);
 
     glDepthMask(GL_FALSE); //prevent verts from interfering with each other

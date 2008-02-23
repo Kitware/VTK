@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkProperty2D.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.62");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.63");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -392,8 +392,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
       barWidth = size[0] - 4 - labelSize[0];
-      barHeight = (int)(0.86*size[1]);
-      delta=(double)barHeight/numColors;
+      barHeight = static_cast<int>(0.86*size[1]);
+      delta=static_cast<double>(barHeight)/numColors;
       for (i=0; i<numPts/2; i++)
         {
         x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
@@ -408,8 +408,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       barWidth = size[0];
-      barHeight = (int)(0.4*size[1]);
-      delta=(double)barWidth/numColors;
+      barHeight = static_cast<int>(0.4*size[1]);
+      delta=static_cast<double>(barWidth)/numColors;
       for (i=0; i<numPts/2; i++)
         {
         x[0] = i*delta;
@@ -442,7 +442,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       else
         {
         rgba = lut->MapValue(range[0] + (range[1] - range[0])*
-                             ((double)i /(numColors-1.0)));
+                             (i /(numColors-1.0)));
         }
 
       rgb = colors->GetPointer( nComponents * i); //write into array directly
@@ -469,7 +469,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         if (this->NumberOfLabels > 1)
           {
-          val = (double)i/(this->NumberOfLabels-1) *barHeight;
+          val = static_cast<double>(i)/(this->NumberOfLabels-1) *barHeight;
           }
         else 
           {
@@ -505,7 +505,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToCentered();
         if (this->NumberOfLabels > 1)
           {
-          val = (double)i/(this->NumberOfLabels-1) * barWidth;
+          val = static_cast<double>(i)/(this->NumberOfLabels-1) * barWidth;
           }
         else
           {
@@ -718,7 +718,8 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       double lval;
       if (this->NumberOfLabels > 1)
         {
-        lval = log10(range[0]) + (double)i/(this->NumberOfLabels-1) *
+        lval = log10(range[0]) +
+          static_cast<double>(i)/(this->NumberOfLabels-1) *
           (log10(range[1])-log10(range[0]));
         }
       else
@@ -731,8 +732,9 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       {
       if (this->NumberOfLabels > 1)
         {
-        val = range[0] + 
-          (double)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+        val = range[0] +
+          static_cast<double>(i)/(this->NumberOfLabels-1) 
+          * (range[1]-range[0]);
         }
       else
         {
@@ -765,13 +767,13 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      targetWidth = (int)(0.6*size[0]);
-      targetHeight = (int)(0.86*size[1]/this->NumberOfLabels);
+      targetWidth = static_cast<int>(0.6*size[0]);
+      targetHeight = static_cast<int>(0.86*size[1]/this->NumberOfLabels);
       }
     else
       {
-      targetWidth = (int)(size[0]*0.8/this->NumberOfLabels);
-      targetHeight = (int)(0.25*size[1]);
+      targetWidth = static_cast<int>(size[0]*0.8/this->NumberOfLabels);
+      targetHeight = static_cast<int>(0.25*size[1]);
       }
 
     vtkTextMapper::SetMultipleConstrainedFontSize(viewport, 
@@ -800,11 +802,11 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
   targetWidth = size[0];
   if ( this->Orientation == VTK_ORIENT_VERTICAL )
     {
-    targetHeight = (int)(0.1*size[1]);
+    targetHeight = static_cast<int>(0.1*size[1]);
     }
   else
     {
-    targetHeight = (int)(0.25*size[1]);
+    targetHeight = static_cast<int>(0.25*size[1]);
     }
 
   this->TitleMapper->SetConstrainedFontSize(

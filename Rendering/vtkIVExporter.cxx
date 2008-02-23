@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.62");
+vtkCxxRevisionMacro(vtkIVExporter, "1.63");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -172,7 +172,7 @@ void vtkIVExporter::WriteData()
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
-      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
+      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fp);
       }
     }
@@ -300,7 +300,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   else
     {
     ds->Update();
-    pd = (vtkPolyData *)ds;
+    pd = static_cast<vtkPolyData *>(ds);
     }
 
   pm = vtkPolyDataMapper::New();
@@ -461,7 +461,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ",(int)indx[i]);
+        fprintf(fp,"%i, ",static_cast<int>(indx[i]));
         if (((i+1)%10) == 0)
           {
           fprintf(fp, "\n%s    ", indent);
@@ -489,7 +489,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", (int)indx[i]);
+        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
         if (((i+1)%10) == 0)
           {
           fprintf(fp, "\n%s    ", indent);
@@ -517,7 +517,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       for (i = 0; i < npts; i++)
         {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", (int)indx[i]);
+        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
         if (((i+1)%10) == 0)
           {
           fprintf(fp, "\n%s    ", indent);
@@ -567,10 +567,10 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
           {
           c = colors->GetPointer(4*indx[i]);
           fprintf (fp,"%#lx, ", 
-                   ((unsigned long)c[3] << 24) |
-                   (((unsigned long)c[2])<<16) |
-                   (((unsigned long)c[1])<<8) |
-                   ((unsigned long)c[0]));
+                   (static_cast<unsigned long>(c[3]) << 24) |
+                   (static_cast<unsigned long>(c[2])<<16) |
+                   (static_cast<unsigned long>(c[1])<<8) |
+                   static_cast<unsigned long>(c[0]));
 
           if (((i+1)%5) == 0)
             {
@@ -588,7 +588,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     fprintf(fp, "%sPointSet {\n", indent);
     VTK_INDENT_MORE;
     // treating vtkIdType as int
-    fprintf(fp, "%snumPoints %d\n", indent, (int)npts);
+    fprintf(fp, "%snumPoints %d\n", indent, static_cast<int>(npts));
     VTK_INDENT_MORE;
     fprintf(fp, "%s}\n", indent);
     VTK_INDENT_LESS;
@@ -680,11 +680,11 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
       {
       c = colors->GetPointer(4*i);
       fprintf (fp,"%#lx, ", 
-               ((unsigned long)c[3] << 24) |
-               (((unsigned long)c[2])<<16) |
-               (((unsigned long)c[1])<<8) |
-               ((unsigned long)c[0]));
-
+               (static_cast<unsigned long>(c[3]) << 24) |
+               (static_cast<unsigned long>(c[2])<<16) |
+               (static_cast<unsigned long>(c[1])<<8) |
+               static_cast<unsigned long>(c[0]));
+      
       if (((i+1)%5)==0)
         {
         fprintf(fp, "\n%s", indent);

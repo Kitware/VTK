@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.36");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.37");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -474,10 +474,11 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   this->YMax = p2[1];
   for (i=0; i<this->N; i++)
     {
-    this->Xs[i] = (int) (p1[0] + (double)i/((double)this->N) * (p2[0]-p1[0]));
-    this->Axes[i]->GetPositionCoordinate()->SetValue((double)this->Xs[i], 
+    this->Xs[i] = static_cast<int>(
+      p1[0] + i/static_cast<double>(this->N) * (p2[0]-p1[0]));
+    this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i], 
                                                      this->YMin);
-    this->Axes[i]->GetPosition2Coordinate()->SetValue((double)this->Xs[i], 
+    this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i], 
                                                       this->YMax);
     }
 

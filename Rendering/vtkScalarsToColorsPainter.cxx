@@ -66,7 +66,7 @@ static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.9");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.10");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -122,7 +122,7 @@ vtkScalarsToColorsPainter::~vtkScalarsToColorsPainter()
 vtkScalarsToColorsPainter* vtkScalarsToColorsPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkScalarsToColorsPainter");
-  return (vtkScalarsToColorsPainter*)o;
+  return static_cast<vtkScalarsToColorsPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------
@@ -447,13 +447,13 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     // Get the texture map from the lookup table.
     // Create a dummy ramp of scalars.
     // In the future, we could extend vtkScalarsToColors.
-    double k = (range[1]-range[0]) / (double)(COLOR_TEXTURE_MAP_SIZE-1);
+    double k = (range[1]-range[0]) / (COLOR_TEXTURE_MAP_SIZE-1);
     vtkFloatArray* tmp = vtkFloatArray::New();
     tmp->SetNumberOfTuples(COLOR_TEXTURE_MAP_SIZE);
     float* ptr = tmp->GetPointer(0);
     for (int i = 0; i < COLOR_TEXTURE_MAP_SIZE; ++i)
       {
-      *ptr = range[0] + ((float)(i)) * k;
+      *ptr = range[0] + i * k;
       ++ptr;
       }
     this->ColorTextureMap = vtkSmartPointer<vtkImageData>::New();
@@ -634,7 +634,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
       sum = 0;
       for (j = 0; j < numComps; ++j)
         {
-        tmp = (double)(*input);  
+        tmp = static_cast<double>(*input);  
         sum += (tmp * tmp);
         ++input;
         }
@@ -654,7 +654,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
     input += component;
     for (i = 0; i < num; ++i)
       {
-      output[i] = k * ((float)(*input) - range[0]);
+      output[i] = k * (static_cast<double>(*input) - range[0]);
       if (output[i] > 1.0)
         {
         output[i] = 1.0;

@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.28");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.29");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -104,8 +104,8 @@ vtkFreeTypeUtilities* vtkFreeTypeUtilities::GetInstance()
 {
   if (!vtkFreeTypeUtilities::Instance)
     {
-    vtkFreeTypeUtilities::Instance = (vtkFreeTypeUtilities*)
-      vtkObjectFactory::CreateInstance("vtkFreeTypeUtilities");
+    vtkFreeTypeUtilities::Instance = static_cast<vtkFreeTypeUtilities *>(
+      vtkObjectFactory::CreateInstance("vtkFreeTypeUtilities"));
     if (!vtkFreeTypeUtilities::Instance)
       {
       vtkFreeTypeUtilities::Instance = new vtkFreeTypeUtilities;
@@ -313,7 +313,7 @@ void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
   // - 1/10th degree: 12 bits (11.8)
 
   int angle = id >> bits;
-  tprop->SetOrientation((float)(angle & ((1 << 12) - 1)) / 10.0);
+  tprop->SetOrientation((angle & ((1 << 12) - 1)) / 10.0);
 
   // We really should not use more than 32 bits
 }
@@ -470,7 +470,7 @@ void vtkFreeTypeUtilities::InitializeCacheManager()
                           this->MaximumNumberOfSizes,
                           this->MaximumNumberOfBytes,
                           vtkFreeTypeUtilitiesFaceRequester,
-                          (FT_Pointer)this, 
+                          static_cast<FT_Pointer>(this),
                           this->CacheManager);
 
   if (error)
@@ -911,8 +911,8 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       newLineMovement[1] -= adjustedY;
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += (int)newLineMovement[0];
-      y += (int)newLineMovement[1];
+      x += static_cast<int>(newLineMovement[0]);
+      y += static_cast<int>(newLineMovement[1]);
       originalX = x;
       originalY = y;
       //don't forget to start a new currentLine
@@ -1150,8 +1150,8 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       newLineMovement[1] -= adjustedY;
       newLineMovement[0] = floor(newLineMovement[0] + 0.5);
       newLineMovement[1] = floor(newLineMovement[1] + 0.5);
-      x += (int)newLineMovement[0];
-      y += (int)newLineMovement[1];
+      x += static_cast<int>(newLineMovement[0]);
+      y += static_cast<int>(newLineMovement[1]);
       originalX = x;
       originalY = y;
       //don't forget to start a new currentLine
@@ -1235,7 +1235,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       // Render
 
       unsigned char *data_ptr =
-        (unsigned char *)data->GetScalarPointer(pen_x, pen_y, 0);
+        static_cast<unsigned char *>(data->GetScalarPointer(pen_x, pen_y, 0));
       if( !data_ptr )
         {
         return 0;
@@ -1258,13 +1258,16 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0); 
           t_1_m_alpha = 1.0 - t_alpha;
           data_alpha = (data_ptr[3] - data_min) / data_range;
-          *data_ptr = (unsigned char)(data_min + data_range * tprop_r);
+          *data_ptr = static_cast<unsigned char>(
+            data_min + data_range * tprop_r);
           data_ptr++;
-          *data_ptr = (unsigned char)(data_min + data_range * tprop_g);
+          *data_ptr = static_cast<unsigned char>(
+            data_min + data_range * tprop_g);
           data_ptr++;
-          *data_ptr = (unsigned char)(data_min + data_range * tprop_b);
+          *data_ptr = static_cast<unsigned char>(
+            data_min + data_range * tprop_b);
           data_ptr++;
-          *data_ptr = (unsigned char)(
+          *data_ptr = static_cast<unsigned char>(
             data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
           data_ptr++;
           glyph_ptr++;
@@ -1391,9 +1394,9 @@ void vtkFreeTypeUtilities::PrintEntry(int i, char *msg)
     
   if (this->Entries[i]->Font)
     {
-    printf(" [F: %p]", (void*)this->Entries[i]->Font);
+    printf(" [F: %p]", static_cast<void *>(this->Entries[i]->Font));
     printf("\n                                                [f: %p]", 
-           (void*)*(this->Entries[i]->Font->Face()->Face()));
+           static_cast<void*>(*(this->Entries[i]->Font->Face()->Face())));
     }
   
   printf("\n");
@@ -1749,14 +1752,14 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
       {
       //check the length of the line
       *itr = '\0';
-      currstrlen = (int)font->Advance(currstr);
+      currstrlen = static_cast<int>(font->Advance(currstr));
       //if its greater than our current length it becomes our new width
       if(currstrlen > *width)
         {
         *width = currstrlen;
         }
       //increment height by the vertical size of the text
-      *height += (int)(entry->LargestAscender - entry->LargestDescender);
+      *height += static_cast<int>(entry->LargestAscender - entry->LargestDescender);
       //and start a new current string
       *currstr = '\0';
       itr = currstr;
@@ -1771,12 +1774,13 @@ void vtkFreeTypeUtilities::GetWidthHeightDescender(const char *str,
     }
   *itr = '\0';
 
-  currstrlen = (int)font->Advance(currstr);
+  currstrlen = static_cast<int>(font->Advance(currstr));
   if(currstrlen > *width)
     {
     *width = currstrlen;
     }
-  *height += (int)(entry->LargestAscender - entry->LargestDescender);
+  *height += static_cast<int>(
+    entry->LargestAscender - entry->LargestDescender);
   *descender = entry->LargestDescender;
   delete [] currstr;
 }
@@ -1817,8 +1821,8 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   if (img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
       text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
     {
-    new_img_dims[0] = 1 << (int)ceil(log((double)text_size[0]) / log(2.0));
-    new_img_dims[1] = 1 << (int)ceil(log((double)text_size[1]) / log(2.0));
+    new_img_dims[0] = 1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0])) / log(2.0)));
+    new_img_dims[1] = 1 << static_cast<int>(ceil(log(static_cast<double>(text_size[1])) / log(2.0)));
 
     // Ken is changing this to be a power of two and will look into the
     // alignment issues that are raised below. Basically letting the tmap
@@ -1878,8 +1882,8 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
   int width = 0;
   float notUsed = 0;
   this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-  size[0] = (double)width;
-  size[1] = (double)height;
+  size[0] = width;
+  size[1] = height;
   transform->TransformPoint(size, size);
   size[0] = floor(size[0] + 0.5);
   size[1] = floor(size[1] + 0.5);
@@ -1894,13 +1898,13 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
 
   if (size[0] != 0 && size[1] != 0)
     {
-    float fx = (float)targetWidth / (float)size[0];
-    float fy = (float)targetHeight / (float)size[1];
-    fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
+    double fx = targetWidth / size[0];
+    double fy = targetHeight / size[1];
+    fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = (double)width;
-    size[1] = (double)height;
+    size[0] = width;
+    size[1] = height;
     transform->TransformPoint(size, size);
     size[0] = floor(size[0] + 0.5);
     size[1] = floor(size[1] + 0.5);
@@ -1914,8 +1918,8 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     fontSize++;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = (double)width;
-    size[1] = (double)height;
+    size[0] = width;
+    size[1] = height;
     transform->TransformPoint(size, size);
     size[0] = floor(size[0] + 0.5);
     size[1] = floor(size[1] + 0.5);
@@ -1928,8 +1932,8 @@ int vtkFreeTypeUtilities::GetConstrainedFontSize(const char *str,
     fontSize--;
     tprop->SetFontSize(fontSize);
     this->GetWidthHeightDescender(str, tprop, &width, &height, &notUsed);
-    size[0] = (double)width;
-    size[1] = (double)height;
+    size[0] = width;
+    size[1] = height;
     transform->TransformPoint(size, size);
     size[0] = floor(size[0] + 0.5);
     size[1] = floor(size[1] + 0.5);
@@ -1975,9 +1979,9 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
         transform->RotateZ(tprop->GetOrientation());
         transform->TransformPoint(movement, movement);
         movement[0] = floor(movement[0] + 0.5);
-        *x += (int)movement[0];
+        *x += static_cast<int>(movement[0]);
         movement[1] = floor(movement[1] + 0.5);
-        *y += (int)movement[1];
+        *y += static_cast<int>(movement[1]);
         lineFound = true;
         }
       break;
@@ -2004,9 +2008,9 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
       transform->RotateZ(tprop->GetOrientation());
       transform->TransformPoint(movement, movement);
       movement[0] = floor(movement[0] + 0.5);
-      *x += (int)movement[0];
+      *x += static_cast<int>(movement[0]);
       movement[1] = floor(movement[1] + 0.5);
-      *y += (int)movement[1];
+      *y += static_cast<int>(movement[1]);
       }
     }
   transform->Delete();

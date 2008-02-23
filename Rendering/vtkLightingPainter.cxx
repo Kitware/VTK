@@ -20,7 +20,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkLightingPainter);
-vtkCxxRevisionMacro(vtkLightingPainter, "1.2");
+vtkCxxRevisionMacro(vtkLightingPainter, "1.3");
 //-----------------------------------------------------------------------------
 vtkLightingPainter::vtkLightingPainter()
 {
@@ -35,7 +35,7 @@ vtkLightingPainter::~vtkLightingPainter()
 vtkLightingPainter* vtkLightingPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkLightingPainter");
-  return (vtkLightingPainter*)o;
+  return static_cast<vtkLightingPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

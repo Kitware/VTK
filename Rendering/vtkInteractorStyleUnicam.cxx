@@ -36,7 +36,7 @@
 #include "vtkWorldPointPicker.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.39");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.40");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -44,7 +44,9 @@ vtkStandardNewMacro(vtkInteractorStyleUnicam);
 # include "vtkWindows.h"
 
 static double TheTime() 
-  {return double(GetTickCount())/1000.0;}
+  {
+    return GetTickCount()/1000.0;
+  }
 #else
 #include <sys/time.h>
 
@@ -52,7 +54,7 @@ static double TheTime()
 {
   struct timeval ts; struct timezone tz;
   gettimeofday(&ts, &tz);
-  return (double)(ts.tv_sec + ts.tv_usec/1e6);
+  return static_cast<double>(ts.tv_sec + ts.tv_usec/1e6);
 }
 #endif
 
@@ -402,7 +404,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     {
     this->FindPokedRenderer(X, Y);
 
-    double angle = -2*acos(clamp(dot,(double)-1.0,(double)1.0)) * Sign(te[0]-tp[0]);
+    double angle = -2*acos(clamp(dot,-1.0,1.0)) * Sign(te[0]-tp[0]);
 
     double UPvec[3];
     UPvec[0] = WorldUpVector[0];

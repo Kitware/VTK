@@ -28,7 +28,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.65");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.66");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -56,7 +56,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
     { \
     val = 255; \
     } \
-  (x) = (unsigned char)(val); \
+  (x) = static_cast<unsigned char>(val); \
 } 
 /* should do proper rounding, as follows:
   (x) = (unsigned char)(val + 0.5f); \
@@ -76,13 +76,13 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
     { \
     val = 255; \
     } \
-  (x) = (unsigned char)(val); \
+  (x) = static_cast<unsigned char>(val); \
 } 
 
 // pad an integer to a multiply of four, for OpenGL
 inline int vtkPadToFour(int n)
 {
-  return (((n+3)/4)*4);
+  return ((n+3)/4)*4;
 }
 
 //---------------------------------------------------------------
@@ -112,15 +112,15 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
   // the value .999 is sensitive to z-buffer depth
-  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1),
-                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1),
-                (front)?(-1):(.999));
+  glRasterPos3f((2.0 * actorPos[0]) / vsize[0] - 1.0,
+                (2.0 * actorPos[1]) / vsize[1] - 1.0,
+                (front)?(-1.0):(.999));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   // reformat data into unsigned char
 
-  T *inPtr = (T *)dataPtr;
+  T *inPtr = dataPtr;
   T *inPtr1 = inPtr;
 
   int i;
@@ -193,13 +193,13 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
     {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
-    float xscale = (float)rectwidth/width;
-    float yscale = (float)rectheight/height;
+    float xscale = static_cast<float>(rectwidth)/width;
+    float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
     }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-               GL_UNSIGNED_BYTE, (void *)newPtr);
+               GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
   
   if (self->GetRenderToRectangle())
     {
@@ -238,9 +238,9 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
   
   // the value .999 is sensitive to z-buffer depth
-  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), 
-                (front)?(-1):(.999));
+  glRasterPos3f((2.0*actorPos[0]) / vsize[0] - 1.0, 
+                (2.0*actorPos[1]) / vsize[1] - 1.0, 
+                (front)?(-1.0):(.999));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
@@ -252,14 +252,14 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   int bitShift = 0;
   double absScale = ((scale < 0) ? -scale : scale); 
 
-  while (((long)(1 << bitShift)*absScale)*2.0*USHRT_MAX < INT_MAX*1.0)
+  while ((static_cast<long>(1 << bitShift)*absScale)*2.0*USHRT_MAX < INT_MAX*1.0)
     {
     bitShift++;
     }
   bitShift--;
   
-  long sscale = (long) (scale*(1 << bitShift));
-  long sshift = (long) (sscale*shift);
+  long sscale = static_cast<long>(scale*(1 << bitShift));
+  long sshift = static_cast<long>(sscale*shift);
   /* should do proper rounding, as follows:
   long sscale = (long) floor(scale*(1 << bitShift) + 0.5);
   long sshift = (long) floor((scale*shift + 0.5)*(1 << bitShift));
@@ -267,7 +267,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   long val;
   unsigned char tmp;
   
-  T *inPtr = (T *)dataPtr;
+  T *inPtr = dataPtr;
   T *inPtr1 = inPtr;
   
   int i;
@@ -339,13 +339,13 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
     {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
-    float xscale = (float)rectwidth/width;
-    float yscale = (float)rectheight/height;
+    float xscale = static_cast<float>(rectwidth)/width;
+    float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
     }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-               GL_UNSIGNED_BYTE, (void *)newPtr);
+               GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
 
   if (self->GetRenderToRectangle())
     {
@@ -380,8 +380,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
   // the value .999 is sensitive to z-buffer depth
-  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1),
-                (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1),
+  glRasterPos3f((2.0*actorPos[0]) / vsize[0] - 1.0,
+                (2.0*actorPos[1]) / vsize[1] - 1.0,
                 (front)?(-1):(.999));
 
 
@@ -391,8 +391,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
     {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
-    float xscale = (float)rectwidth/width;
-    float yscale = (float)rectheight/height;
+    float xscale = static_cast<float>(rectwidth)/width;
+    float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
     }
   //
@@ -402,7 +402,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
       {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
       }
-    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, (void *)dataPtr);
+    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE,
+                 static_cast<void *>(dataPtr));
     }
   else if (bpp == 4)
     { // feed through RGBA bytes without reformatting
@@ -410,11 +411,12 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
       {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
       }
-    glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, (void *)dataPtr);
+    glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE,
+                 static_cast<void *>(dataPtr));
     }
   else
     { // feed through other bytes without reformatting
-    T *inPtr = (T *)dataPtr;
+    T *inPtr = dataPtr;
     T *inPtr1 = inPtr;
     unsigned char tmp;
 
@@ -482,7 +484,7 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
       }
 
     glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
-                 GL_UNSIGNED_BYTE, (void *)newPtr);
+                 GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
 
     delete [] newPtr;
     }
@@ -586,12 +588,12 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
 // Expects data to be X, Y, components
 
 void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
-                                     vtkImageData *data, vtkActor2D *actor)
+                                      vtkImageData *data, vtkActor2D *actor)
 {
   void *ptr0;
   double shift, scale;
 
-  vtkWindow* window = (vtkWindow *) viewport->GetVTKWindow();
+  vtkWindow* window = static_cast<vtkWindow *>(viewport->GetVTKWindow());
   if (!window)
     {
     vtkErrorMacro (<<"vtkOpenGLImageMapper::RenderData - no window set for viewport");
@@ -650,8 +652,8 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     
     float width = inMax0 - inMin0 + 1;
     float height = inMax1 - inMin1 + 1;
-    float x1 = (2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1);
-    float y1 = (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1);
+    float x1 = (2.0 * actorPos[0]) / vsize[0] - 1.0;
+    float y1 = (2.0 * actorPos[1]) / vsize[1] - 1.0;
     glRectf(x1, y1, x1+width, y1+height);
     // clean up and return 
     glMatrixMode( GL_PROJECTION);

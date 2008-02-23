@@ -47,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.68");
+vtkCxxRevisionMacro(vtkProperty, "1.69");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -270,7 +270,7 @@ vtkProperty *vtkProperty::New()
 { 
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkProperty");
-  return (vtkProperty*)ret;
+  return static_cast<vtkProperty *>(ret);
 }
 
 //----------------------------------------------------------------------------

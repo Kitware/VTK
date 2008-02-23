@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.57");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.58");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -46,7 +46,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
   int            numPts;
-  vtkPolyData    *input= (vtkPolyData *)this->GetInput();
+  vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
   int            j;
   vtkPoints      *p, *displayPts;
   vtkCellArray   *aPrim;
@@ -142,10 +142,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   
   // Set up the font color from the text actor
   double*  actorColor = actor->GetProperty()->GetColor();
-  color[0] = (unsigned char) (actorColor[0] * 255.0);
-  color[1] = (unsigned char) (actorColor[1] * 255.0);
-  color[2] = (unsigned char) (actorColor[2] * 255.0);
-  color[3] = (unsigned char) (255.0*actor->GetProperty()->GetOpacity());
+  color[0] = static_cast<unsigned char>(actorColor[0] * 255.0);
+  color[1] = static_cast<unsigned char>(actorColor[1] * 255.0);
+  color[2] = static_cast<unsigned char>(actorColor[2] * 255.0);
+  color[3] = static_cast<unsigned char>(
+    255.0*actor->GetProperty()->GetOpacity());
 
   // Transform the points, if necessary
   p = input->GetPoints();
@@ -243,12 +244,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    glEnable((GLenum)(GL_CLIP_PLANE0+i));
+    glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
+    plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
     planeEquation[0] = plane->GetNormal()[0];
     planeEquation[1] = plane->GetNormal()[1];
@@ -256,7 +257,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
                          planeEquation[1]*plane->GetOrigin()[1]+
                          planeEquation[2]*plane->GetOrigin()[2]);
-    glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
+    glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
     }
 
   // Set the PointSize
@@ -389,7 +390,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   for (i = 0; i < numClipPlanes; i++)
     {
-    glDisable((GLenum)(GL_CLIP_PLANE0+i));
+    glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 
   // push a 2D matrix on the stack

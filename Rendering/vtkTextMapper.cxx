@@ -18,7 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.56");
+vtkCxxRevisionMacro(vtkTextMapper, "1.57");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 // Creates a new text mapper
 vtkTextMapper::vtkTextMapper()
 {
-  this->Input = (char*)NULL;
+  this->Input = NULL;
   // consistent Register/unregister
   this->TextProperty = NULL;
   this->SetTextProperty(vtkTextProperty::New());
@@ -57,7 +57,7 @@ vtkTextMapper *vtkTextMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkImagingFactory::CreateInstance("vtkTextMapper");
-  return (vtkTextMapper*)ret;
+  return static_cast<vtkTextMapper *>(ret);
 }
 
 //----------------------------------------------------------------------------
@@ -156,9 +156,9 @@ int vtkTextMapper::SetConstrainedFontSize(vtkTextMapper *tmapper, vtkViewport *v
   // font size growth curve (probably not that linear)
   if (tempi[0] && tempi[1])
     {
-    float fx = (float)targetWidth / (float)tempi[0];
-    float fy = (float)targetHeight / (float)tempi[1] ;
-    fontSize = (int)ceil((float)fontSize * ((fx <= fy) ? fx : fy));
+    float fx = targetWidth / static_cast<float>(tempi[0]);
+    float fy = targetHeight / static_cast<float>(tempi[1]);
+    fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
     tprop->SetFontSize(fontSize);
     tmapper->GetSize(viewport, tempi);
     }
@@ -271,7 +271,8 @@ int vtkTextMapper::SetRelativeFontSize(vtkTextMapper *tmapper,
   int fontSize, targetWidth, targetHeight;
   // Find the best size for the font
   targetWidth = targetSize[0] > targetSize[1] ? targetSize[0] : targetSize[1];
-  targetHeight = (int)(sizeFactor * targetSize[0] + sizeFactor * targetSize[1]);
+  targetHeight = static_cast<int>(sizeFactor * targetSize[0]
+                                  + sizeFactor * targetSize[1]);
 
   fontSize = tmapper->SetConstrainedFontSize(tmapper, viewport, targetWidth, targetHeight);
   tmapper->GetSize(viewport, stringSize);
@@ -293,7 +294,8 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport *viewport,
 
   targetWidth = targetSize [0] > targetSize[1] ? targetSize[0] : targetSize[1];
 
-  targetHeight = (int)(sizeFactor * targetSize[0] + sizeFactor * targetSize[1]);
+  targetHeight = static_cast<int>(sizeFactor * targetSize[0]
+                                  + sizeFactor * targetSize[1]);
 
   fontSize = 
     vtkTextMapper::SetMultipleConstrainedFontSize(viewport, 
@@ -453,7 +455,8 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
   
   // add in the line spacing
   this->LineSize = size[1];
-  size[1] = (int)((float)size[1] * (1.0 + (this->NumberOfLines - 1) * tprop->GetLineSpacing()));
+  size[1] = static_cast<int>(
+    size[1] * (1.0 + (this->NumberOfLines - 1) * tprop->GetLineSpacing()));
 }
 
 //----------------------------------------------------------------------------
@@ -489,7 +492,7 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
     {
     this->TextLines[lineNum]->GetTextProperty()->ShallowCopy(tprop);
     this->TextLines[lineNum]->GetTextProperty()->SetLineOffset
-      (tprop->GetLineOffset() + (int)((float)this->LineSize * (lineNum + offset) * tprop->GetLineSpacing()));
+      (tprop->GetLineOffset() + static_cast<int>(this->LineSize * (lineNum + offset) * tprop->GetLineSpacing()));
     this->TextLines[lineNum]->RenderOverlay(viewport,actor);
     }
 }

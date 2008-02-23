@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.121");
+vtkCxxRevisionMacro(vtkMapper, "1.122");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -516,7 +516,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
       sum = 0;
       for (j = 0; j < numComps; ++j)
         {
-        tmp = (double)(*input);  
+        tmp = static_cast<double>(*input);
         sum += (tmp * tmp);
         ++input;
         }
@@ -536,7 +536,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
     input += component;
     for (i = 0; i < num; ++i)
       {
-      output[i] = k * ((float)(*input) - range[0]);
+      output[i] = k * (static_cast<double>(*input) - range[0]);
       if (output[i] > 1.0)
         {
         output[i] = 1.0;
@@ -583,13 +583,13 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     // Get the texture map from the lookup table.
     // Create a dummy ramp of scalars.
     // In the future, we could extend vtkScalarsToColors.
-    double k = (range[1]-range[0]) / (double)(ColorTextureMapSize-1);
+    double k = (range[1]-range[0]) / (ColorTextureMapSize-1);
     vtkFloatArray* tmp = vtkFloatArray::New();
     tmp->SetNumberOfTuples(ColorTextureMapSize);
     float* ptr = tmp->GetPointer(0);
     for (int i = 0; i < ColorTextureMapSize; ++i)
       {
-      *ptr = range[0] + ((float)(i)) * k;
+      *ptr = range[0] + i * k;
       ++ptr;
       }
     this->ColorTextureMap = vtkImageData::New();

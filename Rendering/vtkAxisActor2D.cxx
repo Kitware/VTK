@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.50");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.51");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -370,15 +370,15 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   // We'll do our computation in viewport coordinates. First determine the
   // location of the endpoints.
   x = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  p1[0] = (double)x[0]; 
-  p1[1] = (double)x[1]; 
+  p1[0] = x[0]; 
+  p1[1] = x[1]; 
   p1[2] = 0.0;
   this->LastPosition[0] = x[0]; 
   this->LastPosition[1] = x[1];
 
   x = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  p2[0] = (double)x[0]; 
-  p2[1] = (double)x[1]; 
+  p2[0] = x[0]; 
+  p2[1] = x[1]; 
   p2[2] = 0.0;
   this->LastPosition2[0] = x[0]; 
   this->LastPosition2[1] = x[1];
@@ -476,7 +476,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       {
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
-        val = this->AdjustedRange[0] + (double)i * interval;
+        val = this->AdjustedRange[0] + i * interval;
         sprintf(string, this->LabelFormat, val);
         this->LabelMappers[i]->SetInput(string);
         
@@ -860,8 +860,8 @@ void vtkAxisActor2D::SetOffsetPosition(double xTick[3], double theta,
   center[0] = xTick[0] + x*sin(theta);
   center[1] = xTick[1] - y*cos(theta);
     
-  pos[0] = (int)(center[0] - stringWidth/2.0);
-  pos[1] = (int)(center[1] - stringHeight/2.0);
+  pos[0] = static_cast<int>(center[0] - stringWidth/2.0);
+  pos[1] = static_cast<int>(center[1] - stringHeight/2.0);
 
   actor->SetPosition(pos[0], pos[1]);
 }

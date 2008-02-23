@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLeaderActor2D, "1.11");
+vtkCxxRevisionMacro(vtkLeaderActor2D, "1.12");
 vtkStandardNewMacro(vtkLeaderActor2D);
 
 vtkCxxSetObjectMacro(vtkLeaderActor2D,LabelTextProperty,vtkTextProperty);
@@ -415,8 +415,8 @@ int vtkLeaderActor2D::SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapp
   int fontSize, targetWidth, targetHeight;
 
   targetWidth = targetSize[0] > targetSize[1] ? targetSize[0] : targetSize[1];
-  targetHeight = (int)(VTK_LA2D_FACTOR * factor * targetSize[0] + 
-                       VTK_LA2D_FACTOR * factor * targetSize[1]);
+  targetHeight = static_cast<int>(VTK_LA2D_FACTOR * factor * targetSize[0] + 
+                                  VTK_LA2D_FACTOR * factor * targetSize[1]);
 
   fontSize = textMapper->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
   textMapper->GetSize(viewport, stringSize);

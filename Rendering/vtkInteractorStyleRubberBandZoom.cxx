@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.6");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.7");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
@@ -194,11 +194,11 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
 
   if (width > height)
     {
-    cam->Zoom(size[0] / (float)width);
+    cam->Zoom(size[0] / static_cast<double>(width));
     }
   else
     {
-    cam->Zoom(size[1] / (float)height);
+    cam->Zoom(size[1] / static_cast<double>(height));
     }
   
   this->Interactor->Render();

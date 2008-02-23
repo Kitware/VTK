@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkUnsignedCharArray.h"
 vtkStandardNewMacro(vtkPolygonsPainter);
-vtkCxxRevisionMacro(vtkPolygonsPainter, "1.3");
+vtkCxxRevisionMacro(vtkPolygonsPainter, "1.4");
 
 #define VTK_PP_INVALID_TYPE -1
 //-----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
     if (++count == 10000) \
       { \
       count = 0; \
-      this->UpdateProgress((double)(cellNum-cellNumStart)/totalCells);\
+      this->UpdateProgress(static_cast<double>(cellNum-cellNumStart)/totalCells);\
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         break; \

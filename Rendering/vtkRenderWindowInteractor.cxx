@@ -27,7 +27,7 @@
 #include "vtkObserverMediator.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.119");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.120");
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
@@ -141,7 +141,7 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
     vtkGraphicsFactory::CreateInstance("vtkRenderWindowInteractor");
   if ( ret )
     {
-    return (vtkRenderWindowInteractor *)ret;
+    return static_cast<vtkRenderWindowInteractor *>(ret);
     }
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("vtkRenderWindowInteractor");
@@ -352,7 +352,7 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
   
   for (i = numRens -1; (i >= 0) && !currentRenderer; i--) 
     {
-    aren = (vtkRenderer *)rc->GetItemAsObject(i);
+    aren = static_cast<vtkRenderer *>(rc->GetItemAsObject(i));
     if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
       {
       currentRenderer = aren;

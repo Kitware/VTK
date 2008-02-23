@@ -16,7 +16,7 @@
 
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkExporter, "1.19");
+vtkCxxRevisionMacro(vtkExporter, "1.20");
 
 vtkCxxSetObjectMacro(vtkExporter,RenderWindow,vtkRenderWindow);
 
@@ -137,7 +137,8 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->RenderWindow )
     {
-    os << indent << "Render Window: (" << (void *)this->RenderWindow << ")\n";
+    os << indent << "Render Window: (" <<
+      static_cast<void *>(this->RenderWindow) << ")\n";
     }
   else
     {
@@ -146,7 +147,8 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->StartWrite )
     {
-    os << indent << "Start Write: (" << (void *)this->StartWrite << ")\n";
+    os << indent << "Start Write: (" <<
+      static_cast<void (*)(void *)>(this->StartWrite) << ")\n";
     }
   else
     {
@@ -155,7 +157,8 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->EndWrite )
     {
-    os << indent << "End Write: (" << (void *)this->EndWrite << ")\n";
+    os << indent << "End Write: (" <<
+      static_cast<void (*)(void *)>(this->EndWrite) << ")\n";
     }
   else
     {

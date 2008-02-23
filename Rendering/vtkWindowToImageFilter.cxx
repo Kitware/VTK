@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.48");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.49");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -308,8 +308,8 @@ void vtkWindowToImageFilter::RequestData(
     for (x = 0; x < this->Magnification; x++)
       {
       // setup the Window ivars
-      this->Input->SetTileViewport((double)x/this->Magnification,
-                                   (double)y/this->Magnification,
+      this->Input->SetTileViewport(static_cast<double>(x)/this->Magnification,
+                                   static_cast<double>(y)/this->Magnification,
                                    (x+1.0)/this->Magnification,
                                    (y+1.0)/this->Magnification);
       double *tvp = this->Input->GetTileViewport();
@@ -389,8 +389,8 @@ void vtkWindowToImageFilter::RequestData(
         pixels1 = pixels;
 
         // now write the data to the output image
-        outPtr =
-          (unsigned char *)out->GetScalarPointer(x*size[0],y*size[1], 0);
+        outPtr = static_cast<unsigned char *>(
+          out->GetScalarPointer(x*size[0],y*size[1], 0));
         for (idxY = 0; idxY < size[1]; idxY++)
           {
           memcpy(outPtr,pixels1,rowSize);
@@ -413,7 +413,7 @@ void vtkWindowToImageFilter::RequestData(
 
         // now write the data to the output image
         outPtr =
-          (float *)out->GetScalarPointer(x*size[0],y*size[1], 0);
+          static_cast<float *>(out->GetScalarPointer(x*size[0],y*size[1], 0));
         for (idxY = 0; idxY < size[1]; idxY++)
           {
           memcpy(outPtr,pixels1,rowSize*sizeof(float));

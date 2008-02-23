@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.34");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.35");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -221,7 +221,7 @@ void vtkOOGLExporter::WriteData()
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {
       count++;
-      aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
+      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fp, count);
       }
     }
@@ -305,7 +305,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   else
     {
     ds->Update();
-    pd = (vtkPolyData *)ds;
+    pd = static_cast<vtkPolyData *>(ds);
     }
 
   pm = vtkPolyDataMapper::New();
@@ -450,12 +450,12 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
        {
        i += npts;
        }
-     fprintf(fp, "%s%d %d %d\n", indent, (int) pd->GetNumberOfLines(), i, 1);
+     fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(pd->GetNumberOfLines()), i, 1);
      cells = pd->GetLines();
      fprintf(fp, "%s", indent);
      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
        {
-       fprintf(fp, "%d ", (int) npts);
+       fprintf(fp, "%d ", static_cast<int>(npts));
        }
      fprintf(fp, "\n");
      
@@ -500,8 +500,8 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
      // write header
      if (pd->GetNumberOfPolys())
        {
-       fprintf(fp, "%s%d %d %d\n", indent, (int) points->GetNumberOfPoints(),
-               (int) pd->GetNumberOfPolys(), 0);
+       fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(points->GetNumberOfPoints()),
+               static_cast<int>(pd->GetNumberOfPolys()), 0);
        }
      else
        {
@@ -513,7 +513,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
          {
          i += (npts-2);
          }
-       fprintf(fp, "%s%d %d %d\n", indent, (int) points->GetNumberOfPoints(), i, 0);
+       fprintf(fp, "%s%d %d %d\n", indent, static_cast<int>(points->GetNumberOfPoints()), i, 0);
        }
       
       // write points
@@ -522,7 +522,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
         for (i = 0; i < points->GetNumberOfPoints(); i++)
           {
           double *pt = points->GetPoint(i);
-          c = (unsigned char *)colors->GetPointer(4*i);
+          c = static_cast<unsigned char *>(colors->GetPointer(4*i));
            
           fprintf (fp,"%s%g %g %g %g %g %g %g\n", indent,
                    pt[0], pt[1], pt[2],
@@ -544,7 +544,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
         cells = pd->GetPolys();
         for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
           {
-          fprintf(fp, "%s%i ", indent, (int) npts);
+          fprintf(fp, "%s%i ", indent, static_cast<int>(npts));
           for (i = 0; i < npts; i++)
             {
 #ifdef VTK_USE_64BIT_IDS
@@ -637,7 +637,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
      }
 
    // Set edge information
-   fprintf(fp, "%slinewidth %d\n", indent, (int) prop->GetLineWidth());
+   fprintf(fp, "%slinewidth %d\n", indent, static_cast<int>(prop->GetLineWidth()));
 
    // Now the material information
    fprintf(fp, "%smaterial {\n", indent);

@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.11");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.12");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -197,18 +197,18 @@ void vtkInteractorStyleTerrain::Rotate()
 
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
-  double a = (double)dx / (double)size[0] * (double)180.0;
-  double e = (double)dy / (double)size[1] * (double)180.0;
+  double a = dx / static_cast<double>(size[0]) * 180.0;
+  double e = dy / static_cast<double>(size[1]) * 180.0;
   
   if (rwi->GetShiftKey()) 
     {
-    if (fabs((double)dx) >= fabs((double)dy))
+    if (fabs(dx) >= fabs(dy))
       {
-      e = (double)0.0;
+      e = 0.0;
       }
     else
       {
-      a = (double)0.0;
+      a = 0.0;
       }
     }
 
@@ -227,10 +227,10 @@ void vtkInteractorStyleTerrain::Rotate()
 
   double angle = 
     acos(vtkMath::Dot(dop, vup)) / vtkMath::DoubleDegreesToRadians();
-  if ((angle + e) > (double)179.0 ||
-      (angle + e) < (double)1.0)
+  if ((angle + e) > 179.0 ||
+      (angle + e) < 1.0)
     {
-    e = (double)0.0;
+    e = 0.0;
     }
 
   camera->Elevation(e);
@@ -264,13 +264,13 @@ void vtkInteractorStyleTerrain::Pan()
   this->ComputeWorldToDisplay(fp[0], fp[1], fp[2], 
                               focalPoint);
 
-  this->ComputeDisplayToWorld((double)rwi->GetEventPosition()[0], 
-                              (double)rwi->GetEventPosition()[1],
+  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0], 
+                              rwi->GetEventPosition()[1],
                               focalPoint[2],
                               p1);
 
-  this->ComputeDisplayToWorld((double)rwi->GetLastEventPosition()[0],
-                              (double)rwi->GetLastEventPosition()[1], 
+  this->ComputeDisplayToWorld(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1], 
                               focalPoint[2], 
                               p2);
     
@@ -305,8 +305,8 @@ void vtkInteractorStyleTerrain::Dolly()
   double *center = this->CurrentRenderer->GetCenter();
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
-  double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);
-  double zoomFactor = pow((double)1.1, dyf);
+  double dyf = this->MotionFactor * dy / center[1];
+  double zoomFactor = pow(1.1, dyf);
   
   if (camera->GetParallelProjection())
     {
