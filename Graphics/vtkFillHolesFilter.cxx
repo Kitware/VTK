@@ -27,7 +27,7 @@
 #include "vtkSphere.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkFillHolesFilter, "1.2");
+vtkCxxRevisionMacro(vtkFillHolesFilter, "1.3");
 vtkStandardNewMacro(vtkFillHolesFilter);
 
 //------------------------------------------------------------------------
@@ -121,7 +121,7 @@ int vtkFillHolesFilter::RequestData(
     {
     if ( ! (cellId % progressInterval) ) //manage progress / early abort
       {
-      this->UpdateProgress ((double)cellId / numCells);
+      this->UpdateProgress (static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
       }
 

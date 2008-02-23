@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.24");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.25");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
@@ -278,7 +278,7 @@ void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
   if (this->ImplicitFunction)
     {
     os << indent << "Implicit Function: " 
-       << (void *)this->ImplicitFunction << "\n";
+       << static_cast<void *>(this->ImplicitFunction) << "\n";
     }
   else
     {

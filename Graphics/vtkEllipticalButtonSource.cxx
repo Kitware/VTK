@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkEllipticalButtonSource, "1.4");
+vtkCxxRevisionMacro(vtkEllipticalButtonSource, "1.5");
 vtkStandardNewMacro(vtkEllipticalButtonSource);
 
 //----------------------------------------------------------------------------
@@ -102,15 +102,16 @@ int vtkEllipticalButtonSource::RequestData(
   double xP[3], dX, dY;
   if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
     {
-    dX = (double)this->TextureDimensions[0];
-    dY = (double)this->TextureDimensions[1];
+    dX = static_cast<double>(this->TextureDimensions[0]);
+    dY = static_cast<double>(this->TextureDimensions[1]);
     }
   else
     {
     dX = this->A;
     dY = this->B;
     }
-  int hRes = ((int)ceil(this->CircumferentialResolution * (dY/(dY+dX)))) / 2;
+  int hRes = static_cast<int>(
+    ceil(this->CircumferentialResolution * (dY/(dY+dX)))) / 2;
   hRes = (hRes <= 0 ? 1 : hRes);
   int wRes = (this->CircumferentialResolution - 2*hRes) / 2;
 
@@ -164,7 +165,7 @@ int vtkEllipticalButtonSource::RequestData(
   double t;
   for (i=1; i < wRes; i++) //x0 -> x1
     {
-    t = (double)i/wRes;
+    t = static_cast<double>(i)/wRes;
     x[0] = x0[0] + t * (x1[0]-x0[0]);
     x[1] = x0[1];
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -174,7 +175,7 @@ int vtkEllipticalButtonSource::RequestData(
     }
   for (i=1; i < hRes; i++) //x1 -> x2
     {
-    t = (double)i/hRes;
+    t = static_cast<double>(i)/hRes;
     x[0] = x1[0];
     x[1] = x1[1] + t * (x2[1]-x1[1]);
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -184,7 +185,7 @@ int vtkEllipticalButtonSource::RequestData(
     }
   for (i=1; i < wRes; i++) //x2 -> x3
     {
-    t = (double)i/wRes;
+    t = static_cast<double>(i)/wRes;
     x[0] = x2[0] + t * (x3[0]-x2[0]);
     x[1] = x2[1];
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -194,7 +195,7 @@ int vtkEllipticalButtonSource::RequestData(
     }
   for (i=1; i < hRes; i++) //x3 -> x0
     {
-    t = (double)i/hRes;
+    t = static_cast<double>(i)/hRes;
     x[0] = x3[0];
     x[1] = x3[1] + t * (x0[1]-x3[1]);
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -338,7 +339,7 @@ void vtkEllipticalButtonSource::InterpolateCurve(int inTextureRegion,
     for ( j=1; j < res; j++ )
       {
       idx = startPt+(j-1)*numPts;
-      t = (double)j / res;
+      t = static_cast<double>(j) / res;
       x[0] = x0[0] + t * (x1[0] - x0[0]);
       x[1] = x0[1] + t * (x1[1] - x0[1]);
       x[2] = this->ComputeDepth(inTextureRegion,x[0],x[1],n);

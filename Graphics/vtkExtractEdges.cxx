@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.53");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.54");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -120,7 +120,7 @@ int vtkExtractEdges::RequestData(
     {
     if ( ! (cellNum % tenth) ) //manage progress reports / early abort
       {
-      this->UpdateProgress ((double)cellNum / numCells);
+      this->UpdateProgress (static_cast<double>(cellNum) / numCells);
       abort = this->GetAbortExecute();
       }
 

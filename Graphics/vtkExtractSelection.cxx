@@ -30,7 +30,7 @@
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.18");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.19");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -231,8 +231,8 @@ int vtkExtractSelection::RequestData(
   //make sure everything is deallocated
   inputCopy->Delete();
   ecOutput->Initialize();
-  subFilter->SetInput(0, (vtkDataSet*)NULL);
-  subFilter->SetInput(1, (vtkSelection*)NULL);  
+  subFilter->SetInput(0,static_cast<vtkDataSet *>(NULL));
+  subFilter->SetInput(1,static_cast<vtkSelection *>(NULL));
   return 1;
 }
 

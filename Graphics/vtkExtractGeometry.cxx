@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.57");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.58");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -283,7 +283,7 @@ void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Implicit Function: " 
-     << (void *)this->ImplicitFunction << "\n";
+     << static_cast<void *>(this->ImplicitFunction) << "\n";
   os << indent << "Extract Inside: " 
      << (this->ExtractInside ? "On\n" : "Off\n");
   os << indent << "Extract Boundary Cells: " 

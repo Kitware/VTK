@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.73");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.74");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -91,7 +91,8 @@ int vtkFeatureEdges::RequestData(
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   unsigned char* ghostLevels=0;
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  unsigned char  updateLevel = static_cast<unsigned char>(
+    output->GetUpdateGhostLevel());
   
   vtkDebugMacro(<<"Executing feature edges");
 
@@ -107,7 +108,7 @@ int vtkFeatureEdges::RequestData(
     }
   else
     {
-    ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    ghostLevels = static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
   
   //  Check input
@@ -199,7 +200,7 @@ int vtkFeatureEdges::RequestData(
       polyNormals->InsertTuple(cellId,n);
       }
 
-    cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+    cosAngle = cos (vtkMath::DegreesToRadians() * this->FeatureAngle);
     }
 
   neighbors = vtkIdList::New();
@@ -214,7 +215,7 @@ int vtkFeatureEdges::RequestData(
     {
     if ( ! (cellId % progressInterval) ) //manage progress / early abort
       {
-      this->UpdateProgress ((double)cellId / numCells);
+      this->UpdateProgress (static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
       }
 

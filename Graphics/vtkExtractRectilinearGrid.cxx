@@ -23,7 +23,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.11");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.12");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -195,7 +195,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
       outDims[i] = 1;
       }
     // We might as well make this work for negative extents.
-    mins[i] = (int)(floor((float)voi[2*i] / (float)rate[i]));
+    mins[i] = static_cast<int>(floor(voi[2*i]/static_cast<double>(rate[i])));
     }
 
   // Adjust the output dimensions if the boundaries are to be

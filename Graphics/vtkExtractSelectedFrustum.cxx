@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.10");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.11");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -508,7 +508,7 @@ int vtkExtractSelectedFrustum::RequestData(
       {
       if ( ! (cellId % updateInterval) ) //manage progress reports 
           {
-          this->UpdateProgress ((float)cellId / numCells);
+          this->UpdateProgress (static_cast<double>(cellId) / numCells);
           }
 
       input->GetCellBounds(cellId, bounds);
@@ -620,7 +620,7 @@ int vtkExtractSelectedFrustum::RequestData(
       
       if ( ! (ptId % updateInterval) ) //manage progress reports
           {
-          this->UpdateProgress ((float)ptId / numPts);
+          this->UpdateProgress (static_cast<double>(ptId) / numPts);
           }
 
       input->GetPoint(ptId,x);      
@@ -1069,7 +1069,7 @@ int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts,
                                             double *ovlist)
 {
   int nwverts = nverts;
-  memcpy((void*)wvlist, (void*)ivlist, nverts*sizeof(double)*3);
+  memcpy(wvlist,ivlist, nverts*sizeof(double)*3);
 
   int noverts = 0;
   int pid;
@@ -1081,7 +1081,7 @@ int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts,
       {
       return 0;
       }
-    memcpy((void*)wvlist, (void*)ovlist, noverts*sizeof(double)*3);
+    memcpy(wvlist,ovlist, noverts*sizeof(double)*3);
     nwverts = noverts;
     }
 
@@ -1162,7 +1162,7 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Frustum: " 
-     << (void *)this->Frustum << "\n";
+     << static_cast<void *>(this->Frustum) << "\n";
 
   os << indent << "ClipPoints: " << this->ClipPoints << "\n";
 
