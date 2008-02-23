@@ -228,6 +228,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/util/vtkImageExportToArray
     vtk/util/vtkImageImportFromArray
     vtk/util/colors
+    vtk/util/numpy_support
     )
 
 # vtk.test package
