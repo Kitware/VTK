@@ -29,7 +29,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.34");
+vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.35");
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     {
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
-      pts = ((vtkPolyData *)input)->GetPoints();
+      pts = static_cast<vtkPolyData *>(input)->GetPoints();
       if (pts)
         {
         da = pts->GetData();
@@ -80,7 +80,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
 
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
       {
-      vtkStructuredPoints *spts=(vtkStructuredPoints *)input;
+      vtkStructuredPoints *spts=static_cast<vtkStructuredPoints *>(input);
 
       vtkFloatArray *origin=vtkFloatArray::New();
       origin->SetNumberOfValues(3);
@@ -107,7 +107,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
-      pts = ((vtkPolyData *)input)->GetPoints();
+      pts = static_cast<vtkStructuredGrid *>(input)->GetPoints();
       if (pts)
         {
         da = pts->GetData();
@@ -118,7 +118,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     
     else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
-      vtkRectilinearGrid *rgrid=(vtkRectilinearGrid *)input;
+      vtkRectilinearGrid *rgrid=static_cast<vtkRectilinearGrid *>(input);
       da = rgrid->GetXCoordinates();
       if (da != NULL)
         {
@@ -141,7 +141,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
-      pts = ((vtkPolyData *)input)->GetPoints();
+      pts = static_cast<vtkUnstructuredGrid *>(input)->GetPoints();
       if (pts)
         {
         da = pts->GetData();
@@ -162,7 +162,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     {
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
-      vtkPolyData *pd=(vtkPolyData *)input;
+      vtkPolyData *pd=static_cast<vtkPolyData *>(input);
       vtkCellArray *ca;
       if ( pd->GetVerts()->GetNumberOfCells() > 0 )
         {
@@ -195,7 +195,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      ((vtkStructuredPoints *)input)->GetDimensions(dims);
+      static_cast<vtkStructuredPoints *>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
@@ -209,7 +209,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      ((vtkStructuredGrid *)input)->GetDimensions(dims);
+      static_cast<vtkStructuredGrid *>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
@@ -223,7 +223,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      ((vtkRectilinearGrid *)input)->GetDimensions(dims);
+      static_cast<vtkRectilinearGrid *>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
@@ -234,7 +234,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
-      vtkCellArray *ca=((vtkUnstructuredGrid *)input)->GetCells();
+      vtkCellArray *ca=static_cast<vtkUnstructuredGrid *>(input)->GetCells();
       if ( ca != NULL && ca->GetNumberOfCells() > 0 )
         {
         ca->GetData()->SetName("Cells");
