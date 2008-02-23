@@ -68,20 +68,6 @@ SET( KitOpenGL_SRCS
 # Stuff we need for the vtkVolumeTextureMapper3D
 #-------------------------------------------------
 
-# Create an executable to encode source files into C string literals.
-IF(NOT CMAKE_CROSSCOMPILING)
-  ADD_EXECUTABLE(vtkVREncodeString
-  ${VTK_SOURCE_DIR}/VolumeRendering/vtkVREncodeString.cxx
-  )
-  EXPORT(TARGETS vtkVREncodeString FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-ENDIF(NOT CMAKE_CROSSCOMPILING)
-
-IF(CMAKE_CROSSCOMPILING)
-  SET(ENCODE_EXE vtkVREncodeString)
-ELSE(CMAKE_CROSSCOMPILING)
-  GET_TARGET_PROPERTY(ENCODE_EXE vtkVREncodeString LOCATION)
-ENDIF(CMAKE_CROSSCOMPILING)
-
 # The set of source files to be encoded.
 SET(asm_files
   vtkHAVSVolumeMapper_kbufferVP
@@ -106,8 +92,8 @@ FOREACH(file ${asm_files})
   SET(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
   ADD_CUSTOM_COMMAND(
     OUTPUT ${res}
-    DEPENDS ${src} vtkVREncodeString
-    COMMAND ${ENCODE_EXE}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND ${VTK_ENCODESTRING_EXE}
     ARGS ${res} ${src} ${file}
     )
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
@@ -186,3 +172,11 @@ INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
 # Make sure vtkRendering is built before vtkVolumeRendering builds.
 # This will make sure vtkgl.h exists.
 ADD_DEPENDENCIES(vtkVolumeRendering vtkRendering)
+
+# when crosscompiling vtkEncodeString is imported, don't add a dependency to it
+# this should be handled by cmake so it doesn't have to be done here
+IF(NOT CMAKE_CROSSCOMPILING)
+  # Add target dependency to ensure the vtkEncodeString is built before
+  # VolumeRendering is.
+  ADD_DEPENDENCIES(vtk${KIT} vtkEncodeString)
+ENDIF(NOT CMAKE_CROSSCOMPILING)

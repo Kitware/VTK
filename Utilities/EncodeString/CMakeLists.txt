@@ -1,0 +1,21 @@
+# Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+# All rights reserved.
+# See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+#
+#    This software is distributed WITHOUT ANY WARRANTY; without even
+#    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#    PURPOSE.  See the above copyright notice for more information.
+#
+
+IF(NOT CMAKE_CROSSCOMPILING)
+  ADD_EXECUTABLE(vtkEncodeString vtkEncodeString.cxx)
+  EXPORT(TARGETS vtkEncodeString FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND) 
+ENDIF(NOT CMAKE_CROSSCOMPILING)
+
+IF(CMAKE_CROSSCOMPILING)
+  SET(ENCODESTRING_EXE vtkEncodeString)
+ELSE(CMAKE_CROSSCOMPILING)
+  GET_TARGET_PROPERTY(ENCODESTRING_EXE vtkEncodeString LOCATION)
+ENDIF(CMAKE_CROSSCOMPILING)
+SET(VTK_ENCODESTRING_EXE ${ENCODESTRING_EXE}
+  CACHE INTERNAL "String encoder." FORCE)
