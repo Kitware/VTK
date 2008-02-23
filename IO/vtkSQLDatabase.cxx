@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.34");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.35");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -218,7 +218,11 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
       return vtkStdString();
     }
   
-  queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+  // No index_name for PRIMARY KEYs nor UNIQUEs
+  if ( skipped )
+    {
+    queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+    }
 
   // CREATE INDEX <index name> ON <table name> syntax
   if ( skipped )
