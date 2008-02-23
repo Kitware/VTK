@@ -42,7 +42,7 @@ int TestSortDataArray(int, char *[])
   keys->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
     {
-    keys->SetComponent(i, 0, (int)vtkMath::Random(0, ARRAY_SIZE*4));
+    keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
     }
 
   cout << "Sorting array" << endl;
@@ -85,9 +85,10 @@ int TestSortDataArray(int, char *[])
   values->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
     {
-    keys->SetComponent(i, 0, (int)vtkMath::Random(0, ARRAY_SIZE*4));
+    keys->SetComponent(i,0,static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
     values->SetComponent(i, 0, i);
-    values->SetComponent(i, 1, (int)vtkMath::Random(0, ARRAY_SIZE*4));
+    values->SetComponent(i,1,
+                         static_cast<int>(vtkMath::Random(0, ARRAY_SIZE*4)));
     }
   vtkIntArray *saveKeys = vtkIntArray::New();
   saveKeys->DeepCopy(keys);
@@ -103,7 +104,7 @@ int TestSortDataArray(int, char *[])
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
     {
-    int lookup = (int)values->GetComponent(i, 0);
+    int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
       {
       cout << "Array not properly sorted!" << endl;
@@ -131,7 +132,7 @@ int TestSortDataArray(int, char *[])
 
   for (i = 0; i < ARRAY_SIZE-1; i++)
     {
-    int lookup = (int)values->GetComponent(i, 0);
+    int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i+1, 0))
       {
       cout << "Array not properly sorted!" << endl;

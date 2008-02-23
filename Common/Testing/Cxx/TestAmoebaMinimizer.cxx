@@ -19,7 +19,7 @@
 // the function to be minimized
 static void vtkFunctionToMinimize(void *arg)
 {
-  vtkAmoebaMinimizer *minimizer = (vtkAmoebaMinimizer *)arg;
+  vtkAmoebaMinimizer *minimizer = static_cast<vtkAmoebaMinimizer *>(arg);
 
   double x = minimizer->GetParameterValue("x");
   double y = minimizer->GetParameterValue("y");
