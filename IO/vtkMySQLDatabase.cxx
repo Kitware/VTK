@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.22");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.23");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -461,12 +461,14 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
 {
   skipped = false;
   vtkStdString queryStr = ", ";
+  bool mustUseName = true;
 
   int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
   switch ( idxType )
     {
     case vtkSQLDatabaseSchema::PRIMARY_KEY:
       queryStr += "PRIMARY KEY ";
+      mustUseName = false;
       break;
     case vtkSQLDatabaseSchema::UNIQUE:
       queryStr += "UNIQUE ";
@@ -478,7 +480,11 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
       return vtkStdString();
     }
   
-  queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+  // No index_name for PRIMARY KEYs
+  if ( mustUseName )
+    {
+    queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+    }
   queryStr += " (";
         
   // Loop over all column names of the index
