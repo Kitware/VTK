@@ -22,11 +22,13 @@
 
 #include "vtkSQLiteDatabase.h"
 #include "vtkSQLQuery.h"
+#include "vtkSQLDatabaseSchema.h"
 #include "vtkRowQueryToTable.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+#include <vtkstd/vector>
 
 int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
@@ -150,6 +152,108 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   reader->Delete();
   query->Delete();
   db->Delete();
+
+// ----------------------------------------------------------------------
+// Testing transformation of a schema into a SQLite database
+
+  // 1. Create the schema
+  cerr << "@@ Creating a schema...";
+
+  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
+  schema->SetName( "TestSchema" );
+
+  int tblHandle = schema->AddTableMultipleArguments( "StrangeTable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::INTEGER, "TableKey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+    vtkSQLDatabaseSchema::END_TABLE_TOKEN
+  );
+
+  if ( tblHandle < 0 )
+    {
+    cerr << "Could not create test schema.\n";
+    return 1;
+    }
+  cerr << " done." << endl;
+  
+  // 2. Convert the schema into a SQLite database
+  cerr << "@@ Converting the schema into a SQLite database...";
+
+  vtkSQLiteDatabase* dbSch = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://:memory:" ) );
+  status = dbSch->Open();
+
+  if ( ! status )
+    {
+    cerr << "Couldn't open database.\n";
+    return 1;
+    }
+
+  status = dbSch->EffectSchema( schema ); 
+  if ( ! status )
+    {
+    cerr << "Could not effect test schema.\n";
+    return 1;
+    }
+  cerr << " done." << endl;
+
+  // 3. Count tables of the newly created database
+  cerr << "@@ Fetching table names of the newly created database:\n";
+
+  query = dbSch->GetQueryInstance();
+
+  query->SetQuery( "SELECT name FROM sqlite_master WHERE type = \"table\"" );
+  if ( ! query->Execute() )
+    {
+    cerr << "QuerySch failed" << endl;
+    return 1;
+    }
+
+  for ( tblHandle =0; query->NextRow(); ++ tblHandle )
+    {
+    vtkStdString tblNameSch( schema->GetTableNameFromHandle( tblHandle ) );
+    vtkStdString tblNameDB( query->DataValue( 0 ).ToString() );
+    cerr << "     " 
+         << tblNameDB
+         << "\n";
+
+    if ( tblNameDB != tblNameSch )
+      {
+      cerr << "Fetched an incorrect name: " 
+           << tblNameDB
+           << " != " 
+           << tblNameSch
+           << endl;
+      return 1;
+      }
+    }
+
+  if ( tblHandle != schema->GetNumberOfTables() )
+    {
+    cerr << "Found an incorrect number of tables: " 
+         << tblHandle 
+         << " != " 
+         << schema->GetNumberOfTables()
+         << endl;
+    return 1;
+    }
+  
+  cerr << "   "
+       << tblHandle
+       << " found.\n";
+
+  // Clean up
+  dbSch->Delete();
+  schema->Delete();
+  query->Delete();
 
   return 0;
 }
