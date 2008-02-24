@@ -29,7 +29,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.132");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.133");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -81,15 +81,15 @@ OptionsRec      Options;
 
 XtResource resources[] =
 {
-  {static_cast<char *>("visual"),
-   static_cast<char *>("Visual"),
+  {(char *)("visual"),
+   (char *)("Visual"),
    XtRVisual,
    sizeof (Visual *),
    XtOffsetOf (OptionsRec, visual),
    XtRImmediate,
    NULL},
-  {static_cast<char *>("depth"),
-   static_cast<char *>("Depth"),
+  {(char *)("depth"),
+   (char *)("Depth"),
    XtRInt,
    sizeof (int),
    XtOffsetOf (OptionsRec, depth),
@@ -99,12 +99,12 @@ XtResource resources[] =
 
 XrmOptionDescRec Desc[] =
 {
-  {static_cast<char *>("-visual"),
-   static_cast<char *>("*visual"),
+  {(char *)("-visual"),
+   (char *)("*visual"),
    XrmoptionSepArg,
    NULL},
-  {static_cast<char *>("-depth"),
-   static_cast<char *>("*depth"),
+  {(char *)("-depth"),
+   (char *)("*depth"),
    XrmoptionSepArg, NULL}
 };
 

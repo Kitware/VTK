@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.34");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.35");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->ShiftKey = 0;
   this->CtrlKey = 0;
   this->Char = '\0';
-  this->KeySym = static_cast<char *>("");
+  this->KeySym = (char *)("");
   this->Button = 0;
 }
 
