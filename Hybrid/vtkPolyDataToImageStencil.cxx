@@ -74,7 +74,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.25");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.26");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -393,9 +393,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   int idxY, idxZ;
   for (idxZ = extent[4]; idxZ <= extent[5]; idxZ++)
     {
-    if (threadId == 0 && extent[4] != extent[5])
+    if (threadId == 0)
       {
-      this->UpdateProgress((idxZ - extent[4])*1.0/(extent[5] - extent[4]));
+      this->UpdateProgress((idxZ - extent[4])*1.0/(extent[5] - extent[4] + 1));
       }
 
     double z = idxZ*spacing[2] + origin[2];
@@ -410,62 +410,86 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       continue;
       }
      
-    slice->BuildLinks( 0 );
+    // Step 2: Find and connect all the loose ends
     vtkCellArray *lines = slice->GetLines();
-    lines->InitTraversal();
-    
+
     vtkPoints *points = slice->GetPoints();
     vtkIdType numberOfPoints = points->GetNumberOfPoints();
-    
-    vtkIdList *cellIdList = vtkIdList::New();
-    vtkIdList *pointIdList = vtkIdList::New();
 
-    // Step 2: Find and connect all the loose ends
     vtkIdList *looseEndIdList = vtkIdList::New();
-
-    for (int i = 0; i < numberOfPoints; i++)
+    vtkIdList *looseEndNeighborList = vtkIdList::New();
+    
+    // find all points with just a single adjacent point
+    for (vtkIdType i = 0; i < numberOfPoints; i++)
       {
-      vtkIdType currentPointId = i; 
-      slice->GetPointCells(currentPointId , cellIdList );
-      if(cellIdList->GetNumberOfIds() < 2)
+      int numberOfNeighbors = 0;
+      vtkIdType neighbor = 0;
+      
+      lines->InitTraversal();
+      vtkIdType npts;
+      vtkIdType *pointIds;
+      while( lines->GetNextCell(npts, pointIds) )
+        {
+        for (vtkIdType j = 0; j < npts; j++)
+          {
+          if ( pointIds[j] == i )
+            {        
+            if (j > 0)
+              {
+              numberOfNeighbors++;
+              neighbor = pointIds[j-1];
+              }
+            if (j < npts-1)
+              {
+              numberOfNeighbors++;
+              neighbor = pointIds[j+1];
+              }
+            break;
+            }
+          }
+        }
+      if(numberOfNeighbors == 1)
         {
         // store the loose end
-        looseEndIdList->InsertNextId(currentPointId);
+        looseEndIdList->InsertNextId( i );
+        looseEndNeighborList->InsertNextId( neighbor );
         }
       }
 
     while (looseEndIdList->GetNumberOfIds() >= 2)
       {
+      // first loose end point in the list
       vtkIdType firstLooseEndId = looseEndIdList->GetId(0);
-      vtkIdType secondLooseEndId = looseEndIdList->GetId(1);
-
-      // first loose end in the list
+      vtkIdType neighbor = looseEndNeighborList->GetId(0);
       double firstLooseEnd[3];
       slice->GetPoint( firstLooseEndId, firstLooseEnd );
 
       // second loose end in the list
+      vtkIdType secondLooseEndId = looseEndIdList->GetId(1);
       double secondLooseEnd[3];
       slice->GetPoint( secondLooseEndId, secondLooseEnd );
 
-      looseEndIdList->DeleteId( firstLooseEndId );
-
-      double minimumDistance = vtkMath::Distance2BetweenPoints(
-        firstLooseEnd, secondLooseEnd );
+      // search for the loose end closest to the first one
+      double minimumDistance = VTK_LARGE_FLOAT;
       
-      for(int j = 2; j < looseEndIdList->GetNumberOfIds(); j++)
+      for(vtkIdType j = 1; j < looseEndIdList->GetNumberOfIds(); j++)
         {
         vtkIdType currentLooseEndId = looseEndIdList->GetId( j );
-        double currentLooseEnd[3];
-        slice->GetPoint( looseEndIdList->GetId( j ), currentLooseEnd );
-        if (vtkMath::Distance2BetweenPoints( firstLooseEnd, currentLooseEnd )
-            < minimumDistance)
+        if (currentLooseEndId != neighbor)
           {
-          minimumDistance = vtkMath::Distance2BetweenPoints( firstLooseEnd,
+          double currentLooseEnd[3];
+          slice->GetPoint( currentLooseEndId, currentLooseEnd );
+          double distance = vtkMath::Distance2BetweenPoints( firstLooseEnd,
                                                              currentLooseEnd );
+          minimumDistance = distance;
           secondLooseEndId = currentLooseEndId;
           }
         }
+
+      // create a new line segment by connecting these two points
+      looseEndIdList->DeleteId( firstLooseEndId );
       looseEndIdList->DeleteId( secondLooseEndId );
+
       lines->InsertNextCell( 2 );
       lines->InsertCellPoint( firstLooseEndId );
       lines->InsertCellPoint( secondLooseEndId );
@@ -494,9 +518,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
                                            zyBucket);
       }
 
-    cellIdList->Delete();
     looseEndIdList->Delete();
-    pointIdList->Delete();
+    looseEndNeighborList->Delete();
     }
 
   // Step 4: The final part of the algorithm is to fill in the
