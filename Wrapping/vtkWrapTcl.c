@@ -522,7 +522,7 @@ void get_args(FILE *fp, int i)
       break;
     case 0x109:
     case 0x309:
-      fprintf(fp,"    temp%i = static_cast<%s *>(vtkTclGetPointerFromObject(argv[%i],static_cast<char *>(\"%s\"),interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
+      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],static_cast<char *>(\"%s\"),interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
               currentFunction->ArgClasses[i]);
       break;
     case 0x2:    
