@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.22");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.23");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -29,6 +29,70 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void
 void *vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
 
+//----------------------------------------------------------------------------
+// This is a private class and an implementation detail, do not use it.
+//----------------------------------------------------------------------------
+// As vtk is both crossplatform and a library, we don't know if it is being
+// used in a 'regular Cocoa application' or as a 'pure vtk application'.
+// By the former I mean a regular Cocoa application that happens to have
+// a vtkCocoaGLView, by the latter I mean an application that only uses
+// vtk APIs (which happen to use Cocoa as an implementation detail).
+// Specifically, we can't know if NSApplicationMain() was ever called
+// (which is usually done in main()), nor whether the NSApplication exists.
+//
+// Any code that uses Cocoa needs to be sure that NSAutoreleasePools are
+// correctly setup.  Specifically, an NSAutoreleasePool needs to exist before
+// any Cocoa objects are autoreleased, which may happen as a side effect of
+// pretty much any Cocoa use.  Once we start the event loop by calling 
+// either NSApplicationMain() or [NSApp run] then a new pool will be created
+// for every event.  In a 'regular Cocoa application' NSApplicationMain() is
+// called at the start of main() and so we know a pool will be in place before
+// any vtk code is used.  But in a 'pure vtk application' the event loop does
+// not start until [NSApp run] is called by this class's Start() method. The
+// problem thus is that other vtk code may be called before Start() and that
+// code may call Cocoa and thus autorelease objects with no autorelease pool
+// in place.  The (ugly) solution is to create a 'pool of last resort' so
+// that we know a pool is always in place.
+// See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
+//
+// However, with garbage collection, autorelease pools are a thing of the
+// past, and so this hack is not needed.
+#ifndef __OBJC_GC__
+class vtkEarlyCocoaSetup
+  {
+    public:
+    vtkEarlyCocoaSetup()
+    {
+      this->CreatePoolOfLastResort();
+    }
+    
+    virtual ~vtkEarlyCocoaSetup()
+    {
+      this->DestroyPoolOfLastResort();
+    }
+    
+    void DestroyPoolOfLastResort()
+    {
+      [Pool release];
+      Pool = nil;
+    }
+    
+    protected:
+    void CreatePoolOfLastResort()
+    {
+      Pool = [[NSAutoreleasePool alloc] init];
+    }
+    
+    private:
+    NSAutoreleasePool     *Pool;
+  };
+
+// We create a global/static instance of this class to ensure that we have an
+// autorelease pool before main() starts.
+vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
+#endif
+
+//----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
 //----------------------------------------------------------------------------
 @interface vtkCocoaTimer : NSObject
@@ -137,7 +201,14 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
   [nc addObserver:self selector:@selector(windowWillClose:) 
                            name:@"NSWindowWillCloseNotification" 
                          object:win];
-  
+
+  // Now that we are about to begin the standard Cocoa event loop, we can get
+  // rid of the 'pool of last resort' because [NSApp run] will create a new
+  // pool for every event
+  #ifndef __OBJC_GC__
+  gEarlyCocoaSetup->DestroyPoolOfLastResort();
+  #endif
+
   // Start the NSApplication's run loop
   [NSApp run];
 }
@@ -191,68 +262,6 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 
 @end
 
-// This is a private class and an implementation detail, do not use it.
-//
-// As vtk is both crossplatform and a library, we don't know if it is being
-// used in a 'regular Cocoa application' or as a 'pure vtk application'.
-// By the former I mean a regular Cocoa application that happens to have
-// a vtkCocoaGLView, by the latter I mean an application that only uses
-// vtk APIs (which happen to use Cocoa as an implementation detail).
-// Specifically, we can't know if NSApplicationMain() was ever called
-// (which is usually done in main()), nor whether the NSApplication exists.
-//
-// Any code that uses Cocoa needs to be sure that NSAutoreleasePools are
-// correctly setup.  Specifically, an NSAutoreleasePool needs to exist before
-// any Cocoa objects are autoreleased, which may happen as a side effect of
-// pretty much any Cocoa use.  Once we start the event loop by calling 
-// either NSApplicationMain() or [NSApp run] then a new pool will be created
-// for every event.  In a 'regular Cocoa application' NSApplicationMain() is
-// called at the start of main() and so we know a pool will be in place before
-// any vtk code is used.  But in a 'pure vtk application' the event loop does
-// not start until [NSApp run] is called by this class's Start() method. The
-// problem thus is that other vtk code may be called before Start() and that
-// code may call Cocoa and thus autorelease objects with no autorelease pool
-// in place.  The (ugly) solution is to create a 'pool of last resort' so
-// that we know a pool is always in place.
-// See: <http://lists.apple.com/archives/cocoa-dev/2006/Sep/msg00222.html>
-//
-// However, with garbage collection, autorelease pools are a thing of the
-// past, and so this hack is not needed.
-#ifndef __OBJC_GC__
-class vtkEarlyCocoaSetup
-  {
-    public:
-    vtkEarlyCocoaSetup()
-    {
-      this->CreatePoolOfLastResort();
-    }
-    
-    virtual ~vtkEarlyCocoaSetup()
-    {
-      this->DestroyPoolOfLastResort();
-    }
-    
-    void DestroyPoolOfLastResort()
-    {
-      [Pool release];
-      Pool = nil;
-    }
-    
-    protected:
-    void CreatePoolOfLastResort()
-    {
-      Pool = [[NSAutoreleasePool alloc] init];
-    }
-    
-    private:
-    NSAutoreleasePool     *Pool;
-  };
-
-// We create a global/static instance of this class to ensure that we have an
-// autorelease pool before main() starts.
-vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
-#endif
-
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
@@ -287,13 +296,6 @@ void vtkCocoaRenderWindowInteractor::Start()
     {
     return;
     }
-
-  // Now that we are about to begin the standard Cocoa event loop, we can get
-  // rid of the 'pool of last resort' because [NSApp run] will create a new
-  // pool for every event
-  #ifndef __OBJC_GC__
-  gEarlyCocoaSetup->DestroyPoolOfLastResort();
-  #endif
    
   // Start server.
   vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->GetRenderWindow());
