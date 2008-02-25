@@ -152,8 +152,12 @@ int TestMySQLDatabase( int, char ** const )
     }
 
   query->SetQuery( "DROP TABLE people" );
-  query->Execute();
-
+  if ( ! query->Execute() )
+    {
+    cerr << "DROP TABLE people query failed" << endl;
+    return 1;
+    }
+  
   reader->Delete();
   query->Delete();
   db->Delete();
@@ -167,7 +171,8 @@ int TestMySQLDatabase( int, char ** const )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
 
-  int tblHandle = schema->AddTableMultipleArguments( "StrangeTable",
+  // Insert in alphabetical order so that SHOW TABLES does not mix handles
+  int tblHandle = schema->AddTableMultipleArguments( "ATable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
@@ -180,6 +185,18 @@ int TestMySQLDatabase( int, char ** const )
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
       "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+    vtkSQLDatabaseSchema::END_TABLE_TOKEN
+  );
+
+  tblHandle = schema->AddTableMultipleArguments( "BTable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeValue", 12, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeValue",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -221,7 +238,14 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  int numTbl = query->GetNumberOfFields();
+  vtkstd::vector<vtkStdString> tables;
+  while ( query->NextRow() )
+    {
+    tables.push_back( query->DataValue( 0 ).ToString() );
+    }
+
+  int numTbl = tables.size();
+
   if ( numTbl != schema->GetNumberOfTables() )
     {
     cerr << "Found an incorrect number of tables: " 
@@ -234,15 +258,6 @@ int TestMySQLDatabase( int, char ** const )
   
   cerr << numTbl 
        << " found.\n";
-
-  vtkstd::vector<vtkStdString> tables;
-  while ( query->NextRow() )
-    {
-    for ( int field = 0; field < numTbl; ++ field )
-      {
-      tables.push_back( query->DataValue( field ).ToString() );
-      }
-    }
 
   // 4. Inspect these tables
   cerr << "@@ Inspecting these tables..." << "\n";
@@ -369,6 +384,25 @@ int TestMySQLDatabase( int, char ** const )
       return 1;
       }
     }
+
+  // 5. Drop tables
+  cerr << "@@ Dropping these tables...";
+
+  for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
+        it != tables.end(); ++ it )
+    {
+    vtkStdString queryStr ("DROP TABLE " );
+    queryStr += *it;
+    query->SetQuery( queryStr );
+
+    if ( ! query->Execute() )
+      {
+      cerr << "Query failed" << endl;
+      return 1;
+      }
+    }
+
+  cerr << " done." << endl;
 
   // Clean up
   db->Delete();
