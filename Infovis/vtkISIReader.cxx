@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkISIReader, "1.3");
+vtkCxxRevisionMacro(vtkISIReader, "1.4");
 vtkStandardNewMacro(vtkISIReader);
 
 // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
@@ -197,13 +197,17 @@ static istream& my_getline(istream& input, vtkstd::string& output, char delimite
     ++numCharactersRead;
 
     char downcast = static_cast<char>(nextValue);
-    if (downcast != delimiter)
+    if (downcast == delimiter || (delimiter == '\n' && downcast == '\r'))
       {
-      output += downcast;
+      if (delimiter == '\n' && downcast == '\r' && input.peek() == '\n')
+        {
+        input.get();
+        }
+      return input;
       }
     else
       {
-      return input;
+      output += downcast;
       }
     }
     
