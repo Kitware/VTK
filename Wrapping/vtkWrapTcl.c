@@ -433,7 +433,7 @@ void return_result(FILE *fp)
       break;
     case 0x109:
     case 0x309:  
-      fprintf(fp,"      vtkTclGetObjectFromPointer(interp,static_cast<void *>(temp%i),\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
+      fprintf(fp,"      vtkTclGetObjectFromPointer(interp,(void *)(temp%i),\"%s\");\n",MAX_ARGS,currentFunction->ReturnClass);
       break;
 
     /* handle functions returning vectors */
