@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.18");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.19");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -225,7 +225,7 @@ bool vtkPostgreSQLDatabase::Open()
 {
   if ( ! this->HostName || ! this->DatabaseName )
     {
-    //this->SetLastErrorText("Cannot open database because HostName and/or DatabaseName are null.");
+    //this->LastErrorText = "Cannot open database because HostName and/or DatabaseName are null.";
     vtkErrorMacro(<< this->GetLastErrorText());
     return false;
     }
@@ -271,11 +271,20 @@ bool vtkPostgreSQLDatabase::Open()
     }
   catch ( pqxx::sql_error& e )
     {
-    this->Connection->SetLastErrorText( e.what() );
+    this->Connection->LastErrorText = e.what();
+    return false;
+    }
+  catch ( pqxx::broken_connection& e )
+    {
+    if ( this->Connection )
+      {
+      delete this->Connection;
+      this->Connection = 0;
+      }
     return false;
     }
 
-  this->Connection->SetLastErrorText( NULL );
+  this->Connection->LastErrorText.clear();
   return true;
 }
 
@@ -284,7 +293,7 @@ void vtkPostgreSQLDatabase::Close()
 {
   if ( this->Connection )
     {
-    this->Connection->Delete();
+    delete this->Connection;
     this->Connection = 0;
     this->URLMTime.Modified(); // Force a re-open to occur when Open() is called.
     }
@@ -372,7 +381,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     {
     vtkErrorMacro(<< "Database returned error: "
                   << query->GetLastErrorText());
-    this->Connection->SetLastErrorText( query->GetLastErrorText() );
+    this->Connection->LastErrorText = query->GetLastErrorText();
     query->Delete();
     return 0;
     }
@@ -383,7 +392,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     results->InsertNextValue( query->DataValue( 0 ).ToString() );
     }
   query->Delete();
-  this->Connection->SetLastErrorText( 0 );
+  this->Connection->LastErrorText.clear();
   return results;
 }
 
@@ -407,7 +416,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord( const char* table )
     {
     vtkErrorMacro(<< "GetRecord(" << table << "): Database returned error: "
                   << query->GetLastErrorText());
-    this->Connection->SetLastErrorText( query->GetLastErrorText() );
+    this->Connection->LastErrorText = query->GetLastErrorText();
     query->Delete();
     return 0;
     }
@@ -422,7 +431,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetRecord( const char* table )
     }
 
   query->Delete();
-  this->Connection->SetLastErrorText( 0 );
+  this->Connection->LastErrorText.clear();
   return results;
 }
 
@@ -544,7 +553,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
     this->SetDatabaseName( dbName );
     this->Open();
     }
-  this->Connection->SetLastErrorText( 0 );
+  this->Connection->LastErrorText.clear();
   return true;
 }
 
@@ -587,10 +596,10 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
     }
   catch ( const vtkstd::exception& e )
     {
-    this->Connection->SetLastErrorText( e.what() );
+    this->Connection->LastErrorText = e.what();
     return false;
     }
-  this->Connection->SetLastErrorText( 0 );
+  this->Connection->LastErrorText.clear();
   return true;
 }
 

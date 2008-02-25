@@ -33,12 +33,25 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.3");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.4");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
 {
 public:
+  static vtkPostgreSQLQueryPrivate* New();
+  static vtkPostgreSQLQueryPrivate* NewForDatabase( vtkPostgreSQLDatabase* db )
+    {
+    vtkPostgreSQLQueryPrivate* p = vtkPostgreSQLQueryPrivate::New();
+    p->SetDatabase( db );
+    return p;
+    }
+  vtkTypeRevisionMacro(vtkPostgreSQLQueryPrivate,vtkObject);
+  vtkPostgreSQLQueryPrivate()
+    { // For StandardNewMacro. Do not use the default constructor!
+    this->Database = 0;
+    this->LastErrorText = 0;
+    }
   vtkPostgreSQLQueryPrivate( vtkPostgreSQLDatabase* db )
     {
     this->Database = 0;
@@ -307,6 +320,9 @@ public:
   char* LastErrorText;
 };
 
+vtkStandardNewMacro(vtkPostgreSQLQueryPrivate);
+vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.4");
+
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery() 
 {
@@ -364,7 +380,7 @@ bool vtkPostgreSQLQuery::Execute()
       vtkErrorMacro( "No database on which to execute the query." );
       return false;
       }
-    this->Transactor = new vtkPostgreSQLQueryPrivate( db );
+    this->Transactor = vtkPostgreSQLQueryPrivate::NewForDatabase( db );
     }
 
   return this->Transactor->Execute( this->Active, this->Query );
@@ -483,7 +499,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
   assert( db );
 
-  this->Transactor = new vtkPostgreSQLQueryPrivate( db );
+  this->Transactor = vtkPostgreSQLQueryPrivate::NewForDatabase( db );
   if ( ! this->Transactor )
     {
     vtkErrorMacro(<<"Cannot create a new transaction.");

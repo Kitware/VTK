@@ -1,7 +1,7 @@
 #ifndef __vtkPostgreSQLDatabasePrivate_h
 #define __vtkPostgreSQLDatabasePrivate_h
 
-#include "vtkObject.h"
+#include "vtkStdString.h"
 #include "vtkType.h"
 #include "vtkTimeStamp.h"
 
@@ -9,7 +9,7 @@
 #include <pqxx/pqxx>
 
 // Manage a connection to a Postgres database for the vtkPostgreSQLDatabase class.
-class vtkPostgreSQLDatabasePrivate : public vtkObject
+class vtkPostgreSQLDatabasePrivate
 {
  public:
   // Description:
@@ -18,16 +18,14 @@ class vtkPostgreSQLDatabasePrivate : public vtkObject
     : Connection( options )
     {
     this->Work = 0;
-    this->LastErrorText = 0;
     this->UpdateColumnTypeMap();
     }
     
     // Description:
     // Destroy the database connection. Any uncommitted transaction will be aborted.
-    ~vtkPostgreSQLDatabasePrivate()
+    virtual ~vtkPostgreSQLDatabasePrivate()
       {
       this->RollbackTransaction(); // deletes Work
-      this->SetLastErrorText( 0 );
       }
 
     // Description:
@@ -55,8 +53,8 @@ class vtkPostgreSQLDatabasePrivate : public vtkObject
           }
         catch ( const vtkstd::exception& e )
           {
-          this->SetLastErrorText( e.what() );
-          vtkErrorMacro( << this->LastErrorText );
+          this->LastErrorText = e.what();
+          vtkGenericWarningMacro( << this->LastErrorText.c_str() );
           ok = false;
           }
         delete this->Work;
@@ -64,7 +62,7 @@ class vtkPostgreSQLDatabasePrivate : public vtkObject
         return ok;
         }
       // No transaction, no commit
-      vtkErrorMacro( "Cannot commit without first beginning a transaction." );
+      vtkGenericWarningMacro( "Cannot commit without first beginning a transaction." );
       return false;
     }
 
@@ -164,16 +162,13 @@ class vtkPostgreSQLDatabasePrivate : public vtkObject
         }
       catch ( vtkstd::exception& e )
         {
-        this->SetLastErrorText( e.what() );
+        this->LastErrorText = e.what();
         }
       this->RollbackTransaction();
     }
 
-    // Store an error message for retrieval by the user.
-    vtkSetStringMacro(LastErrorText);
-
     // An error message. This will be null if no error has occurred. It is set after each transaction attempt.
-    char* LastErrorText;
+    vtkStdString LastErrorText;
     // A database connection.
     pqxx::connection Connection;
     // A transaction.

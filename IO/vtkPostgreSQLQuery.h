@@ -47,10 +47,6 @@ class vtkPostgreSQLQueryPrivate;
 
 class VTK_IO_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
 {
-  //BTX
-  friend class vtkPostgreSQLDatabase;
-  //ETX
-
 public:
   static vtkPostgreSQLQuery* New();
   void PrintSelf( ostream& os, vtkIndent indent );
@@ -105,6 +101,10 @@ protected:
   void SetLastErrorText( const char* msg );
 
   vtkPostgreSQLQueryPrivate* Transactor;
+
+  //BTX
+  friend class vtkPostgreSQLDatabase;
+  //ETX
 
 private:
   vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ); // Not implemented.
