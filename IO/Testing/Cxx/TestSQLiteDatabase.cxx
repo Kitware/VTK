@@ -213,7 +213,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   query->SetQuery( "SELECT name FROM sqlite_master WHERE type = \"table\"" );
   if ( ! query->Execute() )
     {
-    cerr << "QuerySch failed" << endl;
+    cerr << "Query failed" << endl;
     return 1;
     }
 
