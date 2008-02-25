@@ -28,7 +28,7 @@
 #include <vtkstd/map>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRISReader, "1.2");
+vtkCxxRevisionMacro(vtkRISReader, "1.3");
 vtkStandardNewMacro(vtkRISReader);
 
 // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
@@ -84,7 +84,7 @@ int vtkRISReader::RequestData(
     }
 
   // Open the file
-  ifstream file(this->FileName);
+  ifstream file(this->FileName, ios::in | ios::binary);
   if(!file)
     {
     vtkErrorMacro(<< "vtkRISReader could not open file " << this->FileName);
