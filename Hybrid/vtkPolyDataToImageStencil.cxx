@@ -67,7 +67,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFastNumericConversion.h"
 
 #include <math.h>
 
@@ -75,7 +74,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.27");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.28");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -269,6 +268,38 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 }
 
 //----------------------------------------------------------------------------
+inline int vtkPolyDataToImageStencilFloor(double x)
+{
+#if defined(NDEBUG) && (defined i386 || defined _M_IX86)
+  // This code assumes IEEE 754 64-bit double and
+  // It uses a denormalizer to round the double at the
+  // 2^(-16) position, or around 1e-5, and then extracts
+  // the integer portion.  So, essentially, it is a floor()
+  // operation with a built-in 1e-5 tolerance.  However,
+  // the main reason that we use it is that it is much
+  // faster than the floor() function.
+  union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
+  dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
+  return static_cast<int>((dual.i[1]<<16)|(dual.i[0]>>16));
+#else
+  // Again, this is used because it is faster than floor().
+  if (x >= 0)
+    {
+    return static_cast<int>(x);
+    }
+  else
+    {
+    return static_cast<int>(floor(x));
+    }
+#endif
+}
+
+inline int vtkPolyDataToImageStencilCeil(double x)
+{
+  return -vtkPolyDataToImageStencilFloor(-x);
+}
+
+//----------------------------------------------------------------------------
 static void vtkFloatingEndPointScanConvertLine2D(
   double pt1[2], double pt2[2], int inflection1, int inflection2,
   double tolerance, int z, int extent[6],
@@ -309,21 +340,21 @@ static void vtkFloatingEndPointScanConvertLine2D(
   if (inflection1 < 0 || inflection2 < 0)
     {
     // if this is a lower inflection point, use ceil() and add tolerance
-    Ay = -vtkFastNumericConversion::QuickFloor(-y1 + tolerance);
+    Ay = vtkPolyDataToImageStencilCeil(y1 - tolerance);
     }
   else
     {
     // otherwise use floor()+1 to avoid inserting same point twice
-    Ay = vtkFastNumericConversion::QuickFloor(y1) + 1;
+    Ay = vtkPolyDataToImageStencilFloor(y1) + 1;
     }
   if (inflection1 > 0 || inflection2 > 0)
     {
     // likewise, if upper inflection, add tolerance at top
-    By = vtkFastNumericConversion::QuickFloor(y2 + tolerance);
+    By = vtkPolyDataToImageStencilFloor(y2 + tolerance);
     }
   else
     {
-    By = vtkFastNumericConversion::QuickFloor(y2);
+    By = vtkPolyDataToImageStencilFloor(y2);
     }  
 
   // Precalculate to avoid division at each step in the loop
@@ -607,10 +638,10 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         while (xIter != xList.end())
           {
           // Take ceil() of first value in pair
-          r1 = -vtkFastNumericConversion::QuickFloor(- *xIter + xtolerance);
+          r1 = vtkPolyDataToImageStencilCeil(*xIter - xtolerance);
           xIter++;
           // Take floor() of second value in pair
-          r2 = vtkFastNumericConversion::QuickFloor(*xIter + xtolerance);
+          r2 = vtkPolyDataToImageStencilFloor(*xIter + xtolerance);
           xIter++;
 
           // extents are not allowed to overlap
