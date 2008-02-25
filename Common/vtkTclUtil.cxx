@@ -115,7 +115,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   
   // get the command function and invoke the delete operation
   entry = Tcl_FindHashEntry(&is->CommandLookup,temp);
-  command = reinterpret_cast<int (*)(ClientData,Tcl_Interp *,int,char *[])>(
+  command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))(
     Tcl_GetHashValue(entry));
   
   // do we need to delete the c++ obj
@@ -257,7 +257,7 @@ vtkTclUpdateCommand(Tcl_Interp *interp, char *name,  vtkObject *temp)
 
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
   Tcl_HashEntry *entry = Tcl_FindHashEntry(&is->CommandLookup,name);
-  Tcl_SetHashValue(entry,reinterpret_cast<ClientData>(command));
+  Tcl_SetHashValue(entry,(ClientData)(command));
 }
 
 
@@ -374,7 +374,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
                     static_cast<ClientData>(as),
                     static_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,name,&is_new);
-  Tcl_SetHashValue(entry,reinterpret_cast<ClientData>(command));
+  Tcl_SetHashValue(entry,(ClientData)(command));
   
   // setup the delete callback
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
@@ -426,7 +426,8 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   /* now handle the typecasting, get the command proc */
   if ((entry = Tcl_FindHashEntry(&is->CommandLookup,name)))
     {
-    command = reinterpret_cast<int (*)(ClientData,Tcl_Interp *,int,char *[])>(Tcl_GetHashValue(entry));
+    command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))(
+      Tcl_GetHashValue(entry));
     }
   else
     {
@@ -599,7 +600,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   ClientData temp;
   if (!strcmp("ListInstances",argv[1]))
     {
-    vtkTclListInstances(interp,reinterpret_cast<ClientData>(cs->CommandFunction));
+    vtkTclListInstances(interp,(ClientData)(cs->CommandFunction));
     return TCL_OK;
     }
 
@@ -650,7 +651,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
                     static_cast<ClientData>(as),
                     static_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,argv[1],&is_new);
-  Tcl_SetHashValue(entry,reinterpret_cast<ClientData>(cs->CommandFunction));
+  Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
   
   // setup the delete callback
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
