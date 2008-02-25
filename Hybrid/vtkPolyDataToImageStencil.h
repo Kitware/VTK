@@ -103,10 +103,10 @@ public:
   vtkGetVector6Macro(OutputWholeExtent, int);  
 
   // Description:
-  // Obsolete methods. The tolerance was used by an earlier version of
-  // this class.
-  VTK_LEGACY(virtual void SetTolerance(double tolerance));
-  VTK_LEGACY(virtual double GetTolerance());
+  // The tolerance to apply in when determining whether a voxel
+  // is inside the stencil.  Only used in X and Y, not in Z.
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
 
 protected:
   vtkPolyDataToImageStencil();
@@ -134,9 +134,9 @@ protected:
   double OutputOrigin[3];
   double OutputSpacing[3];
 
-#ifndef VTK_LEGACY_REMOVE
+  // Description:
+  // The tolerance distance for favoring the inside of the stencil
   double Tolerance;
-#endif /* VTK_LEGACY_REMOVE */
 
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.

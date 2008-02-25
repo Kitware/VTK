@@ -54,6 +54,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkMergePoints.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
@@ -74,7 +75,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.26");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.27");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -109,9 +110,7 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
   this->OutputWholeExtent[4] = 0;
   this->OutputWholeExtent[5] = VTK_LARGE_INTEGER >> 2;
 
-#ifndef VTK_LEGACY_REMOVE
-  this->Tolerance = 1e-3;
-#endif
+  this->Tolerance = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -132,30 +131,6 @@ void vtkPolyDataToImageStencil::SetInput(vtkPolyData *input)
     this->SetInputConnection(0, 0);
     }
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-void vtkPolyDataToImageStencil::SetTolerance(double tolerance)
-{
-  VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, "VTK 5.2");
-
-  if (tolerance == this->Tolerance)
-    {
-    return;
-    }
-  
-  this->Tolerance = tolerance;
-  this->Modified();
-}
-#endif /* VTK_LEGACY_REMOVE */
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-double vtkPolyDataToImageStencil::GetTolerance()
-{
-  return this->Tolerance;
-}
-#endif /* VTK_LEGACY_REMOVE */
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkPolyDataToImageStencil::GetInput()
@@ -185,9 +160,7 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
     this->OutputWholeExtent[3] << " " << this->OutputWholeExtent[4] << " " <<
     this->OutputWholeExtent[5] << "\n";
   os << indent << "Input: " << this->GetInput() << "\n";
-#ifndef VTK_LEGACY_REMOVE
   os << indent << "Tolerance: " << this->Tolerance << "\n";
-#endif /* VTK_LEGACY_REMOVE */
 }
 
 //----------------------------------------------------------------------------
@@ -297,8 +270,8 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 
 //----------------------------------------------------------------------------
 static void vtkFloatingEndPointScanConvertLine2D(
-  double pt1[2], double pt2[2],
-  int z, int extent[6],
+  double pt1[2], double pt2[2], int inflection1, int inflection2,
+  double tolerance, int z, int extent[6],
   vtkstd::vector< vtkstd::vector<double> >& zyBucket)
 {
   double x1 = pt1[0];
@@ -315,6 +288,15 @@ static void vtkFloatingEndPointScanConvertLine2D(
     y2 = pt1[1];
     }
 
+  // find min and max of x values
+  double xmin = x1;
+  double xmax = x2;
+  if (x1 > x2)
+    {
+    xmin = x2;
+    xmax = x1;
+    }
+
   // check for parallel to the x-axis
   if (y1 == y2)
     {
@@ -322,8 +304,27 @@ static void vtkFloatingEndPointScanConvertLine2D(
     }
   
   // Integer y values for start and end of line
-  int Ay = vtkFastNumericConversion::QuickFloor(y1 + 1.0);
-  int By = vtkFastNumericConversion::QuickFloor(y2);
+  int Ay, By;
+
+  if (inflection1 < 0 || inflection2 < 0)
+    {
+    // if this is a lower inflection point, use ceil() and add tolerance
+    Ay = -vtkFastNumericConversion::QuickFloor(-y1 + tolerance);
+    }
+  else
+    {
+    // otherwise use floor()+1 to avoid inserting same point twice
+    Ay = vtkFastNumericConversion::QuickFloor(y1) + 1;
+    }
+  if (inflection1 > 0 || inflection2 > 0)
+    {
+    // likewise, if upper inflection, add tolerance at top
+    By = vtkFastNumericConversion::QuickFloor(y2 + tolerance);
+    }
+  else
+    {
+    By = vtkFastNumericConversion::QuickFloor(y2);
+    }  
 
   // Precalculate to avoid division at each step in the loop
   double inverseDenominator = 1.0/(y2 - y1);
@@ -334,7 +335,16 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // Go along y and place each x in the proper (y,z) bucket.
   for( int y = Ay; y <= By; y++ )
     {
-    double x = ( (y2 - y)*x1 + (y - y1)*x2 )*inverseDenominator; 
+    double x = ( (y2 - y)*x1 + (y - y1)*x2 )*inverseDenominator;
+    // sanity check on the range of x
+    if (x < xmin)
+      {
+      x = xmin;
+      }
+    else if (x > xmax)
+      {
+      x = xmax;
+      }
     zyBucket[idx0 + y].push_back( x );
     }
 }
@@ -357,6 +367,9 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   // the spacing and origin of the generated stencil
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
+
+  double xtolerance = this->Tolerance/spacing[0];
+  double ytolerance = this->Tolerance/spacing[1];
 
   // if we have no data then return
   if (!this->GetInput()->GetNumberOfPoints())
@@ -409,19 +422,36 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       {
       continue;
       }
-     
-    // Step 2: Find and connect all the loose ends
-    vtkCellArray *lines = slice->GetLines();
 
+    // convert to structured coords via origin and spacing
     vtkPoints *points = slice->GetPoints();
     vtkIdType numberOfPoints = points->GetNumberOfPoints();
 
+    for (vtkIdType j = 0; j < numberOfPoints; j++)
+      {
+      double tempPoint[3];
+      points->GetPoint(j, tempPoint);
+      tempPoint[0] = (tempPoint[0] - origin[0])*invspacing[0];
+      tempPoint[1] = (tempPoint[1] - origin[1])*invspacing[1];
+      tempPoint[2] = (tempPoint[2] - origin[2])*invspacing[2];
+      points->SetPoint(j, tempPoint);
+      }
+
+    // Step 2: Find and connect all the loose ends
+    vtkCellArray *lines = slice->GetLines();
+
     vtkIdList *looseEndIdList = vtkIdList::New();
     vtkIdList *looseEndNeighborList = vtkIdList::New();
+    vtkSignedCharArray *inflectionPointList = vtkSignedCharArray::New();
     
-    // find all points with just a single adjacent point
+    // find all points with just a single adjacent point,
+    // also look for lower inflection points
     for (vtkIdType i = 0; i < numberOfPoints; i++)
       {
+      double yval = points->GetPoint(i)[1];
+      int bottomPoint = 1;
+      int topPoint = 1;
+
       int numberOfNeighbors = 0;
       vtkIdType neighbor = 0;
       
@@ -433,27 +463,54 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         for (vtkIdType j = 0; j < npts; j++)
           {
           if ( pointIds[j] == i )
-            {        
+            {
             if (j > 0)
               {
               numberOfNeighbors++;
               neighbor = pointIds[j-1];
+              if (points->GetPoint(neighbor)[1] < yval)
+                {
+                bottomPoint = 0;
+                }
+              if (points->GetPoint(neighbor)[1] > yval)
+                {
+                topPoint = 0;
+                }
               }
             if (j < npts-1)
               {
               numberOfNeighbors++;
               neighbor = pointIds[j+1];
+              if (points->GetPoint(neighbor)[1] < yval)
+                {
+                bottomPoint = 0;
+                }
+              if (points->GetPoint(neighbor)[1] > yval)
+                {
+                topPoint = 0;
+                }
               }
             break;
             }
           }
         }
-      if(numberOfNeighbors == 1)
+      if (numberOfNeighbors == 1)
         {
         // store the loose end
         looseEndIdList->InsertNextId( i );
         looseEndNeighborList->InsertNextId( neighbor );
         }
+      // mark lower inflection points
+      int inflection = 0;
+      if (bottomPoint)
+        {
+        inflection = -1;
+        }
+      else if (topPoint)
+        {
+        inflection = 1;
+        }
+      inflectionPointList->InsertNextValue( inflection );
       }
 
     while (looseEndIdList->GetNumberOfIds() >= 2)
@@ -504,22 +561,25 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
     while ( lines->GetNextCell(npts, pts) )
       {
-      double point1[3], point2[3];
-      slice->GetPoint(pts[0], point1);
-      slice->GetPoint(pts[1], point2);
+      for (vtkIdType j = 1; j < npts; j++)
+        {
+        double point1[3], point2[3];
+        points->GetPoint(pts[j-1], point1);
+        points->GetPoint(pts[j], point2);
+        // check to see if line contains a lower inflection point
+        int inflection1 = inflectionPointList->GetValue(pts[j-1]);
+        int inflection2 = inflectionPointList->GetValue(pts[j]);
       
-      double fend1[2], fend2[2];
-      fend1[0] =  (point1[0] - origin[0])*invspacing[0];
-      fend1[1] =  (point1[1] - origin[1])*invspacing[1];
-      fend2[0] = (point2[0] - origin[0])*invspacing[0];
-      fend2[1] = (point2[1] - origin[1])*invspacing[1];
-      
-      vtkFloatingEndPointScanConvertLine2D(fend1, fend2, idxZ, extent,
-                                           zyBucket);
+        vtkFloatingEndPointScanConvertLine2D(point1, point2,
+                                             inflection1, inflection2,
+                                             ytolerance, idxZ,
+                                             extent, zyBucket);
+        }
       }
 
     looseEndIdList->Delete();
     looseEndNeighborList->Delete();
+    inflectionPointList->Delete();
     }
 
   // Step 4: The final part of the algorithm is to fill in the
@@ -547,10 +607,10 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         while (xIter != xList.end())
           {
           // Take ceil() of first value in pair
-          r1 = -vtkFastNumericConversion::QuickFloor(- *xIter);
+          r1 = -vtkFastNumericConversion::QuickFloor(- *xIter + xtolerance);
           xIter++;
           // Take floor() of second value in pair
-          r2 = vtkFastNumericConversion::QuickFloor(*xIter);
+          r2 = vtkFastNumericConversion::QuickFloor(*xIter + xtolerance);
           xIter++;
 
           // extents are not allowed to overlap
