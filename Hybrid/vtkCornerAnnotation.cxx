@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3.4.4");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.3.4.5");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -130,8 +130,8 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
     }
   if (ia)
     {
-    slice = ia->GetSliceNumber() - ia->GetSliceNumberMin() + 1;
-    slice_max = ia->GetSliceNumberMax() - ia->GetSliceNumberMin() + 1;
+    slice = ia->GetSliceNumber() + 1;
+    slice_max = ia->GetWholeZMax() + 1;
     ia_input = ia->GetInput();
     if (!wl_input && ia_input)
       {
