@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBorderRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkBorderRepresentation, "1.8");
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 
@@ -338,6 +338,10 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
       {
       if ( this->Moving )
         {
+        // FIXME: This must be wrong.  Moving is not an entry in the
+        // _InteractionState enum.  It is an ivar flag and it has no business
+        // being set to InteractionState.  This just happens to work because
+        // Inside happens to be 1, and this gets set when Moving is 1.
         this->InteractionState = vtkBorderRepresentation::Moving;
         }
       else

@@ -78,6 +78,7 @@ vtkPolyDataContourLineInterpolator.cxx
 vtkPolygonalSurfaceContourLineInterpolator.cxx
 vtkRectilinearWipeRepresentation.cxx
 vtkRectilinearWipeWidget.cxx
+vtkScalarBarRepresentation.cxx
 vtkScalarBarWidget.cxx
 vtkSeedRepresentation.cxx
 vtkSeedWidget.cxx

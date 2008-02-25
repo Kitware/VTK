@@ -144,7 +144,7 @@ protected:
   virtual int SubclassMoveAction() {return 0;}
   
   // helper methods for cursoe management
-  void SetCursor(int State);
+  virtual void SetCursor(int State);
 
 //BTX
   //widget state

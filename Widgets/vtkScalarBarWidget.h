@@ -33,89 +33,56 @@
 #ifndef __vtkScalarBarWidget_h
 #define __vtkScalarBarWidget_h
 
-#include "vtkInteractorObserver.h"
-class vtkScalarBarActor;
+#include "vtkBorderWidget.h"
 
-class VTK_WIDGETS_EXPORT vtkScalarBarWidget : public vtkInteractorObserver
+class vtkScalarBarActor;
+class vtkScalarBarRepresentation;
+
+class VTK_WIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
   static vtkScalarBarWidget *New();
-  vtkTypeRevisionMacro(vtkScalarBarWidget,vtkInteractorObserver);
+  vtkTypeRevisionMacro(vtkScalarBarWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the ScalarBar used by this Widget. One is created automatically.
-  void SetScalarBarActor(vtkScalarBarActor *scalarbar);
-  vtkGetObjectMacro(ScalarBarActor,vtkScalarBarActor);
-  
+  // Specify an instance of vtkWidgetRepresentation used to represent this
+  // widget in the scene. Note that the representation is a subclass of vtkProp
+  // so it can be added to the renderer independent of the widget.
+  virtual void SetRepresentation(vtkScalarBarRepresentation *rep);
+
+  vtkScalarBarRepresentation *GetScalarBarRepresentation()
+    { return reinterpret_cast<vtkScalarBarRepresentation *>(this->GetRepresentation()); }
+
   // Description:
-  // Methods for turning the interactor observer on and off.
-  virtual void SetEnabled(int);
+  // Get the ScalarBar used by this Widget. One is created automatically.
+  virtual void SetScalarBarActor(vtkScalarBarActor *actor);
+  virtual vtkScalarBarActor *GetScalarBarActor();
 
   // Description:
   // Can the widget be moved. On by default. If off, the widget cannot be moved
-  // around. 
+  // around.
   //
-  // (PS: This should really be a flag in a superclass, say vtk3DWidget
-  // and/or vtkAbstractWidget and/or vtkInteractorObserver. Widgets in VTK
-  // subclass randomly from all three... )
-  vtkSetMacro( Repositionable, int );
-  vtkGetMacro( Repositionable, int );
-  vtkBooleanMacro( Repositionable, int );
+  // TODO: This functionality should probably be moved to the superclass.
+  vtkSetMacro(Repositionable, int);
+  vtkGetMacro(Repositionable, int);
+  vtkBooleanMacro(Repositionable, int);
+
+  // Description:
+  // Create the default widget representation if one is not set. 
+  virtual void CreateDefaultRepresentation();
 
 protected:
   vtkScalarBarWidget();
   ~vtkScalarBarWidget();
 
-  // the actor that is used
-  vtkScalarBarActor *ScalarBarActor;
+  int Repositionable;
 
-  //handles the events
-  static void ProcessEvents(vtkObject* object, 
-                            unsigned long event,
-                            void* clientdata, 
-                            void* calldata);
-
-  // ProcessEvents() dispatches to these methods.
-  void OnLeftButtonDown();
-  void OnLeftButtonUp();
-  void OnRightButtonDown();
-  void OnRightButtonUp();
-  void OnMouseMove();
-
-  // used to compute relative movements
-  double StartPosition[2];
-  
-//BTX - manage the state of the widget
-  int State;
-  // use this to track whether left/right button was pressed to gate
-  // action on button up event.
-  int LeftButtonDown;
-  int RightButtonDown;
-  enum WidgetState
-  {
-    Moving=0,
-    AdjustingP1,
-    AdjustingP2,
-    AdjustingP3,
-    AdjustingP4,
-    AdjustingE1,
-    AdjustingE2,
-    AdjustingE3,
-    AdjustingE4,
-    Inside,
-    Outside
-  };
-//ETX
-
-  // use to determine what state the mouse is over, edge1 p1, etc.
-  // returns a state from the WidgetState enum above
-  int ComputeStateBasedOnPosition(int X, int Y, int *pos1, int *pos2);
+  // Handle the case of Repositionable == 0
+  static void MoveAction(vtkAbstractWidget*);
 
   // set the cursor to the correct shape based on State argument
-  void SetCursor(int State);
-
-  int Repositionable;
+  virtual void SetCursor(int State);
 
 private:
   vtkScalarBarWidget(const vtkScalarBarWidget&);  //Not implemented

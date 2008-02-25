@@ -199,14 +199,13 @@ protected:
   int TextPosition;
 
   vtkTextMapper **TextMappers;
+  vtkActor2D    **TextActors;
   virtual void AllocateAndSizeLabels(int *labelSize, int *size,
                                      vtkViewport *viewport, double *range);
 
-private:
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
-
-  vtkActor2D    **TextActors;
+  virtual void SizeTitle(int *titleSize, int *size, vtkViewport *viewport);
 
   vtkPolyData         *ScalarBar;
   vtkPolyDataMapper2D *ScalarBarMapper;
@@ -220,7 +219,6 @@ private:
   int LastSize[2];
   int LastOrigin[2];
 
-  void SizeTitle(int *titleSize, int *size, vtkViewport *viewport);
 
 private:
   vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
