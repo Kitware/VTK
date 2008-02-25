@@ -23,12 +23,15 @@
 #include "vtkPostgreSQLDatabase.h"
 #include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLDatabaseSchema.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkStringArray.h"
 #include "vtkToolkits.h"
+
+#include <vtkstd/vector>
 
 int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 {
@@ -189,6 +192,205 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
       }
     }
 
+  query->SetQuery( "DROP TABLE people" );
+  if ( ! query->Execute() )
+    {
+    cerr << "DROP TABLE people query failed" << endl;
+    return 1;
+    }
+  
+  reader->Delete();
+  query->Delete();
+  db->Delete();
+
+// ----------------------------------------------------------------------
+// Testing transformation of a schema into a PostgreSQL database
+
+  // 1. Create the schema
+  cerr << "@@ Creating a schema...";
+
+  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
+  schema->SetName( "TestSchema" );
+
+  // Insert in alphabetical order so that SHOW TABLES does not mix handles
+  // Specify names in lower case so that PostgreSQL does not get confused
+  int tblHandle = schema->AddTableMultipleArguments( "atable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "inserttrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+    vtkSQLDatabaseSchema::END_TABLE_TOKEN
+  );
+
+  tblHandle = schema->AddTableMultipleArguments( "btable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somevalue", 12, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somevalue",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::END_TABLE_TOKEN
+  );
+
+  if ( tblHandle < 0 )
+    {
+    cerr << "Could not create test schema.\n";
+    return 1;
+    }
+  cerr << " done." << endl;
+  
+  // 2. Convert the schema into a PostgreSQL database
+  cerr << "@@ Converting the schema into a PostgreSQL database...";
+
+  db = vtkPostgreSQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
+  status = db->Open();
+
+  if ( ! status )
+    {
+    cerr << "Couldn't open database.\n";
+    return 1;
+    }
+
+  status = db->EffectSchema( schema ); 
+  if ( ! status )
+    {
+    cerr << "Could not effect test schema.\n";
+    return 1;
+    }
+  cerr << " done." << endl;
+
+  // 3. Count tables of the newly created database
+  cerr << "@@ Counting tables of the newly created database... ";
+
+  query = db->GetQueryInstance();
+  query->SetQuery( "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'" );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    return 1;
+    }
+
+  vtkstd::vector<vtkStdString> tables;
+  while ( query->NextRow() )
+    {
+    tables.push_back( query->DataValue( 0 ).ToString() ); 
+    }
+
+  int numTbl = tables.size();
+
+  if ( numTbl != schema->GetNumberOfTables() )
+    {
+    cerr << "Found an incorrect number of tables: " 
+         << numTbl 
+         << " != " 
+         << schema->GetNumberOfTables()
+         << endl;
+    return 1;
+    }
+  
+  cerr << numTbl 
+       << " found.\n";
+
+  // 4. Inspect these tables
+  cerr << "@@ Inspecting these tables..." << "\n";
+
+  for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
+    {
+    vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
+    cerr << "   Table: " 
+         << tblName
+         << "\n";
+
+    if ( tblName != tables[tblHandle] )
+      {
+      cerr << "Fetched an incorrect name: " 
+           << tables[tblHandle]
+           << " != " 
+           << tblName
+           << endl;
+      return 1;
+      }
+                       
+    // Check columns
+    vtkStdString queryStr ("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '");
+    queryStr += tblName;
+    queryStr += "' order by ordinal_position";
+    query->SetQuery( queryStr );
+    if ( ! query->Execute() )
+      {
+      cerr << "Query failed" << endl;
+      return 1;
+      }
+    
+    int numFields = query->GetNumberOfFields();
+    int colHandle = 0;
+    for ( ; query->NextRow(); ++ colHandle )
+      {
+      for ( int field = 0; field < numFields; ++ field )
+        {
+        if ( field )
+          {
+          cerr << ", ";
+          }
+        else // if ( field )
+          {
+          vtkStdString colName ( schema->GetColumnNameFromHandle( tblHandle, colHandle ) );
+          if ( colName != query->DataValue( field ).ToString() )
+            {
+            cerr << "Found an incorrect column name: " 
+                 << query->DataValue( field ).ToString()
+                 << " != " 
+                 << colName
+                 << endl;
+            return 1;
+            }
+          cerr << "     Column: ";
+          }
+        cerr << query->DataValue( field ).ToString().c_str();
+        }
+      cerr << endl;
+      }
+    
+    if ( colHandle != schema->GetNumberOfColumnsInTable( tblHandle ) )
+      {
+      cerr << "Found an incorrect number of columns: " 
+           << colHandle
+           << " != " 
+           << schema->GetNumberOfColumnsInTable( tblHandle )
+           << endl;
+      return 1;
+      }
+    }
+
+  // 5. Drop tables
+  cerr << "@@ Dropping these tables...";
+
+  for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
+        it != tables.end(); ++ it )
+    {
+    vtkStdString queryStr ("DROP TABLE " );
+    queryStr += *it;
+    query->SetQuery( queryStr );
+
+    if ( ! query->Execute() )
+      {
+      cerr << "Query failed" << endl;
+      return 1;
+      }
+    }
+
+  cerr << " done." << endl;
+
   // Delete the database until we run the test again
   if ( ! db->DropDatabase( realDatabase.c_str() ) )
     {
@@ -200,9 +402,10 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     cout << "Drop of \"" << realDatabase.c_str() << "\" succeeded.\n";
     }
 
-  reader->Delete();
-  query->Delete();
+  // Clean up
   db->Delete();
+  schema->Delete();
+  query->Delete();
 
   return 0;
 }
