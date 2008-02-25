@@ -262,7 +262,7 @@ int TestMySQLDatabase( int, char ** const )
   // 4. Inspect these tables
   cerr << "@@ Inspecting these tables..." << "\n";
 
-  for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
+  for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
     cerr << "   Table: " 
