@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.53");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.54");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );
@@ -745,8 +745,9 @@ int vtkMeshQuality::RequestData(
 
   if ( ntri )
     {
-    Eqtri  /= (double) ntri;
-    Eqtri2 /= (double) ntri;
+    Eqtri  /= static_cast<double>( ntri );
+    double multFactor = 1. / static_cast<double>( ntri > 1 ? ntri - 1 : ntri );
+    Eqtri2 = multFactor * ( Eqtri2 - static_cast<double>( ntri ) * Eqtri * Eqtri );
     }
   else
     {
@@ -755,8 +756,9 @@ int vtkMeshQuality::RequestData(
   
   if ( nqua )
     {
-    Eqqua  /= (double) nqua;
-    Eqqua2 /= (double) nqua;
+    Eqqua  /= static_cast<double>( nqua );
+    double multFactor = 1. / static_cast<double>( nqua > 1 ? nqua - 1 : nqua );
+    Eqqua2 = multFactor * ( Eqqua2 - static_cast<double>( nqua ) * Eqqua * Eqqua );
     }
   else
     {
@@ -765,8 +767,9 @@ int vtkMeshQuality::RequestData(
   
   if ( ntet )
     {
-    Eqtet  /= (double) ntet;
-    Eqtet2 /= (double) ntet;
+    Eqtet  /= static_cast<double>( ntet );
+    double multFactor = 1. / static_cast<double>( ntet > 1 ? ntet - 1 : ntet );
+    Eqtet2 = multFactor * ( Eqtet2 - static_cast<double>( ntet ) * Eqtet * Eqtet );
     }
   else
     {
@@ -775,8 +778,9 @@ int vtkMeshQuality::RequestData(
 
   if ( nhex )
     {
-    Eqhex  /= (double) nhex;
-    Eqhex2 /= (double) nhex;
+    Eqhex  /= static_cast<double>( nhex );
+    double multFactor = 1. / static_cast<double>( nhex > 1 ? nhex - 1 : nhex );
+    Eqhex2 = multFactor * ( Eqhex2 - static_cast<double>( nhex ) * Eqhex * Eqhex );
     }
   else
     {
