@@ -68,8 +68,10 @@ public:
   vtkGetVectorMacro(Phase,double,3);
 
   // Description:
-  // Set/get the amplitude of the noise function.  By default, the amplitude
-  // is 1.
+  // Set/get the amplitude of the noise function. Amplitude can be negative.
+  // The noise function varies randomly between -|Amplitude| and |Amplitude|.
+  // Therefore the range of values is 2*|Amplitude| large.
+  // The initial amplitude is 1.
   vtkSetMacro(Amplitude,double);
   vtkGetMacro(Amplitude,double);
 
