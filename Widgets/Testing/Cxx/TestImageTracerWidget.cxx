@@ -33,6 +33,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSplineWidget.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkTransform.h"
 #include "vtkVolume16Reader.h"
 
 #include "vtkTestUtilities.h"
@@ -403,6 +405,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     extract->SetSampleRate(1, 1, 1);
     extract->SetInputConnection(shifter->GetOutputPort());
     extract->ReleaseDataFlagOff();
+    extract->Update();
 
   vtkImageActor* imageActor2 = vtkImageActor::New();
     imageActor2->SetInput(extract->GetOutput());
@@ -455,9 +458,25 @@ int TestImageTracerWidget( int argc, char *argv[] )
     extrude->SetExtrusionTypeToNormalExtrusion();
     extrude->SetVector(1, 0, 0);
 
+  vtkTransformPolyDataFilter* filter = vtkTransformPolyDataFilter::New();
+  filter->SetInputConnection( extrude->GetOutputPort() );
+  vtkTransform* transform = vtkTransform::New();
+  transform->Translate(-0.5, 0, 0);
+  filter->SetTransform(transform);
+  transform->Delete();
+
   vtkPolyDataToImageStencil* dataToStencil = vtkPolyDataToImageStencil::New();
-    dataToStencil->SetInputConnection(extrude->GetOutputPort());
-    dataToStencil->SetOutputSpacing(3.2, 3.2, 1.5);
+    dataToStencil->SetInputConnection( filter->GetOutputPort() );
+
+// TODO: resolve why the following method causes memory leaks when the
+// transform filter supplies the polydata input
+//  dataToStencil->SetInformationInput( extract->GetOutput() );
+
+    dataToStencil->SetOutputSpacing( extract->GetOutput()->GetSpacing() );
+    dataToStencil->SetOutputOrigin( extract->GetOutput()->GetOrigin() );
+    dataToStencil->SetOutputWholeExtent( extract->GetOutput()->GetWholeExtent() );
+
+  filter->Delete();
 
   vtkImageStencil* stencil = vtkImageStencil::New();
     stencil->SetInputConnection(extract->GetOutputPort());
