@@ -104,8 +104,9 @@ public:
 
   // Description:
   // The tolerance to apply in when determining whether a voxel
-  // is inside the stencil.  Only used in X and Y, not in Z.
-  vtkSetMacro(Tolerance, double);
+  // is inside the stencil, given as a fraction of a voxel.
+  // Only used in X and Y, not in Z.
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
 
 protected:

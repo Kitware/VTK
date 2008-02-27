@@ -60,7 +60,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
-#include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
@@ -74,7 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.28");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.29");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -278,25 +277,23 @@ inline int vtkPolyDataToImageStencilFloor(double x)
   // operation with a built-in 1e-5 tolerance.  However,
   // the main reason that we use it is that it is much
   // faster than the floor() function.
+  // I don't use vtkFastNumericConversion because it isn't
+  // safe for negative values.
   union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1]<<16)|(dual.i[0]>>16));
 #else
-  // Again, this is used because it is faster than floor().
-  if (x >= 0)
-    {
-    return static_cast<int>(x);
-    }
-  else
-    {
-    return static_cast<int>(floor(x));
-    }
+  return static_cast<int>(floor(x));
 #endif
 }
 
 inline int vtkPolyDataToImageStencilCeil(double x)
 {
+#if defined(NDEBUG) && (defined i386 || defined _M_IX86)
   return -vtkPolyDataToImageStencilFloor(-x);
+#else
+  return static_cast<int>(ceil(x));
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -399,8 +396,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
 
-  double xtolerance = this->Tolerance/spacing[0];
-  double ytolerance = this->Tolerance/spacing[1];
+  double tolerance = this->Tolerance;
 
   // if we have no data then return
   if (!this->GetInput()->GetNumberOfPoints())
@@ -484,7 +480,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       int topPoint = 1;
 
       int numberOfNeighbors = 0;
-      vtkIdType neighbor = 0;
+      vtkIdType neighborId = 0;
       
       lines->InitTraversal();
       vtkIdType npts;
@@ -498,12 +494,13 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
             if (j > 0)
               {
               numberOfNeighbors++;
-              neighbor = pointIds[j-1];
-              if (points->GetPoint(neighbor)[1] < yval)
+              neighborId = pointIds[j-1];
+              double yneighbor = points->GetPoint(neighborId)[1];
+              if (yneighbor < yval)
                 {
                 bottomPoint = 0;
                 }
-              if (points->GetPoint(neighbor)[1] > yval)
+              else if (yneighbor > yval)
                 {
                 topPoint = 0;
                 }
@@ -511,12 +508,13 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
             if (j < npts-1)
               {
               numberOfNeighbors++;
-              neighbor = pointIds[j+1];
-              if (points->GetPoint(neighbor)[1] < yval)
+              neighborId = pointIds[j+1];
+              double yneighbor = points->GetPoint(neighborId)[1];
+              if (yneighbor < yval)
                 {
                 bottomPoint = 0;
                 }
-              if (points->GetPoint(neighbor)[1] > yval)
+              else if (yneighbor > yval)
                 {
                 topPoint = 0;
                 }
@@ -529,7 +527,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         {
         // store the loose end
         looseEndIdList->InsertNextId( i );
-        looseEndNeighborList->InsertNextId( neighbor );
+        looseEndNeighborList->InsertNextId( neighborId );
         }
       // mark lower inflection points
       int inflection = 0;
@@ -548,9 +546,11 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       {
       // first loose end point in the list
       vtkIdType firstLooseEndId = looseEndIdList->GetId(0);
-      vtkIdType neighbor = looseEndNeighborList->GetId(0);
+      vtkIdType neighborId = looseEndNeighborList->GetId(0);
       double firstLooseEnd[3];
       slice->GetPoint( firstLooseEndId, firstLooseEnd );
+      double neighbor[3];
+      slice->GetPoint( neighborId, neighbor);
 
       // second loose end in the list
       vtkIdType secondLooseEndId = looseEndIdList->GetId(1);
@@ -558,25 +558,41 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       slice->GetPoint( secondLooseEndId, secondLooseEnd );
 
       // search for the loose end closest to the first one
-      double minimumDistance = VTK_LARGE_FLOAT;
+      double maxval = -VTK_LARGE_FLOAT;
       
       for(vtkIdType j = 1; j < looseEndIdList->GetNumberOfIds(); j++)
         {
         vtkIdType currentLooseEndId = looseEndIdList->GetId( j );
-        if (currentLooseEndId != neighbor)
+        if (currentLooseEndId != neighborId)
           {
           double currentLooseEnd[3];
           slice->GetPoint( currentLooseEndId, currentLooseEnd );
-          double distance = vtkMath::Distance2BetweenPoints( firstLooseEnd,
-                                                             currentLooseEnd );
-          minimumDistance = distance;
-          secondLooseEndId = currentLooseEndId;
+
+          // When connecting loose ends, use dot product to favor
+          // continuing in same direction as the line already
+          // connected to the loose end, but also favour short
+          // distances by dividing dotprod by square of distance.
+          double v1[2], v2[2];
+          v1[0] = firstLooseEnd[0] - neighbor[0];
+          v1[1] = firstLooseEnd[1] - neighbor[1];
+          v2[0] = currentLooseEnd[0] - firstLooseEnd[0];
+          v2[1] = currentLooseEnd[1] - firstLooseEnd[1];
+          double dotprod = v1[0]*v2[0] + v1[1]*v2[1];
+          double distance2 = v2[0]*v2[0] + v2[1]*v2[1];
+
+          if (dotprod > maxval*distance2 && distance2 > 0.0)
+            {
+            maxval = dotprod/distance2;
+            secondLooseEndId = currentLooseEndId;
+            }
           }
         }
 
       // create a new line segment by connecting these two points
       looseEndIdList->DeleteId( firstLooseEndId );
       looseEndIdList->DeleteId( secondLooseEndId );
+      looseEndNeighborList->DeleteId( firstLooseEndId );
+      looseEndNeighborList->DeleteId( secondLooseEndId );
 
       lines->InsertNextCell( 2 );
       lines->InsertCellPoint( firstLooseEndId );
@@ -603,7 +619,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       
         vtkFloatingEndPointScanConvertLine2D(point1, point2,
                                              inflection1, inflection2,
-                                             ytolerance, idxZ,
+                                             tolerance, idxZ,
                                              extent, zyBucket);
         }
       }
@@ -627,7 +643,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         {
         continue;
         }
-          
+      
       // handle pairs
       lastr2 = extent[0] - 1;
       if (xList.size() % 2 == 0)
@@ -637,12 +653,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         vtkstd::vector<double>::iterator xIter = xList.begin();
         while (xIter != xList.end())
           {
+          double x1 = *xIter++;
+          double x2 = *xIter++;
           // Take ceil() of first value in pair
-          r1 = vtkPolyDataToImageStencilCeil(*xIter - xtolerance);
-          xIter++;
+          r1 = vtkPolyDataToImageStencilCeil(x1 - tolerance);
           // Take floor() of second value in pair
-          r2 = vtkPolyDataToImageStencilFloor(*xIter + xtolerance);
-          xIter++;
+          r2 = vtkPolyDataToImageStencilFloor(x2 + tolerance);
 
           // extents are not allowed to overlap
           if (r1 == lastr2)
