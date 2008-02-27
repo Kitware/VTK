@@ -11,7 +11,7 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-  Copyright 2003-2006 Sandia Corporation.
+  Copyright 2003-2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
   license for use of this work by or on behalf of the
   U.S. Government. Redistribution and use in source and binary forms, with
@@ -38,7 +38,7 @@
 
 #include "verdict.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.52");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.53");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell*  );

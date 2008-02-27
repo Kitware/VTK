@@ -16,13 +16,14 @@
   Contact: dcthomp@sandia.gov,pppebay@sandia.gov
 
 =========================================================================*/
-// .NAME vtkMeshQuality - Calculate measures of quality of a mesh
+// .NAME vtkMeshQuality - Calculate functions of quality of the elements
+//  of a mesh
 //
 // .SECTION Description
-// vtkMeshQuality computes one or more measures of (geometric)
+// vtkMeshQuality computes one or more functions of (geometric)
 // quality for each 2-D and 3-D cell (triangle, quadrilateral, tetrahedron,
-// or hexahedron) of a mesh. These measures of quality are then averaged
-// over the entire mesh. The minimum, average, maximum, and variance
+// or hexahedron) of a mesh. These functions of quality are then averaged
+// over the entire mesh. The minimum, average, maximum, and unbiased variance
 // of quality for each type of cell is stored in the output mesh's FieldData.
 // The FieldData arrays are named "Mesh Triangle Quality,"
 // "Mesh Quadrilateral Quality," "Mesh Tetrahedron Quality,"
@@ -43,18 +44,18 @@
 // That version only supported tetrahedral radius ratio. See the 
 // CompatibilityModeOn() member for information on how to make this filter 
 // behave like the previous implementation.
-// For more information on the triangle quality measures of this class, cf.
+// For more information on the triangle quality functions of this class, cf.
 // Pebay & Baker 2003, Analysis of triangle quality measures, Math Comp 72:244.
-// For more information on the quadrangle quality measures of this class, cf.
+// For more information on the quadrangle quality functions of this class, cf.
 // Pebay 2004, Planar Quadrangle Quality Measures, Eng Comp 20:2.
 //
 // .SECTION Caveats
 // While more general than before, this class does not address many
 // cell types, including wedges and pyramids in 3D and triangle strips
 // and fans in 2D (among others). 
-// Most quadrilateral quality measures are intended for planar quadrilaterals
+// Most quadrilateral quality functions are intended for planar quadrilaterals
 // only. 
-// The minimal angle is not, strictly speaking, a quality measure, but it is
+// The minimal angle is not, strictly speaking, a quality function, but it is
 // provided because of its useage by many authors.
 
 #ifndef __vtkMeshQuality_h
@@ -113,7 +114,7 @@ public:
   vtkBooleanMacro(SaveCellQuality,int);
 
   // Description:
-  // Set/Get the particular estimator used to measure the quality of triangles.
+  // Set/Get the particular estimator used to function the quality of triangles.
   // The default is VTK_QUALITY_RADIUS_RATIO and valid values also include
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_ASPECT_FROBENIUS, and VTK_QUALITY_EDGE_RATIO,
   // VTK_QUALITY_MIN_ANGLE, VTK_QUALITY_MAX_ANGLE, VTK_QUALITY_CONDITION,
@@ -826,7 +827,7 @@ public:
   vtkBooleanMacro(Volume,int);
 
   // Description:
-  // CompatibilityMode governs whether, when both a quality measure
+  // CompatibilityMode governs whether, when both a quality function
   // and cell volume are to be stored as cell data, the two values
   // are stored in a single array. When compatibility mode is off
   // (the default), two separate arrays are used -- one labeled
@@ -836,19 +837,19 @@ public:
   // as the second component.
   //
   // Enabling CompatibilityMode changes the default tetrahedral
-  // quality measure to VTK_QUALITY_RADIUS_RATIO and turns volume
+  // quality function to VTK_QUALITY_RADIUS_RATIO and turns volume
   // computation on. (This matches the default behavior of the
   // initial implementation of vtkMeshQuality.) You may change
-  // quality measure and volume computation without leaving
+  // quality function and volume computation without leaving
   // compatibility mode.
   //
   // Disabling compatibility mode does not affect the current
-  // volume computation or tetrahedral quality measure settings. 
+  // volume computation or tetrahedral quality function settings. 
   //
   // The final caveat to CompatibilityMode is that regardless of
   // its setting, the resulting array will be of type vtkDoubleArray
   // rather than the original vtkFloatArray.
-  // This is a safety measure to keep the authors from
+  // This is a safety function to keep the authors from
   // diving off of the Combinatorial Coding Cliff into
   // Certain Insanity.
   virtual void SetCompatibilityMode( int cm )
@@ -875,7 +876,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
-  // A function called by some VERDICT triangle quality measures to test for inverted triangles.
+  // A function called by some VERDICT triangle quality functions to test for inverted triangles.
   static int GetCurrentTriangleNormal( double point[3], double normal[3] );
 
   int SaveCellQuality;
