@@ -444,7 +444,7 @@ void return_result(FILE *fp)
       use_hints(fp);
       break;
     default:
-      fprintf(fp,"    Tcl_SetResult(interp, static_cast<char *>(\"unable to return result.\"), TCL_VOLATILE);\n");
+      fprintf(fp,"    Tcl_SetResult(interp, (char *)(\"unable to return result.\"), TCL_VOLATILE);\n");
       break;
     }
 }

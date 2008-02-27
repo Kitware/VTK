@@ -32,7 +32,7 @@ extern "C"
 
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 {
-  vtkTclInterpStruct *is = static_cast<vtkTclInterpStruct *>(Tcl_GetAssocData(interp,static_cast<char *>("vtk"),NULL));
+  vtkTclInterpStruct *is = static_cast<vtkTclInterpStruct *>(Tcl_GetAssocData(interp,(char *)("vtk"),NULL));
   if (!is)
     {
     vtkGenericWarningMacro("unable to find interp struct");
@@ -91,7 +91,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
 
   /* set up the args */
-  args[1] = static_cast<char *>("Delete");
+  args[1] = (char *)("Delete");
 
   // lookup the objects name
   sprintf(temps,"%p",as->Pointer);
@@ -438,7 +438,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     }
 
   /* set up the args */
-  args[0] = static_cast<char *>("DoTypecasting");
+  args[0] = (char *)("DoTypecasting");
   args[1] = strdup(result_type);
   args[2] = NULL;
   vtkTclCommandArgStruct foo;
@@ -454,9 +454,9 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     Tcl_Interp *i;
     i = Tcl_CreateInterp();
     // provide more diagnostic info
-    args[0] = static_cast<char *>("Dummy");
+    args[0] = (char *)("Dummy");
     free (args[1]);
-    args[1] = static_cast<char *>("GetClassName");
+    args[1] = (char *)("GetClassName");
     args[2] = NULL;
     command(static_cast<ClientData>(&foo),i,2,args);
 
@@ -485,11 +485,11 @@ VTKTCL_EXPORT void vtkTclVoidFunc(void *arg)
 
   if (res == TCL_ERROR)
     {
-    if (Tcl_GetVar(arg2->interp,static_cast<char *>("errorInfo"),0))
+    if (Tcl_GetVar(arg2->interp,(char *)("errorInfo"),0))
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              arg2->command << endl <<
-                             Tcl_GetVar(arg2->interp,static_cast<char *>("errorInfo"),0) <<
+                             Tcl_GetVar(arg2->interp,(char *)("errorInfo"),0) <<
                              " at line number " << arg2->interp->errorLine);
       }
     else
@@ -560,7 +560,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if (argc != 2)
     {
-    Tcl_SetResult(interp, static_cast<char *>("vtk object creation requires one argument, a name, or the special New keyword to instantiate a new name."), TCL_VOLATILE);
+    Tcl_SetResult(interp, (char *)("vtk object creation requires one argument, a name, or the special New keyword to instantiate a new name."), TCL_VOLATILE);
     return TCL_ERROR;
     }
 
@@ -718,11 +718,11 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 
   if (res == TCL_ERROR)
     {
-    if (Tcl_GetVar(this->Interp,static_cast<char *>("errorInfo"),0))
+    if (Tcl_GetVar(this->Interp,(char *)("errorInfo"),0))
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              this->StringCommand << endl <<
-                             Tcl_GetVar(this->Interp,static_cast<char *>("errorInfo"),0) <<
+                             Tcl_GetVar(this->Interp,(char *)("errorInfo"),0) <<
                              " at line number " << this->Interp->errorLine);
       }
     else
