@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.19");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.20");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -535,12 +535,14 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
     this->DropDatabase( dbName );
     }
 
-  pqxx::nontransaction work( this->Connection->Connection );
-  vtkstd::string qstr( "CREATE DATABASE " );
+  vtkstd::string qstr( "CREATE DATABASE \"" );
   qstr += dbName;
+  qstr += "\"";
   try
     {
+    pqxx::nontransaction work( this->Connection->Connection );
     pqxx::result res = work.exec( qstr.c_str() );
+    work.commit();
     }
   catch ( const vtkstd::exception& e )
     {
@@ -553,7 +555,10 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
     this->SetDatabaseName( dbName );
     this->Open();
     }
-  this->Connection->LastErrorText.clear();
+  if ( this->Connection )
+    {
+    this->Connection->LastErrorText.clear();
+    }
   return true;
 }
 
@@ -586,20 +591,25 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
       }
     }
 
-  pqxx::nontransaction work( this->Connection->Connection );
-  vtkstd::string qstr( "DROP DATABASE " );
+  vtkstd::string qstr( "DROP DATABASE \"" );
   qstr += dbName;
+  qstr += "\"";
   //qstr += " IF EXISTS";
   try
     {
+    pqxx::nontransaction work( this->Connection->Connection );
     pqxx::result res = work.exec( qstr.c_str() );
+    work.commit();
     }
   catch ( const vtkstd::exception& e )
     {
     this->Connection->LastErrorText = e.what();
     return false;
     }
-  this->Connection->LastErrorText.clear();
+  if ( this->Connection )
+    {
+    this->Connection->LastErrorText.clear();
+    }
   return true;
 }
 
