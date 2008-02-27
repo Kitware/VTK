@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.44");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.45");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1744,14 +1744,17 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
                                 dummyExtent );
 
   this->PerVolumeInitialization( ren, vol );
-  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
+  
+  vtkRenderWindow *renWin=ren->GetRenderWindow();
+  
+  if ( renWin && renWin->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
     }
 
   this->PerSubVolumeInitialization( ren, vol, 0 );
-  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
+  if ( renWin && renWin->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
@@ -1759,7 +1762,7 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   
   this->RenderSubVolume();
 
-  if ( this->RenderWindow && this->RenderWindow->CheckAbortStatus() )
+  if ( renWin && renWin->CheckAbortStatus() )
     {
     this->AbortRender();
     return;
@@ -1890,6 +1893,8 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
   
   int savedBlendMode = this->BlendMode;
   this->BlendMode = blend_mode;
+  int savedCropping = this->Cropping;
+  this->Cropping = 0;
 
   // Do all the initialization. This is not a multipass image
   // so just pass in dummy origin, spacing, and extent here
@@ -1943,10 +1948,10 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
     }
   
   // Restore
-
-  this->RenderWindow = NULL;
+  
   this->SampleDistance = this->OldSampleDistance;
   this->BlendMode = savedBlendMode;
+  this->Cropping = savedCropping;
   
   //Clean up
   renWin->RemoveRenderer(ren);
