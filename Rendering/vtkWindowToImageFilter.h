@@ -69,15 +69,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Indicates what renderer to get the pixel data from.
+  // Indicates what renderer to get the pixel data from. Initial value is 0.
   void SetInput(vtkWindow *input);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
+  // Initial value is 0.
   vtkGetObjectMacro(Input,vtkWindow);
 
   // Description:
-  // The magnification of the current render window
+  // The magnification of the current render window. Initial value is 1.
   vtkSetClampMacro(Magnification,int,1,2048);
   vtkGetMacro(Magnification,int);
 
@@ -89,15 +90,15 @@ public:
   vtkSetMacro(ReadFrontBuffer, int);
   
   // Description:
-  // Set/get whether to re-render the input window. (This option makes no
-  // difference if Magnification > 1.)
+  // Set/get whether to re-render the input window. Initial value is true.
+  // (This option makes no difference if Magnification > 1.)
   vtkBooleanMacro(ShouldRerender, int);
   vtkSetMacro(ShouldRerender, int);
   vtkGetMacro(ShouldRerender, int);
   
   // Description:
-  // Set/get the extents to be used to generate the image. (This option
-  // does not work if Magnification > 1.)
+  // Set/get the extents to be used to generate the image. Initial value is
+  // {0,0,1,1} (This option does not work if Magnification > 1.)
   vtkSetVector4Macro(Viewport,double);
   vtkGetVectorMacro(Viewport,double,4);
 
@@ -105,7 +106,7 @@ public:
   // Set/get the window buffer from which data will be read.  Choices
   // include VTK_RGB (read the color image from the window), VTK_RGBA 
   // (same, but include the alpha channel), and VTK_ZBUFFER (depth
-  // buffer, returned as a float array).
+  // buffer, returned as a float array). Initial value is VTK_RGB.
   vtkSetMacro(InputBufferType, int);
   vtkGetMacro(InputBufferType, int);
   void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);};
