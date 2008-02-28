@@ -201,6 +201,11 @@ ELSE(HAVE_ZLIB_H AND HAVE_LIBZ)
   SET(WITH_ZLIB 0)
 ENDIF(HAVE_ZLIB_H AND HAVE_LIBZ)
 
+# not building VTK with pthreads
+IF(NOT CMAKE_USE_PTHREADS AND HAVE_PTHREAD_H)
+  SET(HAVE_PTHREAD_H 0)
+ENDIF(NOT CMAKE_USE_PTHREADS AND HAVE_PTHREAD_H)
+
 # Create the platform configuration header.
 CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/config_cmake.h.in
                ${vtklibxml2_BINARY_DIR}/config.h @ONLY)
