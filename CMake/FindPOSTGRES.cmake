@@ -38,6 +38,7 @@ if ( NOT POSTGRES_INCLUDE_DIRECTORIES OR NOT POSTGRES_LIBRARIES OR NOT POSTGRES_
       /usr/local/pgsql/include
       /usr/local/include
       /usr/include
+      /usr/include/postgresql
     NO_DEFAULT_PATH
   )
 
