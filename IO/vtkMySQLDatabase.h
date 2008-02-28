@@ -157,7 +157,17 @@ public:
                                               int idxHandle,
                                               bool& skipped );
 
- protected:
+  // Description:
+  // Create a new database, optionally dropping any existing database of the same name.
+  // Returns true when the database is properly created and false on failure.
+  bool CreateDatabase( const char* dbName, bool dropExisting );
+
+  // Description:
+  // Drop a database if it exists.
+  // Returns true on success and false on failure.
+  bool DropDatabase( const char* dbName );
+
+protected:
   vtkMySQLDatabase();
   ~vtkMySQLDatabase();
 

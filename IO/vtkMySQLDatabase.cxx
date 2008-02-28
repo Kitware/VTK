@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.23");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.24");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -515,3 +515,36 @@ vtkStdString vtkMySQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* sche
 
   return queryStr;
 }
+
+
+bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = false )
+{
+  if ( dropExisting )
+    {
+    this->DropDatabase( dbName );
+    }
+  vtkStdString queryStr;
+  queryStr = "CREATE DATABASE ";
+  queryStr += dbName;
+  vtkSQLQuery* query = this->GetQueryInstance();
+  query->SetQuery( queryStr.c_str() );
+  bool status = query->Execute();
+  query->Delete();
+  // Close and re-open in case we deleted and recreated the current database
+  this->Close();
+  this->Open();
+  return status;
+}
+
+bool vtkMySQLDatabase::DropDatabase( const char* dbName )
+{
+  vtkStdString queryStr;
+  queryStr = "DROP DATABASE IF EXISTS ";
+  queryStr += dbName;
+  vtkSQLQuery* query = this->GetQueryInstance();
+  query->SetQuery( queryStr.c_str() );
+  bool status = query->Execute();
+  query->Delete();
+  return status;
+}
+
