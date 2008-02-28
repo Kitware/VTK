@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.20");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.21");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -247,7 +247,9 @@ bool vtkPostgreSQLDatabase::Open()
   if ( this->ServerPort )
     {
     options += " port=";
-    options += this->ServerPort;
+    vtksys_ios::ostringstream stream;
+    stream << this->ServerPort;
+    options += stream.str();
     }
   if ( this->User && strlen( this->User ) > 0 )
     {
