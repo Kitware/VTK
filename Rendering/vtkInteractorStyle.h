@@ -64,7 +64,7 @@
 // - Keypress s: modify the representation of all actors so that they are
 // surfaces.  
 // - Keypress u: invoke the user-defined function. Typically,
-// this keypress will bring up an interactor that you can type commands in.
+// this keypress will bring up an interactor that you can type commands in. Typying u, calls UserCallBack() on the vtkRenderWindowInteractor, which invokes a vtkCommand::UserEvent. In other words, to define a user-defined callback, just add an observer to the vtkCommand::UserEvent on the vtkRenderWindowInteractor object. 
 // - Keypress w: modify the representation of all actors so that they are
 // wireframe.
 //
