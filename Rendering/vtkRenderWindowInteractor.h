@@ -177,7 +177,8 @@ public:
   virtual void TerminateApp(void) {}
 
   // Description:
-  // External switching between joystick/trackball/new? modes.
+  // External switching between joystick/trackball/new? modes. Initial value
+  // is a vtkInteractorStyleSwitch object.
   virtual void SetInteractorStyle(vtkInteractorObserver *);
   vtkGetObjectMacro(InteractorStyle,vtkInteractorObserver);
 
