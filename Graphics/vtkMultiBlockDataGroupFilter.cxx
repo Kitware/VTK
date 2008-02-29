@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataGroupFilter, "1.1");
+vtkCxxRevisionMacro(vtkMultiBlockDataGroupFilter, "1.2");
 vtkStandardNewMacro(vtkMultiBlockDataGroupFilter);
 //-----------------------------------------------------------------------------
 vtkMultiBlockDataGroupFilter::vtkMultiBlockDataGroupFilter()
@@ -48,20 +48,23 @@ int vtkMultiBlockDataGroupFilter::RequestData(
     return 0;
     }
 
+  /*
   unsigned int updatePiece = static_cast<unsigned int>(
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
   unsigned int updateNumPieces =  static_cast<unsigned int>(
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  */
 
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   output->SetNumberOfBlocks(numInputs);
   for (int idx = 0; idx < numInputs; ++idx)
     {
+    /*
     // This can be a vtkMultiPieceDataSet if we ever support it.
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::New();
     block->SetNumberOfBlocks(updateNumPieces);
-    output->SetBlock(idx, block);
     block->Delete();
+    */
 
     vtkDataObject* input = 0;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
@@ -73,17 +76,12 @@ int vtkMultiBlockDataGroupFilter::RequestData(
       {
       vtkDataObject* dsCopy = input->NewInstance();
       dsCopy->ShallowCopy(input);
-      if (dsCopy->IsA("vtkMultiBlockDataSet"))
-        {
-        block->SetBlock(updatePiece, 
-          vtkMultiBlockDataSet::SafeDownCast(dsCopy));
-        }
-      else if (dsCopy->IsA("vtkDataSet"))
-        {
-        block->SetBlock(updatePiece, 
-          vtkDataSet::SafeDownCast(dsCopy));
-        }
+      output->SetBlock(idx, dsCopy);
       dsCopy->Delete();
+      }
+    else
+      {
+      output->SetBlock(idx, 0);
       }
     }
 
