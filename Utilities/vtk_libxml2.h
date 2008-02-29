@@ -21,6 +21,12 @@
 # define VTKLIBXML2_HEADER_DIR libxml
 #else
 # define VTKLIBXML2_HEADER_DIR vtklibxml2/libxml
+# include "vtkConfigure.h"
+# ifndef VTK_BUILD_SHARED_LIBS
+#  ifndef LIBXML_STATIC
+#   define LIBXML_STATIC
+#  endif
+# endif
 #endif
 
 /* Macro to help include a header file from the libxml2 configured for
