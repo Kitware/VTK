@@ -41,13 +41,17 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   // able to connect to the "template1" database (which initdb
   // creates and should be present on all systems -- we do NOT
   // support non-standard configurations where this is not true).
-  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
+  vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast(
+    vtkSQLDatabase::CreateFromURL( VTK_PSQL_TEST_URL ) );
   vtkStdString realDatabase = db->GetDatabaseName();
   db->SetDatabaseName( "template1" ); // This is guaranteed to exist
   bool status = db->Open();
   if ( ! status )
     {
-    cerr << "Couldn't open database.\n";
+    cerr
+      << "Couldn't open database.\nError message: \""
+      << db->GetLastErrorText() << "\"\n";
+    db->Delete();
     return 1;
     }
 
@@ -92,6 +96,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! query->Execute() )
     {
     cerr << "Create query failed" << endl;
+    query->Delete();
+    db->Delete();
     return 1;
     }
 
@@ -104,6 +110,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     if ( ! query->Execute() )
       {
       cerr << "Insert query " << i << " failed" << endl;
+      query->Delete();
+      db->Delete();
       return 1;
       }
     }
@@ -117,6 +125,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
+    query->Delete();
+    db->Delete();
     return 1;
     }
 
@@ -146,6 +156,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
+    query->Delete();
+    db->Delete();
     return 1;
     }
   for ( int col = 0; col < query->GetNumberOfFields(); ++ col )
@@ -196,6 +208,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! query->Execute() )
     {
     cerr << "DROP TABLE people query failed" << endl;
+    reader->Delete();
+    query->Delete();
+    db->Delete();
     return 1;
     }
   
@@ -245,6 +260,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( tblHandle < 0 )
     {
     cerr << "Could not create test schema.\n";
+    schema->Delete();
     return 1;
     }
   cerr << " done." << endl;
@@ -257,7 +273,11 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   if ( ! status )
     {
-    cerr << "Couldn't open database.\n";
+    cerr
+      << "Couldn't open database.\nError: \""
+      << db->GetLastErrorText() << "\"\n";
+    schema->Delete();
+    db->Delete();
     return 1;
     }
 
@@ -265,6 +285,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! status )
     {
     cerr << "Could not effect test schema.\n";
+    schema->Delete();
+    db->Delete();
     return 1;
     }
   cerr << " done." << endl;
@@ -277,6 +299,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
     return 1;
     }
 
@@ -295,6 +320,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
          << " != " 
          << schema->GetNumberOfTables()
          << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
     return 1;
     }
   
@@ -318,6 +346,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
            << " != " 
            << tblName
            << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
       return 1;
       }
                        
@@ -329,6 +360,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     if ( ! query->Execute() )
       {
       cerr << "Query failed" << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
       return 1;
       }
     
@@ -352,6 +386,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
                  << " != " 
                  << colName
                  << endl;
+            schema->Delete();
+            query->Delete();
+            db->Delete();
             return 1;
             }
           cerr << "     Column: ";
@@ -368,6 +405,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
            << " != " 
            << schema->GetNumberOfColumnsInTable( tblHandle )
            << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
       return 1;
       }
     }
@@ -385,6 +425,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     if ( ! query->Execute() )
       {
       cerr << "Query failed" << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
       return 1;
       }
     }
