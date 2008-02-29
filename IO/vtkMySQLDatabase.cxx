@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.24");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.25");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -278,7 +278,8 @@ bool vtkMySQLDatabase::HasError()
 
 const char* vtkMySQLDatabase::GetLastErrorText()
 {
-  return mysql_error(this->Private->Connection);
+  return this->Private->Connection ?
+    mysql_error( this->Private->Connection ) : 0;
 }
 
 // ----------------------------------------------------------------------
@@ -310,11 +311,13 @@ vtkStdString vtkMySQLDatabase::GetURL()
     this->GetServerPort() != VTK_MYSQL_DEFAULT_PORT
     )
     {
-    url += ":";
-    url += this->GetServerPort();
+    vtksys_ios::ostringstream stream;
+    stream << ":" << this->GetServerPort();
+    url += stream.str();
     }
   url += "/";
-  url += this->GetDatabaseName();
+  if ( this->GetDatabaseName() && strlen( this->GetDatabaseName() ) )
+    url += this->GetDatabaseName();
   return url;
 }
 
