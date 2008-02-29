@@ -33,6 +33,9 @@
 // by the number of tuples in the first array (it is assumed that all arrays
 // are the same length).
 //
+// Each column added with AddColumn <b>must</b> have its name set to a unique,
+// non-empty string in order for GetValue() to function properly.
+//
 // .SECTION Thanks
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class API.
@@ -134,6 +137,9 @@ public:
   //BTX
   // Description:
   // Retrieve a value in the table by row and column index as a variant.
+  // Note that this calls GetValueByName internally so that each column
+  // array must have its name set (and that name should be unique within
+  // the table).
   vtkVariant GetValue(vtkIdType row, vtkIdType col);
 
   // Description:
