@@ -73,7 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.30");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.31");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -659,7 +659,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           // extents are not allowed to overlap
           if (r1 <= lastr2)
             {
-            r1++;
+            r1 = lastr2 + 1;
             // eliminate empty extents
             if (r1 > r2)
               {
