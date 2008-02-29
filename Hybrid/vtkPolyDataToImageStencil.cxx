@@ -73,7 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.29");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.30");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -108,7 +108,7 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
   this->OutputWholeExtent[4] = 0;
   this->OutputWholeExtent[5] = VTK_LARGE_INTEGER >> 2;
 
-  this->Tolerance = 0.0;
+  this->Tolerance = 1e-3;
 }
 
 //----------------------------------------------------------------------------
@@ -269,30 +269,23 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 //----------------------------------------------------------------------------
 inline int vtkPolyDataToImageStencilFloor(double x)
 {
-#if defined(NDEBUG) && (defined i386 || defined _M_IX86)
+#if defined i386 || defined _M_IX86
   // This code assumes IEEE 754 64-bit double and
   // It uses a denormalizer to round the double at the
   // 2^(-16) position, or around 1e-5, and then extracts
   // the integer portion.  So, essentially, it is a floor()
-  // operation with a built-in 1e-5 tolerance.  However,
-  // the main reason that we use it is that it is much
+  // operation that is accurate to within 1e-5.
+  // We use it is that it is many, many times
   // faster than the floor() function.
-  // I don't use vtkFastNumericConversion because it isn't
-  // safe for negative values.
   union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
   return static_cast<int>((dual.i[1]<<16)|(dual.i[0]>>16));
 #else
-  return static_cast<int>(floor(x));
-#endif
-}
-
-inline int vtkPolyDataToImageStencilCeil(double x)
-{
-#if defined(NDEBUG) && (defined i386 || defined _M_IX86)
-  return -vtkPolyDataToImageStencilFloor(-x);
-#else
-  return static_cast<int>(ceil(x));
+  // This doesn't assume IEEE 754 and is a good, fast
+  // floor() approximation on most architectures
+  x += 2147483648.0;
+  vtkTypeUInt32 i = static_cast<unsigned int>(x);
+  return static_cast<int>(i - 2147483648U);
 #endif
 }
 
@@ -334,28 +327,28 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // Integer y values for start and end of line
   int Ay, By;
 
+  double ymin = y1;
+  double ymax = y2;
   if (inflection1 < 0 || inflection2 < 0)
     {
-    // if this is a lower inflection point, use ceil() and add tolerance
-    Ay = vtkPolyDataToImageStencilCeil(y1 - tolerance);
-    }
-  else
-    {
-    // otherwise use floor()+1 to avoid inserting same point twice
-    Ay = vtkPolyDataToImageStencilFloor(y1) + 1;
+    // if this is a lower inflection point, include a tolerance
+    ymin -= tolerance;
     }
   if (inflection1 > 0 || inflection2 > 0)
     {
     // likewise, if upper inflection, add tolerance at top
-    By = vtkPolyDataToImageStencilFloor(y2 + tolerance);
+    ymax += tolerance;
     }
-  else
-    {
-    By = vtkPolyDataToImageStencilFloor(y2);
-    }  
 
-  // Precalculate to avoid division at each step in the loop
-  double inverseDenominator = 1.0/(y2 - y1);
+  // The "+1" is important, it means that if we have two polygons
+  // that share a line, and make a stencil from each, the produced
+  // regions are guaranteed not to overlap if tolerance=0.
+  Ay = vtkPolyDataToImageStencilFloor(ymin) + 1;
+  By = vtkPolyDataToImageStencilFloor(ymax);
+
+  // Precompute values for a Bresenham-like line algorithm
+  double grad = (x2 - x1)/(y2 - y1);
+  double delta = (Ay - y1)*grad;
 
   // Take z coordinate and extents into account for bucket index
   int idx0 = (z - extent[4])*(extent[3] - extent[2] + 1) - extent[2];
@@ -363,8 +356,9 @@ static void vtkFloatingEndPointScanConvertLine2D(
   // Go along y and place each x in the proper (y,z) bucket.
   for( int y = Ay; y <= By; y++ )
     {
-    double x = ( (y2 - y)*x1 + (y - y1)*x2 )*inverseDenominator;
-    // sanity check on the range of x
+    delta += grad;
+    double x = x1 + delta;
+    // clamp x (because of tolerance, it might not be in range)
     if (x < xmin)
       {
       x = xmin;
@@ -655,13 +649,15 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           {
           double x1 = *xIter++;
           double x2 = *xIter++;
-          // Take ceil() of first value in pair
-          r1 = vtkPolyDataToImageStencilCeil(x1 - tolerance);
+          // Use floor()+1 instead of ceil() to ensure that, if
+          // tolerance is zero and there are neighboring extents,
+          // there will be no overlap.
+          r1 = vtkPolyDataToImageStencilFloor(x1 - tolerance) + 1;
           // Take floor() of second value in pair
           r2 = vtkPolyDataToImageStencilFloor(x2 + tolerance);
 
           // extents are not allowed to overlap
-          if (r1 == lastr2)
+          if (r1 <= lastr2)
             {
             r1++;
             // eliminate empty extents
