@@ -15,6 +15,8 @@ vtkObject-GetSuperClassName
 vtkPropAssembly-GetBounds
 vtkRenderWindow-GetEventPending
 vtkSQLiteDatabase-GetQueryInstance
+vtkMySQLDatabase-GetQueryInstance
+vtkPostgreSQLDatabase-GetQueryInstance
 vtkXOpenGLRenderWindow-GetEventPending
 vtkXMesaRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
