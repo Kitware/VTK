@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.21");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.22");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -273,16 +273,14 @@ bool vtkPostgreSQLDatabase::Open()
     }
   catch ( pqxx::sql_error& e )
     {
+    vtkErrorMacro( "SQL error: \"" << e.what() << "\"" );
     this->Connection->LastErrorText = e.what();
     return false;
     }
   catch ( pqxx::broken_connection& e )
     {
-    if ( this->Connection )
-      {
-      delete this->Connection;
-      this->Connection = 0;
-      }
+    vtkErrorMacro( "Connection was broken: \"" << e.what() << "\"" );
+    this->Connection = 0; // we weren't able to construct
     return false;
     }
 
