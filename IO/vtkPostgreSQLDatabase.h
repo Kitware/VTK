@@ -162,13 +162,17 @@ public:
   // "CREATE TABLE" SQL statement.
   // NB: this method implements the PostgreSQL-specific syntax:
   // <column name> <column type> <column attributes>
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle );
+  virtual vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle );
  
 protected:
   vtkPostgreSQLDatabase();
   ~vtkPostgreSQLDatabase();
+
+  vtkSetStringMacro(DatabaseType);
+  vtkSetStringMacro(LastErrorText);
+  void NullTrailingWhitespace( char* msg );
+  bool OpenInternal( const char* connectionOptions );
 
   vtkTimeStamp URLMTime;
   vtkPostgreSQLDatabasePrivate* Connection;
@@ -180,12 +184,11 @@ protected:
   char* DatabaseName;
   int ServerPort;
   char* ConnectOptions;
+  char* LastErrorText;
   
-  vtkSetStringMacro(DatabaseType);
-
 private:
-  vtkPostgreSQLDatabase(const vtkPostgreSQLDatabase &); // Not implemented.
-  void operator=(const vtkPostgreSQLDatabase &); // Not implemented.
+  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ); // Not implemented.
+  void operator = ( const vtkPostgreSQLDatabase& ); // Not implemented.
 };
 
 // This is basically the body of the SetStringMacro but with a
