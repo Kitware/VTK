@@ -12,5 +12,7 @@ theme.FastDelete()
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
+view.SetVertexColorArrayName("VertexDegree");
+view.SetColorVertices(True);
 window.GetInteractor().Start()
 
