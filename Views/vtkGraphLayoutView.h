@@ -46,6 +46,7 @@ class vtkExtractSelectedGraph;
 class vtkFast2DLayoutStrategy;
 class vtkForceDirectedLayoutStrategy;
 class vtkGraphLayout;
+class vtkGraphLayoutStrategy;
 class vtkGraphMapper;
 class vtkGraphToPolyData;
 class vtkKdTreeSelector;
@@ -138,7 +139,14 @@ public:
   void SetLayoutStrategyToFast2D()        { this->SetLayoutStrategy("Fast 2D"); }
   void SetLayoutStrategyToPassThrough()   { this->SetLayoutStrategy("Pass Through"); }
   void SetLayoutStrategyToCircular()      { this->SetLayoutStrategy("Circular"); }
-  const char* GetLayoutStrategy()         { return this->GetLayoutStrategyInternal(); }
+  const char* GetLayoutStrategyName()     { return this->GetLayoutStrategyNameInternal(); }
+  
+  // Description:
+  // The layout strategy to use when performing the graph layout.
+  // This signature allows an application to create a layout
+  // object directly and simply set the pointer through this method
+  vtkGetObjectMacro(LayoutStrategy,vtkGraphLayoutStrategy);
+  void SetLayoutStrategy(vtkGraphLayoutStrategy *s);
 
   // Description:
   // Set the number of iterations per refresh (defaults to all)
@@ -147,7 +155,6 @@ public:
   // to something like '1', will enable an application to
   // see the layout as it progresses.
   void SetIterationsPerLayout(int iterations);
-  
   
   // Description:
   // The array used for populating the selection list
@@ -212,9 +219,13 @@ protected:
 
   // Description:
   // Used to store the layout strategy name
-  vtkGetStringMacro(LayoutStrategyInternal);
-  vtkSetStringMacro(LayoutStrategyInternal);
-  char* LayoutStrategyInternal;
+  vtkGetStringMacro(LayoutStrategyNameInternal);
+  vtkSetStringMacro(LayoutStrategyNameInternal);
+  char* LayoutStrategyNameInternal;
+  
+  // Description:
+  // Used to store the current layout strategy
+  vtkGraphLayoutStrategy* LayoutStrategy;
   
   // Description:
   // Used to store the selection array name

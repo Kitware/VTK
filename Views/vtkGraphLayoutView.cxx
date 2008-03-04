@@ -64,7 +64,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.13");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.14");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -94,7 +94,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SelectedGraphMapper    = vtkSmartPointer<vtkGraphMapper>::New();
   this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
   
-  this->LayoutStrategyInternal = 0;
+  this->LayoutStrategyNameInternal = 0;
   this->SelectionArrayNameInternal = 0;
   
   // Replace the interactor style.
@@ -179,7 +179,7 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   //       will be deleted for us
     
   
-  this->SetLayoutStrategyInternal(0);
+  this->SetLayoutStrategyNameInternal(0);
   this->SetSelectionArrayNameInternal(0);
 }
 
@@ -371,9 +371,16 @@ void vtkGraphLayoutView::UpdateLayout()
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetLayoutStrategy(vtkGraphLayoutStrategy *s)
+{
+  this->LayoutStrategy = s;
+  this->GraphLayout->SetLayoutStrategy(this->LayoutStrategy);
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
 {
-  vtkGraphLayoutStrategy* s = this->Simple2DStrategy;
+  this->LayoutStrategy = this->Simple2DStrategy;
   if (!name)
     {
     return;
@@ -398,47 +405,47 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
   
   if (!strcmp(str, "random"))
     {
-    s = this->RandomStrategy;
+    this->LayoutStrategy = this->RandomStrategy;
     }
   else if (!strcmp(str, "forcedirected"))
     {
-    s = this->ForceDirectedStrategy;
+    this->LayoutStrategy = this->ForceDirectedStrategy;
     }
   else if (!strcmp(str, "simple2d"))
     {
-    s = this->Simple2DStrategy;
+    this->LayoutStrategy = this->Simple2DStrategy;
     }
   else if (!strcmp(str, "clustering2d"))
     {
-    s = this->Clustering2DStrategy;
+    this->LayoutStrategy = this->Clustering2DStrategy;
     }
   else if (!strcmp(str, "community2d"))
     {
-    s = this->Community2DStrategy;
+    this->LayoutStrategy = this->Community2DStrategy;
     }
   else if (!strcmp(str, "constrained2d"))
     {
-    s = this->Constrained2DStrategy;
+    this->LayoutStrategy = this->Constrained2DStrategy;
     }
   else if (!strcmp(str, "fast2d"))
     {
-    s = this->Fast2DStrategy;
+    this->LayoutStrategy = this->Fast2DStrategy;
     }
   else if (!strcmp(str, "passthrough"))
     {
-    s = this->PassThroughStrategy;
+    this->LayoutStrategy = this->PassThroughStrategy;
     }
   else if (!strcmp(str, "circular"))
     {
-    s = this->CircularStrategy;
+    this->LayoutStrategy = this->CircularStrategy;
     }
   else
     {
     vtkErrorMacro("Unknown strategy " << name << " (" << str << ").");
     return;
     }
-  this->GraphLayout->SetLayoutStrategy(s);
-  this->SetLayoutStrategyInternal(name);
+  this->GraphLayout->SetLayoutStrategy(this->LayoutStrategy);
+  this->SetLayoutStrategyNameInternal(name);
 }
 
 //----------------------------------------------------------------------------
@@ -757,8 +764,10 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->VisibleCellSelector->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ExtractSelectedGraph: " << endl;
   this->ExtractSelectedGraph->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "LayoutStrategy: "
-     << (this->LayoutStrategyInternal ? this->LayoutStrategyInternal : "(null)") << endl;
+  os << indent << "LayoutStrategyName: "
+     << (this->LayoutStrategyNameInternal ? this->LayoutStrategyNameInternal : "(null)") << endl;
+  os << indent << "LayoutStrategy: " << endl;
+  this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());   
   if (this->GetRepresentation())
     {
     os << indent << "VertexLabelActor: " << endl;
