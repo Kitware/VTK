@@ -2268,7 +2268,6 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
       
       if(child->content)
         {
-        //std::cout << cur->name << " : " << child->content << std::endl;
         this->SetOptionValue((const char*)cur->name,
                              (const char*)cur->name,
                              (const char*)child->content,

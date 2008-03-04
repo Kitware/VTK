@@ -1821,7 +1821,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
                         NULL, false); // no memory allocation
   
    
-   std::string  filename = ElementDataFileName();
+   METAIO_STL::string  filename = ElementDataFileName();
    unsigned long dataPos = 0;
    
    // local file
@@ -1849,7 +1849,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
    
    if(!tmpWriteStream->is_open())
       {
-      std::cerr << "Cannot open file: " << filename.c_str() << std::endl;
+      METAIO_STREAM::cerr << "Cannot open file: " << filename.c_str() << METAIO_STREAM::endl;
       delete tmpWriteStream;
       return false;
       }
@@ -1862,7 +1862,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
      
     if(!elementData)
       {
-      std::cerr << "Element data is NULL" << std::endl;
+      METAIO_STREAM::cerr << "Element data is NULL" << METAIO_STREAM::endl;
       delete tmpWriteStream;
       return false;
       }
@@ -2048,7 +2048,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
     // For now only writes local files
     if(strcmp(m_ElementDataFileName, "LOCAL"))
       {
-      std::cerr << "Write streaming can only write .mha files for now" << std::endl;
+      METAIO_STREAM::cerr << "Write streaming can only write .mha files for now" << METAIO_STREAM::endl;
       return false;
       }
     else
