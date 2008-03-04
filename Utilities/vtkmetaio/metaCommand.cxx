@@ -27,6 +27,16 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+#ifdef METAIO_USE_LIBXML2
+#include <libxml/xmlwriter.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+#include <libxml/tree.h>
+#endif
+
+
 MetaCommand::
 MetaCommand()
 {
@@ -316,7 +326,7 @@ AddOptionField(METAIO_STL::string optionName,
     }
   return false;
 }
-
+                      
 /** Set the range of an option */
 bool MetaCommand::
 SetOptionRange(METAIO_STL::string optionName,
@@ -1070,9 +1080,11 @@ ParseXML(const char* buffer)
 
 /** List the current options */
 void MetaCommand::
-ListOptionsSimplified()
+ListOptionsSimplified(bool extended)
 {
-  METAIO_STREAM::cout << " System tags: " << METAIO_STREAM::endl
+  if(extended)
+    {
+    METAIO_STREAM::cout << " System tags: " << METAIO_STREAM::endl
             << "   [ -v ] or [ -h ]" 
             << METAIO_STREAM::endl
             << "      = List options in short format" 
@@ -1099,8 +1111,15 @@ ListOptionsSimplified()
             << METAIO_STREAM::endl
             << "   [ -date ]" 
             << METAIO_STREAM::endl
-            << "      = return the cvs checkout date" 
-            << METAIO_STREAM::endl;
+            << "      = return the cvs checkout date"
+#ifdef METAIO_USE_LIBXML2
+            << METAIO_STREAM::endl
+            << "   [ --loadArguments filename ]"           
+            << "      = load the arguments from an XML file" 
+#endif     
+            << METAIO_STREAM::endl;       
+     }
+     
   int count = 0;
   int ntags = 0;
   int nfields = 0;
@@ -1633,13 +1652,26 @@ bool MetaCommand::Parse(int argc, char* argv[])
       {
       METAIO_STREAM::cout << "Usage : " << argv[0] << METAIO_STREAM::endl; 
       this->ListOptions();
-      continue;
+      return true;
       }
     // List the options if using -v
     if(!strcmp(argv[i],"-v") || !strcmp(argv[i],"-h"))
       {
       METAIO_STREAM::cout << "Usage : " << argv[0] << METAIO_STREAM::endl; 
       this->ListOptionsSimplified();
+      return true;
+      }
+    // List the options if using -v
+    if(!strcmp(argv[i],"--loadArguments"))
+      {
+      if((i+1)>=(unsigned int)argc)
+        {
+        METAIO_STREAM::cout << "--loadArguments expected a filename as argument" 
+                            << METAIO_STREAM::endl; 
+        return false;
+        }
+      this->LoadArgumentsFromXML(argv[i+1]);
+      i++;
       continue;
       }
     if(!strcmp(argv[i],"-vxml") 
@@ -1853,7 +1885,7 @@ bool MetaCommand::Parse(int argc, char* argv[])
                               << m_OptionVector[currentOption].name.c_str()
                               << " expect a value and got tag: " << argv[i] 
                               << METAIO_STREAM::endl;
-          this->ListOptionsSimplified();
+          this->ListOptionsSimplified(false);
           return false;
           }
 
@@ -1916,8 +1948,7 @@ bool MetaCommand::Parse(int argc, char* argv[])
                         << m_OptionVector[currentOption].name.c_str()
                         << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "Usage: " << argv[0] << METAIO_STREAM::endl;
-    this->ListOptionsSimplified();
-
+    this->ListOptionsSimplified(false);
     return false;
     }
 
@@ -1973,8 +2004,8 @@ bool MetaCommand::Parse(int argc, char* argv[])
 
   if(requiredAndNotDefined)
     {
-    METAIO_STREAM::cout << "Command: " << argv[0] << METAIO_STREAM::endl;
-    this->ListOptionsSimplified();
+    //METAIO_STREAM::cout << "Command: " << argv[0] << METAIO_STREAM::endl;
+    this->ListOptionsSimplified(false);
     return false;
     }
 
@@ -2181,6 +2212,135 @@ bool MetaCommand::SetParameterGroup(METAIO_STL::string optionName,
  
   return true;
 }
+
+/** Load arguments from XML file */
+bool MetaCommand::LoadArgumentsFromXML(const char* filename,
+                                       bool createMissingArguments)
+{
+#ifdef METAIO_USE_LIBXML2
+  xmlDocPtr doc;
+  xmlNodePtr cur;
+  doc = xmlParseFile(filename);
+
+  if (doc == NULL )
+    {
+    METAIO_STREAM::cerr << "Cannot parse XML file" << METAIO_STREAM::endl;
+    return false;
+    }
+
+  cur = xmlDocGetRootElement(doc);
+
+  if (cur == NULL)
+    {
+    METAIO_STREAM::cerr << "XML document is empty" << METAIO_STREAM::endl;
+    xmlFreeDoc(doc);
+    return false;
+    }
+  if (xmlStrcmp(cur->name, (const xmlChar *) "MetaCommand"))
+    {
+    METAIO_STREAM::cerr << "document of the wrong type. Root node shoule be MetaCommand" << METAIO_STREAM::endl;
+    xmlFreeDoc(doc);
+    return false;
+    }
+  xmlCleanupParser();
+  
+  // Simple parsing (two levels hierarchy)
+  cur = cur->children;
+  while(cur)
+    {
+    xmlNodePtr child = cur->children;
+    if(child)
+      {
+      xmlNodePtr subargument = child->next;
+      while(subargument)
+        {
+        xmlNodePtr subargumentChild = subargument->children;
+        if(subargumentChild && subargumentChild->content)
+          {
+          this->SetOptionValue((const char*)cur->name,
+                               (const char*)subargument->name,
+                               (const char*)subargumentChild->content,
+                               createMissingArguments
+                               );
+          }
+        subargument = subargument->next;          
+        }
+      
+      if(child->content)
+        {
+        //std::cout << cur->name << " : " << child->content << std::endl;
+        this->SetOptionValue((const char*)cur->name,
+                             (const char*)cur->name,
+                             (const char*)child->content,
+                             createMissingArguments);
+        }
+      }
+    cur = cur->next;
+    }
+
+#else 
+   METAIO_STREAM::cout << "LoadArguments() requires libxml2" << METAIO_STREAM::endl; 
+#endif
+  return true;
+}
+
+/** Set the value of an option or a field
+ *  This is used when importing command line arguments
+ *  from XML */
+bool MetaCommand::SetOptionValue(const char* optionName,
+                                 const char* name, 
+                                 const char* value,
+                                 bool createMissingArgument)
+{
+  OptionVector::iterator it = m_OptionVector.begin();
+  while(it != m_OptionVector.end())
+    {
+    if((*it).name == optionName)
+      {
+      (*it).userDefined = true;
+      METAIO_STL::vector<Field> & fields = (*it).fields;
+      METAIO_STL::vector<Field>::iterator itField = fields.begin();
+      while(itField != fields.end())
+        {
+        if((*itField).name == name)
+          {
+          (*itField).userDefined = true;
+          (*itField).value = value;
+          return true;
+          }
+        itField++;
+        }
+      }
+    it++;
+    }
+ 
+  if(createMissingArgument)
+    {
+    Option option;
+    option.tag = "";
+    option.longtag = optionName;
+    option.name = optionName;
+    option.required = false;
+    option.description = "";
+    option.userDefined = true;
+    option.complete = false;
+    
+    Field field;
+    field.name = name;
+    field.externaldata = DATA_NONE;
+    field.type = STRING;
+    field.value = value;
+    field.userDefined = true;
+    field.required = false;
+    field.rangeMin = "";
+    field.rangeMax = "";
+    option.fields.push_back(field);
+    m_OptionVector.push_back(option);  
+    }   
+    
+  return false;
+}
+
 
 #if (METAIO_USE_NAMESPACE)
 };
