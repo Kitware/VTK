@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.22");
+vtkCxxRevisionMacro(vtkSelection, "1.23");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -93,6 +93,10 @@ void vtkSelection::Clear()
   delete this->Internal;
   this->Internal = new vtkSelectionInternals;
   this->Properties->Clear();
+  if (this->FieldData)
+    {
+    this->FieldData->Initialize();
+    }
 
   this->Modified();
 }
