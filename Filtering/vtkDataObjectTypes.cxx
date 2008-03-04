@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkCompositeDataSet.h"
 #include  "vtkDataObject.h"
 #include  "vtkDataSet.h"
+#include  "vtkDirectedAcyclicGraph.h"
 #include  "vtkDirectedGraph.h"
 #include  "vtkGenericDataSet.h"
 #include  "vtkGraph.h"
@@ -27,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkHyperOctree.h"
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
+#include  "vtkMultiPieceDataSet.h"
 #include  "vtkPiecewiseFunction.h"
 #include  "vtkPointSet.h"
 #include  "vtkPolyData.h"
@@ -41,7 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkUniformGrid.h"
 #include  "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataObjectTypes, "1.5");
+vtkCxxRevisionMacro(vtkDataObjectTypes, "1.6");
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -73,6 +75,8 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkSelection",
   "vtkDirectedGraph", 
   "vtkUndirectedGraph", 
+  "vtkMultiPieceDataSet",
+  "vtkDirectedAcyclicGraph",
   NULL
 };
 
@@ -208,6 +212,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkUndirectedGraph") == 0)
     {
     return vtkUndirectedGraph::New();
+    }
+  else if(strcmp(type, "vtkMultiPieceDataSet") == 0)
+    {
+    return vtkMultiPieceDataSet::New();
+    }
+  else if(strcmp(type, "vtkDirectedAcyclicGraph") == 0)
+    {
+    return vtkDirectedAcyclicGraph::New();
     }
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
