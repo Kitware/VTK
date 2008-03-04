@@ -25,7 +25,6 @@
 
 int TestTreeMapViewer(int argc, char* argv[])
 {
-  int imode = 0; // Interactive mode
   char *file = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                     "Data/treetest.xml");
   cout << "Filename: " << file << endl;
@@ -33,11 +32,7 @@ int TestTreeMapViewer(int argc, char* argv[])
   const char* sizeField = "size";
   for(int i = 1; i < argc; i++)
     {
-    if (!strcmp(argv[i], "-I")) 
-      {
-      imode = 1;
-      continue;
-      }
+    // -I is handled by vtkRegressionTestImage below...
 
     if (!strcmp(argv[i], "-f")) 
       {
