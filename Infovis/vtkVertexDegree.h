@@ -19,7 +19,9 @@
 // .NAME vtkVertexDegree - Adds an attribute array with the degree of each vertex
 //
 // .SECTION Description
-// Adds an attribute array with the degree of each vertex.
+// Adds an attribute array with the degree of each vertex. By default the name
+// of the array will be "VertexDegree", but that can be changed by calling
+// SetOutputArrayName("foo");
 
 #ifndef __vtkVertexDegree_h
 #define __vtkVertexDegree_h
