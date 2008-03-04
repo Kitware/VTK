@@ -39,15 +39,17 @@ public:
     {
     FIELD_DATA = 0,
     POINT_DATA = 1,
-    CELL_DATA = 2
+    CELL_DATA = 2,
+    VERTEX_DATA = 3,
+    EDGE_DATA = 4,
     };
   //ETX
   
   // Description:
   // The field type to copy into the output table.
-  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA.
+  // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
   vtkGetMacro(FieldType, int);
-  vtkSetClampMacro(FieldType, int, 0, 2);
+  vtkSetClampMacro(FieldType, int, 0, 4);
   
 protected:
   vtkDataObjectToTable();

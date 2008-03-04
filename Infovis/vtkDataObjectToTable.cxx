@@ -23,13 +23,14 @@
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToTable, "1.3");
+vtkCxxRevisionMacro(vtkDataObjectToTable, "1.4");
 vtkStandardNewMacro(vtkDataObjectToTable);
 //---------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
@@ -90,6 +91,24 @@ int vtkDataObjectToTable::RequestData(
         if(dataset->GetCellData())
           {
           data->ShallowCopy(dataset->GetCellData());
+          }
+        }
+      break;
+    case VERTEX_DATA:
+      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+        {
+        if(graph->GetVertexData())
+          {
+          data->ShallowCopy(graph->GetVertexData());
+          }
+        }
+      break;
+    case EDGE_DATA:
+      if(vtkGraph* const graph = vtkGraph::SafeDownCast(input))
+        {
+        if(graph->GetEdgeData())
+          {
+          data->ShallowCopy(graph->GetEdgeData());
           }
         }
       break;
