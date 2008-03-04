@@ -108,7 +108,7 @@ public:
   // Flat index is an index obtained by traversing the tree in preorder.
   // This can be used to uniquely identify nodes in the tree.
   // Not valid if IsDoneWithTraversal() returns true.
-  vtkGetMacro(CurrentFlatIndex, unsigned int);
+  unsigned int GetCurrentFlatIndex();
 
   // Description:
   // Returns if the iteration is in reverse order.

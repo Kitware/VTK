@@ -18,130 +18,234 @@
 #include "vtkCompositeDataSetInternals.h"
 #include "vtkObjectFactory.h"
 
+
 class vtkCompositeDataIterator::vtkInternals
 {
 public:
-  class vtkLocation
+  // This implements a simple, no frills, depth-first iterator that iterates
+  // over the composite dataset.
+  class vtkIterator
     {
-    vtkCompositeDataSetInternals::VectorOfDataObjects* VectorPtr;
+    vtkSmartPointer<vtkDataObject> DataObject;
+    vtkSmartPointer<vtkCompositeDataSet> CompositeDataSet;
+
     vtkCompositeDataSetInternals::Iterator Iter;
     vtkCompositeDataSetInternals::ReverseIterator ReverseIter;
+    vtkIterator* ChildIterator;
+    
     bool Reverse;
-    unsigned int Index;
+    bool PassSelf;
+    unsigned int ChildIndex;
+
+    void InitChildIterator()
+      {
+      if (!this->ChildIterator)
+        {
+        this->ChildIterator = new vtkIterator();
+        }
+      this->ChildIterator->Initialize(this->Reverse, 0);
+
+      if (this->Reverse && 
+        this->ReverseIter != this->CompositeDataSet->Internals->Children.rend())
+        {
+        this->ChildIterator->Initialize(this->Reverse, 
+          this->ReverseIter->DataObject);
+        }
+      else if (!this->Reverse &&
+        this->Iter != this->CompositeDataSet->Internals->Children.end())
+        {
+        this->ChildIterator->Initialize(this->Reverse, 
+          this->Iter->DataObject);
+        }
+      }
   public:
-    // constructor
-    vtkLocation(vtkCompositeDataSetInternals::VectorOfDataObjects& ptr, bool reverse)
+    vtkIterator()
       {
+      this->ChildIterator = 0;
+      }
+
+    ~vtkIterator()
+      {
+      delete this->ChildIterator;
+      this->ChildIterator = 0;
+      }
+
+    void Initialize(bool reverse, vtkDataObject* dataObj)
+      {
+      vtkCompositeDataSet* compositeData = vtkCompositeDataSet::SafeDownCast(dataObj);
       this->Reverse = reverse;
-      this->VectorPtr = &ptr;
-      this->Index = 0;
-      this->Iter = ptr.begin();
-      this->ReverseIter = ptr.rbegin();
+      this->DataObject = dataObj;
+      this->CompositeDataSet = compositeData;
+      this->ChildIndex = 0;
+      this->PassSelf = true;
+      
+      delete this->ChildIterator;
+      this->ChildIterator = NULL;
+
+      if (compositeData)
+        {
+        this->Iter = compositeData->Internals->Children.begin(); 
+        this->ReverseIter = compositeData->Internals->Children.rbegin();
+        this->InitChildIterator();
+        }
       }
 
-    unsigned int GetIndex()
-      { 
-      // Note this will return invalid index if this->IsDoneWithTraversal()
-      // return true.
-      return this->Reverse?
-        (this->VectorPtr->size()-(this->Index+1)): this->Index; 
-      }
-
-    void Next()
+    bool InSubTree()
       {
-      this->Index++;
-      if (this->Reverse)
+      if (this->PassSelf || this->IsDoneWithTraversal())
         {
-        this->ReverseIter++;
+        return false;
         }
-      else
+
+      if (!this->ChildIterator)
         {
-        this->Iter++;
+        return false;
         }
+
+      if (this->ChildIterator->PassSelf)
+        {
+        return false;
+        }
+
+      return true;
       }
 
-    // tells if at end.
+
     bool IsDoneWithTraversal()
       {
-      return this->Reverse? (this->ReverseIter == this->VectorPtr->rend()):
-        (this->Iter == this->VectorPtr->end());
-      }
-
-    // must not be called if IsDoneWithTraversal() returns true.
-    vtkDataObject* Data()
-      {
-      return this->Reverse? this->ReverseIter->DataObject:
-        this->Iter->DataObject;
-      }
-
-    // must not be called if IsDoneWithTraversal() returns true.
-    vtkInformation* MetaData()
-      {
-      if (this->Reverse)
+      if (!this->DataObject)
         {
-        if (!this->ReverseIter->MetaData.GetPointer())
-          {
-          this->ReverseIter->MetaData.TakeReference(vtkInformation::New());
-          }
-        return this->ReverseIter->MetaData;
+        return true;
         }
-      else
+
+      if (this->PassSelf)
         {
-        if (!this->Iter->MetaData.GetPointer())
+        return false;
+        }
+
+      if (!this->CompositeDataSet)
+        {
+        return true;
+        }
+
+      if (this->Reverse && 
+        this->ReverseIter == this->CompositeDataSet->Internals->Children.rend())
+        {
+        return true;
+        }
+
+      if (!this->Reverse &&
+        this->Iter == this->CompositeDataSet->Internals->Children.end())
+        {
+        return true;
+        }
+      return false;
+      }
+
+    // Should not be called is this->IsDoneWithTraversal() returns true.
+    vtkDataObject* GetCurrentDataObject()
+      {
+      if (this->PassSelf)
+        {
+        return this->DataObject;
+        }
+      return this->ChildIterator?
+        this->ChildIterator->GetCurrentDataObject() : 0;
+      }
+
+    vtkInformation* GetCurrentMetaData()
+      {
+      if (this->PassSelf || !this->ChildIterator)
+        {
+        return NULL;
+        }
+
+      if (this->ChildIterator->PassSelf)
+        {
+        if (this->Reverse)
           {
-          this->Iter->MetaData.TakeReference(vtkInformation::New());
+          if (!this->ReverseIter->MetaData.GetPointer())
+            {
+            this->ReverseIter->MetaData.TakeReference(vtkInformation::New());
+            }
+          return this->ReverseIter->MetaData;
           }
-        return this->Iter->MetaData;
+        else
+          {
+          if (!this->Iter->MetaData.GetPointer())
+            {
+            this->Iter->MetaData.TakeReference(vtkInformation::New());
+            }
+          return this->Iter->MetaData;
+          }
+        }
+      return this->ChildIterator->GetCurrentMetaData();
+      }
+
+    int HasCurrentMetaData()
+      {
+      if (this->PassSelf || !this->ChildIterator)
+        {
+        return 0;
+        }
+
+      if (this->ChildIterator->PassSelf)
+        {
+        return this->Reverse?
+          (this->ReverseIter->MetaData.GetPointer() != 0):
+          (this->Iter->MetaData.GetPointer() != 0);
+        }
+
+      return this->ChildIterator->HasCurrentMetaData();
+      }
+
+    // Go to the next element.
+    void Next()
+      {
+      if (this->PassSelf)
+        {
+        this->PassSelf = false;
+        }
+      else if (this->ChildIterator)
+        {
+        this->ChildIterator->Next();
+        if (this->ChildIterator->IsDoneWithTraversal())
+          {
+          this->ChildIndex++;
+          if (this->Reverse)
+            {
+            this->ReverseIter++;
+            }
+          else
+            {
+            this->Iter++;
+            }
+          this->InitChildIterator();
+          }
         }
       }
 
-    // must not be called if IsDoneWithTraversal() returns true.
-    int HasMetaData()
+    // Returns the full-tree index for the current location.
+    vtkCompositeDataSetIndex GetCurrentIndex()
       {
-      return this->Reverse?
-        (this->ReverseIter->MetaData.GetPointer() != 0):
-        (this->Iter->MetaData.GetPointer() != 0);
+      vtkCompositeDataSetIndex index;
+      if (this->PassSelf || this->IsDoneWithTraversal() || !this->ChildIterator)
+        {
+        return index;
+        }
+      index.push_back(this->ChildIndex);
+      vtkCompositeDataSetIndex childIndex = this->ChildIterator->GetCurrentIndex();
+      index.insert(index.end(), childIndex.begin(), childIndex.end());
+      return index;
       }
+
     };
 
-  // LocationStack is used to inorder traversal of the tree. As we go down the
-  // tree, the stack depth increases. 
-  vtkstd::vector<vtkLocation> LocationStack;
-
-  // If Top of the stack has reached its end, the we pop it out and advance the
-  // new top of the stack. Note that the new top of the stack (if present) will
-  // always be a vtkCompositeDataSet.
-  void EnsureStackValidity()
-    {
-    if (this->LocationStack.size() > 0)
-      {
-      if (this->LocationStack.back().IsDoneWithTraversal())
-        {
-        this->LocationStack.pop_back();
-        if (this->LocationStack.size() > 0)
-          {
-          this->LocationStack.back().Next();
-          this->EnsureStackValidity();
-          }
-        }
-      }
-    }
-
-  // Returns the unique index for the current iterator location.
-  vtkCompositeDataSetIndex GetCurrentIndex()
-    {
-    vtkCompositeDataSetIndex vec;
-    vtkstd::vector<vtkLocation>::iterator iter = this->LocationStack.begin();
-    for (; iter != this->LocationStack.end(); ++iter)
-      {
-      vec.push_back(iter->GetIndex());
-      }
-    return vec;
-    }
+  vtkIterator Iterator;
 };
 
 vtkStandardNewMacro(vtkCompositeDataIterator);
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.5");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.6");
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
@@ -149,9 +253,9 @@ vtkCompositeDataIterator::vtkCompositeDataIterator()
   this->DataSet = 0;
   this->VisitOnlyLeaves = 1;
   this->TraverseSubTree = 1;
-  this->CurrentFlatIndex = 1;
+  this->CurrentFlatIndex = 0;
   this->SkipEmptyNodes = 1;
-  this->Internals = new vtkInternals;
+  this->Internals = new vtkInternals();
 }
 
 //----------------------------------------------------------------------------
@@ -165,10 +269,7 @@ vtkCompositeDataIterator::~vtkCompositeDataIterator()
 void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
 {
   vtkSetObjectBodyMacro(DataSet, vtkCompositeDataSet, ds);
-  if (this->DataSet)
-    {
-    this->GoToFirstItem();
-    }
+  this->GoToFirstItem();
 }
 
 //----------------------------------------------------------------------------
@@ -185,31 +286,25 @@ void vtkCompositeDataIterator::InitReverseTraversal()
   this->GoToFirstItem();
 }
 
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataIterator::IsDoneWithTraversal()
+{
+  return this->Internals->Iterator.IsDoneWithTraversal();
+}
+
 //----------------------------------------------------------------------------
 void vtkCompositeDataIterator::GoToFirstItem()
 {
-  this->CurrentFlatIndex = 1;
-  this->Internals->LocationStack.clear();
-  if (!this->DataSet)
+  this->CurrentFlatIndex = 0;
+  this->Internals->Iterator.Initialize(this->Reverse !=0, this->DataSet);
+  this->NextInternal();
+
+  while (!this->Internals->Iterator.IsDoneWithTraversal())
     {
-    vtkErrorMacro("DataSet must be specified.");
-    return;
-    }
-
-  vtkInternals::vtkLocation loc(this->DataSet->Internals->Children,
-    this->Reverse != 0);
-  this->Internals->LocationStack.push_back(loc);
-
-  this->Internals->EnsureStackValidity();
-
-  // We need to ensure that the current data object is non-null. Also, if
-  // this->VisitOnlyLeaves is true, we additionally need to ensure that the
-  // current item is not a vtkCompositeDataSet.
-  while (!this->IsDoneWithTraversal())
-    {
-    vtkDataObject* dObj = this->Internals->LocationStack.back().Data();
-    if ((this->SkipEmptyNodes && !dObj) || 
-      (this->VisitOnlyLeaves && dObj->IsA("vtkCompositeDataSet")))
+    vtkDataObject* dObj = this->Internals->Iterator.GetCurrentDataObject();
+    if ((!dObj && this->SkipEmptyNodes) ||
+      (this->VisitOnlyLeaves && vtkCompositeDataSet::SafeDownCast(dObj)))
       {
       this->NextInternal();
       }
@@ -221,26 +316,17 @@ void vtkCompositeDataIterator::GoToFirstItem()
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataIterator::IsDoneWithTraversal()
-{
-  return (this->Internals->LocationStack.size() == 0);
-}
-
-//----------------------------------------------------------------------------
 void vtkCompositeDataIterator::GoToNextItem()
 {
-  if (!this->IsDoneWithTraversal())
+  if (!this->Internals->Iterator.IsDoneWithTraversal())
     {
     this->NextInternal();
 
-    // We need to ensure that the current data object is non-null. Also, if
-    // this->VisitOnlyLeaves is true, we additionally need to ensure that the
-    // current item is not a vtkCompositeDataSet.
-    while (!this->IsDoneWithTraversal())
+    while (!this->Internals->Iterator.IsDoneWithTraversal())
       {
-      vtkDataObject* dObj = this->Internals->LocationStack.back().Data();
-      if ((this->SkipEmptyNodes && !dObj) || 
-        (this->VisitOnlyLeaves && dObj->IsA("vtkCompositeDataSet")))
+      vtkDataObject* dObj = this->Internals->Iterator.GetCurrentDataObject();
+      if ((!dObj && this->SkipEmptyNodes) ||
+        (this->VisitOnlyLeaves && vtkCompositeDataSet::SafeDownCast(dObj)))
         {
         this->NextInternal();
         }
@@ -253,39 +339,14 @@ void vtkCompositeDataIterator::GoToNextItem()
 }
 
 //----------------------------------------------------------------------------
-// Takes the current location to the next dataset. This traverses the tree in
-// preorder fashion.
-// If the current location is a composite dataset, next is its 1st child dataset.
-// If the current is not a composite dataset, then next is the next dataset.
-// This method gives no guarantees  whether the current dataset will be
-// non-null or leaf.
 void vtkCompositeDataIterator::NextInternal()
 {
-  if (this->Internals->LocationStack.size() > 0)
+  do
     {
-    vtkInternals::vtkLocation& loc = this->Internals->LocationStack.back();
-    if (!loc.IsDoneWithTraversal() && loc.Data() && loc.Data()->IsA("vtkCompositeDataSet"))
-      {
-      // We've hit a composite dataset, iterate into it unless
-      // this->TraverseSubTree == 0.
-      if (this->TraverseSubTree)
-        {
-        vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(loc.Data());
-        vtkInternals::vtkLocation subLoc(cds->Internals->Children, this->Reverse != 0);
-        this->Internals->LocationStack.push_back(subLoc);
-        }
-      else
-        {
-        loc.Next();
-        }
-      }
-    else
-      {
-      loc.Next();
-      }
-    this->Internals->EnsureStackValidity();
     this->CurrentFlatIndex++;
+    this->Internals->Iterator.Next();
     }
+  while (!this->TraverseSubTree && this->Internals->Iterator.InSubTree());
 }
 
 //----------------------------------------------------------------------------
@@ -293,7 +354,7 @@ vtkDataObject* vtkCompositeDataIterator::GetCurrentDataObject()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->LocationStack.back().Data();
+    return this->Internals->Iterator.GetCurrentDataObject();
     }
 
   return 0;
@@ -304,7 +365,7 @@ vtkInformation* vtkCompositeDataIterator::GetCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->LocationStack.back().MetaData();
+    return this->Internals->Iterator.GetCurrentMetaData();
     }
 
   return 0;
@@ -315,7 +376,7 @@ int vtkCompositeDataIterator::HasCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->LocationStack.back().HasMetaData();
+    return this->Internals->Iterator.HasCurrentMetaData();
     }
 
   return 0;
@@ -324,7 +385,19 @@ int vtkCompositeDataIterator::HasCurrentMetaData()
 //----------------------------------------------------------------------------
 vtkCompositeDataSetIndex vtkCompositeDataIterator::GetCurrentIndex()
 {
-  return this->Internals->GetCurrentIndex();
+  return this->Internals->Iterator.GetCurrentIndex();
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkCompositeDataIterator::GetCurrentFlatIndex()
+{
+  if (this->Reverse)
+    {
+    vtkErrorMacro(
+      "FlatIndex cannot be obtained when iterating in reverse order.");
+    return 0;
+    }
+  return this->CurrentFlatIndex;
 }
 
 //----------------------------------------------------------------------------
