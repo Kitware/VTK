@@ -1768,6 +1768,404 @@ WriteStream(METAIO_STREAM::ofstream * _stream,
   return true;
   }
 
+
+/** Write a portion of an image */
+bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
+                         const char *_headName,
+                         const char *_dataName,
+                         bool _writeElements,
+                         const void * _constElementData,
+                         bool _append
+                         )
+{   
+   int i=0;
+      
+   if(_headName != NULL) 
+    {
+    FileName(_headName);
+    }
+
+  bool result = false;
+
+  // Check if the file exists
+  if(M_FileExists(_headName))
+    {
+    char* elementData = const_cast<char*>(static_cast<const char*>(_constElementData));
+    if(elementData == NULL)
+      {
+      elementData = (char*)m_ElementData;
+      }
+     
+    // Find the start of the data
+    METAIO_STREAM::ifstream * readStream = new METAIO_STREAM::ifstream;
+    readStream->open(m_FileName, METAIO_STREAM::ios::binary |
+                                 METAIO_STREAM::ios::app);
+    if(!MetaObject::ReadStream(m_NDims, readStream))
+      {
+      METAIO_STREAM::cerr << "MetaImage: Read: Cannot parse file"
+                        << METAIO_STREAM::endl;
+      return false;
+      }
+
+    InitializeEssential(m_NDims,
+                        m_DimSize,
+                        m_ElementSpacing,
+                        m_ElementType,
+                        m_ElementNumberOfChannels,
+                        NULL, false); // no memory allocation
+  
+   
+   std::string  filename = ElementDataFileName();
+   unsigned long dataPos = 0;
+   
+   // local file
+   if(filename == "LOCAL")
+     {
+     filename = m_FileName;
+     dataPos = readStream->tellg();
+     }
+   
+   readStream->close();
+   delete readStream;
+
+   // Write the region
+   if(!M_FileExists(filename.c_str()))
+     {
+     char pathName[255];
+     MET_GetFilePath(_headName, pathName);
+     filename = pathName+filename; 
+     }
+   
+   METAIO_STREAM::ofstream * tmpWriteStream = new METAIO_STREAM::ofstream;
+   tmpWriteStream->open(filename.c_str(), METAIO_STREAM::ios::binary |
+                                          METAIO_STREAM::ios::in |
+                                          METAIO_STREAM::ios::out);
+   
+   if(!tmpWriteStream->is_open())
+      {
+      std::cerr << "Cannot open file: " << filename.c_str() << std::endl;
+      delete tmpWriteStream;
+      return false;
+      }
+    
+     int* currentIndex = new int[m_NDims];
+     for(i=0;i<m_NDims;i++)
+        {
+        currentIndex[i] = _indexMin[i];
+        }
+     
+     if(!elementData)
+       {
+       std::cerr << "Element data is NULL" << std::endl;
+       return false;
+       }
+      
+     int elementSize;
+     MET_SizeOfType(m_ElementType, &elementSize);    
+     int elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
+                
+    // This should probably go in a function 
+    bool done = false;
+    while(!done)
+      {
+      // Seek to the right position
+      unsigned long seekpos = dataPos;
+      for(i=0;i<m_NDims;i++)
+        {
+        seekpos += m_SubQuantity[i]*currentIndex[i]*elementNumberOfBytes;
+        }
+      
+      // Add zeros to the image if the data is missing. 
+      // Maybe this should refer to a function to avoid
+      // taking all the memory like we did before.
+      tmpWriteStream->seekp(0,METAIO_STREAM::ios::end);  
+      size_t endfile = tmpWriteStream->tellp();
+      
+      long padding = seekpos-endfile;
+      if(padding>0)
+        {
+        std::cout << "Padding = " << padding << std::endl;
+        unsigned char* zerobytes = new unsigned char[padding];
+        memset(zerobytes,0,padding);
+        tmpWriteStream->write((const char*)zerobytes,padding);  
+        delete [] zerobytes;
+        }
+          
+      // Write the line
+      tmpWriteStream->seekp(seekpos,METAIO_STREAM::ios::beg);  
+      long bytesToWrite = _indexMax[0]-_indexMin[0];
+      tmpWriteStream->write((const char*)elementData,bytesToWrite*elementNumberOfBytes);  
+      
+      elementData += bytesToWrite*elementNumberOfBytes;
+        
+      if(m_NDims>1)
+        {
+        currentIndex[1]++;
+        }
+      else
+        {
+        done = true;
+        }
+          
+      // Check if we are still in the region
+      for(i=1;i<m_NDims;i++)
+        {
+        if(currentIndex[i]>=_indexMax[i])
+          {
+          if(i==m_NDims-1)
+            {
+            done = true;
+            break;
+            }
+          else
+            {
+            currentIndex[i] = _indexMin[i];
+            currentIndex[i+1]++;
+            }
+          }
+        }
+      } // end writing line by line loop
+
+    tmpWriteStream->close();
+    delete tmpWriteStream;    
+    }
+  else // the file doesn't exist
+    {
+    bool userDataFileName = true;
+    if(_dataName == NULL && strlen(m_ElementDataFileName)==0)
+      {
+      userDataFileName = false;
+      int sPtr = 0;
+      MET_GetFileSuffixPtr(m_FileName, &sPtr);
+      if(!strcmp(&m_FileName[sPtr], "mha"))
+        {
+        ElementDataFileName("LOCAL");
+        }
+      else
+        {
+        if(!_append)
+          {
+          MET_SetFileSuffix(m_FileName, "mhd");
+          }
+        strcpy(m_ElementDataFileName, m_FileName);
+        if(m_CompressedData) // not supported but if the region is big enough why not
+          {
+          MET_SetFileSuffix(m_ElementDataFileName, "zraw");
+          }
+        else
+          {
+          MET_SetFileSuffix(m_ElementDataFileName, "raw");
+          }
+        }
+      }
+    else if(_dataName != NULL)
+      {
+      userDataFileName = false;
+      ElementDataFileName(_dataName);
+      }
+
+    // make sure suffix is valid
+    if(!_append)
+      {
+      if(!strcmp(m_ElementDataFileName, "LOCAL"))
+        {
+        MET_SetFileSuffix(m_FileName, "mha");
+        }
+       else
+        {
+        MET_SetFileSuffix(m_FileName, "mhd");
+        }
+      }
+
+    char pathName[255];
+    bool usePath = MET_GetFilePath(m_FileName, pathName);
+    if(usePath)
+      {
+      char elementPathName[255];
+      MET_GetFilePath(m_ElementDataFileName, elementPathName);
+      if(!strcmp(pathName, elementPathName))
+        {
+        strcpy(elementPathName, &m_ElementDataFileName[strlen(pathName)]);
+        strcpy(m_ElementDataFileName, elementPathName);
+        }
+      }
+
+    METAIO_STREAM::ofstream * tmpWriteStream = new METAIO_STREAM::ofstream;
+
+  // Some older sgi compilers have a error in the ofstream constructor
+  // that requires a file to exist for output
+  #ifdef __sgi
+    {
+    METAIO_STREAM::ofstream tFile(m_FileName, METAIO_STREAM::ios::out);
+    tFile.close();
+    }
+  #endif
+
+    if(!_append)
+      {
+  #ifdef __sgi
+      tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::out);
+  #else
+      tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
+                                       METAIO_STREAM::ios::out);
+  #endif
+      }
+    else
+      {
+  #ifdef __sgi
+      tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::app |
+                                       METAIO_STREAM::ios::out);
+  #else
+      tmpWriteStream->open(m_FileName, METAIO_STREAM::ios::binary |
+                                       METAIO_STREAM::ios::app |
+                                       METAIO_STREAM::ios::out);
+  #endif
+      }
+
+    if(!tmpWriteStream->rdbuf()->is_open())
+      {
+      if(!userDataFileName)
+        {
+        ElementDataFileName("");
+        }
+
+      delete tmpWriteStream;
+
+      return false;
+      }
+
+    // Write the ROI on the file
+    // This is a new file so we add zero bytes at the beginning
+    // of the file if necessary
+    // For now only writes local files
+    if(strcmp(m_ElementDataFileName, "LOCAL"))
+      {
+      std::cerr << "Write streaming can only write .mha files for now" << std::endl;
+      return false;
+      }
+    else
+      {
+      // We do the padding if necessary
+      char* elementData = const_cast<char*>(static_cast<const char*>(_constElementData));
+      if(elementData == NULL)
+        {
+        elementData = (char*)m_ElementData;
+        }
+      
+      // Add zero bytes at the beginning
+      int elementSize;
+      MET_SizeOfType(m_ElementType, &elementSize);    
+      int elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
+      unsigned long startingbyte = 0;
+      for(i=0;i<m_NDims;i++)
+        {
+        startingbyte += m_SubQuantity[i]*_indexMin[i]*elementNumberOfBytes;
+        }
+                                                                  
+      m_WriteStream = tmpWriteStream;
+      M_SetupWriteFields();
+      M_Write();
+      
+      unsigned long bufferSize = 2048;
+      
+      unsigned long bytesWritten = 0;
+      while(bytesWritten < startingbyte)
+        {
+        unsigned long bytesToWrite = startingbyte - bytesWritten;
+        if(bytesToWrite > bufferSize)
+          {
+          bytesToWrite = bufferSize;
+          }
+        unsigned char* zerobytes = new unsigned char[bytesToWrite];
+        memset(zerobytes,0,bytesToWrite);
+        MetaImage::M_WriteElementData(m_WriteStream, zerobytes, bytesToWrite/elementNumberOfBytes);
+        delete [] zerobytes;
+        bytesWritten += bufferSize;
+        }
+           
+      // Write the IO region line by line
+      int* currentIndex = new int[m_NDims];
+      for(i=0;i<m_NDims;i++)
+        {
+        currentIndex[i] = _indexMin[i];
+        }
+      
+      unsigned long currentPos = startingbyte;
+      
+      bool done = false;
+      while(!done)
+        {
+        // Seek to the right position
+        unsigned long seekpos = 0;
+        for(i=0;i<m_NDims;i++)
+          {
+          seekpos += m_SubQuantity[i]*currentIndex[i]*elementNumberOfBytes;
+          }
+        
+        // Add zeros to the region. Maybe this should refer to a function to avoid
+        // taking all the memory like we did before.
+        long padding = seekpos-currentPos;
+        
+        unsigned char* zerobytes = new unsigned char[padding];
+        memset(zerobytes,0,padding);
+        MetaImage::M_WriteElementData(m_WriteStream, zerobytes, padding/elementNumberOfBytes);
+        delete [] zerobytes;      
+         
+        currentPos += padding;
+        
+        // Write the line
+        long bytesToWrite = _indexMax[0]-_indexMin[0];
+        MetaImage::M_WriteElementData(m_WriteStream, elementData, bytesToWrite);
+        elementData += bytesToWrite*elementNumberOfBytes;
+        currentPos += bytesToWrite*elementNumberOfBytes;
+        
+        if(m_NDims>1)
+          {
+          currentIndex[1]++;
+          }
+        else
+          {
+          done = true;
+          }
+          
+        // Check if we are still in the region
+        for(i=1;i<m_NDims;i++)
+          {
+          if(currentIndex[i]>=_indexMax[i])
+            {
+            if(i==m_NDims-1)
+              {
+              done = true;
+              break;
+              }
+            else
+              {
+              currentIndex[i] = _indexMin[i];
+              currentIndex[i+1]++;
+              }
+            }
+          }
+        } // end writing line by line loop
+
+      delete [] currentIndex;     
+           
+    
+      m_WriteStream = NULL;               
+
+      if(!userDataFileName)
+        {
+        ElementDataFileName("");
+        }
+
+      tmpWriteStream->close();
+      delete tmpWriteStream;
+      }
+    }
+
+  return result;
+}
+
+
 bool MetaImage::
 Append(const char *_headName)
   {
