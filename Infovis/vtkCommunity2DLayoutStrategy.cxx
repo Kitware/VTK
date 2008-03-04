@@ -40,7 +40,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.9");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.10");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -71,14 +71,16 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
     
   this->RandomSeed = 123;
   this->MaxNumberOfIterations = 200;
-  this->IterationsPerLayout = 1;
+  this->IterationsPerLayout = 200;
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
   this->EdgeWeightField = 0;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->EdgeArray = NULL;
+  this->EdgeArray = 0;
+  this->CommunityArrayName = 0;
+  this->SetCommunityArrayName("community");
 }
 
 // ----------------------------------------------------------------------
@@ -297,11 +299,9 @@ void vtkCommunity2DLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   
-  // Get a quick pointer to the biconnected array
-  //vtkIdTypeArray *biConn = vtkIdTypeArray::SafeDownCast(
-  //  this->Graph->GetVertexData()->GetArray("biconnected component"));
-  vtkIdTypeArray *community = vtkIdTypeArray::SafeDownCast(
-    this->Graph->GetVertexData()->GetArray("community"));
+  // Get a quick pointer to the community array
+  vtkDataArray *community =
+    this->Graph->GetVertexData()->GetArray(this->CommunityArrayName);
   if (community == NULL)
     {
     vtkErrorMacro("vtkCommunity2DLayoutStrategy did not find a \"community\" array." <<
@@ -416,8 +416,8 @@ void vtkCommunity2DLayoutStrategy::Layout()
       float communityRestDistance = this->RestDistance;
       if (community)
         {
-        int sourceComm = community->GetValue(sourceIndex);
-        int targetComm = community->GetValue(targetIndex);
+        int sourceComm = community->GetTuple1(sourceIndex);
+        int targetComm = community->GetTuple1(targetIndex);
         
         // Often -1 is used for no/unspecified community
         // if either node is marked as such then just skip
@@ -622,4 +622,5 @@ void vtkCommunity2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
+  os << indent << "CommunityArrayName: " << (this->CommunityArrayName ? this->CommunityArrayName : "(none)") << endl;
 }

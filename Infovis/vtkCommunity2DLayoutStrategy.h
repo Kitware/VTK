@@ -115,6 +115,11 @@ public:
   // I'm an iterative layout so this method lets the caller
   // know if I'm done laying out the graph
   virtual int IsLayoutComplete() {return this->LayoutComplete;}
+  
+  // Description:
+  // Get/Set the community array name
+  vtkGetStringMacro(CommunityArrayName);
+  vtkSetStringMacro(CommunityArrayName);
 
 protected:
   vtkCommunity2DLayoutStrategy();
@@ -152,6 +157,10 @@ private:
   int LayoutComplete;
   float Temp;
   float RestDistance;
+  
+  // Description:
+  // Used to store the community array name
+  char* CommunityArrayName;
   
   // Private helper methods
   void GenerateCircularSplat(vtkImageData *splat, int x, int y);
