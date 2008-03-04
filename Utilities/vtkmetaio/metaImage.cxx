@@ -1799,7 +1799,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
     // Find the start of the data
     METAIO_STREAM::ifstream * readStream = new METAIO_STREAM::ifstream;
     readStream->open(m_FileName, METAIO_STREAM::ios::binary |
-                                 METAIO_STREAM::ios::app);
+                                 METAIO_STREAM::ios::in);
     if(!MetaObject::ReadStream(m_NDims, readStream))
       {
       METAIO_STREAM::cerr << "MetaImage: Read: Cannot parse file"
