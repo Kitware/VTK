@@ -1778,11 +1778,16 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
                          bool _append
                          )
 {   
-   int i=0;
+  int i=0;
       
-   if(_headName != NULL) 
+  if(_headName != NULL) 
     {
     FileName(_headName);
+    }
+
+  if(!_writeElements)
+    {
+    return false;
     }
 
   bool result = false;
@@ -1804,6 +1809,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       {
       METAIO_STREAM::cerr << "MetaImage: Read: Cannot parse file"
                         << METAIO_STREAM::endl;
+      delete readStream;
       return false;
       }
 
@@ -1848,21 +1854,22 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       return false;
       }
     
-     int* currentIndex = new int[m_NDims];
-     for(i=0;i<m_NDims;i++)
-        {
-        currentIndex[i] = _indexMin[i];
-        }
+    int* currentIndex = new int[m_NDims];
+    for(i=0;i<m_NDims;i++)
+      {
+      currentIndex[i] = _indexMin[i];
+      }
      
-     if(!elementData)
-       {
-       std::cerr << "Element data is NULL" << std::endl;
-       return false;
-       }
+    if(!elementData)
+      {
+      std::cerr << "Element data is NULL" << std::endl;
+      delete tmpWriteStream;
+      return false;
+      }
       
-     int elementSize;
-     MET_SizeOfType(m_ElementType, &elementSize);    
-     int elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
+    int elementSize;
+    MET_SizeOfType(m_ElementType, &elementSize);    
+    int elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
                 
     // This should probably go in a function 
     bool done = false;
@@ -1884,7 +1891,6 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       long padding = seekpos-endfile;
       if(padding>0)
         {
-        std::cout << "Padding = " << padding << std::endl;
         unsigned char* zerobytes = new unsigned char[padding];
         memset(zerobytes,0,padding);
         tmpWriteStream->write((const char*)zerobytes,padding);  
@@ -1926,6 +1932,8 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
         }
       } // end writing line by line loop
 
+    delete [] currentIndex;
+    
     tmpWriteStream->close();
     delete tmpWriteStream;    
     }
