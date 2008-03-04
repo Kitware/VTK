@@ -49,7 +49,9 @@
 (((type) == VTK_DOUBLE) ? "double" : \
 (((type) == VTK_ID_TYPE) ? "idtype" : \
 (((type) == VTK_STRING) ? "string" : \
-"Undefined")))))))))))))))))))
+(((type) == VTK_VARIANT) ? "variant" : \
+(((type) == VTK_OBJECT) ? "object" : \
+"Undefined")))))))))))))))))))))
   
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());

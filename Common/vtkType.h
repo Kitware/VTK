@@ -52,6 +52,10 @@
    VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.  */
 #define VTK_UNSIGNED___INT64   19
 
+/* These types are required by vtkVariant and vtkVariantArray */
+#define VTK_VARIANT 20
+#define VTK_OBJECT 21
+
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each vtkDataObject type.          */
 /* When adding a new data type here, make sure to update                    */

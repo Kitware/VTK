@@ -34,14 +34,6 @@
 #include "vtkStdString.h"
 
 //
-// The following should be eventually placed in vtkType.h
-//
-
-/* These types are required by vtkVariant and vtkVariantArray */
-#define VTK_VARIANT 20
-#define VTK_OBJECT 21
-
-//
 // The following should be eventually placed in vtkSetGet.h
 //
 
