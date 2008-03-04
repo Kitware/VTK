@@ -2279,7 +2279,11 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
     }
 
 #else 
-   METAIO_STREAM::cout << "LoadArguments() requires libxml2" << METAIO_STREAM::endl; 
+  METAIO_STREAM::cout << "LoadArguments(" << filename << ") requires libxml2" << METAIO_STREAM::endl; 
+  if(createMissingArguments)
+    {
+    }
+   
 #endif
   return true;
 }
