@@ -22,6 +22,7 @@
 #include "vtkObject.h"
 
 class vtkCompositeDataSet;
+class vtkCompositeDataSetInternals;
 class vtkCompositeDataSetIndex;
 class vtkDataObject;
 class vtkInformation;
@@ -147,6 +148,12 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
+  friend class vtkInternals;
+
+  // Description:
+  // Helper method used by vtkInternals to get access to the internals of
+  // vtkCompositeDataSet.
+  vtkCompositeDataSetInternals* GetInternals(vtkCompositeDataSet*);
 
   // Cannot be called when this->IsDoneWithTraversal() return 1.
   void UpdateLocation();

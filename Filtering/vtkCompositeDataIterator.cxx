@@ -33,6 +33,7 @@ public:
     vtkCompositeDataSetInternals::ReverseIterator ReverseIter;
     vtkIterator* ChildIterator;
     
+    vtkInternals* Parent;
     bool Reverse;
     bool PassSelf;
     unsigned int ChildIndex;
@@ -41,27 +42,33 @@ public:
       {
       if (!this->ChildIterator)
         {
-        this->ChildIterator = new vtkIterator();
+        this->ChildIterator = new vtkIterator(this->Parent);
         }
       this->ChildIterator->Initialize(this->Reverse, 0);
 
       if (this->Reverse && 
-        this->ReverseIter != this->CompositeDataSet->Internals->Children.rend())
+        this->ReverseIter != this->GetInternals(this->CompositeDataSet)->Children.rend())
         {
         this->ChildIterator->Initialize(this->Reverse, 
           this->ReverseIter->DataObject);
         }
       else if (!this->Reverse &&
-        this->Iter != this->CompositeDataSet->Internals->Children.end())
+        this->Iter != this->GetInternals(this->CompositeDataSet)->Children.end())
         {
         this->ChildIterator->Initialize(this->Reverse, 
           this->Iter->DataObject);
         }
       }
+
+    vtkCompositeDataSetInternals* GetInternals(vtkCompositeDataSet* cd)
+      {
+      return this->Parent->GetInternals(cd);
+      }
   public:
-    vtkIterator()
+    vtkIterator(vtkInternals* parent)
       {
       this->ChildIterator = 0;
+      this->Parent = parent;
       }
 
     ~vtkIterator()
@@ -69,6 +76,8 @@ public:
       delete this->ChildIterator;
       this->ChildIterator = 0;
       }
+
+
 
     void Initialize(bool reverse, vtkDataObject* dataObj)
       {
@@ -84,8 +93,8 @@ public:
 
       if (compositeData)
         {
-        this->Iter = compositeData->Internals->Children.begin(); 
-        this->ReverseIter = compositeData->Internals->Children.rbegin();
+        this->Iter = this->GetInternals(compositeData)->Children.begin(); 
+        this->ReverseIter = this->GetInternals(compositeData)->Children.rbegin();
         this->InitChildIterator();
         }
       }
@@ -129,13 +138,13 @@ public:
         }
 
       if (this->Reverse && 
-        this->ReverseIter == this->CompositeDataSet->Internals->Children.rend())
+        this->ReverseIter == this->GetInternals(this->CompositeDataSet)->Children.rend())
         {
         return true;
         }
 
       if (!this->Reverse &&
-        this->Iter == this->CompositeDataSet->Internals->Children.end())
+        this->Iter == this->GetInternals(this->CompositeDataSet)->Children.end())
         {
         return true;
         }
@@ -241,11 +250,24 @@ public:
 
     };
 
+  // Description:
+  // Helper method used by vtkInternals to get access to the internals of
+  // vtkCompositeDataSet.
+  vtkCompositeDataSetInternals* GetInternals(vtkCompositeDataSet* cd)
+    {
+    return this->CompositeDataIterator->GetInternals(cd);
+    }
+
+  vtkInternals():Iterator(this)
+  {
+  }
+
   vtkIterator Iterator;
+  vtkCompositeDataIterator* CompositeDataIterator;
 };
 
 vtkStandardNewMacro(vtkCompositeDataIterator);
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.6");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.7");
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
@@ -256,6 +278,7 @@ vtkCompositeDataIterator::vtkCompositeDataIterator()
   this->CurrentFlatIndex = 0;
   this->SkipEmptyNodes = 1;
   this->Internals = new vtkInternals();
+  this->Internals->CompositeDataIterator = this;
 }
 
 //----------------------------------------------------------------------------
@@ -398,6 +421,18 @@ unsigned int vtkCompositeDataIterator::GetCurrentFlatIndex()
     return 0;
     }
   return this->CurrentFlatIndex;
+}
+
+//----------------------------------------------------------------------------
+vtkCompositeDataSetInternals* vtkCompositeDataIterator::GetInternals(
+  vtkCompositeDataSet* cd)
+{
+  if (cd)
+    {
+    return cd->Internals;
+    }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
