@@ -584,7 +584,7 @@ public:
   // member function. Use at your own risk with nonplanar quadrilaterals.
   // The aspect ratio of a planar quadrilateral \f$q\f$ is: 
   // \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
-  // where \f$|q|_1\f$, $|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
+  // where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
   // perimeter, the greatest edge length and the area of \f$q\f$.
   static double QuadAspectRatio( vtkCell* cell );
 
