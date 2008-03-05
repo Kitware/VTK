@@ -50,7 +50,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.9");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.10");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -504,10 +504,14 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
     
     // If the array is found, sort it and rearrange the corresponding index array.
-    vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, input);
-    if (arr)
+    vtkAbstractArray* inputArr = this->GetInputAbstractArrayToProcess(0, input);
+    if (inputArr)
       {
+      // Don't sort the original array, instead make a copy.
+      vtkAbstractArray* arr = vtkAbstractArray::CreateArray(inputArr->GetDataType());
+      arr->DeepCopy(inputArr);
       vtkSortDataArray::Sort(arr, index);
+      arr->Delete();
       }
     
     // We normally go from highest (at the end) to lowest (at the beginning).
@@ -516,7 +520,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     vtkIdType begin = this->NumberOfLabels - 1;
     vtkIdType end = -1;
     vtkIdType step = -1;
-    if ((this->ReversePriority && arr) || (!this->ReversePriority && !arr))
+    if ((this->ReversePriority && inputArr) || (!this->ReversePriority && !inputArr))
       {
       begin = 0;
       end = this->NumberOfLabels;
