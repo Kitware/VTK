@@ -49,8 +49,6 @@
 // - vtkCommand::ProgressEvent
 //  - most of the objects return a pointer to a double value ranged between
 // 0.0 and 1.0
-//  - IO/vtkXMLDataParser returns a pointer to a float value instead of a
-// double
 //  - Infovis/vtkFixedWidthTextReader returns a pointer to a float value equal
 // to the number of lines read so far.
 // - vtkCommand::ErrorEvent
