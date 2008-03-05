@@ -36,7 +36,153 @@
 // widgets, which handle an event if the widget is selected (and then
 // aborting further processing of that event).  Otherwise. the event
 // is passed along for further processing.
-
+//
+// When an instance of vtkObject invokes an event, it also passes an optional
+// void pointer to a callData. This callData is NULL most of the time.
+// The callData is not specific to a type of event but specific to a type
+// of vtkObject invoking a specific event. For instance, vtkCommand::PickEvent
+// is invoked by vtkProp with a NULL callData but is invoked by
+// vtkInteractorStyleImage with a pointer to the vtkInteractorStyleImage object
+// itself.
+//
+// Here is the list of events that may be invoked with a none NULL callData.
+// - vtkCommand::ProgressEvent
+//  - most of the objects return a pointer to a double value ranged between
+// 0.0 and 1.0
+//  - IO/vtkXMLDataParser returns a pointer to a float value instead of a
+// double
+//  - Infovis/vtkFixedWidthTextReader returns a pointer to a float value equal
+// to the number of lines read so far.
+// - vtkCommand::ErrorEvent
+//  - an error message as a const char * string
+// - vtkCommand::WarningEvent
+//  - a warning message as a const char * string
+// - vtkCommand::StartAnimationCueEvent
+//  - a pointer to a vtkAnimationCue::AnimationCueInfo object
+// - vtkCommand::EndAnimationCueEvent
+//  - a pointer to a vtkAnimationCue::AnimationCueInfo object
+// - vtkCommand::AnimationCueTickEvent
+//  - a pointer to a vtkAnimationCue::AnimationCueInfo object
+// - vtkCommand::PickEvent
+//  - Common/vtkProp returns NULL
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::StartPickEvent
+//  - Rendering/vtkPropPicker returns NULL
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::EndPickEvent
+//  - Rendering/vtkPropPicker returns NULL
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::WrongTagEvent
+//  - Parallel/vtkSocketCommunicator returns a received tag as a char *
+// - vtkCommand::SelectionChangedEvent
+//  - Views/vtkView returns NULL
+//  - Views/vtkDataRepresentation returns a pointer to a vtkSelection
+//  - Rendering/vtkInteractorStyleRubberBand2D returns an array of 5 unsigned
+// int values (startPosition[2],endPosition[2], and selection type
+// {SELECT_UNION|SELECT_NORMAL})
+//  - Rendering/vtkInteractorStyleRubberBand3D returns an array of 5 unsigned
+// int values (startPosition[2],endPosition[2], and selection type
+// {SELECT_UNION|SELECT_NORMAL})
+//  - Graphics/vtkSelectionLink returns NULL
+// - vtkCommand::PlacePointEvent
+//  - Widgets/vtkSeedWidget returns a pointer to an int, being the current
+// handle number
+// - vtkCommand::ResetWindowLevelEvent
+//  - Widgets/vtkImagePlaneWidget returns an array of 2 double values (window
+// and level)
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::StartWindowLevelEvent
+//  - Widgets/vtkImagePlaneWidget returns an array of 2 double values (window
+// and level)
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::EndWindowLevelEvent
+//  - Widgets/vtkImagePlaneWidget returns an array of 2 double values (window
+// and level)
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::WindowLevelEvent
+//  - Widgets/vtkImagePlaneWidget returns an array of 2 double values (window
+// and level)
+//  - Rendering/vtkInteractorStyleImage returns a pointer to itself
+// - vtkCommand::CharEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QKeyEvent *
+// - vtkCommand::TimerEvent
+//  - most of the objects return a to an int representing a timer id
+//  - Rendering/vtkXRenderWindowTclInteractor returns NULL
+//  - Widgets/vtkHoverWidget returns NULL
+// - vtkCommand::CreateTimerEvent
+//  - Rendering/vtkGenericRenderWindowInteractor returns a to an int
+// representing a timer id
+// - vtkCommand::DestroyTimerEvent
+//  - Rendering/vtkGenericRenderWindowInteractor returns a to an int
+// representing a timer id
+// - vtkCommand::UserEvent
+//  - most of the objects return NULL
+//  - Infovis/vtkInteractorStyleTreeMapHover returns a pointer to a vtkIdType
+// representing a pedigree id
+// - vtkCommand::KeyPressEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
+// - vtkCommand::KeyReleaseEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
+// - vtkCommand::LeftButtonPressEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::LeftButtonReleaseEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::MouseMoveEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::MouseWheelForwardEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
+// - vtkCommand::MouseWheelBackwardEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
+// - vtkCommand::RightButtonPressEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::RightButtonReleaseEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::MiddleButtonPressEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::MiddleButtonReleaseEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+// - vtkCommand::CursorChangedEvent
+//  - most of the objects return a pointer to an int representing a shape
+//  - Rendering/vtkInteractorObserver returns NULL
+// - vtkCommand::ResetCameraEvent
+//  - Rendering/vtkRenderer returns a pointer to itself
+// - vtkCommand::ResetCameraClippingRangeEvent
+//  - Rendering/vtkRenderer returns a pointer to itself
+// - vtkCommand::EnterEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QEvent*
+// - vtkCommand::LeaveEvent
+//  - most of the objects return NULL
+//  - GUISupport/Qt/QVTKWidget returns a QEvent*
+// - vtkCommand::RenderWindowMessageEvent
+//  - Rendering/vtkWin32OpenGLRenderWindow return a pointer to a UINT message
+// - QVTKWidget::ContextMenuEvent
+//  - GUISupport/Qt/QVTKWidget returns a QContextMenuEvent*
+// - QVTKWidget::DragEnterEvent
+//  - GUISupport/Qt/QVTKWidget returns a QDragEnterEvent*
+// - QVTKWidget::DragMoveEvent
+//  - GUISupport/Qt/QVTKWidget returns a QDragMoveEvent*
+// - QVTKWidget::DragLeaveEvent
+//  - GUISupport/Qt/QVTKWidget returns a QDragLeaveEvent*
+// - QVTKWidget::DropEvent
+//  - GUISupport/Qt/QVTKWidget returns a QDropEvent*
+// - vtkCommand::VolumeMapperRenderProgressEvent
+//  - A pointer to a double value between 0.0 and 1.0
+// - vtkCommand::VolumeMapperComputeGradientsProgressEvent
+//  - A pointer to a double value between 0.0 and 1.0
+//
 // .SECTION See Also
 // vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
 // vtkInteractorObserver vtk3DWidget
