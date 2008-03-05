@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.1");
+vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.2");
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 
@@ -259,8 +259,8 @@ void vtkEncodedGradientEstimator::Update( )
     endSeconds = vtkTimerLog::GetUniversalTime();
     endCPUSeconds = vtkTimerLog::GetCPUTime();
   
-    this->LastUpdateTimeInSeconds    = (float)(endSeconds    - startSeconds);
-    this->LastUpdateTimeInCPUSeconds = (float)(endCPUSeconds - startCPUSeconds);
+    this->LastUpdateTimeInSeconds    = static_cast<float>(endSeconds    - startSeconds);
+    this->LastUpdateTimeInCPUSeconds = static_cast<float>(endCPUSeconds - startCPUSeconds);
     }
 }
 
@@ -281,19 +281,19 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
 
   ptr = this->CircleLimits;
 
-  halfsize = (double)(size-1)/2.0;
+  halfsize = (size-1)/2.0;
 
   for ( y = 0; y < size; y++ )
     {
-    w = halfsize - (double)y;
-    length = (int)( sqrt( (halfsize*halfsize) - (w*w) ) + 0.5 );
+    w = halfsize - y;
+    length = static_cast<int>( sqrt( (halfsize*halfsize) - (w*w) ) + 0.5 );
     start = halfsize - length - 1;
     end   = halfsize + length + 1;
     start = (start<0)?(0):(start);
     end   = (end>(size-1))?(size-1):(end);
 
-    *(ptr++) = (int) start;
-    *(ptr++) = (int) end;
+    *(ptr++) = static_cast<int>(start);
+    *(ptr++) = static_cast<int>(end);
     }
 }
 

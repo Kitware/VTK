@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.2");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.3");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
@@ -106,10 +106,12 @@ void vtkComputeGradients(
     x_limit = bounds[1]+1;
     y_start = bounds[2];
     y_limit = bounds[3]+1;
-    z_start = (int)(( (float)thread_id / (float)thread_count ) *
-                    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
-    z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-                    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
+    z_start = static_cast<int>(
+      ( thread_id / static_cast<float>(thread_count) ) *
+      (bounds[5]-bounds[4]+1) ) + bounds[4];
+    z_limit = static_cast<int>(
+      ( (thread_id + 1) / static_cast<float>(thread_count) ) *
+      (bounds[5]-bounds[4]+1) ) + bounds[4];
     }
   else
     {
@@ -117,10 +119,10 @@ void vtkComputeGradients(
     x_limit = size[0];
     y_start = 0;
     y_limit = size[1];
-    z_start = (int)(( (float)thread_id / (float)thread_count ) *
-                    size[2] );
-    z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-                    size[2] );
+    z_start = static_cast<int>(
+      ( thread_id /static_cast<float>(thread_count) ) * size[2] );
+    z_limit = static_cast<int>(
+      ( (thread_id + 1) / static_cast<float>(thread_count) ) * size[2] );
     }
 
   // Do final error checking on limits - make sure they are all within bounds
@@ -175,27 +177,27 @@ void vtkComputeGradients(
           {
           if ( zeroPad )
             {
-            n[0] = -((float)*(dptr+xstep));
+            n[0] = -(static_cast<float>(*(dptr+xstep)));
             }
           else
             {
-            n[0] = 2.0*((float)*(dptr) - (float)*(dptr+xstep));
+            n[0] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+xstep)));
             }
           }
         else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
           {
           if ( zeroPad )
             {
-            n[0] =  ((float)*(dptr-xstep));
+            n[0] =  static_cast<float>(*(dptr-xstep));
             }
           else
             {
-            n[0] = 2.0*((float)*(dptr-xstep) - (float)*(dptr));
+            n[0] = 2.0*(static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr)));
             }
           }
         else
           {
-          n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
+          n[0] = static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr+xstep)); 
           }
         
         // Compute the Y component
@@ -203,27 +205,27 @@ void vtkComputeGradients(
           {
           if ( zeroPad )
             {
-            n[1] = -((float)*(dptr+ystep));
+            n[1] = -static_cast<float>(*(dptr+ystep));
             }
           else
             {
-            n[1] = 2.0*((float)*(dptr) - (float)*(dptr+ystep)); 
+            n[1] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+ystep))); 
             }
           }
         else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
           {
           if ( zeroPad )
             {
-            n[1] =  ((float)*(dptr-ystep));
+            n[1] =  static_cast<float>(*(dptr-ystep));
             }
           else
             {
-            n[1] = 2.0*((float)*(dptr-ystep) - (float)*(dptr)); 
+            n[1] = 2.0*(static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr))); 
             }
           }
         else
           {
-          n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
+          n[1] = static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr+ystep)); 
           }
         
         // Compute the Z component
@@ -231,27 +233,27 @@ void vtkComputeGradients(
           {
           if ( zeroPad )
             {
-            n[2] = -((float)*(dptr+zstep));
+            n[2] = -static_cast<float>(*(dptr+zstep));
             }
           else
             {
-            n[2] = 2.0*((float)*(dptr) - (float)*(dptr+zstep)); 
+            n[2] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+zstep))); 
             }
           }
         else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
           {
           if ( zeroPad )
             {
-            n[2] =  ((float)*(dptr-zstep));
+            n[2] =  static_cast<float>(*(dptr-zstep));
             }
           else
             {
-            n[2] = 2.0*((float)*(dptr-zstep) - (float)*(dptr)); 
+            n[2] = 2.0*(static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr))); 
             }
           }
         else
           {
-          n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
+          n[2] = static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr+zstep)); 
           }
 
         // Take care of the aspect ratio of the data
@@ -262,9 +264,7 @@ void vtkComputeGradients(
         n[2] /= aspect[2];
         
         // Compute the gradient magnitude
-        t = sqrt( (double)( n[0]*n[0] + 
-                            n[1]*n[1] + 
-                            n[2]*n[2] ) );
+        t = sqrt( static_cast<double>( n[0]*n[0] + n[1]*n[1] + n[2]*n[2] ) );
         
         if ( computeGradientMagnitudes )
           {
@@ -281,7 +281,7 @@ void vtkComputeGradients(
             }
           else 
             {
-            *gptr = (unsigned char) gvalue;
+            *gptr = static_cast<unsigned char>(gvalue);
             }
           gptr++;
           }
@@ -363,8 +363,7 @@ void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
   vtkDebugMacro( << "Updating Normals!" );
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   
-  this->Threader->SetSingleMethod( vtkSwitchOnDataType,
-                                  (vtkObject *)this );
+  this->Threader->SetSingleMethod( vtkSwitchOnDataType,this );
   
   this->Threader->SingleMethodExecute();
 }

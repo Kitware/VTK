@@ -164,7 +164,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
   if ( directionFlag )
     {
     kstart  = 0;
-    kend    = ((int)( (size[a2]-1) / 
+    kend    = (static_cast<int>( (size[a2]-1) / 
                       me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
     
     // Offset the slices so that if we take just one it is in the middle
@@ -175,7 +175,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
     }
   else 
     {
-    kstart  = (int)((size[a2]-1) /
+    kstart  = static_cast<int>((size[a2]-1) /
                     me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
     kend    = -me->GetInternalSkipFactor();
     
@@ -188,33 +188,33 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
   // Fill in the texture coordinates and most of the vertex information in advance
   float offset[2];
-  offset[0] = 0.5 / (float)textureSize[0];
-  offset[1] = 0.5 / (float)textureSize[1];
+  offset[0] = 0.5 / textureSize[0];
+  offset[1] = 0.5 / textureSize[1];
   
   for ( i = 0; i < numTiles; i++ )
     {
     yTile = i / xTotal;
     xTile = i % xTotal;
     
-    t[i*8 + 0] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 1] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    t[i*8 + 2] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 3] = (float)((size[a1]*(yTile+1))  )/(float)textureSize[1] - offset[1];
-    t[i*8 + 4] = (float)((size[a0]*(xTile+1))  )/(float)textureSize[0] - offset[0];
-    t[i*8 + 5] = (float)((size[a1]*(yTile+1))  )/(float)textureSize[1] - offset[1];
-    t[i*8 + 6] = (float)((size[a0]*(xTile+1))  )/(float)textureSize[0] - offset[0];
-    t[i*8 + 7] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 0] = size[a0]*xTile/static_cast<float>(textureSize[0]) + offset[0];
+    t[i*8 + 1] = size[a1]*yTile/static_cast<float>(textureSize[1]) + offset[1];
+    t[i*8 + 2] = size[a0]*xTile/static_cast<float>(textureSize[0]) + offset[0];
+    t[i*8 + 3] = size[a1]*(yTile+1)/static_cast<float>(textureSize[1]) - offset[1];
+    t[i*8 + 4] = size[a0]*(xTile+1)/static_cast<float>(textureSize[0]) - offset[0];
+    t[i*8 + 5] = size[a1]*(yTile+1)/static_cast<float>(textureSize[1]) - offset[1];
+    t[i*8 + 6] = size[a0]*(xTile+1)/static_cast<float>(textureSize[0]) - offset[0];
+    t[i*8 + 7] = size[a1]*(yTile  )/static_cast<float>(textureSize[1]) + offset[1];
     
     v[i*12 + a0] = origin[a0];
     v[i*12 + a1] = origin[a1];
     
     v[i*12 + 3+a0] = origin[a0];
-    v[i*12 + 3+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    v[i*12 + 3+a1] = spacing[a1] * (size[a1]-1) + origin[a1];
     
-    v[i*12 + 6+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
-    v[i*12 + 6+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    v[i*12 + 6+a0] = spacing[a0] * (size[a0]-1) + origin[a0];
+    v[i*12 + 6+a1] = spacing[a1] * (size[a1]-1) + origin[a1];
     
-    v[i*12 + 9+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 9+a0] = spacing[a0] * (size[a0]-1) + origin[a0];
     v[i*12 + 9+a1] = origin[a1];
     }
 
@@ -273,8 +273,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
         switch ( axis )
           {
           case 0:
-            clipLow  = (int) croppingBounds[2];
-            clipHigh = (int) croppingBounds[3];
+            clipLow  = static_cast<int>(croppingBounds[2]);
+            clipHigh = static_cast<int>(croppingBounds[3]);
             tmpFlag =    (*xAxis<croppingBounds[0])?(0):(1+(*xAxis>=croppingBounds[1]));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
@@ -282,8 +282,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
             flag[2]  = croppingFlags&(1<<(tmpFlag+6));
             break;
           case 1:
-            clipLow  = (int)croppingBounds[0];
-            clipHigh = (int)croppingBounds[1];
+            clipLow  = static_cast<int>(croppingBounds[0]);
+            clipHigh = static_cast<int>(croppingBounds[1]);
             tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
@@ -291,8 +291,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
             flag[2]  = croppingFlags&(1<<(tmpFlag+2));
             break;
           case 2:
-            clipLow  = (int)croppingBounds[0];
-            clipHigh = (int)croppingBounds[1];
+            clipLow  = static_cast<int>(croppingBounds[0]);
+            clipHigh = static_cast<int>(croppingBounds[1]);
             tmpFlag = 3*((*yAxis<croppingBounds[2])?(0):(1+(*yAxis>=croppingBounds[3])));
             tmpFlag+= 9*((*zAxis<croppingBounds[4])?(0):(1+(*zAxis>=croppingBounds[5])));
             flag[0]  = croppingFlags&(1<<(tmpFlag));
@@ -324,7 +324,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               {
               tmpval = 255.0;
               }
-            *(tptr++) = (unsigned char) tmpval;
+            *(tptr++) = static_cast<unsigned char>(tmpval);
             
             tmpval = rgbaArray[(*dptr)*4 + 1];
             tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
@@ -333,7 +333,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               {
               tmpval = 255.0;
               }
-            *(tptr++) = (unsigned char) tmpval;
+            *(tptr++) = static_cast<unsigned char>(tmpval);
             
             tmpval = rgbaArray[(*dptr)*4 + 2];
             tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
@@ -342,7 +342,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               {
               tmpval = 255.0;
               }
-            *(tptr++) = (unsigned char) tmpval;
+            *(tptr++) = static_cast<unsigned char>(tmpval);
             
             tmpval = rgbaArray[(*dptr)*4 + 3];
             if ( gradientMagnitudes )
@@ -350,7 +350,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               tmpval *= gradientOpacityArray[*gptr];
               gptr += inc;
               }
-            *(tptr++) = (unsigned char) tmpval;
+            *(tptr++) = static_cast<unsigned char>(tmpval);
             
             }
           else
@@ -385,8 +385,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
               memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
               if ( gradientMagnitudes )
                 {
-                *(tptr+3) = (unsigned char)
-                  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
+                *(tptr+3) = static_cast<unsigned char>
+                  ((*(tptr+3)) * gradientOpacityArray[*gptr]);
                 gptr += inc;
                 }
               }
@@ -409,8 +409,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
             for ( i = 0; i < size[a0]; i++ )
               {
               memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-              *(tptr+3) = (unsigned char)
-                ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
+              *(tptr+3) = static_cast<unsigned char>
+                ((*(tptr+3)) * gradientOpacityArray[*gptr]);
               gptr += inc;
               dptr += inc;
               tptr += 4;
@@ -437,7 +437,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
     v[12*tile + a2] = 
       v[12*tile + 3+a2] = 
       v[12*tile + 6+a2] = 
-      v[12*tile + 9+a2] = spacing[a2] * (float)k + origin[a2];
+      v[12*tile + 9+a2] = spacing[a2] * k + origin[a2];
 
     tile++;
     
@@ -467,7 +467,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.3");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -498,7 +498,7 @@ vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = 
     vtkVolumeRenderingFactory::CreateInstance("vtkVolumeTextureMapper2D");
-  return (vtkVolumeTextureMapper2D*)ret;
+  return static_cast<vtkVolumeTextureMapper2D *>(ret);
 }
 
 void vtkVolumeTextureMapper2D::RenderSavedTexture()
@@ -622,8 +622,8 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
   if ( directionFlag )
     {
     kstart  = 0;
-    kend    = ((int)( (size[a2]-1) / 
-                      this->InternalSkipFactor)+1)*this->InternalSkipFactor;
+    kend    = (static_cast<int>( (size[a2]-1) / 
+                                 this->InternalSkipFactor)+1)*this->InternalSkipFactor;
     
     // Offset the slices so that if we take just one it is in the middle
     kstart += (size[a2]-1-kend+this->InternalSkipFactor)/2;
@@ -633,7 +633,7 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
     }
   else 
     {
-    kstart  = (int)((size[a2]-1) /
+    kstart  = static_cast<int>((size[a2]-1) /
                     this->InternalSkipFactor) * this->InternalSkipFactor;
     kend    = -this->InternalSkipFactor;
     
@@ -646,8 +646,8 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
 
   // Fill in the texture coordinates and most of the vertex information in advance
   float offset[2];
-  offset[0] = 0.5 / (float)textureSize[0];
-  offset[1] = 0.5 / (float)textureSize[1];
+  offset[0] = 0.5 / textureSize[0];
+  offset[1] = 0.5 / textureSize[1];
   
   int idx;
   for ( idx = 0; idx < numTiles; idx++ )
@@ -657,25 +657,25 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
     yTile = i / xTotal;
     xTile = i % xTotal;
     
-    t[i*8 + 0] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 1] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    t[i*8 + 2] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 3] = (float)((size[a1]*(yTile+1))  )/(float)textureSize[1] - offset[1];
-    t[i*8 + 4] = (float)((size[a0]*(xTile+1))  )/(float)textureSize[0] - offset[0];
-    t[i*8 + 5] = (float)((size[a1]*(yTile+1))  )/(float)textureSize[1] - offset[1];
-    t[i*8 + 6] = (float)((size[a0]*(xTile+1))  )/(float)textureSize[0] - offset[0];
-    t[i*8 + 7] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 0] = size[a0]*xTile/static_cast<float>(textureSize[0]) + offset[0];
+    t[i*8 + 1] = size[a1]*yTile/static_cast<float>(textureSize[1]) + offset[1];
+    t[i*8 + 2] = size[a0]*xTile/static_cast<float>(textureSize[0]) + offset[0];
+    t[i*8 + 3] = size[a1]*(yTile+1)/static_cast<float>(textureSize[1]) - offset[1];
+    t[i*8 + 4] = size[a0]*(xTile+1)/static_cast<float>(textureSize[0]) - offset[0];
+    t[i*8 + 5] = size[a1]*(yTile+1)/static_cast<float>(textureSize[1]) - offset[1];
+    t[i*8 + 6] = size[a0]*(xTile+1)/static_cast<float>(textureSize[0]) - offset[0];
+    t[i*8 + 7] = size[a1]*yTile/static_cast<float>(textureSize[1]) + offset[1];
     
     v[i*12 + a0] = origin[a0];
     v[i*12 + a1] = origin[a1];
     
     v[i*12 + 3+a0] = origin[a0];
-    v[i*12 + 3+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    v[i*12 + 3+a1] = spacing[a1] * (size[a1]-1) + origin[a1];
     
-    v[i*12 + 6+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
-    v[i*12 + 6+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    v[i*12 + 6+a0] = spacing[a0] * (size[a0]-1) + origin[a0];
+    v[i*12 + 6+a1] = spacing[a1] * (size[a1]-1) + origin[a1];
     
-    v[i*12 + 9+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 9+a0] = spacing[a0] * (size[a0]-1) + origin[a0];
     v[i*12 + 9+a1] = origin[a1];
     }
 
@@ -700,7 +700,7 @@ void vtkVolumeTextureMapper2D::RenderSavedTexture()
     v[12*tile + a2] = 
       v[12*tile + 3+a2] = 
       v[12*tile + 6+a2] = 
-      v[12*tile + 9+a2] = spacing[a2] * (float)k + origin[a2];
+      v[12*tile + 9+a2] = spacing[a2] * k + origin[a2];
 
     tileCount++;
     
@@ -827,28 +827,28 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
       case VTK_UNSIGNED_CHAR:
         this->InitializeRender( ren, vol, VTK_PLUS_X_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned char *)inputPointer, size, 0, 1, this );
+          ( static_cast<unsigned char *>(inputPointer), size, 0, 1, this );
         
         this->InitializeRender( ren, vol, VTK_PLUS_Y_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned char *)inputPointer, size, 1, 1, this );
+          ( static_cast<unsigned char *>(inputPointer), size, 1, 1, this );
         
         this->InitializeRender( ren, vol, VTK_PLUS_Z_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned char *)inputPointer, size, 2, 1, this );
+          ( static_cast<unsigned char *>(inputPointer), size, 2, 1, this );
         break;
       case VTK_UNSIGNED_SHORT:
         this->InitializeRender( ren, vol, VTK_PLUS_X_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned short *)inputPointer, size, 0, 1, this );
+          ( static_cast<unsigned short *>(inputPointer), size, 0, 1, this );
         
         this->InitializeRender( ren, vol, VTK_PLUS_Y_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned short *)inputPointer, size, 1, 1, this );
+          ( static_cast<unsigned short *>(inputPointer), size, 1, 1, this );
         
         this->InitializeRender( ren, vol, VTK_PLUS_Z_MAJOR_DIRECTION );
         vtkVolumeTextureMapper2D_TraverseVolume
-          ( (unsigned short *)inputPointer, size, 2, 1, this );
+          ( static_cast<unsigned short *>(inputPointer), size, 2, 1, this );
         break;
       }
     
@@ -869,32 +869,32 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
           {
           case VTK_PLUS_X_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 0, 1, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 0, 1, this );
             break;
             
           case VTK_MINUS_X_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 0, 0, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 0, 0, this );
             break;
             
           case VTK_PLUS_Y_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 1, 1, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 1, 1, this );
             break;
             
           case VTK_MINUS_Y_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 1, 0, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 1, 0, this );
             break;
             
           case VTK_PLUS_Z_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 2, 1, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 2, 1, this );
             break;
             
           case VTK_MINUS_Z_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned char *)inputPointer, size, 2, 0, this );
+              ( static_cast<unsigned char *>(inputPointer), size, 2, 0, this );
             break;
           }
         break;
@@ -903,32 +903,32 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
           {
           case VTK_PLUS_X_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 0, 1, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 0, 1, this );
             break;
             
           case VTK_MINUS_X_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 0, 0, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 0, 0, this );
             break;
             
           case VTK_PLUS_Y_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 1, 1, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 1, 1, this );
             break;
             
           case VTK_MINUS_Y_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 1, 0, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 1, 0, this );
             break;
             
           case VTK_PLUS_Z_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 2, 1, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 2, 1, this );
             break;
             
           case VTK_MINUS_Z_MAJOR_DIRECTION:
             vtkVolumeTextureMapper2D_TraverseVolume
-              ( (unsigned short *)inputPointer, size, 2, 0, this );
+              ( static_cast<unsigned short *>(inputPointer), size, 2, 0, this );
             break;
           }
         break;
@@ -1003,9 +1003,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
     {
     int size[3];
     this->GetInput()->GetDimensions( size );
-    while ( (float)size[this->MajorDirection/2] / 
-            (float)this->InternalSkipFactor > 
-            (float)this->MaximumNumberOfPlanes )
+    while ( size[this->MajorDirection/2] / static_cast<float>(this->InternalSkipFactor) > static_cast<float>(this->MaximumNumberOfPlanes) )
       {
       this->InternalSkipFactor++;
       }
@@ -1014,13 +1012,12 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
   // could be computed accurately for parallel (but isn't right now). For 
   // perspective, this spacing changes across the image so no one number will 
   // be accurate. 1/2 the maximum is (1 + sqrt(2)) / 2 = 1.2071
-
-  // TODO: DataSpacing should be converted to double at some point
+  
   double *dspacing;
   dspacing = this->GetInput()->GetSpacing();
-  this->DataSpacing[0] = (float)dspacing[0];
-  this->DataSpacing[1] = (float)dspacing[1];
-  this->DataSpacing[2] = (float)dspacing[2];
+  this->DataSpacing[0] = dspacing[0];
+  this->DataSpacing[1] = dspacing[1];
+  this->DataSpacing[2] = dspacing[2];
   this->SampleDistance = 
     this->DataSpacing[this->MajorDirection/2]*this->InternalSkipFactor*1.2071;
   this->vtkVolumeTextureMapper::InitializeRender( ren, vol );

@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.4");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.5");
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
@@ -519,7 +519,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     // Set the number of threads to use for ray casting,
     // then set the execution method and do it.
     this->Threader->SetSingleMethod( VolumeRayCastMapper_CastRays, 
-                                     (void *)staticInfo);
+                                     static_cast<void *>(staticInfo));
     this->Threader->SingleMethodExecute();
 
     if ( !ren->GetRenderWindow()->GetAbortRender() )
@@ -1703,7 +1703,7 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
   // loop through all the clipping planes
   for ( i = 0; i < count; i++ )
     {
-    onePlane = (vtkPlane *)planes->GetItemAsObject(i);
+    onePlane = static_cast<vtkPlane *>(planes->GetItemAsObject(i));
     onePlane->GetNormal(worldNormal);
     onePlane->GetOrigin(worldOrigin);
     clippingPlane = staticInfo->ClippingPlane + 4*i;
