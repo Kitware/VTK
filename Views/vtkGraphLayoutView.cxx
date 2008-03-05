@@ -64,7 +64,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.14");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.15");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -178,7 +178,8 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   // Note: All of the smartpointer objects 
   //       will be deleted for us
     
-  
+  vtkGraphLayoutStrategy *nothing = 0;
+  this->SetLayoutStrategy(nothing);
   this->SetLayoutStrategyNameInternal(0);
   this->SetSelectionArrayNameInternal(0);
 }
