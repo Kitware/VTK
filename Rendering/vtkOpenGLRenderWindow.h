@@ -169,7 +169,10 @@ public:
   // Description:
   // Return a string matching the last graphic error status.
   virtual const char *GetLastGraphicErrorString();
-  
+
+  // Description:
+  // Get the time when the OpenGL context was created.
+  vtkGetMacro(ContextCreationTime, vtkTimeStamp);
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -225,7 +228,8 @@ protected:
   
   // Actual type is GLenum. Last value returned by glGetError().
   unsigned int LastGraphicError;
-  
+ 
+  vtkTimeStamp ContextCreationTime;
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.

@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.93");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.94");
 #endif
 
 #define MAX_LIGHTS 8
@@ -199,6 +199,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
 
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
+  this->ContextCreationTime.Modified();
   glMatrixMode( GL_MODELVIEW );
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );

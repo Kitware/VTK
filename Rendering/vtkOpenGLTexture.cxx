@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.66");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.67");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -88,11 +88,15 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // to load when only the desired update rate changed).
   // If a better check is required, check something more specific,
   // like the graphics context.
+  vtkOpenGLRenderWindow* renWin = 
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
       input->GetMTime() > this->LoadTime.GetMTime() ||
       (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
        this->LoadTime.GetMTime()) || 
-       ren->GetRenderWindow() != this->RenderWindow)
+       renWin != this->RenderWindow.GetPointer() ||
+       renWin->GetContextCreationTime() > this->LoadTime)
     {
     int bytesPerPixel;
     int size[3];

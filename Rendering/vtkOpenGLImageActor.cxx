@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.36");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.37");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -327,7 +327,9 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   // need to reload the texture
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
       this->Input->GetMTime() > this->LoadTime.GetMTime() ||
-      ren->GetRenderWindow() != this->RenderWindow)
+      ren->GetRenderWindow() != this->RenderWindow ||
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow())->GetContextCreationTime() >
+      this->LoadTime)
     {
     int xsize, ysize;
     int release, reuseTexture;
