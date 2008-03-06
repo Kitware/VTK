@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.45");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.46");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -359,6 +359,10 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsProgressEvent, args );
       }
     }
+  
+  delete[] dxBuffer;
+  delete[] dyBuffer;
+  delete[] dzBuffer;
   
   me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
 }
