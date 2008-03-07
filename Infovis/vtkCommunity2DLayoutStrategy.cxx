@@ -40,7 +40,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.11");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.12");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -413,7 +413,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
       
       // Clustering: Get close to other nodes that are 
       // part of your community
-      float communityRestDistance = this->RestDistance;
+      float communityWeight = 1;
       if (community)
         {
         int sourceComm = static_cast<int> (community->GetTuple1(sourceIndex));
@@ -427,27 +427,23 @@ void vtkCommunity2DLayoutStrategy::Layout()
           } 
                
         // If the source and target are the same
-        // then decrease rest distance and move
-        // nodes closer to each other
+        // then increase the weight between them
         if (sourceComm == targetComm)
           {
-          communityRestDistance *= .5;
-          rawPointData[rawSourceIndex]   -= delta[0]*.1 * this->Temp;
-          rawPointData[rawSourceIndex+1] -= delta[1]*.1 * this->Temp;
-          rawPointData[rawTargetIndex]   += delta[0]*.1 * this->Temp;
-          rawPointData[rawTargetIndex+1] += delta[1]*.1 * this->Temp;
+          communityWeight = 10;
           }
           
         // If source and target are different
-        // then decrease the weight
+        // then decrease the weight between them
         else 
           {
-          communityRestDistance *= 2;
+          communityWeight = .1;
           }     
         } // if community
       
       // Perform weight adjustment
-      attractValue = this->EdgeArray[j].weight*disSquared-communityRestDistance;
+      attractValue = this->EdgeArray[j].weight*communityWeight*disSquared -
+                     this->RestDistance;
 
       rawAttractArray[rawSourceIndex]   -= delta[0] * attractValue;
       rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
