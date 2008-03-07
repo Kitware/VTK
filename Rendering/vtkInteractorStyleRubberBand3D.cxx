@@ -28,7 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.2");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBand3D, "1.3");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand3D);
 
 //--------------------------------------------------------------------------
@@ -178,6 +178,9 @@ void vtkInteractorStyleRubberBand3D::OnMouseMove()
 //--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMouseWheelForward()
 {
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], 
+    this->Interactor->GetEventPosition()[1]);
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   if (!camera)
     {
@@ -191,6 +194,9 @@ void vtkInteractorStyleRubberBand3D::OnMouseWheelForward()
 //--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBand3D::OnMouseWheelBackward()
 {
+  this->FindPokedRenderer(
+    this->Interactor->GetEventPosition()[0], 
+    this->Interactor->GetEventPosition()[1]);
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   if (!camera)
     {
