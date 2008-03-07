@@ -116,6 +116,7 @@ vtkHyperOctreeSampleFunction.cxx
 vtkHyperOctreeSurfaceFilter.cxx
 vtkHyperOctreeToUniformGridFilter.cxx
 vtkHyperStreamline.cxx
+vtkIconGlyphFilter.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
 vtkImageMarchingCubes.cxx
