@@ -58,7 +58,7 @@ private:
   void IconConvertIndex(int id, int & j, int & k);
 };
 
-void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)
+inline void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)
 {
   int dimX = this->IconSheetSize[0]/this->IconSize[0];
   int dimY = this->IconSheetSize[1]/this->IconSize[1];
