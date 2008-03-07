@@ -119,6 +119,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   vtkRenderWindow * renWin = vtkRenderWindow::New();
   renWin->SetSize(500, 500);
   view->SetupRenderWindow(renWin);
+  view->Update();
 
 
 
