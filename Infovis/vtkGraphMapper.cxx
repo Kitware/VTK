@@ -19,12 +19,17 @@
 #include "vtkGraphMapper.h"
 
 #include "vtkActor.h"
+#include "vtkActor2D.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDirectedGraph.h"
 #include "vtkExecutive.h"
+#include "vtkFollower.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGlyph2D.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkIconGlyphFilter.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -33,14 +38,16 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
+//#include "vtkTransformCoordinateSystems.h"
 #include "vtkUndirectedGraph.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.7");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.8");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -48,16 +55,18 @@ vtkGraphMapper::vtkGraphMapper()
 {
   this->GraphToPoly       = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexGlyph       = vtkSmartPointer<vtkVertexGlyphFilter>::New();
-  this->IconGlyph         = vtkSmartPointer<vtkGlyph2D>::New();
+  this->IconGlyph         = vtkSmartPointer<vtkIconGlyphFilter>::New();
+  //this->IconTransform     = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
   this->EdgeMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->VertexMapper      = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->OutlineMapper     = vtkSmartPointer<vtkPolyDataMapper>::New(); 
+  this->IconMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->EdgeActor         = vtkSmartPointer<vtkActor>::New();
   this->VertexActor       = vtkSmartPointer<vtkActor>::New();
   this->OutlineActor      = vtkSmartPointer<vtkActor>::New();
+  this->IconActor         = vtkSmartPointer<vtkFollower>::New();
   this->VertexLookupTable = vtkSmartPointer<vtkLookupTable>::New();
   this->EdgeLookupTable   = vtkSmartPointer<vtkLookupTable>::New();
-  this->IconTexture       = vtkSmartPointer<vtkTexture>::New();
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
   this->VertexPointSize = 5;
@@ -77,6 +86,12 @@ vtkGraphMapper::vtkGraphMapper()
   this->EdgeMapper->SetScalarVisibility(false);
   this->EdgeActor->SetPosition(0, 0, -0.003);
   this->EdgeActor->GetProperty()->SetLineWidth(this->GetEdgeLineWidth());
+
+  this->IconGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+ // this->IconTransform->
+  this->IconMapper->SetInputConnection(this->IconGlyph->GetOutputPort());
+  this->IconMapper->ScalarVisibilityOff();
+  this->IconActor->SetMapper(this->IconMapper);
   
   this->VertexGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
@@ -216,6 +231,30 @@ void vtkGraphMapper::SetEdgeLineWidth(float width)
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphMapper::SetIconSize(int *size)
+{
+  this->IconGlyph->SetIconSize(size);
+}
+
+//----------------------------------------------------------------------------
+int *vtkGraphMapper::GetIconSize()
+{
+  return this->IconGlyph->GetIconSize();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphMapper::SetIconTexture(vtkTexture *texture)
+{
+  this->IconActor->SetTexture(texture);
+}
+
+//----------------------------------------------------------------------------
+vtkTexture *vtkGraphMapper::GetIconTexture()
+{ 
+  return this->IconActor->GetTexture();
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphMapper::SetInput(vtkGraph *input)
 {
   if(input)
@@ -321,15 +360,28 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       }
     }
 
+  if (this->IconActor->GetTexture())
+    {
+    this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
+    this->IconActor->GetTexture()->GetInput()->Update();
+    int *dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
+    this->IconGlyph->SetIconSheetSize(dim);
+    }
+
+  //this->IconActor->SetCamera(ren->GetActiveCamera());
+
   this->EdgeActor->RenderOpaqueGeometry(ren);
   this->VertexActor->RenderOpaqueGeometry(ren);
   this->OutlineActor->RenderOpaqueGeometry(ren);
+  this->IconActor->RenderOpaqueGeometry(ren);
   this->EdgeActor->RenderTranslucentPolygonalGeometry(ren);
   this->VertexActor->RenderTranslucentPolygonalGeometry(ren);
   this->OutlineActor->RenderTranslucentPolygonalGeometry(ren);
+  this->IconActor->RenderTranslucentPolygonalGeometry(ren);
   this->TimeToDraw = this->EdgeMapper->GetTimeToDraw() +
                      this->VertexMapper->GetTimeToDraw() +
-                     this->OutlineMapper->GetTimeToDraw();
+                     this->OutlineMapper->GetTimeToDraw() +
+                     this->IconMapper->GetTimeToDraw();
 }
 
 void vtkGraphMapper::ApplyViewTheme(vtkViewTheme* theme)

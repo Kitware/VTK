@@ -30,15 +30,20 @@
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
+class vtkCamera;
 class vtkGraph;
 class vtkGlyph2D;
 class vtkGraphToPolyData;
+class vtkIconGlyphFilter;
 class vtkCellCenters;
 class vtkPolyDataMapper;
 class vtkLookupTable;
 class vtkTexture;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
+class vtkActor2D;
+class vtkFollower;
+class vtkTransformCoordinateSystems;
 
 
 class VTK_INFOVIS_EXPORT vtkGraphMapper : public vtkMapper 
@@ -72,6 +77,14 @@ public:
   bool GetColorEdges();
   void ColorEdgesOn();
   void ColorEdgesOff();
+
+  // Description:
+  // Specify the Width and Height, in pixels, of an icon in the icon sheet
+  void SetIconSize(int *size);
+  int *GetIconSize();
+
+  vtkTexture *GetIconTexture();
+  void SetIconTexture(vtkTexture *texture);
   
   // Description:
   // Get/Set the vertex point size
@@ -125,17 +138,18 @@ protected:
   //BTX
   vtkSmartPointer<vtkGraphToPolyData>   GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter> VertexGlyph;
-  vtkSmartPointer<vtkGlyph2D>           IconGlyph;
+  vtkSmartPointer<vtkIconGlyphFilter>   IconGlyph;
+  //vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
   
   vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;
   vtkSmartPointer<vtkPolyDataMapper>    VertexMapper;
   vtkSmartPointer<vtkPolyDataMapper>    OutlineMapper;
+  vtkSmartPointer<vtkPolyDataMapper>    IconMapper;
   
   vtkSmartPointer<vtkActor>             EdgeActor;
   vtkSmartPointer<vtkActor>             VertexActor;
   vtkSmartPointer<vtkActor>             OutlineActor;
-  
-  vtkSmartPointer<vtkTexture>           IconTexture;
+  vtkSmartPointer<vtkFollower>           IconActor;
   
   // Color maps
   vtkSmartPointer<vtkLookupTable>       EdgeLookupTable;
