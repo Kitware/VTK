@@ -64,7 +64,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.15");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.16");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -466,6 +466,18 @@ void vtkGraphLayoutView::SetIterationsPerLayout(int iterations)
     {
     fast->SetIterationsPerLayout(iterations);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetIconTexture(vtkTexture *texture)
+{
+  this->GraphMapper->SetIconTexture(texture);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetIconSize(int *size)
+{
+  this->GraphMapper->SetIconSize(size);
 }
 
 //----------------------------------------------------------------------------

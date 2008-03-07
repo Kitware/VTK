@@ -56,6 +56,7 @@ class vtkPolyDataMapper;
 class vtkRandomLayoutStrategy;
 class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
+class vtkTexture;
 class vtkVertexDegree;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
@@ -155,6 +156,14 @@ public:
   // to something like '1', will enable an application to
   // see the layout as it progresses.
   void SetIterationsPerLayout(int iterations);
+  
+  // Description:
+  // The icon sheet to use for textures.
+  void SetIconTexture(vtkTexture *texture);
+  
+  // Description:
+  // Each icon's size on the sheet.
+  void SetIconSize(int *size);
   
   // Description:
   // The array used for populating the selection list

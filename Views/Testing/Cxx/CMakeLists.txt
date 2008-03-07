@@ -2,7 +2,8 @@
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Views)
   # add tests that do not require data
-  SET(MyTests  
+  SET(MyTests
+    TestIconGlyphFilter.cxx  
     TestRenderView.cxx
     )
   IF (VTK_DATA_ROOT)
