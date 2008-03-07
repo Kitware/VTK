@@ -64,7 +64,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.16");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.17");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -731,6 +731,26 @@ void vtkGraphLayoutView::ApplyViewTheme(vtkViewTheme* theme)
   this->SelectedGraphMapper->SetEdgeLineWidth(2);
   
   selectTheme->Delete();
+}
+
+void vtkGraphLayoutView::SetVertexLabelFontSize(const int size)
+{
+  this->VertexLabelMapper->GetLabelTextProperty()->SetFontSize(size);
+}
+
+int vtkGraphLayoutView::GetVertexLabelFontSize()
+{
+  return this->VertexLabelMapper->GetLabelTextProperty()->GetFontSize();
+}
+
+void vtkGraphLayoutView::SetEdgeLabelFontSize(const int size)
+{
+  this->EdgeLabelMapper->GetLabelTextProperty()->SetFontSize(size);
+}
+
+int vtkGraphLayoutView::GetEdgeLabelFontSize()
+{
+  return this->EdgeLabelMapper->GetLabelTextProperty()->GetFontSize();
 }
 
 //----------------------------------------------------------------------------

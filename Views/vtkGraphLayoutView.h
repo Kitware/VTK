@@ -177,6 +177,16 @@ public:
   // Description:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
+  
+  // Description:
+  // The size of the font used for vertex labeling
+  virtual void SetVertexLabelFontSize(const int size);
+  virtual int GetVertexLabelFontSize();
+  
+  // Description:
+  // The size of the font used for edge labeling
+  virtual void SetEdgeLabelFontSize(const int size);
+  virtual int GetEdgeLabelFontSize();
 
   // Description:
   // Is the graph layout complete? This method is useful
