@@ -42,15 +42,15 @@
 #ifndef __vtkTree_h
 #define __vtkTree_h
 
-#include "vtkDirectedGraph.h"
+#include "vtkDirectedAcyclicGraph.h"
 
 class vtkIdTypeArray;
 
-class VTK_FILTERING_EXPORT vtkTree : public vtkDirectedGraph
+class VTK_FILTERING_EXPORT vtkTree : public vtkDirectedAcyclicGraph
 {
 public:
   static vtkTree *New();
-  vtkTypeRevisionMacro(vtkTree, vtkDirectedGraph);
+  vtkTypeRevisionMacro(vtkTree, vtkDirectedAcyclicGraph);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
