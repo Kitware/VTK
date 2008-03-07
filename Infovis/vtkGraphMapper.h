@@ -79,12 +79,20 @@ public:
   void ColorEdgesOff();
 
   // Description:
-  // Specify the Width and Height, in pixels, of an icon in the icon sheet
+  // Specify the Width and Height, in pixels, of an icon in the icon sheet.
   void SetIconSize(int *size);
   int *GetIconSize();
 
+  // Description:
+  // The texture containing the icon sheet.
   vtkTexture *GetIconTexture();
   void SetIconTexture(vtkTexture *texture);
+
+  // Description:
+  // Whether to show icons.  Default is off.
+  void SetIconVisibility(bool vis);
+  bool GetIconVisibility();
+  vtkBooleanMacro(IconVisibility, bool);
   
   // Description:
   // Get/Set the vertex point size

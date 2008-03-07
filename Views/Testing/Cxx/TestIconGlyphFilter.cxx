@@ -114,6 +114,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   view->SetIconTexture(texture);
   int size[] = {24, 24};
   view->SetIconSize(size);
+  view->IconVisibilityOn();
   view->SetLayoutStrategyToPassThrough();
 
   vtkRenderWindow * renWin = vtkRenderWindow::New();
@@ -142,6 +143,6 @@ int TestIconGlyphFilter( int argc, char *argv[])
   renWin->Delete();
   texture->Delete();
 
-  return retVal;
+  return !retVal;
 }
 

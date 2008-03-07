@@ -47,7 +47,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.8");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.9");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -56,7 +56,6 @@ vtkGraphMapper::vtkGraphMapper()
   this->GraphToPoly       = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexGlyph       = vtkSmartPointer<vtkVertexGlyphFilter>::New();
   this->IconGlyph         = vtkSmartPointer<vtkIconGlyphFilter>::New();
-  //this->IconTransform     = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
   this->EdgeMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->VertexMapper      = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->OutlineMapper     = vtkSmartPointer<vtkPolyDataMapper>::New(); 
@@ -106,26 +105,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
-  
-  // FIXME: Total hack for testing textures
-#if 0
-  vtkPNGReader *PNGReader = vtkPNGReader::New();
-  PNGReader->SetFileName("C:/Work/vtk_stuff/vtkSNL/Applications/DataBaseView/Node.png");
-  PNGReader->Update();
-
-  this->IconTexture->SetInputConnection(PNGReader->GetOutputPort());
-  PNGReader->Delete();
-  this->IconTexture->InterpolateOn();
-  //this->VertexActor->SetTexture(this->IconTexture);
-  
-
-  vtkPlaneSource *planeSource = vtkPlaneSource::New();
-  planeSource->Update();
-
-  this->IconGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
-  this->IconGlyph->SetSource(planeSource->GetOutput());
-  this->VertexMapper->SetInputConnection(this->IconGlyph->GetOutputPort());
-#endif
+  this->IconVisibilityOff();
 }
 
 //----------------------------------------------------------------------------
@@ -175,6 +155,18 @@ void vtkGraphMapper::ColorVerticesOn()
 void vtkGraphMapper::ColorVerticesOff()
 {
   this->VertexMapper->SetScalarVisibility(false);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphMapper::SetIconVisibility(bool vis)
+{
+  this->IconActor->SetVisibility(vis);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphMapper::GetIconVisibility()
+{
+  return this->IconActor->GetVisibility() ? true : false;
 }
 
 //----------------------------------------------------------------------------
@@ -360,7 +352,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       }
     }
 
-  if (this->IconActor->GetTexture())
+  if (this->IconActor->GetTexture() && this->IconActor->GetVisibility())
     {
     this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
     this->IconActor->GetTexture()->GetInput()->Update();
@@ -368,16 +360,20 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     this->IconGlyph->SetIconSheetSize(dim);
     }
 
-  //this->IconActor->SetCamera(ren->GetActiveCamera());
-
   this->EdgeActor->RenderOpaqueGeometry(ren);
   this->VertexActor->RenderOpaqueGeometry(ren);
   this->OutlineActor->RenderOpaqueGeometry(ren);
-  this->IconActor->RenderOpaqueGeometry(ren);
+  if (this->IconActor->GetVisibility())
+    {
+    this->IconActor->RenderOpaqueGeometry(ren);
+    }
   this->EdgeActor->RenderTranslucentPolygonalGeometry(ren);
   this->VertexActor->RenderTranslucentPolygonalGeometry(ren);
   this->OutlineActor->RenderTranslucentPolygonalGeometry(ren);
-  this->IconActor->RenderTranslucentPolygonalGeometry(ren);
+  if (this->IconActor->GetVisibility())
+    {
+    this->IconActor->RenderTranslucentPolygonalGeometry(ren);
+    }
   this->TimeToDraw = this->EdgeMapper->GetTimeToDraw() +
                      this->VertexMapper->GetTimeToDraw() +
                      this->OutlineMapper->GetTimeToDraw() +

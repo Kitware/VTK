@@ -164,6 +164,12 @@ public:
   // Description:
   // Each icon's size on the sheet.
   void SetIconSize(int *size);
+
+  // Description:
+  // Whether icons are visible (default off).
+  void SetIconVisibility(bool b);
+  bool GetIconVisibility();
+  vtkBooleanMacro(IconVisibility, bool);
   
   // Description:
   // The array used for populating the selection list
