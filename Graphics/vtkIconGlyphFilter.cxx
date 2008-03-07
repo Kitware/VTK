@@ -23,7 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.1");
+vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.2");
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -84,8 +84,6 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   double point[3], textureCoord[2];
-  double halfX = this->IconSize[0]/2.0;
-  double halfY = this->IconSize[1]/2.0;
   double sheetXDim = this->IconSheetSize[0]/this->IconSize[0];
   double sheetYDim = this->IconSheetSize[1]/this->IconSize[1];
   int iconIndex = 0;
