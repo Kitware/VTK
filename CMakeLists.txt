@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 PROJECT(VTK)
 
+MESSAGE("On Branch VTK-DistribGraph")
+
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
