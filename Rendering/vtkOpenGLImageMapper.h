@@ -17,6 +17,10 @@
 // vtkOpenGLImageMapper is a concrete subclass of vtkImageMapper that
 // renders images under OpenGL
 
+// .SECTION Caveats
+// vtkOpenGLImageMapper does not support vtkBitArray, you have to convert the array first
+// to vtkUnsignedCharArray (for example)
+//
 // .SECTION See Also
 // vtkImageMapper
 
