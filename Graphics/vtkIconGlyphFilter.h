@@ -12,6 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkIconGlyphFilter - Filter that generates a polydata with texture
+// coordinates corresponding to icons within a sheet of icons.
+// .SECTION Description
+// vtkIconGlyphFilter takes in a vtkPointSet where each point corresponds to
+// the center of an icon. Scalar integer data must also be set to give each
+// point an icon index. This index is a zero based row major index into an
+// image that contains a grid of icons. You must also set pixel Size of the 
+// icon image and the size of a particular icon.
+
+// .SECTION See Also
+// vtkPolyDataAlgorithm
 
 #ifndef __vtkIconGlyphFilter_h
 #define __vtkIconGlyphFilter_h
