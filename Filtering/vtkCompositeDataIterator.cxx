@@ -258,16 +258,22 @@ public:
     return this->CompositeDataIterator->GetInternals(cd);
     }
 
-  vtkInternals():Iterator(this)
-  {
-  }
+  vtkInternals()
+    {
+    this->Iterator = new vtkIterator(this);
+    }
+  ~vtkInternals()
+    {
+    delete this->Iterator;
+    this->Iterator = 0;
+    }
 
-  vtkIterator Iterator;
+  vtkIterator *Iterator;
   vtkCompositeDataIterator* CompositeDataIterator;
 };
 
 vtkStandardNewMacro(vtkCompositeDataIterator);
-vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.7");
+vtkCxxRevisionMacro(vtkCompositeDataIterator, "1.8");
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
@@ -313,19 +319,19 @@ void vtkCompositeDataIterator::InitReverseTraversal()
 //----------------------------------------------------------------------------
 int vtkCompositeDataIterator::IsDoneWithTraversal()
 {
-  return this->Internals->Iterator.IsDoneWithTraversal();
+  return this->Internals->Iterator->IsDoneWithTraversal();
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataIterator::GoToFirstItem()
 {
   this->CurrentFlatIndex = 0;
-  this->Internals->Iterator.Initialize(this->Reverse !=0, this->DataSet);
+  this->Internals->Iterator->Initialize(this->Reverse !=0, this->DataSet);
   this->NextInternal();
 
-  while (!this->Internals->Iterator.IsDoneWithTraversal())
+  while (!this->Internals->Iterator->IsDoneWithTraversal())
     {
-    vtkDataObject* dObj = this->Internals->Iterator.GetCurrentDataObject();
+    vtkDataObject* dObj = this->Internals->Iterator->GetCurrentDataObject();
     if ((!dObj && this->SkipEmptyNodes) ||
       (this->VisitOnlyLeaves && vtkCompositeDataSet::SafeDownCast(dObj)))
       {
@@ -341,13 +347,13 @@ void vtkCompositeDataIterator::GoToFirstItem()
 //----------------------------------------------------------------------------
 void vtkCompositeDataIterator::GoToNextItem()
 {
-  if (!this->Internals->Iterator.IsDoneWithTraversal())
+  if (!this->Internals->Iterator->IsDoneWithTraversal())
     {
     this->NextInternal();
 
-    while (!this->Internals->Iterator.IsDoneWithTraversal())
+    while (!this->Internals->Iterator->IsDoneWithTraversal())
       {
-      vtkDataObject* dObj = this->Internals->Iterator.GetCurrentDataObject();
+      vtkDataObject* dObj = this->Internals->Iterator->GetCurrentDataObject();
       if ((!dObj && this->SkipEmptyNodes) ||
         (this->VisitOnlyLeaves && vtkCompositeDataSet::SafeDownCast(dObj)))
         {
@@ -367,9 +373,9 @@ void vtkCompositeDataIterator::NextInternal()
   do
     {
     this->CurrentFlatIndex++;
-    this->Internals->Iterator.Next();
+    this->Internals->Iterator->Next();
     }
-  while (!this->TraverseSubTree && this->Internals->Iterator.InSubTree());
+  while (!this->TraverseSubTree && this->Internals->Iterator->InSubTree());
 }
 
 //----------------------------------------------------------------------------
@@ -377,7 +383,7 @@ vtkDataObject* vtkCompositeDataIterator::GetCurrentDataObject()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->Iterator.GetCurrentDataObject();
+    return this->Internals->Iterator->GetCurrentDataObject();
     }
 
   return 0;
@@ -388,7 +394,7 @@ vtkInformation* vtkCompositeDataIterator::GetCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->Iterator.GetCurrentMetaData();
+    return this->Internals->Iterator->GetCurrentMetaData();
     }
 
   return 0;
@@ -399,7 +405,7 @@ int vtkCompositeDataIterator::HasCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
     {
-    return this->Internals->Iterator.HasCurrentMetaData();
+    return this->Internals->Iterator->HasCurrentMetaData();
     }
 
   return 0;
@@ -408,7 +414,7 @@ int vtkCompositeDataIterator::HasCurrentMetaData()
 //----------------------------------------------------------------------------
 vtkCompositeDataSetIndex vtkCompositeDataIterator::GetCurrentIndex()
 {
-  return this->Internals->Iterator.GetCurrentIndex();
+  return this->Internals->Iterator->GetCurrentIndex();
 }
 
 //----------------------------------------------------------------------------
