@@ -38,7 +38,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
  // vtkRegressionTester *test = new vtkRegressionTester("IconGlyphFilter");
 
   char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/TangoIcons.png");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Tango/TangoIcons.png");
 
   int imageDims[3];
 
