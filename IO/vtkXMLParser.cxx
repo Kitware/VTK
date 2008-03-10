@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.26");
+vtkCxxRevisionMacro(vtkXMLParser, "1.27");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -45,6 +45,7 @@ vtkXMLParser::vtkXMLParser()
   this->InputString       = 0;
   this->InputStringLength = 0;
   this->ParseError        = 0;
+  this->IgnoreCharacterData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +69,9 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "FileName: " << (this->FileName? this->FileName : "(none)")
      << "\n";
+  os << indent << "IgnoreCharacterData: " 
+     << (this->IgnoreCharacterData?"On":"Off")
+     << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -229,8 +233,15 @@ int vtkXMLParser::Parse()
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
-  XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
-                              &vtkXMLParserCharacterDataHandler);
+  if (!this->IgnoreCharacterData)   
+    {
+    XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
+                                &vtkXMLParserCharacterDataHandler);
+    }
+  else
+    {
+    XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser), NULL);
+    }
   XML_SetUserData(static_cast<XML_Parser>(this->Parser), this);
 
   // Parse the input.
@@ -273,8 +284,15 @@ int vtkXMLParser::InitializeParser()
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
-  XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
-                              &vtkXMLParserCharacterDataHandler);
+  if (!this->IgnoreCharacterData)   
+    {
+    XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
+                                &vtkXMLParserCharacterDataHandler);
+    }
+  else
+    {
+    XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser), NULL);
+    }
   XML_SetUserData(static_cast<XML_Parser>(this->Parser), this);
   this->ParseError = 0;
   return 1;

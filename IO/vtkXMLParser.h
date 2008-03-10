@@ -81,6 +81,13 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // If this is off (the default), CharacterDataHandler will be called to 
+  // process text within XML Elements. If this is on, the text will be 
+  // ignored.
+  vtkSetMacro(IgnoreCharacterData, int);
+  vtkGetMacro(IgnoreCharacterData, int);
+
 protected:
   vtkXMLParser();
   ~vtkXMLParser();
@@ -161,6 +168,8 @@ protected:
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
   //ETX
+
+  int IgnoreCharacterData;
 
 private:
   vtkXMLParser(const vtkXMLParser&);  // Not implemented.
