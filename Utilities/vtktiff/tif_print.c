@@ -192,6 +192,7 @@ _TIFFPrettyPrintField(TIFF* tif, FILE* fd, ttag_t tag,
  * to the specified stdio file stream.
  */
 void
+TEXPORT
 TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 {
         TIFFDirectory *td = &tif->tif_dir;

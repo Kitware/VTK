@@ -138,6 +138,7 @@ _TIFFgetMode(const char* mode, const char* module)
 }
 
 TIFF*
+TEXPORT
 TIFFClientOpen(
         const char* name, const char* mode,
         thandle_t clientdata,
@@ -540,6 +541,7 @@ TIFFSetMode(TIFF* tif, int mode)
  * tiles; zero if organized as strips.
  */
 int
+TEXPORT
 TIFFIsTiled(TIFF* tif)
 {
         return (isTiled(tif));

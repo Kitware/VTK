@@ -32,7 +32,7 @@
 TIFFErrorHandlerExt _TIFFerrorHandlerExt = NULL;
 
 TIFFErrorHandler
-TIFFSetErrorHandler(TIFFErrorHandler handler)
+TEXPORT TIFFSetErrorHandler(TIFFErrorHandler handler)
 {
   TIFFErrorHandler prev = _TIFFerrorHandler;
   _TIFFerrorHandler = handler;

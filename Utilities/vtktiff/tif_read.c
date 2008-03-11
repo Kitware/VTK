@@ -91,6 +91,7 @@ TIFFSeek(TIFF* tif, uint32 row, tsample_t sample)
 }
 
 int
+TEXPORT
 TIFFReadScanline(TIFF* tif, tdata_t buf, uint32 row, tsample_t sample)
 {
         int e;
@@ -327,6 +328,7 @@ TIFFFillStrip(TIFF* tif, tstrip_t strip)
  * tile is selected by the (x,y,z,s) coordinates.
  */
 tsize_t
+TEXPORT
 TIFFReadTile(TIFF* tif,
     tdata_t buf, uint32 x, uint32 y, uint32 z, tsample_t s)
 {

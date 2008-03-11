@@ -484,6 +484,7 @@ TIFFReadRGBAImageOriented(TIFF* tif,
  * origin for raster by default.
  */
 int
+TEXPORT
 TIFFReadRGBAImage(TIFF* tif,
                   uint32 rwidth, uint32 rheight, uint32* raster, int stop)
 {

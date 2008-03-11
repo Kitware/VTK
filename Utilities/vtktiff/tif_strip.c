@@ -195,6 +195,7 @@ TIFFStripSize(TIFF* tif)
  * to certain heuristics.
  */
 uint32
+TEXPORT
 TIFFDefaultStripSize(TIFF* tif, uint32 request)
 {
         return (*tif->tif_defstripsize)(tif, request);
@@ -224,6 +225,7 @@ _TIFFDefaultStripSize(TIFF* tif, uint32 s)
  * stored as separate planes.
  */
 tsize_t
+TEXPORT
 TIFFScanlineSize(TIFF* tif)
 {
         TIFFDirectory *td = &tif->tif_dir;

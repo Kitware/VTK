@@ -46,6 +46,7 @@ static  int TIFFGrowStrips(TIFF*, int, const char*);
 static  int TIFFAppendToStrip(TIFF*, tstrip_t, tidata_t, tsize_t);
 
 int
+TEXPORT
 TIFFWriteScanline(TIFF* tif, tdata_t buf, uint32 row, tsample_t sample)
 {
         static const char module[] = "TIFFWriteScanline";

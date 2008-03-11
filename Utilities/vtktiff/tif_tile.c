@@ -238,6 +238,7 @@ TIFFVTileSize(TIFF* tif, uint32 nrows)
  * Compute the # bytes in a row-aligned tile.
  */
 tsize_t
+TEXPORT
 TIFFTileSize(TIFF* tif)
 {
         return (TIFFVTileSize(tif, tif->tif_dir.td_tilelength));

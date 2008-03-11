@@ -167,6 +167,7 @@ TIFFFdOpen(int ifd, const char* name, const char* mode)
  * Open a TIFF file for read/writing.
  */
 TIFF*
+TEXPORT
 TIFFOpen(const char* name, const char* mode)
 {
         static const char module[] = "TIFFOpen";
@@ -273,12 +274,14 @@ TIFFOpenW(const wchar_t* name, const char* mode)
 }
 
 tdata_t
+TEXPORT
 _TIFFmalloc(tsize_t s)
 {
         return ((tdata_t)GlobalAlloc(GMEM_FIXED, s));
 }
 
 void
+TEXPORT
 _TIFFfree(tdata_t p)
 {
         GlobalFree(p);
