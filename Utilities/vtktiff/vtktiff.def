@@ -82,3 +82,4 @@ EXPORTS vtk_TIFFOpen
 	vtk__TIFFmemcmp
 	vtk_TIFFCreateDirectory
 	vtk_TIFFDefaultStripSize
+  vtk_TIFFNumberOfDirectories
