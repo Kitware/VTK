@@ -1,4 +1,4 @@
-/* Header */
+/* Id */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -28,11 +28,6 @@
  * TIFF Library Win32-specific Routines.  Adapted from tif_unix.c 4/5/95 by
  * Scott Wagner (wagner@itek.com), Itek Graphix, Rochester, NY USA
  */
-#if defined ( _MSC_VER )
-#pragma warning ( disable : 4115 )
-#endif
-
-#include <windows.h>
 #include "tiffiop.h"
 
 static tsize_t
@@ -158,12 +153,11 @@ TIFFFdOpen(int ifd, const char* name, const char* mode)
         TIFF* tif;
         BOOL fSuppressMap = (mode[1] == 'u' || (mode[1]!=0 && mode[2] == 'u'));
 
-        tif = TIFFClientOpen(name, mode,
-                 (thandle_t)ifd,
-            _tiffReadProc, _tiffWriteProc,
-            _tiffSeekProc, _tiffCloseProc, _tiffSizeProc,
-                 fSuppressMap ? _tiffDummyMapProc : _tiffMapProc,
-                 fSuppressMap ? _tiffDummyUnmapProc : _tiffUnmapProc);
+        tif = TIFFClientOpen(name, mode, (thandle_t)ifd,
+                        _tiffReadProc, _tiffWriteProc,
+                        _tiffSeekProc, _tiffCloseProc, _tiffSizeProc,
+                        fSuppressMap ? _tiffDummyMapProc : _tiffMapProc,
+                        fSuppressMap ? _tiffDummyUnmapProc : _tiffUnmapProc);
         if (tif)
                 tif->tif_fd = ifd;
         return (tif);
@@ -173,12 +167,13 @@ TIFFFdOpen(int ifd, const char* name, const char* mode)
  * Open a TIFF file for read/writing.
  */
 TIFF*
-TEXPORT TIFFOpen(const char* name, const char* mode)
+TIFFOpen(const char* name, const char* mode)
 {
         static const char module[] = "TIFFOpen";
         thandle_t fd;
         int m;
         DWORD dwMode;
+        TIFF* tif;
 
         m = _TIFFgetMode(mode, module);
 
@@ -202,37 +197,89 @@ TEXPORT TIFFOpen(const char* name, const char* mode)
         default:
                 return ((TIFF*)0);
         }
-        fd = (thandle_t)CreateFile(name, (m == O_RDONLY) ? GENERIC_READ :
-                        (GENERIC_READ | GENERIC_WRITE), FILE_SHARE_READ, NULL, dwMode,
-                        (m == O_RDONLY) ? FILE_ATTRIBUTE_READONLY : FILE_ATTRIBUTE_NORMAL, NULL);
+        fd = (thandle_t)CreateFileA(name,
+                (m == O_RDONLY)?GENERIC_READ:(GENERIC_READ | GENERIC_WRITE),
+                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, dwMode,
+                (m == O_RDONLY)?FILE_ATTRIBUTE_READONLY:FILE_ATTRIBUTE_NORMAL,
+                NULL);
         if (fd == INVALID_HANDLE_VALUE) {
-                TIFFError(module, "%s: Cannot open", name);
+                TIFFErrorExt(0, module, "%s: Cannot open", name);
                 return ((TIFF *)0);
         }
-        return (TIFFFdOpen((int)fd, name, mode));
+
+        tif = TIFFFdOpen((int)fd, name, mode);
+        if(!tif)
+                CloseHandle(fd);
+        return tif;
 }
 
-tdata_t
-TEXPORT _TIFFmalloc(tsize_t s)
+/*
+ * Open a TIFF file with a Unicode filename, for read/writing.
+ */
+TIFF*
+TIFFOpenW(const wchar_t* name, const char* mode)
 {
-        return ((tdata_t)GlobalAlloc(GMEM_FIXED, s));
+        static const char module[] = "TIFFOpenW";
+        thandle_t fd;
+        int m;
+        DWORD dwMode;
+        int mbsize;
+        char *mbname;
+        TIFF *tif;
+
+        m = _TIFFgetMode(mode, module);
+
+        switch(m) {
+                case O_RDONLY:                  dwMode = OPEN_EXISTING; break;
+                case O_RDWR:                    dwMode = OPEN_ALWAYS;   break;
+                case O_RDWR|O_CREAT:            dwMode = OPEN_ALWAYS;   break;
+                case O_RDWR|O_TRUNC:            dwMode = CREATE_ALWAYS; break;
+                case O_RDWR|O_CREAT|O_TRUNC:    dwMode = CREATE_ALWAYS; break;
+                default:                        return ((TIFF*)0);
+        }
+
+        fd = (thandle_t)CreateFileW(name,
+                (m == O_RDONLY)?GENERIC_READ:(GENERIC_READ|GENERIC_WRITE),
+                FILE_SHARE_READ, NULL, dwMode,
+                (m == O_RDONLY)?FILE_ATTRIBUTE_READONLY:FILE_ATTRIBUTE_NORMAL,
+                NULL);
+        if (fd == INVALID_HANDLE_VALUE) {
+                TIFFErrorExt(0, module, "%S: Cannot open", name);
+                return ((TIFF *)0);
+        }
+
+        mbname = NULL;
+        mbsize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+        if (mbsize > 0) {
+                mbname = (char *)_TIFFmalloc(mbsize);
+                if (!mbname) {
+                        TIFFErrorExt(0, module,
+                        "Can't allocate space for filename conversion buffer");
+                        return ((TIFF*)0);
+                }
+
+                WideCharToMultiByte(CP_ACP, 0, name, -1, mbname, mbsize,
+                                    NULL, NULL);
+        }
+
+        tif = TIFFFdOpen((int)fd,
+                         (mbname != NULL) ? mbname : "<unknown>", mode);
+        if(!tif)
+                CloseHandle(fd);
+
+        _TIFFfree(mbname);
+
+        return tif;
 }
 
 tdata_t
-TEXPORT __TIFFmalloc(tsize_t s)
+_TIFFmalloc(tsize_t s)
 {
         return ((tdata_t)GlobalAlloc(GMEM_FIXED, s));
 }
 
 void
-TEXPORT _TIFFfree(tdata_t p)
-{
-        GlobalFree(p);
-        return;
-}
-
-void
-TEXPORT __TIFFfree(tdata_t p)
+_TIFFfree(tdata_t p)
 {
         GlobalFree(p);
         return;
@@ -241,23 +288,26 @@ TEXPORT __TIFFfree(tdata_t p)
 tdata_t
 _TIFFrealloc(tdata_t p, tsize_t s)
 {
-  void* pvTmp;
-  tsize_t old=GlobalSize(p);
-  if (old>=s)
-    {
-      if ((pvTmp = GlobalAlloc(GMEM_FIXED, s)) != NULL) {
-        CopyMemory(pvTmp, p, s);
-        GlobalFree(p);
-      }
-    }
-  else
-    {
-      if ((pvTmp = GlobalAlloc(GMEM_FIXED, s)) != NULL) {
-        CopyMemory(pvTmp, p, old);
-        GlobalFree(p);
-      }
-    }
-  return ((tdata_t)pvTmp);
+        void* pvTmp;
+        tsize_t old;
+
+        if(p == NULL)
+                return ((tdata_t)GlobalAlloc(GMEM_FIXED, s));
+
+        old = GlobalSize(p);
+
+        if (old>=s) {
+                if ((pvTmp = GlobalAlloc(GMEM_FIXED, s)) != NULL) {
+                        CopyMemory(pvTmp, p, s);
+                        GlobalFree(p);
+                }
+        } else {
+                if ((pvTmp = GlobalAlloc(GMEM_FIXED, s)) != NULL) {
+                        CopyMemory(pvTmp, p, old);
+                        GlobalFree(p);
+                }
+        }
+        return ((tdata_t)pvTmp);
 }
 
 void
@@ -291,15 +341,15 @@ Win32WarningHandler(const char* module, const char* fmt, va_list ap)
         LPTSTR szTitle;
         LPTSTR szTmp;
         LPCTSTR szTitleText = "%s Warning";
-        LPCTSTR szDefaultModule = "TIFFLIB";
-        szTmp = (module == NULL) ? (LPTSTR)szDefaultModule : (LPTSTR)module;
-        if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, (lstrlen(szTmp) +
-                        lstrlen(szTitleText) + lstrlen(fmt) + 128)*sizeof(TCHAR))) == NULL)
+        LPCTSTR szDefaultModule = "LIBTIFF";
+        LPCTSTR szTmpModule = (module == NULL) ? szDefaultModule : module;
+        if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, (strlen(szTmpModule) +
+                strlen(szTitleText) + strlen(fmt) + 128)*sizeof(char))) == NULL)
                 return;
-        wsprintf(szTitle, szTitleText, szTmp);
-        szTmp = szTitle + (lstrlen(szTitle)+2)*sizeof(TCHAR);
-        wvsprintf(szTmp, fmt, ap);
-        MessageBox(GetFocus(), szTmp, szTitle, MB_OK | MB_ICONINFORMATION);
+        sprintf(szTitle, szTitleText, szTmpModule);
+        szTmp = szTitle + (strlen(szTitle)+2)*sizeof(char);
+        vsprintf(szTmp, fmt, ap);
+        MessageBoxA(GetFocus(), szTmp, szTitle, MB_OK | MB_ICONINFORMATION);
         LocalFree(szTitle);
         return;
 #else
@@ -319,15 +369,15 @@ Win32ErrorHandler(const char* module, const char* fmt, va_list ap)
         LPTSTR szTitle;
         LPTSTR szTmp;
         LPCTSTR szTitleText = "%s Error";
-        LPCTSTR szDefaultModule = "TIFFLIB";
-        szTmp = (module == NULL) ? (LPTSTR)szDefaultModule : (LPTSTR)module;
-        if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, (lstrlen(szTmp) +
-                        lstrlen(szTitleText) + lstrlen(fmt) + 128)*sizeof(TCHAR))) == NULL)
+        LPCTSTR szDefaultModule = "LIBTIFF";
+        LPCTSTR szTmpModule = (module == NULL) ? szDefaultModule : module;
+        if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, (strlen(szTmpModule) +
+                strlen(szTitleText) + strlen(fmt) + 128)*sizeof(char))) == NULL)
                 return;
-        wsprintf(szTitle, szTitleText, szTmp);
-        szTmp = szTitle + (lstrlen(szTitle)+2)*sizeof(TCHAR);
-        wvsprintf(szTmp, fmt, ap);
-        MessageBox(GetFocus(), szTmp, szTitle, MB_OK | MB_ICONEXCLAMATION);
+        sprintf(szTitle, szTitleText, szTmpModule);
+        szTmp = szTitle + (strlen(szTitle)+2)*sizeof(char);
+        vsprintf(szTmp, fmt, ap);
+        MessageBoxA(GetFocus(), szTmp, szTitle, MB_OK | MB_ICONEXCLAMATION);
         LocalFree(szTitle);
         return;
 #else
@@ -338,3 +388,5 @@ Win32ErrorHandler(const char* module, const char* fmt, va_list ap)
 #endif        
 }
 TIFFErrorHandler _TIFFerrorHandler = Win32ErrorHandler;
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

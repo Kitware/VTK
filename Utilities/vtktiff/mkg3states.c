@@ -1,4 +1,4 @@
-/* "Header */
+/* "Id */
 
 /*
  * Copyright (c) 1991-1997 Sam Leffler
@@ -29,15 +29,15 @@
  * in Frank Cringle's viewfax program;
  *      Copyright (C) 1990, 1995  Frank D. Cringle.
  */
-#if defined(unix) || defined(__unix)
-#include "port.h"
-#else
+#include "tif_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#endif
 
-#include <unistd.h> /* getopt */
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #include "tif_fax3.h"
 
@@ -335,8 +335,8 @@ FillTable(TIFFFaxTabEnt *T, int Size, struct proto *P, int State)
 static  char* storage_class = "";
 static  char* const_class = "";
 static  int packoutput = 1;
-static  char* prebrace = "{ ";
-static  char* postbrace = " }";
+static  char* prebrace = "";
+static  char* postbrace = "";
 
 void
 WriteTable(FILE* fd, const TIFFFaxTabEnt* T, int Size, const char* name)
@@ -351,7 +351,7 @@ WriteTable(FILE* fd, const TIFFFaxTabEnt* T, int Size, const char* name)
         for (i = 0; i < Size; i++) {
             fprintf(fd, "%s%s%d,%d,%d%s",
                 sep, prebrace, T->State, T->Width, (int) T->Param, postbrace);
-            if (((i+1) % 12) == 0)
+            if (((i+1) % 10) == 0)
                     sep = ",\n";
             else
                     sep = ",";
@@ -436,3 +436,5 @@ main(int argc, char* argv[])
     fclose(fd);
     return (0);
 }
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

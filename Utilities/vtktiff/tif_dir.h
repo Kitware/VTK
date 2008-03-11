@@ -1,4 +1,4 @@
-/* Header */
+/* Id */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -30,14 +30,13 @@
  * ``Library-private'' Directory-related Definitions.
  */
 
-
 /*
  * Internal format of a TIFF directory entry.
  */
 typedef struct {
-#define FIELD_SETLONGS  3
+#define FIELD_SETLONGS  4
         /* bit vector of fields that are set */
-        u_long  td_fieldsset[FIELD_SETLONGS];
+        unsigned long   td_fieldsset[FIELD_SETLONGS];
 
         uint32  td_imagewidth, td_imagelength, td_imagedepth;
         uint32  td_tilewidth, td_tilelength, td_tiledepth;
@@ -62,73 +61,24 @@ typedef struct {
         uint16  td_halftonehints[2];
         uint16  td_extrasamples;
         uint16* td_sampleinfo;
-        double  td_stonits;
-        char*   td_documentname;
-        char*   td_artist;
-        char*   td_datetime;
-        char*   td_hostcomputer;
-        char*   td_imagedescription;
-        char*   td_make;
-        char*   td_model;
-        char*   td_software;
-        char*   td_copyright;
-        char*   td_pagename;
         tstrip_t td_stripsperimage;
         tstrip_t td_nstrips;            /* size of offset & bytecount arrays */
         uint32* td_stripoffset;
         uint32* td_stripbytecount;
-#if SUBIFD_SUPPORT
+        int     td_stripbytecountsorted; /* is the bytecount array sorted ascending? */
         uint16  td_nsubifd;
         uint32* td_subifd;
-#endif
-#ifdef YCBCR_SUPPORT
-        float*  td_ycbcrcoeffs;
+        /* YCbCr parameters */
         uint16  td_ycbcrsubsampling[2];
         uint16  td_ycbcrpositioning;
-#endif
-#ifdef COLORIMETRY_SUPPORT
-        float*  td_whitepoint;
-        float*  td_primarychromas;
-        float*  td_refblackwhite;
+        /* Colorimetry parameters */
         uint16* td_transferfunction[3];
-#endif
-#ifdef CMYK_SUPPORT
-        uint16  td_inkset;
-        uint16  td_ninks;
-        uint16  td_dotrange[2];
+        /* CMYK parameters */
         int     td_inknameslen;
         char*   td_inknames;
-        char*   td_targetprinter;
-#endif
-#ifdef ICC_SUPPORT
-        uint32  td_profileLength;
-        void    *td_profileData;
-#endif
-#ifdef PHOTOSHOP_SUPPORT
-        uint32  td_photoshopLength;
-        void    *td_photoshopData;
-#endif
-#ifdef IPTC_SUPPORT
-        uint32  td_richtiffiptcLength;
-        void    *td_richtiffiptcData;
-#endif
-        /* Begin Pixar Tag values. */
-        uint32  td_imagefullwidth, td_imagefulllength;
-        char*   td_textureformat;
-        char*   td_wrapmodes;
-        float   td_fovcot;
-        float*  td_matrixWorldToScreen;
-        float*  td_matrixWorldToCamera;
-        /* End Pixar Tag Values. */
 
-        /* zeiss data */
-        uint32  td_cz_lsminfoLength;
-        void    *td_cz_lsminfoData;
-  
-        /* uic data */
-        uint32  td_uic2tagLength;
-        uint32 *td_uic2tagData;
-
+        int     td_customValueCount;
+        TIFFTagValue *td_customValues;
 } TIFFDirectory;
 
 /*
@@ -160,26 +110,17 @@ typedef struct {
 #define FIELD_PHOTOMETRIC               8
 #define FIELD_THRESHHOLDING             9
 #define FIELD_FILLORDER                 10
-#define FIELD_DOCUMENTNAME              11
-#define FIELD_IMAGEDESCRIPTION          12
-#define FIELD_MAKE                      13
-#define FIELD_MODEL                     14
 #define FIELD_ORIENTATION               15
 #define FIELD_SAMPLESPERPIXEL           16
 #define FIELD_ROWSPERSTRIP              17
 #define FIELD_MINSAMPLEVALUE            18
 #define FIELD_MAXSAMPLEVALUE            19
 #define FIELD_PLANARCONFIG              20
-#define FIELD_PAGENAME                  21
 #define FIELD_RESOLUTIONUNIT            22
 #define FIELD_PAGENUMBER                23
 #define FIELD_STRIPBYTECOUNTS           24
 #define FIELD_STRIPOFFSETS              25
 #define FIELD_COLORMAP                  26
-#define FIELD_ARTIST                    27
-#define FIELD_DATETIME                  28
-#define FIELD_HOSTCOMPUTER              29
-#define FIELD_SOFTWARE                  30
 #define FIELD_EXTRASAMPLES              31
 #define FIELD_SAMPLEFORMAT              32
 #define FIELD_SMINSAMPLEVALUE           33
@@ -187,36 +128,16 @@ typedef struct {
 #define FIELD_IMAGEDEPTH                35
 #define FIELD_TILEDEPTH                 36
 #define FIELD_HALFTONEHINTS             37
-#define FIELD_YCBCRCOEFFICIENTS         38
 #define FIELD_YCBCRSUBSAMPLING          39
 #define FIELD_YCBCRPOSITIONING          40
-#define FIELD_REFBLACKWHITE             41
-#define FIELD_WHITEPOINT                42
-#define FIELD_PRIMARYCHROMAS            43
 #define FIELD_TRANSFERFUNCTION          44
-#define FIELD_INKSET                    45
 #define FIELD_INKNAMES                  46
-#define FIELD_DOTRANGE                  47
-#define FIELD_TARGETPRINTER             48
 #define FIELD_SUBIFD                    49
-#define FIELD_NUMBEROFINKS              50
-#define FIELD_ICCPROFILE                51
-#define FIELD_PHOTOSHOP                 52
-#define FIELD_RICHTIFFIPTC              53
-#define FIELD_STONITS                   54
-/* Begin PIXAR */
-#define FIELD_IMAGEFULLWIDTH            55
-#define FIELD_IMAGEFULLLENGTH           56
-#define FIELD_TEXTUREFORMAT             57
-#define FIELD_WRAPMODES                 58
-#define FIELD_FOVCOT                    59
-#define FIELD_MATRIX_WORLDTOSCREEN      60
-#define FIELD_MATRIX_WORLDTOCAMERA      61
-#define FIELD_COPYRIGHT                 62
-#define FIELD_CZ_LSMINFO                63
-#define FIELD_UIC2TAG                   64
+/*      FIELD_CUSTOM (see tiffio.h)     65 */
 /* end of support for well-known tags; codec-private tags follow */
-#define FIELD_CODEC                     65      /* base of codec-private tags */
+#define FIELD_CODEC                     66      /* base of codec-private tags */
+
+
 /*
  * Pseudo-tags don't normally need field bits since they
  * are not written to an output file (by definition).
@@ -240,25 +161,8 @@ typedef struct {
         ((v) & (tif)->tif_typemask[type]) << (tif)->tif_typeshift[type] : \
         (v) & (tif)->tif_typemask[type]))
 
-typedef struct {
-        ttag_t  field_tag;              /* field's tag */
-        short   field_readcount;        /* read count/TIFF_VARIABLE/TIFF_SPP */
-        short   field_writecount;       /* write count/TIFF_VARIABLE */
-        TIFFDataType field_type;        /* type of associated data */
-        u_short field_bit;              /* bit in fieldsset bit vector */
-        u_char  field_oktochange;       /* if true, can change while writing */
-        u_char  field_passcount;        /* if true, pass dir count on set */
-        char    *field_name;            /* ASCII name */
-} TIFFFieldInfo;
 
-#define TIFF_ANY        TIFF_NOTYPE     /* for field descriptor searching */
-#define TIFF_VARIABLE   -1              /* marker for variable length tags */
-#define TIFF_SPP        -2              /* marker for SamplesPerPixel tags */
-#define TIFF_VARIABLE2  -3              /* marker for uint32 var-length tags */
-
-extern  const int tiffDataWidth[];      /* table of tag datatype widths */
-
-#define BITn(n)                         (((u_long)1L)<<((n)&0x1f)) 
+#define BITn(n)                         (((unsigned long)1L)<<((n)&0x1f)) 
 #define BITFIELDn(tif, n)               ((tif)->tif_dir.td_fieldsset[(n)/32]) 
 #define TIFFFieldSet(tif, field)        (BITFIELDn(tif, field) & BITn(field)) 
 #define TIFFSetFieldBit(tif, field)     (BITFIELDn(tif, field) |= BITn(field))
@@ -270,13 +174,26 @@ extern  const int tiffDataWidth[];      /* table of tag datatype widths */
 #if defined(__cplusplus)
 extern "C" {
 #endif
-extern  void _TIFFSetupFieldInfo(TIFF*);
-extern  void _TIFFMergeFieldInfo(TIFF*, const TIFFFieldInfo[], int);
+extern  const TIFFFieldInfo *_TIFFGetFieldInfo(size_t *);
+extern  const TIFFFieldInfo *_TIFFGetExifFieldInfo(size_t *);
+extern  void _TIFFSetupFieldInfo(TIFF*, const TIFFFieldInfo[], size_t);
 extern  void _TIFFPrintFieldInfo(TIFF*, FILE*);
-extern  const TIFFFieldInfo* _TIFFFindFieldInfo(TIFF*, ttag_t, TIFFDataType);
-extern  const TIFFFieldInfo* _TIFFFieldWithTag(TIFF*, ttag_t);
 extern  TIFFDataType _TIFFSampleToTagType(TIFF*);
+extern  const TIFFFieldInfo* _TIFFFindOrRegisterFieldInfo( TIFF *tif,
+                                                           ttag_t tag,
+                                                           TIFFDataType dt );
+extern  TIFFFieldInfo* _TIFFCreateAnonFieldInfo( TIFF *tif, ttag_t tag,
+                                                 TIFFDataType dt );
+
+#define _TIFFMergeFieldInfo         vtk_TIFFMergeFieldInfo
+#define _TIFFFindFieldInfo          vtk_TIFFFindFieldInfo
+#define _TIFFFindFieldInfoByName    vtk_TIFFFindFieldInfoByName
+#define _TIFFFieldWithTag           vtk_TIFFFieldWithTag
+#define _TIFFFieldWithName          vtk_TIFFFieldWithName
+
 #if defined(__cplusplus)
 }
 #endif
 #endif /* _TIFFDIR_ */
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

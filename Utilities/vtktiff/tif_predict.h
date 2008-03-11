@@ -1,4 +1,4 @@
-/* Header */
+/* Id */
 
 /*
  * Copyright (c) 1995-1997 Sam Leffler
@@ -36,9 +36,9 @@
  * the predictor code can cast tif_data to find its state.
  */
 typedef struct {
-        int     predictor;              /* predictor tag value */
-        int     stride;                 /* sample stride over data */
-        tsize_t rowsize;                /* tile/strip row size */
+        int             predictor;      /* predictor tag value */
+        int             stride;         /* sample stride over data */
+        tsize_t         rowsize;        /* tile/strip row size */
 
         TIFFPostMethod  pfunc;          /* horizontal differencer/accumulator */
         TIFFCodeMethod  coderow;        /* parent codec encode/decode row */
@@ -55,7 +55,10 @@ typedef struct {
 extern "C" {
 #endif
 extern  int TIFFPredictorInit(TIFF*);
+extern  int TIFFPredictorCleanup(TIFF*);
 #if defined(__cplusplus)
 }
 #endif
 #endif /* _TIFFPREDICT_ */
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

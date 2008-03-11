@@ -1,4 +1,4 @@
-/* Header */
+/* Id */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -31,20 +31,30 @@
  *
  * PackBits Compression Algorithm Support
  */
-#include <assert.h>
 #include <stdio.h>
 
 static int
 PackBitsPreEncode(TIFF* tif, tsample_t s)
 {
         (void) s;
+
+        if (!(tif->tif_data = (tidata_t)_TIFFmalloc(sizeof(tsize_t))))
+                return (0);
         /*
          * Calculate the scanline/tile-width size in bytes.
          */
         if (isTiled(tif))
-                tif->tif_data = (tidata_t)(size_t)TIFFTileRowSize(tif);
+                *(tsize_t*)tif->tif_data = TIFFTileRowSize(tif);
         else
-                tif->tif_data = (tidata_t)(size_t)TIFFScanlineSize(tif);
+                *(tsize_t*)tif->tif_data = TIFFScanlineSize(tif);
+        return (1);
+}
+
+static int
+PackBitsPostEncode(TIFF* tif)
+{
+        if (tif->tif_data)
+            _TIFFfree(tif->tif_data);
         return (1);
 }
 
@@ -61,7 +71,7 @@ typedef unsigned char tidata;
 static int
 PackBitsEncode(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
 {
-        u_char* bp = (u_char*) buf;
+        unsigned char* bp = (unsigned char*) buf;
         tidata_t op, ep, lastliteral;
         long n, slop;
         int b;
@@ -109,16 +119,16 @@ PackBitsEncode(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
                                 state = RUN;
                                 if (n > 128) {
                                         *op++ = (tidata) -127;
-                                        *op++ = b;
+                                        *op++ = (tidataval_t) b;
                                         n -= 128;
                                         goto again;
                                 }
                                 *op++ = (tidataval_t)(-(n-1));
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                         } else {
                                 lastliteral = op;
                                 *op++ = 0;
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                                 state = LITERAL;
                         }
                         break;
@@ -127,32 +137,32 @@ PackBitsEncode(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
                                 state = LITERAL_RUN;
                                 if (n > 128) {
                                         *op++ = (tidata) -127;
-                                        *op++ = b;
+                                        *op++ = (tidataval_t) b;
                                         n -= 128;
                                         goto again;
                                 }
                                 *op++ = (tidataval_t)(-(n-1));  /* encode run */
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                         } else {                        /* extend literal */
                                 if (++(*lastliteral) == 127)
                                         state = BASE;
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                         }
                         break;
                 case RUN:               /* last object was run */
                         if (n > 1) {
                                 if (n > 128) {
                                         *op++ = (tidata) -127;
-                                        *op++ = b;
+                                        *op++ = (tidataval_t) b;
                                         n -= 128;
                                         goto again;
                                 }
                                 *op++ = (tidataval_t)(-(n-1));
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                         } else {
                                 lastliteral = op;
                                 *op++ = 0;
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                                 state = LITERAL;
                         }
                         break;
@@ -188,31 +198,20 @@ PackBitsEncode(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
 static int
 PackBitsEncodeChunk(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
 {
-    tsize_t rowsize = (tsize_t) tif->tif_data;
+        tsize_t rowsize = *(tsize_t*)tif->tif_data;
 
-    assert(rowsize > 0);
-    
-#ifdef YCBCR_SUPPORT
-    /* 
-     * YCBCR data isn't really separable into rows, so we
-     * might as well encode the whole tile/strip as one chunk.
-     */
-    if( tif->tif_dir.td_photometric == PHOTOMETRIC_YCBCR )
-        rowsize = (tsize_t) tif->tif_data;
-#endif
+        while ((long)cc > 0) {
+                int     chunk = rowsize;
+                
+                if( cc < chunk )
+                    chunk = cc;
 
-    while ((long)cc > 0) {
-        int     chunk = rowsize;
-        
-        if( cc < chunk )
-            chunk = cc;
-
-        if (PackBitsEncode(tif, bp, chunk, s) < 0)
-            return (-1);
-        bp += chunk;
-        cc -= chunk;
-    }
-    return (1);
+                if (PackBitsEncode(tif, bp, chunk, s) < 0)
+                    return (-1);
+                bp += chunk;
+                cc -= chunk;
+        }
+        return (1);
 }
 
 static int
@@ -240,7 +239,7 @@ PackBitsDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                         n = -n + 1;
                         if( occ < n )
                         {
-                            TIFFWarning(tif->tif_name,
+                                                        TIFFWarningExt(tif->tif_clientdata, tif->tif_name,
                                         "PackBitsDecode: discarding %d bytes "
                                         "to avoid buffer overrun",
                                         n - occ);
@@ -249,11 +248,11 @@ PackBitsDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                         occ -= n;
                         b = *bp++, cc--;
                         while (n-- > 0)
-                                *op++ = b;
+                                *op++ = (tidataval_t) b;
                 } else {                /* copy next n+1 bytes literally */
                         if (occ < n + 1)
                         {
-                            TIFFWarning(tif->tif_name,
+                            TIFFWarningExt(tif->tif_clientdata, tif->tif_name,
                                         "PackBitsDecode: discarding %d bytes "
                                         "to avoid buffer overrun",
                                         n - occ + 1);
@@ -267,7 +266,7 @@ PackBitsDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
         tif->tif_rawcp = (tidata_t) bp;
         tif->tif_rawcc = cc;
         if (occ > 0) {
-                TIFFError(tif->tif_name,
+                TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
                     "PackBitsDecode: Not enough data for scanline %ld",
                     (long) tif->tif_row);
                 return (0);
@@ -283,9 +282,12 @@ TIFFInitPackBits(TIFF* tif, int scheme)
         tif->tif_decodestrip = PackBitsDecode;
         tif->tif_decodetile = PackBitsDecode;
         tif->tif_preencode = PackBitsPreEncode;
+        tif->tif_postencode = PackBitsPostEncode;
         tif->tif_encoderow = PackBitsEncode;
         tif->tif_encodestrip = PackBitsEncodeChunk;
         tif->tif_encodetile = PackBitsEncodeChunk;
         return (1);
 }
 #endif /* PACKBITS_SUPPORT */
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

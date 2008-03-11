@@ -1,3 +1,5 @@
+/* Id */
+
 /*
  * Copyright (c) 1996-1997 Sam Leffler
  * Copyright (c) 1996 Pixar
@@ -85,11 +87,9 @@
  */
 
 #include "tif_predict.h"
-#include "zlib.h"
-#include "zutil.h"
+#include "vtk_zlib.h"
 
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -177,7 +177,7 @@ horizontalAccumulate12(uint16 *wp, int n, int stride, int16 *op,
     register unsigned int  cr, cg, cb, ca, mask;
     register float  t0, t1, t2, t3;
 
-#define SCALE12 2048.0
+#define SCALE12 2048.0F
 #define CLAMP12(t) (((t) < 3071) ? (uint16) (t) : 3071)
 
     if (n >= stride) {
@@ -490,8 +490,7 @@ PixarLogMakeTables(PixarLogState *sp)
 
     int  nlin, lt2size;
     int  i, j;
-    double  b, c, linstep, max;
-    double  k, v, dv, r, lr2, r2;
+    double  b, c, linstep, v;
     float *ToLinearF;
     uint16 *ToLinear16;
     unsigned char *ToLinear8;
@@ -500,14 +499,14 @@ PixarLogMakeTables(PixarLogState *sp)
     uint16  *From8;
 
     c = log(RATIO);     
-    nlin = 1./c;        /* nlin must be an integer */
+    nlin = (int)(1./c); /* nlin must be an integer */
     c = 1./nlin;
     b = exp(-c*ONE);    /* multiplicative scale factor [b*exp(c*ONE) = 1] */
     linstep = b*c*exp(1.);
 
-    LogK1 = 1./c;       /* if (v >= 2)  token = k1*log(v*k2) */
-    LogK2 = 1./b;
-    lt2size = (2./linstep)+1;
+    LogK1 = (float)(1./c);      /* if (v >= 2)  token = k1*log(v*k2) */
+    LogK2 = (float)(1./b);
+    lt2size = (int)(2./linstep) + 1;
     FromLT2 = (uint16 *)_TIFFmalloc(lt2size*sizeof(uint16));
     From14 = (uint16 *)_TIFFmalloc(16384*sizeof(uint16));
     From8 = (uint16 *)_TIFFmalloc(256*sizeof(uint16));
@@ -535,19 +534,19 @@ PixarLogMakeTables(PixarLogState *sp)
 
     for (i = 0; i < nlin; i++)  {
         v = i * linstep;
-        ToLinearF[j++] = v;
+        ToLinearF[j++] = (float)v;
     }
 
     for (i = nlin; i < TSIZE; i++)
-        ToLinearF[j++] = b*exp(c*i);
+        ToLinearF[j++] = (float)(b*exp(c*i));
 
     ToLinearF[2048] = ToLinearF[2047];
 
     for (i = 0; i < TSIZEP1; i++)  {
         v = ToLinearF[i]*65535.0 + 0.5;
-        ToLinear16[i] = (v > 65535.0) ? 65535 : v;
+        ToLinear16[i] = (v > 65535.0) ? 65535 : (uint16)v;
         v = ToLinearF[i]*255.0  + 0.5;
-        ToLinear8[i]  = (v > 255.0) ? 255 : v;
+        ToLinear8[i]  = (v > 255.0) ? 255 : (unsigned char)v;
     }
 
     j = 0;
@@ -576,7 +575,7 @@ PixarLogMakeTables(PixarLogState *sp)
         From8[i] = j;
     }
 
-    Fltsize = lt2size/2;
+    Fltsize = (float)(lt2size/2);
 
     sp->ToLinearF = ToLinearF;
     sp->ToLinear16 = ToLinear16;
@@ -632,11 +631,23 @@ PixarLogGuessDataFmt(TIFFDirectory *td)
         return guess;
 }
 
+static uint32
+multiply(size_t m1, size_t m2)
+{
+        uint32  bytes = m1 * m2;
+
+        if (m1 && bytes / m1 != m2)
+                bytes = 0;
+
+        return bytes;
+}
+
 static int
 PixarLogSetupDecode(TIFF* tif)
 {
         TIFFDirectory *td = &tif->tif_dir;
         PixarLogState* sp = DecoderState(tif);
+        tsize_t tbuf_size;
         static const char module[] = "PixarLogSetupDecode";
 
         assert(sp != NULL);
@@ -649,19 +660,24 @@ PixarLogSetupDecode(TIFF* tif)
 
         sp->stride = (td->td_planarconfig == PLANARCONFIG_CONTIG ?
             td->td_samplesperpixel : 1);
-        sp->tbuf = (uint16 *) _TIFFmalloc(sp->stride * 
-                td->td_imagewidth * td->td_rowsperstrip * sizeof(uint16));
+        tbuf_size = multiply(multiply(multiply(sp->stride, td->td_imagewidth),
+                                      td->td_rowsperstrip), sizeof(uint16));
+        if (tbuf_size == 0)
+                return (0);
+        sp->tbuf = (uint16 *) _TIFFmalloc(tbuf_size);
+        if (sp->tbuf == NULL)
+                return (0);
         if (sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN)
                 sp->user_datafmt = PixarLogGuessDataFmt(td);
         if (sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN) {
-                TIFFError(module, 
+                TIFFErrorExt(tif->tif_clientdata, module,
                         "PixarLog compression can't handle bits depth/data format combination (depth: %d)", 
                         td->td_bitspersample);
                 return (0);
         }
 
         if (inflateInit(&sp->stream) != Z_OK) {
-                TIFFError(module, "%s: %s", tif->tif_name, sp->stream.msg);
+                TIFFErrorExt(tif->tif_clientdata, module, "%s: %s", tif->tif_name, sp->stream.msg);
                 return (0);
         } else {
                 sp->state |= PLSTATE_INIT;
@@ -675,7 +691,6 @@ PixarLogSetupDecode(TIFF* tif)
 static int
 PixarLogPreDecode(TIFF* tif, tsample_t s)
 {
-        TIFFDirectory *td = &tif->tif_dir;
         PixarLogState* sp = DecoderState(tif);
 
         (void) s;
@@ -708,7 +723,7 @@ PixarLogDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                 nsamples = occ;
                 break;
         default:
-                TIFFError(tif->tif_name,
+                TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
                         "%d bit input not supported in PixarLog",
                         td->td_bitspersample);
                 return 0;
@@ -726,7 +741,7 @@ PixarLogDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                         break;                  /* XXX */
                 }
                 if (state == Z_DATA_ERROR) {
-                        TIFFError(module,
+                        TIFFErrorExt(tif->tif_clientdata, module,
                             "%s: Decoding error at scanline %d, %s",
                             tif->tif_name, tif->tif_row, sp->stream.msg);
                         if (inflateSync(&sp->stream) != Z_OK)
@@ -734,7 +749,7 @@ PixarLogDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                         continue;
                 }
                 if (state != Z_OK) {
-                        TIFFError(module, "%s: zlib error: %s",
+                        TIFFErrorExt(tif->tif_clientdata, module, "%s: zlib error: %s",
                             tif->tif_name, sp->stream.msg);
                         return (0);
                 }
@@ -742,7 +757,7 @@ PixarLogDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
 
         /* hopefully, we got all the bytes we needed */
         if (sp->stream.avail_out != 0) {
-                TIFFError(module,
+                TIFFErrorExt(tif->tif_clientdata, module,
                     "%s: Not enough data at scanline %d (short %d bytes)",
                     tif->tif_name, tif->tif_row, sp->stream.avail_out);
                 return (0);
@@ -786,7 +801,7 @@ PixarLogDecode(TIFF* tif, tidata_t op, tsize_t occ, tsample_t s)
                         op += llen * sizeof(unsigned char);
                         break;
                 default:
-                        TIFFError(tif->tif_name,
+                        TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
                                   "PixarLogDecode: unsupported bits/sample: %d", 
                                   td->td_bitspersample);
                         return (0);
@@ -801,6 +816,7 @@ PixarLogSetupEncode(TIFF* tif)
 {
         TIFFDirectory *td = &tif->tif_dir;
         PixarLogState* sp = EncoderState(tif);
+        tsize_t tbuf_size;
         static const char module[] = "PixarLogSetupEncode";
 
         assert(sp != NULL);
@@ -809,17 +825,22 @@ PixarLogSetupEncode(TIFF* tif)
 
         sp->stride = (td->td_planarconfig == PLANARCONFIG_CONTIG ?
             td->td_samplesperpixel : 1);
-        sp->tbuf = (uint16 *) _TIFFmalloc(sp->stride * 
-                td->td_imagewidth * td->td_rowsperstrip * sizeof(uint16));
+        tbuf_size = multiply(multiply(multiply(sp->stride, td->td_imagewidth),
+                                      td->td_rowsperstrip), sizeof(uint16));
+        if (tbuf_size == 0)
+                return (0);
+        sp->tbuf = (uint16 *) _TIFFmalloc(tbuf_size);
+        if (sp->tbuf == NULL)
+                return (0);
         if (sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN)
                 sp->user_datafmt = PixarLogGuessDataFmt(td);
         if (sp->user_datafmt == PIXARLOGDATAFMT_UNKNOWN) {
-                TIFFError(module, "PixarLog compression can't handle %d bit linear encodings", td->td_bitspersample);
+                TIFFErrorExt(tif->tif_clientdata, module, "PixarLog compression can't handle %d bit linear encodings", td->td_bitspersample);
                 return (0);
         }
 
         if (deflateInit(&sp->stream, sp->quality) != Z_OK) {
-                TIFFError(module, "%s: %s", tif->tif_name, sp->stream.msg);
+                TIFFErrorExt(tif->tif_clientdata, module, "%s: %s", tif->tif_name, sp->stream.msg);
                 return (0);
         } else {
                 sp->state |= PLSTATE_INIT;
@@ -833,7 +854,6 @@ PixarLogSetupEncode(TIFF* tif)
 static int
 PixarLogPreEncode(TIFF* tif, tsample_t s)
 {
-        TIFFDirectory *td = &tif->tif_dir;
         PixarLogState *sp = EncoderState(tif);
 
         (void) s;
@@ -847,8 +867,8 @@ static void
 horizontalDifferenceF(float *ip, int n, int stride, uint16 *wp, uint16 *FromLT2)
 {
 
-    register int  r1, g1, b1, a1, r2, g2, b2, a2, mask;
-    register float  fltsize = Fltsize;
+    int32 r1, g1, b1, a1, r2, g2, b2, a2, mask;
+    float fltsize = Fltsize;
 
 #define  CLAMP(v) ( (v<(float)0.)   ? 0                         \
                   : (v<(float)2.)   ? FromLT2[(int)(v*fltsize)] \
@@ -858,42 +878,45 @@ horizontalDifferenceF(float *ip, int n, int stride, uint16 *wp, uint16 *FromLT2)
     mask = CODE_MASK;
     if (n >= stride) {
         if (stride == 3) {
-            r2 = wp[0] = CLAMP(ip[0]);  g2 = wp[1] = CLAMP(ip[1]);
-            b2 = wp[2] = CLAMP(ip[2]);
+            r2 = wp[0] = (uint16) CLAMP(ip[0]);
+            g2 = wp[1] = (uint16) CLAMP(ip[1]);
+            b2 = wp[2] = (uint16) CLAMP(ip[2]);
             n -= 3;
             while (n > 0) {
                 n -= 3;
                 wp += 3;
                 ip += 3;
-                r1 = CLAMP(ip[0]); wp[0] = (r1-r2) & mask; r2 = r1;
-                g1 = CLAMP(ip[1]); wp[1] = (g1-g2) & mask; g2 = g1;
-                b1 = CLAMP(ip[2]); wp[2] = (b1-b2) & mask; b2 = b1;
+                r1 = (int32) CLAMP(ip[0]); wp[0] = (r1-r2) & mask; r2 = r1;
+                g1 = (int32) CLAMP(ip[1]); wp[1] = (g1-g2) & mask; g2 = g1;
+                b1 = (int32) CLAMP(ip[2]); wp[2] = (b1-b2) & mask; b2 = b1;
             }
         } else if (stride == 4) {
-            r2 = wp[0] = CLAMP(ip[0]);  g2 = wp[1] = CLAMP(ip[1]);
-            b2 = wp[2] = CLAMP(ip[2]);  a2 = wp[3] = CLAMP(ip[3]);
+            r2 = wp[0] = (uint16) CLAMP(ip[0]);
+            g2 = wp[1] = (uint16) CLAMP(ip[1]);
+            b2 = wp[2] = (uint16) CLAMP(ip[2]);
+            a2 = wp[3] = (uint16) CLAMP(ip[3]);
             n -= 4;
             while (n > 0) {
                 n -= 4;
                 wp += 4;
                 ip += 4;
-                r1 = CLAMP(ip[0]); wp[0] = (r1-r2) & mask; r2 = r1;
-                g1 = CLAMP(ip[1]); wp[1] = (g1-g2) & mask; g2 = g1;
-                b1 = CLAMP(ip[2]); wp[2] = (b1-b2) & mask; b2 = b1;
-                a1 = CLAMP(ip[3]); wp[3] = (a1-a2) & mask; a2 = a1;
+                r1 = (int32) CLAMP(ip[0]); wp[0] = (r1-r2) & mask; r2 = r1;
+                g1 = (int32) CLAMP(ip[1]); wp[1] = (g1-g2) & mask; g2 = g1;
+                b1 = (int32) CLAMP(ip[2]); wp[2] = (b1-b2) & mask; b2 = b1;
+                a1 = (int32) CLAMP(ip[3]); wp[3] = (a1-a2) & mask; a2 = a1;
             }
         } else {
             ip += n - 1;        /* point to last one */
             wp += n - 1;        /* point to last one */
             n -= stride;
             while (n > 0) {
-                REPEAT(stride, wp[0] = CLAMP(ip[0]);
+                REPEAT(stride, wp[0] = (uint16) CLAMP(ip[0]);
                                 wp[stride] -= wp[0];
                                 wp[stride] &= mask;
                                 wp--; ip--)
                 n -= stride;
             }
-            REPEAT(stride, wp[0] = CLAMP(ip[0]); wp--; ip--)
+            REPEAT(stride, wp[0] = (uint16) CLAMP(ip[0]); wp--; ip--)
         }
     }
 }
@@ -1032,7 +1055,7 @@ PixarLogEncode(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
                 n = cc;
                 break;
         default:
-                TIFFError(tif->tif_name,
+                TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
                         "%d bit input not supported in PixarLog",
                         td->td_bitspersample);
                 return 0;
@@ -1058,7 +1081,7 @@ PixarLogEncode(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
                         bp += llen * sizeof(unsigned char);
                         break;
                 default:
-                        TIFFError(tif->tif_name,
+                        TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
                                 "%d bit input not supported in PixarLog",
                                 td->td_bitspersample);
                         return 0;
@@ -1070,7 +1093,7 @@ PixarLogEncode(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
 
         do {
                 if (deflate(&sp->stream, Z_NO_FLUSH) != Z_OK) {
-                        TIFFError(module, "%s: Encoder error: %s",
+                        TIFFErrorExt(tif->tif_clientdata, module, "%s: Encoder error: %s",
                             tif->tif_name, sp->stream.msg);
                         return (0);
                 }
@@ -1103,7 +1126,7 @@ PixarLogPostEncode(TIFF* tif)
                 switch (state) {
                 case Z_STREAM_END:
                 case Z_OK:
-                    if (sp->stream.avail_out != tif->tif_rawdatasize) {
+                    if (sp->stream.avail_out != (uint32)tif->tif_rawdatasize) {
                             tif->tif_rawcc =
                                 tif->tif_rawdatasize - sp->stream.avail_out;
                             TIFFFlushData1(tif);
@@ -1112,7 +1135,7 @@ PixarLogPostEncode(TIFF* tif)
                     }
                     break;
                 default:
-                    TIFFError(module, "%s: zlib error: %s",
+                        TIFFErrorExt(tif->tif_clientdata, module, "%s: zlib error: %s",
                         tif->tif_name, sp->stream.msg);
                     return (0);
                 }
@@ -1140,24 +1163,31 @@ PixarLogCleanup(TIFF* tif)
 {
         PixarLogState* sp = (PixarLogState*) tif->tif_data;
 
-        if (sp) {
-                if (sp->FromLT2) _TIFFfree(sp->FromLT2);
-                if (sp->From14) _TIFFfree(sp->From14);
-                if (sp->From8) _TIFFfree(sp->From8);
-                if (sp->ToLinearF) _TIFFfree(sp->ToLinearF);
-                if (sp->ToLinear16) _TIFFfree(sp->ToLinear16);
-                if (sp->ToLinear8) _TIFFfree(sp->ToLinear8);
-                if (sp->state&PLSTATE_INIT) {
-                        if (tif->tif_mode == O_RDONLY)
-                                inflateEnd(&sp->stream);
-                        else
-                                deflateEnd(&sp->stream);
-                }
-                if (sp->tbuf)
-                        _TIFFfree(sp->tbuf);
-                _TIFFfree(sp);
-                tif->tif_data = NULL;
+        assert(sp != 0);
+
+        (void)TIFFPredictorCleanup(tif);
+
+        tif->tif_tagmethods.vgetfield = sp->vgetparent;
+        tif->tif_tagmethods.vsetfield = sp->vsetparent;
+
+        if (sp->FromLT2) _TIFFfree(sp->FromLT2);
+        if (sp->From14) _TIFFfree(sp->From14);
+        if (sp->From8) _TIFFfree(sp->From8);
+        if (sp->ToLinearF) _TIFFfree(sp->ToLinearF);
+        if (sp->ToLinear16) _TIFFfree(sp->ToLinear16);
+        if (sp->ToLinear8) _TIFFfree(sp->ToLinear8);
+        if (sp->state&PLSTATE_INIT) {
+                if (tif->tif_mode == O_RDONLY)
+                        inflateEnd(&sp->stream);
+                else
+                        deflateEnd(&sp->stream);
         }
+        if (sp->tbuf)
+                _TIFFfree(sp->tbuf);
+        _TIFFfree(sp);
+        tif->tif_data = NULL;
+
+        _TIFFSetDefaultCompressionState(tif);
 }
 
 static int
@@ -1173,7 +1203,7 @@ PixarLogVSetField(TIFF* tif, ttag_t tag, va_list ap)
                 if (tif->tif_mode != O_RDONLY && (sp->state&PLSTATE_INIT)) {
                         if (deflateParams(&sp->stream,
                             sp->quality, Z_DEFAULT_STRATEGY) != Z_OK) {
-                                TIFFError(module, "%s: zlib error: %s",
+                                TIFFErrorExt(tif->tif_clientdata, module, "%s: zlib error: %s",
                                         tif->tif_name, sp->stream.msg);
                                 return (0);
                         }
@@ -1212,7 +1242,7 @@ PixarLogVSetField(TIFF* tif, ttag_t tag, va_list ap)
         /*
          * Must recalculate sizes should bits/sample change.
          */
-        tif->tif_tilesize = TIFFTileSize(tif);
+        tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tsize_t) -1;
         tif->tif_scanlinesize = TIFFScanlineSize(tif);
         result = 1;             /* NB: pseudo tag */
         break;
@@ -1259,7 +1289,7 @@ TIFFInitPixarLog(TIFF* tif, int scheme)
         if (tif->tif_data == NULL)
                 goto bad;
         sp = (PixarLogState*) tif->tif_data;
-        memset(sp, 0, sizeof (*sp));
+        _TIFFmemset(sp, 0, sizeof (*sp));
         sp->stream.data_type = Z_BINARY;
         sp->user_datafmt = PIXARLOGDATAFMT_UNKNOWN;
 
@@ -1282,10 +1312,10 @@ TIFFInitPixarLog(TIFF* tif, int scheme)
 
         /* Override SetField so we can handle our private pseudo-tag */
         _TIFFMergeFieldInfo(tif, pixarlogFieldInfo, N(pixarlogFieldInfo));
-        sp->vgetparent = tif->tif_vgetfield;
-        tif->tif_vgetfield = PixarLogVGetField;   /* hook for codec tags */
-        sp->vsetparent = tif->tif_vsetfield;
-        tif->tif_vsetfield = PixarLogVSetField;   /* hook for codec tags */
+        sp->vgetparent = tif->tif_tagmethods.vgetfield;
+        tif->tif_tagmethods.vgetfield = PixarLogVGetField;   /* hook for codec tags */
+        sp->vsetparent = tif->tif_tagmethods.vsetfield;
+        tif->tif_tagmethods.vsetfield = PixarLogVSetField;   /* hook for codec tags */
 
         /* Default values for codec-specific fields */
         sp->quality = Z_DEFAULT_COMPRESSION; /* default comp. level */
@@ -1303,7 +1333,10 @@ TIFFInitPixarLog(TIFF* tif, int scheme)
 
         return (1);
 bad:
-        TIFFError("TIFFInitPixarLog", "No space for PixarLog state block");
+        TIFFErrorExt(tif->tif_clientdata, "TIFFInitPixarLog",
+                     "No space for PixarLog state block");
         return (0);
 }
 #endif /* PIXARLOG_SUPPORT */
+
+/* vim: set ts=8 sts=8 sw=8 noet: */

@@ -1,4 +1,4 @@
-/* Header */
+/* Id */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -35,8 +35,8 @@
 void
 vtk_TIFFSwabShort(uint16* wp)
 {
-        register u_char* cp = (u_char*) wp;
-        int t;
+        register unsigned char* cp = (unsigned char*) wp;
+        unsigned char t;
 
         t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 }
@@ -46,8 +46,8 @@ vtk_TIFFSwabShort(uint16* wp)
 void
 vtk_TIFFSwabLong(uint32* lp)
 {
-        register u_char* cp = (u_char*) lp;
-        int t;
+        register unsigned char* cp = (unsigned char*) lp;
+        unsigned char t;
 
         t = cp[3]; cp[3] = cp[0]; cp[0] = t;
         t = cp[2]; cp[2] = cp[1]; cp[1] = t;
@@ -56,26 +56,42 @@ vtk_TIFFSwabLong(uint32* lp)
 
 #ifndef vtk_TIFFSwabArrayOfShort
 void
-vtk_TIFFSwabArrayOfShort(uint16* wp, register u_long n)
+vtk_TIFFSwabArrayOfShort(uint16* wp, register unsigned long n)
 {
-        register u_char* cp;
-        register int t;
+        register unsigned char* cp;
+        register unsigned char t;
 
         /* XXX unroll loop some */
         while (n-- > 0) {
-                cp = (u_char*) wp;
+                cp = (unsigned char*) wp;
                 t = cp[1]; cp[1] = cp[0]; cp[0] = t;
                 wp++;
         }
 }
 #endif
 
+#ifndef vtk_TIFFSwabArrayOfTriples
+void
+vtk_TIFFSwabArrayOfTriples(uint8* tp, unsigned long n)
+{
+        unsigned char* cp;
+        unsigned char t;
+
+        /* XXX unroll loop some */
+        while (n-- > 0) {
+                cp = (unsigned char*) tp;
+                t = cp[2]; cp[2] = cp[0]; cp[0] = t;
+                tp += 3;
+        }
+}
+#endif
+
 #ifndef vtk_TIFFSwabArrayOfLong
 void
-vtk_TIFFSwabArrayOfLong(register uint32* lp, register u_long n)
+vtk_TIFFSwabArrayOfLong(register uint32* lp, register unsigned long n)
 {
         register unsigned char *cp;
-        register int t;
+        register unsigned char t;
 
         /* XXX unroll loop some */
         while (n-- > 0) {
@@ -101,7 +117,7 @@ vtk_TIFFSwabDouble(double *dp)
 
 #ifndef vtk_TIFFSwabArrayOfDouble
 void
-vtk_TIFFSwabArrayOfDouble(double* dp, register u_long n)
+TIFFSwabArrayOfDouble(double* dp, register unsigned long n)
 {
         register uint32* lp = (uint32*) dp;
         register uint32 t;
@@ -199,7 +215,7 @@ TIFFGetBitRevTable(int reversed)
 }
 
 void
-TIFFReverseBits(register u_char* cp, register u_long n)
+TIFFReverseBits(register unsigned char* cp, register unsigned long n)
 {
         for (; n > 8; n -= 8) {
                 cp[0] = TIFFBitRevTable[cp[0]];
@@ -215,3 +231,5 @@ TIFFReverseBits(register u_char* cp, register u_long n)
         while (n-- > 0)
                 *cp = TIFFBitRevTable[*cp], cp++;
 }
+
+/* vim: set ts=8 sts=8 sw=8 noet: */
