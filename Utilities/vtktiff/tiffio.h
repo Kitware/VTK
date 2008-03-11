@@ -409,11 +409,11 @@ TEXTERN  int TEXPORT TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
 TEXTERN  int TEXPORT TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*,
                                       int = ORIENTATION_BOTLEFT, int = 0);
 #else
-extern  void TIFFPrintDirectory(TIFF*, FILE*, long);
-extern  int TIFFReadScanline(TIFF*, tdata_t, uint32, tsample_t);
-extern  int TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t);
-extern  int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
-extern  int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
+TEXTERN  void TEXPORT TIFFPrintDirectory(TIFF*, FILE*, long);
+TEXTERN  int TEXPORT TIFFReadScanline(TIFF*, tdata_t, uint32, tsample_t);
+TEXTERN  int TEXPORT TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t);
+TEXTERN  int TEXPORT TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
+TEXTERN  int TEXPORT TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
 #endif
 
 extern  int TIFFReadRGBAStrip(TIFF*, tstrip_t, uint32 * );
@@ -441,12 +441,12 @@ extern  void TIFFWarning(const char*, const char*, ...);
 extern  void TIFFWarningExt(thandle_t, const char*, const char*, ...);
 TEXTERN  TIFFErrorHandler TEXPORT TIFFSetErrorHandler(TIFFErrorHandler);
 TEXTERN  TIFFErrorHandlerExt TEXPORT TIFFSetErrorHandlerExt(TIFFErrorHandlerExt);
-extern  TIFFErrorHandler TIFFSetWarningHandler(TIFFErrorHandler);
+TEXTERN  TIFFErrorHandler TEXPORT TIFFSetWarningHandler(TIFFErrorHandler);
 extern  TIFFErrorHandlerExt TIFFSetWarningHandlerExt(TIFFErrorHandlerExt);
 extern  TIFFExtendProc TIFFSetTagExtender(TIFFExtendProc);
 extern  ttile_t TIFFComputeTile(TIFF*, uint32, uint32, uint32, tsample_t);
 extern  int TIFFCheckTile(TIFF*, uint32, uint32, uint32, tsample_t);
-extern  ttile_t TIFFNumberOfTiles(TIFF*);
+TEXTERN  ttile_t TEXPORT TIFFNumberOfTiles(TIFF*);
 TEXTERN  tsize_t TEXPORT TIFFReadTile(TIFF*,
             tdata_t, uint32, uint32, uint32, tsample_t);
 extern  tsize_t TIFFWriteTile(TIFF*,

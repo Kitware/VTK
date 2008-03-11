@@ -1146,6 +1146,7 @@ TIFFAdvanceDirectory(TIFF* tif, uint32* nextdir, toff_t* off)
  * Count the number of directories in a file.
  */
 tdir_t
+TEXPORT
 TIFFNumberOfDirectories(TIFF* tif)
 {
     toff_t nextdir = tif->tif_header.tiff_diroff;
@@ -1161,6 +1162,7 @@ TIFFNumberOfDirectories(TIFF* tif)
  * NB: Directories are numbered starting at 0.
  */
 int
+TEXPORT
 TIFFSetDirectory(TIFF* tif, tdir_t dirn)
 {
         toff_t nextdir;

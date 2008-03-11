@@ -252,6 +252,7 @@ TIFFTileSize(TIFF* tif)
  * to certain heuristics.
  */
 void
+TEXPORT
 TIFFDefaultTileSize(TIFF* tif, uint32* tw, uint32* th)
 {
         (*tif->tif_deftilesize)(tif, tw, th);

@@ -67,6 +67,7 @@ static  void ChopUpSingleUncompressedStrip(TIFF*);
  * We read directories sequentially.
  */
 int
+TEXPORT
 TIFFReadDirectory(TIFF* tif)
 {
         static const char module[] = "TIFFReadDirectory";
