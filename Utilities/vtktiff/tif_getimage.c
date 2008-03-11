@@ -458,6 +458,7 @@ TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  * specified orientation.
  */
 int
+TEXPORT
 TIFFReadRGBAImageOriented(TIFF* tif,
                           uint32 rwidth, uint32 rheight, uint32* raster,
                           int orientation, int stop)
