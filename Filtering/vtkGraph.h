@@ -268,6 +268,29 @@ public:
   // Description:
   // The number of vertices in the graph.
   virtual vtkIdType GetNumberOfVertices();
+  
+  //BTX
+  // The following four methods are for distributed graphs.
+  // P=# of procs in process group.
+
+  // Description:
+  // Returns owner of vertex v, by extracting top ceil(log2 P) bits of v.
+  vtkIdType GetVertexOwner(vtkIdType v) const;
+
+  // Description:
+  // Returns local index of vertex v, by masking off top ceil(log2 P) bits of v.
+  vtkIdType GetVertexIndex(vtkIdType v) const;
+
+  // Description:
+  // Returns owner of edge with ID e_id, by extracting top ceil(log2 P) bits of e_id.
+  vtkIdType GetEdgeOwner(vtkIdType e_id) const;
+
+  // Description:
+  // Returns local index of edge with ID e_id, by masking off top ceil(log2 P)
+  // bits of e_id.
+  vtkIdType GetEdgeIndex(vtkIdType e_id) const;
+  //ETX
+
 
   // Description:
   // Shallow copies the data object into this graph.

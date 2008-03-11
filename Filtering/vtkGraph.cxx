@@ -71,14 +71,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.12");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.12.4.1");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.1");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -322,6 +322,69 @@ vtkIdType vtkGraph::GetNumberOfVertices()
 {
   return this->Internals->Adjacency.size();
 }
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetVertexOwner(vtkIdType v) const
+{
+  vtkIdType owner = 0;
+  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    int idNumBits = sizeof(vtkIdType) << 3;  // numBytes * 8
+    int numBits = ceil(log2(numProcs));
+    owner = v >> (idNumBits-numBits); 
+    }
+  
+  return owner;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetVertexIndex(vtkIdType v) const
+{
+  vtkIdType index = v;
+  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+      int numBits = ceil(log2(numProcs));
+      index = (v << numBits) >> numBits;
+    }
+  
+  return index;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetEdgeOwner(vtkIdType e_id) const
+{
+  vtkIdType owner = 0;
+  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
+  
+  if (numProcs > 1)
+    {
+      int idNumBits = sizeof(vtkIdType) << 3;  // numBytes * 8
+      int numBits = ceil(log2(numProcs));
+      owner = e_id >> (idNumBits-numBits);
+    }
+  
+  return owner;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetEdgeIndex(vtkIdType e_id) const
+{
+  vtkIdType index = e_id;
+  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+  {
+    int numBits = ceil(log2(numProcs));
+    index = (e_id << numBits) >> numBits;
+  }
+  
+  return index;
+}
+
 
 //----------------------------------------------------------------------------
 bool vtkGraph::CheckedShallowCopy(vtkGraph *g)
