@@ -142,6 +142,7 @@ TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, tsample_t s)
  * Compute how many tiles are in an image.
  */
 ttile_t
+TEXPORT
 TIFFNumberOfTiles(TIFF* tif)
 {
         TIFFDirectory *td = &tif->tif_dir;
