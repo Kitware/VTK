@@ -292,6 +292,9 @@ vtkTIFFReader::vtkTIFFReader()
   this->InternalExtents = 0;
 
   this->OrientationTypeSpecifiedFlag = false;
+
+  //Make the default orientation type to be ORIENTATION_BOTLEFT
+  this->OrientationType = 4;
 }
 
 //-------------------------------------------------------------------------
@@ -1750,4 +1753,6 @@ int vtkTIFFReader::CanReadFile(const char* fname)
 void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "OrientationType: " << this->OrientationType << endl;
+  os << indent << "OrientationTypeSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
 }
