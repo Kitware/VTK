@@ -22,7 +22,7 @@
 // to provide the usual VTK mouse user interface. It overrides drawRect
 // to render and draw onscreen.
 // Note that this class was previously a subclass of NSOpenGLView,
-// but is now a subclass of NSView.
+// but starting with VTK 5.0 is now a subclass of NSView.
 //
 // .SECTION See Also
 // vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
@@ -32,20 +32,32 @@
 
 #import <Cocoa/Cocoa.h>
 
-// Forward declarations
-class vtkCocoaRenderWindow;
-class vtkCocoaRenderWindowInteractor;
+// Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
+// To achieve this, we use the neat technique below:
+#ifdef __cplusplus
+  // Forward declarations
+  class vtkCocoaRenderWindow;
+  class vtkCocoaRenderWindowInteractor;
+  
+  // Type declarations
+  typedef vtkCocoaRenderWindow* vtkCocoaRenderWindowRef;
+  typedef vtkCocoaRenderWindowInteractor* vtkCocoaRenderWindowInteractorRef;
+#else
+  // Type declarations
+  typedef void* vtkCocoaRenderWindowRef;
+  typedef void* vtkCocoaRenderWindowInteractorRef;
+#endif
 
 @interface vtkCocoaGLView : NSView
 {
   @private
-    vtkCocoaRenderWindow *myVTKRenderWindow;
+  vtkCocoaRenderWindowRef myVTKRenderWindow;
 }
 
-- (vtkCocoaRenderWindow *)getVTKRenderWindow;
-- (void)setVTKRenderWindow:(vtkCocoaRenderWindow *)theVTKRenderWindow;
+- (vtkCocoaRenderWindowRef)getVTKRenderWindow;
+- (void)setVTKRenderWindow:(vtkCocoaRenderWindowRef)theVTKRenderWindow;
 
-- (vtkCocoaRenderWindowInteractor *)getInteractor;
+- (vtkCocoaRenderWindowInteractorRef)getInteractor;
 
 @end
 
