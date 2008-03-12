@@ -1100,7 +1100,7 @@ TIFFFetchByteArray(TIFF* tif, TIFFDirEntry* dir, uint16* v)
                     case 4: v[3] = (signed char)dir->tdir_offset & 0xff;
                     case 3: v[2] = (signed char)(dir->tdir_offset >> 8) & 0xff;
                     case 2: v[1] = (signed char)(dir->tdir_offset >> 16) & 0xff;
-                    case 1: v[0] = dir->tdir_offset >> 24;
+                    case 1: v[0] = (signed char) dir->tdir_offset >> 24;
                 }
             else
                 switch (dir->tdir_count) {
