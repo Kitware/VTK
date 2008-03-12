@@ -1088,7 +1088,7 @@ TIFFFetchFloat(TIFF* tif, TIFFDirEntry* dir)
  * Fetch an array of BYTE or SBYTE values.
  */
 static int
-TIFFFetchByteArray(TIFF* tif, TIFFDirEntry* dir, uint8* v)
+TIFFFetchByteArray(TIFF* tif, TIFFDirEntry* dir, uint16* v)
 {
     if (dir->tdir_count <= 4) {
         /*
@@ -1097,32 +1097,32 @@ TIFFFetchByteArray(TIFF* tif, TIFFDirEntry* dir, uint8* v)
         if (tif->tif_header.tiff_magic == TIFF_BIGENDIAN) {
             if (dir->tdir_type == TIFF_SBYTE)
                 switch (dir->tdir_count) {
-                    case 4: v[3] = dir->tdir_offset & 0xff;
-                    case 3: v[2] = (dir->tdir_offset >> 8) & 0xff;
-                    case 2: v[1] = (dir->tdir_offset >> 16) & 0xff;
+                    case 4: v[3] = (signed char)dir->tdir_offset & 0xff;
+                    case 3: v[2] = (signed char)(dir->tdir_offset >> 8) & 0xff;
+                    case 2: v[1] = (signed char)(dir->tdir_offset >> 16) & 0xff;
                     case 1: v[0] = dir->tdir_offset >> 24;
                 }
             else
                 switch (dir->tdir_count) {
-                    case 4: v[3] = dir->tdir_offset & 0xff;
-                    case 3: v[2] = (dir->tdir_offset >> 8) & 0xff;
-                    case 2: v[1] = (dir->tdir_offset >> 16) & 0xff;
-                    case 1: v[0] = dir->tdir_offset >> 24;
+                    case 4: v[3] = (uint16)dir->tdir_offset & 0xff;
+                    case 3: v[2] = (uint16)(dir->tdir_offset >> 8) & 0xff;
+                    case 2: v[1] = (uint16)(dir->tdir_offset >> 16) & 0xff;
+                    case 1: v[0] = (uint16)dir->tdir_offset >> 24;
                 }
         } else {
             if (dir->tdir_type == TIFF_SBYTE)
                 switch (dir->tdir_count) {
-                    case 4: v[3] = dir->tdir_offset >> 24;
-                    case 3: v[2] = (dir->tdir_offset >> 16) & 0xff;
-                    case 2: v[1] = (dir->tdir_offset >> 8) & 0xff;
-                    case 1: v[0] = dir->tdir_offset & 0xff;
+                    case 4: v[3] = (signed char)dir->tdir_offset >> 24;
+                    case 3: v[2] = (signed char)(dir->tdir_offset >> 16) & 0xff;
+                    case 2: v[1] = (signed char)(dir->tdir_offset >> 8) & 0xff;
+                    case 1: v[0] = (signed char)dir->tdir_offset & 0xff;
                 }
             else
                 switch (dir->tdir_count) {
-                    case 4: v[3] = dir->tdir_offset >> 24;
-                    case 3: v[2] = (dir->tdir_offset >> 16) & 0xff;
-                    case 2: v[1] = (dir->tdir_offset >> 8) & 0xff;
-                    case 1: v[0] = dir->tdir_offset & 0xff;
+                    case 4: v[3] = (uint16)dir->tdir_offset >> 24;
+                    case 3: v[2] = (uint16)(dir->tdir_offset >> 16) & 0xff;
+                    case 2: v[1] = (uint16)(dir->tdir_offset >> 8) & 0xff;
+                    case 1: v[0] = (uint16)dir->tdir_offset & 0xff;
                 }
         }
         return (1);
@@ -1164,7 +1164,7 @@ TIFFFetchShortPair(TIFF* tif, TIFFDirEntry* dir)
                 case TIFF_BYTE:
                 case TIFF_SBYTE:
                         {
-                        uint8 v[4];
+                        uint16 v[4];
                         return TIFFFetchByteArray(tif, dir, v)
                                 && TIFFSetField(tif, dir->tdir_tag, v[0], v[1]);
                         }
@@ -1270,7 +1270,7 @@ TIFFFetchAnyArray(TIFF* tif, TIFFDirEntry* dir, double* v)
         switch (dir->tdir_type) {
         case TIFF_BYTE:
         case TIFF_SBYTE:
-                if (!TIFFFetchByteArray(tif, dir, (uint8*) v))
+                if (!TIFFFetchByteArray(tif, dir, (uint16*) v))
                         return (0);
                 if (dir->tdir_type == TIFF_BYTE) {
                         uint8* vp = (uint8*) v;
@@ -1358,9 +1358,10 @@ TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp)
                 switch (dp->tdir_type) {
                 case TIFF_BYTE:
                 case TIFF_SBYTE:
-                        cp = (char *)_TIFFCheckMalloc(tif,
-                            dp->tdir_count, sizeof (uint8), mesg);
-                        ok = cp && TIFFFetchByteArray(tif, dp, (uint8*) cp);
+                /* NB: always expand BYTE values to shorts */
+                cp = (char *)_TIFFCheckMalloc(tif,
+                      dp->tdir_count, sizeof (uint16), mesg);
+                ok = cp && TIFFFetchByteArray(tif, dp, (uint16*) cp);
                         break;
                 case TIFF_SHORT:
                 case TIFF_SSHORT:
