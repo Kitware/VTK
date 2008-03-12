@@ -31,7 +31,10 @@ static int class_has_new = 0;
 void use_hints(FILE *fp)
 {
   int  i;
-  
+
+  fprintf(fp,"    if(temp%i)\n",MAX_ARGS);
+  fprintf(fp,"      {\n");
+
   switch (currentFunction->ReturnType % 0x1000)
     {
     case 0x301:
@@ -111,6 +114,13 @@ void use_hints(FILE *fp)
     case 0x31A: case 0x31B: case 0x31C: case 0x315: case 0x316:
       break;
     }
+
+  fprintf(fp,"      }\n");
+  fprintf(fp,"    else\n");
+  fprintf(fp,"      {\n");
+  fprintf(fp,"      return Py_BuildValue((char*)\"\");\n");
+  fprintf(fp,"      }\n");
+
   return;
 }
 

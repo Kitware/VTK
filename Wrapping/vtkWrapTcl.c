@@ -98,76 +98,50 @@ void use_hints(FILE *fp)
 {
   int  i;
 
+#define INDENT "    "
+
+  fprintf(fp,INDENT "if(temp%i)\n",MAX_ARGS);
+  fprintf(fp,INDENT "  {\n");
+  fprintf(fp,INDENT "  char tempResult[1024];\n");
+
+  fprintf(fp,INDENT "  sprintf(tempResult,\"");
+
   /* use the hint */
   switch (currentFunction->ReturnType % 0x1000)
     {
     case 0x301: case 0x307:  
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%g ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x304: case 0x305: case 0x30D:
 #ifndef VTK_USE_64BIT_IDS
     case 0x30A:
 #endif
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%i ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x30E:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%i ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",static_cast<int>(temp%i[%i])",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x306:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%li ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
 #ifdef VTK_USE_64BIT_IDS
     case 0x30A:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
 #  if defined(_MSC_VER)
@@ -176,82 +150,42 @@ void use_hints(FILE *fp)
         fprintf(fp,"%%lli ");
 #  endif
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+
     case 0x30B:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%lli ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x30C:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%I64i ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x313: case 0x314: case 0x315:
 #ifndef VTK_USE_64BIT_IDS
     case 0x31A:
 #endif
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%u ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x316:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%lu ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
 #ifdef VTK_USE_64BIT_IDS
     case 0x31A:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
 #  if defined(_MSC_VER)
@@ -260,46 +194,39 @@ void use_hints(FILE *fp)
         fprintf(fp,"%%llu ");
 #  endif
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+
     case 0x31B:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%llu ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+
     case 0x31C:
-      fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%I64u ");
         }
-      fprintf(fp,"\"");
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
-        }
-      fprintf(fp,");\n");
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
     }
+
+  fprintf(fp,"\"");
+  for (i = 0; i < currentFunction->HintSize; i++)
+    {
+    fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+    }
+  fprintf(fp,");\n");
+
+  fprintf(fp,INDENT "  Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+  fprintf(fp,INDENT "  }\n");
+  fprintf(fp,INDENT "else\n");
+  fprintf(fp,INDENT "  {\n");
+  fprintf(fp,INDENT "  Tcl_SetResult(interp, \"\", TCL_VOLATILE);\n");
+  fprintf(fp,INDENT "  }\n");
+
+#undef INDENT
 }
 
 void return_result(FILE *fp)
