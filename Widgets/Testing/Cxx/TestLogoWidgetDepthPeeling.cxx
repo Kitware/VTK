@@ -64,6 +64,15 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
   vtkTIFFReader *image1 = vtkTIFFReader::New();
   image1->SetFileName(fname);
+  /* 
+  "beach.tif" image contains ORIENTATION tag which is 
+  ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF 
+  reader parses this tag and sets the internal TIFF image 
+  orientation accordingly.  To overwrite this orientation with a vtk
+  convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
+  SetOrientationType method with parameter value of 4.
+  */
+  image1->SetOrientationType( 4 );
   delete [] fname;
 
   // Create a test pipeline
