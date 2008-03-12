@@ -69,4 +69,31 @@
 #define PHOTOSHOP_SUPPORT
 #define IPTC_SUPPORT
 
+#if defined ( _MSC_VER )
+#pragma warning ( disable : 4057 )
+#pragma warning ( disable : 4100 )
+#pragma warning ( disable : 4115 )
+#pragma warning ( disable : 4127 )
+#pragma warning ( disable : 4189 )
+#pragma warning ( disable : 4244 )
+#pragma warning ( disable : 4251 )
+#pragma warning ( disable : 4267 )
+#pragma warning ( disable : 4305 )
+#pragma warning ( disable : 4309 )
+#pragma warning ( disable : 4505 )
+#pragma warning ( disable : 4706 )
+#pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#endif
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8008 /* "condition is always true" */
+#pragma warn -8012 /* "comparing signed and unsigned values" */
+#pragma warn -8057 /* "parameter is never used" */
+#pragma warn -8060 /* "possibly incorrect assignment" */
+#endif
+
+
 #endif /* _TIFFCONF_ */
