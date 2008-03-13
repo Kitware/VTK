@@ -141,7 +141,7 @@
     #if !defined(LIBXML_STATIC)
       #define XMLPUBVAR __declspec(dllimport) extern
     #else
-      #define XMLPUBVAR
+      #define XMLPUBVAR extern
     #endif
   #endif
   #define XMLCALL __cdecl
@@ -154,5 +154,3 @@
 #endif
 
 #endif /* __XML_EXPORTS_H__ */
-
-
