@@ -192,7 +192,6 @@ _TIFFVSetField(TIFF* tif, ttag_t tag, va_list ap)
                         goto badvalue;
                 td->td_fillorder = (uint16) v;
                 break;
-                break;
         case TIFFTAG_ORIENTATION:
                 v = va_arg(ap, uint32);
                 if (v < ORIENTATION_TOPLEFT || ORIENTATION_LEFTBOT < v) {

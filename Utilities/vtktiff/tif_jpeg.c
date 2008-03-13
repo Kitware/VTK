@@ -51,6 +51,10 @@ int TIFFFillTile(TIFF*, ttile_t);
 #undef FAR
 #endif
 
+#if defined(__BORLANDC__)
+#pragma warn -8066 // Disable "unreachable code" warning.
+#endif
+
 /*
   Libjpeg's jmorecfg.h defines INT16 and INT32, but only if XMD_H is
   not defined.  Unfortunately, the MinGW and Borland compilers include
@@ -1573,7 +1577,7 @@ JPEGVSetField(TIFF* tif, ttag_t tag, va_list ap)
                     } else {
                         if (td->td_ycbcrsubsampling[0] != 1 ||
                             td->td_ycbcrsubsampling[1] != 1)
-                            ; /* XXX what about up-sampling? */
+                            (void)tif; /* XXX what about up-sampling? */
                     }
                 }
                 /*
