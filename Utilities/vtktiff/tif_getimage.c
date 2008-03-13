@@ -32,6 +32,9 @@
 #include "tiffiop.h"
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#pragma warning ( disable : 4550 )
+#endif
 static  int gtTileContig(TIFFRGBAImage*, uint32*, uint32, uint32);
 static  int gtTileSeparate(TIFFRGBAImage*, uint32*, uint32, uint32);
 static  int gtStripContig(TIFFRGBAImage*, uint32*, uint32, uint32);
