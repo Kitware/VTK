@@ -562,10 +562,10 @@ const char *InternalTextureFormatToString(int internalFormat)
       result="GL_RGBA16";
       break;
     case vtkgl::SRGB8:
-      result="GL_RGB8";
+      result="GL_SRGB8";
       break;
     case vtkgl::SRGB8_ALPHA8:
-      result="GL_RGB8_ALPHA8";
+      result="GL_SRGB8_ALPHA8";
       break;
     case vtkgl::SLUMINANCE8:
       result="GL_SLUMINANCE8";
