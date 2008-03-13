@@ -21,7 +21,9 @@
  *
  */
 
-
+// .SECTION Thanks
+// Prior to its inclusion within VTK, this code was developed by the CUBIT
+// project at Sandia National Laboratories. 
 
 #ifndef VERDICT_VECTOR
 #define VERDICT_VECTOR
