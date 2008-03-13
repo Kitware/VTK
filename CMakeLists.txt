@@ -447,17 +447,16 @@ IF(BUILD_TESTING)
   FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
     "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
 ENDIF(BUILD_TESTING)
+
 OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
 MARK_AS_ADVANCED(VTK_USE_DISPLAY)
 
-OPTION(VTK_TESTING_USE_FPE "Testing use floating point exceptions." ON)
+#-----------------------------------------------------------------------------
+# Leave this option ON by default. It helps to catch floating point math
+# exceptions early on nightly dashboard runs.
+#
+OPTION(VTK_TESTING_USE_FPE "VTK tests call vtkFloatingPointExceptions::Enable()" ON)
 MARK_AS_ADVANCED(VTK_TESTING_USE_FPE)
-
-# Leave this in for one night to force all the dashboards to pick up the new default
-# value of ON. After tomorrow's dashboards are in we can take this "FORCE" line out
-# of here:
-SET(VTK_TESTING_USE_FPE ON CACHE BOOL "Testing use floating point exceptions." FORCE)
-
 
 IF(VTK_TESTING_USE_FPE)
  SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "vtkFloatingPointExceptions::Enable();\n    try {")
