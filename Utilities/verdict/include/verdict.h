@@ -27,6 +27,10 @@
 /* note: changes to this file must be propagated to verdict.h.in so that 
    Verdict can be compiled using CMake and autoconf. */
 
+// .SECTION Thanks
+// Prior to its inclusion within VTK, this code was developed by the CUBIT
+// project at Sandia National Laboratories. 
+
 #ifndef VERDICT_INC_LIB
 #define VERDICT_INC_LIB
 
