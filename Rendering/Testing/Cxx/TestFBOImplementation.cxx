@@ -1559,9 +1559,9 @@ void TestTextureFormatsAndFBO()
             
             
             glGenTextures(1,&textureObject);
-            CheckOpenGLError("");
+            CheckOpenGLError("after glGenTextures");
             glBindTexture(target,textureObject);
-            CheckOpenGLError("");
+            CheckOpenGLError("after glBindTexture");
             glTexParameteri(target, GL_TEXTURE_WRAP_S, textureWrap[wrapIdx]);
             
             GLenum errorCode=glGetError();
@@ -1574,7 +1574,7 @@ void TestTextureFormatsAndFBO()
               if(errorCode!=GL_NO_ERROR)
                 {
                 cout << "ERROR:"
-                     << OpenGLErrorMessage2(errorCode) <<endl;
+                     << OpenGLErrorMessage2(errorCode) << "after GL_TEXTURE_WRAP_S" <<endl;
                 }
               }
             glTexParameteri(target, GL_TEXTURE_WRAP_T, textureWrap[wrapIdx]);
@@ -1589,14 +1589,14 @@ void TestTextureFormatsAndFBO()
               if(errorCode!=GL_NO_ERROR)
                 {
                 cout << "ERROR:"
-                     << OpenGLErrorMessage2(errorCode) <<endl;
+                     << OpenGLErrorMessage2(errorCode) << "after GL_TEXTURE_WRAP_T" <<endl;
                 }
               }
             
             glTexParameteri(target, GL_TEXTURE_MIN_FILTER, textureMinMag[magIdx]);
-            CheckOpenGLError("");
+            CheckOpenGLError("after GL_TEXTURE_MIN_FILTER");
             glTexParameteri(target, GL_TEXTURE_MAG_FILTER, textureMinMag[magIdx]);
-            CheckOpenGLError("");
+            CheckOpenGLError("after GL_TEXTURE_MAG_FILTER");
 
             
             int format= FromBaseInternalFormatToFormat(FromTextureSizedInternalFormatsToBaseInternalFormat(internalFormat));
@@ -1606,19 +1606,19 @@ void TestTextureFormatsAndFBO()
                          textureSizes[textureSizeIdx][0],
                          textureSizes[textureSizeIdx][1],
                          0, format, type, NULL );
-            CheckOpenGLError("");
+            CheckOpenGLError("after glTexImage2D on proxy");
             GLint width;
             glGetTexLevelParameteriv(textureProxyTarget[targetIdx],0,
                                      GL_TEXTURE_WIDTH,&width);
             
-            CheckOpenGLError("");
+            CheckOpenGLError("after getting proxy result");
             if(width!=0)
               {
               glTexImage2D(target,0,internalFormat,
                            textureSizes[textureSizeIdx][0],
                            textureSizes[textureSizeIdx][1],
                            0, format, type, NULL );
-              CheckOpenGLError("");
+              CheckOpenGLError("after  glTexImage2D on real target");
               if(target==GL_TEXTURE_2D)
                 {
                 QueryTexture2D();
@@ -1628,7 +1628,7 @@ void TestTextureFormatsAndFBO()
                 // vtkgl::TEXTURE_RECTANGLE_ARB
                 QueryTexture2DRectangle();
                 }
-              CheckOpenGLError("");
+              CheckOpenGLError("after querying the current texture");
               
               if(vtkgl::GenFramebuffersEXT!=0) // FBO supported
                 {
