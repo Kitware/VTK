@@ -1205,7 +1205,7 @@ int textureSizedInternalFormats[87]={GL_ALPHA4,
 
 const int NumberOftextureSizedInternalFormats=87;
 
-int textureFormats[13]={GL_COLOR_INDEX,
+int textureFormats[23]={GL_COLOR_INDEX,
                         GL_STENCIL_INDEX,
                         GL_DEPTH_COMPONENT,
                         GL_RED,
@@ -1217,7 +1217,17 @@ int textureFormats[13]={GL_COLOR_INDEX,
                         vtkgl::BGR,
                         vtkgl::BGRA,
                         GL_LUMINANCE,
-                        GL_LUMINANCE_ALPHA};
+                        GL_LUMINANCE_ALPHA,
+                        vtkgl::RED_INTEGER_EXT,
+                        vtkgl::GREEN_INTEGER_EXT,
+                        vtkgl::BLUE_INTEGER_EXT,
+                        vtkgl::ALPHA_INTEGER_EXT,
+                        vtkgl::RGB_INTEGER_EXT,
+                        vtkgl::RGBA_INTEGER_EXT,
+                        vtkgl::BGR_INTEGER_EXT,
+                        vtkgl::BGRA_INTEGER_EXT,
+                        vtkgl::LUMINANCE_INTEGER_EXT,
+                        vtkgl::LUMINANCE_ALPHA_INTEGER_EXT};
 
 #if 0
 int textureFormat[7]={GL_ALPHA,
@@ -1395,12 +1405,90 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
   return result;
 }
 
-int FromBaseInternalFormatToFormat(int f)
+bool TextureSizedInternalFormatIsInteger(int f)
+{
+  bool result;
+  
+  switch(f)
+    {
+    case vtkgl::ALPHA8I_EXT:
+    case vtkgl::ALPHA8UI_EXT:
+    case vtkgl::ALPHA16I_EXT:
+    case vtkgl::ALPHA16UI_EXT:
+    case vtkgl::ALPHA32I_EXT:
+    case vtkgl::ALPHA32UI_EXT:
+    case vtkgl::LUMINANCE8I_EXT:
+    case vtkgl::LUMINANCE8UI_EXT:
+    case vtkgl::LUMINANCE16I_EXT:
+    case vtkgl::LUMINANCE16UI_EXT:
+    case vtkgl::LUMINANCE32I_EXT:
+    case vtkgl::LUMINANCE32UI_EXT:
+    case vtkgl::LUMINANCE_ALPHA8I_EXT:
+    case vtkgl::LUMINANCE_ALPHA8UI_EXT:
+    case vtkgl::LUMINANCE_ALPHA16I_EXT:
+    case vtkgl::LUMINANCE_ALPHA16UI_EXT:
+    case vtkgl::LUMINANCE_ALPHA32I_EXT:
+    case vtkgl::LUMINANCE_ALPHA32UI_EXT:
+    case vtkgl::INTENSITY8I_EXT:
+    case vtkgl::INTENSITY8UI_EXT:
+    case vtkgl::INTENSITY16I_EXT:
+    case vtkgl::INTENSITY16UI_EXT:
+    case vtkgl::INTENSITY32I_EXT:
+    case vtkgl::INTENSITY32UI_EXT:
+    case vtkgl::RGB8I_EXT:
+    case vtkgl::RGB8UI_EXT:
+    case vtkgl::RGB16I_EXT:
+    case vtkgl::RGB16UI_EXT:
+    case vtkgl::RGB32I_EXT:
+    case vtkgl::RGB32UI_EXT:
+    case vtkgl::RGBA8I_EXT:
+    case vtkgl::RGBA8UI_EXT:
+    case vtkgl::RGBA16I_EXT:
+    case vtkgl::RGBA16UI_EXT:
+    case vtkgl::RGBA32I_EXT:
+    case vtkgl::RGBA32UI_EXT:
+      result=true;
+    default:
+      result=false;
+    }
+  
+  return result;
+}
+  
+int FromBaseInternalFormatToFormat(int f,
+                                   bool isInteger)
 {
   int result=f;
   if(f==GL_INTENSITY)
     {
     result=GL_RED;
+    }
+  if(isInteger)
+    {
+    switch(result)
+      {
+      case GL_RED:
+        result=vtkgl::RED_INTEGER_EXT;
+        break;
+      case GL_ALPHA:
+        result=vtkgl::ALPHA_INTEGER_EXT;
+        break;
+      case GL_RGB:
+        result=vtkgl::RGB_INTEGER_EXT;
+        break;
+      case GL_RGBA:
+        result=vtkgl::RGBA_INTEGER_EXT;
+        break;
+      case GL_LUMINANCE:
+        result=vtkgl::LUMINANCE_INTEGER_EXT;
+        break;
+      case GL_LUMINANCE_ALPHA:
+        result=vtkgl::LUMINANCE_ALPHA_INTEGER_EXT;
+        break;
+      default:
+        assert("check: impossible case.");
+        break;
+      }
     }
   return result;
 }
@@ -1599,7 +1687,9 @@ void TestTextureFormatsAndFBO()
             CheckOpenGLError("after GL_TEXTURE_MAG_FILTER");
 
             
-            int format= FromBaseInternalFormatToFormat(FromTextureSizedInternalFormatsToBaseInternalFormat(internalFormat));
+            int format= FromBaseInternalFormatToFormat(
+              FromTextureSizedInternalFormatsToBaseInternalFormat(internalFormat),
+              TextureSizedInternalFormatIsInteger(internalFormat));
             int type=GL_UNSIGNED_BYTE;
             
             glTexImage2D(textureProxyTarget[targetIdx],0,internalFormat,
