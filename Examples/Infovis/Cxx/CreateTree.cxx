@@ -9,7 +9,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-int main(int argc, char* argv[])
+int main(int, char*[])
 {
   vtkMutableDirectedGraph* graph = vtkMutableDirectedGraph::New();
   vtkIdType a = graph->AddVertex();
@@ -33,8 +33,7 @@ int main(int argc, char* argv[])
   tree->CheckedShallowCopy(graph);
   
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  vtkDataRepresentation* rep =
-    view->AddRepresentationFromInput(tree);
+  view->AddRepresentationFromInput(tree);
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   theme->Delete();

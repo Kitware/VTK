@@ -5,14 +5,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkViewTheme.h"
 
-int main(int argc, char* argv[])
+int main(int, char*[])
 {
   vtkRandomGraphSource* source = vtkRandomGraphSource::New();
   
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  vtkDataRepresentation* rep =
-    view->AddRepresentationFromInputConnection(
-      source->GetOutputPort());
+  view->AddRepresentationFromInputConnection(
+    source->GetOutputPort());
   
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
