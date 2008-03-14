@@ -7,6 +7,7 @@ SET(KIT_LIBS vtkFiltering verdict )
 
 
 SET( Kit_SRCS
+vtkAppendCompositeDataLeaves.cxx
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
 vtkAppendSelection.cxx

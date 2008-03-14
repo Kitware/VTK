@@ -42,6 +42,7 @@
 #include <vtkstd/vector> // Required for vector
 
 class vtkTimerLog;
+class vtkMultiProcessController;
 
 class VTK_HYBRID_EXPORT vtkPExodusIIReader : public vtkExodusIIReader 
 {
@@ -49,6 +50,13 @@ public:
   static vtkPExodusIIReader* New();
   vtkTypeRevisionMacro(vtkPExodusIIReader,vtkExodusIIReader);
   void PrintSelf( ostream& os, vtkIndent indent );
+
+  // Description:
+  // Set/get the communication object used to relay a list of files
+  // from the rank 0 process to all others. This is the only interprocess
+  // communication required by vtkPExodusIIReader.
+  void SetController(vtkMultiProcessController* c);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
   // These methods tell the reader that the data is ditributed across
@@ -112,6 +120,11 @@ public:
   // of times that ALL readers can actually read.
   virtual void UpdateTimeInformation();
 
+  // Description:
+  // Sends metadata (that read from the input file, not settings modified
+  // through this API) from the rank 0 node to all other processes in a job.
+  virtual void Broadcast( vtkMultiProcessController* ctrl );
+
 protected:
   vtkPExodusIIReader();
   ~vtkPExodusIIReader();
@@ -128,6 +141,9 @@ protected:
   // **KEN** Previous discussions concluded with std classes in header
   // files is bad.  Perhaps we should change ReaderList.
 
+  vtkMultiProcessController* Controller;
+  vtkIdType ProcRank;
+  vtkIdType ProcSize;
   char* FilePattern;
   char* CurrentFilePattern;
   char* FilePrefix;

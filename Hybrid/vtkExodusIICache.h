@@ -50,6 +50,13 @@ public:
     ObjectId = objId;
     ArrayId = arrId;
     }
+  vtkExodusIICacheKey( const vtkExodusIICacheKey& src )
+    {
+    Time = src.Time;
+    ObjectType = src.ObjectType;
+    ObjectId = src.ObjectId;
+    ArrayId = src.ArrayId;
+    }
   bool match( const vtkExodusIICacheKey&other, const vtkExodusIICacheKey& pattern ) const
     {
     if ( pattern.Time && this->Time != other.Time )

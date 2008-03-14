@@ -31,6 +31,8 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -299,7 +301,7 @@ protected:
   virtual ~vtkExodusIIXMLParser()
     {
     //this->Metadata->UnRegister( this );
-    this->SetCurrentHierarchyEntry(0);
+    this->SetCurrentHierarchyEntry( 0 );
     }
   virtual void StartElement( const char* tagName, const char** attrs )
     {
@@ -720,21 +722,17 @@ private:
 
   vtkstd::set<int> blockIds;
 
-  char *CurrentHierarchyEntry;
+  char* CurrentHierarchyEntry;
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.53");
-
-
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.54");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
 /** This class holds metadata for an Exodus file.
- *
- */
-
-
+  *
+  */
 class vtkExodusIIReaderPrivate : public vtkObject
 {
 public:
@@ -751,8 +749,14 @@ public:
   /// Get metadata for an open file with handle \a exoid.
   int RequestInformation();
 
+  /// Send metadata to other processes in a parallel job.
+  void Broadcast( vtkMultiProcessController* controller );
+
+  /// Receive metadata from the rank 0 process in a parallel job.
+  void Receive( vtkMultiProcessController* controller );
+
   /// Read requested data and store in unstructured grid.
-  int RequestData( vtkIdType timeStep, vtkUnstructuredGrid* output );
+  int RequestData( vtkIdType timeStep, vtkMultiBlockDataSet* output );
 
   /** Reset the class so that another file may be read.
     * This does not change any user-specified parameters, such as
@@ -1012,9 +1016,24 @@ public:
   struct BlockSetInfoType : public ObjectInfoType {
     /// Id (1-based) of first entry in file-local list across all blocks in file
     vtkIdType FileOffset;
-    /// Id (0-based) of first entry in the vtkUnstructuredGrid containing all 
-    /// blocks with Status != 0
-    vtkIdType GridOffset;
+    /** A map from nodal IDs in an Exodus file to nodal IDs in the output mesh.
+      * Should only be used when SqueezePoints is true.
+      * Otherwise, just subtract 1 from any Exodus node ID to get the VTK node ID.
+      */
+    vtkstd::map<vtkIdType,vtkIdType> PointMap;
+    /** A map from nodal ids in the output mesh to those in an Exodus file.
+      * Should only be used when SqueezePoints is true.
+      * Otherwise, just add 1 to any VTK node ID to get the Exodus node ID.
+      */
+    vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
+    /** The next vtk ID to use for a connectivity entry when point squeezing is on 
+      * and no point ID exists.
+      */
+    vtkIdType NextSqueezePoint;
+    /// Cached cell connectivity arrays for mesh
+    vtkUnstructuredGrid* CachedConnectivity;
+
+    BlockSetInfoType() { this->CachedConnectivity = 0; }
   };
 
   /// A struct to hold information about Exodus blocks
@@ -1071,8 +1090,8 @@ public:
     Generated=3      //!< The array is procedurally generated (e.g., BlockId)
   };
 
- /// Time stamp from last time we were in RequestInformation
- vtkTimeStamp InformationTimeStamp;
+  /// Time stamp from last time we were in RequestInformation
+  vtkTimeStamp InformationTimeStamp;
  
   friend class vtkExodusIIReader;
 
@@ -1104,8 +1123,6 @@ public:
   int GetAssemblyStatus(vtkStdString name);
   void SetAssemblyStatus(int idx, int on);
   void SetAssemblyStatus(vtkStdString name, int flag);
-
-  int AssembleArraysOverTime( vtkUnstructuredGrid* output );
 
   void SetFastPathObjectType(vtkExodusIIReader::ObjectType type)
     {this->FastPathObjectType = type;};
@@ -1153,10 +1170,6 @@ protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
 
-  /// Any time the Status member of a block or set changes, 
-  /// this function must be called.
-  void ComputeGridOffsets();
-
   /// Returns true when order and text of names are consistent with integration 
   /// points. Called from GlomArrayNames().
   int VerifyIntegrationPointGlom( int nn, 
@@ -1175,7 +1188,8 @@ protected:
   /// Add generated array information to array info lists.
   void PrepareGeneratedArrayInfo();
 
-  /** Read connectivity information and populate an unstructured grid with cells.
+  /** Read connectivity information and populate an unstructured grid with cells corresponding to a single block or set.
+    *
     * If the connectivity hasn't changed since the last time RequestData was 
     * called, this copies a cache to the output.
     * 
@@ -1189,42 +1203,50 @@ protected:
     * 
     * AssembleOutputConnectivity returns 1 if cache was used, 0 otherwise.
     */
-  int AssembleOutputConnectivity( vtkIdType timeStep, vtkUnstructuredGrid* output );
-
+  int AssembleOutputConnectivity( vtkIdType timeStep,
+    int otyp, int oidx, int conntypidx, BlockSetInfoType* bsinfop,
+    vtkUnstructuredGrid* output );
   /** Fill the output grid's point coordinates array.
     * Returns 1 on success, 0 on failure.
     * Failure occurs when the Exodus library is unable to read the point
     * coordindates array. This can be caused when there is not enough memory
     * or there is a file I/O problem.
     */
-  int AssembleOutputPoints( vtkIdType timeStep, vtkUnstructuredGrid* output );
+  int AssembleOutputPoints( vtkIdType timeStep,
+    BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
   /** Add the requested arrays to the output grid's point data.
     * This adds time-varying results arrays to the grid's vtkPointData object.
     */
-  int AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
+  int AssembleOutputPointArrays( vtkIdType timeStep,
+    BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
   /** Add the requested arrays to the output grid's cell data.
     * This adds time-varying results arrays to the grid's vtkCellData object.
-    * Each array added may not be defined on all blocks of cells, so zero-padding 
-    * will be used where required.
     */
-  int AssembleOutputCellArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
-  /** Add maps to an output mesh.
-    * Maps are special integer arrays that may serve as GlobalId fields in 
-    * vtkDataSetAttributes objects.
-    * Maps will only be zero-padded when cells representing set entries exist;
-    * also, maps may be procedurally generated if no map is contained in a file.
-    * Maps are not time-varying.
-    */
-  int AssembleOutputPointMaps( vtkIdType timeStep, vtkUnstructuredGrid* output );
-  int AssembleOutputCellMaps( vtkIdType timeStep, vtkUnstructuredGrid* output );
+  int AssembleOutputCellArrays( vtkIdType timeStep,
+    int otyp, int oidx, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
   /** Add procedurally generated arrays to an output mesh.
     * Currently, the only array that is procedurally generated is the object id 
     * array. Others may be added in the future.
     */
   int AssembleOutputProceduralArrays( vtkIdType timeStep, 
-                                      vtkUnstructuredGrid* output );
-
-  int AssembleOutputGlobalArrays( vtkIdType timeStep, vtkUnstructuredGrid* output );
+    int otyp, int oidx, vtkUnstructuredGrid* output );
+  /// Add mesh-global field data such as QA records to the output mesh.
+  int AssembleOutputGlobalArrays( vtkIdType timeStep,
+    int otyp, int oidx, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
+  /** Add maps to an output mesh.
+    * Maps are special integer arrays that may serve as GlobalId fields in 
+    * vtkDataSetAttributes objects.
+    * Maps may be procedurally generated if no map is contained in a file.
+    * Maps are not time-varying.
+    */
+  int AssembleOutputPointMaps( vtkIdType timeStep,
+    BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
+  int AssembleOutputCellMaps( vtkIdType timeStep,
+    int otyp, int oidx, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
+  /** Add fast-path time-varying data to field data of an output block or set.
+    */
+  int AssembleArraysOverTime(
+    int otyp, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
 
   // Generate the decorations for edge fields.
   void AssembleOutputEdgeDecorations();
@@ -1233,39 +1255,28 @@ protected:
   void AssembleOutputFaceDecorations();
 
   /// Insert cells from a specified block into a mesh
-  void InsertBlockCells( int otyp, 
-                         int obj, 
-                         int conn_type, 
-                         int timeStep, 
-                         vtkUnstructuredGrid* output );
+  void InsertBlockCells(
+    int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfop );
 
   /// Insert cells from a specified set into a mesh
-  void InsertSetCells( int otyp, 
-                       int obj, 
-                       int conn_type, 
-                       int timeStep, 
-                       vtkUnstructuredGrid* output );
+  void InsertSetCells(
+    int otyp, int obj, int conn_type, int timeStep, SetInfoType* sinfop );
 
   /// Add a point array to an output grid's point data, squeezing if necessary
-  void AddPointArray( vtkDataArray* src, vtkUnstructuredGrid* output );
+  void AddPointArray(
+    vtkDataArray* src, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
 
   /// Insert cells referenced by a node set.
-  void InsertSetNodeCopies( vtkIntArray* refs, 
-                            int otyp, 
-                            int obj, 
-                            vtkUnstructuredGrid* output );
+  void InsertSetNodeCopies(
+    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /// Insert cells referenced by an edge, face, or element set.
-  void InsertSetCellCopies( vtkIntArray* refs, 
-                            int otyp, 
-                            int obj, 
-                            vtkUnstructuredGrid* output );
+  void InsertSetCellCopies(
+    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /// Insert cells referenced by a side set.
-  void InsertSetSides( vtkIntArray* refs, 
-                       int otyp, 
-                       int obj, 
-                       vtkUnstructuredGrid* output );
+  void InsertSetSides(
+    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /** Return an array for the specified cache key. If the array was not cached, 
     * read it from the file.
@@ -1333,7 +1344,7 @@ protected:
   /** Find or create a new SqueezePoint ID (unique sequential list of points 
     * referenced by cells in blocks/sets with Status == 1)
     */
-  vtkIdType GetSqueezePointId( int i );
+  vtkIdType GetSqueezePointId( BlockSetInfoType* bsinfop, int i );
 
   /// Determine the VTK cell type for a given edge/face/element block
   void DetermineVtkCellType( BlockInfoType& binfo );
@@ -1367,10 +1378,6 @@ protected:
     */
   int GetBlockConnTypeFromBlockType( int btyp );
 
-  /// Get/Set the cached connectivity data
-  vtkGetObjectMacro(CachedConnectivity,vtkUnstructuredGrid);
-  virtual void SetCachedConnectivity( vtkUnstructuredGrid* mesh );
-
   /** Function to trim space from names retrieved with ex_get_var_names.
    * This was added because some meshes had displacement arrays named 
    * "DISPX ", "DISPY ", "DISPZ " (note trailing spaces),
@@ -1378,10 +1385,8 @@ protected:
    */
   void RemoveBeginningAndTrailingSpaces( int len, char **names );
 
-  /** The next vtk ID to use for a connectivity entry when point squeezing is on 
-    * and no point ID exists.
-    */
-  vtkIdType NextSqueezePoint;
+  /// Delete any cached connectivity information (for all blocks and sets)
+  void ClearConnectivityCaches();
 
   /** Maps a block type (EX_ELEM_BLOCK, EX_FACE_BLOCK, ...) to a list of blocks 
     * of that type.
@@ -1455,11 +1460,6 @@ protected:
   /// A least-recently-used cache to hold raw arrays.
   vtkExodusIICache* Cache;
 
-  /** Cache assembled connectivity separately because there's no way to 
-    * SetLinks() on a vtkUnstructuredGrid.
-    */
-  vtkUnstructuredGrid* CachedConnectivity;
-
   int GenerateGlobalElementIdArray;
   int GenerateGlobalNodeIdArray;
   int ApplyDisplacements;
@@ -1487,32 +1487,16 @@ protected:
     */
   int SqueezePoints;
 
-  /** The total number of cells in the mesh given the current block and set 
-    * Status values.
-    */
-  vtkIdType NumberOfCells;
-
-  /** The total number of points in the mesh given the SqueezePoints setting 
-    * (and possibly the block and set Status values).
-    */
-  //vtkIdType NumberOfPoints;
-
-  /// A map from nodal IDs in an Exodus file to nodal IDs in the output mesh.
-  vtkstd::vector<vtkIdType> PointMap;
-
-  /// A map from nodal ids in the output mesh to those in an Exodus file. 
-  vtkstd::map<vtkIdType,vtkIdType> ReversePointMap;
-
   /** Pointer to owning reader... this is not registered in order to avoid 
     * circular references.
     */
   vtkExodusIIReader* Parent;
 
-  vtkExodusIIXMLParser *Parser;
+  vtkExodusIIXMLParser* Parser;
 
   vtkExodusIIReader::ObjectType FastPathObjectType;
   vtkIdType FastPathObjectId;
-  char *FastPathIdType;
+  char* FastPathIdType;
 
 private:
   vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ); // Not implemented.
@@ -1594,8 +1578,10 @@ static void printBlock( ostream& os, vtkIndent indent, int btyp,
   os << indent << btypnam << " " << binfo.Id << " \"" << binfo.Name.c_str() 
      << "\" (" << binfo.Size << ")\n";
   os << indent << "    FileOffset: " << binfo.FileOffset << "\n";
-  os << indent << "    GridOffset: " << binfo.GridOffset << " (" 
+  os << indent << "    CachedConn: " << binfo.CachedConnectivity << " ("
      << binfo.Status << ")\n";
+  os << indent << "    PointMap: " << binfo.PointMap.size() << " entries, "
+     << "ReversePointMap: " << binfo.ReversePointMap.size() << " entries\n";
   os << indent << "    Type: " << binfo.TypeName.c_str() << "\n";
   os << indent << "    Bounds per entry, Node: " << binfo.BdsPerEntry[0]
      << " Edge: " << binfo.BdsPerEntry[1] << " Face: " << binfo.BdsPerEntry[2] 
@@ -1620,8 +1606,10 @@ static void printSet( ostream& os, vtkIndent indent, int styp,
   os << indent << stypnam << " " << sinfo.Id << " \"" << sinfo.Name.c_str() 
      << "\" (" << sinfo.Size << ")\n";
   os << indent << "    FileOffset: " << sinfo.FileOffset << "\n";
-  os << indent << "    GridOffset: " << sinfo.GridOffset << " (" 
+  os << indent << "    CachedConn: " << sinfo.CachedConnectivity << " (" 
      << sinfo.Status << ")\n";
+  os << indent << "    PointMap: " << sinfo.PointMap.size() << " entries, "
+     << "ReversePointMap: " << sinfo.ReversePointMap.size() << " entries\n";
   os << indent << "    DistFact: " << sinfo.DistFact << "\n";
 }
 
@@ -1678,11 +1666,8 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.53");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.54");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
-vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,
-                     CachedConnectivity,
-                     vtkUnstructuredGrid);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
 vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
@@ -1706,11 +1691,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->ApplyDisplacements = 1;
   this->DisplacementMagnitude = 1.;
 
-  this->NumberOfCells = 0;
   this->SqueezePoints = 1;
-  this->NextSqueezePoint = 0;
-
-  this->CachedConnectivity = 0;
 
   this->EdgeFieldDecorations = 0;
   this->FaceFieldDecorations = 0;
@@ -1731,58 +1712,13 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
 {
   this->CloseFile();
   this->Cache->Delete();
-  this->SetCachedConnectivity( 0 );
+  this->ClearConnectivityCaches();
+  this->SetFastPathIdType( 0 );
   if(this->Parser)
     {
     this->Parser->Delete();
     this->Parser = 0;
     }
-}
-
-void vtkExodusIIReaderPrivate::ComputeGridOffsets()
-{
-  vtkIdType startCell = 0;
-
-  // Order cells in the grid in a way the user expects:
-  // - blocks first, then sets.
-  // - elements first, then faces, then edges.
-  int conntypidx;
-  for ( conntypidx = 0; conntypidx < num_conn_types; ++conntypidx )
-    {
-    int otyp = obj_types[conn_obj_idx_cvt[conntypidx]];
-    int obj;
-    int objNum;
-
-    if ( CONNTYPE_IS_BLOCK( conntypidx ) )
-      {
-      objNum = (int) this->BlockInfo[otyp].size();
-      for ( obj = 0; obj < objNum; ++obj )
-        {
-        BlockInfoType* binfop = 
-          &this->BlockInfo[otyp][this->SortedObjectIndices[otyp][obj]];
-        if ( binfop->Status )
-          {
-          binfop->GridOffset = startCell;
-          startCell += binfop->Size;
-          }
-        }
-      }
-    else
-      { // Must be a set...
-      objNum = (int) this->SetInfo[otyp].size();
-      for ( obj = 0; obj < objNum; ++obj )
-        {
-        SetInfoType* sinfop = 
-          &this->SetInfo[otyp][this->SortedObjectIndices[otyp][obj]];
-        if ( sinfop->Status )
-          {
-          sinfop->GridOffset = startCell;
-          startCell += sinfop->Size;
-          }
-        }
-      }
-    }
-  this->NumberOfCells = startCell;
 }
 
 int vtkExodusIIReaderPrivate::VerifyIntegrationPointGlom(
@@ -2143,29 +2079,25 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
 }
 
 int vtkExodusIIReaderPrivate::AssembleOutputConnectivity( 
-                         vtkIdType timeStep, vtkUnstructuredGrid* output )
+  vtkIdType timeStep, int otyp, int oidx, int conntypidx,
+  BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
 {
   // FIXME: Don't think I need this, since we ShallowCopy over it... right?
-  output->Reset(); 
-  if ( this->CachedConnectivity )
+  output->Reset();
+  if ( bsinfop->CachedConnectivity )
     {
-    output->ShallowCopy( this->CachedConnectivity );
+    output->ShallowCopy( bsinfop->CachedConnectivity );
     return 1;
     }
 
   // OK, we needed to remake the cache...
-  this->CachedConnectivity = vtkUnstructuredGrid::New();
-  this->CachedConnectivity->Allocate( this->NumberOfCells );
+  bsinfop->CachedConnectivity = vtkUnstructuredGrid::New();
+  bsinfop->CachedConnectivity->Allocate( bsinfop->Size );
   if ( this->SqueezePoints )
     {
-    this->NextSqueezePoint = 0;
-    this->PointMap.clear();
-    this->ReversePointMap.clear();
-    this->PointMap.reserve( this->ModelParameters.num_nodes );
-    for ( int i = 0; i < this->ModelParameters.num_nodes; ++i )
-      {
-      this->PointMap.push_back( -1 );
-      }
+    bsinfop->NextSqueezePoint = 0;
+    bsinfop->PointMap.clear();
+    bsinfop->ReversePointMap.clear();
     }
 
   // Need to assemble connectivity array from smaller ones.
@@ -2178,60 +2110,33 @@ int vtkExodusIIReaderPrivate::AssembleOutputConnectivity(
   //   applied to arrays that are not time-varying. During animations, they 
   //   will most likely get dropped even though that might not be wise.
 
-  // Loop over all the block and set types which could generate connectivity 
-  // information in an order that the user expects (element blocks first, 
-  // blocks ordered by block ID, not file order).
-  int conntypidx;
-  int nbl = 0;
-  for ( conntypidx = 0; conntypidx < num_conn_types; ++conntypidx )
+  if ( CONNTYPE_IS_BLOCK(conntypidx) )
     {
-    int otyp = obj_types[conn_obj_idx_cvt[conntypidx]];
-    // Loop over all blocks/sets of this type
-    int numObj = this->GetNumberOfObjectsOfType( otyp );
-    int obj;
-    int sortIdx;
-    for ( sortIdx = 0; sortIdx < numObj; ++sortIdx )
-      {
-      if ( ! this->GetObjectStatus( otyp, sortIdx ) )
-        continue;
-
-      // Preserve the "sorted" order when concatenating
-      obj = this->SortedObjectIndices[otyp][sortIdx]; 
-      if ( CONNTYPE_IS_BLOCK(conntypidx) )
-        {
-        this->InsertBlockCells( otyp, obj, 
-                                conn_types[conntypidx], 
-                                timeStep, 
-                                this->CachedConnectivity );
-        }
-      else if ( CONNTYPE_IS_SET(conntypidx) )
-        {
-        this->InsertSetCells( otyp, 
-                              obj, 
-                              conn_types[conntypidx],   
-                              timeStep, 
-                              this->CachedConnectivity );
-        }
-      else
-        {
-        vtkErrorMacro( "Bad connectivity object type. Harass the responsible programmer." );
-        }
-
-      ++nbl;
-      }
+    this->InsertBlockCells( otyp, oidx, conn_types[conntypidx], 
+      timeStep, static_cast<BlockInfoType*>( bsinfop ) );
+    }
+  else if ( CONNTYPE_IS_SET(conntypidx) )
+    {
+    this->InsertSetCells( otyp, oidx, conn_types[conntypidx],   
+      timeStep, static_cast<SetInfoType*>( bsinfop ) );
+    }
+  else
+    {
+    vtkErrorMacro( "Bad connectivity object type. Harass the responsible programmer." );
     }
 
   // OK, now copy our cache to the output...
-  output->ShallowCopy( this->CachedConnectivity );
+  output->ShallowCopy( bsinfop->CachedConnectivity );
   //this->CachedConnectivity->ShallowCopy( output );
   if ( this->SqueezePoints )
     {
-    vtkDebugMacro( << "Squeezed down to " << this->NextSqueezePoint << " points\n" );
+    vtkDebugMacro( << "Squeezed down to " << bsinfop->NextSqueezePoint << " points\n" );
     }
   return 0;
 }
 
-int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstructuredGrid* output )
+int vtkExodusIIReaderPrivate::AssembleOutputPoints(
+  vtkIdType timeStep, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
 {
   (void)timeStep;
   vtkPoints* pts = output->GetPoints();
@@ -2261,15 +2166,11 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstr
 
   if ( this->SqueezePoints )
     {
-    vtkIdType exoPtId;
-    pts->SetNumberOfPoints( this->NextSqueezePoint );
-    for ( exoPtId = 0; exoPtId < this->ModelParameters.num_nodes; ++exoPtId )
+    pts->SetNumberOfPoints( bsinfop->NextSqueezePoint );
+    vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+    for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
       {
-      vtkIdType outPtId = this->PointMap[exoPtId];
-      if ( outPtId >= 0 )
-        {
-        pts->SetPoint( outPtId, arr->GetTuple( exoPtId ) );
-        }
+      pts->SetPoint( it->second, arr->GetTuple( it->first ) );
       }
     }
   else
@@ -2280,218 +2181,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputPoints( vtkIdType timeStep, vtkUnstr
 }
 
 
-int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkUnstructuredGrid* output)
-{
-  vtkFieldData *ofd = output->GetFieldData();
-  int status = 1;
-  vtkstd::vector<ArrayInfoType>::iterator ai;
-  int aidx = 0;
-  vtkIdType internalExodusId = -1;
-  int objId = -1;
-
-  if(this->FastPathObjectId < 0)
-    {
-    // This just means that no downstream filter has requested temporal data
-    // from this reader.
-    return 0;
-    }
-
-  // We need to get the internal id used by the exodus file from either the 
-  // VTK index, or from the global id
-  if(strcmp(this->FastPathIdType,"INDEX")==0)
-    {
-    // map the "used" index to the "original" index
-    if(this->FastPathObjectType == vtkExodusIIReader::NODAL)
-      {
-      if(this->SqueezePoints)
-        {
-        internalExodusId = this->ReversePointMap[this->FastPathObjectId];
-        }
-      else
-        {
-        internalExodusId = this->FastPathObjectId + 1;
-        }
-      }
-    else
-      {
-      int numObj = this->GetNumberOfObjectsOfType( vtkExodusIIReader::ELEM_BLOCK );
-      int obj;
-      for ( obj = 0; obj < numObj; ++obj )
-        {
-        BlockInfoType* binfop = &this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK][obj];
-        if(this->FastPathObjectId >= binfop->GridOffset && 
-           this->FastPathObjectId < binfop->GridOffset + binfop->Size)
-          {
-          // we found the block that  the element is in
-          internalExodusId = this->FastPathObjectId 
-                             - binfop->GridOffset 
-                             + binfop->FileOffset;
-          objId = obj;
-          break;
-          }
-        }
-      }
-    }
-  else if(strcmp(this->FastPathIdType,"GLOBAL")==0)
-    {
-    vtkExodusIICacheKey *globalIdMapKey;
-    switch(this->FastPathObjectType)
-      {
-      case vtkExodusIIReader::NODAL:
-        globalIdMapKey = 
-            new vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
-        break;
-      case vtkExodusIIReader::ELEM_BLOCK:
-        globalIdMapKey = 
-            new vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
-        break;
-      default:
-        vtkWarningMacro( "Unsupported object type for fast path." );
-        return 0;
-      }
-
-    vtkIdTypeArray* globalIdMap = 
-        vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( *globalIdMapKey ));
-    delete globalIdMapKey;
-    if(!globalIdMap)
-      {
-      return 0;
-      }
-
-    for ( vtkIdType j = 0; j < globalIdMap->GetNumberOfTuples(); ++j )
-      {
-      if(globalIdMap->GetValue( j ) == this->FastPathObjectId)
-        {
-        // exodus ids are 1-based:
-        internalExodusId = j+1;
-        break;
-        }
-      }
-    }
-
-  // This will happen if the data does not reside in this file
-  if(internalExodusId < 0)
-    {
-    //vtkWarningMacro( "Unable to map id to internal exodus id." );
-    return 0;
-    }
-
-  for (
-    ai = this->ArrayInfo[ this->FastPathObjectType ].begin();
-    ai != this->ArrayInfo[ this->FastPathObjectType ].end();
-    ++ai, ++aidx )
-    {
-    if ( ! ai->Status )
-      continue; // Skip arrays we don't want.
-
-    // If this array isn't defined over the block that the element resides in,
-    // skip. Right now this is only done when the fast-path id type is "INDEX".
-    if ( objId>=0 && 
-         this->FastPathObjectType == vtkExodusIIReader::ELEM_BLOCK &&
-         strcmp(this->FastPathIdType,"INDEX")==0 )
-      {
-      if ( ! ai->ObjectTruth[objId] )
-        {
-        continue;
-        }
-      }
-
-    vtkExodusIICacheKey temporalDataKey( 
-        -1, 
-        this->GetTemporalTypeFromObjectType(this->FastPathObjectType), 
-        internalExodusId, 
-        aidx );
-
-    vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
-    if ( !temporalData )
-      {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
-      status = 0;
-      continue;
-      }
-
-    ofd->AddArray(temporalData);
-    }
-
-  return status;
-}
-
-
-int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays( vtkIdType vtkNotUsed(timeStep), vtkUnstructuredGrid* output )
-{
-  vtkFieldData *ofieldData = output->GetFieldData();
-
-  int status = 1;
-  vtkstd::vector<ArrayInfoType>::iterator ai;
-  int aidx = 0;
-
-  for (
-    ai = this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].begin();
-    ai != this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].end();
-    ++ai, ++aidx )
-    {
-    if ( ! ai->Status )
-      {
-      continue;
-      }
-
-    vtkExodusIICacheKey temporalDataKey( 
-        -1, 
-        vtkExodusIIReader::GLOBAL_TEMPORAL, 
-        -1, 
-        aidx );
-
-    vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
-    if ( !temporalData )
-      {
-      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
-      status = 0;
-      continue;
-      }
-
-    ofieldData->AddArray(temporalData);
-    }
-
-  // Add block id information for the exodus writer
-  BlockInfoType* binfop;
-  int numBlk = (int) this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK].size();
-  int blk;
-  vtkIntArray *elemBlockIdArray = vtkIntArray::New();
-  elemBlockIdArray->SetNumberOfComponents(1);
-  elemBlockIdArray->SetNumberOfValues(numBlk);
-  elemBlockIdArray->SetName("ElementBlockIds");
-
-  for ( blk = 0; blk < numBlk; ++blk )
-    {
-    binfop = &this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK][blk];
-    elemBlockIdArray->SetValue(blk,binfop->Id);
-    }
-  
-  ofieldData->AddArray(elemBlockIdArray);
-  
-  elemBlockIdArray->Delete();
-
-  // Add QA record and INFO record metadata from the Exodus II file
-
-  vtkExodusIICacheKey qakey( -1, vtkExodusIIReader::QA_RECORDS, 0, 0 );
-
-  vtkDataArray* arr = this->GetCacheOrRead( qakey );
-
-  if ( arr )
-   ofieldData->AddArray(arr);
-
-  vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
-
-  arr = this->GetCacheOrRead( infokey );
-
-  if ( arr )
-   ofieldData->AddArray(arr);
-
-  return status;
-
-}
-
-int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
+int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
+  vtkIdType timeStep, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
 {
   int status = 1;
   vtkstd::vector<ArrayInfoType>::iterator ai;
@@ -2514,11 +2205,12 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays( vtkIdType timeStep, vtk
       continue;
       }
 
-    this->AddPointArray( src, output );
+    this->AddPointArray( src, bsinfop, output );
     }
   return status;
 }
 
+#if 0
 // Copy tuples from one array to another, possibly with a different number of components per tuple.
 static void vtkEmbedTuplesInLargerArray(
   vtkDataSetAttributes* attr, vtkDataArray* dst, vtkDataArray* src, vtkIdType numTuples, vtkIdType offset )
@@ -2560,342 +2252,69 @@ static void vtkEmbedTuplesInLargerArray(
       }
     }
 }
+#endif // 0
 
-int vtkExodusIIReaderPrivate::AssembleOutputCellArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
+int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
+  vtkIdType timeStep, int otyp, int obj, BlockSetInfoType* bsinfop,
+  vtkUnstructuredGrid* output )
 {
-  // Need to assemble arrays from smaller per-block/set arrays.
-  // Call GetCacheOrRead() for each smaller array
+  // Don't create arrays for deselected objects
+  if ( !output || ! bsinfop->Status )
+    {
+    return 1;
+    }
 
-  // Step 1. Create the large arrays and fill them (but don't pad them).
+  // Panic if we're given a bad otyp.
+  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator ami = this->ArrayInfo.find( otyp );
+  if ( ami == this->ArrayInfo.end() )
+    {
+#if 0
+    vtkErrorMacro( "Unknown block or set type \"" << otyp << "\" encountered." );
+    for ( ami = this->ArrayInfo.begin(); ami != this->ArrayInfo.end(); ++ ami )
+      {
+      cerr << "   Have type: \"" << ami->first << "\"\n";
+      }
+    return 0;
+#else
+    return 1;
+#endif // 0
+    }
+
   vtkCellData* cd = output->GetCellData();
-  vtkstd::map<int,vtkstd::vector<ArrayInfoType> >::iterator ami;
-  for ( ami = this->ArrayInfo.begin(); ami != this->ArrayInfo.end(); ++ami )
+  // For each array defined on objects of the same type as our output,
+  // look for ones that are turned on (Status != 0) and have a truth
+  // table indicating values are present for object obj in the file.
+  vtkstd::vector<ArrayInfoType>::iterator ai;
+  int aidx = 0;
+  for ( ai = ami->second.begin(); ai != ami->second.end(); ++ai, ++aidx )
     {
-    if ( ami->first == vtkExodusIIReader::NODAL || ami->first == vtkExodusIIReader::NODE_MAP )
-      continue; // we handle nodal arrays in AssembleOutputPointArrays
-
-    // See if any objects of this type are turned on (Status != 0)
-    int obj;
-    int numObjOn = 0;
-    int numObj = this->GetNumberOfObjectsOfType( ami->first );
-    for ( obj = 0; obj < numObj; ++obj )
-      {
-      if ( this->GetObjectStatus( ami->first, obj ) )
-        {
-        ++numObjOn;
-        }
-      }
-    if ( numObjOn == 0 )
-      continue; // this array may be on, but no objects of this type are active... skip it.
-
-    vtkstd::vector<ArrayInfoType>::iterator ai;
-    int aidx = 0;
-    for ( ai = ami->second.begin(); ai != ami->second.end(); ++ai, ++aidx )
-      {
-      if ( ! ai->Status )
-        continue;
-
-      vtkDataArray* arr = cd->GetArray( ai->Name.c_str() );
-      if ( arr )
-        {
-        // OK, we've already created this array for some other type of object, 
-        // so now we have to make sure the arrays are consistent. If not, we
-        // turn off the second one we encounter. The user can disable the first
-        // and re-enable the second if required.
-        if ( arr->GetDataType() != ai->StorageType )
-          {
-          vtkErrorMacro( "Cell array \"" << ai->Name.c_str() << "\" has conflicting types across blocks/sets." );
-          ai->Status = 0; // Don't load this block's/set's version. User must disable other block/set before loading this one.
-          arr = 0;
-          }
-        if ( arr && (
-            ( arr->GetNumberOfComponents() != ai->Components ) ||
-            ( arr->GetNumberOfComponents() == 2 && this->ModelParameters.num_dim == 2 ) ) )
-          {
-          vtkErrorMacro( "Cell array \"" << ai->Name.c_str() << "\" has different number of components across blocks/sets." );
-          ai->Status = 0; // Don't load this block's/set's version. User must disable other block/set before loading this one.
-          arr = 0;
-          }
-        }
-      else
-        {
-        // Re-use an existing or create a new array
-        vtkExodusIICacheKey key( ai->Source == Result ? timeStep : -1, vtkExodusIIReader::GLOBAL, ami->first, aidx );
-        arr = this->Cache->Find( key );
-        if ( arr )
-          { // Existing array was in cache
-          cd->AddArray( arr );
-          continue;
-          }
-        arr = vtkDataArray::CreateDataArray( ai->StorageType );
-        arr->SetName( ai->Name.c_str() );
-        if ( ai->Components == 2 && this->ModelParameters.num_dim == 2 )
-          { 
-          // Promote 2-component arrays to 3-component arrays when we have 2-D coordinates
-          arr->SetNumberOfComponents( 3 );
-          arr->SetNumberOfTuples( this->NumberOfCells );
-          arr->FillComponent( 2, 0. );
-          }
-        else
-          {
-          arr->SetNumberOfComponents( ai->Components );
-          arr->SetNumberOfTuples( this->NumberOfCells );
-          }
-        cd->AddArray( arr );
-        this->Cache->Insert( key, arr );
-        arr->FastDelete();
-        }
-
-      if ( ! arr )
-        {
-        continue;
-        }
-
-      // OK, the array exists and has the correct number of tuples. Loop over all objects of
-      // this type and insert their values into the global cell array according to their GridOffset.
-      int otypidx = this->GetObjectTypeIndexFromObjectType( ami->first );
-      BlockSetInfoType* bsinfop;
-      vtkDataArray* src;
-      for ( obj = 0; obj < numObj; ++obj )
-        {
-
-        if ( ! ai->ObjectTruth[obj] )
-          { // skip blocks for which this array doesn't exist.
-          continue;
-          }
-
-        src = 0;
-        if ( OBJTYPE_IS_BLOCK( otypidx ) )
-          {
-
-          BlockInfoType* binfop = &this->BlockInfo[ami->first][obj];
-          bsinfop = (BlockSetInfoType*) binfop;
-          if ( binfop->Status )
-            {
-            src = this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, ami->first, obj, aidx ) );
-            if ( src )
-              {
-              vtkEmbedTuplesInLargerArray( cd, arr, src, binfop->Size, binfop->GridOffset );
-              }
-            }
-
-          }
-        else if ( OBJTYPE_IS_SET( otypidx ) )
-          {
-
-          SetInfoType* sinfop = &this->SetInfo[ami->first][obj];
-          bsinfop = (BlockSetInfoType*) sinfop;
-          if ( sinfop->Status )
-            {
-            src = this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, ami->first, obj, aidx ) );
-            if ( src )
-              {
-              vtkEmbedTuplesInLargerArray( cd, arr, src, sinfop->Size, sinfop->GridOffset );
-              }
-            }
-
-          }
-        else
-          {
-          vtkErrorMacro( "Array defined for an unknown type of object: " << ami->first <<
-            " with index: " << otypidx << ". Skipping." );
-          continue;
-          }
-
-        if ( ! src && bsinfop && bsinfop->Status )
-          {
-          vtkErrorMacro( "Cell array \"" << ai->Name.c_str() << "\" not defined on " << objtype_names[otypidx] <<
-            " " << bsinfop->Id << " but truth table claimed it was. Fixing truth table in memory (not in file).");
-          ai->ObjectTruth[obj] = 0;
-          }
-        }
-
-      }
-    }
-
-  // Step 2. Now that we have very carefully created an array with a storage
-  // type and number of components that match the arrays whose status is 1,
-  // loop over the objects whose status is 1 but that do not have an
-  // an array status of 1 or who have truth table set to 0. These objects
-  // need to pad the arrays with zeros.
-  int otypidx;
-  for ( otypidx = 0; obj_types[otypidx] != vtkExodusIIReader::NODE_MAP; ++otypidx )
-    {
-    int otyp = obj_types[otypidx];
-    int obj;
-    int numObj = this->GetNumberOfObjectsOfType( otyp );
-
-    int ai;
-    for ( ai = 0; ai < cd->GetNumberOfArrays(); ++ai )
-      {
-      vtkDataArray* arr = cd->GetArray( ai );
-      ArrayInfoType* ainfop = this->FindArrayInfoByName( otyp, arr->GetName() );
-
-      for ( obj = 0; obj < numObj; ++obj )
-        {
-        BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
-
-        if (
-          bsinfop && bsinfop->Status &&
-          ( !ainfop || ! ainfop->Status || ( ainfop->Status && ! ainfop->ObjectTruth[obj] ) )
-        )
-          {
-          vtkstd::vector<double> zedTuple( arr->GetNumberOfComponents(), 0. ); // an empty tuple used to pad arrays
-          vtkIdType i;
-          vtkIdType c = bsinfop->GridOffset;
-          vtkDebugMacro( << arr->GetName() << ": Padding " << bsinfop->Size << " cells at " << c << "\n" );
-          for ( i = 0; i < bsinfop->Size; ++i, ++c )
-            {
-            arr->SetTuple( c, &zedTuple[0] );
-            }
-          }
-        }
-      }
-    }
-
-  return 1;
-}
-
-int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep, vtkUnstructuredGrid* output )
-{
-  (void)timeStep;
-  int status = 1;
-  vtkstd::vector<MapInfoType>::iterator mi;
-  int midx = 0;
-
-  for (
-    mi = this->MapInfo[ vtkExodusIIReader::NODE_MAP ].begin();
-    mi != this->MapInfo[ vtkExodusIIReader::NODE_MAP ].end();
-    ++mi, ++midx )
-    {
-    if ( ! mi->Status )
-      continue; // Skip arrays we don't want.
-
-    vtkExodusIICacheKey key( -1, vtkExodusIIReader::NODE_MAP, 0, midx );
-    vtkDataArray* src = this->GetCacheOrRead( key );
-    if ( !src )
-      {
-      vtkWarningMacro( "Unable to read point map array \"" << mi->Name.c_str() << "\" (" << midx << ")" );
-      status = 0;
+    if ( ! ai->Status )
       continue;
-      }
 
-    this->AddPointArray( src, output );
-    }
-  return status;
-}
+    if ( ! ai->ObjectTruth[obj] )
+      continue;
 
-int vtkExodusIIReaderPrivate::AssembleOutputCellMaps( vtkIdType timeStep, vtkUnstructuredGrid* output )
-{
-  (void)timeStep;
-  // Step 1. Create the large arrays and fill them (but don't pad them).
-  vtkCellData* cd = output->GetCellData();
-  vtkstd::map<int,vtkstd::vector<MapInfoType> >::iterator mmi;
-  for ( mmi = this->MapInfo.begin(); mmi != this->MapInfo.end(); ++mmi )
-    {
-    if ( mmi->first == vtkExodusIIReader::NODAL || mmi->first == vtkExodusIIReader::NODE_MAP )
-      continue; // we handle nodal arrays in AssembleOutputPointMaps
-
-    // See if any maps of this type are turned on (Status != 0)
-    int obj;
-    int numObjOn = 0;
-    int numObj = this->GetNumberOfObjectsOfType( mmi->first );
-    for ( obj = 0; obj < numObj; ++obj )
+    vtkDataArray* arr = this->GetCacheOrRead( vtkExodusIICacheKey( timeStep, ami->first, obj, aidx ) );
+    if ( arr )
       {
-      if ( this->GetObjectStatus( mmi->first, obj ) )
-        {
-        ++numObjOn;
-        break; // know we know we need the array
-        }
-      }
-    if ( numObjOn == 0 )
-      continue; // this array may be on, but no objects of this type are active... skip it.
-
-    vtkstd::vector<MapInfoType>::iterator mi;
-    int midx = 0;
-    for ( mi = mmi->second.begin(); mi != mmi->second.end(); ++mi, ++midx )
-      {
-      if ( ! mi->Status )
-        continue;
-
-      vtkDataArray* arr = cd->GetArray( mi->Name.c_str() );
-      if ( arr )
-        {
-        // OK, we've already created this array for some other type of object, 
-        // so now we have to make sure the arrays are consistent. If not, we
-        // turn off the second one we encounter. The user can disable the first
-        // and re-enable the second if required.
-        if ( arr->GetDataType() != VTK_ID_TYPE )
-          {
-          vtkErrorMacro( "Cell array \"" << mi->Name.c_str() << "\" has conflicting types." );
-          mi->Status = 0; // Don't load this map. User must disable other array before loading this one.
-          arr = 0;
-          }
-        if ( arr && (arr->GetNumberOfComponents() != 1) )
-          {
-          vtkErrorMacro( "Cell array \"" << mi->Name.c_str() << "\" has different number of components than map requires." );
-          mi->Status = 0; // Don't load this block's/set's version. User must disable other block/set before loading this one.
-          arr = 0;
-          }
-        }
-      else
-        {
-        // Create the array
-        arr = vtkIdTypeArray::New();
-        arr->SetName( mi->Name.c_str() );
-        arr->SetNumberOfComponents( 1 );
-        arr->SetNumberOfTuples( this->NumberOfCells );
-        // Eliminate the second pass that pads cells by initializing the entire array here.
-        memset( arr->GetVoidPointer(0), 0, this->NumberOfCells * sizeof(vtkIdType) );
-        cd->AddArray( arr );
-        arr->FastDelete();
-        }
-
-      if ( ! arr )
-        {
-        continue;
-        }
-
-      // OK, the array exists and has the correct number of tuples. Loop over all objects of
-      // this type and insert their values into the global cell array according to their GridOffset.
-      int otyp = this->GetObjectTypeFromMapType( mmi->first );
-      BlockInfoType* binfop;
-      vtkDataArray* src;
-      int numBlk = (int) this->BlockInfo[otyp].size();
-      int blk;
-
-      src = this->GetCacheOrRead( vtkExodusIICacheKey( -1, mmi->first, 0, midx ) );
-      if ( src )
-        {
-        for ( blk = 0; blk < numBlk; ++blk )
-          {
-          binfop = &this->BlockInfo[otyp][blk];
-          if ( ! binfop->Status )
-            continue;
-
-          vtkIdType c;
-          for ( c = 0; c < binfop->Size; ++c )
-            {
-            cd->CopyTuple( src, arr, c + binfop->FileOffset - 1, c + binfop->GridOffset );
-            }
-          }
-        }
-
-      // ===
+      cd->AddArray( arr );
       }
     }
+
   return 1;
 }
 
-int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep, vtkUnstructuredGrid* output )
+int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
+  vtkIdType timeStep, int otyp, int obj,
+  vtkUnstructuredGrid* output )
 {
   (void)timeStep;
   int status = 7;
+  vtkCellData* cd = output->GetCellData();
   if ( this->GenerateObjectIdArray )
     {
-    vtkExodusIICacheKey key( -1, vtkExodusIIReader::GLOBAL_OBJECT_ID, 0, 0 );
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::OBJECT_ID, otyp, obj );
     vtkDataArray* arr = this->GetCacheOrRead( key );
-    vtkCellData* cd = output->GetCellData();
     if ( arr )
       {
       cd->AddArray( arr );
@@ -2908,9 +2327,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
     // This retrieves the first new-style map, or if that is not present,
     // the solitary old-style map (which always exists but may be
     // procedurally generated if it is not stored with the file).
-    vtkExodusIICacheKey key( -1, vtkExodusIIReader::GLOBAL_ELEMENT_ID, 0, 0 );
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::GLOBAL_ELEMENT_ID, otyp, obj );
     vtkDataArray* arr = this->GetCacheOrRead( key );
-    vtkCellData* cd = output->GetCellData();
     if ( arr )
       {
       vtkDataArray* ped = vtkIdTypeArray::New();
@@ -2930,7 +2348,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
     // This retrieves the first new-style map, or if that is not present,
     // the solitary old-style map (which always exists but may be
     // procedurally generated if it is not stored with the file).
-    vtkExodusIICacheKey key( -1, vtkExodusIIReader::GLOBAL_NODE_ID, 0, 0 );
+    vtkExodusIICacheKey key( -1, vtkExodusIIReader::GLOBAL_NODE_ID, otyp, obj );
     vtkDataArray* arr = this->GetCacheOrRead( key );
     vtkPointData* pd = output->GetPointData();
     if ( arr )
@@ -2949,6 +2367,293 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays( vtkIdType timeStep
 
   return status;
 }
+
+int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
+  vtkIdType vtkNotUsed(timeStep), int otyp, int obj, BlockSetInfoType* bsinfop,
+  vtkUnstructuredGrid* output )
+{
+  (void)obj;
+  vtkFieldData *ofieldData = output->GetFieldData();
+
+  int status = 1;
+  vtkstd::vector<ArrayInfoType>::iterator ai;
+  int aidx = 0;
+
+  for (
+    ai = this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].begin();
+    ai != this->ArrayInfo[ vtkExodusIIReader::GLOBAL ].end();
+    ++ai, ++aidx )
+    {
+    if ( ! ai->Status )
+      {
+      continue;
+      }
+
+    // Add time-varying global data
+    vtkExodusIICacheKey tdKey( -1, vtkExodusIIReader::GLOBAL_TEMPORAL, -1, aidx );
+    vtkDataArray* temporalData = this->GetCacheOrRead( tdKey );
+    if ( ! temporalData )
+      {
+      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      status = 0;
+      continue;
+      }
+
+    ofieldData->AddArray(temporalData);
+    }
+
+  // Add block id information for the exodus writer (if we're an element block)
+  if ( otyp == vtkExodusIIReader::ELEM_BLOCK )
+    {
+    vtkIntArray *elemBlockIdArray = vtkIntArray::New();
+    elemBlockIdArray->SetNumberOfComponents( 1 );
+    elemBlockIdArray->SetNumberOfValues( 1 ); // one elem block per unstructured grid
+    elemBlockIdArray->SetName( "ElementBlockIds" );
+    elemBlockIdArray->SetValue( 0, bsinfop->Id );
+    ofieldData->AddArray( elemBlockIdArray );
+    elemBlockIdArray->Delete();
+    }
+
+  // Add QA record and INFO record metadata from the Exodus II file
+  vtkExodusIICacheKey qakey( -1, vtkExodusIIReader::QA_RECORDS, 0, 0 );
+  vtkDataArray* arr = this->GetCacheOrRead( qakey );
+  if ( arr )
+    {
+    ofieldData->AddArray(arr);
+    }
+
+  vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
+  arr = this->GetCacheOrRead( infokey );
+  if ( arr )
+    {
+    ofieldData->AddArray(arr);
+    }
+
+  return status;
+}
+
+int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep,
+  BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
+{
+  (void)timeStep;
+  int status = 1;
+  vtkstd::vector<MapInfoType>::iterator mi;
+  int midx = 0;
+
+  for (
+    mi = this->MapInfo[ vtkExodusIIReader::NODE_MAP ].begin();
+    mi != this->MapInfo[ vtkExodusIIReader::NODE_MAP ].end();
+    ++mi, ++midx )
+    {
+    if ( ! mi->Status )
+      continue; // Skip arrays we don't want.
+
+    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, midx ) ) );
+    if ( !src )
+      {
+      vtkWarningMacro(
+        "Unable to read point map array \""
+        << mi->Name.c_str() << "\" (" << midx << ")" );
+      status = 0;
+      continue;
+      }
+
+    this->AddPointArray( src, bsinfop, output );
+    }
+  return status;
+}
+
+int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
+  vtkIdType vtkNotUsed(timeStep), int otyp, int obj, BlockSetInfoType* bsinfop,
+  vtkUnstructuredGrid* output )
+{
+  (void)obj;
+  // Don't create arrays for deselected objects
+  if ( ! output || ! bsinfop->Status )
+    {
+    return 1;
+    }
+
+  // Ignore invalid otyp values (sets cannot have maps, only blocks).
+  int mtyp = this->GetMapTypeFromObjectType( otyp );
+  vtkstd::map<int,vtkstd::vector<MapInfoType> >::iterator mmi =
+    this->MapInfo.find( mtyp );
+  if ( mmi == this->MapInfo.end() )
+    {
+    return 1;
+    }
+
+  vtkCellData* cd = output->GetCellData();
+  // For each map defined on objects of the same type as our output,
+  // look for ones that are turned on (Status != 0).
+  vtkstd::vector<MapInfoType>::iterator mi;
+  int midx = 0;
+  for ( mi = mmi->second.begin(); mi != mmi->second.end(); ++mi, ++midx )
+    {
+    if ( ! mi->Status )
+      continue;
+
+    vtkDataArray* src = this->GetCacheOrRead(
+      vtkExodusIICacheKey( -1, mmi->first, 0, midx ) );
+    if ( ! src )
+      continue;
+
+    if ( otyp == vtkExodusIIReader::ELEM_BLOCK )
+      {
+      if (
+        bsinfop->Size == src->GetNumberOfTuples() &&
+        bsinfop->FileOffset == 1 &&
+        this->BlockInfo[otyp].size() == 1 )
+        {
+        cd->AddArray( src );
+        }
+      else
+        {
+        // Create the array and copy the applicable subset from the map
+        vtkIdTypeArray* arr = vtkIdTypeArray::New();
+        arr->SetName( mi->Name.c_str() );
+        arr->SetNumberOfComponents( 1 );
+        arr->SetNumberOfTuples( bsinfop->Size );
+        memcpy( arr->GetVoidPointer(0), src->GetVoidPointer( bsinfop->FileOffset - 1 ),
+          bsinfop->Size * sizeof(vtkIdType) );
+        cd->AddArray( arr );
+        arr->FastDelete();
+        }
+      }
+    else
+      {
+      // FIXME: We have a set (no maps are defined on sets but we could determine
+      //        map values given the set generators) or an edge/face block (unclear
+      //        whether maps are useful/possible on these block types).
+      }
+    }
+  return 1;
+}
+
+int vtkExodusIIReaderPrivate::AssembleArraysOverTime(
+  int otyp, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
+{
+  if ( this->FastPathObjectId < 0 )
+    {
+    // No downstream filter has requested temporal data from this reader.
+    return 0;
+    }
+
+  if ( this->FastPathObjectType != otyp )
+    {
+    // Request is not for this block.
+    return 0;
+    }
+
+  vtkstd::vector<ArrayInfoType>::iterator ai;
+  vtkFieldData* ofd = output->GetFieldData();
+  vtkIdType internalExodusId = -1;
+  int status = 1;
+  int aidx = 0;
+  int objId = -1;
+
+  // We need to get the internal id used by the exodus file from either the 
+  // VTK index, or from the global id
+  if ( ! strcmp( this->FastPathIdType, "INDEX" ) )
+    {
+    // map the "used" index to the "original" index
+    if ( this->FastPathObjectType == vtkExodusIIReader::NODAL )
+      {
+      if ( this->SqueezePoints )
+        {
+        internalExodusId = bsinfop->ReversePointMap[this->FastPathObjectId];
+        }
+      else
+        {
+        internalExodusId = this->FastPathObjectId + 1;
+        }
+      }
+    else
+      {
+      internalExodusId = bsinfop->FileOffset + this->FastPathObjectId;
+      }
+    }
+  else if( strcmp( this->FastPathIdType, "GLOBAL" ) )
+    {
+    vtkExodusIICacheKey globalIdMapKey;
+    switch ( this->FastPathObjectType )
+      {
+      case vtkExodusIIReader::NODAL:
+        globalIdMapKey =
+          vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
+        break;
+      case vtkExodusIIReader::ELEM_BLOCK:
+        globalIdMapKey = 
+          vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
+        break;
+      default:
+        vtkWarningMacro( "Unsupported object type for fast path." );
+        return 0;
+      }
+
+    vtkIdTypeArray* globalIdMap = vtkIdTypeArray::SafeDownCast(
+      this->GetCacheOrRead( globalIdMapKey ) );
+    if ( ! globalIdMap )
+      {
+      return 0;
+      }
+
+    for ( vtkIdType j = 0; j < globalIdMap->GetNumberOfTuples(); ++j )
+      {
+      if ( globalIdMap->GetValue( j ) == this->FastPathObjectId )
+        {
+        // exodus ids are 1-based:
+        internalExodusId = j + 1;
+        break;
+        }
+      }
+    }
+
+  // This will happen if the data does not reside in this file
+  if ( internalExodusId < 0 )
+    {
+    //vtkWarningMacro( "Unable to map id to internal exodus id." );
+    return 0;
+    }
+
+  for (
+    ai = this->ArrayInfo[ this->FastPathObjectType ].begin();
+    ai != this->ArrayInfo[ this->FastPathObjectType ].end();
+    ++ai, ++aidx )
+    {
+    if ( ! ai->Status )
+      continue; // Skip arrays we don't want.
+
+    // If this array isn't defined over the block that the element resides in,
+    // skip. Right now this is only done when the fast-path id type is "INDEX".
+    if ( objId >= 0 && 
+         this->FastPathObjectType == vtkExodusIIReader::ELEM_BLOCK &&
+         ! strcmp( this->FastPathIdType, "INDEX" ) )
+      {
+      if ( ! ai->ObjectTruth[objId] )
+        {
+        continue;
+        }
+      }
+
+    vtkExodusIICacheKey temporalDataKey( 
+        -1, this->GetTemporalTypeFromObjectType( this->FastPathObjectType ),
+        internalExodusId, aidx );
+    vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
+    if ( !temporalData )
+      {
+      vtkWarningMacro( "Unable to read array " << ai->Name.c_str() );
+      status = 0;
+      continue;
+      }
+
+    ofd->AddArray(temporalData);
+    }
+
+  return status;
+}
+
 
 void vtkExodusIIReaderPrivate::AssembleOutputEdgeDecorations()
 {
@@ -2970,10 +2675,11 @@ void vtkExodusIIReaderPrivate::AssembleOutputFaceDecorations()
   
 }
 
-void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::InsertBlockCells(
+  int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfo )
 {
   (void)timeStep;
-  BlockInfoType* binfo = &this->BlockInfo[otyp][obj];
+  (void)otyp;
   if ( binfo->Size == 0 )
     {
     // No entries in this block. 
@@ -2988,7 +2694,6 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
     {
     vtkWarningMacro( "Block wasn't present in file? Working around it. Expect trouble." );
     binfo->Status = 0;
-    this->ComputeGridOffsets();
     return;
     }
 
@@ -3002,12 +2707,12 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
       {
       for ( int p = 0; p < binfo->PointsPerCell; ++p )
         {
-        cellIds[p] = this->GetSqueezePointId( srcIds[p] );
+        cellIds[p] = this->GetSqueezePointId( binfo, srcIds[p] );
         //cout << " " << srcIds[p] << "(" << cellIds[p] << ")";
         }
       //cout << "\n";
       //cout << " " <<
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
       srcIds += binfo->PointsPerCell;
       }
       //cout << "\n";
@@ -3027,7 +2732,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
         //cout << " " << srcIds[p];
         }
       //cout << "\n";
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, &cellIds[0] );
       srcIds += binfo->PointsPerCell;
       }
 #else // VTK_USE_64BIT_IDS
@@ -3035,7 +2740,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
 
     for ( int i = 0; i < binfo->Size; ++i )
       {
-      output->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
+      binfo->CachedConnectivity->InsertNextCell( binfo->CellType, binfo->PointsPerCell, srcIds );
       srcIds += binfo->PointsPerCell;
       //for ( int k = 0; k < binfo->PointsPerCell; ++k )
         //cout << " " << srcIds[k];
@@ -3045,10 +2750,11 @@ void vtkExodusIIReaderPrivate::InsertBlockCells( int otyp, int obj, int conn_typ
     }
 }
 
-void vtkExodusIIReaderPrivate::InsertSetCells( int otyp, int obj, int conn_type, int timeStep, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::InsertSetCells(
+  int otyp, int obj, int conn_type, int timeStep,
+  SetInfoType* sinfo )
 {
   (void)timeStep;
-  SetInfoType* sinfo = &this->SetInfo[otyp][obj];
   if ( sinfo->Size == 0 )
     {
     // No entries in this set. 
@@ -3057,12 +2763,12 @@ void vtkExodusIIReaderPrivate::InsertSetCells( int otyp, int obj, int conn_type,
     return;
     }
 
-  vtkIntArray* arr = vtkIntArray::SafeDownCast( this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
+  vtkIntArray* arr = vtkIntArray::SafeDownCast(
+    this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
   if ( ! arr )
     {
     vtkWarningMacro( "Set wasn't present in file? Working around it. Expect trouble." );
     sinfo->Status = 0;
-    this->ComputeGridOffsets();
     return;
     }
 
@@ -3070,28 +2776,29 @@ void vtkExodusIIReaderPrivate::InsertSetCells( int otyp, int obj, int conn_type,
     {
   case vtkExodusIIReader::NODE_SET:
     // Easy
-    this->InsertSetNodeCopies( arr, otyp, obj, output );
+    this->InsertSetNodeCopies( arr, otyp, obj, sinfo );
     break;
   case vtkExodusIIReader::EDGE_SET:
     // Not so fun. We must copy cells from possibly many edge blocks.
-    this->InsertSetCellCopies( arr, vtkExodusIIReader::EDGE_BLOCK, obj, output );
+    this->InsertSetCellCopies( arr, vtkExodusIIReader::EDGE_BLOCK, obj, sinfo );
     break;
   case vtkExodusIIReader::FACE_SET:
     // Not so fun. We must copy cells from possibly many face blocks.
-    this->InsertSetCellCopies( arr, vtkExodusIIReader::FACE_BLOCK, obj, output );
+    this->InsertSetCellCopies( arr, vtkExodusIIReader::FACE_BLOCK, obj, sinfo );
     break;
   case vtkExodusIIReader::SIDE_SET:
     // Way hard even when we let Exodus do a lot for us.
-    this->InsertSetSides( arr, otyp, obj, output );
+    this->InsertSetSides( arr, otyp, obj, sinfo );
     break;
   case vtkExodusIIReader::ELEM_SET:
     // Not so fun. We must copy cells from possibly many element blocks.
-    this->InsertSetCellCopies( arr, vtkExodusIIReader::ELEM_BLOCK, obj, output );
+    this->InsertSetCellCopies( arr, vtkExodusIIReader::ELEM_BLOCK, obj, sinfo );
     break;
     }
 }
 
-void vtkExodusIIReaderPrivate::AddPointArray( vtkDataArray* src, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::AddPointArray(
+  vtkDataArray* src, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output )
 {
   vtkPointData* pd = output->GetPointData();
   if ( this->SqueezePoints )
@@ -3100,15 +2807,11 @@ void vtkExodusIIReaderPrivate::AddPointArray( vtkDataArray* src, vtkUnstructured
     vtkDataArray* dest = vtkDataArray::CreateDataArray( src->GetDataType() );
     dest->SetName( src->GetName() );
     dest->SetNumberOfComponents( src->GetNumberOfComponents() );
-    dest->SetNumberOfTuples( this->NextSqueezePoint );
-    vtkIdType exoPtId;
-    for ( exoPtId = 0; exoPtId < this->ModelParameters.num_nodes; ++exoPtId )
+    dest->SetNumberOfTuples( bsinfop->NextSqueezePoint );
+    vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+    for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
       {
-      vtkIdType outPtId = this->PointMap[exoPtId];
-      if ( outPtId >= 0 )
-        {
-        pd->CopyTuple( src, dest, exoPtId, outPtId );
-        }
+      pd->CopyTuple( src, dest, it->first, it->second );
       }
     pd->AddArray( dest );
     dest->FastDelete();
@@ -3119,7 +2822,7 @@ void vtkExodusIIReaderPrivate::AddPointArray( vtkDataArray* src, vtkUnstructured
     }
 }
 
-void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo )
 {
   (void)otyp;
   (void)obj;
@@ -3133,13 +2836,8 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
     for ( ref = 0; ref < refs->GetNumberOfTuples(); ++ref, ++iptr )
       {
       tmp = *iptr;
-      vtkIdType* x = &this->PointMap[tmp];
-      if ( *x < 0 )
-        {
-        *x = this->NextSqueezePoint++;
-        this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,tmp));
-        }
-      output->InsertNextCell( VTK_VERTEX, 1, x );
+      vtkIdType x = this->GetSqueezePointId( sinfo, tmp );
+      sinfo->CachedConnectivity->InsertNextCell( VTK_VERTEX, 1, &x );
       }
     }
   else
@@ -3147,12 +2845,13 @@ void vtkExodusIIReaderPrivate::InsertSetNodeCopies( vtkIntArray* refs, int otyp,
     for ( ref = 0; ref < refs->GetNumberOfTuples(); ++ref, ++iptr )
       {
       tmp = *iptr;
-      output->InsertNextCell( VTK_VERTEX, 1, &tmp );
+      sinfo->CachedConnectivity->InsertNextCell( VTK_VERTEX, 1, &tmp );
       }
     }
 }
 
-void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::InsertSetCellCopies(
+  vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo )
 {
   (void)obj;
   // First, sort the set by entry number (element, face, or edge ID)
@@ -3229,18 +2928,12 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
     if ( this->SqueezePoints )
       { // this loop is separated out to handle case (stride > 1 && pref[1] < 0 && this->SqueezePoints)
       for ( int k = 0; k < nnpe; ++k )
-        {
-        vtkIdType* x = &this->PointMap[cellConn[k]];
-        if ( *x < 0 )
-          {
-          *x = this->NextSqueezePoint++;
-          this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,cellConn[k]));
-          }
-        cellConn[k] = *x;
+        { // FIXME: Double-check that cellConn[k] should be in-place re-assigned.
+        cellConn[k] = this->GetSqueezePointId( sinfo, cellConn[k] );
         }
       }
 
-    output->InsertNextCell( binfop->CellType, nnpe, cellConn );
+    sinfo->CachedConnectivity->InsertNextCell( binfop->CellType, nnpe, cellConn );
 
     pref += stride;
     ++ref;
@@ -3249,7 +2942,8 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies( vtkIntArray* refs, int otyp,
   refs->UnRegister( this );
 }
 
-void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int obj, vtkUnstructuredGrid* output )
+void vtkExodusIIReaderPrivate::InsertSetSides(
+  vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo )
 {
   static const int sideCellTypes[] =
     {
@@ -3279,15 +2973,9 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
       nnpe = nodesPerSide[side];
       for ( int k = 0; k < nnpe; ++k )
         {
-        vtkIdType* x = &this->PointMap[sideNodes[k]];
-        if ( *x < 0 )
-          {
-          *x = this->NextSqueezePoint++;
-          this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,sideNodes[k]));
-          }
-        cellConn[k] = *x;
+        cellConn[k] = this->GetSqueezePointId( sinfo, sideNodes[k] );
         }
-      output->InsertNextCell( sideCellTypes[nnpe], nnpe, &cellConn[0] );
+      sinfo->CachedConnectivity->InsertNextCell( sideCellTypes[nnpe], nnpe, &cellConn[0] );
       sideNodes += nnpe;
       }
     }
@@ -3300,11 +2988,11 @@ void vtkExodusIIReaderPrivate::InsertSetSides( vtkIntArray* refs, int otyp, int 
 #ifdef VTK_USE_64BIT_IDS
       for ( int k = 0; k < nnpe; ++k )
         {
-          cellConn[k] = sideNodes[k];
+        cellConn[k] = sideNodes[k];
         }
-      output->InsertNextCell( sideCellTypes[nnpe], nnpe, &cellConn[0] );
+      sinfo->CachedConnectivity->InsertNextCell( sideCellTypes[nnpe], nnpe, &cellConn[0] );
 #else // VTK_USE_64BIT_IDS
-      output->InsertNextCell( sideCellTypes[nnpe], nnpe, sideNodes );
+      sinfo->CachedConnectivity->InsertNextCell( sideCellTypes[nnpe], nnpe, sideNodes );
 #endif // VTK_USE_64BIT_IDS
       sideNodes += nnpe;
       }
@@ -3430,10 +3118,13 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
         vtkIdType N = this->GetNumberOfTimeSteps();
         tmpVal[c].resize( N );
-        if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL, ainfop->OriginalIndices[c], key.ObjectId, 
+        if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL,
+            ainfop->OriginalIndices[c], key.ObjectId, 
             1, this->GetNumberOfTimeSteps(), &tmpVal[c][0] ) < 0 )
           {
-          vtkErrorMacro( "Could not read temporal global result variable " << ainfop->OriginalNames[c].c_str() << "." );
+          vtkErrorMacro(
+            "Could not read temporal global result variable "
+            << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
           arr = 0;
           return 0;
@@ -3451,10 +3142,13 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         arr->SetTuple( t, &tmpTuple[0] );
         }
       }
-    else if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL, ainfop->OriginalIndices[0], key.ObjectId, 
+    else if ( ex_get_var_time( exoid, vtkExodusIIReader::GLOBAL,
+        ainfop->OriginalIndices[0], key.ObjectId, 
         1, this->GetNumberOfTimeSteps(), arr->GetVoidPointer( 0 ) ) < 0 )
       {
-      vtkErrorMacro( "Could not read global result variable " << ainfop->Name.c_str() << "." );
+      vtkErrorMacro(
+        "Could not read global result variable "
+        << ainfop->Name.c_str() << "." );
       arr->Delete();
       arr = 0;
       }
@@ -3578,7 +3272,15 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
 
     arr = vtkDataArray::CreateDataArray( ainfop->StorageType );
     arr->SetName( ainfop->Name.c_str() );
-    arr->SetNumberOfComponents( ainfop->Components );
+    if ( ainfop->Components == 2 && this->ModelParameters.num_dim == 2 )
+      {
+      // Promote 2-component arrays to 3-component arrays when we have 2-D coordinates
+      arr->SetNumberOfComponents( 3 );
+      }
+    else
+      {
+      arr->SetNumberOfComponents( ainfop->Components );
+      }
     arr->SetNumberOfTuples( oinfop->Size );
     if ( ainfop->Components == 1 )
       {
@@ -3612,9 +3314,12 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           arr = 0;
           }
         }
-      int t;
+      // Carefully use arr->GetNumberOfComponents() when sizing
+      // output as we may have promoted 2-D arrays to 3-D.
+      int t = arr->GetNumberOfComponents();
       vtkstd::vector<double> tmpTuple;
-      tmpTuple.resize( ainfop->Components );
+      tmpTuple.resize( t );
+      tmpTuple[t - 1] = 0.;
       for ( t = 0; t < arr->GetNumberOfTuples(); ++t )
         {
         for ( c = 0; c < ainfop->Components; ++c )
@@ -3677,9 +3382,16 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
 #endif // VTK_USE_64BIT_IDS
     }
   else if ( key.ObjectType == vtkExodusIIReader::GLOBAL_ELEMENT_ID )
-    { // subset the ELEMENT_ID array choosing only entries for blocks that have Status ON
-    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast(
-      this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 ) ) );
+    {
+    // Yes, the next 2 statements are an intentional misuse of key
+    // fields reserved for the ObjectId and ArrayId (since ObjectType
+    // is used to signal that we want IDs instead of a field value).
+    int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
+    int obj = key.ArrayId;
+    BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
+
+    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 ) ) );
     if ( ! src )
       {
       arr = 0;
@@ -3688,53 +3400,41 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     vtkIdTypeArray* iarr = vtkIdTypeArray::New();
     iarr->SetName( vtkExodusIIReader::GetGlobalElementIdArrayName() );
     iarr->SetNumberOfComponents( 1 );
-    iarr->SetNumberOfTuples( this->NumberOfCells );
+    iarr->SetNumberOfTuples( bsinfop->Size );
     vtkIdType* gloIds = iarr->GetPointer( 0 );
-    vtkIdType* srcIds = src->GetPointer( 0 );
-    memset( (void*)gloIds, 0, sizeof(vtkIdType) * this->NumberOfCells );
-
-    vtkstd::vector<BlockInfoType>::iterator bi;
-    for (
-      bi = this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK].begin();
-      bi != this->BlockInfo[vtkExodusIIReader::ELEM_BLOCK].end();
-      ++bi )
-      {
-      if ( ! bi->Status )
-        continue;
-
-      vtkIdType x;
-      for ( x = 0; x < bi->Size; ++x )
-        {
-        gloIds[x + bi->GridOffset] = srcIds[x + bi->FileOffset - 1];
-        }
-      }
+    vtkIdType* srcIds = src->GetPointer( bsinfop->FileOffset - 1 );
+    memcpy( gloIds, srcIds, sizeof(vtkIdType) * bsinfop->Size );
     arr = iarr;
     }
   else if ( key.ObjectType == vtkExodusIIReader::GLOBAL_NODE_ID )
     { // subset the NODE_ID array choosing only entries for nodes in output grid (using PointMap)
+    // Yes, the next 2 statements are an intentional misuse of key
+    // fields reserved for the ObjectId and ArrayId (since ObjectType
+    // is used to signal that we want IDs instead of a field value).
+    int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
+    int obj = key.ArrayId;
+    BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
     vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast(
       this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 ) ) );
-    if ( ! src )
+    if ( this->SqueezePoints && src )
       {
-      arr = 0;
-      return 0;
-      }     
-    vtkIdTypeArray* iarr = vtkIdTypeArray::New();
-    iarr->SetName( vtkExodusIIReader::GetGlobalNodeIdArrayName() );
-    iarr->SetNumberOfComponents( 1 );
-    iarr->SetNumberOfTuples( this->NextSqueezePoint );
-    vtkIdType* gloIds = iarr->GetPointer( 0 );
-    vtkIdType* srcIds = src->GetPointer( 0 );
-    vtkIdType pt;
-    for ( pt = 0; pt < this->ModelParameters.num_nodes; ++pt )
-      {
-      vtkIdType x = this->PointMap[pt];
-      if ( x >= 0 )
+      vtkIdTypeArray* iarr = vtkIdTypeArray::New();
+      iarr->SetName( vtkExodusIIReader::GetGlobalNodeIdArrayName() );
+      iarr->SetNumberOfComponents( 1 );
+      iarr->SetNumberOfTuples( bsinfop->NextSqueezePoint );
+      vtkIdType* gloIds = iarr->GetPointer( 0 );
+      vtkIdType* srcIds = src->GetPointer( 0 );
+      vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+      for ( it = bsinfop->PointMap.begin(); it != bsinfop->PointMap.end(); ++ it )
         {
-        gloIds[x] = srcIds[pt];
+        gloIds[it->second] = srcIds[it->first];
         }
+      arr = iarr;
       }
-    arr = iarr;
+    else
+      {
+      arr = src;
+      }
     }
   else if (
     key.ObjectType == vtkExodusIIReader::ELEMENT_ID ||
@@ -4065,33 +3765,22 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         }
       }
     }
-  else if ( key.ObjectType == vtkExodusIIReader::GLOBAL_OBJECT_ID )
+  else if ( key.ObjectType == vtkExodusIIReader::OBJECT_ID )
     {
+    BlockSetInfoType* bsinfop;
+    // Yes, the next 2 statements are an intentional misuse of key
+    // fields reserved for the ObjectId and ArrayId (since ObjectType
+    // is used to signal that we want IDs instead of a field value).
+    int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
+    int obj = key.ArrayId;
+    bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
+
     arr = vtkIntArray::New();
     arr->SetName( this->GetObjectIdArrayName() );
     arr->SetNumberOfComponents( 1 );
-    arr->SetNumberOfTuples( this->NumberOfCells );
+    arr->SetNumberOfTuples( bsinfop->Size );
+    arr->FillComponent( 0, bsinfop->Id );
 
-    int conntypidx;
-    for ( conntypidx = 0; conntypidx < num_conn_types; ++conntypidx )
-      {
-      int otypidx = conn_obj_idx_cvt[conntypidx];
-      int obj;
-      int numObj = this->GetNumberOfObjectsAtTypeIndex( otypidx );
-      BlockSetInfoType* bsinfop;
-      for ( obj = 0; obj < numObj; ++obj )
-        {
-        bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
-        if ( ! bsinfop->Status )
-          continue;
-
-        vtkIdType c;
-        for ( c = 0; c < bsinfop->Size; ++c )
-          {
-          arr->SetTuple1( c + bsinfop->GridOffset, bsinfop->Id );
-          }
-        }
-      }
     }
   else if (
     key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ATTRIB ||
@@ -4382,15 +4071,21 @@ vtkExodusIIReaderPrivate::BlockInfoType* vtkExodusIIReaderPrivate::GetBlockFromF
   return 0;
 }
 
-vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( int i )
+vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( BlockSetInfoType* bsinfop, int i )
 {
-  vtkIdType* x = &this->PointMap[i];
-  if ( *x < 0 )
-    {
-    *x = this->NextSqueezePoint++;
-    this->ReversePointMap.insert(vtkstd::make_pair<vtkIdType,vtkIdType>(*x,i));
+  vtkIdType x;
+  vtkstd::map<vtkIdType,vtkIdType>::iterator it = bsinfop->PointMap.find( i );
+  if ( it == bsinfop->PointMap.end() )
+    { // Nothing found; add a new entry to the map.
+    x = bsinfop->NextSqueezePoint ++ ;
+    bsinfop->PointMap[i] = x;
+    bsinfop->ReversePointMap[x] = i;
     }
-  return *x;
+  else
+    {
+    x = it->second;
+    }
+  return x;
 }
 
 void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
@@ -4618,6 +4313,35 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
     }
 }
 
+void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
+{
+  vtkstd::map<int,vtkstd::vector<BlockInfoType> >::iterator blksit;
+  for ( blksit = this->BlockInfo.begin(); blksit != this->BlockInfo.end(); ++ blksit )
+    {
+    vtkstd::vector<BlockInfoType>::iterator blkit;
+    for ( blkit = blksit->second.begin(); blkit != blksit->second.end(); ++ blkit )
+      {
+      if ( blkit->CachedConnectivity )
+        {
+        blkit->CachedConnectivity->Delete();
+        blkit->CachedConnectivity = 0;
+        }
+      }
+    }
+  vtkstd::map<int,vtkstd::vector<SetInfoType> >::iterator setsit;
+  for ( setsit = this->SetInfo.begin(); setsit != this->SetInfo.end(); ++ setsit )
+    {
+    vtkstd::vector<SetInfoType>::iterator setit;
+    for ( setit = setsit->second.begin(); setit != setsit->second.end(); ++ setit )
+      {
+      if ( setit->CachedConnectivity )
+        {
+        setit->CachedConnectivity->Delete();
+        setit->CachedConnectivity = 0;
+        }
+      }
+    }
+}
 
 int vtkExodusIIReaderPrivate::GetNumberOfParts()
 {
@@ -4946,10 +4670,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
   os << indent << "Array Cache:\n";
   this->Cache->PrintSelf( os, inden2 );
 
-  os << indent << "Number of output cells: " << this->NumberOfCells << "\n";
-
   os << indent << "SqueezePoints: " << this->SqueezePoints << "\n";
-  os << indent << "NextSqueezePoint: " << this->NextSqueezePoint << "\n";
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << "\n";
   os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << "\n";
   os << indent << "GenerateObjectIdArray: " << this->GenerateObjectIdArray << "\n";
@@ -5025,7 +4746,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   char** var_names = 0;
   int have_var_names;
   int num_vars = 0; /* number of variables per object */
-  //int num_entries; /* number of values per variable per object */
   char tmpName[256];
   tmpName[255] = '\0';
 
@@ -5054,7 +4774,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
     }
 */
-  this->NumberOfCells = 0;
   for ( i = 0; i < num_obj_types; ++i )
     {
     if(OBJTYPE_IS_NODAL(i))
@@ -5064,8 +4783,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     vtkIdType blockEntryFileOffset = 1;
     vtkIdType setEntryFileOffset = 1;
-    vtkIdType blockEntryGridOffset = 0;
-    vtkIdType setEntryGridOffset = 0;
 
     vtkstd::map<int,int> sortedObjects;
 
@@ -5152,6 +4869,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
         binfo.Name = obj_names[obj];
         binfo.Id = ids[obj];
+        binfo.CachedConnectivity = 0;
+        binfo.NextSqueezePoint = 0;
         if ( obj_types[i] == vtkExodusIIReader::ELEM_BLOCK ) {
           VTK_EXO_FUNC( ex_get_block( exoid, obj_types[i], ids[obj], obj_typenames[obj],
               &binfo.Size, &binfo.BdsPerEntry[0], &binfo.BdsPerEntry[1], &binfo.BdsPerEntry[2], &binfo.AttributesPerEntry ),
@@ -5170,16 +4889,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         //num_entries = binfo.Size;
         binfo.FileOffset = blockEntryFileOffset;
         blockEntryFileOffset += binfo.Size;
-        if ( binfo.Status )
-          {
-          binfo.GridOffset = blockEntryGridOffset;
-          blockEntryGridOffset += binfo.Size;
-          this->NumberOfCells += binfo.Size;
-          }
-        else
-          {
-          binfo.GridOffset = -1;
-          }
         if ( binfo.Name.length() == 0 )
           {
           SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s Size: %d",
@@ -5325,6 +5034,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         sinfo.Name = obj_names[obj];
         sinfo.Status = 0;
         sinfo.Id = ids[obj];
+        sinfo.CachedConnectivity = 0;
+        sinfo.NextSqueezePoint = 0;
 
         VTK_EXO_FUNC( ex_get_set_param( exoid, obj_types[i], ids[obj], &sinfo.Size, &sinfo.DistFact ),
           "Could not read set parameters." );
@@ -5332,15 +5043,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         sinfo.FileOffset = setEntryFileOffset;
         setEntryFileOffset += sinfo.Size;
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
-        if ( sinfo.Status )
-          {
-          sinfo.GridOffset = setEntryGridOffset;
-          setEntryGridOffset += sinfo.Size;
-          }
-        else
-          {
-          sinfo.GridOffset = -1;
-          }
         if ( sinfo.Name.length() == 0 )
           {
           SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size ); 
@@ -5355,19 +5057,15 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Status = obj == 0 ? 1 : 0; // only load the first map by default
         switch (obj_types[i]) {
         case vtkExodusIIReader::NODE_MAP:
-          //num_entries = this->ModelParameters.num_nodes;
           minfo.Size = this->ModelParameters.num_nodes;
           break;
         case vtkExodusIIReader::EDGE_MAP:
-          //num_entries = this->ModelParameters.num_edge;
           minfo.Size = this->ModelParameters.num_edge;
           break;
         case vtkExodusIIReader::FACE_MAP:
-          //num_entries = this->ModelParameters.num_face;
           minfo.Size = this->ModelParameters.num_face;
           break;
         case vtkExodusIIReader::ELEM_MAP:
-          //num_entries = this->ModelParameters.num_elem;
           minfo.Size = this->ModelParameters.num_elem;
           break;
         default:
@@ -5428,7 +5126,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       }
 
   } // end of loop over all object types
-  this->ComputeGridOffsets();
+  //this->ComputeGridOffsets();
 
   // Now read information for nodal arrays
   VTK_EXO_FUNC( ex_get_var_param( exoid, "n", &num_vars ), "Unable to read number of nodal variables." );
@@ -5493,7 +5191,450 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   return 0;
 }
 
-int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGrid* output )
+static void BroadcastDoubleVector( vtkMultiProcessController* controller,
+  vtkstd::vector<double>& dvec, int rank )
+{
+  unsigned long len = dvec.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    {
+    dvec.resize( len );
+    }
+  controller->Broadcast( &dvec[0], len, 0 );
+}
+
+static void BroadcastIntVector( vtkMultiProcessController* controller,
+  vtkstd::vector<int>& ivec, int rank )
+{
+  unsigned long len = ivec.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    {
+    ivec.resize( len );
+    }
+  controller->Broadcast( &ivec[0], len, 0 );
+}
+
+static void BroadcastString( vtkMultiProcessController* controller, vtkStdString& str, int rank )
+{
+  unsigned long len = str.size() + 1;
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    str.resize( len );
+  controller->Broadcast( &str[0], len, 0 );
+}
+
+static void BroadcastStringVector( vtkMultiProcessController* controller, vtkstd::vector<vtkStdString>& svec, int rank )
+{
+  unsigned long len = svec.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    svec.resize( len );
+  vtkstd::vector<vtkStdString>::iterator it;
+  for ( it = svec.begin(); it != svec.end(); ++ it )
+    {
+    BroadcastString( controller, *it, rank );
+    }
+}
+
+static void BroadcastObjectInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::ObjectInfoType* oinfo, int rank )
+{
+  controller->Broadcast( &oinfo->Size, 1, 0 );
+  controller->Broadcast( &oinfo->Status, 1, 0 );
+  controller->Broadcast( &oinfo->Id, 1, 0 );
+  BroadcastString( controller, oinfo->Name, rank );
+}
+
+static void BroadcastBlockSetInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::BlockSetInfoType* bsinfo, int rank )
+{
+  BroadcastObjectInfo( controller, bsinfo, rank );
+  controller->Broadcast( &bsinfo->FileOffset, 1, 0 );
+  unsigned long len;
+  unsigned long i;
+  vtkstd::map<vtkIdType,vtkIdType>::iterator it;
+  vtkIdType item[2];
+  if ( rank == 0 )
+    {
+    len = bsinfo->PointMap.size();
+    controller->Broadcast( &len, 1, 0 );
+    for ( it = bsinfo->PointMap.begin(); it != bsinfo->PointMap.end(); ++ it )
+      {
+      item[0] = it->first;
+      item[1] = it->second;
+      controller->Broadcast( item, 2, 0 );
+      }
+    }
+  else
+    {
+    if ( bsinfo->CachedConnectivity )
+      {
+      bsinfo->CachedConnectivity->Delete();
+      }
+    bsinfo->CachedConnectivity = 0;
+    bsinfo->PointMap.clear();
+    bsinfo->ReversePointMap.clear();
+    controller->Broadcast( &len, 1, 0 );
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( item, 2, 0 );
+      bsinfo->PointMap[item[0]] = item[1];
+      bsinfo->ReversePointMap[item[1]] = item[0];
+      }
+    }
+  controller->Broadcast( &bsinfo->NextSqueezePoint, 1, 0 );
+}
+
+static void BroadcastBlockInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::BlockInfoType* binfo, int rank )
+{
+  BroadcastBlockSetInfo( controller, binfo, rank );
+  BroadcastString( controller, binfo->TypeName, rank );
+  controller->Broadcast( binfo->BdsPerEntry, 3, 0 );
+  controller->Broadcast( &binfo->AttributesPerEntry, 1, 0 );
+  BroadcastStringVector( controller, binfo->AttributeNames, rank );
+  BroadcastIntVector( controller, binfo->AttributeStatus, rank );
+  controller->Broadcast( &binfo->CellType, 1, 0 );
+  controller->Broadcast( &binfo->PointsPerCell, 1, 0 );
+}
+
+static void BroadcastPartInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::PartInfoType* pinfo, int rank )
+{
+  BroadcastObjectInfo( controller, pinfo, rank );
+  BroadcastIntVector( controller, pinfo->BlockIndices, rank );
+}
+
+static void BroadcastAssemblyInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::AssemblyInfoType* ainfo, int rank )
+{
+  BroadcastObjectInfo( controller, ainfo, rank );
+  BroadcastIntVector( controller, ainfo->BlockIndices, rank );
+}
+
+static void BroadcastMaterialInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::MaterialInfoType* minfo, int rank )
+{
+  BroadcastObjectInfo( controller, minfo, rank );
+  BroadcastIntVector( controller, minfo->BlockIndices, rank );
+}
+
+static void BroadcastSetInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::SetInfoType* sinfo, int rank )
+{
+  BroadcastBlockSetInfo( controller, sinfo, rank );
+  controller->Broadcast( &sinfo->DistFact, 1, 0 );
+}
+
+static void BroadcastArrayInfo( vtkMultiProcessController* controller,
+  vtkExodusIIReaderPrivate::ArrayInfoType* ainfo, int rank )
+{
+  if ( rank )
+    ainfo->Reset();
+
+  BroadcastString( controller, ainfo->Name, rank );
+  controller->Broadcast( &ainfo->Components, 1, 0 );
+  controller->Broadcast( &ainfo->GlomType, 1, 0 );
+  controller->Broadcast( &ainfo->StorageType, 1, 0 );
+  controller->Broadcast( &ainfo->Source, 1, 0 );
+  controller->Broadcast( &ainfo->Status, 1, 0 );
+  BroadcastStringVector( controller, ainfo->OriginalNames, rank );
+  BroadcastIntVector( controller, ainfo->OriginalIndices, rank );
+  BroadcastIntVector( controller, ainfo->ObjectTruth, rank );
+}
+
+static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& ainfo, int rank )
+{
+  unsigned long len = ainfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    ainfo.resize( len );
+  unsigned long i;
+  for ( i = 0; i < len; ++ i )
+    {
+    BroadcastArrayInfo( controller, &ainfo[i], rank );
+    }
+}
+
+static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
+  vtkstd::map<int,vtkstd::vector<int> >& oidx, int rank )
+{
+  unsigned long len = oidx.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank == 0 )
+    {
+    vtkstd::map<int,vtkstd::vector<int> >::iterator it;
+    int tmp;
+    for ( it = oidx.begin(); it != oidx.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastIntVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    for ( i = 0; i < len; ++ i )
+      {
+      vtkstd::vector<int> blank;
+      int key;
+      controller->Broadcast( &key, 1, 0 );
+      oidx[key] = blank;
+      BroadcastIntVector( controller, oidx[key], rank );
+      }
+    }
+}
+
+static void BroadcastArrayInfoMap(
+  vtkMultiProcessController* controller,
+  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank )
+{
+  unsigned long len = oidx.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank == 0 )
+    {
+    int tmp;
+    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >::iterator it;
+    for ( it = oidx.begin(); it != oidx.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastArrayInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    for ( i = 0; i < len; ++ i )
+      {
+      vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> blank;
+      int key;
+      controller->Broadcast( &key, 1, 0 );
+      oidx[key] = blank;
+      BroadcastArrayInfoVector( controller, oidx[key], rank );
+      }
+    }
+}
+
+static void BroadcastModelParameters( 
+  vtkMultiProcessController* controller, ex_init_params& params, int vtkNotUsed(rank) )
+{
+  controller->Broadcast( params.title, MAX_LINE_LENGTH + 1, 0 );
+  controller->Broadcast( &params.num_dim, 1, 0 );
+  controller->Broadcast( &params.num_nodes, 1, 0 );
+  controller->Broadcast( &params.num_edge, 1, 0 );
+  controller->Broadcast( &params.num_edge_blk, 1, 0 );
+  controller->Broadcast( &params.num_face, 1, 0 );
+  controller->Broadcast( &params.num_face_blk, 1, 0 );
+  controller->Broadcast( &params.num_elem, 1, 0 );
+  controller->Broadcast( &params.num_elem_blk, 1, 0 );
+  controller->Broadcast( &params.num_node_sets, 1, 0 );
+  controller->Broadcast( &params.num_edge_sets, 1, 0 );
+  controller->Broadcast( &params.num_face_sets, 1, 0 );
+  controller->Broadcast( &params.num_side_sets, 1, 0 );
+  controller->Broadcast( &params.num_elem_sets, 1, 0 );
+  controller->Broadcast( &params.num_node_maps, 1, 0 );
+  controller->Broadcast( &params.num_edge_maps, 1, 0 );
+  controller->Broadcast( &params.num_face_maps, 1, 0 );
+  controller->Broadcast( &params.num_elem_maps, 1, 0 );
+}
+
+static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType>& binfo, int rank )
+{
+  unsigned long len = binfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    binfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType>::iterator it;
+  for ( it = binfo.begin(); it != binfo.end(); ++ it )
+    {
+    BroadcastBlockInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
+  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank )
+{
+  unsigned long len = binfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> >::iterator it;
+    for ( it = binfo.begin(); it != binfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastBlockInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      binfo[tmp] = blank;
+      BroadcastBlockInfoVector( controller, binfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType>& sinfo, int rank )
+{
+  unsigned long len = sinfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    sinfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType>::iterator it;
+  for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
+    {
+    BroadcastSetInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
+  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank )
+{
+  unsigned long len = sinfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> >::iterator it;
+    for ( it = sinfo.begin(); it != sinfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastSetInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      sinfo[tmp] = blank;
+      BroadcastSetInfoVector( controller, sinfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType>& minfo, int rank )
+{
+  unsigned long len = minfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    minfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType>::iterator it;
+  for ( it = minfo.begin(); it != minfo.end(); ++ it )
+    {
+    BroadcastObjectInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
+  vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank )
+{
+  unsigned long len = minfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  int tmp;
+  if ( rank == 0 )
+    {
+    vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> >::iterator it;
+    for ( it = minfo.begin(); it != minfo.end(); ++ it )
+      {
+      tmp = it->first;
+      controller->Broadcast( &tmp, 1, 0 );
+      BroadcastMapInfoVector( controller, it->second, rank );
+      }
+    }
+  else
+    {
+    unsigned long i;
+    vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> blank;
+    for ( i = 0; i < len; ++ i )
+      {
+      controller->Broadcast( &tmp, 1, 0 );
+      minfo[tmp] = blank;
+      BroadcastMapInfoVector( controller, minfo[tmp], rank );
+      }
+    }
+}
+
+static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::PartInfoType>& pinfo, int rank )
+{
+  unsigned long len = pinfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    pinfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::PartInfoType>::iterator it;
+  for ( it = pinfo.begin(); it != pinfo.end(); ++ it )
+    {
+    BroadcastPartInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::MaterialInfoType>& minfo, int rank )
+{
+  unsigned long len = minfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    minfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::MaterialInfoType>::iterator it;
+  for ( it = minfo.begin(); it != minfo.end(); ++ it )
+    {
+    BroadcastMaterialInfo( controller, &(*it), rank );
+    }
+}
+
+static void BroadcastAssemblyInfoVector( vtkMultiProcessController* controller,
+  vtkstd::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>& ainfo, int rank )
+{
+  unsigned long len = ainfo.size();
+  controller->Broadcast( &len, 1, 0 );
+  if ( rank )
+    ainfo.resize( len );
+  vtkstd::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>::iterator it;
+  for ( it = ainfo.begin(); it != ainfo.end(); ++ it )
+    {
+    BroadcastAssemblyInfo( controller, &(*it), rank );
+    }
+}
+
+void vtkExodusIIReaderPrivate::Broadcast( vtkMultiProcessController* controller )
+{
+  int rank = controller->GetLocalProcessId();
+  BroadcastBlockInfoMap( controller, this->BlockInfo, rank );
+  BroadcastSetInfoMap( controller, this->SetInfo, rank );
+  BroadcastMapInfoMap( controller, this->MapInfo, rank );
+  BroadcastPartInfoVector( controller, this->PartInfo, rank );
+  BroadcastMaterialInfoVector( controller, this->MaterialInfo, rank );
+  BroadcastAssemblyInfoVector( controller, this->AssemblyInfo, rank );
+  BroadcastSortedObjectIndices( controller, this->SortedObjectIndices, rank );
+  BroadcastArrayInfoMap( controller, this->ArrayInfo, rank );
+  controller->Broadcast( &this->AppWordSize, 1, 0 );
+  controller->Broadcast( &this->DiskWordSize, 1, 0 );
+  controller->Broadcast( &this->ExodusVersion, 1, 0 );
+  controller->Broadcast( &this->ExodusVersion, 1, 0 );
+  BroadcastModelParameters( controller, this->ModelParameters, rank );
+  BroadcastDoubleVector( controller, this->Times, rank );
+
+  //vtkExodusIIXMLParser* Parser;
+}
+
+int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockDataSet* output )
 {
   // The work done here depends on several conditions:
   // - Has connectivity changed (i.e., has block/set status changed)?
@@ -5527,34 +5668,86 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
     vtkErrorMacro( "You must specify an output mesh" );
     }
 
-  // Connectivity first. Either from the cache or reassembled.
-  // Connectivity isn't allowed to change with time step so this should only re-read
-  // from disk when block/set status changes. And it might not even re-read then if
-  // the cache contains all the requested block/set entries.
-  this->AssembleOutputConnectivity( timeStep, output );
+  // Iterate over all block and set types, creating a
+  // multiblock dataset to hold objects of each type.
+  int conntypidx;
+  int nbl = 0;
+  output->SetNumberOfBlocks( num_conn_types );
+  for ( conntypidx = 0; conntypidx < num_conn_types; ++conntypidx )
+    {
+    int otypidx = conn_obj_idx_cvt[conntypidx];
+    int otyp = obj_types[otypidx];
+    // Loop over all blocks/sets of this type
+    int numObj = this->GetNumberOfObjectsOfType( otyp );
+    vtkMultiBlockDataSet* mbds = 0;
+    if ( 1 )
+      {
+      mbds = vtkMultiBlockDataSet::New();
+      mbds->SetNumberOfBlocks( numObj );
+      output->SetBlock( conntypidx, mbds );
+      mbds->FastDelete();
+      }
+    //cout << "++ Block: " << mbds << " ObjectType: " << otyp << "\n";
+    int obj;
+    int sortIdx;
+    for ( sortIdx = 0; sortIdx < numObj; ++sortIdx )
+      {
+      // Preserve the "sorted" order when concatenating
+      obj = this->SortedObjectIndices[otyp][sortIdx]; 
+      BlockSetInfoType* bsinfop = static_cast<BlockSetInfoType*>( this->GetObjectInfo( otypidx, obj ) );
+      //cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
+      if ( ! bsinfop->Status )
+        {
+        //cout << "\n";
+        mbds->SetBlock( sortIdx, 0 );
+        continue;
+        }
+      vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
+      mbds->SetBlock( sortIdx, ug );
+      ug->FastDelete();
+      //cout << " Grid: " << ug << "\n";
 
-  // Now prepare points.
-  // These shouldn't change unless the connectivity has changed.
-  // This function doesn't apply displacements because we don't have the displacement vectors yet.
-  this->AssembleOutputPoints( timeStep, output );
+      // Connectivity first. Either from the cache in bsinfop or read from disk.
+      // Connectivity isn't allowed to change with time.
+      this->AssembleOutputConnectivity( timeStep, otyp, obj, conntypidx, bsinfop, ug );
 
-  // Then, add the desired arrays from cache (or disk)
-  // Point and cell arrays are handled differently because they have different problems
-  // to solve. Point arrays must use the PointMap index to subset values while cell arrays
-  // must be padded with zeros for cells in blocks/sets that do not contain the given arrays.
-  this->AssembleOutputPointArrays( timeStep, output );
-  this->AssembleOutputCellArrays( timeStep, output );
+      // Now prepare points.
+      // These shouldn't change unless the connectivity has changed.
+      this->AssembleOutputPoints( timeStep, bsinfop, ug );
 
-  this->AssembleOutputProceduralArrays( timeStep, output );
+      // Then, add the desired arrays from cache (or disk)
+      // Point and cell arrays are handled differently because they
+      // have different problems to solve.
+      // Point arrays must use the PointMap index to subset values.
+      // Cell arrays may be used as-is.
+      this->AssembleOutputPointArrays( timeStep, bsinfop, ug );
+      this->AssembleOutputCellArrays( timeStep, otyp, obj, bsinfop, ug );
 
-  this->AssembleOutputGlobalArrays( timeStep, output );
+      // Some arrays may be procedurally generated (e.g., the ObjectId
+      // array, global element and node number arrays). This constructs
+      // them as required.
+      this->AssembleOutputProceduralArrays( timeStep, otyp, obj, ug );
 
-  this->AssembleOutputPointMaps( timeStep, output );
-  this->AssembleOutputCellMaps( timeStep, output );
+      // QA and informational records in the ExodusII file are appended
+      // to each and every output unstructured grid.
+      this->AssembleOutputGlobalArrays( timeStep, otyp, obj, bsinfop, ug );
 
-  // Pack temporal data onto output field data arrays if fast path.
-  // option is available:
-  this->AssembleArraysOverTime(output);
+      // Maps (as distinct from the global element and node arrays above)
+      // are per-cell or per-node integers. As with point arrays, the
+      // PointMap is used to subset node maps. Cell arrays are stored in
+      // ExodusII files for all elements (across all blocks of a given type)
+      // and thus must be subset for the unstructured grid of interest.
+      this->AssembleOutputPointMaps( timeStep, bsinfop, ug );
+      this->AssembleOutputCellMaps( timeStep, otyp, obj, bsinfop, ug );
+
+      // Pack temporal data onto output field data arrays if fast path.
+      // option is available:
+      this->AssembleArraysOverTime( otyp, bsinfop, ug );
+
+      ++nbl;
+      }
+    }
+
 
   // Finally, generate the decorations for edge and face fields.
   this->AssembleOutputEdgeDecorations();
@@ -5568,6 +5761,7 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkUnstructuredGr
 void vtkExodusIIReaderPrivate::Reset()
 {
   this->CloseFile();
+  this->ResetCache(); // must come before BlockInfo and SetInfo are cleared.
   this->BlockInfo.clear();
   this->SetInfo.clear();
   this->MapInfo.clear();
@@ -5579,13 +5773,8 @@ void vtkExodusIIReaderPrivate::Reset()
   this->ExodusVersion = -1.;
   this->Times.clear();
   this->TimeStep = 0;
-  this->NumberOfCells = 0;
-  this->PointMap.clear();
-  this->ReversePointMap.clear();
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
-  this->NextSqueezePoint = 0;
   this->FastPathObjectId = -1;
-  this->ResetCache();
 
   this->Modified();
 }
@@ -5621,7 +5810,7 @@ void vtkExodusIIReaderPrivate::ResetCache()
   this->Cache->Clear();
   this->Cache->SetCacheCapacity( 0. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
   this->Cache->SetCacheCapacity( 128. ); // FIXME: Perhaps Cache should have a Reset and a Clear method?
-  this->SetCachedConnectivity( 0 );
+  this->ClearConnectivityCaches();
 }
 
 bool vtkExodusIIReaderPrivate::IsXMLMetadataValid()
@@ -5663,18 +5852,15 @@ void vtkExodusIIReaderPrivate::SetSqueezePoints( int sp )
   this->Modified();
 
   // Invalidate global "topology" cache
-  this->SetCachedConnectivity( 0 );
-
-  // The point map should be invalidated
-  this->PointMap.clear();
-  this->ReversePointMap.clear();
-  this->NextSqueezePoint = 0;
+  // The point maps should be invalidated
+  // FIXME: bsinfop->NextSqueezePoint = 0 for all bsinfop
+  // FIXME: bsinfop->CachedConnectivity = 0 for all bsinfop
+  // FIXME: bsinfop->PointMap.clear() for all bsinfop
+  // FIXME: bsinfop->ReversePointMap.clear() for all bsinfop
 }
 
 int vtkExodusIIReaderPrivate::GetNumberOfNodes()
 {
-  if ( this->SqueezePoints )
-    return this->NextSqueezePoint;
   return this->ModelParameters.num_nodes;
 }
 
@@ -5760,18 +5946,6 @@ void vtkExodusIIReaderPrivate::SetObjectStatus( int otyp, int k, int stat )
     return;
     }
   oinfop->Status = stat;
-  this->ComputeGridOffsets();
-
-  // Invalidate connectivity
-  this->SetCachedConnectivity( 0 );
-
-  // Invalidate global cell arrays
-  vtkExodusIICacheKey pattern( 0, 1, 0, 0 );
-  this->Cache->Invalidate( vtkExodusIICacheKey( 0, vtkExodusIIReader::GLOBAL, 0, 0 ), pattern );
-  pattern = vtkExodusIICacheKey( 1, 1, 0, 0 );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_OBJECT_ID, 0, 0 ), pattern );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_ELEMENT_ID, 0, 0 ), pattern );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_NODE_ID, 0, 0 ), pattern );
 
   this->Modified();
 }
@@ -5791,18 +5965,6 @@ void vtkExodusIIReaderPrivate::SetUnsortedObjectStatus( int otyp, int k, int sta
     return;
     }
   oinfop->Status = stat;
-  this->ComputeGridOffsets();
-
-  // Invalidate connectivity
-  this->SetCachedConnectivity( 0 );
-
-  // Invalidate global cell arrays
-  vtkExodusIICacheKey pattern( 0, 1, 0, 0 );
-  this->Cache->Invalidate( vtkExodusIICacheKey( 0, vtkExodusIIReader::GLOBAL, 0, 0 ), pattern );
-  pattern = vtkExodusIICacheKey( 1, 1, 0, 0 );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_OBJECT_ID, 0, 0 ), pattern );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_ELEMENT_ID, 0, 0 ), pattern );
-  this->Cache->Invalidate( vtkExodusIICacheKey( -1, vtkExodusIIReader::GLOBAL_NODE_ID, 0, 0 ), pattern );
 
   this->Modified();
 }
@@ -5964,8 +6126,6 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectAttributes( int otyp, int oi )
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     return (int) it->second[oi].AttributeNames.size();
     }
-  vtkWarningMacro( "Could not find collection of blocks of type " << otyp <<
-    " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
   return 0;
 }
 
@@ -6135,7 +6295,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.53");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.54");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -6313,30 +6473,7 @@ int vtkExodusIIReader::RequestInformation(
       }
     }
 
-
-  if ( ! this->GetHasModeShapes() )
-    {
-    int nTimes = (int) this->Metadata->Times.size();
-    double timeRange[2];
-    if ( nTimes )
-      {
-      timeRange[0] = this->Metadata->Times[0];
-      timeRange[1] = this->Metadata->Times[nTimes - 1];
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
-      this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
-      }
-    }
-  else
-    {
-    outInfo->Remove( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    static double timeRange[] = { 0, 1 };
-    outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
-    }
-
-  // Advertise to downstream filters that this reader supports a fast-path
-  // for reading data over time.
-  outInfo->Set( vtkStreamingDemandDrivenPipeline::FAST_PATH_FOR_TEMPORAL_DATA(), 1 );
+  this->AdvertiseTimeSteps( outInfo );
 
   if ( newMetadata )
     {
@@ -6358,7 +6495,7 @@ int vtkExodusIIReader::RequestData(
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
   int timeStep = this->TimeStep;
@@ -6410,8 +6547,45 @@ int vtkExodusIIReader::RequestData(
       }
     }
 
+  // Look for fast-path keys.
+  // All keys must be present for the fast-path to work.
+  bool haveFastPath = false;
+  vtkIdType oldFastPathObjId;
+  ObjectType oldFastPathObjType;
+  const char* oldFastPathIdType = 0;
+  if (
+    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) &&
+    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) &&
+    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() ) )
+    {
+    const char *objectType = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() );
+    vtkIdType objectId = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() );
+    const char *idType = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() );
+
+    oldFastPathObjId = this->Metadata->FastPathObjectId;
+    oldFastPathObjType = this->Metadata->FastPathObjectType;
+    oldFastPathIdType = vtksys::SystemTools::DuplicateString( this->Metadata->FastPathIdType );
+
+    this->SetFastPathObjectType( objectType );
+    this->SetFastPathObjectId( objectId );
+    this->SetFastPathIdType( idType );
+    haveFastPath = true;
+    }
+
   //cout << "Requesting step " << timeStep << " for output " << output << "\n";
   this->Metadata->RequestData( timeStep, output );
+
+  // Restore previous fastpath values so we don't respond to old pipeline requests
+  if ( haveFastPath )
+    {
+    this->Metadata->SetFastPathObjectId( oldFastPathObjId ); 
+    this->SetFastPathObjectId( oldFastPathObjId );
+    this->SetFastPathIdType( oldFastPathIdType );
+    delete [] oldFastPathIdType;
+    }
 
   return 1;
 }
@@ -6556,7 +6730,7 @@ int vtkExodusIIReader::GetObjectTypeFromName( const char* name )
   else if ( tname == "edge set cell" ) return EDGE_SET_CONN; 
   else if ( tname == "node set cell" ) return NODE_SET_CONN; 
   else if ( tname == "nodal coordinates" ) return NODAL_COORDS; 
-  else if ( tname == "object id" ) return GLOBAL_OBJECT_ID; 
+  else if ( tname == "object id" ) return OBJECT_ID; 
   else if ( tname == "global element id" ) return GLOBAL_ELEMENT_ID; 
   else if ( tname == "global node id" ) return GLOBAL_NODE_ID; 
   else if ( tname == "element id" ) return ELEMENT_ID; 
@@ -6599,7 +6773,7 @@ const char* vtkExodusIIReader::GetObjectTypeName( int otyp )
   case EDGE_SET_CONN: return "edge set cell";
   case NODE_SET_CONN: return "node set cell";
   case NODAL_COORDS: return "nodal coordinates";
-  case GLOBAL_OBJECT_ID: return "object id";
+  case OBJECT_ID: return "object id";
   case GLOBAL_ELEMENT_ID: return "global element id";
   case GLOBAL_NODE_ID: return "global node id";
   case ELEMENT_ID: return "element id";
@@ -7266,23 +7440,50 @@ bool vtkExodusIIReader::FindXMLFile()
   return false;
 }
 
-void vtkExodusIIReader::SetFastPathObjectType(const char *type)
+void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
 {
-  if(strcmp(type,"POINT")==0)
+  if ( ! this->GetHasModeShapes() )
     {
-    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::NODAL);
+    int nTimes = (int) this->Metadata->Times.size();
+    double timeRange[2];
+    if ( nTimes )
+      {
+      timeRange[0] = this->Metadata->Times[0];
+      timeRange[1] = this->Metadata->Times[nTimes - 1];
+      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
+      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
+      }
     }
-  else if(strcmp(type,"CELL")==0)
+  else
     {
-    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::ELEM_BLOCK);
+    outInfo->Remove( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    static double timeRange[] = { 0, 1 };
+    outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
     }
-  else if(strcmp(type,"FACE")==0)
+
+  // Advertise to downstream filters that this reader supports a fast-path
+  // for reading data over time.
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::FAST_PATH_FOR_TEMPORAL_DATA(), 1 );
+}
+
+void vtkExodusIIReader::SetFastPathObjectType( const char* type )
+{
+  if ( ! strcmp( type, "POINT" ) )
     {
-    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::FACE_BLOCK);
+    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::NODAL );
     }
-  else if(strcmp(type,"EDGE")==0)
+  else if ( ! strcmp( type, "CELL" ) )
     {
-    this->Metadata->SetFastPathObjectType(vtkExodusIIReader::EDGE_BLOCK);
+    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::ELEM_BLOCK );
+    }
+  else if ( ! strcmp( type, "FACE" ) )
+    {
+    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::FACE_BLOCK );
+    }
+  else if ( ! strcmp( type, "EDGE" ) )
+    {
+    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::EDGE_BLOCK );
     }
 
   this->Modified();
@@ -7336,3 +7537,11 @@ void vtkExodusIIReader::UpdateTimeInformation()
     }
 }
 
+void vtkExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
+{
+  if ( ctrl )
+    {
+    this->Metadata->Broadcast( ctrl );
+    }
+  ctrl->Broadcast( this->TimeStepRange, 2, 0 );
+}

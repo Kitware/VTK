@@ -106,13 +106,18 @@ IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkExodusIICache.cxx
     vtkExodusIIReader.cxx
-    vtkPExodusIIReader.cxx
-    vtkPExodusReader.cxx
     vtkExodusReader.cxx
     vtkDSPFilterDefinition.cxx
     vtkExodusModel.cxx
     vtkDSPFilterGroup.cxx
     )
+  IF(VTK_USE_PARALLEL)
+    SET(Kit_SRCS ${Kit_SRCS}
+      vtkPExodusIIReader.cxx
+      vtkPExodusReader.cxx
+      )
+    SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
+  ENDIF(VTK_USE_PARALLEL)
 ENDIF(VTK_HAS_EXODUS)
 
 IF (WIN32)

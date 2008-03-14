@@ -36,22 +36,24 @@
 #ifndef __vtkExodusIIReader_h
 #define __vtkExodusIIReader_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkIntArray;
 class vtkFloatArray;
 class vtkDataArray;
 class vtkDataSet;
-class vtkPoints;
 class vtkExodusIIReaderPrivate;
 class vtkExodusModel;
 class vtkExodusIICache;
+class vtkMultiProcessController;
+class vtkPoints;
+class vtkUnstructuredGrid;
 
-class VTK_HYBRID_EXPORT vtkExodusIIReader : public vtkUnstructuredGridAlgorithm 
+class VTK_HYBRID_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorithm 
 {
 public:
   static vtkExodusIIReader *New();
-  vtkTypeRevisionMacro(vtkExodusIIReader,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -164,7 +166,7 @@ public:
     EDGE_SET_CONN = 90,        //!< edge set connectivity
     NODE_SET_CONN = 89,        //!< node set connectivity
     NODAL_COORDS = 88,         //!< raw nodal coordinates (not the "squeezed" version)
-    GLOBAL_OBJECT_ID = 87,     //!< assembled object id (old BlockId) array
+    OBJECT_ID = 87,            //!< object id (old BlockId) array
     GLOBAL_ELEMENT_ID = 86,    //!< assembled, zero-padded element id array
     GLOBAL_NODE_ID = 85,       //!< assembled, zero-padded nodal id array
     ELEMENT_ID = 84,           //!< element id map (old-style elem_num_map or first new-style elem map) array
@@ -379,7 +381,7 @@ public:
 
   // Description:
   //   There is a great deal of model information lost when an Exodus II
-  //   file is read in to a vtkUnstructuredGrid.  Turn this option ON 
+  //   file is read in to a vtkMultiBlockDataSet.  Turn this option ON 
   //   if you want this metadata to be read in to a vtkExodusModel object.
   //   The default is OFF.
 
@@ -623,25 +625,30 @@ public:
   void SetElementSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
 
+  /**!\brief Fast path 
+    *
+    * The following are set using the fast-path keys found in 
+    * vtkPExodusIIReader's input information. 
+    * Fast-path keys are meant to be used by an filter that 
+    * works with temporal data. Rather than re-executing the pipeline
+    * for each timestep, since the exodus reader, as part of its API, contains
+    * a faster way to read temporal data, algorithms may use these
+    * keys to request temporal data.
+    * See also: vtkExtractArraysOverTime. 
+    */
+  //@{
   // Description:
-  // The following are set using the fast-path keys found in 
-  // vtkPExodusIIReader's input information. 
-  // Fast-path keys are meant to be used by an filter that 
-  // works with temporal data. Rather than re-executing the pipeline
-  // for each timestep, since the exodus reader, as part of its API, contains
-  // a faster way to read temporal data, algorithms may use these
-  // keys to request temporal data.
-  // See also: vtkExtractArraysOverTime. 
-
   // Set the fast-path keys. All three must be set for the fast-path
   // option to work.
   // Possible argument values: "POINT","CELL","EDGE","FACE"
   void SetFastPathObjectType(const char *type);
+  // Description:
   // Possible argument values: "INDEX","GLOBAL"
   // "GLOBAL" means the id refers to a global id
   // "INDEX" means the id refers to an index into the VTK array
   void SetFastPathIdType(const char *type);
   void SetFastPathObjectId(vtkIdType id);
+  //@}
 
   // Description:
   // Reset the user-specified parameters and flush internal arrays
@@ -670,6 +677,13 @@ public:
   // TimeStepRange accordingly.
   virtual void UpdateTimeInformation();
 
+  // Description:
+  // Sends metadata (that read from the input file, not settings modified
+  // through this API) from the rank 0 node to all other processes in a job.
+  virtual void Broadcast( vtkMultiProcessController* ctrl );
+
+  virtual void Dump();
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
@@ -685,8 +699,6 @@ protected:
   virtual void SetMetadata( vtkExodusIIReaderPrivate* );
   vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
 
-  virtual void Dump();
-
   // Description: 
   // Returns true if XMLFileName has already been set. Otherwise, look for the XML
   // metadata file in the same directory as the data file(s) using the following
@@ -696,6 +708,21 @@ protected:
   //     artifact.dta
   //  Return true if found, false otherwise
   bool FindXMLFile();
+
+  // Time query function. Called by ExecuteInformation().
+  // Fills the TimestepValues array.
+  void GetAllTimes(vtkInformationVector*); 
+
+  // Description:
+  // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
+  void AdvertiseTimeSteps( vtkInformation* outputInfo );
+
+  virtual void SetExodusModel( vtkExodusModel* em );
+
+  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Parameters for controlling what is read in.
   char* FileName;
@@ -715,20 +742,9 @@ protected:
   // Metadata containing a description of the currently open file.
   vtkExodusIIReaderPrivate* Metadata;
 
-  // Time query function. Called by ExecuteInformation().
-  // Fills the TimestepValues array.
-  void GetAllTimes(vtkInformationVector*); 
-
   vtkExodusModel *ExodusModel;
   int PackExodusModelOntoOutput;
   int ExodusModelMetadata;
-
-  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
-  virtual void SetExodusModel( vtkExodusModel* em );
 
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented

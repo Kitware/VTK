@@ -19,37 +19,32 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkPExodusIIReader.h"
-#include "vtkExodusReader.h"
 
-#ifndef MERGE_CELLS
-#ifndef APPEND
-#define APPEND
-#endif
-#endif
-
-#ifdef APPEND
-#include "vtkAppendFilter.h"
-#else
-#include "vtkMergeCells.h"
-#endif
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkFloatArray.h"
+#include "vtkAppendCompositeDataLeaves.h"
+#include "vtkCellData.h"
+#include "vtkCommand.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkExodusModel.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCommand.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "netcdf.h"
 #include "exodusII.h"
+
+#include "vtksys/SystemTools.hxx"
+
+#include <vtkstd/vector>
+
 #include <sys/stat.h>
 #include <ctype.h>
-#include <vtkstd/vector>
 
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
@@ -92,7 +87,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.15");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.16");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -143,14 +138,17 @@ protected:
 // Instantiate object with NULL filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
 {
-  this->FilePattern   = 0;
-  this->CurrentFilePattern   = 0;
-  this->FilePrefix    = 0;
-  this->CurrentFilePrefix    = 0;
-  this->FileRange[0]  = -1;
-  this->FileRange[1]  = -1;
-  this->CurrentFileRange[0]  = 0;
-  this->CurrentFileRange[1]  = 0;
+  // NB. SetController will initialize ProcSize and ProcRank
+  this->Controller = 0;
+  this->SetController( vtkMultiProcessController::GetGlobalController() );
+  this->FilePattern = 0;
+  this->CurrentFilePattern = 0;
+  this->FilePrefix = 0;
+  this->CurrentFilePrefix = 0;
+  this->FileRange[0] = -1;
+  this->FileRange[1] = -1;
+  this->CurrentFileRange[0] = 0;
+  this->CurrentFileRange[1] = 0;
   this->NumberOfFiles = 1;
   this->FileNames = NULL;
   this->NumberOfFileNames = 0;
@@ -163,8 +161,9 @@ vtkPExodusIIReader::vtkPExodusIIReader()
 //----------------------------------------------------------------------------
 vtkPExodusIIReader::~vtkPExodusIIReader()
 {
-  this->SetFilePattern(0);
-  this->SetFilePrefix(0);
+  this->SetController( 0 );
+  this->SetFilePattern( 0 );
+  this->SetFilePrefix( 0 );
 
   // If we've allocated filenames then delete them
   if ( this->FileNames ) 
@@ -196,93 +195,152 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
 }
 
 //----------------------------------------------------------------------------
+void vtkPExodusIIReader::SetController( vtkMultiProcessController* c )
+{
+  if ( this->Controller == c )
+    {
+    return;
+    }
+
+  this->Modified();
+
+  if ( this->Controller )
+    {
+    this->Controller->UnRegister( this );
+    }
+
+  this->Controller = c;
+
+  if ( this->Controller )
+    {
+    this->Controller->Register( this );
+    this->ProcRank = this->Controller->GetLocalProcessId();
+    this->ProcSize = this->Controller->GetNumberOfProcesses();
+    }
+
+  if ( ! this->Controller || this->ProcSize <= 0 )
+    {
+    this->ProcRank = 0;
+    this->ProcSize = 1;    
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector )
 {
   // Setting maximum number of pieces to -1 indicates to the
   // upstream consumer that I can provide the same number of pieces
   // as there are number of processors
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
+  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
 
-  int newName = this->GetMetadataMTime() < this->FileNameMTime;
-
-  int newPattern = 
-    ((this->FilePattern &&
-     !vtkExodusReader::StringsEqual(this->FilePattern, this->CurrentFilePattern)) ||
-    (this->FilePrefix &&
-     !vtkExodusReader::StringsEqual(this->FilePrefix, this->CurrentFilePrefix)) ||
-    (this->FilePattern && 
-     ((this->FileRange[0] != this->CurrentFileRange[0]) ||
-      (this->FileRange[1] != this->CurrentFileRange[1]))));
-
-  // setting filename for the first time builds the prefix/pattern
-  // if one clears the prefix/pattern, but the filename stays the same,
-  // we should rebuild the prefix/pattern
-  int rebuildPattern = newPattern && this->FilePattern[0] == '\0' &&
-                       this->FilePrefix[0] == '\0';
-
-  int sanity = ((this->FilePattern && this->FilePrefix) || this->FileName);
-
-  if ( ! sanity )
+  this->Controller->Barrier();
+  if ( this->ProcRank == 0 )
     {
-    vtkErrorMacro(<< "Must SetFilePattern AND SetFilePrefix, or SetFileName(s)");
-    return 0;
-    }
+    int newName = this->GetMetadataMTime() < this->FileNameMTime;
 
-  if ( newPattern && !rebuildPattern )
-    {
-    char *nm = 
-      new char[strlen(this->FilePattern) + strlen(this->FilePrefix) + 20];  
-    sprintf(nm, this->FilePattern, this->FilePrefix, this->FileRange[0]);
-    this->Superclass::SetFileName(nm);
-    delete [] nm;
-    }
-  else if ( newName || rebuildPattern )
-    {
-    if ( this->NumberOfFileNames == 1 )
+    int newPattern = 
+      (
+       ( this->FilePattern &&
+         ( ! vtksys::SystemTools::ComparePath(
+           this->FilePattern, this->CurrentFilePattern ) ||
+           ( ( this->FileRange[0] != this->CurrentFileRange[0] ) ||
+             ( this->FileRange[1] != this->CurrentFileRange[1] ) ) ) ) ||
+       ( this->FilePrefix &&
+         ! vtksys::SystemTools::ComparePath(
+           this->FilePrefix, this->CurrentFilePrefix ) )
+      );
+
+    // setting filename for the first time builds the prefix/pattern
+    // if one clears the prefix/pattern, but the filename stays the same,
+    // we should rebuild the prefix/pattern
+    int rebuildPattern =
+      newPattern && this->FilePattern[0] == '\0' && this->FilePrefix[0] == '\0';
+
+    int sanity = ( ( this->FilePattern && this->FilePrefix ) || this->FileName );
+
+    if ( ! sanity )
       {
-      // A singleton file may actually be a hint to look for
-      // a series of files with the same base name.  Must compute
-      // this now for ParaView.
-
-      this->DeterminePattern( this->FileNames[0] );
+      vtkErrorMacro( << "Must SetFilePattern AND SetFilePrefix, or SetFileName(s)" );
+      return 0;
       }
+
+    if ( newPattern && ! rebuildPattern )
+      {
+      char* nm = 
+        new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];  
+      sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
+      this->Superclass::SetFileName( nm );
+      delete [] nm;
+      }
+    else if ( newName || rebuildPattern )
+      {
+      if ( this->NumberOfFileNames == 1 )
+        {
+        // A singleton file may actually be a hint to look for
+        // a series of files with the same base name.  Must compute
+        // this now for ParaView.
+
+        this->DeterminePattern( this->FileNames[0] );
+        }
+      }
+
+    int mmd = this->ExodusModelMetadata;
+    this->SetExodusModelMetadata( 0 );    // turn off for now
+
+    /*
+    vtkstd::string barfle( "/tmp/barfle_" );
+    barfle += this->ProcRank + 97;
+    barfle += ".txt";
+    ofstream fout( barfle.c_str() );
+    fout
+      << "Proc " << ( this->ProcRank + 1 ) << " of " << this->ProcSize
+      << " reading metadata from \"" << this->GetFileName() << "\"\n";
+    fout.close();
+    */
+
+    // Read in info based on this->FileName
+    if ( ! this->Superclass::RequestInformation( request, inputVector, outputVector ) )
+      {
+      return 0;
+      }
+
+    this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData
     }
-
-  int mmd = this->ExodusModelMetadata;
-  this->SetExodusModelMetadata( 0 );    // turn off for now
-
-  // Read in info based on this->FileName
-  if ( ! this->Superclass::RequestInformation( request, inputVector, outputVector ) )
+  if ( this->ProcSize > 1 )
     {
-    return 0;
+    this->Broadcast( this->Controller );
+    if ( this->ProcRank )
+      {
+      // The rank 0 node's RequestInformation annotates the output with the available
+      // time steps. Now that we've received time steps, advertise them on other procs.
+      this->AdvertiseTimeSteps( outInfo );
+      }
     }
 
   // Check whether we have been given a certain timestep to stop at. If so,
   // override the output time keys with the actual range that ALL readers can read.
   // If files are still being written to, some files might be on different timesteps
   // than others.
-  if(this->LastCommonTimeStep >= 0)
+  if ( this->LastCommonTimeStep >= 0 )
     {
-    double *times = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    double* times = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     int numTimes = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    numTimes = this->LastCommonTimeStep+1 < numTimes ? this->LastCommonTimeStep+1 : numTimes;
+    numTimes = this->LastCommonTimeStep + 1 < numTimes ? this->LastCommonTimeStep + 1 : numTimes;
     vtkstd::vector<double> commonTimes;
-    commonTimes.insert(commonTimes.begin(),times,times+numTimes);
+    commonTimes.insert( commonTimes.begin(), times, times + numTimes );
     double timeRange[2];
-    timeRange[1] = commonTimes[numTimes-1];
+    timeRange[1] = commonTimes[numTimes - 1];
     timeRange[0] = commonTimes[0];
 
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
     outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &commonTimes[0], numTimes );
     }
-
-  this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData 
 
   if ( this->CurrentFilePrefix )
     {
@@ -293,10 +351,11 @@ int vtkPExodusIIReader::RequestInformation(
     this->CurrentFileRange[0] = 0;
     this->CurrentFileRange[1] = 0;
     }
+
   if ( this->FilePrefix )
     {
-    this->CurrentFilePrefix = vtkExodusReader::StrDupWithNew( this->FilePrefix );
-    this->CurrentFilePattern = vtkExodusReader::StrDupWithNew( this->FilePattern );
+    this->CurrentFilePrefix = vtksys::SystemTools::DuplicateString( this->FilePrefix );
+    this->CurrentFilePattern = vtksys::SystemTools::DuplicateString( this->FilePattern );
     this->CurrentFileRange[0] = this->FileRange[0];
     this->CurrentFileRange[1] = this->FileRange[1];
     }
@@ -307,9 +366,9 @@ int vtkPExodusIIReader::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkPExodusIIReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector )
 {
   int fileIndex;
   int processNumber;
@@ -317,17 +376,17 @@ int vtkPExodusIIReader::RequestData(
   int min, max, idx;
   unsigned int reader_idx;
 
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   // get the ouptut
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(
+    outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // The whole notion of pieces for this reader is really
   // just a division of files between processors
   processNumber =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER() );
   numProcessors =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES() );
 
   int numFiles = this->NumberOfFileNames;
   int start = 0;
@@ -337,6 +396,7 @@ int vtkPExodusIIReader::RequestData(
     start = this->FileRange[0];   // use prefix/pattern/range
     numFiles = this->NumberOfFiles;
     }
+
 
   // Someone has requested a file that is above the number
   // of pieces I have. That may have been caused by having
@@ -384,14 +444,9 @@ int vtkPExodusIIReader::RequestData(
 
   int totalCells = 0;
   int totalPoints = 0;
-#ifdef APPEND
-  vtkAppendFilter *append = vtkAppendFilter::New();
-#else
-  int totalSets = 0;
-  vtkUnstructuredGrid** mergeGrid = new vtkUnstructuredGrid*[numMyFiles];
-  memset( mergeGrid, 0, sizeof(vtkUnstructuredGrid*) );
-#endif
-  vtkFieldData *fieldData = vtkFieldData::New();
+  vtkAppendCompositeDataLeaves* append = vtkAppendCompositeDataLeaves::New();
+  append->AppendFieldDataOn();
+  vtkFieldData* fieldData = vtkFieldData::New();
 
   if ( this->ExodusModelMetadata )
     {
@@ -436,11 +491,17 @@ int vtkPExodusIIReader::RequestData(
   cout << "\n\n ************************************* Parallel master reader dump\n";
   this->Dump();
 #endif // DBG_PEXOIIRDR
+#ifdef DBG_PEXOIIRDR
+  for ( int p = 0; p < this->Controller->GetNumberOfProcesses(); ++ p )
+    {
+    if ( this->Controller->GetLocalProcessId() == p )
+      {
+      // *************** =================================== (((((((((((((((((((((((
+#endif // DBG_PEXOIIRDR
   // This constructs the filenames
   for ( fileIndex = min, reader_idx=0; fileIndex <= max; ++fileIndex, ++reader_idx )
     {
     int fileId = -1;
-
     if ( this->NumberOfFileNames > 1 )
       {
       strcpy( this->MultiFileName, this->FileNames[fileIndex] );
@@ -459,7 +520,6 @@ int vtkPExodusIIReader::RequestData(
       }
     else
       {
-      // hmmm.... shouldn't get here
       vtkErrorMacro("Some weird problem with filename/filepattern");
       return 0;
       }
@@ -471,6 +531,20 @@ int vtkPExodusIIReader::RequestData(
       // Save the time value in the output data information.
       int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
       double* steps = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+
+      /*
+      this->Controller->Barrier();
+      for ( int p = 0; p < this->ProcSize; ++ p )
+        {
+        if ( p == this->ProcRank )
+          {
+          cout
+            << "Rank: " << p << " RequestedTime: " << requestedTimeSteps[0]
+            << " Times: [" << steps[0] << " ... " << steps[length - 1] << "]\n";
+          }
+        this->Controller->Barrier();
+        }
+        */
 
       if ( ! this->GetHasModeShapes() )
         {
@@ -572,16 +646,16 @@ int vtkPExodusIIReader::RequestData(
 
     // Look for fast-path keys and propagate to sub-reader.
     // All keys must be present for the fast-path to work.
-    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE()) && 
-         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID()) && 
-         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE()))
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) && 
+         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) && 
+         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() ) )
       {
       const char *objectType = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() );
       vtkIdType objectId = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() );
       const char *idType = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
+            vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() );
 
       // If the id is a VTK index, check whether it resides in this file,
       // if not, set objectId to -1. The reason we pass the keys to the reader
@@ -590,12 +664,13 @@ int vtkPExodusIIReader::RequestData(
       // previous id from the previous fast-path request may have and we want
       // to make sure that its output field data does not include old temporal
       // arrays.
-      if(strcmp(idType,"INDEX")==0)
+      if ( strcmp( idType, "INDEX" ) == 0 )
         {
-        if(strcmp(objectType,"POINT")==0)
+        if ( strcmp( objectType, "POINT" ) == 0 )
           {
-          if(objectId < totalPoints || 
-             objectId >= totalPoints + this->NumberOfPointsPerFile[reader_idx])
+          if (
+            objectId < totalPoints || 
+            objectId >= totalPoints + this->NumberOfPointsPerFile[reader_idx] )
             {
             objectId = -1;
             }
@@ -604,10 +679,11 @@ int vtkPExodusIIReader::RequestData(
             objectId = objectId - totalPoints;
             }
           }
-        else if(strcmp(objectType,"CELL")==0)
+        else if ( strcmp( objectType, "CELL" ) == 0 )
           {
-          if(objectId < totalCells || 
-             objectId >= totalCells + this->NumberOfCellsPerFile[reader_idx])
+          if (
+            objectId < totalCells || 
+            objectId >= totalCells + this->NumberOfCellsPerFile[reader_idx] )
             {
             objectId = -1;
             }
@@ -618,27 +694,28 @@ int vtkPExodusIIReader::RequestData(
           }
         }
 
-      this->ReaderList[reader_idx]->SetFastPathObjectType(objectType);
-      this->ReaderList[reader_idx]->SetFastPathObjectId(objectId);
-      this->ReaderList[reader_idx]->SetFastPathIdType(idType);
+      this->ReaderList[reader_idx]->SetFastPathObjectType( objectType );
+      this->ReaderList[reader_idx]->SetFastPathObjectId( objectId );
+      this->ReaderList[reader_idx]->SetFastPathIdType( idType );
       }
 
     this->ReaderList[reader_idx]->Update();
 
-    vtkUnstructuredGrid* subgrid = vtkUnstructuredGrid::New();
-    subgrid->ShallowCopy( this->ReaderList[reader_idx]->GetOutput() );
+#if 0
+    vtkCompositeDataSet* subgrid = this->ReaderList[reader_idx]->GetOutput();
+    //subgrid->ShallowCopy( this->ReaderList[reader_idx]->GetOutput() );
 
     int ncells = subgrid->GetNumberOfCells();
 
-    if ( (ncells > 0) && this->GenerateFileIdArray )
+    if ( ( ncells > 0 ) && this->GenerateFileIdArray )
       {
-      vtkIntArray *ia = vtkIntArray::New();
+      vtkIntArray* ia = vtkIntArray::New();
       ia->SetNumberOfValues(ncells);
-      for ( idx = 0; idx < ncells; ++idx )
+      for ( idx = 0; idx < ncells; ++ idx )
         {
         ia->SetValue( idx, fileId );
         }
-      ia->SetName("vtkFileId");
+      ia->SetName( "vtkFileId" );
       subgrid->GetCellData()->AddArray( ia );
       ia->Delete();
       }
@@ -655,56 +732,74 @@ int vtkPExodusIIReader::RequestData(
           }
         }
 
-    // Store field data arrays of each reader to be added to the appended
-    // output later:
-    vtkFieldData *ifd = subgrid->GetFieldData();
-    for(vtkIdType fidx = 0; fidx < ifd->GetNumberOfArrays(); fidx++)
-      {
-      vtkAbstractArray *farray = ifd->GetAbstractArray(fidx);
-
-      // A special case:
-      // The exodus writer needs the set of element block ids in order to write
-      // out in parallel. So here we add it to the field data:
-      vtkIntArray *iprevArray = vtkIntArray::SafeDownCast(fieldData->GetArray(farray->GetName()));
-      vtkIntArray *ifarray = vtkIntArray::SafeDownCast(farray);
-      if(iprevArray && ifarray && strcmp(farray->GetName(),"ElementBlockIds")==0)
+      // Store field data arrays of each reader to be added to the appended
+      // output later:
+      vtkFieldData *ifd = subgrid->GetFieldData();
+      for(vtkIdType fidx = 0; fidx < ifd->GetNumberOfArrays(); fidx++)
         {
-        // If there is already an array in our field data object of this name,
-        // append its contents to the existing one
-        for(vtkIdType fidx2=0; fidx2<ifarray->GetNumberOfTuples(); fidx2++)
+        vtkAbstractArray* farray = ifd->GetAbstractArray( fidx );
+
+        // A special case:
+        // The exodus writer needs the set of element block ids in order to write
+        // out in parallel. So here we add it to the field data:
+        vtkIntArray* iprevArray = vtkIntArray::SafeDownCast(
+          fieldData->GetArray( farray->GetName() ) );
+        vtkIntArray* ifarray = vtkIntArray::SafeDownCast( farray );
+        if ( iprevArray && ifarray && strcmp( farray->GetName(), "ElementBlockIds" ) == 0 )
           {
-          iprevArray->InsertNextValue(ifarray->GetValue(fidx2));
+          // If there is already an array in our field data object of this name,
+          // append its contents to the existing one
+          for ( vtkIdType fidx2 = 0; fidx2 < ifarray->GetNumberOfTuples(); ++ fidx2 )
+            {
+            iprevArray->InsertNextValue( ifarray->GetValue( fidx2 ) );
+            }
+          }
+        else
+          {
+          fieldData->AddArray(farray);
           }
         }
-      else
-        {
-        fieldData->AddArray(farray);
-        }
-      }
 
-    totalCells += ncells;
-    totalPoints += subgrid->GetNumberOfPoints();
-    this->NumberOfCellsPerFile[reader_idx] = ncells;
-    this->NumberOfPointsPerFile[reader_idx] = subgrid->GetNumberOfPoints();
+      totalCells += ncells;
+      totalPoints += subgrid->GetNumberOfPoints();
+      this->NumberOfCellsPerFile[reader_idx] = ncells;
+      this->NumberOfPointsPerFile[reader_idx] = subgrid->GetNumberOfPoints();
 
-#ifdef APPEND
-      append->AddInput(subgrid);
+      append->AddInput( subgrid );
       subgrid->Delete();
-#else
-      totalSets++;
-      mergeGrid[reader_idx] = subgrid;
-#endif
       }
+#else // 0
+    append->AddInputConnection( this->ReaderList[reader_idx]->GetOutputPort() );
+#endif // 0
     }
+#ifdef DBG_PEXOIIRDR
+  // *************** =================================== )))))))))))))))))))))))
+      }
+    this->Controller->Barrier();
+    }
+#endif // DBG_PEXOIIRDR
 
-#ifdef APPEND
+  /*
+  this->Controller->Barrier();
+  */
   // Append complains/barfs if you update it without any inputs
   if ( append->GetInput() != NULL ) 
     {
-    append->Update();
-    output->ShallowCopy(append->GetOutput());
-    // vtkAppendFilter does not handle field data so we must do so separately:
-    output->GetFieldData()->ShallowCopy(fieldData);
+    /*
+    for ( int p = 0; p < this->Controller->GetNumberOfProcesses(); ++ p )
+      {
+      if ( this->Controller->GetLocalProcessId() == p )
+        {
+        cout << "Rank: " << (p+1) << " of: 2\n";
+        */
+        append->Update();
+        output->ShallowCopy( append->GetOutput() );
+        output->GetFieldData()->ShallowCopy( fieldData );
+        /*
+        }
+      this->Controller->Barrier();
+      }
+      */
     }
 
   // I've copied fieldData's output to the 'output' so delete fieldData
@@ -715,63 +810,20 @@ int vtkPExodusIIReader::RequestData(
   append->Delete();
   append = NULL;
 
+#if 0 // FIXME: Need multiblock version... or not?
   if ( this->PackExodusModelOntoOutput )
     {
     // The metadata is written to field arrays and attached
-    // to the output unstructured grid.  (vtkMergeCells does this
-    // itself, so we only have to do this for vtkAppendFilter.)
-
+    // to the output unstructured grid.
     if ( this->ExodusModel ) 
       {
-      vtkModelMetadata::RemoveMetadata(output);
-      this->ExodusModel->GetModelMetadata()->Pack(output);
+      vtkModelMetadata::RemoveMetadata( output );
+      this->ExodusModel->GetModelMetadata()->Pack( output );
       }
     }
-#else
+#endif // 0
 
-  // Idea: Modify vtkMergeCells to save point Id and cell Id
-  // maps (these could be compressed quite a bit), and then
-  // to MergeFieldArraysOnly(int idx, vtkDataSet *set) later
-  // on if only field arrays have changed.  Would save a major
-  // amount of time, and also leave clues to downstream filters
-  // like D3 that geometry has not changed.
-
-  vtkMergeCells *mc = vtkMergeCells::New();
-  mc->SetUnstructuredGrid(output);
-  mc->SetTotalNumberOfDataSets(totalSets);
-  mc->SetTotalNumberOfPoints(totalPoints);
-  mc->SetTotalNumberOfCells(totalCells);
-
-  if ( this->GetGenerateGlobalNodeIdArray() )
-    {
-    // merge duplicate points using global IDs
-    mc->SetGlobalIdArrayName( this->GetGlobalNodeIdArrayName() );
-    }
-  else
-    {
-    // don't bother trying to merge duplicate points with a locator
-    mc->MergeDuplicatePointsOff();
-    }
-
-  for ( reader_idx=0; reader_idx < numMyFiles; ++reader_idx )
-    {
-    if ( mergeGrid[reader_idx]->GetNumberOfCells() != 0 )
-      {
-      mc->MergeDataSet(mergeGrid[reader_idx]);
-
-      mergeGrid[reader_idx]->Delete();
-      }
-    }
-
-  delete [] mergeGrid;
-
-  mc->Finish();
-  mc->Delete();
-#endif
-
-
-  // This should not be necessary. If broken, investigate
-  // further.
+  // This should not be necessary. If broken, investigate further.
   //this->GetOutput()->SetMaximumNumberOfPieces(-1);
   return 1;
 }
@@ -779,15 +831,15 @@ int vtkPExodusIIReader::RequestData(
 void vtkPExodusIIReader::SetUpEmptyGrid()
 {
   int idx;
-  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkUnstructuredGrid* output = 0; // this->GetOutput();
 
   // Set up an empty unstructured grid
   output->Allocate(0);
 
   // Create new points
-  vtkPoints *newPoints = vtkPoints::New();
-  newPoints->SetNumberOfPoints(0);
-  output->SetPoints(newPoints);
+  vtkPoints* newPoints = vtkPoints::New();
+  newPoints->SetNumberOfPoints( 0 );
+  output->SetPoints( newPoints );
   newPoints->Delete();
   newPoints = NULL;
 
@@ -818,11 +870,11 @@ void vtkPExodusIIReader::SetUpEmptyGrid()
     {
     int otyp = objAttribTypes[typ];
     int nObj = this->GetNumberOfObjects( otyp );
-    for ( idx = 0; idx < nObj; ++idx )
+    for ( idx = 0; idx < nObj; ++ idx )
       {
       // Attributes are defined per block, not per block type.
       int nObjAtt = this->GetNumberOfObjectAttributes( otyp, idx );
-      for ( int aidx = 0; aidx < nObjAtt; ++aidx )
+      for ( int aidx = 0; aidx < nObjAtt; ++ aidx )
         {
         vtkDoubleArray* da = vtkDoubleArray::New();
         da->SetName( this->GetObjectAttributeName( otyp, idx, aidx ) );
@@ -884,7 +936,7 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
   // If I have an old list of filename delete them
   if ( this->FileNames )
     {
-    for (int i=0; i<this->NumberOfFileNames; i++)
+    for ( int i = 0; i < this->NumberOfFileNames; ++ i )
       {
       if ( this->FileNames[i] )
         {
@@ -899,15 +951,15 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
   this->NumberOfFileNames = nfiles;
 
   // Allocate memory for new filenames
-  this->FileNames = new char * [this->NumberOfFileNames];
+  this->FileNames = new char*[this->NumberOfFileNames];
 
   // Copy filenames
-  for (int i=0; i<nfiles; i++)
+  for (int i = 0; i < nfiles; ++ i )
     {
-    this->FileNames[i] = vtkExodusReader::StrDupWithNew(names[i]);
+    this->FileNames[i] = vtksys::SystemTools::DuplicateString( names[i] );
     }
 
-  vtkExodusIIReader::SetFileName(names[0]);
+  vtkExodusIIReader::SetFileName( names[0] );
 }
 
 //----------------------------------------------------------------------------
@@ -915,9 +967,9 @@ int vtkPExodusIIReader::DetermineFileId( const char* file )
 {
   // Assume the file number is the last digits found in the file name.
   int fileId = 0;
-  const char *start = file;
-  const char *end = file + strlen(file) - 1;
-  const char *numString = end;
+  const char* start = file;
+  const char* end = file + strlen(file) - 1;
+  const char* numString = end;
 
   if ( ! isdigit( *numString ) )
     {
@@ -943,13 +995,13 @@ int vtkPExodusIIReader::DetermineFileId( const char* file )
     if ( ! isdigit( *numString ) ) break;
     }
 
-  if ( (numString == start) && (isdigit(*numString)))
+  if ( ( numString == start ) && ( isdigit( *numString ) ) )
     {
-    fileId = atoi(numString);
+    fileId = atoi( numString );
     }
   else
     {
-    fileId = atoi(++numString);
+    fileId = atoi( ++ numString );
     }
 
   return fileId;
@@ -957,13 +1009,13 @@ int vtkPExodusIIReader::DetermineFileId( const char* file )
 
 int vtkPExodusIIReader::DeterminePattern( const char* file )
 {
-  char* prefix = vtkExodusReader::StrDupWithNew(file);
+  char* prefix = vtksys::SystemTools::DuplicateString( file );
   int slen = strlen( file );
   char pattern[20] = "%s";
   int scount = 0;
   int cc = 0;
   int res =0;
-  int min=0, max=0;
+  int min = 0, max = 0;
 
   
   // Check for specific extensions
@@ -980,9 +1032,9 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     return VTK_OK;
     }
 
-  char* ex2v3 = strstr(prefix, ".ex2v3");
+  char* ex2v3 = strstr( prefix, ".ex2v3" );
   // Find minimum of range, if any
-  for ( cc = ex2v3 ? ex2v3 - prefix - 1 : slen - 1; cc >= 0; --cc )
+  for ( cc = ex2v3 ? ex2v3 - prefix - 1 : slen - 1; cc >= 0; -- cc )
     {
     if ( prefix[cc] >= '0' && prefix[cc] <= '9' )
       {
@@ -1003,7 +1055,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // Determine the pattern
   if ( scount > 0 )
     {
-    res = sscanf( file + (ex2v3 ? ex2v3 - prefix - scount : slen - scount), "%d", &min);
+    res = sscanf( file + (ex2v3 ? ex2v3 - prefix - scount : slen - scount), "%d", &min );
     if ( res )
       {
       if ( ex2v3 )
@@ -1033,14 +1085,13 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
   // Okay if I'm here than stat has failed so -100 on my cc
   cc = cc - 100;
-  for (cc = cc + 1; res; ++cc )
+  for ( cc = cc + 1; res; ++cc )
     {
     sprintf( buffer, pattern, prefix, cc );
 
     // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1)
+    if ( stat( buffer, &fs ) == -1 )
       break;
-
     }
   // Okay if I'm here than stat has failed so -1 on my cc
   max = cc - 1;
@@ -1071,15 +1122,14 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     sprintf( buffer, pattern, prefix, cc );
 
     // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1)
+    if ( stat( buffer, &fs ) == -1 )
       break;
-
     }
   min = cc + 1;
 
   // If the user did not specify a range before this, 
   // than set the range to the min and max
-  if ( (this->FileRange[0] == -1) && (this->FileRange[1] == -1) )
+  if ( ( this->FileRange[0] == -1 ) && ( this->FileRange[1] == -1 ) )
     {
     this->SetFileRange( min, max );
     }
@@ -1092,7 +1142,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   return VTK_OK;
 }
 
-void vtkPExodusIIReader::SetGenerateFileIdArray(int flag)
+void vtkPExodusIIReader::SetGenerateFileIdArray( int flag )
 {
   this->GenerateFileIdArray = flag;
   this->Modified();
@@ -1100,9 +1150,9 @@ void vtkPExodusIIReader::SetGenerateFileIdArray(int flag)
 
  
 //----------------------------------------------------------------------------
-void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 {
-  vtkExodusIIReader::PrintSelf(os,indent);
+  vtkExodusIIReader::PrintSelf( os, indent );
 
   if ( this->FilePattern )
     {
@@ -1142,7 +1192,7 @@ int vtkPExodusIIReader::GetTotalNumberOfElements()
 int vtkPExodusIIReader::GetTotalNumberOfNodes()
 {
   int total = 0;
-  for(int id=ReaderList.size()-1; id >= 0; --id)
+  for ( int id = this->ReaderList.size() - 1; id >= 0; -- id )
     {
     total += this->ReaderList[id]->GetTotalNumberOfNodes();
     }
@@ -1153,14 +1203,14 @@ void vtkPExodusIIReader::UpdateTimeInformation()
 {
   // Before we start, make sure that we have readers to read (i.e. that 
   // RequestData() has been called. 
-  if(this->ReaderList.size() == 0)
+  if ( this->ReaderList.size() == 0 )
     {
     return;
     }
 
   int lastTimeStep = VTK_INT_MAX;
   int numTimeSteps = 0;
-  for ( unsigned int reader_idx=0; reader_idx<this->ReaderList.size(); ++reader_idx )
+  for ( unsigned int reader_idx = 0; reader_idx < this->ReaderList.size(); ++ reader_idx )
     {
     vtkExodusIIReader *reader = this->ReaderList[reader_idx];
 
@@ -1180,3 +1230,50 @@ void vtkPExodusIIReader::UpdateTimeInformation()
   this->UpdateInformation();
 }
 
+static void BroadcastXmitString( vtkMultiProcessController* ctrl, char* str )
+{
+  int len;
+  if ( str )
+    {
+    len = strlen( str ) + 1;
+    ctrl->Broadcast( &len, 1, 0 );
+    ctrl->Broadcast( str, len, 0 );
+    }
+  else
+    {
+    len = 0;
+    ctrl->Broadcast( &len, 1, 0 );
+    }
+}
+
+static bool BroadcastRecvString( vtkMultiProcessController* ctrl, vtkstd::vector<char>& str )
+{
+  int len;
+  ctrl->Broadcast( &len, 1, 0 );
+  if ( len )
+    {
+    str.resize( len );
+    ctrl->Broadcast( &str[0], len, 0 );
+    return true;
+    }
+  return false;
+}
+
+void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
+{
+  this->Superclass::Broadcast( ctrl );
+  int rank = ctrl->GetLocalProcessId();
+  if ( rank == 0 )
+    {
+    BroadcastXmitString( ctrl, this->FilePattern );
+    BroadcastXmitString( ctrl, this->FilePrefix );
+    }
+  else
+    {
+    vtkstd::vector<char> tmp;
+    this->SetFilePattern(   BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 );
+    this->SetFilePrefix(    BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 );
+    }
+  ctrl->Broadcast( this->FileRange, 2, 0 );
+  ctrl->Broadcast( &this->NumberOfFiles, 1, 0 );
+}
