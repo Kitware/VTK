@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.26");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.27");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>(3.) );
@@ -49,7 +49,7 @@ void vtkPolynomialSolvers::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
-int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R )
+int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R, double rtol )
 {
   // Note: for execution speed, no sanity checks are performed on A and B. 
   // You must know what you are doing.
@@ -78,21 +78,42 @@ int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R
     {
     nj = i > n ? n : i;
     Q[i] = A[i];
-    for ( int j = 1; j <= nj; ++ j ) Q[i] -= B[j] * Q[i - j] ;
+    for ( int j = 1; j <= nj; ++ j ) 
+      {
+      Q[i] -= B[j] * Q[i - j];
+      }
     Q[i] *= iB0;
     }
 
+  bool nullCoeff = false;
   int r = 0;
   for ( i = 1; i <= n; ++ i )
     {
-    R[n - i] = A[m - i + 1];
+    double sum = 0;
     nj = mMn + 1 > i ? i : mMn + 1;
-    for ( int j = 0; j < nj; ++ j ) R[n - i] -= B[n - i + 1 + j] * Q[mMn - j];
+    for ( int j = 0; j < nj; ++ j ) 
+      {
+      sum += B[n - i + 1 + j] * Q[mMn - j];
+      }
 
-    if ( R[n - i] ) r = i - 1;
+    double u = fabs( A[m - i + 1] );
+    double v = fabs( sum );
+    if ( fabs( u - v ) > rtol * ( u + v ) )
+      {
+      R[n - i] = A[m - i + 1] - sum;
+      r = i - 1;
+      }
+    else
+      {
+      R[n - i] = 0.;
+      if ( n == i )
+        {
+        nullCoeff = true;
+        }
+      }
     }
 
-  if ( ! r && ! R[0] ) return -1;
+  if ( ! r && nullCoeff ) return -1;
 
   return r;
 }
@@ -117,6 +138,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR,
   if ( ! n ) return -1;
   
   int nj;
+  double iB0 = 1. / B[0];
   double* Q = new double[mMn + 1];
   for ( i = 0; i <= mMn; ++ i )
     {
@@ -124,9 +146,9 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR,
     Q[i] = A[i];
     for ( int j = 1; j <= nj; ++ j ) 
       {
-      Q[i] -= B[j] * Q[i - j] ;
+      Q[i] -= B[j] * Q[i - j];
       }
-    Q[i] /= B[0];
+    Q[i] *= iB0;
     }
 
   bool nullCoeff = false;
