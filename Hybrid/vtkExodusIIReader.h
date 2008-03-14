@@ -677,10 +677,12 @@ public:
   // TimeStepRange accordingly.
   virtual void UpdateTimeInformation();
 
+  //BTX
   // Description:
   // Sends metadata (that read from the input file, not settings modified
   // through this API) from the rank 0 node to all other processes in a job.
   virtual void Broadcast( vtkMultiProcessController* ctrl );
+  //ETX
 
   virtual void Dump();
 

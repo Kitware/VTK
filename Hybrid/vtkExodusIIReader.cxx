@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.55");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.56");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -1669,7 +1669,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.55");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.56");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -6304,7 +6304,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.55");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.56");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -6559,8 +6559,8 @@ int vtkExodusIIReader::RequestData(
   // Look for fast-path keys.
   // All keys must be present for the fast-path to work.
   bool haveFastPath = false;
-  vtkIdType oldFastPathObjId;
-  ObjectType oldFastPathObjType;
+  vtkIdType oldFastPathObjId = -1;
+  ObjectType oldFastPathObjType = ELEM_BLOCK;
   const char* oldFastPathIdType = 0;
   if (
     outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) &&
