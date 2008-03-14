@@ -98,9 +98,11 @@ int main(int, char*[])
   tree->Delete();
   view->Delete();
   theme->Delete();
-  view2->Delete();
   window->Delete();
+  view2->Delete();
+  window2->Delete();
   link->Delete();
+  update->Delete();
   
   return 0;
 }
