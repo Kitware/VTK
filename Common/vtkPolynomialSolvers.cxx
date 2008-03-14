@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.25");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.26");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>(3.) );
@@ -100,7 +100,7 @@ int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R
 //----------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 // Does not store Q and stores -R instead of R
-int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR )
+int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR, double rtol )
 {
   // Note: for execution speed, no sanity checks are performed on A and B. 
   // You must know what you are doing.
@@ -116,7 +116,6 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
   
   if ( ! n ) return -1;
   
-  double iB0 = 1. / B[0];
   int nj;
   double* Q = new double[mMn + 1];
   for ( i = 0; i <= mMn; ++ i )
@@ -127,28 +126,39 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR 
       {
       Q[i] -= B[j] * Q[i - j] ;
       }
-    Q[i] *= iB0;
+    Q[i] /= B[0];
     }
 
+  bool nullCoeff = false;
   int r = 0;
   for ( i = 1; i <= n; ++ i )
     {
-    mR[n - i] = - A[m - i + 1];
+    double sum = 0;
     nj = mMn + 1 > i ? i : mMn + 1;
-    for ( int j = 0; j < nj; ++ j ) mR[n - i] += B[n - i + 1 + j] * Q[mMn - j];
+    for ( int j = 0; j < nj; ++ j )
+      { 
+      sum += B[n - i + 1 + j] * Q[mMn - j];
+      }
 
-    if ( mR[n - i] ) 
+    double u = fabs( A[m - i + 1] );
+    double v = fabs( sum );
+    if ( fabs( u - v ) > rtol * ( u + v ) )
       {
+      mR[n - i] = sum - A[m - i + 1];
       r = i - 1;
+      }
+    else
+      {
+      mR[n - i] = 0.;
+      if ( n == i )
+        {
+        nullCoeff = true;
+        }
       }
     }
   delete [] Q;
   
-  if ( ! r && ( ! mR[0] || fabs ( mR[0] ) <= static_cast<double>( 2 * m ) * VTK_DBL_EPSILON * fabs ( A[m] ) ) )
-    {
-    mR[0] = 0.;
-    return -1;
-    }
+  if ( ! r && nullCoeff ) return -1;
 
   return r;
 }
@@ -245,7 +255,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
       }
 
     offsetR = offsetB + degSSS[nSSS] + 1;
-    degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR );
+    degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR, 1.e-6 );
    
     offsetA = offsetB;
     offsetB = offsetR;
