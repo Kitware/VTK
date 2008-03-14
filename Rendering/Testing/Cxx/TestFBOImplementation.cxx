@@ -1448,6 +1448,7 @@ bool TextureSizedInternalFormatIsInteger(int f)
     case vtkgl::RGBA32I_EXT:
     case vtkgl::RGBA32UI_EXT:
       result=true;
+      break;
     default:
       result=false;
     }
@@ -1697,6 +1698,7 @@ void TestTextureFormatsAndFBO()
                          textureSizes[textureSizeIdx][1],
                          0, format, type, NULL );
             CheckOpenGLError("after glTexImage2D on proxy");
+            
             GLint width;
             glGetTexLevelParameteriv(textureProxyTarget[targetIdx],0,
                                      GL_TEXTURE_WIDTH,&width);
