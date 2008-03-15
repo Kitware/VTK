@@ -346,19 +346,19 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         return d
 
-     def OnMouseCaptureLost(self, event):
-         """This is signalled when we lose mouse capture due to an
-         external event, such as when a dialog box is shown.  See the
-         wx documentation.
-         """
+    def OnMouseCaptureLost(self, event):
+        """This is signalled when we lose mouse capture due to an
+        external event, such as when a dialog box is shown.  See the
+        wx documentation.
+        """
+
+        # the documentation seems to imply that by this time we've
+        # already lost capture.  I have to assume that we don't need
+        # to call ReleaseMouse ourselves.
+        if _useCapture and self._own_mouse:
+            self._own_mouse = False
  
-         # the documentation seems to imply that by this time we've
-         # already lost capture.  I have to assume that we don't need
-         # to call ReleaseMouse ourselves.
-         if _useCapture and self._own_mouse:
-             self._own_mouse = False
- 
-     def OnPaint(self,event):
+    def OnPaint(self,event):
         """Handles the wx.EVT_PAINT event for
         wxVTKRenderWindowInteractor.
         """
