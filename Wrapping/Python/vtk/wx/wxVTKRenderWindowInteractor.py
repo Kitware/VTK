@@ -7,7 +7,7 @@ Find wxPython info at http://wxPython.org
 Created by Prabhu Ramachandran, April 2002
 Based on wxVTKRenderWindow.py
 
-Fixes and updates by Charl P. Botha 2003-2007
+Fixes and updates by Charl P. Botha 2003-2008
 
 Updated to new wx namespace and some cleaning up by Andrea Gavana,
 December 2006
@@ -197,7 +197,6 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.GetRenderWindow().SetStereoTypeToCrystalEyes()
 
         self.__handle = None
-        self._ActiveButton = 0
 
         self.BindEvents()
 
@@ -208,6 +207,8 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         # set when we have captured the mouse.
         self._own_mouse = False
+        # used to store WHICH mouse button led to mouse capture
+        self._mouse_capture_button = 0
 
         # A mapping for cursor changes.
         self._cursor_map = {0: wx.CURSOR_ARROW, # VTK_CURSOR_DEFAULT
@@ -253,6 +254,13 @@ class wxVTKRenderWindowInteractor(baseClass):
         
         self.Bind(wx.EVT_SIZE, self.OnSize)
 
+        # the wx 2.8.7.1 documentation states that you HAVE to handle
+        # this event if you make use of CaptureMouse, which we do.
+        if _useCapture and hasattr(wx, 'EVT_MOUSE_CAPTURE_LOST'):
+            self.Bind(wx.EVT_MOUSE_CAPTURE_LOST,
+                    self.OnMouseCaptureLost)
+
+ 
     def __getattr__(self, attr):        
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor.
@@ -338,7 +346,19 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         return d
 
-    def OnPaint(self,event):
+     def OnMouseCaptureLost(self, event):
+         """This is signalled when we lose mouse capture due to an
+         external event, such as when a dialog box is shown.  See the
+         wx documentation.
+         """
+ 
+         # the documentation seems to imply that by this time we've
+         # already lost capture.  I have to assume that we don't need
+         # to call ReleaseMouse ourselves.
+         if _useCapture and self._own_mouse:
+             self._own_mouse = False
+ 
+     def OnPaint(self,event):
         """Handles the wx.EVT_PAINT event for
         wxVTKRenderWindowInteractor.
         """
@@ -408,8 +428,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                                             chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
-
-    def OnEnter(self,event):
+   def OnEnter(self,event):
         """Handles the wx.EVT_ENTER_WINDOW event for
         wxVTKRenderWindowInteractor.
         """
@@ -456,20 +475,22 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
                                             
-        self._ActiveButton = 0
+        button = 0
         if event.RightDown():
             self._Iren.RightButtonPressEvent()
-            self._ActiveButton = 'Right'
+            button = 'Right'
         elif event.LeftDown():
             self._Iren.LeftButtonPressEvent()
-            self._ActiveButton = 'Left'
+            button = 'Left'
         elif event.MiddleDown():
             self._Iren.MiddleButtonPressEvent()
-            self._ActiveButton = 'Middle'
+            button = 'Middle'
 
         # save the button and capture mouse until the button is released
-        if self._ActiveButton and _useCapture:
+        # we only capture the mouse if it hasn't already been captured
+        if _useCapture and not self._own_mouse:
             self._own_mouse = True
+            self._mouse_capture_button = button
             self.CaptureMouse()
 
 
@@ -481,11 +502,24 @@ class wxVTKRenderWindowInteractor(baseClass):
         # event processing should continue
         event.Skip()
 
-        # if the ActiveButton is released, then release mouse capture
+        button = 0
+        if event.RightUp():
+            self._Iren.RightButtonPressEvent()
+            button = 'Right'
+        elif event.LeftUp():
+            self._Iren.LeftButtonPressEvent()
+            button = 'Left'
+        elif event.MiddleUp():
+            self._Iren.MiddleButtonPressEvent()
+            button = 'Middle'
+
+        # if the same button is released that captured the mouse, and
+        # we have the mouse, release it.
         # (we need to get rid of this as soon as possible; if we don't
         #  and one of the event handlers raises an exception, mouse
         #  is never released.)
-        if self._own_mouse and self._ActiveButton and _useCapture:
+        if _useCapture and self._own_mouse and \
+                button==self._mouse_capture_button:
             self.ReleaseMouse()
             self._own_mouse = False
         
@@ -493,11 +527,11 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
 
-        if self._ActiveButton == 'Right':
+        if button == 'Right':
             self._Iren.RightButtonReleaseEvent()
-        elif self._ActiveButton == 'Left':
+        elif button == 'Left':
             self._Iren.LeftButtonReleaseEvent()
-        elif self._ActiveButton == 'Middle':
+        elif button == 'Middle':
             self._Iren.MiddleButtonReleaseEvent()
 
             
