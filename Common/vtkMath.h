@@ -749,7 +749,7 @@ inline int vtkMath::Floor(double x)
   // round-to-nearest,even mode instead of round-to-nearest,+infinity
   return u.i[0] >> 1;
 #else
-  return (int)floor(x);
+  return static_cast<int>(floor(x));
 #endif
 }
 
