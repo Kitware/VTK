@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.57");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.58");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -898,7 +898,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.57");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.58");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -4473,7 +4473,7 @@ static void BroadcastString( vtkMultiProcessController* controller, vtkStdString
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     str.resize( len );
-  controller->Broadcast( &str[0], len, 0 );
+  controller->Broadcast( &(str[0]), len, 0 );
 }
 
 static void BroadcastStringVector( vtkMultiProcessController* controller, vtkstd::vector<vtkStdString>& svec, int rank )
@@ -5681,7 +5681,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.57");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.58");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);

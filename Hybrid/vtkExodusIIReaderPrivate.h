@@ -1,13 +1,16 @@
 #ifndef __vtkExodusIIReaderPrivate_h
 #define __vtkExodusIIReaderPrivate_h
 
-#ifndef vtkTypeRevisionMacro
-#  error "Do not include this file directly."
-#endif
+// Do not include this file directly. It is only for use
+// from inside the ExodusII reader and its descendants.
 
 #include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
 #include "vtkExodusIICache.h"
-#include "vtkMultiProcessController.h"
+#ifdef VTK_USE_PARALLEL
+#  include "vtkMultiProcessController.h"
+#else // VTK_USE_PARALLEL
+class vtkMultiProcessController;
+#endif // VTK_USE_PARALLEL
 
 #include "vtksys/RegularExpression.hxx"
 
