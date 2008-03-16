@@ -321,10 +321,10 @@ public:
     { this->SetObjectAttributeStatus( objectType, objectIndex,
       this->GetObjectAttributeIndex( objectType, objectIndex, attribName ), status ); }
 
-  virtual int GetTotalNumberOfNodes();
-  virtual int GetTotalNumberOfEdges();
-  virtual int GetTotalNumberOfFaces();
-  virtual int GetTotalNumberOfElements();
+  virtual vtkIdType GetTotalNumberOfNodes();
+  virtual vtkIdType GetTotalNumberOfEdges();
+  virtual vtkIdType GetTotalNumberOfFaces();
+  virtual vtkIdType GetTotalNumberOfElements();
 
   // Descriptions:
   // By default all parts are loaded. These methods allow the user to select
