@@ -88,7 +88,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.17");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.18");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -239,7 +239,9 @@ int vtkPExodusIIReader::RequestInformation(
   outInfo->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
 
+#ifdef DBG_PEXOIIRDR
   this->Controller->Barrier();
+#endif // DBG_PEXOIIRDR
   if ( this->ProcRank == 0 )
     {
     int newName = this->GetMetadataMTime() < this->FileNameMTime;
@@ -267,6 +269,7 @@ int vtkPExodusIIReader::RequestInformation(
     if ( ! sanity )
       {
       vtkErrorMacro( << "Must SetFilePattern AND SetFilePrefix, or SetFileName(s)" );
+      this->Broadcast( this->Controller );
       return 0;
       }
 
@@ -307,6 +310,7 @@ int vtkPExodusIIReader::RequestInformation(
     // Read in info based on this->FileName
     if ( ! this->Superclass::RequestInformation( request, inputVector, outputVector ) )
       {
+      this->Broadcast( this->Controller );
       return 0;
       }
 
