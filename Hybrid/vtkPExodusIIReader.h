@@ -99,8 +99,8 @@ public:
   //   Return the number of files to be read.
   vtkGetMacro(NumberOfFiles,int);
 
-  virtual int GetTotalNumberOfElements();
-  virtual int GetTotalNumberOfNodes();
+  virtual vtkIdType GetTotalNumberOfElements();
+  virtual vtkIdType GetTotalNumberOfNodes();
 
   // Description:
   // Calls UpdateTimeInformation() on all serial readers so they'll re-read

@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.58");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.59");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -898,7 +898,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.58");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.59");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -5681,7 +5681,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.58");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.59");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
@@ -5967,7 +5967,7 @@ int vtkExodusIIReader::RequestData(
   // Restore previous fastpath values so we don't respond to old pipeline requests
   if ( haveFastPath )
     {
-    this->Metadata->SetFastPathObjectId( oldFastPathObjId ); 
+    this->Metadata->FastPathObjectType = oldFastPathObjType; 
     this->SetFastPathObjectId( oldFastPathObjId );
     this->SetFastPathIdType( oldFastPathIdType );
     delete [] oldFastPathIdType;

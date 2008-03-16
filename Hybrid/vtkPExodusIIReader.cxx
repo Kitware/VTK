@@ -88,7 +88,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.18");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.19");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -179,10 +179,10 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
     }
 
   // Delete all the readers we may have
-  for ( int reader_idx = this->ReaderList.size() - 1; reader_idx >= 0; --reader_idx )
+  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
-    this->ReaderList[reader_idx]->Delete();
-    this->ReaderList.pop_back();
+    (*it)->Delete();
     }
 
   if ( this->CurrentFilePrefix )
@@ -378,7 +378,7 @@ int vtkPExodusIIReader::RequestData(
   int processNumber;
   int numProcessors;
   int min, max, idx;
-  unsigned int reader_idx;
+  unsigned long reader_idx;
 
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   // get the ouptut
@@ -1013,22 +1013,24 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-int vtkPExodusIIReader::GetTotalNumberOfElements()
+vtkIdType vtkPExodusIIReader::GetTotalNumberOfElements()
 {
-  int total = 0;
-  for(int id=ReaderList.size()-1; id >= 0; --id)
+  vtkIdType total = 0;
+  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
-    total += this->ReaderList[id]->GetTotalNumberOfElements();
+    total += (*it)->GetTotalNumberOfElements();
     }
   return total;
 }
 
-int vtkPExodusIIReader::GetTotalNumberOfNodes()
+vtkIdType vtkPExodusIIReader::GetTotalNumberOfNodes()
 {
-  int total = 0;
-  for ( int id = this->ReaderList.size() - 1; id >= 0; -- id )
+  vtkIdType total = 0;
+  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
-    total += this->ReaderList[id]->GetTotalNumberOfNodes();
+    total += (*it)->GetTotalNumberOfNodes();
     }
   return total;
 }
