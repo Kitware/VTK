@@ -99,15 +99,6 @@ public:
   //   Return the number of files to be read.
   vtkGetMacro(NumberOfFiles,int);
 
-  // Description:
-  // Extra cell data array that can be generated.  By default, this array
-  // is OFF.  The value of the array is the integer id which is part of
-  // the name of the file from which the cell was read.
-  // The name of the array is "vtkFileId".
-
-  void SetGenerateFileIdArray( int flag );
-  vtkGetMacro(GenerateFileIdArray,int);
-  vtkBooleanMacro(GenerateFileIdArray,int); 
   virtual int GetTotalNumberOfElements();
   virtual int GetTotalNumberOfNodes();
 
@@ -134,10 +125,6 @@ protected:
   int DeterminePattern( const char* file );
   static int DetermineFileId( const char* file );
 
-  // This method sets up a ugrid with
-  // all meta data but zero cells
-  void SetUpEmptyGrid();
-
   // **KEN** Previous discussions concluded with std classes in header
   // files is bad.  Perhaps we should change ReaderList.
 
@@ -154,7 +141,6 @@ protected:
   int NumberOfFiles;
   char **FileNames;
   int NumberOfFileNames;
-  int GenerateFileIdArray;
 //BTX
   vtkstd::vector<vtkExodusIIReader*> ReaderList;
   vtkstd::vector<int> NumberOfPointsPerFile;

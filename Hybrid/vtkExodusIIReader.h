@@ -45,7 +45,6 @@ class vtkDataSet;
 class vtkExodusIIReaderPrivate;
 class vtkExodusModel;
 class vtkExodusIICache;
-class vtkMultiProcessController;
 class vtkPoints;
 class vtkUnstructuredGrid;
 
@@ -112,6 +111,12 @@ public:
   virtual void SetGenerateGlobalNodeIdArray( int g );
   int GetGenerateGlobalNodeIdArray();
   vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
+
+  virtual void SetGenerateFileIdArray( int f );
+  int GetGenerateFileIdArray();
+  vtkBooleanMacro(GenerateFileIdArray, int);
+  virtual void SetFileId( int f );
+  int GetFileId();
 
   // Description:
   // Extra cell data array that can be generated.  By default, this array
@@ -676,13 +681,6 @@ public:
   // Re-reads time information from the exodus file and updates
   // TimeStepRange accordingly.
   virtual void UpdateTimeInformation();
-
-  //BTX
-  // Description:
-  // Sends metadata (that read from the input file, not settings modified
-  // through this API) from the rank 0 node to all other processes in a job.
-  virtual void Broadcast( vtkMultiProcessController* ctrl );
-  //ETX
 
   virtual void Dump();
 
