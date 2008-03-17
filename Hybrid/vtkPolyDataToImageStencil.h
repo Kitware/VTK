@@ -45,7 +45,18 @@ THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
-// .NAME vtkPolyDataToImageStencil
+// .NAME vtkPolyDataToImageStencil - use polydata to mask an image
+// .SECTION Description
+// The vtkPolyDataToImageStencil class will convert a surface mesh
+// into an image stencil that can be used to mask an image with
+// vtkImageStencil, or used to calculate statistics within the
+// enclosed region with vtkImageAccumulate.
+// .SECTION Caveats
+// The input polydata must contain polygons (or other 2D cells) that
+// form a 3D surface that encloses a finite volume. Polyline contours
+// are ignored.
+// .SECTION See Also
+// vtkImageStencil vtkImageAccumulate vtkImageBlend vtkImageReslice
 
 #ifndef __vtkPolyDataToImageStencil_h
 #define __vtkPolyDataToImageStencil_h
