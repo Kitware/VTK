@@ -35,16 +35,53 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.27");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.28");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
-static const double sqrt3 = sqrt( static_cast<double>(3.) );
+static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
 static const double inv3 = 1 / 3.;
+static const double radius0 = 10. * VTK_DBL_MIN;
 
 //----------------------------------------------------------------------------
 void vtkPolynomialSolvers::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+// Double precision comparison with 0
+inline bool IsZero( double x )
+{
+  return ( fabs( x ) < radius0 ) ? true : false;
+}
+
+//----------------------------------------------------------------------------
+// Double precision comparison
+inline bool AreEqual( double x, double y, double rTol )
+{
+  if ( fabs( x - y ) < radius0 )
+    {
+    return true;
+    }
+  
+  double rErr;
+  
+  if ( fabs( x ) > fabs( y ) )
+    {
+    rErr = fabs( ( y - x ) / x );
+    }
+  else
+    {
+    rErr = fabs( ( y - x ) / y );
+    }
+
+  if ( rErr  <= rTol )
+    {
+    return true;
+    }
+
+  return false;
+
 }
 
 //----------------------------------------------------------------------------
@@ -144,7 +181,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR,
     {
     nj = i > n ? n : i;
     Q[i] = A[i];
-    for ( int j = 1; j <= nj; ++ j ) 
+    for ( int j = 1; j <= nj; ++ j )
       {
       Q[i] -= B[j] * Q[i - j];
       }
@@ -209,7 +246,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     return -1;
     }
 
-  if ( ! P[0] )
+  if ( IsZero( P[0] ) )
     {
     vtkGenericWarningMacro(<<"vtkPolynomialSolvers::SturmRootBisectionSolve: Zero leading coefficient");
     return -1;
@@ -343,7 +380,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
       localTol *= .5;
       for ( i = 0; i < nIntervals; ++ i )
         {
-        if ( ! upperVals[i] ) continue;
+        if ( IsZero( upperVals[i] ) ) continue;
 
         x = upperBnds[i] - localTol;
         if ( multipleRoot[i] )
@@ -390,7 +427,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 //
 int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double& tolerance )
 {
-  if ( ! c[0] )
+  if ( IsZero( c[0] ) )
     {
     vtkGenericWarningMacro(<<"vtkMath::LinBairstowSolve: Zero leading coefficient");
     return 0;
@@ -436,7 +473,7 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
       detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
       detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
 
-      if ( fabs( det ) < VTK_DBL_EPSILON )
+      if ( IsZero( det ) )
         {
         det = detR = detS = 1.;
         }
