@@ -35,10 +35,8 @@
 // the selection was performed on a renderer, PROP or PROP_ID point to the
 // prop the selection was made on. Selection nodes corresponding to
 // composite datasets may contain child nodes. Each child node of a
-// composite dataset should have GROUP and BLOCK set. This way, the pointer
-// to the composite dataset can be obtained from the parent of a block
-// node. The pointer to the block can be obtained from the composite
-// dataset using GROUP and BLOCK.  
+// composite dataset should have COMPOSITE_INDEX set. This is the flat-index to
+// identify a node with in the composite dataset to which the selection applies.
 //
 // .SECTION Caveats 
 // Each node can have one parent and should not be added to more than one
@@ -183,7 +181,6 @@ public:
   enum SelectionContent
   {
     SELECTIONS,
-    COMPOSITE_SELECTIONS,
     GLOBALIDS,
     PEDIGREEIDS,
     VALUES,
@@ -228,12 +225,6 @@ public:
   static vtkInformationDoubleKey* EPSILON();
 
   // Description:
-  // This flag tells the extraction filter not to convert the selected
-  // output into an unstructured grid, but instead to produce a vtkInsidedness
-  // array and add it to the input dataset. 
-  static vtkInformationIntegerKey* PRESERVE_TOPOLOGY();
-
-  // Description:
   // This flag tells the extraction filter, when FIELD_TYPE==POINT, that
   // it should also extract the cells that contain any of the extracted points.
   static vtkInformationIntegerKey* CONTAINING_CELLS();
@@ -270,12 +261,13 @@ public:
   static vtkInformationIntegerKey* PROCESS_ID();
 
   // Description:
-  // The composite data group the selection belongs to.
-  static vtkInformationIntegerKey* GROUP();
+  // Used to identify a node in composite datasets. 
+  static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
   // Description:
-  // The composite data block the selection belongs to.
-  static vtkInformationIntegerKey* BLOCK();
+  // Used to identify a dataset in a hiererchical box dataset.
+  static vtkInformationIntegerKey* HIERARCHICAL_LEVEL();
+  static vtkInformationIntegerKey* HIERARCHICAL_INDEX();
 
   // Description:
   // This key is used when making visible vertex selection. It means
@@ -287,10 +279,6 @@ public:
   // Retrieve a vtkSelection stored inside an invormation object.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
-
-  // Description:
-  // For Frustum selection.
-  static vtkInformationIntegerKey* SHOW_BOUNDS();
 
 //BTX
 protected:

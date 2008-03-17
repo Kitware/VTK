@@ -20,6 +20,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArrayTemplate.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -27,6 +28,7 @@
 #include "vtkExtractSelection.h"
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
+#include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -39,16 +41,16 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/iterator>
-#include <vtksys/stl/set>
+#include <vtkstd/algorithm>
+#include <vtkstd/set>
+#include <vtkstd/vector>
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.9");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.10");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -91,7 +93,7 @@ int vtkConvertSelection::SelectTableFromTable(
   vtkTable* dataTable, 
   vtkIdTypeArray* indices)
 {
-  vtksys_stl::set<vtkIdType> matching;
+  vtkstd::set<vtkIdType> matching;
   VTK_CREATE(vtkIdList, list);
   for (vtkIdType row = 0; row < selTable->GetNumberOfRows(); row++)
     {
@@ -113,17 +115,17 @@ int vtkConvertSelection::SelectTableFromTable(
           }
         else
           {
-          vtksys_stl::set<vtkIdType> intersection;
-          vtksys_stl::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
-          vtksys_stl::set_intersection(
+          vtkstd::set<vtkIdType> intersection;
+          vtkstd::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
+          vtkstd::set_intersection(
             matching.begin(), matching.end(), 
             list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds(), 
-            vtksys_stl::inserter(intersection, intersection.begin()));
+            vtkstd::inserter(intersection, intersection.begin()));
           matching = intersection;
           }
         }
       }
-    vtksys_stl::set<vtkIdType>::iterator it, itEnd = matching.end();
+    vtkstd::set<vtkIdType>::iterator it, itEnd = matching.end();
     for (it = matching.begin(); it != itEnd; ++it)
       {
       indices->InsertNextValue(*it);
@@ -143,18 +145,13 @@ int vtkConvertSelection::ConvertToIndexSelection(
   vtkDataSet* data,
   vtkSelection* output)
 {
-  // Change the input to preserve topology
-  vtkSelection* selTemp = vtkSelection::New();
-  selTemp->ShallowCopy(input);
-  selTemp->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), true);
-  
   // Use the extraction filter to create an insidedness array.
   vtkExtractSelection* const extract = vtkExtractSelection::New();
+  extract->PreserveTopologyOn();
   extract->SetInput(0, data);
-  extract->SetInput(1, selTemp);
+  extract->SetInput(1, input);
   extract->Update();
-  vtkDataSet* const extracted = extract->GetOutput();
-  selTemp->Delete();
+  vtkDataSet* const extracted = vtkDataSet::SafeDownCast(extract->GetOutput());
   
   output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
   int type = input->GetProperties()->Get(vtkSelection::FIELD_TYPE());
@@ -217,6 +214,146 @@ void vtkConvertSelectionLookup(
       indices->InsertNextValue(list->GetId(j));
       }
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkConvertSelection::ConvertCompositeDataSet(
+  vtkSelection* input,
+  vtkCompositeDataSet* data,
+  vtkSelection* output)
+{
+  // If input selection is a composite selection consisting of other selections,
+  // then iterate over each of the constituent selection instances.
+  if (input->GetContentType() == vtkSelection::SELECTIONS)
+    {
+    output->SetContentType(vtkSelection::SELECTIONS);
+    for (unsigned int i = 0; i < input->GetNumberOfChildren(); ++i)
+      {
+      vtkSelection* inputChild = input->GetChild(i);
+      VTK_CREATE(vtkSelection, outputChild);
+      if (!this->ConvertCompositeDataSet(inputChild, data, outputChild))
+        {
+        return 0;
+        }
+
+      if (outputChild->GetContentType() == vtkSelection::SELECTIONS)
+        {
+        unsigned int numChildren = outputChild->GetNumberOfChildren();
+        for (unsigned int cc=0; cc < numChildren; cc++)
+          {
+          output->AddChild(outputChild->GetChild(cc));
+          }
+        }
+      else if (outputChild->GetContentType() != -1)
+        {
+        output->AddChild(outputChild);
+        }
+      }
+    return 1;
+    }
+
+  // *  If input has no composite keys then it implies that it applies to all
+  //    nodes in the data. If input has composite keys, output will have
+  //    composite keys unless outputContentType == GLOBALIDS. 
+  //    If input does not have composite keys, then composite
+  //    keys are only added for outputContentType == INDICES, FRUSTUM and
+  //    PEDIGREEIDS.
+  bool has_composite_key =
+    input->GetProperties()->Has(vtkSelection::COMPOSITE_INDEX()) != 0;
+
+  unsigned int composite_index = has_composite_key?
+    static_cast<unsigned int>(
+      input->GetProperties()->Get(vtkSelection::COMPOSITE_INDEX())) : 0;
+
+  bool has_hieararchical_key = 
+    input->GetProperties()->Has(vtkSelection::HIERARCHICAL_INDEX()) != 0 &&
+    input->GetProperties()->Has(vtkSelection::HIERARCHICAL_LEVEL()) != 0;
+
+  unsigned int hierarchical_level = has_hieararchical_key?
+    static_cast<unsigned int>(
+      input->GetProperties()->Get(vtkSelection::HIERARCHICAL_LEVEL())) : 0;
+  unsigned int hierarchical_index = has_hieararchical_key?
+    static_cast<unsigned int>(
+      input->GetProperties()->Get(vtkSelection::HIERARCHICAL_INDEX())) : 0;
+  
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(data->NewIterator());
+
+  vtkHierarchicalBoxDataIterator* hbIter =
+    vtkHierarchicalBoxDataIterator::SafeDownCast(iter);
+
+  vtkstd::vector<vtkSmartPointer<vtkSelection> > selections;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    if (has_hieararchical_key && hbIter &&
+      (hbIter->GetCurrentLevel() != hierarchical_level ||
+       hbIter->GetCurrentIndex() != hierarchical_index))
+      {
+      continue;
+      }
+
+    if (has_composite_key &&
+      iter->GetCurrentFlatIndex() != composite_index)
+      {
+      continue;
+      }
+
+    VTK_CREATE(vtkSelection, outputChild);
+    if (!this->Convert(input, iter->GetCurrentDataObject(), outputChild))
+      {
+      return 0;
+      }
+
+    if ((has_hieararchical_key || has_composite_key || 
+      this->OutputType == vtkSelection::INDICES ||
+      this->OutputType == vtkSelection::PEDIGREEIDS || 
+      this->OutputType == vtkSelection::FRUSTUM) &&
+      this->OutputType != vtkSelection::GLOBALIDS) 
+      {
+      if (has_composite_key)
+        {
+        outputChild->GetProperties()->Set(vtkSelection::COMPOSITE_INDEX(), 
+          iter->GetCurrentFlatIndex());
+        }
+      if (has_hieararchical_key)
+        {
+        outputChild->GetProperties()->Set(vtkSelection::HIERARCHICAL_LEVEL(),
+          hierarchical_level);
+        outputChild->GetProperties()->Set(vtkSelection::HIERARCHICAL_INDEX(),
+          hierarchical_index);
+        }
+      selections.push_back(outputChild);
+      }
+    else 
+      {
+      // just merge the selection lists from all composite nodes.
+      if (output->GetContentType() == -1)
+        {
+        output->ShallowCopy(outputChild);
+        }
+      else
+        {
+        vtkAbstractArray* inList = outputChild->GetSelectionList();
+        vtkAbstractArray* outList = output->GetSelectionList();
+        vtkIdType numTuples = inList->GetNumberOfTuples();
+        for (vtkIdType cc=0; cc  < numTuples; cc++)
+          {
+          outList->InsertNextTuple(cc, inList);
+          }
+        }
+      }
+    }
+
+  if (selections.size() > 0)
+    {
+    output->SetContentType(vtkSelection::SELECTIONS);
+    for (unsigned int cc=0; cc < selections.size(); cc++)
+      {
+      output->AddChild(selections[cc]);
+      }
+    }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -635,6 +772,11 @@ int vtkConvertSelection::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkSelection* output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (data && data->IsA("vtkCompositeDataSet"))
+    {
+    return this->ConvertCompositeDataSet(input,
+      static_cast<vtkCompositeDataSet*>(data), output);
+    }
   
   return this->Convert(input, data, output);
 }

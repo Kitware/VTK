@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.26");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.27");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -44,73 +44,6 @@ vtkExtractSelectedIds::vtkExtractSelectedIds()
 //----------------------------------------------------------------------------
 vtkExtractSelectedIds::~vtkExtractSelectedIds()
 {
-}
-
-//----------------------------------------------------------------------------
-//needed because parent class sets output type to input type
-//and we sometimes want to change it to make an UnstructuredGrid regardless of
-//input type
-int vtkExtractSelectedIds::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-    {
-    return 0;
-    }
-
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (input)
-    {
-    int passThrough = 0;
-    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-    if (selInfo)
-      {
-      vtkSelection *sel = vtkSelection::SafeDownCast(
-        selInfo->Get(vtkDataObject::DATA_OBJECT()));
-      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
-        {
-        passThrough = 1;
-        }
-      }
-
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-
-      if (!output
-          ||
-          (passThrough && !output->IsA(input->GetClassName()))
-          ||
-          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
-        )
-        {
-        vtkDataSet* newOutput = NULL;
-        if (!passThrough)
-          {
-          // The mesh will be modified. 
-          newOutput = vtkUnstructuredGrid::New();
-          }
-        else
-          {
-          // The mesh will not be modified.
-          newOutput = input->NewInstance();
-          }
-        newOutput->SetPipelineInformation(info);
-        newOutput->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
-        }
-      }
-    return 1;
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -257,9 +190,9 @@ int vtkExtractSelectedIds::ExtractCells(
   vtkDataSet *output)
 {
   int passThrough = 0;
-  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()))
+  if (this->PreserveTopology)
     {
-    passThrough = sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY());
+    passThrough = 1;
     }
 
   int invert = 0;
@@ -585,9 +518,9 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkDataSet *output)
 {
   int passThrough = 0;
-  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()))
+  if (this->PreserveTopology)
     {
-    passThrough = sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY());
+    passThrough = 1;
     }
 
   int containingCells = 0;
@@ -897,18 +830,3 @@ void vtkExtractSelectedIds::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
-//----------------------------------------------------------------------------
-int vtkExtractSelectedIds::FillInputPortInformation(
-  int port, vtkInformation* info)
-{
-  if (port==0)
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
-    }
-  else
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
-  return 1;
-}

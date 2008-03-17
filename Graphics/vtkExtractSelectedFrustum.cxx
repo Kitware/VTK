@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.11");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.12");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -49,7 +49,6 @@ vtkExtractSelectedFrustum::vtkExtractSelectedFrustum(vtkPlanes *f)
 
   this->ShowBounds = 0;
 
-  this->PassThrough = 0;
   this->FieldType = 0;
   this->ContainingCells = 0;
   this->InsideOut = 0;
@@ -175,8 +174,8 @@ void vtkExtractSelectedFrustum::ComputePlane(int idx,
 //and we sometimes want to change it to make an UnstructuredGrid regardless of 
 //input type
 int vtkExtractSelectedFrustum::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation* req,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -187,54 +186,21 @@ int vtkExtractSelectedFrustum::RequestDataObject(
 
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (input)
+  if (input && this->ShowBounds)
     {
-    this->PassThrough = 0;
-    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-    if (selInfo)
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkDataSet *output = vtkDataSet::GetData(info);
+    if (!output || !output->IsA("vtkUnstructuredGrid"))
       {
-      vtkSelection *sel = vtkSelection::SafeDownCast(
-        selInfo->Get(vtkDataObject::DATA_OBJECT()));
-      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
-        {
-        this->PassThrough = 1;
-        }
+      vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
+      newOutput->SetPipelineInformation(info);
+      newOutput->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
       }
-
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      
-      if (!output || 
-          ((this->ShowBounds || !this->PassThrough) && !output->IsA("vtkUnstructuredGrid")) ||
-          (this->PassThrough && !output->IsA(input->GetClassName()))
-        ) 
-        {
-        if (this->ShowBounds || !this->PassThrough)
-          { 
-          vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
-          newOutput->SetPipelineInformation(info);
-          newOutput->Delete();
-          this->GetOutputPortInformation(0)->Set(
-            vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
-          }
-        else
-          {
-          vtkDataSet* newOutput;
-          newOutput = input->NewInstance();
-          newOutput->SetPipelineInformation(info);
-          newOutput->Delete();
-          this->GetOutputPortInformation(0)->Set(
-            vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
-          }
-        }
-      }
-    return 1;
     }
-  return 0;
+
+  return this->Superclass::RequestDataObject(req, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
@@ -259,12 +225,6 @@ int vtkExtractSelectedFrustum::RequestData(
       vtkDoubleArray *corners = vtkDoubleArray::SafeDownCast(
         sel->GetSelectionList());
       this->CreateFrustum(corners->GetPointer(0));
-      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()))
-        {
-        this->SetPassThrough(
-          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY())
-          );
-        }
       if (sel->GetProperties()->Has(vtkSelection::INVERSE()))
         {
         this->SetInsideOut(
@@ -281,12 +241,6 @@ int vtkExtractSelectedFrustum::RequestData(
         {
         this->SetContainingCells(
           sel->GetProperties()->Get(vtkSelection::CONTAINING_CELLS())
-          );
-        }
-      if (sel->GetProperties()->Has(vtkSelection::SHOW_BOUNDS()))
-        {
-        this->SetShowBounds(
-          sel->GetProperties()->Get(vtkSelection::SHOW_BOUNDS())
           );
         }
       }    
@@ -425,7 +379,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
   signed char flag = this->InsideOut ? 1 : -1;
 
-  if (this->PassThrough)
+  if (this->PreserveTopology)
     {
     //the output is a copy of the input, with two new arrays defined
     outputDS->ShallowCopy(input);
@@ -459,7 +413,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
     if ((this->FieldType == vtkSelection::CELL)
         ||
-        this->PassThrough 
+        this->PreserveTopology 
         ||
         this->ContainingCells
       )
@@ -537,7 +491,7 @@ int vtkExtractSelectedFrustum::RequestData(
             */
 
             input->GetPoint(ptId, x);      
-            if (this->PassThrough)
+            if (this->PreserveTopology)
               {
               pointInArray->SetValue(ptId, flag);
               newPointId = ptId;
@@ -553,7 +507,7 @@ int vtkExtractSelectedFrustum::RequestData(
           newCellPts->InsertId(i,newPointId);
           }
 
-        if (this->PassThrough)
+        if (this->PreserveTopology)
           {
           cellInArray->SetValue(cellId, flag);
           }
@@ -593,7 +547,7 @@ int vtkExtractSelectedFrustum::RequestData(
           /*
           NUMPTS++;
           */
-          if (this->PassThrough)
+          if (this->PreserveTopology)
             {
             pointInArray->SetValue(ptId, flag);
             }
@@ -630,7 +584,7 @@ int vtkExtractSelectedFrustum::RequestData(
         /*
         NUMPTS++;
         */
-        if (this->PassThrough)
+        if (this->PreserveTopology)
           {
           newPointId = ptId;
           pointInArray->SetValue(ptId,flag);
@@ -651,7 +605,7 @@ int vtkExtractSelectedFrustum::RequestData(
     timer->StartTimer();
     */
 
-    if (this->PassThrough)
+    if (this->PreserveTopology)
       {
       //we have already created a copy of the input and marked points as 
       //being in or not
@@ -766,7 +720,7 @@ int vtkExtractSelectedFrustum::RequestData(
   pointInArray->Delete();
   cellInArray->Delete();
 
-  if (!this->PassThrough)
+  if (!this->PreserveTopology)
     {
     outputUG->SetPoints(newPts);
     }
@@ -1141,22 +1095,6 @@ void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelectedFrustum::FillInputPortInformation(
-  int port, vtkInformation* info)
-{
-  if (port==0)
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
-    }
-  else
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1165,9 +1103,6 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
      << static_cast<void *>(this->Frustum) << "\n";
 
   os << indent << "ClipPoints: " << this->ClipPoints << "\n";
-
-  os << indent << "PassThrough: " 
-     << (this->PassThrough ? "On\n" : "Off\n");
 
   os << indent << "FieldType: "
      << (this->FieldType ? "On\n" : "Off\n");

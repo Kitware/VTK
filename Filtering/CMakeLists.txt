@@ -79,6 +79,7 @@ vtkGraph.cxx
 vtkGraphEdge.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
+vtkHierarchicalBoxDataIterator.cxx
 vtkHierarchicalBoxDataSetAlgorithm.cxx
 vtkHierarchicalBoxDataSet.cxx
 vtkHyperOctreeAlgorithm.cxx

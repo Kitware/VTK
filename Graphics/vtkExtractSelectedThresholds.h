@@ -31,16 +31,16 @@
 #ifndef __vtkExtractSelectedThresholds_h
 #define __vtkExtractSelectedThresholds_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkExtractSelectionBase.h"
 
 class vtkSelection;
 class vtkDataArray;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedThresholds,vtkDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,11 +56,6 @@ protected:
   vtkExtractSelectedThresholds();
   ~vtkExtractSelectedThresholds();
 
-  //sets up output dataset
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
-
   // Usual data generation method
   int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
@@ -71,8 +66,6 @@ protected:
                    int usePointScalars);
   int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
                     vtkDataSet *output);
-
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&);  // Not implemented.

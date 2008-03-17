@@ -140,11 +140,11 @@ int TestAreaSelections(int argc, char* argv[])
   //frustum extractor works on geometry and doesn't care about pickability
   vtkExtractSelectedFrustum *extractor = vtkExtractSelectedFrustum::New();
   extractor->SetInputConnection(reader->GetOutputPort());
-  extractor->PassThroughOff();
+  extractor->PreserveTopologyOff();
   extractor->SetFrustum(areaPicker->GetFrustum());
 
   vtkDataSetMapper *eMap = vtkDataSetMapper::New();
-  eMap->SetInput(extractor->GetOutput());
+  eMap->SetInput(vtkDataSet::SafeDownCast(extractor->GetOutput()));
 
   vtkActor *eAct = vtkActor::New();
   eAct->SetPosition(2,0,0);

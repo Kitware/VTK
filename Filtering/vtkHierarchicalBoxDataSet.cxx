@@ -15,6 +15,7 @@
 #include "vtkHierarchicalBoxDataSet.h"
 
 #include "vtkAMRBox.h"
+#include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -29,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.19");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.20");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -47,6 +48,14 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 {
+}
+
+//----------------------------------------------------------------------------
+vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
+{
+  vtkHierarchicalBoxDataIterator* iter = vtkHierarchicalBoxDataIterator::New();
+  iter->SetDataSet(this);
+  return iter;
 }
 
 //----------------------------------------------------------------------------

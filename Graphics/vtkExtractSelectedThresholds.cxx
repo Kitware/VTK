@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.12");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.13");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -42,73 +42,6 @@ vtkExtractSelectedThresholds::vtkExtractSelectedThresholds()
 //----------------------------------------------------------------------------
 vtkExtractSelectedThresholds::~vtkExtractSelectedThresholds()
 {
-}
-
-//----------------------------------------------------------------------------
-//needed because parent class sets output type to input type
-//and we sometimes want to change it to make a PolyData or UnstructuredGrid
-//regardless of input type
-int vtkExtractSelectedThresholds::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-    {
-    return 0;
-    }
-  
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));  
-  if (input)
-    {
-    int passThrough = 0;
-    vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
-    if (selInfo)
-      {
-      vtkSelection *sel = vtkSelection::SafeDownCast(
-        selInfo->Get(vtkDataObject::DATA_OBJECT()));
-      if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-          sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
-        {
-        passThrough = 1;
-        }
-      }
-    
-    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkDataSet *output = vtkDataSet::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      
-      if (!output
-          ||
-          (passThrough && !output->IsA(input->GetClassName()))
-          ||
-          (!passThrough && !output->IsA("vtkUnstructuredGrid"))
-        )
-        {
-        vtkDataSet* newOutput = NULL;
-        if (!passThrough)
-          {
-          // The mesh will be modified.
-          newOutput = vtkUnstructuredGrid::New();
-          }
-        else
-          {
-          // The mesh will not be modified.
-          newOutput = input->NewInstance();
-          }
-        newOutput->SetPipelineInformation(info);
-        newOutput->Delete();
-        this->GetOutputPortInformation(i)->Set(
-          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
-        }
-      }
-    return 1;
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -233,8 +166,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     }
 
   int passThrough = 0;
-  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-      sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+  if (this->PreserveTopology)
     {
     passThrough = 1;
     }
@@ -444,8 +376,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     }
 
   int passThrough = 0;
-  if (sel->GetProperties()->Has(vtkSelection::PRESERVE_TOPOLOGY()) &&
-      sel->GetProperties()->Get(vtkSelection::PRESERVE_TOPOLOGY()) != 0)
+  if (this->PreserveTopology)
     {
     passThrough = 1;
     }
@@ -538,22 +469,6 @@ void vtkExtractSelectedThresholds::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
-//----------------------------------------------------------------------------
-int vtkExtractSelectedThresholds::FillInputPortInformation(
-  int port, vtkInformation* info)
-{
-  if (port==0)
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
-    }
-  else
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
-  return 1;
-}
-  
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(
   vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims)

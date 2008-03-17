@@ -33,6 +33,7 @@
 class vtkIdTypeArray;
 class vtkSelection;
 class vtkStringArray;
+class vtkCompositeDataSet;
 
 class VTK_GRAPHICS_EXPORT vtkConvertSelection : public vtkSelectionAlgorithm 
 {
@@ -99,6 +100,11 @@ protected:
   int Convert(
     vtkSelection* input,
     vtkDataObject* data,
+    vtkSelection* output);
+
+  int ConvertCompositeDataSet(
+    vtkSelection* input,
+    vtkCompositeDataSet* data,
     vtkSelection* output);
 
   int ConvertToIndexSelection(

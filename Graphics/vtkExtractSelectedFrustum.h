@@ -22,7 +22,7 @@
 // either a shallow copy of the input dataset with two new "vtkInsidedness" 
 // attribute arrays, or a completely new UnstructuredGrid that contains only 
 // the cells and points of the input that are inside the frustum. The 
-// PassThrough flag controls which occurs. When PassThrough is off 
+// PreserveTopology flag controls which occurs. When PreserveTopology is off 
 // this filter adds a scalar array called vtkOriginalCellIds that says what 
 // input cell produced each output cell. This is an example of a Pedigree ID 
 // which helps to trace back results.
@@ -33,7 +33,7 @@
 #ifndef __vtkExtractSelectedFrustum_h
 #define __vtkExtractSelectedFrustum_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkExtractSelectionBase.h"
 
 class vtkPlanes;
 class vtkInformation;
@@ -42,12 +42,12 @@ class vtkCell;
 class vtkPoints;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedFrustum : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedFrustum : public vtkExtractSelectionBase
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedFrustum,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkExtractSelectedFrustum *New();
+  vtkTypeRevisionMacro(vtkExtractSelectedFrustum, vtkExtractSelectionBase);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Return the MTime taking into account changes to the Frustum
@@ -72,16 +72,6 @@ public:
   // Return eight points that define the selection frustum. Valid if
   // create Frustum was used, invalid if SetFrustum was.
   vtkGetObjectMacro(ClipPoints, vtkPoints);
-  
-  // Description:
-  // Sets/Gets the output data type.
-  // If On, the input data set is shallow copied through, and two new
-  // "vtkInsidedness" attribute arrays are added. If Off the output is 
-  // a new vtkUnstructuredGrid containing only the structure that is inside.
-  // Off is the default.
-  vtkSetMacro(PassThrough,int);
-  vtkGetMacro(PassThrough,int);
-  vtkBooleanMacro(PassThrough,int);
   
   // Description:
   // Sets/gets the intersection test type.
@@ -115,11 +105,7 @@ protected:
   vtkExtractSelectedFrustum(vtkPlanes *f=NULL);
   ~vtkExtractSelectedFrustum();
 
-  //allows an optional vtkSelection input on the second input port
-  //if one is there it will try to use that as the Frustum to extract within
-  int FillInputPortInformation(int port, vtkInformation* info);
-
-  //sets up output dataset
+  // sets up output dataset
   virtual int RequestDataObject(vtkInformation* request, 
                                 vtkInformationVector** inputVector, 
                                 vtkInformationVector* outputVector);
@@ -143,7 +129,6 @@ protected:
                     vtkPoints *points, vtkDoubleArray *norms);
 
   //modes
-  int PassThrough;
   int FieldType;
   int ContainingCells;
   int InsideOut;

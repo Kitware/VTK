@@ -28,7 +28,7 @@
 #ifndef __vtkExtractSelection_h
 #define __vtkExtractSelection_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkExtractSelectionBase.h"
 
 class vtkExtractSelectedIds;
 class vtkExtractSelectedFrustum;
@@ -36,45 +36,61 @@ class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
 class vtkSelection;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkExtractSelectionBase
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelection,vtkDataSetAlgorithm);
+  static vtkExtractSelection *New();
+  vtkTypeRevisionMacro(vtkExtractSelection, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with NULL extractfilter
-  static vtkExtractSelection *New();
-
-  // Description:
-  // Convenience method to specify the selection connection (2nd input
-  // port)
-  void SetSelectionConnection(vtkAlgorithmOutput* algOutput)
-  {
-    this->SetInputConnection(1, algOutput);
-  }
+  // When On, this returns an unstructured grid that outlines selection area.
+  // Off is the default. Applicable only to Frustum selection extraction.
+  vtkSetMacro(ShowBounds,int);
+  vtkGetMacro(ShowBounds,int);
+  vtkBooleanMacro(ShowBounds,int);
 
 protected:
   vtkExtractSelection();
   ~vtkExtractSelection();
 
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   //sets up empty output dataset
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
- 
-  //runs the algorithm and fills the output with results
+
+  // runs the algorithm and fills the output with results
   virtual int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
                   vtkInformationVector *);
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  // used for composite, non-hierarhical input.
+  vtkDataSet* RequestDataInternal(
+    unsigned int composite_index,
+    vtkDataSet* input, vtkSelection* sel,
+    vtkInformation* outInfo);
+
+  // Used for hierarchical input.
+  vtkDataSet* RequestDataInternal(
+    unsigned int composite_index,
+    unsigned int level,
+    unsigned int index,
+    vtkDataSet* input, vtkSelection* sel,
+    vtkInformation* outInfo);
+
+
+  // called for non-composite input or for a block in a composite dataset.
+  vtkDataSet* RequestDataFromBlock(vtkDataSet* input, 
+    vtkSelection* sel, vtkInformation* outInfo);
 
   vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedFrustum* FrustumFilter;
   vtkExtractSelectedLocations* LocationsFilter;
   vtkExtractSelectedThresholds* ThresholdsFilter;
 
+  int ShowBounds;
 private:
   vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.
   void operator=(const vtkExtractSelection&);  // Not implemented.

@@ -56,8 +56,6 @@ const char* SelectionTypeToString(int type)
   {
   case vtkSelection::SELECTIONS:
   return "Selections";
-  case vtkSelection::COMPOSITE_SELECTIONS:
-  return "Composite Selections";
   case vtkSelection::GLOBALIDS:
   return "Global IDs";
   case vtkSelection::PEDIGREEIDS:

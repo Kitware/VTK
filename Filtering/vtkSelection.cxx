@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.23");
+vtkCxxRevisionMacro(vtkSelection, "1.24");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -40,15 +40,14 @@ vtkInformationKeyMacro(vtkSelection,SOURCE_ID,Integer);
 vtkInformationKeyMacro(vtkSelection,PROP,ObjectBase);
 vtkInformationKeyMacro(vtkSelection,PROP_ID,Integer);
 vtkInformationKeyMacro(vtkSelection,PROCESS_ID,Integer);
-vtkInformationKeyMacro(vtkSelection,GROUP,Integer);
-vtkInformationKeyMacro(vtkSelection,BLOCK,Integer);
+vtkInformationKeyMacro(vtkSelection,COMPOSITE_INDEX,Integer);
+vtkInformationKeyMacro(vtkSelection,HIERARCHICAL_LEVEL,Integer);
+vtkInformationKeyMacro(vtkSelection,HIERARCHICAL_INDEX,Integer);
 vtkInformationKeyMacro(vtkSelection,FIELD_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelection,EPSILON,Double);
-vtkInformationKeyMacro(vtkSelection,PRESERVE_TOPOLOGY,Integer);
 vtkInformationKeyMacro(vtkSelection,CONTAINING_CELLS,Integer);
 vtkInformationKeyMacro(vtkSelection,PIXEL_COUNT,Integer);
 vtkInformationKeyMacro(vtkSelection,INVERSE,Integer);
-vtkInformationKeyMacro(vtkSelection,SHOW_BOUNDS,Integer);
 vtkInformationKeyMacro(vtkSelection,INDEXED_VERTICES,Integer);
 
 struct vtkSelectionInternals
@@ -283,6 +282,8 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
     return;
     }
 
+  this->Initialize();
+
   this->Superclass::DeepCopy(src);
   
   this->Properties->Copy(input->Properties, 1);
@@ -477,7 +478,6 @@ void vtkSelection::UnionSelectionList(vtkSelection* other)
       break;
       }
   case SELECTIONS:
-  case COMPOSITE_SELECTIONS:
   case FRUSTUM:
   default:
       {

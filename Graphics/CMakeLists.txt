@@ -78,6 +78,7 @@ vtkExtractGrid.cxx
 vtkExtractLevel.cxx
 vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
+vtkExtractSelectionBase.cxx
 vtkExtractSelectedFrustum.cxx
 vtkExtractSelectedIds.cxx
 vtkExtractSelectedLocations.cxx
@@ -256,11 +257,12 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
+vtkDijkstraGraphGeodesicPath
+vtkEdgeSubdivisionCriterion.cxx 
+vtkExtractSelectionBase
 vtkGeodesicPath
 vtkGraphGeodesicPath
-vtkDijkstraGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
-vtkEdgeSubdivisionCriterion.cxx 
 vtkStreamer
 ABSTRACT
 )

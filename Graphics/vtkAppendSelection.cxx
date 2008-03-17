@@ -25,13 +25,14 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendSelection, "1.4");
+vtkCxxRevisionMacro(vtkAppendSelection, "1.5");
 vtkStandardNewMacro(vtkAppendSelection);
 
 //----------------------------------------------------------------------------
 vtkAppendSelection::vtkAppendSelection()
 {
   this->UserManagedInputs = 0;
+  this->AppendByUnion = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -121,6 +122,25 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
     {
     return 1;
     }
+
+  if (!this->AppendByUnion)
+    {
+    output->SetContentType(vtkSelection::SELECTIONS);
+    for (int idx=0; idx < numInputs; ++idx)
+      {
+      vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
+      vtkSelection *sel = vtkSelection::GetData(inInfo);
+      if (sel != NULL)
+        {
+        vtkSelection* clone = sel->NewInstance();
+        clone->ShallowCopy(sel);
+
+        output->AddChild(clone);
+        clone->Delete();
+        } 
+      } // for each input
+    return 1;
+    }
   
   // The first non-null selection determines the required content type of all selections.
   int idx = 0;
@@ -176,5 +196,6 @@ int vtkAppendSelection::FillInputPortInformation(int port, vtkInformation *info)
 void vtkAppendSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << "UserManagedInputs:" << (this->UserManagedInputs?"On":"Off") << endl;
+  os << "UserManagedInputs: " << (this->UserManagedInputs?"On":"Off") << endl;
+  os << "AppendByUnion: " << (this->AppendByUnion? "On": "Off") << endl;
 }

@@ -26,28 +26,20 @@
 #ifndef __vtkExtractSelectedLocations_h
 #define __vtkExtractSelectedLocations_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkExtractSelectionBase.h"
 
 class vtkSelection;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractSelectedLocations,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Construct object
   static vtkExtractSelectedLocations *New();
+  vtkTypeRevisionMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkExtractSelectedLocations();
   ~vtkExtractSelectedLocations();
-
-  //sets up output dataset
-  virtual int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
 
   // Usual data generation method
   int RequestData(vtkInformation *, 
@@ -58,8 +50,6 @@ protected:
                    vtkDataSet *output);
   int ExtractPoints(vtkSelection *sel, vtkDataSet *input, 
                     vtkDataSet *output);
-
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkExtractSelectedLocations(const vtkExtractSelectedLocations&);  // Not implemented.

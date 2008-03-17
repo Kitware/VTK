@@ -20,7 +20,8 @@
 //
 // .SECTION Description
 // vtkAppendSelection is a filter that appends one of more selections into
-// a single selection.  All selections must have the same content type.
+// a single selection.  All selections must have the same content type unless
+// AppendByUnion is false.
 
 #ifndef __vtkAppendSelection_h
 #define __vtkAppendSelection_h
@@ -71,6 +72,17 @@ public:
   // Set Nth input, should only be used when UserManagedInputs is true.
   void SetInputByNumber(int num, vtkSelection *input);
 
+  // Description:
+  // When set to true, all the selections are combined together to form a single
+  // vtkSelection output.
+  // When set to false, the output is a composite selection with 
+  // input selections as the children of the composite selection. This allows
+  // for selections with different content types and properties. Default is
+  // true. 
+  vtkSetMacro(AppendByUnion, int);
+  vtkGetMacro(AppendByUnion, int);
+  vtkBooleanMacro(AppendByUnion, int);
+
 protected:
   vtkAppendSelection();
   ~vtkAppendSelection();
@@ -86,7 +98,7 @@ protected:
     { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
 
   int UserManagedInputs;
-
+  int AppendByUnion;
 private:
   vtkAppendSelection(const vtkAppendSelection&);  // Not implemented.
   void operator=(const vtkAppendSelection&);  // Not implemented.

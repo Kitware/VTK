@@ -314,6 +314,7 @@ int TestExtraction(int argc, char *argv[])
   vtkExtractSelection *ext = vtkExtractSelection::New();
   ext->SetInput(0, sampleData);
   ext->SetInput(1, sel);
+  ext->PreserveTopologyOff();
   vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
 
   vtkUnstructuredGrid *extGrid;
@@ -360,7 +361,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 0, COLORBYCELL, ciaF);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -377,6 +378,7 @@ int TestExtraction(int argc, char *argv[])
   vtkIdTypeArray *pointIds = NULL;
 
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::GLOBALIDS);
   sel->GetProperties()->Set(
@@ -426,7 +428,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 5, 0, COLORBYPOINT, piaF);
 
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -444,7 +446,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extIData, 6, 0, COLORBYPOINT, insideArray);
 
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 1);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -459,6 +461,7 @@ int TestExtraction(int argc, char *argv[])
   //--------------------------------------------------------------------------
   //Test extract INDICES filter on cells
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
   cellIds = vtkIdTypeArray::New();
@@ -494,7 +497,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 1, COLORBYCELL, cia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -509,6 +512,7 @@ int TestExtraction(int argc, char *argv[])
   //--------------------------------------------------------------------------
   //Test extract INDICES filter on points
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
   sel->GetProperties()->Set(
@@ -558,8 +562,8 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 5, 1, COLORBYPOINT, pia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -591,6 +595,7 @@ int TestExtraction(int argc, char *argv[])
   //--------------------------------------------------------------------------
   //Test extract VALUES filter on cells
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
   cellIds = vtkIdTypeArray::New();
@@ -627,7 +632,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 2, COLORBYCELL, ciaR);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -642,6 +647,7 @@ int TestExtraction(int argc, char *argv[])
   //--------------------------------------------------------------------------
   //Test extract VALUES filter on points
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
   sel->GetProperties()->Set(
@@ -693,7 +699,7 @@ int TestExtraction(int argc, char *argv[])
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -725,6 +731,7 @@ int TestExtraction(int argc, char *argv[])
   //-------------------------------------------------------------------------
   //test the extract THRESHOLD filter on cell data
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
   vtkDoubleArray *cellThresh = vtkDoubleArray::New();
@@ -757,7 +764,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 3, COLORBYCELL, cxa);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -772,6 +779,7 @@ int TestExtraction(int argc, char *argv[])
   //-------------------------------------------------------------------------
   //test the extract THRESHOLD filter on point data
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::THRESHOLDS);
   sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
@@ -817,7 +825,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 5, 3, COLORBYPOINT, pxa);
 
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -849,6 +857,7 @@ int TestExtraction(int argc, char *argv[])
   //-------------------------------------------------------------------------
   //test the extract LOCATIONS filter on cells
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::LOCATIONS);
   vtkDoubleArray *cellLocs = vtkDoubleArray::New();
@@ -884,7 +893,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 4, COLORBYCELL, cia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -900,6 +909,7 @@ int TestExtraction(int argc, char *argv[])
   //test the extract LOCATIONS filter on points
 
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::LOCATIONS);
   sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
@@ -948,7 +958,7 @@ int TestExtraction(int argc, char *argv[])
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -975,6 +985,7 @@ int TestExtraction(int argc, char *argv[])
   //-------------------------------------------------------------------------
   //test the extract FRUSTUM filter
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::FRUSTUM);
   vtkDoubleArray *frustcorners = vtkDoubleArray::New();
@@ -1014,7 +1025,7 @@ int TestExtraction(int argc, char *argv[])
   showMe(extGrid, 1, 5, COLORBYCELL, cia);
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
@@ -1030,6 +1041,7 @@ int TestExtraction(int argc, char *argv[])
   //test the extract FRUSTUM filter on points
 
   sel->Clear();
+  ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelection::CONTENT_TYPE(), vtkSelection::FRUSTUM);
   sel->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
@@ -1083,7 +1095,7 @@ int TestExtraction(int argc, char *argv[])
 
   sel->GetProperties()->Set(vtkSelection::INVERSE(), 0);
   sel->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(), 0);
-  sel->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(), 1);
+  ext->PreserveTopologyOn();
   ext->Update();
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)

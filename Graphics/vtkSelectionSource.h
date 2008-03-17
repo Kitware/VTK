@@ -84,10 +84,6 @@ public:
   vtkGetMacro(ContainingCells, int);
 
   // Description:
-  vtkSetMacro(PreserveTopology, int);
-  vtkGetMacro(PreserveTopology, int);
-
-  // Description:
   vtkSetMacro(Inverse, int);
   vtkGetMacro(Inverse, int);
 
@@ -96,9 +92,17 @@ public:
   vtkGetStringMacro(ArrayName);
   
   // Description:
-  vtkSetMacro(ShowBounds, int);
-  vtkGetMacro(ShowBounds, int);
+  // If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
+  vtkSetMacro(CompositeIndex, int);
+  vtkGetMacro(CompositeIndex, int);
 
+  // Description:
+  // If HierarchicalLevel or HierarchicalIndex < 0 , then HIERARCHICAL_LEVEL()
+  // and HIERARCHICAL_INDEX() keys are not added to the output.
+  vtkSetMacro(HierarchicalLevel, int);
+  vtkGetMacro(HierarchicalLevel, int);
+  vtkSetMacro(HierarchicalIndex, int);
+  vtkGetMacro(HierarchicalIndex, int);
 protected:
   vtkSelectionSource();
   ~vtkSelectionSource();
@@ -118,7 +122,9 @@ protected:
   int ContainingCells;
   int PreserveTopology;
   int Inverse;
-  int ShowBounds;
+  int CompositeIndex;
+  int HierarchicalLevel;
+  int HierarchicalIndex;
   char *ArrayName;
 
 private:

@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.17");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.18");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -51,14 +51,15 @@ vtkSelectionSource::vtkSelectionSource()
   this->ContentType = vtkSelection::INDICES;
   this->FieldType = vtkSelection::CELL;
   this->ContainingCells = 1;
-  this->PreserveTopology = 0;
   this->Inverse = 0;
-  this->ShowBounds = 0;
   this->ArrayName = NULL;
   for (int cc=0; cc < 32; cc++)
     {
     this->Internal->Frustum[cc] = 0;
     }
+  this->CompositeIndex = -1;
+  this->HierarchicalLevel = -1;
+  this->HierarchicalIndex = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -148,9 +149,6 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   case vtkSelection::SELECTIONS:
     os << "SELECTIONS";
     break;
-  case vtkSelection::COMPOSITE_SELECTIONS:
-    os << "COMPOSITE_SELECTIONS";
-    break;
   case vtkSelection::GLOBALIDS:
     os << "GLOBALIDS";
     break;
@@ -190,10 +188,11 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ContainingCells: ";
   os << (this->ContainingCells?"CELLS":"POINTS") << endl;
-  os << indent << "PreserveTopology: " << this->PreserveTopology << endl;
   os << indent << "Inverse: " << this->Inverse << endl;
-  os << indent << "ShowBounds: " << this->ShowBounds << endl;
   os << indent << "ArrayName: " << (this->ArrayName?this->ArrayName:"NULL") << endl;
+  os << indent << "CompositeIndex: " << this->CompositeIndex << endl;
+  os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
+  os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -225,6 +224,20 @@ int vtkSelectionSource::RequestData(
     {
     piece = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    }
+
+  if (this->CompositeIndex >= 0)
+    {
+    output->GetProperties()->Set(vtkSelection::COMPOSITE_INDEX(),
+      this->CompositeIndex);
+    }
+
+  if (this->HierarchicalLevel >= 0 && this->HierarchicalIndex >= 0)
+    {
+    output->GetProperties()->Set(vtkSelection::HIERARCHICAL_LEVEL(),
+      this->HierarchicalLevel);
+    output->GetProperties()->Set(vtkSelection::HIERARCHICAL_INDEX(),
+      this->HierarchicalIndex);
     }
 
   if (
@@ -349,9 +362,6 @@ int vtkSelectionSource::RequestData(
   output->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(),
                                this->ContainingCells);  
 
-  output->GetProperties()->Set(vtkSelection::PRESERVE_TOPOLOGY(),
-                               this->PreserveTopology);
-
   output->GetProperties()->Set(vtkSelection::INVERSE(),
                                this->Inverse);
 
@@ -360,8 +370,6 @@ int vtkSelectionSource::RequestData(
     output->GetSelectionList()->SetName(this->ArrayName);
     }
 
-  output->GetProperties()->Set(vtkSelection::SHOW_BOUNDS(),
-                               this->ShowBounds);
   return 1;
 }
 
