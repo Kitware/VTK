@@ -114,6 +114,7 @@
 class vtkAdjacentVertexIterator;
 class vtkEdgeListIterator;
 class vtkDataSetAttributes;
+class vtkDistributedGraphHelper;
 class vtkGraphInternals;
 class vtkIdTypeArray;
 class vtkInEdgeIterator;
@@ -270,7 +271,7 @@ public:
   virtual vtkIdType GetNumberOfVertices();
   
   //BTX
-  // The following four methods are for distributed graphs.
+  // The following six methods are for distributed graphs.
   // P=# of procs in process group.
 
   // Description:
@@ -289,6 +290,15 @@ public:
   // Returns local index of edge with ID e_id, by masking off top ceil(log2 P)
   // bits of e_id.
   vtkIdType GetEdgeIndex(vtkIdType e_id) const;
+
+  // Description:
+  // Sets the distributed graph helper of this graph, turning it into a 
+  // distributed graph
+  void SetDistributedGraphHelper(vtkDistributedGraphHelper *helper);
+
+  // Description:
+  // Retrieves the distributed graph helper for this graph
+  vtkDistributedGraphHelper *GetDistributedGraphHelper();
   //ETX
 
 
@@ -341,6 +351,12 @@ public:
   // Returns true if both graphs point to the same adjacency structure.
   // Can be used to test the copy-on-write feature of the graph.
   bool IsSameStructure(vtkGraph *other);
+
+  // Description:
+  // Returns the internal representation of the graph. If modifying is
+  // true, then the returned vtkGraphInternals object will be unique to
+  // this vtkGraph object.
+  vtkGraphInternals* GetGraphInternals(bool modifying);
 
 protected:
   //BTX

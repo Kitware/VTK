@@ -21,7 +21,9 @@
 
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDistributedGraphHelper.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkGraphInternals.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInEdgeIterator.h"
 #include "vtkInformation.h"
@@ -39,46 +41,11 @@ using vtksys_stl::vector;
 double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 
 //----------------------------------------------------------------------------
-// private class vtkVertexAdjacencyList
-//----------------------------------------------------------------------------
-class vtkVertexAdjacencyList
-{
-public:
-  vector<vtkInEdgeType> InEdges;
-  vector<vtkOutEdgeType> OutEdges;
-};
-
-//----------------------------------------------------------------------------
-// private class vtkGraphInternals
-//----------------------------------------------------------------------------
-class vtkGraphInternals : public vtkObject
-{
-public:
-  static vtkGraphInternals *New();
-  vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
-  vector<vtkVertexAdjacencyList> Adjacency;
-  vtkIdType NumberOfEdges;
-
-protected:
-  vtkGraphInternals()
-    { this->NumberOfEdges = 0; }
-  ~vtkGraphInternals()
-    { }
-
-private:
-  vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
-  void operator=(const vtkGraphInternals&);  // Not implemented.
-};
-
-vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.12.4.1");
-
-//----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.1");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.2");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -385,6 +352,22 @@ vtkIdType vtkGraph::GetEdgeIndex(vtkIdType e_id) const
   return index;
 }
 
+//----------------------------------------------------------------------------
+void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
+{
+  if (this->Internals->DistributedHelper)
+    this->Internals->DistributedHelper->AttachToGraph(0);
+
+  this->Internals->DistributedHelper = helper;
+  if (this->Internals->DistributedHelper)
+    this->Internals->DistributedHelper->AttachToGraph(this);
+}
+
+//----------------------------------------------------------------------------
+vtkDistributedGraphHelper *vtkGraph::GetDistributedGraphHelper()
+{
+  return this->Internals->DistributedHelper;
+}
 
 //----------------------------------------------------------------------------
 bool vtkGraph::CheckedShallowCopy(vtkGraph *g)
@@ -556,6 +539,11 @@ vtkIdType vtkGraph::AddVertexInternal()
 vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
 {
   this->ForceOwnership();
+  if (this->Internals->DistributedHelper)
+    {
+    return this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed);
+    }
+
   vtkIdType edgeId = this->Internals->NumberOfEdges;
   this->Internals->NumberOfEdges++;
   this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
@@ -603,6 +591,16 @@ void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
 bool vtkGraph::IsSameStructure(vtkGraph *other)
 {
   return (this->Internals == other->Internals);
+}
+
+//----------------------------------------------------------------------------
+vtkGraphInternals* vtkGraph::GetGraphInternals(bool modifying)
+{
+  if (modifying)
+    {
+    this->ForceOwnership();
+    }
+  return this->Internals;
 }
 
 //----------------------------------------------------------------------------

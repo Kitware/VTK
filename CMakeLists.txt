@@ -569,6 +569,11 @@ VTK_DEPENDENT_OPTION(VTK_USE_MATROX_IMAGING
                      "VTK_USE_RENDERING;WIN32" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
                      "VTK_USE_RENDERING" ON)
+VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL_BGL
+                     "Use the Parallel Boost Graph Library"
+                     OFF
+                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;" 
+                     OFF)
 
 SET(VTK_CAN_USE_TK)
 IF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
@@ -585,7 +590,8 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_GL2PS
                  VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
-                 VTK_USE_MPI)
+                 VTK_USE_MPI
+                 VTK_USE_PARALLEL_BGL)
 
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
