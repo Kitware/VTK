@@ -133,9 +133,6 @@
   #define HOST_FILLORDER FILLORDER_MSB2LSB
 #endif
 
-/* Support JPEG compression (requires IJG JPEG library) */
-#cmakedefine JPEG_SUPPORT @JPEG_SUPPORT@
-
 /* Support LogLuv high dynamic range encoding */
 #define LOGLUV_SUPPORT 1
 
@@ -147,10 +144,6 @@
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #cmakedefine NO_MINUS_C_MINUS_O
-
-/* Support Old JPEG compresson (read contrib/ojpeg/README first! Compilation
-   fails with unpatched IJG JPEG library) */
-#cmakedefine OJPEG_SUPPORT
 
 /* Name of package */
 #cmakedefine PACKAGE
@@ -220,9 +213,6 @@ the sizes can be different.*/
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #cmakedefine X_DISPLAY_MISSING
-
-/* Support Deflate compression */
-#cmakedefine ZIP_SUPPORT
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #cmakedefine _FILE_OFFSET_BITS
