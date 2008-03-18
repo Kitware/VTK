@@ -88,7 +88,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.19");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.20");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -450,7 +450,6 @@ int vtkPExodusIIReader::RequestData(
   int totalPoints = 0;
   vtkAppendCompositeDataLeaves* append = vtkAppendCompositeDataLeaves::New();
   append->AppendFieldDataOn();
-  vtkFieldData* fieldData = vtkFieldData::New();
 
   if ( this->ExodusModelMetadata )
     {
@@ -728,13 +727,8 @@ int vtkPExodusIIReader::RequestData(
     {
     append->Update();
     output->ShallowCopy( append->GetOutput() );
-    output->GetFieldData()->ShallowCopy( fieldData );
     }
 
-  // I've copied fieldData's output to the 'output' so delete fieldData
-  fieldData->Delete();
-  fieldData = NULL;
-  
   // I've copied append's output to the 'output' so delete append
   append->Delete();
   append = NULL;
