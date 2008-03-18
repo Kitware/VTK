@@ -356,7 +356,7 @@ public:
   // Returns the internal representation of the graph. If modifying is
   // true, then the returned vtkGraphInternals object will be unique to
   // this vtkGraph object.
-  vtkGraphInternals* GetGraphInternals(bool modifying);
+  vtkGraphInternals *GetGraphInternals(bool modifying);
 
 protected:
   //BTX

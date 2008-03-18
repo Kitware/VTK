@@ -26,9 +26,11 @@
 #define __vtkPBGLGraphAdapter_h
 
 #include <boost/parallel/mpi/bsp_process_group.hpp>
-#include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 #include <boost/graph/properties.hpp>
 #include <boost/parallel/container_traits.hpp>
+#include <boost/serialization/base_object.hpp>
+
+#include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
 namespace boost {
   // Property map from a vertex descriptor to the owner of the vertex
@@ -167,9 +169,9 @@ namespace boost {
 } // namespace boost
 
 namespace boost { namespace parallel { 
-  /***************************************************************************
-   * Extract the process group from a vtkGraph                               *
-   ***************************************************************************/
+  //----------------------------------------------------------------------------
+  // Extract the process group from a vtkGraph
+  //----------------------------------------------------------------------------
   template<>
   struct process_group_type<vtkGraph *> 
     {
@@ -178,5 +180,38 @@ namespace boost { namespace parallel {
 
   process_group_type<vtkGraph *>::type process_group(vtkGraph *graph);
 } } // end namespace boost::parallel
+
+//----------------------------------------------------------------------------
+// Serialization support for simple VTK structures
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+template<typename Archiver>
+void serialize(Archiver& ar, vtkEdgeBase& edge, const unsigned int)
+{
+  ar & edge.Id;
+}
+
+template<typename Archiver>
+void serialize(Archiver& ar, vtkOutEdgeType& edge, const unsigned int)
+{
+  ar & boost::serialization::base_object<vtkEdgeBase>(edge)
+     & edge.Target;
+}
+
+template<typename Archiver>
+void serialize(Archiver& ar, vtkInEdgeType& edge, const unsigned int)
+{
+  ar & boost::serialization::base_object<vtkEdgeBase>(edge)
+     & edge.Source;
+}
+
+template<typename Archiver>
+void serialize(Archiver& ar, vtkEdgeType& edge, const unsigned int)
+{
+  ar & boost::serialization::base_object<vtkEdgeBase>(edge)
+     & edge.Source
+     & edge.Target;
+}
 
 #endif // __vtkPBGLGraphAdapter_h

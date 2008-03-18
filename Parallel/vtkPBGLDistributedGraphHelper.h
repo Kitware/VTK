@@ -53,10 +53,25 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   vtkPBGLDistributedGraphHelper();
   ~vtkPBGLDistributedGraphHelper();
 
+  // BTX
+  enum Tags
+  {
+    ADD_BACK_EDGE_TAG
+  };
+
   // Description:
   // Attach this distributed graph helper to the given graph. This will
   // be called as part of vtkGraph::SetDistributedGraphHelper.
   void AttachToGraph(vtkGraph *graph);
+
+  // Description:
+  // Handle an incoming message for the distributed graph.
+  void HandleMessage(int source, int tag);
+
+  // Description:
+  // Handle a ADD_BACK_EDGE_TAG message.
+  void AddBackEdge(vtkEdgeType edge, bool directed);
+  // ETX
 };
 
 #endif // __vtkPBGLDistributedGraphHelper_h
