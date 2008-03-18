@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.29");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.30");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -458,9 +458,8 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
         div2[j] = div1[j] - R * div2[j - 1] - S * div2[j - 2];
         }
 
-      double u = div2[i - 1] * div2[i -3];
+      double u = div2[i - 1] * div2[i - 3];
       double v = div2[i - 2] * div2[i - 2];
-
       if ( AreEqual ( u, v, 1.e-6 ) )
         {
         det = detR = detS = 1.;
@@ -468,12 +467,18 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
       else
         {
         det  = u - v;
-        detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
+        detR = div1[i]     * div2[i - 3] - div1[i - 1] * div2[i - 2];
         detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
         }
 
       dR = detR / det;
       dS = detS / det;
+      if ( fabs( dR ) + fabs( dS ) > 10. )
+        {
+        dR = vtkMath::Random( -1., 1. );
+        dS = vtkMath::Random( -1., 1. );
+        }
+
       R += dR;
       S += dS;
       ++ nIterations;
