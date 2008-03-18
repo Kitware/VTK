@@ -43,12 +43,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.2");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.3");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.2");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.3");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -64,6 +64,12 @@ vtkPBGLDistributedGraphHelper::~vtkPBGLDistributedGraphHelper()
 }
 
 //----------------------------------------------------------------------------
+void vtkPBGLDistributedGraphHelper::Synchronize()
+{
+  synchronize(this->Internals->process_group);
+}
+
+//----------------------------------------------------------------------------
 vtkEdgeType 
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u, 
                                                vtkIdType v,
@@ -73,10 +79,6 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int uOwner = this->Graph->GetVertexOwner (u);
 
-  // Borrowed from GetVertexOwner -- TODO: needs to use integer arithmetic!
-  int idNumBits = sizeof(vtkIdType) << 3;  // numBytes * 8
-  int procBits = ceil(log2(numProcs));
-  
   if (uOwner == rank)
     {
     // Forward part of the edge is local.
@@ -84,7 +86,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
     
     // The edge ID involves our rank and the local number of edges.
     vtkIdType edgeId 
-      = (rank << (idNumBits - procBits)) | GraphInternals->NumberOfEdges;
+      = this->Graph->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
 
     // Add the forward edge.
     GraphInternals->Adjacency[this->Graph->GetVertexIndex(u)]

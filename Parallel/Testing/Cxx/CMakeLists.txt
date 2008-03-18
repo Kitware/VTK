@@ -94,6 +94,18 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ${CXX_TEST_PATH}/GenericCommunicator
       ${VTK_MPI_POSTFLAGS})
 
+    IF (VTK_USE_PARALLEL_BGL)
+      # Add tests using the Parallel BGL
+      ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
+      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel)
+
+      ADD_TEST(PBGLRandomGraph
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/PBGLRandomGraph
+        ${VTK_MPI_POSTFLAGS})
+    ENDIF (VTK_USE_PARALLEL_BGL)
+
     #
     # Add tests, with the data
     #

@@ -271,7 +271,7 @@ public:
   virtual vtkIdType GetNumberOfVertices();
   
   //BTX
-  // The following six methods are for distributed graphs.
+  // The following methods are for distributed graphs.
   // P=# of procs in process group.
 
   // Description:
@@ -290,6 +290,10 @@ public:
   // Returns local index of edge with ID e_id, by masking off top ceil(log2 P)
   // bits of e_id.
   vtkIdType GetEdgeIndex(vtkIdType e_id) const;
+
+  // Description:
+  // Builds a distributed ID consisting of the given owner and the local ID.
+  vtkIdType MakeDistributedId(int owner, vtkIdType local);
 
   // Description:
   // Sets the distributed graph helper of this graph, turning it into a 

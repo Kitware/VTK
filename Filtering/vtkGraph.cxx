@@ -45,7 +45,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.2");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.3");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -300,7 +300,10 @@ vtkIdType vtkGraph::GetVertexOwner(vtkIdType v) const
     {
     int idNumBits = sizeof(vtkIdType) << 3;  // numBytes * 8
     int numBits = ceil(log2(numProcs));
-    owner = v >> (idNumBits-numBits); 
+    // TODO: the use of "unsigned long long" here is wrong; we need
+    // the unsigned equivalent of vtkIdType, otherwise sign extension
+    // kills us.
+    owner = (unsigned long long)v >> (idNumBits-numBits); 
     }
   
   return owner;
@@ -331,7 +334,10 @@ vtkIdType vtkGraph::GetEdgeOwner(vtkIdType e_id) const
     {
       int idNumBits = sizeof(vtkIdType) << 3;  // numBytes * 8
       int numBits = ceil(log2(numProcs));
-      owner = e_id >> (idNumBits-numBits);
+    // TODO: the use of "unsigned long long" here is wrong; we need
+    // the unsigned equivalent of vtkIdType, otherwise sign extension
+    // kills us.
+      owner = (unsigned long long)e_id >> (idNumBits-numBits);
     }
   
   return owner;
@@ -350,6 +356,21 @@ vtkIdType vtkGraph::GetEdgeIndex(vtkIdType e_id) const
   }
   
   return index;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::MakeDistributedId(int owner, vtkIdType local)
+{
+  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    int procBits = ceil(log2(numProcs));
+    return (vtkIdType(owner) << ((sizeof(vtkIdType) * CHAR_BIT) - procBits))
+           | local;
+    }
+  
+  return local;
 }
 
 //----------------------------------------------------------------------------
