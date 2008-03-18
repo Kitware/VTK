@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.28");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.29");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -65,7 +65,6 @@ inline bool AreEqual( double x, double y, double rTol )
     }
   
   double rErr;
-  
   if ( fabs( x ) > fabs( y ) )
     {
     rErr = fabs( ( y - x ) / x );
@@ -75,13 +74,7 @@ inline bool AreEqual( double x, double y, double rTol )
     rErr = fabs( ( y - x ) / y );
     }
 
-  if ( rErr  <= rTol )
-    {
-    return true;
-    }
-
-  return false;
-
+  return rErr > rTol ? false : true;
 }
 
 //----------------------------------------------------------------------------
@@ -133,9 +126,7 @@ int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R
       sum += B[n - i + 1 + j] * Q[mMn - j];
       }
 
-    double u = fabs( A[m - i + 1] );
-    double v = fabs( sum );
-    if ( fabs( u - v ) > rtol * ( u + v ) )
+    if ( ! AreEqual( A[m - i + 1], sum, rtol ) )
       {
       R[n - i] = A[m - i + 1] - sum;
       r = i - 1;
@@ -199,9 +190,7 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR,
       sum += B[n - i + 1 + j] * Q[mMn - j];
       }
 
-    double u = fabs( A[m - i + 1] );
-    double v = fabs( sum );
-    if ( fabs( u - v ) > rtol * ( u + v ) )
+    if ( ! AreEqual( A[m - i + 1], sum, rtol ) )
       {
       mR[n - i] = sum - A[m - i + 1];
       r = i - 1;
@@ -469,13 +458,18 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
         div2[j] = div1[j] - R * div2[j - 1] - S * div2[j - 2];
         }
 
-      det  = div2[i - 1] * div2[i -3]  - div2[i - 2] * div2[i - 2];
-      detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
-      detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
+      double u = div2[i - 1] * div2[i -3];
+      double v = div2[i - 2] * div2[i - 2];
 
-      if ( IsZero( det ) )
+      if ( AreEqual ( u, v, 1.e-6 ) )
         {
         det = detR = detS = 1.;
+        }
+      else
+        {
+        det  = u - v;
+        detR = div1[i]     * div2[i -3]  - div1[i - 1] * div2[i - 2];
+        detS = div1[i - 1] * div2[i - 1] - div1[i]     * div2[i - 2];
         }
 
       dR = detR / det;
