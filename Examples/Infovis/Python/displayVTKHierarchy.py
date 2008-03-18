@@ -17,8 +17,8 @@ def parseClassTree(classtree, tree, names, parentId):
                     pass
                 else:
                     child = j.__name__
-            if tree.GetNumberOfNodes() == 0:
-                childId = tree.AddRoot()
+            if tree.GetNumberOfVertices() == 0:
+                childId = tree.AddVertex()
             else:
                 childId = tree.AddChild(parentId)
             names.InsertValue(childId, child)
@@ -34,7 +34,7 @@ for cls in dir(vtk):
         list.append(clsObj)
 
 # The tree that will hold vtk class hierarchy
-tree = vtk.vtkTree()
+builder = vtk.vtkMutableDirectedGraph()
 names = vtk.vtkStringArray()
 names.SetName("name")
 
@@ -45,10 +45,12 @@ names.SetNumberOfTuples(100)
 # Use inspect to get the class tree
 classtree = inspect.getclasstree(list, 1)
 
-# Convert nested list to vtkTree
-parseClassTree(classtree, tree, names, None)
+# Convert nested list to tree
+parseClassTree(classtree, builder, names, None)
 
-tree.GetPointData().AddArray(names)
+tree = vtk.vtkTree()
+tree.CheckedShallowCopy(builder)
+tree.GetVertexData().AddArray(names)
 
 ## Now iterate over the tree and print it
 #iter = vtk.vtkTreeDFSIterator()
