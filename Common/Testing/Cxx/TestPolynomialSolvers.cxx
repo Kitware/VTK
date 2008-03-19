@@ -354,7 +354,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 9. Solving x^3-3x^2+4x = 0 to exercise a case not otherwise tested.
+  // 9. Solving x^3 - 2e-6 x^2 + 0.999999999999999e-12 x = 0 to test a nearly degenerate case.
   double P3_3[] = { 1., -2.e-6 , .999999999999999e-12, 0.};
   PrintPolynomial( P3_3, 3 );
 
