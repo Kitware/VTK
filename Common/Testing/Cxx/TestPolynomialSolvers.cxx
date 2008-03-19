@@ -218,7 +218,45 @@ int TestPolynomialSolvers( int, char *[] )
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
   
 
-  // 5. Find the roots of a degree 22 polynomial with SturmBisectionSolve
+  // 5. find the quadruple roots of the degree 12 polynomial (x-1)^4 (x-2)^4 (x-3)^4
+  // All roots are quadruple roots, making it challenging for solvers using floating
+  // point arithmetic.
+  rootInt[0] = 0.;
+  rootInt[1] = 20.;
+  double P12[] = {
+    1,
+    -24,
+    260,
+    -1680,
+    7206,
+    -21600,
+    46364,
+    -71760,
+    79441,
+    -61320,
+    31320,
+    -9504,
+    1296
+  };
+  PrintPolynomial( P12, 12 );
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P12, 12, rootInt, upperBnds, tolSturm );
+  timer->StopTimer();
+
+  if ( testIntValue != 3 )
+    {
+    vtkGenericWarningMacro("SturmBisectionSolve( (x-1)^4 (x-2)^4 (x-3)^4, ]0;20] ): "<<testIntValue<<" root(s) instead of 3");
+    return 1;
+    }
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
+
+  // 6. Find the roots of a degree 22 polynomial with SturmBisectionSolve
   rootInt[0] = -10.;
   rootInt[1] = 10.;
   double P22[] = {
@@ -259,7 +297,7 @@ int TestPolynomialSolvers( int, char *[] )
        << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << roots[i] << "\n";
 
-  // 6. Solving x^4 + 3x^3 - 4x + 1e-18 = 0 illustrates how the Ferrari solver
+  // 7. Solving x^4 + 3x^3 - 4x + 1e-18 = 0 illustrates how the Ferrari solver
   // filters some numerical noise by noticing there is a double root.
   // This also exercises a case not otherwise tested.
   double P4_3[] = { 1., 3., -4., 0., 1.e-18 };
@@ -284,7 +322,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 7. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
+  // 8. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
   // filters some numerical noise by noticing there is a double root (that
   // SolveCubic does not notice).
   double P3[] = { 1., -2.e-4, 1.e-8, 0.};
@@ -320,7 +358,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 8. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested.
+  // 9. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested.
   double P3_2[] = { 1., 1., 1., 1.};
   PrintPolynomial( P3_2, 3 );
 
@@ -354,7 +392,7 @@ int TestPolynomialSolvers( int, char *[] )
     cout << "\n";
     }
 
-  // 9. Solving x^3 - 2e-6 x^2 + 0.999999999999999e-12 x = 0 to test a nearly degenerate case.
+  // 10. Solving x^3 - 2e-6 x^2 + 0.999999999999999e-12 x = 0 to test a nearly degenerate case.
   double P3_3[] = { 1., -2.e-6 , .999999999999999e-12, 0.};
   PrintPolynomial( P3_3, 3 );
 
