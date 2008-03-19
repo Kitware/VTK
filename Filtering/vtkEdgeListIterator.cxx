@@ -21,10 +21,11 @@
 
 #include "vtkDirectedGraph.h"
 #include "vtkObjectFactory.h"
+#include "vtkInformation.h"
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
 
-vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1");
+vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1.4.1");
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
@@ -60,22 +61,38 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
     {
     this->Directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != 0);
     this->Vertex = 0;
+    vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
+
+    int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != -1)
+      {
+        this->Vertex = this->Graph->MakeDistributedId(myRank, this->Vertex);
+        lastVertex = this->Graph->MakeDistributedId(myRank, lastVertex);
+      }
+      
     // Find a vertex with nonzero out degree.
-    while (this->Vertex < this->Graph->GetNumberOfVertices() &&
+    while (this->Vertex < lastVertex &&
            this->Graph->GetOutDegree(this->Vertex) == 0)
       {
       ++this->Vertex;
       }
-    if (this->Vertex < this->Graph->GetNumberOfVertices())
+    if (this->Vertex < lastVertex)
       {
       vtkIdType nedges;
       this->Graph->GetOutEdges(this->Vertex, this->Current, nedges);
       this->End = this->Current + nedges;
-      // If it is undirected, skip edges 
-      // whose source is greater than the target.
+      // If it is undirected, skip edges that are non-local or
+      // entirely-local edges whose source is greater than the target.
       if (!this->Directed)
         {
-        while (this->Current != 0 && this->Vertex > this->Current->Target)
+        while (this->Current != 0 
+               && (// Skip non-local edges.
+                   (myRank != -1 && this->Graph->GetEdgeOwner(this->Current->Id) != myRank)
+                   // Skip entirely-local edges where Source > Target
+                   || ((myRank != -1 
+                        && myRank == this->Graph->GetVertexOwner(this->Current->Target)
+                        || myRank == -1)
+                       && this->Vertex > this->Current->Target)))
           {
           this->Increment();
           }
@@ -127,12 +144,22 @@ void vtkEdgeListIterator::Increment()
     {
     return;
     }
+
+  vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
+
+  int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  if (myRank != -1)
+    {
+    this->Vertex = this->Graph->MakeDistributedId(myRank, this->Vertex);
+    lastVertex = this->Graph->MakeDistributedId(myRank, lastVertex);
+    }
+
   ++this->Current;
   if (this->Current == this->End)
     {
     // Find a vertex with nonzero out degree.
     ++this->Vertex;
-    while (this->Vertex < this->Graph->GetNumberOfVertices() &&
+    while (this->Vertex < lastVertex &&
            this->Graph->GetOutDegree(this->Vertex) == 0)
       {
       ++this->Vertex;
@@ -140,7 +167,7 @@ void vtkEdgeListIterator::Increment()
 
     // If there is another vertex with out edges, get its edges.
     // Otherwise, signal that we have reached the end of the iterator.
-    if (this->Vertex < this->Graph->GetNumberOfVertices())
+    if (this->Vertex < lastVertex)
       {
       vtkIdType nedges;
       this->Graph->GetOutEdges(this->Vertex, this->Current, nedges);

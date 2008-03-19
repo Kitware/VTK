@@ -20,6 +20,7 @@
 
 #include <mpi.h>
 
+#include "vtkEdgeListIterator.h"
 #include "vtkInformation.h"
 #include "vtkIOStream.h"
 #include "vtkMutableDirectedGraph.h"
@@ -32,6 +33,8 @@
 #include <vtksys/stl/vector>
 
 #include <stdlib.h>
+
+using vtkstd::pair;
 
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
@@ -55,7 +58,7 @@ bool operator<(AddedEdge const& e1, AddedEdge const& e2)
 {
   return (unsigned long long)e1.Source < (unsigned long long)e2.Source 
     || ((unsigned long long)e1.Source == (unsigned long long)e2.Source && (unsigned long long)e1.Target < (unsigned long long)e2.Target);
-}
+ }
 
 bool operator==(AddedEdge const& e1, AddedEdge const& e2)
 {
@@ -91,6 +94,12 @@ int main(int argc, char** argv)
   const vtkIdType E = 10000;
   vtkstd::vector<AddedEdge> addedEdges;
 
+  if (myRank == 0)
+    {
+    (cout << "Build distributed graph with V=" << V*numProcs << ", E = " 
+          << E*numProcs << "...").flush();
+    }
+
   for (vtkIdType v = 0; v < V; ++v)
     {
     graph->AddVertex();
@@ -107,10 +116,24 @@ int main(int argc, char** argv)
     addedEdges.push_back(AddedEdge(source, target));
     }
 
+  if (myRank == 0)
+    {
+    (cout << " synchronizing... ").flush();
+    }
+
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
 
+  if (myRank == 0)
+    {
+    (cout << " done.\n").flush();
+    }
+
   // Test the vertex descriptors
+  if (myRank == 0)
+    {
+    (cout << "Testing vertex descriptors...").flush();
+    }
   vtkIdType vExpected = graph->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
@@ -122,9 +145,21 @@ int main(int argc, char** argv)
     ++vExpected;
     }
   myassert(graph->GetVertexIndex(vExpected) == V);
+  if (myRank == 0)
+    {
+    (cout << "done.\n").flush();
+    }
+
+  // Keep our list of the edges we added sorted by source.
+  vtkstd::sort(addedEdges.begin(), addedEdges.end());
 
   // Test the outgoing edges of each local vertex
-  vtkstd::sort(addedEdges.begin(), addedEdges.end());
+  if (myRank == 0)
+    {
+    (cout << "Testing out edges...").flush();
+    }
+  typedef vtkstd::vector<AddedEdge>::iterator AddedEdgeIterator;
+  vtkstd::vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   graph->GetVertices(vertices);
   while (vertices->HasNext())
     {
@@ -143,6 +178,8 @@ int main(int argc, char** argv)
                                      AddedEdge
                                        (u+1, 
                                         graph->MakeDistributedId(0, 0)));
+    startPositions[graph->GetVertexIndex(u)].first = myEdgesStart;
+    startPositions[graph->GetVertexIndex(u)].second = myEdgesEnd;
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext()) 
@@ -166,8 +203,49 @@ int main(int argc, char** argv)
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
     }
-  
-  
+  if (myRank == 0)
+    {
+    (cout << "done.\n").flush();
+    }
+
+  // Test all of the local edges
+  if (myRank == 0)
+    {
+    (cout << "Testing all edges...").flush();
+    }
+  vtkSmartPointer<vtkEdgeListIterator> edges
+    = vtkSmartPointer<vtkEdgeListIterator>::New();
+  graph->GetEdges(edges);
+  while (edges->HasNext())
+    {
+      vtkEdgeType e = edges->Next();
+      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
+        = startPositions[graph->GetVertexIndex(e.Source)];
+      
+      // Make sure we're expecting to find more edges in this source's
+      // bracket
+      myassert(bracket.first != bracket.second);
+
+      // Make sure that we added an edge with the same source/target
+      vtkstd::vector<AddedEdge>::iterator found 
+        = vtkstd::find(bracket.first, bracket.second,
+                       AddedEdge(e.Source, e.Target));
+      myassert(found != bracket.second);
+
+      // Move this edge out of the way, so we don't find it again
+      --bracket.second;
+      vtkstd::swap(*found, *bracket.second);
+    }
+  // Ensure that all of the edges we added actually got added
+  for (vtkIdType v = 0; v < V; ++v)
+    {
+    myassert(startPositions[v].first == startPositions[v].second);
+    }
+  if (myRank == 0)
+    {
+    (cout << "done.\n").flush();
+    }
+
   MPI_Finalize();
   return 0;
 }
