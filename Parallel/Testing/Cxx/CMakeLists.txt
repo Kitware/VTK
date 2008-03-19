@@ -96,6 +96,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     IF (VTK_USE_PARALLEL_BGL)
       # Add tests using the Parallel BGL
+      INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})
       ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
       TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel)
 

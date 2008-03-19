@@ -21,6 +21,7 @@
 #include <mpi.h>
 
 #include "vtkEdgeListIterator.h"
+#include "vtkInEdgeIterator.h"
 #include "vtkInformation.h"
 #include "vtkIOStream.h"
 #include "vtkMutableDirectedGraph.h"
@@ -30,7 +31,10 @@
 #include "vtkVertexListIterator.h"
 
 #include <vtksys/stl/algorithm>
+#include <vtksys/stl/functional>
 #include <vtksys/stl/vector>
+
+#include <boost/parallel/mpi/datatype.hpp> // for get_mpi_datatype
 
 #include <stdlib.h>
 
@@ -45,8 +49,11 @@ using vtkstd::pair;
     MPI_Abort(MPI_COMM_WORLD, -1);                      \
     }
 
+// Used to store information about an edge we have added to the graph
 struct AddedEdge
 {
+  AddedEdge() : Source(0), Target(0) { }
+
   AddedEdge(vtkIdType source, vtkIdType target) 
     : Source(source), Target(target) { }
 
@@ -59,6 +66,16 @@ bool operator<(AddedEdge const& e1, AddedEdge const& e2)
   return (unsigned long long)e1.Source < (unsigned long long)e2.Source 
     || ((unsigned long long)e1.Source == (unsigned long long)e2.Source && (unsigned long long)e1.Target < (unsigned long long)e2.Target);
  }
+
+// Order added edges by their target
+struct OrderEdgesByTarget : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
+{
+  bool operator()(AddedEdge const& e1, AddedEdge const& e2)
+  {
+    return (unsigned long long)e1.Target < (unsigned long long)e2.Target
+      || ((unsigned long long)e1.Target == (unsigned long long)e2.Target && (unsigned long long)e1.Source < (unsigned long long)e2.Source);
+  }
+};
 
 bool operator==(AddedEdge const& e1, AddedEdge const& e2)
 {
@@ -241,6 +258,117 @@ int main(int argc, char** argv)
     {
     myassert(startPositions[v].first == startPositions[v].second);
     }
+  if (myRank == 0)
+    {
+    (cout << "done.\n").flush();
+    }
+
+  // Let everyone know about the in-edges they should have.
+
+  // Sort the edges by target, so we can send out blocks of edges
+  // to their owners.
+  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
+  
+  // Determine the number of incoming edges to send to each processor.
+  vtkstd::vector<int> sendCounts(numProcs, 0);
+  for (vtkstd::vector<AddedEdge>::size_type i = 0; i < addedEdges.size(); ++i)
+    {
+    ++sendCounts[graph->GetVertexOwner(addedEdges[i].Target)];
+    }
+  vtkstd::vector<int> offsetsSend(numProcs, 0);
+  int count = 0;
+  for (int p = 0; p < numProcs; ++p)
+    {
+    offsetsSend[p] = count;
+    count += sendCounts[p];
+    }
+
+  // Swap counts with the other processors
+  vtkstd::vector<int> recvCounts(numProcs);
+  MPI_Alltoall(&sendCounts.front(), 1, MPI_INT, 
+               &recvCounts.front(), 1, MPI_INT,
+               MPI_COMM_WORLD);
+
+  // Determine the offsets into our own incoming edges buffer
+  vtkstd::vector<int> offsetsRecv(numProcs);
+  count = 0;
+  for (int p = 0; p < numProcs; ++p)
+    {
+    offsetsRecv[p] = count;
+    count += recvCounts[p];
+    }
+
+  // Build a datatype so that we can transmit AddedEdge structures.
+  // TODO: If we're being really, really, really picky, this isn't 100% 
+  // correct, because AddedEdge is not an aggregate and therefore might
+  // have a non-trivial layout. But no C++ compiler takes advantage
+  // of this latitude, and this won't be the first program to break 
+  // because of it, so forget that you even read this overlong comment.
+  MPI_Datatype addedEdgeDatatype;
+  MPI_Type_contiguous(2, boost::parallel::mpi::get_mpi_datatype<vtkIdType>(),
+                      &addedEdgeDatatype);
+  MPI_Type_commit(&addedEdgeDatatype);
+  
+  // Swap incoming edges with the other processors.
+  vtkstd::vector<AddedEdge> inEdges(count);
+  MPI_Alltoallv(&addedEdges[0], &sendCounts[0], &offsetsSend[0], 
+                addedEdgeDatatype,
+                &inEdges[0], &recvCounts[0], &offsetsRecv[0],
+                addedEdgeDatatype,
+                MPI_COMM_WORLD);
+
+  // Free the AddedEdges datatype
+  MPI_Type_free(&addedEdgeDatatype);
+
+  // Test the incoming edges of each local vertex
+  if (myRank == 0)
+    {
+    (cout << "Testing in edges...").flush();
+    }
+  vtkstd::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
+  graph->GetVertices(vertices);
+  while (vertices->HasNext())
+    {
+    vtkIdType u = vertices->Next();
+
+    // Find bounds within the inEdges array where the incoming edges
+    // for this node will occur.
+    vtkstd::vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
+    myEdgesStart = vtkstd::lower_bound(inEdges.begin(), inEdges.end(),
+                                       AddedEdge
+                                         (graph->MakeDistributedId(0, 0), 
+                                          u),
+                                       OrderEdgesByTarget());
+    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, inEdges.end(),
+                                     AddedEdge
+                                       (graph->MakeDistributedId(0, 0),
+                                        u+1),
+                                     OrderEdgesByTarget());
+
+    vtkSmartPointer<vtkInEdgeIterator> inEdges
+      = vtkSmartPointer<vtkInEdgeIterator>::New();
+    graph->GetInEdges(u, inEdges);
+    while (inEdges->HasNext()) 
+      {
+      vtkInEdgeType e = inEdges->Next();
+
+      // Make sure we're expecting to find more in-edges
+      myassert(myEdgesStart != myEdgesEnd);
+
+      // Make sure that we added an edge with the same source/target
+      vtkstd::vector<AddedEdge>::iterator found 
+        = vtkstd::find(myEdgesStart, myEdgesEnd,
+                       AddedEdge(e.Source, u));
+      myassert(found != myEdgesEnd);
+
+      // Move this edge out of the way, so we don't find it again
+      --myEdgesEnd;
+      vtkstd::swap(*found, *myEdgesEnd);
+      }
+
+    // Make sure that the constructed graph isn't missing any edges
+    assert(myEdgesStart == myEdgesEnd);
+    }  
   if (myRank == 0)
     {
     (cout << "done.\n").flush();
