@@ -214,7 +214,7 @@ else (MPI_COMPILE_CMDLINE)
   endif (MPI_LIBRARY)
 endif (NOT MPI_FORCE_RECONFIGURE)
 
-set(MPI_LIBRARY ${MPI_LIBRARY} CACHE INTERNAL "MPI library to link against. Deprecated: use MPI_LIBRARIES instead")
-set(MPI_EXTRA_LIBRARY ${MPI_EXTRA_LIBRARY} CACHE INTERNAL "Second MPI library to link against. Deprecated: use MPI_LIBRARIES instead")
+set(MPI_LIBRARY ${MPI_LIBRARY} CACHE INTERNAL "MPI library to link against. Deprecated: use MPI_LIBRARIES instead" FORCE)
+set(MPI_EXTRA_LIBRARY ${MPI_EXTRA_LIBRARY} CACHE INTERNAL "Second MPI library to link against. Deprecated: use MPI_LIBRARIES instead" FORCE)
 
 mark_as_advanced(MPI_INCLUDE_PATH MPI_COMPILE_FLAGS MPI_LINK_FLAGS MPI_LIBRARIES)

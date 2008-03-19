@@ -572,7 +572,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
 VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL_BGL
                      "Use the Parallel Boost Graph Library"
                      OFF
-                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;" 
+                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;VTK_USE_64BIT_IDS" 
                      OFF)
 
 SET(VTK_CAN_USE_TK)

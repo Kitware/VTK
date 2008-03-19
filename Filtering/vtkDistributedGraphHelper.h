@@ -32,7 +32,7 @@ class vtkDistributedGraphHelperInternals;
 struct vtkEdgeType;
 class vtkGraph;
 
-class VTK_PARALLEL_EXPORT vtkDistributedGraphHelper : public vtkObject
+class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
  public:
   vtkTypeRevisionMacro (vtkDistributedGraphHelper, vtkObject);
@@ -63,6 +63,10 @@ class VTK_PARALLEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   // Description:
   // The graph to which this distributed graph helper is already attached.
   vtkGraph *Graph;
+
+ private:
+  vtkDistributedGraphHelper(const vtkDistributedGraphHelper&); // Not implemented
+  void operator=(const vtkDistributedGraphHelper&); // Not implemented
 
   friend class vtkGraph;
 };
