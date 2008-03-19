@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <string>
 
 // Define DEBUG_DICOM to get debug messages sent to dicom_stream::cerr
