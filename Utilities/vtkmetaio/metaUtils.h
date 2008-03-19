@@ -53,6 +53,7 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <string.h>
 
 #if (METAIO_USE_NAMESPACE)
 namespace METAIO_NAMESPACE {

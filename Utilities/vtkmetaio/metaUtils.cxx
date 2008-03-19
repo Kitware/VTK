@@ -34,6 +34,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 #include <string>
 
 #if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0580)

@@ -32,6 +32,8 @@
 #include <arpa/inet.h>
 #endif
 
+#include <string.h>
+
 #include <typeinfo>
 
 #if (METAIO_USE_NAMESPACE)
