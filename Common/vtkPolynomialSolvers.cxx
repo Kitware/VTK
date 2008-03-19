@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.32");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.33");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -282,13 +282,12 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[d];
 
   double perturbation = tol * .5 / static_cast<double>( d );
-  // FIXME: this is asking for trouble
-  while ( ! oldVal[0] && ! evaluateHorner( SSS + offsetB, d - 1, bounds[0] ) )
+  while ( IsZero( oldVal[0] ) && IsZero( evaluateHorner( SSS + offsetB, d - 1, bounds[0] ) ) )
     {
     bounds[0] -= perturbation;
     oldVal[0] = evaluateHorner( SSS, d, bounds[0] );
     }
-  while ( ! oldVal[1] && ! evaluateHorner( SSS + offsetB, d - 1, bounds[1] ) )
+  while ( IsZero( oldVal[1] ) && IsZero( evaluateHorner( SSS + offsetB, d - 1, bounds[1] ) ) )
     {
     bounds[1] += perturbation;
     oldVal[1] = evaluateHorner( SSS, d, bounds[1] );
