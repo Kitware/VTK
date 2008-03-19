@@ -35,12 +35,12 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.31");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.32");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
 static const double inv3 = 1 / 3.;
-static const double radius0 = 10. * VTK_DBL_MIN;
+static const double absolute0 = 10. * VTK_DBL_MIN;
 
 //----------------------------------------------------------------------------
 void vtkPolynomialSolvers::PrintSelf(ostream& os, vtkIndent indent)
@@ -52,14 +52,14 @@ void vtkPolynomialSolvers::PrintSelf(ostream& os, vtkIndent indent)
 // Double precision comparison with 0
 inline bool IsZero( double x )
 {
-  return ( fabs( x ) < radius0 ) ? true : false;
+  return ( fabs( x ) < absolute0 ) ? true : false;
 }
 
 //----------------------------------------------------------------------------
 // Double precision comparison
 inline bool AreEqual( double x, double y, double rTol )
 {
-  if ( fabs( x - y ) < radius0 )
+  if ( fabs( x - y ) < absolute0 )
     {
     return true;
     }
@@ -448,6 +448,8 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
 
     while ( ( fabs( dR ) + fabs( dS ) ) > tolerance )
       {
+      // relax tolerance after 100 iterations did not suffice to converge
+      // within the current tolerance
       if ( ! ( nIterations % 100 ) )
         {
         R = vtkMath::Random( 0., 2. );
@@ -478,6 +480,9 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
 
       dR = detR / det;
       dS = detS / det;
+
+      // prevent Jacobian from exploding faster than tolerance can be relaxed
+      // by the means of a crude limiter      
       if ( fabs( dR ) + fabs( dS ) > 10. )
         {
         dR = vtkMath::Random( -1., 1. );
@@ -500,7 +505,7 @@ int vtkPolynomialSolvers::LinBairstowSolve( double* c, int d, double* r, double&
     double delta = c[i - 1] * c[i - 1] - 4. * c[i];
     if ( delta >= 0 )
       {
-      // check whether there is 2 simple or 1 double root(s)
+      // check whether there are 2 simple roots or 1 double root
       if ( delta )
         {
         delta = sqrt( delta );
