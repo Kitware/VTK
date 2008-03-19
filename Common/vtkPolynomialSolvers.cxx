@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.30");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.31");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -217,7 +217,10 @@ int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR,
 inline double evaluateHorner( double* P, int d, double x )
 {
   double val = P[0];
-  for ( int i = 1; i <= d; ++ i ) val = val * x + P[i];
+  for ( int i = 1; i <= d; ++ i )
+    {
+    val = val * x + P[i];
+    }
 
   return val;
 }
@@ -253,8 +256,9 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     return -1;
     }
 
-  double bounds[] = { a[0], a[1] };
   // 1. Root counting
+
+  double bounds[] = { a[0], a[1] };
   double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2];
   int* degSSS = new int[d + 2];
   
@@ -278,6 +282,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[d];
 
   double perturbation = tol * .5 / static_cast<double>( d );
+  // FIXME: this is asking for trouble
   while ( ! oldVal[0] && ! evaluateHorner( SSS + offsetB, d - 1, bounds[0] ) )
     {
     bounds[0] -= perturbation;
@@ -338,6 +343,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
         {
         xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
         if ( xOldVal * xVal < 0. ) ++ midVarSgn;
+        // FIXME: bullet-proof this:
         if ( xVal ) xOldVal = xVal;
         }
 
@@ -354,6 +360,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
   delete [] lowerVarSgn;
 
   // 3. Root polishing (if needed)
+
   if ( localTol > tol ) 
     {
     double* upperVals = new double[nIntervals];
@@ -374,20 +381,18 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
         x = upperBnds[i] - localTol;
         if ( multipleRoot[i] )
           {
-          upperVarSgn[0] = varSgn[1];
-
-          midVarSgn = offsetA = 0;
+          offsetA = 0;
           xOldVal = 0.;
           midVarSgn = 0;
           for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
             {
             xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
             if ( xOldVal * xVal < 0. ) ++ midVarSgn;
+            // FIXME: bullet-proof this:
             if ( xVal ) xOldVal = xVal;
             }
 
           if ( midVarSgn == upperVarSgn[i] ) upperBnds[i] = x;
-
           }
         else
           {
