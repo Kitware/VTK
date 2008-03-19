@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.33");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.34");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -341,9 +341,15 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
       for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
         {
         xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
-        if ( xOldVal * xVal < 0. ) ++ midVarSgn;
-        // FIXME: bullet-proof this:
-        if ( xVal ) xOldVal = xVal;
+        if ( IsZero( xVal ) )
+          {
+          continue;
+          }
+        if ( xOldVal * xVal < 0. ) 
+          {
+          ++ midVarSgn;
+          }
+        xOldVal = xVal;
         }
 
       if ( midVarSgn == upperVarSgn[i] ) upperBnds[i] = x;
@@ -386,9 +392,15 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
           for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
             {
             xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
-            if ( xOldVal * xVal < 0. ) ++ midVarSgn;
-            // FIXME: bullet-proof this:
-            if ( xVal ) xOldVal = xVal;
+            if ( IsZero( xVal ) )
+              {
+              continue;
+              }
+            if ( xOldVal * xVal < 0. ) 
+              {
+              ++ midVarSgn;
+              }
+            xOldVal = xVal;
             }
 
           if ( midVarSgn == upperVarSgn[i] ) upperBnds[i] = x;
