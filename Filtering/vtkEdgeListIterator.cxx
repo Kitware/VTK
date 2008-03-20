@@ -25,7 +25,7 @@
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
 
-vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1.4.1");
+vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1.4.2");
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
@@ -109,11 +109,20 @@ vtkEdgeType vtkEdgeListIterator::Next()
 
   // Next, increment the iterator.
   this->Increment();
-  // If it is undirected, skip edges 
-  // whose source is greater than the target.
+  // If it is undirected, skip edges that are non-local or
+  // entirely-local edges whose source is greater than the target.
   if (!this->Directed)
     {
-    while (this->Current != 0 && this->Vertex > this->Current->Target)
+    int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+
+    while (this->Current != 0 
+           && (// Skip non-local edges.
+               (myRank != -1 && this->Graph->GetEdgeOwner(this->Current->Id) != myRank)
+               // Skip entirely-local edges where Source > Target
+               || ((myRank != -1 
+                    && myRank == this->Graph->GetVertexOwner(this->Current->Target)
+                    || myRank == -1)
+                   && this->Vertex > this->Current->Target)))
       {
       this->Increment();
       }

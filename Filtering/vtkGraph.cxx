@@ -45,7 +45,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.4");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.5");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -431,7 +431,10 @@ void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
 
   this->Internals->DistributedHelper = helper;
   if (this->Internals->DistributedHelper)
+    {
+    this->Internals->DistributedHelper->Register(this);
     this->Internals->DistributedHelper->AttachToGraph(this);
+    }
 }
 
 //----------------------------------------------------------------------------
