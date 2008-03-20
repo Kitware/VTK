@@ -1,4 +1,4 @@
-/* jconfig.cfg --- source file edited by configure script */
+/* jconfig.h --- source file edited by configure script */
 /* see jconfig.doc for explanations */
 
 #define HAVE_PROTOTYPES
@@ -21,7 +21,7 @@
 #undef INCOMPLETE_TYPES_BROKEN
 
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 /* typedef "boolean" as unsigned char to match rpcndr.h */
 typedef unsigned char boolean;
 #define HAVE_BOOLEAN    /* prevent jmorecfg.h from typedef-ing it as int */
