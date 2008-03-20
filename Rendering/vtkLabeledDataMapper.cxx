@@ -28,7 +28,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.51");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.52");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -477,7 +477,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       {
       if ( numericData )
         {
-        void *rawData = numericData->GetVoidPointer(i);
+        void *rawData = numericData->GetVoidPointer(i*numComp);
         
         if ( numComp == 1 )
           {
