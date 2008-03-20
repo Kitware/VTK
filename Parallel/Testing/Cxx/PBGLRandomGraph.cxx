@@ -181,8 +181,8 @@ void TestDirectedGraph()
   // each processor adds E randomly-generated edges to the
   // graph. Then, we'll test whether the distributed graph data
   // structure is consistent.
-  const vtkIdType V = 1000;
-  const vtkIdType E = 10000;
+  const vtkIdType V = 10000;
+  const vtkIdType E = 100000;
   vector<AddedEdge> addedEdges;
 
   if (myRank == 0)
@@ -424,8 +424,8 @@ void TestUndirectedGraph()
   // each processor adds E randomly-generated edges to the
   // graph. Then, we'll test whether the distributed graph data
   // structure is consistent.
-  const vtkIdType V = 1000;
-  const vtkIdType E = 10000;
+  const vtkIdType V = 10000;
+  const vtkIdType E = 100000;
   vector<AddedEdge> addedEdges;
   if (myRank == 0)
     {
