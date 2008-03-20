@@ -45,6 +45,7 @@
 
 #include "vtkMapper2D.h"
 
+class vtkDataObject;
 class vtkDataSet;
 class vtkTextMapper;
 class vtkTextProperty;
@@ -108,7 +109,11 @@ public:
 
   // Description:
   // Set the input dataset to the mapper. This mapper handles any type of data.
-  virtual void SetInput(vtkDataSet*);
+  virtual void SetInput(vtkDataObject*);
+
+  // Description:
+  // Use GetInputDataObject() to get the input data object for composite
+  // datasets.
   vtkDataSet *GetInput();
 
   // Description:
@@ -163,10 +168,14 @@ protected:
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
+  double* LabelPositions;
   vtkTransform *Transform;
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 
+  void AllocateLables(int numLables);
+  void BuildLabels();
+  void BuildLabelsInternal(vtkDataSet*);
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.
   void operator=(const vtkLabeledDataMapper&);  // Not implemented.
