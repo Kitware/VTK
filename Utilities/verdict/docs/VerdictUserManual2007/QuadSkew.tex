@@ -1,0 +1,29 @@
+%---------------------------Skew-----------------------------
+\section{Skew}
+
+First define normalized principal axes
+\[
+\begin{array}{lcl}
+\hat X_1 &=& \frac {\vec X_1} {\normvec{X_1}}\\
+\hat X_2 &=& \frac {\vec X_2} {\normvec{X_2}}.
+\end{array}
+\]
+
+The skew is then
+\[
+q = | \hat X_1 \cdot \hat X_2 |.
+\]
+A geometric intepretation of the skew is that it measures the angle between the principal axes.
+In fact, it is the absolute value of the cosine of the angle between the principal axes.
+
+Note that if $\normvec{X_1}$ or $\normvec{X_2} < DBL\_MIN$, we set $q = 0$.
+
+\quadmetrictable{skew}%
+{$1$}%                                      Dimension
+{$[0.5,1]$}%                                Acceptable range
+{$[0,1]$}%                                  Normal range
+{$[0,1]$}%                                  Full range
+{$1$}%                                      Unit square
+{Adapted from \cite{rob:87}}%               Citation
+{v\_quad\_skew}%                            Verdict function name
+

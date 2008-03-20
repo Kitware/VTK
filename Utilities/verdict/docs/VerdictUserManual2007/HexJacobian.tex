@@ -1,0 +1,18 @@
+%---------------------------Jacobian---------------------------
+\section{Jacobian}
+
+This is the minimum determinant of the Jacobian matrix evaluated at each corner and the center of the element:
+\[
+q = \min\left\{\left\{\alpha_i\right\}_{i=0}^7, \frac{\alpha_8}{64} \right\}.
+\]
+This can also be interpreted as the minimum pointwise volume of local map
+at the 8 corners and the center of the hexahedron.
+
+\hexmetrictable{Jacobian}%
+{$L^3$}%                                      Dimension
+{$[0,DBL\_MAX]$}%                             Acceptable range
+{$[0,DBL\_MAX]$}%                             Normal range
+{$[-DBL\_MAX,DBL\_MAX]$}%                     Full range
+{$1$}%                                        Cube
+{\cite{knu:00}}%                              Citation
+{v\_hex\_jacobian}%                           Verdict function name

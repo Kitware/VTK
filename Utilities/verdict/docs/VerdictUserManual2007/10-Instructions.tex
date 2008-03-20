@@ -1,0 +1,115 @@
+\chapter{Obtain, Configure, Compile, Install}
+
+The \verd\ repository now resides at Kitware, Inc. and is publicly available.
+A formal release has not yet been made since the repository has been moved and
+so you will need to obtain \verd\ source code from CVS.
+If you intend to build \vtk,
+you need not obtain or compile \verd\ separately since it is included with VTK.
+
+\section{Prerequisites}
+
+To build \verd\ you will need a C++ compiler.
+GNU's gcc 3 or above, Intel's icc 8 or above, Apple's Xcode 2.4 or above,
+Borland's bcc 3.2 or 5.5, and Microsoft's VC 6 or above are all known to work.
+Other compilers, including Sun's CC, DEC's cxx, IBM's xlC, HP's aCC, and SGI's CC, are untested but should work.
+Unless you are using Microsoft's Visual Studio compilers, you will also need ``make''.
+
+It is not required, but \href{http://www.cmake.org/}{CMake}\footnote{\texttt{\href{http://www.cmake.org}{http://www.cmake.org}}}
+version 2.4 or above is highly recommended.
+At some point in the future, this will be the only supported configuration system.
+
+\section{Obtaining \verd}
+
+Fetch the source code from Kitware's CVS server at \texttt{www.vtk.org}.
+Kitware provides anonymous access using CVS pserver.
+Before you can retrieve the source code, you must authenticate yourself to the CVS server.
+From a terminal window, run
+\begin{verbatim}
+    cvs -d :pserver:anonymous@www.vtk.org:/cvsroot/VTK login
+\end{verbatim}
+You will be prompted for a password. Use ``vtk'' (without the quotes).
+You may then retrieve \verd\ by running
+\begin{verbatim}
+    cvs -d :pserver:anonymous@www.vtk.org:/cvsroot/VTK -z3 \
+        co -d Verdict VTK/Utilities/verdict
+\end{verbatim}
+This will place the source code in a subdirectory named \texttt{Verdict}.
+
+If the machine you will use to compile \verd\ is behind a firewall,
+you will probably not be able to use the commands above to obtain the source code.
+If you have SSH access to a computer that is not behind a firewall and
+SSH port forwarding is not forbidden, you may port forward CVS requests using a pair of
+terminal windows.
+For the purposes of our description,
+say that you will build \verd\ on a computer named \texttt{inside.thefirewall.com} (behind the firewall) and
+have SSH access to a computer named \texttt{outside.thefirewall.com} (which is not behind the firewall).
+
+In the first terminal window on \texttt{inside.thefirewall.com}, run
+\begin{verbatim}
+   ssh -L 2401:www.vtk.org:2401 outside.thefirewall.com
+\end{verbatim}
+and enter your password as required.
+Then, while you are still logged into \texttt{outside.}\-\texttt{thefirewall.com},
+type the following into a second terminal window on \texttt{inside.}\-\texttt{thefirewall.com}:
+\begin{verbatim}
+  cvs -d :pserver:anonymous@localhost:/cvsroot/VTK login
+  cvs -d :pserver:anonymous@localhost:/cvsroot/VTK -z3 \
+      co -d Verdict VTK/Utilities/verdict
+\end{verbatim}
+After the first command, you'll have to enter the repository password ``vtk''.
+
+\section{Configuring \verd}
+
+Now that you have the \verd\ source in a directory named \texttt{Verdict}, you are ready to configure it.
+The recommended way to configure \verd\ is to use CMake and perform an ``out-of-source'' build (where the
+object files are not stored in the same directory tree as the source code).
+To follow the recommended practice, create a directory named \texttt{Verdict/Build}.
+On Mac OS X, Linux, and other Unix-like systems, do the following%
+\footnote{On Mac OS X, you may wish to use ``\texttt{ccmake -G Xcode ..}'' in order
+to create Xcode project files instead of makefiles.}:
+\begin{verbatim}
+  cd Verdict/Build
+  ccmake ..
+\end{verbatim}
+You will be presented with a text interface for changing configuration parameters.
+If the defaults are acceptable, press the `c' key until an option to generate
+project files appears and then press the `g' key.
+In practice, there are a few configuration parameters you may wish to change:
+\begin{center}
+\begin{tabular}{lp{3.7in}}\hline
+\texttt{BUILD\_SHARED\_LIBRARIES}        & Should a shared or static \verd\ library be created?\\
+\texttt{CMAKE\_BUILD\_TYPE}              & This should be \texttt{Release} unless you are developing \verd, in which case
+                                           it should be set to \texttt{Debug}.\\
+\texttt{CMAKE\_INSTALL\_PREFIX}          & By default, \verd\ will be installed in \texttt{/usr/local/}\\
+\texttt{VERDICT\_ENABLE\_TESTING}        & Should tests of the quality metrics be compiled?\\ \hline
+\end{tabular}
+\end{center}
+You may change them after you have run \texttt{ccmake}'s configuration stage the first time (by pressing the `c' key).
+
+On Windows machines, run the \texttt{CMakeSetup.exe} program that comes with CMake.
+Set the source directory to the full path to the \texttt{Verdict} directory containing the source code
+and the build directory to the full path to the \texttt{Verdict/Build} directory you just created.
+Click the configure button until the OK button is enabled and then click OK.
+As with other systems, you may wish to change some of the configuration parameters in the table above.
+
+If you choose not to use CMake, there is no configuration required or available.
+
+\section{Building \verd}
+
+On systems where you have used CMake with the ``Unix Makefiles'' generator (the default for everything except Windows),
+just run \texttt{make} in the \texttt{Verdict/Build} directory.
+If you used the Xcode generator on Mac OS X, simply open the Xcode project file in \texttt{Verdict/Build}
+click Xcode's build button.
+If you are on a Windows with MSVC, open the Visual Studio project file and click the build button.
+
+\section{Installing \verd}
+
+If you used CMake, you should be able to build the install target.
+Otherwise, you will have to manually install \verd -- but this is a simple task since
+\verd\ consists of a single header file named \texttt{verdict.h} and a single library.
+On platforms with Makefiles, simply copy \texttt{verdict.h} to \texttt{/usr/local/include} or
+any other directory in your compiler's default search path.
+Then copy the file named \texttt{libverdict112.a}, \texttt{libverdict112.so}, or \texttt{libverdict112.dylib}
+(depending on your platform) to \texttt{/usr/local/lib} or some other directory in your
+link loader's default search path. On 64-bit Linux systems, you should use \texttt{/usr/local/lib64}.
+

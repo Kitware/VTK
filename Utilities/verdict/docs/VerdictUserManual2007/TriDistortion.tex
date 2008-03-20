@@ -1,0 +1,32 @@
+%---------------------------Distortion-----------------------------
+\section{Distortion\label{s:tri-distortion}}
+
+Let $A$ be the area as defined in \S\ref{s:tri-area}
+and $A_m = \sqrt{3}$ be the area of a ``master'' triangle with vertices
+\[
+\begin{array}{lcrcrcrl}
+  \vec P_0 &= (&-1&,& -\frac{ \sqrt{3}}{3}&,& 0&)\\
+  \vec P_1 &= (& 1&,& -\frac{ \sqrt{3}}{3}&,& 0&)\\
+  \vec P_2 &= (& 0&,&  \frac{2\sqrt{3}}{3}&,& 0&).
+\end{array}
+\]
+Now define $|J|$ as the minimum value of the
+determinant of the Jacobian evaluated at all Gauss points of the element.
+The distortion is then
+\[
+q = \frac{|J| A_m}{A} = \frac{|J|\sqrt{3}}{A}.
+\]
+Distortion is a measure of how well-behaved the mapping from
+parameter space to world coordinates is.
+
+Note that this metric is currently unsupported.
+
+\trimetrictable{distortion}%
+{$1$}%                                                Dimension
+{$[0.5,1]$}%                                          Acceptable range
+{$[0,1]$}%                                            Normal range
+{$[-DBL\_MAX,DBL\_MAX]$}%                             Full range
+{$1$}%                                                Unit equilateral triangle value
+{Adapted from \cite{ideas:xx}}%                       Reference(s)                   
+{v\_tri\_distortion}%                            Verdict function name
+

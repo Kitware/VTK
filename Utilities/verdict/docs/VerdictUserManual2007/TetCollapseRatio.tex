@@ -1,0 +1,38 @@
+%-------------------------------Collapse Ratio---------------------------------
+\section{Collapse Ratio}
+
+The collapse ratio is a dimensionless number defined as the smallest ratio of the
+height of a vertex above its opposing triangle to the longest edge of that opposing
+triangle across all vertices of the tetrahedron. Figure~\ref{f:tet-height} shows
+how the ratio is computed for a single vertex (vertex $3$). Assuming that edge $0-2$
+is the longest edge of triangle $0-1-2$, the collapse ratio for vertex $3$ becomes:
+\[
+  q_{ex} = \frac{h_3}{\normvec{ L_{02}}}.
+\]
+In general, take $(i,j,k,\ell)$ to be a permutation of $\{0,1,2,3\}$
+(i.e., $(i,j,k,\ell)\in\Sf$) and $\normvec{ L_{ab}}$ to be the length of the edge
+connecting vertices $a$ and $b$.
+Then the collapse ratio may be written
+\[
+  q = \min_i\left\{\frac{h_i}{\max\left\{\normvec{ L_{jk}},\normvec{ L_{k\ell}},\normvec{ L_{\ell j}}\right\}}\right\}.
+\]
+
+The collapse ratio is intended to identify tetrahedra whose vertices are nearly planar (slivers).
+Note that $q$ approaches zero as vertex $3$ in
+Figure~\ref{f:tet-height} approaches the plane defined by $0-1-2$.
+However, this metric can be misleading when the vertex with the smallest projected height
+(say $3$ without loss of generality) is not projected interior to triangle $0-1-2$.
+In this case, it is possible for $0-1-2$ to have a small area (which increases $q$) but
+for edges $0-3$, $1-3$, and $2-3$ to be very long compared to those of triangle $0-1-2$.
+Thus slivers can have arbitrarily high collapse ratios.
+
+\tetmetrictable{collapse ratio}%
+{$1$}%                                                Dimension
+{$[0.1,DBL\_MAX]$}%                                   Acceptable range
+{$(0,DBL\_MAX]$}%                                     Normal range
+{$[0,DBL\_MAX]$}%                                     Full range
+{$\frac{\sqrt{6}}{3}$}%                               Equilateral tet
+{\cite{patran:03}}%                                   Citation
+{v\_tet\_collapse\_ratio}%                            Verdict function name
+
+

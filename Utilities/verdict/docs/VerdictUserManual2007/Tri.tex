@@ -1,0 +1,89 @@
+\chapter{Triangle Quality Metrics}
+
+All the metrics in this section are defined on a triangular element
+as illustrated in Figure~\ref{f:tri}.
+
+\begin{figure}[bhp]
+  \centering
+  \includegraphics[width=2in]{tri}
+  \caption{Numbering of vertices and edges on a triangular element.%
+                                                                  \label{f:tri}}
+\end{figure}
+
+Note that unlike all the other elements that follow,
+we name edge vectors of the triangle by the vertex opposite the edge so that
+\begin{equation*}
+\begin{array}{lcl}
+  \vec L_0 &=& \vec P_2 - \vec P_1\\
+  \vec L_1 &=& \vec P_0 - \vec P_2\\
+  \vec L_2 &=& \vec P_1 - \vec P_0.
+\end{array}
+\end{equation*}
+
+The triangle edge lengths are denoted as follows:
+\[
+L_0 = \normvec{L_0}\quad
+L_1 = \normvec{L_1}\quad
+L_2 = \normvec{L_2}
+\]
+and the largest and smallest edge lenghts are, respectively,
+\[
+L_{\min} = \min\left(L_0, L_1, L_2\right)
+  \rule{2em}{0pt}
+L_{\max} = \max\left(L_0, L_1, L_2\right)
+\]
+
+The area of a triangle is one half the magnitude of the cross product of any pair of adjacent edge vectors:
+\begin{equation*}
+  A
+    = \frac{1}{2}\normvec{L_0\times\vec L_1}
+    = \frac{1}{2}\normvec{L_1\times\vec L_2}
+    = \frac{1}{2}\normvec{L_2\times\vec L_0}
+\end{equation*}
+
+In addition, we will let $r$ be the inradius
+\begin{equation*}
+\label{eq:Arp}
+  r = \frac{2A}{\normvec{L_0} + \normvec{L_1} + \normvec{L_2}}
+\end{equation*}
+and $R$ the circumradius
+\[
+  R = \frac{\normvec{L_0} \normvec{L_1} \normvec{L_2}}%
+           {2 r \left(\normvec{L_0} + \normvec{L_1} + \normvec{L_2}\right)}
+\]
+of the triangle.
+These are respectively the radii of the inscribed and circumscribed circles of this triangle.
+
+We will frequently use $n$ to represent some arbitrary edge $L_n$ or vertex $P_n$ of the triangle.
+When referring to the next counterclockwise entry $n+1$ (or clockwise entry $n-1$),
+we take the result modulo $3$ so that, for example, if $n = 1$, $n+1 = 2$ and $n+2 = 0$.
+
+% -------------------Metric Table-------------------
+\newcommand{\trimetrictable}[8]{%
+  \begin{center}
+  \begin{tabular}{ll}
+    \multicolumn{2}{r}{\textbf{\sffamily\Large triangle #1}}\\\hline
+    Dimension:                           & #2\\ 
+    Acceptable Range:                    & #3\\ 
+    Normal Range:                        & #4\\ 
+    Full Range:                          & #5\\ 
+    $q$ for equilateral unit triangle:   & #6\\
+    Reference:                           & #7\\
+    \verd\ function:       & \texttt{#8}\\ \hline
+  \end{tabular} 
+  \end{center}
+}
+
+\newpage \input{TriArea}
+\newpage \input{TriAspectRatio}
+\newpage \input{TriAspectFrobenius}
+\newpage \input{TriCondition}
+\newpage \input{TriDistortion}
+\newpage \input{TriEdgeRatio}
+\newpage \input{TriMaximumAngle}
+\newpage \input{TriMinimumAngle}
+\newpage \input{TriScaledJacobian}
+\newpage \input{TriRadiusRatio}
+\newpage \input{TriRelativeSizeSquared}
+\newpage \input{TriShape}
+\newpage \input{TriShapeAndSize}

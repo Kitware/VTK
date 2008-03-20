@@ -1,0 +1,19 @@
+%---------------------------Maximum Edge Ratio-----------------------------
+\section{Maximum Edge Ratio}
+
+\[
+q = \max \left\{  \normvec{ X_1 } / \normvec{ X_2 }, 
+                  \normvec{ X_2 } / \normvec{ X_1 } \right\} 
+\]
+
+Note that if $\normvec{X_1}$ or $\normvec{X_2} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\quadmetrictable{maximum edge ratio}%
+{$1$}%                                      Dimension
+{$[1,1.3]$}%                                Acceptable range
+{$[1,DBL\_MAX]$}%                           Normal range
+{$[1,DBL\_MAX]$}%                           Full range
+{$1$}%                                      Unit square
+{\cite{rob:87}}%                            Citation
+{v\_quad\_max\_edge\_ratio}%                Verdict function name
+

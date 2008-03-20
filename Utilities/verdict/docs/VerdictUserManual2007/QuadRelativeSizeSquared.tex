@@ -1,0 +1,23 @@
+%---------------------------Relative Size-----------------------------
+\section{Relative Size Squared\label{s:quad-rel-size-squared}}
+
+The relative size squared metric is defined as
+\[
+q = \left( \min\left\{ \frac{A}{\overline{A}}, \frac{\overline{A}}{A} \right\} \right)^2
+\]
+where $A$ is the area of the element as defined in \S\ref{s:quad-area}
+and $\overline{A}$ is the average of $A$ over all of the elements in the
+ensemble of elements being considered.
+It is the square of the minimum of the ratio of quad area to the average quad area and its inverse.
+
+Note that if $\overline{A} < DBL\_MIN$ or $A < DBL\_MIN$, we take $q = 0$.
+
+\quadmetrictable{relative size squared}%
+{$1$}%                                      Dimension
+{$[0.3, 1]$}%                               Acceptable range
+{$[0,1]$}%                                  Normal range
+{$[0,1]$}%                                  Full range
+{Dependent on $\overline{A}$}%              Unit square
+{\cite{knu:03}}%                            Citation
+{v\_quad\_relative\_size\_squared}%         Verdict function name
+

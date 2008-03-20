@@ -1,0 +1,23 @@
+%---------------------------Taper---------------------------
+\section{Taper\label{s:hex-taper}}
+
+Taper measures the maximum ratio of a cross-derivative to its shortest associated principal axis.
+Given a pair of principal axes $f$ and $g$, the taper is
+\[
+  T_{fg} = \frac{\normvec{ X_{fg}}}{\min\left\{\normvec{ X_f},\normvec{X_g}\right\}}
+\]
+The metric is then the maximum taper of any cross-derivative
+\[
+  q = \max\left\{ T_{12}, T_{13}, T_{23} \right\}
+\]
+
+Note that if $\normvec{X_1}$ or $\normvec{X_2}$ or $\normvec{X_3} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\hexmetrictable{taper}%
+{$1$}%                                        Dimension
+{$[0,0.5]$}%                                  Acceptable range
+{$[0,DBL\_MAX]$}%                             Normal range
+{$[0,DBL\_MAX]$}%                             Full range
+{$0$}%                                        Cube
+{Adapted from \cite{tf:89}}%                  Citation
+{v\_hex\_taper}%                              Verdict function name

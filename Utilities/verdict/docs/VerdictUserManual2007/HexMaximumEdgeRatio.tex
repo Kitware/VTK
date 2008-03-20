@@ -1,0 +1,27 @@
+%---------------------------Maximum Edge Ratio---------------------------
+\section{Maximum Edge Ratio}
+
+Given principal axes with lengths $L_f$ and $L_g$,
+the aspect ratio is defined as the largest ratio of those lengths
+\[
+   A_{fg} = \max\left\{ \frac{L_f}{L_g}, \frac{L_g}{L_f} \right\}.
+\]
+Since a hexahedron has 3 principal axes, we take the largest of all pairwise combinations of axes.
+\[
+  q  = \max\left\{
+    A_{\normvec{ X_1 }\normvec{ X_2 }},
+    A_{\normvec{ X_1 }\normvec{ X_3 }},
+    A_{\normvec{ X_2 }\normvec{ X_3 }}
+  \right\}
+\]
+
+Note that if $\normvec{X_1}$ or $\normvec{X_2}$ or $\normvec{X_3} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\hexmetrictable{maximum edge ratio}%
+{$1$}%                                      Dimension
+{$[1,1.3]$}%                                Acceptable range
+{$[1,DBL\_MAX]$}%                           Normal range
+{$[1,DBL\_MAX]$}%                           Full range
+{$1$}%                                      Unit square
+{Adapted from \cite{tf:89}}%                Citation
+{v\_hex\_max\_edge\_ratio}%                      Verdict function name

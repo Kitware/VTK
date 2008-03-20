@@ -1,0 +1,23 @@
+%---------------------------Shear-----------------------------
+\section{Shear\label{s:quad-shear}}
+
+The shear metric
+\[
+q = \min \left\{ \frac {\alpha_0} {\normvec{L_0} \normvec{L_3}}, 
+                 \frac {\alpha_1} {\normvec{L_1} \normvec{L_0}},
+                 \frac {\alpha_2} {\normvec{L_2} \normvec{L_1}},
+                 \frac {\alpha_3} {\normvec{L_3} \normvec{L_2}} \right\}
+\]
+is the same as the scaled Jacobian, except that it has a truncated range.
+
+Note that if $\alpha_i < DBL\_MIN$ or any edge has length $L < DBL\_MIN$, we set $q = 0$.
+
+\quadmetrictable{shear}%
+{$1$}%                                      Dimension
+{$[0.3,1]$}%                                Acceptable range
+{$[0,1]$}%                                  Normal range
+{$[0,1]$}%                                  Full range
+{$1$}%                                      Unit square
+{\cite{knu:03}}%                            Citation
+{v\_quad\_shear}%                           Verdict function name
+

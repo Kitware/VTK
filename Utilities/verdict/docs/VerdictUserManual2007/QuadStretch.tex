@@ -1,0 +1,19 @@
+%---------------------------Stretch-----------------------------
+\section{Stretch}
+
+The stretch is
+\[
+q = \frac{ \sqrt{2} \min_{i\in\{0,1,2,3\}}\left\{L_i\right\} }{ D_{\max} }
+\]
+
+Note that if $D_{\max} < DBL\_MIN$, we take $q = DBL\_MAX$.
+
+\quadmetrictable{stretch}%
+{$1$}%                                      Dimension
+{$[0.25,1]$}%                               Acceptable range
+{$[0,1]$}%                                  Normal range
+{$[0,DBL\_MAX]$}%                           Full range
+{$1$}%                                      Unit square
+{\cite{fimesh:xx}}%                         Citation
+{v\_quad\_stretch}%                         Verdict function name
+

@@ -1,0 +1,34 @@
+%---------------------------Shape-----------------------------
+\section{Shape\label{s:tet-shape}}
+
+Let $J$ be the Jacobian as defined in \S\ref{s:tet-jacobian}.
+We define the shape quality metric as
+\begin{equation*}
+q =  \frac{ 3 \left( J \sqrt{2} \right)^{2/3} } 
+              { \frac {3}{2} \left( 
+                      \vec L_0 \cdot  \vec L_0 +
+                      \vec L_2 \cdot  \vec L_2 +
+                      \vec L_3 \cdot  \vec L_3  \right) - 
+               \left( \vec L_0 \cdot -\vec L_2 +
+                      \vec L_0 \cdot  \vec L_3 +
+                     -\vec L_2 \cdot  \vec L_3 \right) } 
+\end{equation*}
+
+Note that if $J < DBL\_MIN$, $q = 0$.
+If $\frac {3}{2} \left( \vec L_0 \cdot \vec L_0 +
+                      \vec L_2 \cdot \vec L_2 +
+                      \vec L_3 \cdot \vec L_3  \right) - 
+                 \left( \vec L_0 \cdot -\vec L_2 +
+                      \vec L_0 \cdot \vec L_3 +
+                      -\vec L_2 \cdot \vec L_3 \right) < DBL\_MIN$, we set $q = 0$.
+
+\tetmetrictable{shape}%
+{$1$}%                                        Dimension
+{$[0.3,1]$}%                                  Acceptable range
+{$[0,1]$}%                                    Normal range
+{$[0,1]$}%                                    Full range
+{1}%                                          Equilateral tet
+{\cite{knu:03}}%                              Citation
+{v\_tet\_shape}%                            Verdict function name
+
+

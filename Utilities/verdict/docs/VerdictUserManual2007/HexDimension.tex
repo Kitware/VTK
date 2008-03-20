@@ -1,0 +1,17 @@
+%---------------------------Dimension---------------------------
+\section{Dimension} 
+
+This metric was specifically designed in the context of
+Sandia's \textsf{Pronto} code, for stable time step calculation. It is
+defined as follows:
+\[
+q = \frac{V}{2\nabla{V}}
+\]
+\hexmetrictable{dimension}%
+{$L^1$}%                                      Dimension
+{application-dependent}%                      Acceptable range
+{$[0,DBL\_MAX]$}%                             Normal range
+{$[0,DBL\_MAX]$}%                             Full range
+{$1$}%                                        Cube
+{Adapted from \cite{tf:89}}%                  Citation
+{v\_hex\_dimension}%                          Verdict function name

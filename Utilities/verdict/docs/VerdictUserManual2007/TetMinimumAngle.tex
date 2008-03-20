@@ -1,0 +1,28 @@
+%---------------------------Minimum Angle-----------------------------
+\section{Minimum Angle\label{s:tet-min-angle}}
+
+The (nonoriented) dihedral angle of two faces of the
+tetrahedron that are adjacent along edge $i$ ($0\le{}i\le5$), is,
+measured in degrees,
+\[
+  \alpha_i = \frac{180\dgr}{\pi}
+    \arccos{\left(\vec{n_{i1}} \cdot \vec{n_{i2}}\right)},
+\]
+where $\vec{n_{i1}}$ and $\vec{n_{i2}}$ are unit vectors normal to the
+two tetrahedron faces that are adjacent to edge $i$. Subsequently,
+the minimum (nonoriented) dihedral angle of the tetrahedron, measured
+in degrees, is
+\[
+  q =
+    \min_{i\in\{0,1,2,3,4,5\}}{\alpha_i}.
+\]
+
+\tetmetrictable{minimum dihedral angle}%
+{$A^1$}%                                              Dimension
+{$[40\dgr,\frac{180\dgr}{\pi}\arccos\tfrac{1}{3}]$}%  Acceptable range
+{$[0\dgr,\frac{180\dgr}{\pi}\arccos\tfrac{1}{3}]$}%   Normal range
+{$[0\dgr,360\dgr]$}%                                  Full range
+{$\frac{180\dgr}{\pi}\arccos\tfrac{1}{3}\approx70.528779\dgr$}% Regular tetrahedron value
+{--}%                                                 Reference(s)                   
+{v\_tet\_minimum\_angle}%                             Verdict function name
+

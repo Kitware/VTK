@@ -1,0 +1,23 @@
+%---------------------------Aspect Frobenius-----------------------------
+\section{Aspect Frobenius\label{s:tri-aspect-Frobenius}}
+
+The aspect Frobenius is the sum of the edge lengths squared divided by the area
+and normalized so that a unit equilateral triangle has a value of $1$.
+\[
+  q = \frac{{\normvec{{L_0}}}^{2} +
+            {\normvec{{L_1}}}^{2} + 
+            {\normvec{{L_2}}}^{2}}{4A\sqrt{3}}
+\]
+
+Note that in earlier versions of \verd{}, this metric was
+called the triangle aspect ratio.
+
+\trimetrictable{aspect Frobenius}%
+{$1$}%                                                Dimension
+{$[1,1.3]$}%                                          Acceptable range
+{$[1,DBL\_MAX]$}%                                     Normal range
+{$[1,DBL\_MAX]$}%                                     Full range
+{$1$}%                                                Unit equilateral triangle value
+{\cite{pebay:03}}%                                    Reference(s)                   
+{v\_tri\_aspect\_frobenius}%                            Verdict function name
+

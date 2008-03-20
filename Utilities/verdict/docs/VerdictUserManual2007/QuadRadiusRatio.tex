@@ -1,0 +1,29 @@
+%---------------------------Radius Ratio-----------------------------
+\section{Radius Ratio}
+
+Let $h_{\max}$ be the maximum length of all edges and diagonals
+\[
+  h_{\max} = \max\left(L_{\max},D_{\max}\right)
+\]
+and ${\cal L}_2$ be the sum of the squares of all edge lengths
+\[
+{\cal L}_2 = \sum_{i=0}^3\normvec{L_i}^2
+\]
+and ${\cal A}_i$ be the area of one of the 4 triangles formed by pairs of quadrilateral neighboring edges
+\[
+  {\cal A}_i = \left|\frac{\alpha_i}{2}\right|.
+\]
+Then the radius ratio of a planar quadrilateral is
+\[
+  q = \frac{{\cal L}_2 h_{\max}}{\min_{i\in\{0,1,2,3\}}{\cal A}_i}.
+\]
+
+\quadmetrictable{radius ratio}%
+{$1$}%                                      Dimension
+{$[1,1.3]$}%                                Acceptable range
+{$[1,DBL\_MAX]$}%                           Normal range
+{$[1,DBL\_MAX]$}%                           Full range
+{$1$}%                                      Square
+{\cite{pebay:04}}%                          Citation
+{v\_quad\_radius\_ratio}%                   Verdict function name
+

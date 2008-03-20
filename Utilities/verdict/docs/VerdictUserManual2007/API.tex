@@ -1,0 +1,50 @@
+\chapter{Application Programming Interface (API)}
+
+\verd\ was designed with a C interface so that it can be used in a variety of
+applications.
+
+Each metric has its own function.  For example, the Hex Condition Number metric
+is:
+
+\begin{verbatim}
+double v_hex_condition(int num_nodes, 
+                       double node_coordiantes[][3])
+\end{verbatim}
+
+It may be used as follows:
+\begin{verbatim}
+double coords[8][3];
+...
+double condition_value = v_hex_condition(8, coords);
+\end{verbatim}
+
+
+The number of nodes is given for each element, and the implementation may be
+expanded to include higher order elements.
+
+Each type of element has one function for getting multiple metrics at the same
+time.  The following is a prototype to get multiple metrics for a hexahedron:
+\begin{verbatim}
+double v_hex_quality(int num_nodes, 
+                     double node_coordiantes[][3], 
+                     unsigned int request_flag, 
+                     struct HexMetricVals *metric_vals)
+\end{verbatim}
+
+If one wants multiple metrics for an element, it is usually less computationally
+expensive to use this approach because some metrics share the same computations.
+For example, computing the Jacobian and shape metrics of a hexahedron both use the 
+Jacobian matrix.
+It may be used as follows:
+\begin{verbatim}
+double coords[8][3];
+HexMetricVals vals;
+double jacobian_value;
+double shape_value;
+int request = V_HEX_JACOBIAN | V_HEX_SHAPE;
+...
+v_hex_quality(8, coords, request, &vals);
+double jacobian_value = vals.jacobian;
+double shape_value = vals.shape;
+\end{verbatim}
+

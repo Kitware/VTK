@@ -1,0 +1,23 @@
+%---------------------------Minimum Angle-----------------------------
+\section{Minimum Angle\label{s:tri-min-angle}}
+
+The minimum included angle of the triangle is
+\[
+  q =
+    \min_{n\in\{0,1,2\}}\left\{\arccos{\left(
+      \frac{\vec L_n\cdot\vec L_{n+1}}{\normvec{ L_n}\normvec{ L_{n+1}}}
+    \right)}\left(\frac{180\dgr}{\pi}\right)\right\}
+\]
+measured in degrees.
+
+Note that if any edge vector has zero length, \verd\ will return $q = 360\dgr$.
+
+\trimetrictable{minimum included angle}%
+{$A^1$}%                                              Dimension
+{$[30\dgr,60\dgr]$}%                                  Acceptable range
+{$[0\dgr,60\dgr]$}%                                   Normal range
+{$[0\dgr,360\dgr]$}%                                  Full range
+{$60\dgr$}%                                           Unit equilateral triangle value
+{\cite{pebay:03}}%                                    Reference(s)                   
+{v\_tri\_minimum\_angle}%                             Verdict function name
+

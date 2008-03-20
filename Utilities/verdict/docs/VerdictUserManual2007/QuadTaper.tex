@@ -1,0 +1,19 @@
+%---------------------------Taper-----------------------------
+\section{Taper}
+
+Taper is the maximum ratio of cross derivative magnitude to principal axis magnitude:
+\[
+q = \frac {\normvec{X_{12}}} {\min \left\{ \normvec{X_1}, \normvec{X_2} \right\}}
+\]
+
+Note that if $\normvec{X_1}$ or $\normvec{X_2} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\quadmetrictable{taper}%
+{$1$}%                                      Dimension
+{$[0,0.7]$}%                                Acceptable range
+{$[0,DBL\_MAX]$}%                           Normal range
+{$[0,DBL\_MAX]$}%                           Full range
+{$0$}%                                      Unit square
+{Adapted from \cite{rob:87}}%               Citation
+{v\_quad\_taper}%                           Verdict function name
+

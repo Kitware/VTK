@@ -1,0 +1,22 @@
+%---------------------------Condition-----------------------------
+\section{Condition}
+
+\[
+q = \frac{1}{2} \max \left\{  \frac {\normvec{L_0}^2 + \normvec{L_3}^2 } { \alpha_0 },
+                        \frac {\normvec{L_1}^2 + \normvec{L_0}^2 } { \alpha_1 },
+                        \frac {\normvec{L_2}^2 + \normvec{L_1}^2 } { \alpha_2 },
+                        \frac {\normvec{L_3}^2 + \normvec{L_2}^2 } { \alpha_3 } 
+                \right\}
+\]
+
+Note that if $\alpha_i< DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\quadmetrictable{condition}%
+{$1$}%                                      Dimension
+{$[1,4]$}%                                  Acceptable range
+{$[1,DBL\_MAX]$}%                           Normal range
+{$[1,DBL\_MAX]$}%                           Full range
+{$1$}%                                      Unit square
+{\cite{knu:00}}%                            Citation
+{v\_quad\_condition}%                       Verdict function name
+

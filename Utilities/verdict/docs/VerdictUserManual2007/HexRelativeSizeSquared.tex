@@ -1,0 +1,22 @@
+%---------------------------Relative Size Squared---------------------------
+\section{Relative Size Squared\label{s:hex-relative-size-squared}}
+
+Consider the ratio $D$ of the hex volume to the average volume of an ensemble of hexahedra:
+\[
+D = \frac{\sum_{i=0}^7 \alpha_i}{8\overline{V}} = \frac{\alpha_8}{64\overline{V}}.
+\]
+The relative size the minimum of $D$ and its inverse; and the relative size squared is
+\[
+  q = \left(\min\left\{ D, \frac {1}{D} \right\}\right)^2 .
+\]
+
+Note that if $\overline{V} < DBL\_MIN$ or $D \leq DBL\_MIN$, we set $q = 0$.
+
+\hexmetrictable{relative size squared}%
+{$1$}%                                        Dimension
+{$[0.5,1]$}%                                  Acceptable range
+{$[0,1]$}%                                    Normal range
+{$[0,1]$}%                                    Full range
+{Dependent on $\overline{V}$}%                Cube
+{\cite{knu:03}}%                              Citation
+{v\_hex\_relative\_size\_squared}%            Verdict function name

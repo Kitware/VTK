@@ -1,0 +1,19 @@
+%---------------------------Stretch---------------------------
+\section{Stretch}
+
+The stretch is the ratio of the minimum edge length to the maximum diagonal, normalized
+so that a unit cube has a value of 1:
+\[
+  q = \sqrt{3}\frac{L_{\min}}{D_{\max}}.
+\]
+
+Note that if $D_{\max} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\hexmetrictable{stretch}%
+{$1$}%                                        Dimension
+{$[0.25,1]$}%                                 Acceptable range
+{$[0,1]$}%                                    Normal range
+{$[0,DBL\_MAX]$}%                             Full range
+{$1$}%                                        Cube
+{Adapted from \cite{fimesh:xx}}%              Citation
+{v\_hex\_stretch}%                            Verdict function name

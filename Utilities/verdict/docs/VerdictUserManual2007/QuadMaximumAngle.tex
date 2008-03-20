@@ -1,0 +1,37 @@
+%---------------------------Maximum Angle-----------------------------
+\section{Maximum Angle}
+
+In order to properly compute the included angle, we'll need to
+correct for incorrectly oriented elements.
+Let
+\[
+s_i = \left\{ \begin{array}{ll}
+  1\rule{2em}{0pt} & \alpha_i < 0\\
+  0                & \alpha_i \geq 0
+  \end{array}\right.
+\]
+The included angle between two neighboring edges is
+\[
+\theta_i = (-1)^{s_i} \arccos{ \left( - \frac {\vec L_{i} \cdot \vec L_{i+1} }
+                                {\normvec{L_{i}} \normvec{L_{i+1}}} \right) } 
+                                  \left( \frac {180} {\pi} \right) 
+           + 360\dgr s_i
+\]
+where $i\in\{0,1,2,3\}$ and $\vec L_4 = \vec L_0$.
+We take the maximum of this quantity as the value of the metric:
+\[
+q = \max_{i\in\{0,1,2,3\}}\left\{ \theta_i \right\}
+\]
+
+Note that if $\normvec{L_i} \leq DBL\_MIN$ or $\normvec{L_{i+1}} \leq DBL\_MIN$,
+\verd\ returns $q = 0\dgr$.
+
+\quadmetrictable{maximum included angle}%
+{$A^1$}%                                    Dimension
+{$[90\dgr,135\dgr]$}%                       Acceptable range
+{$[90\dgr,360\dgr]$}%                       Normal range
+{$[0\dgr,360\dgr]$}%                        Full range
+{$90\dgr$}%                                 Unit square
+{--}%                                       Citation
+{v\_quad\_maximum\_angle}%                  Verdict function name
+

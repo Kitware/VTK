@@ -1,0 +1,17 @@
+%---------------------------Diagonal---------------------------
+\section{Diagonal}
+
+This metric is the ratio of the minimum diagonal length to the maximum diagonal length:
+\[
+q = \frac{D_{\min}}{ D_{\max}}.
+\]
+Note that if $D_{\max} < DBL\_MIN$, we set $q = DBL\_MAX$.
+
+\hexmetrictable{diagonal}%
+{$1$}%                                        Dimension
+{$[0.65,1]$}%                                 Acceptable range
+{$[0,1]$}%                                    Normal range
+{$[1,DBL\_MAX]$}%                             Full range
+{$1$}%                                        Cube
+{--}%                                         Citation
+{v\_hex\_diagonal}%                           Verdict function name
