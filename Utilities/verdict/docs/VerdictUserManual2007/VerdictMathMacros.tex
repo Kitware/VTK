@@ -1,0 +1,67 @@
+% ----------------------------------------------------------------------
+% -- Packages
+% ----------------------------------------------------------------------
+\RequirePackage{amsthm}
+\RequirePackage{amsbsy,amsmath}
+\RequirePackage{amsfonts,amssymb}
+% ----------------------------------------------------------------------
+% -- Mathematical environment
+% ----------------------------------------------------------------------
+% -- theorems & related topics
+\theoremstyle{plain}
+\newtheorem{theo}{Theorem}[section]
+\newtheorem{prop}[theo]{Proposition}
+\newtheorem{lemm}[theo]{Lemma}
+\newtheorem{coro}[theo]{Corollary}
+% -- definitions & examples
+\theoremstyle{definition}
+\newtheorem{defi}{Definition}[section]
+\newtheorem{axio}{Axiom}[section]
+% -- remarks & axioms
+\theoremstyle{remark}
+\newtheorem{rema}{Remark}[section]
+\newtheorem{exam}{Example}[section]
+% -- algorithms
+\newtheoremstyle{algostyle}% name
+  {}%      Space above, empty = `usual value' 
+  {}%      Space below
+  {}%         Body font
+  {}%         Indent amount (empty = no indent, \parindent = para indent)
+  {\bfseries}% Thm head font
+  {}%        Punctuation after thm head
+  {\newline}% Space after thm head: \newline = linebreak
+  {\thmname{#1}\thmnumber{ #2.}{ \texttt{[#3]}}}% Thm head spec
+\theoremstyle{algostyle}
+\newtheorem{algo}{Algorithm}
+% ----------------------------------------------------------------------
+% -- Mathematical macros
+% ----------------------------------------------------------------------
+% -- N, Z, R & C
+\newcommand{\N}{\rm I\kern-.16em N}
+\newcommand{\Z}{\mathchoice{\sf\textstyle Z\kern-0.4em Z}
+{\sf\textstyle Z\kern-0.4em Z}
+{\sf\scriptstyle Z\kern-0.3em Z}
+{\sf\scriptscriptstyle Z\kern-0.2em Z}}
+\newcommand{\R}{\rm I\kern-.16em R}
+\newcommand{\C}{\mathchoice{\setbox0=\hbox{$\displaystyle\rm C$}%
+\hbox{\hbox to0pt{\kern0.4\wd0\vrule height0.9\ht0\hss}\box0}}
+{\setbox0=\hbox{$\textstyle\rm C$}\hbox{\hbox
+to0pt{\kern0.4\wd0\vrule height0.9\ht0\hss}\box0}}
+{\setbox0=\hbox{$\scriptstyle\rm C$}\hbox{\hbox
+to0pt{\kern0.4\wd0\vrule height0.9\ht0\hss}\box0}}
+{\setbox0=\hbox{$\scriptscriptstyle\rm C$}\hbox{\hbox
+to0pt{\kern0.4\wd0\vrule height0.9\ht0\hss}\box0}}}
+% -- differential calculus
+\providecommand{\diff}[2]{\frac{\partial {#1}}{\partial {#2}}}
+\providecommand{\ddiff}[2]{\frac{\partial^2 {#1}}{\partial {#2}^2}}
+\providecommand{\dtiff}[3]{\frac{\partial^2 {#1}}{\partial {#2} \partial {#3}}}
+% -- integral calculus
+\providecommand{\sint}[4]{\int_{#1}^{#2}{#3}\,\mathrm{d}{#4}}
+\providecommand{\dint}[3]{\iint_{#1}{#2}\,\mathrm{d}{#3}}
+\providecommand{\tint}[3]{\iiint_{#1}{#2}\,\mathrm{d}{#3}}
+% -- vector calculus
+\providecommand{\ve}[1]{\overrightarrow{#1}}
+\providecommand{\norm}[1]{\left\lVert{#1}\right\rVert}
+\providecommand{\normsup}[1]{\norm{#1}_\infty}
+\providecommand{\scalprod}[2]{\langle{#1},{#2}\rangle}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
