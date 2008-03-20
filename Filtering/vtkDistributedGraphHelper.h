@@ -21,8 +21,29 @@
 // .NAME vtkDistributedGraphHelper - helper for the vtkGraph class that allows the graph to be distributed across multiple memory spaces
 //
 // .SECTION Description
-// Including this header allows you to build distributed vtkGraphs
-
+// A distributed graph helper can be attached to an empty vtkGraph
+// object to turn the vtkGraph into a distributed graph, whose
+// vertices and edges are distributed across several different
+// processors. vtkDistributedGraphHelper is an abstract class. Use a
+// subclass of vtkDistributedGraphHelper, such as
+// vtkPBGLDistributedGraphHelper, to build distributed graphs.
+//
+// The distributed graph helper provides facilities used by vtkGraph
+// to communicate with other processors that store other parts of the
+// same distributed graph. The only user-level functionality provided
+// by vtkDistributedGraphHelper involves this communication among
+// processors. For example, the Synchronize() method provides a
+// barrier that allows all processors to catch up to the same point in
+// the code before any processor can leave that Synchronize()
+// call. For example, one would call Synchronize() after adding many
+// edges to a distributed graph, so that all processors can handle the
+// addition of inter-processor edges and continue, after the
+// Synchronize() call, with a consistent view of the distributed
+// graph. For more information about manipulating (distributed)
+// graphs, see the vtkGraph documentation.
+//
+// .SECTION See Also
+// vtkGraph
 #ifndef __vtkDistributedGraphHelper_h
 #define __vtkDistributedGraphHelper_h
 

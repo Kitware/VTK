@@ -17,10 +17,20 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-// .NAME vtkPBGLDistributedGraphHelper - helper for the vtkGraph class that provides support for the Parallel Boost Graph Library (http://www.osl.iu.edu/research/pbgl)
+// .NAME vtkPBGLDistributedGraphHelper - helper for the vtkGraph class that provides support for the Parallel Boost Graph Library
 //
 // .SECTION Description
-// Including this header allows you to build distributed vtkGraphs for use with the Parallel BGL.
+// vtkPBGLDistributedGraphHelper is a helper class that allows a
+// vtkGraph object to be distributed across several different
+// processors using the Parallel Boost Graph Library (Parallel BGL, or
+// PBGL). When attached to a vtkGraph instance,
+// vtkPBGLDistributedGraphHelper provides the necessary communication
+// support to build and manipulate distributed graphs. To enable the
+// use of this class, you will need to configure VTK with the
+// VTK_USE_PARALLEL_BGL option.
+//
+// .SEEALSO
+// vtkGraph vtkDistributedGraphHelper
 
 #ifndef __vtkPBGLDistributedGraphHelper_h
 #define __vtkPBGLDistributedGraphHelper_h
