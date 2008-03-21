@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.28");
+vtkCxxRevisionMacro(vtkImageData, "1.29");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -295,12 +295,13 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  // Use vtkIdType to avoid overflow on large images
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
 
-  int d01 = dims[0]*dims[1];
+  vtkIdType d01 = dims[0]*dims[1];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
@@ -407,11 +408,11 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   double x[3];
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
-  int d01 = dims[0]*dims[1];
+  vtkIdType d01 = dims[0]*dims[1];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
@@ -516,7 +517,7 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -627,7 +628,7 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -705,7 +706,7 @@ vtkIdType vtkImageData::FindPoint(double x[3])
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -750,7 +751,13 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  int& subId, double pcoords[3], double *weights)
 {
   int loc[3];
-  int *dims = this->GetDimensions();
+  int *extent = this->GetExtent();
+
+  // Use vtkIdType to avoid overflow on large images
+  vtkIdType dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -785,7 +792,7 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -976,10 +983,16 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s,
 void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
                                     double g[3])
 {
-  int *dims=this->GetDimensions();
   double *ar=this->GetSpacing();
-  vtkIdType ijsize=dims[0]*dims[1];
   double sp, sm;
+  int *extent = this->GetExtent();
+
+  vtkIdType dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+
+  vtkIdType ijsize=dims[0]*dims[1];
 
   // x-direction
   if ( dims[0] == 1 )
@@ -1084,7 +1097,7 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
   double *spacing = this->GetSpacing();
   const int* extent = this->Extent;
 
-  int dims[3];
+  vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
@@ -1540,6 +1553,12 @@ void vtkImageData::AllocateScalars()
     }
 
   const int* extent = this->Extent;
+  // Use vtkIdType to avoid overflow on large images
+  vtkIdType dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+  vtkIdType imageSize = dims[0]*dims[1]*dims[2];
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
@@ -1547,9 +1566,7 @@ void vtkImageData::AllocateScalars()
       && scalars->GetReferenceCount() == 1)
     {
     scalars->SetNumberOfComponents(newNumComp);
-    scalars->SetNumberOfTuples((extent[1] - extent[0] + 1)*
-                               (extent[3] - extent[2] + 1)*
-                               (extent[5] - extent[4] + 1));
+    scalars->SetNumberOfTuples(imageSize);
     // Since the execute method will be modifying the scalars
     // directly.
     scalars->Modified();
@@ -1561,10 +1578,7 @@ void vtkImageData::AllocateScalars()
   scalars->SetNumberOfComponents(newNumComp);
 
   // allocate enough memory
-  scalars->
-    SetNumberOfTuples((extent[1] - extent[0] + 1)*
-                      (extent[3] - extent[2] + 1)*
-                      (extent[5] - extent[4] + 1));
+  scalars->SetNumberOfTuples(imageSize);
 
   this->PointData->SetScalars(scalars);
   scalars->Delete();
