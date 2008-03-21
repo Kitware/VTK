@@ -38,13 +38,6 @@ MISC_FILES = \
 	Verdict.htm \
 	Verdict.doc \
 	verdict_test.cpp \
-        docs/hex.tex \
-        docs/hex.eps \
-        docs/tri.tex \
-        docs/tri.eps \
-        docs/quad.tex\
-        docs/quad.eps 
-        
 
 BUILD_FILES = \
         makefile \

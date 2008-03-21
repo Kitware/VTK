@@ -73,12 +73,6 @@ install(FILES
   README
   Verdict.htm
   Verdict.doc
-  docs/hex.tex
-  docs/hex.eps
-  docs/tri.tex
-  docs/tri.eps
-  docs/quad.tex
-  docs/quad.eps
   verdict_test.cpp
   DESTINATION ${verdict_INSTALL_DOC_DIR}/verdict/${verdict_VERSION}/
   COMPONENT Development
