@@ -36,6 +36,7 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkTree.h"
 #include "vtkUndirectedGraph.h"
+#include <stddef.h> // for ptrdiff_t
 
 // Moving these functions before any boost includes to get rid of some linux
 // compile errors.
@@ -77,7 +78,7 @@ namespace boost {
                            vtkIdType,
                            bidirectional_traversal_tag,
                            vtkIdType,
-                           const vtkIdType*>
+                           vtkIdType>
     {
     public:
       explicit vtk_vertex_iterator(vtkIdType i = 0) : index(i) {}
@@ -101,7 +102,7 @@ namespace boost {
                            vtkEdgeType,
                            forward_traversal_tag,
                            vtkEdgeType,
-                           const vtkEdgeType*>
+                           vtkIdType>
     {
     public:
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
@@ -171,7 +172,7 @@ namespace boost {
                            vtkEdgeType,
                            bidirectional_traversal_tag,
                            vtkEdgeType,
-                           const vtkEdgeType*>
+                           ptrdiff_t>
     {
     public:
       explicit vtk_out_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
@@ -208,7 +209,7 @@ namespace boost {
                            vtkEdgeType,
                            bidirectional_traversal_tag,
                            vtkEdgeType,
-                           const vtkEdgeType*>
+                           ptrdiff_t>
     {
     public:
       explicit vtk_in_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
