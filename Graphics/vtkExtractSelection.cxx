@@ -27,7 +27,7 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.20");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.21");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -393,10 +393,10 @@ vtkDataSet* vtkExtractSelection::RequestDataFromBlock(
   return output;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-}
 
+  os << indent << "ShowBounds: " << this->ShowBounds << endl;
+}
