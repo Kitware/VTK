@@ -12,12 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXOpenGLRenderWindow - OpenGL rendering window
+// .NAME vtkOSOpenGLRenderWindow - OffScreen Mesa rendering window
 // .SECTION Description
-// vtkXOpenGLRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
-// library. Application programmers should normally use vtkRenderWindow
-// instead of the OpenGL specific version.
+// vtkOSOpenGLRenderWindow is a concrete implementation of the abstract class
+// vtkOpenGLRenderWindow. vtkOSOpenGLRenderWindow interfaces to the OffScreen
+// Mesa software implementation of the OpenGL library. The framebuffer resides
+// on host memory. The framebuffer is the collection of logical buffers
+// (color buffer(s), depth buffer, stencil buffer, accumulation buffer,
+// multisample buffer) defining where the output of GL rendering is directed.
+// Application programmers should normally use vtkRenderWindow instead of the
+// OpenGL specific version.
 
 #ifndef __vtkOSOpenGLRenderWindow_h
 #define __vtkOSOpenGLRenderWindow_h
