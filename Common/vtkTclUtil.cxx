@@ -372,7 +372,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   Tcl_CreateCommand(interp,name,
                     reinterpret_cast<vtkTclCommandType>(command),
                     static_cast<ClientData>(as),
-                    static_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
+                    reinterpret_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,name,&is_new);
   Tcl_SetHashValue(entry,(ClientData)(command));
   
@@ -649,7 +649,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   Tcl_CreateCommand(interp,argv[1],
                     reinterpret_cast<vtkTclCommandType>(command),
                     static_cast<ClientData>(as),
-                    static_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
+                    reinterpret_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,argv[1],&is_new);
   Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
   
@@ -685,7 +685,7 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
     reinterpret_cast<vtkTclCommandType>(
       vtkTclNewInstanceCommand),
     reinterpret_cast<ClientData *>(cs),
-    static_cast<Tcl_CmdDeleteProc *>(vtkTclDeleteCommandStruct));
+    reinterpret_cast<Tcl_CmdDeleteProc *>(vtkTclDeleteCommandStruct));
 }
 
 
