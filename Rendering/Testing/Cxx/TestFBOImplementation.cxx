@@ -33,6 +33,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkgl.h"
 #include <assert.h>
 
+bool ARB_texture_rectangle_supported=false;
+bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture
+bool srgb_texture_supported=false; // OpenGL 2.1 or GL_EXT_texture_sRGB
+bool float_texture_supported=false; // GL_ARB_texture_float
+bool integer_texture_supported=false; // GL_EXT_texture_integer (GeForce 8)
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return a string matching the OpenGL errorCode.
@@ -757,6 +763,32 @@ const char *WrapModeToString(GLenum wrapMode)
   return result;
 }
 
+const char *TextureComponentTypeToString(GLint ivalue)
+{
+  const char *result;
+  switch(ivalue)
+    {
+    case GL_NONE:
+      // missing component
+      result="";
+      break;
+    case GL_UNSIGNED_NORMALIZED_ARB:
+      // default type for OpenGL 1.1, fixed-point component
+      result="";
+      break;
+    case GL_FLOAT:
+      result="f"; // floating-point component, with GL_ARB_texture_float
+      break;
+    case GL_INT:
+      result="i"; // signed unnormalized integer component, with GL_EXT_texture_integer (GeForce8)
+      break;
+    case GL_UNSIGNED_INT:
+      result="ui"; // unsigned unnormalized integer component, with GL_EXT_texture_integer (GeForce8)
+      break;
+    }
+  return result;
+}
+
 void QueryTextureObject(GLenum target)
 {
   assert("pre: valid_target" && (target==GL_TEXTURE_1D
@@ -913,6 +945,7 @@ void QueryTextureImage(GLenum target)
                                  || target==vtkgl::PROXY_TEXTURE_RECTANGLE_ARB ));
   
   GLint ivalue[4];
+  GLint iv;
   
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_WIDTH,ivalue);
   CheckOpenGLError("");
@@ -946,44 +979,94 @@ void QueryTextureImage(GLenum target)
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"R"<<ivalue[0];
+    cout<<"R";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_RED_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_GREEN_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"G"<<ivalue[0];
+    cout<<"G";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_GREEN_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_BLUE_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"B"<<ivalue[0];
+    cout<<"B";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_BLUE_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_LUMINANCE_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"L"<<ivalue[0];
+    cout<<"L";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_LUMINANCE_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_ALPHA_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"A"<<ivalue[0];
+    cout<<"A";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_ALPHA_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_INTENSITY_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"I"<<ivalue[0];
+    cout<<"I";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_INTENSITY_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
   glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_DEPTH_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
     {
-    cout<<"D"<<ivalue[0];
+    cout<<"D";
+    iv=ivalue[0];
+    if(float_texture_supported)
+      {
+      glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_DEPTH_TYPE_ARB,ivalue);
+      cout<<TextureComponentTypeToString(ivalue[0]);
+      }
+    cout<<iv;
     }
+  
   cout<<endl;
   glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_COMPRESSED,ivalue);
   CheckOpenGLError("");
@@ -1543,12 +1626,6 @@ const char *WrapModeToString(int wrapMode)
     }
   return result;
 }
-
-bool ARB_texture_rectangle_supported=false;
-bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture
-bool srgb_texture_supported=false; // OpenGL 2.1 or GL_EXT_texture_sRGB
-bool float_texture_supported=false; // GL_ARB_texture_float
-bool integer_texture_supported=false; // GL_EXT_texture_integer (GeForce 8)
 
 void TestTextureFormatsAndFBO()
 {
@@ -2112,7 +2189,7 @@ void TestVisual(int multiSample,
   
   srgb_texture_supported=extensions->ExtensionSupported("GL_VERSION_2_1") ||
     extensions->ExtensionSupported("GL_EXT_texture_sRGB");
-  float_texture_supported=extensions->ExtensionSupported("GL_ARB_texture_float")==1;
+  float_texture_supported=extensions->LoadSupportedExtension("GL_ARB_texture_float")==1;
   integer_texture_supported=extensions->ExtensionSupported("GL_EXT_texture_integer")==1;
   
   ARB_texture_rectangle_supported=extensions->LoadSupportedExtension("GL_ARB_texture_rectangle")==1;
