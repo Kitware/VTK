@@ -149,7 +149,9 @@ inline void vtkStructuredVisibilityConstraint::Initialize(int dims[3])
     {
     this->Dimensions[i] = dims[i];
     }
-  this->NumberOfIds = dims[0]*dims[1]*dims[2];
+  this->NumberOfIds = static_cast<vtkIdType>(dims[0])*
+                      static_cast<vtkIdType>(dims[1])*
+                      static_cast<vtkIdType>(dims[2]);
   this->Initialized = 1;
 }
 

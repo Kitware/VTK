@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkStructuredData, "1.62");
+vtkCxxRevisionMacro(vtkStructuredData, "1.63");
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
@@ -195,7 +195,7 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
   int loc[3];
   vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int d01 = dim[0]*dim[1];
+  vtkIdType d01 = static_cast<vtkIdType>(dim[0])*dim[1];
 
   ptIds->Reset();
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -249,7 +249,7 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
       iMax = iMin + 1;
       jMin = (cellId / (dim[0] - 1)) % (dim[1] - 1);
       jMax = jMin + 1;
-      kMin = cellId / ((dim[0] - 1) * (dim[1] - 1));
+      kMin = cellId / (static_cast<vtkIdType>(dim[0] - 1) * (dim[1] - 1));
       kMax = kMin + 1;
       break;
     default:
@@ -264,7 +264,7 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
       {
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        idx = loc[0] + loc[1]*dim[0] + loc[2]*d01;
+        idx = loc[0] + loc[1]*static_cast<vtkIdType>(dim[0]) + loc[2]*d01;
         ptIds->InsertId(npts++,idx);
         }
       }
@@ -275,7 +275,7 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
 void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
                                       int dim[3])
 {
-  int cellDim[3];
+  vtkIdType cellDim[3];
   int ptLoc[3], cellLoc[3];
   int i, j;
   vtkIdType cellId;
@@ -295,7 +295,7 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   //
   ptLoc[0] = ptId % dim[0];
   ptLoc[1] = (ptId / dim[0]) % dim[1];
-  ptLoc[2] = ptId / (dim[0]*dim[1]);
+  ptLoc[2] = ptId / (static_cast<vtkIdType>(dim[0])*dim[1]);
 
   //  From the point location, compute the cell locations.  There are at
   //  most eight possible.
@@ -326,7 +326,8 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
 void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                         vtkIdList *cellIds, int dim[3])
 {
-  int j, seedLoc[3], ptLoc[3], cellLoc[3], cellDim[3];
+  int j, seedLoc[3], ptLoc[3], cellLoc[3];
+  vtkIdType cellDim[3];
   int offset[8][3];
   vtkIdType numPts = ptIds->GetNumberOfIds(), id, i;
 
@@ -361,7 +362,7 @@ void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
     id = ptIds->GetId(i);
     ptLoc[0] = id % dim[0];
     ptLoc[1] = (id / dim[0]) % dim[1];
-    ptLoc[2] = id / (dim[0]*dim[1]);
+    ptLoc[2] = id / (static_cast<vtkIdType>(dim[0])*dim[1]);
 
     if ( (ptLoc[0]-1) == seedLoc[0] )
       {

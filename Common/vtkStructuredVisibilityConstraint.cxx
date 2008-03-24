@@ -18,7 +18,7 @@
 #include "vtkUnsignedCharArray.h"
 
 vtkCxxRevisionMacro(vtkStructuredVisibilityConstraint,
-                    "1.5");
+                    "1.6");
 vtkStandardNewMacro(vtkStructuredVisibilityConstraint);
 
 vtkCxxSetObjectMacro(vtkStructuredVisibilityConstraint,
@@ -51,8 +51,11 @@ void vtkStructuredVisibilityConstraint::DeepCopy(
   vtkStructuredVisibilityConstraint* src)
 {
   memcpy(this->Dimensions, src->Dimensions, 3*sizeof(int));
+  // use vtkIdType to avoid 32-bit overflow
   this->NumberOfIds =
-    this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
+    static_cast<vtkIdType>(this->Dimensions[0])*
+    static_cast<vtkIdType>(this->Dimensions[1])*
+    static_cast<vtkIdType>(this->Dimensions[2]);
   if(src->VisibilityById)
     {
     if (!this->VisibilityById)
@@ -70,7 +73,9 @@ void vtkStructuredVisibilityConstraint::ShallowCopy(
 {
   memcpy(this->Dimensions, src->Dimensions, 3*sizeof(int));
   this->NumberOfIds =
-    this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
+    static_cast<vtkIdType>(this->Dimensions[0])*
+    static_cast<vtkIdType>(this->Dimensions[1])*
+    static_cast<vtkIdType>(this->Dimensions[2]);
   this->SetVisibilityById(src->VisibilityById);
   this->Initialized = src->Initialized;
 }
