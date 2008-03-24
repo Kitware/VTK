@@ -770,9 +770,9 @@ const char *TextureComponentTypeToString(GLint ivalue)
     {
     case GL_NONE:
       // missing component
-      result="";
+      result="missing";
       break;
-    case GL_UNSIGNED_NORMALIZED_ARB:
+    case vtkgl::UNSIGNED_NORMALIZED_ARB:
       // default type for OpenGL 1.1, fixed-point component
       result="";
       break;
@@ -784,6 +784,9 @@ const char *TextureComponentTypeToString(GLint ivalue)
       break;
     case GL_UNSIGNED_INT:
       result="ui"; // unsigned unnormalized integer component, with GL_EXT_texture_integer (GeForce8)
+      break;
+    default:
+      result="error: unknown type";
       break;
     }
   return result;
