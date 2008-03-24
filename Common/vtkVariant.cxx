@@ -30,6 +30,44 @@
 
 #include "vtksys/ios/sstream"
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+# define VTK_VARIANT_NO_INSTANTIATE
+#endif
+
+//----------------------------------------------------------------------------
+// Explicitly instantiate the ToNumeric member template to make sure
+// the symbols are exported from this object file.
+
+#ifndef VTK_VARIANT_NO_INSTANTIATE
+
+#define vtkVariantToNumericInstantiateMacro(x)                          \
+  template x vtkVariant::ToNumeric< x >(bool*, x*) const
+
+vtkVariantToNumericInstantiateMacro(char);
+vtkVariantToNumericInstantiateMacro(float);
+vtkVariantToNumericInstantiateMacro(double);
+vtkVariantToNumericInstantiateMacro(unsigned char);
+vtkVariantToNumericInstantiateMacro(signed char);
+vtkVariantToNumericInstantiateMacro(short);
+vtkVariantToNumericInstantiateMacro(unsigned short);
+vtkVariantToNumericInstantiateMacro(int);
+vtkVariantToNumericInstantiateMacro(unsigned int);
+vtkVariantToNumericInstantiateMacro(long);
+vtkVariantToNumericInstantiateMacro(unsigned long);
+
+#if defined(VTK_TYPE_USE___INT64)
+vtkVariantToNumericInstantiateMacro(__int64);
+vtkVariantToNumericInstantiateMacro(unsigned __int64);
+#endif
+
+#if defined(VTK_TYPE_USE_LONG_LONG)
+vtkVariantToNumericInstantiateMacro(long long);
+vtkVariantToNumericInstantiateMacro(unsigned long long);
+#endif
+
+#endif // VTK_VARIANT_NO_INSTANTIATE
+
+//----------------------------------------------------------------------------
 vtkVariantLessThan::vtkVariantLessThan()
 {
 }
@@ -44,6 +82,7 @@ bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) 
   return s1.ToDouble() < s2.ToDouble();
 }
 
+//----------------------------------------------------------------------------
 vtkVariant::vtkVariant()
 {
   this->Valid = 0;
@@ -754,33 +793,3 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     }
   return static_cast<T>(0);
 }
-
-//----------------------------------------------------------------------------
-
-// Explicitly instantiate the ToNumeric member template to make sure
-// the symbols are exported from this object file.
-
-#define vtkVariantToNumericInstantiateMacro(x)                          \
-  template x vtkVariant::ToNumeric< x >(bool*, x*) const
-
-vtkVariantToNumericInstantiateMacro(char);
-vtkVariantToNumericInstantiateMacro(float);
-vtkVariantToNumericInstantiateMacro(double);
-vtkVariantToNumericInstantiateMacro(unsigned char);
-vtkVariantToNumericInstantiateMacro(signed char);
-vtkVariantToNumericInstantiateMacro(short);
-vtkVariantToNumericInstantiateMacro(unsigned short);
-vtkVariantToNumericInstantiateMacro(int);
-vtkVariantToNumericInstantiateMacro(unsigned int);
-vtkVariantToNumericInstantiateMacro(long);
-vtkVariantToNumericInstantiateMacro(unsigned long);
-
-#if defined(VTK_TYPE_USE___INT64)
-vtkVariantToNumericInstantiateMacro(__int64);
-vtkVariantToNumericInstantiateMacro(unsigned __int64);
-#endif
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-vtkVariantToNumericInstantiateMacro(long long);
-vtkVariantToNumericInstantiateMacro(unsigned long long);
-#endif
