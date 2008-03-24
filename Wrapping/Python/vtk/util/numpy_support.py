@@ -101,7 +101,7 @@ def create_vtk_array(vtk_arr_type):
     return tmp
 
 
-def numpy_to_vtk(num_array):
+def numpy_to_vtk(num_array, deep=0):
     """Converts a contiguous real numpy Array to a VTK array object.
 
     This function only works for real arrays that are contiguous.
@@ -109,6 +109,11 @@ def numpy_to_vtk(num_array):
     arrays.  However, only 1, and 2 dimensional arrays are supported.
     This function is very efficient, so large arrays should not be a
     problem.
+
+    If the second argument is set to 1, the array is deep-copied from
+    from numpy. This is not as efficient as the default behavior
+    (shallow copy) and uses more memory but detaches the two arrays
+    such that the numpy array can be released.
 
     WARNING: You must maintain a reference to the passed numpy array, if
     the numpy data is gc'd and VTK will point to garbage which will in
@@ -154,6 +159,13 @@ def numpy_to_vtk(num_array):
     # Point the VTK array to the numpy data.  The last argument (1)
     # tells the array not to deallocate.
     result_array.SetVoidArray(z_flat, len(z_flat), 1)
+    if deep:
+        copy = result_array.NewInstance()
+        # NewInstance sets the refcount to 3 and this causes a severe
+        # memory leak.        
+        copy.SetReferenceCount(2)
+        copy.DeepCopy(result_array)
+        result_array = copy
     return result_array
 
 
