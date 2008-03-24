@@ -1443,7 +1443,10 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
                          << obj->vtk_ptr);
 #endif  
 
-  vtkPythonHash->ObjectHash->erase(ptr);
+  if (vtkPythonHash)
+    {
+    vtkPythonHash->ObjectHash->erase(ptr);
+    }
 }
 
 //--------------------------------------------------------------------
