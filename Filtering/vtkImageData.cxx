@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.29");
+vtkCxxRevisionMacro(vtkImageData, "1.30");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -751,7 +751,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  int& subId, double pcoords[3], double *weights)
 {
   int loc[3];
-  int *extent = this->GetExtent();
+  const int *extent = this->GetExtent();
 
   // Use vtkIdType to avoid overflow on large images
   vtkIdType dims[3];
@@ -985,7 +985,7 @@ void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
 {
   double *ar=this->GetSpacing();
   double sp, sm;
-  int *extent = this->GetExtent();
+  const int *extent = this->GetExtent();
 
   vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
