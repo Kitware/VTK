@@ -388,14 +388,19 @@ private:
 //----------------------------------------------------------------------------
 inline void vtkImageData::GetPoint(vtkIdType id, double x[3])
 {
-  double *p = this->GetPoint(id);
+  const double *p = this->GetPoint(id);
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
 }
 
 //----------------------------------------------------------------------------
 inline vtkIdType vtkImageData::GetNumberOfPoints()
 {
-  int *dims = this->GetDimensions();
+  const int *extent = this->Extent;
+  vtkIdType dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+
   return dims[0]*dims[1]*dims[2];
 }
 

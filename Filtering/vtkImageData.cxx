@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.30");
+vtkCxxRevisionMacro(vtkImageData, "1.31");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -291,8 +291,8 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
   vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   double x[3];
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   // Use vtkIdType to avoid overflow on large images
@@ -403,8 +403,8 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   vtkIdType npts, idx;
   int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   double x[3];
   const int* extent = this->Extent;
 
@@ -513,8 +513,8 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
   double x[3];
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
@@ -624,8 +624,8 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
 {
   static double x[3];
   int i, loc[3];
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
@@ -702,8 +702,8 @@ vtkIdType vtkImageData::FindPoint(double x[3])
 {
   int i, loc[3];
   double d;
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
@@ -788,8 +788,8 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
   int jMax = 0;
   int kMax = 0;;
   vtkCell *cell = NULL;
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
@@ -923,8 +923,8 @@ int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 //----------------------------------------------------------------------------
 void vtkImageData::ComputeBounds()
 {
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   if ( extent[0] > extent[1] ||
@@ -983,9 +983,9 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s,
 void vtkImageData::GetPointGradient(int i, int j, int k, vtkDataArray *s,
                                     double g[3])
 {
-  double *ar=this->GetSpacing();
+  const double *ar = this->Spacing;
   double sp, sm;
-  const int *extent = this->GetExtent();
+  const int *extent = this->Extent;
 
   vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
@@ -1093,8 +1093,8 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
 {
   int i;
   double d, doubleLoc;
-  double *origin = this->GetOrigin();
-  double *spacing = this->GetSpacing();
+  const double *origin = this->Origin;
+  const double *spacing = this->Spacing;
   const int* extent = this->Extent;
 
   vtkIdType dims[3];
@@ -1148,7 +1148,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   int idx;
-  int *dims = this->GetDimensions();
+  const int *dims = this->GetDimensions();
   const int* extent = this->Extent;
 
   os << indent << "ScalarType: " << this->GetScalarType() << endl;
@@ -2018,7 +2018,12 @@ vtkIdType vtkImageData::GetNumberOfCells()
 {
   vtkIdType nCells=1;
   int i;
-  int *dims = this->GetDimensions();
+  const int* extent = this->Extent;
+
+  vtkIdType dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   for (i=0; i<3; i++)
     {
