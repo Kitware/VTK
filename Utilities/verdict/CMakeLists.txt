@@ -1,7 +1,8 @@
 # Copyright (c) 2003,2006 Sandia National Laboratories <cubit@sandia.gov>
 project(verdict)
 
-option(BUILD_SHARED_LIBS "Build verdict with shared libraries." OFF)
+option(BUILD_SHARED_LIBS "Build Verdict with shared libraries." OFF)
+option(VERDICT_BUILD_DOC "Build the 2007 Verdict User Manual" OFF)
 
 set( verdict_MAJOR_VERSION "1")
 set( verdict_MINOR_VERSION "2")
@@ -65,6 +66,10 @@ endif ( NOT verdict_INSTALL_BIN_DIR)
 if ( NOT verdict_INSTALL_LIB_DIR)
   set (verdict_INSTALL_LIB_DIR lib)
 endif ( NOT verdict_INSTALL_LIB_DIR)
+
+if ( VERDICT_BUILD_DOC )
+  add_subdirectory( docs/VerdictUserManual2007 )
+endif ( VERDICT_BUILD_DOC )
 
 #
 # Installation stuff
