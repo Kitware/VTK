@@ -223,7 +223,7 @@ void use_hints(FILE *fp)
   fprintf(fp,INDENT "  }\n");
   fprintf(fp,INDENT "else\n");
   fprintf(fp,INDENT "  {\n");
-  fprintf(fp,INDENT "  Tcl_SetResult(interp, \"\", TCL_VOLATILE);\n");
+  fprintf(fp,INDENT "  Tcl_SetResult(interp, (char *)(\"\"), TCL_VOLATILE);\n");
   fprintf(fp,INDENT "  }\n");
 
 #undef INDENT
