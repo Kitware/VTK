@@ -674,16 +674,19 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
 //----------------------------------------------------------------------------
 // Explicit instantiations of ToNumeric
 
-//#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-//# define VTK_VARIANT_NO_INSTANTIATE
-//#endif
+// Visual Studio 6 chokes with "fatal error C1001: INTERNAL COMPILER ERROR"
+// when trying to use the vtkVariantToNumericInstantiateMacro, so don't...
+//
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+# define VTK_VARIANT_NO_INSTANTIATE
+#endif
 
 //----------------------------------------------------------------------------
 // Explicitly instantiate the ToNumeric member template to make sure
 // the symbols are exported from this object file.
 // This explicit instantiation exists to resolve VTK issue #5791.
 
-#ifndef VTK_VARIANT_NO_INSTANTIATE
+#if !defined(VTK_VARIANT_NO_INSTANTIATE)
 
 #define vtkVariantToNumericInstantiateMacro(x)                          \
   template x vtkVariant::ToNumeric< x >(bool*, x*) const
@@ -710,7 +713,7 @@ vtkVariantToNumericInstantiateMacro(long long);
 vtkVariantToNumericInstantiateMacro(unsigned long long);
 #endif
 
-#endif // VTK_VARIANT_NO_INSTANTIATE
+#endif
 
 //----------------------------------------------------------------------------
 // Callers causing implicit instantiations of ToNumeric
