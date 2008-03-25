@@ -168,6 +168,7 @@ vtkPolyDataNormals.cxx
 vtkPolyDataPointSampler.cxx
 vtkPolyDataStreamer.cxx
 vtkProbeFilter.cxx
+vtkProbeSelectedLocations.cxx
 vtkProgrammableAttributeDataFilter.cxx
 vtkProgrammableDataObjectSource.cxx
 vtkProgrammableFilter.cxx

@@ -24,10 +24,11 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkProbeSelectedLocations.h"
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.21");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.22");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -37,7 +38,9 @@ vtkExtractSelection::vtkExtractSelection()
   this->FrustumFilter = vtkExtractSelectedFrustum::New();
   this->LocationsFilter = vtkExtractSelectedLocations::New();
   this->ThresholdsFilter = vtkExtractSelectedThresholds::New();
+  this->ProbeFilter = vtkProbeSelectedLocations::New();
   this->ShowBounds = 0;
+  this->UseProbeForLocations = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -47,6 +50,7 @@ vtkExtractSelection::~vtkExtractSelection()
   this->FrustumFilter->Delete();
   this->LocationsFilter->Delete();
   this->ThresholdsFilter->Delete();
+  this->ProbeFilter->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -212,11 +216,15 @@ vtkDataSet* vtkExtractSelection::RequestDataInternal(
           return this->RequestDataFromBlock(input, childSel, outInfo);
           }
         }
+      else
+        {
+        return this->RequestDataFromBlock(input, childSel, outInfo);
+        }
       }
     }
-  else if (selProperties->Has(vtkSelection::COMPOSITE_INDEX()) &&
-    static_cast<unsigned int>(selProperties->Get(vtkSelection::COMPOSITE_INDEX()))
-    == composite_index)
+  else if (!selProperties->Has(vtkSelection::COMPOSITE_INDEX()) || 
+    (static_cast<unsigned int>(selProperties->Get(vtkSelection::COMPOSITE_INDEX()))
+     == composite_index))
     {
     return this->RequestDataFromBlock(input, sel, outInfo);
     }
@@ -268,6 +276,10 @@ vtkDataSet* vtkExtractSelection::RequestDataInternal(
           return this->RequestDataFromBlock(input, childSel, outInfo);
           }
         }
+      else
+        {
+        return this->RequestDataFromBlock(input, childSel, outInfo);
+        }
       }
     }
   else if (selProperties->Has(vtkSelection::COMPOSITE_INDEX()) &&
@@ -282,6 +294,12 @@ vtkDataSet* vtkExtractSelection::RequestDataInternal(
     == level &&
     static_cast<unsigned int>(selProperties->Get(vtkSelection::HIERARCHICAL_INDEX()))
     == index)
+    {
+    return this->RequestDataFromBlock(input, sel, outInfo);
+    }
+  else if (!selProperties->Has(vtkSelection::COMPOSITE_INDEX()) && 
+    !selProperties->Has(vtkSelection::HIERARCHICAL_LEVEL()) && 
+    !selProperties->Has(vtkSelection::HIERARCHICAL_INDEX()))
     {
     return this->RequestDataFromBlock(input, sel, outInfo);
     }
@@ -324,7 +342,9 @@ vtkDataSet* vtkExtractSelection::RequestDataFromBlock(
     }
     case vtkSelection::LOCATIONS:
     {
-    subFilter = this->LocationsFilter;
+    subFilter = this->UseProbeForLocations?
+      static_cast<vtkExtractSelectionBase*>(this->ProbeFilter) :
+      static_cast<vtkExtractSelectionBase*>(this->LocationsFilter);
     break;
     }
     case vtkSelection::THRESHOLDS:
@@ -397,6 +417,6 @@ vtkDataSet* vtkExtractSelection::RequestDataFromBlock(
 void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  os << indent << "UseProbeForLocations: " << this->UseProbeForLocations << endl;
   os << indent << "ShowBounds: " << this->ShowBounds << endl;
 }

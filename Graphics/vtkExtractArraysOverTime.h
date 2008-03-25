@@ -12,10 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractArraysOverTime - extract point or cell data over time
+// .NAME vtkExtractArraysOverTime - extracts a selection over time.
 // .SECTION Description
-// vtkExtractArraysOverTime extracts point or cell data of one point or
-// cell over time. The output is a 1D rectilinear grid where the 
+// vtkExtractArraysOverTime extracts a selection over time.
+// The output is a multiblock dataset. If selection content type is  
+// vtkSelection::Locations, then each output block corresponds to each probed
+// location. Otherwise, each output block corresponds to an extracted cell/point
+// depending on whether the selection field type is CELL or POINT.
+// Each block is a 1D rectilinear grid where the 
 // XCoordinates correspond to time (the same array is also copied to
 // a point array named Time or TimeData (if Time exists in the input).
 // When extracting point data, the input point coordinates are copied
@@ -24,27 +28,25 @@
 // This algorithm does not produce a TIME_STEPS or TIME_RANGE information
 // because it works across time. 
 // .Section Caveat
-// vtkExtractArraysOverTime puts a vtkOnePieceExtentTranslator in the
-// output during RequestInformation(). As a result, the same whole 
-// extented is produced independent of the piece request.
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
 
 #ifndef __vtkExtractArraysOverTime_h
 #define __vtkExtractArraysOverTime_h
 
-#include "vtkRectilinearGridAlgorithm.h"
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
+class vtkSelection;
 class vtkDataSet;
 class vtkRectilinearGrid;
 class vtkExtractArraysOverTimeInternal;
 class vtkDataSetAttributes;
 
-class VTK_GRAPHICS_EXPORT vtkExtractArraysOverTime : public vtkRectilinearGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkExtractArraysOverTime : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExtractArraysOverTime *New();
-  vtkTypeRevisionMacro(vtkExtractArraysOverTime,vtkRectilinearGridAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractArraysOverTime, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,13 +61,10 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
+//BTX
 protected:
   vtkExtractArraysOverTime();
   ~vtkExtractArraysOverTime();
-
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
 
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector, 
@@ -81,11 +80,14 @@ protected:
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
 
-  int AllocateOutputData(vtkDataSet *input, vtkRectilinearGrid *output);
+  // Description:
+  // Determines the FieldType and ContentType for the selection. If the
+  // selection is a vtkSelection::SELECTIONS selection, then this method ensures
+  // that all child nodes have the same field type and content type otherwise,
+  // it returns 0.
+  int DetermineSelectionType(vtkSelection*);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-
-  vtkIdType GetIndex(vtkIdType selIndex, vtkDataSet* input);
 
   // Description:
   // This method doesn't care about the content type of the selection, 
@@ -98,6 +100,10 @@ protected:
   // whose names are in the form "XXXOverTime" to the output point data.
   void CopyFastPathDataToOutput(vtkDataSet *input, vtkRectilinearGrid *output);
 
+
+  void ExecuteAtTimeStep(vtkInformationVector** inputV, 
+    vtkInformation* outInfo);
+
   int CurrentTimeIndex;
   int NumberOfTimeSteps;
 
@@ -109,30 +115,22 @@ protected:
   bool UseFastPath;
   vtkIdType SelectedId;
 
-  virtual void ExecuteIdAtTimeStep(vtkInformationVector** inputV, 
-                           vtkInformation* outInfo);
-
-  virtual void ExecuteLocationAtTimeStep(vtkInformationVector** inputV, 
-                                 vtkInformation* outInfo);
-
   int Error;
 
-  //BTX
   enum Errors
   {
     NoError,
     MoreThan1Indices
   };
-  //ETX
-
-  //Returns a copy of "source" with all points marked as invalid removed.
-  void RemoveInvalidPoints(vtkRectilinearGrid *source);
-
-  vtkExtractArraysOverTimeInternal *Internal;
 
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
   void operator=(const vtkExtractArraysOverTime&);  // Not implemented.
+
+  class vtkInternal;
+  vtkInternal *Internal;
+
+//ETX
 };
 
 #endif

@@ -34,6 +34,7 @@ class vtkExtractSelectedIds;
 class vtkExtractSelectedFrustum;
 class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
+class vtkProbeSelectedLocations;
 class vtkSelection;
 
 class VTK_GRAPHICS_EXPORT vtkExtractSelection : public vtkExtractSelectionBase
@@ -49,6 +50,14 @@ public:
   vtkSetMacro(ShowBounds,int);
   vtkGetMacro(ShowBounds,int);
   vtkBooleanMacro(ShowBounds,int);
+
+  // Description:
+  // When On, vtkProbeSelectedLocations is used for extracting selections of
+  // content type vtkSelection::LOCATIONS. Default is off and then
+  // vtkExtractSelectedLocations is used.
+  vtkSetMacro(UseProbeForLocations, int);
+  vtkGetMacro(UseProbeForLocations, int);
+  vtkBooleanMacro(UseProbeForLocations, int);
 
 protected:
   vtkExtractSelection();
@@ -89,7 +98,9 @@ protected:
   vtkExtractSelectedFrustum* FrustumFilter;
   vtkExtractSelectedLocations* LocationsFilter;
   vtkExtractSelectedThresholds* ThresholdsFilter;
+  vtkProbeSelectedLocations* ProbeFilter;
 
+  int UseProbeForLocations;
   int ShowBounds;
 private:
   vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.
