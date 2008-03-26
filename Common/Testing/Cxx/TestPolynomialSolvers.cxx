@@ -45,7 +45,7 @@ int TestPolynomialSolvers( int, char *[] )
   double tolSturm = 1.e-6;
   double tolRoots = 1.e-15;
   double tolDirectSolvers = VTK_DBL_EPSILON;
-  double roots[5];
+  double roots[22];
   int mult[4];
   double rootInt[] = { -4., 4. };
   double upperBnds[22];
