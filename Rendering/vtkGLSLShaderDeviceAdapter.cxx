@@ -33,7 +33,7 @@ public:
   MapOfStringToInt AttributeIndicesCache;
 };
 
-vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.4");
+vtkCxxRevisionMacro(vtkGLSLShaderDeviceAdapter, "1.5");
 vtkStandardNewMacro(vtkGLSLShaderDeviceAdapter);
 
 #define GLSL_SHADER_DEVICE_ADAPTER(msg) \
@@ -137,12 +137,6 @@ void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
                                                const void *attribute, 
                                                unsigned long offset)
 {
-  if (components <=0 || components > 4)
-    {
-    vtkErrorMacro(<< components<< " components not supported.");
-    return;
-    }
-
   int index;
   vtkInternal::MapOfStringToInt::iterator iter =
     this->Internal->AttributeIndicesCache.find(attrname);
@@ -159,6 +153,17 @@ void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
   else
     {
     index = iter->second;
+    }
+
+  if (!attribute)
+    {
+    return;
+    }
+
+  if (components <=0 || components > 4)
+    {
+    vtkErrorMacro(<< components<< " components not supported.");
+    return;
     }
 
   if (index >= 0)

@@ -61,7 +61,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.8");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.9");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -111,7 +111,8 @@ void vtkStandardPolyDataPainter::ProcessInformation(vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
-void vtkStandardPolyDataPainter::UpdateGenericAttributesCache()
+void vtkStandardPolyDataPainter::UpdateGenericAttributesCache(
+  vtkShaderDeviceAdapter* shaderDevice)
 {
   if (this->Internal->Mappings)
     {
@@ -154,6 +155,11 @@ void vtkStandardPolyDataPainter::UpdateGenericAttributesCache()
         info.MappingsIndex = cc;
         info.Array = inArray;
         dest->push_back(info);
+
+        // This caches the attribute index.
+        // This is essential since we don't want to call GetAttributeLocation in
+        // glBegin()/glEnd().
+        shaderDevice->SendAttribute(vertexAttributeName, 0, 0, 0, 0);
         }
       }
     }
@@ -188,13 +194,14 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
     {
     // Preprocess the generic vertex attributes that we need to pass to the
     // shader.
-    this->UpdateGenericAttributesCache();
     shaderDevice = property->GetShaderProgram()->GetShaderDeviceAdapter();
+    if (shaderDevice)
+      {
+      shaderDevice->PrepareForRender();
+      }
+    this->UpdateGenericAttributesCache(shaderDevice);
     }
-  if (shaderDevice)
-    {
-    shaderDevice->PrepareForRender();
-    }
+
 
   if (typeflags & vtkPainter::VERTS)
     {

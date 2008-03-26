@@ -73,7 +73,7 @@ protected:
   // since the last time this method was called.
   virtual void ProcessInformation(vtkInformation*);
 
-  void UpdateGenericAttributesCache();
+  void UpdateGenericAttributesCache(vtkShaderDeviceAdapter*);
   vtkIdType TotalCells;
 private:
   vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.

@@ -51,6 +51,8 @@ public:
   // attribute.
   // If offset is specified, it is added to attribute pointer \c after
   // it has been casted to the proper type.
+  // If attribute is NULL, the OpenGL ID for the attribute will simply be
+  // cached.
   virtual void SendAttribute(const char* attrname,
                              int components,
                              int type,
