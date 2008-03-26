@@ -68,6 +68,7 @@ private:
       }
     };
 
+public: // vtkValue is made public due to a bug in VS 6.0
   class vtkValue
     {
   public:
@@ -75,6 +76,7 @@ private:
     vtkSmartPointer<vtkUnsignedCharArray> ValidMaskArray;
     vtkSmartPointer<vtkDoubleArray> PointCoordinatesArray;
     };
+private:
 
 
   typedef vtkstd::map<vtkKey, vtkValue> MapType;
@@ -417,7 +419,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.17");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.18");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
