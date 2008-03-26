@@ -238,8 +238,8 @@ protected:
   // Convenience method use to convert the readers from VTK 5 multiblock API 
   // to the current composite data infrastructure.
   void AddToBlock(vtkMultiBlockDataSet* output, 
-    unsigned int blockNo, unsigned int datasetNo, 
-    vtkDataSet* dataset);
+                  unsigned int blockNo, 
+                  vtkDataSet* dataset);
 
   // Description:
   // Convenience method use to convert the readers from VTK 5 multiblock API 

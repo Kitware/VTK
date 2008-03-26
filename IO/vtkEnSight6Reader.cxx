@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.65");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.66");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -439,7 +439,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
     {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
-    this->AddToBlock(output, this->NumberOfGeometryParts, 0, pd);
+    this->AddToBlock(output, this->NumberOfGeometryParts, pd);
     pd->Delete();
     }
   
@@ -1581,7 +1581,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, ugrid);
+    this->AddToBlock(compositeOutput, partId, ugrid);
     ugrid->Delete();
  
     this->UnstructuredPartIds->InsertNextId(partId);
@@ -2104,7 +2104,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, sgrid);
+    this->AddToBlock(compositeOutput, partId, sgrid);
     sgrid->Delete();
     }
   

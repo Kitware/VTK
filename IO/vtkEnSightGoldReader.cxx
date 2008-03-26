@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.60");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.61");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -326,7 +326,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
     pd->Allocate(this->NumberOfMeasuredPoints);
-    this->AddToBlock(output, this->NumberOfGeometryParts, 0, pd);
+    this->AddToBlock(output, this->NumberOfGeometryParts, pd);
     pd->Delete();
     ds = ds;
     }
@@ -1280,7 +1280,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, ugrid);
+    this->AddToBlock(compositeOutput, partId, ugrid);
     ugrid->Delete();
     ds = ugrid;
     
@@ -2411,7 +2411,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, sgrid);
+    this->AddToBlock(compositeOutput, partId, sgrid);
     sgrid->Delete();
     ds = sgrid;
     }
@@ -2503,7 +2503,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
     {
     vtkDebugMacro("creating new structured grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, rgrid);
+    this->AddToBlock(compositeOutput, partId, rgrid);
     rgrid->Delete();
     
     ds = rgrid;
@@ -2603,7 +2603,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
-    this->AddToBlock(compositeOutput, partId, 0, idata);
+    this->AddToBlock(compositeOutput, partId, idata);
     idata->Delete();
 
     ds = idata;

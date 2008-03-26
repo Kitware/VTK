@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.74");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.75");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -1142,7 +1142,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
     }
 
   pd->SetPoints(points);
-  this->AddToBlock(output, this->NumberOfGeometryParts, 0, pd);
+  this->AddToBlock(output, this->NumberOfGeometryParts, pd);
   
   points->Delete();
   pd->Delete();
@@ -2424,7 +2424,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, ugrid);
+    this->AddToBlock(compositeOutput, partId, ugrid);
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);    
@@ -3486,7 +3486,7 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, sgrid);
+    this->AddToBlock(compositeOutput, partId, sgrid);
     sgrid->Delete();
     ds = sgrid;
     }
@@ -3616,7 +3616,7 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
     {
     vtkDebugMacro("creating new rectilinear grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
-    this->AddToBlock(compositeOutput, partId, 0, rgrid);
+    this->AddToBlock(compositeOutput, partId, rgrid);
     rgrid->Delete();
     ds = rgrid;
     }
@@ -3728,7 +3728,7 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
-    this->AddToBlock(compositeOutput, partId, 0, idata);
+    this->AddToBlock(compositeOutput, partId, idata);
     idata->Delete();
     ds = idata;
     }
