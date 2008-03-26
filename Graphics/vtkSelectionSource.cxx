@@ -27,7 +27,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.18");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.19");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -175,14 +175,23 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FieldType: " ;
   switch (this->FieldType)
     {
-  case vtkSelection::CELL:
-    os << "CELL";
-    break;
-  case vtkSelection::POINT:
-    os << "POINT";
-    break;
-  default:
-    os << "UNKNOWN";
+    case vtkSelection::CELL:
+      os << "CELL";
+      break;
+    case vtkSelection::POINT:
+      os << "POINT";
+      break;
+    case vtkSelection::FIELD:
+      os << "FIELD";
+      break;
+    case vtkSelection::VERTEX:
+      os << "VERTEX";
+      break;
+    case vtkSelection::EDGE:
+      os << "EDGE";
+      break;
+    default:
+      os << "UNKNOWN";
     }
   os << endl;
 
