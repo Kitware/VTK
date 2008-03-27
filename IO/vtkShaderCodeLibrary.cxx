@@ -23,8 +23,39 @@
       "No shaders are available.");
 #endif
 
+
+#include <vtkstd/map>
+#include <vtkstd/string>
+#include <vtksys/SystemTools.hxx>
+
+class vtkShaderCodeLibrary::vtkInternal
+{
+public:
+  vtkstd::map<vtkstd::string, vtkstd::string> Codes;
+  const char* GetShaderCode(const char* name)
+    {
+    vtkstd::map<vtkstd::string, vtkstd::string>::iterator iter;
+    iter = this->Codes.find(name);
+    if (iter != this->Codes.end())
+      {
+      return iter->second.c_str();
+      }
+    return NULL;
+    }
+};
+
+vtkShaderCodeLibrary::vtkInternal* vtkShaderCodeLibrary::Internal = 0;;
+
+vtkShaderCodeLibrary::vtkInternalCleanup vtkShaderCodeLibrary::Cleanup;
+vtkShaderCodeLibrary::vtkInternalCleanup::~vtkInternalCleanup()
+{
+  delete vtkShaderCodeLibrary::Internal;
+  vtkShaderCodeLibrary::Internal = 0;
+}
+
+
 vtkStandardNewMacro(vtkShaderCodeLibrary);
-vtkCxxRevisionMacro(vtkShaderCodeLibrary, "1.3");
+vtkCxxRevisionMacro(vtkShaderCodeLibrary, "1.4");
 //-----------------------------------------------------------------------------
 vtkShaderCodeLibrary::vtkShaderCodeLibrary()
 {
@@ -43,6 +74,15 @@ char* vtkShaderCodeLibrary::GetShaderCode(const char* name)
     return 0;
     }
 
+  if (vtkShaderCodeLibrary::Internal)
+    {
+    const char* code = vtkShaderCodeLibrary::Internal->GetShaderCode(name);
+    if (code)
+      {
+      return vtksys::SystemTools::DuplicateString(code);
+      }
+    }
+
   // CMake sets VTK_SHADER_CODE_LIBRARY_CHUNK to be the
   // chunk of code that does name comparisons and
   // call appropriate method from the vtk*ShaderLibrary.
@@ -54,6 +94,19 @@ char* vtkShaderCodeLibrary::GetShaderCode(const char* name)
 const char** vtkShaderCodeLibrary::GetListOfShaderCodeNames()
 {
   return ::ListOfShaderNames;
+}
+
+//-----------------------------------------------------------------------------
+void vtkShaderCodeLibrary::RegisterShaderCode(const char* name, const char* code)
+{
+  if (name && code)
+    {
+    if (!vtkShaderCodeLibrary::Internal)
+      {
+      vtkShaderCodeLibrary::Internal = new vtkShaderCodeLibrary::vtkInternal();
+      }
+    vtkShaderCodeLibrary::Internal->Codes[name] = code;
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -39,12 +39,17 @@ public:
   // of the caller to free this memory.
   static char* GetShaderCode(const char* name);
 
-
   // Description:
   // Returns an array of pointers to char strings that are
   // the names of the shader codes provided by the library.
   // The end of the array is marked by a null pointer.
   static const char** GetListOfShaderCodeNames();
+
+  // Description:
+  // Provides for registering shader code. This overrides the compiled in shader
+  // codes.
+  static void RegisterShaderCode(const char* name, const char* code);
+//BTX
 protected:
   vtkShaderCodeLibrary();
   ~vtkShaderCodeLibrary();
@@ -52,6 +57,23 @@ protected:
 private:
   vtkShaderCodeLibrary(const vtkShaderCodeLibrary&); // Not implemented.
   void operator=(const vtkShaderCodeLibrary&); // Not implemented.
+
+  // vtkInternalCleanup is used to destroy Internal ptr when the application
+  // exits.
+  class vtkInternalCleanup
+    {
+  public:
+    vtkInternalCleanup() {};
+    ~vtkInternalCleanup();
+    };
+
+  friend class vtkInternalCleanup;
+  static vtkInternalCleanup Cleanup;
+
+  // vtkInternal is used to maintain user registered shader codes.
+  class vtkInternal;
+  static vtkInternal* Internal;
+//ETX
 };
 
 
