@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.74");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.75");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1991,16 +1991,9 @@ void vtkEnSightReader::AddToBlock(vtkMultiBlockDataSet* output,
 //----------------------------------------------------------------------------
 vtkDataSet* vtkEnSightReader::GetDataSetFromBlock(
   vtkMultiBlockDataSet* output,
-  unsigned int blockno, unsigned int datasetNo)
+  unsigned int blockno)
 {
-  vtkDataObject* blockDO = output->GetBlock(blockno);
-  vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(blockDO);
-  if (block)
-    {
-    return vtkDataSet::SafeDownCast(block->GetBlock(datasetNo));
-    }
-
-  return 0;
+  return vtkDataSet::SafeDownCast(output->GetBlock(blockno));
 }
 
 //----------------------------------------------------------------------------

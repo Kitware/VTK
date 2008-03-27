@@ -245,7 +245,7 @@ protected:
   // Convenience method use to convert the readers from VTK 5 multiblock API 
   // to the current composite data infrastructure.
   vtkDataSet* GetDataSetFromBlock(vtkMultiBlockDataSet* output,
-    unsigned int blockNo, unsigned int datasetNo);
+                                  unsigned int blockNo);
   
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file

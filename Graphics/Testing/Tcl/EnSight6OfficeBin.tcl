@@ -47,7 +47,7 @@ vtkGlyph3D cones
 
 vtkHierarchicalPolyDataMapper mapCones
     mapCones SetInputConnection [cones GetOutputPort]
-eval mapCones SetScalarRange [[[[reader GetOutput] GetBlock 0] GetBlock 0] GetScalarRange]
+eval mapCones SetScalarRange [[[reader GetOutput] GetBlock 0] GetScalarRange]
 vtkActor conesActor
     conesActor SetMapper mapCones
 
