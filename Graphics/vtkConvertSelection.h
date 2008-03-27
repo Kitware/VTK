@@ -41,7 +41,11 @@ public:
   static vtkConvertSelection *New();
   vtkTypeRevisionMacro(vtkConvertSelection, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  // Description:
+  // A convenience method for setting the second input (i.e. the data object).
+  void SetDataObjectConnection(vtkAlgorithmOutput* in);
+
   // Description:
   // The output selection type.
   // This should be one of the constants defined in vtkSelection.h.
