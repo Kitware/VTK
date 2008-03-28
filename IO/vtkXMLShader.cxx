@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.7");
+vtkCxxRevisionMacro(vtkXMLShader, "1.8");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -149,7 +149,7 @@ void vtkXMLShader::ReadCodeFromFile(const char* filepath)
     }
 
   ifstream ifp;
-  ifp.open(filepath);
+  ifp.open(filepath, ios::binary);
   if (!ifp)
     {
     vtkErrorMacro("Failed to open file " << filepath);
