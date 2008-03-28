@@ -47,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.70");
+vtkCxxRevisionMacro(vtkProperty, "1.71");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -948,6 +948,8 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+ os << indent << "MaterialName: " << 
+   (this->MaterialName? this->MaterialName:"(none)") << endl;
 
   os << indent << "ShaderProgram: ";
   if (this->ShaderProgram)
