@@ -74,6 +74,9 @@ public:
   // Description:
   // In order for successful coordinate transformation to occur, an
   // instance of vtkViewport (e.g., a VTK renderer) must be specified.
+  // NOTE: this is a raw pointer, not a weak pointer not a reference counted
+  // object to avoid reference cycle loop between rendering classes and filter
+  // classes.
   void SetViewport(vtkViewport *viewport);
   vtkGetObjectMacro(Viewport,vtkViewport);
 

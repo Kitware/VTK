@@ -21,10 +21,8 @@
 #include "vtkViewport.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.3");
+vtkCxxRevisionMacro(vtkTransformCoordinateSystems, "1.4");
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
-
-vtkCxxSetObjectMacro(vtkTransformCoordinateSystems,Viewport,vtkViewport);
 
 //------------------------------------------------------------------------
 vtkTransformCoordinateSystems::vtkTransformCoordinateSystems()
@@ -40,10 +38,18 @@ vtkTransformCoordinateSystems::vtkTransformCoordinateSystems()
 vtkTransformCoordinateSystems::~vtkTransformCoordinateSystems()
 {
   this->TransformCoordinate->Delete();
-  
-  if(this->Viewport != NULL)
+}
+
+// ----------------------------------------------------------------------------
+// Set the viewport. This is a raw pointer, not a weak pointer or a reference
+// counted object to avoid cycle reference loop between rendering classes
+// and filter classes.
+void vtkTransformCoordinateSystems::SetViewport(vtkViewport *viewport)
+{
+  if(this->Viewport!=viewport)
     {
-    this->Viewport->Delete();
+    this->Viewport=viewport;
+    this->Modified();
     }
 }
 
