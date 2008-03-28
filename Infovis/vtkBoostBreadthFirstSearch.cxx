@@ -43,13 +43,6 @@
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/visitors.hpp>
-#include <boost/graph/breadth_first_search.hpp>
-#include <boost/property_map.hpp>
-#include <boost/vector_property_map.hpp>
-#include <boost/pending/queue.hpp>
-
 #ifdef VTK_USE_PARALLEL_BGL
 #  include "vtkDistributedGraphHelper.h"
 #  include "vtkPBGLGraphAdapter.h"
@@ -57,9 +50,17 @@
 #  include <boost/graph/distributed/breadth_first_search.hpp>
 #endif
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/visitors.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+#include <boost/property_map.hpp>
+#include <boost/vector_property_map.hpp>
+#include <boost/pending/queue.hpp>
+
+
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.1");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.2");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
