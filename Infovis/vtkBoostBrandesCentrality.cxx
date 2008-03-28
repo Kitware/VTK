@@ -29,6 +29,10 @@
 #include "vtkDataArray.h"
 #include "vtkStringArray.h"
 
+#ifdef VTK_USE_PARALLEL_BGL
+// Work around header-ordering issues in Boost.Serialization
+#  include <boost/parallel/mpi/bsp_process_group.hpp>
+#endif
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
@@ -39,7 +43,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.4");
+vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.4.4.1");
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
 // Constructor/Destructor

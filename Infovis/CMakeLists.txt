@@ -70,6 +70,18 @@ IF(VTK_USE_BOOST)
     vtkBoostConnectedComponents.cxx
     vtkBoostSplitTableField.cxx
   )
+
+  # If the user requested Parallel BGL support, update appropriately
+  IF (VTK_USE_PARALLEL_BGL)
+    FIND_PACKAGE(ParallelBGL REQUIRED)
+    SET(KIT_LIBS ${KIT_LIBS} vtkParallel ${PBGL_LIBRARIES})
+    ADD_DEFINITIONS(-DVTK_USE_PARALLEL_BGL)
+    IF (PBGL_INCLUDE_DIR)
+      INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})
+    ENDIF (PBGL_INCLUDE_DIR)
+  ENDIF (VTK_USE_PARALLEL_BGL)
+ENDIF (VTK_USE_PARALLEL_BGL)
+
 ENDIF(VTK_USE_BOOST)
 
 # Add these classes only if vtkTypeUInt64Array exists

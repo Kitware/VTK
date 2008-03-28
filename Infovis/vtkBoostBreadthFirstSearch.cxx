@@ -16,6 +16,11 @@
  Copyright (c) Sandia Corporation
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
+/* 
+ * Copyright (C) 2008 The Trustees of Indiana University.
+ * Use, modification and distribution is subject to the Boost Software
+ * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
+ */
 #include "vtkBoostBreadthFirstSearch.h"
 
 #include "vtkCellArray.h"
@@ -30,6 +35,10 @@
 #include "vtkSelection.h"
 #include "vtkStringArray.h"
 
+#ifdef VTK_USE_PARALLEL_BGL
+// Work around header-ordering issues in Boost.Serialization
+#  include <boost/parallel/mpi/bsp_process_group.hpp>
+#endif
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
@@ -41,9 +50,16 @@
 #include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
+#ifdef VTK_USE_PARALLEL_BGL
+#  include "vtkDistributedGraphHelper.h"
+#  include "vtkPBGLGraphAdapter.h"
+#  include "vtkPBGLDistributedGraphHelper.h"
+#  include <boost/graph/distributed/breadth_first_search.hpp>
+#endif
+
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.1");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 
@@ -275,26 +291,95 @@ int vtkBoostBreadthFirstSearch::RequestData(
     {
     BFSArray->SetValue(i,0);
     }
-  
-  // Create a color map (used for marking visited nodes)
-  vector_property_map<default_color_type> color;
- 
-  // Create a queue to hand off to the BFS
-  boost::queue<int> Q;
 
   vtkIdType maxFromRootVertex = 0;
-  my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
-  
-  // Is the graph directed or undirected
-  if (vtkDirectedGraph::SafeDownCast(output))
+
+  // Create a color map (used for marking visited nodes)
+  vector_property_map<default_color_type> color(output->GetNumberOfVertices());
+
+#ifdef VTK_USE_PARALLEL_BGL
+  vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
+  if (helper)
     {
-    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+    // Distributed breadth-first search. 
+      
+    // We can only deal with Parallel BGL-distributed graphs.
+    vtkPBGLDistributedGraphHelper *pbglHelper
+      = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+    if (!pbglHelper)
+      {
+      vtkErrorMacro("Can only perform Parallel BGL breadth-first search on a Parallel BGL distributed graph");
+      return 1;
+      }
+
+    // Distributed color map
+    typedef boost::parallel::distributed_property_map<
+              boost::parallel::mpi::bsp_process_group,
+              boost::vtkVertexGlobalMap,
+              vector_property_map<default_color_type> 
+            > DistributedColorMap;
+    DistributedColorMap distribColor(pbglHelper->GetProcessGroup(),
+                                     boost::vtkVertexGlobalMap(output),
+                                     color);
+
+    // Distributed distance map
+    typedef boost::parallel::distributed_property_map<
+              boost::parallel::mpi::bsp_process_group,
+              boost::vtkVertexGlobalMap,
+              vtkIntArray* 
+            > DistributedDistanceMap;
+    
+    // Distributed distance recorder
+    DistributedDistanceMap distribBFSArray(pbglHelper->GetProcessGroup(),
+                                           boost::vtkVertexGlobalMap(output),
+                                           BFSArray);
+    set_property_map_role(boost::vertex_distance, distribBFSArray);
+    my_distance_recorder<DistributedDistanceMap> 
+      bfsVisitor(distribBFSArray, &maxFromRootVertex);
+
+    // The use of parallel_bfs_helper works around the fact that a
+    // vtkGraph (and its descendents) will not be viewed as a
+    // distributed graph by the Parallel BGL.
+    if (vtkDirectedGraph::SafeDownCast(output))
+      {
+      vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
+      boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                         distribColor, bfsVisitor, 
+                                         boost::detail::error_property_not_found(),
+                                         get(vertex_index, g));
+      }
+    else
+      {
+      vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
+      boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                         distribColor, bfsVisitor, 
+                                         boost::detail::error_property_not_found(),
+                                         get(vertex_index, g));
+      }
+
+    // TODO: need to all-reduce() maxFromRootVertex
     }
   else
-    {
-    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+#endif
+    { 
+    // Non-distributed breadth-first search
+
+    // Create a queue to hand off to the BFS
+    boost::queue<int> Q;
+
+    my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
+  
+    // Is the graph directed or undirected
+    if (vtkDirectedGraph::SafeDownCast(output))
+      {
+      vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
+      breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+      }
+    else
+      {
+      vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
+      breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+      }
     }
 
   // Add attribute array to the output

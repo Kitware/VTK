@@ -631,6 +631,42 @@ namespace boost {
     return key;
   }
 
+  // Allow algorithms to automatically extract vtkGraphIndexMap from a
+  // VTK graph
+  template<>
+  struct property_map<vtkGraph*, vertex_index_t>
+  {
+    typedef vtkGraphIndexMap type;
+    typedef vtkGraphIndexMap const_type;
+  };
+
+  template<>
+  struct property_map<vtkDirectedGraph*, vertex_index_t>
+    : property_map<vtkGraph*, vertex_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph*, vertex_index_t>
+    : property_map<vtkGraph*, vertex_index_t> { };
+
+  inline vtkGraphIndexMap get(vertex_index_t, vtkGraph*) { return vtkGraphIndexMap(); }
+
+  template<>
+  struct property_map<vtkGraph*, edge_index_t>
+  {
+    typedef vtkGraphIndexMap type;
+    typedef vtkGraphIndexMap const_type;
+  };
+
+  template<>
+  struct property_map<vtkDirectedGraph*, edge_index_t>
+    : property_map<vtkGraph*, edge_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph*, edge_index_t>
+    : property_map<vtkGraph*, edge_index_t> { };
+
+  inline vtkGraphIndexMap get(edge_index_t, vtkGraph*) { return vtkGraphIndexMap(); }
+
 } // namespace boost
 
 

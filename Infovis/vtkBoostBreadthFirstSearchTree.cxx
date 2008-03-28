@@ -32,6 +32,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
+#ifdef VTK_USE_PARALLEL_BGL
+// Work around header-ordering issues in Boost.Serialization
+#  include <boost/parallel/mpi/bsp_process_group.hpp>
+#endif
 #include "vtkBoostGraphAdapter.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
@@ -43,7 +47,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.6");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearchTree, "1.6.4.1");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 

@@ -39,6 +39,10 @@
 
 class vtkPBGLDistributedGraphHelperInternals;
 
+namespace boost { namespace parallel { namespace mpi {
+  class bsp_process_group;
+} } } /// end namespace boost::parallel::mpi
+
 class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
  public:
@@ -57,6 +61,12 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // graph, so that other processors will see those edges (or their
   // corresponding back-edges).
   void Synchronize();
+
+  // BTX
+  // Description:
+  // Return the process group associated with this distributed graph.
+  boost::parallel::mpi::bsp_process_group GetProcessGroup();
+  // ETX
 
   // Description:
   // The Parallel BGL-specific internal information for this distributed 

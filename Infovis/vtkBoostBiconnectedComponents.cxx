@@ -28,6 +28,10 @@
 #include "vtkVertexListIterator.h"
 
 #include "vtkGraph.h"
+#ifdef VTK_USE_PARALLEL_BGL
+// Work around header-ordering issues in Boost.Serialization
+#  include <boost/parallel/mpi/bsp_process_group.hpp>
+#endif
 #include "vtkBoostGraphAdapter.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/vector_property_map.hpp>
@@ -39,7 +43,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.9");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.9.4.1");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()

@@ -30,13 +30,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+#ifdef VTK_USE_PARALLEL_BGL
+// Work around header-ordering issues in Boost.Serialization
+#  include <boost/parallel/mpi/bsp_process_group.hpp>
+#endif
 #include "vtkBoostGraphAdapter.h"
 #include <boost/graph/strong_components.hpp>
 #include <boost/vector_property_map.hpp>
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.5");
+vtkCxxRevisionMacro(vtkBoostConnectedComponents, "1.5.4.1");
 vtkStandardNewMacro(vtkBoostConnectedComponents);
 
 vtkBoostConnectedComponents::vtkBoostConnectedComponents()

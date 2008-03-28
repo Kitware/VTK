@@ -32,7 +32,26 @@
 
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
+// So that we can specialize the hash function for the hash table
+// Parallel BGL is using (a C++ Standard Library extension)
+#ifdef PBGL_HAS_HASH_TABLES
+#  include PBGL_HASH_MAP_HEADER
+#endif
+
 namespace boost {
+
+// Define specializations of class template property_map for
+// vtkDirectedGraph and vtkUndirectedGraph, based on the
+// specialization for vtkGraph.
+#define SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(Property) \
+  template<>                                            \
+  struct property_map<vtkDirectedGraph *, Property>     \
+    : property_map<vtkGraph *, Property> { };           \
+                                                        \
+  template<>                                            \
+  struct property_map<vtkUndirectedGraph *, Property>   \
+    : property_map<vtkGraph *, Property> { }
+
   // Property map from a vertex descriptor to the owner of the vertex
   struct vtkVertexOwnerMap 
   {
@@ -69,28 +88,30 @@ namespace boost {
    // vtkVertexOwnerMap
    template<>
    struct property_map<vtkGraph*, vertex_owner_t>
-     {
+   {
      typedef vtkVertexOwnerMap type;
      typedef vtkVertexOwnerMap const_type;
-     };
+   };
    
+  SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(vertex_owner_t);
+
     // Retrieve the vertex-owner property map from a vtkGraph
    inline vtkVertexOwnerMap
    get(vertex_owner_t, vtkGraph* graph)
-     {
+   {
      return vtkVertexOwnerMap(graph);
-     }
+   }
    
    // Map from vertex descriptor to (owner, local descriptor)
    struct vtkVertexGlobalMap 
-     {
+   {
      vtkVertexGlobalMap() : graph(0) { }
           
      explicit vtkVertexGlobalMap(vtkGraph* graph) 
        : graph(graph) { }
           
      vtkGraph* graph;
-     };
+   };
    
    template<>
    struct property_traits<vtkVertexGlobalMap> 
@@ -118,6 +139,8 @@ namespace boost {
      typedef vtkVertexGlobalMap const_type;
      };
     
+  SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(vertex_global_t);
+
    inline vtkVertexGlobalMap
    get(vertex_global_t, vtkGraph* graph)
      {
@@ -161,11 +184,15 @@ namespace boost {
      typedef vtkEdgeGlobalMap const_type;
      };
        
+  SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(edge_global_t);
+
    inline vtkEdgeGlobalMap
    get(edge_global_t, vtkGraph* graph)
      {
      return vtkEdgeGlobalMap(graph);
      }
+
+#undef SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS
 } // namespace boost
 
 namespace boost { namespace parallel { 
@@ -174,11 +201,30 @@ namespace boost { namespace parallel {
   //----------------------------------------------------------------------------
   template<>
   struct process_group_type<vtkGraph *> 
-    {
+  {
     typedef boost::parallel::mpi::bsp_process_group type;
-    };
+  };
 
   process_group_type<vtkGraph *>::type process_group(vtkGraph *graph);
+
+  template<>
+  struct process_group_type<vtkDirectedGraph *> 
+    : process_group_type<vtkGraph *> { };
+
+  inline process_group_type<vtkGraph *>::type process_group(vtkDirectedGraph *graph)
+  {
+    return process_group(static_cast<vtkGraph *>(graph));
+  }
+
+  template<>
+  struct process_group_type<vtkUndirectedGraph *> 
+    : process_group_type<vtkGraph *> { };
+
+  inline process_group_type<vtkGraph *>::type process_group(vtkUndirectedGraph *graph)
+  {
+    return process_group(static_cast<vtkGraph *>(graph));
+  }
+
 } } // end namespace boost::parallel
 
 //----------------------------------------------------------------------------
@@ -213,5 +259,15 @@ void serialize(Archiver& ar, vtkEdgeType& edge, const unsigned int)
      & edge.Source
      & edge.Target;
 }
+
+#if defined PBGL_HAS_HASH_TABLES && defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
+namespace PBGL_HASH_NAMESPACE {
+  template<>
+  struct hash<vtkIdType>
+  {
+    vtkstd::size_t operator()(vtkIdType x) const { return x; }
+  };
+}
+#endif
 
 #endif // __vtkPBGLGraphAdapter_h
