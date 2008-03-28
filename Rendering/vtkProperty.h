@@ -223,7 +223,9 @@ public:
   // only when shading is enabled.
   vtkGetObjectMacro(Material, vtkXMLMaterial);
 
-  // TODO: GetMaterialName().
+  // Description:
+  // Returns the name of the material currenly loaded, if any.
+  vtkGetStringMacro(MaterialName);
 
   // Description:
   // Load the material. The material can be the name of a

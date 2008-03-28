@@ -47,7 +47,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.69");
+vtkCxxRevisionMacro(vtkProperty, "1.70");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -414,12 +414,12 @@ int vtkProperty::GetTextureIndex(const char* name)
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(const char* name)
 {
+  this->SetMaterialName(0);
   if( !name || strlen(name) == 0)
     {
     this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
     return;
     }
-  this->SetMaterialName(name);
 
   // vtkXMLMaterial::CreateInstance using library/absolute path/repository
   // in that order.
@@ -439,6 +439,7 @@ void vtkProperty::LoadMaterial(const char* name)
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterialFromString(const char* materialxml)
 {
+  this->SetMaterialName(0);
   if (!materialxml)
     {
     this->LoadMaterial(static_cast<vtkXMLMaterial*>(0));
@@ -456,9 +457,11 @@ void vtkProperty::LoadMaterialFromString(const char* materialxml)
 //----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
 {
+  this->SetMaterialName(0);
   vtkSetObjectBodyMacro(Material, vtkXMLMaterial, material);
   if (this->Material)
     {
+    this->SetMaterialName(this->Material->GetRootElement()->GetAttribute("name"));
     this->LoadProperty();
     this->LoadTextures();
     int lang = this->Material->GetShaderLanguage();
