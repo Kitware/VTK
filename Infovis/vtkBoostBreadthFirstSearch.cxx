@@ -57,12 +57,10 @@
 #include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
-
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.2");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.3");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
-
 
 // Redefine the bfs visitor, the only visitor we
 // are using is the tree_edge visitor.
@@ -214,7 +212,15 @@ int vtkBoostBreadthFirstSearch::RequestData(
 
   // Send the data to output.
   output->ShallowCopy(input);
-    
+
+#ifdef VTK_USE_PARALLEL_BGL
+  // HACK: During bfs->Update(), vtkDataObject::DataHasBeenGenerated()
+  // gets called on the output graph, clobbering the piece number and
+  // number of pieces in the output graph. We reset those values now,
+  // so that we can continue our test, but we need a real answer.
+  output->SetDistributedGraphHelper(output->GetDistributedGraphHelper());
+#endif
+
   // Sanity check
   // The Boost BFS likes to crash on empty datasets
   if (input->GetNumberOfVertices() == 0)
@@ -290,7 +296,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
   // Initialize the BFS array to all 0's
   for(int i=0;i< BFSArray->GetNumberOfTuples(); ++i)
     {
-    BFSArray->SetValue(i,0);
+      BFSArray->SetValue(i, VTK_INT_MAX);
     }
 
   vtkIdType maxFromRootVertex = 0;
@@ -312,6 +318,11 @@ int vtkBoostBreadthFirstSearch::RequestData(
       vtkErrorMacro("Can only perform Parallel BGL breadth-first search on a Parallel BGL distributed graph");
       return 1;
       }
+
+    // Set the distance to the source vertex to zero
+    if (output->GetVertexOwner(this->OriginVertexIndex)
+        == output->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER()))
+      BFSArray->SetValue(output->GetVertexIndex(this->OriginVertexIndex), 0);
 
     // Distributed color map
     typedef boost::parallel::distributed_property_map<
@@ -345,7 +356,8 @@ int vtkBoostBreadthFirstSearch::RequestData(
       {
       vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
       boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
-                                         distribColor, bfsVisitor, 
+                                         distribColor, 
+                                         bfsVisitor, 
                                          boost::detail::error_property_not_found(),
                                          get(vertex_index, g));
       }
@@ -364,6 +376,9 @@ int vtkBoostBreadthFirstSearch::RequestData(
 #endif
     { 
     // Non-distributed breadth-first search
+
+    // Set the distance to the source vertex to zero
+    BFSArray->SetValue(this->OriginVertexIndex, 0);
 
     // Create a queue to hand off to the BFS
     boost::queue<int> Q;

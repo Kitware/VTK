@@ -43,12 +43,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.4");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.5");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.4");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.5");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void vtkPBGLDistributedGraphHelper::Synchronize()
 //----------------------------------------------------------------------------
 boost::parallel::mpi::bsp_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
 {
-  return this->Internals->process_group;
+  return this->Internals->process_group.base();
 }
 
 //----------------------------------------------------------------------------
@@ -205,7 +205,7 @@ namespace boost { namespace parallel {
   process_group(vtkGraph *graph)
   {
     vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
-    if (helper)
+    if (!helper)
       {
       vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
       return boost::parallel::mpi::bsp_process_group();
@@ -219,6 +219,6 @@ namespace boost { namespace parallel {
       return boost::parallel::mpi::bsp_process_group();
       }
 
-    return pbglHelper->Internals->process_group;
+    return pbglHelper->Internals->process_group.base();
   }
 } } // end namespace boost::parallel

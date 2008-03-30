@@ -45,7 +45,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.5");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.6");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -531,6 +531,14 @@ void vtkGraph::CopyStructure(vtkGraph *g)
     this->Points->Delete();
     this->Points = 0;
     }
+
+  // Propagate information used by distributed graphs
+  this->Information->Set
+    (vtkDataObject::DATA_PIECE_NUMBER(),
+     g->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()));
+  this->Information->Set
+    (vtkDataObject::DATA_NUMBER_OF_PIECES(),
+     g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
 }
 
 //----------------------------------------------------------------------------
@@ -576,6 +584,14 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     this->Points->Delete();
     this->Points = 0;
     }
+
+  // Propagate information used by distributed graphs
+  this->Information->Set
+    (vtkDataObject::DATA_PIECE_NUMBER(),
+     g->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()));
+  this->Information->Set
+    (vtkDataObject::DATA_NUMBER_OF_PIECES(),
+     g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
 }
 
 //----------------------------------------------------------------------------
