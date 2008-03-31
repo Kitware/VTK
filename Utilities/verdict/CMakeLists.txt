@@ -48,7 +48,7 @@ if ( VERDICT_ENABLE_TESTING )
   )
 
   add_executable( verdict_test ${verdict_TESTSRCS} )
-  target_link_libraries( verdict_test "${verdict_libname}" )
+  target_link_libraries( verdict_test verdict )
 
   add_test( verdict_test verdict_test )
   set_tests_properties( verdict_test PROPERTIES FAIL_REGULAR_EXPRESSION "FAILED" )
