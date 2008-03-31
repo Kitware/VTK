@@ -56,13 +56,12 @@ struct test_case
 
 int main( )
 {
-
   // all test cases go here  
   test_case testcases[] = {
 /*
   {
   "edge calc 1",
-  {edge_length, 0},
+  {v_edge_length, 0},
   2,
   { { 0,0,0 }, {1,1,1} },
   { 1.732050807568877, 0 }
@@ -70,7 +69,7 @@ int main( )
 
   {
   "edge calc 2",
-  {edge_length, 0 },
+  {v_edge_length, 0 },
   2,
   { { 0,0,0 }, { 1,0,0 } },
   { 1.0, 0 }
@@ -78,7 +77,7 @@ int main( )
 
   {
   "edge calc 3",
-  {edge_length, 0 },
+  {v_edge_length, 0 },
   2,
   { { 0,0,0 }, { 0,0,0 } },
   { 0, 0 }
@@ -86,7 +85,7 @@ int main( )
 
   { 
   "simple wedge" ,
-  {wedge_volume, 0},
+  {v_wedge_volume, 0},
   6,
   { { 0,0,0}, {-1,1,0}, {-1,0,0}, {0,0,1}, {-1,1,1}, {-1,0,1} },
   { 0.5, 0 }
@@ -94,7 +93,7 @@ int main( )
 
   {
   "singularity wedge",
-  {wedge_volume, 0},
+  {v_wedge_volume, 0},
   6,
   { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
   { 0 }
@@ -138,13 +137,14 @@ int main( )
   }, 
   { 1.3333333333333333333, 0 }
   },
+
   {
   "simple quad",
-  { quad_aspect, quad_skew, quad_taper, quad_warpage, quad_area, 
-  quad_stretch, quad_largest_angle, quad_smallest_angle,
-  quad_condition, quad_jacobian, quad_normalized_jacobian, quad_shear,
-  quad_shape, quad_relative_size, quad_shape_and_size, quad_shear_and_size,
-  quad_distortion, 0},
+  { v_quad_aspect_ratio, v_quad_skew, v_quad_taper, v_quad_warpage, v_quad_area, 
+  v_quad_stretch, v_quad_minimum_angle, v_quad_maximum_angle,
+  v_quad_condition, v_quad_jacobian, v_quad_shear,
+  v_quad_shape, v_quad_shape_and_size, v_quad_shear_and_size,
+  v_quad_distortion, 0},
   4,
   {
   {2,0,0},    //1
@@ -155,15 +155,12 @@ int main( )
 
 
   }, 
-  { 1.34, .30, .20, .20, .23, 0,0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0}
+  { 1.34, .30, .20, .20, .23, 0,0, 0, 0, 0 , 0, 0, 0, 0, 0, 0}
   },
-*/
-/*
   {
   "tet test",
-  { tet_shear, 
-  tet_volume, tet_condition, tet_jacobian, 
-  tet_shape, tet_relative_size, tet_shape_and_size, tet_distortion, 0 },
+  { v_tet_volume, v_tet_condition, v_tet_jacobian, 
+  v_tet_shape, v_tet_shape_and_size, v_tet_distortion, 0 },
   4,
   {
   {-5, -5, -5 },
@@ -173,16 +170,14 @@ int main( )
  
   },
 
-  {0,0,0,0,0,0,0,0,0}
+  {0,0,0,0,0,0,0}
   },
-*/
-/*
   {
   "hex test",
-  { hex_aspect ,hex_skew, hex_taper, hex_volume, hex_stretch, hex_diagonal,
-  hex_dimension, hex_condition, hex_jacobian, hex_normalized_jacobian, hex_shear,
-  hex_shape, hex_relative_size, hex_shear_and_size, hex_shape_and_size,
-  hex_distortion, 0 },
+  { v_hex_skew, v_hex_taper, v_hex_volume, v_hex_stretch, v_hex_diagonal,
+  v_hex_dimension, v_hex_condition, v_hex_jacobian, v_hex_shear,
+  v_hex_shape, v_hex_shear_and_size, v_hex_shape_and_size,
+  v_hex_distortion, 0 },
   8,
 
   { 
@@ -198,12 +193,10 @@ int main( )
   },
 
 
-  {0.34, 0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0}
+  {0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0.34,0}
   },
 
 */
-
-
     // keep this one last
     { 0, {0} , 0, {{0}} , {0} } };
 
