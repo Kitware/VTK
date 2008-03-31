@@ -1,4 +1,16 @@
-    VERDICT - computes quality metrics for finite elements
+    VERDICT - computes quality functions of 2 and 3-dimensional
+              regions.
+
+To build with CMake
+  
+   1. set up a build directory
+   2. cd to this directory
+   3. type "ccmake <path-to-source directory>"
+   4. fill the required fields and press the 'c' key
+      NB: this process is recursive
+   5. when it becomes available, press the 'g' key to generate
+      the Makefile and exit CMake.
+   6. build with 'make'
 
 To build on Unix/Linux
 
