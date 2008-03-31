@@ -506,6 +506,24 @@ protected:
   // The vertex locations.
   vtkPoints *Points;
   static double DefaultPoint[3];
+  
+  // Description:
+  // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
+  vtkIdType signBitMask;
+
+  // Description:
+  // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
+  vtkIdType highBitShiftMask;
+  
+  // Description:
+  // Number of bits required to represent # of processors (owner) (for distrib graph)
+  int procBits;
+  
+  // Description:
+  // Number of bits required to represent {vertex,edge} index (for distrib graph)
+  int indexBits;
+  
+  
   //ETX
 private:
   vtkGraph(const vtkGraph&);  // Not implemented.
