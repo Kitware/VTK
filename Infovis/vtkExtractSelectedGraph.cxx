@@ -45,7 +45,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.19");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.20");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -286,35 +286,38 @@ int vtkExtractSelectedGraph::RequestData(
 
       vtkPoints* newPoints = vtkPoints::New();
       newPoints->SetNumberOfPoints(numConnected);
+      vtkDataSetAttributes *newVertexData = vtkDataSetAttributes::New();
+      newVertexData->CopyStructure(input->GetVertexData());
 
       if (directed)
         {
-        dirBuilder->GetVertexData()->SetNumberOfTuples(numConnected);
         for (idx = 0; idx<connectedVertices.size(); idx++)
           {
           if(connectedVertices[idx]==1)
             {
-            dirBuilder->GetVertexData()->SetTuple(vertexMap[idx], idx, input->GetVertexData());
+            newVertexData->InsertTuple(vertexMap[idx], idx, input->GetVertexData());
             newPoints->SetPoint(vertexMap[idx], input->GetPoints()->GetPoint(idx));
             }
           }
+        dirBuilder->GetVertexData()->PassData(newVertexData);
         dirBuilder->SetPoints(newPoints);
         }
       else
         {
-        undirBuilder->GetVertexData()->SetNumberOfTuples(numConnected);
         for (idx = 0; idx<connectedVertices.size(); idx++)
           {
           if(connectedVertices[idx]==1)
             {
-            undirBuilder->GetVertexData()->SetTuple(vertexMap[idx], idx, input->GetVertexData());
+            newVertexData->InsertTuple(vertexMap[idx], idx, input->GetVertexData());
             newPoints->SetPoint(vertexMap[idx], input->GetPoints()->GetPoint(idx));
             }
           }
+        undirBuilder->GetVertexData()->PassData(newVertexData);
         undirBuilder->SetPoints(newPoints);
         }
 
       newPoints->Delete();
+      newVertexData->Delete();
 
       // Now actually copy the edges (only the selected ones) 
       // using the new vertex ids.
