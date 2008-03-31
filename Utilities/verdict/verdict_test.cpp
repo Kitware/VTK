@@ -102,8 +102,8 @@ int main( )
 
   {
   "simple tri",
-  { tri_area, tri_smallest_angle, tri_largest_angle, tri_condition, 
-  tri_normalized_jacobian, tri_shape, tri_relative_size, tri_shape_and_size, tri_distortion, 0},
+  { v_tri_area, v_tri_minimum_angle, v_tri_maximum_angle, v_tri_condition, 
+  v_tri_shape, v_tri_shape_and_size, v_tri_distortion, 0},
   3,
   { 
   {0,0,0}, 
@@ -111,9 +111,8 @@ int main( )
   {2.5, 4.330127, 0}, 
   },
 
-  { 0,0,0,0,0,0,0,0,0}
+  { 0,0,0,0,0,0,0}
   },
-*/
     {
       "singular tri",
       {v_tri_area, v_tri_aspect_ratio, v_tri_condition, 
@@ -127,7 +126,6 @@ int main( )
         {1,0,0} },
       { 123, 1234, 1234, 1234, 1234, 1234, 1234, 1234, 1234,0}
     },
-/*
   {
   "simple quad",
   { v_quad_skew, 0},
