@@ -45,7 +45,7 @@
 using vtkstd::pair;
 using vtkstd::vector;
 
-static vtkIdType verticesPerNode = 5;
+static vtkIdType verticesPerNode = 1000;
 
 void TestDirectedGraph()
 {

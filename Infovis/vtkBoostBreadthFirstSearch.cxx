@@ -48,6 +48,7 @@
 #  include "vtkPBGLGraphAdapter.h"
 #  include "vtkPBGLDistributedGraphHelper.h"
 #  include <boost/graph/distributed/breadth_first_search.hpp>
+#  include <boost/parallel/algorithm.hpp>
 #endif
 
 #include <boost/graph/adjacency_list.hpp>
@@ -57,9 +58,11 @@
 #include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
+#include <vtksys/stl/utility> // for pair
+
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.3");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.4");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -73,13 +76,12 @@ public:
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
-  void discover_vertex(Vertex v, const Graph& vtkNotUsed(g))
+  void examine_vertex(Vertex v, const Graph& vtkNotUsed(g))
   {
-    // If this is the start vertex, initialize far vertex and distance
-    if (*far_vertex < 0)
+    if (get(d, v) > far_dist)
       {
       *far_vertex = v;
-      far_dist = 0;
+      far_dist = get(d, v);
       }
   }
 
@@ -89,17 +91,44 @@ public:
     typename graph_traits<Graph>::vertex_descriptor
     u = source(e, g), v = target(e, g);
     put(d, v, get(d, u) + 1);
-    if (get(d, v) > far_dist)
-      {
-      *far_vertex = v;
-      far_dist = get(d, v);
-      }
   }
 
 private:
   DistanceMap d;
   vtkIdType* far_vertex;
   vtkIdType far_dist;
+};
+
+// Function object used to reduce (vertex, distance) pairs to find
+// the furthest vertex. This ordering favors vertices on processors
+// with a lower rank. Used only for the Parallel BGL breadth-first
+// search.
+class furthest_vertex 
+{
+public:
+  furthest_vertex() : graph(0) { }
+
+  furthest_vertex(vtkGraph *graph) : graph(graph) { }
+
+  vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
+  {
+    if (x.second > y.second 
+        || (x.second == y.second 
+            && graph->GetVertexOwner(x.first) < graph->GetVertexOwner(y.first))
+        || (x.second == y.second 
+            && graph->GetVertexOwner(x.first) == graph->GetVertexOwner(y.first)
+            && graph->GetVertexIndex(x.first) < graph->GetVertexIndex(y.first)))
+      {
+      return x;
+      }
+    else
+      {
+      return y;
+      }
+  }
+
+private:
+  vtkGraph *graph;
 };
   
 // Constructor/Destructor
@@ -299,7 +328,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
       BFSArray->SetValue(i, VTK_INT_MAX);
     }
 
-  vtkIdType maxFromRootVertex = 0;
+  vtkIdType maxFromRootVertex = this->OriginVertexIndex;
 
   // Create a color map (used for marking visited nodes)
   vector_property_map<default_color_type> color(output->GetNumberOfVertices());
@@ -320,9 +349,12 @@ int vtkBoostBreadthFirstSearch::RequestData(
       }
 
     // Set the distance to the source vertex to zero
-    if (output->GetVertexOwner(this->OriginVertexIndex)
-        == output->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER()))
+    int myRank = output->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+
+    if (output->GetVertexOwner(this->OriginVertexIndex) == myRank)
+      {
       BFSArray->SetValue(output->GetVertexIndex(this->OriginVertexIndex), 0);
+      }
 
     // Distributed color map
     typedef boost::parallel::distributed_property_map<
@@ -370,7 +402,17 @@ int vtkBoostBreadthFirstSearch::RequestData(
                                          get(vertex_index, g));
       }
 
-    // TODO: need to all-reduce() maxFromRootVertex
+    // Compute maxFromRootVertex globally
+    using boost::parallel::all_reduce;
+    int maxDistance = 0;
+    if (output->GetVertexOwner(maxFromRootVertex) == myRank)
+      {
+      maxDistance = BFSArray->GetValue(output->GetVertexIndex(maxFromRootVertex));
+      }
+    maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
+                                   vtkstd::make_pair(maxFromRootVertex,
+                                                     maxDistance),
+                                   furthest_vertex(output)).first;
     }
   else
 #endif
