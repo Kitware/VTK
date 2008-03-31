@@ -43,12 +43,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.5");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.6");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.5");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.6");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -76,10 +76,11 @@ boost::parallel::mpi::bsp_process_group vtkPBGLDistributedGraphHelper::GetProces
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType 
+void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u, 
                                                vtkIdType v,
-                                               bool directed)
+                                               bool directed,
+                                               vtkEdgeType *edge)
 {
   int rank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
@@ -87,7 +88,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
 
   if (uOwner == rank)
     {
-    // Forward part of the edge is local.
+    // The source of the edge is local.
     vtkGraphInternals* GraphInternals = this->Graph->GetGraphInternals(true);
     
     // The edge ID involves our rank and the local number of edges.
@@ -126,17 +127,31 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
                                            directed));
       }
 
-    return vtkEdgeType(u, v, edgeId);
+    if (edge)
+      {
+      *edge = vtkEdgeType(u, v, edgeId);
+      }
     }
-  else
+  else 
     {
-    // Forward part of the edge is non-local; we abort at this point,
-    // because we're not yet ready to deal with non-local edge
-    // additions.
-    vtkErrorMacro("Parallel BGL distributed graph cannot yet support adding non-local edges");
-
-    // This is a dummy return value.
-    return vtkEdgeType(u, v, -1);
+    // The source of the edge is non-local.
+      if (edge)
+        {
+        // Abort at this point, because we do not yet have the
+        // ability to safely wait for a non-local edge addition to
+        // complete before returning to the called.
+        vtkErrorMacro("Parallel BGL distributed graph cannot yet support adding non-local edges");
+        }
+      else
+        {
+        // We're adding a remote edge, but we don't need to wait
+        // until the edge has been added. Just send a message to the
+        // owner of the source; we don't need (or want) a reply.
+        send(this->Internals->process_group, uOwner, 
+             directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG 
+                     : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+             vtkstd::pair<vtkIdType, vtkIdType>(u, v));
+        }
     }
 }
 
@@ -157,8 +172,9 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       num_processes(this->Internals->process_group));
 
     // Put our message handler into the process group
-    this->Internals->process_group.replace_handler(
-      boost::bind(&vtkPBGLDistributedGraphHelper::HandleMessage, this, _1, _2));
+    this->Internals->process_group.replace_handler
+      (boost::bind(&vtkPBGLDistributedGraphHelper::HandleMessage, this, _1, _2),
+       2);
     }
 }
 
@@ -172,6 +188,18 @@ void vtkPBGLDistributedGraphHelper::HandleMessage(int source, int tag)
         vtkstd::pair<vtkEdgeType, bool> data;
         receive(this->Internals->process_group, source, tag, data);
         this->AddBackEdge(data.first, data.second);
+      }
+      break;
+
+    case ADD_DIRECTED_EDGE_NO_REPLY_TAG:
+    case ADD_UNDIRECTED_EDGE_NO_REPLY_TAG:
+      {
+        // Receive the incoming message
+        vtkstd::pair<vtkIdType, vtkIdType> data;
+        receive(this->Internals->process_group, source, tag, data);
+        this->AddEdgeInternal(data.first, data.second, 
+                              tag == ADD_DIRECTED_EDGE_NO_REPLY_TAG,
+                              0);
       }
       break;
     }

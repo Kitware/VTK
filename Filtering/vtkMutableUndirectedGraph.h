@@ -53,6 +53,13 @@ public:
   // The returned vtkEdgeType indicates a Source and Target,
   // but these are in arbitrary order.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
+
+  // Description:
+  // Adds an undirected edge from u to v to the graph. If non-null, edge
+  // will receive the newly-constructed edge. For distributed graphs, 
+  // passing NULL for edge can improve performance when adding non-local
+  // edges.
+  void AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge);
   //ETX
 
   // Description:

@@ -69,6 +69,16 @@ bool operator<(AddedEdge const& e1, AddedEdge const& e2)
     || ((unsigned long long)e1.Source == (unsigned long long)e2.Source && (unsigned long long)e1.Target < (unsigned long long)e2.Target);
  }
 
+// Order added edges by their source
+struct OrderEdgesBySource : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
+{
+  bool operator()(AddedEdge const& e1, AddedEdge const& e2)
+  {
+    return (unsigned long long)e1.Source < (unsigned long long)e2.Source
+      || ((unsigned long long)e1.Source == (unsigned long long)e2.Source && (unsigned long long)e1.Target < (unsigned long long)e2.Target);
+  }
+};
+
 // Order added edges by their target
 struct OrderEdgesByTarget : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
 {
@@ -93,12 +103,13 @@ struct IsSelfLoop : vtkstd::unary_function<AddedEdge, bool>
   }
 };
 
-// Given the locally-generated outgoing edges in outEdges (which must
-// be sorted by the target of the edge), determine the incoming edges
-// and put them into inEdges.
-void ExchangeInEdges(vtkGraph* graph,
-                     vector<AddedEdge> const& outEdges, 
-                     vector<AddedEdge>& inEdges)
+// Given the locally-generated edges in outEdges (which must be sorted
+// by the source or target of the edge, depending on whether source is
+// true), determine the incoming edges and put them into inEdges.
+void ExchangeEdges(vtkGraph* graph,
+                   vector<AddedEdge> const& outEdges, 
+                   vector<AddedEdge>& inEdges,
+                   bool source)
 {
   int numProcs 
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
@@ -109,7 +120,8 @@ void ExchangeInEdges(vtkGraph* graph,
   vector<int> sendCounts(numProcs, 0);
   for (vector<AddedEdge>::size_type i = 0; i < outEdges.size(); ++i)
     {
-    ++sendCounts[graph->GetVertexOwner(outEdges[i].Target)];
+    ++sendCounts[source? graph->GetVertexOwner(outEdges[i].Source)
+                       : graph->GetVertexOwner(outEdges[i].Target)];
     }
   vector<int> offsetsSend(numProcs, 0);
   int count = 0;
@@ -183,7 +195,7 @@ void TestDirectedGraph()
   // structure is consistent.
   const vtkIdType V = 10000;
   const vtkIdType E = 100000;
-  vector<AddedEdge> addedEdges;
+  vector<AddedEdge> generatedEdges;
 
   if (myRank == 0)
     {
@@ -198,13 +210,11 @@ void TestDirectedGraph()
 
   for (vtkIdType e = 0; e < E; ++e)
     {
-    // TODO: For now, we ensure that the source is local
-    vtkIdType source = graph->MakeDistributedId(myRank, rand() % V);
-    vtkIdType target 
-      = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    graph->AddEdge(source, target);
+    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    graph->AddEdge(source, target, 0);
 
-    addedEdges.push_back(AddedEdge(source, target));
+    generatedEdges.push_back(AddedEdge(source, target));
     }
 
   if (myRank == 0)
@@ -218,6 +228,15 @@ void TestDirectedGraph()
     {
     (cout << " done.\n").flush();
     }
+
+  // We know which edges we generated, but some of those edges were
+  // actually added on other nodes. Do a large exchange so that
+  // addedEdges contains all of the edges that should originate on
+  // this node.
+  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  vtkstd::vector<AddedEdge> addedEdges;
+  ExchangeEdges(graph, generatedEdges, addedEdges, true);
+  vtkstd::vector<AddedEdge>().swap(generatedEdges);
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -242,7 +261,7 @@ void TestDirectedGraph()
     }
 
   // Keep our list of the edges we added sorted by source.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end());
+  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -342,7 +361,7 @@ void TestDirectedGraph()
   // Let everyone know about the in-edges they should have.
   vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
   vector<AddedEdge> inEdges;
-  ExchangeInEdges(graph, addedEdges, inEdges);
+  ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Test the incoming edges of each local vertex
   if (myRank == 0)
@@ -426,7 +445,7 @@ void TestUndirectedGraph()
   // structure is consistent.
   const vtkIdType V = 10000;
   const vtkIdType E = 100000;
-  vector<AddedEdge> addedEdges;
+  vector<AddedEdge> generatedEdges;
   if (myRank == 0)
     {
     (cout << "Build distributed undirected graph with V=" << V*numProcs 
@@ -440,11 +459,9 @@ void TestUndirectedGraph()
 
   for (vtkIdType e = 0; e < E; ++e)
     {
-    // TODO: For now, we ensure that the source is local
-    vtkIdType source = graph->MakeDistributedId(myRank, rand() % V);
-    vtkIdType target 
-      = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    graph->AddEdge(source, target);
+    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    graph->AddEdge(source, target, 0);
 
     // If source and target are on the same processor, and source >
     // target, swap them. This ensures that the addedEdges list has
@@ -455,13 +472,22 @@ void TestUndirectedGraph()
         && source > target)
       vtkstd::swap(source, target);
 
-    addedEdges.push_back(AddedEdge(source, target));
+    generatedEdges.push_back(AddedEdge(source, target));
     }
 
   if (myRank == 0)
     {
     (cout << " synchronizing... ").flush();
     }
+
+  // We know which edges we generated, but some of those edges were
+  // actually added on other nodes. Do a large exchange so that
+  // addedEdges contains all of the edges that should originate on
+  // this node.
+  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  vtkstd::vector<AddedEdge> addedEdges;
+  ExchangeEdges(graph, generatedEdges, addedEdges, true);
+  vtkstd::vector<AddedEdge>().swap(generatedEdges);
 
   // Synchronize the graph, so that everyone finishes adding edges.
   graph->GetDistributedGraphHelper()->Synchronize();
@@ -495,7 +521,7 @@ void TestUndirectedGraph()
   // Find all of the incoming edges
   vector<AddedEdge> inEdges;
   vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
-  ExchangeInEdges(graph, addedEdges, inEdges);
+  ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Remove self-loops from the list of in-edges. We don't want them
   // to appear twice. 
@@ -512,7 +538,7 @@ void TestUndirectedGraph()
     }
 
   // Keep this list of all edges sorted.
-  vtkstd::sort(allEdges.begin(), allEdges.end());
+  vtkstd::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -575,7 +601,7 @@ void TestUndirectedGraph()
 
   // Find where each of the local vertices has edges stored in the
   // allEdges list.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end());
+  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)

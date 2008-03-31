@@ -73,8 +73,8 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 
   // Description:
   // Add an edge (u, v) to the distributed graph. The edge may be directed 
-  // undirected.
-  virtual vtkEdgeType AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed) = 0;
+  // undirected. If edge is non-null, it will receive the newly-created edge.
+  virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge) = 0;
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will

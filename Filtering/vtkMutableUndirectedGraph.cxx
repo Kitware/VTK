@@ -26,7 +26,7 @@
 //----------------------------------------------------------------------------
 // class vtkMutableUndirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMutableUndirectedGraph, "1.1");
+vtkCxxRevisionMacro(vtkMutableUndirectedGraph, "1.1.4.1");
 vtkStandardNewMacro(vtkMutableUndirectedGraph);
 //----------------------------------------------------------------------------
 vtkMutableUndirectedGraph::vtkMutableUndirectedGraph()
@@ -49,7 +49,15 @@ vtkIdType vtkMutableUndirectedGraph::AddVertex()
 //----------------------------------------------------------------------------
 vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
 {
-  return this->AddEdgeInternal(u, v, false);
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, false, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableUndirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge)
+{
+  this->AddEdgeInternal(u, v, false, edge);
 }
 
 //----------------------------------------------------------------------------

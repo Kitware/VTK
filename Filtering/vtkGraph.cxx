@@ -45,7 +45,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.7");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.8");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -661,12 +661,13 @@ vtkIdType vtkGraph::AddVertexInternal()
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
+void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge)
 {
   this->ForceOwnership();
   if (this->Internals->DistributedHelper)
     {
-    return this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed);
+    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge);
+    return;
     }
 
   vtkIdType edgeId = this->Internals->NumberOfEdges;
@@ -681,7 +682,10 @@ vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
     // Avoid storing self-loops twice in undirected graphs.
     this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
     }
-  return vtkEdgeType(u, v, edgeId);
+  if (edge)
+    {
+    *edge = vtkEdgeType(u, v, edgeId);
+    }
 }
 
 //----------------------------------------------------------------------------

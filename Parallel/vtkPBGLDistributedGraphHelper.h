@@ -80,13 +80,19 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // BTX
   enum Tags
   {
-    ADD_BACK_EDGE_TAG
+    // Add a back edge; the forward edge has already been added.
+    ADD_BACK_EDGE_TAG,
+    // Add a directed edge; don't reply
+    ADD_DIRECTED_EDGE_NO_REPLY_TAG,
+    // Add an undirected edge; don't reply
+    ADD_UNDIRECTED_EDGE_NO_REPLY_TAG
   };
 
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
-  // not be directed, depending on the given flag.
-  vtkEdgeType AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed);
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
  
   // Description:
   // Attach this distributed graph helper to the given graph. This will

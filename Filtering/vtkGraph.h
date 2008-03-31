@@ -449,8 +449,9 @@ protected:
 
   // Description:
   // Protected method for adding edges of a certain directedness
-  // used by mutable subclasses.
-  vtkEdgeType AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed);
+  // used by mutable subclasses. If non-null, edge will receive the
+  // newly-added edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
 
   // Description:
   // Subclasses override this method to accept the structure
