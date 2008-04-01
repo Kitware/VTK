@@ -65,6 +65,17 @@ public:
   // Description:
   // Update the view.
   virtual void Update();
+
+  //BTX
+  enum {
+    SURFACE = 0,
+    FRUSTUM = 1
+  };
+  //ETX
+  vtkSetClampMacro(SelectionMode, int, 0, 1);
+  vtkGetMacro(SelectionMode, int);
+  void SetSelectionModeToSurface() { this->SetSelectionMode(SURFACE); }
+  void SetSelectionModeToFrustum() { this->SetSelectionMode(FRUSTUM); }
   
 protected:
   vtkRenderView();
@@ -94,6 +105,7 @@ protected:
   
   vtkRenderer* Renderer;
   vtkInteractorStyle* InteractorStyle;
+  int SelectionMode;
   
 private:
   vtkRenderView(const vtkRenderView&);  // Not implemented.

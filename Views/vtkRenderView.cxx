@@ -21,6 +21,7 @@
 
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -35,7 +36,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.3");
+vtkCxxRevisionMacro(vtkRenderView, "1.4");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -44,6 +45,7 @@ vtkRenderView::vtkRenderView()
   this->Renderer->AddObserver(vtkCommand::StartEvent, this->GetObserver());
   this->InteractorStyle = vtkInteractorStyleRubberBand3D::New();
   this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+  this->SelectionMode = SURFACE;
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -112,7 +114,6 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     }
   else if (caller == this->InteractorStyle && eventId == vtkCommand::SelectionChangedEvent)
     {
-    // Do a visible cell selection.
     unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
     unsigned int pos1X = rect[0];
     unsigned int pos1Y = rect[1];
@@ -130,26 +131,96 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
     unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
     unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
-    vtkVisibleCellSelector* vcs = vtkVisibleCellSelector::New();
-    vcs->SetRenderer(this->Renderer);
-    vcs->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-    vcs->SetProcessorId(0);
-    vcs->SetRenderPasses(0, 1, 0, 0, 1);
-    vcs->Select();  
-    
+
     vtkSelection* selection = vtkSelection::New();
-    vcs->GetSelectedIds(selection);
-    
-    // Add prop pointers to the selection
-    for (unsigned int s = 0; s < selection->GetNumberOfChildren(); s++)
+    if (this->SelectionMode == SURFACE)
       {
-      vtkSelection* child = selection->GetChild(s);
-      int propId = child->GetProperties()->Get(vtkSelection::PROP_ID());
-      vtkProp* prop = vcs->GetActorFromId(propId);
-      //cerr << "child " << s << " selected from prop " << propId << " " << reinterpret_cast<vtkTypeUInt64>(prop) << endl; 
-      child->GetProperties()->Set(vtkSelection::PROP(), prop);
+      // Do a visible cell selection.
+      vtkVisibleCellSelector* vcs = vtkVisibleCellSelector::New();
+      vcs->SetRenderer(this->Renderer);
+      vcs->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
+      vcs->SetProcessorId(0);
+      vcs->SetRenderPasses(0, 1, 0, 0, 1);
+      vcs->Select();  
+      
+      vcs->GetSelectedIds(selection);
+      
+      // Add prop pointers to the selection
+      for (unsigned int s = 0; s < selection->GetNumberOfChildren(); s++)
+        {
+        vtkSelection* child = selection->GetChild(s);
+        int propId = child->GetProperties()->Get(vtkSelection::PROP_ID());
+        vtkProp* prop = vcs->GetActorFromId(propId);
+        child->GetProperties()->Set(vtkSelection::PROP(), prop);
+        }
+      vcs->Delete();
       }
-    vcs->Delete();
+    else
+      {
+      // Do a frustum selection.
+      int displayRectangle[4] = {screenMinX, screenMinY, screenMaxX, screenMaxY};
+      vtkDoubleArray *frustcorners = vtkDoubleArray::New();
+      frustcorners->SetNumberOfComponents(4);
+      frustcorners->SetNumberOfTuples(8);
+      //convert screen rectangle to world frustum
+      vtkRenderer *renderer = this->GetRenderer();
+      double worldP[32];
+      int index=0;
+      renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 0);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 1);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 0);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 1);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 0);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 1);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 0);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+      index++;
+      renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 1);
+      renderer->DisplayToWorld();
+      renderer->GetWorldPoint(&worldP[index*4]);
+      frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
+        worldP[index*4+2], worldP[index*4+3]);
+
+      selection->GetProperties()->Set(
+        vtkSelection::CONTENT_TYPE(), vtkSelection::FRUSTUM);
+      selection->GetProperties()->Set(
+        vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
+      selection->SetSelectionList(frustcorners);
+      frustcorners->Delete();
+      }
     
     // Call select on the representation(s)
     for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)

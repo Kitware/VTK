@@ -22,6 +22,7 @@
 #include "vtkActor.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataObject.h"
 #include "vtkExtractSelection.h"
 #include "vtkGeometryFilter.h"
@@ -36,7 +37,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 
-vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.3");
 vtkStandardNewMacro(vtkSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -131,7 +132,7 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
   converted->SetSelectionList(empty);
   empty->Delete();
 
-  if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) == vtkSelection::SELECTIONS)
+  if (selection->GetContentType() == vtkSelection::SELECTIONS)
     {
     for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
       {
@@ -141,6 +142,22 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
         {
         // TODO: Should convert this to a pedigree id selection.
         converted->ShallowCopy(child);
+        }
+      }
+    }
+  else if (selection->GetContentType() == vtkSelection::FRUSTUM)
+    {
+    // Convert to an index selection
+    if (this->InputConnection)
+      {
+      vtkAlgorithm* producer = this->InputConnection->GetProducer();
+      producer->Update();
+      vtkDataObject* obj = producer->GetOutputDataObject(this->InputConnection->GetIndex());
+      if (obj)
+        {
+        vtkSelection* index = vtkConvertSelection::ToIndexSelection(selection, obj);
+        converted->ShallowCopy(index);
+        index->Delete();
         }
       }
     }
