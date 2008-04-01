@@ -45,7 +45,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.8");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.9");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -574,6 +574,11 @@ void vtkGraph::CopyStructure(vtkGraph *g)
   this->Information->Set
     (vtkDataObject::DATA_NUMBER_OF_PIECES(),
      g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
+
+  this->signBitMask = g->signBitMask;
+  this->highBitShiftMask = g->highBitShiftMask;
+  this->procBits = g->procBits;
+  this->indexBits = g->indexBits;
 }
 
 //----------------------------------------------------------------------------
@@ -627,6 +632,11 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   this->Information->Set
     (vtkDataObject::DATA_NUMBER_OF_PIECES(),
      g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
+  
+  this->signBitMask = g->signBitMask;
+  this->highBitShiftMask = g->highBitShiftMask;
+  this->procBits = g->procBits;
+  this->indexBits = g->indexBits;
 }
 
 //----------------------------------------------------------------------------
