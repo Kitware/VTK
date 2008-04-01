@@ -272,7 +272,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // {
   // vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   // schema->SetName( "Example" );
-  // schema->AddTableMultipleArguments( "StrangeTable",
+  // schema->AddTableMultipleArguments( "ATable",
   // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
   // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
   // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
@@ -284,7 +284,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
   // vtkSQLDatabaseSchema::END_INDEX_TOKEN,
   // vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT, "InsertTrigger",
-  // "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr"
+  // "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
   // vtkSQLDatabaseSchema::END_TABLE_TOKEN
   // );
   // return 0;
