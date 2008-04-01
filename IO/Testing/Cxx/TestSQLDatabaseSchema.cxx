@@ -33,7 +33,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
 
   schema->SetName( "TestSchema" );
-  tblHandle = schema->AddTableMultipleArguments( "StrangeTable",
+  tblHandle = schema->AddTableMultipleArguments( "ATable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
@@ -45,7 +45,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+      "InsertTrigger", "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -165,7 +165,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   vtkstd::set<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
   vtkstd::set<vtkStdString> trgActions;
-  trgActions.insert( vtkStdString( "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr" ) );
+  trgActions.insert( vtkStdString( "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr" ) );
 
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
