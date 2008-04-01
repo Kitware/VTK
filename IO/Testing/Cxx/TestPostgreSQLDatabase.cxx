@@ -239,6 +239,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
+    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
