@@ -59,6 +59,8 @@ public:
   // Determine if the file can be readed with this reader.
   int CanReadFile(const char* fname);
 
+  //virtual void Modified();
+
   // Description:
   // Return the object's MTime. This is overridden to include the timestamp of its internal class.
   virtual unsigned long GetMTime();

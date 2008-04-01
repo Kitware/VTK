@@ -88,7 +88,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.20");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.21");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -249,7 +249,8 @@ int vtkPExodusIIReader::RequestInformation(
     int newPattern = 
       (
        ( this->FilePattern &&
-         ( ! vtksys::SystemTools::ComparePath(
+         ( ! this->CurrentFilePattern ||
+           ! vtksys::SystemTools::ComparePath(
            this->FilePattern, this->CurrentFilePattern ) ||
            ( ( this->FileRange[0] != this->CurrentFileRange[0] ) ||
              ( this->FileRange[1] != this->CurrentFileRange[1] ) ) ) ) ||
@@ -278,8 +279,11 @@ int vtkPExodusIIReader::RequestInformation(
       char* nm = 
         new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];  
       sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
-      this->Superclass::SetFileName( nm );
-      delete [] nm;
+      if ( this->FileName )
+        delete [] this->FileName;
+      this->FileName = nm;
+      //this->Superclass::SetFileName( nm ); // XXX Bad set
+      //delete [] nm;
       }
     else if ( newName || rebuildPattern )
       {
@@ -294,7 +298,8 @@ int vtkPExodusIIReader::RequestInformation(
       }
 
     int mmd = this->ExodusModelMetadata;
-    this->SetExodusModelMetadata( 0 );    // turn off for now
+    this->ExodusModelMetadata = 0;
+    //this->SetExodusModelMetadata( 0 );    // turn off for now // XXX Bad set
 
     /*
     vtkstd::string barfle( "/tmp/barfle_" );
@@ -314,7 +319,8 @@ int vtkPExodusIIReader::RequestInformation(
       return 0;
       }
 
-    this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData
+    //this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData // XXX Bad set
+    this->ExodusModelMetadata = mmd;
     }
   if ( this->ProcSize > 1 )
     {
@@ -764,9 +770,10 @@ void vtkPExodusIIReader::SetFileRange(int min, int max)
 //----------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileName(const char *name)
 {
-  this->SetFileNames(1, &name);
+  this->SetFileNames( 1, &name );
 }
-void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
+
+void vtkPExodusIIReader::SetFileNames( int nfiles, const char** names )
 {
   // If I have an old list of filename delete them
   if ( this->FileNames )
@@ -794,7 +801,7 @@ void vtkPExodusIIReader::SetFileNames(int nfiles, const char **names)
     this->FileNames[i] = vtksys::SystemTools::DuplicateString( names[i] );
     }
 
-  vtkExodusIIReader::SetFileName( names[0] );
+  this->Superclass::SetFileName( names[0] );
 }
 
 //----------------------------------------------------------------------------
@@ -860,10 +867,19 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   if ( ex2 || ex2v2 )
     {
     // Set my info
-    this->SetFilePattern( pattern );
-    this->SetFilePrefix( prefix );
-    this->SetFileRange( min, max );
-    delete [] prefix;
+    //this->SetFilePattern( pattern ); // XXX Bad set
+    //this->SetFilePrefix( prefix ); // XXX Bad set
+    //this->SetFileRange( min, max ); // XXX Bad set
+    //delete [] prefix;
+    if ( this->FilePattern )
+      delete [] this->FilePattern;
+    if ( this->FilePrefix )
+      delete [] this->FilePrefix;
+    this->FilePattern = vtksys::SystemTools::DuplicateString( pattern );
+    this->FilePrefix = prefix;
+    this->FileRange[0] = min;
+    this->FileRange[1] = max;
+    this->NumberOfFiles = max - min + 1;
     return VTK_OK;
     }
 
@@ -966,13 +982,22 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // than set the range to the min and max
   if ( ( this->FileRange[0] == -1 ) && ( this->FileRange[1] == -1 ) )
     {
-    this->SetFileRange( min, max );
+    //this->SetFileRange( min, max ); // XXX Bad set
+    this->FileRange[0] = min;
+    this->FileRange[1] = max;
+    this->NumberOfFiles = max - min + 1;
     }
 
    // Set my info
-  this->SetFilePattern( pattern );
-  this->SetFilePrefix( prefix );
-  delete [] prefix;
+  //this->SetFilePattern( pattern ); // XXX Bad set
+  //this->SetFilePrefix( prefix ); // XXX Bad set
+  //delete [] prefix;
+  if ( this->FilePattern )
+    delete [] this->FilePattern;
+  if ( this->FilePrefix )
+    delete [] this->FilePrefix;
+  this->FilePattern = vtksys::SystemTools::DuplicateString( pattern );
+  this->FilePrefix = prefix;
 
   return VTK_OK;
 }
@@ -1104,8 +1129,14 @@ void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
     else
       {
       vtkstd::vector<char> tmp;
-      this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 );
-      this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 );
+      if ( this->FilePattern )
+        delete [] this->FilePattern;
+      if ( this->FilePrefix )
+        delete [] this->FilePrefix;
+      //this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
+      //this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
+      this->FilePattern = BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : 0;
+      this->FilePrefix =  BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : 0;
       }
     ctrl->Broadcast( this->FileRange, 2, 0 );
     ctrl->Broadcast( &this->NumberOfFiles, 1, 0 );
