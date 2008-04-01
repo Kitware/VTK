@@ -36,7 +36,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.4");
+vtkCxxRevisionMacro(vtkRenderView, "1.5");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -266,4 +266,5 @@ void vtkRenderView::PrintSelf(ostream& os, vtkIndent indent)
   this->Renderer->PrintSelf(os, indent.GetNextIndent());
   os << indent << "InteractorStyle: " << endl;
   this->InteractorStyle->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }
