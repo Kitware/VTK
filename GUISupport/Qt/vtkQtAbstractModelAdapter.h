@@ -103,6 +103,11 @@ public:
   virtual bool GetViewRows()
     { return this->ViewRows; }
 
+  // We make the reset() method public because it isn't always possible for
+  // an adapter to know when its input has changed, so it must be callable
+  // by an outside entity.
+  void reset() { QAbstractItemModel::reset(); }
+
 public slots:
   // Description:
   // Sets the view to either rows (standard) or columns.
