@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.35");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.36");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -260,6 +260,47 @@ vtkStdString vtkSQLDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema
 }
 
 // ----------------------------------------------------------------------
+vtkStdString vtkSQLDatabase::GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
+                                                      int tblHandle,
+                                                      int trgHandle )
+{
+  vtkStdString queryStr = schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
+
+  int trgType = schema->GetTriggerTypeFromHandle( tblHandle, trgHandle );
+  // odd types: AFTER, even types: BEFORE
+  if ( trgType % 2 )
+    {
+    queryStr += " AFTER ";
+    }
+  else
+    {
+    queryStr += " BEFORE ";
+    }
+  // 0/1: INSERT, 2/3: UPDATE, 4/5: DELETE
+  if ( trgType > 1 )
+    {
+    if ( trgType > 3 )
+      {
+      queryStr += "DELETE ON ";
+      }
+    else // if ( trgType > 3 )
+      {
+      queryStr += "UPDATE ON ";
+      }
+    }
+  else // if ( trgType > 1 )
+    {
+    queryStr += "INSERT ON ";
+    }
+
+  queryStr += schema->GetTableNameFromHandle( tblHandle );
+  queryStr += " FOR EACH ROW ";
+  queryStr += schema->GetTriggerActionFromHandle( tblHandle, trgHandle );
+
+  return queryStr;
+}
+ 
+// ----------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
   vtkstd::string protocol;
@@ -353,6 +394,9 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
   // In case INDEX indices are encountered in the schema
   vtkstd::vector<vtkStdString> idxStatements;
 
+  // In case triggers are encountered in the schema
+  vtkstd::vector<vtkStdString> trgStatements;
+
   // Loop over all tables of the schema and create them
   int numTbl = schema->GetNumberOfTables();
   for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
@@ -433,6 +477,41 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
     queryStr += ")";
 
+    // Loop over all triggers of the current table
+    int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
+    if ( numTrg < 0 )
+      {
+      query->RollbackTransaction();
+      query->Delete();
+      return false;
+      }
+    // Figure out trigger statements only if they are supported by the backend at hand
+    if ( numTrg && IsSupported( VTK_SQL_FEATURE_TRIGGERS ) )
+      {
+      for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
+        {
+        // Get trigger creation syntax (backend-dependent)
+        vtkStdString trgStr = this->GetTriggerSpecification( schema, tblHandle, trgHandle );
+        if ( trgStr.size() )
+          {
+          // Must create this trigger later
+          trgStatements.push_back( trgStr );
+          continue;
+          }
+        else // if ( trgStr.size() )
+          {
+          query->RollbackTransaction();
+          query->Delete();
+          return false;
+          }
+        }
+      }
+    // If triggers are not supported, don't quit, but at least let the user know about it
+    else if ( numTrg ) // Don't complain if no triggers were specified
+      {
+      vtkGenericWarningMacro( "Triggers are not supported by this SQL backend; ignoring them." );
+      }
+
     // Execute the query
     query->SetQuery( queryStr );
     if ( ! query->Execute() )
@@ -445,7 +524,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
     }
 
-  // Now, execute the CREATE INDEX statement -- if any
+  // Execute the CREATE INDEX statement -- if any
   for ( vtkstd::vector<vtkStdString>::iterator it = idxStatements.begin();
         it != idxStatements.end(); ++ it )
     {
@@ -460,7 +539,20 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
     }
  
-  // FIXME: eventually handle triggers
+  // Create existing triggers
+  for ( vtkstd::vector<vtkStdString>::iterator it = trgStatements.begin();
+        it != trgStatements.end(); ++ it )
+    {
+    query->SetQuery( vtkStdString( "CREATE TRIGGER " + *it ) );
+    if ( ! query->Execute() )
+      {
+      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+                              << query->GetLastErrorText() );
+      query->RollbackTransaction();
+      query->Delete();
+      return false;
+      }
+    }
 
   // Commit the transaction.
   if ( ! query->CommitTransaction() )

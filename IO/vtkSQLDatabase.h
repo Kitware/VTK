@@ -167,6 +167,19 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
                                               bool& skipped );
  
   // Description:
+  // Return the SQL string with the syntax to create a trigger using a
+  // "CREATE TRIGGER" SQL statement.
+  // NB1: support is contingent on VTK_FEATURE_TRIGGERS being recognized as
+  // a supported feature. Not all backends (e.g., SQLite) support it.
+  // NB2: this method implements the following minimally-portable syntax:
+  // <trigger name> {BEFORE | AFTER} <event> ON <table name> EXECUTE PROCEDURE <trigger action>
+  // It must be overwritten for those SQL backends which have a different 
+  // syntax.
+  virtual vtkStdString GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
+                                                int tblHandle,
+                                                int trgHandle );
+ 
+  // Description:
   // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
