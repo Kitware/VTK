@@ -73,7 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vtkstd/algorithm>
 
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.31");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.32");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 vtkCxxSetObjectMacro(vtkPolyDataToImageStencil, InformationInput,
                      vtkImageData);
@@ -269,13 +269,13 @@ void vtkPolyDataToImageStencil::DataSetCutter(
 //----------------------------------------------------------------------------
 inline int vtkPolyDataToImageStencilFloor(double x)
 {
-#if defined i386 || defined _M_IX86
-  // This code assumes IEEE 754 64-bit double and
+#if defined i386 || defined _M_IX86 || defined _M_X64
+  // This code assumes IEEE 754 64-bit double.
   // It uses a denormalizer to round the double at the
   // 2^(-16) position, or around 1e-5, and then extracts
   // the integer portion.  So, essentially, it is a floor()
   // operation that is accurate to within 1e-5.
-  // We use it is that it is many, many times
+  // We use it because it is many, many times
   // faster than the floor() function.
   union { vtkTypeFloat64 d; vtkTypeUInt32 i[2]; } dual;
   dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
@@ -747,5 +747,3 @@ int vtkPolyDataToImageStencil::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
-
-
