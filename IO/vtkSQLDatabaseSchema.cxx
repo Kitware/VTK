@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.17");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.18");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
@@ -40,7 +40,7 @@ public:
     vtkSQLDatabaseSchema::DatabaseColumnType Type;
     int Size; // used when required, ignored otherwise (e.g. varchar)
     vtkStdString Name; // DCT: Note use of string instead of char* here to avoid leaks on destruction.
-    vtkStdString Attributes; // may have implementation-specific stuff
+    vtkStdString Attributes; // may have backend-specific stuff
   };
 
   struct Index
@@ -54,7 +54,7 @@ public:
   {
     vtkSQLDatabaseSchema::DatabaseTriggerType Type;
     vtkStdString Name;
-    vtkStdString Action; // may have implementation-specific stuff
+    vtkStdString Action; // may have backend-specific stuff
   };
 
   struct Table
