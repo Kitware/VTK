@@ -172,9 +172,9 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // NB1: support is contingent on VTK_FEATURE_TRIGGERS being recognized as
   // a supported feature. Not all backends (e.g., SQLite) support it.
   // NB2: this method implements the following minimally-portable syntax:
-  // <trigger name> {BEFORE | AFTER} <event> ON <table name> EXECUTE PROCEDURE <trigger action>
+  // <trigger name> {BEFORE | AFTER} <event> ON <table name> FOR EACH ROW <trigger action>
   // It must be overwritten for those SQL backends which have a different 
-  // syntax.
+  // syntax such as, e.g., PostgreSQL.
   virtual vtkStdString GetTriggerSpecification( vtkSQLDatabaseSchema* schema,
                                                 int tblHandle,
                                                 int trgHandle );
