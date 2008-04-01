@@ -30,7 +30,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.14");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.15");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -226,6 +226,7 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
       
     case VTK_SQL_FEATURE_BATCH_OPERATIONS:
     case VTK_SQL_FEATURE_QUERY_SIZE:
+    case VTK_SQL_FEATURE_TRIGGERS:
       return false;
 
     default:
