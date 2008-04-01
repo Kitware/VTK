@@ -184,7 +184,7 @@ int TestMySQLDatabase( int, char ** const )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "INSERT INTO OtherTable ( Value ) VALUES NEW.SomeNmbr",
+      "InsertTrigger", "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
