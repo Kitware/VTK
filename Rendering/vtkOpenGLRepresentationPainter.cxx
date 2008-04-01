@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.7");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -97,6 +97,10 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     glDisable(GL_LIGHTING);
     glColor4dv(color);
     glPolygonMode(face, GL_LINE);
+
+    // Disable textures when rendering the surface edges.
+    // This ensures that edges are always drawn solid. 
+    glDisable(GL_TEXTURE_2D);
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Superclass::RenderInternal(renderer, actor, typeflags);
