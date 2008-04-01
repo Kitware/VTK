@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.4");
+vtkCxxRevisionMacro(vtkExtractSelectedPolyDataIds, "1.5");
 vtkStandardNewMacro(vtkExtractSelectedPolyDataIds);
 
 //----------------------------------------------------------------------------
@@ -99,6 +99,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
   output->Allocate(numCells);
   output->SetPoints(input->GetPoints());
   outputPD->PassData(pd);
+  outputCD->CopyAllocate(cd);
 
   // Now loop over all cells to see whether they are in the selection.
   // Copy if they are.
