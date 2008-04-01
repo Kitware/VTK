@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.48");
+vtkCxxRevisionMacro(vtkXMLReader, "1.49");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -41,6 +41,7 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
     {
     major = -1;
     minor = -1;
+    return;
     }
   // Extract the major and minor version numbers.
   size_t length = strlen(version);
