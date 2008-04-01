@@ -128,7 +128,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
   virtual QPaintEngine* paintEngine() const;
 
-  signals:
+  @Q_SIGNALS@:
   // Description:
   // This signal will be emitted whenever a mouse event occurs
   // within the QVTK window
@@ -144,7 +144,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
   void cachedImageClean();
 
 
-public slots:
+public @Q_SLOTS@:
   // Description:
   // This will mark the cached image as dirty.  This slot is automatically
   // invoked whenever the render window has a render event or the widget is
@@ -221,7 +221,7 @@ protected:
   static OSStatus DirtyRegionProcessor(EventHandlerCallRef er, EventRef event, void*);
 #endif
 
-private slots:
+private @Q_SLOTS@:
 void internalMacFixRect();
 
 protected:
@@ -262,7 +262,7 @@ public:
   // Use qApp->exec() instead.
   virtual void Start();
  
-public slots:
+public @Q_SLOTS@:
 // timer event slot
 virtual void TimerEvent(int timerId);
 
