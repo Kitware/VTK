@@ -35,6 +35,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cstdarg> // Because one method has a variable list of arguments 
 
+// This is a list of supported VTK SQL backend classes. A class does not have
+// to be listed here to be supported, but these macros allow for the specification
+// of SQL backend-specific database schema items.
+#define VTK_SQL_MYSQL            "vtkMySQLDatabase"
+#define VTK_SQL_PGSQL            "vtkPostgreSQLDatabase"
+#define VTK_SQL_SQLIT            "vtkSQLiteDatabase"
+
 class vtkSQLDatabaseSchemaInternals;
 
 class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
@@ -55,7 +62,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
       BIGINT    = 3,
       VARCHAR   = 4,
       TEXT      = 5,
-      REAL      = 6,     
+      REAL      = 6,
       DOUBLE    = 7,
       BLOB      = 8,
       TIME      = 9,

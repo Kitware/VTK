@@ -58,7 +58,7 @@ class vtkSQLQuery;
 class vtkStringArray;
 
 // This is a list of features that each database may or may not
-// support.  As yet (February 2008) we don't provide access to most of
+// support.  As yet (April 2008) we don't provide access to most of
 // them.  
 #define VTK_SQL_FEATURE_TRANSACTIONS            1000
 #define VTK_SQL_FEATURE_QUERY_SIZE              1001
@@ -69,7 +69,7 @@ class vtkStringArray;
 #define VTK_SQL_FEATURE_POSITIONAL_PLACEHOLDERS 1006
 #define VTK_SQL_FEATURE_LAST_INSERT_ID          1007
 #define VTK_SQL_FEATURE_BATCH_OPERATIONS        1008
-#define VTK_SQL_FEATURE_TRIGGERS                1009
+#define VTK_SQL_FEATURE_TRIGGERS                1009 // supported
 
 // Default size for columns types which require a size to be specified 
 // (i.e., VARCHAR), when no size has been specified
