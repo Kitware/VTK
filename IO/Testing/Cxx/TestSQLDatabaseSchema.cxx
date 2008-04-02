@@ -29,10 +29,16 @@ PURPOSE.  See the above copyright notice for more information.
 int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 {
   bool status = true;
-  int tblHandle = 0;
-  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
 
+  // 1. Create the schema
+
+  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
+
+  schema->AddPreamble( "CreateSomeFunction", 
+    "CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL" );
+
+  int tblHandle = 0;
   tblHandle = schema->AddTableMultipleArguments( "ATable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
@@ -45,7 +51,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
+      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -55,6 +61,46 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     status = false;
     }
   
+  // 2. Check the schema
+
+  // Check the preamble
+
+  int numPre = schema->GetNumberOfPreambles();
+  if ( numPre != 1 )
+    {
+    cerr << "Read " << numPre << " != 1 preamble in test schema.\n";
+    status = false;
+    }
+
+  for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
+    {
+    vtkStdString preName = schema->GetPreambleNameFromHandle( preHandle );
+    if ( preName != "CreateSomeFunction" )
+      {
+      cerr << "Could not retrieve preamble name CreateSomeFunction from test schema.\n";
+      status = false;
+      }
+    else
+      {
+      cerr << "Preamble name: " 
+           << preName
+           << "\n";
+      }
+    
+    vtkStdString preAction = schema->GetPreambleActionFromHandle( preHandle );
+    if ( preAction != "CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL" )
+      {
+      cerr << "Could not retrieve preamble action CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL from test schema.\n";
+      status = false;
+      }
+    else
+      {
+      cerr << "Preamble Action: " 
+           << preAction
+           << "\n";
+      }
+    }
+
   // Define the correct (reference) columns and types
   vtkstd::set<vtkStdString> colNames;
   colNames.insert( vtkStdString ( "SomeNmbr" ) );
@@ -65,7 +111,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::SERIAL ) );
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
 
-  // Loop over all columns of the previously created table
+  // Loop over all columns of the table
   int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
   if ( numCol != 3 )
     {
@@ -165,7 +211,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   vtkstd::set<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
   vtkstd::set<vtkStdString> trgActions;
-  trgActions.insert( vtkStdString( "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr" ) );
+  trgActions.insert( vtkStdString( "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr" ) );
 
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
