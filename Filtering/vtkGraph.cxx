@@ -71,14 +71,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.12");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.13");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12");
+vtkCxxRevisionMacro(vtkGraph, "1.13");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -93,6 +93,7 @@ vtkGraph::vtkGraph()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Internals = vtkGraphInternals::New();
+  this->EdgeList = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -105,6 +106,10 @@ vtkGraph::~vtkGraph()
     this->Points->Delete();
     }
   this->Internals->Delete();
+  if (this->EdgeList)
+    {
+    this->EdgeList->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -436,6 +441,8 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     this->EdgeData->ShallowCopy(g->EdgeData);
     this->VertexData->ShallowCopy(g->VertexData);
     }
+
+  // Copy points
   if (g->Points)
     {
     if (!this->Points)
@@ -455,6 +462,29 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     {
     this->Points->Delete();
     this->Points = 0;
+    }
+
+  // Copy edge list
+  if (g->EdgeList)
+    {
+    if (!this->EdgeList)
+      {
+      this->EdgeList = vtkIdTypeArray::New();
+      }
+    if (deep)
+      {
+      this->EdgeList->DeepCopy(g->EdgeList);
+      }
+    else
+      {
+      this->EdgeList = g->EdgeList;
+      this->EdgeList->Register(this);
+      }
+    }
+  else if (this->EdgeList)
+    {
+    this->EdgeList->Delete();
+    this->EdgeList = 0;
     }
 }
 
@@ -482,6 +512,60 @@ vtkGraph *vtkGraph::GetData(vtkInformationVector *v, int i)
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetSource(vtkIdType e)
+{
+  if (e < 0 || e >= this->GetNumberOfEdges())
+    {
+    vtkErrorMacro("Edge index out of range.");
+    return -1;
+    }
+  if (!this->EdgeList)
+    {
+    this->BuildEdgeList();
+    }
+  return this->EdgeList->GetValue(2*e);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetTarget(vtkIdType e)
+{
+  if (e < 0 || e >= this->GetNumberOfEdges())
+    {
+    vtkErrorMacro("Edge index out of range.");
+    return -1;
+    }
+  if (!this->EdgeList)
+    {
+    this->BuildEdgeList();
+    }
+  return this->EdgeList->GetValue(2*e  + 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::BuildEdgeList()
+{
+  if (this->EdgeList)
+    {
+    this->EdgeList->SetNumberOfTuples(this->GetNumberOfEdges());
+    }
+  else
+    {
+    this->EdgeList = vtkIdTypeArray::New();
+    this->EdgeList->SetNumberOfComponents(2);
+    this->EdgeList->SetNumberOfTuples(this->GetNumberOfEdges());
+    }
+  vtkEdgeListIterator* it = vtkEdgeListIterator::New();
+  this->GetEdges(it);
+  while (it->HasNext())
+    {
+    vtkEdgeType e = it->Next();
+    this->EdgeList->SetValue(2*e.Id, e.Source);
+    this->EdgeList->SetValue(2*e.Id + 1, e.Target);
+    }
+  it->Delete();
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkGraph::AddVertexInternal()
 {
   this->ForceOwnership();
@@ -504,6 +588,11 @@ vtkEdgeType vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed)
     {
     // Avoid storing self-loops twice in undirected graphs.
     this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+    }
+  if (this->EdgeList)
+    {
+    this->EdgeList->InsertNextValue(u);
+    this->EdgeList->InsertNextValue(v);
     }
   return vtkEdgeType(u, v, edgeId);
 }

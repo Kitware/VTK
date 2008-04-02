@@ -319,6 +319,17 @@ public:
   // Can be used to test the copy-on-write feature of the graph.
   bool IsSameStructure(vtkGraph *other);
 
+  // Description:
+  // Retrieve the source and target vertices for an edge id.
+  // NOTE: The first time this is called, the graph will build
+  // a mapping array from edge id to source/target that is the
+  // same size as the number of edges in the graph. If you have
+  // access to a vtkOutEdgeType, vtkInEdgeType, vtkEdgeType, or
+  // vtkGraphEdge, you should directly use these structures
+  // to look up the source or target instead of this method.
+  vtkIdType GetSource(vtkIdType e);
+  vtkIdType GetTarget(vtkIdType e);
+
 protected:
   //BTX
   vtkGraph();
@@ -362,6 +373,10 @@ protected:
   virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
 
   // Description:
+  // Builds a mapping from edge id to source/target vertex id.
+  void BuildEdgeList();
+
+  // Description:
   // Friend iterator classes.
   friend class vtkAdjacentVertexIterator;
   friend class vtkEdgeListIterator;
@@ -388,6 +403,10 @@ protected:
   // The vertex locations.
   vtkPoints *Points;
   static double DefaultPoint[3];
+
+  // Description:
+  // The optional mapping from edge id to source/target ids.
+  vtkIdTypeArray *EdgeList;
   //ETX
 private:
   vtkGraph(const vtkGraph&);  // Not implemented.
