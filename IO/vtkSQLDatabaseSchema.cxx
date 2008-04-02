@@ -28,13 +28,19 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.18");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.19");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
 class vtkSQLDatabaseSchemaInternals
 {
 public:
+  struct Statement
+  {
+    vtkStdString Name;
+    vtkStdString Action; // may have backend-specific stuff
+  };
+
   struct Column
   {
     vtkSQLDatabaseSchema::DatabaseColumnType Type;
@@ -65,6 +71,7 @@ public:
     vtkstd::vector<Trigger> Triggers;
   };
 
+  vtkstd::vector<Statement> Preambles;
   vtkstd::vector<Table> Tables;
 };
 
@@ -99,6 +106,23 @@ void vtkSQLDatabaseSchema::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::AddPreamble( const char* preName, const char* preAction )
+{
+  if ( ! preName )
+    {
+    vtkErrorMacro( "Cannot add preamble with empty name" );
+    return -1;
+    }
+
+  vtkSQLDatabaseSchemaInternals::Statement newPre;
+  int preHandle = this->Internals->Preambles.size();
+  newPre.Name = preName;
+  newPre.Action = preAction;
+  this->Internals->Preambles.push_back( newPre );
+  return preHandle;
+}
+
+// ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::AddTable( const char* tblName )
 {
   if ( ! tblName )
@@ -107,10 +131,10 @@ int vtkSQLDatabaseSchema::AddTable( const char* tblName )
     return -1;
     }
 
-  vtkSQLDatabaseSchemaInternals::Table newTab;
+  vtkSQLDatabaseSchemaInternals::Table newTbl;
   int tblHandle = this->Internals->Tables.size();
-  newTab.Name = tblName;
-  this->Internals->Tables.push_back( newTab );
+  newTbl.Name = tblName;
+  this->Internals->Tables.push_back( newTbl );
   return tblHandle;
 }
 
@@ -216,6 +240,46 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
   trigger->Name = trgName;
   trigger->Action = trgAction;
   return trgHandle;
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetPreambleHandleFromName( const char* preName )
+{
+  int i;
+  int ntab = this->Internals->Preambles.size();
+  vtkStdString preNameStr( preName );
+  for ( i = 0; i < ntab; ++i )
+    {
+    if ( this->Internals->Preambles[i].Name == preNameStr )
+      {
+      return i;
+      }
+    }
+  return -1;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetPreambleNameFromHandle( int preHandle )
+{
+  if ( preHandle < 0 || preHandle >= this->GetNumberOfPreambles() )
+    {
+    vtkErrorMacro( "Cannot get name of non-existent preamble " << preHandle );
+    return 0;
+    }
+  
+  return this->Internals->Preambles[preHandle].Name;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle( int preHandle )
+{
+  if ( preHandle < 0 || preHandle >= this->GetNumberOfPreambles() )
+    {
+    vtkErrorMacro( "Cannot get action of non-existent preamble " << preHandle );
+    return 0;
+    }
+  
+  return this->Internals->Preambles[preHandle].Action;
 }
 
 // ----------------------------------------------------------------------
@@ -573,6 +637,12 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
 void vtkSQLDatabaseSchema::Reset()
 {
   this->Internals->Tables.clear();
+}
+
+// ----------------------------------------------------------------------
+int vtkSQLDatabaseSchema::GetNumberOfPreambles()
+{
+  return this->Internals->Preambles.size();
 }
 
 // ----------------------------------------------------------------------

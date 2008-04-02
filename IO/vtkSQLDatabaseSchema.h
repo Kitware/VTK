@@ -85,6 +85,13 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
     };
   //ETX
 
+  // Description:
+  // Add a preamble to the schema 
+  virtual int AddPreamble( const char* preName, 
+                           const char* preAction );
+
+  // Description:
+  // Add a table to the schema 
   virtual int AddTable( const char* tblName );
 
   virtual int AddColumnToTable( int tblHandle, 
@@ -148,6 +155,18 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
                                     trgName, 
                                     trgAction );
   }
+
+  // Description:
+  // Given a preamble name, get its handle.
+  int GetPreambleHandleFromName( const char* preName );
+
+  // Description:
+  // Given a preamble hanlde, get its name.
+  const char* GetPreambleNameFromHandle( int preHandle );
+
+  // Description:
+  // Given the handles of a table and a trigger, get the action of the trigger.
+  const char* GetPreambleActionFromHandle( int preHandle );
 
   // Description:
   // Given a table name, get its handle.
@@ -226,6 +245,10 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // Description:
   // Reset the schema to its initial, empty state.
   void Reset();
+
+  // Description:
+  // Get the number of preambles.
+  int GetNumberOfPreambles();
 
   // Description:
   // Get the number of tables.
