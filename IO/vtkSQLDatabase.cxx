@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.36");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.37");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -264,7 +264,8 @@ vtkStdString vtkSQLDatabase::GetTriggerSpecification( vtkSQLDatabaseSchema* sche
                                                       int tblHandle,
                                                       int trgHandle )
 {
-  vtkStdString queryStr = schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
+  vtkStdString queryStr = "CREATE TRIGGER ";
+  queryStr += schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
 
   int trgType = schema->GetTriggerTypeFromHandle( tblHandle, trgHandle );
   // odd types: AFTER, even types: BEFORE
@@ -294,7 +295,7 @@ vtkStdString vtkSQLDatabase::GetTriggerSpecification( vtkSQLDatabaseSchema* sche
     }
 
   queryStr += schema->GetTableNameFromHandle( tblHandle );
-  queryStr += " FOR EACH ROW ";
+  queryStr += " ";
   queryStr += schema->GetTriggerActionFromHandle( tblHandle, trgHandle );
 
   return queryStr;
@@ -391,17 +392,27 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     return false;
     }
  
-  // In case INDEX indices are encountered in the schema
-  vtkstd::vector<vtkStdString> idxStatements;
-
-  // In case triggers are encountered in the schema
-  vtkstd::vector<vtkStdString> trgStatements;
+  // Loop over preamble statements of the schema and execute them
+  int numPre = schema->GetNumberOfPreambles();
+  for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
+    {
+    vtkStdString preStr = schema->GetPreambleActionFromHandle( preHandle );
+    query->SetQuery( preStr );
+    if ( ! query->Execute() )
+      {
+      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+                              << query->GetLastErrorText() );
+      query->RollbackTransaction();
+      query->Delete();
+      return false;
+      }
+    }
 
   // Loop over all tables of the schema and create them
   int numTbl = schema->GetNumberOfTables();
   for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
-    // Construct the query string for this table
+    // Construct the CREATE TABLE query for this table
     vtkStdString queryStr( "CREATE TABLE " );
     queryStr += this->GetTablePreamble( dropIfExists );
     queryStr += schema->GetTableNameFromHandle( tblHandle );
@@ -442,8 +453,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
         }
       }
 
-    // Loop over all indices of the current table
-    bool skipped = false;
+    // Check out number of indices
     int numIdx = schema->GetNumberOfIndicesInTable( tblHandle );
     if ( numIdx < 0 )
       {
@@ -451,6 +461,12 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       query->Delete();
       return false;
       }
+
+    // In case separate INDEX statements are needed (backend-specific)
+    vtkstd::vector<vtkStdString> idxStatements;
+    bool skipped = false;
+
+    // Loop over all indices of the current table
     for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
       {
       // Get index creation syntax (backend-dependent)
@@ -477,42 +493,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
     queryStr += ")";
 
-    // Loop over all triggers of the current table
-    int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
-    if ( numTrg < 0 )
-      {
-      query->RollbackTransaction();
-      query->Delete();
-      return false;
-      }
-    // Figure out trigger statements only if they are supported by the backend at hand
-    if ( numTrg && IsSupported( VTK_SQL_FEATURE_TRIGGERS ) )
-      {
-      for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
-        {
-        // Get trigger creation syntax (backend-dependent)
-        vtkStdString trgStr = this->GetTriggerSpecification( schema, tblHandle, trgHandle );
-        if ( trgStr.size() )
-          {
-          // Must create this trigger later
-          trgStatements.push_back( trgStr );
-          continue;
-          }
-        else // if ( trgStr.size() )
-          {
-          query->RollbackTransaction();
-          query->Delete();
-          return false;
-          }
-        }
-      }
-    // If triggers are not supported, don't quit, but at least let the user know about it
-    else if ( numTrg ) // Don't complain if no triggers were specified
-      {
-      vtkGenericWarningMacro( "Triggers are not supported by this SQL backend; ignoring them." );
-      }
-
-    // Execute the query
+    // Execute the CREATE TABLE query
     query->SetQuery( queryStr );
     if ( ! query->Execute() )
       {
@@ -522,37 +503,68 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       query->Delete();
       return false;
       }
-    }
 
-  // Execute the CREATE INDEX statement -- if any
-  for ( vtkstd::vector<vtkStdString>::iterator it = idxStatements.begin();
-        it != idxStatements.end(); ++ it )
-    {
-    query->SetQuery( *it );
-    if ( ! query->Execute() )
+    // Execute separate CREATE INDEX statements if needed
+    for ( vtkstd::vector<vtkStdString>::iterator it = idxStatements.begin();
+          it != idxStatements.end(); ++ it )
       {
-      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
-                              << query->GetLastErrorText() );
-      query->RollbackTransaction();
-      query->Delete();
-      return false;
+      query->SetQuery( *it );
+      if ( ! query->Execute() )
+        {
+        vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+                                << query->GetLastErrorText() );
+        query->RollbackTransaction();
+        query->Delete();
+        return false;
+        }
       }
-    }
  
-  // Create existing triggers
-  for ( vtkstd::vector<vtkStdString>::iterator it = trgStatements.begin();
-        it != trgStatements.end(); ++ it )
-    {
-    query->SetQuery( vtkStdString( "CREATE TRIGGER " + *it ) );
-    if ( ! query->Execute() )
+    // Check out number of triggers
+    int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
+    if ( numTrg < 0 )
       {
-      vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
-                              << query->GetLastErrorText() );
       query->RollbackTransaction();
       query->Delete();
       return false;
       }
-    }
+
+    // Construct CREATE TRIGGER statements only if they are supported by the backend at hand
+    if ( numTrg && IsSupported( VTK_SQL_FEATURE_TRIGGERS ) )
+      {
+      // Loop over all triggers of the current table
+      for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
+        {
+        // Get trigger creation syntax (backend-dependent)
+        vtkStdString trgStr = this->GetTriggerSpecification( schema, tblHandle, trgHandle );
+
+        // If not empty, execute query
+        if ( trgStr.size() )
+          {
+          query->SetQuery( vtkStdString( trgStr ) );
+          if ( ! query->Execute() )
+            {
+            vtkGenericWarningMacro( "Unable to effect the schema: unable to execute query.\nDetails: "
+                                    << query->GetLastErrorText() );
+            query->RollbackTransaction();
+            query->Delete();
+            return false;
+            }
+          }
+        else // if ( trgStr.size() )
+          {
+          query->RollbackTransaction();
+          query->Delete();
+          return false;
+          }
+        }
+      }
+
+    // If triggers are specified but not supported, don't quit, but let the user know it
+    else if ( numTrg ) 
+      {
+      vtkGenericWarningMacro( "Triggers are not supported by this SQL backend; ignoring them." );
+      }
+    } //  for ( int tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
 
   // Commit the transaction.
   if ( ! query->CommitTransaction() )
