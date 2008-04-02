@@ -89,7 +89,9 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   vtkDistributedGraphHelper(const vtkDistributedGraphHelper&); // Not implemented
   void operator=(const vtkDistributedGraphHelper&); // Not implemented
 
+  //BTX
   friend class vtkGraph;
+  //ETX
 };
 
 #endif // __vtkDistributedGraphHelper_h
