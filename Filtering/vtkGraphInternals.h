@@ -32,12 +32,14 @@
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
 //----------------------------------------------------------------------------
+//BTX
 class vtkVertexAdjacencyList
 {
 public:
   vtksys_stl::vector<vtkInEdgeType> InEdges;
   vtksys_stl::vector<vtkOutEdgeType> OutEdges;
 };
+//ETX
 
 //----------------------------------------------------------------------------
 // class vtkGraphInternals
@@ -46,8 +48,10 @@ class vtkGraphInternals : public vtkObject
 {
 public:
   static vtkGraphInternals *New();
+  //BTX
   vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
   vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
+  //ETX
   vtkIdType NumberOfEdges;
   vtkDistributedGraphHelper *DistributedHelper;
 
