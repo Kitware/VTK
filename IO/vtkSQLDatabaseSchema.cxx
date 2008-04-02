@@ -28,24 +28,25 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.19");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.20");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
 class vtkSQLDatabaseSchemaInternals
 {
-public:
+public:  // NB: use of string instead of char* here to avoid leaks on destruction.
   struct Statement
   {
     vtkStdString Name;
     vtkStdString Action; // may have backend-specific stuff
+    vtkStdString Backend;  // only active for this backend, if != ""
   };
 
   struct Column
   {
     vtkSQLDatabaseSchema::DatabaseColumnType Type;
     int Size; // used when required, ignored otherwise (e.g. varchar)
-    vtkStdString Name; // DCT: Note use of string instead of char* here to avoid leaks on destruction.
+    vtkStdString Name;
     vtkStdString Attributes; // may have backend-specific stuff
   };
 
@@ -61,6 +62,7 @@ public:
     vtkSQLDatabaseSchema::DatabaseTriggerType Type;
     vtkStdString Name;
     vtkStdString Action; // may have backend-specific stuff
+    vtkStdString Backend; // only active for this backend, if != ""
   };
 
   struct Table
@@ -106,7 +108,9 @@ void vtkSQLDatabaseSchema::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-int vtkSQLDatabaseSchema::AddPreamble( const char* preName, const char* preAction )
+int vtkSQLDatabaseSchema::AddPreamble( const char* preName, 
+                                       const char* preAction,
+                                       const char* preBackend )
 {
   if ( ! preName )
     {
@@ -118,6 +122,7 @@ int vtkSQLDatabaseSchema::AddPreamble( const char* preName, const char* preActio
   int preHandle = this->Internals->Preambles.size();
   newPre.Name = preName;
   newPre.Action = preAction;
+  newPre.Backend = preBackend;
   this->Internals->Preambles.push_back( newPre );
   return preHandle;
 }
@@ -219,7 +224,8 @@ int vtkSQLDatabaseSchema::AddIndexToTable( int tblHandle,
 int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
                                              int trgType, 
                                              const char* trgName, 
-                                             const char* trgAction )
+                                             const char* trgAction,
+                                             const char* trgBackend )
 {
   if ( ! trgName )
     {
@@ -239,6 +245,7 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
   trigger->Type = static_cast<DatabaseTriggerType>( trgType );
   trigger->Name = trgName;
   trigger->Action = trgAction;
+  trigger->Backend = trgBackend;
   return trgHandle;
 }
 
@@ -586,6 +593,7 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
   int curIndexHandle = -1;
   const char* name;
   const char* attr;
+  const char* bcke;
 
 #if !defined(__sgi) || defined(__GNUC__)
   va_list args;
@@ -620,7 +628,8 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
         dtyp = va_arg( args, int );
         name = va_arg( args, const char* );
         attr = va_arg( args, const char* );
-        this->AddTriggerToTable( tblHandle, dtyp, name, attr );
+        bcke = va_arg( args, const char* );
+        this->AddTriggerToTable( tblHandle, dtyp, name, attr, bcke );
         break;
       default:
         {

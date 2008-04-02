@@ -35,11 +35,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cstdarg> // Because one method has a variable list of arguments 
 
-// This is a list of supported VTK SQL backend classes. A class does not have
-// to be listed here to be supported, but these macros allow for the specification
-// of SQL backend-specific database schema items.
+// This is a list of known supported VTK SQL backend classes. 
+// A particular SQL backend does not have to be listed here to be supported, but
+// these macros allow for the specification of SQL backend-specific database schema items.
+#define VTK_SQL_ALLBE            "" // works for all backends
 #define VTK_SQL_MYSQL            "vtkMySQLDatabase"
 #define VTK_SQL_PGSQL            "vtkPostgreSQLDatabase"
+#define VTK_SQL_SQLIT            "vtkSQLiteDatabase"
 #define VTK_SQL_SQLIT            "vtkSQLiteDatabase"
 
 class vtkSQLDatabaseSchemaInternals;
@@ -95,7 +97,8 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // Description:
   // Add a preamble to the schema 
   virtual int AddPreamble( const char* preName, 
-                           const char* preAction );
+                           const char* preAction,
+                           const char* preBackend = VTK_SQL_ALLBE );
 
   // Description:
   // Add a table to the schema 
@@ -150,17 +153,20 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   virtual int AddTriggerToTable( int tblHandle,
                                  int trgType, 
                                  const char* trgName, 
-                                 const char* trgAction );
+                                 const char* trgAction,
+                                 const char* trgBackend = VTK_SQL_ALLBE );
 
   virtual int AddTriggerToTable( const char* tblName,
                                  int trgType, 
                                  const char* trgName, 
-                                 const char* trgAction )
+                                 const char* trgAction,
+                                 const char* trgBackend = VTK_SQL_ALLBE )
   {
     return this->AddTriggerToTable( this->GetTableHandleFromName( tblName ),
                                     trgType, 
                                     trgName, 
-                                    trgAction );
+                                    trgAction,
+                                    trgBackend );
   }
 
   // Description:

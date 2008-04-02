@@ -251,7 +251,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ( 1 )",
+      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ( 1 )", VTK_SQL_PGSQL,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
