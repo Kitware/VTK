@@ -258,6 +258,7 @@ int TestMySQLDatabase( int, char ** const )
   // 4. Inspect these tables
   cerr << "@@ Inspecting these tables..." << "\n";
 
+  vtkStdString queryStr;
   for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
@@ -276,7 +277,7 @@ int TestMySQLDatabase( int, char ** const )
       }
                        
     // 4.1 Check columns
-    vtkStdString queryStr ("DESCRIBE ");
+    queryStr = "DESCRIBE ";
     queryStr += tblName;
     query->SetQuery( queryStr );
     if ( ! query->Execute() )
@@ -381,7 +382,96 @@ int TestMySQLDatabase( int, char ** const )
       }
     }
 
-  // 5. Drop tables
+  // 5. Populate these tables using the trigger mechanism
+  cerr << "@@ Populating table ATable...";
+
+  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Hautes-Pyrenees', 65 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Vosges', 88 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 6. Check that the trigger-dependent table has indeed been populated
+  cerr << "@@ Checking trigger-dependent table BTable...\n";
+
+  queryStr = "SELECT somevalue FROM BTable ORDER BY somevalue DESC";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << "   Entries in column somevalue of table BTable, in descending order:\n";
+  static const char *dpts[] = { "88", "67", "65" };
+  int numDpt = 0;
+  for ( ; query->NextRow(); ++ numDpt )
+    {
+    if ( query->DataValue( 0 ).ToString() != dpts[numDpt] )
+      {
+      cerr << "Found an incorrect value: " 
+           << query->DataValue( 0 ).ToString()
+           << " != " 
+           << dpts[numDpt]
+           << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
+      return 1;
+      }
+    cerr << "     " 
+         << query->DataValue( 0 ).ToString()
+         << "\n";
+    }
+    
+  if ( numDpt != 3 )
+    {
+    cerr << "Found an incorrect number of entries: " 
+         << numDpt
+         << " != " 
+         << 3
+         << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 7. Drop tables
   cerr << "@@ Dropping these tables...";
 
   for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
