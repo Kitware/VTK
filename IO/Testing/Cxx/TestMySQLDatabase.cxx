@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -184,7 +183,7 @@ int TestMySQLDatabase( int, char ** const )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
+      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -193,9 +192,6 @@ int TestMySQLDatabase( int, char ** const )
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeValue", 12, "DEFAULT 0",
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeValue",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
