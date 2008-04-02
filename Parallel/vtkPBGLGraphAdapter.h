@@ -25,10 +25,12 @@
 #ifndef __vtkPBGLGraphAdapter_h
 #define __vtkPBGLGraphAdapter_h
 
+//BTX
 #include <boost/parallel/mpi/bsp_process_group.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/parallel/container_traits.hpp>
 #include <boost/serialization/base_object.hpp>
+//ETX
 
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
