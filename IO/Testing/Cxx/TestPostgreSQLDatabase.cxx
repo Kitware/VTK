@@ -229,9 +229,19 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
   // Specify names in lower case so that PostgreSQL does not get confused
+
+  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE" );
+  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL" );
+  schema->AddPreamble( "createsomefunction", 
+    "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
+    "BEGIN "
+    "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
+    "RETURN NEW; "
+    "END; $btable$ LANGUAGE PLPGSQL" );
+
   int tblHandle = schema->AddTableMultipleArguments( "atable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 64, "NOT NULL",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
@@ -240,6 +250,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ( 1 )",
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -248,9 +260,6 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somevalue", 12, "DEFAULT 0",
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somevalue",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
@@ -330,6 +339,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   // 4. Inspect these tables
   cerr << "@@ Inspecting these tables..." << "\n";
 
+  vtkStdString queryStr;
   for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
@@ -351,7 +361,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
       }
                        
     // Check columns
-    vtkStdString queryStr ("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '");
+    queryStr = "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '";
     queryStr += tblName;
     queryStr += "' order by ordinal_position";
     query->SetQuery( queryStr );
@@ -410,7 +420,96 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
       }
     }
 
-  // 5. Drop tables
+  // 5. Populate these tables using the trigger mechanism
+  cerr << "@@ Populating table atable...";
+
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Hautes-Pyrenees', 65 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Vosges', 88 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 6. Check that the trigger-dependent table has indeed been populated
+  cerr << "@@ Checking trigger-dependent table btable...\n";
+
+  queryStr = "SELECT somevalue FROM btable ORDER BY somevalue DESC";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << "   Entries in column somevalue of table btable, in descending order:\n";
+  static const char *dpts[] = { "88", "67", "65" };
+  int numDpt = 0;
+  for ( ; query->NextRow(); ++ numDpt )
+    {
+    if ( query->DataValue( 0 ).ToString() != dpts[numDpt] )
+      {
+      cerr << "Found an incorrect value: " 
+           << query->DataValue( 0 ).ToString()
+           << " != " 
+           << dpts[numDpt]
+           << endl;
+      schema->Delete();
+      query->Delete();
+      db->Delete();
+      return 1;
+      }
+    cerr << "     " 
+         << query->DataValue( 0 ).ToString()
+         << "\n";
+    }
+    
+  if ( numDpt != 3 )
+    {
+    cerr << "Found an incorrect number of entries: " 
+         << numDpt
+         << " != " 
+         << 3
+         << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 7. Drop tables
   cerr << "@@ Dropping these tables...";
 
   for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
@@ -432,16 +531,16 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   cerr << " done." << endl;
 
-  // Delete the database until we run the test again
+  // 8. Delete the database until we run the test again
+  cerr << "@@ Dropping the database...";
+
   if ( ! db->DropDatabase( realDatabase.c_str() ) )
     {
     cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
     cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
     }
-  else
-    {
-    cout << "Drop of \"" << realDatabase.c_str() << "\" succeeded.\n";
-    }
+
+  cerr << " done." << endl;
 
   // Clean up
   db->Delete();
