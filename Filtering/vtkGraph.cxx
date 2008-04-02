@@ -71,14 +71,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.13");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.14");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.13");
+vtkCxxRevisionMacro(vtkGraph, "1.14");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -512,7 +512,7 @@ vtkGraph *vtkGraph::GetData(vtkInformationVector *v, int i)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetSource(vtkIdType e)
+vtkIdType vtkGraph::GetSourceVertex(vtkIdType e)
 {
   if (e < 0 || e >= this->GetNumberOfEdges())
     {
@@ -527,7 +527,7 @@ vtkIdType vtkGraph::GetSource(vtkIdType e)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetTarget(vtkIdType e)
+vtkIdType vtkGraph::GetTargetVertex(vtkIdType e)
 {
   if (e < 0 || e >= this->GetNumberOfEdges())
     {

@@ -327,8 +327,8 @@ public:
   // access to a vtkOutEdgeType, vtkInEdgeType, vtkEdgeType, or
   // vtkGraphEdge, you should directly use these structures
   // to look up the source or target instead of this method.
-  vtkIdType GetSource(vtkIdType e);
-  vtkIdType GetTarget(vtkIdType e);
+  vtkIdType GetSourceVertex(vtkIdType e);
+  vtkIdType GetTargetVertex(vtkIdType e);
 
 protected:
   //BTX

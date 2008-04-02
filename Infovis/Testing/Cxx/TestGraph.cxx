@@ -62,16 +62,16 @@ void TestGraphIterators(vtkGraph *g, int & errors)
   while (edges->HasNext())
     {
     vtkEdgeType e = edges->Next();
-    if (g->GetSource(e.Id) != e.Source)
+    if (g->GetSourceVertex(e.Id) != e.Source)
       {
       cerr << "ERROR: Source does not match (" 
-           << g->GetSource(e.Id) << "!=" << e.Source << ")" << endl;
+           << g->GetSourceVertex(e.Id) << "!=" << e.Source << ")" << endl;
       ++errors;
       }
-    if (g->GetTarget(e.Id) != e.Target)
+    if (g->GetTargetVertex(e.Id) != e.Target)
       {
       cerr << "ERROR: Target does not match (" 
-           << g->GetTarget(e.Id) << "!=" << e.Target << ")" << endl;
+           << g->GetTargetVertex(e.Id) << "!=" << e.Target << ")" << endl;
       ++errors;
       }
     ++numEdges;
