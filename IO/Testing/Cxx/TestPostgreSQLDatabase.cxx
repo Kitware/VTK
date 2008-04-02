@@ -230,14 +230,15 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
   // Specify names in lower case so that PostgreSQL does not get confused
 
-  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE" );
-  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL" );
+  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_PGSQL );
+  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_PGSQL );
   schema->AddPreamble( "createsomefunction", 
     "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
     "BEGIN "
     "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
     "RETURN NEW; "
-    "END; $btable$ LANGUAGE PLPGSQL" );
+    "END; $btable$ LANGUAGE PLPGSQL", 
+     VTK_SQL_PGSQL );
 
   int tblHandle = schema->AddTableMultipleArguments( "atable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
