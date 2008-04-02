@@ -37,7 +37,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.6");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
@@ -142,10 +142,11 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer* renderer,
       } 
     glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
     glEnable( GL_COLOR_MATERIAL );
-    }
-  if (this->ColorTextureMap)
-    {
-    this->InternalColorTexture->Load(renderer);
+
+    if (this->ColorTextureMap)
+      {
+      this->InternalColorTexture->Load(renderer);
+      }
     }
 
   int pre_multiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
