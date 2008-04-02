@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.102");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.103");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -153,6 +153,8 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   int countPD=0;
   int countCD=0;
 
+  vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
+
   int numInputs = this->GetNumberOfInputConnections(0);
   vtkInformation *inInfo;
 
@@ -209,10 +211,16 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
         // keep track of the size of the poly cell array
         if (ds->GetPolys())
           {
-          numPolys += ds->GetPolys()->GetNumberOfCells();
           sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
           }
         numCells += ds->GetNumberOfCells();
+        // Count the cells of each type.
+        // This is used to ensure that cell data is copied at the correct
+        // locations in the output.
+        numVerts += ds->GetNumberOfVerts();
+        numLines += ds->GetNumberOfLines();
+        numPolys += ds->GetNumberOfPolys();
+        numStrips += ds->GetNumberOfStrips();
         
         inCD = ds->GetCellData();
         if ( countCD == 0 )
@@ -335,7 +343,10 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
 
   // loop over all input sets
   vtkIdType ptOffset = 0;
-  vtkIdType cellOffset = 0;
+  vtkIdType vertOffset = 0;
+  vtkIdType linesOffset = 0;
+  vtkIdType polysOffset = 0;
+  vtkIdType stripsOffset = 0;
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
     {
@@ -407,14 +418,47 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
         ++countPD;
         }
 
+
       if (ds->GetNumberOfCells() > 0)
         {
+        // These are the cellIDs at which each of the cell types start.
+        vtkIdType linesIndex = ds->GetNumberOfVerts();
+        vtkIdType polysIndex = linesIndex + ds->GetNumberOfLines();
+        vtkIdType stripsIndex = polysIndex + ds->GetNumberOfPolys();
+
         // cell data could be made efficient like the point data,
         // but I will wait on that.
         // copy cell data
         for (cellId=0; cellId < numCells; cellId++)
           {
-          outputCD->CopyData(cellList,inCD,countCD,cellId,cellId+cellOffset);
+          vtkIdType outCellId = 0;
+          if (cellId < linesIndex)
+            {
+            outCellId = vertOffset;
+            vertOffset++;
+            }
+          else if (cellId < polysIndex)
+            {
+            // outCellId = number of lines we already added + total number of 
+            // verts expected in the output.
+            outCellId = linesOffset + numVerts;
+            linesOffset++;
+            }
+          else if (cellId < stripsIndex)
+            {
+            // outCellId = number of polys we already added + total number of 
+            // verts and lines expected in the output.
+            outCellId = polysOffset + numLines + numVerts;
+            polysOffset++;
+            }
+          else
+            {
+            // outCellId = number of tstrips we already added + total number of 
+            // polys, verts and lines expected in the output.
+            outCellId = stripsOffset + numPolys + numLines + numVerts;
+            stripsOffset++;
+            }
+          outputCD->CopyData(cellList,inCD,countCD,cellId,outCellId);
           }
         ++countCD;
         
@@ -450,7 +494,6 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
           }
         }
       ptOffset += numPts;
-      cellOffset += numCells;
       }
     }
   
