@@ -39,9 +39,11 @@
 
 class vtkPBGLDistributedGraphHelperInternals;
 
+//BTX
 namespace boost { namespace parallel { namespace mpi {
   class bsp_process_group;
 } } } /// end namespace boost::parallel::mpi
+//ETX
 
 class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
@@ -62,11 +64,11 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // corresponding back-edges).
   void Synchronize();
 
-  // BTX
+  //BTX
   // Description:
   // Return the process group associated with this distributed graph.
   boost::parallel::mpi::bsp_process_group GetProcessGroup();
-  // ETX
+  //ETX
 
   // Description:
   // The Parallel BGL-specific internal information for this distributed 
@@ -77,7 +79,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   vtkPBGLDistributedGraphHelper();
   ~vtkPBGLDistributedGraphHelper();
 
-  // BTX
+  //BTX
   enum Tags
   {
     // Add a back edge; the forward edge has already been added.
@@ -106,7 +108,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // Description:
   // Handle a ADD_BACK_EDGE_TAG message.
   void AddBackEdge(vtkEdgeType edge, bool directed);
-  // ETX
+  //ETX
 };
 
 #endif // __vtkPBGLDistributedGraphHelper_h
