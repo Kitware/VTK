@@ -3,7 +3,7 @@
   Program:   Visualization Toolkit
   Module:    Copyright.txt
 
-Copyright (c) 1993-2007 Ken Martin, Will Schroeder, Bill Lorensen 
+Copyright (c) 1993-2008 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -19,9 +19,6 @@ modification, are permitted provided that the following conditions are met:
  * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
    of any contributors may be used to endorse or promote products derived
    from this software without specific prior written permission.
-
- * Modified source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
