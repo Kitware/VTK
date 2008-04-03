@@ -170,6 +170,18 @@ int TestMySQLDatabase( int, char ** const )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
 
+  // Create phony preambles that are not relevant to MySQL (but to PostgreSQL) to
+  // check they will indeed not be effected.
+  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
+  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
+  schema->AddPreamble( "createsomefunction", 
+    "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
+    "BEGIN "
+    "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
+    "RETURN NEW; "
+    "END; $btable$ LANGUAGE PLPGSQL", 
+     VTK_SQL_POSTGRESQL );
+
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
   int tblHandle = schema->AddTableMultipleArguments( "ATable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",

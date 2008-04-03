@@ -227,9 +227,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
 
-  // Insert in alphabetical order so that SHOW TABLES does not mix handles
-  // Specify names in lower case so that PostgreSQL does not get confused
-
+  // Create preambles to load the PL/PGSQL language and create a function
+  // with this language
   schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
   schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
   schema->AddPreamble( "createsomefunction", 
@@ -240,6 +239,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     "END; $btable$ LANGUAGE PLPGSQL", 
      VTK_SQL_POSTGRESQL );
 
+  // Insert in alphabetical order so that SHOW TABLES does not mix handles
   int tblHandle = schema->AddTableMultipleArguments( "atable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 64, "NOT NULL",
