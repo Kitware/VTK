@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.20");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.21");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
@@ -287,6 +287,18 @@ const char* vtkSQLDatabaseSchema::GetPreambleActionFromHandle( int preHandle )
     }
   
   return this->Internals->Preambles[preHandle].Action;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle( int preHandle )
+{
+  if ( preHandle < 0 || preHandle >= this->GetNumberOfPreambles() )
+    {
+    vtkErrorMacro( "Cannot get backend of non-existent preamble " << preHandle );
+    return 0;
+    }
+  
+  return this->Internals->Preambles[preHandle].Backend;
 }
 
 // ----------------------------------------------------------------------
@@ -581,6 +593,25 @@ const char* vtkSQLDatabaseSchema::GetTriggerActionFromHandle( int tblHandle,
     }
   
   return this->Internals->Tables[tblHandle].Triggers[trgHandle].Action;
+}
+
+// ----------------------------------------------------------------------
+const char* vtkSQLDatabaseSchema::GetTriggerBackendFromHandle( int tblHandle, 
+                                                              int trgHandle )
+{
+  if ( tblHandle < 0 || tblHandle >= this->GetNumberOfTables() )
+    {
+    vtkErrorMacro( "Cannot get backend of a trigger in non-existent table " << tblHandle );
+    return 0;
+    }
+  
+  if ( trgHandle < 0 || trgHandle >= static_cast<int>( this->Internals->Tables[tblHandle].Triggers.size() ) )
+    {
+    vtkErrorMacro( "Cannot get backend of non-existent trigger " << trgHandle << " in table " << tblHandle );
+    return 0;
+    }
+  
+  return this->Internals->Tables[tblHandle].Triggers[trgHandle].Backend;
 }
 
 // ----------------------------------------------------------------------

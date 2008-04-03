@@ -230,15 +230,15 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
   // Specify names in lower case so that PostgreSQL does not get confused
 
-  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_PGSQL );
-  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_PGSQL );
+  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
+  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
   schema->AddPreamble( "createsomefunction", 
     "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
     "BEGIN "
     "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
     "RETURN NEW; "
     "END; $btable$ LANGUAGE PLPGSQL", 
-     VTK_SQL_PGSQL );
+     VTK_SQL_POSTGRESQL );
 
   int tblHandle = schema->AddTableMultipleArguments( "atable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
@@ -252,7 +252,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ( 1 )", VTK_SQL_PGSQL,
+      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ( 1 )", VTK_SQL_POSTGRESQL,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 

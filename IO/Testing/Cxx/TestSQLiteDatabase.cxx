@@ -176,7 +176,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "DO NOTHING", VTK_SQL_SQLIT,
+      "InsertTrigger", "DO NOTHING", VTK_SQL_SQLITE,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 

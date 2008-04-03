@@ -35,7 +35,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
 
-  schema->AddPreamble( "CreateSomeFunction", // by default, the 4-th parameter will be VTK_SQL_ALLBE
+  schema->AddPreamble( "CreateSomeFunction", // by default, the 4-th parameter will be VTK_SQL_ALLBACKENDS
                        "CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL" ); 
 
   int tblHandle = 0;
@@ -51,7 +51,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", VTK_SQL_ALLBE,
+      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", VTK_SQL_ALLBACKENDS,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 

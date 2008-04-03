@@ -38,11 +38,10 @@ PURPOSE.  See the above copyright notice for more information.
 // This is a list of known supported VTK SQL backend classes. 
 // A particular SQL backend does not have to be listed here to be supported, but
 // these macros allow for the specification of SQL backend-specific database schema items.
-#define VTK_SQL_ALLBE            "" // works for all backends
+#define VTK_SQL_ALLBACKENDS      "*" // works for all backends
 #define VTK_SQL_MYSQL            "vtkMySQLDatabase"
-#define VTK_SQL_PGSQL            "vtkPostgreSQLDatabase"
-#define VTK_SQL_SQLIT            "vtkSQLiteDatabase"
-#define VTK_SQL_SQLIT            "vtkSQLiteDatabase"
+#define VTK_SQL_POSTGRESQL       "vtkPostgreSQLDatabase"
+#define VTK_SQL_SQLITE           "vtkSQLiteDatabase"
 
 class vtkSQLDatabaseSchemaInternals;
 
@@ -98,7 +97,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // Add a preamble to the schema 
   virtual int AddPreamble( const char* preName, 
                            const char* preAction,
-                           const char* preBackend = VTK_SQL_ALLBE );
+                           const char* preBackend = VTK_SQL_ALLBACKENDS );
 
   // Description:
   // Add a table to the schema 
@@ -154,13 +153,13 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
                                  int trgType, 
                                  const char* trgName, 
                                  const char* trgAction,
-                                 const char* trgBackend = VTK_SQL_ALLBE );
+                                 const char* trgBackend = VTK_SQL_ALLBACKENDS );
 
   virtual int AddTriggerToTable( const char* tblName,
                                  int trgType, 
                                  const char* trgName, 
                                  const char* trgAction,
-                                 const char* trgBackend = VTK_SQL_ALLBE )
+                                 const char* trgBackend = VTK_SQL_ALLBACKENDS )
   {
     return this->AddTriggerToTable( this->GetTableHandleFromName( tblName ),
                                     trgType, 
@@ -174,12 +173,16 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   int GetPreambleHandleFromName( const char* preName );
 
   // Description:
-  // Given a preamble hanlde, get its name.
+  // Given a preamble handle, get its name.
   const char* GetPreambleNameFromHandle( int preHandle );
 
   // Description:
-  // Given the handles of a table and a trigger, get the action of the trigger.
+  // Given a preamble handle, get its action.
   const char* GetPreambleActionFromHandle( int preHandle );
+
+  // Description:
+  // Given a preamble handle, get its backend.
+  const char* GetPreambleBackendFromHandle( int preHandle );
 
   // Description:
   // Given a table name, get its handle.
@@ -254,6 +257,11 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // Given the handles of a table and a trigger, get the action of the trigger.
   const char* GetTriggerActionFromHandle( int tblHandle, 
                                           int trgHandle );
+
+  // Description:
+  // Given the handles of a table and a trigger, get the backend of the trigger.
+  const char* GetTriggerBackendFromHandle( int tblHandle, 
+                                           int trgHandle );
 
   // Description:
   // Reset the schema to its initial, empty state.
