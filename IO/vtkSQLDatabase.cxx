@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.37");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.38");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -392,10 +392,17 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     return false;
     }
  
-  // Loop over preamble statements of the schema and execute them
+  // Loop over preamble statements of the schema and execute them only if they are relevant
   int numPre = schema->GetNumberOfPreambles();
   for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
     {
+    // Don't execute if the statement is not for this backend
+    const char* preBackend = schema->GetPreambleBackendFromHandle( preHandle );
+    if ( ! strcmp( preBackend, VTK_SQL_ALLBACKENDS ) && ! strcmp( preBackend, this->GetClassName() ) )
+      {
+      continue;
+      }
+
     vtkStdString preStr = schema->GetPreambleActionFromHandle( preHandle );
     query->SetQuery( preStr );
     if ( ! query->Execute() )
