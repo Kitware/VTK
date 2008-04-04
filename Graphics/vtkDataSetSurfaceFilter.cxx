@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.60");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.61");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -213,10 +213,11 @@ int vtkDataSetSurfaceFilter::RequestData(
 // other than data set, and data set does not allow access to extent!
 int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
                                                vtkPolyData *output,
-                                               int *ext,
+                                               vtkIdType *ext,
                                                vtkInformation *inInfo)
 {
-  int *wholeExt;
+  const int *wholeExt32;
+  vtkIdType     wholeExt[6];
   vtkIdType numPoints, cellArraySize;
   vtkCellArray *outStrips;
   vtkCellArray *outPolys;
@@ -224,8 +225,13 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
 
   // Cell Array Size is a pretty good estimate.  
   // Does not consider direction of strip.
-
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  wholeExt[0] = wholeExt32[0]; 
+  wholeExt[1] = wholeExt32[1]; 
+  wholeExt[2] = wholeExt32[2];
+  wholeExt[3] = wholeExt32[3]; 
+  wholeExt[4] = wholeExt32[4]; 
+  wholeExt[5] = wholeExt32[5];
 
   // Lets figure out how many cells and points we are going to have.
   // It may be overkill comptuing the exact amount, but we can do it, so ...
@@ -361,24 +367,24 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
                                                 vtkPolyData *output,
-                                              int maxFlag, int *ext,
-                                              int aAxis, int bAxis, int cAxis,
+                                                int maxFlag, vtkIdType *ext,
+                                                int aAxis, int bAxis, int cAxis,
                                                 vtkInformation *inInfo)
 {
   vtkPoints    *outPts;
   vtkCellArray *outStrips;
   vtkPointData *inPD, *outPD;
   int          *wholeExt;
-  int          pInc[3];
-  int          qInc[3];
-  int          ptCInc[3];
-  int          cOutInc;
-  double        pt[3];
+  vtkIdType    pInc[3];
+  vtkIdType    qInc[3];
+  vtkIdType    ptCInc[3];
+  vtkIdType    cOutInc;
+  double       pt[3];
   vtkIdType    inStartPtId;
   vtkIdType    outStartPtId;
   vtkIdType    outPtId;
   vtkIdType    inId, outId;
-  int          ib, ic;
+  vtkIdType    ib, ic;
   int          aA2, bA2, cA2;
   int          rotatedFlag;
   vtkIdType    *stripArray;
@@ -546,7 +552,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
                                                vtkPolyData *output,
-                                               int maxFlag, int *ext,
+                                               int maxFlag, vtkIdType *ext,
                                                int aAxis, int bAxis, int cAxis,
                                                vtkInformation *inInfo)
 {
@@ -554,17 +560,18 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   vtkCellArray *outPolys;
   vtkPointData *inPD, *outPD;
   vtkCellData  *inCD, *outCD;
-  int          *wholeExt;
-  int          pInc[3];
-  int          qInc[3];
-  int          cOutInc;
+  const vtkTypeInt32 *wholeExt32;
+  vtkIdType    wholeExt[6];
+  vtkIdType    pInc[3];
+  vtkIdType    qInc[3];
+  vtkIdType    cOutInc;
   double        pt[3];
   vtkIdType    inStartPtId;
   vtkIdType    inStartCellId;
   vtkIdType    outStartPtId;
   vtkIdType    outPtId;
   vtkIdType    inId, outId;
-  int          ib, ic;
+  vtkIdType    ib, ic;
   int          aA2, bA2, cA2;
 
   outPts = output->GetPoints();
@@ -573,7 +580,11 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   outCD = output->GetCellData();
   inCD = input->GetCellData();
 
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  wholeExt[0] = wholeExt32[0]; wholeExt[1] = wholeExt32[1]; wholeExt[2] = wholeExt32[2];
+  wholeExt[3] = wholeExt32[3]; wholeExt[4] = wholeExt32[4]; wholeExt[5] = wholeExt32[5];
+  
+  
   pInc[0] = 1;
   pInc[1] = (ext[1]-ext[0]+1);
   pInc[2] = (ext[3]-ext[2]+1) * pInc[1];

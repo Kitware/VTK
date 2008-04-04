@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.45");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.46");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
@@ -238,20 +238,31 @@ int vtkExtractVOI::RequestData(
   vtkCellData *cd=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
-  int i, j, k, uExt[6], voi[6];
-  int *inExt;
-  int *inWholeExt;
-  int iIn, jIn, kIn;
-  int outSize, jOffset, kOffset, rate[3];
+  vtkIdType i, j, k, uExt[6], voi[6];
+  int uExt32[6];
+
+  const vtkTypeInt32* inExt32;
+  vtkIdType inExt[6];
+
+  const vtkTypeInt32* inWholeExt32;
+  vtkIdType inWholeExt[6];
+  
+  vtkIdType iIn, jIn, kIn;
+  vtkIdType outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
-  int inInc1, inInc2;
+  vtkIdType inInc1, inInc2;
   // Function to convert output index to input index f(i) = Rate*I + shift
-  int shift[3];
+  vtkIdType shift[3];
 
   vtkDebugMacro(<< "Extracting Grid");
 
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
-  inExt = input->GetExtent();
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt32);
+  uExt[0] = uExt32[0]; uExt[1] = uExt32[1]; uExt[2] = uExt32[2];
+  uExt[3] = uExt32[3]; uExt[4] = uExt32[4]; uExt[5] = uExt32[5];
+  
+  inExt32 = input->GetExtent();
+  inExt[0] = inExt32[0]; inExt[1] = inExt32[1]; inExt[2] = inExt32[2];
+  inExt[3] = inExt32[3]; inExt[4] = inExt32[4]; inExt[5] = inExt32[5];
   inInc1 = (inExt[1]-inExt[0]+1);
   inInc2 = inInc1*(inExt[3]-inExt[2]+1);
 
@@ -264,7 +275,14 @@ int vtkExtractVOI::RequestData(
     }
 
   // Clip the VOI by the input whole extent
-  inWholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  inWholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  inWholeExt[0] = inWholeExt32[0]; 
+  inWholeExt[1] = inWholeExt32[1]; 
+  inWholeExt[2] = inWholeExt32[2];
+  inWholeExt[3] = inWholeExt32[3]; 
+  inWholeExt[4] = inWholeExt32[4]; 
+  inWholeExt[5] = inWholeExt32[5];
+  
   for (i = 0; i < 3; ++i)
     {
     voi[i*2] = this->VOI[2*i];
@@ -284,18 +302,18 @@ int vtkExtractVOI::RequestData(
   // We need to duplicate the computation done in 
   // ExecuteInformtation for the output whole extent.
   // Use shift as temporary variable (output mins).
-  shift[0] = static_cast<int>(
+  shift[0] = static_cast<vtkIdType>(
     floor(static_cast<float>(voi[0])/static_cast<float>(rate[0]) ));
-  shift[1] = static_cast<int>(
+  shift[1] = static_cast<vtkIdType>(
     floor( static_cast<float>(voi[2])/static_cast<float>(rate[1]) ));
-  shift[2] = static_cast<int>(
+  shift[2] = static_cast<vtkIdType>(
     floor( static_cast<float>(voi[4])/static_cast<float>(rate[2]) ));
   // Take the different between the output and input mins (in input coordinates).
   shift[0] = voi[0] - (shift[0]*rate[0]);
   shift[1] = voi[2] - (shift[1]*rate[1]);
   shift[2] = voi[4] - (shift[2]*rate[2]);
 
-  output->SetExtent(uExt);
+  output->SetExtent(uExt32);
 
   // If output same as input, just pass data through
   if ( uExt[0] <= inExt[0] && uExt[1] >= inExt[1] &&

@@ -83,18 +83,18 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  int StructuredExecute(vtkDataSet *input, vtkPolyData *output, int *ext,
+  int StructuredExecute(vtkDataSet *input, vtkPolyData *output, vtkIdType *ext,
                          vtkInformation *inInfo);
   int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
   int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
 
   // Helper methods.
   void ExecuteFaceStrips(vtkDataSet *input, vtkPolyData *output,
-                         int maxFlag, int *ext,
+                         int maxFlag, vtkIdType *ext,
                          int aAxis, int bAxis, int cAxis,
                          vtkInformation *inInfo);
   void ExecuteFaceQuads(vtkDataSet *input, vtkPolyData *output,
-                        int maxFlag, int *ext,
+                        int maxFlag, vtkIdType *ext,
                         int aAxis, int bAxis, int cAxis,
                         vtkInformation *inInfo);
 
