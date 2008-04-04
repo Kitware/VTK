@@ -227,8 +227,8 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   schema->SetName( "TestSchema" );
 
-  // Create preambles to load the PL/PGSQL language and create a function
-  // with this language
+  // Create PostgreSQL-specific preambles to load the PL/PGSQL language and create a function
+  // with this language. These will be ignored by other backends.
   schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
   schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
   schema->AddPreamble( "createsomefunction", 

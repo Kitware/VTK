@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.40");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.41");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -543,7 +543,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
         {
         // Don't execute if the trigger is not for this backend
         const char* trgBackend = schema->GetTriggerBackendFromHandle( tblHandle, trgHandle );
-        if ( ! strcmp( trgBackend, VTK_SQL_ALLBACKENDS ) && ! strcmp( trgBackend, this->GetClassName() ) )
+        if ( strcmp( trgBackend, VTK_SQL_ALLBACKENDS ) && strcmp( trgBackend, this->GetClassName() ) )
           {
           continue;
           }
