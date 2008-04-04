@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.61");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.62");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -898,7 +898,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.61");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.62");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -4452,7 +4452,10 @@ static void BroadcastDoubleVector( vtkMultiProcessController* controller,
     {
     dvec.resize( len );
     }
-  controller->Broadcast( &dvec[0], len, 0 );
+  if ( len )
+    {
+    controller->Broadcast( &dvec[0], len, 0 );
+    }
 }
 
 static void BroadcastIntVector( vtkMultiProcessController* controller,
@@ -4464,25 +4467,31 @@ static void BroadcastIntVector( vtkMultiProcessController* controller,
     {
     ivec.resize( len );
     }
-  controller->Broadcast( &ivec[0], len, 0 );
+  if ( len )
+    {
+    controller->Broadcast( &ivec[0], len, 0 );
+    }
 }
 
 static void BroadcastString( vtkMultiProcessController* controller, vtkStdString& str, int rank )
 {
   unsigned long len = str.size() + 1;
   controller->Broadcast( &len, 1, 0 );
-  if ( rank )
+  if ( len )
     {
-    vtkstd::vector<char> tmp;
-    tmp.reserve( len );
-    controller->Broadcast( &(tmp[0]), len, 0 );
-    str = &tmp[0];
-    }
-  else
-    {
-    const char* start = str.c_str();
-    vtkstd::vector<char> tmp( start, start + len );
-    controller->Broadcast( &tmp[0], len, 0 );
+    if ( rank )
+      {
+      vtkstd::vector<char> tmp;
+      tmp.reserve( len );
+      controller->Broadcast( &(tmp[0]), len, 0 );
+      str = &tmp[0];
+      }
+    else
+      {
+      const char* start = str.c_str();
+      vtkstd::vector<char> tmp( start, start + len );
+      controller->Broadcast( &tmp[0], len, 0 );
+      }
     }
 }
 
@@ -5691,7 +5700,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.61");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.62");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
