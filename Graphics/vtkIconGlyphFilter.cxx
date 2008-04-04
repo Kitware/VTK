@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.5");
+vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.6");
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -39,6 +39,7 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
   this->IconSize[1] = 1;
   this->IconSheetSize[0] = 1;
   this->IconSheetSize[1] = 1;
+  this->UseIconSize = true;
 
   this->SetInputArrayToProcess(0, 0, 0, 
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -56,6 +57,18 @@ void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "IconSize: " << this->IconSize[0] << " " << this->IconSize[1] << endl;
   os << indent << "IconSheetSize: " << this->IconSheetSize[0] << " " << this->IconSheetSize[1] << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkIconGlyphFilter::SetUseIconSize(bool b)
+{
+  this->UseIconSize = b;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIconGlyphFilter::GetUseIconSize()
+{
+  return this->UseIconSize;
 }
 
 //-----------------------------------------------------------------------------
@@ -105,7 +118,12 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outTCoords->SetNumberOfComponents(2);
   outTCoords->Allocate(8*numPoints);
 
-  double size = 32.0;
+  double size = 1.0;
+  if(this->UseIconSize)
+    {
+    size = 32.0;
+    }
+
   for(int i = 0; i < numPoints; i++)
     {
     iconIndex = scalars->GetValue(i);

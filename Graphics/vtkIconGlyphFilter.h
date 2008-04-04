@@ -49,6 +49,14 @@ public:
   vtkSetVector2Macro(IconSheetSize,int);
   vtkGetVectorMacro(IconSheetSize,int,2);
 
+
+  // Description:
+  // Specify whether the Quad generated to place the icon on will be either
+  // 1 x 1 or the dimensions specified by IconSize.
+  void SetUseIconSize(bool b);
+  bool GetUseIconSize();
+  vtkBooleanMacro(UseIconSize, bool);
+
 protected:
   vtkIconGlyphFilter();
   ~vtkIconGlyphFilter();
@@ -65,6 +73,8 @@ private:
   void operator=(const vtkIconGlyphFilter&);  // Not implemented.
 
   void IconConvertIndex(int id, int & j, int & k);
+
+  bool UseIconSize;
 };
 
 inline void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)

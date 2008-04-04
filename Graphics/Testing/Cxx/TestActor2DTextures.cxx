@@ -77,6 +77,7 @@ int TestActor2DTextures( int argc, char *argv[])
 
   iconFilter->SetInput(pointSet);
   iconFilter->SetIconSize(size);
+  iconFilter->SetUseIconSize(true);
   iconFilter->SetIconSheetSize(imageDims);
 
   vtkPolyDataMapper2D * mapper = vtkPolyDataMapper2D::New();
@@ -106,15 +107,18 @@ int TestActor2DTextures( int argc, char *argv[])
     iren->Start();
     }
 
-  imageReader->Delete();
-  iconIndex->Delete();
-  pointSet->Delete();
-  points->Delete();
-  pointData->Delete();
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
+  mapper->Delete();
   texture->Delete();
+  imageReader->Delete();
+  iconIndex->Delete();
+  iconFilter->Delete();
+  iconActor->Delete();
+  pointSet->Delete();
+  points->Delete();
+  pointData->Delete();
 
   return !retVal;
 }
