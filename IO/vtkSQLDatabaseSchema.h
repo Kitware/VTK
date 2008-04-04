@@ -94,7 +94,22 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   //ETX
 
   // Description:
-  // Add a preamble to the schema 
+  // Add a preamble to the schema
+  // This can be used, in particular, to create functions and/or
+  // load languages in a backend-specific manner.
+  // Example usage:
+  // vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
+  // schema->SetName( "Example" );
+  // schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
+  // schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
+  // schema->AddPreamble( "createsomefunction", 
+  // "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
+  // "BEGIN "
+  // "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
+  // "RETURN NEW; "
+  // "END; $btable$ LANGUAGE PLPGSQL", 
+  //  VTK_SQL_POSTGRESQL );
+
   virtual int AddPreamble( const char* preName, 
                            const char* preAction,
                            const char* preBackend = VTK_SQL_ALLBACKENDS );
@@ -316,19 +331,26 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // {
   // vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
   // schema->SetName( "Example" );
-  // schema->AddTableMultipleArguments( "ATable",
-  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
-  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
-  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
-  // vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
-  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+  // schema->AddTableMultipleArguments( "atable",
+  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::INTEGER, "tablekey",  0, "",
+  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
+  // vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
+  // vtkSQLDatabaseSchema::INDEX_TOKEN, vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
+  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
   // vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-  // vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
-  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
-  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
+  // vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
+  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
+  // vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
   // vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-  // vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT, "InsertTrigger",
-  // "INSERT INTO BTable SET SomeValue = NEW.SomeNmbr",
+  // vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+  //  "InsertTrigger", "DO NOTHING", 
+  //   VTK_SQL_SQLITE,
+  // vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+  //  "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
+  //   VTK_SQL_POSTGRESQL,
+  // vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+  //   "InsertTrigger", "FOR EACH ROW INSERT INTO btable SET SomeValue = NEW.SomeNmbr", 
+  //   VTK_SQL_MYSQL,
   // vtkSQLDatabaseSchema::END_TABLE_TOKEN
   // );
   // return 0;
