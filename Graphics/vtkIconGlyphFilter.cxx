@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.4");
+vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.5");
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -105,32 +105,33 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outTCoords->SetNumberOfComponents(2);
   outTCoords->Allocate(8*numPoints);
 
+  double size = 32.0;
   for(int i = 0; i < numPoints; i++)
     {
     iconIndex = scalars->GetValue(i);
     input->GetPoint(i, point);
-    outPoints->InsertNextPoint(point[0] - 0.5, point[1] - 0.5, point[2]);
+    outPoints->InsertNextPoint(point[0] - 0.5 * size, point[1] - 0.5* size, point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = j/sheetXDim;
     textureCoord[1] = k/sheetYDim;
     outTCoords->InsertTuple(i * 4, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] + 0.5, point[1] - 0.5, point[2]);
+    outPoints->InsertNextPoint(point[0] + 0.5 * size, point[1] - 0.5 * size, point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = (j + 1.0)/sheetXDim;
     textureCoord[1] = k/sheetYDim;
     outTCoords->InsertTuple(i * 4 + 1, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] + 0.5, point[1] + 0.5, point[2]);
+    outPoints->InsertNextPoint(point[0] + 0.5 * size, point[1] + 0.5 * size, point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = (j + 1.0)/sheetXDim;
     textureCoord[1] = (k + 1.0)/sheetYDim;
     outTCoords->InsertTuple(i * 4 + 2, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] - 0.5, point[1] + 0.5, point[2]);
+    outPoints->InsertNextPoint(point[0] - 0.5 * size, point[1] + 0.5 * size, point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = j/sheetXDim;
