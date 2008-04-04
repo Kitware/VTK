@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.61");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.62");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ int vtkDataSetSurfaceFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numCells = input->GetNumberOfCells();
-  int *ext;
+  vtkIdType ext[6];
 
   if (input->CheckAttributes())
     {
@@ -135,31 +135,46 @@ int vtkDataSetSurfaceFilter::RequestData(
     case VTK_RECTILINEAR_GRID:
       {
       vtkRectilinearGrid *grid = vtkRectilinearGrid::SafeDownCast(input);
-      ext = grid->GetExtent();      
+      int* tmpext = grid->GetExtent();
+      ext[0] = tmpext[0]; ext[1] = tmpext[1];
+      ext[2] = tmpext[2]; ext[3] = tmpext[3];
+      ext[4] = tmpext[4]; ext[5] = tmpext[5];
       return this->StructuredExecute(grid, output, ext, inInfo);
       }
     case VTK_STRUCTURED_GRID:
       {
       vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(input);
-      ext = grid->GetExtent();      
+      int* tmpext = grid->GetExtent();
+      ext[0] = tmpext[0]; ext[1] = tmpext[1];
+      ext[2] = tmpext[2]; ext[3] = tmpext[3];
+      ext[4] = tmpext[4]; ext[5] = tmpext[5];
       return this->StructuredExecute(grid, output, ext, inInfo);
       }
     case VTK_UNIFORM_GRID:
       {
       vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(input);
-      ext = grid->GetExtent();
+      int* tmpext = grid->GetExtent();
+      ext[0] = tmpext[0]; ext[1] = tmpext[1];
+      ext[2] = tmpext[2]; ext[3] = tmpext[3];
+      ext[4] = tmpext[4]; ext[5] = tmpext[5];
       return this->StructuredExecute(grid, output, ext, inInfo);
       }
     case VTK_STRUCTURED_POINTS:      
       {
       vtkStructuredPoints *image = vtkStructuredPoints::SafeDownCast(input);
-      ext = image->GetExtent();      
+      int* tmpext = image->GetExtent();
+      ext[0] = tmpext[0]; ext[1] = tmpext[1];
+      ext[2] = tmpext[2]; ext[3] = tmpext[3];
+      ext[4] = tmpext[4]; ext[5] = tmpext[5];
       return this->StructuredExecute(image, output, ext, inInfo);
       }
      case VTK_IMAGE_DATA:      
       {
       vtkImageData *image = vtkImageData::SafeDownCast(input);
-      ext = image->GetExtent();      
+      int* tmpext = image->GetExtent();
+      ext[0] = tmpext[0]; ext[1] = tmpext[1];
+      ext[2] = tmpext[2]; ext[3] = tmpext[3];
+      ext[4] = tmpext[4]; ext[5] = tmpext[5];
       return this->StructuredExecute(image, output, ext, inInfo);
       }
     case VTK_POLY_DATA:
