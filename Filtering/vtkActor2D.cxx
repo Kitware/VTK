@@ -18,10 +18,13 @@
 #include "vtkMapper2D.h"
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.6");
+vtkCxxRevisionMacro(vtkActor2D, "1.7");
 vtkStandardNewMacro(vtkActor2D);
 
+vtkCxxSetObjectMacro(vtkActor2D,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkActor2D,Mapper, vtkMapper2D);
 
@@ -34,6 +37,7 @@ vtkActor2D::vtkActor2D()
   this->Mapper = NULL;
   this->LayerNumber = 0;
   this->Property = NULL;
+  this->Texture = NULL;
   //
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
@@ -68,6 +72,7 @@ vtkActor2D::~vtkActor2D()
     this->Mapper->UnRegister(this);
     this->Mapper = NULL;
     }
+  this->SetTexture(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -78,6 +83,12 @@ void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
     {
     this->Mapper->ReleaseGraphicsResources(win);
     }
+
+  // pass this information onto the texture
+  if (this->Texture)
+    {
+    this->Texture->ReleaseGraphicsResources(win);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -85,6 +96,7 @@ void vtkActor2D::ReleaseGraphicsResources(vtkWindow *win)
 int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderOverlay");
+  vtkRenderer* ren = static_cast<vtkRenderer*>(viewport);
 
   if (!this->Property)
     {
@@ -94,6 +106,12 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
     }
 
   this->Property->Render(viewport);
+
+  // render the texture 
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
 
   if (!this->Mapper) 
     {
@@ -111,6 +129,7 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderOpaqueGeometry");
+  vtkRenderer* ren = static_cast<vtkRenderer*>(viewport);
 
   if (!this->Property)
     {
@@ -120,6 +139,12 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
     }
 
   this->Property->Render(viewport);
+
+  // render the texture 
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
 
   if (!this->Mapper) 
     {
@@ -137,6 +162,7 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkActor2D::RenderTranslucentPolygonalGeometry");
+  vtkRenderer* ren = static_cast<vtkRenderer*>(viewport);
 
   if (!this->Property)
     {
@@ -146,6 +172,12 @@ int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
     }
 
   this->Property->Render(viewport);
+
+  // render the texture 
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
 
   if (!this->Mapper) 
     {
@@ -188,6 +220,12 @@ unsigned long int vtkActor2D::GetMTime()
   if ( this->Property != NULL )
     {
     time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->Texture != NULL )
+    {
+    time = this->Texture->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 
@@ -267,6 +305,7 @@ void vtkActor2D::ShallowCopy(vtkProp *prop)
     this->SetProperty(a->GetProperty());
     this->SetPosition(a->GetPosition());
     this->SetPosition2(a->GetPosition2());
+    this->SetTexture(a->GetTexture());
     }
 
   // Now do superclass
@@ -294,6 +333,15 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Mapper)
     {
     this->Mapper->PrintSelf(os, indent.GetNextIndent());
+    }
+
+  if ( this->Texture )
+    {
+    os << indent << "Texture: " << this->Texture << "\n";
+    }
+  else
+    {
+    os << indent << "Texture: (none)\n";
     }
 }
 
