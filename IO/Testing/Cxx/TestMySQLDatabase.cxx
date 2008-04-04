@@ -183,27 +183,34 @@ int TestMySQLDatabase( int, char ** const )
      VTK_SQL_POSTGRESQL );
 
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
-  int tblHandle = schema->AddTableMultipleArguments( "ATable",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+  int tblHandle = schema->AddTableMultipleArguments( "atable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
+    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", VTK_SQL_MYSQL,
+      "InsertTrigger", "DO NOTHING", 
+      VTK_SQL_SQLITE,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
+      VTK_SQL_POSTGRESQL,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "FOR EACH ROW INSERT INTO btable SET someValue = NEW.somenmbr", 
+      VTK_SQL_MYSQL,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
-  tblHandle = schema->AddTableMultipleArguments( "BTable",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeValue", 12, "DEFAULT 0",
+  tblHandle = schema->AddTableMultipleArguments( "btable",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
+    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "someValue", 12, "DEFAULT 0",
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
+    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
@@ -395,9 +402,9 @@ int TestMySQLDatabase( int, char ** const )
     }
 
   // 5. Populate these tables using the trigger mechanism
-  cerr << "@@ Populating table ATable...";
+  cerr << "@@ Populating table atable...";
 
-  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
   query->SetQuery( queryStr );
   if ( ! query->Execute() )
     {
@@ -408,7 +415,7 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Hautes-Pyrenees', 65 )";
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Hautes-Pyrenees', 65 )";
   query->SetQuery( queryStr );
   if ( ! query->Execute() )
     {
@@ -419,7 +426,7 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  queryStr = "INSERT INTO ATable (somename,somenmbr) VALUES ( 'Vosges', 88 )";
+  queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Vosges', 88 )";
   query->SetQuery( queryStr );
   if ( ! query->Execute() )
     {
@@ -433,9 +440,9 @@ int TestMySQLDatabase( int, char ** const )
   cerr << " done." << endl;
 
   // 6. Check that the trigger-dependent table has indeed been populated
-  cerr << "@@ Checking trigger-dependent table BTable...\n";
+  cerr << "@@ Checking trigger-dependent table btable...\n";
 
-  queryStr = "SELECT somevalue FROM BTable ORDER BY somevalue DESC";
+  queryStr = "SELECT somevalue FROM btable ORDER BY somevalue DESC";
   query->SetQuery( queryStr );
   if ( ! query->Execute() )
     {
@@ -446,7 +453,7 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  cerr << "   Entries in column somevalue of table BTable, in descending order:\n";
+  cerr << "   Entries in column somevalue of table btable, in descending order:\n";
   static const char *dpts[] = { "88", "67", "65" };
   int numDpt = 0;
   for ( ; query->NextRow(); ++ numDpt )

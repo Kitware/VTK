@@ -51,7 +51,14 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", VTK_SQL_ALLBACKENDS,
+      "InsertTrigger", "DO NOTHING", 
+      VTK_SQL_SQLITE,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
+      VTK_SQL_POSTGRESQL,
+    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
+      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", 
+      VTK_SQL_MYSQL,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
@@ -206,18 +213,31 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     }
 
   // Define the correct (reference) triggers and types
-  vtkstd::set<vtkStdString> trgNames;
+  vtkstd::multiset<vtkStdString> trgNames;
   trgNames.insert( vtkStdString ( "InsertTrigger" ) );
-  vtkstd::set<int> trgTypes;
+  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
+  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
+
+  vtkstd::multiset<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
-  vtkstd::set<vtkStdString> trgActions;
+  trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
+  trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
+
+  vtkstd::multiset<vtkStdString> trgActions;
+  trgActions.insert( vtkStdString( "DO NOTHING" ) );
   trgActions.insert( vtkStdString( "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr" ) );
+  trgActions.insert( vtkStdString( "FOR EACH ROW EXECUTE PROCEDURE somefunction ()" ) );
+
+  vtkstd::multiset<vtkStdString> trgBackends;
+  trgBackends.insert( vtkStdString( VTK_SQL_MYSQL ) );
+  trgBackends.insert( vtkStdString( VTK_SQL_SQLITE ) );
+  trgBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
 
   // Loop over all triggers of the previously created table
   int numTrg = schema->GetNumberOfTriggersInTable( tblHandle );
-  if ( numTrg != 1 )
+  if ( numTrg != 3 )
     {
-    cerr << "Read " << numTrg << " != 2 triggers in test schema.\n";
+    cerr << "Read " << numTrg << " != 3 triggers in test schema.\n";
     status = false;
     }
   
@@ -228,7 +248,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << trgName
          << "\n";
 
-    vtkstd::set<vtkStdString>::iterator sit = trgNames.find( trgName );
+    vtkstd::multiset<vtkStdString>::iterator sit = trgNames.find( trgName );
     if ( sit != trgNames.end() )
       {
       trgNames.erase ( sit );
@@ -244,7 +264,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
          << trgType
          << "\n";
 
-    vtkstd::set<int>::iterator iit = trgTypes.find( trgType );
+    vtkstd::multiset<int>::iterator iit = trgTypes.find( trgType );
     if ( iit != trgTypes.end() )
       {
       trgTypes.erase ( iit );
@@ -268,6 +288,22 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     else
       {
       cerr << "Could not retrieve trigger action " << trgAction  << " from test schema.\n";
+      status = false;
+      }
+
+    vtkStdString trgBackend = schema->GetTriggerBackendFromHandle( tblHandle, trgHandle );
+    cerr << "Trigger backend: " 
+         << trgBackend
+         << "\n";
+
+    sit = trgBackends.find( trgBackend );
+    if ( sit != trgBackends.end() )
+      {
+      trgBackends.erase ( sit );
+      }
+    else
+      {
+      cerr << "Could not retrieve trigger backend " << trgBackend  << " from test schema.\n";
       status = false;
       }
     }
