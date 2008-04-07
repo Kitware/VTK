@@ -159,7 +159,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 
   // 1. Create the schema
 #include "DatabaseSchemaWith2Tables.cxx"
-  
+
   // 2. Convert the schema into a SQLite database
   cerr << "@@ Converting the schema into a SQLite database...";
 
