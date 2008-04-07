@@ -21,7 +21,7 @@
 #import <OpenGL/gl.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.23");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.24");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -206,7 +206,8 @@ vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   // rid of the 'pool of last resort' because [NSApp run] will create a new
   // pool for every event
   #ifndef __OBJC_GC__
-  gEarlyCocoaSetup->DestroyPoolOfLastResort();
+  delete gEarlyCocoaSetup;
+  gEarlyCocoaSetup = 0;
   #endif
 
   // Start the NSApplication's run loop
