@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.41");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.42");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -71,7 +71,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
     {
     case vtkSQLDatabaseSchema::SERIAL:    
-      colTypeStr = "";
+      colTypeStr = "INTEGER";
       break;
     case vtkSQLDatabaseSchema::SMALLINT:  
       colTypeStr = "INTEGER";
