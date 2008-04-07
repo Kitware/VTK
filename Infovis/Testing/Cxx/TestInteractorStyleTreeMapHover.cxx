@@ -669,6 +669,7 @@ int TestInteractorStyleTreeMapHover(int argc, char* argv[])
   //
   iren->Initialize();
   win->Render();
+
 #ifdef RECORD
 #else
   recorder->Play();
@@ -677,6 +678,8 @@ int TestInteractorStyleTreeMapHover(int argc, char* argv[])
   // testing option fails.
   recorder->Off();
 #endif
+
+  win->Render();
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
