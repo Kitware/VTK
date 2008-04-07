@@ -158,65 +158,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 // Testing transformation of a schema into a SQLite database
 
   // 1. Create the schema
-  cerr << "@@ Creating a schema...";
-
-  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
-  schema->SetName( "TestSchema" );
-
-  // Create PostgreSQL-specific preambles to load the PL/PGSQL language and create a function
-  // with this language. These will be ignored by other backends.
-  schema->AddPreamble( "dropPLPGSQL", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
-  schema->AddPreamble( "loadPLPGSQL", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
-  schema->AddPreamble( "createsomefunction", 
-    "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
-    "BEGIN "
-    "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
-    "RETURN NEW; "
-    "END; $btable$ LANGUAGE PLPGSQL", 
-     VTK_SQL_POSTGRESQL );
-
-  // Insert in alphabetical order so that tables selection does not mix handles
-  int tblHandle = schema->AddTableMultipleArguments( "atable",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::INTEGER, "tablekey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somename",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "DO NOTHING", 
-      VTK_SQL_SQLITE,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
-      VTK_SQL_POSTGRESQL,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW INSERT INTO btable SET SomeValue = NEW.SomeNmbr", 
-      VTK_SQL_MYSQL,
-    vtkSQLDatabaseSchema::END_TABLE_TOKEN
-  );
-
-  tblHandle = schema->AddTableMultipleArguments( "btable",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::INTEGER,  "tablekey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somevalue", 12, "DEFAULT 0",
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "reverselookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somevalue",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::END_TABLE_TOKEN
-  );
-
-  if ( tblHandle < 0 )
-    {
-    cerr << "Could not create test schema.\n";
-    return 1;
-    }
-  cerr << " done." << endl;
+#include "DatabaseSchemaWith2Tables.cxx"
   
   // 2. Convert the schema into a SQLite database
   cerr << "@@ Converting the schema into a SQLite database...";

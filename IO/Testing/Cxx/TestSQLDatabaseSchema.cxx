@@ -31,94 +31,75 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   bool status = true;
 
   // 1. Create the schema
+#include "DatabaseSchemaWith2Tables.cxx"
 
-  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
-  schema->SetName( "TestSchema" );
-
-  schema->AddPreamble( "CreateSomeFunction", // by default, the 4-th parameter will be VTK_SQL_ALLBACKENDS
-                       "CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL" ); 
-
-  int tblHandle = 0;
-  tblHandle = schema->AddTableMultipleArguments( "ATable",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "TableKey",  0, "",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "SomeName", 11, "NOT NULL",
-    vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "SomeNmbr", 17, "DEFAULT 0",
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "BigKey",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "TableKey",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::UNIQUE, "ReverseLookup",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeName",
-    vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "SomeNmbr",
-    vtkSQLDatabaseSchema::END_INDEX_TOKEN,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "DO NOTHING", 
-      VTK_SQL_SQLITE,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
-      VTK_SQL_POSTGRESQL,
-    vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "InsertTrigger", "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr", 
-      VTK_SQL_MYSQL,
-    vtkSQLDatabaseSchema::END_TABLE_TOKEN
-  );
-
-  if ( tblHandle < 0 )
-    {
-    cerr << "Could not create test schema.\n";
-    status = false;
-    }
-  
   // 2. Check the schema
 
-  // Check the preamble
+  // Define the correct (reference) columns and types
+  vtkstd::set<vtkStdString> preNames;
+  preNames.insert( vtkStdString( "dropplpgsql" ) );
+  preNames.insert( vtkStdString( "loadplpgsql" ) );
+  preNames.insert( vtkStdString( "createsomefunction" ) );
+  vtkstd::multiset<vtkStdString> preBackends;
+  preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
+  preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
+  preBackends.insert( vtkStdString( VTK_SQL_POSTGRESQL ) );
 
+  // Loop over all preambles
   int numPre = schema->GetNumberOfPreambles();
-  if ( numPre != 1 )
+  if ( numPre != 3 )
     {
-    cerr << "Read " << numPre << " != 1 preamble in test schema.\n";
+    cerr << "Read " << numPre << " != 3 preamble in test schema.\n";
     status = false;
     }
 
   for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
     {
     vtkStdString preName = schema->GetPreambleNameFromHandle( preHandle );
-    if ( preName != "CreateSomeFunction" )
+    cerr << "Preamble name: " 
+         << preName
+         << "\n";
+
+    vtkstd::set<vtkStdString>::iterator sit = preNames.find( preName );
+    if ( sit != preNames.end() )
       {
-      cerr << "Could not retrieve preamble name CreateSomeFunction from test schema.\n";
-      status = false;
+      preNames.erase ( sit );
       }
     else
       {
-      cerr << "Preamble name: " 
-           << preName
-           << "\n";
-      }
-    
-    vtkStdString preAction = schema->GetPreambleActionFromHandle( preHandle );
-    if ( preAction != "CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL" )
-      {
-      cerr << "Could not retrieve preamble action CREATE FUNCTION SomeFunction(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL from test schema.\n";
+      cerr << "Could not retrieve preamble name " << preName  << " from test schema.\n";
       status = false;
+      }
+
+    vtkStdString preBackend = schema->GetPreambleBackendFromHandle( preHandle );
+    cerr << "Preamble backend: " 
+         << preBackend
+         << "\n";
+
+    vtkstd::multiset<vtkStdString>::iterator mit = preBackends.find( preBackend );
+    if ( mit != preBackends.end() )
+      {
+      preBackends.erase ( mit );
       }
     else
       {
-      cerr << "Preamble Action: " 
-           << preAction
-           << "\n";
+      cerr << "Could not retrieve preamble backend " << preBackend  << " from test schema.\n";
+      status = false;
       }
     }
 
   // Define the correct (reference) columns and types
   vtkstd::set<vtkStdString> colNames;
-  colNames.insert( vtkStdString ( "SomeNmbr" ) );
-  colNames.insert( vtkStdString ( "SomeName" ) );
-  colNames.insert( vtkStdString ( "TableKey" ) );
+  colNames.insert( vtkStdString( "somenmbr" ) );
+  colNames.insert( vtkStdString( "somename" ) );
+  colNames.insert( vtkStdString( "tablekey" ) );
   vtkstd::set<int> colTypes;
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::BIGINT ) );
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::SERIAL ) );
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
 
-  // Loop over all columns of the table
+  // Loop over all columns of the first table
+  tblHandle = 0;
   int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
   if ( numCol != 3 )
     {
@@ -163,8 +144,8 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
   // Define the correct (reference) indices and types
   vtkstd::set<vtkStdString> idxNames;
-  idxNames.insert( vtkStdString ( "BigKey" ) );
-  idxNames.insert( vtkStdString ( "ReverseLookup" ) );
+  idxNames.insert( vtkStdString ( "bigkey" ) );
+  idxNames.insert( vtkStdString ( "reverselookup" ) );
   vtkstd::set<int> idxTypes;
   idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::PRIMARY_KEY ) );
   idxTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::UNIQUE ) );
@@ -214,9 +195,9 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
   // Define the correct (reference) triggers and types
   vtkstd::multiset<vtkStdString> trgNames;
-  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
-  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
-  trgNames.insert( vtkStdString ( "InsertTrigger" ) );
+  trgNames.insert( vtkStdString ( "inserttrigger" ) );
+  trgNames.insert( vtkStdString ( "inserttrigger" ) );
+  trgNames.insert( vtkStdString ( "inserttrigger" ) );
 
   vtkstd::multiset<int> trgTypes;
   trgTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::AFTER_INSERT ) );
@@ -225,7 +206,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 
   vtkstd::multiset<vtkStdString> trgActions;
   trgActions.insert( vtkStdString( "DO NOTHING" ) );
-  trgActions.insert( vtkStdString( "FOR EACH ROW INSERT INTO BTable SET SomeValue = NEW.SomeNmbr" ) );
+  trgActions.insert( vtkStdString( "FOR EACH ROW INSERT INTO btable SET somevalue = NEW.somenmbr" ) );
   trgActions.insert( vtkStdString( "FOR EACH ROW EXECUTE PROCEDURE somefunction ()" ) );
 
   vtkstd::multiset<vtkStdString> trgBackends;
