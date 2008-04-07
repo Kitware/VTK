@@ -246,6 +246,30 @@ void vtkDataArrayTemplate<T>::DeleteArray()
   this->Array = 0;
 }
 
+template <class T>
+T* vtkDataArrayTemplate<T>::Realloc(vtkIdType sz)
+{
+  // OS X's realloc does not free memory if the new block is smaller.  This
+  // is a very serious problem and causes huge amount of memory to be
+  // wasted. Do not use realloc on the Mac.
+#if defined(__APPLE__)
+  T* newArray = static_cast<T*>(malloc(sz*sizeof(T)));
+  if(!newArray)
+    {
+    return 0;
+    }
+  
+  // Copy the data from the old array.
+  memcpy(newArray, this->Array,
+         (sz < this->Size ? sz : this->Size) * sizeof(T));
+
+  free(this->Array);
+  return newArray;
+#else
+  return static_cast<T*>(realloc(this->Array, sz*sizeof(T)));
+#endif
+}
+
 //----------------------------------------------------------------------------
 // Protected function does "reallocate"
 template <class T>
@@ -279,7 +303,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     this->Initialize();
     return 0;
     }
-
+  
   // Allocate the new array or reallocate the old.
   if(this->Array && (this->SaveUserArray || 
                      this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
@@ -309,7 +333,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     {
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
-    newArray = static_cast<T*>(realloc(this->Array, newSize*sizeof(T)));
+    newArray = this->Realloc(newSize);
     if(!newArray)
       {
       vtkErrorMacro("Unable to allocate " << newSize

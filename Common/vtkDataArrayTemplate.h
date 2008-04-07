@@ -250,6 +250,7 @@ protected:
 
   T* Array;   // pointer to data
   T* ResizeAndExtend(vtkIdType sz);  // function to resize data
+  T* Realloc(vtkIdType sz);
   
   int TupleSize; //used for data conversion
   double* Tuple;
