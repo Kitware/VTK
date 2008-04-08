@@ -412,7 +412,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         # this will check for __handle
         self.Render()
 
-    def OnMotion(self, event):
+    def OnMotion(self,event):
         """Handles the wx.EVT_MOTION event for
         wxVTKRenderWindowInteractor.
         """
@@ -428,7 +428,7 @@ class wxVTKRenderWindowInteractor(baseClass):
                                             chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
-   def OnEnter(self,event):
+    def OnEnter(self,event):
         """Handles the wx.EVT_ENTER_WINDOW event for
         wxVTKRenderWindowInteractor.
         """
@@ -438,8 +438,8 @@ class wxVTKRenderWindowInteractor(baseClass):
         
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
-					    event.ShiftDown(), 
-					    chr(0), 0, None)
+              event.ShiftDown(), 
+              chr(0), 0, None)
         self._Iren.EnterEvent()
 
         
@@ -453,8 +453,8 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
-					    event.ShiftDown(), 
-					    chr(0), 0, None)
+              event.ShiftDown(), 
+              chr(0), 0, None)
         self._Iren.LeaveEvent()
 
         
