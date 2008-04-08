@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.85");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.86");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -1110,6 +1110,41 @@ void vtkOpenGLRenderer::Clear(void)
 
   vtkDebugMacro(<< "glClear\n");
   glClear(clear_mask);
+
+  // If gradient background is turned on, draw it now.
+  if (!this->Transparent() && this->GradientBackground)
+    {
+    glPushAttrib(GL_ENABLE_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    {
+      glLoadIdentity();
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+      {
+        glLoadIdentity();
+        glBegin(GL_QUADS);
+
+        //top vertices
+        glColor3dv(this->Background);
+        glVertex2f(-1.0, -1.0);
+        glVertex2f(1.0, -1.0);
+
+        //bottom vertices
+        glColor3dv(this->Background2);
+        glVertex2f(1.0, 1.0);
+        glVertex2f(-1.0, 1.0);
+        glEnd();
+      }
+      glPopMatrix();
+      glMatrixMode(GL_MODELVIEW);
+    }
+    glPopMatrix();
+    glPopAttrib();
+    }
 }
 
 void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)

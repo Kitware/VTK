@@ -79,6 +79,20 @@ public:
   vtkGetVector3Macro(Background,double);
 
   // Description:
+  // Set/Get the second background color of the rendering screen 
+  // for gradient backgrounds using an rgb color specification.
+  vtkSetVector3Macro(Background2,double);
+  vtkGetVector3Macro(Background2,double);
+
+  // Description:
+  // Set/Get whether this viewport should have a gradient background
+  // using the Background (top) and Background2 (bottom) colors.
+  // Default is off.
+  vtkSetMacro(GradientBackground,bool);
+  vtkGetMacro(GradientBackground,bool);
+  vtkBooleanMacro(GradientBackground,bool);
+
+  // Description:
   // Set the aspect ratio of the rendered image. This is computed 
   // automatically and should not be set by the user.
   vtkSetVector2Macro(Aspect,double);
@@ -297,10 +311,12 @@ protected:
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;
   double Background[3];  
+  double Background2[3];  
   double Viewport[4];
   double Aspect[2];
   double PixelAspect[2];
   double Center[2];
+  bool GradientBackground;
 
   int Size[2];
   int Origin[2];

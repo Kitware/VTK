@@ -19,6 +19,7 @@ IF(VTK_USE_DISPLAY)
     LoadOpenGLExtension.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
+    TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLODActor.cxx
     TestOrderedTriangulator.cxx
