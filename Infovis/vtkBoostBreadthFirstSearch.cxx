@@ -34,6 +34,7 @@
 #include "vtkDataArray.h"
 #include "vtkSelection.h"
 #include "vtkStringArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #ifdef VTK_USE_PARALLEL_BGL
 // Work around header-ordering issues in Boost.Serialization
@@ -62,7 +63,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.4");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.5");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -349,7 +350,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
       }
 
     // Set the distance to the source vertex to zero
-    int myRank = output->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
     if (output->GetVertexOwner(this->OriginVertexIndex) == myRank)
       {
