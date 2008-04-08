@@ -26,7 +26,7 @@ def create_index_callback():
 create_index.SetExecuteMethod(create_index_callback)
 
 selection = vtkSelectionSource()
-selection.SetContentType(8) # vtkSelection::THRESHOLDS
+selection.SetContentType(7) # vtkSelection::THRESHOLDS
 selection.SetFieldType(4) # vtkSelection::EDGE
 selection.SetArrayName("edge_weights")
 selection.AddThreshold(0.8, 1.0)
