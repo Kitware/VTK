@@ -42,13 +42,11 @@
 
 #include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
-#include "qobject.h"
+#include "QVTKWin32Header.h"  // for export define
+#include "qobject.h"          // for version info
 
 class QObject;
-class vtkCallbackCommand;
 class vtkQtConnections;
-
-#include "QVTKWin32Header.h"
 
 // manage connections between VTK object events and Qt slots
 class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
@@ -94,68 +92,6 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     // unimplemented
     vtkEventQtSlotConnect(const vtkEventQtSlotConnect&);
     void operator=(const vtkEventQtSlotConnect&);
-};
-
-
-
-// class for managing a single VTK/Qt connection
-// not to be used directly, only here in header file for 
-// moc to process
-class vtkQtConnection : public QObject
-{
-  Q_OBJECT
-  
-  public:
-
-    // constructor
-    vtkQtConnection(vtkEventQtSlotConnect* owner);
-
-    // destructor, disconnect if necessary
-    ~vtkQtConnection();
-   
-    // print function
-    void PrintSelf(ostream& os, vtkIndent indent);
-    
-    // callback from VTK to emit signal
-    void Execute(vtkObject* caller, unsigned long event, void* client_data);
-    
-    // set the connection
-    void SetConnection(vtkObject* vtk_obj, unsigned long event,
-                       const QObject* qt_obj, const char* slot, 
-                       void* client_data, float priority=0.0
-#if QT_VERSION >= 0x040000
-                         ,Qt::ConnectionType type = Qt::AutoConnection);
-#else
-                         );
-#endif
-    
-    // check if a connection matches input parameters
-    bool IsConnection(vtkObject* vtk_obj, unsigned long event,
-                      const QObject* qt_obj, const char* slot,
-                      void* client_data);
-
-    static void DoCallback(vtkObject* vtk_obj, unsigned long event,
-                           void* client_data, void* call_data);
-    
-  signals:
-    // the qt signal for moc to take care of
-    void EmitExecute(vtkObject*, unsigned long, void* client_data, void* call_data, vtkCommand*);
-
-  protected:
-    
-    // the connection information
-    vtkObject* VTKObject;
-    vtkCallbackCommand* Callback;
-    const QObject* QtObject;
-    void* ClientData;
-    unsigned long VTKEvent;
-    QString QtSlot;
-    vtkEventQtSlotConnect* Owner;
-
-  private:
-    vtkQtConnection(const vtkQtConnection&);
-    void operator=(const vtkQtConnection&);
-
 };
 
 #endif

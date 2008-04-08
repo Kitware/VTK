@@ -20,12 +20,13 @@ ELSE(NOT QT_FOUND)
 # set up sources to build
 SET ( QVTKLibSrcs
     vtkEventQtSlotConnect.cxx
+    vtkQtConnection.cxx
     QVTKWidget.cxx
     )
 
 SET ( QVTKMocHeaders
     ${CMAKE_CURRENT_BINARY_DIR}/QVTKWidget.h 
-    vtkEventQtSlotConnect.h
+    vtkQtConnection.h
     )
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
@@ -123,9 +124,6 @@ ELSE(DESIRED_QT_VERSION MATCHES 4)
   SET(QT_LIBS ${QT_QT_LIBRARY})
 
 ENDIF(DESIRED_QT_VERSION MATCHES 4)
-
-SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
-                            OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/QVTKWidget.h
