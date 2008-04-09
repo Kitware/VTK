@@ -138,14 +138,14 @@ class METAIO_EXPORT MetaImage : public MetaObject
     //    Quantity()
     //       Not a field in file
     //       Total number of elements in image (Prod(dimSize[i]))
-    METAIO_STREAM::streamsize  Quantity(void) const;
+    METAIO_STL::streamsize  Quantity(void) const;
 
     //    SubQuantity(...)
     //       Not a field in file
     //       Number of elements in image spanning sub-dimensions
     //       E.g., elements per line, 2D sub-image, 3D sub-volume,
-    const METAIO_STREAM::streamsize * SubQuantity(void) const;      
-    METAIO_STREAM::streamsize SubQuantity(int _i) const;  
+    const METAIO_STL::streamsize * SubQuantity(void) const;      
+    METAIO_STL::streamsize SubQuantity(int _i) const;  
 
     //    SequenceID(...)
     //       Optional Field
@@ -218,8 +218,8 @@ class METAIO_EXPORT MetaImage : public MetaObject
     //
     //
     void * ElementData(void);
-    double ElementData(METAIO_STREAM::streamsize _i) const;
-    bool   ElementData(METAIO_STREAM::streamsize _i, double _v);
+    double ElementData(METAIO_STL::streamsize _i) const;
+    bool   ElementData(METAIO_STL::streamsize _i, double _v);
     void   ElementData(void * _data, bool _autoFreeElementData=false);
 
     //    ConverTo(...)
@@ -299,8 +299,8 @@ class METAIO_EXPORT MetaImage : public MetaObject
     MET_CompressionTableType*  m_CompressionTable;
 
     int                       m_DimSize[10];
-    METAIO_STREAM::streamsize m_SubQuantity[10];
-    METAIO_STREAM::streamsize m_Quantity;
+    METAIO_STL::streamsize m_SubQuantity[10];
+    METAIO_STL::streamsize m_Quantity;
 
     int                m_HeaderSize;
 
@@ -337,11 +337,11 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     bool  M_ReadElements(METAIO_STREAM::ifstream * _fstream, 
                          void * _data,
-                         METAIO_STREAM::streamsize _dataQuantity);
+                         METAIO_STL::streamsize _dataQuantity);
 
     bool  M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, 
                             void * _data,
-                            METAIO_STREAM::streamsize _dataQuantity,
+                            METAIO_STL::streamsize _dataQuantity,
                             int * _indexMin,
                             int* _indexMax,
                             unsigned int subSamplingFactor=1
@@ -349,11 +349,11 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
                           const void * _data,
-                          METAIO_STREAM::streamsize _dataQuantity);
+                          METAIO_STL::streamsize _dataQuantity);
 
     bool  M_WriteElementData(METAIO_STREAM::ofstream * _fstream,
                              const void * _data,
-                             METAIO_STREAM::streamsize _dataQuantity);
+                             METAIO_STL::streamsize _dataQuantity);
 
     bool M_FileExists(const char* filename) const;
 

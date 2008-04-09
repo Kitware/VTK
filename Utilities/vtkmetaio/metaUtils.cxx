@@ -250,7 +250,7 @@ bool MET_TypeToString(MET_ValueEnumType _vType, char *_s)
 // Value to Double
 //
 bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, 
-                       METAIO_STREAM::streamsize _index,
+                       METAIO_STL::streamsize _index,
                        double *_value)
   {
   switch(_type)
@@ -323,7 +323,7 @@ bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data,
 bool MET_DoubleToValue(double _value,
                        MET_ValueEnumType _type,
                        void *_data,
-                       METAIO_STREAM::streamsize _index)
+                       METAIO_STL::streamsize _index)
   {
   switch(_type)
     {
@@ -386,7 +386,7 @@ bool MET_DoubleToValue(double _value,
   }
 
 bool MET_ValueToValue(MET_ValueEnumType _fromType, const void *_fromData,
-                      METAIO_STREAM::streamsize _index,
+                      METAIO_STL::streamsize _index,
                       MET_ValueEnumType _toType, void *_toData,
                       double _fromMin, double _fromMax,
                       double _toMin, double _toMax)
@@ -468,15 +468,15 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType, const void *_fromData,
 // Uncompress a stream given an uncompressedSeekPosition
 METAIO_EXPORT
 long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
-                          METAIO_STREAM::streamsize uncompressedSeekPosition,
+                          METAIO_STL::streamsize uncompressedSeekPosition,
                           unsigned char * uncompressedData,
-                          METAIO_STREAM::streamsize uncompressedDataSize,
-                          METAIO_STREAM::streamsize compressedDataSize,
+                          METAIO_STL::streamsize uncompressedDataSize,
+                          METAIO_STL::streamsize compressedDataSize,
                           MET_CompressionTableType * compressionTable
                           )
 {
   // Keep the currentpos of the string
-  METAIO_STREAM::streamsize currentPos = stream->tellg();
+  METAIO_STL::streamsize currentPos = stream->tellg();
   if(currentPos == -1)
     {
     METAIO_STREAM::cout << "MET_UncompressStream: ERROR Stream is not valid!" << METAIO_STREAM::endl;
@@ -622,7 +622,7 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       if(firstchunk)
         {
         outdata += uncompressedSeekPosition-previousSeekpos;
-        METAIO_STREAM::streamsize writeSize = seekpos-uncompressedSeekPosition;
+        METAIO_STL::streamsize writeSize = seekpos-uncompressedSeekPosition;
 
         if(writeSize > uncompressedDataSize)
           {
@@ -641,7 +641,7 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
         }
       else // read everything
         {
-        METAIO_STREAM::streamsize writeSize = seekpos-previousSeekpos;
+        METAIO_STL::streamsize writeSize = seekpos-previousSeekpos;
         memcpy(uncompressedData,outdata,writeSize);
         if(writeSize > uncompressedDataSize)
           {
@@ -671,7 +671,7 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
 //
 //
 unsigned char * MET_PerformCompression(const unsigned char * source,
-                                       METAIO_STREAM::streamsize sourceSize,
+                                       METAIO_STL::streamsize sourceSize,
                                        unsigned int * compressedDataSize)
   {
   unsigned char * compressedData;
@@ -685,7 +685,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
   // Choices are Z_BEST_SPEED,Z_BEST_COMPRESSION,Z_DEFAULT_COMPRESSION
   int compression_rate = Z_DEFAULT_COMPRESSION;
 
-  METAIO_STREAM::streamsize             buffer_size     = sourceSize;
+  METAIO_STL::streamsize             buffer_size     = sourceSize;
   unsigned char * input_buffer    = const_cast<unsigned char *>(source);
   unsigned char * output_buffer   = new unsigned char[buffer_size];
 
@@ -698,8 +698,8 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
   z.next_out   = output_buffer;
   z.avail_out  = buffer_size;
 
-  METAIO_STREAM::streamsize count;
-  METAIO_STREAM::streamsize j=0;
+  METAIO_STL::streamsize count;
+  METAIO_STL::streamsize j=0;
   // Perform the compression
   for ( ; ; )
     {
@@ -740,9 +740,9 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
 //
 //
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
-                              METAIO_STREAM::streamsize sourceCompressedSize,
+                              METAIO_STL::streamsize sourceCompressedSize,
                               unsigned char * uncompressedData,
-                              METAIO_STREAM::streamsize uncompressedDataSize)
+                              METAIO_STL::streamsize uncompressedDataSize)
   {
   z_stream d_stream;
 

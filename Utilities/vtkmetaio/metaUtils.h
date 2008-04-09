@@ -256,19 +256,19 @@ MET_ValueEnumType MET_GetValueEnumType(const METAIO_STL::type_info & ptype)
 METAIO_EXPORT 
 bool MET_ValueToDouble(MET_ValueEnumType _pType,
                               const void *_data,
-                              METAIO_STREAM::streamsize _index,
+                              METAIO_STL::streamsize _index,
                               double *_value);
 
 METAIO_EXPORT 
 bool MET_DoubleToValue(double _value, 
                               MET_ValueEnumType _type, 
                               void *_data, 
-                              METAIO_STREAM::streamsize _index);
+                              METAIO_STL::streamsize _index);
 
 METAIO_EXPORT 
 bool MET_ValueToValue(MET_ValueEnumType _fromType,
                              const void *_fromData,
-                             METAIO_STREAM::streamsize _index,
+                             METAIO_STL::streamsize _index,
                              MET_ValueEnumType _toType,
                              void  *_toData,
                              double _fromMin=0, double _fromMax=0,
@@ -276,22 +276,22 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType,
 
 METAIO_EXPORT 
 unsigned char * MET_PerformCompression(const unsigned char * source,
-                                       METAIO_STREAM::streamsize sourceSize,
+                                       METAIO_STL::streamsize sourceSize,
                                        unsigned int * compressedDataSize);
 
 METAIO_EXPORT 
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
-                              METAIO_STREAM::streamsize sourceCompressedSize,
+                              METAIO_STL::streamsize sourceCompressedSize,
                               unsigned char * uncompressedData,
-                              METAIO_STREAM::streamsize uncompressedDataSize);
+                              METAIO_STL::streamsize uncompressedDataSize);
 
 // Uncompress a stream given an uncompressedSeekPosition
 METAIO_EXPORT 
 long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
-                          METAIO_STREAM::streamsize uncompressedSeekPosition,
+                          METAIO_STL::streamsize uncompressedSeekPosition,
                           unsigned char * uncompressedData,
-                          METAIO_STREAM::streamsize uncompressedDataSize,
-                          METAIO_STREAM::streamsize compressedDataSize,
+                          METAIO_STL::streamsize uncompressedDataSize,
+                          METAIO_STL::streamsize compressedDataSize,
                           MET_CompressionTableType * compressionTable);
 
 
