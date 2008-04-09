@@ -983,7 +983,7 @@ int   MetaObject::ParentID(void) const
 void  MetaObject::
 AcquisitionDate(const char * _acquisitionDate)
   {
-  for(int i=0; i<strlen( _acquisitionDate ); i++)
+  for(size_t i=0; i<strlen( _acquisitionDate ); i++)
     {
     m_AcquisitionDate[i] = _acquisitionDate[i];
     }
@@ -1530,7 +1530,7 @@ M_Read(void)
   mF = MET_GetFieldRecord("AcquisitionDate", &m_Fields);
   if(mF && mF->defined)
     {
-    for(int i=0; i<strlen((char *)mF->value); i++)
+    for(size_t i=0; i<strlen((char *)mF->value); i++)
       {
       m_AcquisitionDate[i] = ((char *)mF->value)[i];
       }

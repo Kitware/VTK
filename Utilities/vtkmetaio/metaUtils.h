@@ -68,7 +68,8 @@ typedef struct MET_CompressionOffset
   unsigned long compressedOffset;
   } MET_CompressionOffsetType;
 
-typedef METAIO_STL::vector<MET_CompressionOffsetType> MET_CompressionOffsetListType;
+typedef METAIO_STL::vector<MET_CompressionOffsetType>
+                                                 MET_CompressionOffsetListType;
 
 typedef struct MET_CompressionTable
   {
@@ -255,19 +256,19 @@ MET_ValueEnumType MET_GetValueEnumType(const METAIO_STL::type_info & ptype)
 METAIO_EXPORT 
 bool MET_ValueToDouble(MET_ValueEnumType _pType,
                               const void *_data,
-                              int _index,
+                              METAIO_STREAM::streamsize _index,
                               double *_value);
 
 METAIO_EXPORT 
 bool MET_DoubleToValue(double _value, 
                               MET_ValueEnumType _type, 
                               void *_data, 
-                              int _index);
+                              METAIO_STREAM::streamsize _index);
 
 METAIO_EXPORT 
 bool MET_ValueToValue(MET_ValueEnumType _fromType,
                              const void *_fromData,
-                             int _index,
+                             METAIO_STREAM::streamsize _index,
                              MET_ValueEnumType _toType,
                              void  *_toData,
                              double _fromMin=0, double _fromMax=0,
@@ -275,22 +276,22 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType,
 
 METAIO_EXPORT 
 unsigned char * MET_PerformCompression(const unsigned char * source,
-                                       int sourceSize,
+                                       METAIO_STREAM::streamsize sourceSize,
                                        unsigned int * compressedDataSize);
 
 METAIO_EXPORT 
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
-                              int sourceCompressedSize,
+                              METAIO_STREAM::streamsize sourceCompressedSize,
                               unsigned char * uncompressedData,
-                              int uncompressedDataSize);
+                              METAIO_STREAM::streamsize uncompressedDataSize);
 
 // Uncompress a stream given an uncompressedSeekPosition
 METAIO_EXPORT 
 long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
-                          unsigned long uncompressedSeekPosition,
+                          METAIO_STREAM::streamsize uncompressedSeekPosition,
                           unsigned char * uncompressedData,
-                          long uncompressedDataSize,
-                          long compressedDataSize,
+                          METAIO_STREAM::streamsize uncompressedDataSize,
+                          METAIO_STREAM::streamsize compressedDataSize,
                           MET_CompressionTableType * compressionTable);
 
 
@@ -318,7 +319,7 @@ template <class T>
 bool MET_InitWriteField(MET_FieldRecordType * _mf, 
                                    const char *_name, 
                                    MET_ValueEnumType _type, 
-                                   int _length, 
+                                   size_t _length, 
                                    T *_v)
   {
   strncpy(_mf->name, _name,254);
@@ -331,7 +332,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
   _mf->terminateRead = false;
   if(_type == MET_FLOAT_MATRIX)
     {
-    int i;
+    size_t i;
     for(i=0; i < 255 && i < _length*_length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
@@ -339,7 +340,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
     }
   else if(_type != MET_STRING)
     {
-    int i;
+    size_t i;
     for(i=0; i < 255 && i < _length; i++)
       {
       _mf->value[i] = (double)(_v[i]);
@@ -363,7 +364,7 @@ bool MET_Write(METAIO_STREAM::ostream &fp,
 
 METAIO_EXPORT
 bool MET_WriteFieldToFile(METAIO_STREAM::ostream &_fp, const char *_fieldName,
-                       MET_ValueEnumType _pType, int _n, const void *_v);
+                       MET_ValueEnumType _pType, size_t _n, const void *_v);
 
 METAIO_EXPORT
 bool MET_WriteFieldToFile(METAIO_STREAM::ostream &_fp, const char *_fieldName,
@@ -378,7 +379,7 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
                                   MET_ValueEnumType _type, 
                                   bool _required=true,
                                   int _dependsOn=-1, 
-                                  int _length=0);
+                                  size_t _length=0);
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

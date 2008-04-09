@@ -249,7 +249,8 @@ bool MET_TypeToString(MET_ValueEnumType _vType, char *_s)
 //
 // Value to Double
 //
-bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, int _index,
+bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, 
+                       METAIO_STREAM::streamsize _index,
                        double *_value)
   {
   switch(_type)
@@ -322,7 +323,7 @@ bool MET_ValueToDouble(MET_ValueEnumType _type, const void *_data, int _index,
 bool MET_DoubleToValue(double _value,
                        MET_ValueEnumType _type,
                        void *_data,
-                       int _index)
+                       METAIO_STREAM::streamsize _index)
   {
   switch(_type)
     {
@@ -385,7 +386,7 @@ bool MET_DoubleToValue(double _value,
   }
 
 bool MET_ValueToValue(MET_ValueEnumType _fromType, const void *_fromData,
-                      int _index,
+                      METAIO_STREAM::streamsize _index,
                       MET_ValueEnumType _toType, void *_toData,
                       double _fromMin, double _fromMax,
                       double _toMin, double _toMax)
@@ -467,15 +468,15 @@ bool MET_ValueToValue(MET_ValueEnumType _fromType, const void *_fromData,
 // Uncompress a stream given an uncompressedSeekPosition
 METAIO_EXPORT
 long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
-                          unsigned long uncompressedSeekPosition,
+                          METAIO_STREAM::streamsize uncompressedSeekPosition,
                           unsigned char * uncompressedData,
-                          long uncompressedDataSize,
-                          long compressedDataSize,
+                          METAIO_STREAM::streamsize uncompressedDataSize,
+                          METAIO_STREAM::streamsize compressedDataSize,
                           MET_CompressionTableType * compressionTable
                           )
 {
   // Keep the currentpos of the string
-  long int currentPos = stream->tellg();
+  METAIO_STREAM::streamsize currentPos = stream->tellg();
   if(currentPos == -1)
     {
     METAIO_STREAM::cout << "MET_UncompressStream: ERROR Stream is not valid!" << METAIO_STREAM::endl;
@@ -562,7 +563,7 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
 
   //METAIO_STREAM::cout << "Using = " << seekpos << " : " << zseekpos << METAIO_STREAM::endl;
 
-  while(seekpos < (int)uncompressedSeekPosition+uncompressedDataSize)
+  while(seekpos < (long)uncompressedSeekPosition+uncompressedDataSize)
     {
     // If we are reading the current buffer we read everything
     if(seekpos >= (long)uncompressedSeekPosition)
@@ -621,9 +622,9 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       if(firstchunk)
         {
         outdata += uncompressedSeekPosition-previousSeekpos;
-        unsigned int writeSize = seekpos-uncompressedSeekPosition;
+        METAIO_STREAM::streamsize writeSize = seekpos-uncompressedSeekPosition;
 
-        if((int)writeSize > uncompressedDataSize)
+        if(writeSize > uncompressedDataSize)
           {
           writeSize = uncompressedDataSize;
           }
@@ -640,9 +641,9 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
         }
       else // read everything
         {
-        unsigned int writeSize = seekpos-previousSeekpos;
+        METAIO_STREAM::streamsize writeSize = seekpos-previousSeekpos;
         memcpy(uncompressedData,outdata,writeSize);
-        if((int)writeSize > uncompressedDataSize)
+        if(writeSize > uncompressedDataSize)
           {
           writeSize = uncompressedDataSize;
           }
@@ -670,7 +671,7 @@ long MET_UncompressStream(METAIO_STREAM::ifstream * stream,
 //
 //
 unsigned char * MET_PerformCompression(const unsigned char * source,
-                                       int sourceSize,
+                                       METAIO_STREAM::streamsize sourceSize,
                                        unsigned int * compressedDataSize)
   {
   unsigned char * compressedData;
@@ -684,7 +685,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
   // Choices are Z_BEST_SPEED,Z_BEST_COMPRESSION,Z_DEFAULT_COMPRESSION
   int compression_rate = Z_DEFAULT_COMPRESSION;
 
-  int             buffer_size     = sourceSize;
+  METAIO_STREAM::streamsize             buffer_size     = sourceSize;
   unsigned char * input_buffer    = const_cast<unsigned char *>(source);
   unsigned char * output_buffer   = new unsigned char[buffer_size];
 
@@ -697,8 +698,8 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
   z.next_out   = output_buffer;
   z.avail_out  = buffer_size;
 
-  int count;
-  unsigned long j=0;
+  METAIO_STREAM::streamsize count;
+  METAIO_STREAM::streamsize j=0;
   // Perform the compression
   for ( ; ; )
     {
@@ -739,9 +740,9 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
 //
 //
 bool MET_PerformUncompression(const unsigned char * sourceCompressed,
-                              int sourceCompressedSize,
+                              METAIO_STREAM::streamsize sourceCompressedSize,
                               unsigned char * uncompressedData,
-                              int uncompressedDataSize)
+                              METAIO_STREAM::streamsize uncompressedDataSize)
   {
   z_stream d_stream;
 
@@ -937,7 +938,7 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
                                   MET_ValueEnumType _type,
                                   bool _required,
                                   int _dependsOn,
-                                  int _length)
+                                  size_t _length)
   {
   strcpy(_mf->name, _name);
   _mf->type = _type;
@@ -1498,9 +1499,9 @@ bool MET_Write(METAIO_STREAM::ostream &fp,
 }
 
 bool MET_WriteFieldToFile(METAIO_STREAM::ostream & _fp, const char *_fieldName,
-                          MET_ValueEnumType _pType, int _n, const void *_v)
+                          MET_ValueEnumType _pType, size_t _n, const void *_v)
   {
-  int i;
+  size_t i;
   MET_FieldRecordType f;
 
   sprintf(f.name, "%s", _fieldName);
