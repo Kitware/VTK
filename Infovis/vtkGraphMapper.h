@@ -37,6 +37,7 @@ class vtkGraphToPolyData;
 class vtkIconGlyphFilter;
 class vtkCellCenters;
 class vtkPolyDataMapper;
+class vtkPolyDataMapper2D;
 class vtkLookupTable;
 class vtkTexture;
 class vtkVertexGlyphFilter;
@@ -144,20 +145,20 @@ protected:
   char* EdgeColorArrayNameInternal;
 
   //BTX
-  vtkSmartPointer<vtkGraphToPolyData>   GraphToPoly;
-  vtkSmartPointer<vtkVertexGlyphFilter> VertexGlyph;
-  vtkSmartPointer<vtkIconGlyphFilter>   IconGlyph;
-  //vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
+  vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
+  vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
+  vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
+  vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
   
   vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;
   vtkSmartPointer<vtkPolyDataMapper>    VertexMapper;
   vtkSmartPointer<vtkPolyDataMapper>    OutlineMapper;
-  vtkSmartPointer<vtkPolyDataMapper>    IconMapper;
+  vtkSmartPointer<vtkPolyDataMapper2D>  IconMapper;
   
   vtkSmartPointer<vtkActor>             EdgeActor;
   vtkSmartPointer<vtkActor>             VertexActor;
   vtkSmartPointer<vtkActor>             OutlineActor;
-  vtkSmartPointer<vtkFollower>           IconActor;
+  vtkSmartPointer<vtkActor2D>           IconActor;
   
   // Color maps
   vtkSmartPointer<vtkLookupTable>       EdgeLookupTable;
