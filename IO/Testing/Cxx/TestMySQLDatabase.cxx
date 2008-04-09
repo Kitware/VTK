@@ -441,7 +441,7 @@ int TestMySQLDatabase( int, char ** const )
   for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
         it != tables.end(); ++ it )
     {
-    vtkStdString queryStr = "DROP TABLE ";
+    queryStr = "DROP TABLE ";
     queryStr += *it;
     query->SetQuery( queryStr );
 
