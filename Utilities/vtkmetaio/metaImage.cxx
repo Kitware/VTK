@@ -1024,25 +1024,25 @@ METAIO_STL::string
 MetaImage::
 M_GetTagValue(const METAIO_STL::string & buffer, const char* tag) const
 {
-  long int stringPos = buffer.find(tag);
-  if( stringPos == (long int)METAIO_STL::string::npos )
+  size_t stringPos = buffer.find(tag);
+  if( stringPos == METAIO_STL::string::npos )
     {
     return "";
     }
 
-  long int pos2 = buffer.find("=",stringPos);
-  if(pos2 == (long int)METAIO_STL::string::npos )
+  size_t pos2 = buffer.find("=",stringPos);
+  if(pos2 == METAIO_STL::string::npos )
     {
     pos2 = buffer.find(":",stringPos);
     }
 
-  if(pos2 == (long int)METAIO_STL::string::npos )
+  if(pos2 == METAIO_STL::string::npos )
     {
     return "";
     }
 
-  long int posend = buffer.find('\r',pos2);
-  if(posend == (long int)METAIO_STL::string::npos )
+  size_t posend = buffer.find('\r',pos2);
+  if(posend == METAIO_STL::string::npos )
     {
     posend = buffer.find('\n',pos2);
     }
@@ -1050,7 +1050,7 @@ M_GetTagValue(const METAIO_STL::string & buffer, const char* tag) const
   // Get the element data filename
   METAIO_STL::string value = "";
   bool firstspace = true;
-  unsigned int index = pos2+1;
+  size_t index = pos2+1;
   while(index<buffer.size()
         && buffer[index] != '\r'
         && buffer[index] != '\n'
@@ -1377,7 +1377,8 @@ ReadStream(int _nDims,
                           _buffer, false);
       }
 
-    int i, j;
+    int i;
+    size_t j;
     bool usePath;
     char pathName[255];
     char fName[255];
@@ -1890,7 +1891,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       tmpWriteStream->seekp(0,METAIO_STREAM::ios::end);  
       size_t endfile = tmpWriteStream->tellp();
       
-      long padding = seekpos-endfile;
+      size_t padding = seekpos-endfile;
       if(padding>0)
         {
         unsigned char* zerobytes = new unsigned char[padding];
@@ -2567,7 +2568,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
 
   int elementSize;
   MET_SizeOfType(m_ElementType, &elementSize);
-  int readSize = _dataQuantity*m_ElementNumberOfChannels*elementSize;
+  METAIO_STL::streamsize readSize = _dataQuantity*m_ElementNumberOfChannels*elementSize;
   if(META_DEBUG)
     {
     METAIO_STREAM::cout << "MetaImage: M_ReadElements: ReadSize = "
@@ -2874,7 +2875,8 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
 
     // Streaming related. We need to update some of the fields
     METAIO_STL::streamsize quantity = 1;
-    int i, j;
+    int i;
+    size_t j;
     for(i=0; i<m_NDims; i++)
       {
       quantity *= (_indexMax[i] - _indexMin[i] + 1);
