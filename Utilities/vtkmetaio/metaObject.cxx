@@ -235,6 +235,7 @@ CopyInfo(const MetaObject * _object)
   ID(_object->ID());
   Color(_object->Color());
   ParentID(_object->ParentID());
+  AcquisitionDate(_object->AcquisitionDate());
   Name(_object->Name());
   BinaryData(_object->BinaryData());
   BinaryDataByteOrderMSB(_object->BinaryDataByteOrderMSB());
@@ -380,6 +381,7 @@ PrintInfo(void) const
   METAIO_STREAM::cout << "Name = " << m_Name << METAIO_STREAM::endl;
   METAIO_STREAM::cout << "ID = " << m_ID << METAIO_STREAM::endl;
   METAIO_STREAM::cout << "ParentID = " << m_ParentID << METAIO_STREAM::endl;
+  METAIO_STREAM::cout << "AcquisitionDate = " << m_AcquisitionDate << METAIO_STREAM::endl;
   if(m_CompressedData)
     {
     METAIO_STREAM::cout << "CompressedData = True" << METAIO_STREAM::endl;
@@ -978,6 +980,20 @@ int   MetaObject::ParentID(void) const
   return m_ParentID;
   }
 
+void  MetaObject::
+AcquisitionDate(const char * _acquisitionDate)
+  {
+  for(int i=0; i<strlen( _acquisitionDate ); i++)
+    {
+    m_AcquisitionDate[i] = _acquisitionDate[i];
+    }
+  }
+      
+const char * MetaObject::AcquisitionDate(void) const
+  {
+  return m_AcquisitionDate;
+  }
+
 void MetaObject::CompressedData(bool _compressedData)
   {
   m_CompressedData = _compressedData;
@@ -1033,6 +1049,7 @@ Clear(void)
   m_Color[2]=1.0;
   m_Color[3]=1.0; // white by default
   m_ParentID = -1;
+  strcpy(m_AcquisitionDate, "");
   m_BinaryData = false;
   m_BinaryDataByteOrderMSB = MET_SystemByteOrderMSB();
   m_CompressedDataSize = 0;
@@ -1126,7 +1143,7 @@ M_SetupReadFields(void)
   MET_InitReadField(mF, "Comment", MET_STRING, false);
   m_Fields.push_back(mF);
 
-  mF = new MET_FieldRecordType;  // Set but not used
+  mF = new MET_FieldRecordType; 
   MET_InitReadField(mF, "AcquisitionDate", MET_STRING, false);
   m_Fields.push_back(mF);
 
@@ -1157,6 +1174,10 @@ M_SetupReadFields(void)
   MET_InitReadField(mF, "ParentID", MET_INT, false);
   m_Fields.push_back(mF);
  
+  mF = new MET_FieldRecordType; 
+  MET_InitReadField(mF, "AcquisitionDate", MET_STRING, false);
+  m_Fields.push_back(mF);
+
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "CompressedData", MET_STRING, false);
   m_Fields.push_back(mF);
@@ -1306,6 +1327,13 @@ M_SetupWriteFields(void)
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "ParentID", MET_INT, m_ParentID);
     m_Fields.push_back(mF);
+    }
+
+  if(strlen(m_AcquisitionDate) > 0)
+    {
+    mF = new MET_FieldRecordType;
+    MET_InitWriteField(mF, "AcquisitionDate", MET_STRING,
+                       strlen(m_AcquisitionDate), m_AcquisitionDate);
     }
 
   bool valSet = false;
@@ -1497,6 +1525,15 @@ M_Read(void)
   if(mF && mF->defined)
     {
     m_ParentID = (int)mF->value[0];
+    }
+
+  mF = MET_GetFieldRecord("AcquisitionDate", &m_Fields);
+  if(mF && mF->defined)
+    {
+    for(int i=0; i<strlen((char *)mF->value); i++)
+      {
+      m_AcquisitionDate[i] = ((char *)mF->value)[i];
+      }
     }
 
   mF = MET_GetFieldRecord("CompressedData",  &m_Fields);

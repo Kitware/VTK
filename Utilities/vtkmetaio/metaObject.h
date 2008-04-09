@@ -69,6 +69,8 @@ class METAIO_EXPORT MetaObject
       float m_ElementSpacing[10];   // "ElementSpacing = "   0,0,0
 
       float m_Color[4];             // "Color = "            1.0, 0.0, 0.0, 1.0
+
+      char  m_AcquisitionDate[255]; // "AcquisitionDate = "  "2007.03.21"
  
       int   m_ID;                   // "ID = "               0
 
@@ -248,6 +250,12 @@ class METAIO_EXPORT MetaObject
       //       ID number of the parent  metaObject
       void  ParentID(int _parentId);
       int   ParentID(void) const;
+
+      //    AcquisitionDate(...)
+      //       Optional Field
+      //       YYYY.MM.DD is the recommended format
+      void  AcquisitionDate(const char * _acquisitionDate);
+      const char *  AcquisitionDate(void) const;
 
       //    BinaryData(...)
       //       Optional Field
