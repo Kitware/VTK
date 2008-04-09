@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.6");
+vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.7");
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -118,38 +118,39 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outTCoords->SetNumberOfComponents(2);
   outTCoords->Allocate(8*numPoints);
 
-  double size = 1.0;
+  double size[2] = {1.0, 1.0};
   if(this->UseIconSize)
     {
-    size = 32.0;
+    size[0] = this->IconSize[0];
+    size[1] = this->IconSize[1];
     }
 
   for(int i = 0; i < numPoints; i++)
     {
     iconIndex = scalars->GetValue(i);
     input->GetPoint(i, point);
-    outPoints->InsertNextPoint(point[0] - 0.5 * size, point[1] - 0.5* size, point[2]);
+    outPoints->InsertNextPoint(point[0] - 0.5 * size[0], point[1] - 0.5* size[1], point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = j/sheetXDim;
     textureCoord[1] = k/sheetYDim;
     outTCoords->InsertTuple(i * 4, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] + 0.5 * size, point[1] - 0.5 * size, point[2]);
+    outPoints->InsertNextPoint(point[0] + 0.5 * size[0], point[1] - 0.5 * size[1], point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = (j + 1.0)/sheetXDim;
     textureCoord[1] = k/sheetYDim;
     outTCoords->InsertTuple(i * 4 + 1, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] + 0.5 * size, point[1] + 0.5 * size, point[2]);
+    outPoints->InsertNextPoint(point[0] + 0.5 * size[0], point[1] + 0.5 * size[1], point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = (j + 1.0)/sheetXDim;
     textureCoord[1] = (k + 1.0)/sheetYDim;
     outTCoords->InsertTuple(i * 4 + 2, textureCoord);
 
-    outPoints->InsertNextPoint(point[0] - 0.5 * size, point[1] + 0.5 * size, point[2]);
+    outPoints->InsertNextPoint(point[0] - 0.5 * size[0], point[1] + 0.5 * size[1], point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);
     textureCoord[0] = j/sheetXDim;
