@@ -177,6 +177,8 @@ protected:
   
   vtkCoordinate *TransformCoordinate;
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
   // for coloring by a component of a field data array
   int ArrayId;
   char ArrayName[256];
