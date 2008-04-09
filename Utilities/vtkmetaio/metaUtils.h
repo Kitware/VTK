@@ -64,8 +64,8 @@ extern int META_DEBUG;
 // Types used for storing the compression table
 typedef struct MET_CompressionOffset
   {
-  unsigned long uncompressedOffset;
-  unsigned long compressedOffset;
+  METAIO_STL::streamsize uncompressedOffset;
+  METAIO_STL::streamsize compressedOffset;
   } MET_CompressionOffsetType;
 
 typedef METAIO_STL::vector<MET_CompressionOffsetType>
@@ -76,7 +76,7 @@ typedef struct MET_CompressionTable
   MET_CompressionOffsetListType offsetList;
   z_stream* compressedStream;
   char*     buffer;
-  unsigned long bufferSize;
+  METAIO_STL::streamsize bufferSize;
   } MET_CompressionTableType;
 
 /////////////////////////////////////////////////////////
