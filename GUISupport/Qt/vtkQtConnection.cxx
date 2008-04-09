@@ -29,6 +29,7 @@
 #include "vtkCallbackCommand.h"
 
 #include <qobject.h>
+#include <qmetaobject.h>
 
 // constructor
 vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner) 

@@ -32,7 +32,6 @@
 #include "vtkstd/vector"
 
 #include <qobject.h>
-#include <qmetaobject.h>
 
 // hold all the connections
 class vtkQtConnections : public vtkstd::vector< vtkQtConnection* > {};
