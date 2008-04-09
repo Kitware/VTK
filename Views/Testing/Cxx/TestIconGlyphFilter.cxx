@@ -34,9 +34,6 @@
   
 int TestIconGlyphFilter( int argc, char *argv[])
 {
- // vtkRegressionTester::Result result = vtkRegressionTester::Passed;
- // vtkRegressionTester *test = new vtkRegressionTester("IconGlyphFilter");
-
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Tango/TangoIcons.png");
 
@@ -68,15 +65,15 @@ int TestIconGlyphFilter( int argc, char *argv[])
   pointSet->AddVertex();
   points->InsertNextPoint(3.0, 0.0, 0.0);
   pointSet->AddVertex();
-  points->InsertNextPoint(2.0, 3.50, 0.0);
+  points->InsertNextPoint(2.0, 2.5, 0.0);
   pointSet->AddVertex();
-  points->InsertNextPoint(0.0, -5.0, 0.0);
+  points->InsertNextPoint(0.0, -2.0, 0.0);
   pointSet->AddVertex();
-  points->InsertNextPoint(4.0, -5.0, 0.0);
+  points->InsertNextPoint(2.0, -1.5, 0.0);
   pointSet->AddVertex();
-  points->InsertNextPoint(-3.0, 5.0, 0.0);
+  points->InsertNextPoint(-1.0, 2.0, 0.0);
   pointSet->AddVertex();
-  points->InsertNextPoint(5.0, 0.0, 0.0);
+  points->InsertNextPoint(3.0, 0.0, 0.0);
 
   pointSet->AddEdge(0, 1);
   pointSet->AddEdge(1, 2);
@@ -87,24 +84,14 @@ int TestIconGlyphFilter( int argc, char *argv[])
   pointSet->AddEdge(6, 7);
   pointSet->AddEdge(7, 0);
  
- /* iconIndex->InsertNextTuple1(1);
+  iconIndex->InsertNextTuple1(1);
   iconIndex->InsertNextTuple1(4);
   iconIndex->InsertNextTuple1(26);
   iconIndex->InsertNextTuple1(17);
   iconIndex->InsertNextTuple1(0);
   iconIndex->InsertNextTuple1(5);
   iconIndex->InsertNextTuple1(1);
-  iconIndex->InsertNextTuple1(29);*/
-
-  iconIndex->InsertNextTuple1(0);
-  iconIndex->InsertNextTuple1(0);
-  iconIndex->InsertNextTuple1(1);
-  iconIndex->InsertNextTuple1(1);
-  iconIndex->InsertNextTuple1(2);
-  iconIndex->InsertNextTuple1(2);
-  iconIndex->InsertNextTuple1(3);
-  iconIndex->InsertNextTuple1(3);
-
+  iconIndex->InsertNextTuple1(29);
 
   vtkGraphLayoutView *view = vtkGraphLayoutView::New();
   view->AddRepresentationFromInput(pointSet);
@@ -122,8 +109,6 @@ int TestIconGlyphFilter( int argc, char *argv[])
   view->SetupRenderWindow(renWin);
   view->Update();
 
-
-
   renWin->GetInteractor()->Initialize();
 
   int retVal = vtkRegressionTestImageThreshold(renWin,18);
@@ -131,8 +116,6 @@ int TestIconGlyphFilter( int argc, char *argv[])
     {
     renWin->GetInteractor()->Start();
     }
-
-  //renWin->GetInteractor()->Start();
 
   imageReader->Delete();
   iconIndex->Delete();
