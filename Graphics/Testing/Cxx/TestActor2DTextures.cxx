@@ -62,7 +62,7 @@ int TestActor2DTextures( int argc, char *argv[])
     {
     for(double j = 1.0; j < 20; j++)
       {
-      points->InsertNextPoint(i * 25.0, j * 25.0, 0.0);
+      points->InsertNextPoint(i * 26.0, j * 26.0, 0.0);
       }
     }
 
@@ -92,7 +92,7 @@ int TestActor2DTextures( int argc, char *argv[])
 
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
-  renWin->SetSize(500, 500);
+  renWin->SetSize(520, 520);
   renWin->AddRenderer(renderer);
   
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
