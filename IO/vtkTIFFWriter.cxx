@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.41");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.42");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   width = (max0 - min0 + 1);
   height = (max1 - min1 + 1);
 
-  TIFF* tif = TIFFClientOpen(this->GetFileName(), "w",
+  TIFF* tif = TIFFClientOpen(this->InternalFileName, "w",
     (thandle_t) ost,
     reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFRead), 
     reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFWrite),
