@@ -33,7 +33,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.8");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.9");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -72,6 +72,7 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StartWithTree: " << this->StartWithTree << endl;
   os << indent << "IncludeEdgeWeights: " << this->IncludeEdgeWeights << endl;
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
+  os << indent << "AllowParallelEdges: " << this->AllowParallelEdges << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -145,7 +146,11 @@ vtkRandomGraphSource::RequestData(
     vtksys_stl::set< vtksys_stl::pair<vtkIdType, vtkIdType> > existingEdges;
 
     vtkIdType MaxEdges;
-    if (this->AllowSelfLoops)
+    if (this->AllowParallelEdges)
+      {
+      MaxEdges = this->NumberOfEdges;
+      }
+    else if (this->AllowSelfLoops)
       {
       MaxEdges = this->NumberOfVertices * this->NumberOfVertices;
       }
@@ -184,7 +189,8 @@ vtkRandomGraphSource::RequestData(
 
         vtksys_stl::pair<vtkIdType, vtkIdType> newEdge(s, t);
 
-        if (existingEdges.find(newEdge) == existingEdges.end())
+        if (this->AllowParallelEdges
+          || existingEdges.find(newEdge) == existingEdges.end())
           {
           vtkDebugMacro(<<"Adding edge " << s << " to " << t);
           if (this->Directed)

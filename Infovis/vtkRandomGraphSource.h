@@ -92,6 +92,13 @@ public:
   vtkGetMacro(AllowSelfLoops, bool);
   vtkBooleanMacro(AllowSelfLoops, bool);
 
+  // Description:
+  // When set, multiple edges from a source to a target vertex are
+  // allowed. The default is to forbid such loops.
+  vtkSetMacro(AllowParallelEdges, bool);
+  vtkGetMacro(AllowParallelEdges, bool);
+  vtkBooleanMacro(AllowParallelEdges, bool);
+
 protected:
   vtkRandomGraphSource();
   ~vtkRandomGraphSource();
@@ -103,6 +110,7 @@ protected:
   bool StartWithTree;
   bool IncludeEdgeWeights;
   bool AllowSelfLoops;
+  bool AllowParallelEdges;
 
   virtual int RequestData(
     vtkInformation*, 
