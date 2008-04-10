@@ -36,7 +36,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.5");
+vtkCxxRevisionMacro(vtkRenderView, "1.6");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -230,8 +230,15 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     
     selection->Delete();
     }
-  
-  this->Superclass::ProcessEvents(caller, eventId, callData);
+  else if(eventId == vtkCommand::SelectionChangedEvent)
+    {
+    this->Update();
+    Superclass::ProcessEvents(caller, eventId, callData);
+    }
+  else
+    {
+    this->Superclass::ProcessEvents(caller, eventId, callData);
+    }
 }
 
 //----------------------------------------------------------------------------

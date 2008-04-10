@@ -55,7 +55,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.7");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.8");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -586,11 +586,6 @@ void vtkTreeLayoutView::ProcessEvents(
     this->GetRepresentation()->Select(this, selection);
     
     selection->Delete();
-    }
-  else if(eventId == vtkCommand::SelectionChangedEvent)
-    {
-    this->Update();
-    Superclass::ProcessEvents(caller, eventId, callData);
     }
   else
     {
