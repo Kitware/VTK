@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated 2007/02/12 */
+/* glext.h last updated 2008/03/24 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 39
+#define GL_GLEXT_VERSION 40
 
 #ifndef GL_VERSION_1_2
 #define GL_UNSIGNED_BYTE_3_3_2            0x8032
@@ -3377,6 +3377,9 @@ extern "C" {
 #define GL_LUMINANCE_INTEGER_EXT          0x8D9C
 #define GL_LUMINANCE_ALPHA_INTEGER_EXT    0x8D9D
 #define GL_RGBA_INTEGER_MODE_EXT          0x8D9E
+#endif
+
+#ifndef GL_GREMEDY_frame_terminator
 #endif
 
 
@@ -7250,6 +7253,14 @@ typedef void (APIENTRYP PFNGLGETTEXPARAMETERIIVEXTPROC) (GLenum target, GLenum p
 typedef void (APIENTRYP PFNGLGETTEXPARAMETERIUIVEXTPROC) (GLenum target, GLenum pname, GLuint *params);
 typedef void (APIENTRYP PFNGLCLEARCOLORIIEXTPROC) (GLint red, GLint green, GLint blue, GLint alpha);
 typedef void (APIENTRYP PFNGLCLEARCOLORIUIEXTPROC) (GLuint red, GLuint green, GLuint blue, GLuint alpha);
+#endif
+
+#ifndef GL_GREMEDY_frame_terminator
+#define GL_GREMEDY_frame_terminator 1
+#ifdef GL_GLEXT_PROTOTYPES
+GLAPI void APIENTRY glFrameTerminatorGREMEDY (void);
+#endif /* GL_GLEXT_PROTOTYPES */
+typedef void (APIENTRYP PFNGLFRAMETERMINATORGREMEDYPROC) (void);
 #endif
 
 
