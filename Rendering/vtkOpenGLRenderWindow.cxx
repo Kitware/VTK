@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.94");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.95");
 #endif
 
 #define MAX_LIGHTS 8
@@ -1498,11 +1498,16 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   int supports_texture_rectangle=
     extensions->ExtensionSupported("GL_ARB_texture_rectangle");
   
+  // The following extension does not exist on ATI. There will be no HW
+  // Offscreen on ATI if a stencil buffer is required.
+  int supports_packed_depth_stencil=
+    extensions->ExtensionSupported("GL_EXT_packed_depth_stencil");
+    
   int result=0;
   
   if(!(supports_GL_EXT_framebuffer_object &&
        (supports_texture_non_power_of_two || supports_texture_rectangle) &&
-       !isMesa))
+       !isMesa && (!this->StencilCapable || supports_packed_depth_stencil)))
     {
     if(!supports_GL_EXT_framebuffer_object)
       {
@@ -1519,6 +1524,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     if(isMesa)
       {
       vtkDebugMacro(<<" Renderer is Mesa. Hardware accelerated offscreen rendering is not available");
+      }
+    if(this->StencilCapable && !supports_packed_depth_stencil)
+      {
+      vtkDebugMacro(<<" a stencil buffer is required but extension GL_EXT_packed_depth_stencil is not supported");
       }
     this->DestroyWindow();
     }
@@ -1622,50 +1631,77 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     else
       {
-      result=1;
-
       // Set up the depth (and stencil), render buffer
-      vtkgl::BindRenderbufferEXT(
-        vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
-      vtkgl::RenderbufferStorageEXT(
-        vtkgl::RENDERBUFFER_EXT, vtkgl::DEPTH_STENCIL_EXT, width,height);
-      vtkgl::FramebufferRenderbufferEXT(
-        vtkgl::FRAMEBUFFER_EXT,
-        vtkgl::DEPTH_ATTACHMENT_EXT, vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
-      vtkgl::FramebufferRenderbufferEXT(
-        vtkgl::FRAMEBUFFER_EXT, 
-        vtkgl::STENCIL_ATTACHMENT_EXT, vtkgl::RENDERBUFFER_EXT, depthRenderBufferObject);
-
-      this->BackLeftBuffer=
-        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-      this->FrontLeftBuffer=
-        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-      
-      this->BackBuffer=static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-      this->FrontBuffer=
-        static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-      
-      if(this->NumberOfFrameBuffers==2)
+      vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
+                                 depthRenderBufferObject);
+      if(this->StencilCapable)
         {
-        this->BackRightBuffer=
-          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
-        this->FrontRightBuffer=
-          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+        vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
+                                      vtkgl::DEPTH_STENCIL_EXT, width,height);
         }
-    
-      // Save GL objects by static casting to standard C types. GL* types
-      // are not allowed in VTK header files.
-      this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
-      this->DepthRenderBufferObject=
-        static_cast<unsigned int>(depthRenderBufferObject);
-      i=0;
-      while(i<this->NumberOfFrameBuffers)
+      else
         {
-        this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
-        ++i;
+        vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
+                                      vtkgl::DEPTH_COMPONENT24,width,height);
         }
-    
-      this->OffScreenUseFrameBuffer=1;
+      vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
+                                        vtkgl::DEPTH_ATTACHMENT_EXT,
+                                        vtkgl::RENDERBUFFER_EXT,
+                                        depthRenderBufferObject);
+      if(this->StencilCapable)
+        {
+        vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT, 
+                                          vtkgl::STENCIL_ATTACHMENT_EXT,
+                                          vtkgl::RENDERBUFFER_EXT,
+                                          depthRenderBufferObject);
+        }
+      
+      // Last check to see if the FBO is supported or not.
+      status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
+      if(status!=vtkgl::FRAMEBUFFER_COMPLETE_EXT)
+        {
+        vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering withthis depth/stencil configuration.");
+        glBindTexture(target,0);
+        vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
+        vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
+        vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+        glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
+        this->DestroyWindow();
+        }
+      else
+        {
+        result=1;
+        this->BackLeftBuffer=
+          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+        this->FrontLeftBuffer=
+          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+        
+        this->BackBuffer=static_cast<unsigned int>(
+          vtkgl::COLOR_ATTACHMENT0_EXT);
+        this->FrontBuffer=
+          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+        
+        if(this->NumberOfFrameBuffers==2)
+          {
+          this->BackRightBuffer=
+            static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+          this->FrontRightBuffer=
+            static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+          }
+        
+        // Save GL objects by static casting to standard C types. GL* types
+        // are not allowed in VTK header files.
+        this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
+        this->DepthRenderBufferObject=
+          static_cast<unsigned int>(depthRenderBufferObject);
+        i=0;
+        while(i<this->NumberOfFrameBuffers)
+          {
+          this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
+          ++i;
+          }
+        this->OffScreenUseFrameBuffer=1;
+        }
       }
     }
   extensions->Delete();
