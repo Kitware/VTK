@@ -121,6 +121,9 @@ protected:
     vtkTable* dataTable,
     vtkIdTypeArray* indices);
 
+  int ConvertToBlockSelection(
+    vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output);
+
   virtual int FillInputPortInformation(
     int port, vtkInformation* info);
   

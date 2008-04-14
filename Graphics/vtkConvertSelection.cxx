@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkVariantArray.h"
 
 #include <vtkstd/algorithm>
@@ -50,7 +51,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.12");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.13");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -217,11 +218,82 @@ void vtkConvertSelectionLookup(
 }
 
 //----------------------------------------------------------------------------
+int vtkConvertSelection::ConvertToBlockSelection(
+  vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output)
+{
+  output->SetContentType(vtkSelection::BLOCKS);
+
+  vtkstd::vector<vtkSelection*> inputSelections;
+
+  // If input selection is a composite selection consisting of other selections,
+  // then iterate over each of the constituent selection instances.
+  if (input->GetContentType() == vtkSelection::SELECTIONS)
+    {
+    for (unsigned int i = 0; i < input->GetNumberOfChildren(); ++i)
+      {
+      vtkSelection* inputChild = input->GetChild(i);
+      if (inputChild && inputChild->GetContentType() != vtkSelection::SELECTIONS)
+        {
+        inputSelections.push_back(inputChild);
+        }
+      }
+    }
+  else
+    {
+    inputSelections.push_back(input);
+    }
+
+  vtkstd::set<unsigned int> indices;
+
+  vtkstd::vector<vtkSelection*>::iterator iter;
+  for (iter = inputSelections.begin(); iter != inputSelections.end(); ++iter)
+    {
+    vtkSmartPointer<vtkSelection> curSel = (*iter);
+    if (curSel->GetContentType() == vtkSelection::GLOBALIDS)
+      {
+      // global id selection does not have COMPOSITE_INDEX() key, so we convert
+      // it to an index base selection, so that we can determine the composite
+      // indices.
+      vtkSelection* newSel = vtkConvertSelection::ToIndexSelection(curSel, data);
+      curSel.TakeReference(newSel);
+      }
+
+    vtkInformation* properties = curSel->GetProperties();
+    if (properties->Has(vtkSelection::CONTENT_TYPE()) &&
+      properties->Has(vtkSelection::COMPOSITE_INDEX()))
+      {
+      indices.insert(static_cast<unsigned int>(
+          properties->Get(vtkSelection::COMPOSITE_INDEX())));
+      }
+    // TODO: is has HIERARCHICAL_INDEX() & HIERARCHICAL_LEVEL.
+    }
+ 
+  VTK_CREATE(vtkUnsignedIntArray, selectionList);
+  selectionList->SetNumberOfTuples(indices.size());
+  vtkstd::set<unsigned int>::iterator siter;
+  vtkIdType index=0;
+  for (siter = indices.begin(); siter != indices.end(); ++siter, ++index)
+    {
+    selectionList->SetValue(index, *siter);
+    }
+  output->SetSelectionList(selectionList);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkConvertSelection::ConvertCompositeDataSet(
   vtkSelection* input,
   vtkCompositeDataSet* data,
   vtkSelection* output)
 {
+  // If this->OutputType == vtkSelection::BLOCKS we just want to create a new
+  // selection with the chosen block indices.
+  if (this->OutputType == vtkSelection::BLOCKS)
+    {
+    return this->ConvertToBlockSelection(input, data, output);
+    }
+
+
   // If input selection is a composite selection consisting of other selections,
   // then iterate over each of the constituent selection instances.
   if (input->GetContentType() == vtkSelection::SELECTIONS)
@@ -800,6 +872,7 @@ int vtkConvertSelection::FillInputPortInformation(
     {
     // Can convert from a vtkDataSet, vtkGraph, or vtkTable
     info->Remove(vtkConvertSelection::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkConvertSelection::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
     info->Append(vtkConvertSelection::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Append(vtkConvertSelection::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Append(vtkConvertSelection::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");

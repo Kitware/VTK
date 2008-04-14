@@ -15,19 +15,20 @@
 #include "vtkSelectionSource.h"
 
 #include "vtkCommand.h"
-#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedIntArray.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.19");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.20");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -39,6 +40,7 @@ public:
   
   vtkstd::vector<double> Thresholds;
   vtkstd::vector<double> Locations;
+  IDSetType Blocks;
   double Frustum[32];
 };
 
@@ -140,6 +142,20 @@ void vtkSelectionSource::SetFrustum(double *vertices)
 }
 
 //----------------------------------------------------------------------------
+void vtkSelectionSource::AddBlock(vtkIdType block)
+{
+  this->Internal->Blocks.insert(block);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllBlocks()
+{
+  this->Internal->Blocks.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -166,6 +182,9 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
     break;
   case vtkSelection::THRESHOLDS:
     os << "THRESHOLDS";
+    break;
+  case vtkSelection::BLOCKS:
+    os << "BLOCKS";
     break;
   default:
     os << "UNKNOWN";
@@ -225,6 +244,7 @@ int vtkSelectionSource::RequestData(
   vtkInformationVector* outputVector )
 {
   vtkSelection* output = vtkSelection::GetData(outputVector);
+  vtkInformation* oProperties = output->GetProperties();
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int piece = 0;
@@ -237,15 +257,14 @@ int vtkSelectionSource::RequestData(
 
   if (this->CompositeIndex >= 0)
     {
-    output->GetProperties()->Set(vtkSelection::COMPOSITE_INDEX(),
-      this->CompositeIndex);
+    oProperties->Set(vtkSelection::COMPOSITE_INDEX(), this->CompositeIndex);
     }
 
   if (this->HierarchicalLevel >= 0 && this->HierarchicalIndex >= 0)
     {
-    output->GetProperties()->Set(vtkSelection::HIERARCHICAL_LEVEL(),
+    oProperties->Set(vtkSelection::HIERARCHICAL_LEVEL(),
       this->HierarchicalLevel);
-    output->GetProperties()->Set(vtkSelection::HIERARCHICAL_INDEX(),
+    oProperties->Set(vtkSelection::HIERARCHICAL_INDEX(),
       this->HierarchicalIndex);
     }
 
@@ -253,9 +272,9 @@ int vtkSelectionSource::RequestData(
     (this->ContentType == vtkSelection::GLOBALIDS) ||
     (this->ContentType == vtkSelection::INDICES))
     {    
-    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), 
       this->ContentType);
-    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+    oProperties->Set(vtkSelection::FIELD_TYPE(),
       this->FieldType);
 
     // Number of selected items common to all pieces
@@ -305,9 +324,9 @@ int vtkSelectionSource::RequestData(
   
   if (this->ContentType == vtkSelection::LOCATIONS)
     {
-    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), 
                                  this->ContentType);
-    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+    oProperties->Set(vtkSelection::FIELD_TYPE(),
                                  this->FieldType);
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
@@ -328,9 +347,9 @@ int vtkSelectionSource::RequestData(
 
   if (this->ContentType == vtkSelection::THRESHOLDS)
     {
-    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), 
                                  this->ContentType);
-    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
+    oProperties->Set(vtkSelection::FIELD_TYPE(),
                                  this->FieldType);
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
@@ -351,10 +370,8 @@ int vtkSelectionSource::RequestData(
 
   if (this->ContentType == vtkSelection::FRUSTUM)
     {
-    output->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), 
-                                 this->ContentType);
-    output->GetProperties()->Set(vtkSelection::FIELD_TYPE(),
-                                 this->FieldType);
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), this->ContentType);
+    oProperties->Set(vtkSelection::FIELD_TYPE(), this->FieldType);
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
     selectionList->SetNumberOfComponents(4);
@@ -368,10 +385,27 @@ int vtkSelectionSource::RequestData(
     selectionList->Delete();    
     }
 
-  output->GetProperties()->Set(vtkSelection::CONTAINING_CELLS(),
+  if (this->ContentType == vtkSelection::BLOCKS)
+    {
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), this->ContentType);
+    vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::New();
+    selectionList->SetNumberOfComponents(1);
+    selectionList->SetNumberOfTuples(this->Internal->Blocks.size());
+    vtkSelectionSourceInternals::IDSetType::iterator iter;
+    vtkIdType cc=0;
+    for (iter = this->Internal->Blocks.begin();
+      iter != this->Internal->Blocks.end(); ++iter, ++cc)
+      {
+      selectionList->SetValue(cc, *iter);
+      }
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();
+    }
+
+  oProperties->Set(vtkSelection::CONTAINING_CELLS(),
                                this->ContainingCells);  
 
-  output->GetProperties()->Set(vtkSelection::INVERSE(),
+  oProperties->Set(vtkSelection::INVERSE(),
                                this->Inverse);
 
   if (output->GetSelectionList())

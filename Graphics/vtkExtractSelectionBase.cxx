@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.2");
 //----------------------------------------------------------------------------
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
@@ -39,7 +39,7 @@ int vtkExtractSelectionBase::FillInputPortInformation(
 {
   if (port==0)
     {
-    // Can work with composite datasets.
+    // Cannot work with composite datasets.
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
     }
   else

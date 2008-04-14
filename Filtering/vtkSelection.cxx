@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.24");
+vtkCxxRevisionMacro(vtkSelection, "1.25");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -428,6 +428,7 @@ void vtkSelection::UnionSelectionList(vtkSelection* other)
   case INDICES:
   case LOCATIONS:
   case THRESHOLDS:
+  case BLOCKS:
       {
       vtkFieldData* fd1 = this->GetFieldData();
       vtkFieldData* fd2 = other->GetFieldData();

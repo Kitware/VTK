@@ -187,7 +187,8 @@ public:
     INDICES,
     FRUSTUM,
     LOCATIONS,
-    THRESHOLDS
+    THRESHOLDS,
+    BLOCKS       // used to select blocks within a composite dataset.
   };
 //ETX
   

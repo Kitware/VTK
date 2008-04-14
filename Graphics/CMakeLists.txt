@@ -79,6 +79,7 @@ vtkExtractLevel.cxx
 vtkExtractPolyDataGeometry.cxx
 vtkExtractRectilinearGrid.cxx
 vtkExtractSelectionBase.cxx
+vtkExtractSelectedBlock.cxx
 vtkExtractSelectedFrustum.cxx
 vtkExtractSelectedIds.cxx
 vtkExtractSelectedLocations.cxx

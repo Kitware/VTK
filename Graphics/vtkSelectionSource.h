@@ -52,6 +52,10 @@ public:
   void SetFrustum(double *vertices);
 
   // Description:
+  // Add the flat-index/composite index for a block.
+  void AddBlock(vtkIdType blockno);
+
+  // Description:
   // Removes all IDs.
   void RemoveAllIDs();
 
@@ -62,6 +66,10 @@ public:
   // Description:
   // Remove all locations added with AddLocation.
   void RemoveAllLocations();
+
+  // Description:
+  // Remove all blocks added with AddBlock.
+  void RemoveAllBlocks();
 
   // Description:
   // Set the content type for the generated selection.

@@ -30,8 +30,9 @@
 
 #include "vtkExtractSelectionBase.h"
 
-class vtkExtractSelectedIds;
+class vtkExtractSelectedBlock;
 class vtkExtractSelectedFrustum;
+class vtkExtractSelectedIds;
 class vtkExtractSelectedLocations;
 class vtkExtractSelectedThresholds;
 class vtkProbeSelectedLocations;
@@ -76,13 +77,13 @@ protected:
                   vtkInformationVector *);
 
   // used for composite, non-hierarhical input.
-  vtkDataSet* RequestDataInternal(
+  vtkDataObject* RequestDataInternal(
     unsigned int composite_index,
     vtkDataSet* input, vtkSelection* sel,
     vtkInformation* outInfo);
 
   // Used for hierarchical input.
-  vtkDataSet* RequestDataInternal(
+  vtkDataObject* RequestDataInternal(
     unsigned int composite_index,
     unsigned int level,
     unsigned int index,
@@ -91,9 +92,10 @@ protected:
 
 
   // called for non-composite input or for a block in a composite dataset.
-  vtkDataSet* RequestDataFromBlock(vtkDataSet* input, 
+  vtkDataObject* RequestDataFromBlock(vtkDataObject* input, 
     vtkSelection* sel, vtkInformation* outInfo);
 
+  vtkExtractSelectedBlock* BlockFilter;
   vtkExtractSelectedIds* IdsFilter;
   vtkExtractSelectedFrustum* FrustumFilter;
   vtkExtractSelectedLocations* LocationsFilter;
