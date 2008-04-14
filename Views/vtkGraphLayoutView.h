@@ -170,6 +170,11 @@ public:
   void SetIconVisibility(bool b);
   bool GetIconVisibility();
   vtkBooleanMacro(IconVisibility, bool);
+
+  // Description:
+  // The array used for assigning icons
+  void SetIconArrayName(const char* name);
+  const char* GetIconArrayName();
   
   // Description:
   // The array used for populating the selection list
@@ -257,6 +262,12 @@ protected:
   vtkGetStringMacro(SelectionArrayNameInternal);
   vtkSetStringMacro(SelectionArrayNameInternal);
   char* SelectionArrayNameInternal;
+  
+  // Description:
+  // Used to store the icon array name
+  vtkGetStringMacro(IconArrayNameInternal);
+  vtkSetStringMacro(IconArrayNameInternal);
+  char* IconArrayNameInternal;
   
   //BTX
   // Used for coordinate conversion

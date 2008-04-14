@@ -80,6 +80,11 @@ public:
   void ColorEdgesOff();
 
   // Description:
+  // The array to use for assigning icons.
+  void SetIconArrayName(const char* name);
+  const char* GetIconArrayName();
+
+  // Description:
   // Specify the Width and Height, in pixels, of an icon in the icon sheet.
   void SetIconSize(int *size);
   int *GetIconSize();
@@ -143,6 +148,10 @@ protected:
   vtkSetStringMacro(EdgeColorArrayNameInternal);
   char* VertexColorArrayNameInternal;
   char* EdgeColorArrayNameInternal;
+
+  vtkGetStringMacro(IconArrayNameInternal);
+  vtkSetStringMacro(IconArrayNameInternal);
+  char* IconArrayNameInternal;
 
   //BTX
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;

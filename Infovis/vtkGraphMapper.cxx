@@ -47,7 +47,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.10");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.11");
 vtkStandardNewMacro(vtkGraphMapper);
 
 //----------------------------------------------------------------------------
@@ -93,12 +93,12 @@ vtkGraphMapper::vtkGraphMapper()
 
   this->IconGlyph->SetInputConnection(this->IconTransform->GetOutputPort());
   this->IconGlyph->SetUseIconSize(true);
-  
   this->IconMapper->SetInputConnection(this->IconGlyph->GetOutputPort());
   this->IconMapper->ScalarVisibilityOff();
 
   this->IconActor->SetMapper(this->IconMapper);
-  
+  this->IconArrayNameInternal = 0;
+
   this->VertexGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   this->VertexActor->SetMapper(this->VertexMapper);
@@ -124,6 +124,21 @@ vtkGraphMapper::~vtkGraphMapper()
     
   this->SetVertexColorArrayNameInternal(0);
   this->SetEdgeColorArrayNameInternal(0);
+  this->SetIconArrayNameInternal(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphMapper::SetIconArrayName(const char* name)
+{
+  this->SetIconArrayNameInternal(name);
+  this->IconGlyph->SetInputArrayToProcess(0,0,0,
+          vtkDataObject::FIELD_ASSOCIATION_POINTS,name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraphMapper::GetIconArrayName()
+{
+  return this->GetIconArrayNameInternal();
 }
 
 //----------------------------------------------------------------------------
@@ -359,7 +374,9 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       }
     }
 
-  if (this->IconActor->GetTexture() && this->IconActor->GetVisibility())
+  if (this->IconActor->GetTexture() && 
+      this->IconActor->GetTexture()->GetInput() && 
+      this->IconActor->GetVisibility())
     {
     this->IconTransform->SetViewport(ren);
     this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();

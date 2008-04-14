@@ -64,7 +64,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.19");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.20");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -96,6 +96,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   
   this->LayoutStrategyNameInternal = 0;
   this->SelectionArrayNameInternal = 0;
+  this->IconArrayNameInternal = 0;
   
   // Replace the interactor style.
   vtkInteractorStyleRubberBand2D* style = vtkInteractorStyleRubberBand2D::New();
@@ -182,6 +183,7 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   this->SetLayoutStrategy(nothing);
   this->SetLayoutStrategyNameInternal(0);
   this->SetSelectionArrayNameInternal(0);
+  this->SetIconArrayNameInternal(0);
 }
 
 //----------------------------------------------------------------------------
@@ -339,6 +341,19 @@ void vtkGraphLayoutView::SetSelectionArrayName(const char* name)
 const char* vtkGraphLayoutView::GetSelectionArrayName()
 {
   return this->GetSelectionArrayNameInternal();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetIconArrayName(const char* name)
+{
+  this->SetIconArrayNameInternal(name);
+  this->GraphMapper->SetIconArrayName(name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraphLayoutView::GetIconArrayName()
+{
+  return this->GetIconArrayNameInternal();
 }
 
 //----------------------------------------------------------------------------
