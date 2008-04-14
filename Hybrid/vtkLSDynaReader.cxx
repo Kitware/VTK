@@ -110,7 +110,7 @@ typedef FILE* vtkLSDynaFile_t;
 #endif // VTK_LSDYNA_DBG_MULTIBLOCK
 
 vtkStandardNewMacro(vtkLSDynaReader);
-vtkCxxRevisionMacro(vtkLSDynaReader,"1.18");
+vtkCxxRevisionMacro(vtkLSDynaReader,"1.19");
 
 // Names of vtkDataArrays provided with grid:
 #define LS_ARRAYNAME_USERID             "UserID"
@@ -1480,7 +1480,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkXMLDynaSummaryParser);
-vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.18");
+vtkCxxRevisionMacro(vtkXMLDynaSummaryParser,"1.19");
 // ============================================== End of XML Summary reader class
 
 
@@ -3192,6 +3192,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       p->AddCellArray( vtkLSDynaReader::SOLID, LS_ARRAYNAME_USERID, 1, 1 );
       }
     p->AddCellArray( vtkLSDynaReader::SOLID, LS_ARRAYNAME_STRESS, 6, 1 );
+    p->AddCellArray( vtkLSDynaReader::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
     if ( p->Dict["ISTRN"] )
       {
       p->AddCellArray( vtkLSDynaReader::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
