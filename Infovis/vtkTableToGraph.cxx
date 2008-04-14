@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.6");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.7");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -283,17 +283,18 @@ public:
     const vtkVariant& a, 
     const vtkVariant& b) const
   {
-    if (a.GetType() != b.GetType())
-      {
-      return a.GetType() < b.GetType();
-      }
     if (a.GetType() == VTK_STRING)
       {
       return a.ToString() < b.ToString();
       }
-    else
+    else if (a.IsNumeric())
       {
       return a.ToDouble() < b.ToDouble();
+      }
+    else
+      {
+      // Punt, just do pointer difference.
+      return &a < &b;
       }
   }
 };
