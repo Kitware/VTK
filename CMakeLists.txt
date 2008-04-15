@@ -946,6 +946,9 @@ OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org."
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
   if (VTK_USE_PARALLEL_BGL)
+    if (MSVC)
+      set(Boost_USE_STATIC_LIBS ON)
+    endif (MSVC)
     FIND_PACKAGE(Boost 1.35.1 REQUIRED
       COMPONENTS mpi serialization filesystem system)
   else (VTK_USE_PARALLEL_BGL)
