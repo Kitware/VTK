@@ -636,8 +636,12 @@ LogLuvEncodeTile(TIFF* tif, tidata_t bp, tsize_t cc, tsample_t s)
 #ifndef M_PI
 #define M_PI            3.14159265358979323846
 #endif
+#ifndef log2
 #define log2(x)         ((1./M_LN2)*log(x))
+#endif
+#ifndef exp2
 #define exp2(x)         exp(M_LN2*(x))
+#endif
 
 #define itrunc(x,m)     ((m)==SGILOGENCODE_NODITHER ? \
                                 (int)(x) : \
