@@ -43,12 +43,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.7");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.8");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.7");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.8");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -161,6 +161,12 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {
+  if (graph && 
+      (graph->GetNumberOfVertices() != 0 || graph->GetNumberOfEdges() != 0))
+    {
+    vtkErrorMacro("Cannot attach a distributed graph helper to a non-empty vtkGraph");  
+    }
+
   this->Superclass::AttachToGraph(graph);
 
   if (this->Graph)
