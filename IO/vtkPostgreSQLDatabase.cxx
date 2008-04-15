@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.24");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.25");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -344,7 +344,7 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     if ( this->User )
       {
       url += this->User;
-      if ( this->Password )
+      if ( this->Password && strlen( this->Password ) )
         {
         url += ":";
         url += this->Password;
