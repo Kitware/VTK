@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDirectory - OS independent class for access to system directories
+// .NAME vtkDirectory - OS independent class for access and manipulation of system directories
 // .SECTION Description
 // vtkDirectory provides a portable way of finding the names of the files
-// in a system directory.
+// in a system directory.  It also provides methods of manipulating directories.
 
 // .SECTION Caveats
 // vtkDirectory works with windows and unix only.
@@ -74,9 +74,16 @@ public:
   static const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
 
   // Description:
-  // Create directory. Needs rework to do all the testing and to work
-  // on all platforms.
+  // Create directory.
   static int MakeDirectory(const char* dir);
+
+  // Description:
+  // Remove a directory.
+  static int DeleteDirectory(const char* dir);
+  
+  // Description:
+  // Rename a file or directory.
+  static int Rename(const char* oldname, const char* newname);
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # define CreateDirectoryA CreateDirectory
