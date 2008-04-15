@@ -27,7 +27,7 @@
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkSphereHandleRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkSphereHandleRepresentation, "1.4");
 vtkStandardNewMacro(vtkSphereHandleRepresentation);
 vtkCxxSetObjectMacro(vtkSphereHandleRepresentation,SelectedProperty,vtkProperty);
 
@@ -131,12 +131,12 @@ double* vtkSphereHandleRepresentation::GetBounds()
   double radius = this->Sphere->GetRadius();
   this->Sphere->GetCenter(center);
   
-  bounds[0] = this->PlaceFactor*(center[0]+radius);
-  bounds[1] = this->PlaceFactor*(center[0]-radius);
-  bounds[2] = this->PlaceFactor*(center[1]+radius);
-  bounds[3] = this->PlaceFactor*(center[1]-radius);
-  bounds[4] = this->PlaceFactor*(center[2]+radius);
-  bounds[5] = this->PlaceFactor*(center[2]-radius);
+  bounds[0] = this->PlaceFactor*(center[0]-radius);
+  bounds[1] = this->PlaceFactor*(center[0]+radius);
+  bounds[2] = this->PlaceFactor*(center[1]-radius);
+  bounds[3] = this->PlaceFactor*(center[1]+radius);
+  bounds[4] = this->PlaceFactor*(center[2]-radius);
+  bounds[5] = this->PlaceFactor*(center[2]+radius);
 
   return bounds;
 }
@@ -498,11 +498,18 @@ int vtkSphereHandleRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------
-//int vtkSphereHandleRepresentation::RenderTranslucentGeometry(vtkViewport *viewport)
-//{
-//  this->BuildRepresentation();
-//  return this->Actor->RenderTranslucentGeometry(viewport);
-//}
+int vtkSphereHandleRepresentation
+::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
+{
+  this->BuildRepresentation();
+  return this->Actor->RenderTranslucentPolygonalGeometry(viewport);
+}
+
+//-----------------------------------------------------------------------------
+int vtkSphereHandleRepresentation::HasTranslucentPolygonalGeometry()
+{
+  return 0; //this->Actor->HasTranslucentPolygonalGeometry();
+}
 
 //----------------------------------------------------------------------
 void vtkSphereHandleRepresentation::SetProperty(vtkProperty * p)
