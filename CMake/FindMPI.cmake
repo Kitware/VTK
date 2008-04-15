@@ -216,13 +216,19 @@ else (MPI_COMPILE_CMDLINE)
     "$ENV{SystemDrive}/Program Files/Microsoft Compute Cluster Pack/Include"
     )
   
-  # TODO: How do we know whether we're building 32-bit vs. 64-bit for MS-MPI?
+  # Decide between 32-bit and 64-bit libraries for Microsoft's MPI
+  if (CMAKE_CL_64)
+    set(MS_MPI_ARCH_DIR amd64)
+  else (CMAKE_CL_64)
+    set(MS_MPI_ARCH_DIR i386)
+  endif (CMAKE_CL_64)
+  
   find_library(MPI_LIBRARY 
-    NAMES mpi mpich
+    NAMES mpi mpich msmpi
     PATHS /usr/lib /usr/local/lib /usr/local/mpi/lib
     "C:/Program Files/MPICH/SDK/Lib" 
     "$ENV{SystemDrive}/Program Files/MPICH/SDK/Lib"
-    "$ENV{SystemDrive}/Program Files/Microsoft Compute Cluster Pack/Lib/i386"
+    "$ENV{SystemDrive}/Program Files/Microsoft Compute Cluster Pack/Lib/${MS_MPI_ARCH_DIR}"
     )
   find_library(MPI_LIBRARY 
     NAMES mpich2
@@ -257,6 +263,10 @@ if (MPI_INCLUDE_PATH AND MPI_LIBRARY)
 else (MPI_INCLUDE_PATH AND MPI_LIBRARY)
   set(MPI_FOUND FALSE)
 endif (MPI_INCLUDE_PATH AND MPI_LIBRARY)
+
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments 
+find_package_handle_standard_args(MPI DEFAULT_MSG MPI_LIBRARY MPI_INCLUDE_PATH)
 
 mark_as_advanced(MPI_INCLUDE_PATH MPI_COMPILE_FLAGS MPI_LINK_FLAGS MPI_LIBRARY 
   MPI_EXTRA_LIBRARY)
