@@ -36,13 +36,14 @@
 #define __vtkPBGLDistributedGraphHelper_h
 
 #include "vtkDistributedGraphHelper.h"
+#include <vtkstd/utility>
 
 class vtkPBGLDistributedGraphHelperInternals;
 
 //BTX
-namespace boost { namespace parallel { namespace mpi {
-  class bsp_process_group;
-} } } /// end namespace boost::parallel::mpi
+namespace boost { namespace graph { namespace distributed {
+  class mpi_process_group;
+} } } /// end namespace boost::graph::distributed
 //ETX
 
 class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
@@ -67,7 +68,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   //BTX
   // Description:
   // Return the process group associated with this distributed graph.
-  boost::parallel::mpi::bsp_process_group GetProcessGroup();
+  boost::graph::distributed::mpi_process_group GetProcessGroup();
   //ETX
 
   // Description:
@@ -83,11 +84,14 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   enum Tags
   {
     // Add a back edge; the forward edge has already been added.
-    ADD_BACK_EDGE_TAG,
-    // Add a directed edge; don't reply
+    ADD_DIRECTED_BACK_EDGE_TAG,
+    ADD_UNDIRECTED_BACK_EDGE_TAG,
+    // Add an edge; don't reply.
     ADD_DIRECTED_EDGE_NO_REPLY_TAG,
-    // Add an undirected edge; don't reply
-    ADD_UNDIRECTED_EDGE_NO_REPLY_TAG
+    ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+    // Add an edge; return the edge descriptor.
+    ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG
   };
 
   // Description:
@@ -102,12 +106,15 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   void AttachToGraph(vtkGraph *graph);
 
   // Description:
-  // Handle an incoming message for the distributed graph.
-  void HandleMessage(int source, int tag);
+  // Handle a ADD_DIRECTED_BACK_EDGE_TAG or ADD_UNDIRECTED_BACK_END_TAG 
+  // message.
+  void HandleAddBackEdge(vtkEdgeType edge, bool directed);
 
-  // Description:
-  // Handle a ADD_BACK_EDGE_TAG message.
-  void AddBackEdge(vtkEdgeType edge, bool directed);
+  // Description: 
+  // Handle an ADD_DIRECTED_EDGE_WITH_REPLY_TAG or 
+  //  ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG message
+  vtkEdgeType 
+  HandleAddEdge(const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed);
   //ETX
 };
 

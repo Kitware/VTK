@@ -36,10 +36,6 @@
 #include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#ifdef VTK_USE_PARALLEL_BGL
-// Work around header-ordering issues in Boost.Serialization
-#  include <boost/parallel/mpi/bsp_process_group.hpp>
-#endif
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
@@ -63,7 +59,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.5");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.6");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -359,7 +355,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
 
     // Distributed color map
     typedef boost::parallel::distributed_property_map<
-              boost::parallel::mpi::bsp_process_group,
+              boost::graph::distributed::mpi_process_group,
               boost::vtkVertexGlobalMap,
               vector_property_map<default_color_type> 
             > DistributedColorMap;
@@ -369,7 +365,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
 
     // Distributed distance map
     typedef boost::parallel::distributed_property_map<
-              boost::parallel::mpi::bsp_process_group,
+              boost::graph::distributed::mpi_process_group,
               boost::vtkVertexGlobalMap,
               vtkIntArray* 
             > DistributedDistanceMap;

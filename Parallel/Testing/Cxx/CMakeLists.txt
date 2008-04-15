@@ -96,9 +96,11 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     IF (VTK_USE_PARALLEL_BGL)
       # Add tests using the Parallel BGL
+      FIND_PACKAGE(PBGL REQUIRED)
+      message(STATUS "PBGL include dir: ${PBGL_INCLUDE_DIR}")
       INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})
       ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
-      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel)
+      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel ${Boost_LIBRARIES})
 
       ADD_TEST(PBGLRandomGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 

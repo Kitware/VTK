@@ -25,7 +25,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPBGLGraphAdapter.h"
-#include <boost/parallel/mpi/bsp_process_group.hpp>
+#include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
 
 //----------------------------------------------------------------------------
@@ -36,19 +36,19 @@ class vtkPBGLDistributedGraphHelperInternals : public vtkObject
 public:
   static vtkPBGLDistributedGraphHelperInternals *New();
   vtkTypeRevisionMacro(vtkPBGLDistributedGraphHelperInternals, vtkObject);
-
+                                      
   // Description:
   // Process group used by this helper
-  boost::parallel::mpi::bsp_process_group process_group;
+  boost::graph::distributed::mpi_process_group process_group;
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.6");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.7");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.6");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.7");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void vtkPBGLDistributedGraphHelper::Synchronize()
 }
 
 //----------------------------------------------------------------------------
-boost::parallel::mpi::bsp_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
+boost::graph::distributed::mpi_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
 {
   return this->Internals->process_group.base();
 }
@@ -122,9 +122,9 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
       {
       // The target vertex is remote: send a message asking its
       // owner to add the back edge.
-      send(this->Internals->process_group, vOwner, ADD_BACK_EDGE_TAG,
-           vtkstd::pair<vtkEdgeType, bool>(vtkEdgeType(u, v, edgeId), 
-                                           directed));
+      send(this->Internals->process_group, vOwner, 
+           directed? ADD_DIRECTED_BACK_EDGE_TAG : ADD_UNDIRECTED_BACK_EDGE_TAG,
+           vtkEdgeType(u, v, edgeId));
       }
 
     if (edge)
@@ -137,10 +137,13 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
     // The source of the edge is non-local.
       if (edge)
         {
-        // Abort at this point, because we do not yet have the
-        // ability to safely wait for a non-local edge addition to
-        // complete before returning to the called.
-        vtkErrorMacro("Parallel BGL distributed graph cannot yet support adding non-local edges");
+        // Send an AddEdge request to the owner of "u", and wait
+        // patiently for the reply.
+        send_oob_with_reply(this->Internals->process_group, uOwner, 
+                            directed? ADD_DIRECTED_EDGE_WITH_REPLY_TAG 
+                                    : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+                            vtkstd::pair<vtkIdType, vtkIdType>(u, v),
+                            *edge);
         }
       else
         {
@@ -171,41 +174,40 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       vtkDataObject::DATA_NUMBER_OF_PIECES(),
       num_processes(this->Internals->process_group));
 
-    // Put our message handler into the process group
-    this->Internals->process_group.replace_handler
-      (boost::bind(&vtkPBGLDistributedGraphHelper::HandleMessage, this, _1, _2),
-       2);
+    // Add our triggers to the process group
+    typedef vtkstd::pair<vtkIdType, vtkIdType> IdPair;
+    this->Internals->process_group.make_distributed_object();
+    this->Internals->process_group.trigger<vtkEdgeType>
+      (ADD_DIRECTED_BACK_EDGE_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddBackEdge, 
+                   this, _3, true));
+    this->Internals->process_group.trigger<vtkEdgeType>
+      (ADD_UNDIRECTED_BACK_EDGE_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddBackEdge, 
+                   this, _3, false));
+    this->Internals->process_group.trigger<IdPair>
+      (ADD_DIRECTED_EDGE_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
+                   this, _3, true));
+    this->Internals->process_group.trigger<IdPair>
+      (ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
+                   this, _3, false));
+    this->Internals->process_group.trigger_with_reply<IdPair>
+      (ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
+                   this, _3, true));
+    this->Internals->process_group.trigger_with_reply<IdPair>
+      (ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
+                   this, _3, false));
     }
 }
 
-void vtkPBGLDistributedGraphHelper::HandleMessage(int source, int tag)
-{
-  switch (tag)
-    {
-    case ADD_BACK_EDGE_TAG:
-      {
-        // Receive the incoming message
-        vtkstd::pair<vtkEdgeType, bool> data;
-        receive(this->Internals->process_group, source, tag, data);
-        this->AddBackEdge(data.first, data.second);
-      }
-      break;
-
-    case ADD_DIRECTED_EDGE_NO_REPLY_TAG:
-    case ADD_UNDIRECTED_EDGE_NO_REPLY_TAG:
-      {
-        // Receive the incoming message
-        vtkstd::pair<vtkIdType, vtkIdType> data;
-        receive(this->Internals->process_group, source, tag, data);
-        this->AddEdgeInternal(data.first, data.second, 
-                              tag == ADD_DIRECTED_EDGE_NO_REPLY_TAG,
-                              0);
-      }
-      break;
-    }
-}
-
-void vtkPBGLDistributedGraphHelper::AddBackEdge(vtkEdgeType edge, bool directed)
+//----------------------------------------------------------------------------
+void 
+vtkPBGLDistributedGraphHelper::HandleAddBackEdge
+  (vtkEdgeType edge, bool directed)
 {
   assert(edge.Source != edge.Target);
   assert(this->Graph->GetVertexOwner(edge.Target)
@@ -224,29 +226,37 @@ void vtkPBGLDistributedGraphHelper::AddBackEdge(vtkEdgeType edge, bool directed)
 }
 
 //----------------------------------------------------------------------------
+vtkEdgeType 
+vtkPBGLDistributedGraphHelper::HandleAddEdge
+  (const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed)
+{
+  vtkEdgeType result;
+  AddEdgeInternal(msg.first, msg.second, directed, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
 // Parallel BGL interface functions
 //----------------------------------------------------------------------------
-namespace boost { namespace parallel {
 
-  //----------------------------------------------------------------------------
-  process_group_type<vtkGraph *>::type
-  process_group(vtkGraph *graph)
-  {
-    vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
-    if (!helper)
-      {
-      vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
-      return boost::parallel::mpi::bsp_process_group();
-      }
+//----------------------------------------------------------------------------
+boost::graph::distributed::mpi_process_group
+process_group(vtkGraph *graph)
+{
+  vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+  if (!helper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
+    return boost::graph::distributed::mpi_process_group();
+    }
 
-    vtkPBGLDistributedGraphHelper *pbglHelper 
-      = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
-    if (!pbglHelper)
-      {
-      vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
-      return boost::parallel::mpi::bsp_process_group();
-      }
+  vtkPBGLDistributedGraphHelper *pbglHelper 
+    = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+  if (!pbglHelper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
+    return boost::graph::distributed::mpi_process_group();
+    }
 
-    return pbglHelper->Internals->process_group.base();
-  }
-} } // end namespace boost::parallel
+  return pbglHelper->Internals->process_group.base();
+}

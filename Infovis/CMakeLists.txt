@@ -73,8 +73,8 @@ IF(VTK_USE_BOOST)
 
   # If the user requested Parallel BGL support, update appropriately
   IF (VTK_USE_PARALLEL_BGL)
-    FIND_PACKAGE(ParallelBGL REQUIRED)
-    SET(KIT_LIBS ${KIT_LIBS} vtkParallel ${PBGL_LIBRARIES})
+    FIND_PACKAGE(PBGL REQUIRED)
+    SET(KIT_LIBS ${KIT_LIBS} vtkParallel boost_graph_mpi)
     ADD_DEFINITIONS(-DVTK_USE_PARALLEL_BGL)
     IF (PBGL_INCLUDE_DIR)
       INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})

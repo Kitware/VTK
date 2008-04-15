@@ -945,7 +945,13 @@ OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org."
 
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
-  FIND_PACKAGE(Boost REQUIRED)
+  if (VTK_USE_PARALLEL_BGL)
+    FIND_PACKAGE(Boost 1.35.1 REQUIRED
+      COMPONENTS mpi serialization filesystem system)
+  else (VTK_USE_PARALLEL_BGL)
+    FIND_PACKAGE(Boost REQUIRED)
+  endif (VTK_USE_PARALLEL_BGL)
+
   INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
 
 # We need Boost 1.32 or later

@@ -26,9 +26,9 @@
 #define __vtkPBGLGraphAdapter_h
 
 //BTX
-#include <boost/parallel/mpi/bsp_process_group.hpp>
+#include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/properties.hpp>
-#include <boost/parallel/container_traits.hpp>
+#include <boost/graph/parallel/container_traits.hpp>
 #include <boost/serialization/base_object.hpp>
 //ETX
 
@@ -197,37 +197,39 @@ namespace boost {
 #undef SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS
 } // namespace boost
 
-namespace boost { namespace parallel { 
-  //----------------------------------------------------------------------------
-  // Extract the process group from a vtkGraph
-  //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// Extract the process group from a vtkGraph
+//----------------------------------------------------------------------------
+
+namespace boost { namespace graph { namespace parallel { 
   template<>
   struct process_group_type<vtkGraph *> 
   {
-    typedef boost::parallel::mpi::bsp_process_group type;
+    typedef boost::graph::distributed::mpi_process_group type;
   };
-
-  process_group_type<vtkGraph *>::type process_group(vtkGraph *graph);
 
   template<>
   struct process_group_type<vtkDirectedGraph *> 
     : process_group_type<vtkGraph *> { };
 
-  inline process_group_type<vtkGraph *>::type process_group(vtkDirectedGraph *graph)
-  {
-    return process_group(static_cast<vtkGraph *>(graph));
-  }
-
   template<>
   struct process_group_type<vtkUndirectedGraph *> 
     : process_group_type<vtkGraph *> { };
+} } } // end namespace boost::graph::parallel
 
-  inline process_group_type<vtkGraph *>::type process_group(vtkUndirectedGraph *graph)
-  {
-    return process_group(static_cast<vtkGraph *>(graph));
-  }
+boost::graph::distributed::mpi_process_group process_group(vtkGraph *graph);
 
-} } // end namespace boost::parallel
+inline boost::graph::distributed::mpi_process_group 
+process_group(vtkDirectedGraph *graph)
+{
+  return process_group(static_cast<vtkGraph *>(graph));
+}
+
+inline boost::graph::distributed::mpi_process_group
+process_group(vtkUndirectedGraph *graph)
+{
+  return process_group(static_cast<vtkGraph *>(graph));
+}
 
 //----------------------------------------------------------------------------
 // Serialization support for simple VTK structures

@@ -31,14 +31,13 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertexListIterator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/stl/algorithm>
 #include <vtksys/stl/functional>
 #include <vtksys/stl/vector>
-
-#include <boost/parallel/mpi/datatype.hpp> // for get_mpi_datatype
 
 #include <stdlib.h>
 #include <assert.h>

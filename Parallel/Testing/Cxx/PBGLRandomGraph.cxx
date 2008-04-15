@@ -35,12 +35,18 @@
 #include <vtksys/stl/functional>
 #include <vtksys/stl/vector>
 
-#include <boost/parallel/mpi/datatype.hpp> // for get_mpi_datatype
+#include <boost/mpi/datatype.hpp> // for get_mpi_datatype
 
 #include <stdlib.h>
 
 using vtkstd::pair;
 using vtkstd::vector;
+
+// Percentage of the time that the AddEdge operation in this test will
+// perform an "immediate" edge-addition operation, requiring the
+// processor initiating the AddEdge call to wait until the owner of
+// the edge has actually added the edge.
+static const int ImmediateAddEdgeChance = 3;
 
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
@@ -59,15 +65,20 @@ struct AddedEdge
   AddedEdge(vtkIdType source, vtkIdType target) 
     : Source(source), Target(target) { }
 
+  template<typename Archiver>
+  void serialize(Archiver& ar, const unsigned int) 
+  {
+    ar & Source & Target;
+  }
+
   vtkIdType Source;
   vtkIdType Target;
 };
 
-bool operator<(AddedEdge const& e1, AddedEdge const& e2)
-{
-  return (unsigned long long)e1.Source < (unsigned long long)e2.Source 
-    || ((unsigned long long)e1.Source == (unsigned long long)e2.Source && (unsigned long long)e1.Target < (unsigned long long)e2.Target);
- }
+namespace boost { namespace mpi {
+    template<>
+    struct is_mpi_datatype<AddedEdge> : is_mpi_datatype<vtkIdType> { };
+} } // end namespace boost::mpi
 
 // Order added edges by their source
 struct OrderEdgesBySource : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
@@ -146,27 +157,13 @@ void ExchangeEdges(vtkGraph* graph,
     count += recvCounts[p];
     }
 
-  // Build a datatype so that we can transmit AddedEdge structures.
-  // TODO: If we're being really, really, really picky, this isn't 100% 
-  // correct, because AddedEdge is not an aggregate and therefore might
-  // have a non-trivial layout. But no C++ compiler takes advantage
-  // of this latitude, and this won't be the first program to break 
-  // because of it, so forget that you even read this overlong comment.
-  MPI_Datatype addedEdgeDatatype;
-  MPI_Type_contiguous(2, boost::parallel::mpi::get_mpi_datatype<vtkIdType>(),
-                      &addedEdgeDatatype);
-  MPI_Type_commit(&addedEdgeDatatype);
-  
   // Swap incoming edges with the other processors.
   inEdges.resize(count);
   MPI_Alltoallv(const_cast<AddedEdge*>(&outEdges[0]), &sendCounts[0], 
-                &offsetsSend[0], addedEdgeDatatype,
+                &offsetsSend[0], boost::mpi::get_mpi_datatype<AddedEdge>(),
                 &inEdges[0], &recvCounts[0], &offsetsRecv[0],
-                addedEdgeDatatype,
+                boost::mpi::get_mpi_datatype<AddedEdge>(),
                 MPI_COMM_WORLD);
-
-  // Free the AddedEdges datatype
-  MPI_Type_free(&addedEdgeDatatype);  
 }
 
 //----------------------------------------------------------------------------
@@ -212,7 +209,11 @@ void TestDirectedGraph()
     {
     vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    graph->AddEdge(source, target, 0);
+
+    if (rand() % 100 < ImmediateAddEdgeChance)
+      graph->AddEdge(source, target);
+    else
+      graph->AddEdge(source, target, 0);
 
     generatedEdges.push_back(AddedEdge(source, target));
     }
@@ -283,11 +284,13 @@ void TestDirectedGraph()
     myEdgesStart = vtkstd::lower_bound(addedEdges.begin(), addedEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)));
+                                          graph->MakeDistributedId(0, 0)),
+                                       OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)));
+                                        graph->MakeDistributedId(0, 0)),
+                                     OrderEdgesBySource());
     startPositions[graph->GetVertexIndex(u)].first = myEdgesStart;
     startPositions[graph->GetVertexIndex(u)].second = myEdgesEnd;
 
@@ -461,7 +464,10 @@ void TestUndirectedGraph()
     {
     vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
     vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    graph->AddEdge(source, target, 0);
+    if (rand() % 100 < ImmediateAddEdgeChance)
+      graph->AddEdge(source, target);
+    else
+      graph->AddEdge(source, target, 0);
 
     // If source and target are on the same processor, and source >
     // target, swap them. This ensures that the addedEdges list has
@@ -480,6 +486,13 @@ void TestUndirectedGraph()
     (cout << " synchronizing... ").flush();
     }
 
+  // Synchronize the graph, so that everyone finishes adding edges.
+  graph->GetDistributedGraphHelper()->Synchronize();
+  if (myRank == 0)
+    {
+    (cout << " done.\n").flush();
+    }
+
   // We know which edges we generated, but some of those edges were
   // actually added on other nodes. Do a large exchange so that
   // addedEdges contains all of the edges that should originate on
@@ -488,13 +501,6 @@ void TestUndirectedGraph()
   vtkstd::vector<AddedEdge> addedEdges;
   ExchangeEdges(graph, generatedEdges, addedEdges, true);
   vtkstd::vector<AddedEdge>().swap(generatedEdges);
-
-  // Synchronize the graph, so that everyone finishes adding edges.
-  graph->GetDistributedGraphHelper()->Synchronize();
-  if (myRank == 0)
-    {
-    (cout << " done.\n").flush();
-    }
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -559,11 +565,13 @@ void TestUndirectedGraph()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)));
+                                          graph->MakeDistributedId(0, 0)),
+                                       OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)));
+                                        graph->MakeDistributedId(0, 0)),
+                                     OrderEdgesBySource());
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext()) 
@@ -678,11 +686,13 @@ void TestUndirectedGraph()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (v,
-                                          graph->MakeDistributedId(0, 0)));
+                                          graph->MakeDistributedId(0, 0)),
+                                       OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (v+1, 
-                                        graph->MakeDistributedId(0, 0)));
+                                        graph->MakeDistributedId(0, 0)),
+                                     OrderEdgesBySource());
 
     graph->GetInEdges(v, inEdges);
     while (inEdges->HasNext()) 
