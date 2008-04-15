@@ -26,7 +26,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.68");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.69");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -157,7 +157,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   // insert camera view transformation 
   glMultMatrixd(matrix->Element[0]);
 
-  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase())
+  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase() 
+      && !ren->GetIsPicking())
     {
     ren->Clear();
     }

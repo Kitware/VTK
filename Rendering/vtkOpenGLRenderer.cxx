@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.86");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.87");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -1117,6 +1117,8 @@ void vtkOpenGLRenderer::Clear(void)
     glPushAttrib(GL_ENABLE_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_1D);
+    glDisable(GL_TEXTURE_2D);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -1126,6 +1128,8 @@ void vtkOpenGLRenderer::Clear(void)
       glPushMatrix();
       {
         glLoadIdentity();
+        glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
+
         glBegin(GL_QUADS);
 
         //top vertices
