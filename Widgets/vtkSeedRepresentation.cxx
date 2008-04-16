@@ -24,9 +24,10 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
+#include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.8");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
@@ -71,7 +72,7 @@ vtkHandleRepresentation *vtkSeedRepresentation::GetHandleRepresentation(unsigned
   if ( num < this->Handles->size() )
     {
     vtkHandleListIterator iter = this->Handles->begin();
-    advance(iter,num);
+    vtkstd::advance(iter,num);
     return (*iter);
     }
   else //create one
@@ -92,7 +93,7 @@ void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double po
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  advance(iter,seedNum);
+  vtkstd::advance(iter,seedNum);
   (*iter)->GetWorldPosition(pos);
 }
 
@@ -105,7 +106,7 @@ void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double 
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  advance(iter,seedNum);
+  vtkstd::advance(iter,seedNum);
   (*iter)->SetDisplayPosition(pos);
 }
 
@@ -118,7 +119,7 @@ void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double 
     return;
     }
   vtkHandleListIterator iter = this->Handles->begin();
-  advance(iter,seedNum);
+  vtkstd::advance(iter,seedNum);
   (*iter)->GetDisplayPosition(pos);
 }
 
@@ -202,7 +203,7 @@ void vtkSeedRepresentation::RemoveActiveHandle()
   if ( this->ActiveHandle >= 0 && this->ActiveHandle < static_cast<int>(this->Handles->size()) )
     {
     vtkHandleListIterator iter = this->Handles->begin();
-    advance( iter, this->ActiveHandle );
+    vtkstd::advance( iter, this->ActiveHandle );
     this->Handles->erase( iter );
     ( *iter )->Delete();
     this->ActiveHandle = -1;
