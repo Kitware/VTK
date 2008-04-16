@@ -28,8 +28,8 @@
 
 #include "vtkWidgetRepresentation.h"
 
-class vtkHandleRepresentation;
 class vtkHandleList;
+class vtkHandleRepresentation;
 
 
 class VTK_WIDGETS_EXPORT vtkSeedRepresentation : public vtkWidgetRepresentation
@@ -49,9 +49,9 @@ public:
   // this representation. Note that methods are available for both
   // display and world coordinates. The seeds are accessed by a seed
   // number.
-  virtual void GetSeedWorldPosition(unsigned int seedNum, double pos[3]);
-  virtual void SetSeedDisplayPosition(unsigned int seedNum, double pos[3]);
-  virtual void GetSeedDisplayPosition(unsigned int seedNum, double pos[3]);
+  virtual void GetSeedWorldPosition( unsigned int seedNum, double pos[3] );
+  virtual void SetSeedDisplayPosition( unsigned int seedNum, double pos[3] );
+  virtual void GetSeedDisplayPosition( unsigned int seedNum, double pos[3] );
 
   // Description:
   // Return the number of seeds (or handles) that have been created.
@@ -64,41 +64,48 @@ public:
   // this method with this dummy. Then the vtkSeedRepresentation uses this
   // dummy to clone vtkHandleWidgets of the same type. Make sure you set the
   // handle representation before the widget is enabled. 
-  void SetHandleRepresentation(vtkHandleRepresentation *handle);
+  void SetHandleRepresentation( vtkHandleRepresentation *handle );
 
   // Description:
   // Get the handle representations used for a particular seed. A side effect of
   // this method is that it will create a handle representation in the list of
   // representations if one has not yet been created.
-  vtkHandleRepresentation *GetHandleRepresentation(unsigned int num);
+  vtkHandleRepresentation *GetHandleRepresentation( unsigned int num );
 
   // Description:
   // Returns the model HandleRepresentation.
-  vtkHandleRepresentation *GetHandleRepresentation(){
-    return this->HandleRepresentation;};
+  vtkHandleRepresentation *GetHandleRepresentation()
+    {
+    return this->HandleRepresentation;
+    };
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels) in
   // which the cursor is considered near enough to the end points of
   // the widget to be active.
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
+  vtkSetClampMacro( Tolerance, int, 1, 100 );
+  vtkGetMacro( Tolerance, int );
 
 //BTX -- used to communicate about the state of the representation
-  enum {Outside=0,NearSeed};
+  enum
+    {
+    Outside = 0,
+    NearSeed
+    };
 //ETX
 
   // Description:
   // These are methods specific to vtkSeedRepresentation and which are
   // invoked from vtkSeedWidget.
   virtual int GetActiveHandle();
-  virtual int CreateHandle(double e[2]); //returns the id of the seed created
+  virtual int CreateHandle( double e[2] ); //returns the id of the seed created
   virtual void RemoveLastHandle(); //delete last handle created
+  virtual void RemoveActiveHandle();
 
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation();
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  virtual int ComputeInteractionState( int X, int Y, int modify = 0 );
   
 protected:
   vtkSeedRepresentation();

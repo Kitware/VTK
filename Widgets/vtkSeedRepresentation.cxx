@@ -13,26 +13,27 @@
 
 =========================================================================*/
 #include "vtkSeedRepresentation.h"
-#include "vtkHandleRepresentation.h"
+
 #include "vtkActor2D.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
+#include "vtkHandleRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
-#include <vtkstd/vector>
+#include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedRepresentation, "1.5");
-
-vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
+vtkCxxRevisionMacro(vtkSeedRepresentation, "1.6");
 vtkStandardNewMacro(vtkSeedRepresentation);
 
+vtkCxxSetObjectMacro(vtkSeedRepresentation,HandleRepresentation,vtkHandleRepresentation);
+
 // The vtkHandleList is a PIMPLed vector<T>.
-class vtkHandleList : public vtkstd::vector<vtkHandleRepresentation*> {};
-typedef vtkstd::vector<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
+class vtkHandleList : public vtkstd::list<vtkHandleRepresentation*> {};
+typedef vtkstd::list<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
 
 
 //----------------------------------------------------------------------
@@ -56,32 +57,32 @@ vtkSeedRepresentation::~vtkSeedRepresentation()
     }
 
   // Loop over all handles releasing their observes and deleting them
-  vtkHandleListIterator siter;
-  for (siter=this->Handles->begin(); siter != this->Handles->end(); ++siter )
+  vtkHandleListIterator iter;
+  for ( iter = this->Handles->begin(); iter != this->Handles->end(); ++iter )
     {
-    (*siter)->Delete();
+    (*iter)->Delete();
     }
   delete this->Handles;
 }
 
-  
 //----------------------------------------------------------------------
 vtkHandleRepresentation *vtkSeedRepresentation::GetHandleRepresentation(unsigned int num)
 {
   if ( num < this->Handles->size() )
     {
-    return (*this->Handles)[num];
+    vtkHandleListIterator iter = this->Handles->begin();
+    advance(iter,num);
+    return (*iter);
     }
   else //create one
     {
     vtkHandleRepresentation *rep = this->HandleRepresentation->NewInstance();
     rep->ShallowCopy(this->HandleRepresentation);
-    this->Handles->resize(num+1,NULL);
-    (*this->Handles)[num] = rep;
+    this->Handles->push_back( rep );
     return rep;
     }
 }
-  
+
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double pos[3])
 {
@@ -90,10 +91,10 @@ void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double po
     vtkErrorMacro("Trying to access non-existent handle");
     return;
     }
-  vtkHandleRepresentation *rep = (*this->Handles)[seedNum];
-  rep->GetWorldPosition(pos);
+  vtkHandleListIterator iter = this->Handles->begin();
+  advance(iter,seedNum);
+  (*iter)->GetWorldPosition(pos);
 }
-
 
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double pos[3])
@@ -103,10 +104,10 @@ void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double 
     vtkErrorMacro("Trying to access non-existent handle");
     return;
     }
-  vtkHandleRepresentation *rep = (*this->Handles)[seedNum];
-  rep->SetDisplayPosition(pos);
+  vtkHandleListIterator iter = this->Handles->begin();
+  advance(iter,seedNum);
+  (*iter)->SetDisplayPosition(pos);
 }
-
 
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double pos[3])
@@ -116,8 +117,9 @@ void vtkSeedRepresentation::GetSeedDisplayPosition(unsigned int seedNum, double 
     vtkErrorMacro("Trying to access non-existent handle");
     return;
     }
-  vtkHandleRepresentation *rep = (*this->Handles)[seedNum];
-  rep->GetDisplayPosition(pos);
+  vtkHandleListIterator iter = this->Handles->begin();
+  advance(iter,seedNum);
+  (*iter)->GetDisplayPosition(pos);
 }
 
 //----------------------------------------------------------------------
@@ -137,12 +139,12 @@ int vtkSeedRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
   xyz[2] = 0.0;
 
   int i;
-  vtkHandleListIterator siter;
-  for (i=0, siter=this->Handles->begin(); siter != this->Handles->end(); ++siter, ++i )
+  vtkHandleListIterator iter;
+  for ( i = 0, iter = this->Handles->begin(); iter != this->Handles->end(); ++iter, ++i )
     {
-    if ( *siter != NULL )
+    if ( *iter != NULL )
       {
-      (*siter)->GetDisplayPosition(pos);
+      (*iter)->GetDisplayPosition(pos);
       if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
         {
         this->InteractionState = vtkSeedRepresentation::NearSeed;
@@ -154,7 +156,6 @@ int vtkSeedRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(
 
   // Nothing found, so it's outside
   this->InteractionState = vtkSeedRepresentation::Outside;
-
   return this->InteractionState;
 }
 
@@ -175,7 +176,6 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
   vtkHandleRepresentation *rep = this->GetHandleRepresentation(this->Handles->size());
   rep->SetDisplayPosition(pos);
   this->ActiveHandle = this->Handles->size() - 1;
-
   return this->ActiveHandle;
 }
 
@@ -186,10 +186,27 @@ void vtkSeedRepresentation::RemoveLastHandle()
     {
     return;
     }
-  
+
   // Delete last handle
-  (*this->Handles)[this->Handles->size()-1]->Delete();
+  this->Handles->back()->Delete();
   this->Handles->pop_back();
+}
+
+//----------------------------------------------------------------------
+void vtkSeedRepresentation::RemoveActiveHandle()
+{
+  if ( this->Handles->size() < 1 )
+    {
+    return;
+    }
+  if ( this->ActiveHandle >= 0 && this->ActiveHandle < static_cast<int>(this->Handles->size()) )
+    {
+    vtkHandleListIterator iter = this->Handles->begin();
+    advance( iter, this->ActiveHandle );
+    this->Handles->erase( iter );
+    ( *iter )->Delete();
+    this->ActiveHandle = -1;
+    }
 }
 
 //----------------------------------------------------------------------
