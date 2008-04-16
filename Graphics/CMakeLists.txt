@@ -179,6 +179,7 @@ vtkProjectedTexture.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx
 vtkQuantizePolyDataPoints.cxx
+vtkRandomAttributeGenerator.cxx
 vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
 vtkRectilinearGridClip.cxx
