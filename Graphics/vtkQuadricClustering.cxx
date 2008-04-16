@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtkstd/set> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.81");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.82");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -848,7 +848,7 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, double *pt,
       if (this->CopyCellData && input)
         {
         output->GetCellData()->
-          CopyData(output->GetCellData(), this->InCellCount,
+          CopyData(input->GetCellData(), this->InCellCount,
                    this->OutCellCount++);
         }
       }
