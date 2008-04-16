@@ -66,10 +66,10 @@
 
 #include "vtkAbstractWidget.h"
 
-class vtkSeedRepresentation;
-class vtkSeedList;
-class vtkHandleWidget;
 class vtkHandleRepresentation;
+class vtkHandleWidget;
+class vtkSeedList;
+class vtkSeedRepresentation;
 
 
 class VTK_WIDGETS_EXPORT vtkSeedWidget : public vtkAbstractWidget
@@ -94,9 +94,12 @@ public:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
-  void SetRepresentation(vtkSeedRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+  void SetRepresentation( vtkSeedRepresentation *rep )
+    {
+    this->Superclass::SetWidgetRepresentation(
+      reinterpret_cast<vtkWidgetRepresentation*>(rep) );
+    }
+
   // Description:
   // Create the default widget representation if one is not set. 
   void CreateDefaultRepresentation();
@@ -123,24 +126,31 @@ protected:
 
   // The state of the widget
 //BTX
-  enum {Start=0,PlacingSeeds,PlacedSeeds,MovingSeed};
+  enum
+    {
+    Start = 0,
+    PlacingSeeds,
+    PlacedSeeds,
+    MovingSeed
+    };
 //ETX
   int WidgetState;
 
   // Callback interface to capture events when
   // placing the widget.
-  static void AddPointAction(vtkAbstractWidget*);
-  static void CompletedAction(vtkAbstractWidget*);
-  static void MoveAction(vtkAbstractWidget*);
-  static void EndSelectAction(vtkAbstractWidget*);
-  static void DeleteAction(vtkAbstractWidget*);
+  static void AddPointAction( vtkAbstractWidget* );
+  static void CompletedAction( vtkAbstractWidget* );
+  static void MoveAction( vtkAbstractWidget* );
+  static void EndSelectAction( vtkAbstractWidget* );
+  static void DeleteAction( vtkAbstractWidget* );
   
   // The positioning handle widgets
   vtkSeedList *Seeds;
-  void DeleteSeed(int i);
+  void DeleteSeed(int);
   
   // Helper method for creating widgets
-  static vtkHandleWidget *CreateHandleWidget(vtkSeedWidget *self, vtkSeedRepresentation *rep);
+  static vtkHandleWidget *CreateHandleWidget( vtkSeedWidget *self,
+                                              vtkSeedRepresentation *rep );
 
 private:
   vtkSeedWidget(const vtkSeedWidget&);  //Not implemented

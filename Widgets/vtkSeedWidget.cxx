@@ -13,30 +13,28 @@
 
 =========================================================================*/
 #include "vtkSeedWidget.h"
-#include "vtkSeedRepresentation.h"
-#include "vtkCommand.h"
+
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkEvent.h"
+#include "vtkHandleRepresentation.h"
+#include "vtkHandleWidget.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkHandleWidget.h"
-#include "vtkHandleRepresentation.h"
-#include "vtkCoordinate.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSeedRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkEvent.h"
-#include <vtkstd/vector>
+#include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.11");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.12");
 vtkStandardNewMacro(vtkSeedWidget);
 
-
-// The vtkSeedList is a PIMPLed vector<T>.
-class vtkSeedList : public vtkstd::vector<vtkHandleWidget*> {};
-typedef vtkstd::vector<vtkHandleWidget*>::iterator vtkSeedListIterator;
-
+// The vtkSeedList is a PIMPLed list<T>.
+class vtkSeedList : public vtkstd::list<vtkHandleWidget*> {};
+typedef vtkstd::list<vtkHandleWidget*>::iterator vtkSeedListIterator;
 
 //----------------------------------------------------------------------
 vtkSeedWidget::vtkSeedWidget()
@@ -69,19 +67,30 @@ vtkSeedWidget::vtkSeedWidget()
 //----------------------------------------------------------------------
 inline void vtkSeedWidget::DeleteSeed(int i)
 {
-  (*this->Seeds)[i]->RemoveObservers(vtkCommand::StartInteractionEvent);
-  (*this->Seeds)[i]->RemoveObservers(vtkCommand::InteractionEvent);
-  (*this->Seeds)[i]->RemoveObservers(vtkCommand::EndInteractionEvent);
-  (*this->Seeds)[i]->Delete();
+   if( this->Seeds->size() < 1 )
+     {
+     return;
+     }
+  vtkSeedListIterator it = this->Seeds->begin();
+  advance(it,i);
+  if( (*it)->GetEnabled() )
+  {
+    (*it)->SetEnabled(0);
+  }
+  (*it)->RemoveObservers(vtkCommand::StartInteractionEvent);
+  (*it)->RemoveObservers(vtkCommand::InteractionEvent);
+  (*it)->RemoveObservers(vtkCommand::EndInteractionEvent);
+  this->Seeds->erase( it );
+  (*it)->Delete();
 }
 
 //----------------------------------------------------------------------
 vtkSeedWidget::~vtkSeedWidget()
 {
   // Loop over all seeds releasing their observes and deleting them
-  for (unsigned int i=0; i<this->Seeds->size(); ++i)
+  while( !this->Seeds->empty() )
     {
-    this->DeleteSeed(i);
+    this->DeleteSeed(this->Seeds->size()-1);
     }
   delete this->Seeds;
 }
@@ -99,21 +108,31 @@ void vtkSeedWidget::CreateDefaultRepresentation()
 void vtkSeedWidget::SetEnabled(int enabling)
 {
   this->Superclass::SetEnabled(enabling);
-  
+
   if ( ! enabling )
     {
+    this->RequestCursorShape(VTK_CURSOR_DEFAULT);
     this->WidgetState = vtkSeedWidget::Start;
-    vtkSeedListIterator siter;
-    for (siter=this->Seeds->begin(); siter != this->Seeds->end(); ++siter )
+    vtkSeedListIterator iter;
+    for (iter = this->Seeds->begin(); iter != this->Seeds->end(); ++iter )
       {
-      (*siter)->SetEnabled(0);
+      (*iter)->SetEnabled(0);
       }
+     this->Render();
     }
+  else
+  {
+    vtkSeedListIterator iter;
+    for (iter = this->Seeds->begin(); iter != this->Seeds->end(); ++iter )
+      {
+      (*iter)->SetEnabled(1);
+      }
+  }
 }
 
 //-------------------------------------------------------------------------
-vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self, 
-                                                   vtkSeedRepresentation *rep)
+vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self,
+                                                    vtkSeedRepresentation *rep)
 {
   // Create the handle widget or reuse an old one
   int currentHandleNumber = self->Seeds->size();
@@ -122,18 +141,14 @@ vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self,
   // Configure the handle widget
   widget->SetParent(self);
   widget->SetInteractor(self->Interactor);
-
   vtkHandleRepresentation *handleRep = rep->GetHandleRepresentation(currentHandleNumber);
   handleRep->SetRenderer(self->CurrentRenderer);
   widget->SetRepresentation(handleRep);
 
   // Now place the widget into the list of handle widgets (if not already there)
-  self->Seeds->resize(currentHandleNumber+1,NULL);
-  (*self->Seeds)[currentHandleNumber] = widget;
-
+  self->Seeds->push_back( widget );
   return widget;
 }
-
 
 // The following methods are the callbacks that the seed widget responds to. 
 //-------------------------------------------------------------------------
@@ -157,10 +172,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
   if ( state == vtkSeedRepresentation::NearSeed )
     {
     self->WidgetState = vtkSeedWidget::MovingSeed;
-//    int currentHandleNumber = reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep)->
-//      GetActiveHandle();
-
-    // Invoke an event on ourself for the handles 
+    // Invoke an event on ourself for the handles
     self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     self->Superclass::StartInteraction();
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -172,12 +184,13 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     double e[3]; e[2]=0.0;
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
-    
 
-    vtkSeedRepresentation *rep = reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
+    vtkSeedRepresentation *rep =
+      reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
     // if the handle representation is constrained, check to see if
     // the position follows the constraint.
-    if(!rep->GetHandleRepresentation()->CheckConstraint(self->GetCurrentRenderer(), e))
+    if ( !rep->GetHandleRepresentation()->CheckConstraint(
+          self->GetCurrentRenderer(), e ) )
       {
       return ;
       }
@@ -193,7 +206,6 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
   self->Render();
 }
 
-
 //-------------------------------------------------------------------------
 void vtkSeedWidget::CompletedAction(vtkAbstractWidget *w)
 {
@@ -204,7 +216,7 @@ void vtkSeedWidget::CompletedAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // All we do is set the state to placed
   self->WidgetState = vtkSeedWidget::PlacedSeeds;
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -216,6 +228,7 @@ void vtkSeedWidget::CompleteInteraction()
   this->WidgetState = vtkSeedWidget::PlacedSeeds;
   this->EventCallbackCommand->SetAbortFlag(1);
 }
+
 //-------------------------------------------------------------------------
 void vtkSeedWidget::RestartInteraction()
 {
@@ -274,13 +287,19 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
     }
 
   // Remove last seed
-  vtkSeedRepresentation *rep = reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
-  rep->RemoveLastHandle();
-  int last = self->Seeds->size()-1;
-  (*self->Seeds)[last]->SetEnabled(0);
-  self->DeleteSeed(last);
-  self->Seeds->pop_back();
-
+  vtkSeedRepresentation *rep =
+    reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
+  int removeId = rep->GetActiveHandle();
+  if ( removeId != -1 )
+    {
+       rep->RemoveActiveHandle();
+    }
+  else
+    {
+    rep->RemoveLastHandle();
+    removeId = self->Seeds->size()-1;
+    }
+  self->DeleteSeed(removeId);
   // Got this event, abort processing if it
   self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
@@ -292,7 +311,7 @@ void vtkSeedWidget::SetProcessEvents(int pe)
   this->Superclass::SetProcessEvents(pe);
 
   vtkSeedListIterator iter = this->Seeds->begin();
-  for (; iter != this->Seeds->end(); ++iter)
+  for (; iter != this->Seeds->end(); ++iter )
     {
     (*iter)->SetProcessEvents(pe);
     }
