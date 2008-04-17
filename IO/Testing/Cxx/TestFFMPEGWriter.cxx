@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkFFMPEGWriter
+// .NAME TestFFMPEGWriter - Tests vtkFFMPEGWriter.
 // .SECTION Description
-//
+// Creates a scene and uses FFMPEGWriter to generate a movie file. Test passes
+// if the file exists and has non zero length.
+
 
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
@@ -80,6 +82,10 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     {
     err = 1;
     cerr << "ERROR: 1 - Test failing because TestFFMPEGWriter.avi file doesn't exist..." << endl;
+    }
+  else
+    {
+    vtksys::SystemTools::RemoveFile("TestFFMPEGWriter.avi");
     }
   if (0==length)
     {
