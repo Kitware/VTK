@@ -23,7 +23,7 @@
 #include "vtkObject.h"
 
 class vtkSocketCollection;
-class VTK_PARALLEL_EXPORT vtkSocket : public vtkObject
+class VTK_COMMON_EXPORT vtkSocket : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkSocket, vtkObject);

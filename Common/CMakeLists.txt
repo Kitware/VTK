@@ -33,6 +33,7 @@ vtkBox.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
 vtkCharArray.cxx
+vtkClientSocket.cxx
 vtkCollection.cxx
 vtkCollectionIterator.cxx
 vtkCommand.cxx
@@ -148,9 +149,12 @@ vtkRungeKutta2.cxx
 vtkRungeKutta4.cxx
 vtkRungeKutta45.cxx
 vtkScalarsToColors.cxx
+vtkServerSocket.cxx
 vtkShortArray.cxx
 vtkSignedCharArray.cxx
 vtkSmartPointerBase.cxx
+vtkSocket.cxx
+vtkSocketCollection.cxx
 vtkSortDataArray.cxx
 vtkSphericalTransform.cxx
 vtkStdString.cxx
@@ -278,6 +282,7 @@ vtkOverrideInformationCollection
 vtkParametricFunction
 vtkProp
 vtkScalarsToColors
+vtkSocket
 vtkStructuredData
 vtkWarpTransform
 vtkWindow
@@ -328,6 +333,12 @@ IF (WIN32)
       PROPERTIES WRAP_EXCLUDE 1)
   ENDIF (NOT VTK_USE_X)
 ENDIF (WIN32)
+
+IF(NOT HAVE_SOCKETS)
+  # Tell vtkSocket.cxx that there are no sockets on this platform.
+  SET_SOURCE_FILES_PROPERTIES(vtkSocket.cxx PROPERTIES
+    COMPILE_FLAGS -DVTK_SOCKET_FAKE_API)
+ENDIF(NOT HAVE_SOCKETS)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.

@@ -24,7 +24,7 @@
 #include "vtkCollection.h"
 
 class vtkSocket;
-class VTK_PARALLEL_EXPORT vtkSocketCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkSocketCollection : public vtkCollection
 {
 public:
   static vtkSocketCollection* New();

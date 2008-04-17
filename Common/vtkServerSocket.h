@@ -22,7 +22,7 @@
 #include "vtkSocket.h"
 
 class vtkClientSocket;
-class VTK_PARALLEL_EXPORT vtkServerSocket : public vtkSocket
+class VTK_COMMON_EXPORT vtkServerSocket : public vtkSocket
 {
 public:
   static vtkServerSocket* New();

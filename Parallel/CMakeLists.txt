@@ -21,7 +21,6 @@ ENDIF (WIN32)
 
 SET ( Kit_SRCS
 vtkBranchExtentTranslator.cxx
-vtkClientSocket.cxx
 vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx
@@ -65,11 +64,8 @@ vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkRTAnalyticSource.cxx
-vtkServerSocket.cxx
-vtkSocketCollection.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
-vtkSocket.cxx
 vtkSubCommunicator.cxx
 vtkSubGroup.cxx
 vtkTemporalFractal.cxx
@@ -94,12 +90,6 @@ IF(VTK_USE_RENDERING)
     )
 ENDIF(VTK_USE_RENDERING)
 
-IF(NOT HAVE_SOCKETS)
-  # Tell vtkSocket.cxx that there are no sockets on this platform.
-  SET_SOURCE_FILES_PROPERTIES(vtkSocket.cxx PROPERTIES
-    COMPILE_FLAGS -DVTK_SOCKET_FAKE_API)
-ENDIF(NOT HAVE_SOCKETS)
-
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkExodusIIWriter.cxx
@@ -110,7 +100,6 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkCommunicator 
 vtkMultiProcessController
 vtkPStreamTracer
-vtkSocket
 ABSTRACT
 )
 
