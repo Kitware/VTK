@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.56");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.57");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -639,7 +639,8 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port,
   if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
     {
     int incorrectdata = data && (!data->IsA(dt) ||
-      (!strcmp(data->GetClassName(),"vtkTemporalDataSet") && strcmp(dt,"vtkTemporalDataSet")) );
+      (!strcmp(data->GetClassName(),"vtkTemporalDataSet") &&
+       strcmp(dt,"vtkTemporalDataSet")) );
     // The output port specifies a data type.  Make sure the data
     // object exists and is of the right type.
     if(!data || incorrectdata)
