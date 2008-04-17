@@ -25,6 +25,7 @@ IF(VTK_USE_DISPLAY)
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOSConeCxx.cxx
+    TestPOVExporter.cxx
     TestTextActorAlphaBlending.cxx
     TestTextActorDepthPeeling.cxx
     TestTextActor3DAlphaBlending.cxx
@@ -32,7 +33,7 @@ IF(VTK_USE_DISPLAY)
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTDepthPeeling.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
-    TestTranslucentLUTTextureDepthPeeling.cxx
+    TestTranslucentLUTTextureDepthPeeling.cxx    
     )
 
   IF(VTK_DATA_ROOT)

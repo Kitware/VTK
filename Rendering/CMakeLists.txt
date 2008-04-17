@@ -99,6 +99,7 @@ SET( Kit_SRCS
   vtkPicker.cxx
   vtkPointPicker.cxx
   vtkPointsPainter.cxx
+  vtkPOVExporter.cxx
   vtkPolyDataMapper2D.cxx
   vtkPolyDataMapper.cxx
   vtkPolyDataPainter.cxx
