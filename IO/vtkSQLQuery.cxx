@@ -22,7 +22,9 @@
 #include "vtkSQLDatabase.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkSQLQuery, "1.2");
+#include "vtksys/SystemTools.hxx"
+
+vtkCxxRevisionMacro(vtkSQLQuery, "1.3");
 
 vtkSQLQuery::vtkSQLQuery()
 {
@@ -52,5 +54,34 @@ void vtkSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
     {
     this->Database->PrintSelf(os, indent.GetNextIndent());
     }
+}
+
+vtkStdString vtkSQLQuery::EscapeString( vtkStdString s, bool addSurroundingQuotes )
+{
+  vtkStdString d;
+  if ( addSurroundingQuotes )
+    {
+    d.push_back( '\'' );
+    }
+
+  for ( vtkStdString::iterator it = s.begin(); it != s.end(); ++ it )
+    {
+    if ( *it == '\'' )
+      d.push_back( '\'' ); // Single quotes are escaped by repeating them
+    d.push_back( *it );
+    }
+
+  if ( addSurroundingQuotes )
+    {
+    d.push_back( '\'' );
+    }
+  return d;
+}
+
+char* vtkSQLQuery::EscapeString( const char* src, bool addSurroundingQuotes )
+{
+  vtkStdString sstr( src );
+  vtkStdString dstr = this->EscapeString( sstr, addSurroundingQuotes );
+  return vtksys::SystemTools::DuplicateString( dstr.c_str() );
 }
 

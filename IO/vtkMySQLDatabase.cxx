@@ -32,7 +32,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.26");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.27");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -438,6 +438,17 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
     if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
       {
       colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
+      }
+    if ( colType == vtkSQLDatabaseSchema::BLOB )
+      {
+      if ( colSize >= 1<<24 )
+        {
+        colTypeStr = "LONGBLOB";
+        }
+      else if ( colSize >= 1<<16 )
+        {
+        colTypeStr = "MEDIUMBLOB";
+        }
       }
     
     // At this point, we have either a valid size if required, or a possibly null valid size

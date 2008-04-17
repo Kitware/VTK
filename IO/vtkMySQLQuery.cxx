@@ -59,7 +59,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.4");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.5");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -426,3 +426,35 @@ vtkMySQLQuery::HasError()
 {
   return (this->GetLastErrorText() != NULL);
 }
+
+vtkStdString vtkMySQLQuery::EscapeString( vtkStdString src, bool addSurroundingQuotes )
+{
+  vtkStdString dst;
+  vtkMySQLDatabase* dbContainer =
+    static_cast<vtkMySQLDatabase*>( this->Database );
+  assert( dbContainer != NULL );
+
+  MYSQL* db;
+  if ( ( ! dbContainer->IsOpen() ) || ! ( db = dbContainer->Private->Connection ) )
+    { // fall back to superclass implementation
+    dst = this->Superclass::EscapeString( src, addSurroundingQuotes );
+    return dst;
+    }
+
+  unsigned long ssz = src.size();
+  char* dstarr = new char[2 * ssz + (addSurroundingQuotes ? 3 : 1)];
+  char* end = dstarr;
+  if ( addSurroundingQuotes )
+    {
+    * ( end ++ ) = '\'';
+    }
+  end += mysql_real_escape_string( db, end, src.c_str(), ssz );
+  if ( addSurroundingQuotes )
+    {
+    * ( end ++ ) = '\'';
+    * ( end ++ ) = '\0';
+    }
+  dst = dstarr;
+  return dst;
+}
+

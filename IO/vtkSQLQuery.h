@@ -54,6 +54,7 @@
 #define __vtkSQLQuery_h
 
 #include "vtkRowQuery.h"
+#include "vtkStdString.h" // for EscapeString()
 
 class vtkSQLDatabase;
 class vtkVariant;
@@ -93,6 +94,29 @@ public:
   // Description:
   // Return the database associated with the query.
   vtkGetObjectMacro(Database, vtkSQLDatabase);
+
+  //BTX
+  // Description:
+  // Escape a string for inclusion into an SQL query.
+  // If \a addSurroundingQuotes is true, then quotation marks appropriate to the
+  // backend database will be added to enclose the escaped string. This argument
+  // defaults to true.
+  //
+  // A default, simple-minded implementation is provided for
+  // database backends that do not provde a way to escape
+  // strings for use inside queries.
+  virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
+  //ETX
+
+  // Description:
+  // Escape a string for inclusion into an SQL query.
+  // This method exists to provide a wrappable version of
+  // the method that takes and returns vtkStdString objects.
+  // You are responsible for calling delete [] on the
+  // character array returned by this method.
+  // This method simply calls the vtkStdString variant and thus
+  // need not be re-implemented by subclasses.
+  virtual char* EscapeString( const char* src, bool addSurroundingQuotes );
 
 protected:
   vtkSQLQuery();

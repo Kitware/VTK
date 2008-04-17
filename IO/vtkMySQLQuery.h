@@ -70,16 +70,21 @@ public:
   // Return true if there is an error on the current query.
   bool HasError();
 
-//BTX
+  //BTX
   // Description:
   // Return data in current row, field c
   vtkVariant DataValue(vtkIdType c);
-//ETX
+  //ETX
 
   // Description:
   // Get the last error text from the query
   const char* GetLastErrorText();
 
+  //BTX
+  // Description:
+  // Escape a string for use in a query
+  virtual vtkStdString EscapeString( vtkStdString src, bool addSurroundingQuotes = true );
+  //ETX
 
 protected:
   vtkMySQLQuery();

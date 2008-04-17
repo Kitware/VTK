@@ -461,7 +461,52 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   cerr << " done." << endl;
 
-  // 7. Drop tables
+  // 7. Test EscapeString.
+  cerr << "@@ Escaping a naughty string...";
+
+  queryStr =
+    "INSERT INTO atable (somename,somenmbr) VALUES ( " +
+    query->EscapeString( vtkStdString( "Str\"ang'eS\ntring" ), true ) +
+    ", 2 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 8. Read back the escaped string to verify it worked.
+  cerr << "@@ Reading it back... <";
+
+  queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  if ( ! query->NextRow() )
+    {
+    cerr << "Query returned no results" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << query->DataValue( 0 ).ToString().c_str() << "> ";
+  cerr << " done." << endl;
+
+  // 9. Drop tables
   cerr << "@@ Dropping these tables...";
 
   for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();
@@ -483,7 +528,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   cerr << " done." << endl;
 
-  // 8. Delete the database until we run the test again
+  // 10. Delete the database until we run the test again
   cerr << "@@ Dropping the database...";
 
   if ( ! db->DropDatabase( realDatabase.c_str() ) )

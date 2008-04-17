@@ -228,7 +228,52 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
        << tblHandle
        << " found.\n";
 
-  // 4. Drop tables
+  // 4. Test EscapeString.
+  cerr << "@@ Escaping a naughty string...";
+
+  vtkStdString queryStr =
+    "INSERT INTO atable (somename,somenmbr) VALUES ( " +
+    query->EscapeString( vtkStdString( "Str\"ang'eS\ntring" ), true ) +
+    ", 2 )";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << " done." << endl;
+
+  // 5. Read back the escaped string to verify it worked.
+  cerr << "@@ Reading it back... <";
+
+  queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
+  query->SetQuery( queryStr );
+  if ( ! query->Execute() )
+    {
+    cerr << "Query failed" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  if ( ! query->NextRow() )
+    {
+    cerr << "Query returned no results" << endl;
+    schema->Delete();
+    query->Delete();
+    db->Delete();
+    return 1;
+    }
+
+  cerr << query->DataValue( 0 ).ToString().c_str() << "> ";
+  cerr << " done." << endl;
+
+  // 6. Drop tables
   cerr << "@@ Dropping these tables...";
 
   for ( vtkstd::vector<vtkStdString>::iterator it = tables.begin();

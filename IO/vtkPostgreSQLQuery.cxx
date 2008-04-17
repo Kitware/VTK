@@ -33,7 +33,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.5");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.6");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
@@ -324,7 +324,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkPostgreSQLQueryPrivate);
-vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.5");
+vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.6");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery() 
@@ -474,6 +474,32 @@ const char * vtkPostgreSQLQuery::GetLastErrorText()
     return "No active query";
     }
   return this->Transactor->LastErrorText;
+}
+
+vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundingQuotes )
+{
+  vtkStdString retval;
+  if ( addSurroundingQuotes )
+    {
+    retval = "'";
+    }
+
+  vtkPostgreSQLDatabase* db = static_cast<vtkPostgreSQLDatabase*>( this->Database );
+  if ( db->Connection->Work )
+    {
+    retval.append( db->Connection->Work->esc( s ) );
+    }
+  else 
+    {
+    pqxx::transaction<> ework( db->Connection->Connection, "EscapeWork" );
+    retval.append( ework.esc( s ) );
+    }
+
+  if ( addSurroundingQuotes )
+    {
+    retval.append( "'" );
+    }
+  return retval;
 }
 
 // ----------------------------------------------------------------------
