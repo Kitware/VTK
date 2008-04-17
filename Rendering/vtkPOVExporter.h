@@ -90,9 +90,8 @@ public:
     vtkTypeRevisionMacro(vtkPOVExporter, vtkExporter);
     void PrintSelf(ostream& os, vtkIndent indent);
 
-    vtkSetVector2Macro(Size, int);
-    vtkGetVectorMacro(Size,int, 2);
-
+    //Description:
+    //The filename to save into. The exporter adds ".pov" automatically.
     vtkSetStringMacro(FilePrefix);
     vtkGetStringMacro(FilePrefix);
 
@@ -100,8 +99,6 @@ protected:
     vtkPOVExporter();
     ~vtkPOVExporter();
     
-    int Size[2];
-
     void WriteData();
     virtual void WriteHeader(vtkRenderer *renderer);
     void WriteCamera(vtkCamera *camera);
