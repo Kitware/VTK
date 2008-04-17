@@ -1,5 +1,19 @@
 /*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    vtkCosmoReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
   Program:   VTK/ParaView Los Alamos National Laboratory Modules (PVLANL)
   Module:    vtkCosmoReader.cxx
 
@@ -63,7 +77,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.7");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.8");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
