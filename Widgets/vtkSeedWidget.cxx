@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.14");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.15");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -108,27 +108,21 @@ void vtkSeedWidget::CreateDefaultRepresentation()
 //----------------------------------------------------------------------
 void vtkSeedWidget::SetEnabled(int enabling)
 {
-  this->Superclass::SetEnabled(enabling);
+  this->Superclass::SetEnabled( enabling );
 
-  if ( ! enabling )
+  vtkSeedListIterator iter;
+  for ( iter = this->Seeds->begin(); iter != this->Seeds->end(); ++iter )
     {
-    this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-    this->WidgetState = vtkSeedWidget::Start;
-    vtkSeedListIterator iter;
-    for (iter = this->Seeds->begin(); iter != this->Seeds->end(); ++iter )
-      {
-      (*iter)->SetEnabled(0);
-      }
-     this->Render();
+    (*iter)->SetEnabled( enabling );
     }
-  else
-  {
-    vtkSeedListIterator iter;
-    for (iter = this->Seeds->begin(); iter != this->Seeds->end(); ++iter )
-      {
-      (*iter)->SetEnabled(1);
-      }
-  }
+
+  if ( !enabling )
+    {
+    this->RequestCursorShape( VTK_CURSOR_DEFAULT );
+    this->WidgetState = vtkSeedWidget::Start;
+    }
+
+  this->Render();
 }
 
 //-------------------------------------------------------------------------
