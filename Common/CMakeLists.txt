@@ -334,6 +334,12 @@ IF (WIN32)
   ENDIF (NOT VTK_USE_X)
 ENDIF (WIN32)
 
+IF (WIN32)
+  IF (NOT BORLAND)
+    SET(KIT_LIBS ${KIT_LIBS} wsock32)
+  ENDIF (NOT BORLAND)
+ENDIF (WIN32)
+
 IF(NOT HAVE_SOCKETS)
   # Tell vtkSocket.cxx that there are no sockets on this platform.
   SET_SOURCE_FILES_PROPERTIES(vtkSocket.cxx PROPERTIES
