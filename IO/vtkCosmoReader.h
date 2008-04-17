@@ -1,5 +1,19 @@
 /*=========================================================================
 
+  Program:   Visualization Toolkit
+  Module:    vtkCosmoReader.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*=========================================================================
+
   Program:   VTK/ParaView Los Alamos National Laboratory Modules (PVLANL)
   Module:    vtkCosmoReader.h
 
@@ -71,7 +85,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // stripes.  A better thing to do would be to take a random sampling.
 //
 // .SECTION Thanks
-// Lee Ankeny (laa@lanl.gov) and Jim Ahrens (ahrens@lanl.gov)
+// Patricia Fasel (pfk@lanl.gov), Lee Ankeny (laa@lanl.gov) and 
+// Jim Ahrens (ahrens@lanl.gov)
 // Los Alamos National Laboratory
 
 #ifndef __vtkCosmoReader_h
