@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.35");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.36");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -404,6 +404,6 @@ void vtkInteractorStyleTrackballCamera::Dolly(double factor)
 void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  os << indent << "MotionFactor: " << this->MotionFactor << "\n";
 }
 

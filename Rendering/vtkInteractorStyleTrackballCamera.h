@@ -62,6 +62,11 @@ public:
   virtual void Spin();
   virtual void Pan();
   virtual void Dolly();
+
+  // Description:
+  // Set the apparent sensitivity of the interactor style to mouse motion.
+  vtkSetMacro(MotionFactor,double);
+  vtkGetMacro(MotionFactor,double);
   
 protected:
   vtkInteractorStyleTrackballCamera();
