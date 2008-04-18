@@ -48,6 +48,7 @@ vtkThresholdTable.cxx
 vtkTimePointUtility.cxx
 vtkTreeFieldAggregator.cxx
 vtkTreeLayoutStrategy.cxx
+vtkTreeOrbitLayoutStrategy.cxx
 vtkTreeLevelsFilter.cxx
 vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
