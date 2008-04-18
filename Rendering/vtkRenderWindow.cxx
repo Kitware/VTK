@@ -21,9 +21,10 @@
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.155");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.156");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -73,6 +74,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorMask[1] = 3;  // cyan
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
   this->ReportGraphicErrors=0; // false
+  this->AbortCheckTime = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -774,9 +776,14 @@ int vtkRenderWindow::CheckAbortStatus()
 {
   if (!this->InAbortCheck)
     {
-    this->InAbortCheck = 1;
-    this->InvokeEvent(vtkCommand::AbortCheckEvent,NULL);
-    this->InAbortCheck = 0;
+    // Only check for abort at most one every second.
+    if (vtkTimerLog::GetUniversalTime() - this->AbortCheckTime > 1.0)
+      {
+      this->InAbortCheck = 1;
+      this->InvokeEvent(vtkCommand::AbortCheckEvent,NULL);
+      this->InAbortCheck = 0;
+      this->AbortCheckTime = vtkTimerLog::GetUniversalTime();
+      }
     }
   return this->AbortRender;
 }

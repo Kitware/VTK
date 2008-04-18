@@ -583,6 +583,10 @@ protected:
   // Boolean flag telling if errors from the graphic library have to be
   // reported by vtkGraphicErrorMacro. Initial value is false (off).
   int ReportGraphicErrors;
+
+  // Description:
+  // The universal time since the last abort check occurred.
+  double AbortCheckTime;
   
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
