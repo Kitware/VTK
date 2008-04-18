@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.4");
+vtkCxxRevisionMacro(vtkViewTheme, "1.5");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -225,6 +225,10 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
      << this->BackgroundColor[0] << "," 
      << this->BackgroundColor[1] << "," 
      << this->BackgroundColor[2] << endl;
+  os << indent << "BackgroundColor2: " 
+     << this->BackgroundColor2[0] << "," 
+     << this->BackgroundColor2[1] << "," 
+     << this->BackgroundColor2[2] << endl;
   os << indent << "VertexLabelColor: " 
      << this->VertexLabelColor[0] << "," 
      << this->VertexLabelColor[1] << "," 
