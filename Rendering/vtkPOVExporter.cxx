@@ -78,21 +78,73 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrix4x4.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkTypeTraits.h"
+#include <vtksys/ios/sstream>
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOVExporter, "1.2");
+vtkCxxRevisionMacro(vtkPOVExporter, "1.3");
 vtkStandardNewMacro(vtkPOVExporter);
 
+//Can't use printf("%d", a_vtkIdType) because vtkIdType is not always int.
+//This internal class holds format strings vtkPOVExporter can use instead.
+class vtkPOVInternals
+{
+public:
+  vtkPOVInternals()
+  {
+    this->CountFormat = new char[100]; //"\t\t%d,\n"
+    strcpy(this->CountFormat, "\t\t");
+    strcat(this->CountFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
+    strcat(this->CountFormat, ",\n");
+
+    char *triFormat = new char[100]; //"%d, %d, %d"
+    strcpy(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
+    strcat(triFormat, ", ");
+    strcat(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());
+    strcat(triFormat, ", ");
+    strcat(triFormat, vtkTypeTraits<vtkIdType>::ParseFormat());  
+
+    this->TriangleFormat1 = new char[100]; //"\t\t<%d, %d, %d>,"
+    strcpy(this->TriangleFormat1, "\t\t<");
+    strcat(this->TriangleFormat1, triFormat);
+    strcat(this->TriangleFormat1, ">,");
+
+    this->TriangleFormat2 = new char[100]; //" %d, %d, %d,\n"
+    strcpy(this->TriangleFormat2, " ");
+    strcat(this->TriangleFormat2, triFormat);
+    strcat(this->TriangleFormat2, ",\n");  
+
+    delete[] triFormat;
+  }
+
+  ~vtkPOVInternals()
+  {
+    delete[] this->CountFormat;
+    delete[] this->TriangleFormat1;
+    delete[] this->TriangleFormat2;
+  }
+
+  char *CountFormat;
+  char *TriangleFormat1;
+  char *TriangleFormat2;
+};
+
+#define VTKPOV_CNTFMT this->Internals->CountFormat
+#define VTKPOV_TRIFMT1 this->Internals->TriangleFormat1
+#define VTKPOV_TRIFMT2 this->Internals->TriangleFormat2
+
+//============================================================================
 vtkPOVExporter::vtkPOVExporter()
 {
   this->FilePrefix = NULL;
   this->FilePtr = NULL;
+  this->Internals = new vtkPOVInternals;
 }
 
 vtkPOVExporter::~vtkPOVExporter()
 {
-    
+  delete this->Internals;
 }
 
 void vtkPOVExporter::WriteData()
@@ -298,7 +350,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   // write point coordinates
   vtkPoints *points = polys->GetPoints();
   fprintf(this->FilePtr, "\tvertex_vectors {\n");
-  fprintf(this->FilePtr, "\t\t%d,\n", points->GetNumberOfPoints());
+  fprintf(this->FilePtr, VTKPOV_CNTFMT, points->GetNumberOfPoints());
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++) 
     {
     double *pos = points->GetPoint(i);
@@ -312,7 +364,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     {
     vtkDataArray *normals = pointData->GetNormals();
     fprintf(this->FilePtr, "\tnormal_vectors {\n");
-    fprintf(this->FilePtr, "\t\t%d,\n", normals->GetNumberOfTuples());
+    fprintf(this->FilePtr, VTKPOV_CNTFMT, normals->GetNumberOfTuples());
     for (vtkIdType i = 0; i < normals->GetNumberOfTuples(); i++) 
       {
       double *normal = normals->GetTuple(i);
@@ -334,7 +386,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
       {
       scalar_visible = true;
       fprintf(this->FilePtr, "\ttexture_list {\n");
-      fprintf(this->FilePtr, "\t\t%d,\n", color_array->GetNumberOfTuples());
+      fprintf(this->FilePtr, VTKPOV_CNTFMT, color_array->GetNumberOfTuples());
       for (vtkIdType i = 0; i < color_array->GetNumberOfTuples(); i++) {
         unsigned char *color = color_array->GetPointer(4*i);
         fprintf(this->FilePtr, 
@@ -398,7 +450,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetPolys();
   vtkIdType npts = 0, *pts = 0;
-  
+
   // first pass, 
   // calculate how many triangles there will be after triangulation
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);) 
@@ -409,7 +461,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
 
   // second pass, triangulate and write face indices
   fprintf(this->FilePtr, "\tface_indices {\n");
-  fprintf(this->FilePtr, "\t\t%d,\n", numtriangles);
+  fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);) 
     {
     vtkIdType triangle[3];
@@ -418,11 +470,11 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
     triangle[1] = pts[1];
     triangle[2] = pts[2];
     
-    fprintf(this->FilePtr, "\t\t<%d, %d, %d>,",
+    fprintf(this->FilePtr, VTKPOV_TRIFMT1,
             triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
       {
-      fprintf(this->FilePtr, " %d, %d, %d,\n",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT2,
               triangle[0], triangle[1], triangle[2]);
       }
     else
@@ -435,11 +487,11 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
       {    
       triangle[1] = pts[2];
       triangle[2] = pts[i];
-      fprintf(this->FilePtr, "\t\t<%d, %d, %d>,",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
         {
-        fprintf(this->FilePtr, " %d, %d, %d,\n",
+        fprintf(this->FilePtr, VTKPOV_TRIFMT2,
                 triangle[0], triangle[1], triangle[2]);
         }
       else
@@ -454,7 +506,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   if (polys->GetPointData()->GetNormals()) 
     {
     fprintf(this->FilePtr, "\tnormal_indices {\n");
-    fprintf(this->FilePtr, "\t\t%d,\n", numtriangles);
+    fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts);) 
       {
       vtkIdType triangle[3];
@@ -463,22 +515,25 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
       triangle[1] = pts[1];
       triangle[2] = pts[2];
       
-      fprintf(this->FilePtr, "\t\t<%d, %d, %d>,\n",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, "\n");
       
       // the rest of triangles            
       for (vtkIdType i = 3; i < npts; i++) 
         {    
         triangle[1] = pts[2];
         triangle[2] = pts[i];
-        fprintf(this->FilePtr, "\t\t<%d, %d, %d>,\n",
+        fprintf(this->FilePtr, VTKPOV_TRIFMT1,
                 triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, "\n");
         }
       }
     fprintf(this->FilePtr, "\t}\n");
     }
   
   // TODO: 4th pass, texture indices
+
 }
 
 void vtkPOVExporter::WriteTriangleStrips(
@@ -498,7 +553,7 @@ void vtkPOVExporter::WriteTriangleStrips(
 
   // second pass, convert to triangles and write face indices
   fprintf(this->FilePtr, "\tface_indices {\n");
-  fprintf(this->FilePtr, "\t\t%d,\n", numtriangles);
+  fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);) 
     {
     vtkIdType triangle[3];
@@ -507,11 +562,11 @@ void vtkPOVExporter::WriteTriangleStrips(
     triangle[1] = pts[1];
     triangle[2] = pts[2];
     
-    fprintf(this->FilePtr, "\t\t<%d, %d, %d>,",
+    fprintf(this->FilePtr, VTKPOV_TRIFMT1,
             triangle[0], triangle[1], triangle[2]);
     if (scalar_visible)
       {
-      fprintf(this->FilePtr, " %d, %d, %d,\n",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT2,
               triangle[0], triangle[1], triangle[2]);
       }
     else
@@ -525,11 +580,11 @@ void vtkPOVExporter::WriteTriangleStrips(
       triangle[0] = triangle[1];
       triangle[1] = triangle[2];
       triangle[2] = pts[i];
-      fprintf(this->FilePtr, "\t\t<%d, %d, %d>,",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
       if (scalar_visible)
         {
-        fprintf(this->FilePtr, " %d, %d, %d,\n",
+        fprintf(this->FilePtr, VTKPOV_TRIFMT2,
                 triangle[0], triangle[1], triangle[2]);
         }
       else
@@ -544,7 +599,7 @@ void vtkPOVExporter::WriteTriangleStrips(
   if (polys->GetPointData()->GetNormals()) 
     {
     fprintf(this->FilePtr, "\tnormal_indices {\n");
-    fprintf(this->FilePtr, "\t\t%d,\n", numtriangles);
+    fprintf(this->FilePtr, VTKPOV_CNTFMT, numtriangles);
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts);) 
       {
       vtkIdType triangle[3];
@@ -553,8 +608,9 @@ void vtkPOVExporter::WriteTriangleStrips(
       triangle[1] = pts[1];
       triangle[2] = pts[2];
       
-      fprintf(this->FilePtr, "\t\t<%d, %d, %d>,\n",
+      fprintf(this->FilePtr, VTKPOV_TRIFMT1,
               triangle[0], triangle[1], triangle[2]);
+      fprintf(this->FilePtr, "\n");
       
       // the rest of triangles            
       for (vtkIdType i = 3; i < npts; i++) 
@@ -562,8 +618,9 @@ void vtkPOVExporter::WriteTriangleStrips(
         triangle[0] = triangle[1];
         triangle[1] = triangle[2];
         triangle[2] = pts[i];
-        fprintf(this->FilePtr, "\t\t<%d, %d, %d>,\n",
+        fprintf(this->FilePtr, VTKPOV_TRIFMT1,
                 triangle[0], triangle[1], triangle[2]);
+        fprintf(this->FilePtr, "\n");
         }
       }
     fprintf(this->FilePtr, "\t}\n");

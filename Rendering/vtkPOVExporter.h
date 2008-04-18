@@ -82,6 +82,7 @@ class vtkLight;
 class vtkPolyData;
 class vtkProperty;
 class vtkTexture;
+class vtkPOVInternals;
 
 class VTK_RENDERING_EXPORT vtkPOVExporter : public vtkExporter
 {
@@ -115,6 +116,8 @@ protected:
 private:
     vtkPOVExporter(const vtkPOVExporter&);  // Not implemented.
     void operator=(const vtkPOVExporter&);  // Not implemented.    
+
+    vtkPOVInternals *Internals;
 };
 
 #endif
