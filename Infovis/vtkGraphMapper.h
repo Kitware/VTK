@@ -30,21 +30,23 @@
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
+class vtkActor2D;
 class vtkCamera;
+class vtkFollower;
 class vtkGraph;
-class vtkGlyph2D;
+class vtkGlyph3D;
 class vtkGraphToPolyData;
 class vtkIconGlyphFilter;
 class vtkCellCenters;
+class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkPolyDataMapper2D;
 class vtkLookupTable;
+class vtkTransformCoordinateSystems;
 class vtkTexture;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
-class vtkActor2D;
-class vtkFollower;
-class vtkTransformCoordinateSystems;
+
 
 
 class VTK_INFOVIS_EXPORT vtkGraphMapper : public vtkMapper 
@@ -66,6 +68,29 @@ public:
   bool GetColorVertices();
   void ColorVerticesOn();
   void ColorVerticesOff();
+  
+  // Description:
+  // Whether to use simple vertex glyphs or not.  Default is on.
+  void SetVertexGlyphs(bool arg);
+  vtkGetMacro(VertexGlyphs, bool);
+  vtkBooleanMacro(VertexGlyphs, bool);
+  
+  // Description:
+  // Whether glyph scaling is on or not.  Default is off.
+  vtkSetMacro(GlyphScaling,bool);
+  vtkGetMacro(GlyphScaling,bool);
+  vtkBooleanMacro(GlyphScaling, bool);
+  
+  // Description:
+  // Glyph scaling array name. Default is "scale"
+  vtkSetStringMacro(ScalingArrayName);
+  vtkGetStringMacro(ScalingArrayName);
+  
+  // Description:
+  // Whether to show edges or not.  Default is on.
+  void SetEdgeVisibility(bool vis);
+  bool GetEdgeVisibility();
+  vtkBooleanMacro(EdgeVisibility, bool);
   
   // Description:
   // The array to use for coloring edges.  Default is "color".
@@ -154,6 +179,9 @@ protected:
   char* IconArrayNameInternal;
 
   //BTX
+  vtkSmartPointer<vtkGlyph3D>                    ScaledGlyph;
+  vtkSmartPointer<vtkGlyph3D>                    OutlineGlyph;
+  
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
   vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
@@ -183,8 +211,14 @@ private:
   vtkGraphMapper(const vtkGraphMapper&);  // Not implemented.
   void operator=(const vtkGraphMapper&);  // Not implemented.
   
+  // Helper function
+  vtkPolyData* CreateCircle(bool filled);
+  
   float VertexPointSize;
   float EdgeLineWidth;
+  bool VertexGlyphs;
+  bool GlyphScaling;
+  char* ScalingArrayName;
 };
 
 #endif
