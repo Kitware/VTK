@@ -58,9 +58,9 @@ int TestActor2DTextures( int argc, char *argv[])
 
   pointSet->GetPointData()->SetScalars(iconIndex);
 
-  for(double i = 1.0; i < 20; i++)
+  for(double i = 1.0; i < 8; i++)
     {
-    for(double j = 1.0; j < 20; j++)
+    for(double j = 1.0; j < 8; j++)
       {
       points->InsertNextPoint(i * 26.0, j * 26.0, 0.0);
       }
@@ -92,7 +92,7 @@ int TestActor2DTextures( int argc, char *argv[])
 
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
-  renWin->SetSize(520, 520);
+  renWin->SetSize(208, 208);
   renWin->AddRenderer(renderer);
   
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
