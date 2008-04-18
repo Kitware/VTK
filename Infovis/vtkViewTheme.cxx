@@ -21,7 +21,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkViewTheme, "1.2");
+vtkCxxRevisionMacro(vtkViewTheme, "1.3");
 vtkStandardNewMacro(vtkViewTheme);
 
 vtkViewTheme::vtkViewTheme()
@@ -58,7 +58,9 @@ vtkViewTheme::vtkViewTheme()
   this->SelectedCellOpacity = 1;
 
   this->BackgroundColor[0] = this->BackgroundColor[1] =
-    this->BackgroundColor[2] = 0.3;
+    this->BackgroundColor[2] = 0.0;
+  this->BackgroundColor2[0] = this->BackgroundColor2[1] =
+    this->BackgroundColor2[2] = 0.3;
   this->VertexLabelColor[0] = this->VertexLabelColor[1] =
     this->VertexLabelColor[2] = 1;
   this->EdgeLabelColor[0] = this->EdgeLabelColor[1] =
@@ -72,8 +74,12 @@ vtkViewTheme::~vtkViewTheme()
 vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
+  
+  theme->SetPointSize(7);
+  theme->SetLineWidth(2);
 
-  theme->SetBackgroundColor(1, 1, 1);
+  theme->SetBackgroundColor(.7, .7, .7);
+  theme->SetBackgroundColor2(1, 1, 1);
   theme->SetVertexLabelColor(0, 0, 0);
   theme->SetEdgeLabelColor(.2, .2, .2);
 
@@ -100,8 +106,12 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
+  
+  theme->SetPointSize(7);
+  theme->SetLineWidth(2);
 
   theme->SetBackgroundColor(0, 0, 0);
+  theme->SetBackgroundColor2(.3, .3, .3);
   theme->SetVertexLabelColor(1, 1, 1);
   theme->SetEdgeLabelColor(.7, .7, .7);
 
@@ -128,8 +138,12 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 vtkViewTheme* vtkViewTheme::CreateMellowTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
-
-  theme->SetBackgroundColor(0.6, 0.6, 0.5); // Tan
+  
+  theme->SetPointSize(7);
+  theme->SetLineWidth(2);
+  
+  theme->SetBackgroundColor(0.3, 0.3, 0.25); // Darker Tan
+  theme->SetBackgroundColor2(0.6, 0.6, 0.5); // Tan
   theme->SetVertexLabelColor(1, 1, 1);
   theme->SetEdgeLabelColor(.7, .7, 1);
 

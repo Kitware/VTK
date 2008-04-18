@@ -32,6 +32,7 @@
 #include "vtkCoordinate.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
+#include "vtkEdgeCenters.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkForceDirectedLayoutStrategy.h"
@@ -57,14 +58,13 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 #include "vtkVertexDegree.h"
-#include "vtkEdgeCenters.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 #include "vtkVisibleCellSelector.h"
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.20");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.21");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -649,7 +649,7 @@ void vtkGraphLayoutView::ProcessEvents(
       this->EdgeActor->GetProperty()->SetOpacity(opacity);
       
       vtkIdTypeArray* selectedIds = vtkIdTypeArray::New();
-      vtkAbstractGraph* graph = this->GraphLayout->GetOutput();
+      vtkGraph* graph = this->GraphLayout->GetOutput();
       for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
         {
         vtkIdType edge = ids->GetValue(4*i+3);
@@ -726,6 +726,8 @@ void vtkGraphLayoutView::ApplyViewTheme(vtkViewTheme* theme)
   // Take some parameters from the theme and apply
   // to objects within this class
   this->Renderer->SetBackground(theme->GetBackgroundColor());
+  this->Renderer->SetBackground2(theme->GetBackgroundColor2());
+  this->Renderer->SetGradientBackground(true);
   
   this->VertexLabelMapper->GetLabelTextProperty()->
     SetColor(theme->GetVertexLabelColor());
@@ -749,8 +751,8 @@ void vtkGraphLayoutView::ApplyViewTheme(vtkViewTheme* theme)
   this->SelectedGraphMapper->ApplyViewTheme(selectTheme);
   
   // Set vertex size and edge size on mapper
-  this->SelectedGraphMapper->SetVertexPointSize(9);
-  this->SelectedGraphMapper->SetEdgeLineWidth(2);
+  this->SelectedGraphMapper->SetVertexPointSize(theme->GetPointSize()+2);
+  this->SelectedGraphMapper->SetEdgeLineWidth(theme->GetLineWidth()+1);
   
   selectTheme->Delete();
 }

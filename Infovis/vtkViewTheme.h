@@ -111,6 +111,11 @@ public:
   vtkGetVector3Macro(BackgroundColor, double);
   
   // Description:
+  // The second background color (for gradients).
+  vtkSetVector3Macro(BackgroundColor2, double);
+  vtkGetVector3Macro(BackgroundColor2, double);
+  
+  // Description:
   // The color to use for labelling graph vertices.
   vtkSetVector3Macro(VertexLabelColor, double);
   vtkGetVector3Macro(VertexLabelColor, double);
@@ -157,6 +162,7 @@ protected:
   double SelectedCellOpacity;
 
   double BackgroundColor[3];
+  double BackgroundColor2[3];
   double VertexLabelColor[3];
   double EdgeLabelColor[3];
 
