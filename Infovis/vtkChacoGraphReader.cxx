@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 // .NAME vtkChacoGraphReader - Reads chaco graph files.
 //
 // .SECTION Description
@@ -63,7 +64,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkChacoGraphReader, "1.3");
+vtkCxxRevisionMacro(vtkChacoGraphReader, "1.4");
 vtkStandardNewMacro(vtkChacoGraphReader);
 
 vtkChacoGraphReader::vtkChacoGraphReader()

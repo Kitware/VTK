@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 #include "vtkBoostBiconnectedComponents.h"
 
 #include "vtkCellData.h"
@@ -39,7 +40,7 @@ using namespace boost;
 using vtksys_stl::vector;
 using vtksys_stl::pair;
 
-vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.9");
+vtkCxxRevisionMacro(vtkBoostBiconnectedComponents, "1.10");
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()

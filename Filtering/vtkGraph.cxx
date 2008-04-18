@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkGraph.h"
 
@@ -71,14 +72,14 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.14");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.15");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.14");
+vtkCxxRevisionMacro(vtkGraph, "1.15");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {

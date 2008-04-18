@@ -12,10 +12,11 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
-  Copyright (c) Sandia Corporation
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-  ----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkToolkits.h"
 #include "vtkSQLDatabase.h"
@@ -39,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.42");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.43");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()

@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkConstrained2DLayoutStrategy.h"
 
@@ -40,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkConstrained2DLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkConstrained2DLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkConstrained2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers

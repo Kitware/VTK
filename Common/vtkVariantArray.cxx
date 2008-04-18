@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
@@ -68,7 +69,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.9");
+vtkCxxRevisionMacro(vtkVariantArray, "1.10");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)

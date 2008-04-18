@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
@@ -28,7 +29,7 @@
 #include <vtkstd/map>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRISReader, "1.4");
+vtkCxxRevisionMacro(vtkRISReader, "1.5");
 vtkStandardNewMacro(vtkRISReader);
 
 // Not all platforms support vtkstd::getline(istream&, vtkstd::string) so

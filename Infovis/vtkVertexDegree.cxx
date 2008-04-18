@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 #include "vtkVertexDegree.h"
 
 #include "vtkCommand.h"
@@ -27,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVertexDegree, "1.5");
+vtkCxxRevisionMacro(vtkVertexDegree, "1.6");
 vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()

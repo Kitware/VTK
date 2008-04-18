@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 #include "vtkGraphAlgorithm.h"
 
 #include "vtkCommand.h"
@@ -26,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkGraphAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkGraphAlgorithm, "1.5");
 vtkStandardNewMacro(vtkGraphAlgorithm);
 
 //----------------------------------------------------------------------------

@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 
 #include "vtkRandomLayoutStrategy.h"
 
@@ -31,7 +32,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkRandomLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkRandomLayoutStrategy);
 
 vtkRandomLayoutStrategy::vtkRandomLayoutStrategy()

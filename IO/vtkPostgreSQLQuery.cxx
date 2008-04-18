@@ -12,10 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
 #include "vtkPostgreSQLQuery.h"
 
 #include "vtkObjectFactory.h"
@@ -33,7 +34,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.6");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.7");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
@@ -324,7 +325,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkPostgreSQLQueryPrivate);
-vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.6");
+vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.7");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery() 
