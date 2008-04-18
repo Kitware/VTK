@@ -37,7 +37,6 @@
 int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   int err = 0;
-  int cc = 0;
   int exists = 0;
   unsigned long length = 0;
 
