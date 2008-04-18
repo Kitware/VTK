@@ -22,6 +22,9 @@ Changes by Phil Thompson, Nov. 2006
 
 Changes by Phil Thompson, Oct. 2007
  Bug fixes.
+
+Changes by Phil Thompson, Mar. 2008
+ Added cursor support.
 """
 
 
@@ -98,6 +101,21 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
     are wireframe.
     """
 
+    # Map between VTK and Qt cursors.
+    _CURSOR_MAP = {
+        0:  QtCore.Qt.ArrowCursor,          # VTK_CURSOR_DEFAULT
+        1:  QtCore.Qt.ArrowCursor,          # VTK_CURSOR_ARROW
+        2:  QtCore.Qt.SizeBDiagCursor,      # VTK_CURSOR_SIZENE
+        3:  QtCore.Qt.SizeFDiagCursor,      # VTK_CURSOR_SIZENWSE
+        4:  QtCore.Qt.SizeBDiagCursor,      # VTK_CURSOR_SIZESW
+        5:  QtCore.Qt.SizeFDiagCursor,      # VTK_CURSOR_SIZESE
+        6:  QtCore.Qt.SizeVerCursor,        # VTK_CURSOR_SIZENS
+        7:  QtCore.Qt.SizeHorCursor,        # VTK_CURSOR_SIZEWE
+        8:  QtCore.Qt.SizeAllCursor,        # VTK_CURSOR_SIZEALL
+        9:  QtCore.Qt.PointingHandCursor,   # VTK_CURSOR_HAND
+        10: QtCore.Qt.CrossCursor,          # VTK_CURSOR_CROSSHAIR
+    }
+
     def __init__(self, parent=None, wflags=QtCore.Qt.WindowFlags(), **kw):
         # the current button
         self._ActiveButton = QtCore.Qt.NoButton
@@ -145,12 +163,15 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self.setAttribute(QtCore.Qt.WA_PaintOnScreen)
         self.setMouseTracking(True) # get all mouse events
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
+        self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
 
         self._Timer = QtCore.QTimer(self)
         self.connect(self._Timer, QtCore.SIGNAL('timeout()'), self.TimerEvent)
 
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
+        self._Iren.GetRenderWindow().AddObserver('CursorChangedEvent',
+                                                 self.CursorChangedEvent)
 
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
@@ -171,6 +192,26 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
 
     def TimerEvent(self):
         self._Iren.TimerEvent()
+
+    def CursorChangedEvent(self, obj, evt):
+        """Called when the CursorChangedEvent fires on the render window."""
+        # This indirection is needed since when the event fires, the current
+        # cursor is not yet set so we defer this by which time the current
+        # cursor should have been set.
+        QtCore.QTimer.singleShot(0, self.ShowCursor)
+
+    def HideCursor(self):
+        """Hides the cursor."""
+        self.setCursor(QtCore.Qt.BlankCursor)
+
+    def ShowCursor(self):
+        """Shows the cursor."""
+        vtk_cursor = self._Iren.GetRenderWindow().GetCurrentCursor()
+        qt_cursor = self._CURSOR_MAP.get(vtk_cursor, QtCore.Qt.ArrowCursor)
+        self.setCursor(cursor)
+
+    def sizeHint(self):
+        return QtCore.QSize(400, 400)
 
     def paintEngine(self):
         return None
