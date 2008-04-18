@@ -50,7 +50,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.14");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.15");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -545,6 +545,22 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+ if ( this->ScaledGlyph )
+    {
+    os << indent << "ScaledGlyph: (" << this->ScaledGlyph << ")\n";
+    }
+  else
+    {
+    os << indent << "ScaledGlyph: (none)\n";
+    }
+ if ( this->OutlineGlyph )
+    {
+    os << indent << "OutlineGlyph: (" << this->OutlineGlyph << ")\n";
+    }
+  else
+    {
+    os << indent << "OutlineGlyph: (none)\n";
+    }
   if ( this->EdgeMapper )
     {
     os << indent << "EdgeMapper: (" << this->EdgeMapper << ")\n";
