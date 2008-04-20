@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.137");
+vtkCxxRevisionMacro(vtkActor, "1.138");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
@@ -280,7 +280,7 @@ void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
     }
   if (this->BackfaceProperty)
     {
-    this->Property->ReleaseGraphicsResources(renWin);
+    this->BackfaceProperty->ReleaseGraphicsResources(renWin);
     }
 }
 
