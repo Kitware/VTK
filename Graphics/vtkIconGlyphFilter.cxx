@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.7");
+vtkCxxRevisionMacro(vtkIconGlyphFilter, "1.8");
 vtkStandardNewMacro(vtkIconGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -39,6 +39,7 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
   this->IconSize[1] = 1;
   this->IconSheetSize[0] = 1;
   this->IconSheetSize[1] = 1;
+  this->Gravity = VTK_ICON_GRAVITY_CENTER_CENTER;
   this->UseIconSize = true;
 
   this->SetInputArrayToProcess(0, 0, 0, 
@@ -57,6 +58,7 @@ void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "IconSize: " << this->IconSize[0] << " " << this->IconSize[1] << endl;
   os << indent << "IconSheetSize: " << this->IconSheetSize[0] << " " << this->IconSheetSize[1] << endl;
+  os << indent << "Gravity: " << this->Gravity << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -129,6 +131,41 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     iconIndex = scalars->GetValue(i);
     input->GetPoint(i, point);
+
+    switch(this->Gravity)
+      {
+      case VTK_ICON_GRAVITY_CENTER_CENTER:
+        break;
+      case VTK_ICON_GRAVITY_TOP_RIGHT:
+        point[0] = point[0] + 0.5 * size[0];
+        point[1] = point[1] + 0.5 * size[1];
+        break;
+      case VTK_ICON_GRAVITY_TOP_CENTER:
+        point[1] = point[1] + 0.5 * size[1];
+        break;
+      case VTK_ICON_GRAVITY_TOP_LEFT:
+        point[0] = point[0] - 0.5 * size[0];
+        point[1] = point[1] + 0.5 * size[1];
+        break;
+      case VTK_ICON_GRAVITY_CENTER_RIGHT:
+        point[0] = point[0] + 0.5 * size[0];
+        break;
+      case VTK_ICON_GRAVITY_CENTER_LEFT:
+        point[0] = point[0] - 0.5 * size[0];
+        break;
+      case VTK_ICON_GRAVITY_BOTTOM_RIGHT:
+        point[0] = point[0] + 0.5 * size[0];
+        point[1] = point[1] - 0.5 * size[1];
+        break;
+      case VTK_ICON_GRAVITY_BOTTOM_CENTER:
+        point[1] = point[1] - 0.5 * size[1];
+        break;
+      case VTK_ICON_GRAVITY_BOTTOM_LEFT:
+        point[0] = point[0] - 0.5 * size[0];
+        point[1] = point[1] - 0.5 * size[1];
+        break;
+      }
+
     outPoints->InsertNextPoint(point[0] - 0.5 * size[0], point[1] - 0.5* size[1], point[2]);
 
     this->IconConvertIndex(iconIndex, j, k);

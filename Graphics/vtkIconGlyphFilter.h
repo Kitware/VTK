@@ -29,6 +29,16 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
+#define VTK_ICON_GRAVITY_TOP_RIGHT     1
+#define VTK_ICON_GRAVITY_TOP_CENTER    2
+#define VTK_ICON_GRAVITY_TOP_LEFT      3
+#define VTK_ICON_GRAVITY_CENTER_RIGHT  4
+#define VTK_ICON_GRAVITY_CENTER_CENTER 5
+#define VTK_ICON_GRAVITY_CENTER_LEFT   6
+#define VTK_ICON_GRAVITY_BOTTOM_RIGHT  7
+#define VTK_ICON_GRAVITY_BOTTOM_CENTER 8
+#define VTK_ICON_GRAVITY_BOTTOM_LEFT   9
+
 
 class VTK_GRAPHICS_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
@@ -57,6 +67,22 @@ public:
   bool GetUseIconSize();
   vtkBooleanMacro(UseIconSize, bool);
 
+  // Description:
+  // Specify if the input points define the center of the icon quad or one of
+  // top right corner, top center, top left corner, center right, center, center
+  // center left, bottom right corner, bottom center or bottom left corner.
+  vtkSetMacro(Gravity, int);
+  vtkGetMacro(Gravity, int);
+  void SetGravityToTopRight() {this->SetGravity(VTK_ICON_GRAVITY_TOP_RIGHT);};
+  void SetGravityToTopCenter() {this->SetGravity(VTK_ICON_GRAVITY_TOP_CENTER);};
+  void SetGravityToTopLeft() {this->SetGravity(VTK_ICON_GRAVITY_TOP_LEFT);};
+  void SetGravityToCenterRight() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_RIGHT);};
+  void SetGravityToCenterCenter() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_CENTER);};
+  void SetGravityToCenterLeft() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_LEFT);};
+  void SetGravityToBottomRight() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT);};
+  void SetGravityToBottomCenter() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER);};
+  void SetGravityToBottomLeft() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT);};
+
 protected:
   vtkIconGlyphFilter();
   ~vtkIconGlyphFilter();
@@ -68,13 +94,14 @@ protected:
   int IconSize[2]; // Size in pixels of an icon in an icon sheet
   int IconSheetSize[2]; // Size in pixels of the icon sheet
 
+  int Gravity;
+  bool UseIconSize;
+
 private:
   vtkIconGlyphFilter(const vtkIconGlyphFilter&);  // Not implemented.
   void operator=(const vtkIconGlyphFilter&);  // Not implemented.
 
   void IconConvertIndex(int id, int & j, int & k);
-
-  bool UseIconSize;
 };
 
 inline void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)
