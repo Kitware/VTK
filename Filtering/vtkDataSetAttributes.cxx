@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.25");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.26");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -143,21 +143,16 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
       newData = data->NewInstance(); //instantiate same type of object
       newData->DeepCopy(data);
       newData->SetName(data->GetName());
-      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1 )
-        {
-        // If this array is an attribute in the source, make it so
-        // in the target as well.
-        this->SetAttribute(newData, attributeType);
-        }
-      else
-        {
-        this->AddArray(newData);
-        }
+      this->AddArray(newData);
       newData->Delete();
       }
     // Copy the copy flags
     for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
+      // If an array is an attribute in the source, then mark it as a attribute
+      // in the clone as well.
+      this->AttributeIndices[attributeType] = dsa->AttributeIndices[attributeType];
+
       this->CopyAttributeFlags[COPYTUPLE][attributeType] = 
         dsa->CopyAttributeFlags[COPYTUPLE][attributeType];
       this->CopyAttributeFlags[INTERPOLATE][attributeType] = 
@@ -195,16 +190,15 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
       {
       this->NumberOfActiveArrays++;
       this->SetArray(i, fd->GetAbstractArray(i));
-      if ((attributeType=dsa->IsArrayAnAttribute(i)) != -1)
-        {
-        // If this array is an attribute in the source, make it so
-        // in the target as well.
-        this->SetActiveAttribute(i, attributeType);
-        }
       }
+
     // Copy the copy flags
     for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
+      // If an array is an attribute in the source, then mark it as a attribute
+      // in the clone as well.
+      this->AttributeIndices[attributeType] = dsa->AttributeIndices[attributeType];
+
       this->CopyAttributeFlags[COPYTUPLE][attributeType] = 
         dsa->CopyAttributeFlags[COPYTUPLE][attributeType];
       this->CopyAttributeFlags[INTERPOLATE][attributeType] = 
