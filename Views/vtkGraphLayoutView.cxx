@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.22");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.23");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -140,7 +140,6 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
-  this->SetLayoutStrategyToSimple2D();
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -148,7 +147,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   theme->Delete();
   
   // Connect pipeline
-  this->GraphLayout->SetLayoutStrategy(this->Simple2DStrategy);
+  this->GraphLayout->SetLayoutStrategy(this->Fast2DStrategy);
   this->VertexDegree->SetInputConnection(this->GraphLayout->GetOutputPort());
   
   this->GraphMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
@@ -526,7 +525,6 @@ void vtkGraphLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
     this->Renderer->AddActor(this->SelectedGraphActor);
     this->Renderer->AddActor(this->VertexLabelActor);
     this->Renderer->AddActor(this->EdgeLabelActor);
-    this->Renderer->ResetCamera();
     }
   else
     {

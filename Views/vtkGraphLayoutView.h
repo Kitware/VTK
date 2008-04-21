@@ -23,7 +23,15 @@
 // vtkGraphLayoutView performs graph layout and displays a vtkGraph.
 // You may color and label the vertices and edges using fields in the graph.
 // If coordinates are already assigned to the graph vertices in your graph,
-// set the layout strategy to PassThrough in this view.
+// set the layout strategy to PassThrough in this view. The default layout
+// is Fast2D which is fast but not that good, for better layout set the
+// layout to Simple2D or ForceDirected. There are also tree and circle
+// layout strategies. :)
+// 
+// .SEE ALSO
+// vtkFast2DLayoutStrategy
+// vtkSimple2DLayoutStrategy
+// vtkForceDirectedLayoutStrategy
 //
 // .SECTION Thanks
 // Thanks a bunch to the holographic unfolding pattern.
