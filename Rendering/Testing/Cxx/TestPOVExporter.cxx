@@ -97,7 +97,8 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   
   povexp->Delete();
 
-  exists = (int) vtksys::SystemTools::FileExists("TestPOVExporter.pov");
+  exists =
+    static_cast<int>(vtksys::SystemTools::FileExists("TestPOVExporter.pov"));
   length = vtksys::SystemTools::FileLength("TestPOVExporter.pov");
   cout << "TestPOVExporter.avi file exists: " << exists << endl;
   cout << "TestPOVExporter.avi file length: " << length << endl;
