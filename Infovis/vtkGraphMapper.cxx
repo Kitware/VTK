@@ -51,7 +51,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.19");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.20");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -381,6 +381,12 @@ bool vtkGraphMapper::GetEdgeVisibility()
 void vtkGraphMapper::SetIconSize(int *size)
 {
   this->IconGlyph->SetIconSize(size);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphMapper::SetIconAlignment(int alignment)
+{
+  this->IconGlyph->SetGravity(alignment);
 }
 
 //----------------------------------------------------------------------------

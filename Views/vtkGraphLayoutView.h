@@ -185,6 +185,11 @@ public:
   void SetIconSize(int *size);
 
   // Description:
+  // Specify where the icons should be placed in relation to the vertex.
+  // See vtkIconGlyphFilter.h for possible values.
+  void SetIconAlignment(int alignment);
+
+  // Description:
   // Whether icons are visible (default off).
   void SetIconVisibility(bool b);
   bool GetIconVisibility();

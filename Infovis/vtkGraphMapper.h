@@ -124,6 +124,11 @@ public:
   int *GetIconSize();
 
   // Description:
+  // Specify where the icons should be placed in relation to the vertex.
+  // See vtkIconGlyphFilter.h for possible values.
+  void SetIconAlignment(int alignment);
+
+  // Description:
   // The texture containing the icon sheet.
   vtkTexture *GetIconTexture();
   void SetIconTexture(vtkTexture *texture);

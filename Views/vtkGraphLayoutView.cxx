@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.24");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.25");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -505,6 +505,12 @@ void vtkGraphLayoutView::SetIconTexture(vtkTexture *texture)
 void vtkGraphLayoutView::SetIconSize(int *size)
 {
   this->GraphMapper->SetIconSize(size);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetIconAlignment(int alignment)
+{
+  this->GraphMapper->SetIconAlignment(alignment);
 }
 
 //----------------------------------------------------------------------------
