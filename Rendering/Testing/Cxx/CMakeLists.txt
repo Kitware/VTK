@@ -22,6 +22,7 @@ IF(VTK_USE_DISPLAY)
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
     TestLODActor.cxx
+    TestManyActors.cxx
     TestOrderedTriangulator.cxx
     TestOpacity.cxx
     TestOSConeCxx.cxx
