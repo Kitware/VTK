@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.2");
+vtkCxxRevisionMacro(vtkArrayMap, "1.3");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -228,11 +228,11 @@ int vtkArrayMap::RequestData(
 
     // Finally, add the array to the appropriate vtkDataSetAttributes
     ods->AddArray(outputArray);
+
+    results->Delete();
     }
 
   outputArray->Delete();
-  results->Delete();
-
 
   return 1;
 }
