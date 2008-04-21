@@ -71,16 +71,13 @@ public:
   void ColorVerticesOff();
   
   // Description:
-  // Whether to use simple vertex glyphs or not.  Default is on.
-  void SetVertexGlyphs(bool arg);
-  vtkGetMacro(VertexGlyphs, bool);
-  vtkBooleanMacro(VertexGlyphs, bool);
-  
-  // Description:
-  // Whether glyph scaling is on or not.  Default is off.
-  vtkSetMacro(GlyphScaling,bool);
-  vtkGetMacro(GlyphScaling,bool);
-  vtkBooleanMacro(GlyphScaling, bool);
+  // Whether scaled glyphs are on or not.  Default is off.
+  // By default this mapper uses vertex glyphs that do not
+  // scale. If you turn this option on you will get circles
+  // at each vertex and they will scale as you zoom in/out.
+  void SetScaledGlyphs(bool arg);
+  vtkGetMacro(ScaledGlyphs,bool);
+  vtkBooleanMacro(ScaledGlyphs, bool);
   
   // Description:
   // Glyph scaling array name. Default is "scale"
@@ -180,8 +177,8 @@ protected:
   char* IconArrayNameInternal;
 
   //BTX
-  vtkSmartPointer<vtkGlyph3D>                    ScaledGlyph;
-  vtkSmartPointer<vtkGlyph3D>                    OutlineGlyph;
+  vtkSmartPointer<vtkGlyph3D>                    CircleGlyph;
+  vtkSmartPointer<vtkGlyph3D>                    CircleOutlineGlyph;
   
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
@@ -217,8 +214,7 @@ private:
   
   float VertexPointSize;
   float EdgeLineWidth;
-  bool VertexGlyphs;
-  bool GlyphScaling;
+  bool ScaledGlyphs;
   char* ScalingArrayName;
 };
 

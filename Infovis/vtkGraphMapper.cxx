@@ -50,7 +50,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.16");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.17");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -61,8 +61,8 @@ vtkGraphMapper::vtkGraphMapper()
 {
   this->GraphToPoly       = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexGlyph       = vtkSmartPointer<vtkVertexGlyphFilter>::New();
-  this->ScaledGlyph       = vtkSmartPointer<vtkGlyph3D>::New();
-  this->OutlineGlyph      = vtkSmartPointer<vtkGlyph3D>::New();
+  this->CircleGlyph       = vtkSmartPointer<vtkGlyph3D>::New();
+  this->CircleOutlineGlyph      = vtkSmartPointer<vtkGlyph3D>::New();
   this->IconGlyph         = vtkSmartPointer<vtkIconGlyphFilter>::New();
   this->IconTransform     = vtkSmartPointer<vtkTransformCoordinateSystems>::New();
   this->EdgeMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -79,23 +79,24 @@ vtkGraphMapper::vtkGraphMapper()
   this->EdgeColorArrayNameInternal = 0;
   this->VertexPointSize = 5;
   this->EdgeLineWidth = 1;
-  this->VertexGlyphs = true;
-  this->GlyphScaling = false;
+  this->ScaledGlyphs = false;
   this->ScalingArrayName = 0;
-  this->SetScalingArrayName("leaf_count");
   
   this->VertexMapper->SetScalarModeToUsePointData();
   this->VertexMapper->SetLookupTable(this->VertexLookupTable);
   this->VertexMapper->SetScalarVisibility(false);
+  this->VertexMapper->ImmediateModeRenderingOn();
   this->VertexActor->PickableOff();
   this->VertexActor->GetProperty()->SetPointSize(this->GetVertexPointSize());
   this->OutlineActor->PickableOff();
   this->OutlineActor->GetProperty()->SetPointSize(this->GetVertexPointSize()+2);
   this->OutlineActor->SetPosition(0, 0, -0.001);
   this->OutlineMapper->SetScalarVisibility(false);
+  this->OutlineMapper->ImmediateModeRenderingOn();
   this->EdgeMapper->SetScalarModeToUseCellData();
   this->EdgeMapper->SetLookupTable(this->EdgeLookupTable);
   this->EdgeMapper->SetScalarVisibility(false);
+  this->EdgeMapper->ImmediateModeRenderingOn();
   this->EdgeActor->SetPosition(0, 0, -0.003);
   this->EdgeActor->GetProperty()->SetLineWidth(this->GetEdgeLineWidth());
   
@@ -155,29 +156,36 @@ const char* vtkGraphMapper::GetIconArrayName()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphMapper::SetVertexGlyphs(bool arg)
+void vtkGraphMapper::SetScaledGlyphs(bool arg)
 {
-  if (!arg)
+  if (arg)
     {
-    vtkPolyData *circle = this->CreateCircle(true);
-    this->ScaledGlyph->SetSource(circle);
-    circle->Delete();
-    this->ScaledGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
-    this->ScaledGlyph->SetScaling(1);
-    this->ScaledGlyph->SetInputArrayToProcess(0,0,0,
-             vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
-    this->VertexMapper->SetInputConnection(this->ScaledGlyph->GetOutputPort());
-    
-    vtkPolyData *outline = this->CreateCircle(false);
-    this->OutlineGlyph->SetSource(outline);
-    outline->Delete();
-    this->OutlineGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
-    this->OutlineGlyph->SetScaling(1);
-    this->OutlineGlyph->SetInputArrayToProcess(0,0,0,
-             vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
-    this->OutlineMapper->SetInputConnection(this->OutlineGlyph->GetOutputPort());
-    this->OutlineActor->SetPosition(0, 0, 0.001);
-    this->OutlineActor->GetProperty()->SetLineWidth(2);
+    if (this->ScalingArrayName)
+      {
+      vtkPolyData *circle = this->CreateCircle(true);
+      this->CircleGlyph->SetSource(circle);
+      circle->Delete();
+      this->CircleGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+      this->CircleGlyph->SetScaling(1);
+      this->CircleGlyph->SetInputArrayToProcess(0,0,0,
+               vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
+      this->VertexMapper->SetInputConnection(this->CircleGlyph->GetOutputPort());
+      
+      vtkPolyData *outline = this->CreateCircle(false);
+      this->CircleOutlineGlyph->SetSource(outline);
+      outline->Delete();
+      this->CircleOutlineGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+      this->CircleOutlineGlyph->SetScaling(1);
+      this->CircleOutlineGlyph->SetInputArrayToProcess(0,0,0,
+               vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
+      this->OutlineMapper->SetInputConnection(this->CircleOutlineGlyph->GetOutputPort());
+      this->OutlineActor->SetPosition(0, 0, 0.001);
+      this->OutlineActor->GetProperty()->SetLineWidth(2);
+      }
+    else
+      {
+      vtkErrorMacro("No scaling array name set");
+      } 
     }
   else
     {
@@ -545,21 +553,21 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
- if ( this->ScaledGlyph )
+ if ( this->CircleGlyph )
     {
-    os << indent << "ScaledGlyph: (" << this->ScaledGlyph << ")\n";
+    os << indent << "CircleGlyph: (" << this->CircleGlyph << ")\n";
     }
   else
     {
-    os << indent << "ScaledGlyph: (none)\n";
+    os << indent << "CircleGlyph: (none)\n";
     }
- if ( this->OutlineGlyph )
+ if ( this->CircleOutlineGlyph )
     {
-    os << indent << "OutlineGlyph: (" << this->OutlineGlyph << ")\n";
+    os << indent << "CircleOutlineGlyph: (" << this->CircleOutlineGlyph << ")\n";
     }
   else
     {
-    os << indent << "OutlineGlyph: (none)\n";
+    os << indent << "CircleOutlineGlyph: (none)\n";
     }
   if ( this->EdgeMapper )
     {
@@ -620,8 +628,7 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "VertexPointSize: " << this->VertexPointSize << endl;
   os << indent << "EdgeLineWidth: " << this->EdgeLineWidth << endl;
-  os << indent << "VertexGlyphs: " << this->VertexGlyphs << endl;
-  os << indent << "GlyphScaling: " << this->GlyphScaling << endl;
+  os << indent << "ScaledGlyphs: " << this->ScaledGlyphs << endl;
   os << indent << "ScalingArrayName: " << (this->ScalingArrayName ? "" : "(null)") << endl;
 }
 
