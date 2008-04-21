@@ -32,6 +32,7 @@
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
 class vtkActor2D;
+class vtkArrayMap;
 class vtkCamera;
 class vtkFollower;
 class vtkGraph;
@@ -106,6 +107,16 @@ public:
   // The array to use for assigning icons.
   void SetIconArrayName(const char* name);
   const char* GetIconArrayName();
+  
+  // Description: 
+  // Associate the icon at index "index" in the vtkTexture to all vertices
+  // containing "type" as a value in the vertex attribute array specified by
+  // IconArrayName.
+  void AddIconType(char *type, int index);
+
+  // Description:
+  // Clear all icon mappings.
+  void ClearIconTypes();
 
   // Description:
   // Specify the Width and Height, in pixels, of an icon in the icon sheet.
@@ -122,7 +133,7 @@ public:
   void SetIconVisibility(bool vis);
   bool GetIconVisibility();
   vtkBooleanMacro(IconVisibility, bool);
-  
+
   // Description:
   // Get/Set the vertex point size
   vtkGetMacro(VertexPointSize,float);
@@ -183,6 +194,7 @@ protected:
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
   vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
+  vtkSmartPointer<vtkArrayMap>                   IconTypeToIndex;
   vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
   
   vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;

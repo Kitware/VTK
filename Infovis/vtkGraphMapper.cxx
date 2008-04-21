@@ -21,6 +21,7 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkArrayMap.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -50,7 +51,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.18");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.19");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -61,6 +62,7 @@ vtkGraphMapper::vtkGraphMapper()
 {
   this->GraphToPoly       = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexGlyph       = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+  this->IconTypeToIndex   = vtkSmartPointer<vtkArrayMap>::New();
   this->CircleGlyph       = vtkSmartPointer<vtkGlyph3D>::New();
   this->CircleOutlineGlyph      = vtkSmartPointer<vtkGlyph3D>::New();
   this->IconGlyph         = vtkSmartPointer<vtkIconGlyphFilter>::New();
@@ -104,7 +106,13 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconTransform->SetOutputCoordinateSystemToDisplay();
   this->IconTransform->SetInputConnection(this->GraphToPoly->GetOutputPort());
 
-  this->IconGlyph->SetInputConnection(this->IconTransform->GetOutputPort());
+  this->IconTypeToIndex->SetInputConnection(this->IconTransform->GetOutputPort());
+  this->IconTypeToIndex->SetFieldType(vtkArrayMap::POINT_DATA);
+  this->IconTypeToIndex->SetOutputArrayType(VTK_INT);
+  this->IconTypeToIndex->SetPassArray(0);
+  this->IconTypeToIndex->SetFillValue(-1);
+
+  this->IconGlyph->SetInputConnection(this->IconTypeToIndex->GetOutputPort());
   this->IconGlyph->SetUseIconSize(true);
   this->IconMapper->SetInputConnection(this->IconGlyph->GetOutputPort());
   this->IconMapper->ScalarVisibilityOff();
@@ -147,6 +155,7 @@ void vtkGraphMapper::SetIconArrayName(const char* name)
   this->SetIconArrayNameInternal(name);
   this->IconGlyph->SetInputArrayToProcess(0,0,0,
           vtkDataObject::FIELD_ASSOCIATION_POINTS,name);
+  this->IconTypeToIndex->SetInputArrayName(name);
 }
 
 //----------------------------------------------------------------------------
@@ -345,6 +354,18 @@ void vtkGraphMapper::SetEdgeLineWidth(float width)
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphMapper::AddIconType(char *type, int index)
+{
+  this->IconTypeToIndex->AddToMap(type, index);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphMapper::ClearIconTypes()
+{
+  this->IconTypeToIndex->ClearMap();
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphMapper::SetEdgeVisibility(bool vis)
 {
   this->EdgeActor->SetVisibility(vis);
@@ -495,7 +516,14 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     this->IconActor->GetTexture()->GetInput()->Update();
     int *dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
     this->IconGlyph->SetIconSheetSize(dim);
-
+    // Override the array for vtkIconGlyphFilter to process if we have 
+    // a map of icon types.
+    if(this->IconTypeToIndex->GetMapSize())
+      {
+      this->IconGlyph->SetInputArrayToProcess(0,0,0,
+              vtkDataObject::FIELD_ASSOCIATION_POINTS,
+              this->IconTypeToIndex->GetOutputArrayName());
+      }
     }
   if (this->EdgeActor->GetVisibility())
     {

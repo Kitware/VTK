@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.1");
+vtkCxxRevisionMacro(vtkArrayMap, "1.2");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -206,26 +206,29 @@ int vtkArrayMap::RequestData(
       }
     }
 
-  // Use the internal map to set the mapped values in the output array
-  vtkIdList* results = vtkIdList::New();
-  for(MapBase::iterator i = this->Map->begin(); i != this->Map->end(); ++i)
+  if(this->Map->size())
     {
-    inputArray->LookupValue(i->first, results);
-    for(vtkIdType j=0; j<results->GetNumberOfIds(); ++j)
+    // Use the internal map to set the mapped values in the output array
+    vtkIdList* results = vtkIdList::New();
+    for(MapBase::iterator i = this->Map->begin(); i != this->Map->end(); ++i)
       {
-      if(outputDataArray)
+      inputArray->LookupValue(i->first, results);
+      for(vtkIdType j=0; j<results->GetNumberOfIds(); ++j)
         {
-        outputDataArray->SetComponent(results->GetId(j), 0, i->second.ToDouble());
-        }
-      else if(outputStringArray)
-        {
-        outputStringArray->SetValue(results->GetId(j), i->second.ToString());
+        if(outputDataArray)
+          {
+          outputDataArray->SetComponent(results->GetId(j), 0, i->second.ToDouble());
+          }
+        else if(outputStringArray)
+          {
+          outputStringArray->SetValue(results->GetId(j), i->second.ToString());
+          }
         }
       }
-    }
 
-  // Finally, add the array to the appropriate vtkDataSetAttributes
-  ods->AddArray(outputArray);
+    // Finally, add the array to the appropriate vtkDataSetAttributes
+    ods->AddArray(outputArray);
+    }
 
   outputArray->Delete();
   results->Delete();

@@ -150,7 +150,7 @@ public:
   void SetLayoutStrategyToPassThrough()   { this->SetLayoutStrategy("Pass Through"); }
   void SetLayoutStrategyToCircular()      { this->SetLayoutStrategy("Circular"); }
   const char* GetLayoutStrategyName()     { return this->GetLayoutStrategyNameInternal(); }
-  
+
   // Description:
   // The layout strategy to use when performing the graph layout.
   // This signature allows an application to create a layout
@@ -169,7 +169,17 @@ public:
   // Description:
   // The icon sheet to use for textures.
   void SetIconTexture(vtkTexture *texture);
-  
+
+  // Description: 
+  // Associate the icon at index "index" in the vtkTexture to all vertices
+  // containing "type" as a value in the vertex attribute array specified by
+  // IconArrayName.
+  void AddIconType(char *type, int index);
+
+  // Description:
+  // Clear all icon mappings.
+  void ClearIconTypes();
+
   // Description:
   // Each icon's size on the sheet.
   void SetIconSize(int *size);

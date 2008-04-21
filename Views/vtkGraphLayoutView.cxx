@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.23");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.24");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -354,6 +354,18 @@ void vtkGraphLayoutView::SetIconArrayName(const char* name)
 const char* vtkGraphLayoutView::GetIconArrayName()
 {
   return this->GetIconArrayNameInternal();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::AddIconType(char *type, int index)
+{
+  this->GraphMapper->AddIconType(type, index);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::ClearIconTypes()
+{
+  this->GraphMapper->ClearIconTypes();
 }
 
 //----------------------------------------------------------------------------
