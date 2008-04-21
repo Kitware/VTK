@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkWidgetsJava)
 SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES})
 
 SET( Kit_SRCS
+vtkArrayMap.cxx
 vtkAssignCoordinates.cxx
 vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
