@@ -117,7 +117,7 @@ public:
   // character array returned by this method.
   // This method simply calls the vtkStdString variant and thus
   // need not be re-implemented by subclasses.
-  virtual char* EscapeString( const char* src, bool addSurroundingQuotes );
+  char* EscapeString( const char* src, bool addSurroundingQuotes );
 
 protected:
   vtkSQLQuery();
