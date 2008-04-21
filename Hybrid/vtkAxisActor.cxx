@@ -33,7 +33,7 @@
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxRevisionMacro(vtkAxisActor, "1.4");
+vtkCxxRevisionMacro(vtkAxisActor, "1.5");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************
@@ -707,8 +707,8 @@ void vtkAxisActor::TransformBounds(vtkViewport *viewport, double bnds[6])
 
 inline double ffix(double value)
 {
-  int ivalue = (int)value;
-  return (double) ivalue;
+  int ivalue = static_cast<int>(value);
+  return static_cast<double>(ivalue);
 }
 
 inline double fsign(double value, double sign)

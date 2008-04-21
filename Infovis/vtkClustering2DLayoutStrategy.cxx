@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.13");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.14");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -532,8 +532,10 @@ void vtkClustering2DLayoutStrategy::ResolveCoincidentVertices()
   // Place the vertices into a giant grid (100xNumVertices)
   // and see if you have any collisions
   vtkBitArray *giantGrid = vtkBitArray::New();
-  vtkIdType xDim = static_cast<int>(sqrt((float)numVertices) * 10);
-  vtkIdType yDim = static_cast<int>(sqrt((float)numVertices) * 10);
+  vtkIdType xDim =
+    static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
+  vtkIdType yDim =
+    static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
   vtkIdType gridSize = xDim * yDim;
   giantGrid->SetNumberOfValues(gridSize);
   

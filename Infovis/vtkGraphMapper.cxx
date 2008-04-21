@@ -50,7 +50,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.17");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.18");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -216,8 +216,8 @@ vtkPolyData* vtkGraphMapper::CreateCircle(bool filled)
   theta = 2.0 * vtkMath::Pi() / circleRes;
   for (int i=0; i<circleRes; i++)
     {
-    x[0] = 0.5 * cos((double)i*theta);
-    x[1] = 0.5 * sin((double)i*theta);
+    x[0] = 0.5 * cos(i*theta);
+    x[1] = 0.5 * sin(i*theta);
     ptIds[i] = pts->InsertNextPoint(x);
     }
   circle->InsertNextCell(circleRes,ptIds);

@@ -109,8 +109,8 @@ inline void vtkIconGlyphFilter::IconConvertIndex(int id, int & j, int & k)
   int dimX = this->IconSheetSize[0]/this->IconSize[0];
   int dimY = this->IconSheetSize[1]/this->IconSize[1];
 
-  j = id - dimX * (int)(id/dimX);
-  k = dimY - (int)(id/dimX) - 1;
+  j = id - dimX * static_cast<int>(id/dimX);
+  k = dimY - static_cast<int>(id/dimX) - 1;
 }
 
 #endif

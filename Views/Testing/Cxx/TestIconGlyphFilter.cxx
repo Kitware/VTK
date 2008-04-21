@@ -50,7 +50,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   vtkPoints * points = vtkPoints::New();
   vtkDoubleArray * pointData = vtkDoubleArray::New();
   pointData->SetNumberOfComponents(3);
-  points->SetData((vtkDataArray *)pointData);
+  points->SetData(static_cast<vtkDataArray *>(pointData));
   pointSet->SetPoints(points);
 
   vtkIntArray * iconIndex = vtkIntArray::New();

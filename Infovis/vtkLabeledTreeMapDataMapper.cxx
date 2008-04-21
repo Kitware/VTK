@@ -38,7 +38,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.14");
+vtkCxxRevisionMacro(vtkLabeledTreeMapDataMapper, "1.15");
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
@@ -255,7 +255,7 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
           return;
           }
         sprintf(string, this->LabelFormat, 
-                (char)numericData->GetComponent(vertex, activeComp));
+                static_cast<char>(numericData->GetComponent(vertex, activeComp)));
         } 
       else 
         {
@@ -289,7 +289,7 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
     }
   else // Use the vertex id
     {
-    val = (float)vertex;
+    val = static_cast<double>(vertex);
     sprintf(string, this->LabelFormat, val);
     }
 }

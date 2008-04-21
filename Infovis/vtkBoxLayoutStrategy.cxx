@@ -34,7 +34,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkBoxLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
 vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
@@ -80,7 +80,8 @@ void vtkBoxLayoutStrategy::Layout(vtkTree *inputTree,
     if (!inputTree->IsLeaf(vertex))
       {
       // Divide the available space with simple algo
-      int xDivisions = (int)(sqrt((float)nchildren)+1); // Ceiling
+      int xDivisions =
+        static_cast<int>(sqrt(static_cast<double>(nchildren))+1); // Ceiling
       int yDivisions = xDivisions;
        
       // Okay try shrinking the bounds
