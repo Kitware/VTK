@@ -1,13 +1,14 @@
 
-#include "vtkCommand.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkSmartPointer.h"
+#include "vtkCommand.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkMath.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTimerLog.h"
 
 int TestManyActors(int argc, char* argv[])
@@ -49,9 +50,9 @@ int TestManyActors(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
   int side1 = static_cast<int>(
-    round(pow(numActors, 1.0/3.0)));
+    vtkMath::Round(pow(numActors, 1.0/3.0)));
   int side2 = static_cast<int>(
-    round(sqrt(numActors/static_cast<double>(side1))));
+    vtkMath::Round(sqrt(numActors/static_cast<double>(side1))));
   int side3 = static_cast<int>(
     ceil(static_cast<double>(numActors)/side1/side2));
   int actorId = 0;
