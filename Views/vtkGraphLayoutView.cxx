@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.26");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.27");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -140,6 +140,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
+  this->SetLayoutStrategyToFast2D();
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -147,7 +148,6 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   theme->Delete();
   
   // Connect pipeline
-  this->GraphLayout->SetLayoutStrategy(this->Fast2DStrategy);
   this->VertexDegree->SetInputConnection(this->GraphLayout->GetOutputPort());
   
   this->GraphMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
