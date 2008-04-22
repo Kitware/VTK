@@ -50,7 +50,7 @@ int TestManyActors(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
   int side1 = static_cast<int>(
-    vtkMath::Round(pow(numActors, 1.0/3.0)));
+    vtkMath::Round(pow(static_cast<double>(numActors), 1.0/3.0)));
   int side2 = static_cast<int>(
     vtkMath::Round(sqrt(numActors/static_cast<double>(side1))));
   int side3 = static_cast<int>(
