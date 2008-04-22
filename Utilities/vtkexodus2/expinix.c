@@ -97,7 +97,7 @@ int ex_put_init_ext (int   exoid,
   /* define some attributes... */
 
   if (ncattput (exoid, NC_GLOBAL, (const char*) ATT_TITLE, 
-                NC_CHAR, strlen(model->title)+1, (void *)model->title) == -1)
+                NC_CHAR, (int)strlen(model->title)+1, (void *)model->title) == -1)
     {
       exerrval = ncerr;
       sprintf(errmsg,

@@ -369,7 +369,8 @@ int ex_put_concat_all_blocks (int    exoid,
     EX_PREPARE_CONN("edge block",cur_num_edge_blk,param->edge_blk_id,numedbdim,VAR_EBCONN,nednoddim);
 
     /* store edge type as attribute of connectivity variable */
-    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR, strlen(param->edge_type[iblk])+1,
+    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR,
+          (int)strlen(param->edge_type[iblk])+1,
           (void*)param->edge_type[iblk])) == -1) {
       exerrval = ncerr;
       sprintf(errmsg,
@@ -436,7 +437,8 @@ int ex_put_concat_all_blocks (int    exoid,
     EX_PREPARE_CONN("face block",cur_num_face_blk,param->face_blk_id,numfabdim,VAR_FBCONN,nfanoddim);
 
     /* store face type as attribute of connectivity variable */
-    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR, strlen(param->face_type[iblk])+1,
+    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR,
+          (int)strlen(param->face_type[iblk])+1,
           (void*)param->face_type[iblk])) == -1) {
       exerrval = ncerr;
       sprintf(errmsg,
@@ -534,7 +536,8 @@ int ex_put_concat_all_blocks (int    exoid,
     EX_PREPARE_CONN("nodal",cur_num_elem_blk,param->elem_blk_id,numelbdim,VAR_CONN,nelnoddim);
 
     /* store element type as attribute of connectivity variable */
-    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR, strlen(param->elem_type[iblk])+1,
+    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR,
+          (int)strlen(param->elem_type[iblk])+1,
           (void*)param->elem_type[iblk])) == -1) {
       exerrval = ncerr;
       sprintf(errmsg,

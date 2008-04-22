@@ -233,7 +233,7 @@ int ex_put_names (int   exoid,
        start[1] = 0;
 
        count[0] = 1;
-       count[1] = strlen(names[i]) + 1;
+       count[1] = (long)strlen(names[i]) + 1;
 
        if (ncvarput (exoid, varid, start, count, (void*) names[i]) == -1) {
          exerrval = ncerr;

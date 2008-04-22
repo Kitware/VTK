@@ -25,6 +25,10 @@
 #if defined(_MSC_VER)
 #pragma warning( disable: 4127 ) /* conditional expression is constant */
 #pragma warning( disable: 4049 ) /* too many lines in file */
+#ifdef _WIN64
+#pragma warning( disable: 4244 ) /* conversion, possible loss of data */
+#pragma warning( disable: 4267 ) /* conversion, possible loss of data */
+#endif
 #endif
 #if defined(__BORLANDC__)
 #pragma warn -8004 /* assigned a value that is never used */

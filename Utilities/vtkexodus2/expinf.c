@@ -165,7 +165,7 @@ int ex_put_info (int   exoid,
        start[1] = 0;
 
        count[0] = 1;
-       count[1] = strlen(info[i]) + 1;
+       count[1] = (long)strlen(info[i]) + 1;
 
        if (ncvarput (exoid, varid, start, count, (void*) info[i]) == -1)
        {

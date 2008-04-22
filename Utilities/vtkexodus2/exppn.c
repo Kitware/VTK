@@ -178,7 +178,7 @@ int ex_put_prop_names (int   exoid,
 /*   store property name as attribute of property array variable */
 
      if ((ncattput (exoid, propid, ATT_PROP_NAME, NC_CHAR, 
-                    strlen(prop_names[i])+1, prop_names[i])) == -1)
+                    (int)strlen(prop_names[i])+1, prop_names[i])) == -1)
      {
        exerrval = ncerr;
        sprintf(errmsg,

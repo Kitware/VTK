@@ -178,7 +178,7 @@ int ex_put_qa (int   exoid,
 
          count[0] = 1;
          count[1] = 1;
-         count[2] = strlen(qa_record[i][j]) + 1;
+         count[2] = (long)strlen(qa_record[i][j]) + 1;
 
          if (ncvarput (exoid, varid, start, count,
                        (void*) qa_record[i][j]) == -1)

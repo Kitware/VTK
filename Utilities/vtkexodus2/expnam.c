@@ -147,7 +147,7 @@ int ex_put_name (int   exoid,
    start[1] = 0;
    
    count[0] = 1;
-   count[1] = strlen(name) + 1;
+   count[1] = (long)strlen(name) + 1;
    
    if (ncvarput (exoid, varid, start, count, (void*)name) == -1) {
      exerrval = ncerr;

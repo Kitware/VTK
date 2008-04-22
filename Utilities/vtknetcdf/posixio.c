@@ -141,7 +141,7 @@ blksize(int fd)
 static int
 fgrow(const int fd, const off_t len)
 {
-  struct stat sb;
+  struct NC_STAT_STRUCT sb;
   if (NC_FSTAT(fd, &sb) < 0)
     return errno;
   if (len < sb.st_size)
@@ -172,7 +172,7 @@ fgrow(const int fd, const off_t len)
 static int
 fgrow2(const int fd, const off_t len)
 {
-  struct stat sb;
+  struct NC_STAT_STRUCT sb;
   if (NC_FSTAT(fd, &sb) < 0)
     return errno;
   if (len <= sb.st_size)

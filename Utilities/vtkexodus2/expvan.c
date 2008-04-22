@@ -174,7 +174,7 @@ int ex_put_var_names (int   exoid,
      start[1] = 0;
 
      count[0] = 1;
-     count[1] = strlen(var_names[i]) + 1;
+     count[1] = (long)strlen(var_names[i]) + 1;
 
      if (ncvarput (exoid, varid, start, count, (void*) var_names[i]) == -1)
      {

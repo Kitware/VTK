@@ -114,7 +114,7 @@ int ex_put_coord_names (int   exoid,
      start[1] = 0;
 
      count[0] = 1;
-     count[1] = strlen(coord_names[i]) + 1;
+     count[1] = (long)strlen(coord_names[i]) + 1;
 
      if (ncvarput (exoid, varid, start, count, (void*) coord_names[i]) == -1)
      {

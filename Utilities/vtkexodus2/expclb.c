@@ -302,7 +302,8 @@ int ex_put_concat_elem_block (int    exoid,
     }
 
     /* store element type as attribute of connectivity variable */
-    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR, strlen(elem_type[iblk])+1, 
+    if ((ncattput (exoid, connid, ATT_NAME_ELB, NC_CHAR,
+                   (int)strlen(elem_type[iblk])+1,
                    (void*)elem_type[iblk])) == -1) {
       exerrval = ncerr;
       sprintf(errmsg,
