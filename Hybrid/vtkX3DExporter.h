@@ -20,13 +20,15 @@
 
 #include "vtkExporter.h"
 
-class vtkLight;
 class vtkActor;
 class vtkActor2D;
-class vtkPoints;
 class vtkDataArray;
+class vtkLight;
+class vtkPoints;
+class vtkRenderer;
 class vtkUnsignedCharArray;
 class vtkX3DExporterWriter;
+class vtkPolyData;
 
 class  VTK_HYBRID_EXPORT vtkX3DExporter : public vtkExporter
 {
@@ -57,15 +59,16 @@ protected:
   ~vtkX3DExporter();
 
   // Description:
+  // Returns if the renderer has a head light.
+  int HasHeadLight(vtkRenderer* renderer);
+
+  // Description:
   // Write data to output.
   void WriteData();
 
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
   void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,
     int index);
-  void WritePointData(vtkPoints *points, vtkDataArray *normals,
-    vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
-    vtkX3DExporterWriter* writer, int index);
   void WriteanTextActor2D(vtkActor2D *anTextActor2D,
     vtkX3DExporterWriter* writer);
 
