@@ -24,6 +24,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
@@ -1126,6 +1127,7 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->SetupRenderWindow(win);
   view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
 
+  view->GetRenderer()->ResetCamera();
   view->Update();
 
   // record events
