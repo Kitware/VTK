@@ -47,7 +47,11 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.1");
+#if defined(__BORLANDC__)
+# pragma warn -8012 /* signed/unsigned comparison */
+#endif
+
+vtkCxxRevisionMacro(vtkSocket, "1.2");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
