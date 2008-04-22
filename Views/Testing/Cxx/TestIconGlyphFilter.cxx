@@ -46,43 +46,44 @@ int TestIconGlyphFilter( int argc, char *argv[])
 
   imageReader->GetOutput()->GetDimensions(imageDims);
 
-  vtkMutableUndirectedGraph * pointSet = vtkMutableUndirectedGraph::New();
+  vtkMutableUndirectedGraph * graph = vtkMutableUndirectedGraph::New();
   vtkPoints * points = vtkPoints::New();
   vtkDoubleArray * pointData = vtkDoubleArray::New();
   pointData->SetNumberOfComponents(3);
   points->SetData(static_cast<vtkDataArray *>(pointData));
-  pointSet->SetPoints(points);
+  graph->SetPoints(points);
 
   vtkIntArray * iconIndex = vtkIntArray::New();
+  iconIndex->SetName("IconIndex");
   iconIndex->SetNumberOfComponents(1);
 
-  pointSet->GetVertexData()->SetScalars(iconIndex);
+  graph->GetVertexData()->SetScalars(iconIndex);
 
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(0.0, 0.0, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(2.0, 0.0, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(3.0, 0.0, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(2.0, 2.5, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(0.0, -2.0, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(2.0, -1.5, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(-1.0, 2.0, 0.0);
-  pointSet->AddVertex();
+  graph->AddVertex();
   points->InsertNextPoint(3.0, 0.0, 0.0);
 
-  pointSet->AddEdge(0, 1);
-  pointSet->AddEdge(1, 2);
-  pointSet->AddEdge(2, 3);
-  pointSet->AddEdge(3, 4);
-  pointSet->AddEdge(4, 5);
-  pointSet->AddEdge(5, 6);
-  pointSet->AddEdge(6, 7);
-  pointSet->AddEdge(7, 0);
+  graph->AddEdge(0, 1);
+  graph->AddEdge(1, 2);
+  graph->AddEdge(2, 3);
+  graph->AddEdge(3, 4);
+  graph->AddEdge(4, 5);
+  graph->AddEdge(5, 6);
+  graph->AddEdge(6, 7);
+  graph->AddEdge(7, 0);
  
   iconIndex->InsertNextTuple1(1);
   iconIndex->InsertNextTuple1(4);
@@ -94,11 +95,14 @@ int TestIconGlyphFilter( int argc, char *argv[])
   iconIndex->InsertNextTuple1(29);
 
   vtkGraphLayoutView *view = vtkGraphLayoutView::New();
-  view->AddRepresentationFromInput(pointSet);
+  view->AddRepresentationFromInput(graph);
+  view->SetLayoutStrategyToSimple2D();
+  view->GetRenderer()->ResetCamera();
   
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   view->SetIconTexture(texture);
+  view->SetIconArrayName(iconIndex->GetName());
   int size[] = {24, 24};
   view->SetIconSize(size);
   view->IconVisibilityOn();
@@ -119,7 +123,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
 
   imageReader->Delete();
   iconIndex->Delete();
-  pointSet->Delete();
+  graph->Delete();
   points->Delete();
   pointData->Delete();
   view->Delete();
