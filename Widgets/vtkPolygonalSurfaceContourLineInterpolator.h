@@ -41,14 +41,12 @@
 
 class vtkDijkstraGraphGeodesicPath;
 
-class VTK_WIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator
-                       : public vtkPolyDataContourLineInterpolator
+class VTK_WIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator : public vtkPolyDataContourLineInterpolator
 {
 public:
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator,
-                              vtkPolyDataContourLineInterpolator);
+  vtkTypeRevisionMacro(vtkPolygonalSurfaceContourLineInterpolator, vtkPolyDataContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkPolygonalSurfaceContourLineInterpolator *New();
@@ -89,10 +87,8 @@ protected:
   double         DistanceOffset;
 
 private:
-  vtkPolygonalSurfaceContourLineInterpolator(
-    const vtkPolygonalSurfaceContourLineInterpolator&);  //Not implemented
-  void operator=(const 
-    vtkPolygonalSurfaceContourLineInterpolator&);  //Not implemented
+  vtkPolygonalSurfaceContourLineInterpolator(const vtkPolygonalSurfaceContourLineInterpolator&);  //Not implemented
+  void operator=(const vtkPolygonalSurfaceContourLineInterpolator&);  //Not implemented
 
   // Cache the last used vertex id's (start and end).
   // If they are the same, don't recompute.
