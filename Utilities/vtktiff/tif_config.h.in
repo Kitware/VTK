@@ -120,7 +120,9 @@
 
 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian
    (Intel) */
+#cmakedefine CMAKE_WORDS_BIGENDIAN
 #ifdef CMAKE_WORDS_BIGENDIAN
+  #define WORDS_BIGENDIAN 1
   #define HOST_BIGENDIAN 1
 #else
   #define HOST_BIGENDIAN 0
