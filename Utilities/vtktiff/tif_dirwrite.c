@@ -1004,6 +1004,12 @@ TIFFWriteAnyArray(TIFF* tif,
         return (status);
 }
 
+#if defined ( _MSC_VER )
+#if defined ( _WIN64 )
+#pragma warning ( disable : 4334 )
+#endif
+#endif
+
 static int
 TIFFWriteTransferFunction(TIFF* tif, TIFFDirEntry* dir)
 {
