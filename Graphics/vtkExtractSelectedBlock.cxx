@@ -24,7 +24,7 @@
 
 #include <vtkstd/set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
-vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.1");
+vtkCxxRevisionMacro(vtkExtractSelectedBlock, "1.2");
 //----------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock()
 {
@@ -122,6 +122,9 @@ int vtkExtractSelectedBlock::RequestData(
     return 0;
     }
 
+  bool inverse = (sel->GetProperties()->Has(vtkSelection::INVERSE()) &&
+    sel->GetProperties()->Get(vtkSelection::INVERSE()) == 1);
+
   output->CopyStructure(cd);
   vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::SafeDownCast(
     sel->GetSelectionList());
@@ -137,9 +140,12 @@ int vtkExtractSelectedBlock::RequestData(
     if (numValues > 0)
       {
       vtkCompositeDataIterator* citer = cd->NewIterator();
-      for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
+      for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); 
+        citer->GoToNextItem())
         {
-        if (blocks.find(citer->GetCurrentFlatIndex()) != blocks.end())
+        vtkstd::set<unsigned int>::iterator fiter = 
+          blocks.find(citer->GetCurrentFlatIndex());
+        if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
           {
           output->SetDataSet(citer, citer->GetCurrentDataObject());
           }
