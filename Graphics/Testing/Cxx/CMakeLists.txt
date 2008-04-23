@@ -10,7 +10,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     PointLocator.cxx
     FrustumClip.cxx
     RGrid.cxx
-    TestActor2DTextures.cxx
     TestAppendSelection.cxx
     TestAssignAttribute.cxx
     TestClipHyperOctree.cxx
@@ -23,7 +22,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeDual.cxx
 #    TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
-    TestIconGlyphFilterGravity.cxx
     TestPolyDataPointSampler.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellator.cxx
@@ -36,7 +34,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       BoxClipTetrahedra.cxx
       BoxClipTriangulateAndInterpolate.cxx
       MeshQuality.cxx
+      TestActor2DTextures.cxx
       TestHierarchicalBoxPipeline.cxx
+      TestIconGlyphFilterGravity.cxx
       TestMultiBlock.cxx
       TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
