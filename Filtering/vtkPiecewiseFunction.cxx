@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.51");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.52");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -179,7 +179,7 @@ void vtkPiecewiseFunction::Initialize()
 // Return the number of points which specify this function
 int vtkPiecewiseFunction::GetSize()
 {
-  return this->Internal->Nodes.size();
+  return static_cast<int>(this->Internal->Nodes.size());
 }
 
 // Return the type of function stored in object:
@@ -268,7 +268,7 @@ const char *vtkPiecewiseFunction::GetType()
 // could be added if performance is a problem
 double *vtkPiecewiseFunction::GetDataPointer()
 {
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   
   if ( this->Function )
     {
@@ -348,7 +348,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
 // For a specified index value, get the node parameters
 int vtkPiecewiseFunction::GetNodeValue( int index, double val[4] )
 {
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   
   if ( index < 0 || index >= size )
     {
@@ -367,7 +367,7 @@ int vtkPiecewiseFunction::GetNodeValue( int index, double val[4] )
 // For a specified index value, get the node parameters
 int vtkPiecewiseFunction::SetNodeValue( int index, double val[4] )
 {
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   
   if ( index < 0 || index >= size )
     {
@@ -462,7 +462,7 @@ void vtkPiecewiseFunction::SortAndUpdateRange()
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
   
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   if ( size )
     {
     this->Range[0] = this->Internal->Nodes[0]->X;
@@ -653,7 +653,7 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
 {
   int i;
   int idx = 0;
-  int numNodes = this->Internal->Nodes.size();
+  int numNodes = static_cast<int>(this->Internal->Nodes.size());
   
   // Need to keep track of the last value so that
   // we can fill in table locations past this with

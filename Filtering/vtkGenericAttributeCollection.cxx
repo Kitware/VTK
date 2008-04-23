@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.9");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.10");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -102,7 +102,7 @@ void vtkGenericAttributeCollection::PrintSelf(ostream& os, vtkIndent indent)
 // Number of attributes.
 int vtkGenericAttributeCollection::GetNumberOfAttributes()
 {
-  int result = this->AttributeInternalVector->Vector.size();
+  int result = static_cast<int>(this->AttributeInternalVector->Vector.size());
   //assert("post: positive_result" && result>=0); size() is an unsigned type according to STL vector definition
   return result;
 }
@@ -316,7 +316,7 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
   this->AttributeIndices->Vector.resize(
     other->AttributeIndices->Vector.size());
   
-  int c = this->AttributeInternalVector->Vector.size();
+  int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for(int i=0; i<c; i++)
     {
     if(this->AttributeInternalVector->Vector[i] == 0)
@@ -345,7 +345,7 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
   this->AttributeInternalVector->Vector = 
     other->AttributeInternalVector->Vector;
   this->AttributeIndices->Vector = other->AttributeIndices->Vector;
-  int c = this->AttributeInternalVector->Vector.size();
+  int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for (int i=0; i<c; ++i)
     {
     if (this->AttributeInternalVector->Vector[i] != 0)

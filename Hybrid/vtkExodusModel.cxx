@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 
-vtkCxxRevisionMacro(vtkExodusModel, "1.5");
+vtkCxxRevisionMacro(vtkExodusModel, "1.6");
 vtkStandardNewMacro(vtkExodusModel);
 
 vtkExodusModel::vtkExodusModel()
@@ -1199,7 +1199,8 @@ void vtkExodusModel::SetElementVariableInfo(int numOrigNames, char **origNames,
 
   emd->SetElementVariableInfo(numOrigNames, origNames,
                      numNames, names, numComp, map);
-}     
+}
+
 //-------------------------------------------------
 // Node variables
 //-------------------------------------------------
@@ -1231,12 +1232,12 @@ void vtkExodusModel::SetNodeVariableInfo(int numOrigNames, char **origNames,
 }     
 void vtkExodusModel::RemoveBeginningAndTrailingSpaces(char **names, int len)
 {
-  int i, j;
+  size_t i, j;
 
-  for (i=0; i<len; i++)
+  for (i=0; i<static_cast<size_t>(len); i++)
     {
     char *c = names[i];
-    int nmlen = strlen(c);
+    size_t nmlen = strlen(c);
 
     char *cbegin = c;
     char *cend = c + nmlen - 1;

@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.26");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.27");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------
@@ -1119,7 +1119,7 @@ int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
 
   // search for the appropriate label
   k = 0;
-  len = strlen (string);
+  len = static_cast<int>(strlen(string));
   for(i = 0; i <= number; i++)
     {
     current = string[k++];
@@ -1155,7 +1155,7 @@ int vtkAVSucdReader::ReadIntBlock(int n, int *block)
   if (this->BinaryFile)
     {
     this->FileStream->read((char *)block, n * sizeof(int));
-    int retVal = this->FileStream->gcount() / sizeof(int);
+    int retVal = static_cast<int>(this->FileStream->gcount()) / sizeof(int);
 
     if (this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
@@ -1191,7 +1191,7 @@ int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
   if (this->BinaryFile)
     {
     this->FileStream->read((char *)block, n * sizeof(float));
-    int retVal = this->FileStream->gcount() / sizeof(int);
+    int retVal = static_cast<int>(this->FileStream->gcount()) / sizeof(int);
     if (this->ByteOrder == FILE_LITTLE_ENDIAN)
       {
       vtkByteSwap::Swap4LERange(block, n);

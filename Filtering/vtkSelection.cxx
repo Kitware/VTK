@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.25");
+vtkCxxRevisionMacro(vtkSelection, "1.26");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -124,7 +124,7 @@ void vtkSelection::SetSelectionList(vtkAbstractArray* arr)
 //----------------------------------------------------------------------------
 unsigned int vtkSelection::GetNumberOfChildren()
 {
-  return this->Internal->Children.size();
+  return static_cast<unsigned int>(this->Internal->Children.size());
 }
 
 //----------------------------------------------------------------------------

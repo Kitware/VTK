@@ -60,7 +60,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.152");
+vtkCxxRevisionMacro(vtkDataReader, "1.153");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1605,7 +1605,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
         for (int j=0; j<numComp; j++)
           {
           my_getline(*(this->IS), s);
-          int length = s.length();
+          int length = static_cast<int>(s.length());
           char* decoded = new char[length + 1];
           int decodedLength = this->DecodeString(decoded, s.c_str());
           vtkStdString decodedStr(decoded, decodedLength);
@@ -3031,7 +3031,7 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
     }
   strncpy(resname, str.str().c_str(), reslen+1);
   resname[reslen+1] = 0;
-  return reslen;
+  return static_cast<int>(reslen);
 }
 
 static int

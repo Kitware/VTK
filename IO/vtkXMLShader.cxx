@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.8");
+vtkCxxRevisionMacro(vtkXMLShader, "1.9");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -265,7 +265,7 @@ const char** vtkXMLShader::GetArgs()
   vtksys::SystemTools::Split(this->RootElement->GetAttribute("args"), args, ' ');
   
   int i;
-  int size = args.size();
+  int size = static_cast<int>(args.size());
   if (size == 0)
     {
     return 0;

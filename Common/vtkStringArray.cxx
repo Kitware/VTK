@@ -67,7 +67,7 @@ public:
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.14");
+vtkCxxRevisionMacro(vtkStringArray, "1.15");
 vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
@@ -487,7 +487,8 @@ unsigned long vtkStringArray::GetActualMemorySize( void )
   for (unsigned long i = 0; i < numPrims; ++i)
     {
     totalSize += sizeof( vtkStdString );
-    totalSize += this->Array[i].size() * sizeof( vtkStdString::value_type );
+    totalSize += static_cast<unsigned long>(this->Array[i].size()) *
+      sizeof( vtkStdString::value_type );
     }
 
   return static_cast<unsigned long>(ceil( totalSize / 1024.0 )); // kilobytes
@@ -500,7 +501,8 @@ unsigned long vtkStringArray::GetDataSize()
   unsigned long numStrs = this->GetMaxId() + 1;
   for (unsigned long i=0; i < numStrs; i++)
     {
-    size += this->Array[i].size() + 1; // (+1) for termination character.
+    size += static_cast<unsigned long>(this->Array[i].size()) + 1;
+      // (+1) for termination character.
     }
   return size;
 }

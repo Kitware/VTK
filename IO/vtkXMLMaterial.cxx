@@ -42,7 +42,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.6");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.7");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -149,26 +149,26 @@ void vtkXMLMaterial::SetRootElement(vtkXMLDataElement* root)
 //-----------------------------------------------------------------------------
 int vtkXMLMaterial::GetNumberOfProperties()
 {
-  return this->Internals->Properties.size();
+  return static_cast<int>(this->Internals->Properties.size());
 }
 
 
 //-----------------------------------------------------------------------------
 int vtkXMLMaterial::GetNumberOfTextures()
 {
-  return this->Internals->Textures.size();
+  return static_cast<int>(this->Internals->Textures.size());
 }
 
 //-----------------------------------------------------------------------------
 int vtkXMLMaterial::GetNumberOfVertexShaders()
 {
-  return this->Internals->VertexShaders.size();
+  return static_cast<int>(this->Internals->VertexShaders.size());
 }
 
 //-----------------------------------------------------------------------------
 int vtkXMLMaterial::GetNumberOfFragmentShaders()
 {
-  return this->Internals->FragmentShaders.size();
+  return static_cast<int>(this->Internals->FragmentShaders.size());
 }
 
 //-----------------------------------------------------------------------------

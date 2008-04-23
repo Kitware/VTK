@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkFocalPlaneContourRepresentation, "1.5");
 
 //----------------------------------------------------------------------
 vtkFocalPlaneContourRepresentation::vtkFocalPlaneContourRepresentation()
@@ -228,7 +228,7 @@ int vtkFocalPlaneContourRepresentation::UpdateContour()
   
   if ( this->ClosedLoop )
     {
-    this->UpdateLine( this->Internal->Nodes.size()-1, 0);
+    this->UpdateLine( static_cast<int>(this->Internal->Nodes.size())-1, 0);
     }
   this->BuildLines();
   

@@ -195,9 +195,9 @@ int main(int argc, char* argv[])
     vtksys_ios::ostringstream lenstr;
     for ( kk = 0; kk < num; kk ++ )
       {
-      lenstr << endl 
-        << "    + strlen(" << ot.Prefix.c_str() 
-        << moduleName.c_str() << ot.Suffix.c_str() << kk << ")";
+      lenstr << endl
+        << "    + static_cast<int>(strlen(" << ot.Prefix.c_str() 
+        << moduleName.c_str() << ot.Suffix.c_str() << kk << "))";
       createstring << "  strcat(res, " << ot.Prefix.c_str() << moduleName.c_str() << ot.Suffix.c_str()
         << kk << ");" << endl;
       }

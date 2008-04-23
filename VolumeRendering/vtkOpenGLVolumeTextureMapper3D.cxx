@@ -41,7 +41,7 @@ extern const char* vtkVolumeTextureMapper3D_FourDependentNoShadeFP;
 extern const char* vtkVolumeTextureMapper3D_FourDependentShadeFP;
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.15");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.16");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1253,7 +1253,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_OneComponentNoShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_OneComponentNoShadeFP)),
           vtkVolumeTextureMapper3D_OneComponentNoShadeFP );
 
   this->SetupOneIndependentTextures( ren, vol );
@@ -1283,7 +1283,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_OneComponentShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_OneComponentShadeFP)),
           vtkVolumeTextureMapper3D_OneComponentShadeFP );
            
   this->SetupOneIndependentTextures( ren, vol );
@@ -1313,7 +1313,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_TwoDependentNoShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_TwoDependentNoShadeFP)),
           vtkVolumeTextureMapper3D_TwoDependentNoShadeFP );
 
   this->SetupTwoDependentTextures(ren, vol);
@@ -1343,7 +1343,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_TwoDependentShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_TwoDependentShadeFP)),
           vtkVolumeTextureMapper3D_TwoDependentShadeFP );
 
   this->SetupTwoDependentTextures(ren, vol);
@@ -1373,7 +1373,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_FourDependentNoShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_FourDependentNoShadeFP)),
           vtkVolumeTextureMapper3D_FourDependentNoShadeFP );
 
   this->SetupFourDependentTextures(ren, vol);
@@ -1402,7 +1402,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP(
 
   vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
           vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
-          strlen(vtkVolumeTextureMapper3D_FourDependentShadeFP),
+          static_cast<GLsizei>(strlen(vtkVolumeTextureMapper3D_FourDependentShadeFP)),
           vtkVolumeTextureMapper3D_FourDependentShadeFP );
 
   this->SetupFourDependentTextures(ren, vol);

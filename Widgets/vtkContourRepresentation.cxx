@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.21");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.22");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -108,7 +108,7 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
       }
     }
   
-  this->UpdateLines( this->Internal->Nodes.size()-1);
+  this->UpdateLines( static_cast<int>(this->Internal->Nodes.size())-1);
   this->NeedToRender = 1;
 }
 
@@ -377,7 +377,7 @@ int vtkContourRepresentation::GetActiveNodeDisplayPosition( double pos[2] )
 //----------------------------------------------------------------------
 int vtkContourRepresentation::GetNumberOfNodes()
 {
-  return this->Internal->Nodes.size();
+  return static_cast<int>(this->Internal->Nodes.size());
 }
 
 //----------------------------------------------------------------------
@@ -389,7 +389,7 @@ int vtkContourRepresentation::GetNumberOfIntermediatePoints(int n)
     return 0;
     }
   
-  return this->Internal->Nodes[n]->Points.size();
+  return static_cast<int>(this->Internal->Nodes[n]->Points.size());
 }
 
 //----------------------------------------------------------------------
@@ -835,7 +835,8 @@ int vtkContourRepresentation::DeleteActiveNode()
 //----------------------------------------------------------------------
 int vtkContourRepresentation::DeleteLastNode()
 {
-  return this->DeleteNthNode( this->Internal->Nodes.size() - 1 );
+  return this->DeleteNthNode(
+    static_cast<int>(this->Internal->Nodes.size()) - 1 );
 }
 
 //----------------------------------------------------------------------
@@ -872,7 +873,7 @@ void vtkContourRepresentation::UpdateLines( int index )
   // the last node if the loop is not closed
   if ( !this->ClosedLoop && this->GetNumberOfNodes() > 0 )
     {
-    int idx = this->Internal->Nodes.size() -1;
+    int idx = static_cast<int>(this->Internal->Nodes.size()) -1;
     for (unsigned int j=0;j<this->Internal->Nodes[idx]->Points.size();j++)
       {
       delete this->Internal->Nodes[idx]->Points[j];
@@ -1015,7 +1016,7 @@ int vtkContourRepresentation::UpdateContour()
   
   if ( this->ClosedLoop )
     {
-    this->UpdateLine( this->Internal->Nodes.size()-1, 0);
+    this->UpdateLine( static_cast<int>(this->Internal->Nodes.size())-1, 0);
     }
   this->BuildLines();
    

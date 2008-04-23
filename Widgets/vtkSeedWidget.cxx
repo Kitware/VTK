@@ -30,7 +30,7 @@
 #include <vtkstd/iterator>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkSeedWidget, "1.15");
+vtkCxxRevisionMacro(vtkSeedWidget, "1.16");
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
@@ -88,10 +88,10 @@ inline void vtkSeedWidget::DeleteSeed(int i)
 //----------------------------------------------------------------------
 vtkSeedWidget::~vtkSeedWidget()
 {
-  // Loop over all seeds releasing their observes and deleting them
+  // Loop over all seeds releasing their observers and deleting them
   while( !this->Seeds->empty() )
     {
-    this->DeleteSeed(this->Seeds->size()-1);
+    this->DeleteSeed(static_cast<int>(this->Seeds->size())-1);
     }
   delete this->Seeds;
 }
@@ -130,7 +130,7 @@ vtkHandleWidget *vtkSeedWidget::CreateHandleWidget(vtkSeedWidget *self,
                                                     vtkSeedRepresentation *rep)
 {
   // Create the handle widget or reuse an old one
-  int currentHandleNumber = self->Seeds->size();
+  int currentHandleNumber = static_cast<int>(self->Seeds->size());
   vtkHandleWidget *widget = vtkHandleWidget::New();
   
   // Configure the handle widget
@@ -292,7 +292,7 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
   else
     {
     rep->RemoveLastHandle();
-    removeId = self->Seeds->size()-1;
+    removeId = static_cast<int>(self->Seeds->size())-1;
     }
   self->DeleteSeed(removeId);
   // Got this event, abort processing if it

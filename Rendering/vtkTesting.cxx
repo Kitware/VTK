@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.29");
+vtkCxxRevisionMacro(vtkTesting, "1.30");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -123,14 +123,14 @@ const char *vtkTesting::GetDataRoot()
 
 #ifdef VTK_DATA_ROOT 
   char *dr = vtkTestingGetArgOrEnvOrDefault(
-    "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
+    "-D", static_cast<int>(this->Args.size()), argv, "VTK_DATA_ROOT",
     VTK_DATA_ROOT);
 #else
   char *dr = vtkTestingGetArgOrEnvOrDefault(
-    "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
+    "-D", static_cast<int>(this->Args.size()), argv, "VTK_DATA_ROOT",
     "../../../../VTKData");
 #endif
-  
+
   this->SetDataRoot(dr);
   delete [] dr;
   
@@ -158,7 +158,7 @@ const char *vtkTesting::GetTempDirectory()
       }
     }
   char *td = vtkTestingGetArgOrEnvOrDefault(
-      "-T", this->Args.size(), argv, "VTK_TEMP_DIR", 
+      "-T", static_cast<int>(this->Args.size()), argv, "VTK_TEMP_DIR",
       "../../../Testing/Temporary");
   this->SetTempDirectory(td);
   delete [] td;
@@ -193,11 +193,11 @@ const char *vtkTesting::GetValidImageFileName()
     }
   
   char * baseline = vtkTestingGetArgOrEnvOrDefault(
-    "-B", this->Args.size(), argv, 
+    "-B", static_cast<int>(this->Args.size()), argv,
     "VTK_BASELINE_ROOT", this->GetDataRoot());
   vtkstd::string viname = baseline;
   delete [] baseline;
-  
+
   for (i = 0; i < (this->Args.size() - 1); ++i)
     {
     if ( this->Args[i] == "-V")

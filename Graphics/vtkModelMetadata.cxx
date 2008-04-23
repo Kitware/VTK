@@ -32,7 +32,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.6");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.7");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -1953,7 +1953,7 @@ vtkCharArray *vtkModelMetadata::PackCharArray(int maxS, int maxL)
     {
     for (int j=0; j<4; j++)
       {
-      int l = strlen(this->QARecord[i][j]);
+      int l = static_cast<int>(strlen(this->QARecord[i][j]));
       if (l > maxS) l = maxS;
 
       memcpy(p, this->QARecord[i][j], l);
@@ -3709,7 +3709,7 @@ char *vtkModelMetadata::StrDupWithNew(const char *s)
 
   if (s)
     {
-    int len = strlen(s);
+    int len = static_cast<int>(strlen(s));
     if (len == 0)
       {
       newstr = new char [1];
@@ -4121,74 +4121,74 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
   // used by other dataset file formats in the future.  So we
   // need to deduce a fixed string length and line length.
 
-  int sizeLine = (this->Title ? strlen(this->Title) : 0);
+  int sizeLine = (this->Title ? static_cast<int>(strlen(this->Title)) : 0);
   maxLine = ((sizeLine > maxLine) ? sizeLine : maxLine);
 
   for (i=0; i<this->NumberOfInformationLines; i++)
     {
     sizeLine = (this->InformationLine[i] ? 
-                strlen(this->InformationLine[i]) : 0);
+                static_cast<int>(strlen(this->InformationLine[i])) : 0);
     maxLine = ((sizeLine > maxLine) ? sizeLine : maxLine);
     }
 
   for (i=0; i<this->NumberOfQARecords; i++)
     {
     sizeLine = (this->QARecord[i][0] ? 
-                strlen(this->QARecord[i][0]) : 0);
+                static_cast<int>(strlen(this->QARecord[i][0])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
     sizeLine = (this->QARecord[i][1] ? 
-                strlen(this->QARecord[i][1]) : 0);
+                static_cast<int>(strlen(this->QARecord[i][1])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
     sizeLine = (this->QARecord[i][2] ? 
-                strlen(this->QARecord[i][2]) : 0);
+                static_cast<int>(strlen(this->QARecord[i][2])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
     sizeLine = (this->QARecord[i][3] ? 
-                strlen(this->QARecord[i][3]) : 0);
+                static_cast<int>(strlen(this->QARecord[i][3])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->Dimension; i++)
     {
     sizeLine = (this->CoordinateNames[i] ? 
-                strlen(this->CoordinateNames[i]) : 0);
+                static_cast<int>(strlen(this->CoordinateNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfBlocks; i++)
     {
     sizeLine = (this->BlockElementType[i] ? 
-                strlen(this->BlockElementType[i]) : 0);
+                static_cast<int>(strlen(this->BlockElementType[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfBlockProperties; i++)
     {
     sizeLine = (this->BlockPropertyNames[i] ? 
-                strlen(this->BlockPropertyNames[i]) : 0);
+                static_cast<int>(strlen(this->BlockPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfNodeSetProperties; i++)
     {
     sizeLine = (this->NodeSetPropertyNames[i] ? 
-                strlen(this->NodeSetPropertyNames[i]) : 0);
+                static_cast<int>(strlen(this->NodeSetPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfSideSetProperties; i++)
     {
     sizeLine = (this->SideSetPropertyNames[i] ? 
-                strlen(this->SideSetPropertyNames[i]) : 0);
+                static_cast<int>(strlen(this->SideSetPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfGlobalVariables; i++)
     {
     sizeLine = (this->GlobalVariableNames[i] ? 
-                strlen(this->GlobalVariableNames[i]) : 0);
+                static_cast<int>(strlen(this->GlobalVariableNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
@@ -4198,7 +4198,7 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
   for (i=0; i<this->NumberOfNodeVariables; i++)
     {
     sizeLine = (this->NodeVariableNames[i] ? 
-                strlen(this->NodeVariableNames[i]) : 0);
+                static_cast<int>(strlen(this->NodeVariableNames[i])) : 0);
     sizeLine++;
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
@@ -4206,7 +4206,7 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
   for (i=0; i<this->NumberOfElementVariables; i++)
     {
     sizeLine = (this->ElementVariableNames[i] ? 
-                strlen(this->ElementVariableNames[i]) : 0);
+                static_cast<int>(strlen(this->ElementVariableNames[i])) : 0);
     sizeLine++;
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }

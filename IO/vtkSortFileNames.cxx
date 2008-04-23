@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSortFileNames, "1.6");
+vtkCxxRevisionMacro(vtkSortFileNames, "1.7");
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -209,7 +209,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     reducedName = fileNamePath + "/";
     int inDigitBlock = 0;
     unsigned int charBlockStart = 0;
-    unsigned int stringLength = baseName.length();
+    unsigned int stringLength = static_cast<unsigned int>(baseName.length());
     for (unsigned int k = 0; k < stringLength; k++)
       {
       if (baseName[k] >= '0' && baseName[k] <= '9')
@@ -243,7 +243,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     // If IgnoreCase is set, change to uppercase.
     if (this->IgnoreCase)
       {
-      unsigned int n = reducedName.length();
+      unsigned int n = static_cast<unsigned int>(reducedName.length());
       for (unsigned int j = 0; j < n; j++)
         {
         reducedName[j] = toupper(reducedName[j]);
@@ -293,8 +293,8 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
 bool vtkCompareFileNamesIgnoreCase(const vtkstd::string s1,
                                    const vtkstd::string s2)
 {
-  unsigned int n1 = s1.length();
-  unsigned int n2 = s2.length();
+  unsigned int n1 = static_cast<unsigned int>(s1.length());
+  unsigned int n2 = static_cast<unsigned int>(s2.length());
 
   // find the minimum of the two lengths
   unsigned int n = n1;
@@ -339,8 +339,8 @@ bool vtkCompareFileNamesIgnoreCase(const vtkstd::string s1,
 bool vtkCompareFileNamesNumeric(const vtkstd::string s1,
                                 const vtkstd::string s2)
 {
-  unsigned int n1 = s1.length();
-  unsigned int n2 = s2.length();
+  unsigned int n1 = static_cast<unsigned int>(s1.length());
+  unsigned int n2 = static_cast<unsigned int>(s2.length());
 
   // compare the strings numerically
   unsigned int i1 = 0;
@@ -421,8 +421,8 @@ bool vtkCompareFileNamesNumeric(const vtkstd::string s1,
 bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string s1,
                                           const vtkstd::string s2)
 {
-  unsigned int n1 = s1.length();
-  unsigned int n2 = s2.length();
+  unsigned int n1 = static_cast<unsigned int>(s1.length());
+  unsigned int n2 = static_cast<unsigned int>(s2.length());
 
   // compare the strings numerically
   unsigned int i1 = 0;

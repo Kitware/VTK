@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.6");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.7");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ vtkQuaternionInterpolator::~vtkQuaternionInterpolator()
 //----------------------------------------------------------------------------
 int vtkQuaternionInterpolator::GetNumberOfQuaternions()
 {
-    return this->QuaternionList->size();
+  return static_cast<int>(this->QuaternionList->size());
 }
 
 
@@ -228,7 +228,7 @@ void vtkQuaternionInterpolator::Initialize()
 //----------------------------------------------------------------------------
 void vtkQuaternionInterpolator::AddQuaternion(double t, double q[4])
 {
-  int size = this->QuaternionList->size();
+  int size = static_cast<int>(this->QuaternionList->size());
 
   // Check special cases: t at beginning or end of list
   if ( size <= 0 || t < this->QuaternionList->front().Time )

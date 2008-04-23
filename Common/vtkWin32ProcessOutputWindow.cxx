@@ -26,7 +26,7 @@
 # define _MAX_PATH 4096
 #endif
 
-vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.6");
+vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.7");
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
@@ -161,7 +161,7 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
 
     // Write the data to the pipe.  If it breaks, close the pipe.
     DWORD nWritten;
-    if(!WriteFile(this->OutputPipe, data, length, &nWritten, 0))
+    if(!WriteFile(this->OutputPipe, data, (DWORD) length, &nWritten, 0))
       {
       this->Broken = 1;
       CloseHandle(this->OutputPipe);

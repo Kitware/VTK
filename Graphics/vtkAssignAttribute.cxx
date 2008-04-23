@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.22");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.23");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12] 
@@ -49,7 +49,7 @@ vtkAssignAttribute::vtkAssignAttribute()
     {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
       {
-      int l = strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i));
+      int l = static_cast<int>(strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 19; c++)
         {
         vtkAssignAttribute::AttributeNames[i][c] = 

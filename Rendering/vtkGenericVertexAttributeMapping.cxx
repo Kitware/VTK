@@ -34,7 +34,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkGenericVertexAttributeMapping);
-vtkCxxRevisionMacro(vtkGenericVertexAttributeMapping, "1.1");
+vtkCxxRevisionMacro(vtkGenericVertexAttributeMapping, "1.2");
 //----------------------------------------------------------------------------
 vtkGenericVertexAttributeMapping::vtkGenericVertexAttributeMapping()
 {
@@ -98,7 +98,7 @@ void vtkGenericVertexAttributeMapping::RemoveAllMappings()
 //----------------------------------------------------------------------------
 unsigned int vtkGenericVertexAttributeMapping::GetNumberOfMappings()
 {
-  return this->Internal->Mappings.size();
+  return static_cast<unsigned int>(this->Internal->Mappings.size());
 }
 
 //----------------------------------------------------------------------------

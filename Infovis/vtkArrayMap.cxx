@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.4");
+vtkCxxRevisionMacro(vtkArrayMap, "1.5");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -101,7 +101,7 @@ void vtkArrayMap::ClearMap()
 
 int vtkArrayMap::GetMapSize()
 {
-  return this->Map->size();
+  return static_cast<int>(this->Map->size());
 }
 
 int vtkArrayMap::RequestData(

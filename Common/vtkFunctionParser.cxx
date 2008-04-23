@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.38");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.39");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1346,7 +1346,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       if (tmpString)
         {
         start = static_cast<int>(tmpString - this->Function);
-        end = start + strlen(this->ScalarVariableNames[i]);
+        end = start + static_cast<int>(strlen(this->ScalarVariableNames[i]));
         if (start <= idx && end >= idx)
           {
           return 1;
@@ -1362,7 +1362,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       if (tmpString)
         {
         start = static_cast<int>(tmpString - this->Function);
-        end = start + strlen(this->VectorVariableNames[i]);
+        end = start + static_cast<int>(strlen(this->VectorVariableNames[i]));
         if (start <= idx && end >= idx)
           {
           return 1;
@@ -1772,7 +1772,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       } // if (mathFunctionNum > 0)
     } // if (isalpha(this->Function[beginIndex]))
 
-  int numMathOps = strlen(elementaryMathOps);
+  int numMathOps = static_cast<int>(strlen(elementaryMathOps));
   for (opNum = 0; opNum < numMathOps; opNum++)
     {
     parenthesisCount = 0;

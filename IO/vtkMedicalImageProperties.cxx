@@ -82,7 +82,7 @@ public:
     }
   unsigned int GetNumberOfUserDefinedValues() const
     {
-    return Mapping.size();
+    return static_cast<unsigned int>(Mapping.size());
     }
   const char *GetUserDefinedNameByIndex(unsigned int idx)
     {
@@ -453,7 +453,8 @@ void vtkMedicalImageProperties::RemoveAllWindowLevelPresets()
 //----------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetNumberOfWindowLevelPresets()
 {
-  return this->Internals ? this->Internals->WindowLevelPresetPool.size() : 0;
+  return this->Internals ? static_cast<int>(
+    this->Internals->WindowLevelPresetPool.size()) : 0;
 }
 
 //----------------------------------------------------------------------------

@@ -21,7 +21,7 @@
 #include "vtkQuaternionInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkTransformInterpolator, "1.3");
+vtkCxxRevisionMacro(vtkTransformInterpolator, "1.4");
 vtkStandardNewMacro(vtkTransformInterpolator);
 
 // PIMPL STL encapsulation for list of transforms, and list of
@@ -128,7 +128,7 @@ unsigned long vtkTransformInterpolator::GetMTime()
 //----------------------------------------------------------------------------
 int vtkTransformInterpolator::GetNumberOfTransforms()
 {
-  return this->TransformList->size();
+  return static_cast<int>(this->TransformList->size());
 }
 
 
@@ -169,7 +169,7 @@ void vtkTransformInterpolator::Initialize()
 //----------------------------------------------------------------------------
 void vtkTransformInterpolator::AddTransform(double t, vtkTransform *xform)
 {
-  int size = this->TransformList->size();
+  int size = static_cast<int>(this->TransformList->size());
 
   // Check special cases: t at beginning or end of list
   if ( size <= 0 || t < this->TransformList->front().Time )

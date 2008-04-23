@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.6");
+vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.7");
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
 
@@ -159,7 +159,7 @@ class vtkHAVSScalarInterval
 public:
   vtkHAVSScalarInterval() {};
   void AddFace(unsigned int f) { this->Faces.push_back(f);};
-  unsigned int GetSize() { return this->Faces.size(); }
+  unsigned int GetSize() { return static_cast<unsigned int>(this->Faces.size()); }
   unsigned int GetFace(unsigned int f) { return this->Faces[f]; }
 
 private:
@@ -390,7 +390,7 @@ void vtkHAVSVolumeMapper::InitializePrimitives(vtkVolume *vol)
     }
   
   this->NumberOfVertices = ugrid->GetNumberOfPoints();
-  this->NumberOfTriangles = faceSetContainer->FaceSet.size();
+  this->NumberOfTriangles = static_cast<unsigned int>(faceSetContainer->FaceSet.size());
   this->LevelOfDetailTriangleCount = this->NumberOfTriangles;
   this->NumberOfBoundaryTriangles = boundaryCount;
   this->NumberOfInternalTriangles = 

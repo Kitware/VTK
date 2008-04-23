@@ -42,7 +42,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMaterialParser);
-vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.3" );
+vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.4" );
 vtkCxxSetObjectMacro(vtkXMLMaterialParser, Material, vtkXMLMaterial);
 
 //-----------------------------------------------------------------------------
@@ -105,14 +105,13 @@ void vtkXMLMaterialParser::StartElement(const char* name, const char** atts)
     }
   this->Internals->Stack.push_back(element);
   element->Delete();
-
 }
 
 //-----------------------------------------------------------------------------
 void vtkXMLMaterialParser::EndElement(const char* vtkNotUsed(name))
 {
   vtkXMLDataElement* finished = this->Internals->Stack.back().GetPointer();
-  int prev_pos = this->Internals->Stack.size() - 2;
+  int prev_pos = static_cast<int>(this->Internals->Stack.size()) - 2;
   if (prev_pos >= 0)
     {
     this->Internals->Stack[prev_pos].GetPointer()->AddNestedElement(finished);
@@ -121,9 +120,8 @@ void vtkXMLMaterialParser::EndElement(const char* vtkNotUsed(name))
     {
     this->Material->SetRootElement(finished);
     }
-  
-  this->Internals->Stack.pop_back();
 
+  this->Internals->Stack.pop_back();
 }
 
 //-----------------------------------------------------------------------------

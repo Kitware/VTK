@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkParallelopipedWidget.h" // REMOVE
 
-vtkCxxRevisionMacro(vtkWidgetSet, "1.1");
+vtkCxxRevisionMacro(vtkWidgetSet, "1.2");
 vtkStandardNewMacro(vtkWidgetSet);
 
 //----------------------------------------------------------------------
@@ -89,7 +89,7 @@ vtkWidgetSet::GetNthWidget( unsigned int i )
 //----------------------------------------------------------------------
 unsigned int vtkWidgetSet::GetNumberOfWidgets()
 {
-  return this->Widget.size();
+  return static_cast<unsigned int>(this->Widget.size());
 }
 
 //----------------------------------------------------------------------
@@ -98,4 +98,3 @@ void vtkWidgetSet::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
 }
-

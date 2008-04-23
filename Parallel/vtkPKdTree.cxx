@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.33");
+vtkCxxRevisionMacro(vtkPKdTree, "1.34");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -3233,7 +3233,7 @@ int vtkPKdTree::FindNextLocalArrayIndex(const char *n,
                                         const char **names, int len, int start)
 {
   int index = -1;
-  int nsize = strlen(n);
+  size_t nsize = strlen(n);
 
   // normally a very small list, maybe 1 to 5 names
 
@@ -3853,13 +3853,14 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
       }
     }
 }
+
 char *vtkPKdTree::StrDupWithNew(const char *s)
 {   
   char *newstr = NULL;
     
   if (s)
     {
-    int len = strlen(s);
+    size_t len = strlen(s);
     if (len == 0)
       {
       newstr = new char [1];

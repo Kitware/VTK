@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.3");
+vtkCxxRevisionMacro(vtkCellLinks, "1.4");
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ vtkIdType vtkCellLinks::InsertNextPoint(int numLinks)
 //----------------------------------------------------------------------------
 unsigned long vtkCellLinks::GetActualMemorySize()
 {
-  unsigned long size=0;
+  vtkIdType size=0;
   vtkIdType ptId;
 
   for (ptId=0; ptId < (this->MaxId+1); ptId++)

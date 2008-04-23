@@ -34,7 +34,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.7");
+vtkCxxRevisionMacro(vtkExtractCells, "1.8");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -134,9 +134,9 @@ int vtkExtractCells::RequestData(
   vtkModelMetadata *extractMetadata = this->ExtractMetadata(input);
 
   int numCellsInput = input->GetNumberOfCells();
-  int numCells = this->CellList->IdTypeSet.size();
+  int numCells = static_cast<int>(this->CellList->IdTypeSet.size());
 
-  if (numCells == numCellsInput)  
+  if (numCells == numCellsInput)
     {
     #if 0
     this->Copy(input, output);
@@ -239,7 +239,7 @@ int vtkExtractCells::RequestData(
 vtkModelMetadata *vtkExtractCells::ExtractMetadata(vtkDataSet *input)
 {
   vtkModelMetadata *extractedMD = NULL;
-  int numCells = this->CellList->IdTypeSet.size();
+  int numCells = static_cast<int>(this->CellList->IdTypeSet.size());
 
   if (vtkModelMetadata::HasMetadata(input))
     {
@@ -568,7 +568,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   origMap->SetName("vtkOriginalCellIds");
   newCD->AddArray(origMap);
 
-  int numCells = this->CellList->IdTypeSet.size();
+  int numCells = static_cast<int>(this->CellList->IdTypeSet.size());
 
   vtkCellArray *cellArray = vtkCellArray::New();                 // output
   vtkIdTypeArray *newcells = vtkIdTypeArray::New();

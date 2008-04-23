@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.11");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.12");
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
 {
@@ -83,7 +83,7 @@ void vtkCompositeDataSet::SetNumberOfChildren(unsigned int num)
 //----------------------------------------------------------------------------
 unsigned int vtkCompositeDataSet::GetNumberOfChildren()
 {
-  return this->Internals->Children.size();
+  return static_cast<unsigned int>(this->Internals->Children.size());
 }
 
 //----------------------------------------------------------------------------

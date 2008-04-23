@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/vector>
 
 // ----------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.22");
+vtkCxxRevisionMacro(vtkSQLDatabaseSchema, "1.23");
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
 
 // ----------------------------------------------------------------------
@@ -120,7 +120,7 @@ int vtkSQLDatabaseSchema::AddPreamble( const char* preName,
     }
 
   vtkSQLDatabaseSchemaInternals::Statement newPre;
-  int preHandle = this->Internals->Preambles.size();
+  int preHandle = static_cast<int>(this->Internals->Preambles.size());
   newPre.Name = preName;
   newPre.Action = preAction;
   newPre.Backend = preBackend;
@@ -138,7 +138,7 @@ int vtkSQLDatabaseSchema::AddTable( const char* tblName )
     }
 
   vtkSQLDatabaseSchemaInternals::Table newTbl;
-  int tblHandle = this->Internals->Tables.size();
+  int tblHandle = static_cast<int>(this->Internals->Tables.size());
   newTbl.Name = tblName;
   this->Internals->Tables.push_back( newTbl );
   return tblHandle;
@@ -192,7 +192,7 @@ int vtkSQLDatabaseSchema::AddColumnToTable( int tblHandle,
     }
 
   // DCT: This trick avoids copying a Column structure the way push_back would:
-  int colHandle = this->Internals->Tables[tblHandle].Columns.size();
+  int colHandle = static_cast<int>(this->Internals->Tables[tblHandle].Columns.size());
   this->Internals->Tables[tblHandle].Columns.resize( colHandle + 1 );
   vtkSQLDatabaseSchemaInternals::Column* column = &this->Internals->Tables[tblHandle].Columns[colHandle];
   column->Type = static_cast<DatabaseColumnType>( colType );
@@ -213,7 +213,7 @@ int vtkSQLDatabaseSchema::AddIndexToTable( int tblHandle,
     return -1;
     }
 
-  int idxHandle = this->Internals->Tables[tblHandle].Indices.size();
+  int idxHandle = static_cast<int>(this->Internals->Tables[tblHandle].Indices.size());
   this->Internals->Tables[tblHandle].Indices.resize( idxHandle + 1 );
   vtkSQLDatabaseSchemaInternals::Index* index = &this->Internals->Tables[tblHandle].Indices[idxHandle];
   index->Type = static_cast<DatabaseIndexType>( idxType );
@@ -240,7 +240,7 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
     return -1;
     }
 
-  int trgHandle = this->Internals->Tables[tblHandle].Triggers.size();
+  int trgHandle = static_cast<int>(this->Internals->Tables[tblHandle].Triggers.size());
   this->Internals->Tables[tblHandle].Triggers.resize( trgHandle + 1 );
   vtkSQLDatabaseSchemaInternals::Trigger* trigger = &this->Internals->Tables[tblHandle].Triggers[trgHandle];
   trigger->Type = static_cast<DatabaseTriggerType>( trgType );
@@ -254,7 +254,7 @@ int vtkSQLDatabaseSchema::AddTriggerToTable( int tblHandle,
 int vtkSQLDatabaseSchema::GetPreambleHandleFromName( const char* preName )
 {
   int i;
-  int ntab = this->Internals->Preambles.size();
+  int ntab = static_cast<int>(this->Internals->Preambles.size());
   vtkStdString preNameStr( preName );
   for ( i = 0; i < ntab; ++i )
     {
@@ -306,7 +306,7 @@ const char* vtkSQLDatabaseSchema::GetPreambleBackendFromHandle( int preHandle )
 int vtkSQLDatabaseSchema::GetTableHandleFromName( const char* tblName )
 {
   int i;
-  int ntab = this->Internals->Tables.size();
+  int ntab = static_cast<int>(this->Internals->Tables.size());
   vtkStdString tblNameStr( tblName );
   for ( i = 0; i < ntab; ++i )
     {
@@ -341,7 +341,7 @@ int vtkSQLDatabaseSchema::GetIndexHandleFromName( const char* tblName,
     }
 
   int i;
-  int nidx = this->Internals->Tables[tblHandle].Indices.size();
+  int nidx = static_cast<int>(this->Internals->Tables[tblHandle].Indices.size());
   vtkStdString idxNameStr( idxName );
   for ( i = 0; i < nidx ; ++ i )
     {
@@ -428,7 +428,7 @@ int vtkSQLDatabaseSchema::GetColumnHandleFromName( const char* tblName,
     }
 
   int i;
-  int ncol = this->Internals->Tables[tblHandle].Columns.size();
+  int ncol = static_cast<int>(this->Internals->Tables[tblHandle].Columns.size());
   vtkStdString colNameStr( colName );
   for ( i = 0; i < ncol ; ++ i )
     {
@@ -527,7 +527,7 @@ int vtkSQLDatabaseSchema::GetTriggerHandleFromName( const char* tblName,
     }
 
   int i;
-  int ntrg = this->Internals->Tables[tblHandle].Triggers.size();
+  int ntrg = static_cast<int>(this->Internals->Tables[tblHandle].Triggers.size());
   vtkStdString trgNameStr( trgName );
   for ( i = 0; i < ntrg ; ++ i )
     {
@@ -683,13 +683,13 @@ void vtkSQLDatabaseSchema::Reset()
 // ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfPreambles()
 {
-  return this->Internals->Preambles.size();
+  return static_cast<int>(this->Internals->Preambles.size());
 }
 
 // ----------------------------------------------------------------------
 int vtkSQLDatabaseSchema::GetNumberOfTables()
 {
-  return this->Internals->Tables.size();
+  return static_cast<int>(this->Internals->Tables.size());
 }
 
 // ----------------------------------------------------------------------
@@ -701,7 +701,7 @@ int vtkSQLDatabaseSchema::GetNumberOfColumnsInTable( int tblHandle )
     return -1;
     }
 
-  return this->Internals->Tables[tblHandle].Columns.size();
+  return static_cast<int>(this->Internals->Tables[tblHandle].Columns.size());
 }
 
 // ----------------------------------------------------------------------
@@ -713,7 +713,7 @@ int vtkSQLDatabaseSchema::GetNumberOfIndicesInTable( int tblHandle )
     return -1;
     }
 
-  return this->Internals->Tables[tblHandle].Indices.size();
+  return static_cast<int>(this->Internals->Tables[tblHandle].Indices.size());
 }
 
 // ----------------------------------------------------------------------
@@ -731,7 +731,7 @@ int vtkSQLDatabaseSchema:: GetNumberOfColumnNamesInIndex( int tblHandle, int idx
     return -1;
     }
 
-  return this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames.size();
+  return static_cast<int>(this->Internals->Tables[tblHandle].Indices[idxHandle].ColumnNames.size());
 }
 
 // ----------------------------------------------------------------------
@@ -743,5 +743,5 @@ int vtkSQLDatabaseSchema::GetNumberOfTriggersInTable( int tblHandle )
     return -1;
     }
 
-  return this->Internals->Tables[tblHandle].Triggers.size();
+  return static_cast<int>(this->Internals->Tables[tblHandle].Triggers.size());
 }

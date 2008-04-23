@@ -137,7 +137,7 @@ public:
     }
   unsigned int GetNumberOfElements()
     {
-    return this->Internals.size();
+    return static_cast<unsigned int>(this->Internals.size());
     }
   void Allocate(int numElements)
     {

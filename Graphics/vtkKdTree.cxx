@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.19");
+vtkCxxRevisionMacro(vtkKdTree, "1.20");
 
 // Timing data ---------------------------------------------
 
@@ -72,7 +72,7 @@ static void LastInputDeletedCallback(vtkObject *, unsigned long,
 static char * makeEntry(const char *s)
 {
   memcpy(msg, dots, MSGSIZE);
-  int len = strlen(s);
+  int len = static_cast<int>(strlen(s));
   len = (len >= MSGSIZE) ? MSGSIZE-1 : len;
 
   memcpy(msg, s, len);
@@ -3829,8 +3829,8 @@ int vtkKdTree::MinimalNumberOfConvexSubRegions(vtkIntArray *regionIdList,
     idSet.insert(ids[i]);
     }
 
-  int nUniqueIds = idSet.size();
-    
+  int nUniqueIds = static_cast<int>(idSet.size());
+
   int *idList = new int [nUniqueIds];
       
   for (i=0, it = idSet.begin(); it != idSet.end(); ++it, ++i)

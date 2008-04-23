@@ -36,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDSPFilterGroup, "1.1");
+vtkCxxRevisionMacro(vtkDSPFilterGroup, "1.2");
 vtkStandardNewMacro(vtkDSPFilterGroup);
 
 
@@ -298,7 +298,7 @@ void vtkDSPFilterGroup::Copy( vtkDSPFilterGroup *other )
 //----------------------------------------------------------------------------
 int vtkDSPFilterGroup::GetNumFilters( ) 
 {
-  return this->FilterDefinitions->m_vector.size();
+  return static_cast<int>(this->FilterDefinitions->m_vector.size());
 }
 
 

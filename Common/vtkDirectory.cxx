@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.32");
+vtkCxxRevisionMacro(vtkDirectory, "1.33");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -265,11 +265,11 @@ int vtkDirectory::FileIsDirectory(const char *name)
   int n = 0;   
   if (!absolutePath && this->Path)   
     {   
-    n = strlen(this->Path);   
+    n = static_cast<int>(strlen(this->Path));
     }   
    
-  int m = strlen(name);   
-   
+  int m = static_cast<int>(strlen(name));
+
   fullPath = new char[n+m+2];   
    
   if (!absolutePath && this->Path)   

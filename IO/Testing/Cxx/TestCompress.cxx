@@ -35,7 +35,7 @@ int TestCompress(int argc, char *argv[])
   vtkZLibDataCompressor* compressor = vtkZLibDataCompressor::New();
   for ( cc = 0; cc < start_size; cc ++ )
     {
-    buffer[cc] = cc % sizeof(unsigned char);
+    buffer[cc] = static_cast<unsigned char>(cc % sizeof(unsigned char));
     }
   buffer[0] = 'v';
   buffer[1] = 't';

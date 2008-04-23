@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.47")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.48")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -2931,7 +2931,7 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
 
     // Mark the outside cells with a 0, the inside cells with a 1.
 
-    int arrayNameLen = strlen(TEMP_INSIDE_BOX_FLAG);
+    int arrayNameLen = static_cast<int>(strlen(TEMP_INSIDE_BOX_FLAG));
     char *arrayName = new char [arrayNameLen + 1];
     strcpy(arrayName, TEMP_INSIDE_BOX_FLAG);
     vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(outside, arrayName, 0);

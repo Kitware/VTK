@@ -50,7 +50,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.28");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.29");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -258,7 +258,7 @@ void vtkExtractCTHPart::AddUnsignedCharVolumeArrayName(char* arrayName)
 //-----------------------------------------------------------------------------
 int vtkExtractCTHPart::GetNumberOfVolumeArrayNames()
 {
-  return this->Internals->VolumeArrayNames.size();
+  return static_cast<int>(this->Internals->VolumeArrayNames.size());
 }
 
 //-----------------------------------------------------------------------------
@@ -332,7 +332,8 @@ int vtkExtractCTHPart::RequestData(
   vtkCompositeDataSet* input = vtkCompositeDataSet::GetData(inInfo);
 
   vtkMultiBlockDataSet* mbOutput= vtkMultiBlockDataSet::GetData(outInfo);
-  unsigned int numBlocks = this->Internals->VolumeArrayNames.size();
+  unsigned int numBlocks = static_cast<unsigned int>(
+    this->Internals->VolumeArrayNames.size());
   mbOutput->SetNumberOfBlocks(numBlocks);
   for (unsigned int i=0; i<numBlocks; i++)
     {

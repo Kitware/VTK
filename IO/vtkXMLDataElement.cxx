@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.30");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.31");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -173,9 +173,9 @@ void vtkXMLDataElement::AddCharacterData(const char* c, int length)
     {
     return;
     }
-  
+
   char* old_data = this->CharacterData;
-  int old_length = (old_data)? strlen(old_data): 0;
+  int old_length = (old_data) ? static_cast<int>(strlen(old_data)) : 0;
   int total_length = old_length + length;
   
   this->CharacterData = new char[total_length + 1];
@@ -1034,7 +1034,8 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
   this->SetXMLByteIndex(elem->GetXMLByteIndex());
   this->SetAttributeEncoding(elem->GetAttributeEncoding());
   const char *elem_cdata = elem->GetCharacterData();
-  this->SetCharacterData(elem_cdata, elem_cdata ? strlen(elem_cdata) : 0);
+  this->SetCharacterData(elem_cdata,
+    elem_cdata ? static_cast<int>(strlen(elem_cdata)) : 0);
 
   // Copy attributes
 

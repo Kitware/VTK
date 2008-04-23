@@ -27,7 +27,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDSPFilterDefinition, "1.1");
+vtkCxxRevisionMacro(vtkDSPFilterDefinition, "1.2");
 vtkStandardNewMacro(vtkDSPFilterDefinition);
 
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak
@@ -187,17 +187,17 @@ const char *vtkDSPFilterDefinition::GetOutputVariableName()
 //----------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumNumeratorWeights()
 {
-  return this->NumeratorWeights->m_vector.size();
+  return static_cast<int>(this->NumeratorWeights->m_vector.size());
 }
 //----------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumDenominatorWeights()
 {
-  return this->DenominatorWeights->m_vector.size();
+  return static_cast<int>(this->DenominatorWeights->m_vector.size());
 }
 //----------------------------------------------------------------------------
 int vtkDSPFilterDefinition::GetNumForwardNumeratorWeights()
 {
-  return this->ForwardNumeratorWeights->m_vector.size();
+  return static_cast<int>(this->ForwardNumeratorWeights->m_vector.size());
 }
 
 

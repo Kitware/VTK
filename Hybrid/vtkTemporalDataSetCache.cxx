@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.6");
+vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.7");
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
 //----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkTemporalDataSetCache::SetCacheSize(int size)
 
   // skrinking, have to get rid of some old data, to be easy just chuck the
   // first entries
-  int i = this->Cache.size() - size;
+  int i = static_cast<int>(this->Cache.size()) - size;
   CacheType::iterator pos = this->Cache.begin();
   for (; i > 0; --i)
     {
@@ -162,7 +162,7 @@ int vtkTemporalDataSetCache
     if (reqTimeSteps.size())
       {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                  &reqTimeSteps[0],reqTimeSteps.size());
+                  &reqTimeSteps[0],static_cast<int>(reqTimeSteps.size()));
       }
     // otherwise leave the input with what it already has 
     else

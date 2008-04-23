@@ -208,7 +208,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.71");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.72");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -553,7 +553,7 @@ int vtkXMLWriter::OpenFile()
   else
     {
     // Strip trailing whitespace from the filename.
-    int len = strlen(this->FileName);
+    int len = static_cast<int>(strlen(this->FileName));
     for (int i = len-1; i >= 0; i--)
       {      
       if (isalnum(this->FileName[i])) 

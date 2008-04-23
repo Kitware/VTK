@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.10");
+vtkCxxRevisionMacro(vtkChacoReader, "1.11");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -829,7 +829,7 @@ int vtkChacoReader::OpenCurrentFile()
 
   if ( this->CurrentGeometryFP == NULL)
     {
-    int len = strlen(this->BaseName);
+    int len = static_cast<int>(strlen(this->BaseName));
     char *buf = new char [len+64];
     sprintf(buf, "%s.coords", this->BaseName);
 

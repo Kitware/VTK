@@ -22,7 +22,7 @@
 #include <vtkstd/iterator>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.75");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.76");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //=============================================================================
@@ -267,7 +267,7 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
 // Return the number of points which specify this function
 int vtkColorTransferFunction::GetSize()
 {
-  return this->Internal->Nodes.size();
+  return static_cast<int>(this->Internal->Nodes.size());
 }
 
 // Since we no longer store the data in an array, we must
@@ -275,7 +275,7 @@ int vtkColorTransferFunction::GetSize()
 // could be added if performance is a problem
 double *vtkColorTransferFunction::GetDataPointer()
 {
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   
   if ( this->Function )
     {
@@ -404,7 +404,7 @@ void vtkColorTransferFunction::SortAndUpdateRange()
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
   
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   if ( size )
     {
     this->Range[0] = this->Internal->Nodes[0]->X;
@@ -619,7 +619,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
 {
   int i, j;
   int idx = 0;
-  int numNodes = this->Internal->Nodes.size();
+  int numNodes = static_cast<int>(this->Internal->Nodes.size());
   
   // Need to keep track of the last value so that
   // we can fill in table locations past this with
@@ -1098,7 +1098,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable(double xStart,
 // For a specified index value, get the node parameters
 int vtkColorTransferFunction::GetNodeValue( int index, double val[6] )
 {
-  int size = this->Internal->Nodes.size();
+  int size = static_cast<int>(this->Internal->Nodes.size());
   
   if ( index < 0 || index >= size )
     {
@@ -1120,8 +1120,8 @@ int vtkColorTransferFunction::GetNodeValue( int index, double val[6] )
 // For a specified index value, get the node parameters
 int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
 {
-  int size = this->Internal->Nodes.size();
-  
+  int size = static_cast<int>(this->Internal->Nodes.size());
+
   if ( index < 0 || index >= size )
     {
     vtkErrorMacro("Index out of range!");

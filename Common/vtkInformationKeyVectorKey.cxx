@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm> // find()
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -73,8 +73,8 @@ void vtkInformationKeyVectorKey::AppendUnique(vtkInformation* info,
   if(v)
     {
     int found = 0;
-    unsigned int len = v->Value.size();
-    for (unsigned int i=0; i<len; i++)
+    size_t len = v->Value.size();
+    for (size_t i=0; i<len; i++)
       {
       if (v->Value[i] == value)
         {
