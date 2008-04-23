@@ -43,7 +43,7 @@ png_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
 static void /* PRIVATE */
 png_default_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-   png_uint_32 check;
+   png_size_t check;
 
 #if defined(_WIN32_WCE)
    if ( !WriteFile((HANDLE)(png_ptr->io_ptr), data, length, &check, NULL) )
