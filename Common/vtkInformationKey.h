@@ -115,10 +115,13 @@ private:
 // Macros to define an information key instance in a C++ source file.
 // The corresponding method declaration must appear in the class
 // definition in the header file.
-#define vtkInformationKeyMacro(CLASS, NAME, type)                      \
-  static vtkInformation##type##Key* CLASS##_##NAME =                   \
-         new vtkInformation##type##Key(#NAME, #CLASS);                 \
-  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
+#define vtkInformationKeyMacro(CLASS, NAME, type)             \
+ vtkInformation##type##Key* CLASS::NAME()                     \
+   {                                                          \
+   static vtkInformation##type##Key* CLASS##_##NAME =         \
+        new vtkInformation##type##Key(#NAME, #CLASS);         \
+   return CLASS##_##NAME;                                     \
+   }
 #define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)       \
   static vtkInformation##type##Key* CLASS##_##NAME =                        \
          new vtkInformation##type##Key(#NAME, #CLASS, required);            \
