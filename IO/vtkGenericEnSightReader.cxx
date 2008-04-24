@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.83");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.84");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1477,8 +1477,8 @@ void vtkGenericEnSightReader::SetCellArrayStatus(const char* name, int status)
 //----------------------------------------------------------------------------
 int vtkGenericEnSightReader::InsertNewPartId(int partId)
 {
-  int lastId = this->TranslationTable->PartIdMap.size();
-  this->TranslationTable->PartIdMap.insert( 
+  int lastId = static_cast<int>(this->TranslationTable->PartIdMap.size());
+  this->TranslationTable->PartIdMap.insert(
     vtkstd::map<int,int>::value_type(partId, lastId));
   lastId = this->TranslationTable->PartIdMap[partId];
   //assert( lastId == this->PartIdTranslationTable[partId] );

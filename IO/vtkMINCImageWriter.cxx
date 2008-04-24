@@ -90,7 +90,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageWriter, "1.15");
+vtkCxxRevisionMacro(vtkMINCImageWriter, "1.16");
 vtkStandardNewMacro(vtkMINCImageWriter);
 
 vtkCxxSetObjectMacro(vtkMINCImageWriter,DirectionCosines,vtkMatrix4x4);
@@ -569,7 +569,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
       return 0;
       }
     // Check for duplicated dimensions
-    int ndim = dimensions.size();
+    int ndim = static_cast<int>(dimensions.size());
     for (int idim = 0; idim < ndim; idim++)
       {
       if (dimensions[idim][0] == dimname[0])
@@ -600,7 +600,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
     for (int i = 0; i < 3; i++)
       {
       int idim = 0;
-      int ndims = dimensions.size();
+      int ndims = static_cast<int>(dimensions.size());
       for (idim = 0; idim < ndims; idim++)
         {
         if (defaultdims[i][0] == dimensions[idim][0])
@@ -631,7 +631,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   int ncid = this->MINCFileId;
   int status = NC_NOERR;
 
-  int ndim = dimensions.size();
+  int ndim = static_cast<int>(dimensions.size());
   this->FileDimensionNames->SetNumberOfValues(ndim);
   for (int idim = 0; idim < ndim; idim++)
     {
@@ -694,7 +694,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       }
     }
   // Reset ndim so that it only includes dimensions with variables
-  ndim = variables.size();
+  ndim = static_cast<int>(variables.size());
 
   variables.push_back(MIimage);
   variables.push_back(MIrootvariable);
@@ -727,7 +727,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
     const char *varname = variableNames->GetValue(iuservars);
     int ivar;
-    int nvars = variables.size();
+    int nvars = static_cast<int>(variables.size());
     for (ivar = 0; ivar < nvars; ivar++)
       {
       if (strcmp(variables[ivar].c_str(), varname) == 0)
@@ -756,7 +756,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   // Find the children of the root variable
   vtkstd::string rootChildren = MI_EMPTY_STRING;
 
-  int nvars = variables.size();
+  int nvars = static_cast<int>(variables.size());
   int ivar = 0;
   for (ivar = 0; ivar < nvars; ivar++)
     {
@@ -786,7 +786,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   // Start at -1, which stands for global attributes.
   int ncid = this->MINCFileId;
   int status = NC_NOERR;
-  nvars = variables.size();
+  nvars = static_cast<int>(variables.size());
   for (ivar = -1; ivar < nvars; ivar++)
     {
     const char *varname = MI_EMPTY_STRING;

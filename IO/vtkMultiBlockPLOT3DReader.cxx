@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.11");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.12");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -526,7 +526,7 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int verify
 int vtkMultiBlockPLOT3DReader::ReadGeometryHeader(FILE* fp)
 {
   int numGrid = this->GetNumberOfBlocksInternal(fp, 1);
-  int numBlocks = this->Internal->Blocks.size();
+  int numBlocks = static_cast<int>(this->Internal->Blocks.size());
   int i;
   vtkDebugMacro("Geometry number of grids: " << numGrid);
   if ( numGrid == 0 )
@@ -767,7 +767,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   int numberOfDims;
   vtkIdType index;
 
-  int numBlocks = this->Internal->Blocks.size();
+  int numBlocks = static_cast<int>(this->Internal->Blocks.size());
 
   // Don't read the geometry if we already have it!
   if ( (!this->PointCache) || (!this->PointCache[0]) )

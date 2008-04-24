@@ -63,7 +63,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.24");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.25");
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
@@ -232,7 +232,8 @@ int vtkTemporalStreamTracer::RequestInformation(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
-               &this->OutputTimeValues[0], this->OutputTimeValues.size());
+               &this->OutputTimeValues[0],
+               static_cast<int>(this->OutputTimeValues.size()));
 
   return 1;
 }
@@ -486,13 +487,13 @@ void vtkTemporalStreamTracer::InjectSeeds(
   ParticleList *outofdomain)
 {
   int numSeedsNew = 0, successful = 0;
-  int valid = candidates.size();
-  int outofdom = outofdomain ? outofdomain->size() : 0;
+  int valid = static_cast<int>(candidates.size());
+  int outofdom = outofdomain ? static_cast<int>(outofdomain->size()) : 0;
   if (source) {
     numSeedsNew = source->GetNumberOfPoints();
   } 
   else if (inputlist) {
-    numSeedsNew = inputlist->size();
+    numSeedsNew = static_cast<int>(inputlist->size());
   }
   if (numSeedsNew==0) return;
   //
@@ -638,7 +639,7 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
 //---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
 {
-  int numSeedsNew = candidates.size();
+  int numSeedsNew = static_cast<int>(candidates.size());
   // 
   for (int i=0; i<numSeedsNew; i++) {
     // allocate a new particle on the list and get a reference to it
@@ -648,7 +649,7 @@ void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
     //
     memcpy(&info, &candidates[i], sizeof(ParticleInformation));
   }
-  this->NumberOfParticles = ParticleHistories.size();
+  this->NumberOfParticles = static_cast<int>(ParticleHistories.size());
 }
 //---------------------------------------------------------------------------
 int vtkTemporalStreamTracer::RequestData(
@@ -878,7 +879,7 @@ int vtkTemporalStreamTracer::RequestData(
   // in one time step are small (hopefully!)
 
   this->MPISendList.clear();
-  int Number = this->ParticleHistories.size();
+  int Number = static_cast<int>(this->ParticleHistories.size());
   ParticleIterator it_first=this->ParticleHistories.begin();
   ParticleIterator  it_last=this->ParticleHistories.end();
   for (int pass=0; pass<2; pass++) {
@@ -923,7 +924,7 @@ int vtkTemporalStreamTracer::RequestData(
       if (Number>0) it_first++;
       else it_first = this->ParticleHistories.begin();
       // free up unwanted memory
-      Number = candidates.size();
+      Number = static_cast<int>(candidates.size());
       candidates.clear();
     }
   }

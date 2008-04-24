@@ -17,7 +17,7 @@
 #include <vtkstd/string>
 
 vtkStandardNewMacro(vtkSESAMEReader);
-vtkCxxRevisionMacro(vtkSESAMEReader, "1.6");
+vtkCxxRevisionMacro(vtkSESAMEReader, "1.7");
 
 static const int SESAME_NUM_CHARS = 512;
 static const char* TableLineFormat = "%2i%6i%6i";
@@ -225,7 +225,7 @@ void vtkSESAMEReader::CloseFile()
 int vtkSESAMEReader::GetNumberOfTableIds()
 {
   this->ExecuteInformation();
-  return this->Internal->TableIds.size();
+  return static_cast<int>(this->Internal->TableIds.size());
 }
 
 int* vtkSESAMEReader::GetTableIds()
@@ -239,7 +239,7 @@ vtkIntArray* vtkSESAMEReader::GetTableIdsAsArray()
   this->Internal->TableIdsArray->Initialize();
   this->Internal->TableIdsArray->SetNumberOfComponents(1);
   this->ExecuteInformation();
-  int numTableIds = this->Internal->TableIds.size();
+  int numTableIds = static_cast<int>(this->Internal->TableIds.size());
   for (int i=0; i < numTableIds; ++i)
     {
     this->Internal->TableIdsArray->InsertNextValue(
@@ -272,13 +272,13 @@ int vtkSESAMEReader::GetTable()
 int vtkSESAMEReader::GetNumberOfTableArrayNames()
 {
   this->ExecuteInformation();
-  return this->Internal->TableArrays.size();
+  return static_cast<int>(this->Internal->TableArrays.size());
 }
 
 const char* vtkSESAMEReader::GetTableArrayName(int index)
 {
   this->ExecuteInformation();
-  int s = this->Internal->TableArrays.size();
+  int s = static_cast<int>(this->Internal->TableArrays.size());
   if(s > index)
     {
     return this->Internal->TableArrays[index].c_str();
@@ -289,7 +289,7 @@ const char* vtkSESAMEReader::GetTableArrayName(int index)
 void vtkSESAMEReader::SetTableArrayStatus(const char* name, int flag)
 {
   int i, numArrays;
-  numArrays = this->Internal->TableArrays.size();
+  numArrays = static_cast<int>(this->Internal->TableArrays.size());
   for(i=0; i<numArrays; i++)
     {
     if(this->Internal->TableArrays[i] == name)
@@ -304,7 +304,7 @@ int vtkSESAMEReader::GetTableArrayStatus(const char* name)
 {
   this->ExecuteInformation();
   int i, numArrays;
-  numArrays = this->Internal->TableArrays.size();
+  numArrays = static_cast<int>(this->Internal->TableArrays.size());
   for(i=0; i<numArrays; i++)
     {
     if(this->Internal->TableArrays[i], name)
@@ -388,7 +388,7 @@ void vtkSESAMEReader::ExecuteInformation()
 
 int vtkSESAMEReader::JumpToTable( int toTable )
 {
-  int numIds = this->Internal->TableIds.size();
+  int numIds = static_cast<int>(this->Internal->TableIds.size());
   for(int i=0; i<numIds; i++)
     {
     if(this->Internal->TableIds[i] == toTable)

@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.75");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.76");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -436,7 +436,7 @@ int vtkEnSightReader::RequestInformation(
     vtkstd::vector<double> uniqueTimeValues(
       timeValues.begin(),
       vtkstd::unique(timeValues.begin(), timeValues.end()));
-    int numTimeValues = uniqueTimeValues.size();
+    int numTimeValues = static_cast<int>(uniqueTimeValues.size());
     if (numTimeValues > 0)
       {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -1918,7 +1918,7 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 void vtkEnSightReader::RemoveLeadingBlanks(char *line)
 {
   int count = 0;
-  int len = strlen(line);
+  int len = static_cast<int>(strlen(line));
   while (line[count] == ' ')
     {
     count++;
@@ -1944,7 +1944,7 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
                   << " IDs exist.");
     return 0;
     }
-  
+
   // Create the container if necessary.
   if(!this->CellIds)
     {

@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.4");
+vtkCxxRevisionMacro(vtkRTXMLPolyDataReader, "1.5");
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
@@ -112,8 +112,8 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
   // now check if there are new files available
   // and place them into the AvailableDataFileList
   int current = dataDir->GetNumberOfFiles();
-  int processed = this->Internal->ProcessedFileList.size();
-  
+  int processed = static_cast<int>(this->Internal->ProcessedFileList.size());
+
   if (current > processed)
     {
     for (int i=0; i<current; i++)
@@ -146,8 +146,8 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
 char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
 {
   char* fullpath;
-  int n = strlen(this->DataLocation);
-  int m = strlen(name);
+  int n = static_cast<int>(strlen(this->DataLocation));
+  int m = static_cast<int>(strlen(name));
   fullpath = new char[n+m+2];
   strcpy(fullpath,this->DataLocation);
 #if defined (_WIN32) // WINDOW style path      
@@ -180,7 +180,7 @@ void vtkRTXMLPolyDataReader::InitializeToCurrentDir()
 //--------------------------------------------------------------------------
 int vtkRTXMLPolyDataReader::IsProcessed(const char* fname)
 {
-  int size = this->Internal->ProcessedFileList.size();
+  int size = static_cast<int>(this->Internal->ProcessedFileList.size());
   for (int i=0 ; i<size ; i++)
     {
     const char* aFile = this->Internal->ProcessedFileList[i].c_str();

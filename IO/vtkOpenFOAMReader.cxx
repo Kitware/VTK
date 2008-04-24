@@ -58,7 +58,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.11");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.12");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -920,7 +920,7 @@ void vtkOpenFOAMReader::ReadControlDict ()
   //Add the time steps that actually exist to steps
   //allows the run to be stopped short of controlDict spec
   //allows for removal of timesteps
-  this->NumberOfTimeSteps = tempSteps.size();
+  this->NumberOfTimeSteps = static_cast<int>(tempSteps.size());
   this->Steps = new double[this->NumberOfTimeSteps];
   for(int i = 0; i < this->NumberOfTimeSteps; i++)
     {
@@ -3410,10 +3410,10 @@ void vtkOpenFOAMReader::CreateDataSet(vtkMultiBlockDataSet *output)
   this->CellZoneNames =
     this->GatherBlocks("cellZones", timeState);
 
-  int numBoundaries = this->BoundaryNames->value.size();
-  int numPointZones = this->PointZoneNames->value.size();
-  int numFaceZones = this->FaceZoneNames->value.size();
-  int numCellZones = this->CellZoneNames->value.size();
+  int numBoundaries = static_cast<int>(this->BoundaryNames->value.size());
+  int numPointZones = static_cast<int>(this->PointZoneNames->value.size());
+  int numFaceZones = static_cast<int>(this->FaceZoneNames->value.size());
+  int numCellZones = static_cast<int>(this->CellZoneNames->value.size());
 
   //Internal Mesh
   vtkUnstructuredGrid * internalMesh = this->MakeInternalMesh();

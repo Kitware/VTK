@@ -41,7 +41,7 @@ extern const char *vtkHAVSVolumeMapper_k6BeginFP;
 extern const char *vtkHAVSVolumeMapper_k6FP;
 extern const char *vtkHAVSVolumeMapper_k6EndFP;
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.11");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.12");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
@@ -319,7 +319,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
   vtkgl::BindProgramARB(vtkgl::VERTEX_PROGRAM_ARB, this->VertexProgram);
   vtkgl::ProgramStringARB(vtkgl::VERTEX_PROGRAM_ARB,
                           vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                          strlen(vtkHAVSVolumeMapper_kbufferVP),
+                          static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_kbufferVP)),
                           vtkHAVSVolumeMapper_kbufferVP);
   
   // Create fragment shaders
@@ -332,20 +332,20 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
                           this->FragmentProgramBegin);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k2BeginFP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k2BeginFP)),
                             vtkHAVSVolumeMapper_k2BeginFP);
     vtkgl::GenProgramsARB(1, reinterpret_cast<GLuint *>(&this->FragmentProgram));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, this->FragmentProgram);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k2FP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k2FP)),
                             vtkHAVSVolumeMapper_k2FP);
     vtkgl::GenProgramsARB(1, reinterpret_cast<GLuint *>(&this->FragmentProgramEnd));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramEnd);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k2EndFP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k2EndFP)),
                             vtkHAVSVolumeMapper_k2EndFP);
     }
   else
@@ -356,20 +356,20 @@ void vtkOpenGLHAVSVolumeMapper::InitializeShaders()
                           this->FragmentProgramBegin);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k6BeginFP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k6BeginFP)),
                             vtkHAVSVolumeMapper_k6BeginFP);
     vtkgl::GenProgramsARB(1, reinterpret_cast<GLuint *>(&this->FragmentProgram));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB, this->FragmentProgram);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k6FP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k6FP)),
                             vtkHAVSVolumeMapper_k6FP);
     vtkgl::GenProgramsARB(1, reinterpret_cast<GLuint *>(&this->FragmentProgramEnd));
     vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                           this->FragmentProgramEnd);
     vtkgl::ProgramStringARB(vtkgl::FRAGMENT_PROGRAM_ARB,
                             vtkgl::PROGRAM_FORMAT_ASCII_ARB,
-                            strlen(vtkHAVSVolumeMapper_k6EndFP),
+                            static_cast<GLsizei>(strlen(vtkHAVSVolumeMapper_k6EndFP)),
                             vtkHAVSVolumeMapper_k6EndFP);
     }
 

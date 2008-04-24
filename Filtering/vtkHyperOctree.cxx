@@ -114,7 +114,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.22");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.23");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -517,13 +517,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.22");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.23");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.22" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.23" << '\n';
 }
   
 
@@ -655,7 +655,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.22");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.23");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -760,7 +760,7 @@ public:
   virtual int GetNumberOfNodes()
     {
       assert("post: not_empty" && this->Nodes.size()>0);
-      return this->Nodes.size();
+      return static_cast<int>(this->Nodes.size());
     }
   
   //---------------------------------------------------------------------------
@@ -786,7 +786,7 @@ public:
       // the leaf becomes a node and is not anymore a leaf.
       cursor->SetIsLeaf(0); // let the cursor knows about that change.
       size_t nodeIndex=this->Nodes.size();
-      cursor->SetCursor(nodeIndex);
+      cursor->SetCursor(static_cast<int>(nodeIndex));
       this->Nodes.resize(nodeIndex+1);
       this->Nodes[nodeIndex].SetParent(this->LeafParent[leafIndex]);
       this->Nodes[nodeIndex].SetLeafFlags((1<<(1<<D))-1); // trick: all set a 1.
@@ -799,20 +799,20 @@ public:
       unsigned char mask=1;
       mask<<=i;
       parent->SetLeafFlags(parent->GetLeafFlags()^mask);
-      parent->SetChild(i,nodeIndex);
+      parent->SetChild(i,static_cast<int>(nodeIndex));
       
       // The first new child
       this->Nodes[nodeIndex].SetChild(0,leafIndex);
-      this->LeafParent[leafIndex]=nodeIndex;
-        
+      this->LeafParent[leafIndex]=static_cast<int>(nodeIndex);
+
       // The other (c-1) new children.
       size_t nextLeaf=this->LeafParent.size();
       this->LeafParent.resize(nextLeaf+(c-1));
       i=1;
       while(i<c)
         {
-        this->Nodes[nodeIndex].SetChild(i,nextLeaf);
-        this->LeafParent[nextLeaf]=nodeIndex;
+        this->Nodes[nodeIndex].SetChild(i,static_cast<int>(nextLeaf));
+        this->LeafParent[nextLeaf]=static_cast<int>(nodeIndex);
         ++nextLeaf;
         ++i;
         }
@@ -858,7 +858,7 @@ public:
   //---------------------------------------------------------------------------
   int GetLeafParentSize()
     {
-      return this->LeafParent.size();
+      return static_cast<int>(this->LeafParent.size());
     }
   
   //---------------------------------------------------------------------------
@@ -960,13 +960,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.22");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.23");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.22" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.23" << '\n';
 }
   
 
@@ -974,7 +974,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.22");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.23");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
