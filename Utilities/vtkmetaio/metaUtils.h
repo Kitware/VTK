@@ -326,7 +326,7 @@ bool MET_InitWriteField(MET_FieldRecordType * _mf,
   _mf->name[254] = '\0';
   _mf->type = _type;
   _mf->defined = true;
-  _mf->length = _length;
+  _mf->length = static_cast<int>(_length);
   _mf->dependsOn = -1;
   _mf->required = false;
   _mf->terminateRead = false;

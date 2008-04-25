@@ -692,7 +692,7 @@ M_Write(void)
     unsigned int pntDim = m_NDims+6; 
     const DTITubePnt::FieldListType & extraList =
                                     (*(m_PointList.begin()))->GetExtraFields();
-    pntDim += extraList.size();
+    pntDim += static_cast<unsigned int>(extraList.size());
 
     char* data = new char[pntDim*m_NPoints*elementSize];
     int i=0;

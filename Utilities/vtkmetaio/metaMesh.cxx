@@ -1248,7 +1248,7 @@ M_Write(void)
         m_Fields.push_back(mF);
         }
 
-      m_NCells = m_CellListArray[i]->size();
+      m_NCells = static_cast<int>(m_CellListArray[i]->size());
       mF = new MET_FieldRecordType;
       MET_InitWriteField(mF, "NCells", MET_INT,m_NCells);
       m_Fields.push_back(mF);
@@ -1267,7 +1267,7 @@ M_Write(void)
       /** Then copy all cells */
       if(m_BinaryData)
         {
-        unsigned int totalCellsSize = m_CellListArray[i]->size()*(MET_CellSize[i]+1);
+        unsigned int totalCellsSize = static_cast<unsigned int>(m_CellListArray[i]->size()*(MET_CellSize[i]+1));
         char* data = new char[totalCellsSize*sizeof(int)];
         unsigned int d;
         int j=0;
@@ -1316,7 +1316,7 @@ M_Write(void)
   if(m_CellLinks.size()>0)
     {
     MetaObject::ClearFields();
-    m_NCellLinks = m_CellLinks.size();
+    m_NCellLinks = static_cast<int>(m_CellLinks.size());
     MET_FieldRecordType * mF;
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "NCellLinks", MET_INT,m_NCellLinks);
@@ -1329,7 +1329,7 @@ M_Write(void)
       CellLinkListType::const_iterator itEnd = m_CellLinks.end();
       while(it != itEnd)
         {
-        cellLinksSize += 2+(*it)->m_Links.size();
+        cellLinksSize += static_cast<int>(2+(*it)->m_Links.size());
         it++;
         }
       mF = new MET_FieldRecordType;
@@ -1362,7 +1362,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&clId,MET_INT);
         MET_DoubleToValue((double)clId,MET_INT,data,j++);
 
-        int linkSize = (*it)->m_Links.size();
+        int linkSize = static_cast<int>((*it)->m_Links.size());
         MET_SwapByteIfSystemMSB(&linkSize,MET_INT);
         MET_DoubleToValue((double)linkSize,MET_INT,data,j++);
 
@@ -1408,7 +1408,7 @@ M_Write(void)
   if(m_PointData.size()>0)
     {
     MetaObject::ClearFields();
-    m_NPointData = m_PointData.size();
+    m_NPointData = static_cast<int>(m_PointData.size());
     MET_FieldRecordType * mF;
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "NPointData", MET_INT,m_NPointData);
@@ -1456,7 +1456,7 @@ M_Write(void)
   if(m_CellData.size()>0)
     {
     MetaObject::ClearFields();
-    m_NCellData = m_CellData.size();
+    m_NCellData = static_cast<int>(m_CellData.size());
     MET_FieldRecordType * mF;
     mF = new MET_FieldRecordType;
     MET_InitWriteField(mF, "NCellData", MET_INT,m_NCellData);

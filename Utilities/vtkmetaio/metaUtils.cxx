@@ -946,7 +946,7 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
   _mf->dependsOn = _dependsOn;
   _mf->required = _required;
   _mf->terminateRead = false;
-  _mf->length = _length;
+  _mf->length = static_cast<int>(_length);
   _mf->value[0] = 0;
   return true;
   }
@@ -1507,7 +1507,7 @@ bool MET_WriteFieldToFile(METAIO_STREAM::ostream & _fp, const char *_fieldName,
   sprintf(f.name, "%s", _fieldName);
   f.defined = false;
   f.dependsOn = -1;
-  f.length = _n;
+  f.length = static_cast<int>(_n);
   f.required = false;
   f.type = _pType;
   switch(_pType)

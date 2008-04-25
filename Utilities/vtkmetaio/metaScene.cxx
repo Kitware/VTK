@@ -387,7 +387,7 @@ Write(const char *_headName)
 
   // Set the number of objects based on the net list
   //ObjectListType::const_iterator itNet = m_ObjectList.begin();
-  m_NObjects = m_ObjectList.size();
+  m_NObjects = static_cast<int>(m_ObjectList.size());
 
   M_SetupWriteFields();
 

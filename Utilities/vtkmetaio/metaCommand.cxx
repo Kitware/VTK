@@ -992,12 +992,12 @@ GetXML(const char* buffer, const char* desc, unsigned long pos)
 
   METAIO_STL::string buf = buffer;
 
-  long int posb = buf.find(begin,pos);
+  long int posb = static_cast<long int>(buf.find(begin,pos));
   if(posb == -1)
     {
     return "";
     }
-  long int pose = buf.find(end,posb);
+  long int pose = static_cast<long int>(buf.find(end,posb));
   if(pose == -1)
     {
     return "";
@@ -1031,7 +1031,7 @@ ParseXML(const char* buffer)
     unsigned int n = atoi(this->GetXML(buf.c_str(),"nvalues",0).c_str());
 
     // Now check the fields
-    long posF = buf.find("<field>");
+    long posF = static_cast<long>(buf.find("<field>"));
     for(unsigned int i=0;i<n;i++)
       {
       METAIO_STL::string f = this->GetXML(buf.c_str(),"field",posF);
@@ -1066,12 +1066,12 @@ ParseXML(const char* buffer)
         }
 
       option.fields.push_back(field);
-      posF += f.size()+8;
+      posF += static_cast<long>(f.size()+8);
       }
 
     m_OptionVector.push_back(option);
 
-    pos += buf.size()+17;
+    pos += static_cast<long>(buf.size()+17);
     buf = this->GetXML(buffer,"option",pos);
     }
 
@@ -1430,12 +1430,12 @@ ExportGAD(bool dynamic)
              << (*itFields).value.c_str() << "\"/>" << METAIO_STREAM::endl;
 
         METAIO_STL::string datapath = (*itFields).value;
-        long int slash = datapath.find_last_of("/");
+        long int slash = static_cast<long int>(datapath.find_last_of("/"));
         if(slash>0)
           {
           datapath = datapath.substr(slash+1,datapath.size()-slash-1);
           }
-        slash = datapath.find_last_of("\\");
+        slash = static_cast<long int>(datapath.find_last_of("\\"));
         if(slash>0)
           {
           datapath = datapath.substr(slash+1,datapath.size()-slash-1);
@@ -1580,12 +1580,12 @@ ExportGAD(bool dynamic)
         file << "  <parameter name=\"Protocol\" value=\"gsiftp\"/>" 
              << METAIO_STREAM::endl;
         METAIO_STL::string datapath = (*itFields).value;
-        long int slash = datapath.find_last_of("/");
+        long int slash = static_cast<long int>(datapath.find_last_of("/"));
         if(slash>0)
           {
           datapath = datapath.substr(slash+1,datapath.size()-slash-1);
           }
-        slash = datapath.find_last_of("\\");
+        slash = static_cast<long int>(datapath.find_last_of("\\"));
         if(slash>0)
           {
           datapath = datapath.substr(slash+1,datapath.size()-slash-1);
@@ -1619,13 +1619,13 @@ bool MetaCommand::Parse(int argc, char* argv[])
   m_GotXMLFlag = false;
   m_ExecutableName = argv[0];
 
-  long int slash = m_ExecutableName.find_last_of("/");
+  long int slash = static_cast<long int>(m_ExecutableName.find_last_of("/"));
   if(slash>0)
     {
     m_ExecutableName = m_ExecutableName.substr(slash+1,
                                                m_ExecutableName.size()-slash-1);
     }
-  slash = m_ExecutableName.find_last_of("\\");
+  slash = static_cast<long int>(m_ExecutableName.find_last_of("\\"));
   if(slash>0)
     {
     m_ExecutableName = m_ExecutableName.substr(slash+1,
@@ -1831,7 +1831,7 @@ bool MetaCommand::Parse(int argc, char* argv[])
         if((pos >= currentField) && ((*it).tag=="" && (*it).longtag==""))
           {
           currentOption = pos;
-          valuesRemaining = (*it).fields.size();
+          valuesRemaining = static_cast<unsigned int>((*it).fields.size());
           found = true;
           break;
           }
@@ -1877,7 +1877,8 @@ bool MetaCommand::Parse(int argc, char* argv[])
 
       else if(currentOption >=0 && currentOption <(int)(m_OptionVector.size()))
         {
-        unsigned long s = m_OptionVector[currentOption].fields.size();
+        unsigned long s = static_cast<unsigned long>(
+          m_OptionVector[currentOption].fields.size());
 
         // We change the value only if this is not a tag
         if(this->OptionExistsByMinusTag(argv[i]))
