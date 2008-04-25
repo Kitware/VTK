@@ -33,11 +33,57 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTree.h"
+#include "vtkVariantArray.h"
 
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.6");
+
+//---------------------------------------------------------------------------
+class vtkVariantCompare
+{
+public:
+  bool operator()(
+    const vtkVariant& a,
+    const vtkVariant& b) const
+  {
+    if (a.GetType() == VTK_STRING)
+      {
+      return a.ToString() < b.ToString();
+      }
+    else if (a.IsNumeric())
+      {
+      return a.ToDouble() < b.ToDouble();
+      }
+    else
+      {
+      // Punt, just do pointer difference.
+      return &a < &b;
+      }
+  }
+};
+
+//---------------------------------------------------------------------------
+template <typename T>
+vtkVariant vtkGetValue(T* arr, vtkIdType index)
+{
+  return vtkVariant(arr[index]);
+}
+
+//---------------------------------------------------------------------------
+vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
+{
+  vtkVariant val;
+  switch(arr->GetDataType())
+    {
+    vtkExtraExtendedTemplateMacro(val = vtkGetValue(
+      static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
+    }
+  return val;
+}
+
+
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.7");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -77,7 +123,10 @@ void mappingMadness(T *graphIds, T *treeIds, map<vtkIdType,vtkIdType> *idMap,
   // Now create the output map
   for (int i=0; i<numTreeVertices; ++i)
     {
-    (*idMap)[graphIdMap[treeIds[i]]] = i;
+    if (graphIdMap.count(treeIds[i]) > 0)
+      {
+      (*idMap)[graphIdMap[treeIds[i]]] = i;
+      }
     }
 } 
 
@@ -148,12 +197,33 @@ int vtkGraphHierarchicalBundle::RequestData(
         return 0;
         }
       }
+#if 0
     if (graphIdArray->GetDataType() != treeIdArray->GetDataType())
       {
       vtkErrorMacro("Pedigree id types not not match.");
       return 0;
       }
+#endif
+
+    map<vtkVariant,vtkIdType,vtkVariantCompare> graphIdMap;
+    
+    // Create a map from graph id to graph index
+    for (int i=0; i<graph->GetNumberOfVertices(); ++i)
+      {
+      graphIdMap[vtkGetVariantValue(graphIdArray,i)] = i;
+      }
       
+    // Now create the map from graph index to tree index
+    for (int i=0; i<tree->GetNumberOfVertices(); ++i)
+      {
+      vtkVariant id = vtkGetVariantValue(treeIdArray,i);
+      if (graphIdMap.count(id) > 0)
+        {
+        graphIndexToTreeIndex[graphIdMap[id]] = i;
+        }
+      }
+      
+#if 0
     // Create void pointers that will be recast within
     // the template macro
     void *graphVoid = graphIdArray->GetVoidPointer(0);
@@ -166,6 +236,7 @@ int vtkGraphHierarchicalBundle::RequestData(
                                       graph->GetNumberOfVertices(),
                                       tree->GetNumberOfVertices()));
       }
+#endif
     }
   
 
@@ -332,8 +403,6 @@ int vtkGraphHierarchicalBundle::RequestData(
     if (curPoint != cellPoints)
       {
       vtkErrorMacro(<< "Number of points mismatch! Expected " << cellPoints << ", have " << curPoint);
-      cerr << "Number of points mismatch! Expected " << cellPoints << ", have " << curPoint << endl;
-      cerr << source << "," << target << endl;
       }
     }
   output->GetPointData()->AddArray(fractionArray);

@@ -31,14 +31,73 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
+#include "vtkVariant.h"
 
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.6");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.7");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
+//---------------------------------------------------------------------------
+class vtkVariantCompare
+{
+public:
+  bool operator()(
+    const vtkVariant& a,
+    const vtkVariant& b) const
+  {
+    if (a.GetType() == VTK_STRING)
+      {
+      return a.ToString() < b.ToString();
+      }
+    else if (a.IsNumeric())
+      {
+      return a.ToDouble() < b.ToDouble();
+      }
+    else
+      {
+      // Punt, just do pointer difference.
+      return &a < &b;
+      }
+  }
+};
+
+//---------------------------------------------------------------------------
+class vtkGroupLeafVerticesCompare
+{
+public:
+  bool operator()(
+    const vtksys_stl::pair<vtkIdType, vtkVariant>& a,
+    const vtksys_stl::pair<vtkIdType, vtkVariant>& b) const
+  {
+    if (a.first != b.first)
+      {
+      return a.first < b.first;
+      }
+    return vtkVariantCompare()(a.second, b.second);
+  }
+};
+
+//---------------------------------------------------------------------------
+template <typename T>
+vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
+{
+  return vtkVariant(arr[index]);
+}
+
+//---------------------------------------------------------------------------
+vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
+{
+  vtkVariant val;
+  switch(arr->GetDataType())
+    {
+    vtkExtendedTemplateMacro(val = vtkGroupLeafVerticesGetValue(
+      static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
+    }
+  return val;
+}
 
 vtkGroupLeafVertices::vtkGroupLeafVertices()
 {
@@ -71,14 +130,6 @@ int vtkGroupLeafVertices::RequestData(
   if (arr == NULL)
     {
     vtkErrorMacro(<< "An input array must be specified");
-    return 0;
-    }
-
-  // For now, the field must be a string array
-  vtkStringArray* stringArr = vtkStringArray::SafeDownCast(arr);
-  if (stringArr == NULL)
-    {
-    vtkErrorMacro(<< "The input array must be a string array");
     return 0;
     }
 
@@ -125,7 +176,8 @@ int vtkGroupLeafVertices::RequestData(
 
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkStdString>, vtkIdType> group_vertices;
+  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkVariant>,
+    vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
   vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
   vertStack.push_back(vtksys_stl::make_pair(input->GetRoot(), builder->AddVertex()));
   vtkSmartPointer<vtkOutEdgeIterator> it =
@@ -155,10 +207,10 @@ int vtkGroupLeafVertices::RequestData(
         // If it is a leaf, it should be grouped.
         // Look for a group vertex.  If there isn't one already, make one.
         vtkIdType group_vertex = -1;
-        vtkStdString str = stringArr->GetValue(tree_child);
-        if (group_vertices.count(vtksys_stl::make_pair(v, str)) > 0)
+        vtkVariant groupVal = vtkGroupLeafVerticesGetVariant(arr, tree_child);
+        if (group_vertices.count(vtksys_stl::make_pair(v, groupVal)) > 0)
           {
-          group_vertex = group_vertices[vtksys_stl::make_pair(v, str)];
+          group_vertex = group_vertices[vtksys_stl::make_pair(v, groupVal)];
           }
         else
           {
@@ -166,10 +218,10 @@ int vtkGroupLeafVertices::RequestData(
           treeTable->InsertNextBlankRow();
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
-          group_vertices[vtksys_stl::make_pair(v, str)] = group_vertex;
+          group_vertices[vtksys_stl::make_pair(v, groupVal)] = group_vertex;
           if (outputNameArr)
             {
-            outputNameArr->InsertValue(group_vertex, str);
+            outputNameArr->InsertValue(group_vertex, groupVal.ToString());
             }
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
@@ -184,7 +236,7 @@ int vtkGroupLeafVertices::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output->CheckedShallowCopy(builder))
     {
-    vtkErrorMacro(<<"Invalid tree strucutre!");
+    vtkErrorMacro(<<"Invalid tree structure!");
     return 0;
     }
 
