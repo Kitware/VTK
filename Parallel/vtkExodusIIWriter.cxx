@@ -100,7 +100,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.21");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.22");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -878,7 +878,7 @@ int vtkExodusIIWriter::CreateExodusModel()
             {
             blockIds->InsertNextValue(*iter);
             }
-          this->SetAllBlockIds(blockIdSet.size(), blockIds->GetPointer(0));
+          this->SetAllBlockIds( static_cast<int>( blockIdSet.size() ), blockIds->GetPointer(0));
           blockIds->Delete();
           }
         }
@@ -1117,7 +1117,7 @@ int vtkExodusIIWriter::CreateBlockIdInformation(vtkModelMetadata *em)
       {
       blockIds->InsertNextValue(*iter);
       }
-    this->SetAllBlockIds(blockIdSet.size(), blockIds->GetPointer(0));
+    this->SetAllBlockIds( static_cast<int>( blockIdSet.size() ), blockIds->GetPointer(0));
     blockIds->Delete();
     }
 
@@ -3528,7 +3528,7 @@ char *vtkExodusIIWriter::StrDupWithNew(const char *s)
 
   if (s)
     {
-    int len = strlen(s);
+    size_t len = strlen(s);
     if (len == 0)
       {
       newstr = new char [1];
@@ -3547,11 +3547,11 @@ char *vtkExodusIIWriter::StrDupWithNew(const char *s)
 
 void vtkExodusIIWriter::StringUppercase(const char* str, char* upperstr)
 { 
-  int len = 0;
+  size_t len = 0;
   if ( str )
     {
     len = strlen(str);
-    for (int i=0; i<len; i++)
+    for (size_t i=0; i<len; i++)
       upperstr[i] = toupper(str[i]);
     }
   else

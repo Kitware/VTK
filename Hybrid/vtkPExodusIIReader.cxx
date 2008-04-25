@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.22");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.23");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -385,7 +385,7 @@ int vtkPExodusIIReader::RequestData(
   int processNumber;
   int numProcessors;
   int min, max, idx;
-  unsigned long reader_idx;
+  int reader_idx;
 
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   // get the ouptut
@@ -466,7 +466,7 @@ int vtkPExodusIIReader::RequestData(
 
   if ( ReaderList.size() < numMyFiles )
     {
-    for ( reader_idx = this->ReaderList.size(); reader_idx < numMyFiles; ++reader_idx )
+    for ( reader_idx = static_cast<int>( this->ReaderList.size() ); reader_idx < static_cast<int>(numMyFiles); ++reader_idx )
       {
       vtkExodusIIReader* er = vtkExodusIIReader::New();
       vtkPExodusIIReaderUpdateProgress* progress = vtkPExodusIIReaderUpdateProgress::New();
@@ -480,7 +480,7 @@ int vtkPExodusIIReader::RequestData(
     }
   else if ( this->ReaderList.size() > numMyFiles )
     {
-    for ( reader_idx = this->ReaderList.size() - 1; reader_idx >= numMyFiles; --reader_idx )
+    for ( reader_idx = static_cast<int>( this->ReaderList.size() ) - 1; reader_idx >= static_cast<int>(numMyFiles); --reader_idx )
       {
       this->ReaderList[reader_idx]->Delete();
       ReaderList.pop_back();
@@ -853,7 +853,7 @@ int vtkPExodusIIReader::DetermineFileId( const char* file )
 int vtkPExodusIIReader::DeterminePattern( const char* file )
 {
   char* prefix = vtksys::SystemTools::DuplicateString( file );
-  int slen = strlen( file );
+  int slen = static_cast<int>( strlen( file ) );
   char pattern[20] = "%s";
   int scount = 0;
   int cc = 0;
@@ -1066,7 +1066,7 @@ void vtkPExodusIIReader::UpdateTimeInformation()
 
   int lastTimeStep = VTK_INT_MAX;
   int numTimeSteps = 0;
-  for ( unsigned int reader_idx = 0; reader_idx < this->ReaderList.size(); ++ reader_idx )
+  for ( size_t reader_idx = 0; reader_idx < this->ReaderList.size(); ++ reader_idx )
     {
     vtkExodusIIReader *reader = this->ReaderList[reader_idx];
 
@@ -1091,7 +1091,7 @@ static void BroadcastXmitString( vtkMultiProcessController* ctrl, char* str )
   int len;
   if ( str )
     {
-    len = strlen( str ) + 1;
+    len = static_cast<int>( strlen( str ) ) + 1;
     ctrl->Broadcast( &len, 1, 0 );
     ctrl->Broadcast( str, len, 0 );
     }

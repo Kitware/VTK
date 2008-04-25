@@ -52,7 +52,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.13");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.14");
 vtkStandardNewMacro(vtkPExodusReader);
 
 class vtkPExodusReaderUpdateProgress : public vtkCommand
@@ -174,7 +174,7 @@ vtkPExodusReader::~vtkPExodusReader()
     }
 
   // Delete all the readers we may have
-  for(int reader_idx=readerList.size()-1; reader_idx >= 0; --reader_idx)
+  for(int reader_idx=static_cast<int>( readerList.size() )-1; reader_idx >= 0; --reader_idx)
     {
     readerList[reader_idx]->Delete();
     readerList.pop_back();
@@ -292,7 +292,7 @@ int vtkPExodusReader::RequestData(
   int processNumber;
   int numProcessors;
   int min, max, idx;
-  unsigned int reader_idx;
+  size_t reader_idx;
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   // get the ouptut
@@ -386,7 +386,7 @@ int vtkPExodusReader::RequestData(
       vtkPExodusReaderUpdateProgress* progress = 
         vtkPExodusReaderUpdateProgress::New();
       progress->SetReader(this);
-      progress->SetIndex(reader_idx);
+      progress->SetIndex(static_cast<int>(reader_idx));
       er->AddObserver(vtkCommand::ProgressEvent, progress);
       progress->Delete();
 
@@ -820,7 +820,7 @@ int vtkPExodusReader::DeterminePattern(const char* file)
 
 
   // Find minimum of range, if any
-  for ( cc = strlen(file)-1; cc>=0; cc -- )
+  for ( cc = static_cast<int>( strlen(file) )-1; cc>=0; cc -- )
     {
     if ( prefix[cc] >= '0' && prefix[cc] <= '9' )
       {
@@ -1037,7 +1037,7 @@ void vtkPExodusReader::GetDSPOutputArrays(int exoid, vtkUnstructuredGrid* output
 int vtkPExodusReader::GetTotalNumberOfElements()
 {
   int total = 0;
-  for(int id=readerList.size()-1; id >= 0; --id)
+  for(int id=static_cast<int>( readerList.size() )-1; id >= 0; --id)
     {
     total += this->readerList[id]->GetTotalNumberOfElements();
     }
@@ -1047,7 +1047,7 @@ int vtkPExodusReader::GetTotalNumberOfElements()
 int vtkPExodusReader::GetTotalNumberOfNodes()
 {
   int total = 0;
-  for(int id=readerList.size()-1; id >= 0; --id)
+  for(int id=static_cast<int>( readerList.size() )-1; id >= 0; --id)
     {
     total += this->readerList[id]->GetTotalNumberOfNodes();
     }

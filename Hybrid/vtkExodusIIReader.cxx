@@ -250,7 +250,7 @@ public:
   
   virtual int GetNumberOfHierarchyEntries()
   {
-    return this->apbList.size();
+    return static_cast<int>( this->apbList.size() );
   }
   
   virtual vtkStdString GetHierarchyEntry(int num)
@@ -334,19 +334,19 @@ protected:
       
       //make the entry for the hierarchical list
       vtkStdString result=vtkStdString("");
-      for (vtkstd::vector<int>::size_type i=0;
-           i<this->CurrentAssemblyNumbers.size()-1;
-           i++)
+      for ( vtkstd::vector<int>::size_type i = 0;
+           i < this->CurrentAssemblyNumbers.size() - 1;
+           ++i )
         {
-        result+=vtkStdString("       ");
+        result += vtkStdString( "       " );
         }
       
-      result+=vtkStdString("Assembly: ")+
-        assemblyDescription+vtkStdString(" (")+
-        assemblyNumber+vtkStdString(")");
-      apbList.push_back(result);
+      result+=vtkStdString( "Assembly: " ) +
+        assemblyDescription+vtkStdString( " (" ) +
+        assemblyNumber+vtkStdString( ")" );
+      apbList.push_back( result );
       //record the indent level, used when we add blocks
-      apbIndents[result]=this->CurrentAssemblyNumbers.size()-1;
+      apbIndents[result] = static_cast<int>( this->CurrentAssemblyNumbers.size() ) - 1;
       //make the blocks array
       apbToBlocks[result]=vtkstd::vector<int>();
       }
@@ -397,8 +397,8 @@ protected:
         instanceString;
       apbList.push_back(result);
       //record the indent level
-      apbIndents[result]=this->CurrentAssemblyNumbers.size();
-      apbToBlocks[result]=vtkstd::vector<int>();
+      apbIndents[result] = static_cast<int>( this->CurrentAssemblyNumbers.size() );
+      apbToBlocks[result] = vtkstd::vector<int>();
       }
     else if ( tName == "material-specification" )
       {
@@ -618,15 +618,15 @@ protected:
       {
       vtkstd::map<int,vtkStdString>::iterator i = 
                                   this->BlockIDToPartNumber.begin();
-      while (i!=this->BlockIDToPartNumber.end())
+      while ( i != this->BlockIDToPartNumber.end() )
         {
-        int id=(*i).first;
+        int id = (*i).first;
         vtkStdString part=(*i).second;
-        vtkStdString partSpec=vtkStdString("");
-        vtkStdString instance=vtkStdString("");
+        vtkStdString partSpec=vtkStdString( "" );
+        vtkStdString instance=vtkStdString( "" );
         //get part spec and instance from part
-        int pos=part.find(" Instance: ");
-        if (pos!=(int)vtkStdString::npos)
+        int pos = static_cast<int>( part.find( " Instance: " ) );
+        if ( pos != (int)vtkStdString::npos )
           {
           partSpec.assign(part,0,pos);
           instance.assign(part,pos+11,part.size()-(pos+11));
@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.62");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.63");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -898,7 +898,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.62");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.63");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -1174,7 +1174,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
         const char xyzEndings[] = "XYZ";
         const char rzEndings[] = "RZ";
         const char* endings = toupper( var_names[i][sli] ) == 'R' ? rzEndings : xyzEndings;
-        int numEndings = strlen( endings );
+        int numEndings = static_cast<int>( strlen( endings ) );
         if ( endings == rzEndings ) vecPattern = 1;
         while ( ii < num_vars && ( ii - i < numEndings ) )
           {
@@ -3594,7 +3594,7 @@ void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
 
 int vtkExodusIIReaderPrivate::GetNumberOfParts()
 {
-  return this->PartInfo.size();
+  return static_cast<int>( this->PartInfo.size() );
 }
 
 const char* vtkExodusIIReaderPrivate::GetPartName(int idx)
@@ -3668,7 +3668,7 @@ void vtkExodusIIReaderPrivate::SetPartStatus(vtkStdString name, int flag)
   
 int vtkExodusIIReaderPrivate::GetNumberOfMaterials()
 {
-  return this->MaterialInfo.size();
+  return static_cast<int>( this->MaterialInfo.size() );
 }
 
 const char* vtkExodusIIReaderPrivate::GetMaterialName(int idx)
@@ -3727,7 +3727,7 @@ void vtkExodusIIReaderPrivate::SetMaterialStatus(vtkStdString name, int flag)
   
 int vtkExodusIIReaderPrivate::GetNumberOfAssemblies()
 {
-  return this->AssemblyInfo.size();
+  return static_cast<int>( this->AssemblyInfo.size() );
 }
   
 const char* vtkExodusIIReaderPrivate::GetAssemblyName(int idx)
@@ -4015,7 +4015,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   vtkstd::vector<MapInfoType> mitBlank;
   vtkstd::vector<ArrayInfoType> aitBlank;
 
-  num_timesteps = this->Times.size();
+  num_timesteps = static_cast<int>( this->Times.size() );
 /*
   this->Times.clear();
   if ( num_timesteps > 0 )
@@ -4205,7 +4205,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           // Override the existing block name with the new one     
           binfo.Name = blockName;
           
-          int blockIdx = this->BlockInfo[obj_types[i]].size();
+          int blockIdx = static_cast<int>( this->BlockInfo[obj_types[i]].size() );
 
           // Add this block to our parts, materials, and assemblies collections
 
@@ -4227,7 +4227,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
             {
             PartInfoType pinfo;
             pinfo.Name = partName;
-            pinfo.Id = this->PartInfo.size();
+            pinfo.Id = static_cast<int>( this->PartInfo.size() );
             //binfo.PartId = k;
             pinfo.BlockIndices.push_back(blockIdx);
             this->PartInfo.push_back(pinfo);
@@ -4247,7 +4247,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
             {
             MaterialInfoType matinfo;
             matinfo.Name = materialName;
-            matinfo.Id = this->MaterialInfo.size();
+            matinfo.Id = static_cast<int>( this->MaterialInfo.size() );
             //binfo.MaterialId = k;
             matinfo.BlockIndices.push_back(blockIdx);
             this->MaterialInfo.push_back(matinfo);
@@ -4269,7 +4269,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
               {
               AssemblyInfoType ainfo;
               ainfo.Name = assemblyName;
-              ainfo.Id = this->AssemblyInfo.size();
+              ainfo.Id = static_cast<int>( this->AssemblyInfo.size() );
               //binfo.AssemblyIds.push_back(k);
               ainfo.BlockIndices.push_back(blockIdx);
               this->AssemblyInfo.push_back(ainfo);
@@ -4446,7 +4446,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 static void BroadcastDoubleVector( vtkMultiProcessController* controller,
   vtkstd::vector<double>& dvec, int rank )
 {
-  unsigned long len = dvec.size();
+  unsigned long len = static_cast<unsigned long>( dvec.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     {
@@ -4461,7 +4461,7 @@ static void BroadcastDoubleVector( vtkMultiProcessController* controller,
 static void BroadcastIntVector( vtkMultiProcessController* controller,
   vtkstd::vector<int>& ivec, int rank )
 {
-  unsigned long len = ivec.size();
+  unsigned long len = static_cast<unsigned long>( ivec.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     {
@@ -4475,7 +4475,7 @@ static void BroadcastIntVector( vtkMultiProcessController* controller,
 
 static void BroadcastString( vtkMultiProcessController* controller, vtkStdString& str, int rank )
 {
-  unsigned long len = str.size() + 1;
+  unsigned long len = static_cast<unsigned long>( str.size() ) + 1;
   controller->Broadcast( &len, 1, 0 );
   if ( len )
     {
@@ -4497,7 +4497,7 @@ static void BroadcastString( vtkMultiProcessController* controller, vtkStdString
 
 static void BroadcastStringVector( vtkMultiProcessController* controller, vtkstd::vector<vtkStdString>& svec, int rank )
 {
-  unsigned long len = svec.size();
+  unsigned long len = static_cast<unsigned long>( svec.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     svec.resize( len );
@@ -4528,7 +4528,7 @@ static void BroadcastBlockSetInfo( vtkMultiProcessController* controller,
   vtkIdType item[2];
   if ( rank == 0 )
     {
-    len = bsinfo->PointMap.size();
+    len = static_cast<unsigned long>( bsinfo->PointMap.size() );
     controller->Broadcast( &len, 1, 0 );
     for ( it = bsinfo->PointMap.begin(); it != bsinfo->PointMap.end(); ++ it )
       {
@@ -4618,7 +4618,7 @@ static void BroadcastArrayInfo( vtkMultiProcessController* controller,
 static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& ainfo, int rank )
 {
-  unsigned long len = ainfo.size();
+  unsigned long len = static_cast<unsigned long>( ainfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     ainfo.resize( len );
@@ -4632,7 +4632,7 @@ static void BroadcastArrayInfoVector( vtkMultiProcessController* controller,
 static void BroadcastSortedObjectIndices( vtkMultiProcessController* controller,
   vtkstd::map<int,vtkstd::vector<int> >& oidx, int rank )
 {
-  unsigned long len = oidx.size();
+  unsigned long len = static_cast<unsigned long>( oidx.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank == 0 )
     {
@@ -4663,7 +4663,7 @@ static void BroadcastArrayInfoMap(
   vtkMultiProcessController* controller,
   vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType> >& oidx, int rank )
 {
-  unsigned long len = oidx.size();
+  unsigned long len = static_cast<unsigned long>( oidx.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank == 0 )
     {
@@ -4716,7 +4716,7 @@ static void BroadcastModelParameters(
 static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType>& binfo, int rank )
 {
-  unsigned long len = binfo.size();
+  unsigned long len = static_cast<unsigned long>( binfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     binfo.resize( len );
@@ -4730,7 +4730,7 @@ static void BroadcastBlockInfoVector( vtkMultiProcessController* controller,
 static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
   vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::BlockInfoType> >& binfo, int rank )
 {
-  unsigned long len = binfo.size();
+  unsigned long len = static_cast<unsigned long>( binfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
@@ -4759,7 +4759,7 @@ static void BroadcastBlockInfoMap( vtkMultiProcessController* controller,
 static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType>& sinfo, int rank )
 {
-  unsigned long len = sinfo.size();
+  unsigned long len = static_cast<unsigned long>( sinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     sinfo.resize( len );
@@ -4773,7 +4773,7 @@ static void BroadcastSetInfoVector( vtkMultiProcessController* controller,
 static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
   vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::SetInfoType> >& sinfo, int rank )
 {
-  unsigned long len = sinfo.size();
+  unsigned long len = static_cast<unsigned long>( sinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
@@ -4802,7 +4802,7 @@ static void BroadcastSetInfoMap( vtkMultiProcessController* controller,
 static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType>& minfo, int rank )
 {
-  unsigned long len = minfo.size();
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     minfo.resize( len );
@@ -4816,7 +4816,7 @@ static void BroadcastMapInfoVector( vtkMultiProcessController* controller,
 static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
   vtkstd::map<int,vtkstd::vector<vtkExodusIIReaderPrivate::MapInfoType> >& minfo, int rank )
 {
-  unsigned long len = minfo.size();
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   int tmp;
   if ( rank == 0 )
@@ -4845,7 +4845,7 @@ static void BroadcastMapInfoMap( vtkMultiProcessController* controller,
 static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::PartInfoType>& pinfo, int rank )
 {
-  unsigned long len = pinfo.size();
+  unsigned long len = static_cast<unsigned long>( pinfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     pinfo.resize( len );
@@ -4859,7 +4859,7 @@ static void BroadcastPartInfoVector( vtkMultiProcessController* controller,
 static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::MaterialInfoType>& minfo, int rank )
 {
-  unsigned long len = minfo.size();
+  unsigned long len = static_cast<unsigned long>( minfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     minfo.resize( len );
@@ -4873,7 +4873,7 @@ static void BroadcastMaterialInfoVector( vtkMultiProcessController* controller,
 static void BroadcastAssemblyInfoVector( vtkMultiProcessController* controller,
   vtkstd::vector<vtkExodusIIReaderPrivate::AssemblyInfoType>& ainfo, int rank )
 {
-  unsigned long len = ainfo.size();
+  unsigned long len = static_cast<unsigned long>( ainfo.size() );
   controller->Broadcast( &len, 1, 0 );
   if ( rank )
     ainfo.resize( len );
@@ -5384,7 +5384,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus( int objectType, const cha
 
   // When no name is found for an object, it is given one of a certain format.
   // Parse the id out of that string and use it to identify the object later.
-  if( (idx = nm.find("ID: ")) != (int)vtkStdString::npos)
+  if ( ( idx = static_cast<int>( nm.find( "ID: " ) ) ) != (int) vtkStdString::npos )
     {
     idx += 4;
     idlen = 0;
@@ -5700,7 +5700,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.62");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.63");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);

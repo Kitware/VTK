@@ -180,7 +180,7 @@ public:
     }
   inline int GetNumberOfPointArrays() 
     { 
-      return pointArrayNames.size(); 
+      return static_cast<int>( pointArrayNames.size() ); 
     }
   inline const char* GetPointArrayName(int idx) 
     { 
@@ -232,7 +232,7 @@ public:
     }
   inline int GetNumberOfCellArrays() 
     { 
-      return cellArrayNames.size(); 
+      return static_cast<int>( cellArrayNames.size() ); 
     }
   inline const char* GetCellArrayName(int idx) 
     { 
@@ -319,8 +319,8 @@ public:
   //          metadata for all node/side sets this *should* agree with
   //          the number reported by exodus. Status flags specify which
   //          node/side sets get loaded and visualized.
-  inline int GetNumberOfNodeSets() { return this->nodeSetId.size(); }
-  inline int GetNumberOfSideSets() { return this->sideSetId.size(); }
+  inline int GetNumberOfNodeSets() { return static_cast<int>( this->nodeSetId.size() ); }
+  inline int GetNumberOfSideSets() { return static_cast<int>( this->sideSetId.size() ); }
 
   inline int GetNodeSetId( const int id )
     {
@@ -387,7 +387,7 @@ public:
         {
         if ( name == this->nodeSetName[id] ) 
           {
-          this->SetNodeSetStatus(id,status);
+          this->SetNodeSetStatus(static_cast<int>(id),status);
           return;
           }
         }
@@ -422,7 +422,7 @@ public:
         {
         if ( name == this->sideSetName[id] ) 
           {
-          this->SetSideSetStatus(id,status);
+          this->SetSideSetStatus(static_cast<int>(id),status);
           return;
           }
         }
@@ -442,7 +442,7 @@ public:
         {
         if ( name == this->nodeSetName[id] ) 
           {
-          return this->GetNodeSetStatus(id);
+          return this->GetNodeSetStatus(static_cast<int>(id));
           }
         }
         return 0;
@@ -458,7 +458,7 @@ public:
         {
         if ( name == this->sideSetName[id] ) 
           {
-          return this->GetSideSetStatus(id);
+          return this->GetSideSetStatus(static_cast<int>(id));
           }
         }
         return 0;
@@ -480,7 +480,7 @@ public:
     numElementsInBlock.push_back(num_elem);
     unsigned int i;
     int found=0;
-    int blockID=blockNames.size()-1;
+    int blockID=static_cast<int>(blockNames.size())-1;
     sortedOrder[blockID]=blockID;
     //set up the Part Arrays
     for (i=0;i<partNames.size();i++){
@@ -493,7 +493,7 @@ public:
     }
     if (!found)
       {
-      int partID=partNames.size();
+      int partID=static_cast<int>(partNames.size());
       partNames.push_back(partName);
       blockIDToPartID[blockID]=partID;
       partIDToBlockIDs[partID]=vtkstd::vector<int>();
@@ -513,7 +513,7 @@ public:
       }
     if (!found)
       {
-      int materialID=materialNames.size();
+      int materialID=static_cast<int>(materialNames.size());
       materialNames.push_back(materialName);
       blockIDToMaterialID[blockID]=materialID;
       materialIDToBlockIDs[materialID]=vtkstd::vector<int>();
@@ -528,14 +528,14 @@ public:
       for (vtkStdString::size_type j=0;j<assemblyNames.size();j++)
         {
         if (assemblyNames[j]==assemblyName){
-        blockIDToAssemblyIDs[blockID].push_back(j);
-        assemblyIDToBlockIDs[j].push_back(blockID);
+        blockIDToAssemblyIDs[blockID].push_back(static_cast<int>(j));
+        assemblyIDToBlockIDs[static_cast<int>(j)].push_back(blockID);
         found=1;
         }
         }
       if (!found)
         {
-        int assemblyID=assemblyNames.size();
+        int assemblyID=static_cast<int>(assemblyNames.size());
         assemblyNames.push_back(assemblyName);
         blockIDToAssemblyIDs[blockID]=vtkstd::vector<int>();
         blockIDToAssemblyIDs[blockID].push_back(assemblyID);
@@ -596,7 +596,7 @@ public:
   
   inline int GetNumberOfBlocks() 
   { 
-    return blockNames.size(); 
+    return static_cast<int>(blockNames.size()); 
   }
   inline int GetSortedOrder(int idx) 
   { 
@@ -681,7 +681,7 @@ public:
   //valid index already
   inline int GetNumberOfParts()
   {
-    return partNames.size();
+    return static_cast<int>(partNames.size());
   }
   inline const char* GetPartName(int idx)
   {
@@ -749,7 +749,7 @@ public:
   
   inline int GetNumberOfMaterials()
   {
-    return materialNames.size();
+    return static_cast<int>(materialNames.size());
   }
   
   inline const char* GetMaterialName(int idx)
@@ -805,7 +805,7 @@ public:
   //Assembly stuff
   inline int GetNumberOfAssemblies()
   {
-    return assemblyNames.size();
+    return static_cast<int>(assemblyNames.size());
   }
   
   inline const char* GetAssemblyName(int idx)
@@ -866,7 +866,7 @@ public:
       {
       if (exodusID==blockIds[i])
         {
-        return i;
+        return static_cast<int>(i);
         }
       }
     return -1;
@@ -885,7 +885,7 @@ public:
   void SortBlocks()
     {
       int i;
-      for (i=blockIds.size()-1;i>=0;i--)
+      for (i=static_cast<int>(blockIds.size())-1;i>=0;i--)
         {
         for (int j=1;j<=i;j++)
           {
@@ -992,7 +992,7 @@ public:
   
   virtual int GetNumberOfHierarchyEntries()
   {
-    return this->apbList.size();
+    return static_cast<int>(this->apbList.size());
   }
   
   virtual vtkStdString GetHierarchyEntry(int num)
@@ -1070,7 +1070,7 @@ protected:
         assemblyNumber+vtkStdString(")");
       apbList.push_back(result);
       //record the indent level, used when we add blocks
-      apbIndents[result]=this->CurrentAssemblyNumbers.size()-1;
+      apbIndents[result]=static_cast<int>(this->CurrentAssemblyNumbers.size())-1;
       //make the blocks array
       apbToBlocks[result]=vtkstd::vector<int>();
       }
@@ -1119,7 +1119,7 @@ protected:
         instanceString;
       apbList.push_back(result);
       //record the indent level
-      apbIndents[result]=this->CurrentAssemblyNumbers.size();
+      apbIndents[result]=static_cast<int>(this->CurrentAssemblyNumbers.size());
       apbToBlocks[result]=vtkstd::vector<int>();
       }
     // ***********Material-specification
@@ -1325,7 +1325,7 @@ protected:
         vtkStdString partSpec=vtkStdString("");
         vtkStdString instance=vtkStdString("");
         //get part spec and instance from part
-        int pos=part.find(" Instance: ");
+        int pos=static_cast<int>(part.find(" Instance: "));
         if (pos!=(int)vtkStdString::npos)
           {
           partSpec.assign(part,0,pos);
@@ -1395,7 +1395,7 @@ private:
 };
 
 
-vtkCxxRevisionMacro(vtkExodusXMLParser, "1.55");
+vtkCxxRevisionMacro(vtkExodusXMLParser, "1.56");
 vtkStandardNewMacro(vtkExodusXMLParser);
 
 // This is a cruddy hack... because we need to pass a
@@ -1484,7 +1484,7 @@ int vtkExodusMetadata::VectorizeArrays(
   int idx = 0;
   while (idx < numOriginalNames)
     {
-    int len = strlen(originalNames[idx]);
+    int len = static_cast<int>(strlen(originalNames[idx]));
     char last_char = toupper(originalNames[idx][len-1]);
 
     char *newName = vtkExodusReader::StrDupWithNew(originalNames[idx]);
@@ -1517,7 +1517,7 @@ int vtkExodusMetadata::VectorizeArrays(
     idx = nextIdx;
     }
 
-  return newNames->size();
+  return static_cast<int>(newNames->size());
 }
 
 void vtkExodusMetadata::Finalize()
@@ -1577,7 +1577,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.55");
+vtkCxxRevisionMacro(vtkExodusReader, "1.56");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4293,7 +4293,7 @@ void vtkExodusReader::StringUppercase(const char* str, char* upperstr)
   int len = 0;
   if ( str )
     {
-    len = strlen(str);
+    len = static_cast<int>( strlen(str) );
     for (int i=0; i<len; i++)
       upperstr[i] = toupper(str[i]);
     }
@@ -4419,7 +4419,7 @@ char *vtkExodusReader::StrDupWithNew(const char *s)
 
   if (s)
     {
-    int len = strlen(s);
+    int len = static_cast<int>( strlen(s) );
     if (len == 0)
       {
       newstr = new char [1];
@@ -4617,7 +4617,7 @@ void vtkExodusReader::RemoveBeginningAndTrailingSpaces(char **names, int len)
   for (i=0; i<len; i++)
     {
     char *c = names[i];
-    int nmlen = strlen(c);
+    int nmlen = static_cast<int>( strlen(c) );
 
     char *cbegin = c;
     char *cend = c + nmlen - 1;
