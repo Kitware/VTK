@@ -129,6 +129,17 @@ public:
   void ColorEdgesOff();
   
   // Description:
+  // The array used for scaling (if ScaledGlyphs is ON)
+  void SetScalingArrayName(const char* name);
+  const char* GetScalingArrayName();
+  
+  // Description:
+  // Whether to use scaled glyphs or not.  Default is off.
+  void SetScaledGlyphs(bool arg);
+  bool GetScaledGlyphs();
+  vtkBooleanMacro(ScaledGlyphs, bool);
+  
+  // Description:
   // The layout strategy to use when performing the graph layout.
   // The possible strings are:
   //   "Random"         - Randomly places vertices in a box.

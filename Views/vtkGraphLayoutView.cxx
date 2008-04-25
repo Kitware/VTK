@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.27");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.28");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -328,6 +328,31 @@ void vtkGraphLayoutView::ColorEdgesOn()
 void vtkGraphLayoutView::ColorEdgesOff()
 {
   this->GraphMapper->ColorEdgesOff();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetScaledGlyphs(bool arg)
+{
+  this->GraphMapper->SetScaledGlyphs(arg);
+  vtkWarningMacro("Setting ScaledGlyphs to " << arg);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetScaledGlyphs()
+{
+  return this->GraphMapper->GetScaledGlyphs();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetScalingArrayName(const char* name)
+{
+  this->GraphMapper->SetScalingArrayName(name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraphLayoutView::GetScalingArrayName()
+{
+  return this->GraphMapper->GetScalingArrayName();
 }
 
 //----------------------------------------------------------------------------
