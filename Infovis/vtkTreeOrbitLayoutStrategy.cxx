@@ -35,7 +35,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeOrbitLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkTreeOrbitLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkTreeOrbitLayoutStrategy);
 
 vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()
@@ -72,32 +72,47 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
     }
   
   // Get the total number of children for this node
-//  vtkIdType totalChildren = leaf_count->GetValue(parent);
+  double totalChildren = leaf_count->GetValue(parent);
   vtkIdType immediateChildren = t->GetNumberOfChildren(parent);
     
   // Now simply orbit the children around the
   // parent's centerpoint
-  vtkIdType subChildrenCount = 0;
+  double currentAngle = 0;
   for (vtkIdType i=0; i < immediateChildren; ++i)
     {
     vtkIdType childID = t->GetChild(parent, i); 
     vtkIdType subChildren = leaf_count->GetValue(childID);
     
-    double angle = i/static_cast<double>(immediateChildren);
-    //double angle = subChildrenCount/static_cast<double>(totalChildren);
+    // What angle do I get? If I have a lot of sub children
+    // then I should get a greater angle 'pizza slice'
+    double myAngle = subChildren/totalChildren;
+    
+    // So I want to be in the middle of my pizza slice
+    double angle = currentAngle + myAngle/2.0;
+    
+    // Compute coords
     double x = cos(2.0*vtkMath::Pi()*angle);
     double y = sin(2.0*vtkMath::Pi()*angle);
 
-    float radiusFactor = subChildren+1;
+    // Am I a leaf
+    double radiusFactor;
+    if (subChildren == 1) 
+      radiusFactor = .1;
+    else
+      radiusFactor = log(static_cast<double>(immediateChildren)) / log(totalChildren);
     double xOrbit = x * radius * radiusFactor + xCenter;
     double yOrbit = y * radius * radiusFactor + yCenter;
     p->SetPoint(childID, xOrbit, yOrbit, 0);
     
-    // Now recurse with a reduced radius
-    this->OrbitChildren(t,p,childID, radius*radiusFactor/4.0);
+    // Compute child radius
+    double childRadius = radius*tan(myAngle)*2.0;
+    //if (childRadius > radius) childRadius = radius;
     
-    // Accumulate subchildren
-    subChildrenCount += subChildren;
+    // Now recurse with a reduced radius
+    this->OrbitChildren(t,p,childID,childRadius);
+    
+    // Accumulate angle
+    currentAngle += myAngle;
     }
 }
 
@@ -120,6 +135,12 @@ void vtkTreeOrbitLayoutStrategy::Layout()
     vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
 #endif
     }
+    
+ if (tree->GetNumberOfVertices() == 0)
+    {
+    vtkErrorMacro("Tree Input has 0 vertices - Punting...");
+    return;
+    }
   
   // Create a new point set
   vtkIdType numVertices = tree->GetNumberOfVertices();
@@ -134,7 +155,7 @@ void vtkTreeOrbitLayoutStrategy::Layout()
   
   // Now traverse the tree and have all children 
   // orbit their parents recursively
-  double radius=1;
+  double radius = 1;
   this->OrbitChildren(tree, newPoints, currentRoot, radius);
   
   // Copy coordinates back into the original graph
