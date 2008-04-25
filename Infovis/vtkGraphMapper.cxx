@@ -51,7 +51,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.20");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.21");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -93,6 +93,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->OutlineActor->PickableOff();
   this->OutlineActor->GetProperty()->SetPointSize(this->GetVertexPointSize()+2);
   this->OutlineActor->SetPosition(0, 0, -0.001);
+  this->OutlineActor->GetProperty()->SetRepresentationToWireframe();
   this->OutlineMapper->SetScalarVisibility(false);
   this->OutlineMapper->ImmediateModeRenderingOn();
   this->EdgeMapper->SetScalarModeToUseCellData();
@@ -176,6 +177,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
       circle->Delete();
       this->CircleGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
       this->CircleGlyph->SetScaling(1);
+      //this->CircleGlyph->SetScaleFactor(.1); // Total hack
       this->CircleGlyph->SetInputArrayToProcess(0,0,0,
                vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
       this->VertexMapper->SetInputConnection(this->CircleGlyph->GetOutputPort());
@@ -185,6 +187,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
       outline->Delete();
       this->CircleOutlineGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
       this->CircleOutlineGlyph->SetScaling(1);
+      //this->CircleOutlineGlyph->SetScaleFactor(.1); // Total hack
       this->CircleOutlineGlyph->SetInputArrayToProcess(0,0,0,
                vtkDataObject::FIELD_ASSOCIATION_POINTS, this->ScalingArrayName);
       this->OutlineMapper->SetInputConnection(this->CircleOutlineGlyph->GetOutputPort());
@@ -536,7 +539,10 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     this->EdgeActor->RenderOpaqueGeometry(ren);
     }
   this->VertexActor->RenderOpaqueGeometry(ren);
-  this->OutlineActor->RenderOpaqueGeometry(ren);
+  if (this->OutlineActor->GetVisibility())
+    {
+    this->OutlineActor->RenderOpaqueGeometry(ren);
+    }
   if (this->IconActor->GetVisibility())
     {
     this->IconActor->RenderOpaqueGeometry(ren);
@@ -547,7 +553,10 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     this->EdgeActor->RenderTranslucentPolygonalGeometry(ren);
     }
   this->VertexActor->RenderTranslucentPolygonalGeometry(ren);
-  this->OutlineActor->RenderTranslucentPolygonalGeometry(ren);
+  if (this->OutlineActor->GetVisibility())
+    {
+    this->OutlineActor->RenderTranslucentPolygonalGeometry(ren);
+    }
   if (this->IconActor->GetVisibility())
     {
     this->IconActor->RenderTranslucentPolygonalGeometry(ren);
@@ -567,6 +576,7 @@ void vtkGraphMapper::ApplyViewTheme(vtkViewTheme* theme)
   this->VertexActor->GetProperty()->SetColor(theme->GetPointColor());
   this->VertexActor->GetProperty()->SetOpacity(theme->GetPointOpacity());
   this->OutlineActor->GetProperty()->SetColor(theme->GetOutlineColor());
+  this->OutlineActor->GetProperty()->SetOpacity(theme->GetPointOpacity());
   this->VertexLookupTable->SetHueRange(theme->GetPointHueRange()); 
   this->VertexLookupTable->SetSaturationRange(theme->GetPointSaturationRange()); 
   this->VertexLookupTable->SetValueRange(theme->GetPointValueRange()); 
