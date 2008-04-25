@@ -504,13 +504,10 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         button = 0
         if event.RightUp():
-            self._Iren.RightButtonPressEvent()
             button = 'Right'
         elif event.LeftUp():
-            self._Iren.LeftButtonPressEvent()
             button = 'Left'
         elif event.MiddleUp():
-            self._Iren.MiddleButtonPressEvent()
             button = 'Middle'
 
         # if the same button is released that captured the mouse, and
