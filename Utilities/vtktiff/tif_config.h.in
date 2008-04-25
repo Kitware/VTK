@@ -118,18 +118,31 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #cmakedefine HAVE_WINDOWS_H @HAVE_WINDOWS_H@
 
+/* All compilers that support Mac OS X define either __BIG_ENDIAN__ or
+   __LITTLE_ENDIAN__ to match the endianness of the architecture being
+   compiled for. This is not necessarily the same as the architecture of the
+   machine doing the building. In order to support Universal Binaries on
+   Mac OS X, we prefer those defines to decide the endianness.
+   On other platforms we use the result of the TRY_RUN. */
+#if !defined(__APPLE__)
+#cmakedefine CMAKE_WORDS_BIGENDIAN
+#  ifdef CMAKE_WORDS_BIGENDIAN
+#    define WORDS_BIGENDIAN 1
+#  endif
+#elif defined(__BIG_ENDIAN__)
+#  define WORDS_BIGENDIAN 1
+#endif
+
 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian
    (Intel) */
-#cmakedefine CMAKE_WORDS_BIGENDIAN
-#ifdef CMAKE_WORDS_BIGENDIAN
-  #define WORDS_BIGENDIAN 1
+#ifdef WORDS_BIGENDIAN
   #define HOST_BIGENDIAN 1
 #else
   #define HOST_BIGENDIAN 0
 #endif
 
 /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
-#ifdef CMAKE_WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   #define HOST_FILLORDER FILLORDER_LSB2MSB
 #else
   #define HOST_FILLORDER FILLORDER_MSB2LSB
@@ -178,9 +191,6 @@
 /* The size of a `int', as computed by sizeof. */
 #define SIZEOF_INT @CMAKE_SIZEOF_INT@
 
-/* The size of a `long', as computed by sizeof. */
-#define SIZEOF_LONG @CMAKE_SIZEOF_LONG@
-
 /* On Apple, universal builds use different settings on each build.
 the sizes can be different.*/
 #if defined(__APPLE__)
@@ -189,6 +199,9 @@ the sizes can be different.*/
 #  else
 #    define SIZEOF_LONG 4
 #  endif
+#else
+/* The size of a `long', as computed by sizeof. */
+#  define SIZEOF_LONG @CMAKE_SIZEOF_LONG@
 #endif
 
 /* Define to 1 if you have the ANSI C header files. */
