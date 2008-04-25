@@ -135,6 +135,7 @@ SET( Kit_SRCS
   vtkTextMapper.cxx
   vtkTextProperty.cxx
   vtkTexture.cxx
+  vtkTexturedActor2D.cxx
   vtkTransformInterpolator.cxx
   vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx

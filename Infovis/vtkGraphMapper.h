@@ -46,6 +46,7 @@ class vtkPolyDataMapper2D;
 class vtkLookupTable;
 class vtkTransformCoordinateSystems;
 class vtkTexture;
+class vtkTexturedActor2D;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
 
@@ -210,7 +211,7 @@ protected:
   vtkSmartPointer<vtkActor>             EdgeActor;
   vtkSmartPointer<vtkActor>             VertexActor;
   vtkSmartPointer<vtkActor>             OutlineActor;
-  vtkSmartPointer<vtkActor2D>           IconActor;
+  vtkSmartPointer<vtkTexturedActor2D>   IconActor;
   
   // Color maps
   vtkSmartPointer<vtkLookupTable>       EdgeLookupTable;

@@ -11,7 +11,7 @@
 
 #include <vtkIconGlyphFilter.h>
 
-#include <vtkActor2D.h>
+#include <vtkTexturedActor2D.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -83,7 +83,7 @@ int TestActor2DTextures( int argc, char *argv[])
   vtkPolyDataMapper2D * mapper = vtkPolyDataMapper2D::New();
   mapper->SetInputConnection(iconFilter->GetOutputPort());
 
-  vtkActor2D * iconActor = vtkActor2D::New();
+  vtkTexturedActor2D * iconActor = vtkTexturedActor2D::New();
   iconActor->SetMapper(mapper);
   
   vtkTexture * texture =  vtkTexture::New();

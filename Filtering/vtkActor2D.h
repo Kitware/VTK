@@ -31,7 +31,6 @@
 
 class vtkMapper2D;
 class vtkProperty2D;
-class vtkTexture;
 
 class VTK_FILTERING_EXPORT vtkActor2D : public vtkProp
 {
@@ -47,8 +46,8 @@ public:
   
   // Description:
   // Support the standard render methods.
-  int RenderOverlay(vtkViewport *viewport);
-  int RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual int RenderOverlay(vtkViewport *viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
 
   // Description:
@@ -73,13 +72,6 @@ public:
   // Description:
   // Set this vtkProp's vtkProperty2D.
   virtual void SetProperty(vtkProperty2D*);
-
-  // Description: 
-  // Set/Get the texture object to control rendering texture maps.  This will
-  // be a vtkTexture object. An actor does not need to have an associated
-  // texture map and multiple actors can share one texture.
-  virtual void SetTexture(vtkTexture*);
-  vtkGetObjectMacro(Texture,vtkTexture);
 
   // Description:
   // Get the PositionCoordinate instance of vtkCoordinate.
@@ -109,7 +101,7 @@ public:
 
   // Description:
   // Return this objects MTime.
-  unsigned long GetMTime();
+  virtual unsigned long GetMTime();
 
   // Description:
   // For some exporters and other other operations we must be
@@ -119,7 +111,7 @@ public:
 
   // Description:
   // Shallow copy of this vtkActor2D. Overloads the virtual vtkProp method.
-  void ShallowCopy(vtkProp *prop);
+  virtual void ShallowCopy(vtkProp *prop);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -147,7 +139,6 @@ protected:
 
   vtkMapper2D *Mapper;
   int LayerNumber;
-  vtkTexture *Texture;
   vtkProperty2D *Property;
   vtkCoordinate *PositionCoordinate;
   vtkCoordinate *Position2Coordinate;

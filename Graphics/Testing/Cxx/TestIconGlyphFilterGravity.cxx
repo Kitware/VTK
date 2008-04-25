@@ -11,7 +11,7 @@
 
 #include <vtkIconGlyphFilter.h>
 
-#include <vtkActor2D.h>
+#include <vtkTexturedActor2D.h>
 #include <vtkAppendPolyData.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
@@ -330,7 +330,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPolyDataMapper2D * mapper = vtkPolyDataMapper2D::New();
   mapper->SetInputConnection(append->GetOutputPort());
 
-  vtkActor2D * iconActor = vtkActor2D::New();
+  vtkTexturedActor2D * iconActor = vtkTexturedActor2D::New();
   iconActor->SetMapper(mapper);
   
   vtkTexture * texture =  vtkTexture::New();
