@@ -26,6 +26,7 @@
 #include "vtkDataArray.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkExecutive.h"
+#include "vtkExtractSelectedGraph.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -35,6 +36,7 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -49,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.9");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.10");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -115,6 +117,20 @@ int vtkTableToGraph::ValidateLinkGraph()
     hidden->Delete();
     this->Modified();
     }
+  if (!vtkIntArray::SafeDownCast(
+      this->LinkGraph->GetVertexData()->GetAbstractArray("active")))
+    {
+    vtkIntArray* active = vtkIntArray::New();
+    active->SetName("active");
+    active->SetNumberOfTuples(this->LinkGraph->GetNumberOfVertices());
+    for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); ++i)
+      {
+      active->SetValue(i, 1);
+      }
+    this->LinkGraph->GetVertexData()->AddArray(active);
+    active->Delete();
+    this->Modified();
+    }
   return 1;
 }
 
@@ -143,7 +159,9 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
       this->LinkGraph->GetVertexData()->GetAbstractArray("domain"));
   vtkBitArray* hiddenArr = vtkBitArray::SafeDownCast(
       this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
-  
+  vtkIntArray* activeArr = vtkIntArray::SafeDownCast(
+      this->LinkGraph->GetVertexData()->GetAbstractArray("active"));
+
   vtkIdType index = -1;
   for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); i++)
     {
@@ -157,6 +175,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
     {
     domainArr->SetValue(index, domainStr);
     hiddenArr->SetValue(index, hidden);
+    activeArr->SetValue(index, 1);
     }
   else
     {
@@ -164,6 +183,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
     columnArr->InsertNextValue(column);
     domainArr->InsertNextValue(domainStr);
     hiddenArr->InsertNextValue(hidden);
+    activeArr->InsertNextValue(1);
     }
   this->Modified();
 }
@@ -171,11 +191,13 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
 //---------------------------------------------------------------------------
 void vtkTableToGraph::ClearLinkVertices()
 {
-  if (!this->LinkGraph)
+  this->ValidateLinkGraph();
+  vtkIntArray* activeArr = vtkIntArray::SafeDownCast(
+    this->LinkGraph->GetVertexData()->GetAbstractArray("active"));
+  for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); ++i)
     {
-    this->LinkGraph = vtkMutableDirectedGraph::New();
+    activeArr->SetValue(i, 0);
     }
-  this->LinkGraph->Initialize();
   this->Modified();
 }
 
@@ -404,6 +426,28 @@ int vtkTableToGraph::RequestData(
       vertexTableInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
 
+  if (vtkIntArray::SafeDownCast(
+    this->LinkGraph->GetVertexData()->GetAbstractArray("active")))
+    {
+    // Extract only the active link graph.
+    vtkSelection* activeSel = vtkSelection::New();
+    activeSel->SetContentType(vtkSelection::VALUES);
+    activeSel->SetFieldType(vtkSelection::VERTEX);
+    vtkIntArray* list = vtkIntArray::New();
+    list->SetName("active");
+    list->InsertNextValue(1);
+    activeSel->SetSelectionList(list);
+    vtkExtractSelectedGraph* extract = vtkExtractSelectedGraph::New();
+    extract->SetInput(0, this->LinkGraph);
+    extract->SetInput(1, activeSel);
+    extract->Update();
+    vtkGraph* g = extract->GetOutput();
+    this->LinkGraph->ShallowCopy(g);
+    list->Delete();
+    activeSel->Delete();
+    extract->Delete();
+    }
+
   vtkStringArray* linkColumn = vtkStringArray::SafeDownCast(
     this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
   
@@ -412,7 +456,7 @@ int vtkTableToGraph::RequestData(
     vtkErrorMacro("The link graph must have a string array named \"column\".");
     return 0;
     }
-  
+
   vtkStringArray* linkDomain = vtkStringArray::SafeDownCast(
     this->LinkGraph->GetVertexData()->GetAbstractArray("domain"));
   vtkBitArray* linkHidden = vtkBitArray::SafeDownCast(
