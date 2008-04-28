@@ -59,7 +59,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.6");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.7");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -364,16 +364,12 @@ int vtkBoostBreadthFirstSearch::RequestData(
                                      color);
 
     // Distributed distance map
-    typedef boost::parallel::distributed_property_map<
-              boost::graph::distributed::mpi_process_group,
-              boost::vtkVertexGlobalMap,
-              vtkIntArray* 
-            > DistributedDistanceMap;
+    typedef vtkDistributedVertexPropertyMapType<vtkIntArray>::type
+      DistributedDistanceMap;
     
     // Distributed distance recorder
-    DistributedDistanceMap distribBFSArray(pbglHelper->GetProcessGroup(),
-                                           boost::vtkVertexGlobalMap(output),
-                                           BFSArray);
+    DistributedDistanceMap distribBFSArray
+      = MakeDistributedVertexPropertyMap(output, BFSArray);
     set_property_map_role(boost::vertex_distance, distribBFSArray);
     my_distance_recorder<DistributedDistanceMap> 
       bfsVisitor(distribBFSArray, &maxFromRootVertex);

@@ -33,12 +33,7 @@
 //ETX
 
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
-
-// So that we can specialize the hash function for the hash table
-// Parallel BGL is using (a C++ Standard Library extension)
-#ifdef PBGL_HAS_HASH_TABLES
-#  include PBGL_HASH_MAP_HEADER
-#endif
+#include "vtkPBGLDistributedGraphHelper.h"
 
 namespace boost {
 
@@ -264,14 +259,90 @@ void serialize(Archiver& ar, vtkEdgeType& edge, const unsigned int)
      & edge.Target;
 }
 
-#if defined PBGL_HAS_HASH_TABLES && defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
-namespace PBGL_HASH_NAMESPACE {
-  template<>
-  struct hash<vtkIdType>
-  {
-    vtkstd::size_t operator()(vtkIdType x) const { return x; }
-  };
+//----------------------------------------------------------------------------
+// Simplified tools to build distributed property maps
+//----------------------------------------------------------------------------
+
+// Description:
+// Retrieves the type of the distributed property map indexed by the
+// vertices of a distributed graph.
+template<typename DataArray>
+struct vtkDistributedVertexPropertyMapType
+{
+  typedef boost::parallel::distributed_property_map<
+            boost::graph::distributed::mpi_process_group,
+            boost::vtkVertexGlobalMap,
+            DataArray*> type;
+};
+
+// Description:
+// Build a distributed property map indexed by the vertices of the
+// given graph, using storage from the given array.
+template<typename DataArray>
+inline typename vtkDistributedVertexPropertyMapType<DataArray>::type
+MakeDistributedVertexPropertyMap(vtkGraph* graph, DataArray* array)
+{
+  typedef typename vtkDistributedVertexPropertyMapType<DataArray>::type MapType;
+  
+  vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+  if (!helper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
+    return MapType();
+    }
+
+  vtkPBGLDistributedGraphHelper *pbglHelper 
+    = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+  if (!pbglHelper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
+    return MapType();
+    }
+
+  return MapType(pbglHelper->GetProcessGroup(),
+                 boost::vtkVertexGlobalMap(graph),
+                 array);
 }
-#endif
+
+// Description:
+// Retrieves the type of the distributed property map indexed by the
+// edges of a distributed graph.
+template<typename DataArray>
+struct vtkDistributedEdgePropertyMapType
+{
+  typedef boost::parallel::distributed_property_map<
+            boost::graph::distributed::mpi_process_group,
+            boost::vtkEdgeGlobalMap,
+            DataArray*> type;
+};
+
+// Description:
+// Build a distributed property map indexed by the edges of the
+// given graph, using storage from the given array.
+template<typename DataArray>
+inline typename vtkDistributedEdgePropertyMapType<DataArray>::type
+MakeDistributedEdgePropertyMap(vtkGraph* graph, DataArray* array)
+{
+  typedef typename vtkDistributedEdgePropertyMapType<DataArray>::type MapType;
+
+  vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+  if (!helper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
+    return MapType();
+    }
+
+  vtkPBGLDistributedGraphHelper *pbglHelper 
+    = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+  if (!pbglHelper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
+    return MapType();
+    }
+
+  return MapType(pbglHelper->GetProcessGroup(),
+                 boost::vtkEdgeGlobalMap(graph),
+                 array);
+}
 
 #endif // __vtkPBGLGraphAdapter_h
