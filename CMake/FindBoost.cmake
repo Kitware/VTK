@@ -12,7 +12,8 @@
 # when new Boost versions are released.
 #
 # Currently this module searches for the following version numbers:
-# 1.33, 1.33.0, 1.33.1, 1.34, 1.34.0, 1.34.1, 1.35, 1.35.0, 1.35.1
+# 1.33, 1.33.0, 1.33.1, 1.34, 1.34.0, 1.34.1, 1.35, 1.35.0, 1.35.1, 1.36.0,
+# 1.36.1
 #
 # The components list needs to be the actual names of boost libraries, that is
 # the part of the actual library files that differ on different libraries. So
@@ -34,7 +35,8 @@
 #  Boost_ADDITIONAL_VERSIONS     A list of version numbers to use for searching
 #                                the boost include directory. The default list
 #                                of version numbers is:
-#                                1.33, 1.33.0, 1.33.1, 1.34, 1.34.0, 1.34.1, 1.35, 1.35.0, 1.35.1
+#                                1.33, 1.33.0, 1.33.1, 1.34, 1.34.0, 1.34.1, 
+#                                1.35, 1.35.0, 1.35.1, 1.36.0, 1.36.1
 #                                If you want to look for an older or newer
 #                                version set this variable to a list of
 #                                strings, where each string contains a number, i.e.
@@ -97,7 +99,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION "2.6" FATAL_ERROR)
 
 OPTION(Boost_USE_MULTITHREADED "Use the multithreaded versions of the boost libraries" ON)
 
-SET( _boost_TEST_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.35.1" "1.35.0" "1.35" "1.34.1" "1.34.0" "1.34" "1.33.1" "1.33.0" "1.33" )
+SET( _boost_TEST_VERSIONS ${Boost_ADDITIONAL_VERSIONS} "1.36.1" "1.36.0" "1.35.1" "1.35.0" "1.35" "1.34.1" "1.34.0" "1.34" "1.33.1" "1.33.0" "1.33" )
 
 
 ############################################
@@ -145,6 +147,7 @@ MACRO (_Boost_ADJUST_LIB_VARS basename)
     IF (Boost_${basename}_LIBRARY)
       SET(Boost_${basename}_LIBRARY ${Boost_${basename}_LIBRARY} CACHE FILEPATH "The Boost ${basename} library")
       GET_FILENAME_COMPONENT(Boost_LIBRARY_DIRS "${Boost_${basename}_LIBRARY}" PATH)
+      SET(Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS} CACHE FILEPATH "Boost library directory")
       SET(Boost_${basename}_FOUND ON CACHE INTERNAL "Was the boost boost ${basename} library found")
     ENDIF (Boost_${basename}_LIBRARY)
 
@@ -343,7 +346,13 @@ ELSE (_boost_IN_CACHE)
     SET (_boost_COMPILER "-vc90")
   ENDIF (MSVC90)
   IF (MINGW)
-    SET (_boost_COMPILER "-mgw")
+    EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
+      ARGS --version
+      OUTPUT_VARIABLE _boost_COMPILER_VERSION
+      )
+    STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.[0-9] .*" "\\1\\2"
+      _boost_COMPILER_VERSION ${_boost_COMPILER_VERSION})
+    SET (_boost_COMPILER "-mgw${_boost_COMPILER_VERSION}")
   ENDIF(MINGW)
   IF (CYGWIN)
     SET (_boost_COMPILER "-gcc")
@@ -376,7 +385,9 @@ ELSE (_boost_IN_CACHE)
 
   SET( _boost_STATIC_TAG "")
   IF (WIN32)
-    SET (_boost_ABI_TAG "g")
+    IF(MSVC)
+      SET (_boost_ABI_TAG "g")
+    ENDIF(MSVC)
     IF( Boost_USE_STATIC_LIBS )
       SET( _boost_STATIC_TAG "-s")
     ENDIF( Boost_USE_STATIC_LIBS )
@@ -507,7 +518,7 @@ ELSE (_boost_IN_CACHE)
       ENDIF(EXISTS "${_boost_LIB_DIR}/lib")
     
       IF(_boost_LIB_DIR AND EXISTS "${_boost_LIB_DIR}")
-        SET(Boost_LIBRARY_DIRS ${_boost_LIB_DIR})
+        SET(Boost_LIBRARY_DIRS ${_boost_LIB_DIR} CACHE FILEPATH "Boost library directory")
       ENDIF(_boost_LIB_DIR AND EXISTS "${_boost_LIB_DIR}")
 
     ENDIF( NOT Boost_LIBRARY_DIRS AND NOT _boost_CHECKED_COMPONENT )
@@ -541,7 +552,9 @@ ELSE (_boost_IN_CACHE)
 
   # Under Windows, automatic linking is performed, so no need to specify the libraries.
   IF (WIN32)
+    IF (NOT MINGW)
       SET(Boost_LIBRARIES "")
+    ENDIF (NOT MINGW)
   ENDIF(WIN32)
 
   # show the Boost_INCLUDE_DIRS AND Boost_LIBRARIES variables only in the advanced view

@@ -33,8 +33,14 @@
 
 class vtkVariantArrayLookup;
 
+/// Forward declaration required for Boost serialization
+namespace boost { namespace serialization { class access; } }
+
 class VTK_COMMON_EXPORT vtkVariantArray : public vtkAbstractArray
 {
+  /// Friendship required for Boost serialization
+  friend class boost::serialization::access;
+
 public:
   static vtkVariantArray* New();
   vtkTypeRevisionMacro(vtkVariantArray,vtkAbstractArray);

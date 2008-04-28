@@ -78,6 +78,7 @@ IF(PYTHON_EXECUTABLE)
     vtkTransformCollection.h
     vtkType.h
     vtkTypeTraits.h
+    vtkVariantBoostSerialization.h
     vtkVector.h
     vtkVectorIterator.h
     vtkWin32Header.h
