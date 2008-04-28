@@ -31,7 +31,7 @@
 #include "vtkCamera.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.7");
+vtkCxxRevisionMacro(vtkPointHandleRepresentation2D, "1.8");
 vtkStandardNewMacro(vtkPointHandleRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkPointHandleRepresentation2D,Property,vtkProperty2D);
@@ -138,6 +138,14 @@ void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
   this->Superclass::SetDisplayPosition(p);
   this->FocalPoint->SetPoint(0, p);
   this->FocalPoint->Modified();
+
+  double w[4];
+  if( this->Renderer )
+    {
+    vtkInteractorObserver::ComputeDisplayToWorld(
+      this->Renderer, p[0], p[1], p[2], w);
+    this->SetWorldPosition(w);
+    }
 }
 
 //-------------------------------------------------------------------------
