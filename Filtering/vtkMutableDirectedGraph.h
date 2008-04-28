@@ -49,9 +49,18 @@ public:
 
   //BTX
   // Description:
+  // Adds a vertex, with properties, to the graph, and returns the id of that vertex.
+  vtkIdType AddVertex(vtkVariantArray *variantValueArr);
+
+  // Description:
   // Adds a directed edge from u to v to the graph and returns
   // a vtkEdgeType structure for that edge.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
+  
+  // Description:
+  // Adds a directed edge, with properties, from u to v to the graph and returns
+  // a vtkEdgeType structure for that edge.
+  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *variantValueArr);
 
   // Description:
   // Adds a directed edge from u to v to the graph. If non-null, edge
@@ -59,6 +68,14 @@ public:
   // passing NULL for edge can improve performance when adding non-local
   // edges.
   void AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge);
+  
+  // Description:
+  // Adds a directed edge, with properties, from u to v to the graph. If non-null, edge
+  // will receive the newly-constructed edge. For distributed graphs, 
+  // passing NULL for edge can improve performance when adding non-local
+  // edges.
+  void AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
+  
   //ETX
 
   // Description:

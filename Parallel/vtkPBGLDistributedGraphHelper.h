@@ -99,6 +99,12 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // not be directed, depending on the given flag. If edge is non-null, it will
   // receive the newly-created edge.
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
+  
+  // Description:
+  // Adds an edge (u, v), with properties, and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
  
   // Description:
   // Attach this distributed graph helper to the given graph. This will

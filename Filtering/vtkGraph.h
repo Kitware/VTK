@@ -178,6 +178,7 @@ class vtkInEdgeIterator;
 class vtkOutEdgeIterator;
 class vtkPoints;
 class vtkVertexListIterator;
+class vtkVariantArray;
 
 //BTX
 // Forward declare some boost stuff even if boost wrappers
@@ -448,10 +449,21 @@ protected:
   vtkIdType AddVertexInternal();
 
   // Description:
+  // Protected method for adding vertices, with properties,
+  // used by mutable subclasses.
+  vtkIdType AddVertexInternal(vtkVariantArray *variantValueArr);
+
+  // Description:
   // Protected method for adding edges of a certain directedness
   // used by mutable subclasses. If non-null, edge will receive the
   // newly-added edge.
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
+  
+  // Description:
+  // Protected method for adding edges, with properties, of a certain directedness
+  // used by mutable subclasses. If non-null, edge will receive the
+  // newly-added edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
 
   // Description:
   // Subclasses override this method to accept the structure

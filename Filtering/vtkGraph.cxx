@@ -33,6 +33,8 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkPoints.h"
 #include "vtkVertexListIterator.h"
+#include "vtkVariantArray.h"
+#include "vtkStringArray.h";
 
 #include <vtksys/stl/vector>
 
@@ -45,7 +47,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.9");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.10");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -671,6 +673,38 @@ vtkIdType vtkGraph::AddVertexInternal()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr)
+{
+  this->ForceOwnership();
+  this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
+
+  if (propertyArr)      // Add vertex properties
+    {
+    vtkDataSetAttributes *vertexData = this->GetVertexData();
+    int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+    assert(numProps == vertexData->GetNumberOfArrays());
+    for (int iprop=0; iprop<numProps; iprop++)
+      {
+      vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
+      if (vtkDataArray::SafeDownCast(arr))
+        {
+        vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
+        }
+      else if (vtkStringArray::SafeDownCast(arr))
+        {
+        vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+        }
+      else
+        {
+        vtkErrorMacro("Unsupported array type");
+        }
+      }
+    }
+  
+  return this->Internals->Adjacency.size() - 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge)
 {
   this->ForceOwnership();
@@ -681,6 +715,39 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeT
     }
 
   vtkIdType edgeId = this->Internals->NumberOfEdges;
+  this->Internals->NumberOfEdges++;
+  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+  if (directed)
+    {
+    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
+    }
+  else if (u != v)
+    {
+    // Avoid storing self-loops twice in undirected graphs.
+    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+    }
+  if (edge)
+    {
+    *edge = vtkEdgeType(u, v, edgeId);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr)
+{
+  this->ForceOwnership();
+  if (this->Internals->DistributedHelper)
+    {
+    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge, variantValueArr);
+    return;
+    }
+
+  vtkIdType edgeId = this->Internals->NumberOfEdges;
+  
+  // TODO: Add edge properties
+  vtkDataSetAttributes *edgeData = this->GetEdgeData();
+  int numProps = variantValueArr->GetNumberOfValues();
+  
   this->Internals->NumberOfEdges++;
   this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
   if (directed)

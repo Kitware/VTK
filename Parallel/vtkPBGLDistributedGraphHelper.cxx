@@ -25,6 +25,10 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPBGLGraphAdapter.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkVariantArray.h"
+#include "vtkDataArray.h";
+#include "vtkStringArray.h";
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
 
@@ -43,12 +47,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.8");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.9");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.8");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.9");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -157,7 +161,112 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
         }
     }
 }
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u, 
+                                               vtkIdType v,
+                                               bool directed,
+                                               vtkEdgeType *edge,
+                                               vtkVariantArray *propertyArr)
+{
+  int rank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  int uOwner = this->Graph->GetVertexOwner (u);
 
+  if (uOwner == rank)
+    {
+    // The source of the edge is local.
+    vtkGraphInternals* GraphInternals = this->Graph->GetGraphInternals(true);
+    
+    // The edge ID involves our rank and the local number of edges.
+    vtkIdType edgeId 
+      = this->Graph->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
+    
+    if (propertyArr)      // Add edge properties
+      {
+      vtkDataSetAttributes *edgeData = this->Graph->GetEdgeData();
+      int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+      assert(numProps == edgeData->GetNumberOfArrays());
+      for (int iprop=0; iprop<numProps; iprop++)
+        {
+        vtkAbstractArray* arr = edgeData->GetAbstractArray(iprop);
+        if (vtkDataArray::SafeDownCast(arr))
+          {
+          vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
+          }
+        else if (vtkStringArray::SafeDownCast(arr))
+          {
+          vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+          }
+        else
+          {
+          vtkErrorMacro("Unsupported array type");
+          }
+        }
+      }
+
+    // Add the forward edge.
+    GraphInternals->Adjacency[this->Graph->GetVertexIndex(u)]
+      .OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+
+    // We've added an edge.
+    GraphInternals->NumberOfEdges++;
+
+    int vOwner = this->Graph->GetVertexOwner(v);
+    if (vOwner == rank)
+      {
+        // The target vertex is local. Add the appropriate back edge.
+        if (directed)
+          {
+          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+            .InEdges.push_back(vtkInEdgeType(u, edgeId));
+          }
+        else if (u != v)
+          {
+          // Avoid storing self-loops twice in undirected graphs
+          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+            .OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+          }
+      }
+    else
+      {
+      // The target vertex is remote: send a message asking its
+      // owner to add the back edge.
+      send(this->Internals->process_group, vOwner, 
+           directed? ADD_DIRECTED_BACK_EDGE_TAG : ADD_UNDIRECTED_BACK_EDGE_TAG,
+           vtkEdgeType(u, v, edgeId));
+      }
+
+    if (edge)
+      {
+      *edge = vtkEdgeType(u, v, edgeId);
+      }
+    }
+  else 
+    {
+    // The source of the edge is non-local.
+      if (edge)
+        {
+        // Send an AddEdge request to the owner of "u", and wait
+        // patiently for the reply.
+        send_oob_with_reply(this->Internals->process_group, uOwner, 
+                            directed? ADD_DIRECTED_EDGE_WITH_REPLY_TAG 
+                                    : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+                            vtkstd::pair<vtkIdType, vtkIdType>(u, v),
+                            *edge);
+        }
+      else
+        {
+        // We're adding a remote edge, but we don't need to wait
+        // until the edge has been added. Just send a message to the
+        // owner of the source; we don't need (or want) a reply.
+        send(this->Internals->process_group, uOwner, 
+             directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG 
+                     : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
+             vtkstd::pair<vtkIdType, vtkIdType>(u, v));
+        }
+    }
+}
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {

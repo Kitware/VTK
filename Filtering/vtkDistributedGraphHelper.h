@@ -52,6 +52,7 @@
 class vtkDistributedGraphHelperInternals;
 struct vtkEdgeType;
 class vtkGraph;
+class vtkVariantArray;
 
 class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
@@ -75,6 +76,11 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   // Add an edge (u, v) to the distributed graph. The edge may be directed 
   // undirected. If edge is non-null, it will receive the newly-created edge.
   virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge) = 0;
+  
+  // Description:
+  // Add an edge (u, v), with properties, to the distributed graph. The edge may be directed 
+  // undirected. If edge is non-null, it will receive the newly-created edge.
+  virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr) = 0;
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will
