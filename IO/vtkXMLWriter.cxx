@@ -208,7 +208,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.72");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.73");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -2301,7 +2301,7 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
     // since points->Data is a vtkDataArray.
     vtkDataArray* outPoints = vtkDataArray::SafeDownCast(
       this->CreateArrayForPoints(points->GetData()));
-    if( pointsMTime != mtime )
+    if( pointsMTime != mtime || timestep == 0 )
       {
       pointsMTime = mtime;
       this->WriteArrayAppendedData(outPoints, 
