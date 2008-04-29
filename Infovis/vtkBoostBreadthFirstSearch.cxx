@@ -59,7 +59,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.7");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.8");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -238,14 +238,6 @@ int vtkBoostBreadthFirstSearch::RequestData(
 
   // Send the data to output.
   output->ShallowCopy(input);
-
-#ifdef VTK_USE_PARALLEL_BGL
-  // HACK: During bfs->Update(), vtkDataObject::DataHasBeenGenerated()
-  // gets called on the output graph, clobbering the piece number and
-  // number of pieces in the output graph. We reset those values now,
-  // so that we can continue our test, but we need a real answer.
-  output->SetDistributedGraphHelper(output->GetDistributedGraphHelper());
-#endif
 
   // Sanity check
   // The Boost BFS likes to crash on empty datasets
