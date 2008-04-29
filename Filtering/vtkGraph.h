@@ -178,6 +178,7 @@ class vtkInEdgeIterator;
 class vtkOutEdgeIterator;
 class vtkPoints;
 class vtkVertexListIterator;
+class vtkVariant;
 class vtkVariantArray;
 
 //BTX
@@ -380,6 +381,29 @@ public:
   vtkDistributedGraphHelper *GetDistributedGraphHelper();
   //ETX
 
+  // Description:
+  // Sets the name of the the array that stores the names of each
+  // vertex. The array itself must be a part of the vertex data for
+  // this graph (accessed via GetVertexData()). If the given name is
+  // non-NULL, the vertices can be accessed by name with FindVertex.
+  void SetVertexNameArrayName(const char* name);
+
+  // Description:
+  // Retrieves the name of the vertex name array, if any. Note that
+  // this operation returns a pointer into the memory of this object,
+  // so the resulting data should not be changed.
+  const char *GetVertexNameArrayName();
+
+  // Descriptions:
+  // Retrieves the vertex name array, if any.
+  vtkVariantArray *GetVertexNameArray();
+
+  // Description:
+  // Retrieve the vertex with the given name. If successful, returns true
+  // and puts the vertex ID into @c vertex. This operation is only usable
+  // when the vertices have names, e.g., GetVertexNameArray returns a 
+  // non-NULL array.
+  bool FindVertex(const vtkVariant& name, vtkIdType *vertex);
 
   // Description:
   // Shallow copies the data object into this graph.
@@ -448,6 +472,15 @@ protected:
   // used by mutable subclasses.
   vtkIdType AddVertexInternal();
 
+  //BTX
+  // Description:
+  // Adds a vertex with the given name to the graph. If a vertex by
+  // this name already exists, no new vertex is added, but the vertex
+  // argument is set to the ID of the existing vertex.  Otherwise, a
+  // new vertex is added and its ID is provided.
+  void AddVertexInternal(const vtkVariant& name, vtkIdType *vertex);
+  //ETX
+
   // Description:
   // Protected method for adding vertices, with properties,
   // used by mutable subclasses.
@@ -464,6 +497,12 @@ protected:
   // used by mutable subclasses. If non-null, edge will receive the
   // newly-added edge.
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
+
+  //BTX
+  void AddEdgeInternal(const vtkVariant& uName, vtkIdType v, bool directed, vtkEdgeType *edge);
+  void AddEdgeInternal(vtkIdType u, const vtkVariant& vName, bool directed, vtkEdgeType *edge);
+  void AddEdgeInternal(const vtkVariant& uName, const vtkVariant& vName, bool directed, vtkEdgeType *edge);
+  //ETX
 
   // Description:
   // Subclasses override this method to accept the structure
@@ -520,6 +559,11 @@ protected:
   vtkPoints *Points;
   static double DefaultPoint[3];
   
+  // Description:
+  // The name of the array that stores the name of each vertex. The array
+  // itself must be a part of the VertexData.
+  char *VertexNameArray;
+
   // Description:
   // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
   vtkIdType signBitMask;

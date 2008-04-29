@@ -25,7 +25,7 @@
 //----------------------------------------------------------------------------
 // class vtkMutableDirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.2");
+vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.3");
 vtkStandardNewMacro(vtkMutableDirectedGraph);
 //----------------------------------------------------------------------------
 vtkMutableDirectedGraph::vtkMutableDirectedGraph()
@@ -46,6 +46,21 @@ vtkIdType vtkMutableDirectedGraph::AddVertex()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkMutableDirectedGraph::AddVertex(const vtkVariant& name)
+{
+  vtkIdType result;
+  this->AddVertexInternal(name, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+void 
+vtkMutableDirectedGraph::AddVertex(const vtkVariant& name, vtkIdType *vertex)
+{
+  this->AddVertexInternal(name, vertex);
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *variantValueArr)
 {
   return this->AddVertexInternal(variantValueArr);
@@ -53,6 +68,30 @@ vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *variantValueArr)
 
 //----------------------------------------------------------------------------
 vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, const vtkVariant& v)
 {
   vtkEdgeType e;
   this->AddEdgeInternal(u, v, true, &e);
@@ -69,6 +108,24 @@ vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkVarian
 
 //----------------------------------------------------------------------------
 void vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge)
+{
+  this->AddEdgeInternal(u, v, true, edge);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v, vtkEdgeType *edge)
+{
+  this->AddEdgeInternal(u, v, true, edge);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v, vtkEdgeType *edge)
+{
+  this->AddEdgeInternal(u, v, true, edge);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, const vtkVariant& v, vtkEdgeType *edge)
 {
   this->AddEdgeInternal(u, v, true, edge);
 }

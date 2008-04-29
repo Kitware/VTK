@@ -27,10 +27,26 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkVariantArray.h"
+#include "vtkVariantBoostSerialization.h"
 #include "vtkDataArray.h"
 #include "vtkStringArray.h"
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
+
+// TODO: Temporary hack for signed characters. This should go into
+// Boost.MPI.
+namespace boost { namespace mpi {
+
+  template<> struct is_mpi_datatype<signed char> : mpl::true_ { };
+
+  template<>
+  inline MPI_Datatype
+  get_mpi_datatype<signed char>(const signed char&) 
+  {
+    return MPI_SIGNED_CHAR; 
+  }
+
+} }
 
 //----------------------------------------------------------------------------
 // private class vtkPBGLDistributedGraphHelperInternals
@@ -47,12 +63,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.10");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.11");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.10");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.11");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -77,6 +93,49 @@ void vtkPBGLDistributedGraphHelper::Synchronize()
 boost::graph::distributed::mpi_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
 {
   return this->Internals->process_group.base();
+}
+
+//----------------------------------------------------------------------------
+void vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& name,
+                                                      vtkIdType *vertex)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType owner = this->GetVertexOwnerByName(name);
+  if (owner == rank)
+    {
+    // This little dance keeps us from having to make
+    // vtkPBGLDistributedGraphHelper a friend of vtkGraph. It also
+    // makes sure that users don't try to be sneaky about adding
+    // vertices to non-mutable vtkGraphs.
+    if (vtkMutableDirectedGraph *graph 
+          = vtkMutableDirectedGraph::SafeDownCast(this->Graph))
+      {
+      graph->AddVertex(name, vertex);
+      }
+    else if (vtkMutableUndirectedGraph *graph 
+               = vtkMutableUndirectedGraph::SafeDownCast(this->Graph))
+      {
+      graph->AddVertex(name, vertex);
+      }
+    else
+      {
+      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
+      }
+    return;
+    }
+
+  if (vertex)
+    {
+    // Request immediate addition of the vertex, with a reply.
+    send_oob_with_reply(this->Internals->process_group, owner, 
+                        ADD_VERTEX_WITH_REPLY_TAG, name, *vertex);
+    }
+  else
+    {
+    // Request addition of the vertex, eventually.
+    send(this->Internals->process_group, owner, ADD_VERTEX_NO_REPLY_TAG, name);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -161,6 +220,111 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
         }
     }
 }
+
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uName, 
+                                               vtkIdType v,
+                                               bool directed,
+                                               vtkEdgeType *edge)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType uOwner = this->GetVertexOwnerByName(uName);
+
+  if (uOwner == rank)
+    {
+    // Resolve the name for u immediately and add the edge locally.
+    vtkIdType u;
+    this->AddVertexInternal(uName, &u);
+    this->AddEdgeInternal(u, v, directed, edge);
+    return;
+    }
+
+  // Edge is remote: request its addition.
+  if (edge)
+    {
+    send_oob_with_reply(this->Internals->process_group, uOwner,
+                        directed? ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG
+                                : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+                        vtkstd::pair<vtkVariant, vtkIdType>(uName, v),
+                        *edge);
+    }
+  else
+    {
+    send(this->Internals->process_group, uOwner,
+         directed? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
+                 : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+         vtkstd::pair<vtkVariant, vtkIdType>(uName, v));
+    }
+}
+
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
+                                               const vtkVariant& vName, 
+                                               bool directed,
+                                               vtkEdgeType *edge)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType vOwner = this->GetVertexOwnerByName(vName);
+
+  if (vOwner == rank || edge)
+    {
+    // Resolve the name for v immediately and add the edge.
+    vtkIdType v;
+    this->AddVertexInternal(vName, &v);
+    this->AddEdgeInternal(u, v, directed, edge);
+    return;
+    }
+
+  // v is remote and we don't care when the edge is added. Ask the
+  // owner of v to resolve the name of v and add the edge.
+  send(this->Internals->process_group, vOwner,
+       directed? ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG
+               : ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
+       vtkstd::pair<vtkIdType, vtkVariant>(u, vName));
+}
+
+//----------------------------------------------------------------------------
+void
+vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uName,
+                                               const vtkVariant& vName, 
+                                               bool directed,
+                                               vtkEdgeType *edge)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType uOwner = this->GetVertexOwnerByName(vName);
+  if (uOwner == rank)
+    {
+    // Resolve the name for u immediately and add the edge.
+    vtkIdType u;
+    this->AddVertexInternal(uName, &u);
+    this->AddEdgeInternal(u, vName, directed, edge);
+    return;
+    }
+
+  vtkIdType vOwner = this->GetVertexOwnerByName(vName);
+  if (vOwner == rank || edge)
+    {
+    // Resolve the name for v immediately and add the edge.
+    vtkIdType v;
+    this->AddVertexInternal(vName, &v);
+    this->AddEdgeInternal(uName, v, directed, edge);
+    return;
+    }
+
+  // Neither u nor v is local, and we don't care when the edge is
+  // added, so ask the owner of v to resolve the name of v and add the
+  // edge.
+  send(this->Internals->process_group, vOwner,
+       directed? ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG
+               : ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
+       vtkstd::pair<vtkVariant, vtkVariant>(uName, vName));
+}
+
 //----------------------------------------------------------------------------
 void
 vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u, 
@@ -267,6 +431,32 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
         }
     }
 }
+
+//----------------------------------------------------------------------------
+bool vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& name, 
+                                               vtkIdType *vertex)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType owner = this->GetVertexOwnerByName(name);
+  if (owner == rank)
+    {
+    // The vertex is local; just ask the local part of the graph.
+    return this->Graph->FindVertex(name, vertex);
+    }
+
+  // The vertex is remote; Send a message looking for this
+  // vertex.
+  vtkstd::pair<bool, vtkIdType> result;
+  send_oob_with_reply(this->Internals->process_group, owner, 
+                      FIND_VERTEX_TAG, name, result);
+  if (vertex && result.first)
+    {
+    *vertex = result.second;
+    }
+  return result.first;
+}
+
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {
@@ -292,6 +482,15 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     // Add our triggers to the process group
     typedef vtkstd::pair<vtkIdType, vtkIdType> IdPair;
     this->Internals->process_group.make_distributed_object();
+    this->Internals->process_group.trigger_with_reply<vtkVariant>
+      (FIND_VERTEX_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleFindVertex, this, _3));
+    this->Internals->process_group.trigger<vtkVariant>
+      (ADD_VERTEX_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddVertex, this, _3));
+    this->Internals->process_group.trigger_with_reply<vtkVariant>
+      (ADD_VERTEX_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddVertex, this, _3));
     this->Internals->process_group.trigger<vtkEdgeType>
       (ADD_DIRECTED_BACK_EDGE_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddBackEdge, 
@@ -300,6 +499,8 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_UNDIRECTED_BACK_EDGE_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddBackEdge, 
                    this, _3, false));
+
+    // Add edge for (id, id) pairs
     this->Internals->process_group.trigger<IdPair>
       (ADD_DIRECTED_EDGE_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
@@ -316,7 +517,66 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdge,
                    this, _3, false));
+
+    // Add edge for (name, id) pairs
+    typedef vtkstd::pair<vtkVariant, vtkIdType> NameIdPair;
+    this->Internals->process_group.trigger<NameIdPair>
+      (ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNI,
+                   this, _3, true));
+    this->Internals->process_group.trigger<NameIdPair>
+      (ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNI,
+                   this, _3, false));
+    this->Internals->process_group.trigger_with_reply<NameIdPair>
+      (ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNI,
+                   this, _3, true));
+    this->Internals->process_group.trigger_with_reply<NameIdPair>
+      (ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNI,
+                   this, _3, false));
+
+    // Add edge for (id, name) pairs
+    typedef vtkstd::pair<vtkIdType, vtkVariant> IdNamePair;
+    this->Internals->process_group.trigger<IdNamePair>
+      (ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeIN,
+                   this, _3, true));
+    this->Internals->process_group.trigger<IdNamePair>
+      (ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeIN,
+                   this, _3, false));
+
+    // Add edge for (name, name) pairs
+    typedef vtkstd::pair<vtkVariant, vtkVariant> NameNamePair;
+    this->Internals->process_group.trigger<NameNamePair>
+      (ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNN,
+                   this, _3, true));
+    this->Internals->process_group.trigger<NameNamePair>
+      (ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNN,
+                   this, _3, false));
     }
+}
+
+//----------------------------------------------------------------------------
+vtkstd::pair<bool, vtkIdType>
+vtkPBGLDistributedGraphHelper::HandleFindVertex(const vtkVariant& name)
+{
+  vtkstd::pair<bool, vtkIdType> result;
+  result.first = this->FindVertex(name, &result.second);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType
+vtkPBGLDistributedGraphHelper::HandleAddVertex(const vtkVariant& name)
+{
+  vtkIdType result;
+  this->AddVertexInternal(name, &result);
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -344,6 +604,36 @@ vtkPBGLDistributedGraphHelper::HandleAddBackEdge
 vtkEdgeType 
 vtkPBGLDistributedGraphHelper::HandleAddEdge
   (const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed)
+{
+  vtkEdgeType result;
+  AddEdgeInternal(msg.first, msg.second, directed, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType 
+vtkPBGLDistributedGraphHelper::HandleAddEdgeNI
+  (const vtkstd::pair<vtkVariant, vtkIdType>& msg, bool directed)
+{
+  vtkEdgeType result;
+  AddEdgeInternal(msg.first, msg.second, directed, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType 
+vtkPBGLDistributedGraphHelper::HandleAddEdgeIN
+  (const vtkstd::pair<vtkIdType, vtkVariant>& msg, bool directed)
+{
+  vtkEdgeType result;
+  AddEdgeInternal(msg.first, msg.second, directed, &result);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType 
+vtkPBGLDistributedGraphHelper::HandleAddEdgeNN
+  (const vtkstd::pair<vtkVariant, vtkVariant>& msg, bool directed)
 {
   vtkEdgeType result;
   AddEdgeInternal(msg.first, msg.second, directed, &result);

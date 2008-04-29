@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.11");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.12");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -56,6 +56,7 @@ vtkGraph::vtkGraph()
   this->EdgeData = vtkDataSetAttributes::New();
   this->Points = 0;
   vtkMath::UninitializeBounds(this->Bounds);
+  this->VertexNameArray = 0;
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
@@ -75,6 +76,10 @@ vtkGraph::~vtkGraph()
     this->Points->Delete();
     }
   this->Internals->Delete();
+  if (this->VertexNameArray)
+    {
+    delete [] this->VertexNameArray;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -194,6 +199,7 @@ void vtkGraph::Initialize()
   this->VertexData->Initialize();
   this->Internals->NumberOfEdges = 0;
   this->Internals->Adjacency.clear();
+  this->Internals->VertexNameMap.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -482,6 +488,127 @@ vtkDistributedGraphHelper *vtkGraph::GetDistributedGraphHelper()
 }
 
 //----------------------------------------------------------------------------
+void vtkGraph::SetVertexNameArrayName(const char* name)
+{
+  if (this->VertexNameArray == name)
+    {
+    return;
+    }
+
+  this->ForceOwnership();
+
+  if (this->VertexNameArray)
+    {
+    delete [] this->VertexNameArray;
+    this->VertexNameArray = 0;
+    }
+  this->Internals->VertexNameMap.clear();
+
+  if (name)
+    {
+    vtkAbstractArray *abstract = this->GetVertexData()->GetAbstractArray(name);
+    if (abstract == NULL)
+      {
+      vtkErrorMacro("Could not find array named " << name);
+      return;
+      }
+    vtkVariantArray *array = vtkVariantArray::SafeDownCast(abstract);
+    if (array == NULL)
+      {
+      vtkErrorMacro("Vertex name array is not a vtkVariantArray");
+      return;
+      }
+
+    this->VertexNameArray = new char [strlen(name) + 1];
+    strcpy(this->VertexNameArray, name);
+
+    // Build the name -> vertex mapping
+    vtkIdType start = 0, end = this->GetNumberOfVertices();
+    if (this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()) != -1)
+      {
+      start = MakeDistributedId
+               (this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()), 
+                start);
+      end = MakeDistributedId
+               (this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()), 
+                end);
+      }
+    for (; start != end; ++start)
+      {
+      vtkIdType index = this->GetVertexIndex(start);
+      this->Internals->VertexNameMap[array->GetValue(index)] = start;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraph::GetVertexNameArrayName()
+{
+  return this->VertexNameArray;
+}
+
+//----------------------------------------------------------------------------
+vtkVariantArray *vtkGraph::GetVertexNameArray()
+{
+  if (!this->VertexNameArray)
+    {
+    return 0;
+    }
+
+  vtkAbstractArray *abstract 
+    = this->GetVertexData()->GetAbstractArray(this->VertexNameArray);
+  if (abstract == NULL)
+    {
+    vtkErrorMacro("Could not find array named " << this->VertexNameArray);
+    return 0;
+    }
+  vtkVariantArray *array = vtkVariantArray::SafeDownCast(abstract);
+  if (array == NULL)
+    {
+    vtkErrorMacro("Vertex name array is not a vtkVariantArray");
+    return 0;
+    }
+  return array;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraph::FindVertex(const vtkVariant& name, vtkIdType *vertex)
+{
+  if (!this->VertexNameArray)
+    {
+    return false;
+    }
+
+  vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
+  if (helper)
+    {
+    vtkIdType myRank 
+      = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (helper->GetVertexOwnerByName(name) != myRank) 
+      {
+      // The vertex is remote; ask the distributed graph helper to
+      // find it.
+      return helper->FindVertex(name, vertex);
+      }
+
+    // Fall through: the vertex is stored locally.
+    }
+
+  vtksys_stl::map<vtkVariant, vtkIdType, vtkVariantLessThan>::iterator pos
+    = this->Internals->VertexNameMap.find(name);
+  if (pos == this->Internals->VertexNameMap.end())
+    {
+    return false;
+    }
+  
+  if (vertex)
+    {
+    *vertex = pos->second;
+    }
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkGraph::CheckedShallowCopy(vtkGraph *g)
 {
   if (!g)
@@ -628,6 +755,18 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     this->Points = 0;
     }
 
+  // Copy the name of the vertex name array, if any.
+  if (this->VertexNameArray)
+    {
+      delete [] this->VertexNameArray;
+      this->VertexNameArray = 0;
+    }
+  if (g->VertexNameArray)
+    {
+      this->VertexNameArray = new char [strlen(g->VertexNameArray)+1];
+      strcpy(this->VertexNameArray, g->VertexNameArray);
+    }
+
   // Propagate information used by distributed graphs
   this->Information->Set
     (vtkDataObject::DATA_PIECE_NUMBER(),
@@ -670,7 +809,57 @@ vtkIdType vtkGraph::AddVertexInternal()
 {
   this->ForceOwnership();
   this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
-  return this->Internals->Adjacency.size() - 1;
+  if (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()) == -1)
+    {
+    return this->Internals->Adjacency.size() - 1;
+    }
+  else
+    {
+    return this->MakeDistributedId
+             (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
+              this->Internals->Adjacency.size() - 1);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddVertexInternal(const vtkVariant& name, vtkIdType *vertex)
+{
+  vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
+  if (helper)
+    {
+    vtkIdType myRank 
+      = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (helper->GetVertexOwnerByName(name) != myRank) 
+      {
+      helper->AddVertexInternal(name, vertex);
+      return;
+      }
+    }
+
+  if (this->FindVertex(name, vertex))
+    {
+    // We found this vertex; nothing more to do.
+    return;
+    }
+
+  // Add the vertex locally
+  this->ForceOwnership();
+  vtkIdType v = this->AddVertexInternal();
+  if (vertex)
+    {
+    *vertex = v;
+    }
+
+  // Add the name of the vertex
+  vtkVariantArray *names = this->GetVertexNameArray();
+  if (names == NULL)
+    {
+    vtkErrorMacro("Added a named vertex to a vtkGraph with no vertex name array");
+    return;
+    }
+
+  names->InsertValue(this->GetVertexIndex(v), name);
+  this->Internals->VertexNameMap[name] = v;
 }
 
 //----------------------------------------------------------------------------
@@ -731,6 +920,59 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeT
     {
     *edge = vtkEdgeType(u, v, edgeId);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddEdgeInternal(const vtkVariant& uName, vtkIdType v, 
+                               bool directed, vtkEdgeType *edge)
+{
+  this->ForceOwnership();
+  if (this->Internals->DistributedHelper)
+    {
+    this->Internals->DistributedHelper->AddEdgeInternal(uName, v, directed, 
+                                                        edge);
+    return;
+    }
+  
+  vtkIdType u;
+  this->AddVertexInternal(uName, &u);
+  this->AddEdgeInternal(u, v, directed, edge);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddEdgeInternal(vtkIdType u, const vtkVariant& vName, 
+                               bool directed, vtkEdgeType *edge)
+{
+  this->ForceOwnership();
+  if (this->Internals->DistributedHelper)
+    {
+    this->Internals->DistributedHelper->AddEdgeInternal(u, vName, directed, 
+                                                        edge);
+    return;
+    }
+  
+  vtkIdType v;
+  this->AddVertexInternal(vName, &v);
+  this->AddEdgeInternal(u, v, directed, edge);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddEdgeInternal(const vtkVariant& uName, 
+                               const vtkVariant& vName, 
+                               bool directed, vtkEdgeType *edge)
+{
+  this->ForceOwnership();
+  if (this->Internals->DistributedHelper)
+    {
+    this->Internals->DistributedHelper->AddEdgeInternal(uName, vName, directed,
+                                                        edge);
+    return;
+    }
+  
+  vtkIdType u, v;
+  this->AddVertexInternal(uName, &u);
+  this->AddVertexInternal(vName, &v);
+  this->AddEdgeInternal(u, v, directed, edge);
 }
 
 //----------------------------------------------------------------------------
@@ -828,6 +1070,7 @@ void vtkGraph::ForceOwnership()
     vtkGraphInternals *internals = vtkGraphInternals::New();
     internals->Adjacency = this->Internals->Adjacency;
     internals->NumberOfEdges = this->Internals->NumberOfEdges;
+    internals->VertexNameMap = this->Internals->VertexNameMap;
     this->SetInternals(internals);
     internals->Delete();
     }

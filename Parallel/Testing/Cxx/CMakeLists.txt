@@ -101,10 +101,19 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
       TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel ${Boost_LIBRARIES})
 
+      ADD_EXECUTABLE(PBGLNamedVertexGraph PBGLNamedVertexGraph.cxx)
+      TARGET_LINK_LIBRARIES(PBGLNamedVertexGraph vtkParallel ${Boost_LIBRARIES})
+
       ADD_TEST(PBGLRandomGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${VTK_MPI_PREFLAGS} 
         ${CXX_TEST_PATH}/PBGLRandomGraph
+        ${VTK_MPI_POSTFLAGS})
+
+      ADD_TEST(PBGLNamedVertexGraph
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/PBGLNamedVertexGraph
         ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)
 

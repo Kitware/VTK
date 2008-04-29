@@ -52,12 +52,36 @@
 class vtkDistributedGraphHelperInternals;
 struct vtkEdgeType;
 class vtkGraph;
+class vtkVariant;
 class vtkVariantArray;
+
+// .NAME vtkVertexNameDistributionFunction - The type of a function
+// used to determine how to distribute vertex names across processors
+// in a vtkGraph. The name distribution function takes the name of the
+// vertex and a user-supplied void pointer and returns a hash value
+// V. A vertex with that name will reside on processor V % P, where P
+// is the number of processors. This type is used in conjunction with
+// the vtkDistributedGraphHelper class.
+typedef vtkIdType (*vtkVertexNameDistribution)(const vtkVariant& name,
+                                               void* userData);
 
 class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
  public:
   vtkTypeRevisionMacro (vtkDistributedGraphHelper, vtkObject);
+
+  // Description:
+  // Set the name -> processor distribution function that determines
+  // how vertices are distributed when they are associated with some
+  // kind of name, e.g., a unique label such as a URL or IP
+  // address. If a NULL function pointer is provided, the default
+  // hashed distribution will be used.
+  void SetVertexNameDistribution(vtkVertexNameDistribution Func, 
+                                 void *userData);
+
+  // Description:
+  // Determine which processor owns the vertex with the given name.
+  vtkIdType GetVertexOwnerByName(const vtkVariant& name);
 
   // Description:
   // Synchronizes all of the processors involved in this distributed
@@ -73,14 +97,50 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   virtual ~vtkDistributedGraphHelper();
 
   // Description:
+  // Add a vertex with the given name to the distributed graph. If
+  // vertex is non-NULL, it will receive the newly-created vertex.
+  virtual void AddVertexInternal(const vtkVariant& name, vtkIdType *vertex) = 0;
+
+  // Description:
   // Add an edge (u, v) to the distributed graph. The edge may be directed 
   // undirected. If edge is non-null, it will receive the newly-created edge.
   virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge) = 0;
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. uName is the name of vertex u, which will
+  // be added if no vertex by that name exists.
+  virtual void AddEdgeInternal(const vtkVariant& uName, vtkIdType v, 
+                               bool directed, vtkEdgeType *edge) = 0;
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. vName is the name of vertex u, which will
+  // be added if no vertex by that name exists.
+  virtual void AddEdgeInternal(vtkIdType u, const vtkVariant& vName, 
+                               bool directed, vtkEdgeType *edge) = 0;
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. uName is the name of vertex u and vName 
+  // is the name of vertex u, each of which will be added if no vertex by that
+  // name exists.
+  virtual void AddEdgeInternal(const vtkVariant& uName, const vtkVariant& vName, 
+                               bool directed, vtkEdgeType *edge) = 0;
   
   // Description:
   // Add an edge (u, v), with properties, to the distributed graph. The edge may be directed 
   // undirected. If edge is non-null, it will receive the newly-created edge.
   virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr) = 0;
+
+  // Description:
+  // Try to find the vertex with the given name. Returns true and
+  // fills in the vertex ID if the vertex is found, and returns false
+  // otherwise;
+  virtual bool FindVertex(const vtkVariant& name, vtkIdType *vertex) = 0;
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will
@@ -90,6 +150,11 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   // Description:
   // The graph to which this distributed graph helper is already attached.
   vtkGraph *Graph;
+
+  //BTX
+  vtkVertexNameDistribution VertexDistribution;
+  void *VertexDistributionUserData;
+  //ETX
 
  private:
   vtkDistributedGraphHelper(const vtkDistributedGraphHelper&); // Not implemented

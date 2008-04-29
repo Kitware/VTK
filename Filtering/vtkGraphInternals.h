@@ -26,8 +26,11 @@
 #define __vtkGraphInternals_h
 
 #include "vtkGraph.h"
+#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 #include <vtksys/stl/vector>
+#include <vtksys/stl/map>
 
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
@@ -51,6 +54,8 @@ public:
   //BTX
   vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
   vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
+  vtksys_stl::map<vtkVariant, vtkIdType, vtkVariantLessThan> VertexNameMap;
+  vtkVariantArray *VertexNameArray;
   //ETX
   vtkIdType NumberOfEdges;
   vtkDistributedGraphHelper *DistributedHelper;

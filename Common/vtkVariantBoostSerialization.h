@@ -86,8 +86,10 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int version)
     VTK_VARIANT_SAVE(VTK_UNSIGNED_INT,unsigned int,ToUnsignedInt);
     VTK_VARIANT_SAVE(VTK_LONG,long,ToLong);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_LONG,unsigned long,ToUnsignedLong);
+#if defined(VTK_TYPE_USE___INT64)
     VTK_VARIANT_SAVE(VTK___INT64,vtkTypeInt64,ToTypeInt64);
     VTK_VARIANT_SAVE(VTK_UNSIGNED___INT64,vtkTypeUInt64,ToTypeUInt64);
+#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_SAVE(VTK_LONG_LONG,long long,ToLongLong);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_LONG_LONG,unsigned long long,
@@ -130,8 +132,10 @@ void load(Archiver& ar, vtkVariant& variant, const unsigned int version)
     VTK_VARIANT_LOAD(VTK_UNSIGNED_INT,unsigned int);
     VTK_VARIANT_LOAD(VTK_LONG,long);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG,unsigned long);
+#if defined(VTK_TYPE_USE___INT64)
     VTK_VARIANT_LOAD(VTK___INT64,vtkTypeInt64);
     VTK_VARIANT_LOAD(VTK_UNSIGNED___INT64,vtkTypeUInt64);
+#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_LOAD(VTK_LONG_LONG,long long);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG_LONG,unsigned long long);

@@ -83,22 +83,69 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   //BTX
   enum Tags
   {
+    // Find a vertex by name. This always has a reply.
+    FIND_VERTEX_TAG,
+    // Add a vertex with the given name.
+    ADD_VERTEX_NO_REPLY_TAG,
+    ADD_VERTEX_WITH_REPLY_TAG,
     // Add a back edge; the forward edge has already been added.
     ADD_DIRECTED_BACK_EDGE_TAG,
     ADD_UNDIRECTED_BACK_EDGE_TAG,
     // Add an edge; don't reply.
     ADD_DIRECTED_EDGE_NO_REPLY_TAG,
     ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
-    // Add an edge; return the edge descriptor.
+    // Add an edge; return the edge ID.
     ADD_DIRECTED_EDGE_WITH_REPLY_TAG,
-    ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG
+    ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
+    // Add an edge via (name, id); don't reply.
+    ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
+    // Add an edge via (name, id); return the edge ID.
+    ADD_DIRECTED_EDGE_NI_WITH_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
+    // Add an edge via (id, name); don't reply.
+    ADD_DIRECTED_EDGE_IN_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_IN_NO_REPLY_TAG,
+    // Add an edge via (name, name); don't reply.
+    ADD_DIRECTED_EDGE_NN_NO_REPLY_TAG,
+    ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG
   };
+
+  // Description:
+  // Add a vertex with the given name to the distributed graph. If
+  // vertex is non-NULL, it will receive the newly-created vertex.
+  void AddVertexInternal(const vtkVariant& name, vtkIdType *vertex);
 
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
   // not be directed, depending on the given flag. If edge is non-null, it will
   // receive the newly-created edge.
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. uName is the name of vertex u, which will
+  // be added if no vertex by that name exists.
+  void AddEdgeInternal(const vtkVariant& uName, vtkIdType v, bool directed, 
+                       vtkEdgeType *edge);
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. vName is the name of vertex u, which will
+  // be added if no vertex by that name exists.
+  void AddEdgeInternal(vtkIdType u, const vtkVariant& vName, bool directed, 
+                       vtkEdgeType *edge);
+
+  // Description:
+  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
+  // not be directed, depending on the given flag. If edge is non-null, it will
+  // receive the newly-created edge. uName is the name of vertex u and vName 
+  // is the name of vertex u, each of which will be added if no vertex by that
+  // name exists.
+  void AddEdgeInternal(const vtkVariant& uName, const vtkVariant& vName, 
+                       bool directed, vtkEdgeType *edge);
   
   // Description:
   // Adds an edge (u, v), with properties, and returns the new edge. The graph edge may or may 
@@ -107,9 +154,24 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
  
   // Description:
+  // Try to find the vertex with the given name. Returns true and
+  // fills in the vertex ID if the vertex is found, and returns false
+  // otherwise;
+  bool FindVertex(const vtkVariant& name, vtkIdType *vertex);
+
+  // Description:
   // Attach this distributed graph helper to the given graph. This will
   // be called as part of vtkGraph::SetDistributedGraphHelper.
   void AttachToGraph(vtkGraph *graph);
+
+  // Description:
+  // Handle a FIND_VERTEX_TAG messagae.
+  vtkstd::pair<bool, vtkIdType> HandleFindVertex(const vtkVariant& name);
+
+  // Description:
+  // Add a vertex with the given name, if a vertex with that name
+  // does not already exist. Returns the ID for that vertex.
+  vtkIdType HandleAddVertex(const vtkVariant& name);
 
   // Description:
   // Handle a ADD_DIRECTED_BACK_EDGE_TAG or ADD_UNDIRECTED_BACK_END_TAG 
@@ -117,10 +179,27 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   void HandleAddBackEdge(vtkEdgeType edge, bool directed);
 
   // Description: 
-  // Handle an ADD_DIRECTED_EDGE_WITH_REPLY_TAG or 
-  //  ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG message
+  // Handle ADD_*DIRECTED_EDGE_*_REPLY_TAG messages.
   vtkEdgeType 
   HandleAddEdge(const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed);
+
+  // Description: 
+  // Handle ADD_*DIRECTED_EDGE_NI_*_REPLY_TAG messages.
+  vtkEdgeType 
+  HandleAddEdgeNI(const vtkstd::pair<vtkVariant, vtkIdType>& msg, 
+                  bool directed);
+
+  // Description: 
+  // Handle ADD_*DIRECTED_EDGE_IN_*_REPLY_TAG messages
+  vtkEdgeType 
+  HandleAddEdgeIN(const vtkstd::pair<vtkIdType, vtkVariant>& msg, 
+                  bool directed);
+
+  // Description: 
+  // Handle ADD_*DIRECTED_EDGE_NN_*_REPLY_TAG messages
+  vtkEdgeType 
+  HandleAddEdgeNN(const vtkstd::pair<vtkVariant, vtkVariant>& msg, 
+                  bool directed);
   //ETX
 };
 
