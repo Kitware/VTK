@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.59");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.60");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -47,6 +47,14 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->Length = 1.0;
 
   this->SetNumberOfInputPorts(2);
+
+  // by default, process active point tensors
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::TENSORS);
+
+  // by default, process active point scalars
+  this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -115,8 +123,8 @@ int vtkTensorGlyph::RequestData(
 
   pd = input->GetPointData();
   outPD = output->GetPointData();
-  inTensors = pd->GetTensors();
-  inScalars = pd->GetScalars();
+  inTensors = this->GetInputArrayToProcess(0, inputVector);
+  inScalars = this->GetInputArrayToProcess(1, inputVector);
   numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
