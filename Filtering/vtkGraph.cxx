@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.12");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.13");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -976,20 +976,17 @@ void vtkGraph::AddEdgeInternal(const vtkVariant& uName,
 }
 
 //----------------------------------------------------------------------------
-void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr)
+void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
+                               vtkEdgeType *edge, vtkVariantArray *propertyArray)
 {
   this->ForceOwnership();
   if (this->Internals->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge, variantValueArr);
+    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge, propertyArray);
     return;
     }
 
   vtkIdType edgeId = this->Internals->NumberOfEdges;
-  
-  // TODO: Add edge properties
-  vtkDataSetAttributes *edgeData = this->GetEdgeData();
-  int numProps = variantValueArr->GetNumberOfValues();
   
   this->Internals->NumberOfEdges++;
   this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
@@ -1006,6 +1003,28 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeT
     {
     *edge = vtkEdgeType(u, v, edgeId);
     }
+  
+  // Insert edge properties
+  vtkDataSetAttributes *edgeData = this->GetEdgeData();
+  int numProps = propertyArray->GetNumberOfValues();
+  assert(numProps == edgeData->GetNumberOfArrays());
+  for (int iprop=0; iprop<numProps; iprop++)
+    {
+    vtkAbstractArray* array = edgeData->GetAbstractArray(iprop);
+    if (vtkDataArray::SafeDownCast(array))
+      {
+      vtkDataArray::SafeDownCast(array)->InsertNextTuple1(propertyArray->GetPointer(iprop)->ToDouble());
+      }
+    else if (vtkStringArray::SafeDownCast(array))
+      {
+      vtkStringArray::SafeDownCast(array)->InsertNextValue(propertyArray->GetPointer(iprop)->ToString());
+      }
+    else
+      {
+      vtkErrorMacro("Unsupported array type");
+      }
+    }
+
 }
 
 //----------------------------------------------------------------------------
