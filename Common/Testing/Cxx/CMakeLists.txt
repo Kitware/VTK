@@ -11,6 +11,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestGarbageCollector.cxx
   TestDataArray.cxx
   TestDirectory.cxx
+  TestFastNumericConversion.cxx
   TestMath.cxx
   TestPolynomialSolvers.cxx
   TestSmartPointer.cxx
