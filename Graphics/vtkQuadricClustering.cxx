@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtkstd/set> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.82");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.83");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -95,6 +95,11 @@ vtkQuadricClustering::~vtkQuadricClustering()
   this->FeatureEdges = NULL;
   this->FeaturePoints->Delete();
   this->FeaturePoints = NULL;
+  if (this->CellSet)
+    {
+    delete this->CellSet;
+    this->CellSet = NULL;
+    }
   if (this->QuadricArray)
     {
     delete [] this->QuadricArray;
@@ -961,6 +966,7 @@ void vtkQuadricClustering::EndAppend()
   if ( this->PreventDuplicateCells )
     {
     delete this->CellSet;
+    this->CellSet = NULL;
     }
 
   // Compute the representative points for each bin
@@ -1277,6 +1283,13 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
     {
     vtkDebugMacro("Missing Array:  Did you call StartAppend?");
     return;
+    }
+
+  // Clean up
+  if ( this->PreventDuplicateCells )
+    {
+    delete this->CellSet;
+    this->CellSet = NULL;
     }
 
   outputPoints = vtkPoints::New();
