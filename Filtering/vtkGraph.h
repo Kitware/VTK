@@ -97,6 +97,27 @@
 // one thread is modifying the graph at the same time that another graph is
 // copying the structure.
 //
+// .SECTION Named vertices
+
+// The vertices in a vtkGraph can be associated with names, where the
+// vtkGraph contains a 1-1 mapping between vertex names (which are
+// vtkVariants) and vertex IDs. Once the mapping is established, one
+// can query the ID based on vertex name using FindVertex, add new
+// named vertices with AddVertex, and add edges based on the names of
+// vertices. For example, AddEdge("Here", "There") will find (or add)
+// vertices named "Here" and "There" and then introduce an edge from
+// "Here" to "There".
+//
+// To configure the vtkGraph for vertex names, create a
+// vtkVariantArray that will store the names and give that
+// vtkVariantArray a name (e.g., "Name") with
+// vtkAbstractArray::SetName. Next, add the vtkVariantArray into the
+// VertexData of the vtkGraph with
+// graph->GetVertexData()->AddArray. Finally, call
+// SetVertexNameArrayName with the name of the vtkVariantArray to
+// establish a correspondence between the vtkVariantArray and the
+// vertex names.
+//
 // .SECTION Distributed graphs
 //
 // vtkGraph instances can be distributed across multiple machines, to
@@ -153,6 +174,17 @@
 // encountered when traversing the vertex list via GetVertices(), but
 // may be encountered by traversing the in- and out-edge lists of
 // local vertices or the edge list.
+//
+// Distributed graphs can use named vertices in the same way that
+// non-distributed vertices can. With named vertices in distributed
+// graphs, the distribution of the vertices in the graph is based on
+// the vertex name. For example, a vertex with the name "Here" might
+// land on processor 0 while a vertex named "There" would end up on
+// processor 3. By default, the names themselves are hashed to give a
+// random (and, hopefully, even) distribution of the
+// vertices. However, one can provide a different vertex distribution
+// function by calling
+// vtkDistributedGraphHelper::SetVertexNameDistribution.
 //
 // .SECTION See Also
 // vtkDirectedGraph vtkUndirectedGraph vtkMutableDirectedGraph 
