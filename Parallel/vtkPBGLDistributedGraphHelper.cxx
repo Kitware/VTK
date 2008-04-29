@@ -27,8 +27,8 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkVariantArray.h"
-#include "vtkDataArray.h";
-#include "vtkStringArray.h";
+#include "vtkDataArray.h"
+#include "vtkStringArray.h"
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
 
@@ -47,12 +47,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.9");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.10");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.9");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.10");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------

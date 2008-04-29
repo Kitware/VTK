@@ -34,8 +34,9 @@
 #include "vtkPoints.h"
 #include "vtkVertexListIterator.h"
 #include "vtkVariantArray.h"
-#include "vtkStringArray.h";
+#include "vtkStringArray.h"
 
+#include <assert.h>
 #include <vtksys/stl/vector>
 
 using vtksys_stl::vector;
@@ -47,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.10");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.11");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
