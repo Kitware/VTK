@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.24");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.25");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -79,6 +79,11 @@ vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
   this->SetEdgeWeightField(0);
   this->RepulsionArray->Delete();
   this->AttractionArray->Delete();
+  if (this->EdgeArray)
+    {
+    delete [] this->EdgeArray;
+    this->EdgeArray = NULL;
+    }
 }
 
 // ----------------------------------------------------------------------

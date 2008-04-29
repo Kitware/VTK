@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.5");
+vtkCxxRevisionMacro(vtkArrayMap, "1.6");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -54,6 +54,8 @@ vtkArrayMap::vtkArrayMap()
 
 vtkArrayMap::~vtkArrayMap()
 {
+  this->SetInputArrayName(0);
+  this->SetOutputArrayName(0);
   delete this->Map;
 }
 

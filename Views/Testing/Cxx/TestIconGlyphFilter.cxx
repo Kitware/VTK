@@ -44,6 +44,8 @@ int TestIconGlyphFilter( int argc, char *argv[])
   imageReader->SetFileName(fname);
   imageReader->Update();
 
+  delete [] fname;
+
   imageReader->GetOutput()->GetDimensions(imageDims);
 
   vtkMutableUndirectedGraph * graph = vtkMutableUndirectedGraph::New();
