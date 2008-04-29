@@ -37,6 +37,8 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <vtkstd/map>
+#include <vtkstd/string>
+#include <vtksys/ios/sstream>
 
 class vtkExtractArraysOverTime::vtkInternal
 {
@@ -72,6 +74,7 @@ public: // vtkValue is made public due to a bug in VS 6.0
   class vtkValue
     {
   public:
+    vtkstd::string Label;
     vtkSmartPointer<vtkRectilinearGrid> Output;
     vtkSmartPointer<vtkUnsignedCharArray> ValidMaskArray;
     vtkSmartPointer<vtkDoubleArray> PointCoordinatesArray;
@@ -182,6 +185,8 @@ public:
 
         this->RemoveInvalidPoints(value.ValidMaskArray, value.Output->GetPointData());
         output->SetBlock(cc, iter->second.Output.GetPointer());
+        output->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(),
+          iter->second.Label.c_str());
         cc++;
         }
       }
@@ -253,6 +258,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
 
     // This will allocate a new vtkRectilinearGrid is none is present
     vtkValue* value = this->GetOutput(key, inDSA);
+
     vtkRectilinearGrid* output = value->Output;
     output->GetPointData()->CopyData(inDSA, cc, this->CurrentTimeIndex);
 
@@ -262,6 +268,13 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
     // Record the point coordinate if we are tracking a point.
     double *point = input->GetPoint(cc);
     value->PointCoordinatesArray->SetTuple(this->CurrentTimeIndex, point);
+
+    if (value->Label.empty())
+      {
+      vtksys_ios::ostringstream stream;
+      stream << "(" << point[0] << ", " << point[1] << ", " << point[2] << ")";
+      value->Label = stream.str();
+      }
     }
 }
 
@@ -321,6 +334,33 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
       {
       double *point = input->GetPoint(cc);
       value->PointCoordinatesArray->SetTuple(this->CurrentTimeIndex, point);
+      }
+
+    // Determine the label to use for this block if none has been already
+    // assigned.
+    if (value->Label.empty())
+      {
+      vtksys_ios::ostringstream stream;
+      if (this->ContentType == vtkSelection::GLOBALIDS)
+        {
+        vtkIdTypeArray* gidsArray = vtkIdTypeArray::SafeDownCast(
+          inDSA->GetGlobalIds());
+        if (gidsArray)
+          {
+          stream << "GlobalID: " << gidsArray->GetValue(cc);
+          value->Label = stream.str();
+          }
+        }
+      if (value->Label.empty())
+        {
+        if (composite_index != 0)
+          {
+          stream << "Block: " << composite_index << " ; ";
+          }
+        stream << (this->FieldType == vtkSelection::CELL?
+          "Cell : " : "Point : ") << curid;
+        value->Label = stream.str();
+        }
       }
     }
 }
@@ -419,7 +459,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.19");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.20");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()

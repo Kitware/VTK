@@ -246,6 +246,11 @@ protected:
   // to the current composite data infrastructure.
   vtkDataSet* GetDataSetFromBlock(vtkMultiBlockDataSet* output,
                                   unsigned int blockNo);
+
+  // Description:
+  // Set the name of a block.
+  void SetBlockName(vtkMultiBlockDataSet* output, unsigned int blockNo, 
+    const char* name);
   
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file

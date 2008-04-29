@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelectedLocations, "1.15");
 vtkStandardNewMacro(vtkExtractSelectedLocations);
 
 //----------------------------------------------------------------------------
@@ -110,6 +110,7 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
   
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+  outPD->SetCopyGlobalIds(1);
   outPD->CopyAllocate(inPD);
 
   vtkIdTypeArray* originalPtIds = vtkIdTypeArray::New();
@@ -147,6 +148,7 @@ void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed c
   
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
+  outCD->SetCopyGlobalIds(1);
   outCD->CopyAllocate(inCD);
   
   vtkIdTypeArray* originalIds = vtkIdTypeArray::New();

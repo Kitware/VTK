@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.67");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.68");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -1590,15 +1590,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
     this->GetDataSetFromBlock(compositeOutput, partId));
 
-  vtkCharArray* nmArray = vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  this->SetBlockName(compositeOutput, partId, name);
 
   // Clear all cell ids from the last execution, if any.
   idx = this->UnstructuredPartIds->IsId(partId);
@@ -2110,16 +2102,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
     this->GetDataSetFromBlock(compositeOutput, partId));    
-
-  vtkCharArray* nmArray =  vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  this->SetBlockName(compositeOutput, partId, name);
 
   if (sscanf(line, " %*s %s", subLine) == 1)
     {

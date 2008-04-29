@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.13");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.14");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -418,8 +418,8 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     newPts->Allocate(numPts);
     outputUG->SetPoints(newPts);
 
-    outPD->CopyAllocate(inputPD);
     outPD->CopyGlobalIdsOn();
+    outPD->CopyAllocate(inputPD);
 
     originalPointIds = vtkIdTypeArray::New();
     originalPointIds->SetNumberOfComponents(1);

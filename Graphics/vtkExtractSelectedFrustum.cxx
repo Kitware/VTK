@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.12");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.13");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -409,6 +409,7 @@ int vtkExtractSelectedFrustum::RequestData(
     //the output is a new unstructured grid
     outputUG->Allocate(numCells/4); //allocate storage for geometry/topology
     newPts->Allocate(numPts/4,numPts);
+    outputPD->SetCopyGlobalIds(1);
     outputPD->CopyAllocate(pd);
 
     if ((this->FieldType == vtkSelection::CELL)
@@ -418,6 +419,7 @@ int vtkExtractSelectedFrustum::RequestData(
         this->ContainingCells
       )
       {
+      outputCD->SetCopyGlobalIds(1);
       outputCD->CopyAllocate(cd);
 
       originalCellIds = vtkIdTypeArray::New();

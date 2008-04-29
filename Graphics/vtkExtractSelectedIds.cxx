@@ -32,7 +32,7 @@
 #include "vtkStdString.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.27");
+vtkCxxRevisionMacro(vtkExtractSelectedIds, "1.28");
 vtkStandardNewMacro(vtkExtractSelectedIds);
 
 //----------------------------------------------------------------------------
@@ -122,6 +122,7 @@ void vtkExtractSelectedIdsCopyPoints(vtkDataSet* input,
 
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+  outPD->SetCopyGlobalIds(1);
   outPD->CopyAllocate(inPD);
 
   for (i = 0; i < numPts; i++)
@@ -156,6 +157,7 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
 
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
+  outCD->SetCopyGlobalIds(1);
   outCD->CopyAllocate(inCD);
 
   vtkIdTypeArray* originalIds = vtkIdTypeArray::New();

@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.62");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.63");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -1288,16 +1288,8 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     }
   
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(ds);
-
-  vtkCharArray* nmArray =  vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  
+  this->SetBlockName(compositeOutput, partId, name);
 
   // Clear all cell ids from the last execution, if any.
   idx = this->UnstructuredPartIds->IsId(partId);
@@ -2418,15 +2410,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(ds);
 
-  vtkCharArray* nmArray =  vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  this->SetBlockName(compositeOutput, partId, name);
 
   if (sscanf(line, " %*s %s", subLine) == 1)
     {
@@ -2511,17 +2495,8 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
 
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(ds);
 
-  vtkCharArray* nmArray =  vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  this->SetBlockName(compositeOutput, partId, name);
 
-  
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
     {
     if (strncmp(subLine, "iblanked",8) == 0)
@@ -2611,15 +2586,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
 
   vtkImageData* output = vtkImageData::SafeDownCast(ds);
 
-  vtkCharArray* nmArray =  vtkCharArray::New();
-  nmArray->SetName("Name");
-  size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
-  char* copy = nmArray->GetPointer(0);
-  memcpy(copy, name, len);
-  copy[len] = '\0';
-  output->GetFieldData()->AddArray(nmArray);
-  nmArray->Delete();
+  this->SetBlockName(compositeOutput, partId, name);
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
     {
