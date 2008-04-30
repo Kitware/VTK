@@ -23,5 +23,6 @@ IF(PYTHON_EXECUTABLE)
     vtkOpenGLStateCache.h
     vtkgl.h
     vtkOpenGLExtensionManagerConfigure.h
+    vtkCocoaMacOSXSDKCompatibility.h
     )
 ENDIF(PYTHON_EXECUTABLE)

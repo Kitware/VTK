@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h
 
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #include "vtkOpenGLRenderWindow.h"
 
 class VTK_RENDERING_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
@@ -250,6 +251,11 @@ public:
   // Returns the scaling factor for 'resolution independence', to convert
   // between points and pixels.
   vtkGetMacro(ScaleFactor, double);
+  
+  // Description:
+  // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
+  void SetPixelFormat(void *pixelFormat);
+  void *GetPixelFormat();
 
 protected:
   vtkCocoaRenderWindow();
@@ -264,12 +270,7 @@ protected:
   int OffScreenInitialized;
   int OnScreenInitialized;
   
-  double ScaleFactor;
-  
-  // Description:
-  // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
-  void SetPixelFormat(void *pixelFormat);
-  void *GetPixelFormat();
+  CGFloat ScaleFactor;
   
   // Description:
   // Accessors for the cocoa manager (Really an NSMutableDictionary*).

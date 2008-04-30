@@ -13,6 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import "vtkCocoaRenderWindow.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
@@ -21,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.57");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.58");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -30,7 +31,8 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 {
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
-  this->SetCocoaManager(reinterpret_cast<void *>([NSMutableDictionary dictionary]));
+  NSMutableDictionary * cocoaManager = [NSMutableDictionary dictionary];
+  this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
   
   this->WindowCreated = 0;
   this->ViewCreated = 0;
@@ -344,7 +346,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
       if (!resizing)
         {
         resizing = 1;
-        NSPoint origin = NSMakePoint((float)x, (float)y);
+        NSPoint origin = NSMakePoint((CGFloat)x, (CGFloat)y);
         [(NSWindow*)this->GetWindowId() setFrameOrigin:origin];
         resizing = 0;
         }
@@ -482,10 +484,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
       }
 
     // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-    NSRect ctRect = NSMakeRect((float)this->Position[0],
-                               (float)this->Position[1],
-                               (float)this->Size[0] / this->ScaleFactor,
-                               (float)this->Size[1] / this->ScaleFactor);
+    NSRect ctRect = NSMakeRect((CGFloat)this->Position[0],
+                               (CGFloat)this->Position[1],
+                               (CGFloat)this->Size[0] / this->ScaleFactor,
+                               (CGFloat)this->Size[1] / this->ScaleFactor);
 
     NSWindow* theWindow = [[NSWindow alloc]
                            initWithContentRect:ctRect
@@ -520,8 +522,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
     {
     // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
     NSRect glRect = NSMakeRect(0.0, 0.0,
-                               (float)this->Size[0] / this->ScaleFactor,
-                               (float)this->Size[1] / this->ScaleFactor);
+                               (CGFloat)this->Size[0] / this->ScaleFactor,
+                               (CGFloat)this->Size[1] / this->ScaleFactor);
     vtkCocoaGLView *glView = [[[vtkCocoaGLView alloc] initWithFrame:glRect] autorelease];
     [(NSWindow*)this->GetWindowId() setContentView:glView];
     
@@ -966,9 +968,8 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     #ifdef __OBJC_GC__
       [[NSGarbageCollector defaultCollector]
         enableCollectorForPointer:cocoaManager];
-    #else
-      [cocoaManager release];
     #endif
+    [cocoaManager release];
     }
   else
     {
@@ -977,9 +978,8 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     #ifdef __OBJC_GC__
       [[NSGarbageCollector defaultCollector]
         disableCollectorForPointer:cocoaManager];
-    #else
-      [cocoaManager retain];
     #endif
+    [cocoaManager retain];
     }
   this->CocoaManager = manager;
 }
