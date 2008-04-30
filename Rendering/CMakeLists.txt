@@ -1,4 +1,4 @@
-\SET(KIT Rendering)
+SET(KIT Rendering)
 SET(UKIT RENDERING)
 SET(KIT_TCL_LIBS vtkGraphicsTCL vtkImagingTCL ${VTK_TK_LIBRARIES})
 SET(KIT_PYTHON_LIBS vtkGraphicsPythonD vtkImagingPythonD)
