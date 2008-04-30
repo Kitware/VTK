@@ -46,7 +46,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.21");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.22");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -134,9 +134,9 @@ int vtkExtractSelectedGraph::RequestData(
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
 
-  // If there is nothing in the list, there is nothing to select.
+  // If there is no list, there is nothing to select.
   vtkAbstractArray* list = selection->GetSelectionList();
-  if (!list || list->GetNumberOfTuples() == 0)
+  if (!list)
     {
     return 1;
     }
