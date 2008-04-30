@@ -30,7 +30,7 @@ class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
 };
 
 vtkStandardNewMacro(vtkExtractBlock);
-vtkCxxRevisionMacro(vtkExtractBlock, "1.3");
+vtkCxxRevisionMacro(vtkExtractBlock, "1.4");
 vtkInformationKeyMacro(vtkExtractBlock, DONT_PRUNE, Integer);
 //----------------------------------------------------------------------------
 vtkExtractBlock::vtkExtractBlock()
@@ -229,7 +229,8 @@ bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
           clone->SetBlock(index, prunedBlock->GetBlock(0));
           if (prunedBlock->HasMetaData(static_cast<unsigned int>(0)))
             {
-            clone->GetMetaData(index)->Copy(prunedBlock->GetMetaData(cc));
+            clone->GetMetaData(index)->Copy(prunedBlock->GetMetaData(
+                static_cast<unsigned int>(0)));
             }
           }
         else
