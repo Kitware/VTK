@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.22");
+vtkCxxRevisionMacro(vtkContourWidget, "1.23");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -195,39 +195,38 @@ void vtkContourWidget::AddNode()
   
   // If the rep already has at least 2 nodes, check how close we are to 
   // the first
-  if ( reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->
-       GetNumberOfNodes() > 1 )
+  vtkContourRepresentation* rep =
+    reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
+
+  int numNodes = rep->GetNumberOfNodes();
+  if ( numNodes > 1 )
     {
-    int pixelTolerance2 = 
-      reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->
-      GetPixelTolerance();
+    int pixelTolerance2 = rep->GetPixelTolerance();
     pixelTolerance2 *= pixelTolerance2;
-    
+
     double displayPos[2];
-    if ( !reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->
-         GetNthNodeDisplayPosition( 0, displayPos ) )
+    if ( !rep->GetNthNodeDisplayPosition( 0, displayPos ) )
       {
       vtkErrorMacro("Can't get first node display position!");
-      return;      
+      return;
       }
-    
+
     if ( (X - displayPos[0]) * (X - displayPos[0]) +
-         (Y - displayPos[1]) * (Y - displayPos[1]) < 
-         pixelTolerance2 )
+         (Y - displayPos[1]) * (Y - displayPos[1]) <
+         pixelTolerance2 && numNodes > 2 )
       {
-      // yes - we have made a loop. Stop defining and switch to 
+      // yes - we have made a loop. Stop defining and switch to
       // manipulate mode
       this->WidgetState = vtkContourWidget::Manipulate;
-      reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->ClosedLoopOn();    
+      rep->ClosedLoopOn();
       this->Render();
       this->EventCallbackCommand->SetAbortFlag(1);
       this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       return;
       }
     }
-  
-  if ( reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->
-       AddNodeAtDisplayPosition( X, Y ) )
+
+  if ( rep->AddNodeAtDisplayPosition( X, Y ) )
     {
     if ( this->WidgetState == vtkContourWidget::Start )
       {
@@ -235,7 +234,7 @@ void vtkContourWidget::AddNode()
       }
     
     this->WidgetState = vtkContourWidget::Define;
-    reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep)->VisibilityOn();    
+    rep->VisibilityOn();
     this->EventCallbackCommand->SetAbortFlag(1);
     this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
