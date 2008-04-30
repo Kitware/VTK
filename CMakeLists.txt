@@ -242,6 +242,7 @@ MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
 #-----------------------------------------------------------------------------
 OPTION(VTK_USE_METAIO "Build metaio" ON)
+MARK_AS_ADVANCED(VTK_USE_METAIO)
 
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data or using widgets." ON)
@@ -275,7 +276,7 @@ IF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
   SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 1)
 ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
 OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
-
+MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
   
 # Determine GUI Support.
 VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
@@ -442,7 +443,7 @@ ENDIF(VTK_WRAP_JAVA)
 #-----------------------------------------------------------------------------
 # Configure Dart testing support.
 INCLUDE(Dart)
-MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
+MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
   CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
@@ -754,6 +755,7 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme
 # FFMPEG
 # If the ffmpeg library is available, use it.
 OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" BOOL)
+MARK_AS_ADVANCED(VTK_USE_FFMPEG_ENCODER)
 IF (VTK_USE_FFMPEG_ENCODER)
   INCLUDE(${VTK_CMAKE_DIR}/FindFFMPEG.cmake OPTIONAL)
 ENDIF (VTK_USE_FFMPEG_ENCODER)
@@ -785,6 +787,7 @@ ENDIF (VTK_USE_FFMPEG_ENCODER)
 OPTION (VTK_USE_MPEG2_ENCODER
   "Enable use of the patented mpeg2 library. You are solely responsible for any legal issues associated with using patented code in your software."
   OFF)
+MARK_AS_ADVANCED(VTK_USE_MPEG2_ENCODER)
 IF (VTK_USE_MPEG2_ENCODER)
   INCLUDE(${VTK_CMAKE_DIR}/FindMPEG2.cmake OPTIONAL)
 ENDIF (VTK_USE_MPEG2_ENCODER)
@@ -936,6 +939,7 @@ VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 #-----------------------------------------------------------------------------
 # Add the option to use Boost
 OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org." OFF)
+MARK_AS_ADVANCED(VTK_USE_BOOST)
 
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
