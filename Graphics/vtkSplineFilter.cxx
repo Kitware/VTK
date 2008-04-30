@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.17");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.18");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -166,7 +166,7 @@ int vtkSplineFilter::RequestData(
                                      pd, outPD, genTCoords, newTCoords);
     if ( ! numGenPts )
       {
-      vtkWarningMacro(<< "Could not generate points!");
+      //vtkWarningMacro(<< "Could not generate points!");
       continue; //skip splining 
       }
       
