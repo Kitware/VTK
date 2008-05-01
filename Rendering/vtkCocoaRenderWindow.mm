@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.58");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.59");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -311,7 +311,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         {
         resizing = 1;
         // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-        NSSize theSize = NSMakeSize((double)x / this->ScaleFactor, (double)y / this->ScaleFactor);
+        NSSize theSize = NSMakeSize((CGFloat)x / this->ScaleFactor, (CGFloat)y / this->ScaleFactor);
         [(NSWindow*)this->GetWindowId() setContentSize:theSize];
         resizing = 0;
         }

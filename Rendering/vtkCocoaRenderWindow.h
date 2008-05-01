@@ -39,7 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h
 
-#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #include "vtkOpenGLRenderWindow.h"
 
 class VTK_RENDERING_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
@@ -270,8 +269,14 @@ protected:
   int OffScreenInitialized;
   int OnScreenInitialized;
   
-  CGFloat ScaleFactor;
-  
+  // Using CGFloat would be better, but doing it this way avoids pulling in
+  // Apple headers, which cause problems with the 10.3 SDK and python wrappings.
+#if defined(__LP64__) && __LP64__
+  double ScaleFactor;
+#else
+  float ScaleFactor;
+#endif
+
   // Description:
   // Accessors for the cocoa manager (Really an NSMutableDictionary*).
   // It manages all Cocoa objects in this C++ class.
