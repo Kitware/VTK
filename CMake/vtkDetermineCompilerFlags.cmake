@@ -123,10 +123,11 @@ ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|VCExpress)")
 
 # Disable deprecation warnings for standard C and STL functions in VS2005
 # and later
-IF(CMAKE_COMPILER_2005)
-  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+IF(MSVC80 OR MSVC90)
+  ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
   ADD_DEFINITIONS(-D_SCL_SECURE_NO_DEPRECATE)
-ENDIF(CMAKE_COMPILER_2005) 
+ENDIF(MSVC80 OR MSVC90)
 
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be
