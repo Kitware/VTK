@@ -15,7 +15,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdList, "1.43");
+vtkCxxRevisionMacro(vtkIdList, "1.44");
 vtkStandardNewMacro(vtkIdList);
 
 vtkIdList::vtkIdList()
@@ -65,30 +65,30 @@ void vtkIdList::SetNumberOfIds(const vtkIdType number)
   this->NumberOfIds = number;
 }
 
-void vtkIdList::InsertId(const vtkIdType i, const vtkIdType id)
+void vtkIdList::InsertId(const vtkIdType i, const vtkIdType vtkid)
 {
   if ( i >= this->Size )
     {
     this->Resize(i+1);
     }
-  this->Ids[i] = id;
+  this->Ids[i] = vtkid;
   if ( i >= this->NumberOfIds )
     {
     this->NumberOfIds = i + 1;
     }
 }
 
-vtkIdType vtkIdList::InsertUniqueId(const vtkIdType id)
+vtkIdType vtkIdList::InsertUniqueId(const vtkIdType vtkid)
 {
   for (vtkIdType i=0; i < this->NumberOfIds; i++)
     {
-    if ( id == this->Ids[i] )
+    if ( vtkid == this->Ids[i] )
       {
       return i;
       }
     }
   
-  return this->InsertNextId(id);
+  return this->InsertNextId(vtkid);
 }
 
 vtkIdType *vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
@@ -105,16 +105,16 @@ vtkIdType *vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
   return this->Ids + i;
 }
 
-void vtkIdList::DeleteId(vtkIdType id)
+void vtkIdList::DeleteId(vtkIdType vtkid)
 {
   vtkIdType i=0;
 
-  // while loop is necessary to delete all occurences of id
+  // while loop is necessary to delete all occurences of vtkid
   while ( i < this->NumberOfIds )
     {
     for ( ; i < this->NumberOfIds; i++)
       {
-      if ( this->Ids[i] == id )
+      if ( this->Ids[i] == vtkid )
         {
         break;
         }
@@ -195,7 +195,7 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
   if (thisNumIds <= VTK_TMP_ARRAY_SIZE) 
     {//Use fast method if we can fit in temporary storage
     int  thisIds[VTK_TMP_ARRAY_SIZE];
-    vtkIdType i, id;
+    vtkIdType i, vtkid;
     
     for (i=0; i < thisNumIds; i++)
       {
@@ -203,17 +203,17 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
       }
     for (this->Reset(), i=0; i < thisNumIds; i++) 
       {
-      id = thisIds[i];
-      if ( otherIds.IsId(id) != (-1) )
+      vtkid = thisIds[i];
+      if ( otherIds.IsId(vtkid) != (-1) )
         {
-        this->InsertNextId(id);
+        this->InsertNextId(vtkid);
         }
       }
     } 
   else 
     {//use slower method for extreme cases
     vtkIdType *thisIds = new vtkIdType [thisNumIds];
-    vtkIdType  i, id;
+    vtkIdType  i, vtkid;
     
     for (i=0; i < thisNumIds; i++)
       {
@@ -221,10 +221,10 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
       }
     for (this->Reset(), i=0; i < thisNumIds; i++) 
       {
-      id = *(thisIds + i);
-      if ( otherIds.IsId(id) != (-1) )
+      vtkid = *(thisIds + i);
+      if ( otherIds.IsId(vtkid) != (-1) )
         {
-        this->InsertNextId(id);
+        this->InsertNextId(vtkid);
         }
       }
     delete [] thisIds;

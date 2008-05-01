@@ -50,21 +50,21 @@ public:
   // Set the id at location i. Doesn't do range checking so it's a bit
   // faster than InsertId. Make sure you use SetNumberOfIds() to allocate
   // memory prior to using SetId().
-  void SetId(const vtkIdType i, const vtkIdType id) {this->Ids[i] = id;};
+  void SetId(const vtkIdType i, const vtkIdType vtkid) {this->Ids[i] = vtkid;};
 
   // Description:
   // Set the id at location i. Does range checking and allocates memory
   // as necessary.
-  void InsertId(const vtkIdType i, const vtkIdType id);
+  void InsertId(const vtkIdType i, const vtkIdType vtkid);
 
   // Description:
   // Add the id specified to the end of the list. Range checking is performed.
-  vtkIdType InsertNextId(const vtkIdType id);
+  vtkIdType InsertNextId(const vtkIdType vtkid);
 
   // Description:
   // If id is not already in list, insert it and return location in
   // list. Otherwise return just location in list.
-  vtkIdType InsertUniqueId(const vtkIdType id);
+  vtkIdType InsertUniqueId(const vtkIdType vtkid);
 
   // Description:
   // Get a pointer to a particular data index.
@@ -90,12 +90,12 @@ public:
 
   // Description:
   // Delete specified id from list. Will remove all occurrences of id in list.
-  void DeleteId(vtkIdType id);
+  void DeleteId(vtkIdType vtkid);
 
   // Description:
   // Return -1 if id specified is not contained in the list; otherwise return
   // the position in the list.
-  vtkIdType IsId(vtkIdType id);
+  vtkIdType IsId(vtkIdType vtkid);
 
   // Description:
   // Intersect this list with another vtkIdList. Updates current list according
@@ -117,22 +117,22 @@ private:
 };
 
 // In-lined for performance
-inline vtkIdType vtkIdList::InsertNextId(const vtkIdType id)
+inline vtkIdType vtkIdList::InsertNextId(const vtkIdType vtkid)
 {
   if ( this->NumberOfIds >= this->Size )
     {
     this->Resize(this->NumberOfIds+1);
     }
-  this->Ids[this->NumberOfIds++] = id;
+  this->Ids[this->NumberOfIds++] = vtkid;
   return this->NumberOfIds-1;
 }
 
-inline vtkIdType vtkIdList::IsId(vtkIdType id)
+inline vtkIdType vtkIdList::IsId(vtkIdType vtkid)
 {
   vtkIdType *ptr, i;
   for (ptr=this->Ids, i=0; i<this->NumberOfIds; i++, ptr++)
     {
-    if ( id == *ptr )
+    if ( vtkid == *ptr )
       {
       return i;
       }
