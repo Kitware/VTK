@@ -131,6 +131,15 @@ public:
   vtkGetMacro(PassLines,int);
   vtkBooleanMacro(PassLines,int);
 
+  // Description:
+  // Indicate whether the starting points of the loops need to be determined.
+  // If set to 0, then its assumes that the 0th point of each loop should be 
+  // always connected
+  // By defualt the loops are not oriented.
+  vtkSetMacro(OrientLoops,int);
+  vtkGetMacro(OrientLoops,int);
+  vtkBooleanMacro(OrientLoops,int);
+
 protected:
   vtkRuledSurfaceFilter();
   ~vtkRuledSurfaceFilter();
@@ -145,6 +154,7 @@ protected:
   int   RuledMode;
   int   Resolution[2];
   int   PassLines;
+  int   OrientLoops;
   
 private:
   vtkIdList *Ids;

@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.24");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.25");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -36,7 +36,7 @@ vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
   this->Resolution[0] = 1;
   this->Resolution[1] = 1;
   this->PassLines = 0;
-  
+  this->OrientLoops = 0;
   this->Ids = vtkIdList::New();
   this->Ids->SetNumberOfIds(4);
 }
@@ -392,39 +392,86 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
                                        int npts, vtkIdType *pts,
                                        int npts2, vtkIdType *pts2)
 {
-  int loc, loc2;
+  int loc, loc2, next2;
   vtkCellArray *newPolys=output->GetPolys();
   double x[3], y[3], a[3], b[3], xa, xb, ya, distance2;
       
   // Compute distance factor based on first two points
   //
-  inPts->GetPoint(pts[0],x);
-  inPts->GetPoint(pts2[0],y);
-  distance2 = vtkMath::Distance2BetweenPoints(x,y) * 
-              this->DistanceFactor * this->DistanceFactor;
+
+  vtkIdType endLoop2, startLoop2, i;
+  
+  if (!this->OrientLoops)
+    {
+    endLoop2 = npts2 - 1;
+    startLoop2 = 0;
+    inPts->GetPoint(pts[0],x);
+    inPts->GetPoint(pts2[0],y);
+    distance2 = vtkMath::Distance2BetweenPoints(x,y) * 
+      this->DistanceFactor * this->DistanceFactor;
+    }
+  else
+    {
+    double minD2;
+    startLoop2 = 0;
+    inPts->GetPoint(pts[0],x);
+    inPts->GetPoint(pts2[0],y);
+    minD2 = vtkMath::Distance2BetweenPoints(x,y);
+    for (i = 1; i != npts2; i++)
+      {
+      inPts->GetPoint(pts2[i],y);
+      distance2 = vtkMath::Distance2BetweenPoints(x,y);
+      if (distance2 < minD2)
+        {
+        minD2 = distance2;
+        startLoop2 = i;
+        }
+      }
+
+    // If the starting point is not 0 then the end is behind us
+    if (startLoop2)
+      {
+      endLoop2 = startLoop2 -1;
+      }
+    else
+      {
+      endLoop2 = npts2 -1;
+      }
+
+    distance2 = minD2 * this->DistanceFactor * this->DistanceFactor;
+    }
 
   // Walk "edge" along the two lines maintaining closest distance
   // and generating triangles as we go.
-  loc = loc2 = 0;
-  while ( loc < (npts-1) || loc2 < (npts2-1) )
+  loc = 0;
+  loc2 = startLoop2;
+  while ( loc < (npts-1) || loc2 != endLoop2 )
     {
+    
+    // Determine the next point in loop 2
+    next2 = loc2+1;
+    if (next2 == npts2)
+      {
+      next2 = 0;
+      }
+
     if ( loc >= (npts-1) ) //clamped at end of first line
       {
       inPts->GetPoint(pts[loc],x);
       inPts->GetPoint(pts2[loc2],a);
-      inPts->GetPoint(pts2[loc2+1],b);
+      inPts->GetPoint(pts2[next2],b);
       xa = vtkMath::Distance2BetweenPoints(x,a);
       xb = vtkMath::Distance2BetweenPoints(x,b);
       if ( xa <= distance2 && xb <= distance2 )
         {
         newPolys->InsertNextCell(3);
         newPolys->InsertCellPoint(pts[loc]); //x
-        newPolys->InsertCellPoint(pts2[loc2+1]); //b
+        newPolys->InsertCellPoint(pts2[next2]); //b
         newPolys->InsertCellPoint(pts2[loc2]); //a
         }
-      loc2++;
+      loc2 = next2;
       }
-    else if ( loc2 >= (npts2-1) ) //clamped at end of second line
+    else if ( loc2 == endLoop2 ) //clamped at end of second line
       {
       inPts->GetPoint(pts[loc],x);
       inPts->GetPoint(pts[loc+1],y);
@@ -445,7 +492,7 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
       inPts->GetPoint(pts[loc],x);
       inPts->GetPoint(pts[loc+1],y);
       inPts->GetPoint(pts2[loc2],a);
-      inPts->GetPoint(pts2[loc2+1],b);
+      inPts->GetPoint(pts2[next2],b);
       xa = vtkMath::Distance2BetweenPoints(x,a);
       xb = vtkMath::Distance2BetweenPoints(x,b);
       ya = vtkMath::Distance2BetweenPoints(a,y);
@@ -455,10 +502,10 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
           {
           newPolys->InsertNextCell(3);
           newPolys->InsertCellPoint(pts[loc]); //x
-          newPolys->InsertCellPoint(pts2[loc2+1]); //b
+          newPolys->InsertCellPoint(pts2[next2]); //b
           newPolys->InsertCellPoint(pts2[loc2]); //a
           }
-        loc2++;
+        loc2 = next2;
         }
       else 
         {
@@ -498,6 +545,7 @@ void vtkRuledSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ruled Mode: " << this->GetRuledModeAsString() << "\n";
   os << indent << "Resolution: (" << this->Resolution[0]
      << ", " << this->Resolution[1] << ")" << endl;
+  os << indent << "Orient Loops: " << (this->OrientLoops ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 }
 
