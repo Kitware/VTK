@@ -54,6 +54,11 @@ public:
   static int SetExtent(int inExt[6], int ext[6]);
 
   // Description:
+  // Returns the data description given the dimensions (eg. VTK_SINGLE_POINT,
+  // VTK_X_LINE, VTK_XY_PLANE etc.)
+  static int GetDataDescription(int dims[3]);
+
+  // Description:
   // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
   static int GetDataDimension(int dataDescription);
 
