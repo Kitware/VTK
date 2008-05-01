@@ -417,7 +417,7 @@ const char *MinMagModToString(int minMagMode)
       break;  
     default:
       result=0;
-//      assert("check: impossible case.");
+//      assert("check: impossible case." && 0);
       break;
     }
   return result;
@@ -728,7 +728,7 @@ const char *InternalTextureFormatToString(int internalFormat)
       break;
     default:
       result=0;
-//      assert("check: impossible case.");
+//      assert("check: impossible case." && 0);
 //      cout<<"unknown"<<"(0x"<< hex << ivalue[0] << dec << ")";
       break;
     }
@@ -757,7 +757,7 @@ const char *WrapModeToString(GLenum wrapMode)
       break;
     default:
       result="";
-      assert("check: impossible case.");
+      assert("check: impossible case." && 0);
       break;
     }
   return result;

@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.128");
+vtkCxxRevisionMacro(vtkMath, "1.129");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -3080,7 +3080,7 @@ int vtkMath::GetAdjustedScalarRange(
         }
       break;
     default:
-      assert("check: impossible case."); // reaching this line is a bug.
+      assert("check: impossible case." && 0); // reaching this line is a bug.
       break;
     }
 

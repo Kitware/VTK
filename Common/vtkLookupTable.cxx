@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.106");
+vtkCxxRevisionMacro(vtkLookupTable, "1.107");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -232,7 +232,7 @@ void vtkLookupTable::ForceBuild()
         }
         break;
       default:
-        assert("check: impossible case."); // reaching this line is a bug.
+        assert("check: impossible case." && 0); // reaching this line is a bug.
         break;
       }
     }
