@@ -27,18 +27,21 @@
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkQtItemView, "1.2");
+vtkCxxRevisionMacro(vtkQtItemView, "1.3");
 vtkStandardNewMacro(vtkQtItemView);
 
 
@@ -219,6 +222,11 @@ void vtkQtItemView::QtSelectionChanged(const QItemSelection&, const QItemSelecti
       selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
       array = (vtkDataSet::SafeDownCast(d))->GetPointData()->GetAbstractArray(this->ValueSelectionArrayName);
       }
+    else if (vtkGraph::SafeDownCast(d))
+      {
+      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::VERTEX);
+      array = (vtkGraph::SafeDownCast(d))->GetVertexData()->GetAbstractArray(this->ValueSelectionArrayName);
+      }
     else
       {
       selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::FIELD);
@@ -291,6 +299,12 @@ void vtkQtItemView::Update()
     {
     return;
     }
+
+  // Make the data current
+  vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
+  alg->Update();
+  vtkDataObject *d = alg->GetOutputDataObject(0);
+  this->ModelAdapterPtr->SetVTKDataObject(d);
   
   // Make the selection current
   if (this->Selecting)
@@ -298,7 +312,10 @@ void vtkQtItemView::Update()
     // If we initiated the selection, do nothing.
     return;
     }
-  vtkSelection* selection = rep->GetSelectionLink()->GetSelection();
+
+  vtkSelection* s = rep->GetSelectionLink()->GetSelection();
+  vtkSmartPointer<vtkSelection> selection;
+  selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
   QItemSelection list;
   if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) == vtkSelection::INDICES)
     {
@@ -326,11 +343,6 @@ void vtkQtItemView::Update()
   this->GetSelectionModel()->select(list, 
     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);  
   
-  // Make the data current
-  vtkAlgorithm* alg = rep->GetInputConnection()->GetProducer();
-  alg->Update();
-  vtkDataObject *d = alg->GetOutputDataObject(0);
-  this->ModelAdapterPtr->SetVTKDataObject(d);
   // Sub-classes might use their own views, so don't assume the view has been set
   if(this->ItemViewPtr)
     {
