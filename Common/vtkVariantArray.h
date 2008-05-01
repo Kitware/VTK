@@ -33,13 +33,17 @@
 
 class vtkVariantArrayLookup;
 
+//BTX
 /// Forward declaration required for Boost serialization
 namespace boost { namespace serialization { class access; } }
+//ETX
 
 class VTK_COMMON_EXPORT vtkVariantArray : public vtkAbstractArray
 {
+//BTX
   /// Friendship required for Boost serialization
   friend class boost::serialization::access;
+//ETX
 
 public:
   static vtkVariantArray* New();
