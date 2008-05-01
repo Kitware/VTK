@@ -565,6 +565,7 @@ protected:
 
   // Description:
   // Friend iterator classes.
+  //BTX
   friend class vtkAdjacentVertexIterator;
   friend class vtkEdgeListIterator;
   friend class vtkInEdgeIterator;
@@ -572,6 +573,7 @@ protected:
   friend class boost::vtk_edge_iterator;
   friend class boost::vtk_in_edge_pointer_iterator;
   friend class boost::vtk_out_edge_pointer_iterator;
+  //ETX
 
   // Description:
   // The vertex and edge data.
