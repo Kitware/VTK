@@ -100,6 +100,13 @@ public:
   vtkGetMacro(AllowParallelEdges, bool);
   vtkBooleanMacro(AllowParallelEdges, bool);
 
+  // Description:
+  // Control the seed used for pseudo-random-number generation.
+  // This ensures that vtkRandomGraphSource can produce repeatable
+  // results.
+  vtkSetMacro(Seed, int);
+  vtkGetMacro(Seed, int);
+
 protected:
   vtkRandomGraphSource();
   ~vtkRandomGraphSource();
@@ -112,6 +119,7 @@ protected:
   bool IncludeEdgeWeights;
   bool AllowSelfLoops;
   bool AllowParallelEdges;
+  int Seed;
 
   virtual int RequestData(
     vtkInformation*, 

@@ -34,7 +34,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.10");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.11");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -43,12 +43,14 @@ vtkRandomGraphSource::vtkRandomGraphSource()
 {
   this->NumberOfVertices = 10;
   this->NumberOfEdges = 10;
+  this->EdgeProbability = 0.5;
+  this->IncludeEdgeWeights = false;
   this->Directed = 0;
   this->UseEdgeProbability = 0;
-  this->IncludeEdgeWeights = false;
-  this->AllowSelfLoops = false;
-  this->EdgeProbability = 0.5;
   this->StartWithTree = 0;
+  this->AllowSelfLoops = false;
+  this->AllowParallelEdges = false;
+  this->Seed = 1177;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -66,14 +68,15 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfVertices: " << this->NumberOfVertices << endl;
-  os << indent << "UseEdgeProbability: " << this->UseEdgeProbability << endl;
   os << indent << "NumberOfEdges: " << this->NumberOfEdges << endl;
   os << indent << "EdgeProbability: " << this->EdgeProbability << endl;
-  os << indent << "Directed: " << this->Directed << endl;
-  os << indent << "StartWithTree: " << this->StartWithTree << endl;
   os << indent << "IncludeEdgeWeights: " << this->IncludeEdgeWeights << endl;
+  os << indent << "Directed: " << this->Directed << endl;
+  os << indent << "UseEdgeProbability: " << this->UseEdgeProbability << endl;
+  os << indent << "StartWithTree: " << this->StartWithTree << endl;
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
   os << indent << "AllowParallelEdges: " << this->AllowParallelEdges << endl;
+  os << indent << "Seed: " << this->Seed << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -84,6 +87,9 @@ vtkRandomGraphSource::RequestData(
   vtkInformationVector**, 
   vtkInformationVector *outputVector)
 {
+  // Seed the random number generator so we can produce repeatable results
+  vtkMath::RandomSeed(this->Seed);
+  
   // Create a mutable graph of the appropriate type.
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
