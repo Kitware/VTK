@@ -37,6 +37,7 @@
 #include <QHash>
 
 class vtkTree;
+class vtkAdjacentVertexIterator;
 
 class QVTK_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAdapter
 {
@@ -80,6 +81,7 @@ protected:
   void GenerateHashMap(vtkIdType & row, vtkIdType id, QModelIndex index);
   
   vtkTree* Tree;
+  vtkAdjacentVertexIterator* ChildIterator;
   unsigned long TreeMTime;
   QHash<vtkIdType, vtkIdType> IdToPedigreeHash;
   QHash<vtkIdType, QModelIndex> PedigreeToIndexHash;

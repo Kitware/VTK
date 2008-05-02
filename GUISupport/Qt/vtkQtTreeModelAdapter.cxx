@@ -24,7 +24,6 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
@@ -33,15 +32,13 @@
 #include <QIcon>
 #include <QPixmap>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
 {
   this->TreeMTime = 0;
   this->Tree = 0;
   this->setTree(t);
+  this->ChildIterator = vtkAdjacentVertexIterator::New();
 }
 
 vtkQtTreeModelAdapter::~vtkQtTreeModelAdapter()
@@ -50,6 +47,7 @@ vtkQtTreeModelAdapter::~vtkQtTreeModelAdapter()
     {
     this->Tree->Delete();
     }
+  this->ChildIterator->Delete();
 }
 
 void vtkQtTreeModelAdapter::SetKeyColumnName(const char* name)
@@ -156,7 +154,7 @@ void vtkQtTreeModelAdapter::GenerateHashMap(vtkIdType & row, vtkIdType id, QMode
   this->PedigreeToIndexHash[pedigree] = idx;
   this->IndexToIdHash[idx] = id;
   this->RowToPedigreeHash[row] = pedigree;
-  VTK_CREATE(vtkAdjacentVertexIterator, it);
+  vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
   this->Tree->GetChildren(id, it);
   int i = 0;
   while (it->HasNext())
@@ -166,6 +164,7 @@ void vtkQtTreeModelAdapter::GenerateHashMap(vtkIdType & row, vtkIdType id, QMode
     this->GenerateHashMap(row, v, this->createIndex(i, 0, static_cast<int>(v)));
     ++i;
     }
+  it->FastDelete();
 }
 
 //----------------------------------------------------------------------------
@@ -346,7 +345,7 @@ QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
     parentItem = static_cast<vtkIdType>(parentIdx.internalId());
     }
 
-  VTK_CREATE(vtkAdjacentVertexIterator, it);
+  vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
   this->Tree->GetChildren(parentItem, it);
   if (row < this->Tree->GetNumberOfChildren(parentItem))
     {
@@ -355,10 +354,12 @@ QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
       {
       child = it->Next();
       }
+    it->FastDelete();
     return createIndex(row, column, static_cast<int>(child));
     }
   else
     {
+    it->FastDelete();
     return QModelIndex();
     }
 }
@@ -397,12 +398,11 @@ QModelIndex vtkQtTreeModelAdapter::parent(const QModelIndex &idx) const
   vtkIdType grandparentId = this->Tree->GetParent(parentId);
 
   vtkIdType row = -1;
-  VTK_CREATE(vtkAdjacentVertexIterator, it);
-  this->Tree->GetChildren(grandparentId, it);
+  this->Tree->GetChildren(grandparentId, this->ChildIterator);
   int i = 0;
-  while (it->HasNext())
+  while (this->ChildIterator->HasNext())
     {
-    if (it->Next() == parentId)
+    if (this->ChildIterator->Next() == parentId)
       {
       row = i;
       break;
