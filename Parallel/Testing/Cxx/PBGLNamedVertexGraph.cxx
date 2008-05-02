@@ -61,12 +61,10 @@ void TestNamedUndirectedGraph()
   int numProcs 
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
-  // Make it a graph with named vertices
-  vtkSmartPointer<vtkVariantArray> nameArray 
+  // Make it a graph with the pedigree IDs vertices
+  vtkSmartPointer<vtkVariantArray> pedigreeIds
     = vtkSmartPointer<vtkVariantArray>::New();
-  nameArray->SetName("Name");
-  graph->GetVertexData()->AddArray(nameArray);
-  graph->SetVertexNameArrayName("Name");
+  graph->GetVertexData()->SetPedigreeIds(pedigreeIds);
   helper->Synchronize();
 
   // Build the graph itself.
@@ -89,9 +87,10 @@ void TestNamedUndirectedGraph()
   while (vertices->HasNext())
     {
     vtkIdType vertex = vertices->Next();
-    vtkVariant name = nameArray->GetValue(graph->GetVertexIndex(vertex));
-    cout << "Rank #" << rank << ": vertex " << name.ToString() << " (" << hex 
-         << vertex << ")\n";
+    vtkVariant pedigreeId 
+      = pedigreeIds->GetValue(graph->GetVertexIndex(vertex));
+    cout << "Rank #" << rank << ": vertex " << pedigreeId.ToString() << " (" 
+         << hex << vertex << ")\n";
     cout.flush();
     }
 

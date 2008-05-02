@@ -97,26 +97,21 @@
 // one thread is modifying the graph at the same time that another graph is
 // copying the structure.
 //
-// .SECTION Named vertices
-
-// The vertices in a vtkGraph can be associated with names, where the
-// vtkGraph contains a 1-1 mapping between vertex names (which are
-// vtkVariants) and vertex IDs. Once the mapping is established, one
-// can query the ID based on vertex name using FindVertex, add new
-// named vertices with AddVertex, and add edges based on the names of
-// vertices. For example, AddEdge("Here", "There") will find (or add)
-// vertices named "Here" and "There" and then introduce an edge from
-// "Here" to "There".
+// .SECTION Vertex pedigree IDs
+// The vertices in a vtkGraph can be associated with pedigree IDs
+// through GetVertexData()->SetPedigreeIds. In this case, there is a
+// 1-1 mapping between pedigree Ids and vertices. One can query the
+// vertex ID based on the pedigree ID using FindVertex, add new
+// vertices by pedigree ID with AddVertex, and add edges based on the
+// pedigree IDs of the source and target vertices. For example,
+// AddEdge("Here", "There") will find (or add) vertices with pedigree
+// ID "Here" and "There" and then introduce an edge from "Here" to
+// "There".
 //
-// To configure the vtkGraph for vertex names, create a
-// vtkVariantArray that will store the names and give that
-// vtkVariantArray a name (e.g., "Name") with
-// vtkAbstractArray::SetName. Next, add the vtkVariantArray into the
-// VertexData of the vtkGraph with
-// graph->GetVertexData()->AddArray. Finally, call
-// SetVertexNameArrayName with the name of the vtkVariantArray to
-// establish a correspondence between the vtkVariantArray and the
-// vertex names.
+// To configure the vtkGraph with a pedigree ID mapping, create a
+// vtkVariantArray that will store the pedigree IDs and set that array
+// as the pedigree ID array for the vertices via
+// GetVertexData()->SetPedigreeIds().
 //
 // .SECTION Distributed graphs
 //
@@ -175,16 +170,16 @@
 // may be encountered by traversing the in- and out-edge lists of
 // local vertices or the edge list.
 //
-// Distributed graphs can use named vertices in the same way that
-// non-distributed vertices can. With named vertices in distributed
-// graphs, the distribution of the vertices in the graph is based on
-// the vertex name. For example, a vertex with the name "Here" might
-// land on processor 0 while a vertex named "There" would end up on
-// processor 3. By default, the names themselves are hashed to give a
-// random (and, hopefully, even) distribution of the
+// Distributed graphs can have pedigree IDs for the vertices in the
+// same way that non-distributed vertices can. In this case, the
+// distribution of the vertices in the graph is based on pedigree
+// ID. For example, a vertex with the pedigree ID "Here" might land on
+// processor 0 while a vertex pedigree ID "There" would end up on
+// processor 3. By default, the pedigree IDs themselves are hashed to
+// give a random (and, hopefully, even) distribution of the
 // vertices. However, one can provide a different vertex distribution
 // function by calling
-// vtkDistributedGraphHelper::SetVertexNameDistribution.
+// vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution.
 //
 // .SECTION See Also
 // vtkDirectedGraph vtkUndirectedGraph vtkMutableDirectedGraph 
@@ -414,23 +409,6 @@ public:
   //ETX
 
   // Description:
-  // Sets the name of the the array that stores the names of each
-  // vertex. The array itself must be a part of the vertex data for
-  // this graph (accessed via GetVertexData()). If the given name is
-  // non-NULL, the vertices can be accessed by name with FindVertex.
-  void SetVertexNameArrayName(const char* name);
-
-  // Description:
-  // Retrieves the name of the vertex name array, if any. Note that
-  // this operation returns a pointer into the memory of this object,
-  // so the resulting data should not be changed.
-  const char *GetVertexNameArrayName();
-
-  // Descriptions:
-  // Retrieves the vertex name array, if any.
-  vtkVariantArray *GetVertexNameArray();
-
-  // Description:
   // Retrieve the vertex with the given name. If successful, returns true
   // and puts the vertex ID into @c vertex. This operation is only usable
   // when the vertices have names, e.g., GetVertexNameArray returns a 
@@ -506,11 +484,11 @@ protected:
 
   //BTX
   // Description:
-  // Adds a vertex with the given name to the graph. If a vertex by
-  // this name already exists, no new vertex is added, but the vertex
+  // Adds a vertex with the given pedigree ID to the graph. If a vertex with
+  // this pedigree ID already exists, no new vertex is added, but the vertex
   // argument is set to the ID of the existing vertex.  Otherwise, a
   // new vertex is added and its ID is provided.
-  void AddVertexInternal(const vtkVariant& name, vtkIdType *vertex);
+  void AddVertexInternal(const vtkVariant& pedigree, vtkIdType *vertex);
   //ETX
 
   // Description:
@@ -531,9 +509,9 @@ protected:
   void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
 
   //BTX
-  void AddEdgeInternal(const vtkVariant& uName, vtkIdType v, bool directed, vtkEdgeType *edge);
-  void AddEdgeInternal(vtkIdType u, const vtkVariant& vName, bool directed, vtkEdgeType *edge);
-  void AddEdgeInternal(const vtkVariant& uName, const vtkVariant& vName, bool directed, vtkEdgeType *edge);
+  void AddEdgeInternal(const vtkVariant& uPedigree, vtkIdType v, bool directed, vtkEdgeType *edge);
+  void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigree, bool directed, vtkEdgeType *edge);
+  void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree, bool directed, vtkEdgeType *edge);
   //ETX
 
   // Description:
@@ -562,6 +540,11 @@ protected:
   // Fast access functions for iterators.
   virtual void GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType & nedges);
   virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
+
+  // Description:
+  // Updates the internal pedigree->vertex map to reflect the pedigree IDs of
+  // each vertex.
+  void UpdateVertexPedigreeMap();
 
   // Description:
   // Friend iterator classes.
@@ -593,11 +576,6 @@ protected:
   vtkPoints *Points;
   static double DefaultPoint[3];
   
-  // Description:
-  // The name of the array that stores the name of each vertex. The array
-  // itself must be a part of the VertexData.
-  char *VertexNameArray;
-
   // Description:
   // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
   vtkIdType signBitMask;

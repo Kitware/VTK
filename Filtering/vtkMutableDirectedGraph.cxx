@@ -25,7 +25,7 @@
 //----------------------------------------------------------------------------
 // class vtkMutableDirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.3");
+vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.4");
 vtkStandardNewMacro(vtkMutableDirectedGraph);
 //----------------------------------------------------------------------------
 vtkMutableDirectedGraph::vtkMutableDirectedGraph()
@@ -46,18 +46,19 @@ vtkIdType vtkMutableDirectedGraph::AddVertex()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkMutableDirectedGraph::AddVertex(const vtkVariant& name)
+vtkIdType vtkMutableDirectedGraph::AddVertex(const vtkVariant& pedigreeId)
 {
   vtkIdType result;
-  this->AddVertexInternal(name, &result);
+  this->AddVertexInternal(pedigreeId, &result);
   return result;
 }
 
 //----------------------------------------------------------------------------
 void 
-vtkMutableDirectedGraph::AddVertex(const vtkVariant& name, vtkIdType *vertex)
+vtkMutableDirectedGraph::AddVertex(const vtkVariant& pedigreeId, 
+                                   vtkIdType *vertex)
 {
-  this->AddVertexInternal(name, vertex);
+  this->AddVertexInternal(pedigreeId, vertex);
 }
 
 //----------------------------------------------------------------------------

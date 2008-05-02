@@ -30,7 +30,7 @@
 //----------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.2");
+vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.3");
 
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper::vtkDistributedGraphHelper() 
@@ -54,7 +54,8 @@ void vtkDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 //----------------------------------------------------------------------------
 void 
 vtkDistributedGraphHelper::
-SetVertexNameDistribution(vtkVertexNameDistribution Func, void *userData)
+SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func, 
+                                void *userData)
 {
   this->VertexDistribution = Func;
   this->VertexDistributionUserData = userData;
@@ -62,13 +63,15 @@ SetVertexNameDistribution(vtkVertexNameDistribution Func, void *userData)
 
 //----------------------------------------------------------------------------
 vtkIdType 
-vtkDistributedGraphHelper::GetVertexOwnerByName(const vtkVariant& name)
+vtkDistributedGraphHelper::
+GetVertexOwnerByPedigreeId(const vtkVariant& pedigreeId)
 {
   vtkIdType numProcs 
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   if (this->VertexDistribution)
     {
-    return (this->VertexDistribution(name, this->VertexDistributionUserData)
+    return (this->VertexDistribution(pedigreeId, 
+                                     this->VertexDistributionUserData)
             % numProcs);
     }
 
@@ -76,24 +79,25 @@ vtkDistributedGraphHelper::GetVertexOwnerByName(const vtkVariant& name)
   double numericValue;
   vtkStdString stringValue;
   const unsigned char *charsStart, *charsEnd;
-  if (name.IsNumeric())
+  if (pedigreeId.IsNumeric())
     {
     // Convert every numeric value into a double.
-    numericValue = name.ToDouble();
+    numericValue = pedigreeId.ToDouble();
 
     // Hash the characters in the double. 
     charsStart = reinterpret_cast<const unsigned char*>(&numericValue);
     charsEnd = charsStart + sizeof(double);
     }
-  else if (name.GetType() == VTK_STRING)
+  else if (pedigreeId.GetType() == VTK_STRING)
     {
-    stringValue = name.ToString();
+    stringValue = pedigreeId.ToString();
     charsStart = reinterpret_cast<const unsigned char*>(stringValue.c_str());
     charsEnd = charsStart + stringValue.size();
     }
   else
     {
-    vtkErrorMacro("Cannot hash vertex name of type " << name.GetType());
+    vtkErrorMacro("Cannot hash vertex pedigree ID of type " 
+                  << pedigreeId.GetType());
     return 0;
     }
 

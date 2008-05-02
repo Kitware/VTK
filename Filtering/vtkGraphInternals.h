@@ -54,8 +54,7 @@ public:
   //BTX
   vtkTypeRevisionMacro(vtkGraphInternals, vtkObject);
   vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
-  vtksys_stl::map<vtkVariant, vtkIdType, vtkVariantLessThan> VertexNameMap;
-  vtkVariantArray *VertexNameArray;
+  vtksys_stl::map<vtkVariant, vtkIdType, vtkVariantLessThan> VertexPedigreeMap;
   //ETX
   vtkIdType NumberOfEdges;
   vtkDistributedGraphHelper *DistributedHelper;
