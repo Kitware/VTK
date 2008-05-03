@@ -350,6 +350,7 @@ IF(PYTHON_EXECUTABLE)
     IF(NOT DEFINED VTK_PYTHON_SETUP_ARGS)
       SET(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""
         CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
+      MARK_AS_ADVANCED(VTK_PYTHON_SETUP_ARGS)
     ENDIF(NOT DEFINED VTK_PYTHON_SETUP_ARGS)
 
     # Change dollar sign to DOLLARSIGN

@@ -41,8 +41,9 @@ IF(NOT VTK_SHARED_LIBRARIES_SELECTED)
         ENDIF(VTK_MINOR_VERSION MATCHES "[02468]$")
       ENDIF("VTK_USE_RPATH_DEFAULT" MATCHES "^VTK_USE_RPATH_DEFAULT$")
       VTK_DEPENDENT_OPTION(VTK_USE_RPATH "Build shared libraries with rpath.  This makes it easy to run executables from the build tree when using shared libraries, but removes install support."
-                           ${VTK_USE_RPATH_DEFAULT}
-                           "BUILD_SHARED_LIBS" OFF)
+        ${VTK_USE_RPATH_DEFAULT}
+        "BUILD_SHARED_LIBS" OFF)
+      MARK_AS_ADVANCED(VTK_USE_RPATH)
     ENDIF(VTK_FORCE_RPATH)
 
     # Configure VTK according to the rpath setting.

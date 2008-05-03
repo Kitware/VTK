@@ -443,7 +443,7 @@ ENDIF(VTK_WRAP_JAVA)
 #-----------------------------------------------------------------------------
 # Configure Dart testing support.
 INCLUDE(Dart)
-MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH)
+MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
   CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
