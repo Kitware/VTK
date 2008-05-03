@@ -1485,7 +1485,7 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
       break;
     default:
       result=0;
-      assert("check: impossible case."); 
+      assert("check: impossible case." && 0); 
       break;
     }
   return result;
@@ -1573,7 +1573,7 @@ int FromBaseInternalFormatToFormat(int f,
         result=vtkgl::LUMINANCE_ALPHA_INTEGER_EXT;
         break;
       default:
-        assert("check: impossible case.");
+        assert("check: impossible case." && 0);
         break;
       }
     }
@@ -1596,7 +1596,7 @@ const char *TargetToString(int target)
       break;
     default:
       result="";
-      assert("check: impossible case.");
+      assert("check: impossible case." && 0);
       break;
     }
   return result;
@@ -1624,7 +1624,7 @@ const char *WrapModeToString(int wrapMode)
       break;
     default:
       result="";
-      assert("check: impossible case.");
+      assert("check: impossible case." && 0);
       break;
     }
   return result;
