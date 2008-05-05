@@ -122,9 +122,12 @@ private:
         new vtkInformation##type##Key(#NAME, #CLASS);         \
    return CLASS##_##NAME;                                     \
    }
-#define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)       \
-  static vtkInformation##type##Key* CLASS##_##NAME =                        \
-         new vtkInformation##type##Key(#NAME, #CLASS, required);            \
-  vtkInformation##type##Key* CLASS::NAME() { return CLASS##_##NAME; }
+#define vtkInformationKeyRestrictedMacro(CLASS, NAME, type, required)   \
+ vtkInformation##type##Key* CLASS::NAME()                               \
+   {                                                                    \
+   static vtkInformation##type##Key* CLASS##_##NAME =                   \
+     new vtkInformation##type##Key(#NAME, #CLASS, required);            \
+   return CLASS##_##NAME;                                               \
+   }
 
 #endif
