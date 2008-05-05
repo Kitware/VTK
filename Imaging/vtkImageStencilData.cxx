@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.27");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.28");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -717,6 +717,13 @@ void vtkImageStencilData::Add( vtkImageStencilData * stencil1 )
   int extent[6], extent1[6], extent2[6], r1, r2, idy, idz, iter=0;
   stencil1->GetExtent(extent1);
   this->GetExtent(extent2);
+
+  if (extent1[0] > extent1[1] || 
+      extent1[2] > extent1[3] || 
+      extent1[4] > extent1[5])
+    {
+    return;
+    }
 
   if (vtkMath::ExtentIsWithinOtherExtent(extent1,extent2))
     {
