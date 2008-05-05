@@ -113,7 +113,7 @@ my $start_time = time();
 # -------------------------------------------------------------------------
 # Try to get VTK version and revision
 
-my ($major_version, $minor_version, $build_version, $revision, $date) = (undef, undef, undef);
+my ($major_version, $minor_version, $build_version, $date) = (undef, undef, undef, undef);
 
 sysopen(FILE, $args{"version_file"}, O_RDONLY|$open_file_as_text)
   or croak "$PROGNAME: unable to open $args{version_file}\n";
@@ -140,10 +140,9 @@ sysopen(FILE, $args{"revision_file"}, O_RDONLY|$open_file_as_text)
   or croak "$PROGNAME: unable to open $args{revision_file}\n";
 
 while (<FILE>) {
-    if ($_ =~ /define\s+VTK_SOURCE_VERSION.*(.Revision:.*.?\$).*(.Date:.*?\$).*\"/) {
-        $revision = $1;
-        $date = $2;
-        print " revision => $revision $date\n";
+    if ($_ =~ /define\s+vtksys_DATE_STAMP_STRING\s+\"([^\"]+)\"/) {
+        $date = $1;
+        print " date => $date\n";
         last;
     }
 }
@@ -151,7 +150,7 @@ while (<FILE>) {
 close(FILE);
 
 carp "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "\n"
-  if (!defined $revision || !defined $date);
+  if (!defined $date);
 
 # -------------------------------------------------------------------------
 # Build documentation
@@ -171,12 +170,8 @@ print DEST_FILE
   "  \@image html " . basename($args{"logo"}) . "\n"
   if exists $args{"logo"} && -f $args{"logo"};
 
-if (defined $revision) {
-    print DEST_FILE "  $revision\n";
-}
-
 if (defined $date) {
-    print DEST_FILE "  $date\n";
+    print DEST_FILE "  \@date $date\n";
 }
 
 print DEST_FILE

@@ -28,7 +28,12 @@
 
 #include "vtkObject.h"
 
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.3093 $, $Date: 2008-04-21 01:00:15 $ (GMT)"
+#if VTK_MINOR_VERSION & 1
+# include <vtksys/DateStamp.h> // For date stamp
+# define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", Date: " vtksys_DATE_STAMP_STRING
+#else
+# define VTK_SOURCE_VERSION "vtk version " VTK_VERSION
+#endif
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
