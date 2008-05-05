@@ -44,7 +44,7 @@
 #include <vtkstd/algorithm>
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkTemporalStatistics, "1.1");
+vtkCxxRevisionMacro(vtkTemporalStatistics, "1.2");
 vtkStandardNewMacro(vtkTemporalStatistics);
 
 //=============================================================================
@@ -548,6 +548,8 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData *inFd,
                                       inArray->GetNumberOfComponents()
                                        *inArray->GetNumberOfTuples()));
         }
+      // Alert change in data.
+      outArray->DataChanged();
       }
 
     outArray = this->GetArray(outFd, inArray, MINIMUM_SUFFIX);
@@ -561,6 +563,8 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData *inFd,
                                       inArray->GetNumberOfComponents()
                                        *inArray->GetNumberOfTuples()));
         }
+      // Alert change in data.
+      outArray->DataChanged();
       }
 
     outArray = this->GetArray(outFd, inArray, MAXIMUM_SUFFIX);
@@ -574,6 +578,8 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData *inFd,
                                       inArray->GetNumberOfComponents()
                                        *inArray->GetNumberOfTuples()));
         }
+      // Alert change in data.
+      outArray->DataChanged();
       }
 
     outArray = this->GetArray(outFd, inArray, STANDARD_DEVIATION_SUFFIX);
@@ -587,6 +593,8 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData *inFd,
                                       inArray->GetNumberOfComponents()
                                        *inArray->GetNumberOfTuples()));
         }
+      // Alert change in data.
+      outArray->DataChanged();
       }
     }
 }
