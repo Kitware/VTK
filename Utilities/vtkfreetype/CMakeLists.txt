@@ -92,7 +92,7 @@ ENDIF (UNIX)
 # Apple flags and specific drivers
 #
 IF (APPLE)
-  SET (VTKFREETYPE_USE_CARBON 0)
+  SET (VTKFREETYPE_USE_CARBON ${VTK_USE_CARBON})
 ENDIF (APPLE)
 
 #
@@ -103,12 +103,10 @@ ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 #
 # freetype can be optionally built using some Mac OS X-only
 # APIs.  Incase they are used, we link against Carbon
-# Note: how would they be used if VTKFREETYPE_USE_CARBON is OFF
-# as set above in 2005.
 #
-IF (APPLE AND VTK_USE_CARBON)
+IF (APPLE AND VTKFREETYPE_USE_CARBON)
     TARGET_LINK_LIBRARIES (vtkfreetype "-framework Carbon")
-ENDIF (APPLE AND VTK_USE_CARBON)
+ENDIF (APPLE AND VTKFREETYPE_USE_CARBON)
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)
