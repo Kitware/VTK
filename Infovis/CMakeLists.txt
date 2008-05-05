@@ -41,6 +41,8 @@ vtkRandomLayoutStrategy.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
+vtkStatisticsAlgorithm.cxx
+vtkStatisticsDescriptive.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
@@ -100,6 +102,7 @@ ENDIF(VTK_HAS_UINT64_ARRAY)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkGraphLayoutStrategy.cxx
+vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
 ABSTRACT
 )
