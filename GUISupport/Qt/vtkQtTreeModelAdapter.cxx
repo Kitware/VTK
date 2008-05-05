@@ -127,13 +127,16 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
 
 void vtkQtTreeModelAdapter::treeModified()
 {
-  vtkIdType root = this->Tree->GetRoot();
   this->IdToPedigreeHash.clear();
   this->PedigreeToIndexHash.clear();
   this->IndexToIdHash.clear();
   this->RowToPedigreeHash.clear();
-  vtkIdType row = 0;
-  this->GenerateHashMap(row, root, this->createIndex(0, 0, static_cast<int>(root)));
+  if (this->Tree->GetNumberOfVertices() > 0)
+    {
+    vtkIdType root = this->Tree->GetRoot();
+    vtkIdType row = 0;
+    this->GenerateHashMap(row, root, this->createIndex(0, 0, static_cast<int>(root)));
+    }
   this->TreeMTime = this->Tree->GetMTime();
   emit reset();
 }
@@ -164,7 +167,7 @@ void vtkQtTreeModelAdapter::GenerateHashMap(vtkIdType & row, vtkIdType id, QMode
     this->GenerateHashMap(row, v, this->createIndex(i, 0, static_cast<int>(v)));
     ++i;
     }
-  it->FastDelete();
+  it->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -345,21 +348,18 @@ QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
     parentItem = static_cast<vtkIdType>(parentIdx.internalId());
     }
 
-  vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
-  this->Tree->GetChildren(parentItem, it);
+  this->Tree->GetChildren(parentItem, this->ChildIterator);
   if (row < this->Tree->GetNumberOfChildren(parentItem))
     {
-    vtkIdType child = it->Next();
+    vtkIdType child = this->ChildIterator->Next();
     for (int i = 0; i < row; ++i)
       {
-      child = it->Next();
+      child = this->ChildIterator->Next();
       }
-    it->FastDelete();
     return createIndex(row, column, static_cast<int>(child));
     }
   else
     {
-    it->FastDelete();
     return QModelIndex();
     }
 }
