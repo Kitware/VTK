@@ -31,7 +31,7 @@ VTK_FREETYPE_CHANGE this file is new for VTK.
    Carbon framework
 */
 #cmakedefine VTKFREETYPE_USE_CARBON
-#if defined(VTKFREETYPE_USE_CARBON) && (VTKFREETYPE_USE_CARBON == 0) && !defined(DARWIN_NO_CARBON)
+#if !defined(VTKFREETYPE_USE_CARBON) && !defined(DARWIN_NO_CARBON)
 #define DARWIN_NO_CARBON
 #endif
 
