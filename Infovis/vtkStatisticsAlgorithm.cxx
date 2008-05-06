@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.2");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -48,6 +48,8 @@ vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "ExecutionMode: " << this->ExecutionMode << endl;
+  os << indent << "SampleSize: " << this->SampleSize << endl;
 }
 
 // ----------------------------------------------------------------------
