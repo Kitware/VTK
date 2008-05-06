@@ -158,7 +158,7 @@ int TestStatisticsDescriptive( int, char *[] )
       {
       s[r] = outputTable->GetValue( r + 2, c ).ToDouble();
       }
-    haruspex->CalculateCenteredMoments( n, s );
+    haruspex->CalculateFromRawMoments( n, s );
 
     cout << ", mean= "
          << s[0]

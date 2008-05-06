@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkStatisticsDescriptive, "");
+vtkCxxRevisionMacro(vtkStatisticsDescriptive, "1.2");
 vtkStandardNewMacro(vtkStatisticsDescriptive);
 
 // ----------------------------------------------------------------------
@@ -150,7 +150,7 @@ void vtkStatisticsDescriptive::ExecuteEvince( vtkTable* dataset,
 
   if ( params->GetNumberOfRows() < 2 )
     {
-    vtkWarningMacro( "Parameter table does has " 
+    vtkWarningMacro( "Parameter table has " 
                      << params->GetNumberOfRows() 
                      << " != 2 rows. Doing nothing." );
     return;
@@ -176,7 +176,6 @@ void vtkStatisticsDescriptive::ExecuteEvince( vtkTable* dataset,
   
   for ( vtkIdType c = 0; c < nCol; ++ c )
     {
-
     double nomVal = params->GetValue( 0, c ).ToDouble();
     double accDev = params->GetValue( 1, c ).ToDouble();
     double minVal = nomVal - accDev;
@@ -202,7 +201,7 @@ void vtkStatisticsDescriptive::ExecuteEvince( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsDescriptive::CalculateCenteredMoments( int n, double* s )
+int vtkStatisticsDescriptive::CalculateFromRawMoments( int n, double* s )
 {
   if ( n < 1 ) 
     {
