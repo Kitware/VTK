@@ -43,6 +43,7 @@ vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkStatisticsDescriptive.cxx
+vtkStatisticsLinearCorrelation.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
 vtkTableToGraph.cxx
