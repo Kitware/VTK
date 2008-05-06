@@ -17,6 +17,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPruneTreeFilter
     TestRandomGraphSource
     TestStatisticsDescriptive
+    TestStatisticsLinearCorrelation
     TestStringToCategory
     TestTable
     TestTreeMapLayoutStrategy
