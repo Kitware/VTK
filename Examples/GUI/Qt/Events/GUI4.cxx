@@ -207,6 +207,7 @@ void GUI4::color1(QAction* color)
   {
     Ren1->GetRenderWindow()->SetStereoRender(!Ren1->GetRenderWindow()->GetStereoRender());
   }
+  qVTK1->update();
 }
 
 void GUI4::color2(QAction* color)
@@ -219,5 +220,6 @@ void GUI4::color2(QAction* color)
   {
     this->Ren2->GetRenderWindow()->SetStereoRender(!this->Ren2->GetRenderWindow()->GetStereoRender());
   }
+  qVTK2->update();
 }
 
