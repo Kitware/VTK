@@ -91,9 +91,9 @@ ENDIF (UNIX)
 #
 # Apple flags and specific drivers
 #
-IF (APPLE AND NOT VTK_USE_X11)
+IF (APPLE AND NOT VTK_USE_X)
   SET (VTKFREETYPE_USE_CARBON 1)
-ENDIF (APPLE AND NOT VTK_USE_X11)
+ENDIF (APPLE AND NOT VTK_USE_X)
 
 #
 # Define the library (and install it)
