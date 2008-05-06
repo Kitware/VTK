@@ -27,6 +27,15 @@
 
 #include "vtkObject.h"
 
+// If being "compiled" by gccxml, pretend VTK_COMMON_EXPORT is nothing
+// for this header file. The per-method usage of VTK_COMMON_EXPORT in
+// this header file leads to gccxml errors without this workaround.
+//
+#ifdef __GCCXML__
+#undef VTK_COMMON_EXPORT
+#define VTK_COMMON_EXPORT
+#endif
+
 class vtkDataObject;
 class vtkExecutive;
 class vtkInformationDataObjectKey;
