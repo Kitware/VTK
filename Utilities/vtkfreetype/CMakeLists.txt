@@ -89,7 +89,9 @@ ELSE (UNIX)
 ENDIF (UNIX)
 
 #
-# Apple flags and specific drivers
+# freetype can be optionally built with support for resource
+# fork-based Mac fonts. That support requires linking against
+# Mac OS X frameworks, and so is disabled if using X11.
 #
 IF (APPLE AND NOT VTK_USE_X)
   SET (VTKFREETYPE_USE_CARBON 1)
@@ -101,12 +103,12 @@ ENDIF (APPLE AND NOT VTK_USE_X)
 ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
 
 #
-# freetype can be optionally built using some Mac OS X-only
-# APIs.  Incase they are used, we link against Carbon
+# If we want freetype's Mac font support we need to link against
+# a couple of Mac OS X frameworks.
 #
-IF (APPLE AND VTKFREETYPE_USE_CARBON)
-    TARGET_LINK_LIBRARIES (vtkfreetype "-framework Carbon")
-ENDIF (APPLE AND VTKFREETYPE_USE_CARBON)
+IF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
+    TARGET_LINK_LIBRARIES (vtkfreetype "-framework ApplicationServices -framework CoreServices")
+ENDIF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)

@@ -28,10 +28,11 @@ VTK_FREETYPE_CHANGE this file is new for VTK.
 #endif
 
 /* 
-   Carbon framework
+   Enable or disable freetype's Mac font support.
+   DARWIN_NO_CARBON is the freetype define that makes the choice.
 */
-#cmakedefine VTKFREETYPE_USE_CARBON
-#if !defined(VTKFREETYPE_USE_CARBON) && !defined(DARWIN_NO_CARBON)
+#cmakedefine VTKFREETYPE_MAC_FONT_SUPPORT
+#if !defined(VTKFREETYPE_MAC_FONT_SUPPORT) && !defined(DARWIN_NO_CARBON)
 #define DARWIN_NO_CARBON
 #endif
 
