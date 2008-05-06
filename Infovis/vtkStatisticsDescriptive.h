@@ -24,7 +24,9 @@ PURPOSE.  See the above copyright notice for more information.
 // execution mode it is executed in:
 // * Learn: given an input data set, calculate its extremal values, arithmetic
 //   mean, unbiased variance estimator, skewness estimator, and G2 estimation 
-//   of the kurtosis "excess".
+//   of the kurtosis "excess". More precisely, ExecuteLearn calculates the
+//   extremal values and the raw moments; one then needs to call the (static) 
+//   function CalculateFromRawMoments to turn these moments into the estimators.
 // * Validate: not implemented.
 // * Evince: given an input data set in port 0, and a reference value x along
 //   with an acceptable deviation d>0, evince all entries in the data set who
@@ -49,17 +51,17 @@ public:
   static vtkStatisticsDescriptive* New();
 
   // Description:
-  // Calculate centered moment estimators (unbiased when available)
-  // using the raw moments: mean (unbiased), variance (unbiased), sample skewness, 
+  // Calculate descriptive statistics estimators from the raw moments: 
+  // mean (unbiased), variance (unbiased), sample skewness, 
   // kurtosis excess (sample and G2 estimators).
   // Input: the sample size and a vector of doubles of size 5, with its 4 first entries 
   //        initialized as (in this order) the 1st to 4th raw moments.
-  // Return: -1 if meaningless input (sample size < 1),
-  //           1 if could not calculate all improved estimators (sample size too small),
-  //           0 otherwise.
-  // NB: this is a static function, so as to provide functionality for centered moments
-  // calculation, irrespective of whether vtkStatistics objects are used at all.
-  static int CalculateCenteredMoments( int n, double* s );
+  // Output: -1 if meaningless input (sample size < 1),
+  //          1 if could not calculate all improved estimators (sample size too small),
+  //          0 otherwise.
+  // NB: this is a static function, so as to provide this functionality even when no
+  // vtkStatistics are instantiated.
+  static int CalculateFromRawMoments( int n, double* s );
 
 protected:
   vtkStatisticsDescriptive();
