@@ -44,19 +44,20 @@
 #include <vtkstd/algorithm>
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkTemporalStatistics, "1.3");
+vtkCxxRevisionMacro(vtkTemporalStatistics, "1.4");
 vtkStandardNewMacro(vtkTemporalStatistics);
 
 //=============================================================================
-const char * const AVERAGE_SUFFIX = "_average";
-const char * const MINIMUM_SUFFIX = "_minimum";
-const char * const MAXIMUM_SUFFIX = "_maximum";
-const char * const STANDARD_DEVIATION_SUFFIX = "_stddev";
+const char * const AVERAGE_SUFFIX = "average";
+const char * const MINIMUM_SUFFIX = "minimum";
+const char * const MAXIMUM_SUFFIX = "maximum";
+const char * const STANDARD_DEVIATION_SUFFIX = "stddev";
 
-inline vtkStdString vtkTemporalStatisticsMangleName(vtkStdString originalName,
-                                                    vtkStdString suffix)
+inline vtkStdString vtkTemporalStatisticsMangleName(const char *originalName,
+                                                    const char *suffix)
 {
-  return originalName + suffix;
+  if (!originalName) return suffix;
+  return vtkStdString(originalName) + "_" + vtkStdString(suffix);
 }
 
 //-----------------------------------------------------------------------------
@@ -420,6 +421,12 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray *array,
     newArray->DeepCopy(array);
     newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(),
                                                       AVERAGE_SUFFIX));
+    if (outFd->HasArray(newArray->GetName()))
+      {
+      vtkWarningMacro(<< "Input has two arrays named " << array->GetName()
+                      << ".  Output statistics will probably be wrong.");
+      return;
+      }
     outFd->AddArray(newArray);
     }
 
