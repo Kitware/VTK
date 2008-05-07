@@ -41,7 +41,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.10");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.11");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -155,15 +155,14 @@ int vtkGraphToPolyData::RequestData(
       // just draw a straight line.
       if (total + revTotal == 1)
         {
-        vtkIdType cellId = newLines->InsertNextCell(2);
+        newLines->InsertNextCell(2);
         newLines->InsertCellPoint(newPoints->InsertNextPoint(sourcePt));
         newLines->InsertCellPoint(newPoints->InsertNextPoint(targetPt));
         continue;
         }
 
       // Create the new cell
-      vtkIdType cellId = newLines->InsertNextCell(
-        this->NumberOfArcSubdivisions);
+      newLines->InsertNextCell(this->NumberOfArcSubdivisions);
 
       // Find vector from source to target
       double delta[3];
