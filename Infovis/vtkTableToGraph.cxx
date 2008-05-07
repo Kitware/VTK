@@ -51,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.10");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.11");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -637,7 +637,18 @@ int vtkTableToGraph::RequestData(
           {
           vtkVariant val = vertexTable->GetValueByName(i, domain);
           vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
-          if (vertexMap.count(value) == 0 && val.IsValid() && val.ToString().length() > 0)
+          // Fancy check for whether we have a valid value.
+          // 1. It must not exist yet in the vertex map.
+          // 2. The variant value must be valid.
+          //    This allows invalid variants to indicate null entries.
+          // 3. It's string equivalent must be at least 1 character long.
+          //    This is to allow the empty string to indicate null entries.
+          // 4. If it is numeric, it's value must be at least 0.
+          //    This is to allow a negative value to indicate null entries.
+          if (vertexMap.count(value) == 0
+              && val.IsValid()
+              && val.ToString().length() > 0
+              && (!val.IsNumeric() || val.ToDouble() >= 0.0))
             {
             vertexMap[value] = i;
             domainArr->InsertValue(i, domain);
