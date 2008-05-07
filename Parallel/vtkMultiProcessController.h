@@ -273,6 +273,7 @@ public:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
   int Send(const int* data, vtkIdType length, int remoteProcessId, int tag);
+  int Send(const unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned long* data, vtkIdType length, int remoteProcessId, 
            int tag);
   int Send(const char* data, vtkIdType length, int remoteProcessId, int tag);
@@ -290,6 +291,7 @@ public:
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
   int Receive(int* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
   int Receive(unsigned long* data, vtkIdType length, int remoteProcessId, 
               int tag);
   int Receive(char* data, vtkIdType length, int remoteProcessId, int tag);
@@ -924,6 +926,19 @@ inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
     }
 }
 
+inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType length, 
+                                           int remoteProcessId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
 inline int vtkMultiProcessController::Send(const unsigned long* data, 
                                            vtkIdType length,
                                            int remoteProcessId,
@@ -1048,6 +1063,19 @@ inline int vtkMultiProcessController::Receive(vtkDataArray* data,
 }
 
 inline int vtkMultiProcessController::Receive(int* data, vtkIdType length, 
+                                              int remoteProcessId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType length, 
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)

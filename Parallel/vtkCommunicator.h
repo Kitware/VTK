@@ -139,6 +139,9 @@ public:
   int Send(const int* data, vtkIdType length, int remoteHandle, int tag) {
     return this->SendVoidArray(data, length, VTK_INT, remoteHandle, tag);
   }
+  int Send(const unsigned int* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->SendVoidArray(data, length, VTK_INT, remoteHandle, tag);
+  }
   int Send(const unsigned long* data, vtkIdType length,
            int remoteHandle, int tag) {
     return this->SendVoidArray(data, length,VTK_UNSIGNED_LONG,remoteHandle,tag);
@@ -189,6 +192,9 @@ public:
   // Description:
   // Convenience methods for receiving data arrays.
   int Receive(int* data, vtkIdType length, int remoteHandle, int tag) {
+    return this->ReceiveVoidArray(data, length, VTK_INT, remoteHandle, tag);
+  }
+  int Receive(unsigned int* data, vtkIdType length, int remoteHandle, int tag) {
     return this->ReceiveVoidArray(data, length, VTK_INT, remoteHandle, tag);
   }
   int Receive(unsigned long* data, vtkIdType length, int remoteHandle, int tag){
