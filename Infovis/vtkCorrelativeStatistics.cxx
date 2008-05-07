@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStatisticsLinearCorrelation.cxx
+  Module:    vtkCorrelativeStatistics.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 
 #include "vtkToolkits.h"
 
-#include "vtkStatisticsLinearCorrelation.h"
+#include "vtkCorrelativeStatistics.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -30,11 +30,11 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkStatisticsLinearCorrelation, "1.3");
-vtkStandardNewMacro(vtkStatisticsLinearCorrelation);
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.1");
+vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
-vtkStatisticsLinearCorrelation::vtkStatisticsLinearCorrelation()
+vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
   // Default indices of X and Y variables
   this->IdX = 0;
@@ -42,12 +42,12 @@ vtkStatisticsLinearCorrelation::vtkStatisticsLinearCorrelation()
 }
 
 // ----------------------------------------------------------------------
-vtkStatisticsLinearCorrelation::~vtkStatisticsLinearCorrelation()
+vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsLinearCorrelation::PrintSelf( ostream &os, vtkIndent indent )
+void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "IdX: " << this->IdX << endl;
@@ -55,9 +55,9 @@ void vtkStatisticsLinearCorrelation::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsLinearCorrelation::ExecuteLearn( vtkTable* dataset,
-                                                   vtkTable* output,
-                                                   bool finalize )
+void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
+                                             vtkTable* output,
+                                             bool finalize )
 {
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
@@ -151,17 +151,17 @@ void vtkStatisticsLinearCorrelation::ExecuteLearn( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsLinearCorrelation::ExecuteValidate( vtkTable*,
-                                                      vtkTable*,
-                                                      vtkTable* )
+void vtkCorrelativeStatistics::ExecuteValidate( vtkTable*,
+                                                vtkTable*,
+                                                vtkTable* )
 {
   // Not implemented for this statistical engine
 }
 
 // ----------------------------------------------------------------------
-void vtkStatisticsLinearCorrelation::ExecuteEvince( vtkTable* dataset,
-                                                    vtkTable* params,
-                                                    vtkTable* output)
+void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
+                                              vtkTable* params,
+                                              vtkTable* output)
 {
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
@@ -254,13 +254,13 @@ void vtkStatisticsLinearCorrelation::ExecuteEvince( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsLinearCorrelation::CalculateFromSums( int n,
-                                                       double& sx,
-                                                       double& sy,
-                                                       double& sx2,
-                                                       double& sy2,
-                                                       double& sxy,
-                                                       double* correlations )
+int vtkCorrelativeStatistics::CalculateFromSums( int n,
+                                                 double& sx,
+                                                 double& sy,
+                                                 double& sx2,
+                                                 double& sy2,
+                                                 double& sxy,
+                                                 double* correlations )
 {
   if ( n < 2 ) 
     {

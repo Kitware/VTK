@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkStatisticsLinearCorrelation.h
+Module:    vtkCorrelativeStatistics.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkStatisticsLinearCorrelation - A class for linear correlation
+// .NAME vtkCorrelativeStatistics - A class for linear correlation
 //
 // .SECTION Description
 // This class provides the following functionalities, depending on the
@@ -40,19 +40,19 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this class.
 
-#ifndef __vtkStatisticsLinearCorrelation_h
-#define __vtkStatisticsLinearCorrelation_h
+#ifndef __vtkCorrelativeStatistics_h
+#define __vtkCorrelativeStatistics_h
 
 #include "vtkStatisticsAlgorithm.h"
 
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkStatisticsLinearCorrelation : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStatisticsLinearCorrelation, vtkStatisticsAlgorithm);
+  vtkTypeRevisionMacro(vtkCorrelativeStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkStatisticsLinearCorrelation* New();
+  static vtkCorrelativeStatistics* New();
 
   // Description:
   // Set the column index of variable X.
@@ -94,8 +94,8 @@ public:
     }
 
 protected:
-  vtkStatisticsLinearCorrelation();
-  ~vtkStatisticsLinearCorrelation();
+  vtkCorrelativeStatistics();
+  ~vtkCorrelativeStatistics();
 
   // Description:
   // Execute the required calculations in the specified execution modes
@@ -113,8 +113,8 @@ protected:
   vtkIdType IdY;
 
 private:
-  vtkStatisticsLinearCorrelation(const vtkStatisticsLinearCorrelation&); // Not implemented
-  void operator=(const vtkStatisticsLinearCorrelation&);   // Not implemented
+  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
+  void operator=(const vtkCorrelativeStatistics&);   // Not implemented
 };
 
 #endif

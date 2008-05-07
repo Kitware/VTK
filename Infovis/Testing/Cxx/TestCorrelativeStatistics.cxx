@@ -9,10 +9,10 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
-#include "vtkStatisticsLinearCorrelation.h"
+#include "vtkCorrelativeStatistics.h"
 
 //=============================================================================
-int TestStatisticsLinearCorrelation( int, char *[] )
+int TestCorrelativeStatistics( int, char *[] )
 {
   int testIntValue = 0;
 
@@ -125,7 +125,7 @@ int TestStatisticsLinearCorrelation( int, char *[] )
   paramsTable->AddColumn( paramsArr );
   paramsArr->Delete();
 
-  vtkStatisticsLinearCorrelation* haruspex = vtkStatisticsLinearCorrelation::New();
+  vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
   vtkTable* outputTable = haruspex->GetOutput();
