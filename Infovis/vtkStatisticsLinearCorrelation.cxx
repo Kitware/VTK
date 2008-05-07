@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkStatisticsLinearCorrelation, "1.1");
+vtkCxxRevisionMacro(vtkStatisticsLinearCorrelation, "1.2");
 vtkStandardNewMacro(vtkStatisticsLinearCorrelation);
 
 // ----------------------------------------------------------------------
@@ -50,6 +50,8 @@ vtkStatisticsLinearCorrelation::~vtkStatisticsLinearCorrelation()
 void vtkStatisticsLinearCorrelation::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "IdX: " << this->IdX << endl;
+  os << indent << "IdY: " << this->IdY << endl;
 }
 
 // ----------------------------------------------------------------------
