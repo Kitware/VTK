@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkIdFilter, "1.21");
+vtkCxxRevisionMacro(vtkIdFilter, "1.22");
 vtkStandardNewMacro(vtkIdFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -91,6 +91,7 @@ int vtkIdFilter::RequestData(
       ptIds->SetValue(id, id);
       }
 
+    ptIds->SetName(this->IdsArrayName);
     if ( ! this->FieldData )
       {
       int idx = outPD->AddArray(ptIds);
@@ -99,7 +100,6 @@ int vtkIdFilter::RequestData(
       }
     else
       {
-      ptIds->SetName(this->IdsArrayName);
       outPD->AddArray(ptIds);
       outPD->CopyFieldOff(this->IdsArrayName);
       }
@@ -118,6 +118,7 @@ int vtkIdFilter::RequestData(
       cellIds->SetValue(id, id);
       }
 
+    cellIds->SetName(this->IdsArrayName);
     if ( ! this->FieldData )
       {
       int idx = outCD->AddArray(cellIds);
@@ -126,7 +127,6 @@ int vtkIdFilter::RequestData(
       }
     else
       {
-      cellIds->SetName(this->IdsArrayName);
       outCD->AddArray(cellIds);
       outCD->CopyFieldOff(this->IdsArrayName);
       }
