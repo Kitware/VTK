@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.22");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.23");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -78,6 +78,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconActor         = vtkSmartPointer<vtkTexturedActor2D>::New();
   this->VertexLookupTable = vtkSmartPointer<vtkLookupTable>::New();
   this->EdgeLookupTable   = vtkSmartPointer<vtkLookupTable>::New();
+  this->VertexGraphToPoly = vtkSmartPointer<vtkGraphToPolyData>::New();
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
   this->VertexPointSize = 5;
@@ -106,7 +107,7 @@ vtkGraphMapper::vtkGraphMapper()
   
   this->IconTransform->SetInputCoordinateSystemToWorld();
   this->IconTransform->SetOutputCoordinateSystemToDisplay();
-  this->IconTransform->SetInputConnection(this->GraphToPoly->GetOutputPort());
+  this->IconTransform->SetInputConnection(this->VertexGraphToPoly->GetOutputPort());
 
   this->IconTypeToIndex->SetInputConnection(this->IconTransform->GetOutputPort());
   this->IconTypeToIndex->SetFieldType(vtkArrayMap::POINT_DATA);
@@ -122,7 +123,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconActor->SetMapper(this->IconMapper);
   this->IconArrayNameInternal = 0;
 
-  this->VertexGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+  this->VertexGlyph->SetInputConnection(this->VertexGraphToPoly->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   this->OutlineMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   
@@ -176,7 +177,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
       vtkPolyData *circle = this->CreateCircle(true);
       this->CircleGlyph->SetSource(circle);
       circle->Delete();
-      this->CircleGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+      this->CircleGlyph->SetInputConnection(this->VertexGraphToPoly->GetOutputPort());
       this->CircleGlyph->SetScaling(1);
       //this->CircleGlyph->SetScaleFactor(.1); // Total hack
       this->CircleGlyph->SetInputArrayToProcess(0,0,0,
@@ -202,7 +203,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
     }
   else
     {
-    this->VertexGlyph->SetInputConnection(this->GraphToPoly->GetOutputPort());
+    this->VertexGlyph->SetInputConnection(this->VertexGraphToPoly->GetOutputPort());
     this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
     this->OutlineActor->SetPosition(0, 0, -0.001);
     this->OutlineMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
@@ -412,6 +413,18 @@ vtkTexture *vtkGraphMapper::GetIconTexture()
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphMapper::SetArcEdges(bool b)
+{
+  this->GraphToPoly->SetArcEdges(b);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphMapper::GetArcEdges()
+{
+  return this->GraphToPoly->GetArcEdges();
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphMapper::SetInput(vtkGraph *input)
 {
   if(input)
@@ -473,6 +486,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
   graph->ShallowCopy(input);
 
   this->GraphToPoly->SetInput(graph);
+  this->VertexGraphToPoly->SetInput(graph);
   graph->Delete();
   this->GraphToPoly->Update();
   vtkPolyData* pd = this->GraphToPoly->GetOutput();
@@ -670,6 +684,15 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "GraphToPoly: (none)\n";
+    }
+
+  if ( this->VertexGraphToPoly )
+    {
+    os << indent << "VertexGraphToPoly: (" << this->VertexGraphToPoly << ")\n";
+    }
+  else
+    {
+    os << indent << "VertexGraphToPoly: (none)\n";
     }
   os << indent << "VertexPointSize: " << this->VertexPointSize << endl;
   os << indent << "EdgeLineWidth: " << this->EdgeLineWidth << endl;

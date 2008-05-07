@@ -65,7 +65,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.28");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.29");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -328,6 +328,19 @@ void vtkGraphLayoutView::ColorEdgesOn()
 void vtkGraphLayoutView::ColorEdgesOff()
 {
   this->GraphMapper->ColorEdgesOff();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetArcEdges(bool b)
+{
+  this->GraphMapper->SetArcEdges(b);
+  this->SelectedGraphMapper->SetArcEdges(b);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGraphLayoutView::GetArcEdges()
+{
+  this->GraphMapper->GetArcEdges();
 }
 
 //----------------------------------------------------------------------------

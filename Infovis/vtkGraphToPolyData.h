@@ -61,12 +61,26 @@ public:
   vtkSetMacro(EdgeGlyphPosition, double);
   vtkGetMacro(EdgeGlyphPosition, double);
   
+  // Description:
+  // Whether to draw edges as arcs. Default is off (straight lines).
+  // NOTE: When this is on, points no longer correlate to graph vertices.
+  vtkSetMacro(ArcEdges, bool);
+  vtkGetMacro(ArcEdges, bool);
+  vtkBooleanMacro(ArcEdges, bool);
+
+  // Description:
+  // The number of subdivisions in each arc.
+  vtkSetMacro(NumberOfArcSubdivisions, vtkIdType);
+  vtkGetMacro(NumberOfArcSubdivisions, vtkIdType);
+
 protected:
   vtkGraphToPolyData();
   ~vtkGraphToPolyData() {}
   
   bool EdgeGlyphOutput;
   double EdgeGlyphPosition;
+  bool ArcEdges;
+  vtkIdType NumberOfArcSubdivisions;
 
   // Description:
   // Convert the vtkGraph into vtkPolyData.

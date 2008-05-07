@@ -127,6 +127,12 @@ public:
   bool GetColorEdges();
   void ColorEdgesOn();
   void ColorEdgesOff();
+
+  // Description:
+  // Show arced edges in the graph. Default is off.
+  virtual void SetArcEdges(bool b);
+  virtual bool GetArcEdges();
+  vtkBooleanMacro(ArcEdges, bool);
   
   // Description:
   // The array used for scaling (if ScaledGlyphs is ON)
