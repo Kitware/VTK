@@ -59,7 +59,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.5");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.6");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -226,13 +226,9 @@ vtkMySQLQuery::GetFieldType(int column)
 
       switch (field->type)
       {
-      case MYSQL_TYPE_DECIMAL:
       case MYSQL_TYPE_ENUM:
       case MYSQL_TYPE_TINY:
       case MYSQL_TYPE_INT24:
-#if MYSQL_VERSION >= 50000
-      case MYSQL_TYPE_NEWDECIMAL:
-#endif
         return VTK_INT;
 
       case MYSQL_TYPE_SHORT:
@@ -250,7 +246,7 @@ vtkMySQLQuery::GetFieldType(int column)
       case MYSQL_TYPE_NEWDATE:
         return VTK_UNSIGNED_LONG;  // vtkTimePoint uses longs
 
-#if MYSQL_VERSION >= 50000
+#if MYSQL_VERSION_ID >= 50000
       case MYSQL_TYPE_BIT:
         return VTK_BIT;
 #endif
@@ -259,6 +255,10 @@ vtkMySQLQuery::GetFieldType(int column)
         return VTK_FLOAT;
 
       case MYSQL_TYPE_DOUBLE:
+      case MYSQL_TYPE_DECIMAL:
+#if MYSQL_VERSION_ID >= 50000
+      case MYSQL_TYPE_NEWDECIMAL:
+#endif
         return VTK_DOUBLE;
         
       case MYSQL_TYPE_NULL:
@@ -272,7 +272,7 @@ vtkMySQLQuery::GetFieldType(int column)
 
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
-#if MYSQL_VERSION >= 50000
+#if MYSQL_VERSION_ID >= 50000
       case MYSQL_TYPE_VARCHAR:
 #endif
         return VTK_STRING;
