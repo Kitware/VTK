@@ -61,7 +61,16 @@ public:
   //          0 otherwise.
   // NB: this is a static function, so as to provide this functionality even when no
   // vtkStatistics are instantiated.
-  static int CalculateFromRawMoments( int n, double* s );
+  static int CalculateFromSums( int n, 
+                                double& s1,
+                                double& s2,
+                                double& s3,
+                                double& s4,
+                                double& G2 );
+  static int CalculateFromSums( int n, double* s ) 
+    { 
+    return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5] );
+    }
 
 protected:
   vtkDescriptiveStatistics();
@@ -70,7 +79,8 @@ protected:
   // Description:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable* dataset,
-                             vtkTable* output );
+                             vtkTable* output,
+                             bool finalize = true );
   virtual void ExecuteValidate( vtkTable* dataset,
                                 vtkTable* params,
                                 vtkTable* output); 

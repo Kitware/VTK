@@ -151,25 +151,17 @@ int TestDescriptiveStatistics( int, char *[] )
          << ": min= "
          << outputTable->GetValue( 0, c ).ToDouble()
          << ", max= "
-         << outputTable->GetValue( 1, c ).ToDouble();
-
-    double s[5];
-    for ( vtkIdType r = 0; r < 4; ++ r )
-      {
-      s[r] = outputTable->GetValue( r + 2, c ).ToDouble();
-      }
-    haruspex->CalculateFromRawMoments( n, s );
-
-    cout << ", mean= "
-         << s[0]
+         << outputTable->GetValue( 1, c ).ToDouble()
+         << ", mean= "
+         << outputTable->GetValue( 2, c ).ToDouble()
          << ", variance= "
-         << s[1]
+         << outputTable->GetValue( 3, c ).ToDouble()
          << ", skewness = "
-         << s[2]
+         << outputTable->GetValue( 4, c ).ToDouble()
          << ", kurtosis excess: sample = "
-         << s[3]
+         << outputTable->GetValue( 5, c ).ToDouble()
          << ", G2 = "
-         << s[4]
+         << outputTable->GetValue( 6, c ).ToDouble()
          << "\n";
     }
 

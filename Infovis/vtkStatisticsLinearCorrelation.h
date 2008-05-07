@@ -81,7 +81,17 @@ public:
   //          0 otherwise.
   // NB: this is a static function, so as to provide this functionality even when no
   // vtkStatistics are instantiated.
-  static int CalculateFromRawMoments( int n, double* s, double* r );
+  static int CalculateFromSums( int n, 
+                                double& sx,
+                                double& sy,
+                                double& sx2,
+                                double& sy2,
+                                double& sxy,
+                                double* correlations );
+  static int CalculateFromSums( int n, double* sums, double* correlations )
+    { 
+    return CalculateFromSums( n, sums[0], sums[1], sums[2], sums[4], sums[5], correlations ); 
+    }
 
 protected:
   vtkStatisticsLinearCorrelation();
@@ -90,7 +100,8 @@ protected:
   // Description:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable* dataset,
-                             vtkTable* output );
+                             vtkTable* output,
+                             bool finalize = true );
   virtual void ExecuteValidate( vtkTable* dataset,
                                 vtkTable* params,
                                 vtkTable* output); 

@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkStatisticsLinearCorrelation, "1.2");
+vtkCxxRevisionMacro(vtkStatisticsLinearCorrelation, "1.3");
 vtkStandardNewMacro(vtkStatisticsLinearCorrelation);
 
 // ----------------------------------------------------------------------
@@ -56,7 +56,8 @@ void vtkStatisticsLinearCorrelation::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkStatisticsLinearCorrelation::ExecuteLearn( vtkTable* dataset,
-                                                   vtkTable* output )
+                                                   vtkTable* output,
+                                                   bool finalize )
 {
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
@@ -91,7 +92,6 @@ void vtkStatisticsLinearCorrelation::ExecuteLearn( vtkTable* dataset,
 
   vtkDoubleArray* outputArr = vtkDoubleArray::New();
   outputArr->SetNumberOfComponents( 1 );
-  outputArr->SetName( "Raw moments" );
 
   double x   = 0.;
   double y   = 0.;
@@ -112,12 +112,38 @@ void vtkStatisticsLinearCorrelation::ExecuteLearn( vtkTable* dataset,
     sxy += x * y;
     }
 
-  outputArr->InsertNextValue( sx );
-  outputArr->InsertNextValue( sy );
-  outputArr->InsertNextValue( sx2 );
-  outputArr->InsertNextValue( sy2 );
-  outputArr->InsertNextValue( sxy );
-  
+  if ( finalize )
+    {
+    double correlations[5];
+    this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
+
+    outputArr->SetName( "Moments" );
+    outputArr->InsertNextValue( sx );
+    outputArr->InsertNextValue( sy );
+    outputArr->InsertNextValue( sx2 );
+    outputArr->InsertNextValue( sy2 );
+    outputArr->InsertNextValue( sxy );
+
+    output->AddColumn( outputArr );
+    outputArr->Delete();
+    outputArr = vtkDoubleArray::New();
+    
+    outputArr->SetName( "Correlations" );
+    for ( int i = 0; i < 5; ++ i )
+      {
+      outputArr->InsertNextValue( correlations[i] );
+      }
+    }
+  else 
+    {
+    outputArr->SetName( "Sums" );
+    outputArr->InsertNextValue( sx );
+    outputArr->InsertNextValue( sy );
+    outputArr->InsertNextValue( sx2 );
+    outputArr->InsertNextValue( sy2 );
+    outputArr->InsertNextValue( sxy );
+    }
+
   output->AddColumn( outputArr );
   outputArr->Delete();
 
@@ -228,7 +254,13 @@ void vtkStatisticsLinearCorrelation::ExecuteEvince( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-int vtkStatisticsLinearCorrelation::CalculateFromRawMoments( int n, double* s, double* r )
+int vtkStatisticsLinearCorrelation::CalculateFromSums( int n,
+                                                       double& sx,
+                                                       double& sy,
+                                                       double& sx2,
+                                                       double& sy2,
+                                                       double& sxy,
+                                                       double* correlations )
 {
   if ( n < 2 ) 
     {
@@ -238,44 +270,44 @@ int vtkStatisticsLinearCorrelation::CalculateFromRawMoments( int n, double* s, d
   double nd = static_cast<double>( n );
 
   // (unbiased) estimation of the means
-  s[0] /= nd;
-  s[1] /= nd;
+  sx /= nd;
+  sy /= nd;
 
   if ( n == 1 )
     {
-    s[2] = s[3] = s[4] = 0.;
+    sx2 = sy2 = sxy = 0.;
     return 0;
     }
 
   // (unbiased) estimation of the variances and covariance
   double f = 1. / ( nd - 1. );
-  s[2] = ( s[2] - s[0] * s[0] * nd ) * f;
-  s[3] = ( s[3] - s[1] * s[1] * nd ) * f;
-  s[4] = ( s[4] - s[0] * s[1] * nd ) * f;
+  sx2 = ( sx2 - sx * sx * nd ) * f;
+  sy2 = ( sy2 - sy * sy * nd ) * f;
+  sxy = ( sxy - sx * sy * nd ) * f;
 
 
   // linear regression coefficients
 
   // variable Y on variable X:
   //   slope
-  r[0] = s[4] / s[2];
+  correlations[0] = sxy / sx2;
   //   intersect
-  r[1] = s[1] - r[0] * s[0];
+  correlations[1] = sy - correlations[0] * sx;
 
   //   variable X on variable Y:
   //   slope
-  r[2] = s[4] / s[3];
+  correlations[2] = sxy / sy2;
   //   intersect
-  r[3] = s[0] - r[2] * s[1];
+  correlations[3] = sx - correlations[2] * sy;
 
   // linear correlation coefficient
-  double d = s[2] * s[3];
+  double d = sx2 * sy2;
   if ( d > 0 )
     {
-    r[4] = s[4] / sqrt( d );
+    correlations[4] = sxy / sqrt( d );
     return 0;
     }
 
-  r[4] = 0.;
+  correlations[4] = 0.;
   return 1;
 }

@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.1");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.2");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -51,7 +51,8 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
-                                             vtkTable* output )
+                                             vtkTable* output,
+                                             bool finalize )
 {
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
@@ -103,10 +104,25 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
 
     outputArr->InsertNextValue( minVal );
     outputArr->InsertNextValue( maxVal );
-    outputArr->InsertNextValue( sum1 );
-    outputArr->InsertNextValue( sum2 );
-    outputArr->InsertNextValue( sum3 );
-    outputArr->InsertNextValue( sum4 );
+
+    if ( finalize )
+      {
+      double G2;
+      this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, G2 );
+
+      outputArr->InsertNextValue( sum1 );
+      outputArr->InsertNextValue( sum2 );
+      outputArr->InsertNextValue( sum3 );
+      outputArr->InsertNextValue( sum4 );
+      outputArr->InsertNextValue( G2 );
+      }
+    else
+      {
+      outputArr->InsertNextValue( sum1 );
+      outputArr->InsertNextValue( sum2 );
+      outputArr->InsertNextValue( sum3 );
+      outputArr->InsertNextValue( sum4 );
+      }
 
     output->AddColumn( outputArr );
     outputArr->Delete();
@@ -201,7 +217,12 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-int vtkDescriptiveStatistics::CalculateFromRawMoments( int n, double* s )
+int vtkDescriptiveStatistics::CalculateFromSums( int n, 
+                                                 double& s1,
+                                                 double& s2,
+                                                 double& s3,
+                                                 double& s4,
+                                                 double& G2 )
 {
   if ( n < 1 ) 
     {
@@ -211,38 +232,38 @@ int vtkDescriptiveStatistics::CalculateFromRawMoments( int n, double* s )
   double nd = static_cast<double>( n );
 
   // (unbiased) estimation of the mean
-  s[0] /= nd;
+  s1 /= nd;
 
   if ( n == 1 )
     {
-    s[1] = s[2] = s[3] = 0.;
+    s2 = s3 = s4 = 0.;
     return 0;
     }
 
   // (unbiased) estimation of the variance
   double nm1 = nd - 1.;
-  double s0p2 = s[0] * s[0];
-  double var = ( s[1] - s0p2 * nd ) / nm1;
+  double s0p2 = s1 * s1;
+  double var = ( s2 - s0p2 * nd ) / nm1;
 
   // sample estimation of the kurtosis "excess"
-  s[3] = ( s[3] / nd - 4. * s[0] * s[2] / nd + 6. * s0p2 * s[1] / nd - 3. * s0p2 * s0p2 )
+  s4 = ( s4 / nd - 4. * s1 * s3 / nd + 6. * s0p2 * s2 / nd - 3. * s0p2 * s0p2 )
     / ( var * var ) - 3.;
 
   // sample estimation of the skewness
-  s[2] = ( s[2] / nd - 3. * s[0] * s[1] / nd + 2. * s0p2 * s[0] ) 
+  s3 = ( s3 / nd - 3. * s1 * s2 / nd + 2. * s0p2 * s1 ) 
     / pow( var, 1.5 );
 
-  s[1] = var;
+  s2 = var;
 
-  // s[4] estimation of the kurtosis "excess"
+  // G2 estimation of the kurtosis "excess"
   if ( n > 3 )
     {
-    s[4] = ( ( nd + 1. ) * s[3] + 6. ) * nm1 / ( ( nd - 2. ) * ( nd - 3. ) );
+    G2 = ( ( nd + 1. ) * s4 + 6. ) * nm1 / ( ( nd - 2. ) * ( nd - 3. ) );
     return 0;
     }
   else
     {
-    s[4] = s[3];
+    G2 = s4;
     return 1;
     }
 }

@@ -142,36 +142,27 @@ int TestStatisticsLinearCorrelation( int, char *[] )
        << n
        << " entries per column ):\n";
 
-  double s[5];
-  for ( vtkIdType r = 0; r < 5; ++ r )
-    {
-    s[r] = outputTable->GetValue( r, 0 ).ToDouble();
-    }
-  double cor[5];
-  haruspex->CalculateFromRawMoments( n, s, cor );
-  
   cout << "  m(X)= "
-       << s[0]
+       << outputTable->GetValue( 0, 0 ).ToDouble()
        << ", m(Y)= "
-       << s[1]
+       << outputTable->GetValue( 1, 0 ).ToDouble()
        << ", var(X)= "
-       << s[2]
+       << outputTable->GetValue( 2, 0 ).ToDouble()
        << ", var(Y)= "
-       << s[3]
+       << outputTable->GetValue( 3, 0 ).ToDouble()
        << ", cov(X,Y) = "
-       << s[4]
-       << "\n";
-  
-  cout << "  Y = "
-       << cor[0]
+       << outputTable->GetValue( 4, 0 ).ToDouble()
+       << "\n"
+       << "  Y = "
+       << outputTable->GetValue( 0, 1 ).ToDouble()
        << " * X + "
-       << cor[1]
+       << outputTable->GetValue( 1, 1 ).ToDouble()
        << ", X = "
-       << cor[2]
+       << outputTable->GetValue( 2, 1 ).ToDouble()
        << " * Y + "
-       << cor[3]
+       << outputTable->GetValue( 3, 1 ).ToDouble()
        << ", correlation coefficient = "
-       << cor[4]
+       << outputTable->GetValue( 4, 1 ).ToDouble()
        << "\n";
 
 // -- Test Evince Mode -- 
