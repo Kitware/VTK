@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests  
     TestAssignCoordinates
     TestDataObjectToTable
+    TestDescriptiveStatistics
     TestExtractSelectedGraph
     TestGraph
     TestGraphAlgorithms   
@@ -16,7 +17,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPassThrough
     TestPruneTreeFilter
     TestRandomGraphSource
-    TestStatisticsDescriptive
     TestStatisticsLinearCorrelation
     TestStringToCategory
     TestTable

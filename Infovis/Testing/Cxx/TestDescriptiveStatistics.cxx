@@ -9,10 +9,10 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
-#include "vtkStatisticsDescriptive.h"
+#include "vtkDescriptiveStatistics.h"
 
 //=============================================================================
-int TestStatisticsDescriptive( int, char *[] )
+int TestDescriptiveStatistics( int, char *[] )
 {
   int testIntValue = 0;
 
@@ -128,7 +128,7 @@ int TestStatisticsDescriptive( int, char *[] )
   paramsTable->AddColumn( params2Arr );
   params2Arr->Delete();
 
-  vtkStatisticsDescriptive* haruspex = vtkStatisticsDescriptive::New();
+  vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
   vtkTable* outputTable = haruspex->GetOutput();

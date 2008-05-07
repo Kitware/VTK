@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkStatisticsDescriptive.h
+Module:    vtkDescriptiveStatistics.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkStatisticsDescriptive - A class for descriptive statistics
+// .NAME vtkDescriptiveStatistics - A class for descriptive statistics
 //
 // .SECTION Description
 // This class provides the following functionalities, depending on the
@@ -36,19 +36,19 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this class.
 
-#ifndef __vtkStatisticsDescriptive_h
-#define __vtkStatisticsDescriptive_h
+#ifndef __vtkDescriptiveStatistics_h
+#define __vtkDescriptiveStatistics_h
 
 #include "vtkStatisticsAlgorithm.h"
 
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkStatisticsDescriptive : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStatisticsDescriptive, vtkStatisticsAlgorithm);
+  vtkTypeRevisionMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkStatisticsDescriptive* New();
+  static vtkDescriptiveStatistics* New();
 
   // Description:
   // Calculate descriptive statistics estimators from the raw moments: 
@@ -64,8 +64,8 @@ public:
   static int CalculateFromRawMoments( int n, double* s );
 
 protected:
-  vtkStatisticsDescriptive();
-  ~vtkStatisticsDescriptive();
+  vtkDescriptiveStatistics();
+  ~vtkDescriptiveStatistics();
 
   // Description:
   // Execute the required calculations in the specified execution modes
@@ -79,8 +79,8 @@ protected:
                               vtkTable* output ); 
 
 private:
-  vtkStatisticsDescriptive(const vtkStatisticsDescriptive&); // Not implemented
-  void operator=(const vtkStatisticsDescriptive&);   // Not implemented
+  vtkDescriptiveStatistics(const vtkDescriptiveStatistics&); // Not implemented
+  void operator=(const vtkDescriptiveStatistics&);   // Not implemented
 };
 
 #endif

@@ -16,6 +16,7 @@ vtkCommunity2DLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
+vtkDescriptiveStatistics.cxx
 vtkEdgeCenters.cxx
 vtkExtractSelectedGraph.cxx
 vtkFast2DLayoutStrategy.cxx
@@ -42,7 +43,6 @@ vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
-vtkStatisticsDescriptive.cxx
 vtkStatisticsLinearCorrelation.cxx
 vtkStringToCategory.cxx
 vtkStringToNumeric.cxx
