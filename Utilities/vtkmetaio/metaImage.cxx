@@ -1891,9 +1891,9 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       tmpWriteStream->seekp(0,METAIO_STREAM::ios::end);  
       size_t endfile = tmpWriteStream->tellp();
       
-      size_t padding = seekpos-endfile;
-      if(padding>0)
+      if(seekpos>endfile)
         {
+        size_t padding = seekpos-endfile;
         unsigned char* zerobytes = new unsigned char[padding];
         memset(zerobytes,0,padding);
         tmpWriteStream->write((const char*)zerobytes,padding);  
@@ -2115,14 +2115,15 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
         
         // Add zeros to the region. Maybe this should refer to a function to avoid
         // taking all the memory like we did before.
-        long padding = seekpos-currentPos;
-        
-        unsigned char* zerobytes = new unsigned char[padding];
-        memset(zerobytes,0,padding);
-        MetaImage::M_WriteElementData(m_WriteStream, zerobytes, padding/elementNumberOfBytes);
-        delete [] zerobytes;      
-         
-        currentPos += padding;
+        if(seekpos > currentPos)
+          {
+          size_t padding = seekpos-currentPos;
+          unsigned char* zerobytes = new unsigned char[padding];
+          memset(zerobytes, 0, padding);
+          MetaImage::M_WriteElementData(m_WriteStream, zerobytes, padding/elementNumberOfBytes);
+          delete [] zerobytes;      
+          currentPos += padding;
+          } 
         
         // Write the line
         long bytesToWrite = _indexMax[0]-_indexMin[0];
