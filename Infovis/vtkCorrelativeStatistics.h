@@ -25,10 +25,13 @@ PURPOSE.  See the above copyright notice for more information.
 // * Learn: given two data vectors X and Y with the same number of entries, 
 //   their means, unbiased variance and covariance estimators, and their
 //   linear regressions and linear correlation coefficient. More precisely, 
-//   ExecuteLearn calculates the raw moments; one then needs to call the
-//   (static) function CalculateFromRawMoments to turn these moments into the 
-//   estimators.
-// * Validate: not implemented.
+//   ExecuteLearn always calculates the sums; if the \a finalize parameter is
+//   set to true (default), the final statistics are calculated with the 
+//   function CalculateFromSums. Otherwise, only raw sums are output; this 
+//   option is made for efficient parallel calculations.
+//   Note that CalculateFromSums is a static function, so that it can be used
+//   directly with no need to instantiate a vtkDescriptiveStatistics object.
+// * Validate: not validate mode for this statistics class.
 // * Evince: given two data vectors X and Y with the same number of entries as
 //   input in port 0, and reference means, variances, and covariance, along
 //   with an acceptable threshold t>1, evince all pairs of values of (X,Y) 
