@@ -130,6 +130,12 @@ public:
   vtkGetMacro(Port, int);
   
   // Description:
+  // Create a the proper subclass given a URL.
+  // The URL format for SQL databases is a true URL of the form:
+  //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
+  static vtkSQLDatabase* CreateFromURL( const char* URL );
+  
+  // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
 

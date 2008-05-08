@@ -33,7 +33,10 @@
 #include <QtSql/QtSql>
 #include <QtSql/QSqlError>
 
-vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.3");
+#include <vtksys/SystemTools.hxx>
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.4");
 vtkStandardNewMacro(vtkQtSQLDatabase);
 
 int vtkQtSQLDatabase::id = 0;
@@ -243,6 +246,60 @@ void vtkQtSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Port: " << this->Port << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
 }
+
+// ----------------------------------------------------------------------
+vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL( const char* URL )
+{
+  vtkstd::string protocol;
+  vtkstd::string username; 
+  vtkstd::string password;
+  vtkstd::string hostname; 
+  vtkstd::string dataport; 
+  vtkstd::string database;
+  vtkstd::string dataglom;
+  vtkSQLDatabase* db = 0;
+  
+  // SQLite is a bit special so lets get that out of the way :)
+  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << URL );
+    return 0;
+    }
+  
+  if ( protocol == "sqlite" )
+    {
+    db = vtkQtSQLDatabase::New();
+    vtkQtSQLDatabase *qt_db = vtkQtSQLDatabase::SafeDownCast(db);
+    qt_db->SetDatabaseType("QSQLITE");
+    qt_db->SetDatabaseName(dataglom.c_str());
+    return qt_db;
+    }
+    
+  // Okay now for all the other database types get more detailed info
+  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
+                                        password, hostname, dataport, database) )
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << URL );
+    return 0;
+    }
+    
+  // Create Qt 'version' of database prototcol type
+  QString qtType;
+  qtType = protocol.c_str();
+  qtType = "Q" + qtType.toUpper();
+  
+  // Create Qt databaes
+  db = vtkQtSQLDatabase::New();
+  vtkQtSQLDatabase *qt_db = vtkQtSQLDatabase::SafeDownCast(db);
+  qt_db->SetDatabaseType(qtType.toAscii());
+  qt_db->SetUserName(username.c_str());
+  qt_db->SetPassword(password.c_str());
+  qt_db->SetHostName(hostname.c_str());
+  qt_db->SetPort(atoi(dataport.c_str()));
+  qt_db->SetDatabaseName(database.c_str());
+  return qt_db;
+}
+
 
 // ----------------------------------------------------------------------
 vtkStdString vtkQtSQLDatabase::GetURL()
