@@ -45,7 +45,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.50");
+vtkCxxRevisionMacro(vtkCommunicator, "1.51");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -275,7 +275,6 @@ int vtkCommunicator::SendElementalDataObject(
   // could not marshal data
   return 0;
 }
-
 int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 {
   // If the receiving end is using with ANY_SOURCE, we have a problem because
@@ -284,63 +283,58 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   // and a mangled tag.  The remote process then receives the rest of the
   // messages with the specific source and mangled tag, which are guaranteed to
   // be received in the correct order.
-
-
-  // header:
-  // 0: procId
-  // 1: mangledTag
-  // 2: data type
-  // 3: number of components
-  // 4: number of tuples
-  // 5: size of array in type units
-  // 6: length of array name
-
   static int tagMangler = 1000;
   int mangledTag = tag + tagMangler++;
+  int header[2];
+  header[0] = this->LocalProcessId;  header[1] = mangledTag;
+  this->Send(header, 2, remoteHandle, tag);
+  tag = mangledTag;
 
-  const int headerSize=7;
-  vtkIdType header[headerSize];
-  // if nothing then we send the empty header
-  if ( data==0 )
+  int type = -1;
+  if (data == NULL)
     {
-    header[0] = this->LocalProcessId;
-    header[1] = mangledTag;
-    header[2] = header[3] = header[4] = header[5] = -1;
+      this->Send( &type, 1, remoteHandle, tag);
+      return 1;
+    }
 
-    this->Send( header, headerSize, remoteHandle, tag);
+  // send array type
+  type = data->GetDataType();
+  this->Send( &type, 1, remoteHandle, tag);
+
+  // send array tuples
+  vtkIdType numTuples = data->GetNumberOfTuples();
+  this->Send( &numTuples, 1, remoteHandle, tag);
+
+  // send number of components in array
+  int numComponents = data->GetNumberOfComponents();
+  this->Send( &numComponents, 1, remoteHandle, tag);
+
+  vtkIdType size = numTuples*numComponents;
+
+  const char* name = data->GetName();
+  int len = 0;
+  if (name)
+    {
+    len = static_cast<int>(strlen(name)) + 1;
+    }
+
+  // send length of name
+  this->Send( &len, 1, remoteHandle, tag);
+
+  if (len > 0)
+    {
+    // send name
+    this->Send( const_cast<char*>(name), len, remoteHandle, tag);
+    }
+
+  // do nothing if size is zero.
+  if (size == 0)
+    {
     return 1;
     }
 
-  // build and send the header
-  const char *name=data->GetName();
-  header[0] = this->LocalProcessId;
-  header[1] = mangledTag;
-  header[2] = data->GetDataType();
-  header[3] = data->GetNumberOfComponents();
-  header[4] = data->GetNumberOfTuples();
-  header[5] = header[3]*header[4];
-  header[6] = strlen(name);
-  this->Send( header, headerSize, remoteHandle, tag);
-
-  // send the name
-  if ( header[6]>0 )
-    {
-    this->Send( const_cast<char*>(name),
-                header[6], // n
-                remoteHandle,
-                mangledTag);
-    }
-
-  // send the data
-  if ( header[5]>0 )
-    {
-    this->SendVoidArray(data->GetVoidPointer(0), 
-                        header[5], // n
-                        header[2], // type
-                        remoteHandle,
-                        mangledTag);
-    }
-
+  // now send the raw array
+  this->SendVoidArray(data->GetVoidPointer(0), size, type, remoteHandle, tag);
   return 1;
 }
 
@@ -541,71 +535,84 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
   // source and a mangled tag.  We then receive the rest of the messages with
   // the specific source and mangled tag, which we are guaranteed to receive in
   // the correct order.
-
-  // header:
-  // 0: procId
-  // 1: mangledTag
-  // 2: data type
-  // 3: number of components
-  // 4: number of tuples
-  // 5: size of array in type units
-  // 6: length of array name
-
-  // receive the header
-  const int headerSize=7;
-  int header[headerSize];
-  if (!this->Receive( header, headerSize, remoteHandle, tag))
-    {
-    vtkErrorMacro("Could not receive header!");
-    return 0;
-    }
-
-  // check if empty array sent
-  if ( header[2]==-1 )
-    { // This indicates a NULL object was sent. Do nothing.
-    return 1;
-    }
-
-  // check if types match
-  if (header[2] != data->GetDataType())
-    {
-    vtkErrorMacro("Send/receive data types do not match!");
-    return 0;
-    }
-
+  int header[2];
+  this->Receive(header, 2, remoteHandle, tag);
   // Use the specific source and tag.
   if (remoteHandle == vtkMultiProcessController::ANY_SOURCE)
     {
     remoteHandle = header[0];
     }
+  tag = header[1];
 
-  // initialize array size
-  data->SetNumberOfComponents(header[3]);
-  data->SetNumberOfTuples(header[4]);
-
-  // receive the array name
-  if ( header[6]>0 )
+  // First receive the data type.
+  int type;
+  if (!this->Receive( &type, 1, remoteHandle, tag))
     {
-    char *name = new char[header[6]+1];
-    this->Receive(name, header[6], remoteHandle, header[1]);
-    name[header[6]]='\0';
-    data->SetName(name);
-    delete [] name;
+    vtkErrorMacro("Could not receive data!");
+    return 0;
     }
 
-  // recieve the array
-  if ( header[5]>0 )
-    {
-    this->ReceiveVoidArray(data->GetVoidPointer(0),
-                           header[5],  // n
-                           header[2],  // type
-                           remoteHandle,
-                           header[1]); // tag
+  if (type == -1) 
+    { // This indicates a NULL object was sent. Do nothing.
+    return 1;   
     }
+
+  if (type != data->GetDataType())
+    {
+    vtkErrorMacro("Send/receive data types do not match!");
+    return 0;
+    }
+
+  // Next receive the number of tuples.
+  vtkIdType numTuples;
+  if (!this->Receive( &numTuples, 1, remoteHandle, tag))
+    {
+    vtkErrorMacro("Could not receive data!");
+    return 0;
+    }
+
+  // Next receive the number of components.
+  int numComponents;
+  this->Receive( &numComponents, 1, remoteHandle, tag);
+
+  vtkIdType size = numTuples*numComponents;
+  data->SetNumberOfComponents(numComponents);
+  data->SetNumberOfTuples(numTuples);
+
+  // Next receive the length of the name.
+  int nameLength;
+  this->Receive( &nameLength, 1, remoteHandle, tag);
+
+  if ( nameLength > 0 )
+    {
+    char *str = new char[nameLength]; 
+    
+    // Receive the name
+    this->Receive(str, nameLength, remoteHandle, tag);
+    data->SetName(str);
+    }
+  else
+    {
+    data->SetName(NULL);
+    }
+
+  if (size < 0)
+    {
+    vtkErrorMacro("Bad data length");
+    return 0;
+    }
+  
+  // Do nothing if size is zero.
+  if (size == 0)
+    {
+    return 1;   
+    }
+
+  // now receive the raw array.
+  this->ReceiveVoidArray(data->GetVoidPointer(0), size, type, remoteHandle,tag);
 
   return 1;
 }
-
 //-----------------------------------------------------------------------------
 int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
                                        vtkCharArray *buffer)
