@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   function CalculateFromSums. Otherwise, only raw sums are output; this 
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
-//   directly with no need to instantiate a vtkDescriptiveStatistics object.
+//   directly with no need to instantiate a vtkCorrelativeStatistics object.
 // * Validate: not validate mode for this statistics class.
 // * Evince: given two data vectors X and Y with the same number of entries as
 //   input in port 0, and reference means, variances, and covariance, along

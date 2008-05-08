@@ -23,10 +23,14 @@ PURPOSE.  See the above copyright notice for more information.
 // This class provides the following functionalities, depending on the
 // execution mode it is executed in:
 // * Learn: given an input data set, calculate its extremal values, arithmetic
-//   mean, unbiased variance estimator, skewness estimator, and G2 estimation 
-//   of the kurtosis "excess". More precisely, ExecuteLearn calculates the
-//   extremal values and the raw moments; one then needs to call the (static) 
-//   function CalculateFromRawMoments to turn these moments into the estimators.
+//   mean, unbiased variance estimator, skewness estimator, and both sample
+//   and G2 estimation of the kurtosis excess. More precisely, ExecuteLearn
+//   always calculates the sums; if the \a finalize parameter is
+//   set to true (default), the final statistics are calculated with the 
+//   function CalculateFromSums. Otherwise, only raw sums are output; this 
+//   option is made for efficient parallel calculations.
+//   Note that CalculateFromSums is a static function, so that it can be used
+//   directly with no need to instantiate a vtkDescriptiveStatistics object.
 // * Validate: not implemented.
 // * Evince: given an input data set in port 0, and a reference value x along
 //   with an acceptable deviation d>0, evince all entries in the data set who
