@@ -1,6 +1,6 @@
 
 #include "vtkActor.h"
-#include "vtkFast2DLayoutStrategy.h"
+#include "vtkCircularLayoutStrategy.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
@@ -22,7 +22,7 @@ int TestArcEdges(int argc, char* argv[])
 {
   VTK_CREATE(vtkRandomGraphSource, source);
   VTK_CREATE(vtkGraphLayout, layout);
-  VTK_CREATE(vtkFast2DLayoutStrategy, strategy);
+  VTK_CREATE(vtkCircularLayoutStrategy, strategy);
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   VTK_CREATE(vtkPolyDataMapper, edgeMapper);
   VTK_CREATE(vtkActor, edgeActor);
@@ -54,7 +54,7 @@ int TestArcEdges(int argc, char* argv[])
   vertGlyph->SetInputConnection(graphToPoints->GetOutputPort());
   vertMapper->SetInputConnection(vertGlyph->GetOutputPort());
   vertActor->SetMapper(vertMapper);
-  vertActor->GetProperty()->SetPointSize(10);
+  vertActor->GetProperty()->SetPointSize(1);
   ren->AddActor(vertActor);
 
   win->AddRenderer(ren);
