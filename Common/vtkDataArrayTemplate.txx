@@ -827,8 +827,13 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextValue(T f)
 template <class T>
 void vtkDataArrayTemplate<T>::ComputeRange(int comp)
 {
+  if ( comp >= this->NumberOfComponents )
+    { // Ignore requests for nonexistent components.
+    return;
+    }
+
   // If we got component -1 on a vector array, compute vector magnitude.
-  if(comp < 0 && this->NumberOfComponents == 1)
+  if ( comp < 0 && this->NumberOfComponents == 1 )
     {
     comp = 0;
     }
