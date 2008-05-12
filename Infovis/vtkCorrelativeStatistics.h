@@ -20,13 +20,12 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkCorrelativeStatistics - A class for linear correlation
 //
 // .SECTION Description
-// This class provides the following functionalities, depending on the
-// execution mode it is executed in:
-// * Learn: given two data vectors X and Y with the same number of entries, 
-//   their means, unbiased variance and covariance estimators, and their
-//   linear regressions and linear correlation coefficient. More precisely, 
-//   ExecuteLearn always calculates the sums; if the \a finalize parameter is
-//   set to true (default), the final statistics are calculated with the 
+// Given a selection of pairs of columns of interest, this class provides the
+// following functionalities, depending on the execution mode it is executed in:
+// * Learn: calculate means, unbiased variance and covariance estimators of
+//   column pairs, and corresponding linear regressions and linear correlation 
+//   coefficient. More precisely, ExecuteLearn calculates the sums; if \p finalize
+//   is set to true (default), the final statistics are calculated with the 
 //   function CalculateFromSums. Otherwise, only raw sums are output; this 
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
@@ -36,8 +35,6 @@ PURPOSE.  See the above copyright notice for more information.
 //   input in port 0, and reference means, variances, and covariance, along
 //   with an acceptable threshold t>1, evince all pairs of values of (X,Y) 
 //   whose relative PDF (assuming a bivariate Gaussian model) is below t.
-// NB: The input data set is passed as a vtkTable, of which 2 columns must thus
-// be selected for X and Y -- by default, the 1st are 2nd columns, respectively.
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
@@ -48,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkCorrelativeStatisticsPrivate;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
@@ -58,20 +56,14 @@ public:
   static vtkCorrelativeStatistics* New();
 
   // Description:
-  // Set the column index of variable X.
-  vtkSetMacro( IdX, vtkIdType );
+  // Reset list of columns of interest
+  void ResetColumns();
 
   // Description:
-  // Get the column index of variable X.
-  vtkGetMacro( IdX, vtkIdType );
-
-  // Description:
-  // Set the column index of variable Y.
-  vtkSetMacro( IdY, vtkIdType );
-
-  // Description:
-  // Get the column index of variable Y.
-  vtkGetMacro( IdY, vtkIdType );
+  // Add column index pair (\p idxColX, \p idxColY).
+  // Warning: no range checking is performed on \p idxColX nor \p idxColY; it is 
+  // the user's responsibility to use valid column indices.
+  void AddColumnPair( vtkIdType idxColX, vtkIdType idxColY );
 
   // Description:
   // Calculate the following unbiased estimators from the raw moments:
@@ -96,6 +88,8 @@ public:
     return CalculateFromSums( n, sums[0], sums[1], sums[2], sums[4], sums[5], correlations ); 
     }
 
+  vtkCorrelativeStatisticsPrivate* Internals;
+
 protected:
   vtkCorrelativeStatistics();
   ~vtkCorrelativeStatistics();
@@ -111,10 +105,6 @@ protected:
   virtual void ExecuteEvince( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
-
-  vtkIdType IdX;
-  vtkIdType IdY;
-
 private:
   vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
   void operator=(const vtkCorrelativeStatistics&);   // Not implemented

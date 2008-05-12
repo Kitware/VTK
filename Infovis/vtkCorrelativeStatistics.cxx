@@ -30,28 +30,60 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.1");
+#include <vtkstd/set>
+
+// = Start Private Implementation =======================================
+class vtkCorrelativeStatisticsPrivate
+{
+public:
+  vtkCorrelativeStatisticsPrivate();
+  ~vtkCorrelativeStatisticsPrivate();
+
+  vtkstd::set<vtkstd::pair<vtkIdType,vtkIdType> > ColumnPairs;
+};
+
+vtkCorrelativeStatisticsPrivate::vtkCorrelativeStatisticsPrivate()
+{
+}
+
+vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
+{
+}
+
+// = End Private Implementation =========================================
+
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.2");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
-  // Default indices of X and Y variables
-  this->IdX = 0;
-  this->IdY = 1;
+  this->Internals = new vtkCorrelativeStatisticsPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
+  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "IdX: " << this->IdX << endl;
-  os << indent << "IdY: " << this->IdY << endl;
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::ResetColumns()
+{
+  this->Internals->ColumnPairs.clear();
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::AddColumnPair( vtkIdType idxColX, vtkIdType idxColY )
+{
+  vtkstd::pair<vtkIdType,vtkIdType> idxPair( idxColX, idxColY );
+  this->Internals->ColumnPairs.insert( idxPair );
 }
 
 // ----------------------------------------------------------------------
@@ -67,22 +99,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkIdType ix = this->IdX;
-  if ( ix >= nCol )
-    {
-    vtkWarningMacro( "Dataset table does not have a column with index "<<ix<<". Doing nothing." );
-    this->SampleSize = 0;
-    return;
-    }
-
-  vtkIdType iy = this->IdY;
-  if ( iy >= nCol )
-    {
-    vtkWarningMacro( "Dataset table does not have a column with index "<<iy<<". Doing nothing." );
-    this->SampleSize = 0;
-    return;
-    }
-
   this->SampleSize = dataset->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
@@ -90,63 +106,180 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkDoubleArray* outputArr = vtkDoubleArray::New();
-  outputArr->SetNumberOfComponents( 1 );
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column X" );
+  output->AddColumn( idTypeCol );
+  idTypeCol->Delete();
 
-  double x   = 0.;
-  double y   = 0.;
-  double sx  = 0.;
-  double sy  = 0.;
-  double sx2 = 0.;
-  double sy2 = 0.;
-  double sxy = 0.;
-  for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
-    {
-    x = dataset->GetValue( r, ix ).ToDouble();
-    y = dataset->GetValue( r, iy ).ToDouble();
-
-    sx  += x;
-    sy  += y;
-    sx2 += x * x;
-    sy2 += y * y;
-    sxy += x * y;
-    }
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column Y" );
+  output->AddColumn( idTypeCol );
+  idTypeCol->Delete();
 
   if ( finalize )
     {
-    double correlations[5];
-    this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
+    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Mean X" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
 
-    outputArr->SetName( "Moments" );
-    outputArr->InsertNextValue( sx );
-    outputArr->InsertNextValue( sy );
-    outputArr->InsertNextValue( sx2 );
-    outputArr->InsertNextValue( sy2 );
-    outputArr->InsertNextValue( sxy );
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Mean Y" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
 
-    output->AddColumn( outputArr );
-    outputArr->Delete();
-    outputArr = vtkDoubleArray::New();
-    
-    outputArr->SetName( "Correlations" );
-    for ( int i = 0; i < 5; ++ i )
-      {
-      outputArr->InsertNextValue( correlations[i] );
-      }
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Variance X" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Variance Y" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Covariance" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "SlopeYX" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Intersect YX" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Slope XY" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Intersect XY" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Correlation" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
-  else 
+  else
     {
-    outputArr->SetName( "Sums" );
-    outputArr->InsertNextValue( sx );
-    outputArr->InsertNextValue( sy );
-    outputArr->InsertNextValue( sx2 );
-    outputArr->InsertNextValue( sy2 );
-    outputArr->InsertNextValue( sxy );
+    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum y" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x2" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum y2" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum xy" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Cardinality" );
+    output->AddColumn( idTypeCol );
+    idTypeCol->Delete();
     }
 
-  output->AddColumn( outputArr );
-  outputArr->Delete();
 
+  for ( vtkstd::set<vtkstd::pair<vtkIdType,vtkIdType> >::iterator it = this->Internals->ColumnPairs.begin(); 
+        it != this->Internals->ColumnPairs.end(); ++ it )
+    {
+    vtkIdType idX = it->first;
+    if ( idX >= nCol )
+      {
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Doing nothing." );
+      this->SampleSize = 0;
+      return;
+      }
+
+    vtkIdType idY = it->second;
+    if ( idY >= nCol )
+      {
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Doing nothing." );
+      this->SampleSize = 0;
+      return;
+      }
+    
+    double x   = 0.;
+    double y   = 0.;
+    double sx  = 0.;
+    double sy  = 0.;
+    double sx2 = 0.;
+    double sy2 = 0.;
+    double sxy = 0.;
+    for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
+      {
+      x = dataset->GetValue( r, idX ).ToDouble();
+      y = dataset->GetValue( r, idY ).ToDouble();
+      
+      sx  += x;
+      sy  += y;
+      sx2 += x * x;
+      sy2 += y * y;
+      sxy += x * y;
+      }
+
+    vtkVariantArray* row = vtkVariantArray::New();
+
+    if ( finalize )
+      {
+      row->SetNumberOfValues( 12 );
+
+      double correlations[5];
+      this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
+      
+      row->SetValue( 0, idX );
+      row->SetValue( 1, idY );
+      row->SetValue( 2, sx );
+      row->SetValue( 3, sy );
+      row->SetValue( 4, sx2 );
+      row->SetValue( 5, sy2 );
+      row->SetValue( 6, sxy );
+      for ( int i = 0; i < 5; ++ i )
+        {
+        row->SetValue( i + 7, correlations[i] );
+        }
+      }
+    else 
+      {
+      row->SetNumberOfValues( 8 );
+
+      row->SetValue( 0, idX );
+      row->SetValue( 1, idY );
+      row->SetValue( 2, sx );
+      row->SetValue( 3, sy );
+      row->SetValue( 4, sx2 );
+      row->SetValue( 5, sy2 );
+      row->SetValue( 6, sxy );
+      row->SetValue( 7, this->SampleSize );
+      }
+
+    output->InsertNextRow( row );
+
+    row->Delete();
+    }
+    
   return;
 }
 
@@ -167,22 +300,6 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
   if ( ! nCol )
     {
     vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
-    return;
-    }
-
-  vtkIdType ix = this->IdX;
-  if ( ix >= nCol )
-    {
-    vtkWarningMacro( "Dataset table does not have a column with index "<<ix<<". Doing nothing." );
-    this->SampleSize = 0;
-    return;
-    }
-
-  vtkIdType iy = this->IdY;
-  if ( iy >= nCol )
-    {
-    vtkWarningMacro( "Dataset table does not have a column with index "<<iy<<". Doing nothing." );
-    this->SampleSize = 0;
     return;
     }
 
@@ -214,38 +331,58 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 2 );
   
-  double accVarX = params->GetValue( 2, 0 ).ToDouble();
-  double accVarY = params->GetValue( 3, 0 ).ToDouble();
-  double accCovr = params->GetValue( 4, 0 ).ToDouble();
-
-  double d = accVarX * accVarY - accCovr * accCovr;
-  if ( d <= 0. )
+  for ( vtkstd::set<vtkstd::pair<vtkIdType,vtkIdType> >::iterator it = this->Internals->ColumnPairs.begin(); 
+        it != this->Internals->ColumnPairs.end(); ++ it )
     {
-    vtkWarningMacro( "Cannot calculate statistics: variance/covariance matrix has non-positive determinant." );
-    return;
-    }
-
-  double nomValX = params->GetValue( 0, 0 ).ToDouble();
-  double nomValY = params->GetValue( 1, 0 ).ToDouble();
-  double mRelPDF = params->GetValue( 5, 0 ).ToDouble();
-  double eFac = -.5 / d;
-  accCovr *= 2.;
-
-  double x = 0.;
-  double y = 0.;
-  double rPDF;
-  for ( vtkIdType r = 0; r < nRow; ++ r )
-    {
-    x = dataset->GetValue( r, ix ).ToDouble() - nomValX;
-    y = dataset->GetValue( r, iy ).ToDouble() - nomValY;
-
-    rPDF = exp( eFac * ( accVarY * x * x - accCovr * x * y + accVarX * y * y ) );
-    if ( rPDF < mRelPDF )
+    vtkIdType idX = it->first;
+    if ( idX >= nCol )
       {
-      row->SetValue( 0, vtkVariant( r ) );
-      row->SetValue( 1, vtkVariant( rPDF ) );
-      
-      output->InsertNextRow( row );
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Doing nothing." );
+      this->SampleSize = 0;
+      return;
+      }
+
+    vtkIdType idY = it->second;
+    if ( idY >= nCol )
+      {
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Doing nothing." );
+      this->SampleSize = 0;
+      return;
+      }
+
+    double accVarX = params->GetValue( 2, 0 ).ToDouble();
+    double accVarY = params->GetValue( 3, 0 ).ToDouble();
+    double accCovr = params->GetValue( 4, 0 ).ToDouble();
+    
+    double d = accVarX * accVarY - accCovr * accCovr;
+    if ( d <= 0. )
+      {
+      vtkWarningMacro( "Cannot calculate statistics: variance/covariance matrix has non-positive determinant." );
+      return;
+      }
+    
+    double nomValX = params->GetValue( 0, 0 ).ToDouble();
+    double nomValY = params->GetValue( 1, 0 ).ToDouble();
+    double mRelPDF = params->GetValue( 5, 0 ).ToDouble();
+    double eFac = -.5 / d;
+    accCovr *= 2.;
+    
+    double x = 0.;
+    double y = 0.;
+    double rPDF;
+    for ( vtkIdType r = 0; r < nRow; ++ r )
+      {
+      x = dataset->GetValue( r, idX ).ToDouble() - nomValX;
+      y = dataset->GetValue( r, idY ).ToDouble() - nomValY;
+
+      rPDF = exp( eFac * ( accVarY * x * x - accCovr * x * y + accVarX * y * y ) );
+      if ( rPDF < mRelPDF )
+        {
+        row->SetValue( 0, vtkVariant( r ) );
+        row->SetValue( 1, vtkVariant( rPDF ) );
+        
+        output->InsertNextRow( row );
+        }
       }
     }
   row->Delete();

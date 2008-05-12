@@ -133,6 +133,9 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetTable->Delete();
   paramsTable->Delete();
 
+// -- Select Column Pair of Interest -- 
+  haruspex->AddColumnPair( 0, 1 );
+
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->Update();
@@ -141,29 +144,34 @@ int TestCorrelativeStatistics( int, char *[] )
   cout << "## Calculated the following statistics ( "
        << n
        << " entries per column ):\n";
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+    {
+    cout << "   X: "
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
+         << ", Y: "
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 1 ).ToInt() )
+         << ":";
 
-  cout << "  m(X)= "
-       << outputTable->GetValue( 0, 0 ).ToDouble()
-       << ", m(Y)= "
-       << outputTable->GetValue( 1, 0 ).ToDouble()
-       << ", var(X)= "
-       << outputTable->GetValue( 2, 0 ).ToDouble()
-       << ", var(Y)= "
-       << outputTable->GetValue( 3, 0 ).ToDouble()
-       << ", cov(X,Y) = "
-       << outputTable->GetValue( 4, 0 ).ToDouble()
-       << "\n"
-       << "  Y = "
-       << outputTable->GetValue( 0, 1 ).ToDouble()
+    for ( int i = 2; i < 7; ++ i )
+      {
+      cout << " "
+           << outputTable->GetColumnName( i )
+           << ": "
+           << outputTable->GetValue( r, i ).ToDouble();
+      }
+
+    cout << "\n   Y = "
+       << outputTable->GetValue( r,  7 ).ToDouble()
        << " * X + "
-       << outputTable->GetValue( 1, 1 ).ToDouble()
+       << outputTable->GetValue( r,  8 ).ToDouble()
        << ", X = "
-       << outputTable->GetValue( 2, 1 ).ToDouble()
+       << outputTable->GetValue( r,  9 ).ToDouble()
        << " * Y + "
-       << outputTable->GetValue( 3, 1 ).ToDouble()
-       << ", correlation coefficient = "
-       << outputTable->GetValue( 4, 1 ).ToDouble()
+       << outputTable->GetValue( r, 10 ).ToDouble()
+       << ", corr. coeff.: "
+       << outputTable->GetValue( r, 11 ).ToDouble()
        << "\n";
+    }
 
 // -- Test Evince Mode -- 
   cout << "## Searching for outliers with relative PDF < "
