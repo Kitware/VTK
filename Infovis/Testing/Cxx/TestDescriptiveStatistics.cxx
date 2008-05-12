@@ -153,21 +153,15 @@ int TestDescriptiveStatistics( int, char *[] )
     {
     cout << "   "
          << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-         << ": min= "
-         << outputTable->GetValue( r, 1 ).ToDouble()
-         << ", max= "
-         << outputTable->GetValue( r, 2 ).ToDouble()
-         << ", mean= "
-         << outputTable->GetValue( r, 3 ).ToDouble()
-         << ", variance= "
-         << outputTable->GetValue( r, 4 ).ToDouble()
-         << ", skewness = "
-         << outputTable->GetValue( r, 5 ).ToDouble()
-         << ", kurtosis excess: sample = "
-         << outputTable->GetValue( r, 6 ).ToDouble()
-         << ", G2 = "
-         << outputTable->GetValue( r, 7 ).ToDouble()
-         << "\n";
+         << ":";
+    for ( int i = 1; i < 8; ++ i )
+      {
+      cout << " "
+           << outputTable->GetColumnName( i )
+           << ": "
+           << outputTable->GetValue( r, i ).ToDouble();
+      }
+    cout << "\n";
     }
 
 // -- Test Evince Mode -- 
