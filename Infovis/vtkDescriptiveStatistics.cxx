@@ -52,7 +52,7 @@ vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.3");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.4");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -129,6 +129,71 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column" );
+  output->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Minimum" );
+  output->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Maximum" );
+  output->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  if ( finalize )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Mean" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Variance" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Skewness" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sample Kurtosis" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "G2 Kurtosis" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+    }
+  else
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x2" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x3" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Sum x4" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+    }
+
   for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nCol )
@@ -137,10 +202,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       this->SampleSize = 0;
       return;
     }
-
-    vtkDoubleArray* outputArr = vtkDoubleArray::New();
-    outputArr->SetNumberOfComponents( 1 );
-    outputArr->SetName( dataset->GetColumn( *it )->GetName() );
 
     double minVal = dataset->GetValue( 0, *it ).ToDouble();
     double maxVal = minVal;
@@ -169,30 +230,41 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
         }
       }
 
-    outputArr->InsertNextValue( minVal );
-    outputArr->InsertNextValue( maxVal );
-
+    vtkVariantArray* row = vtkVariantArray::New();
     if ( finalize )
       {
+      row->SetNumberOfValues( 8 );
+  
       double G2;
       this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, G2 );
 
-      outputArr->InsertNextValue( sum1 );
-      outputArr->InsertNextValue( sum2 );
-      outputArr->InsertNextValue( sum3 );
-      outputArr->InsertNextValue( sum4 );
-      outputArr->InsertNextValue( G2 );
+      row->SetValue( 0, *it );
+      row->SetValue( 1, minVal );
+      row->SetValue( 2, maxVal );
+      row->SetValue( 3, sum1 );
+      row->SetValue( 4, sum2 );
+      row->SetValue( 5, sum3 );
+      row->SetValue( 6, sum4 );
+      row->SetValue( 7, G2 );
+
+      output->InsertNextRow( row );
       }
     else
       {
-      outputArr->InsertNextValue( sum1 );
-      outputArr->InsertNextValue( sum2 );
-      outputArr->InsertNextValue( sum3 );
-      outputArr->InsertNextValue( sum4 );
+      row->SetNumberOfValues( 7 );
+  
+      row->SetValue( 0, *it );
+      row->SetValue( 1, minVal );
+      row->SetValue( 2, maxVal );
+      row->SetValue( 3, sum1 );
+      row->SetValue( 4, sum2 );
+      row->SetValue( 5, sum3 );
+      row->SetValue( 6, sum4 );
+
+      output->InsertNextRow( row );
       }
 
-    output->AddColumn( outputArr );
-    outputArr->Delete();
+    row->Delete();
     }
 
   return;
@@ -240,12 +312,12 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Dataset Column" );
+  idTypeCol->SetName( "Column" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Entry Index" );
+  idTypeCol->SetName( "Row" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 

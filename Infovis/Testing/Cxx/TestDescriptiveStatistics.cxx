@@ -149,24 +149,24 @@ int TestDescriptiveStatistics( int, char *[] )
   cout << "## Calculated the following statistics ( "
        << n
        << " entries per column ):\n";
-  for ( vtkIdType c = 0; c < outputTable->GetNumberOfColumns(); ++ c )
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
     cout << "   "
-         << datasetTable->GetColumnName( c )
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
          << ": min= "
-         << outputTable->GetValue( 0, c ).ToDouble()
+         << outputTable->GetValue( r, 1 ).ToDouble()
          << ", max= "
-         << outputTable->GetValue( 1, c ).ToDouble()
+         << outputTable->GetValue( r, 2 ).ToDouble()
          << ", mean= "
-         << outputTable->GetValue( 2, c ).ToDouble()
+         << outputTable->GetValue( r, 3 ).ToDouble()
          << ", variance= "
-         << outputTable->GetValue( 3, c ).ToDouble()
+         << outputTable->GetValue( r, 4 ).ToDouble()
          << ", skewness = "
-         << outputTable->GetValue( 4, c ).ToDouble()
+         << outputTable->GetValue( r, 5 ).ToDouble()
          << ", kurtosis excess: sample = "
-         << outputTable->GetValue( 5, c ).ToDouble()
+         << outputTable->GetValue( r, 6 ).ToDouble()
          << ", G2 = "
-         << outputTable->GetValue( 6, c ).ToDouble()
+         << outputTable->GetValue( r, 7 ).ToDouble()
          << "\n";
     }
 
