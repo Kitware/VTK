@@ -52,7 +52,7 @@ vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.6");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.7");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -204,9 +204,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     if ( *it < 0 || *it >= nCol )
       {
       vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
-      this->SampleSize = 0;
-      return;
-    }
+      continue;
+      }
 
     double minVal = dataset->GetValue( 0, *it ).ToDouble();
     double maxVal = minVal;
@@ -285,31 +284,33 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {
-  vtkIdType nCol = dataset->GetNumberOfColumns();
-  if ( ! nCol )
+  vtkIdType nColD = dataset->GetNumberOfColumns();
+  if ( ! nColD )
     {
     vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     return;
     }
 
-  if ( params->GetNumberOfColumns() != nCol )
-    {
-    vtkWarningMacro( "Dataset and parameter tables do not have the same number of columns. Doing nothing." );
-    return;
-    }
-
-  vtkIdType nRow = dataset->GetNumberOfRows();
-  if ( ! nRow )
+  vtkIdType nRowD = dataset->GetNumberOfRows();
+  if ( ! nRowD )
     {
     vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
-  if ( params->GetNumberOfRows() < 2 )
+  vtkIdType nColP = params->GetNumberOfColumns();
+  if ( nColP != 3 )
     {
     vtkWarningMacro( "Parameter table has " 
-                     << params->GetNumberOfRows() 
-                     << " != 2 rows. Doing nothing." );
+                     << nColP
+                     << " != 3 columns. Doing nothing." );
+    return;
+    }
+
+  vtkIdType nRowP = params->GetNumberOfRows();
+  if ( ! nRowP )
+    {
+    vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -333,30 +334,46 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   
   for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
     {
-    if ( *it < 0 || *it >= nCol )
+    if ( *it < 0 || *it >= nColD )
       {
       vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
-      this->SampleSize = 0;
-      return;
-    }
-
-    double nomVal = params->GetValue( 0, *it ).ToDouble();
-    double accDev = params->GetValue( 1, *it ).ToDouble();
-    double minVal = nomVal - accDev;
-    double maxVal = nomVal + accDev;
-
-    double val;
-    for ( vtkIdType r = 0; r < nRow; ++ r )
+      continue;
+      }
+    
+    bool unfound = true;
+    for ( int i = 0; i < nRowP; ++ i )
       {
-      val  = dataset->GetValue( r, *it ).ToDouble();
-      if ( val < minVal || val > maxVal )
+      vtkIdType c = params->GetValue( i, 0 ).ToInt();
+      if ( c == *it )
         {
-        row->SetValue( 0, vtkVariant( *it ) );
-        row->SetValue( 1, vtkVariant( r ) );
-        row->SetValue( 2, vtkVariant( ( val - nomVal ) / accDev ) );
+        double center = params->GetValue( i, 1 ).ToDouble();
+        double radius = params->GetValue( i, 2 ).ToDouble();
+        double minimum = center - radius;
+        double maximum = center + radius;
 
-        output->InsertNextRow( row );
+        double value;
+        for ( vtkIdType r = 0; r < nRowD; ++ r )
+          {
+          value  = dataset->GetValue( r, c ).ToDouble();
+          if ( value < minimum || value > maximum )
+            {
+            row->SetValue( 0, c );
+            row->SetValue( 1, r );
+            row->SetValue( 2, ( value - center ) / radius );
+
+            output->InsertNextRow( row );
+            }
+          }
+
+        unfound = false;
+        break;
         }
+      }
+
+    if ( unfound )
+      {
+      vtkWarningMacro( "Parameter table does not a row for dataset table column "<<*it<<". Ignoring." );
+      continue;
       }
     }
   row->Delete();

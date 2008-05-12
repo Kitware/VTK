@@ -8,6 +8,7 @@
  */
 
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkTable.h"
 #include "vtkDescriptiveStatistics.h"
 
@@ -84,7 +85,8 @@ int TestDescriptiveStatistics( int, char *[] )
     47,
     };
   int nVals = 32;
-;
+ 
+  cout << "# Test Descriptive Statistics with 2 metrics and 3 indices (one invalid):\n";
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
@@ -107,26 +109,37 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
 
-  double nomValue[] = { 49.2188, 49.5 };
-  double allowedDev[] = { 1.5 * sqrt( 5.98286 ), 1.5 * sqrt( 7.54839 ) };
-
-  vtkDoubleArray* params1Arr = vtkDoubleArray::New();
-  params1Arr->SetNumberOfComponents( 1 );
-  params1Arr->SetName( "Params 1" );
-  params1Arr->InsertNextValue( nomValue[0] );
-  params1Arr->InsertNextValue( allowedDev[0] );
-
-  vtkDoubleArray* params2Arr = vtkDoubleArray::New();
-  params2Arr->SetNumberOfComponents( 1 );
-  params2Arr->SetName( "Params 2" );
-  params2Arr->InsertNextValue( nomValue[1] );
-  params2Arr->InsertNextValue( allowedDev[1] );
-
   vtkTable* paramsTable = vtkTable::New();
-  paramsTable->AddColumn( params1Arr );
-  params1Arr->Delete();
-  paramsTable->AddColumn( params2Arr );
-  params2Arr->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column" );
+  for ( int i = 0; i < 2; ++ i )
+    {
+    idTypeCol->InsertNextValue( i );
+    }
+  paramsTable->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  double centers[] = { 49.2188, 49.5 };
+  double radii[] = { 1.5 * sqrt( 5.98286 ), 1.5 * sqrt( 7.54839 ) };
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Nominal" );
+  for ( int i = 0; i < 2; ++ i )
+    {
+    doubleCol->InsertNextValue( centers[i] );
+    }
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Deviation" );
+  for ( int i = 0; i < 2; ++ i )
+    {
+    doubleCol->InsertNextValue( radii[i] );
+    }
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
 
   vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
   haruspex->SetInput( 0, datasetTable );
@@ -137,7 +150,7 @@ int TestDescriptiveStatistics( int, char *[] )
   paramsTable->Delete();
 
 // -- Select Columns of Interest -- 
-  haruspex->AddColumnRange( 0, 3 ); // Include an invalid index (2)
+  haruspex->AddColumnRange( 0, 4 ); // Include invalid indices 2 and 3
   haruspex->AddColumn( 1 ); // Try to add index 1 once more
   haruspex->RemoveColumn( 2 ); // Remove invalid index 2
 
@@ -154,6 +167,7 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "   "
          << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
          << ":";
+
     for ( int i = 1; i < 8; ++ i )
       {
       cout << " "
@@ -171,9 +185,9 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "   "
          << datasetTable->GetColumnName( c )
          << ": values that deviate of more than "
-         << allowedDev[c]
+         << radii[c]
          << " from "
-         << nomValue[c]
+         << centers[c]
          << ".\n";
       }
 
