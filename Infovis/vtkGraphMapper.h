@@ -176,12 +176,6 @@ public:
   virtual void GetBounds(double* bounds)
     { Superclass::GetBounds(bounds); }
 
-  // Description:
-  // Display parallel edges as arcs. Default is off.
-  virtual void SetArcEdges(bool b);
-  virtual bool GetArcEdges();
-  vtkBooleanMacro(ArcEdges, bool);
-
 protected:
   vtkGraphMapper();
   ~vtkGraphMapper();
@@ -204,7 +198,6 @@ protected:
   vtkSmartPointer<vtkGlyph3D>                    CircleOutlineGlyph;
   
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
-  vtkSmartPointer<vtkGraphToPolyData>            VertexGraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
   vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
   vtkSmartPointer<vtkArrayMap>                   IconTypeToIndex;

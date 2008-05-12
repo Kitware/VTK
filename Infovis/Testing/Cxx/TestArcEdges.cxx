@@ -1,9 +1,12 @@
 
 #include "vtkActor.h"
+#include "vtkArcParallelEdgeStrategy.h"
 #include "vtkCircularLayoutStrategy.h"
+#include "vtkEdgeLayout.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
+#include "vtkPassThroughEdgeStrategy.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRandomGraphSource.h"
@@ -23,10 +26,11 @@ int TestArcEdges(int argc, char* argv[])
   VTK_CREATE(vtkRandomGraphSource, source);
   VTK_CREATE(vtkGraphLayout, layout);
   VTK_CREATE(vtkCircularLayoutStrategy, strategy);
+  VTK_CREATE(vtkEdgeLayout, edgeLayout);
+  VTK_CREATE(vtkArcParallelEdgeStrategy, edgeStrategy);
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   VTK_CREATE(vtkPolyDataMapper, edgeMapper);
   VTK_CREATE(vtkActor, edgeActor);
-  VTK_CREATE(vtkGraphToPolyData, graphToPoints);
   VTK_CREATE(vtkVertexGlyphFilter, vertGlyph);
   VTK_CREATE(vtkPolyDataMapper, vertMapper);
   VTK_CREATE(vtkActor, vertActor);
@@ -42,16 +46,15 @@ int TestArcEdges(int argc, char* argv[])
   source->DirectedOff();
   layout->SetInputConnection(source->GetOutputPort());
   layout->SetLayoutStrategy(strategy);
-  graphToPoly->SetInputConnection(layout->GetOutputPort());
-  graphToPoly->ArcEdgesOn();
-  graphToPoly->SetNumberOfArcSubdivisions(50);
+  edgeStrategy->SetNumberOfSubdivisions(50);
+  edgeLayout->SetInputConnection(layout->GetOutputPort());
+  edgeLayout->SetLayoutStrategy(edgeStrategy);
+  graphToPoly->SetInputConnection(edgeLayout->GetOutputPort());
   edgeMapper->SetInputConnection(graphToPoly->GetOutputPort());
   edgeActor->SetMapper(edgeMapper);
   ren->AddActor(edgeActor);
 
-
-  graphToPoints->SetInputConnection(layout->GetOutputPort());
-  vertGlyph->SetInputConnection(graphToPoints->GetOutputPort());
+  vertGlyph->SetInputConnection(edgeLayout->GetOutputPort());
   vertMapper->SetInputConnection(vertGlyph->GetOutputPort());
   vertActor->SetMapper(vertMapper);
   vertActor->GetProperty()->SetPointSize(1);

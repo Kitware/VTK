@@ -21,6 +21,7 @@
 #include "vtkGraph.h"
 
 #include "vtkAdjacentVertexIterator.h"
+#include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
@@ -72,14 +73,16 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.15");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.16");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.15");
+vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkPoints);
+vtkCxxSetObjectMacro(vtkGraph, EdgeCells, vtkCellArray);
+vtkCxxRevisionMacro(vtkGraph, "1.16");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -95,6 +98,8 @@ vtkGraph::vtkGraph()
 
   this->Internals = vtkGraphInternals::New();
   this->EdgeList = 0;
+  this->EdgePoints = 0;
+  this->EdgeCells = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -110,6 +115,14 @@ vtkGraph::~vtkGraph()
   if (this->EdgeList)
     {
     this->EdgeList->Delete();
+    }
+  if (this->EdgePoints)
+    {
+    this->EdgePoints->Delete();
+    }
+  if (this->EdgeCells)
+    {
+    this->EdgeCells->Delete();
     }
 }
 
@@ -468,12 +481,12 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   // Copy edge list
   if (g->EdgeList)
     {
-    if (!this->EdgeList)
-      {
-      this->EdgeList = vtkIdTypeArray::New();
-      }
     if (deep)
       {
+      if (!this->EdgeList)
+        {
+        this->EdgeList = vtkIdTypeArray::New();
+        }
       this->EdgeList->DeepCopy(g->EdgeList);
       }
     else
@@ -486,6 +499,52 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     {
     this->EdgeList->Delete();
     this->EdgeList = 0;
+    }
+
+  // Copy edge points
+  if (g->EdgePoints)
+    {
+    if (deep)
+      {
+      if (!this->EdgePoints)
+        {
+        this->EdgePoints = vtkPoints::New();
+        }
+      this->EdgePoints->DeepCopy(g->EdgePoints);
+      }
+    else
+      {
+      this->EdgePoints = g->EdgePoints;
+      this->EdgePoints->Register(this);
+      }
+    }
+  else if (this->EdgePoints)
+    {
+    this->EdgePoints->Delete();
+    this->EdgePoints = 0;
+    }
+
+  // Copy edge cells
+  if (g->EdgeCells)
+    {
+    if (deep)
+      {
+      if (!this->EdgeCells)
+        {
+        this->EdgeCells = vtkCellArray::New();
+        }
+      this->EdgeCells->DeepCopy(g->EdgeCells);
+      }
+    else
+      {
+      this->EdgeCells = g->EdgeCells;
+      this->EdgeCells->Register(this);
+      }
+    }
+  else if (this->EdgeCells)
+    {
+    this->EdgeCells->Delete();
+    this->EdgeCells = 0;
     }
 }
 
@@ -661,6 +720,16 @@ void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
   if (this->EdgeData)
     {
     this->EdgeData->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "EdgePoints: " << (this->EdgePoints ? "" : "(none)") << endl;
+  if (this->EdgePoints)
+    {
+    this->EdgePoints->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "EdgeCells: " << (this->EdgeCells ? "" : "(none)") << endl;
+  if (this->EdgeCells)
+    {
+    this->EdgeCells->PrintSelf(os, indent.GetNextIndent());
     }
 }
 

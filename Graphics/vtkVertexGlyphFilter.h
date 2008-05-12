@@ -24,7 +24,8 @@
 // a vertex on each point.  The intended use of this filter is roughly
 // equivalent to the vtkGlyph3D filter, except this filter is specifically for
 // data that has many vertices, making the rendered result faster and less
-// cluttered than the glyph filter.
+// cluttered than the glyph filter. This filter may take a graph or point set
+// as input.
 //
 
 #ifndef _vtkVertexGlyphFilter_h

@@ -113,6 +113,7 @@
 #include "vtkDataObject.h"
 
 class vtkAdjacentVertexIterator;
+class vtkCellArray;
 class vtkEdgeListIterator;
 class vtkDataSetAttributes;
 class vtkGraphInternals;
@@ -331,6 +332,18 @@ public:
   vtkIdType GetSourceVertex(vtkIdType e);
   vtkIdType GetTargetVertex(vtkIdType e);
 
+  // Description:
+  // Set/Get points needed for edges. This is null until an edge layout
+  // algorithm is performed on the graph.
+  vtkGetObjectMacro(EdgePoints, vtkPoints);
+  virtual void SetEdgePoints(vtkPoints *pts);
+
+  // Description:
+  // Set/Get cells representing each edge. This is null until an edge layout
+  // algorithm is performed on the graph.
+  vtkGetObjectMacro(EdgeCells, vtkCellArray);
+  virtual void SetEdgeCells(vtkCellArray *cells);
+
 protected:
   //BTX
   vtkGraph();
@@ -408,6 +421,16 @@ protected:
   // Description:
   // The optional mapping from edge id to source/target ids.
   vtkIdTypeArray *EdgeList;
+
+  // Description:
+  // Points needed for edges. This is null until an edge layout
+  // algorithm is performed on the graph.
+  vtkPoints *EdgePoints;
+
+  // Description:
+  // Cells representing each edge. This is null until an edge layout
+  // algorithm is performed on the graph.
+  vtkCellArray *EdgeCells;
   //ETX
 private:
   vtkGraph(const vtkGraph&);  // Not implemented.

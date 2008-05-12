@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkWidgetsJava)
 SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES})
 
 SET( Kit_SRCS
+vtkArcParallelEdgeStrategy.cxx
 vtkArrayMap.cxx
 vtkAssignCoordinates.cxx
 vtkBoxLayoutStrategy.cxx
@@ -19,6 +20,8 @@ vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkDescriptiveStatistics.cxx
 vtkEdgeCenters.cxx
+vtkEdgeLayout.cxx
+vtkEdgeLayoutStrategy.cxx
 vtkExtractSelectedGraph.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
@@ -35,6 +38,7 @@ vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
 vtkPassThrough.cxx
+vtkPassThroughEdgeStrategy.cxx
 vtkPassThroughLayoutStrategy.cxx
 vtkPruneTreeFilter.cxx
 vtkRISReader.cxx
@@ -102,6 +106,7 @@ IF(VTK_HAS_UINT64_ARRAY)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx

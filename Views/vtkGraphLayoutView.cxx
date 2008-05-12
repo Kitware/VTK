@@ -23,6 +23,7 @@
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkArcParallelEdgeStrategy.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkCircularLayoutStrategy.h"
@@ -34,6 +35,7 @@
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
 #include "vtkEdgeCenters.h"
+#include "vtkEdgeLayout.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkFast2DLayoutStrategy.h"
 #include "vtkForceDirectedLayoutStrategy.h"
@@ -47,6 +49,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPassThroughLayoutStrategy.h"
+#include "vtkPassThroughEdgeStrategy.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -65,7 +68,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.30");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.31");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -81,6 +84,9 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ForceDirectedStrategy  = vtkSmartPointer<vtkForceDirectedLayoutStrategy>::New();
   this->PassThroughStrategy    = vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();
   this->CircularStrategy       = vtkSmartPointer<vtkCircularLayoutStrategy>::New();
+  this->EdgeLayout             = vtkSmartPointer<vtkEdgeLayout>::New();
+  this->ArcParallelStrategy    = vtkSmartPointer<vtkArcParallelEdgeStrategy>::New();
+  this->PassThroughEdgeStrategy = vtkSmartPointer<vtkPassThroughEdgeStrategy>::New();
   this->VertexDegree           = vtkSmartPointer<vtkVertexDegree>::New();
   this->EdgeCenters            = vtkSmartPointer<vtkEdgeCenters>::New();
   this->GraphMapper            = vtkSmartPointer<vtkGraphMapper>::New();
@@ -96,6 +102,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
   
   this->LayoutStrategyNameInternal = 0;
+  this->EdgeLayoutStrategyNameInternal = 0;
   this->SelectionArrayNameInternal = 0;
   this->IconArrayNameInternal = 0;
   
@@ -141,6 +148,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
   this->SetLayoutStrategyToFast2D();
+  this->SetEdgeLayoutStrategyToArcParallel();
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -148,7 +156,8 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   theme->Delete();
   
   // Connect pipeline
-  this->VertexDegree->SetInputConnection(this->GraphLayout->GetOutputPort());
+  this->EdgeLayout->SetInputConnection(this->GraphLayout->GetOutputPort());
+  this->VertexDegree->SetInputConnection(this->EdgeLayout->GetOutputPort());
   
   this->GraphMapper->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->GraphActor->SetMapper(this->GraphMapper);
@@ -159,7 +168,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->EdgeLabelActor->SetMapper(this->EdgeLabelMapper);
 
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
-  this->ExtractSelectedGraph->SetInputConnection(0, this->GraphLayout->GetOutputPort());
+  this->ExtractSelectedGraph->SetInputConnection(0, this->EdgeLayout->GetOutputPort());
   vtkSelection* empty = vtkSelection::New();
   empty->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
   vtkIdTypeArray* arr = vtkIdTypeArray::New();
@@ -179,9 +188,12 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   // Note: All of the smartpointer objects 
   //       will be deleted for us
     
-  vtkGraphLayoutStrategy *nothing = 0;
-  this->SetLayoutStrategy(nothing);
+  vtkGraphLayoutStrategy *nullGraphLayout = 0;
+  this->SetLayoutStrategy(nullGraphLayout);
+  vtkEdgeLayoutStrategy *nullEdgeLayout = 0;
+  this->SetEdgeLayoutStrategy(nullEdgeLayout);
   this->SetLayoutStrategyNameInternal(0);
+  this->SetEdgeLayoutStrategyNameInternal(0);
   this->SetSelectionArrayNameInternal(0);
   this->SetIconArrayNameInternal(0);
 }
@@ -328,19 +340,6 @@ void vtkGraphLayoutView::ColorEdgesOn()
 void vtkGraphLayoutView::ColorEdgesOff()
 {
   this->GraphMapper->ColorEdgesOff();
-}
-
-//----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetArcEdges(bool b)
-{
-  this->GraphMapper->SetArcEdges(b);
-  this->SelectedGraphMapper->SetArcEdges(b);
-}
-
-//----------------------------------------------------------------------------
-bool vtkGraphLayoutView::GetArcEdges()
-{
-  return this->GraphMapper->GetArcEdges();
 }
 
 //----------------------------------------------------------------------------
@@ -512,6 +511,56 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
     }
   this->GraphLayout->SetLayoutStrategy(this->LayoutStrategy);
   this->SetLayoutStrategyNameInternal(name);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s)
+{
+  this->EdgeLayoutStrategy = s;
+  this->EdgeLayout->SetLayoutStrategy(this->EdgeLayoutStrategy);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEdgeLayoutStrategy(const char* name)
+{
+  this->EdgeLayoutStrategy = this->ArcParallelStrategy;
+  if (!name)
+    {
+    return;
+    }
+  
+  // Take out spaces and make lowercase.
+  char str[20];
+  strncpy(str, name, 20);
+  int pos = 0;
+  for (int i = 0; str[i] != '\0' && i < 20; i++, pos++)
+    {
+    if (str[i] == ' ')
+      {
+      pos--;
+      }
+    else
+      {
+      str[pos] = tolower(str[i]);
+      }
+    }
+  str[pos] = '\0';
+  
+  if (!strcmp(str, "arcparallel"))
+    {
+    this->EdgeLayoutStrategy = this->ArcParallelStrategy;
+    }
+  else if (!strcmp(str, "passthrough"))
+    {
+    this->EdgeLayoutStrategy = this->PassThroughEdgeStrategy;
+    }
+  else
+    {
+    vtkErrorMacro("Unknown strategy " << name << " (" << str << ").");
+    return;
+    }
+  this->EdgeLayout->SetLayoutStrategy(this->EdgeLayoutStrategy);
+  this->SetEdgeLayoutStrategyNameInternal(name);
 }
 
 //----------------------------------------------------------------------------

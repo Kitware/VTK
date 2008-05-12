@@ -19,6 +19,7 @@
 #include "vtkVertexGlyphFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -30,7 +31,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkVertexGlyphFilter, "1.1");
+vtkCxxRevisionMacro(vtkVertexGlyphFilter, "1.2");
 vtkStandardNewMacro(vtkVertexGlyphFilter);
 
 //-----------------------------------------------------------------------------
@@ -52,7 +53,9 @@ void vtkVertexGlyphFilter::PrintSelf(ostream &os, vtkIndent indent)
 
 int vtkVertexGlyphFilter::FillInputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
@@ -67,12 +70,22 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Get the input and output.
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
+  vtkPointSet *psInput = vtkPointSet::SafeDownCast(
+                                     inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph *graphInput = vtkGraph::SafeDownCast(
                                      inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
                                     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *points = input->GetPoints();
+  vtkPoints *points = 0;
+  if (psInput)
+    {
+    points = psInput->GetPoints();
+    }
+  else
+    {
+    points = graphInput->GetPoints();
+    }
 
   // If no points, then nothing to do.
   if (points == NULL)
@@ -83,7 +96,14 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   output->SetPoints(points);
   vtkIdType numPoints = points->GetNumberOfPoints();
 
-  output->GetPointData()->PassData(input->GetPointData());
+  if (psInput)
+    {
+    output->GetPointData()->PassData(psInput->GetPointData());
+    }
+  else
+    {
+    output->GetPointData()->PassData(graphInput->GetVertexData());
+    }
 
   VTK_CREATE(vtkCellArray, cells);
   cells->Allocate(2*numPoints);
