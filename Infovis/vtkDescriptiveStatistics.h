@@ -20,14 +20,14 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkDescriptiveStatistics - A class for descriptive statistics
 //
 // .SECTION Description
-// This class provides the following functionalities, depending on the
+// Given a selection of columns of interest in an input data table, this 
+// class provides the following functionalities, depending on the
 // execution mode it is executed in:
-// * Learn: given an input data set, calculate its extremal values, arithmetic
-//   mean, unbiased variance estimator, skewness estimator, and both sample
-//   and G2 estimation of the kurtosis excess. More precisely, ExecuteLearn
-//   always calculates the sums; if the \a finalize parameter is
-//   set to true (default), the final statistics are calculated with the 
-//   function CalculateFromSums. Otherwise, only raw sums are output; this 
+// * Learn: calculate extremal values, arithmetic mean, unbiased variance 
+//   estimator, skewness estimator, and both sample and G2 estimation of the 
+//   kurtosis excess. More precisely, ExecuteLearn calculates the sums; if
+//   \p finalize is set to true (default), the final statistics are calculated
+//   with CalculateFromSums. Otherwise, only raw sums are output; this 
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
