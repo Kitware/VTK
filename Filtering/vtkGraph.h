@@ -420,6 +420,8 @@ protected:
 
   // Description:
   // The optional mapping from edge id to source/target ids.
+  vtkGetObjectMacro(EdgeList, vtkIdTypeArray);
+  virtual void SetEdgeList(vtkIdTypeArray* list);
   vtkIdTypeArray *EdgeList;
 
   // Description:

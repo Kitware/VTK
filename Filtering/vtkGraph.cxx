@@ -73,7 +73,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.16");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.17");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -82,7 +82,8 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeCells, vtkCellArray);
-vtkCxxRevisionMacro(vtkGraph, "1.16");
+vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
+vtkCxxRevisionMacro(vtkGraph, "1.17");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -479,72 +480,45 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     }
 
   // Copy edge list
-  if (g->EdgeList)
+  if (g->EdgeList && deep)
     {
-    if (deep)
+    if (!this->EdgeList)
       {
-      if (!this->EdgeList)
-        {
-        this->EdgeList = vtkIdTypeArray::New();
-        }
-      this->EdgeList->DeepCopy(g->EdgeList);
+      this->EdgeList = vtkIdTypeArray::New();
       }
-    else
-      {
-      this->EdgeList = g->EdgeList;
-      this->EdgeList->Register(this);
-      }
+    this->EdgeList->DeepCopy(g->EdgeList);
     }
-  else if (this->EdgeList)
+  else
     {
-    this->EdgeList->Delete();
-    this->EdgeList = 0;
+    this->SetEdgeList(g->EdgeList);
     }
 
   // Copy edge points
-  if (g->EdgePoints)
+  if (g->EdgePoints && deep)
     {
-    if (deep)
+    if (!this->EdgePoints)
       {
-      if (!this->EdgePoints)
-        {
-        this->EdgePoints = vtkPoints::New();
-        }
-      this->EdgePoints->DeepCopy(g->EdgePoints);
+      this->EdgePoints = vtkPoints::New();
       }
-    else
-      {
-      this->EdgePoints = g->EdgePoints;
-      this->EdgePoints->Register(this);
-      }
+    this->EdgePoints->DeepCopy(g->EdgePoints);
     }
-  else if (this->EdgePoints)
+  else
     {
-    this->EdgePoints->Delete();
-    this->EdgePoints = 0;
+    this->SetEdgePoints(g->EdgePoints);
     }
 
   // Copy edge cells
-  if (g->EdgeCells)
+  if (g->EdgeCells && deep)
     {
-    if (deep)
+    if (!this->EdgeCells)
       {
-      if (!this->EdgeCells)
-        {
-        this->EdgeCells = vtkCellArray::New();
-        }
-      this->EdgeCells->DeepCopy(g->EdgeCells);
+      this->EdgeCells = vtkCellArray::New();
       }
-    else
-      {
-      this->EdgeCells = g->EdgeCells;
-      this->EdgeCells->Register(this);
-      }
+    this->EdgeCells->DeepCopy(g->EdgeCells);
     }
-  else if (this->EdgeCells)
+  else
     {
-    this->EdgeCells->Delete();
-    this->EdgeCells = 0;
+    this->SetEdgeCells(g->EdgeCells);
     }
 }
 

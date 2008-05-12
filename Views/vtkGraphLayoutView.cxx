@@ -68,7 +68,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.31");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.32");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -932,6 +932,12 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   if (this->LayoutStrategy)
     {
     this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());   
+    }
+  os << indent << "EdgeLayoutStrategy: " 
+     << (this->EdgeLayoutStrategy ? "" : "(none)") << endl;
+  if (this->EdgeLayoutStrategy)
+    {
+    this->EdgeLayoutStrategy->PrintSelf(os, indent.GetNextIndent());   
     }
   if (this->GetRepresentation())
     {
