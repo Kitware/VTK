@@ -30,23 +30,83 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.2");
+#include <vtkstd/set>
+
+// = Start Private Implementation =======================================
+class vtkDescriptiveStatisticsPrivate
+{
+public:
+  vtkDescriptiveStatisticsPrivate();
+  ~vtkDescriptiveStatisticsPrivate();
+
+  vtkstd::set<vtkIdType> Columns;
+};
+
+vtkDescriptiveStatisticsPrivate::vtkDescriptiveStatisticsPrivate()
+{
+}
+
+vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
+{
+}
+
+// = End Private Implementation =========================================
+
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.3");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
+  this->Internals = new vtkDescriptiveStatisticsPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 {
+  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::ResetColumns()
+{
+  this->Internals->Columns.clear();
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::AddColumn( vtkIdType idxCol )
+{
+ this->Internals->Columns.insert( idxCol );
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::RemoveColumn( vtkIdType idxCol )
+{
+ this->Internals->Columns.erase( idxCol );
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
+{
+  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
+    {
+    this->Internals->Columns.insert( idxCol );
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
+{
+  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
+    {
+    this->Internals->Columns.erase( idxCol );
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -69,13 +129,20 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  for ( vtkIdType c = 0; c < nCol; ++ c )
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
     {
+    if ( *it < 0 || *it >= nCol )
+      {
+      vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
+      this->SampleSize = 0;
+      return;
+    }
+
     vtkDoubleArray* outputArr = vtkDoubleArray::New();
     outputArr->SetNumberOfComponents( 1 );
-    outputArr->SetName( dataset->GetColumn( c )->GetName() );
+    outputArr->SetName( dataset->GetColumn( *it )->GetName() );
 
-    double minVal = dataset->GetValue( 0, c ).ToDouble();
+    double minVal = dataset->GetValue( 0, *it ).ToDouble();
     double maxVal = minVal;
 
     double val  = 0.;
@@ -86,7 +153,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     double sum4 = 0.;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      val  = dataset->GetValue( r, c ).ToDouble();
+      val  = dataset->GetValue( r, *it ).ToDouble();
       val2 = val * val;
       sum1 += val;
       sum2 += val2;
@@ -190,20 +257,20 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
   
-  for ( vtkIdType c = 0; c < nCol; ++ c )
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
     {
-    double nomVal = params->GetValue( 0, c ).ToDouble();
-    double accDev = params->GetValue( 1, c ).ToDouble();
+    double nomVal = params->GetValue( 0, *it ).ToDouble();
+    double accDev = params->GetValue( 1, *it ).ToDouble();
     double minVal = nomVal - accDev;
     double maxVal = nomVal + accDev;
 
     double val;
     for ( vtkIdType r = 0; r < nRow; ++ r )
       {
-      val  = dataset->GetValue( r, c ).ToDouble();
+      val  = dataset->GetValue( r, *it ).ToDouble();
       if ( val < minVal || val > maxVal )
         {
-        row->SetValue( 0, vtkVariant( c ) );
+        row->SetValue( 0, vtkVariant( *it ) );
         row->SetValue( 1, vtkVariant( r ) );
         row->SetValue( 2, vtkVariant( ( val - nomVal ) / accDev ) );
 

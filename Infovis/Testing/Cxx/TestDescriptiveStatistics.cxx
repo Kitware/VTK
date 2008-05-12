@@ -136,6 +136,11 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable->Delete();
   paramsTable->Delete();
 
+// -- Select Columns of Interest -- 
+  haruspex->AddColumnRange( 0, 3 ); // Include an invalid index (2)
+  haruspex->AddColumn( 1 ); // Try to add index 1 once more
+  haruspex->RemoveColumn( 2 ); // Remove invalid index 2
+
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->Update();

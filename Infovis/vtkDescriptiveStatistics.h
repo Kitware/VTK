@@ -45,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStatisticsAlgorithm.h"
 
+class vtkDescriptiveStatisticsPrivate;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
@@ -53,6 +54,31 @@ public:
   vtkTypeRevisionMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
+
+  // Description:
+  // Reset list of columns of interest
+  void ResetColumns();
+
+  // Description:
+  // Add column index \p idxCol to the list of columns of interest
+  // Warning: no range checking is performed on \p idxCol; it is the user's
+  // responsibility to use valid column indices.
+  void AddColumn( vtkIdType idxCol );
+
+  // Description:
+  // Remove (if it exists) column index \p idxCol to the list of columns of interest
+  void RemoveColumn( vtkIdType idxCol );
+
+  // Description:
+  // Add column indices from \p idxColBegin (included) to \p idxColEnd (excluded).
+  // Warning: no range checking is performed on \p idxColBegin nor \p idxColEnd; it is 
+  // the user's responsibility to use valid column indices.
+  void AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
+
+  // Description:
+  // Remove column indices from \p idxColBegin (included) to \p idxColEnd (excluded),
+  // for those which are present.
+  void RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
 
   // Description:
   // Calculate descriptive statistics estimators from the raw moments: 
@@ -75,6 +101,8 @@ public:
     { 
     return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5] );
     }
+
+  vtkDescriptiveStatisticsPrivate* Internals;
 
 protected:
   vtkDescriptiveStatistics();
