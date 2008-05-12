@@ -58,7 +58,6 @@ vtkProcessIdScalars.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkRectilinearGridOutlineFilter.cxx
-vtkRTAnalyticSource.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 vtkSubCommunicator.cxx

@@ -110,6 +110,7 @@ vtkImageWrapPad.cxx
 vtkImageWeightedSum.cxx
 vtkImplicitFunctionToImageStencil.cxx
 vtkPointLoad.cxx
+vtkRTAnalyticSource.cxx
 vtkSampleFunction.cxx
 vtkShepardMethod.cxx
 vtkSimpleImageFilterExample.cxx

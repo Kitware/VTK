@@ -24,10 +24,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.23");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.1");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 vtkRTAnalyticSource::vtkRTAnalyticSource()
 {
   this->Maximum = 255.0;
@@ -52,8 +52,7 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
   this->SubsampleRate = 1;
 }
 
-
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, 
                                          int yMin, int yMax,
                                          int zMin, int zMax)
@@ -96,14 +95,14 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
     }
 }
 
-//----------------------------------------------------------------------------
-int vtkRTAnalyticSource::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector *outputVector)
+// ----------------------------------------------------------------------------
+int vtkRTAnalyticSource::RequestInformation(
+   vtkInformation *vtkNotUsed(request),
+   vtkInformationVector **vtkNotUsed(inputVector),
+   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   
   int tmpExt[6], i;
   for (i = 0; i < 3; i++)
@@ -139,7 +138,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   data = this->AllocateOutputData(output);
   if (data->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro("Execute: This source only outputs doubles");
+    vtkErrorMacro("Execute: This source only outputs floats");
     return;
     }
   if (data->GetNumberOfPoints() <= 0)
@@ -167,9 +166,9 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = static_cast<float *>(data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
   
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Loop through ouput pixels
@@ -255,5 +254,3 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SubsampleRate: " << this->SubsampleRate << endl;
 }
-
-
