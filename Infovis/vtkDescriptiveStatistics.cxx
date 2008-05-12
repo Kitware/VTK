@@ -52,7 +52,7 @@ vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.4");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.5");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -192,6 +192,11 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     doubleCol->SetName( "Sum x4" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
+
+    idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Cardinality" );
+    output->AddColumn( idTypeCol );
+    idTypeCol->Delete();
     }
 
   for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
@@ -231,10 +236,10 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
+    row->SetNumberOfValues( 8 );
+
     if ( finalize )
       {
-      row->SetNumberOfValues( 8 );
-  
       double G2;
       this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, G2 );
 
@@ -246,13 +251,9 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 5, sum3 );
       row->SetValue( 6, sum4 );
       row->SetValue( 7, G2 );
-
-      output->InsertNextRow( row );
       }
     else
       {
-      row->SetNumberOfValues( 7 );
-  
       row->SetValue( 0, *it );
       row->SetValue( 1, minVal );
       row->SetValue( 2, maxVal );
@@ -260,9 +261,10 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 4, sum2 );
       row->SetValue( 5, sum3 );
       row->SetValue( 6, sum4 );
-
-      output->InsertNextRow( row );
+      row->SetValue( 7, this->SampleSize );
       }
+
+    output->InsertNextRow( row );
 
     row->Delete();
     }
