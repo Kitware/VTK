@@ -32,7 +32,7 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
-vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.1");
+vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.2");
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
 {
@@ -81,10 +81,7 @@ void vtkArcParallelEdgeStrategy::Layout()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
   avgEdgeLength /= numEdges;
   double maxLoopHeight = avgEdgeLength / 10.0;
-  vtkSmartPointer<vtkCellArray> newLines =
-    vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPoints> newPoints =
-    vtkSmartPointer<vtkPoints>::New();
+  double* pts = new double[this->NumberOfSubdivisions*3];
   for (vtkIdType eid = 0; eid < numEdges; ++eid)
     {
     vtkEdgeType e = edgeVector[eid];
@@ -118,14 +115,16 @@ void vtkArcParallelEdgeStrategy::Layout()
     // just draw a straight line.
     if (total + revTotal == 1)
       {
-      newLines->InsertNextCell(2);
-      newLines->InsertCellPoint(newPoints->InsertNextPoint(sourcePt));
-      newLines->InsertCellPoint(newPoints->InsertNextPoint(targetPt));
+      double pt[6];
+      pt[0] = sourcePt[0];
+      pt[1] = sourcePt[1];
+      pt[2] = sourcePt[2];
+      pt[3] = targetPt[0];
+      pt[4] = targetPt[1];
+      pt[5] = targetPt[2];
+      this->Graph->SetEdgePoints(e.Id, 2, pt);
       continue;
       }
-
-    // Create the new cell
-    newLines->InsertNextCell(this->NumberOfSubdivisions);
 
     // Find vector from source to target
     double delta[3];
@@ -151,13 +150,12 @@ void vtkArcParallelEdgeStrategy::Layout()
         double circlePt[3];
         for (int c = 0; c < 3; ++c)
           {
-          circlePt[c] = center[c] 
+          pts[3*s + c] = center[c] 
             + radius*cos(angle)*u[c] 
             + radius/2.0*sin(angle)*v[c];
           }
-        vtkIdType newPt = newPoints->InsertNextPoint(circlePt);
-        newLines->InsertCellPoint(newPt);
         }
+      this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
       continue;
       }
 
@@ -249,16 +247,14 @@ void vtkArcParallelEdgeStrategy::Layout()
       double circlePt[3];
       for (int c = 0; c < 3; ++c)
         {
-        circlePt[c] = center[c] 
+        pts[3*s + c] = center[c] 
           + radius*cos(angle)*u[c] 
           + radius*sin(angle)*v[c];
         }
-      vtkIdType newPt = newPoints->InsertNextPoint(circlePt);
-      newLines->InsertCellPoint(newPt);
       }
+    this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
     }
-  this->Graph->SetEdgePoints(newPoints);
-  this->Graph->SetEdgeCells(newLines);
+  delete [] pts;
 }
 
 void vtkArcParallelEdgeStrategy::PrintSelf(ostream& os, vtkIndent indent)

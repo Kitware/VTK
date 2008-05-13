@@ -20,6 +20,7 @@
 
 #include "vtkExtractSelectedGraph.h"
 
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
@@ -46,7 +47,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.22");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.23");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -193,16 +194,22 @@ int vtkExtractSelectedGraph::RequestData(
     }
   vtkIdType selectSize = selectArr->GetNumberOfTuples();
   
-  bool directed = false;
-  if (vtkDirectedGraph::SafeDownCast(input))
-    {
-    directed = true;
-    }
-
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder = 
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+  bool directed;
+  vtkGraph* builder = 0;
+  if (vtkDirectedGraph::SafeDownCast(input))
+    {
+    directed = true;
+    builder = dirBuilder;
+    }
+  else
+    {
+    directed = false;
+    builder = undirBuilder;
+    }
 
   if (selection->GetProperties()->Has(vtkSelection::FIELD_TYPE()) && 
       selection->GetProperties()->Get(vtkSelection::FIELD_TYPE()) == vtkSelection::EDGE)
@@ -212,18 +219,8 @@ int vtkExtractSelectedGraph::RequestData(
     //
 
     vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
-    vtkDataSetAttributes *builderEdgeData = 0;
-    if (directed)
-      {
-      builderEdgeData = dirBuilder->GetEdgeData();
-      }
-    else
-      {
-      builderEdgeData = undirBuilder->GetEdgeData();
-      }
-
+    vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
     builderEdgeData->CopyAllocate(inputEdgeData);
-
 
     // Handle the case where we are not outputing isolated vertices separately:
     if(this->RemoveIsolatedVertices)
@@ -483,17 +480,9 @@ int vtkExtractSelectedGraph::RequestData(
 
     // Copy edges whose source and target are selected.
     vtkDataSetAttributes *inputEdgeData = input->GetEdgeData();
-    vtkDataSetAttributes *builderEdgeData = 0;
-    if (directed)
-      {
-      builderEdgeData = dirBuilder->GetEdgeData();
-      }
-    else
-      {
-      builderEdgeData = undirBuilder->GetEdgeData();
-      }
+    vtkDataSetAttributes *builderEdgeData = builder->GetEdgeData();
     builderEdgeData->CopyAllocate(inputEdgeData);
-
+    
     vtkSmartPointer<vtkEdgeListIterator> edges = 
       vtkSmartPointer<vtkEdgeListIterator>::New();
     input->GetEdges(edges);
@@ -512,8 +501,13 @@ int vtkExtractSelectedGraph::RequestData(
           outputEdge = undirBuilder->AddEdge(idMap[e.Source], idMap[e.Target]);
           }
         builderEdgeData->CopyData(inputEdgeData, e.Id, outputEdge.Id);
+        // Copy edge layout to the output.
+        vtkIdType npts;
+        double* pts;
+        input->GetEdgePoints(e.Id, npts, pts);
+        builder->SetEdgePoints(outputEdge.Id, npts, pts);
         }
-      }    
+      }
     }
 
   // Pass constructed graph to output.

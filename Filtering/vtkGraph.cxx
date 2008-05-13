@@ -64,26 +64,44 @@ public:
 protected:
   vtkGraphInternals()
     { this->NumberOfEdges = 0; }
-  ~vtkGraphInternals()
-    { }
+  ~vtkGraphInternals() { }
 
 private:
   vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
   void operator=(const vtkGraphInternals&);  // Not implemented.
 };
-
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.17");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.18");
+
+//----------------------------------------------------------------------------
+// private class vtkGraphEdgePoints
+//----------------------------------------------------------------------------
+class vtkGraphEdgePoints : public vtkObject
+{
+public:
+  static vtkGraphEdgePoints *New();
+  vtkTypeRevisionMacro(vtkGraphEdgePoints, vtkObject);
+  vector< vector<double> > Storage;
+
+protected:
+  vtkGraphEdgePoints() { }
+  ~vtkGraphEdgePoints() { }
+
+private:
+  vtkGraphEdgePoints(const vtkGraphEdgePoints&);  // Not implemented.
+  void operator=(const vtkGraphEdgePoints&);  // Not implemented.
+};
+vtkStandardNewMacro(vtkGraphEdgePoints);
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.18");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkPoints);
-vtkCxxSetObjectMacro(vtkGraph, EdgeCells, vtkCellArray);
+vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.17");
+vtkCxxRevisionMacro(vtkGraph, "1.18");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -98,9 +116,8 @@ vtkGraph::vtkGraph()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Internals = vtkGraphInternals::New();
-  this->EdgeList = 0;
   this->EdgePoints = 0;
-  this->EdgeCells = 0;
+  this->EdgeList = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -120,10 +137,6 @@ vtkGraph::~vtkGraph()
   if (this->EdgePoints)
     {
     this->EdgePoints->Delete();
-    }
-  if (this->EdgeCells)
-    {
-    this->EdgeCells->Delete();
     }
 }
 
@@ -237,6 +250,10 @@ void vtkGraph::Initialize()
   this->VertexData->Initialize();
   this->Internals->NumberOfEdges = 0;
   this->Internals->Adjacency.clear();
+  if (this->EdgePoints)
+    {
+    this->EdgePoints->Storage.clear();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -450,33 +467,27 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     {
     this->EdgeData->DeepCopy(g->EdgeData);
     this->VertexData->DeepCopy(g->VertexData);
+    this->DeepCopyEdgePoints(g);
     }
   else
     {
     this->EdgeData->ShallowCopy(g->EdgeData);
     this->VertexData->ShallowCopy(g->VertexData);
+    this->ShallowCopyEdgePoints(g);
     }
 
   // Copy points
-  if (g->Points)
+  if (g->Points && deep)
     {
     if (!this->Points)
       {
       this->Points = vtkPoints::New();
       }
-    if (deep)
-      {
-      this->Points->DeepCopy(g->Points);
-      }
-    else
-      {
-      this->Points->ShallowCopy(g->Points);
-      }
+    this->Points->DeepCopy(g->Points);
     }
-  else if (this->Points)
+  else
     {
-    this->Points->Delete();
-    this->Points = 0;
+    this->SetPoints(g->Points);
     }
 
   // Copy edge list
@@ -491,34 +502,6 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   else
     {
     this->SetEdgeList(g->EdgeList);
-    }
-
-  // Copy edge points
-  if (g->EdgePoints && deep)
-    {
-    if (!this->EdgePoints)
-      {
-      this->EdgePoints = vtkPoints::New();
-      }
-    this->EdgePoints->DeepCopy(g->EdgePoints);
-    }
-  else
-    {
-    this->SetEdgePoints(g->EdgePoints);
-    }
-
-  // Copy edge cells
-  if (g->EdgeCells && deep)
-    {
-    if (!this->EdgeCells)
-      {
-      this->EdgeCells = vtkCellArray::New();
-      }
-    this->EdgeCells->DeepCopy(g->EdgeCells);
-    }
-  else
-    {
-    this->SetEdgeCells(g->EdgeCells);
     }
 }
 
@@ -597,6 +580,198 @@ void vtkGraph::BuildEdgeList()
     this->EdgeList->SetValue(2*e.Id + 1, e.Target);
     }
   it->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts)
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return;
+    }
+  if (!this->EdgePoints)
+    {
+    this->EdgePoints = vtkGraphEdgePoints::New();
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  this->EdgePoints->Storage[e].clear();
+  for (vtkIdType i = 0; i < 3*npts; ++i, ++pts)
+    {
+    this->EdgePoints->Storage[e].push_back(*pts);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return;
+    }
+  if (!this->EdgePoints)
+    {
+    npts = 0;
+    pts = 0;
+    return;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  npts = this->EdgePoints->Storage[e].size() / 3;
+  if (npts > 0)
+    {
+    pts = &this->EdgePoints->Storage[e][0];
+    }
+  else
+    {
+    pts = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGraph::GetNumberOfEdgePoints(vtkIdType e)
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return 0;
+    }
+  if (!this->EdgePoints)
+    {
+    return 0;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  return this->EdgePoints->Storage[e].size() / 3;
+}
+
+//----------------------------------------------------------------------------
+double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return 0;
+    }
+  if (!this->EdgePoints)
+    {
+    vtkErrorMacro("No edge points defined.");
+    return 0;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  vtkIdType npts = this->EdgePoints->Storage[e].size() / 3;
+  if (i >= npts)
+    {
+    vtkErrorMacro("Edge point index out of range.");
+    return 0;
+    }
+  return &this->EdgePoints->Storage[e][3*i];
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, double x[3])
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return;
+    }
+  if (!this->EdgePoints)
+    {
+    vtkErrorMacro("No edge points defined.");
+    return;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  vtkIdType npts = this->EdgePoints->Storage[e].size() / 3;
+  if (i >= npts)
+    {
+    vtkErrorMacro("Edge point index out of range.");
+    return;
+    }
+  for (int c = 0; c < 3; ++c)
+    {
+    this->EdgePoints->Storage[e][3*i + c] = x[c];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ClearEdgePoints(vtkIdType e)
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return;
+    }
+  if (!this->EdgePoints)
+    {
+    vtkErrorMacro("No edge points defined.");
+    return;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  this->EdgePoints->Storage[e].clear();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::AddEdgePoint(vtkIdType e, double x[3])
+{
+  if (e < 0 || e > this->Internals->NumberOfEdges)
+    {
+    vtkErrorMacro("Invalid edge id.");
+    return;
+    }
+  if (!this->EdgePoints)
+    {
+    vtkErrorMacro("No edge points defined.");
+    return;
+    }
+  if (this->EdgePoints->Storage.size() < this->Internals->NumberOfEdges)
+    {
+    this->EdgePoints->Storage.resize(this->Internals->NumberOfEdges);
+    }
+  for (int c = 0; c < 3; ++c)
+    {
+    this->EdgePoints->Storage[e].push_back(x[c]);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::ShallowCopyEdgePoints(vtkGraph* g)
+{
+  this->SetEdgePoints(g->EdgePoints);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::DeepCopyEdgePoints(vtkGraph* g)
+{
+  if (g->EdgePoints)
+    {
+    if (!this->EdgePoints)
+      {
+      this->EdgePoints = vtkGraphEdgePoints::New();
+      }
+    this->EdgePoints->Storage = g->EdgePoints->Storage;
+    }
+  else
+    {
+    this->SetEdgePoints(0);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -694,16 +869,6 @@ void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
   if (this->EdgeData)
     {
     this->EdgeData->PrintSelf(os, indent.GetNextIndent());
-    }
-  os << indent << "EdgePoints: " << (this->EdgePoints ? "" : "(none)") << endl;
-  if (this->EdgePoints)
-    {
-    this->EdgePoints->PrintSelf(os, indent.GetNextIndent());
-    }
-  os << indent << "EdgeCells: " << (this->EdgeCells ? "" : "(none)") << endl;
-  if (this->EdgeCells)
-    {
-    this->EdgeCells->PrintSelf(os, indent.GetNextIndent());
     }
 }
 

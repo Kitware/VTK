@@ -41,7 +41,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.12");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.13");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -78,41 +78,48 @@ int vtkGraphToPolyData::RequestData(
   vtkDataArray* edgeGhostLevels = vtkDataArray::SafeDownCast(
     input->GetEdgeData()->GetAbstractArray("vtkGhostLevels"));
 
-  if (input->GetEdgePoints() && input->GetEdgeCells())
-    {
-    output->SetPoints(input->GetEdgePoints());
-    output->SetLines(input->GetEdgeCells());
-
-    // Points do not correspond to vertices, so do not pass
-    // the vertex data along.
-    // Cells correspond to edges, so pass the cell data along.
-    output->GetCellData()->PassData(input->GetEdgeData());
-    }
-  else if (edgeGhostLevels == NULL)
+  if (edgeGhostLevels == NULL)
     {
     vtkSmartPointer<vtkIdTypeArray> cells = 
       vtkSmartPointer<vtkIdTypeArray>::New();
-    cells->SetNumberOfTuples(3*input->GetNumberOfEdges());
     vtkSmartPointer<vtkEdgeListIterator> it = 
       vtkSmartPointer<vtkEdgeListIterator>::New();
     input->GetEdges(it);
-    while (it->HasNext())
+    vtkSmartPointer<vtkPoints> newPoints =
+      vtkSmartPointer<vtkPoints>::New();
+    newPoints->DeepCopy(input->GetPoints());
+    output->SetPoints(newPoints);
+    vtkIdType numEdges = input->GetNumberOfEdges();
+    bool noExtraPoints = true;
+    for (vtkIdType e = 0; e < numEdges; ++e)
       {
-      vtkEdgeType e = it->Next();
-      cells->SetValue(3*e.Id + 0, 2);
-      cells->SetValue(3*e.Id + 1, e.Source);
-      cells->SetValue(3*e.Id + 2, e.Target);
+      vtkIdType npts;
+      double* pts;
+      input->GetEdgePoints(e, npts, pts);
+      vtkIdType source = input->GetSourceVertex(e);
+      vtkIdType target = input->GetTargetVertex(e);
+      cells->InsertNextValue(2 + npts);
+      cells->InsertNextValue(source);
+      for (vtkIdType i = 0; i < npts; ++i, pts += 3)
+        {
+        noExtraPoints = false;
+        vtkIdType pt = output->GetPoints()->InsertNextPoint(pts);
+        cells->InsertNextValue(pt);
+        }
+      cells->InsertNextValue(target);
       }
     vtkSmartPointer<vtkCellArray> newLines = 
       vtkSmartPointer<vtkCellArray>::New();
-    newLines->SetCells(input->GetNumberOfEdges(), cells);
+    newLines->SetCells(numEdges, cells);
 
     // Send the data to output.
-    output->SetPoints(input->GetPoints());
     output->SetLines(newLines);
 
-    // Points correspond to vertices, so pass the data along.
-    output->GetPointData()->PassData(input->GetVertexData());
+    // Points only correspond to vertices if we didn't add extra points.
+    if (noExtraPoints)
+      {
+      output->GetPointData()->PassData(input->GetVertexData());
+      }
 
     // Cells correspond to edges, so pass the cell data along.
     output->GetCellData()->PassData(input->GetEdgeData());

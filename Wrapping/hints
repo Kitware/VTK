@@ -51,6 +51,7 @@ vtkExtractUnstructuredGrid            GetExtent                         307  6
 vtkFunctionParser                     GetVectorResult                   307  3
 vtkFunctionParser                     GetVectorVariableValue            307  3
 vtkGeometryFilter                     GetExtent                         307  6
+vtkGraph                              GetEdgePoint                      307  3
 vtkGraphMapper                        GetBounds                         307  6
 vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
 vtkHandleRepresentation               GetDisplayPosition                307  3

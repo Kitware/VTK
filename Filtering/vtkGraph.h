@@ -116,6 +116,7 @@ class vtkAdjacentVertexIterator;
 class vtkCellArray;
 class vtkEdgeListIterator;
 class vtkDataSetAttributes;
+class vtkGraphEdgePoints;
 class vtkGraphInternals;
 class vtkIdTypeArray;
 class vtkInEdgeIterator;
@@ -332,17 +333,48 @@ public:
   vtkIdType GetSourceVertex(vtkIdType e);
   vtkIdType GetTargetVertex(vtkIdType e);
 
+  //BTX
   // Description:
-  // Set/Get points needed for edges. This is null until an edge layout
-  // algorithm is performed on the graph.
-  vtkGetObjectMacro(EdgePoints, vtkPoints);
-  virtual void SetEdgePoints(vtkPoints *pts);
+  // Get/Set the internal edge control points associated with each edge.
+  // The size of the pts array is 3*npts, and holds the x,y,z
+  // location of each edge control point.
+  // NOTE: Every edge is assumed to start/end at it's endpoint vertex
+  // locations. Only use this structure to store additional edge points.
+  void SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts);
+  void GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts);
+  //ETX
 
   // Description:
-  // Set/Get cells representing each edge. This is null until an edge layout
-  // algorithm is performed on the graph.
-  vtkGetObjectMacro(EdgeCells, vtkCellArray);
-  virtual void SetEdgeCells(vtkCellArray *cells);
+  // Get the number of edge points associated with an edge.
+  vtkIdType GetNumberOfEdgePoints(vtkIdType e);
+
+  // Description:
+  // Get the x,y,z location of a point along edge e.
+  double* GetEdgePoint(vtkIdType e, vtkIdType i);
+
+  // Description:
+  // Clear all points associated with an edge.
+  void ClearEdgePoints(vtkIdType e);
+
+  // Description:
+  // Set an x,y,z location of a point along an edge.
+  // This assumes there is already a point at location i, and simply
+  // overwrites it.
+  void SetEdgePoint(vtkIdType e, vtkIdType i, double x[3]);
+  void SetEdgePoint(vtkIdType e, vtkIdType i, double x, double y, double z)
+    { double p[3] = {x, y, z}; this->SetEdgePoint(e, i, p); }
+
+  // Description:
+  // Adds a point to the end of the list of edge points for a certain edge.
+  void AddEdgePoint(vtkIdType e, double x[3]);
+  void AddEdgePoint(vtkIdType e, double x, double y, double z)
+    { double p[3] = {x, y, z}; this->AddEdgePoint(e, p); }
+
+  // Description:
+  // Copy the internal edge point data from another graph into this graph.
+  // Both graphs must have the same number of edges.
+  void ShallowCopyEdgePoints(vtkGraph* g);
+  void DeepCopyEdgePoints(vtkGraph* g);
 
 protected:
   //BTX
@@ -375,6 +407,14 @@ protected:
   // Description:
   // Private method for setting internals.
   void SetInternals(vtkGraphInternals* internals);
+
+  // Description:
+  // The structure for holding the edge points.
+  vtkGraphEdgePoints *EdgePoints;
+
+  // Description:
+  // Private method for setting edge points.
+  void SetEdgePoints(vtkGraphEdgePoints* edgePoints);
 
   // Description:
   // If this instance does not own its internals, it makes a copy of the
@@ -423,16 +463,6 @@ protected:
   vtkGetObjectMacro(EdgeList, vtkIdTypeArray);
   virtual void SetEdgeList(vtkIdTypeArray* list);
   vtkIdTypeArray *EdgeList;
-
-  // Description:
-  // Points needed for edges. This is null until an edge layout
-  // algorithm is performed on the graph.
-  vtkPoints *EdgePoints;
-
-  // Description:
-  // Cells representing each edge. This is null until an edge layout
-  // algorithm is performed on the graph.
-  vtkCellArray *EdgeCells;
   //ETX
 private:
   vtkGraph(const vtkGraph&);  // Not implemented.

@@ -32,7 +32,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkEdgeLayout, "1.1");
+vtkCxxRevisionMacro(vtkEdgeLayout, "1.2");
 vtkStandardNewMacro(vtkEdgeLayout);
 
 // ----------------------------------------------------------------------
@@ -143,22 +143,8 @@ int vtkEdgeLayout::RequestData(vtkInformation *vtkNotUsed(request),
   // shallow copy is sufficient.
   this->InternalGraph->ShallowCopy(input);
     
-  // Copy the edge layout points and cells.
-  vtkPoints* newPoints = vtkPoints::New();
-  if (input->GetEdgePoints())
-    {
-    newPoints->DeepCopy(input->GetEdgePoints());
-    }
-  this->InternalGraph->SetEdgePoints(newPoints);
-  newPoints->Delete();
-
-  vtkCellArray* newCells = vtkCellArray::New();
-  if (input->GetEdgeCells())
-    {
-    newCells->DeepCopy(input->GetEdgeCells());
-    }
-  this->InternalGraph->SetEdgeCells(newCells);
-  newCells->Delete();
+  // Copy the edge layout points.
+  this->InternalGraph->DeepCopyEdgePoints(input);
   
   // Give the layout strategy a pointer to the input.  We set it to
   // NULL first to force the layout algorithm to re-initialize

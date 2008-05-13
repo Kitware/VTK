@@ -49,12 +49,36 @@ int TestArcEdges(int argc, char* argv[])
   edgeStrategy->SetNumberOfSubdivisions(50);
   edgeLayout->SetInputConnection(layout->GetOutputPort());
   edgeLayout->SetLayoutStrategy(edgeStrategy);
-  graphToPoly->SetInputConnection(edgeLayout->GetOutputPort());
+
+  // Pull the graph out of the pipeline so we can test the
+  // edge points API.
+  edgeLayout->Update();
+  vtkGraph* g = edgeLayout->GetOutput();
+  vtkIdType npts = g->GetNumberOfEdgePoints(0);
+  double* pts = new double[3*npts];
+  for (vtkIdType i = 0; i < npts; ++i)
+    {
+    double* pt = g->GetEdgePoint(0, i);
+    pts[3*i + 0] = pt[0];
+    pts[3*i + 1] = pt[1];
+    pts[3*i + 2] = pt[2];
+    }
+  g->ClearEdgePoints(0);
+  for (vtkIdType i = 0; i < npts; ++i)
+    {
+    double* pt = pts + 3*i;
+    g->AddEdgePoint(0, pt);
+    g->SetEdgePoint(0, i, pt);
+    g->SetEdgePoint(0, i, pt[0], pt[1], pt[2]);
+    }
+  delete [] pts;
+
+  graphToPoly->SetInput(g);
   edgeMapper->SetInputConnection(graphToPoly->GetOutputPort());
   edgeActor->SetMapper(edgeMapper);
   ren->AddActor(edgeActor);
 
-  vertGlyph->SetInputConnection(edgeLayout->GetOutputPort());
+  vertGlyph->SetInput(g);
   vertMapper->SetInputConnection(vertGlyph->GetOutputPort());
   vertActor->SetMapper(vertMapper);
   vertActor->GetProperty()->SetPointSize(1);
