@@ -52,7 +52,7 @@ vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.8");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.9");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -414,20 +414,23 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
   // (unbiased) estimation of the variance
   double nm1 = nd - 1.;
   double s1p2 = s1 * s1;
-  s2 = ( s2 - s1p2 * nd ) / nm1;
+  double var = ( s2 - s1p2 * nd ) / nm1;
 
-  if ( s2 > 0. )
+  if ( var > 0. )
     {
     // sample estimation of the kurtosis "excess"
     s4 = ( s4 / nd - 4. * s1 * s3 / nd + 6. * s1p2 * s2 / nd - 3. * s1p2 * s1p2 )
-      / ( s2 * s2 ) - 3.;
+      / ( var * var ) - 3.;
     
     // sample estimation of the skewness
     s3 = ( s3 / nd - 3. * s1 * s2 / nd + 2. * s1p2 * s1 ) 
-      / pow( s2, 1.5 );
+      / pow( var, 1.5 );
+
+    s2 = var;
     }
   else
     {
+    s2 = var;
     s3 = 0.;
     s4 = 0.;
     G2 = 0.;
