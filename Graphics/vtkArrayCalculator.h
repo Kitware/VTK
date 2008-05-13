@@ -25,7 +25,7 @@
 // The functions that this array calculator understands is:
 // <pre>
 // standard operations: + - * / ^ .
-// access vector components: iHat, jHat, kHat
+// build unit vectors: iHat, jHat, kHat (ie (1,0,0), (0,1,0), (0,0,1))
 // abs
 // acos
 // asin
