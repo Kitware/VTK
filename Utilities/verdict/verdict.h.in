@@ -11,4 +11,4 @@
 
 #endif
 
-#include <include/verdict.h>
+#include <@verdict_INCLUDE_SUBDIR@/verdict.h>

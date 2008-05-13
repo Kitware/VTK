@@ -29,13 +29,24 @@ set( verdict_SRCS
   V_WedgeMetric.cpp
   )
 
+set(verdict_INCLUDE_SUBDIR "include")
 configure_file(
   ${verdict_SOURCE_DIR}/verdict.h.in
   ${verdict_BINARY_DIR}/verdict.h
 )
 
-add_library( verdict ${verdict_SRCS} )
-set_target_properties(verdict PROPERTIES 
+if(NOT DEFINED verdict_LIBRARY)
+  set(verdict_LIBRARY verdict)
+else(NOT DEFINED verdict_LIBRARY)
+  # if the name of the library is not 'verdict', then add verdict_EXPORTS 
+  # manually so that the usual dllexport/dllimport tricks still work.
+  if(WIN32)
+    set_source_files_properties(${verdict_SRCS} PROPERTIES
+      COMPILE_FLAGS "-Dverdict_EXPORTS")
+  endif(WIN32)
+endif(NOT DEFINED verdict_LIBRARY)
+add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
+set_target_properties(${verdict_LIBRARY} PROPERTIES 
   VERSION ${verdict_VERSION}
   SOVERSION ${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}
 )
@@ -48,7 +59,7 @@ if ( VERDICT_ENABLE_TESTING )
   )
 
   add_executable( verdict_test ${verdict_TESTSRCS} )
-  target_link_libraries( verdict_test verdict )
+  target_link_libraries( verdict_test ${verdict_LIBRARY} )
 
   add_test( verdict_test verdict_test )
   set_tests_properties( verdict_test PROPERTIES FAIL_REGULAR_EXPRESSION "FAILED" )
@@ -60,6 +71,9 @@ endif( NOT verdict_INSTALL_DOC_DIR )
 if ( NOT verdict_INSTALL_INCLUDE_DIR)
   set (verdict_INSTALL_INCLUDE_DIR include)
 endif ( NOT verdict_INSTALL_INCLUDE_DIR)
+if ( NOT verdict_INSTALL_INCLUDE_SUBDIR)
+  set (verdict_INSTALL_INCLUDE_SUBDIR verdict)
+endif ( NOT verdict_INSTALL_INCLUDE_SUBDIR)
 if ( NOT verdict_INSTALL_BIN_DIR)
   set (verdict_INSTALL_BIN_DIR bin)
 endif ( NOT verdict_INSTALL_BIN_DIR)
@@ -83,13 +97,27 @@ install(FILES
   COMPONENT Development
 )
 
+# verdict.h for the installed tree, which in turns include 
+# "${verdict_INSTALL_INCLUDE_SUBDIR}/verdict.h"
+# verdict.h for the build tree includes "include/verdict.h"
 
-install(FILES ${verdict_BINARY_DIR}/verdict.h
+set(verdict_INCLUDE_SUBDIR "${verdict_INSTALL_INCLUDE_SUBDIR}")
+configure_file(
+  ${verdict_SOURCE_DIR}/verdict.h.in
+  ${verdict_BINARY_DIR}/Install/verdict.h
+)
+
+install(FILES ${verdict_BINARY_DIR}/Install/verdict.h
   DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
   COMPONENT Development
 )
 
-install(TARGETS verdict
+install(FILES ${verdict_SOURCE_DIR}/include/verdict.h
+  DESTINATION ${verdict_INSTALL_INCLUDE_DIR}/${verdict_INSTALL_INCLUDE_SUBDIR}
+  COMPONENT Development
+)
+
+install(TARGETS ${verdict_LIBRARY}
       RUNTIME DESTINATION ${verdict_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries # .exe, .dll
       LIBRARY DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
       ARCHIVE DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT Development      # .a, .lib
