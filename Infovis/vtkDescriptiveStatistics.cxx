@@ -52,7 +52,7 @@ vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.7");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.8");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -346,6 +346,8 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
       vtkIdType c = params->GetValue( i, 0 ).ToInt();
       if ( c == *it )
         {
+        unfound = false;
+
         double center = params->GetValue( i, 1 ).ToDouble();
         double radius = params->GetValue( i, 2 ).ToDouble();
         double minimum = center - radius;
@@ -365,14 +367,15 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
             }
           }
 
-        unfound = false;
         break;
         }
       }
 
     if ( unfound )
       {
-      vtkWarningMacro( "Parameter table does not a row for dataset table column "<<*it<<". Ignoring." );
+      vtkWarningMacro( "Parameter table does not have a row for dataset table column "
+                       <<*it
+                       <<". Ignoring it." );
       continue;
       }
     }
@@ -401,24 +404,35 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
 
   if ( n == 1 )
     {
-    s2 = s3 = s4 = 0.;
-    return 0;
+    s2 = 0.;
+    s3 = 0.;
+    s4 = 0.;
+    G2 = 0.;
+    return 1;
     }
 
   // (unbiased) estimation of the variance
   double nm1 = nd - 1.;
-  double s0p2 = s1 * s1;
-  double var = ( s2 - s0p2 * nd ) / nm1;
+  double s1p2 = s1 * s1;
+  s2 = ( s2 - s1p2 * nd ) / nm1;
 
-  // sample estimation of the kurtosis "excess"
-  s4 = ( s4 / nd - 4. * s1 * s3 / nd + 6. * s0p2 * s2 / nd - 3. * s0p2 * s0p2 )
-    / ( var * var ) - 3.;
-
-  // sample estimation of the skewness
-  s3 = ( s3 / nd - 3. * s1 * s2 / nd + 2. * s0p2 * s1 ) 
-    / pow( var, 1.5 );
-
-  s2 = var;
+  if ( s2 > 0. )
+    {
+    // sample estimation of the kurtosis "excess"
+    s4 = ( s4 / nd - 4. * s1 * s3 / nd + 6. * s1p2 * s2 / nd - 3. * s1p2 * s1p2 )
+      / ( s2 * s2 ) - 3.;
+    
+    // sample estimation of the skewness
+    s3 = ( s3 / nd - 3. * s1 * s2 / nd + 2. * s1p2 * s1 ) 
+      / pow( s2, 1.5 );
+    }
+  else
+    {
+    s3 = 0.;
+    s4 = 0.;
+    G2 = 0.;
+    return 1;
+    }
 
   // G2 estimation of the kurtosis "excess"
   if ( n > 3 )

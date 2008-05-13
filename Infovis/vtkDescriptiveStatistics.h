@@ -87,7 +87,7 @@ public:
   // Input: the sample size and a vector of doubles of size 5, with its 4 first entries 
   //        initialized as (in this order) the 1st to 4th raw moments.
   // Output: -1 if meaningless input (sample size < 1),
-  //          1 if could not calculate all improved estimators (sample size too small),
+  //          1 if could not calculate all estimators (e.g., sample size too small),
   //          0 otherwise.
   // NB: this is a static function, so as to provide this functionality even when no
   // vtkStatistics are instantiated.
