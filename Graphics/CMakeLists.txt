@@ -3,7 +3,7 @@ SET(UKIT GRAPHICS)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering verdict )
+SET(KIT_LIBS vtkFiltering vtkverdict )
 
 
 SET( Kit_SRCS
@@ -269,8 +269,6 @@ vtkInterpolatingSubdivisionFilter
 vtkStreamer
 ABSTRACT
 )
-
-INCLUDE_DIRECTORIES( ${VTK_BINARY_DIR}/Utilities/verdict ${VTK_SOURCE_DIR}/Utilities/verdict/ )
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
