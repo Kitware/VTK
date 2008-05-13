@@ -187,7 +187,12 @@ public:
   // Unhiding superclass method.
   virtual int HasMetaData(vtkCompositeDataIterator* iter)
     { return this->Superclass::HasMetaData(iter); }
-  
+ 
+  // Description:
+  // Given the level and dataset index, returns the flat index provided level
+  // and dataset index are valid.
+  unsigned int GetFlatIndex(unsigned int level, unsigned int index);
+
 protected:
   vtkHierarchicalBoxDataSet();
   ~vtkHierarchicalBoxDataSet();

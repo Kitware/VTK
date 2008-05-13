@@ -29,6 +29,7 @@
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
 #include "vtkHierarchicalBoxDataIterator.h"
+#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -51,7 +52,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.14");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.15");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -265,7 +266,19 @@ int vtkConvertSelection::ConvertToBlockSelection(
       indices.insert(static_cast<unsigned int>(
           properties->Get(vtkSelection::COMPOSITE_INDEX())));
       }
-    // TODO: is has HIERARCHICAL_INDEX() & HIERARCHICAL_LEVEL.
+    else if (properties->Has(vtkSelection::CONTENT_TYPE()) &&
+      properties->Has(vtkSelection::HIERARCHICAL_INDEX()) &&
+      properties->Has(vtkSelection::HIERARCHICAL_LEVEL()) && 
+      data->IsA("vtkHierarchicalBoxDataSet"))
+      {
+       // convert hierarchical index to composite index.
+       vtkHierarchicalBoxDataSet* hbox = static_cast<vtkHierarchicalBoxDataSet*>(data);
+       indices.insert(
+         hbox->GetFlatIndex(
+           static_cast<unsigned int>(properties->Get(vtkSelection::HIERARCHICAL_LEVEL())),
+           static_cast<unsigned int>(properties->Get(vtkSelection::HIERARCHICAL_INDEX()))));
+
+      }
     }
  
   VTK_CREATE(vtkUnsignedIntArray, selectionList);

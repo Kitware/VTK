@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.20");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.21");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -387,6 +387,28 @@ void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
       }
     }
     */
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level, 
+  unsigned int index)
+{
+  if (level > this->GetNumberOfLevels() || index > this->GetNumberOfDataSets(level))
+    {
+    // invalid level, index.
+    vtkErrorMacro("Invalid level (" << level << ") or index (" << index << ")");
+    return 0;
+    }
+
+  unsigned int findex=0;
+  for (unsigned int l=0; l < level; l++)
+    {
+    findex += 1;
+    findex += this->GetNumberOfDataSets(l);
+    }
+  findex += 1;
+  findex += (index + 1);
+  return findex;
 }
 
 //----------------------------------------------------------------------------
