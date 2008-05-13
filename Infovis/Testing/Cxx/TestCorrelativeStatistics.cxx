@@ -7,6 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
+#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
 #include "vtkCorrelativeStatistics.h"
@@ -84,21 +85,25 @@ int TestCorrelativeStatistics( int, char *[] )
     47,
     };
   int nVals = 32;
-;
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "Metric 1" );
+  dataset1Arr->SetName( "Metric 0" );
 
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Metric 2" );
+  dataset2Arr->SetName( "Metric 1" );
+
+  vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
+  dataset3Arr->SetNumberOfComponents( 1 );
+  dataset3Arr->SetName( "Metric 2" );
 
   for ( int i = 0; i < nVals; ++ i )
     {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
+    dataset3Arr->InsertNextValue( -1. );
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -106,24 +111,63 @@ int TestCorrelativeStatistics( int, char *[] )
   dataset1Arr->Delete();
   datasetTable->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
-
-  double nomValue[] = { 49.2188, 49.5 };
-  double allowedDev[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = .2;
-
-  vtkDoubleArray* paramsArr = vtkDoubleArray::New();
-  paramsArr->SetNumberOfComponents( 1 );
-  paramsArr->SetName( "Params" );
-  paramsArr->InsertNextValue( nomValue[0] );
-  paramsArr->InsertNextValue( nomValue[1] );
-  paramsArr->InsertNextValue( allowedDev[0] );
-  paramsArr->InsertNextValue( allowedDev[1] );
-  paramsArr->InsertNextValue( allowedDev[2] );
-  paramsArr->InsertNextValue( threshold );
+  datasetTable->AddColumn( dataset3Arr );
+  dataset3Arr->Delete();
 
   vtkTable* paramsTable = vtkTable::New();
-  paramsTable->AddColumn( paramsArr );
-  paramsArr->Delete();
+  int nMetricPairs = 3;
+  vtkIdType columnPairs[] = { 0, 1, 1, 0, 2, 1 };
+  double centers[] = { 49.2188, 49.5 };
+  double covariance[] = { 5.98286, 7.54839, 6.14516 };
+  double threshold = .2 ;
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column X" );
+  idTypeCol->InsertNextValue( 0 );
+  paramsTable->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column Y" );
+  idTypeCol->InsertNextValue( 1 );
+  paramsTable->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Nominal X" );
+  doubleCol->InsertNextValue( centers[0] );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Nominal Y" );
+  doubleCol->InsertNextValue( centers[1] );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Variance X" );
+  doubleCol->InsertNextValue( covariance[0] );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Variance Y" );
+  doubleCol->InsertNextValue( covariance[1] );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Covariance" );
+  doubleCol->InsertNextValue( covariance[2] );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Threshold" );
+  doubleCol->InsertNextValue( threshold );
+  paramsTable->AddColumn( doubleCol );
+  doubleCol->Delete();
 
   vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
   haruspex->SetInput( 0, datasetTable );
@@ -133,8 +177,15 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetTable->Delete();
   paramsTable->Delete();
 
-// -- Select Column Pair of Interest -- 
-  haruspex->AddColumnPair( 0, 1 );
+// -- Select Column Pairs of Interest ( Learn Mode ) -- 
+  haruspex->AddColumnPair( 0, 1 ); // A valid pair
+  haruspex->AddColumnPair( 1, 0 ); // The same valid pair, just reversed
+  haruspex->AddColumnPair( 2, 1 ); // Another valid pair
+  for ( int i = 0; i< nMetricPairs; i += 2 )
+    {  // Try to add all valid pairs once more
+    haruspex->AddColumnPair( columnPairs[i], columnPairs[i+1] );
+    }
+  haruspex->AddColumnPair( 1, 3 ); // An invalid pair
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -146,17 +197,17 @@ int TestCorrelativeStatistics( int, char *[] )
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    cout << "   X: "
+    cout << "   (X, Y) = ("
          << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-         << ", Y: "
+         << ", "
          << datasetTable->GetColumnName( outputTable->GetValue( r, 1 ).ToInt() )
-         << ":";
+         << ")";
 
     for ( int i = 2; i < 7; ++ i )
       {
-      cout << " "
+      cout << ", "
            << outputTable->GetColumnName( i )
-           << ": "
+           << "="
            << outputTable->GetValue( r, i ).ToDouble();
       }
 
@@ -173,23 +224,34 @@ int TestCorrelativeStatistics( int, char *[] )
        << "\n";
     }
 
+// -- Select Column Pairs of Interest ( Evince Mode ) -- 
+  haruspex->ResetColumnPairs(); // Clear existing pairs
+  haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
+
 // -- Test Evince Mode -- 
-  cout << "## Searching for outliers with relative PDF < "
-       << threshold
-       << "\n"
-       << "   PDF: Bivariate Gaussian with mean ( "
-       << nomValue[0]
-       << "  "
-       << nomValue[1]
-       << " ) and covariance [ "
-       << allowedDev[0]
-       << "  "
-       << allowedDev[2]
-       << " ; "
-       << allowedDev[2]
-       << "  "
-       << allowedDev[1]
-       << " ].\n";
+  cout << "## Searching for the following outliers:\n";
+  for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
+    {
+    cout << "   (X, Y) = ("
+         << datasetTable->GetColumnName( columnPairs[0] )
+         << ", "
+         << datasetTable->GetColumnName( columnPairs[1] )
+         << "), Gaussian, mean=("
+         << centers[0]
+         << ", "
+         << centers[1]
+         << "), cov=["
+         << covariance[0]
+         << ", "
+         << covariance[2]
+         << " ; "
+         << covariance[2]
+         << ", "
+         << covariance[1]
+         << "], relPDF < "
+         << threshold
+         << "\n";
+    }
 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::EvinceMode );
   haruspex->Update();
@@ -199,7 +261,7 @@ int TestCorrelativeStatistics( int, char *[] )
     {
     cerr << "Reported an incorrect number of outliers: "
          << testIntValue
-         << " != 10.\n";
+         << " != 7.\n";
     return 1;
     }
 
@@ -209,15 +271,17 @@ int TestCorrelativeStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    int i = outputTable->GetValue( r, 0 ).ToInt();
+    vtkIdType idX = outputTable->GetValue( r, 0 ).ToInt();
+    vtkIdType idY = outputTable->GetValue( r, 1 ).ToInt();
+    vtkIdType i = outputTable->GetValue( r, 2 ).ToInt();
     cout << "   "
          << i
-         << "-th double ( "
-         << datasetTable->GetValue( i, 0 ).ToDouble()
+         << ": ( "
+         << datasetTable->GetValue( i, idX ).ToDouble()
          << " , "
-         << datasetTable->GetValue( i, 1 ).ToDouble()
+         << datasetTable->GetValue( i, idY ).ToDouble()
          << " ) has a relative PDF of "
-         << outputTable->GetValue( r, 1 ).ToDouble()
+         << outputTable->GetValue( r, 3 ).ToDouble()
          << "\n";
     }
 

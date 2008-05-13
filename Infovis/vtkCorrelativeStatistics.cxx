@@ -52,7 +52,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.2");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.3");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ResetColumns()
+void vtkCorrelativeStatistics::ResetColumnPairs()
 {
   this->Internals->ColumnPairs.clear();
 }
@@ -208,17 +208,15 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     vtkIdType idX = it->first;
     if ( idX >= nCol )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Doing nothing." );
-      this->SampleSize = 0;
-      return;
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Ignoring this pair." );
+      continue;
       }
 
     vtkIdType idY = it->second;
     if ( idY >= nCol )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Doing nothing." );
-      this->SampleSize = 0;
-      return;
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Ignoring this pair." );
+      continue;
       }
     
     double x   = 0.;
@@ -296,30 +294,48 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {
-  vtkIdType nCol = dataset->GetNumberOfColumns();
-  if ( ! nCol )
+  vtkIdType nColD = dataset->GetNumberOfColumns();
+  if ( ! nColD )
     {
     vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     return;
     }
 
-  vtkIdType nRow = dataset->GetNumberOfRows();
-  if ( ! nRow )
+  vtkIdType nRowD = dataset->GetNumberOfRows();
+  if ( ! nRowD )
     {
     vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
-  if ( params->GetNumberOfRows() < 6 )
+  vtkIdType nColP = params->GetNumberOfColumns();
+  if ( nColP != 8 )
     {
     vtkWarningMacro( "Parameter table has " 
-                     << params->GetNumberOfRows() 
-                     << " != 6 rows. Doing nothing." );
+                     << nColP
+                     << " != 8 columns. Doing nothing." );
+    return;
+    }
+
+  vtkIdType nRowP = params->GetNumberOfRows();
+  if ( ! nRowP )
+    {
+    vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Entry Index" );
+  idTypeCol->SetName( "Column X" );
+  output->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Column Y" );
+  output->AddColumn( idTypeCol );
+  idTypeCol->Delete();
+
+  idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Row" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
@@ -329,60 +345,92 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
   doubleCol->Delete();
 
   vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 2 );
+  row->SetNumberOfValues( 4 );
   
   for ( vtkstd::set<vtkstd::pair<vtkIdType,vtkIdType> >::iterator it = this->Internals->ColumnPairs.begin(); 
         it != this->Internals->ColumnPairs.end(); ++ it )
     {
     vtkIdType idX = it->first;
-    if ( idX >= nCol )
+    if ( idX >= nColD )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Doing nothing." );
-      this->SampleSize = 0;
-      return;
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idX<<". Ignoring it." );
+      continue;
       }
 
     vtkIdType idY = it->second;
-    if ( idY >= nCol )
+    if ( idY >= nColD )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Doing nothing." );
-      this->SampleSize = 0;
-      return;
+      vtkWarningMacro( "Dataset table does not have a column with index "<<idY<<". Ignoring it." );
+      continue;
       }
 
-    double accVarX = params->GetValue( 2, 0 ).ToDouble();
-    double accVarY = params->GetValue( 3, 0 ).ToDouble();
-    double accCovr = params->GetValue( 4, 0 ).ToDouble();
-    
-    double d = accVarX * accVarY - accCovr * accCovr;
-    if ( d <= 0. )
+    bool unfound = true;
+    for ( int i = 0; i < nRowP; ++ i )
       {
-      vtkWarningMacro( "Cannot calculate statistics: variance/covariance matrix has non-positive determinant." );
-      return;
-      }
-    
-    double nomValX = params->GetValue( 0, 0 ).ToDouble();
-    double nomValY = params->GetValue( 1, 0 ).ToDouble();
-    double mRelPDF = params->GetValue( 5, 0 ).ToDouble();
-    double eFac = -.5 / d;
-    accCovr *= 2.;
-    
-    double x = 0.;
-    double y = 0.;
-    double rPDF;
-    for ( vtkIdType r = 0; r < nRow; ++ r )
-      {
-      x = dataset->GetValue( r, idX ).ToDouble() - nomValX;
-      y = dataset->GetValue( r, idY ).ToDouble() - nomValY;
-
-      rPDF = exp( eFac * ( accVarY * x * x - accCovr * x * y + accVarX * y * y ) );
-      if ( rPDF < mRelPDF )
+      vtkIdType c1 = params->GetValue( i, 0 ).ToInt();
+      vtkIdType c2 = params->GetValue( i, 1 ).ToInt();
+      if ( ( c1 == it->first && c2 == it->second ) ||  ( c2 == it->first && c1 == it->second ) )
         {
-        row->SetValue( 0, vtkVariant( r ) );
-        row->SetValue( 1, vtkVariant( rPDF ) );
+        unfound = false;
+
+        double varX = params->GetValue( i, 4 ).ToDouble();
+        double varY = params->GetValue( i, 5 ).ToDouble();
+        double covr = params->GetValue( i, 6 ).ToDouble();
         
-        output->InsertNextRow( row );
+        double d = varX * varY - covr * covr;
+        if ( d <= 0. )
+          {
+          vtkWarningMacro( "Incorrect parameters for column pair ("
+                           <<c1
+                           <<", "
+                           <<c2
+                           <<"): variance/covariance matrix has non-positive determinant." );
+          continue;
+          }
+        
+        double nominalX = params->GetValue( i, 2 ).ToDouble();
+        double nominalY = params->GetValue( i, 3 ).ToDouble();
+        double thresPDF = params->GetValue( i, 7 ).ToDouble();
+        double eFac = -.5 / d;
+        covr *= 2.;
+        
+        if ( c2 == it->first )
+          {
+          vtkIdType tmp = idX;
+          idX = idY;
+          idY = tmp;
+          }
+
+        double x, y, rPDF;
+        for ( vtkIdType r = 0; r < nRowD; ++ r )
+          {
+          x = dataset->GetValue( r, idX ).ToDouble() - nominalX;
+          y = dataset->GetValue( r, idY ).ToDouble() - nominalY;
+          
+          rPDF = exp( eFac * ( varY * x * x - covr * x * y + varX * y * y ) );
+          if ( rPDF < thresPDF )
+            {
+            row->SetValue( 0, idX );
+            row->SetValue( 1, idY );
+            row->SetValue( 2, r );
+            row->SetValue( 3, rPDF );
+
+            output->InsertNextRow( row );
+            }
+          }
+
+        break;
         }
+      }
+
+    if ( unfound )
+      {
+      vtkWarningMacro( "Parameter table does not a row for dataset table column pair ("
+                       <<it->first
+                       <<", "
+                       <<it->second
+                       <<"). Ignoring it." );
+      continue;
       }
     }
   row->Delete();

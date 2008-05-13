@@ -56,8 +56,8 @@ public:
   static vtkCorrelativeStatistics* New();
 
   // Description:
-  // Reset list of columns of interest
-  void ResetColumns();
+  // Reset list of column pairs of interest
+  void ResetColumnPairs();
 
   // Description:
   // Add column index pair (\p idxColX, \p idxColY).
