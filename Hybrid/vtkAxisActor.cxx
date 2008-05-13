@@ -33,7 +33,7 @@
 // ****************************************************************
 
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxRevisionMacro(vtkAxisActor, "1.5");
+vtkCxxRevisionMacro(vtkAxisActor, "1.6");
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera); 
 
 // ****************************************************************
@@ -557,10 +557,11 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
   double xadjust = (displayBounds[0] > displayBounds[1] ? -1 : 1);
   double yadjust = (displayBounds[2] > displayBounds[3] ? -1 : 1);
 
-  for (i=0; i < this->NumberOfLabelsBuilt; i++)
+  for (i=0; i < this->NumberOfLabelsBuilt && 
+    i < this->MajorTickPts->GetNumberOfPoints(); i++)
     {
     ptIdx = 4*i + 1;
-    MajorTickPts->GetPoint(ptIdx, tick);
+    this->MajorTickPts->GetPoint(ptIdx, tick);
 
     this->LabelActors[i]->GetBounds(bounds);
 
