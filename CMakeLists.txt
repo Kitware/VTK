@@ -157,14 +157,14 @@ ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
 
 # The location in which to install VTK libraries.
 IF(NOT VTK_INSTALL_LIB_DIR)
-  SET(VTK_INSTALL_LIB_DIR ${VTK_INSTALL_ROOT}/lib)
+  SET(VTK_INSTALL_LIB_DIR 
+    ${VTK_INSTALL_ROOT}/lib/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
+    )
 ENDIF(NOT VTK_INSTALL_LIB_DIR)
 
 # The location in which to install CMake scripts for packaging VTK.
 IF(NOT VTK_INSTALL_PACKAGE_DIR)
-  SET(VTK_INSTALL_PACKAGE_DIR
-    ${VTK_INSTALL_LIB_DIR}/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-    )
+  SET(VTK_INSTALL_PACKAGE_DIR ${VTK_INSTALL_LIB_DIR})
 ENDIF(NOT VTK_INSTALL_PACKAGE_DIR)
 
 # The location in which to install VTK doxygen documentation helper
@@ -182,9 +182,7 @@ ENDIF(NOT VTK_INSTALL_DOC_DIR)
 # Compute the proper location for installing the Tcl package.  This
 # must be a fixed relative path below the library install location and
 # is therefore not settable by parent projects.
-SET(VTK_INSTALL_TCL_DIR
-  ${VTK_INSTALL_LIB_DIR}/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-  )
+SET(VTK_INSTALL_TCL_DIR ${VTK_INSTALL_LIB_DIR})
 
 IF(NOT VTK_INSTALL_JAVA_DIR)
   SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
