@@ -211,17 +211,24 @@ int TestCorrelativeStatistics( int, char *[] )
            << outputTable->GetValue( r, i ).ToDouble();
       }
 
-    cout << "\n   Y = "
-       << outputTable->GetValue( r,  7 ).ToDouble()
-       << " * X + "
-       << outputTable->GetValue( r,  8 ).ToDouble()
-       << ", X = "
-       << outputTable->GetValue( r,  9 ).ToDouble()
-       << " * Y + "
-       << outputTable->GetValue( r, 10 ).ToDouble()
-       << ", corr. coeff.: "
-       << outputTable->GetValue( r, 11 ).ToDouble()
-       << "\n";
+    if ( ! outputTable->GetValue( r,  7 ).ToInt () )
+      {
+      cout << "\n   Y = "
+           << outputTable->GetValue( r,  7 ).ToDouble()
+           << " * X + "
+           << outputTable->GetValue( r,  8 ).ToDouble()
+           << ", X = "
+           << outputTable->GetValue( r,  9 ).ToDouble()
+           << " * Y + "
+           << outputTable->GetValue( r, 10 ).ToDouble()
+           << ", corr. coeff.: "
+           << outputTable->GetValue( r, 11 ).ToDouble()
+           << "\n";
+      }
+    else
+      {
+      cout << "\n   Degenerate input, linear correlation was not calculated.\n";
+      }
     }
 
 // -- Select Column Pairs of Interest ( Evince Mode ) -- 

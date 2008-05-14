@@ -88,8 +88,6 @@ public:
     return CalculateFromSums( n, sums[0], sums[1], sums[2], sums[4], sums[5], correlations ); 
     }
 
-  vtkCorrelativeStatisticsPrivate* Internals;
-
 protected:
   vtkCorrelativeStatistics();
   ~vtkCorrelativeStatistics();
@@ -105,6 +103,9 @@ protected:
   virtual void ExecuteEvince( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
+
+  vtkCorrelativeStatisticsPrivate* Internals;
+
 private:
   vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
   void operator=(const vtkCorrelativeStatistics&);   // Not implemented

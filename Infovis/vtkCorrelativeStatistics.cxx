@@ -52,7 +52,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.3");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.4");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -148,6 +148,11 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
+    idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Linear Correlation" );
+    output->AddColumn( idTypeCol );
+    idTypeCol->Delete();
+
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Intersect YX" );
     output->AddColumn( doubleCol );
@@ -242,10 +247,10 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
 
     if ( finalize )
       {
-      row->SetNumberOfValues( 12 );
+      row->SetNumberOfValues( 13 );
 
       double correlations[5];
-      this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
+      int res = this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
       
       row->SetValue( 0, idX );
       row->SetValue( 1, idY );
@@ -254,9 +259,10 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 4, sx2 );
       row->SetValue( 5, sy2 );
       row->SetValue( 6, sxy );
+      row->SetValue( 7, res );
       for ( int i = 0; i < 5; ++ i )
         {
-        row->SetValue( i + 7, correlations[i] );
+        row->SetValue( i + 8, correlations[i] );
         }
       }
     else 
@@ -470,29 +476,42 @@ int vtkCorrelativeStatistics::CalculateFromSums( int n,
   sy2 = ( sy2 - sy * sy * nd ) * f;
   sxy = ( sxy - sx * sy * nd ) * f;
 
+  // linear regression
 
-  // linear regression coefficients
-
-  // variable Y on variable X:
-  //   slope
-  correlations[0] = sxy / sx2;
-  //   intersect
-  correlations[1] = sy - correlations[0] * sx;
-
-  //   variable X on variable Y:
-  //   slope
-  correlations[2] = sxy / sy2;
-  //   intersect
-  correlations[3] = sx - correlations[2] * sy;
-
-  // linear correlation coefficient
-  double d = sx2 * sy2;
-  if ( d > 0 )
+  if ( sx2 > 0. && sy2 > 0. )
     {
-    correlations[4] = sxy / sqrt( d );
-    return 0;
-    }
+    // variable Y on variable X:
+    //   slope
+    correlations[0] = sxy / sx2;
+    //   intersect
+    correlations[1] = sy - correlations[0] * sx;
 
-  correlations[4] = 0.;
-  return 1;
+    //   variable X on variable Y:
+    //   slope
+    correlations[2] = sxy / sy2;
+    //   intersect
+    correlations[3] = sx - correlations[2] * sy;
+
+    // correlation coefficient
+    double d = sx2 * sy2;
+    if ( d > 0 )
+      {
+      correlations[4] = sxy / sqrt( d );
+      return 0;
+      }
+    else
+      {
+      correlations[4] = 0.;
+      return 1;
+      }
+    }
+  else
+    {
+    correlations[0] = 0.;
+    correlations[1] = 0.;
+    correlations[2] = 0.;
+    correlations[3] = 0.;
+    correlations[4] = 0.;
+    return 1;
+    }
 }
