@@ -66,7 +66,7 @@ public:
   void AddColumnPair( vtkIdType idxColX, vtkIdType idxColY );
 
   // Description:
-  // Calculate the following unbiased estimators from the raw moments:
+  // Calculate the following unbiased estimators from the raw sums:
   // means, variances, and covariance estimators, as well as the linear regressions
   // of X in Y, and Y in X, along with the correlation coefficient of X and Y.
   // Input: the sample size and a vector of doubles of size 5, initialized as (in this

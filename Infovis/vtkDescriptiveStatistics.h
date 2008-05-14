@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkDescriptiveStatistics - A class for descriptive statistics
+// .NAME vtkDescriptiveStatistics - A class for univariate descriptive statistics
 //
 // .SECTION Description
 // Given a selection of columns of interest in an input data table, this 
@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
 // * Validate: not implemented.
 // * Evince: given an input data set in port 0, and a reference value x along
-//   with an acceptable deviation d>0, evince all entries in the data set who
+//   with an acceptable deviation d>0, evince all entries in the data set which
 //   are outside of [x-d,x+d].
 //
 // .SECTION Thanks
@@ -43,49 +43,23 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkDescriptiveStatistics_h
 #define __vtkDescriptiveStatistics_h
 
-#include "vtkStatisticsAlgorithm.h"
+#include "vtkUnivariateStatisticsAlgorithm.h"
 
-class vtkDescriptiveStatisticsPrivate;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkDescriptiveStatistics, vtkStatisticsAlgorithm);
+  vtkTypeRevisionMacro(vtkDescriptiveStatistics, vtkUnivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDescriptiveStatistics* New();
 
   // Description:
-  // Reset list of columns of interest
-  void ResetColumns();
-
-  // Description:
-  // Add column index \p idxCol to the list of columns of interest
-  // Warning: no range checking is performed on \p idxCol; it is the user's
-  // responsibility to use valid column indices.
-  void AddColumn( vtkIdType idxCol );
-
-  // Description:
-  // Remove (if it exists) column index \p idxCol to the list of columns of interest
-  void RemoveColumn( vtkIdType idxCol );
-
-  // Description:
-  // Add column indices from \p idxColBegin (included) to \p idxColEnd (excluded).
-  // Warning: no range checking is performed on \p idxColBegin nor \p idxColEnd; it is 
-  // the user's responsibility to use valid column indices.
-  void AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
-
-  // Description:
-  // Remove column indices from \p idxColBegin (included) to \p idxColEnd (excluded),
-  // for those which are present.
-  void RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
-
-  // Description:
-  // Calculate descriptive statistics estimators from the raw moments: 
+  // Calculate descriptive statistics estimators from the raw sums: 
   // mean (unbiased), variance (unbiased), sample skewness, 
   // kurtosis excess (sample and G2 estimators).
   // Input: the sample size and a vector of doubles of size 5, with its 4 first entries 
-  //        initialized as (in this order) the 1st to 4th raw moments.
+  //        initialized as (in this order) the 1st to 4th raw sums.
   // Output: -1 if meaningless input (sample size < 1),
   //          1 if could not calculate all estimators (e.g., sample size too small),
   //          0 otherwise.
@@ -101,8 +75,6 @@ public:
     { 
     return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5] );
     }
-
-  vtkDescriptiveStatisticsPrivate* Internals;
 
 protected:
   vtkDescriptiveStatistics();

@@ -63,6 +63,7 @@ vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
 vtkTulipReader.cxx
+vtkUnivariateStatisticsAlgorithm.cxx
 vtkVertexDegree.cxx
 vtkViewTheme.cxx
 vtkXMLTreeReader.cxx
@@ -110,6 +111,7 @@ vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
+vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
 

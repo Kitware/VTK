@@ -214,15 +214,15 @@ int TestCorrelativeStatistics( int, char *[] )
     if ( ! outputTable->GetValue( r,  7 ).ToInt () )
       {
       cout << "\n   Y = "
-           << outputTable->GetValue( r,  7 ).ToDouble()
-           << " * X + "
            << outputTable->GetValue( r,  8 ).ToDouble()
-           << ", X = "
+           << " * X + "
            << outputTable->GetValue( r,  9 ).ToDouble()
-           << " * Y + "
+           << ", X = "
            << outputTable->GetValue( r, 10 ).ToDouble()
-           << ", corr. coeff.: "
+           << " * Y + "
            << outputTable->GetValue( r, 11 ).ToDouble()
+           << ", corr. coeff.: "
+           << outputTable->GetValue( r, 12 ).ToDouble()
            << "\n";
       }
     else

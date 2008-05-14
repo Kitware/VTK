@@ -20,6 +20,7 @@
 
 #include "vtkToolkits.h"
 
+#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 #include "vtkDescriptiveStatistics.h"
 
 #include "vtkDoubleArray.h"
@@ -32,81 +33,23 @@
 
 #include <vtkstd/set>
 
-// = Start Private Implementation =======================================
-class vtkDescriptiveStatisticsPrivate
-{
-public:
-  vtkDescriptiveStatisticsPrivate();
-  ~vtkDescriptiveStatisticsPrivate();
-
-  vtkstd::set<vtkIdType> Columns;
-};
-
-vtkDescriptiveStatisticsPrivate::vtkDescriptiveStatisticsPrivate()
-{
-}
-
-vtkDescriptiveStatisticsPrivate::~vtkDescriptiveStatisticsPrivate()
-{
-}
-
-// = End Private Implementation =========================================
-
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.9");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.10");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
-  this->Internals = new vtkDescriptiveStatisticsPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 {
-  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ResetColumns()
-{
-  this->Internals->Columns.clear();
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::AddColumn( vtkIdType idxCol )
-{
- this->Internals->Columns.insert( idxCol );
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::RemoveColumn( vtkIdType idxCol )
-{
- this->Internals->Columns.erase( idxCol );
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
-{
-  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
-    {
-    this->Internals->Columns.insert( idxCol );
-    }
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
-{
-  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
-    {
-    this->Internals->Columns.erase( idxCol );
-    }
 }
 
 // ----------------------------------------------------------------------
@@ -199,7 +142,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     idTypeCol->Delete();
     }
 
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); 
+        it != this->Internals->Columns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nCol )
       {
@@ -332,7 +276,8 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
   
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); it != this->Internals->Columns.end(); ++ it )
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->Columns.begin(); 
+        it != this->Internals->Columns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nColD )
       {
