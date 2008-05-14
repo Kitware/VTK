@@ -32,7 +32,7 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
-vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.2");
+vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.3");
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
 {
@@ -147,7 +147,6 @@ void vtkArcParallelEdgeStrategy::Layout()
         {
         double angle = 2.0*vtkMath::Pi()
           *s/(this->NumberOfSubdivisions-1);
-        double circlePt[3];
         for (int c = 0; c < 3; ++c)
           {
           pts[3*s + c] = center[c] 
@@ -244,7 +243,6 @@ void vtkArcParallelEdgeStrategy::Layout()
     for (int s = 0; s < this->NumberOfSubdivisions; ++s)
       {
       double angle = -sign*s*theta/(this->NumberOfSubdivisions - 1.0);
-      double circlePt[3];
       for (int c = 0; c < 3; ++c)
         {
         pts[3*s + c] = center[c] 
