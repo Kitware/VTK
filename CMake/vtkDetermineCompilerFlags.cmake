@@ -73,8 +73,22 @@ ELSE(CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(APPLE)
-  SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-U,_environ")
-  SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-U,_environ")
+  # Darwin versions:
+  #   6.x == Mac OSX 10.2
+  #   7.x == Mac OSX 10.3
+  #   8.x == Mac OSX 10.4
+  #   9.x == Mac OSX 10.5
+  STRING(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" DARWIN_MAJOR_VERSION "${CMAKE_SYSTEM_VERSION}")
+  # Starting 10.4, Tcl/Tk now uses dlopen(RLTD_LOCAL) to load dylib libraries.
+  # While they could not be convinced to use the default RLTD_GLOBAL, they
+  # suggested the workaround was to stop using -flat_namespace.
+  # see https://sourceforge.net/tracker/?func=detail&atid=110894&aid=1961211&group_id=10894
+  IF("${DARWIN_MAJOR_VERSION}" LESS 8)
+    SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS 
+      "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+    SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS 
+      "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
+  ENDIF("${DARWIN_MAJOR_VERSION}" LESS 8)
   IF(CMAKE_COMPILER_IS_GNUCXX)
     SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -no-cpp-precomp")
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -no-cpp-precomp")
