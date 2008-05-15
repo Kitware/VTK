@@ -200,6 +200,13 @@ public:
       {
       os << indent << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << endl;
       }
+    os << endl;
+    os << indent << "User Defined Values: (" << Mapping.size() << ")\n";
+    UserDefinedValues::const_iterator it = Mapping.begin();
+    for(; it != Mapping.end(); ++it)
+      {
+      os << indent << it->Name << " -> " << it->Value << "\n";
+      }
     }
   vtkstd::vector<unsigned int> Orientation;
   void SetOrientation(unsigned int vol, unsigned int ori)
