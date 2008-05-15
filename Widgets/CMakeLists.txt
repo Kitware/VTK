@@ -24,6 +24,8 @@ vtkBorderRepresentation.cxx
 vtkBorderWidget.cxx
 vtkBoundedPlanePointPlacer.cxx
 vtkBoxWidget.cxx
+vtkBoxWidget2.cxx
+vtkBoxRepresentation.cxx
 vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
