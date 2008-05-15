@@ -14,5 +14,6 @@ IF(PYTHON_EXECUTABLE)
     "${VTK_SOURCE_DIR}/Infovis"
     VTK_INFOVIS_EXPORT
     vtkBoostGraphAdapter.h
+    vtkUnivariateStatisticsAlgorithmPrivate.h
     )
 ENDIF(PYTHON_EXECUTABLE)
