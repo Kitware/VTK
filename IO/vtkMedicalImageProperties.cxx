@@ -218,6 +218,7 @@ public:
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
     {
     WindowLevelPresetPool = p->WindowLevelPresetPool;
+    Mapping = p->Mapping;
     UID = p->UID;
     Orientation = p->Orientation;
     }
