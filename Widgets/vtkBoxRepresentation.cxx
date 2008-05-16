@@ -39,7 +39,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.3");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
@@ -400,7 +400,8 @@ void vtkBoxRepresentation::GetDirection(const double Nx[3],const double Ny[3],
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusXFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*9;
 
@@ -418,7 +419,8 @@ void vtkBoxRepresentation::MovePlusXFace(double *p1, double *p2)
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusXFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*8;
 
@@ -437,7 +439,8 @@ void vtkBoxRepresentation::MoveMinusXFace(double *p1, double *p2)
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusYFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*11;
 
@@ -456,7 +459,8 @@ void vtkBoxRepresentation::MovePlusYFace(double *p1, double *p2)
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusYFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*10;
 
@@ -475,7 +479,8 @@ void vtkBoxRepresentation::MoveMinusYFace(double *p1, double *p2)
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MovePlusZFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*13;
 
@@ -494,7 +499,8 @@ void vtkBoxRepresentation::MovePlusZFace(double *p1, double *p2)
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::MoveMinusZFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*12;
 
@@ -514,7 +520,8 @@ void vtkBoxRepresentation::MoveMinusZFace(double *p1, double *p2)
 // Loop through all points and translate them
 void vtkBoxRepresentation::Translate(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double v[3];
 
   v[0] = p2[0] - p1[0];
@@ -532,12 +539,15 @@ void vtkBoxRepresentation::Translate(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2), 
-                                 int vtkNotUsed(X), int Y)
+void vtkBoxRepresentation::Scale(double *vtkNotUsed(p1),
+                                 double *vtkNotUsed(p2),
+                                 int vtkNotUsed(X),
+                                 int Y)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+      static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *center 
-    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double sf;
 
   if ( Y > this->LastEventPosition[1] )
@@ -562,7 +572,8 @@ void vtkBoxRepresentation::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::ComputeNormals()
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *px = pts + 3*1;
   double *py = pts + 3*3;
@@ -601,8 +612,8 @@ void vtkBoxRepresentation::GetPlanes(vtkPlanes *planes)
   for (int i=0; i<6; i++)
     {
     this->PlanePoints->SetPoint(i,this->Points->GetPoint(8+i));
-    this->PlaneNormals->SetTuple3(i, factor*this->N[i][0], factor*this->N[i][1], 
-                                  factor*this->N[i][2]);
+    this->PlaneNormals->SetTuple3(i, factor*this->N[i][0],
+                                  factor*this->N[i][1], factor*this->N[i][2]);
     }
     
   planes->SetPoints(this->PlanePoints);
@@ -610,10 +621,16 @@ void vtkBoxRepresentation::GetPlanes(vtkPlanes *planes)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoxRepresentation::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
+void vtkBoxRepresentation::Rotate(int X,
+                                  int Y,
+                                  double *p1,
+                                  double *p2,
+                                  double *vpn)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
-  double *center = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double *center =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double v[3]; //vector of motion
   double axis[3]; //axis of rotation
   double theta; //rotation angle
@@ -630,8 +647,9 @@ void vtkBoxRepresentation::Rotate(int X, int Y, double *p1, double *p2, double *
     return;
     }
   int *size = this->Renderer->GetSize();
-  double l2 = (X-this->LastEventPosition[0])*(X-this->LastEventPosition[0]) + (Y-this->LastEventPosition[1])*(Y-this->LastEventPosition[1]);
-  theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
+  double l2 = (X-this->LastEventPosition[0])*(X-this->LastEventPosition[0])
+             + (Y-this->LastEventPosition[1])*(Y-this->LastEventPosition[1]);
+  theta = 360.0 * sqrt(l2/(size[0]*size[0]+size[1]*size[1]));
 
   //Manipulate the transform to reflect the rotation
   this->Transform->Identity();
@@ -718,7 +736,8 @@ void vtkBoxRepresentation::PlaceWidget(double bds[6])
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::GetTransform(vtkTransform *t)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+    static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
   double *p3 = pts + 3*3;
@@ -794,7 +813,8 @@ void vtkBoxRepresentation::SetTransform(vtkTransform* t)
     return;
     }
 
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double xIn[3];
   // make sure the transform is up-to-date before using it
   t->Update();
@@ -935,7 +955,8 @@ int vtkBoxRepresentation::ComputeInteractionState(int X, int Y, int modify)
     {
     this->ValidPick = 1;
     this->LastPicker = this->HandlePicker;
-    this->CurrentHandle = reinterpret_cast<vtkActor*>(path->GetFirstNode()->GetViewProp());
+    this->CurrentHandle =
+           reinterpret_cast<vtkActor *>(path->GetFirstNode()->GetViewProp());
     if ( this->CurrentHandle == this->Handle[0] )
       {
       this->InteractionState = vtkBoxRepresentation::MoveF0;
@@ -1130,7 +1151,8 @@ int vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------------
 void vtkBoxRepresentation::PositionHandles()
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
   double *p2 = pts + 3*2;
@@ -1191,8 +1213,9 @@ void vtkBoxRepresentation::HandlesOff()
 void vtkBoxRepresentation::SizeHandles()
 {
   double *center 
-    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
-  double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5,center);
+    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
+  double radius =
+      this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5,center);
   for(int i=0; i<7; i++)
     {
     this->HandleGeometry[i]->SetRadius(radius);
@@ -1209,7 +1232,7 @@ int vtkBoxRepresentation::HighlightHandle(vtkProp *prop)
     this->CurrentHandle->SetProperty(this->HandleProperty);
     }
 
-  this->CurrentHandle = (vtkActor *)prop;
+  this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
     {
@@ -1337,11 +1360,9 @@ void vtkBoxRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Outline Property: (none)\n";
     }
 
-  os << indent << "Outline Face Wires: " << (this->OutlineFaceWires ? "On\n" : "Off\n");
-  os << indent << "Outline Cursor Wires: " << (this->OutlineCursorWires ? "On\n" : "Off\n");
+  os << indent << "Outline Face Wires: "
+     << (this->OutlineFaceWires ? "On\n" : "Off\n");
+  os << indent << "Outline Cursor Wires: "
+     << (this->OutlineCursorWires ? "On\n" : "Off\n");
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");
-  
-
 }
-
-
