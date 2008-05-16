@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.28");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.29");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -347,6 +347,14 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
 
   if (yIdx < 0 || yIdx >= yExt || zIdx < 0 || zIdx >= zExt)
     { // out-of-bounds in y or z, use null extent
+    // if iter was set to negative, reverse the result
+    if (iter < 0)
+      {
+      iter = 0;
+      r1 = rmin;
+      r2 = rmax;
+      return 1;
+      }
     return 0;
     }
 
