@@ -59,7 +59,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.6");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.7");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -455,6 +455,7 @@ vtkStdString vtkMySQLQuery::EscapeString( vtkStdString src, bool addSurroundingQ
     * ( end ++ ) = '\0';
     }
   dst = dstarr;
+  delete [] dstarr;
   return dst;
 }
 
