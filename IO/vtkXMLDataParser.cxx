@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.34");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.35");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -580,8 +580,8 @@ vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
     return 0;
     }
 
-  // Read data in 32KB blocks and report progress.
-  const long blockSize = 32768;
+  // Read data in 2MB blocks and report progress.
+  const long blockSize = 2097152;
   long left = length;
   p = data;
   this->UpdateProgress(0);
