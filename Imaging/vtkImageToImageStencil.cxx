@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.19");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.20");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
 
 //----------------------------------------------------------------------------
 int vtkImageToImageStencil::RequestData(
-  vtkInformation *request,
+  vtkInformation *,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
