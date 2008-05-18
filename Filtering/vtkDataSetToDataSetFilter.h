@@ -32,7 +32,7 @@
 
 // .SECTION See Also
 // vtkBrownianPoints vtkProbeFilter vtkThresholdTextureCoords vtkDicer
-// vtkElevationFilter vtkImplicitTextureCoords vtkTextureMapToBox 
+// vtkElevationFilter vtkImplicitTextureCoords  
 // vtkTextureMapToPlane vtkVectorDot vtkVectorNorm
 
 #ifndef __vtkDataSetToDataSetFilter_h
