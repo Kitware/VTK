@@ -31,7 +31,7 @@
 // three point method the axes do not have to be orthogonal.
 
 // .SECTION See Also
-// vtkTextureMapToBox vtkPlaneSource vtkTextureMapToCylinder
+//  vtkPlaneSource vtkTextureMapToCylinder
 // vtkTextureMapToSphere vtkThresholdTextureCoords
 
 #ifndef __vtkTextureMapToPlane_h

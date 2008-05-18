@@ -37,7 +37,7 @@
 // of the texture coordinates.
 
 // .SECTION See Also
-// vtkTextureMapToPlane vtkTextureMapToSphere vtkTextureMapToBox
+// vtkTextureMapToPlane vtkTextureMapToSphere 
 // vtkTransformTexture vtkThresholdTextureCoords
 
 #ifndef __vtkTextureMapToCylinder_h

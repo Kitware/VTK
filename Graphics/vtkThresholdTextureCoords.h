@@ -30,7 +30,7 @@
 
 // .SECTION See Also
 // vtkThreshold vtkThresholdPoints vtkTextureMapToPlane vtkTextureMapToSphere
-// vtkTextureMapToCylinder vtkTextureMapToBox
+// vtkTextureMapToCylinder 
 
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h

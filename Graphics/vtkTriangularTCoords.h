@@ -24,7 +24,7 @@
 // Surfaces,"  by Penny Rheingans, IEEE Visualization '96, pp. 219-225.
 // .SECTION See Also
 // vtkTriangularTexture vtkThresholdPoints vtkTextureMapToPlane 
-// vtkTextureMapToSphere vtkTextureMapToCylinder vtkTextureMapToBox
+// vtkTextureMapToSphere vtkTextureMapToCylinder 
 
 #ifndef __vtkTriangularTCoords_h
 #define __vtkTriangularTCoords_h

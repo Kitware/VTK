@@ -26,7 +26,7 @@
 // the t-coordinate (and operations on the t-coordinate) are ignored.
 
 // .SECTION See Also
-// vtkTextureMapToPlane vtkTextureMapToBox vtkTextureMapToCylinder 
+// vtkTextureMapToPlane  vtkTextureMapToCylinder 
 // vtkTextureMapToSphere vtkThresholdTextureCoords vtkTexture
 
 #ifndef __vtkTransformTextureCoords_h
