@@ -101,7 +101,7 @@ int vtkFFMPEGWriterInternal::Start()
   this->avFormatContext = av_alloc_format_context();
   if (!this->avFormatContext) 
     {
-    cerr << "Coult not open the format context." << endl;
+    vtkErrorMacro( "Could not open the format context." );
     return 0;
     }
 
@@ -109,11 +109,11 @@ int vtkFFMPEGWriterInternal::Start()
   this->avOutputFormat = guess_format("avi", NULL, NULL);
   if (!this->avOutputFormat) 
     {
-    cerr << "Could not open the avi media file format." << endl;
+    vtkErrorMacro( "Could not open the avi media file format." );
     return 0;
     }
 
-  //chosen a codec that is easily playable on windows
+  //choose a codec that is easily playable on windows
   this->avOutputFormat->video_codec = CODEC_ID_MSMPEG4V3;
 
   //assign the format to the context
@@ -126,7 +126,7 @@ int vtkFFMPEGWriterInternal::Start()
   this->avStream = av_new_stream(this->avFormatContext, 0);
   if (!this->avStream) 
     {
-    cerr << "Could not create video stream." << endl;
+    vtkErrorMacro( "Could not create video stream." );
     return 0;
     }
   
@@ -354,7 +354,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.3");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.4");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
