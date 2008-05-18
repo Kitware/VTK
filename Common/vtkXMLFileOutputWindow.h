@@ -59,7 +59,7 @@ public:
   // Put the text into the log file without processing it.
   virtual void DisplayTag(const char*);
 
- protected:
+protected:
   vtkXMLFileOutputWindow() {}; 
   virtual ~vtkXMLFileOutputWindow() {}; 
 

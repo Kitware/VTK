@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkOutputWindow, "1.39");
+vtkCxxRevisionMacro(vtkOutputWindow, "1.40");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -176,7 +176,7 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
   // preferably this will be NULL
   if (vtkOutputWindow::Instance)
     {
-    vtkOutputWindow::Instance->Delete();;
+    vtkOutputWindow::Instance->Delete();
     }
   vtkOutputWindow::Instance = instance;
   if (!instance)

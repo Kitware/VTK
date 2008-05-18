@@ -15,7 +15,7 @@
 #include "vtkFileOutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFileOutputWindow, "1.8");
+vtkCxxRevisionMacro(vtkFileOutputWindow, "1.9");
 vtkStandardNewMacro(vtkFileOutputWindow);
 
 vtkFileOutputWindow::vtkFileOutputWindow()
@@ -44,7 +44,7 @@ void vtkFileOutputWindow::Initialize()
     {
     if (!this->FileName)
       {
-      char* fileName = (char *) "vtkMessageLog.log";
+      const char fileName[] = "vtkMessageLog.log";
       this->FileName = new char[strlen(fileName)+1];
       strcpy(this->FileName, fileName);
       }
