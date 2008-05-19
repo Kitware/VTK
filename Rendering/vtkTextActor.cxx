@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.45");
+vtkCxxRevisionMacro(vtkTextActor, "1.46");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -430,7 +430,8 @@ float vtkTextActor::GetFontScale(vtkViewport *viewport)
   int *viewportSize = viewport->GetSize();
 
   // Pretend the long dimension is the "width"
-  int viewportWidth = vtkstd::max(viewportSize[0], viewportSize[1]);
+  int viewportWidth
+    = (viewportSize[0] > viewportSize[1]) ? viewportSize[0] : viewportSize[1];
 
   // Scale based on the assumtion of a 6 inch wide image at 72 DPI.
   return (double)viewportWidth/(6*72);
