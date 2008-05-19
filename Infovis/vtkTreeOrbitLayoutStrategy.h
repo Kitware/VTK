@@ -52,6 +52,13 @@ public:
   // large gaps between subtrees.
   vtkSetClampMacro(LeafSpacing, double, 0.0, 1.0);
   vtkGetMacro(LeafSpacing, double);
+  
+  // Description:
+  // This is a magic number right now. Controls the radius
+  // of the child layout, all of this should be fixed at
+  // some point with a more logical layout. Defaults to .5 :)
+  vtkSetMacro(ChildRadiusFactor, double);
+  vtkGetMacro(ChildRadiusFactor, double);
 
 protected:
   vtkTreeOrbitLayoutStrategy();
@@ -61,6 +68,7 @@ protected:
 
   double LogSpacingValue;
   double LeafSpacing;
+  double ChildRadiusFactor;
 
 private:
 

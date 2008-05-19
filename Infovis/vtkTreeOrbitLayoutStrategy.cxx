@@ -35,13 +35,14 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeOrbitLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkTreeOrbitLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkTreeOrbitLayoutStrategy);
 
 vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()
 {
   this->LogSpacingValue = 1.0;
-  this->LeafSpacing = 0.9;
+  this->LeafSpacing = 1.0;
+  this->ChildRadiusFactor = .5;
 }
 
 vtkTreeOrbitLayoutStrategy::~vtkTreeOrbitLayoutStrategy()
@@ -105,8 +106,7 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
     p->SetPoint(childID, xOrbit, yOrbit, 0);
     
     // Compute child radius
-    double childRadius = radius*tan(myAngle)*2.0;
-    //if (childRadius > radius) childRadius = radius;
+    double childRadius = radius*tan(myAngle)*2.0 * this->ChildRadiusFactor;
     
     // Now recurse with a reduced radius
     this->OrbitChildren(t,p,childID,childRadius);
@@ -155,8 +155,7 @@ void vtkTreeOrbitLayoutStrategy::Layout()
   
   // Now traverse the tree and have all children 
   // orbit their parents recursively
-  double radius = 1;
-  this->OrbitChildren(tree, newPoints, currentRoot, radius);
+  this->OrbitChildren(tree, newPoints, currentRoot, 1);
   
   // Copy coordinates back into the original graph
   if (vtkTree::SafeDownCast(this->Graph))
@@ -194,4 +193,5 @@ void vtkTreeOrbitLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "LogSpacingValue: " << this->LogSpacingValue << endl;
   os << indent << "LeafSpacing: " << this->LeafSpacing << endl;
+  os << indent << "ChildRadiusFactor: " << this->ChildRadiusFactor << endl;
 }
