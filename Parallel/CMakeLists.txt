@@ -157,6 +157,7 @@ IF (VTK_USE_PARALLEL_BGL)
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkPBGLDistributedGraphHelper.cxx
+    vtkPBGLGraphSQLReader.cxx
     )
 ENDIF (VTK_USE_PARALLEL_BGL)
 
