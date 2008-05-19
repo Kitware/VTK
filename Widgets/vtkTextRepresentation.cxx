@@ -50,7 +50,7 @@ protected:
     
 };
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.10");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -191,7 +191,7 @@ void vtkTextRepresentation::InitializeTextActor()
 {
   if ( this->TextActor )
     {
-    this->TextActor->ScaledTextOn();
+    this->TextActor->SetTextScaleModeToProp();
     this->TextActor->SetMinimumSize(1,1);
     this->TextActor->SetMaximumLineHeight(1.0);
     this->TextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
@@ -255,7 +255,7 @@ void vtkTextRepresentation::ExecuteTextActorModifiedEvent(vtkObject* object,
 //----------------------------------------------------------------------------
 void vtkTextRepresentation::CheckTextBoundary()
 {
-  if(!this->TextActor->GetScaledText())
+  if(this->TextActor->GetTextScaleMode() != vtkTextActor::TEXT_SCALE_MODE_PROP)
   {
     vtkFreeTypeUtilities* ftu = vtkFreeTypeUtilities::GetInstance();
     if (!ftu)
@@ -264,8 +264,10 @@ void vtkTextRepresentation::CheckTextBoundary()
       return;
       }
 
+    this->TextActor->ComputeScaledFont(this->GetRenderer());
+
     int text_bbox[4];
-    ftu->GetBoundingBox(this->TextActor->GetTextProperty(), 
+    ftu->GetBoundingBox(this->TextActor->GetScaledTextProperty(), 
       this->GetText(), text_bbox);
     if (!ftu->IsBoundingBoxValid(text_bbox))
       {

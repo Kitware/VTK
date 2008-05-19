@@ -15,10 +15,12 @@
 // .NAME vtkTextActor - An actor that displays text. Scaled or unscaled
 // .SECTION Description
 // vtkTextActor can be used to place text annotation into a window.
-// When ScaledText is false, the text is fixed font and operation is
+// When TextScaleMode is NONE, the text is fixed font and operation is
 // the same as a vtkPolyDataMapper2D/vtkActor2D pair.
-// When ScaledText is true, the font resizes such that the text fits inside the
-// box defined by the position 1 & 2 coordinates. This class replaces the
+// When TextScaleMode is VIEWPORT, the font resizes such that it maintains a
+// consistent size relative to the viewport in which it is rendered.
+// When TextScaleMode is PROP, the font resizes such that the text fits inside
+// the box defined by the position 1 & 2 coordinates. This class replaces the
 // deprecated vtkScaledTextActor and acts as a convenient wrapper for
 // a vtkTextMapper/vtkActor2D pair.
 // Set the text property/attributes through the vtkTextProperty associated to
@@ -73,7 +75,7 @@ public:
   // Description:
   // Set/Get the minimum size in pixels for this actor.
   // Defaults to 10,10.
-  // Not valid when ScaledText = false
+  // Only valid when TextScaleMode is PROP.
   vtkSetVector2Macro(MinimumSize,int);
   vtkGetVector2Macro(MinimumSize,int);
 
@@ -81,17 +83,43 @@ public:
   // Set/Get the maximum height of a line of text as a
   // percentage of the vertical area allocated to this
   // scaled text actor. Defaults to 1.0.
-  // Not valid when ScaledText = false
+  // Only valid when TextScaleMode is PROP.
   vtkSetMacro(MaximumLineHeight,float);
   vtkGetMacro(MaximumLineHeight,float);
 
   // Description:
-  // Turn on or off the ScaledText option.
-  // When text is scaled, the bounding rectangle is used to fit the text
-  // When ScaledText is off, the text is rendered at a fixed font size
-  vtkSetMacro(ScaledText,int);
-  vtkGetMacro(ScaledText,int);
-  vtkBooleanMacro(ScaledText,int);
+  // Set how text should be scaled.  If set to
+  // vtkTextActor::TEXT_SCALE_MODE_NONE, the the font size will be fixed by the
+  // size given in TextProperty.  If set to vtkTextActor::TEXT_SCALE_MODE_PROP,
+  // the text will be scaled to fit exactly in the prop as specified by the
+  // position 1 & 2 coordinates.  If set to
+  // vtkTextActor::TEXT_SCALE_MODE_VIEWPORT, the text will be scaled based on
+  // the size of the viewport it is displayed in.
+  vtkSetClampMacro(TextScaleMode, int,
+                     TEXT_SCALE_MODE_NONE, TEXT_SCALE_MODE_VIEWPORT);
+  vtkGetMacro(TextScaleMode, int);
+  void SetTextScaleModeToNone()
+    { this->SetTextScaleMode(TEXT_SCALE_MODE_NONE); }
+  void SetTextScaleModeToProp()
+    { this->SetTextScaleMode(TEXT_SCALE_MODE_PROP); }
+  void SetTextScaleModeToViewport()
+    { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
+
+//BTX
+  enum {
+    TEXT_SCALE_MODE_NONE = 0,
+    TEXT_SCALE_MODE_PROP,
+    TEXT_SCALE_MODE_VIEWPORT
+  };
+//ETX
+
+  // Description:
+  // DO NOT CALL.  Deprecated in VTK 5.4.  Use SetTextScaleMode or
+  // GetTextScaleMode instead.
+  VTK_LEGACY(void SetScaledText(int));
+  VTK_LEGACY(int GetScaledText());
+  VTK_LEGACY(void ScaledTextOn());
+  VTK_LEGACY(void ScaledTextOff());
 
   // Description:
   // Turn on or off the UseBorderAlign option.
@@ -152,6 +180,24 @@ public:
   // process.
   void DisplayToSpecified(double *pos, vtkViewport *vport, int specified);
 
+  // Description:
+  // Compute the scale the font should be given the viewport.  The result
+  // is placed in the ScaledTextProperty ivar.
+  virtual void ComputeScaledFont(vtkViewport *viewport);
+
+  // Description:
+  // Get the scaled font.  Use ComputeScaledFont to set the scale for a given
+  // viewport.
+  vtkGetObjectMacro(ScaledTextProperty, vtkTextProperty);
+
+  // Description:
+  // Provide a font scaling based on a viewport.  This is the scaling factor
+  // used when the TextScaleMode is set to VIEWPORT and has been made public for
+  // other components to use.  This scaling assumes that the long dimension of
+  // the viewport is meant to be 6 inches (a typical width of text in a paper)
+  // and then resizes based on if that long dimension was 72 DPI.
+  static float GetFontScale(vtkViewport *viewport);
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -165,9 +211,9 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
   // Draw the text actor to the screen.
-  int RenderOpaqueGeometry(vtkViewport* viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
-  int RenderOverlay(vtkViewport* viewport);
+  virtual int RenderOverlay(vtkViewport* viewport);
   
   // Description:
   // Does this prop have some translucent polygonal geometry?
@@ -185,8 +231,7 @@ protected:
   int     MinimumSize[2];
   float   MaximumLineHeight;
   double  FontScaleExponent;
-  double  FontScaleTarget;
-  int     ScaledText;
+  int     TextScaleMode;
   float   Orientation;
   int     UseBorderAlign;
 
@@ -204,12 +249,14 @@ protected:
   bool InputRendered;
   double FormerOrientation;
 
+  vtkTextProperty *ScaledTextProperty;
+
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;
   vtkPoints*   RectanglePoints;
   vtkTexture *Texture; 
   
-  void ComputeRectangle(vtkViewport *viewport); 
+  virtual void ComputeRectangle(vtkViewport *viewport); 
 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated
