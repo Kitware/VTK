@@ -79,7 +79,6 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int version)
     VTK_VARIANT_SAVE(VTK_DOUBLE,double,ToDouble);
     VTK_VARIANT_SAVE(VTK_CHAR,char,ToChar);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_CHAR,unsigned char,ToUnsignedChar);
-    VTK_VARIANT_SAVE(VTK_SIGNED_CHAR,signed char,ToSignedChar);
     VTK_VARIANT_SAVE(VTK_SHORT,short,ToShort);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_SHORT,unsigned short,ToUnsignedShort);
     VTK_VARIANT_SAVE(VTK_INT,int,ToInt);
@@ -125,7 +124,6 @@ void load(Archiver& ar, vtkVariant& variant, const unsigned int version)
     VTK_VARIANT_LOAD(VTK_DOUBLE,double);
     VTK_VARIANT_LOAD(VTK_CHAR,char);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_CHAR,unsigned char);
-    VTK_VARIANT_LOAD(VTK_SIGNED_CHAR,signed char);
     VTK_VARIANT_LOAD(VTK_SHORT,short);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_SHORT,unsigned short);
     VTK_VARIANT_LOAD(VTK_INT,int);
