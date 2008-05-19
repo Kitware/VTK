@@ -33,21 +33,6 @@
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/bind.hpp>
 
-// TODO: Temporary hack for signed characters. This should go into
-// Boost.MPI.
-namespace boost { namespace mpi {
-
-  template<> struct is_mpi_datatype<signed char> : mpl::true_ { };
-
-  template<>
-  inline MPI_Datatype
-  get_mpi_datatype<signed char>(const signed char&) 
-  {
-    return MPI_SIGNED_CHAR; 
-  }
-
-} }
-
 //----------------------------------------------------------------------------
 // private class vtkPBGLDistributedGraphHelperInternals
 //----------------------------------------------------------------------------
@@ -63,12 +48,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.12");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.13");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.12");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.13");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
