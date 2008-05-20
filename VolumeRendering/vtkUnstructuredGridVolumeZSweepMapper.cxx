@@ -177,7 +177,20 @@ public:
       return this->InvW;
     }
   
-  vtkVertexEntry(const vtkVertexEntry &vtkNotUsed(other)) {}
+  vtkVertexEntry &operator=(const vtkVertexEntry &other) {
+    ScreenX = other.ScreenX;
+    ScreenY = other.ScreenY;
+    memcpy(Values, other.Values, sizeof(double)*VTK_VALUES_SIZE);
+    Zview = other.Zview;
+    InvW = other.InvW;
+    return *this;
+  }
+  vtkVertexEntry(const vtkVertexEntry &other) {
+    if( this != &other)
+      {
+      *this = other;
+      }
+  }
   
 protected:
   int ScreenX;
@@ -185,9 +198,6 @@ protected:
   double Values[VTK_VALUES_SIZE];
   double Zview;
   double InvW;
-  
-private:
-  vtkVertexEntry &operator=(const vtkVertexEntry &other);
 };
 
 
@@ -2358,7 +2368,7 @@ using namespace vtkUnstructuredGridVolumeZSweepMapperNamespace;
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.10");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.11");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
