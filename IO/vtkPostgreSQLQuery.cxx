@@ -34,7 +34,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.8");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.9");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
@@ -325,7 +325,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkPostgreSQLQueryPrivate);
-vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.8");
+vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.9");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery() 
@@ -500,13 +500,14 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
     }
   else
     {
-    this->Superclass::EscapeString( s, false );
+    retval.append( this->Superclass::EscapeString( s, false ) );
     }
 
   if ( addSurroundingQuotes )
     {
     retval.append( "'" );
     }
+
   return retval;
 }
 
