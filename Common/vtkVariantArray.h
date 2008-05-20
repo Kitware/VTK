@@ -235,7 +235,13 @@ public:
   // the fast lookup will know to rebuild itself.  Otherwise, the lookup
   // functions will give incorrect results.
   virtual void DataChanged();
-  
+
+  // Description:
+  // Tell the array explicitly that a single data element has
+  // changed. Like DataChanged(), then is only necessary when you
+  // modify the array contents without using the array's API. 
+  virtual void DataElementChanged(vtkIdType id);
+
   // Description:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
