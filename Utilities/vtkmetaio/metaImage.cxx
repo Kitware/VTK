@@ -2122,7 +2122,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
           memset(zerobytes, 0, padding);
           MetaImage::M_WriteElementData(m_WriteStream, zerobytes, padding/elementNumberOfBytes);
           delete [] zerobytes;      
-          currentPos += padding;
+          currentPos += (unsigned long)(padding);
           } 
         
         // Write the line
