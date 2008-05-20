@@ -187,6 +187,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   haruspex->Delete();
+  testIntValue = 0;
 
   return 0;
 }
