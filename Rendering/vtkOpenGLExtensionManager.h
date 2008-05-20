@@ -122,6 +122,7 @@
 #define __vtkOpenGLExtensionManager_h
 
 #include <vtkObject.h>
+#include <vtkWeakPointer.h> // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 
@@ -146,7 +147,7 @@ public:
   // Description:
   // Set/Get the render window to query extensions on.  If set to null,
   // justs queries the current render window.
-  vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
+  vtkRenderWindow* GetRenderWindow();
   virtual void SetRenderWindow(vtkRenderWindow *renwin);
 
   // Description:
@@ -254,13 +255,14 @@ public:
   // vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   // \endcode
   virtual void LoadCorePromotedExtension(const char *name);
-  
+//BTX
 protected:
   vtkOpenGLExtensionManager();
   virtual ~vtkOpenGLExtensionManager();
 
-  vtkRenderWindow *RenderWindow;
+  vtkWeakPointer<vtkRenderWindow> RenderWindow;
 
+  int OwnRenderWindow;
   char *ExtensionsString;
 
   vtkTimeStamp BuildTime;
@@ -277,6 +279,7 @@ protected:
 private:
   vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
   void operator=(const vtkOpenGLExtensionManager&); // Not implemented
+//ETX
 };
 
 #endif //__vtkOpenGLExtensionManager

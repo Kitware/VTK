@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGL.h" // Needed for GLuint.
 
 class vtkIdList;
+class vtkOpenGLExtensionManager;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -173,10 +174,16 @@ public:
   // Description:
   // Get the time when the OpenGL context was created.
   vtkGetMacro(ContextCreationTime, vtkTimeStamp);
+
+  // Description:
+  // Returns the extension manager. A new one will be created if one hasn't
+  // already been set up.
+  vtkOpenGLExtensionManager* GetExtensionManager();
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
-  
+
   vtkIdList *TextureResourceIds;
 
   int GetPixelData(int x,int y,int x2,int y2,int front, unsigned char* data);
@@ -233,6 +240,9 @@ protected:
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+
+  void SetExtensionManager(vtkOpenGLExtensionManager*);
+  vtkOpenGLExtensionManager* ExtensionManager;
 };
 
 #endif

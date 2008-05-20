@@ -13,25 +13,27 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLProperty.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkOpenGLCamera.h"
-#include "vtkOpenGLLight.h"
-#include "vtkOpenGLActor.h"
-#include "vtkOpenGLPolyDataMapper.h"
+#include "assert.h"
+#include "vtkFloatArray.h"
+#include "vtkgl.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "assert.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLExtensionManager.h"
-#include "vtkgl.h"
+#include "vtkOpenGLLight.h"
+#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.95");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.96");
 #endif
+
+vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
 
 #define MAX_LIGHTS 8
 
@@ -51,6 +53,7 @@ int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
+  this->ExtensionManager = 0;
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->TextureResourceIds = vtkIdList::New();
   if ( this->WindowName ) 
@@ -74,6 +77,11 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
   this->TextureResourceIds->Delete();
+  if (this->ExtensionManager)
+    {
+    this->ExtensionManager->SetRenderWindow(0);
+    }
+  this->SetExtensionManager(0);
 }
 
 // ----------------------------------------------------------------------------
@@ -199,6 +207,10 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
 
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
+  // When a new OpenGL context is created, we want to get rid of the old OpenGL
+  // extension manager, if any.
+  this->SetExtensionManager(0);
+
   this->ContextCreationTime.Modified();
   glMatrixMode( GL_MODELVIEW );
   glDepthFunc( GL_LEQUAL );
@@ -214,20 +226,18 @@ void vtkOpenGLRenderWindow::OpenGLInit()
   vtkgl::BlendFuncSeparate=0;
   
   // Try to initialize vtkgl::BlendFuncSeparate() if available.
-  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
-  extensions->SetRenderWindow(this);
-  if(extensions->ExtensionSupported("GL_VERSION_1_4"))
+  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
+  if (extensions->ExtensionSupported("GL_VERSION_1_4"))
     {
     extensions->LoadExtension("GL_VERSION_1_4");
     }
   else
     {
-    if(extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
+    if (extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
       {
       extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
       }
     }
-  extensions->Delete();
   
   if(vtkgl::BlendFuncSeparate!=0)
     {
@@ -1479,8 +1489,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   
   // 2. check for OpenGL extensions GL_EXT_framebuffer_object and
   // GL_ARB_texture_non_power_of_two (core-promoted feature in OpenGL 2.0)
-  vtkOpenGLExtensionManager *extensions=vtkOpenGLExtensionManager::New();
-  extensions->SetRenderWindow(this);
+  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
   
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
@@ -1704,7 +1713,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         }
       }
     }
-  extensions->Delete();
   
   // A=>B = !A || B
   assert("post: valid_result" && (result==0 || result==1)
@@ -1818,4 +1826,23 @@ const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
       break;
     }
   return result;
+}
+
+
+// ----------------------------------------------------------------------------
+// Description:
+// Returns the extension manager. A new one will be created if one hasn't
+// already been set up.
+vtkOpenGLExtensionManager* vtkOpenGLRenderWindow::GetExtensionManager()
+{
+  if (!this->ExtensionManager)
+    {
+    vtkOpenGLExtensionManager* mgr = vtkOpenGLExtensionManager::New();
+    // This does not form a reference loop since vtkOpenGLExtensionManager does
+    // not keep a reference to the render window.
+    mgr->SetRenderWindow(this);
+    this->SetExtensionManager(mgr);
+    mgr->Delete();
+    }
+  return this->ExtensionManager;
 }

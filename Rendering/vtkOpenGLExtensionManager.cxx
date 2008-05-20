@@ -57,7 +57,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.31");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.32");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 namespace vtkgl
@@ -71,6 +71,7 @@ int LoadCorePromotedExtension(const char *name,
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
 {
+  this->OwnRenderWindow = 0;
   this->RenderWindow = NULL;
   this->ExtensionsString = NULL;
 
@@ -96,6 +97,12 @@ void vtkOpenGLExtensionManager::PrintSelf(ostream &os, vtkIndent indent)
      << (this->ExtensionsString ? this->ExtensionsString : "(NULL)") << endl;
 }
 
+
+vtkRenderWindow* vtkOpenGLExtensionManager::GetRenderWindow()
+{
+  return this->RenderWindow;
+}
+
 void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
 {
   if (renwin == this->RenderWindow)
@@ -103,19 +110,15 @@ void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
     return;
     }
 
-  vtkDebugMacro("Setting RenderWindow to " << renwin);
-
-  if (this->RenderWindow)
+  if (this->OwnRenderWindow && this->RenderWindow)
     {
     this->RenderWindow->UnRegister(this);
+    this->RenderWindow = 0;
     }
 
+  vtkDebugMacro("Setting RenderWindow to " << renwin);
+  this->OwnRenderWindow = 0;
   this->RenderWindow = renwin;
-  if (this->RenderWindow)
-    {
-    this->RenderWindow->Register(this);
-    }
-
   this->Modified();
 }
 
@@ -420,6 +423,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     vtkRenderWindow *renwin = vtkRenderWindow::New();
     renwin->SetSize(1, 1);
     this->SetRenderWindow(renwin);
+    renwin->Register(this);
+    this->OwnRenderWindow = 1;
     renwin->Delete();
     this->ReadOpenGLExtensions();
     return;
