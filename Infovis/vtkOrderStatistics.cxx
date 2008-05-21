@@ -34,8 +34,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.1");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.2");
 vtkStandardNewMacro(vtkOrderStatistics);
+
+static const double quantileRatios[] = { 0., .1, .2, .25, .3, .4, .5, .6, .7, .75, .8, .9 };
 
 // ----------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
@@ -161,92 +163,64 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
       continue;
       }
 
-    double q[13] = {
-      0.,
-      .1,
-      .2,
-      .25,
-      .3,
-      .4,
-      .5,
-      .6,
-      .7,
-      .75,
-      .8,
-      .9,
-      1. 
-    };
-    for ( int i = 0; i < 13; ++ i )
-      {
-      q[i] *= this->SampleSize;
-      }
-
-    double quantile[13];
-    // quantile[ 0]: minimum
-    // quantile[ 1]: 1st decile
-    // quantile[ 2]: 2nd decile
-    // quantile[ 3]: 1st quartile
-    // quantile[ 4]: 3rd decile
-    // quantile[ 5]: 4th decile
-    // quantile[ 6]: median (= 2nd quartile = 5th decile)
-    // quantile[ 7]: 6th decile
-    // quantile[ 8]: 7th decile
-    // quantile[ 9]: 3rd quartile
-    // quantile[10]: 8th decile
-    // quantile[11]: 9th decile
-    // quantile[12]: maximum
-
-    double val = 0.;
     vtkstd::map<double,vtkIdType> distr;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      val = dataset->GetValue( r, *it ).ToDouble();
-      ++ distr[val];
+      ++ distr[dataset->GetValue( r, *it ).ToDouble()];
       }
-    vtkIdType nVals = distr.size(); 
-
-    double* cumul = new double[nVals];
-    double sum = 0.;
-    vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
-    double previous = mit->first;
-    int j = 0;
-    for ( int i = 0; mit != distr.end(); previous = mit->first, ++ mit, ++ i )
-      {
-      sum += mit->second;
-      cumul[i] = sum;
-
-      for ( ; sum > q[j]; ++ j )
-        {
-        if ( cumul[i - 1] == q[j] )
-          {
-          quantile[j] = .5 * ( previous + mit->first );
-          }
-        else
-          {
-          quantile[j] = mit->first;
-          }
-        if ( j == 13 )
-          {
-          // We really should never arrive here. If we do, then we have a problem.
-          vtkErrorMacro( "An error occurred while calculating quantiles." );
-          delete [] cumul;
-          return;
-          }
-        }
-      }
-
-    quantile[12] = previous;
 
     vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( 14 );
 
     if ( finalize )
       {
+      double quantileThresholds[12];
+      for ( int i = 0; i < 12; ++ i )
+        {
+        quantileThresholds[i] = quantileRatios[i] * this->SampleSize;
+        }
+
+      double quantileValues[13];
+      // quantileValues[ 0]: minimum
+      // quantileValues[ 1]: 1st decile
+      // quantileValues[ 2]: 2nd decile
+      // quantileValues[ 3]: 1st quartile
+      // quantileValues[ 4]: 3rd decile
+      // quantileValues[ 5]: 4th decile
+      // quantileValues[ 6]: median (= 2nd quartile = 5th decile)
+      // quantileValues[ 7]: 6th decile
+      // quantileValues[ 8]: 7th decile
+      // quantileValues[ 9]: 3rd quartile
+      // quantileValues[10]: 8th decile
+      // quantileValues[11]: 9th decile
+      // quantileValues[12]: maximum
+
+      double sum = 0;
+      int j = 0;
+      for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
+            mit != distr.end(); ++ mit  )
+        {
+        for ( sum += mit->second; sum >= quantileThresholds[j] && j < 12; ++ j )
+          {
+          if ( sum == quantileThresholds[j] )
+            {
+            vtkstd::map<double,vtkIdType>::iterator nit = mit;
+            quantileValues[j] = ( (++nit)->first + mit->first ) * .5; // "hydrologist's method"
+            }
+          else
+            {
+            quantileValues[j] = mit->first;
+            }
+          }
+        }
+    
+      quantileValues[12] = distr.rbegin()->first;
+
+      row->SetNumberOfValues( 14 );
 
       row->SetValue(  0, *it );
       for ( int i = 0; i < 13; ++ i )
         {
-        row->SetValue(  i + 1, quantile[i] );
+        row->SetValue(  i + 1, quantileValues[i] );
         }
       }
     else
@@ -258,7 +232,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     output->InsertNextRow( row );
 
     row->Delete();
-    delete [] cumul;
     }
 
   return;
