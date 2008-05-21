@@ -25,7 +25,7 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendSelection, "1.5");
+vtkCxxRevisionMacro(vtkAppendSelection, "1.6");
 vtkStandardNewMacro(vtkAppendSelection);
 
 //----------------------------------------------------------------------------
@@ -115,6 +115,7 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   // Get the output
   vtkSelection *output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  output->Clear();
   
   // If there are no inputs, we are done.
   int numInputs = this->GetNumberOfInputConnections(0);
