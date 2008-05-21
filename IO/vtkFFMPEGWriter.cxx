@@ -101,7 +101,7 @@ int vtkFFMPEGWriterInternal::Start()
   this->avFormatContext = av_alloc_format_context();
   if (!this->avFormatContext) 
     {
-    vtkErrorMacro( "Could not open the format context." );
+    vtkGenericWarningMacro (<< "Coult not open the format context.");
     return 0;
     }
 
@@ -109,11 +109,11 @@ int vtkFFMPEGWriterInternal::Start()
   this->avOutputFormat = guess_format("avi", NULL, NULL);
   if (!this->avOutputFormat) 
     {
-    vtkErrorMacro( "Could not open the avi media file format." );
+    vtkGenericWarningMacro (<< "Could not open the avi media file format.");
     return 0;
     }
 
-  //choose a codec that is easily playable on windows
+  //chosen a codec that is easily playable on windows
   this->avOutputFormat->video_codec = CODEC_ID_MSMPEG4V3;
 
   //assign the format to the context
@@ -126,7 +126,7 @@ int vtkFFMPEGWriterInternal::Start()
   this->avStream = av_new_stream(this->avFormatContext, 0);
   if (!this->avStream) 
     {
-    vtkErrorMacro( "Could not create video stream." );
+    vtkGenericWarningMacro (<< "Could not create video stream.");
     return 0;
     }
   
@@ -162,7 +162,7 @@ int vtkFFMPEGWriterInternal::Start()
   //apply the chosen parameters
   if (av_set_parameters(this->avFormatContext, NULL) < 0) 
     {
-    cerr << "Invalid output format parameters." << endl;
+    vtkGenericWarningMacro (<< "Invalid output format parameters." );
     return 0;
     }
 
@@ -170,12 +170,12 @@ int vtkFFMPEGWriterInternal::Start()
   AVCodec *codec = avcodec_find_encoder(c->codec_id);
   if (!codec) 
     {
-    cerr << "Codec not found." << endl;
+    vtkGenericWarningMacro (<< "Codec not found." );
     return 0;
     }
   if (avcodec_open(c, codec) < 0) 
     {
-    cerr << "Could not open codec." << endl;
+    vtkGenericWarningMacro (<< "Could not open codec.");
     return 0;
     }
 
@@ -186,7 +186,7 @@ int vtkFFMPEGWriterInternal::Start()
   this->codecBuf = new unsigned char[this->codecBufSize];
   if (!this->codecBuf)
     {
-    cerr << "Could not make codec working space." << endl;
+    vtkGenericWarningMacro (<< "Could not make codec working space." );
     return 0;
     }
 
@@ -194,14 +194,14 @@ int vtkFFMPEGWriterInternal::Start()
   this->rgbInput = avcodec_alloc_frame();
   if (!this->rgbInput)
     {
-    cerr << "Could not make rgbInput avframe." << endl;
+    vtkGenericWarningMacro (<< "Could not make rgbInput avframe." );
     return 0;
     }    
   int RGBsize = avpicture_get_size(PIX_FMT_RGB24, c->width, c->height);
   unsigned char *rgb = new unsigned char[RGBsize]; 
   if (!rgb)
     {
-    cerr << "Could not make rgbInput's buffer." << endl;
+    vtkGenericWarningMacro (<< "Could not make rgbInput's buffer." );
     return 0;
     }
   //The rgb buffer should get deleted when this->rgbInput is. 
@@ -211,14 +211,14 @@ int vtkFFMPEGWriterInternal::Start()
   this->yuvOutput = avcodec_alloc_frame();
   if (!this->yuvOutput)
     {
-    cerr << "Could not make yuvOutput avframe." << endl;
+    vtkGenericWarningMacro (<< "Could not make yuvOutput avframe." );
     return 0;
     }  
   int YUVsize = avpicture_get_size(c->pix_fmt, c->width, c->height);
   unsigned char *yuv = new unsigned char[YUVsize]; 
   if (!yuv)
     {
-    cerr << "Could not make yuvOutput's buffer." << endl;
+    vtkGenericWarningMacro (<< "Could not make yuvOutput's buffer." );
     return 0;
     }
   //The yuv buffer should get deleted when this->yuv_input is.
@@ -228,7 +228,7 @@ int vtkFFMPEGWriterInternal::Start()
   //Finally, open the file and start it off.
   if (url_fopen(&this->avFormatContext->pb, this->avFormatContext->filename, URL_WRONLY) < 0) 
     {
-    cerr << "Could not open " << this->Writer->GetFileName() << "." << endl;
+    vtkGenericWarningMacro (<< "Could not open " << this->Writer->GetFileName() << "." );
     return 0;
     }
   this->openedFile = 1;
@@ -291,7 +291,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   
   if (toAdd) //should not have anything left over
     {
-    cerr << "Problem encoding frame." << endl;
+    vtkGenericWarningMacro (<< "Problem encoding frame." );
     return 0;
     }
 
@@ -354,7 +354,7 @@ void vtkFFMPEGWriterInternal::End()
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkFFMPEGWriter);
-vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.4");
+vtkCxxRevisionMacro(vtkFFMPEGWriter, "1.5");
 
 //---------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
