@@ -61,7 +61,11 @@
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
 //   vtkWidgetEvent::EndSelect -- the selection process has completed
-//   vtkWidgetEvent::Move -- a request for slider motion has been invoked
+//   vtkWidgetEvent::Scale -- some part of the widget has been selected
+//   vtkWidgetEvent::EndScale -- the selection process has completed
+//   vtkWidgetEvent::Translate -- some part of the widget has been selected
+//   vtkWidgetEvent::EndTranslate -- the selection process has completed
+//   vtkWidgetEvent::Move -- a request for motion has been invoked
 // </pre>
 //
 // In turn, when these widget events are processed, the vtkBoxWidget2
@@ -81,8 +85,7 @@
 // class vtkBoxWidget.
 
 // .SECTION See Also
-// vtkBoxRepresentation vtkLineWidget vtk3DWidget vtkImplicitPlaneWidget
-// vtkImplicitPlaneWidget2
+// vtkBoxRepresentation vtkBoxWidget
 
 #ifndef __vtkBoxWidget2_h
 #define __vtkBoxWidget2_h
@@ -101,7 +104,7 @@ public:
   static vtkBoxWidget2 *New();
 
   // Description:
-  // Standard vtkObject methods
+  // Standard class methods for type information and printing.
   vtkTypeRevisionMacro(vtkBoxWidget2,vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 

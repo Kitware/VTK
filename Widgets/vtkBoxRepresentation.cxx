@@ -13,9 +13,7 @@
 
 =========================================================================*/
 #include "vtkBoxRepresentation.h"
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkActor.h"
-#include "vtkLineSource.h"
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
@@ -39,7 +37,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.4");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------

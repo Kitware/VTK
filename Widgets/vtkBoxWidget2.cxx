@@ -14,8 +14,6 @@
 =========================================================================*/
 #include "vtkBoxWidget2.h"
 #include "vtkBoxRepresentation.h"
-#include "vtkPointHandleRepresentation3D.h"
-#include "vtkHandleWidget.h"
 #include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
@@ -28,7 +26,7 @@
 #include "vtkRenderer.h"
 
 
-vtkCxxRevisionMacro(vtkBoxWidget2, "1.1");
+vtkCxxRevisionMacro(vtkBoxWidget2, "1.2");
 vtkStandardNewMacro(vtkBoxWidget2);
 
 //----------------------------------------------------------------------------
