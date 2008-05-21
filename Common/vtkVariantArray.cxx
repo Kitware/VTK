@@ -75,7 +75,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.9.6.1");
+vtkCxxRevisionMacro(vtkVariantArray, "1.9.6.2");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -700,18 +700,27 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
   // check.
   vtkVariantLessThan less;
   typedef vtkVariantCachedUpdates::iterator CacheIterator;
-  vtkstd::pair<CacheIterator, CacheIterator>
-    cached = this->Lookup->CachedUpdates.equal_range(value);
-  while (cached.first != cached.second) 
+  CacheIterator cached    = this->Lookup->CachedUpdates.lower_bound(value),
+                cachedEnd = this->Lookup->CachedUpdates.end();
+  while (cached != cachedEnd)
     {
-    vtkVariant currentValue = this->GetValue(cached.first->second);
-    if (!less(currentValue, cached.first->first) 
-        && !less(cached.first->first, currentValue))
+    // Check that we are still in the same equivalence class as the
+    // value.
+    if (value.IsEqual(cached->first))
       {
-      return cached.first->second;
+      // Check that the value in the original array hasn't changed.
+      vtkVariant currentValue = this->GetValue(cached->second);
+      if (value.IsEqual(currentValue))
+        {
+        return cached->second;
+        }
+      }
+    else
+      {
+      break;
       }
 
-    ++cached.first;
+    ++cached;
     }
 
   // Perform a binary search of the sorted array using STL equal_range.
@@ -719,24 +728,34 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
   vtkVariant* ptrEnd = ptr + numComps*numTuples;
-  vtkstd::pair<vtkVariant*, vtkVariant*> found = vtkstd::equal_range(
+  vtkVariant* found = vtkstd::lower_bound(
     ptr, ptrEnd, value, vtkVariantLessThan());
 
   // Find an index with a matching value. Non-matching values might
   // show up here when the underlying value at that index has been
   // changed (so the sorted array is out-of-date).
-  while (found.first != found.second)
+  vtkIdType offset = static_cast<vtkIdType>(found - ptr);
+  while (found != ptrEnd)
     {
-    vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);
-    vtkVariant currentValue = 
-      this->GetValue(this->Lookup->IndexArray->GetId(ind));
-    if (!less(currentValue, *found.first)
-        && !less(*found.first, currentValue))
+    // Check whether we still have a value equivalent to what we're
+    // looking for.
+      if (value.IsEqual(*found))
       {
-      return this->Lookup->IndexArray->GetId(ind);
+      // Check that the value in the original array hasn't changed.
+      vtkIdType index = this->Lookup->IndexArray->GetId(offset);
+      vtkVariant currentValue = this->GetValue(index);
+      if (value.IsEqual(currentValue))
+        {
+        return index;
+        }
+      }
+    else
+      {
+      break;
       }
 
-    ++found.first;
+    ++found; 
+    ++offset;
     }
 
   return -1;
@@ -755,13 +774,13 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   // check.
   vtkVariantLessThan less;
   typedef vtkVariantCachedUpdates::iterator CacheIterator;
-  vtkstd::pair<CacheIterator, CacheIterator>
-    cached = this->Lookup->CachedUpdates.equal_range(value);
+  vtkstd::pair<CacheIterator, CacheIterator> cached    
+    = this->Lookup->CachedUpdates.equal_range(value);
   while (cached.first != cached.second) 
     {
+    // Check that the value in the original array hasn't changed.
     vtkVariant currentValue = this->GetValue(cached.first->second);
-    if (!less(currentValue, cached.first->first)
-        && !less(cached.first->first, currentValue))
+    if (cached.first->first.IsEqual(currentValue))
       {
       ids->InsertNextId(cached.first->second);
       }
@@ -773,22 +792,24 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkVariant* ptr = this->Lookup->SortedArray->GetPointer(0);
-  vtkstd::pair<vtkVariant*,vtkVariant*> found = 
-    vtkstd::equal_range(ptr, ptr + numComps*numTuples, value, vtkVariantLessThan());
+  vtkVariant* ptrEnd = ptr + numComps*numTuples;
+  vtkstd::pair<vtkVariant*, vtkVariant*> found = 
+    vtkstd::equal_range(ptr, ptrEnd, value, vtkVariantLessThan());
   
   // Add the indices of the found items to the ID list.
+  vtkIdType offset = static_cast<vtkIdType>(found.first - ptr);
   while (found.first != found.second)
     {
-    vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);
-    vtkVariant currentValue = 
-      this->GetValue(this->Lookup->IndexArray->GetId(ind));
-    if (!less(currentValue, *found.first)
-        && !less(*found.first, currentValue))
+    // Check that the value in the original array hasn't changed.
+    vtkIdType index = this->Lookup->IndexArray->GetId(offset); 
+    vtkVariant currentValue = this->GetValue(index);
+    if (found.first->IsEqual(currentValue))
       {
-      ids->InsertNextId(this->Lookup->IndexArray->GetId(ind));
+      ids->InsertNextId(index);
       }
 
     ++found.first;
+    ++offset;
     }
 }
 

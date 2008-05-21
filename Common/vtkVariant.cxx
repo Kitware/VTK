@@ -754,3 +754,12 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     }
   return static_cast<T>(0);
 }
+
+bool vtkVariant::IsEqual(const vtkVariant& other) const
+{
+  if (this->IsString() && other.IsString())
+    {
+    return this->ToString() == other.ToString();
+    }
+  return this->ToDouble() == other.ToDouble();
+}
