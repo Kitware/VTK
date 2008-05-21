@@ -186,6 +186,7 @@ vtkScalarsToColors                    GetRange                          307  2
 vtkSliderRepresentation3D             GetBounds                         307  6
 vtkSphereHandleRepresentation         GetBounds                         307  6
 vtkSphereWidget                       GetCenter                         307  3
+vtkSphereRepresentation               GetCenter                         307  3
 vtkSphericalDirectionEncoder          GetDecodedGradient                301  3
 vtkSplineWidget                       GetHandlePosition                 307  3
 vtkStreamer                           GetStartPosition                  307  3

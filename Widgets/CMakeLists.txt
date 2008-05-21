@@ -23,9 +23,9 @@ vtkBiDimensionalWidget.cxx
 vtkBorderRepresentation.cxx
 vtkBorderWidget.cxx
 vtkBoundedPlanePointPlacer.cxx
+vtkBoxRepresentation.cxx
 vtkBoxWidget.cxx
 vtkBoxWidget2.cxx
-vtkBoxRepresentation.cxx
 vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
@@ -89,7 +89,9 @@ vtkSliderRepresentation2D.cxx
 vtkSliderRepresentation3D.cxx
 vtkSliderWidget.cxx
 vtkSphereHandleRepresentation.cxx
+vtkSphereRepresentation.cxx
 vtkSphereWidget.cxx
+vtkSphereWidget2.cxx
 vtkSplineWidget.cxx
 vtkTensorProbeWidget.cxx
 vtkTensorProbeRepresentation.cxx
