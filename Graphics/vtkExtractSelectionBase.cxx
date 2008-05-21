@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkExtractSelectionBase.h"
 
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.2");
+vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.3");
 //----------------------------------------------------------------------------
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
@@ -40,7 +41,9 @@ int vtkExtractSelectionBase::FillInputPortInformation(
   if (port==0)
     {
     // Cannot work with composite datasets.
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph"); 
     }
   else
     {
@@ -96,6 +99,13 @@ int vtkExtractSelectionBase::RequestDataObject(
     return 1;
     }
 
+  vtkGraph *graphInput = vtkGraph::GetData(inInfo);
+  if (graphInput)
+    {
+    // Accept graph input, but we don't produce the correct extracted
+    // graph as output yet.
+    return 1;
+    }
   return 0;
 }
 

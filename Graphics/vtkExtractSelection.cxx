@@ -20,6 +20,7 @@
 #include "vtkExtractSelectedIds.h"
 #include "vtkExtractSelectedLocations.h"
 #include "vtkExtractSelectedThresholds.h"
+#include "vtkGraph.h"
 #include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -29,7 +30,7 @@
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractSelection, "1.24");
+vtkCxxRevisionMacro(vtkExtractSelection, "1.25");
 vtkStandardNewMacro(vtkExtractSelection);
 
 //----------------------------------------------------------------------------
@@ -91,6 +92,12 @@ int vtkExtractSelection::RequestData(
     {
     vtkErrorMacro(<<"No input specified");
     return 0;
+    }
+
+  // If the input is a graph, don't try to handle it
+  if ( vtkGraph::SafeDownCast(input) )
+    {
+    return 1;
     }
 
   if ( ! selInfo )
