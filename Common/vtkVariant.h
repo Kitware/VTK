@@ -50,6 +50,7 @@
 class vtkStdString;
 class vtkObjectBase;
 class vtkAbstractArray;
+struct vtkVariantLessThan;
 
 class VTK_COMMON_EXPORT vtkVariant
 {
@@ -313,6 +314,8 @@ private:
 
   unsigned char Valid;
   unsigned char Type;
+
+  friend struct vtkVariantLessThan;
 };
 
 // A STL-style function object so you can compare two variants using
