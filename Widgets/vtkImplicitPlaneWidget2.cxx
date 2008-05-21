@@ -24,7 +24,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget2, "1.1");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget2, "1.2");
 vtkStandardNewMacro(vtkImplicitPlaneWidget2);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
   
-  // We want to compute an orthogonal vector to the pane that has been selected
+  // We want to compute an orthogonal vector to the plane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
   self->WidgetRep->ComputeInteractionState(X, Y);
@@ -92,6 +92,7 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->Render();
 }
 
 //----------------------------------------------------------------------
@@ -124,6 +125,7 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->Render();
 }
 
 //----------------------------------------------------------------------
@@ -156,6 +158,7 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->Render();
 }
 
 //----------------------------------------------------------------------
