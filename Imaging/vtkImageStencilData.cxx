@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.29");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.30");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -239,7 +239,10 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
     int n = this->NumberOfExtentEntries;
     for (int i = 0; i < n; i++)
       {
-      delete [] this->ExtentLists[i];
+      if (this->ExtentLists[i])
+        {
+        delete [] this->ExtentLists[i];
+        }
       }
     delete [] this->ExtentLists;
     }
@@ -262,11 +265,24 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
     for (int i = 0; i < n; i++)
       {
       this->ExtentListLengths[i] = s->ExtentListLengths[i];
-      int m = this->ExtentListLengths[i];
-      this->ExtentLists[i] = new int[m];
-      for (int j = 0; j < m; j++)
+      if (this->ExtentListLengths[i])
         {
-        this->ExtentLists[i][j] = s->ExtentLists[i][j];
+        int m = this->ExtentListLengths[i];
+
+        int clistmaxlen = 2;
+        while (m > clistmaxlen)
+          {
+          clistmaxlen *= 2;
+          }
+        this->ExtentLists[i] = new int[clistmaxlen];
+        for (int j = 0; j < m; j++)
+          {
+          this->ExtentLists[i][j] = s->ExtentLists[i][j];
+          }
+        }
+      else
+        {
+        this->ExtentLists[i] = 0;
         }
       }
     }
@@ -287,7 +303,10 @@ void vtkImageStencilData::AllocateExtents()
       int n = this->NumberOfExtentEntries;
       for (int i = 0; i < n; i++)
         {
-        delete [] this->ExtentLists[i];
+        if (this->ExtentLists[i] != 0)
+          {
+          delete [] this->ExtentLists[i];
+          }
         }
       delete [] this->ExtentLists;
       delete [] this->ExtentListLengths;
@@ -315,7 +334,7 @@ void vtkImageStencilData::AllocateExtents()
       if (this->ExtentListLengths[i] != 0)
         {
         this->ExtentListLengths[i] = 0;
-        delete this->ExtentLists[i];
+        delete [] this->ExtentLists[i];
         this->ExtentLists[i] = NULL;
         }
       }
@@ -492,52 +511,108 @@ void vtkImageStencilData::InsertAndMergeExtent(int r1, int r2,
     clist[clistlen++] = r2 + 1;
     return;
     }
-  else
-    { 
-    for (int k = 0; k < clistlen; k+=2)
+  
+  for (int k = 0; k < clistlen; k+=2)
+    {
+    if ((r1 >= clist[k] && r1 < clist[k+1]) || 
+      (r2 >= clist[k] && r2 < clist[k+1]))
       {
-      if ((r1 >= clist[k] && r1 < clist[k+1]) || 
-          (r2 >= clist[k] && r2 < clist[k+1]))
+      // An intersecting extent is already present. Merge with that one.
+      if (r1 < clist[k])
         {
-        // An intersecting extent is already present. Merge with that one.
-        if (r1 < clist[k])
-          {
-          clist[k]   = r1;
-          }
-        if (r2 >= clist[k+1])
-          {
-          clist[k+1] = r2+1;
-          }
-        return;
+        clist[k]   = r1;
         }
+      else if (r2 >= clist[k+1])
+        {
+        clist[k+1] = r2+1;
+        this->CollapseAdditionalIntersections(r2, k+2, clist, clistlen);
+        }
+      return;
       }
-
-    // We will be inserting a unique extent...
-      
-    // check whether more space is needed
-    // the allocated space is always the smallest power of two
-    // that is not less than the number of stored items, therefore
-    // we need to allocate space when clistlen is a power of two
-    int clistmaxlen = 2;
-    while (clistlen > clistmaxlen)
+    else if (r1 < clist[k] && r2 >= clist[k+1])
       {
-      clistmaxlen *= 2;
-      }
-    if (clistmaxlen == clistlen)
-      { // need to allocate more space
-      clistmaxlen *= 2;
-      int *newclist = new int[clistmaxlen];
-      for (int k = 0; k < clistlen; k++)
-        {
-        newclist[k] = clist[k];
-        }
-      delete [] clist;
-      clist = newclist;
+      clist[k]   = r1;
+      clist[k+1] = r2+1;
+      this->CollapseAdditionalIntersections(r2, k+2, clist, clistlen);
+      return;
       }
     }
 
-  clist[clistlen++] = r1;
-  clist[clistlen++] = r2 + 1;
+  // We will be inserting a unique extent...
+
+  // check whether more space is needed
+  // the allocated space is always the smallest power of two
+  // that is not less than the number of stored items, therefore
+  // we need to allocate space when clistlen is a power of two
+  int clistmaxlen = 2;
+  while (clistlen > clistmaxlen)
+    {
+    clistmaxlen *= 2;
+    }
+  int insertIndex = clistlen, offset = 0;
+  if (clistmaxlen == clistlen || r1 < clist[clistlen-1])
+    { // need to allocate more space or rearrange
+    if (clistmaxlen == clistlen)
+      {
+      clistmaxlen *= 2;
+      }
+    int *newclist = new int[clistmaxlen];
+    for (int k = 0; k < clistlen; k+=2)
+      {
+      if (offset == 0 && r1 < clist[k])
+        {
+        insertIndex = k;
+        offset = 2;
+        }
+      newclist[k+offset] = clist[k];
+      newclist[k+1+offset] = clist[k+1];
+      }
+    delete [] clist;
+    clist = newclist;
+    }
+
+  clist[insertIndex] = r1;
+  clist[insertIndex+1] = r2 + 1;
+  clistlen += 2;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageStencilData::CollapseAdditionalIntersections(int r2, int idx,
+                                                          int *clist,
+                                                          int &clistlen)
+{
+  if (idx >= clistlen)
+    {
+    return;
+    }
+
+  int removeExtentStart = idx, removeExtentEnd = idx;
+  // overlap with any of the remainder of the list?
+  for (; idx < clistlen; idx+=2, removeExtentEnd+=2)
+    {
+    if (r2 < clist[idx])
+      {
+      if (idx == removeExtentStart)
+        {
+        // no additional overlap... thus no collapse
+        return;
+        }
+      break;
+      }
+    else if (r2 < clist[idx+1])
+      {
+      clist[removeExtentStart - 1] = clist[idx+1];
+      }
+    }
+
+  // collapse the list?
+  int i;
+  for (i = removeExtentEnd, idx = removeExtentStart; i < clistlen; i++, idx++)
+    {
+    clist[idx] = clist[i];
+    }
+  clistlen = idx;
 }
 
 //----------------------------------------------------------------------------

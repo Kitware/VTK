@@ -152,6 +152,9 @@ protected:
   // itself. 
   virtual void InternalAdd( vtkImageStencilData * );
   
+  void CollapseAdditionalIntersections(int r2, int idx, int *clist, 
+    int &clistlen);
+
   // Description:
   // The Spacing and Origin of the data.
   double Spacing[3];
