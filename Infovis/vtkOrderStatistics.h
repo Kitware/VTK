@@ -47,6 +47,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkOrderStatistics* New();
 
+  // Description:
+  // The type of quantile definition.
+  //BTX
+  enum QuantileDefinitionType {
+    InverseCDF              = 0,
+    InverseCDFAveragedSteps = 1,
+    };
+  //ETX
+
+  // Description:
+  // Set the quantile definition.
+  vtkSetMacro( QuantileDefinition, QuantileDefinitionType );
+
+  // Description:
+  // Get the quantile definition.
+  vtkGetMacro( QuantileDefinition, QuantileDefinitionType );
+
 protected:
   vtkOrderStatistics();
   ~vtkOrderStatistics();
@@ -62,6 +79,8 @@ protected:
   virtual void ExecuteEvince( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
+
+  QuantileDefinitionType QuantileDefinition;
 
 private:
   vtkOrderStatistics(const vtkOrderStatistics&); // Not implemented

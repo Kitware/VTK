@@ -163,13 +163,35 @@ int TestOrderStatistics( int, char *[] )
     }
   haruspex->RemoveColumn( 3 ); // Remove invalid index 3 (but keep 4)
 
-// -- Test Learn Mode -- 
+// -- Test Learn Mode with InverseCDFAveragedSteps quantile definition -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->Update();
-  vtkIdType n = haruspex->GetSampleSize();
 
-  cout << "## Calculated the following statistics ( "
-       << n
+  cout << "## Calculated the following statistics with InverseCDFAveragedSteps quantile definition ( "
+       << haruspex->GetSampleSize()
+       << " entries per column ):\n";
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+    {
+    cout << "   "
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() );
+
+    for ( int i = 1; i < 14; ++ i )
+      {
+      cout << ", "
+           << outputTable->GetColumnName( i )
+           << "="
+           << outputTable->GetValue( r, i ).ToDouble();
+      }
+    cout << "\n";
+    }
+
+// -- Test Learn Mode with InverseCDF quantile definition -- 
+  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF ); // replicate Octave's results
+  haruspex->Update();
+
+  cout << "## Calculated the following statistics with InverseCDF quantile definition ( "
+       << haruspex->GetSampleSize()
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {

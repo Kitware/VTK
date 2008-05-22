@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.2");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.3");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 static const double quantileRatios[] = { 0., .1, .2, .25, .3, .4, .5, .6, .7, .75, .8, .9 };
@@ -42,6 +42,7 @@ static const double quantileRatios[] = { 0., .1, .2, .25, .3, .4, .5, .6, .7, .7
 // ----------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
+  this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
 }
 
 // ----------------------------------------------------------------------
@@ -53,6 +54,7 @@ vtkOrderStatistics::~vtkOrderStatistics()
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -201,10 +203,11 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
         {
         for ( sum += mit->second; sum >= quantileThresholds[j] && j < 12; ++ j )
           {
-          if ( sum == quantileThresholds[j] )
+          if ( sum == quantileThresholds[j] 
+               && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
             {
             vtkstd::map<double,vtkIdType>::iterator nit = mit;
-            quantileValues[j] = ( (++nit)->first + mit->first ) * .5; // "hydrologist's method"
+            quantileValues[j] = ( (++nit)->first + mit->first ) * .5;
             }
           else
             {
