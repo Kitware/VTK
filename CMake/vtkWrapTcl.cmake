@@ -104,6 +104,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
         ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
         ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"
+        VERBATIM
         )
       
       # Add this output to a custom target if needed.
@@ -144,6 +145,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     ARGS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     COMMENT "Tcl Wrapping - generating ${TARGET}Init.cxx"
+    VERBATIM
     )
   
   # Create the Init File
