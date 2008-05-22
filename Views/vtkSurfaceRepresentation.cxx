@@ -37,8 +37,9 @@
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.5");
 vtkStandardNewMacro(vtkSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -122,44 +123,52 @@ bool vtkSurfaceRepresentation::RemoveFromView(vtkView* view)
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
-  vtkView* vtkNotUsed(view), 
+  vtkView* view, 
   vtkSelection* selection)
 {
-  // Make an empty selection
-  vtkSelection* converted = vtkSelection::New();
-  converted->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-  converted->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
-  vtkIdTypeArray* empty = vtkIdTypeArray::New();
-  converted->SetSelectionList(empty);
-  empty->Delete();
+  vtkSmartPointer<vtkSelection> propSelection =
+    vtkSmartPointer<vtkSelection>::New();
 
+  // Extract the selection for the right prop
   if (selection->GetContentType() == vtkSelection::SELECTIONS)
     {
     for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
       {
       vtkSelection* child = selection->GetChild(i);
-      vtkProp* prop = vtkProp::SafeDownCast(child->GetProperties()->Get(vtkSelection::PROP()));
+      vtkProp* prop = vtkProp::SafeDownCast(
+        child->GetProperties()->Get(vtkSelection::PROP()));
       if (prop == this->Actor)
         {
-        // TODO: Should convert this to a pedigree id selection.
-        converted->ShallowCopy(child);
+        propSelection->ShallowCopy(child);
         }
       }
     }
-  else if (selection->GetContentType() == vtkSelection::FRUSTUM)
+  else
     {
-    // Convert to an index selection
-    if (this->InputConnection)
+    propSelection->ShallowCopy(selection);
+    }
+
+  // Start with an empty selection
+  vtkSelection* converted = vtkSelection::New();
+  converted->SetContentType(view->GetSelectionType());
+  converted->SetFieldType(vtkSelection::CELL);
+  vtkSmartPointer<vtkIdTypeArray> empty =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  converted->SetSelectionList(empty);
+  // Convert to the correct type of selection
+  if (this->InputConnection)
+    {
+    vtkAlgorithm* producer = this->InputConnection->GetProducer();
+    producer->Update();
+    vtkDataObject* obj = producer->GetOutputDataObject(
+      this->InputConnection->GetIndex());
+    if (obj)
       {
-      vtkAlgorithm* producer = this->InputConnection->GetProducer();
-      producer->Update();
-      vtkDataObject* obj = producer->GetOutputDataObject(this->InputConnection->GetIndex());
-      if (obj)
-        {
-        vtkSelection* index = vtkConvertSelection::ToIndexSelection(selection, obj);
-        converted->ShallowCopy(index);
-        index->Delete();
-        }
+      vtkSelection* index = vtkConvertSelection::ToSelectionType(
+        propSelection, obj, view->GetSelectionType(),
+        view->GetSelectionArrayNames());
+      converted->ShallowCopy(index);
+      index->Delete();
       }
     }
   

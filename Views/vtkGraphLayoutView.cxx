@@ -32,6 +32,7 @@
 #include "vtkCommunity2DLayoutStrategy.h"
 #include "vtkConstrained2DLayoutStrategy.h"
 #include "vtkCoordinate.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
 #include "vtkEdgeCenters.h"
@@ -68,7 +69,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.32");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.33");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -103,7 +104,6 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   
   this->LayoutStrategyNameInternal = 0;
   this->EdgeLayoutStrategyNameInternal = 0;
-  this->SelectionArrayNameInternal = 0;
   this->IconArrayNameInternal = 0;
   
   // Replace the interactor style.
@@ -170,7 +170,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
   this->ExtractSelectedGraph->SetInputConnection(0, this->EdgeLayout->GetOutputPort());
   vtkSelection* empty = vtkSelection::New();
-  empty->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  empty->SetContentType(vtkSelection::INDICES);
   vtkIdTypeArray* arr = vtkIdTypeArray::New();
   empty->SetSelectionList(arr);
   arr->Delete();
@@ -194,7 +194,6 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   this->SetEdgeLayoutStrategy(nullEdgeLayout);
   this->SetLayoutStrategyNameInternal(0);
   this->SetEdgeLayoutStrategyNameInternal(0);
-  this->SetSelectionArrayNameInternal(0);
   this->SetIconArrayNameInternal(0);
 }
 
@@ -365,19 +364,6 @@ void vtkGraphLayoutView::SetScalingArrayName(const char* name)
 const char* vtkGraphLayoutView::GetScalingArrayName()
 {
   return this->GraphMapper->GetScalingArrayName();
-}
-
-//----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetSelectionArrayName(const char* name)
-{
-  this->SetSelectionArrayNameInternal(name);
-  this->KdTreeSelector->SetSelectionFieldName(name);
-}
-
-//----------------------------------------------------------------------------
-const char* vtkGraphLayoutView::GetSelectionArrayName()
-{
-  return this->GetSelectionArrayNameInternal();
 }
 
 //----------------------------------------------------------------------------
@@ -723,8 +709,14 @@ void vtkGraphLayoutView::ProcessEvents(
     double dist2 = radiusX*radiusX + radiusY*radiusY;
     this->KdTreeSelector->SetSingleSelectionThreshold(dist2);
     this->KdTreeSelector->Update();
-    vtkSelection* selection = this->KdTreeSelector->GetOutput();
-    selection->Register(0);
+    vtkSelection* kdSelection = this->KdTreeSelector->GetOutput();
+
+    // Convert to the proper selection type.
+    this->GraphLayout->Update();
+    vtkDataObject* data = this->GraphLayout->GetOutput();
+    vtkSmartPointer<vtkSelection> selection;
+    selection.TakeReference(vtkConvertSelection::ToSelectionType(
+      kdSelection, data, this->SelectionType, this->SelectionArrayNames));
     
     // FIXME: Selection on edges needs to be supported.
 #if 0
@@ -780,14 +772,13 @@ void vtkGraphLayoutView::ProcessEvents(
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
       {
-      vtkSelection* oldSelection = this->GetRepresentation()->GetSelectionLink()->GetSelection();
+      vtkSelection* oldSelection =
+        this->GetRepresentation()->GetSelectionLink()->GetSelection();
       selection->Union(oldSelection);
       }
     
     // Call select on the representation(s)
     this->GetRepresentation()->Select(this, selection);
-    
-    selection->Delete();
     }
   else
     {

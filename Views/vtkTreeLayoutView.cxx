@@ -25,6 +25,7 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkConvertSelection.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDynamic2DLabelMapper.h"
 #include "vtkEdgeListIterator.h"
@@ -56,7 +57,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.9");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.10");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -156,7 +157,7 @@ vtkTreeLayoutView::vtkTreeLayoutView()
   this->KdTreeSelector->SetInputConnection(this->GraphLayout->GetOutputPort());
   this->ExtractSelectedGraph->SetInputConnection(0, this->GraphLayout->GetOutputPort());
   vtkSelection *empty = vtkSelection::New();
-  empty->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
+  empty->SetContentType(vtkSelection::INDICES);
   vtkIdTypeArray *arr = vtkIdTypeArray::New();
   empty->SetSelectionList(arr);
   arr->Delete();
@@ -503,9 +504,14 @@ void vtkTreeLayoutView::ProcessEvents(
     double dist2 = radiusX*radiusX + radiusY*radiusY;
     this->KdTreeSelector->SetSingleSelectionThreshold(dist2);
     this->KdTreeSelector->Update();
-    vtkSelection *selection = this->KdTreeSelector->GetOutput();
-    selection->Register(0);
+    vtkSelection *kdSelection = this->KdTreeSelector->GetOutput();
+    this->GraphLayout->Update();
+    vtkDataObject *data = this->GraphLayout->GetOutput();
+    vtkSmartPointer<vtkSelection> selection;
+    selection.TakeReference(vtkConvertSelection::ToSelectionType(
+      kdSelection, data, this->SelectionType, this->SelectionArrayNames));
     
+#if 0
     // If the selection is empty, do a visible cell selection
     // to attempt to pick up an edge.
     vtkAbstractArray *list = selection->GetSelectionList();
@@ -575,6 +581,7 @@ void vtkTreeLayoutView::ProcessEvents(
       selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
       selection->SetSelectionList(selectedVertices);
       }
+#endif
     
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
@@ -585,8 +592,6 @@ void vtkTreeLayoutView::ProcessEvents(
     
     // Call select on the representation
     this->GetRepresentation()->Select(this, selection);
-    
-    selection->Delete();
     }
   else
     {

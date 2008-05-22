@@ -75,18 +75,6 @@ public:
   // Updates the view.
   virtual void Update();
   
-  
-  // Description:
-  // Set/Get whether the selection consist of 
-  // indices or values.
-  vtkSetMacro(UseValueSelection,bool);
-  vtkGetMacro(UseValueSelection,bool);
-  
-  // Description:
-  // Set/Get the value selection array name
-  vtkSetStringMacro(ValueSelectionArrayName);
-  vtkGetStringMacro(ValueSelectionArrayName);
-  
 protected:
   vtkQtItemView();
   ~vtkQtItemView();

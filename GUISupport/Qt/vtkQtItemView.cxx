@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkQtItemView, "1.3");
+vtkCxxRevisionMacro(vtkQtItemView, "1.4");
 vtkStandardNewMacro(vtkQtItemView);
 
 
@@ -58,10 +58,6 @@ vtkQtItemView::vtkQtItemView()
   this->ItemViewPtr = 0;
   this->ModelAdapterPtr = 0;
   this->SelectionModel = 0;
-  
-  // By defualt use indices in the selection
-  this->UseValueSelection = 0;
-  this->ValueSelectionArrayName = 0;
   
   // Initialize selecting to false
   this->Selecting = false;
@@ -209,73 +205,34 @@ void vtkQtItemView::QtSelectionChanged(const QItemSelection&, const QItemSelecti
   if (CheckViewAndModelError()) return;
   
   this->Selecting = true;
-  vtkSelection* selection = vtkSelection::New();
   
-  // Do they want the selection to be indices or values?
-  if (this->UseValueSelection && (this->ValueSelectionArrayName != NULL))
+  // Create index selection
+  vtkSmartPointer<vtkSelection> selection =
+    vtkSmartPointer<vtkSelection>::New();
+  selection->SetContentType(vtkSelection::INDICES);
+  selection->SetFieldType(vtkSelection::VERTEX);
+  vtkIdTypeArray* idarr = vtkIdTypeArray::New();
+  selection->SetSelectionList(idarr);
+  idarr->Delete();
+  const QModelIndexList list = this->GetSelectionModel()->selectedRows();
+  
+  // For index selection do this odd little dance with two maps :)
+  for (int i = 0; i < list.size(); i++)
     {
-    selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::VALUES);
-    vtkDataObject *d = this->ModelAdapterPtr->GetVTKDataObject();
-    vtkAbstractArray *array = 0;
-    if (vtkDataSet::SafeDownCast(d))
-      {
-      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-      array = (vtkDataSet::SafeDownCast(d))->GetPointData()->GetAbstractArray(this->ValueSelectionArrayName);
-      }
-    else if (vtkGraph::SafeDownCast(d))
-      {
-      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::VERTEX);
-      array = (vtkGraph::SafeDownCast(d))->GetVertexData()->GetAbstractArray(this->ValueSelectionArrayName);
-      }
-    else
-      {
-      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::FIELD);
-      array = d->GetFieldData()->GetAbstractArray(this->ValueSelectionArrayName);
-      }
-                           
-    // Does the array exist?
-    if (array != 0)
-      {     
-      // Create a new array of the same type
-      vtkAbstractArray *sel_array = vtkAbstractArray::CreateArray(array->GetDataType());
-      sel_array->SetName(this->ValueSelectionArrayName);
-      selection->SetSelectionList(sel_array);
-      sel_array->Delete();
-      const QModelIndexList list = this->GetSelectionModel()->selectedRows();
-      for (int i = 0; i < list.size(); i++)
-        {
-        vtkIdType pid = this->ModelAdapterPtr->QModelIndexToPedigree(list.at(i));
-        sel_array->InsertNextTuple(this->ModelAdapterPtr->PedigreeToId(pid), array);
-        }
-      }
-    else
-      {
-      vtkErrorMacro("Couldn't find array: " << this->ValueSelectionArrayName);
-      }
-    }
-    
-  // Index selection
-  else
-    {
-    selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-    vtkIdTypeArray* idarr = vtkIdTypeArray::New();
-    selection->SetSelectionList(idarr);
-    idarr->Delete();
-    const QModelIndexList list = this->GetSelectionModel()->selectedRows();
-    
-    // For index selection do this odd little dance with two maps :)
-    for (int i = 0; i < list.size(); i++)
-      {
-      vtkIdType pid = this->ModelAdapterPtr->QModelIndexToPedigree(list.at(i));
-      idarr->InsertNextValue(this->ModelAdapterPtr->PedigreeToId(pid));
-      }  
-    }
+    vtkIdType pid = this->ModelAdapterPtr->QModelIndexToPedigree(list.at(i));
+    idarr->InsertNextValue(this->ModelAdapterPtr->PedigreeToId(pid));
+    }  
+
+  // Convert to the correct type of selection
+  vtkDataObject* data = this->ModelAdapterPtr->GetVTKDataObject();
+  vtkSmartPointer<vtkSelection> converted;
+  converted.TakeReference(vtkConvertSelection::ToSelectionType(
+    selection, data, this->SelectionType, this->SelectionArrayNames));
    
   // Call select on the representation
-  this->GetRepresentation()->Select(this, selection);
+  this->GetRepresentation()->Select(this, converted);
   
   // Invoke selection changed event
-  selection->Delete();
   this->Selecting = false;
 }
 
@@ -317,14 +274,9 @@ void vtkQtItemView::Update()
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToIndexSelection(s, d));
   QItemSelection list;
-  if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) == vtkSelection::INDICES)
+  vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(selection->GetSelectionList());
+  if (arr)
     {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(selection->GetSelectionList());
-    if (!arr)
-      {
-      vtkErrorMacro("INDICES selection should have idtype array.");
-      return;
-      }
     for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
       {
       vtkIdType id = arr->GetValue(i);
@@ -333,12 +285,6 @@ void vtkQtItemView::Update()
         this->ModelAdapterPtr->IdToPedigree(id));
       list.select(index, index);
       }
-    }
-  else
-    {
-    vtkWarningMacro("vtkQtItemView cannot currently 'consume' a selection type of: " 
-      << selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()));
-    return;
     }
   this->GetSelectionModel()->select(list, 
     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);  

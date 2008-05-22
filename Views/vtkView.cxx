@@ -26,6 +26,8 @@
 #include "vtkDataObject.h"
 #include "vtkDataRepresentation.h"
 #include "vtkObjectFactory.h"
+#include "vtkSelection.h"
+#include "vtkStringArray.h"
 #include "vtkViewTheme.h"
 
 #include <vtkstd/map>
@@ -61,8 +63,9 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkView, "1.3");
+vtkCxxRevisionMacro(vtkView, "1.4");
 vtkStandardNewMacro(vtkView);
+vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
 vtkView::vtkView()
 {
@@ -70,6 +73,8 @@ vtkView::vtkView()
   this->Representations = vtkCollection::New();
   this->Observer = vtkView::Command::New();
   this->Observer->SetTarget(this);
+  this->SelectionArrayNames = vtkStringArray::New();
+  this->SelectionType = vtkSelection::INDICES;
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -83,6 +88,7 @@ vtkView::~vtkView()
   this->Representations->Delete();
   this->Observer->SetTarget(0);
   this->Observer->Delete();
+  this->SetSelectionArrayNames(0);
   delete this->Internal;
 }
 
@@ -169,6 +175,28 @@ vtkDataRepresentation* vtkView::GetRepresentation(int index)
 }
 
 //----------------------------------------------------------------------------
+void vtkView::SetSelectionArrayName(const char* name)
+{
+  if (!this->SelectionArrayNames)
+    {
+    this->SelectionArrayNames = vtkStringArray::New();
+    }
+  this->SelectionArrayNames->Initialize();
+  this->SelectionArrayNames->InsertNextValue(name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkView::GetSelectionArrayName()
+{
+  if (this->SelectionArrayNames &&
+      this->SelectionArrayNames->GetNumberOfTuples() > 0)
+    {
+    return this->SelectionArrayNames->GetValue(0);
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkCommand* vtkView::GetObserver()
 {
   return this->Observer;
@@ -226,4 +254,10 @@ void vtkView::UnRegisterProgress(vtkObject* algorithm)
 void vtkView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "SelectionType: " << this->SelectionType << endl;
+  os << indent << "SelectionArrayNames: " << (this->SelectionArrayNames ? "" : "(null)") << endl;
+  if (this->SelectionArrayNames)
+    {
+    this->SelectionArrayNames->PrintSelf(os, indent.GetNextIndent());
+    }
 }

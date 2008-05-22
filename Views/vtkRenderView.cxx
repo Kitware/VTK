@@ -37,7 +37,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.7");
+vtkCxxRevisionMacro(vtkRenderView, "1.8");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -215,10 +215,8 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
       frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
         worldP[index*4+2], worldP[index*4+3]);
 
-      selection->GetProperties()->Set(
-        vtkSelection::CONTENT_TYPE(), vtkSelection::FRUSTUM);
-      selection->GetProperties()->Set(
-        vtkSelection::FIELD_TYPE(), vtkSelection::CELL);
+      selection->SetContentType(vtkSelection::FRUSTUM);
+      selection->SetFieldType(vtkSelection::CELL);
       selection->SetSelectionList(frustcorners);
       frustcorners->Delete();
       }

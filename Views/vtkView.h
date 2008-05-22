@@ -47,6 +47,7 @@ class vtkDataObject;
 class vtkDataRepresentation;
 class vtkSelection;
 class vtkSelectionLink;
+class vtkStringArray;
 class vtkViewTheme;
 
 class VTK_VIEWS_EXPORT vtkView : public vtkObject
@@ -104,6 +105,26 @@ public:
   // Description:
   // Apply a theme to the view.
   virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
+
+  // Description:
+  // Set the selection type produced by this view.
+  // This should be one of the content type constants defined in
+  // vtkSelection.h. Common values are
+  // vtkSelection::INDICES
+  // vtkSelection::PEDIGREE_IDS
+  // vtkSelection::VALUES
+  vtkSetMacro(SelectionType, int);
+  vtkGetMacro(SelectionType, int);
+
+  // Description:
+  // If a VALUES selection, the arrays used to produce a selection.
+  virtual void SetSelectionArrayNames(vtkStringArray* names);
+  vtkGetObjectMacro(SelectionArrayNames, vtkStringArray);
+
+  // Description:
+  // If a VALUES selection, the array used to produce a selection.
+  virtual void SetSelectionArrayName(const char* name);
+  virtual const char* GetSelectionArrayName();
 
   //BTX
   // Description:
@@ -187,6 +208,14 @@ protected:
   void UnRegisterProgress(vtkObject* algorithm);
   
   vtkCollection* Representations;
+
+  // Description:
+  // The selection type created by the view.
+  int SelectionType;
+
+  // Description:
+  // If a VALUES selection, the array names used in the selection.
+  vtkStringArray* SelectionArrayNames;
 
 private:
   vtkView(const vtkView&);  // Not implemented.

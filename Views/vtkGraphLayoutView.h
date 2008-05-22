@@ -246,11 +246,6 @@ public:
   const char* GetIconArrayName();
   
   // Description:
-  // The array used for populating the selection list
-  void SetSelectionArrayName(const char* name);
-  const char* GetSelectionArrayName();
-
-  // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
   
@@ -335,12 +330,6 @@ protected:
   // Description:
   // Used to store the current edge layout strategy
   vtkEdgeLayoutStrategy* EdgeLayoutStrategy;
-  
-  // Description:
-  // Used to store the selection array name
-  vtkGetStringMacro(SelectionArrayNameInternal);
-  vtkSetStringMacro(SelectionArrayNameInternal);
-  char* SelectionArrayNameInternal;
   
   // Description:
   // Used to store the icon array name
