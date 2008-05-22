@@ -35,6 +35,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/set> // used to iterate over internal organs
 
+#if defined( _MSC_VER ) && _MSC_VER < 1300
+// Eliminate the following VS60 warning:
+// warning C4786:
+// 'Std::pair<Std::_Tree<int,int,Std::set<int,Std::less<int>,Std::allocator<int> >::_Kfn,Std::less<int>,Std::allocator<int> >::const_iterator,Std::_Tree<int,int,Std::set<int,Std::less<int>,Std::allocator<int> >::_Kfn,Std::less<int>,Std::allocator<int> >::const_iterator>' :
+// identifier was truncated to '255' characters in the debug informationwarning C4611: interaction between '_setjmp' and C++ object
+# pragma warning ( disable : 4786 )
+#endif
+
 class vtkUnivariateStatisticsAlgorithmPrivate
 {
 public:
