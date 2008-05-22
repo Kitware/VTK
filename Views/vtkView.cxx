@@ -28,6 +28,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkViewTheme.h"
 
+#include <vtkstd/map>
+#include <vtkstd/string>
+
 //----------------------------------------------------------------------------
 class vtkView::Command : public vtkCommand
 {
@@ -50,11 +53,20 @@ private:
   vtkView* Target;
 };
 
-vtkCxxRevisionMacro(vtkView, "1.2");
+//----------------------------------------------------------------------------
+class vtkView::vtkInternal
+{
+public:
+  vtkstd::map<vtkObject*, vtkstd::string> RegisteredProgress;
+};
+
+
+vtkCxxRevisionMacro(vtkView, "1.3");
 vtkStandardNewMacro(vtkView);
 //----------------------------------------------------------------------------
 vtkView::vtkView()
 {
+  this->Internal = new vtkView::vtkInternal();
   this->Representations = vtkCollection::New();
   this->Observer = vtkView::Command::New();
   this->Observer->SetTarget(this);
@@ -69,7 +81,9 @@ vtkView::vtkView()
 vtkView::~vtkView()
 {
   this->Representations->Delete();
+  this->Observer->SetTarget(0);
   this->Observer->Delete();
+  delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
@@ -162,11 +176,49 @@ vtkCommand* vtkView::GetObserver()
 
 //----------------------------------------------------------------------------
 void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId, 
-  void* vtkNotUsed(callData))
+  void* callData)
 {
   if (this->Representations->IsItemPresent(caller) && eventId == vtkCommand::SelectionChangedEvent)
     {
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    }
+
+  if (eventId == vtkCommand::ViewProgressEvent)
+    {
+    vtkstd::map<vtkObject*, vtkstd::string>::iterator iter = 
+      this->Internal->RegisteredProgress.find(caller);
+    if (iter != this->Internal->RegisteredProgress.end())
+      {
+      ViewProgressEventCallData eventdata(iter->second.c_str(),
+        *(reinterpret_cast<const double*>(callData)));
+      this->InvokeEvent(vtkCommand::ViewProgressEvent, &eventdata);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=NULL*/)
+{
+  if (algorithm)
+    {
+    const char* used_message = message? message : algorithm->GetClassName();
+    this->Internal->RegisteredProgress[algorithm] = used_message;
+    algorithm->AddObserver(vtkCommand::ProgressEvent, this->Observer);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkView::UnRegisterProgress(vtkObject* algorithm)
+{
+  if (algorithm)
+    {
+    vtkstd::map<vtkObject*, vtkstd::string>::iterator iter = 
+      this->Internal->RegisteredProgress.find(algorithm);
+    if (iter != this->Internal->RegisteredProgress.end())
+      {
+      this->Internal->RegisteredProgress.erase(iter);
+      algorithm->RemoveObservers(vtkCommand::ProgressEvent, this->Observer);
+      }
     }
 }
 

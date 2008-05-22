@@ -111,8 +111,39 @@ public:
   // events. Additionally these subclasses should override
   // ProcessEvents() to handle these events.
   vtkCommand* GetObserver();
+
+  // Description:
+  // A ptr to an instance of ViewProgressEventCallData is provided in the call
+  // data when vtkCommand::ViewProgressEvent is fired.
+  class ViewProgressEventCallData
+    {
+    const char* Message;
+    double Progress;
+
+  public:
+    ViewProgressEventCallData(const char* msg, double progress)
+      {
+      this->Message = msg;
+      this->Progress = progress;
+      }
+    ~ViewProgressEventCallData()
+      {
+      this->Message = 0;
+      }
+
+    // Description:
+    // Get the message.
+    const char* GetMessage() const
+      { return this->Message; }
+
+    // Description:
+    // Get the progress value in range [0.0, 1.0].
+    double GetProgress() const
+      { return this->Progress; }
+    };
   //ETX
 
+//BTX
 protected:
   vtkView();
   ~vtkView();
@@ -141,6 +172,19 @@ protected:
   // Subclasses that handle tight integration between view and
   // representation should override this method.
   virtual void SetSelectionLink(vtkSelectionLink* vtkNotUsed(link)) { }
+
+  // Description:
+  // Subclasses can call this method to register vtkObjects (generally
+  // vtkAlgorithm subclasses) which fire vtkCommand::ProgressEvent with the
+  // view. The view listens to vtkCommand::ProgressEvent and fires
+  // ViewProgressEvent with ViewProgressEventCallData containing the message and
+  // the progress amount. If message is not provided, then the class name for
+  // the algorithm is used.
+  void RegisterProgress(vtkObject* algorithm, const char* message=NULL);
+
+  // Description:
+  // Unregister objects previously registered with RegisterProgress.
+  void UnRegisterProgress(vtkObject* algorithm);
   
   vtkCollection* Representations;
 
@@ -148,11 +192,13 @@ private:
   vtkView(const vtkView&);  // Not implemented.
   void operator=(const vtkView&);  // Not implemented.
 
-  //BTX
   class Command;
   friend class Command;
   Command* Observer;
-  //ETX
+
+  class vtkInternal;
+  vtkInternal* Internal;
+//ETX
 };
 
 #endif

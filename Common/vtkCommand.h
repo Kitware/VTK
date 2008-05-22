@@ -331,6 +331,7 @@ public:
     UpdateInformationEvent,
     SelectionChangedEvent,
     UpdatePropertyEvent,
+    ViewProgressEvent,
     UserEvent = 1000
   };
 //ETX
