@@ -133,7 +133,7 @@ public:
 
     // Description:
     // Get the message.
-    const char* GetMessage() const
+    const char* GetProgressMessage() const
       { return this->Message; }
 
     // Description:
