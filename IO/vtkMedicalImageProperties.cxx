@@ -202,10 +202,10 @@ public:
       }
     os << endl;
     os << indent << "User Defined Values: (" << Mapping.size() << ")\n";
-    UserDefinedValues::const_iterator it = Mapping.begin();
-    for(; it != Mapping.end(); ++it)
+    UserDefinedValues::const_iterator it2 = Mapping.begin();
+    for(; it2 != Mapping.end(); ++it2)
       {
-      os << indent << it->Name << " -> " << it->Value << "\n";
+      os << indent << it2->Name << " -> " << it2->Value << "\n";
       }
     }
   vtkstd::vector<unsigned int> Orientation;
