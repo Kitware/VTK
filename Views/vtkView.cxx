@@ -63,7 +63,7 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkView, "1.4");
+vtkCxxRevisionMacro(vtkView, "1.5");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -211,7 +211,7 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     }
 
-  if (eventId == vtkCommand::ViewProgressEvent)
+  if (eventId == vtkCommand::ProgressEvent)
     {
     vtkstd::map<vtkObject*, vtkstd::string>::iterator iter = 
       this->Internal->RegisteredProgress.find(caller);
