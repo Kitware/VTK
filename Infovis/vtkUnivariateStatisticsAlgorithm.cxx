@@ -18,14 +18,14 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 #include "vtkUnivariateStatisticsAlgorithm.h"
+#include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkObjectFactory.h"
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.2");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
