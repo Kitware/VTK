@@ -176,6 +176,8 @@
 //  - GUISupport/Qt/QVTKWidget returns a QDragLeaveEvent*
 // - QVTKWidget::DropEvent
 //  - GUISupport/Qt/QVTKWidget returns a QDropEvent*
+// - vtkCommand::ViewProgressEvent
+//  - View/vtkView returns a ViewProgressEventCallData*
 // - vtkCommand::VolumeMapperRenderProgressEvent
 //  - A pointer to a double value between 0.0 and 1.0
 // - vtkCommand::VolumeMapperComputeGradientsProgressEvent
