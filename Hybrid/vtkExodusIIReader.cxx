@@ -729,7 +729,7 @@ private:
 };
 
 vtkStandardNewMacro(vtkExodusIIXMLParser);
-vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.63");
+vtkCxxRevisionMacro(vtkExodusIIXMLParser,"1.64");
 
 // --------------------------------------------------- PRIVATE CLASS DECLARATION
 
@@ -898,7 +898,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.63");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.64");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate,Parser,vtkExodusIIXMLParser);
 
@@ -2807,9 +2807,15 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           *ptr = itmp[k] - 1;
 
         if ( binfop->CellType == VTK_TRIQUADRATIC_HEXAHEDRON )
-          {
+          { // Face/body order for VTK is different than Exodus (Patran) order.
           for ( k = 0; k < 4; ++k, ++ptr )
-            *ptr = *ptr - 1;
+            {
+            itmp[k] = *ptr;
+            *ptr = ptr[3] - 1;
+            }
+          *(ptr++) = itmp[1] - 1;
+          *(ptr++) = itmp[2] - 1;
+          *(ptr++) = itmp[0] - 1;
           }
         }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
@@ -5700,7 +5706,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.63");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.64");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
