@@ -31,18 +31,18 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <vtkstd/vector>
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.3");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.4");
 vtkStandardNewMacro(vtkOrderStatistics);
-
-static const double quantileRatios[] = { 0., .1, .2, .25, .3, .4, .5, .6, .7, .75, .8, .9 };
 
 // ----------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
+  this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
 }
 
 // ----------------------------------------------------------------------
@@ -54,6 +54,7 @@ vtkOrderStatistics::~vtkOrderStatistics()
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
   os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
 }
 
@@ -84,71 +85,21 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
 
   if ( finalize )
     {
-    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Minimum" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
+    if ( this->NumberOfIntervals < 1 )
+      {
+      vtkWarningMacro( "Invalid number of intervals: "<<this->NumberOfIntervals<<". Doing nothing." );
+      return;
+      }
     
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D1" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D2" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Q1" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D3" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D4" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Median" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D6" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D7" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Q3" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D8" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "D9" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Maximum" );
-    output->AddColumn( doubleCol ); 
-    doubleCol->Delete();
-
+    vtkDoubleArray* doubleCol;
+    double dq = 1. / static_cast<double>( this->NumberOfIntervals );
+    for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
+      {
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( vtkVariant( i * dq ).ToString().c_str() );
+      output->AddColumn( doubleCol );
+      doubleCol->Delete();
+      }
     }
   else
     {
@@ -175,56 +126,40 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
 
     if ( finalize )
       {
-      double quantileThresholds[12];
-      for ( int i = 0; i < 12; ++ i )
+      row->SetNumberOfValues( this->NumberOfIntervals + 2 );
+
+      int col = 0;
+      row->SetValue( col ++, *it );
+
+      vtkstd::vector<double> quantileThresholds;
+      quantileThresholds.reserve( this->NumberOfIntervals );
+      double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
+      for ( int i = 0; i < this->NumberOfIntervals; ++ i )
         {
-        quantileThresholds[i] = quantileRatios[i] * this->SampleSize;
+        quantileThresholds.push_back( i * dh );
         }
 
-      double quantileValues[13];
-      // quantileValues[ 0]: minimum
-      // quantileValues[ 1]: 1st decile
-      // quantileValues[ 2]: 2nd decile
-      // quantileValues[ 3]: 1st quartile
-      // quantileValues[ 4]: 3rd decile
-      // quantileValues[ 5]: 4th decile
-      // quantileValues[ 6]: median (= 2nd quartile = 5th decile)
-      // quantileValues[ 7]: 6th decile
-      // quantileValues[ 8]: 7th decile
-      // quantileValues[ 9]: 3rd quartile
-      // quantileValues[10]: 8th decile
-      // quantileValues[11]: 9th decile
-      // quantileValues[12]: maximum
-
       double sum = 0;
-      int j = 0;
+      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
       for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
             mit != distr.end(); ++ mit  )
         {
-        for ( sum += mit->second; sum >= quantileThresholds[j] && j < 12; ++ j )
+        for ( sum += mit->second; sum >= *qit && qit != quantileThresholds.end(); ++ qit )
           {
-          if ( sum == quantileThresholds[j] 
+          if ( sum == *qit
                && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
             {
             vtkstd::map<double,vtkIdType>::iterator nit = mit;
-            quantileValues[j] = ( (++nit)->first + mit->first ) * .5;
+            row->SetValue( col ++, ( (++ nit)->first + mit->first ) * .5 );
             }
           else
             {
-            quantileValues[j] = mit->first;
+            row->SetValue( col ++, mit->first );
             }
           }
         }
     
-      quantileValues[12] = distr.rbegin()->first;
-
-      row->SetNumberOfValues( 14 );
-
-      row->SetValue(  0, *it );
-      for ( int i = 0; i < 13; ++ i )
-        {
-        row->SetValue(  i + 1, quantileValues[i] );
-        }
+      row->SetValue( col, distr.rbegin()->first );
       }
     else
       {

@@ -57,6 +57,14 @@ public:
   //ETX
 
   // Description:
+  // Set the number of quantiles (with uniform spacing).
+  vtkSetMacro( NumberOfIntervals, vtkIdType );
+
+  // Description:
+  // Get the number of quantiles (with uniform spacing).
+  vtkGetMacro( NumberOfIntervals, vtkIdType );
+
+  // Description:
   // Set the quantile definition.
   vtkSetMacro( QuantileDefinition, QuantileDefinitionType );
 
@@ -80,6 +88,7 @@ protected:
                               vtkTable* params,
                               vtkTable* output ); 
 
+  vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 
 private:

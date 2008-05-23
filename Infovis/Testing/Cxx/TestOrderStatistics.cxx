@@ -163,53 +163,113 @@ int TestOrderStatistics( int, char *[] )
     }
   haruspex->RemoveColumn( 3 ); // Remove invalid index 3 (but keep 4)
 
-// -- Test Learn Mode with InverseCDFAveragedSteps quantile definition -- 
+// -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->Update();
 
-  cout << "## Calculated the following statistics with InverseCDFAveragedSteps quantile definition ( "
+  double valsTest1 [] = { 0.,
+    46., 47., 49., 51.5, 54.,
+    45., 47., 49., 52., 54.,
+    -1., -1., -1., -1., -1.,
+  };
+  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
     cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() );
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
+         << ":";
 
-    for ( int i = 1; i < 14; ++ i )
+    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
       {
-      cout << ", "
+      double q = outputTable->GetValue( r, i ).ToDouble(); 
+      cout << " q("
            << outputTable->GetColumnName( i )
-           << "="
-           << outputTable->GetValue( r, i ).ToDouble();
+           << ")="
+           << q;
+
+      if ( q != valsTest1[r * 5 + i] )
+        {
+        testIntValue = 1;
+        cout << " !! <> "
+             << valsTest1[r * 5 + i]
+             << " !!";
+        }
+      }
+    cout << "\n";
+
+    if ( testIntValue )
+      {
+      vtkGenericWarningMacro("Incorrect 5-points statistics");
+      return 1;
+      }
+    }
+
+// -- Test Learn Mode for quartiles with InverseCDF quantile definition -- 
+  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
+  haruspex->Update();
+
+  double valsTest2 [] = { 0.,
+    46., 47., 49., 51., 54.,
+    45., 47., 49., 52., 54.,
+    -1., -1., -1., -1., -1.,
+  };
+  cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition ( "
+       << haruspex->GetSampleSize()
+       << " entries per column ):\n";
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+    {
+    cout << "   "
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
+         << ":";
+
+    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
+      {
+      double q = outputTable->GetValue( r, i ).ToDouble(); 
+      cout << " q("
+           << outputTable->GetColumnName( i )
+           << ")="
+           << q;
+
+      if ( q != valsTest2[r * 5 + i] )
+        {
+        testIntValue = 1;
+        cout << " !! <> "
+             << valsTest2[r * 5 + i]
+             << " !!";
+        }
       }
     cout << "\n";
     }
 
-// -- Test Learn Mode with InverseCDF quantile definition -- 
+// -- Test Learn Mode for deciles with InverseCDF quantile definition (as with Octave) -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
-  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF ); // replicate Octave's results
+  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
+  haruspex->SetNumberOfIntervals( 10 );
   haruspex->Update();
 
-  cout << "## Calculated the following statistics with InverseCDF quantile definition ( "
+  cout << "## Calculated the following deciles with InverseCDF quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
     cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() );
+         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
+         << ":";
 
-    for ( int i = 1; i < 14; ++ i )
+    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
       {
-      cout << ", "
+      cout << " q("
            << outputTable->GetColumnName( i )
-           << "="
+           << ")="
            << outputTable->GetValue( r, i ).ToDouble();
       }
     cout << "\n";
     }
 
   haruspex->Delete();
-  testIntValue = 0;
 
   return 0;
 }
