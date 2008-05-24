@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.10");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.11");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -621,7 +621,8 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     }
   if (newGradients)
     {
-    output->GetPointData()->SetVectors(newGradients);
+    idx = output->GetPointData()->AddArray(newGradients);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::VECTORS);
     newGradients->Delete();
     newGradients = NULL;
     }
