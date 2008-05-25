@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.8");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.9");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -625,10 +625,11 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       vtkstd::vector<vtkInternalStructureCache *>::iterator dit;
       vtkIdType dcnt = 0; //TODO: read in a location to create sparse trees
 
-      int maxchildren = (int)pow((double)8,(double)gcnt); 
+      int maxchildren = static_cast<int>(pow(8.0,static_cast<double>(gcnt)));
       //making octrees, this is total number of possible children in this level
 
-      int r2 = (int)pow((double)refinement,(double)gcnt); 
+      int r2 = static_cast<int>(pow(static_cast<double>(refinement),
+                                    static_cast<double>(gcnt)));
       //how many children across each dimension
 
       for (dit = gptr->children.begin();
@@ -665,7 +666,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           vtkUniformGrid *uf = vtkUniformGrid::SafeDownCast(dobj);
           //scale and translate the children to align with the parent the
           //blanking information
-          double spacing = pow(0.5, (double)(gcnt+1));  //==1.0/(2*r2)
+          double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
           uf->SetSpacing(spacing, spacing, spacing);
           double spa[3];
           uf->GetSpacing(spa);          
