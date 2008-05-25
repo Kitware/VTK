@@ -49,7 +49,7 @@ vtkCurvatures.cxx
 vtkCutter.cxx
 vtkCylinderSource.cxx
 vtkDashedStreamLine.cxx
-#vtkDataObjectGenerator.cxx
+vtkDataObjectGenerator.cxx
 vtkDataObjectToDataSetFilter.cxx
 vtkDataSetEdgeSubdivisionCriterion.cxx
 vtkDataSetSurfaceFilter.cxx

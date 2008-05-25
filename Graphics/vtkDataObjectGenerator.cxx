@@ -27,7 +27,6 @@
 #include <vtkPolyData.h>
 #include <vtkUnstructuredGrid.h>
 
-#include <vtkHierarchicalDataSet.h>
 #include <vtkHierarchicalBoxDataSet.h>
 #include <vtkAMRBox.h>
 #include <vtkMultiBlockDataSet.h>
@@ -42,13 +41,13 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.7");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.8");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
   {
-  ID1, UF1, RG1, SG1, PD1, UG1, GS, GE, HDS, HDE, HBS, HBE, MBS, MBE, NUMTOKENS
+  ID1, UF1, RG1, SG1, PD1, UG1, GS, GE, HBS, HBE, MBS, MBE, NUMTOKENS
   };
 
 const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
@@ -60,8 +59,6 @@ const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] =
   "UG1",
   "(",
   ")",
-  "HD<",
-  ">",
   "HB[",
   "]",
   "MB{",
@@ -76,8 +73,6 @@ const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] =
   "vtkPolyData",
   "vtkUnstructuredGrid",
   "NA",
-  "NA",
-  "vtkHierarchicalDataSet",
   "NA",
   "vtkHierarchicalBoxDataSet",
   "NA",
@@ -135,7 +130,7 @@ public:
       {
       (*it)->print(level+1);
       }
-    if (type == GS || type == HDS || type == HBS || type == MBS)
+    if (type == GS || type == HBS || type == MBS)
       {
       for (int i = 0; i < level; i++)
         {
@@ -145,9 +140,6 @@ public:
         {
         case GS:
           cerr << vtkDataObjectGeneratorTokenStrings[GE] << endl;
-          break;
-        case HDS:
-          cerr << vtkDataObjectGeneratorTokenStrings[HDE] << endl;
           break;
         case HBS:
           cerr << vtkDataObjectGeneratorTokenStrings[HBE] << endl;
@@ -234,12 +226,6 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
         sptr = cptr;
         break;
         }
-      case HDS:
-        {
-        vtkInternalStructureCache *cptr = sptr->add_dataset(HDS);
-        sptr = cptr;
-        break;
-        }
       case HBS:
         {
         vtkInternalStructureCache *cptr = sptr->add_dataset(HBS);
@@ -253,7 +239,6 @@ vtkInternalStructureCache *vtkDataObjectGeneratorParseStructure(char *Program)
         break;
         }
       case GE:
-      case HDE:
       case HBE:
       case MBE:
         sptr = sptr->parent;
@@ -363,7 +348,6 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
         vtkDataObjectGeneratorTypeStrings[structure->type]);
     return outData;
     }
-    case HDS:
     case HBS:
     case MBS:
     {
@@ -380,7 +364,6 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
         vtkDataObjectGeneratorTypeStrings[structure->type]);
     return outData;
     }
-    case HDE: //should never be created
     case HBE: //should never be created
     case MBE: //should never be created
     case GS: //should be skipped over by MBS
@@ -538,7 +521,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   vtkDataObject *outData = NULL;
   int t = structure->type;
   if (t != -1 &&
-      t != HDE &&
       t != HBE &&
       t != MBE &&
       t != GS  &&
@@ -612,61 +594,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     this->MakeUnstructuredGrid1(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
-    case HDS:
-    {
-    //TODO: set metadata that describes parent child relationships
-    vtkHierarchicalDataSet *hdo = 
-      vtkHierarchicalDataSet::SafeDownCast(outData);
-
-    this->YOffset += 1.0;
-    //fill in the contents of this multiblockdataset
-    //by iterate over the children of my children (which must be groups)
-    hdo->SetNumberOfGroups(structure->children.size());
-    vtkstd::vector<vtkInternalStructureCache *>::iterator git;
-    vtkIdType gcnt = 0;
-    for (git = structure->children.begin();
-         git != structure->children.end();
-         git++)
-      {
-      this->ZOffset += 1.0;
-      vtkInternalStructureCache *gptr = *git; 
-      //gpt->type should be a group
-      vtkIdType nds = gptr->children.size();
-      hdo->SetNumberOfDataSets(gcnt, nds);
-
-      vtkstd::vector<vtkInternalStructureCache *>::iterator dit;
-      vtkIdType dcnt = 0;
-      for (dit = gptr->children.begin();
-           dit != gptr->children.end();
-           dit++)
-        {
-        this->XOffset += 1.0;
-        vtkInternalStructureCache *dptr = *dit; 
-        vtkDataObject *dobj = NULL;
-        if (dptr->type == ID1 ||
-            dptr->type == UF1 ||
-            dptr->type == RG1 ||
-            dptr->type == SG1 ||
-            dptr->type == PD1 ||
-            dptr->type == UG1)
-          {
-          //restrict HierarchicalDataSets to be one level deep
-          dobj = this->FillOutputDataObjects(dptr, level+1, dcnt);
-          }
-        hdo->SetDataSet(gcnt, dcnt, dobj);
-        if (dobj)
-          {
-          dobj->Delete();
-          }
-        dcnt++;
-        }
-      this->XOffset -= dcnt;
-      gcnt++;
-      }
-    this->ZOffset -= gcnt;
-    this->YOffset -= 1.0;
-    return outData;
-    }
     case HBS:
     {
     //Making octrees, structured can grid up space arbitratily though
@@ -674,7 +601,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkHierarchicalBoxDataSet *hbo = 
       vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 
-    hbo->SetNumberOfGroups(structure->children.size());
+    hbo->SetNumberOfLevels(structure->children.size());
     vtkstd::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
@@ -774,7 +701,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     this->YOffset += 1.0;
     //fill in the contents of this multiblockdataset
     //by iterating over the children of all my children (which must be groups)
-    mbo->SetNumberOfGroups(structure->children.size());
+    mbo->SetNumberOfBlocks(structure->children.size());
     vtkstd::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
 
@@ -784,30 +711,17 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       {
       this->ZOffset += 1.0;
       vtkInternalStructureCache *gptr = *git; 
-      //gptr->type should be group
-      vtkIdType nds = gptr->children.size();
-      mbo->SetNumberOfDataSets(gcnt, nds);
-
-      vtkstd::vector<vtkInternalStructureCache *>::iterator dit;
-      vtkIdType dcnt = 0;
-      for (dit = gptr->children.begin();
-           dit != gptr->children.end();
-           dit++)
+      if (gptr->type == GS)
         {
-        this->XOffset += 1.0;
-
-        vtkInternalStructureCache *dptr = *dit; 
-        //dptr->type should not be group
-        vtkDataObject *dobj = this->FillOutputDataObjects(dptr, level+1, dcnt);
-        mbo->SetDataSet(gcnt, dcnt, dobj);
-        if (dobj)
-          {
-          dobj->Delete();
-          }
-        dcnt++;
+        vtkErrorMacro("Group inside multi-block is not supported");
+        continue;
         }
-      this->XOffset -= dcnt;
-
+      vtkDataObject *dobj = this->FillOutputDataObjects(gptr, level+1, 0);
+      mbo->SetBlock(gcnt, dobj);
+      if (dobj)
+        {
+        dobj->Delete();
+        }
       gcnt++;
       }
     this->ZOffset -= gcnt;
@@ -816,7 +730,6 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
     return outData;
     }
-    case HDE: //should never be created
     case HBE: //should never be created
     case MBE: //should never be created
     case GS: //should be skipped over by MBS
