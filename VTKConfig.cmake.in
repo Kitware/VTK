@@ -159,6 +159,12 @@ IF(VTK_USE_QVTK)
   INCLUDE(${VTK_DIR}/VTKConfigQt.cmake)
 ENDIF(VTK_USE_QVTK)
 
+# Relative install paths in the VTK install tree
+SET(VTK_INSTALL_BIN_DIR "@VTK_INSTALL_BIN_DIR@")
+SET(VTK_INSTALL_INCLUDE_DIR "@VTK_INSTALL_INCLUDE_DIR@")
+SET(VTK_INSTALL_LIB_DIR "@VTK_INSTALL_LIB_DIR@")
+SET(VTK_INSTALL_PACKAGE_DIR "@VTK_INSTALL_PACKAGE_DIR@")
+
 # A VTK install tree always provides one build configuration.  A VTK
 # build tree may provide either one or multiple build configurations
 # depending on the CMake generator used.  Since VTK can be used either
