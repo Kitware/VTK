@@ -86,7 +86,8 @@ public:
   // Description:
   // Specify the input pointset with index idx.
   // Call SetNumberOfInputs before calling this function.
-  void SetInput(int idx,vtkPointSet* p);
+  void SetInput(int idx, vtkPointSet* p);
+  void SetInput(int idx, vtkDataObject* input);
 
   // Description:
   // Retrieve the input point set with index idx (usually only for pipeline
