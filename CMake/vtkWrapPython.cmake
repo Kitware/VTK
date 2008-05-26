@@ -14,6 +14,17 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     MESSAGE(SEND_ERROR "VTK_WRAP_PYTHON_EXE not specified when calling VTK_WRAP_PYTHON3")
   ENDIF(NOT VTK_WRAP_PYTHON_EXE)
 
+  # The shell into which nmake.exe executes the custom command has some issues
+  # with mixing quoted and unquoted arguments :( Let's help.
+
+  IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+    SET(verbatim "")
+    SET(quote "\"")
+  ELSE(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+    SET(verbatim "VERBATIM")
+    SET(quote "")
+  ENDIF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+
   # Initialize the custom target counter.
   IF(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_PYTHON_CUSTOM_COUNT "")
@@ -66,10 +77,13 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
         DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
-        ARGS ${TMP_INPUT} ${VTK_WRAP_HINTS} ${TMP_CONCRETE} 
-        ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
+        ARGS 
+        "${quote}${TMP_INPUT}${quote}" 
+        "${quote}${VTK_WRAP_HINTS}${quote}" 
+        ${TMP_CONCRETE} 
+        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"
-        VERBATIM
+        ${verbatim}
         )
       
       # Add this output to a custom target if needed.
@@ -101,10 +115,11 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
-    ARGS ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+    ARGS 
+    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
+    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
     COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
-    VERBATIM
+    ${verbatim}
     )
   
   # Create the Init File
