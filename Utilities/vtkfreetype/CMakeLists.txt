@@ -135,3 +135,35 @@ ADD_DEFINITIONS (-DVTKFREETYPE)
 CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
                 ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
 
+
+#
+# Install headers
+#
+#
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL(FILES
+    ${VTKFREETYPE_SOURCE_DIR}/include/ft2build.h
+    ${VTKFREETYPE_SOURCE_DIR}/include/vtk_freetype_mangle.h
+    ${VTKFREETYPE_SOURCE_DIR}/include/vtk_ftmodule.h
+    ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include
+    COMPONENT Development)
+
+  file(GLOB freetype_headers 
+    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/*.h")
+  INSTALL(FILES ${freetype_headers}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype
+    COMPONENT Development)
+
+  file(GLOB freetype_config_headers 
+    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/*.h")
+  INSTALL(FILES ${freetype_config_headers}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/config
+    COMPONENT Development)
+
+  file(GLOB freetype_internal_headers 
+    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/internal/*.h")
+  INSTALL(FILES ${freetype_internal_headers}
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/internal
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
