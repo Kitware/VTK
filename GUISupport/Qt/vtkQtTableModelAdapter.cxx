@@ -184,11 +184,20 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Return a string if they ask for a display role 
   if (role == Qt::DisplayRole)
     {
-    vtkStdString s = v.ToString();
-    const char* const whitespace = " \t\r\n\v\f";
-    s.erase(0, s.find_first_not_of(whitespace));
-    s.erase(s.find_last_not_of(whitespace) + 1);
-    return QVariant(s.c_str());
+    bool ok;
+    double value = v.ToDouble(&ok);
+    if (ok)
+      {
+      return QVariant(value);
+      }
+    else
+      {
+      vtkStdString s = v.ToString();
+      const char* const whitespace = " \t\r\n\v\f";
+      s.erase(0, s.find_first_not_of(whitespace));
+      s.erase(s.find_last_not_of(whitespace) + 1);
+      return QVariant(s.c_str());
+      }
     }
 
   // Return a byte array if they ask for a decorate role 
