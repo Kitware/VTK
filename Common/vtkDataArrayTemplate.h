@@ -289,6 +289,20 @@ private:
 #  pragma warning (disable: 4091) // warning C4091: 'extern ' : 
    // ignored on left of 'int' when no variable is declared
 #  pragma warning (disable: 4231) // Compiler-specific extension warning.
+
+   // We need to disable warning 4910 and do an extern dllexport
+   // anyway.  When deriving vtkCharArray and other types from an
+   // instantiation of this template the compiler does an explicit
+   // instantiation of the base class.  From outside the vtkCommon
+   // library we block this using an extern dllimport instantiation.
+   // For classes inside vtkCommon we should be able to just do an
+   // extern instantiation, but VS 2008 complains about missing
+   // definitions.  We cannot do an extern dllimport inside vtkCommon
+   // since the symbols are local to the dll.  An extern dllexport
+   // seems to be the only way to convince VS 2008 to do the right
+   // thing, so we just disable the warning.
+#  pragma warning (disable: 4910) // extern and dllexport incompatible
+
    // Use an "extern explicit instantiation" to give the class a DLL
    // interface.  This is a compiler-specific extension.
    extern VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(VTK_DATA_ARRAY_TEMPLATE_TYPE);
