@@ -69,7 +69,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.33");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.34");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -179,6 +179,16 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   
   this->SelectedGraphMapper->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
+
+  // Register for progress.
+  this->RegisterProgress(this->GraphLayout);
+  this->RegisterProgress(this->EdgeLayout);
+  this->RegisterProgress(this->GraphMapper);
+  this->RegisterProgress(this->VertexLabelMapper);
+  this->RegisterProgress(this->EdgeLabelMapper);
+  this->RegisterProgress(this->ExtractSelectedGraph);
+  this->RegisterProgress(this->SelectedGraphMapper);
+  this->RegisterProgress(this->EdgeCenters);
 }
 
 //----------------------------------------------------------------------------
@@ -195,6 +205,16 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
   this->SetLayoutStrategyNameInternal(0);
   this->SetEdgeLayoutStrategyNameInternal(0);
   this->SetIconArrayNameInternal(0);
+
+  // UnRegister for progress.
+  this->UnRegisterProgress(this->GraphLayout);
+  this->UnRegisterProgress(this->EdgeLayout);
+  this->UnRegisterProgress(this->GraphMapper);
+  this->UnRegisterProgress(this->VertexLabelMapper);
+  this->UnRegisterProgress(this->EdgeLabelMapper);
+  this->UnRegisterProgress(this->ExtractSelectedGraph);
+  this->UnRegisterProgress(this->SelectedGraphMapper);
+  this->UnRegisterProgress(this->EdgeCenters);
 }
 
 //----------------------------------------------------------------------------
