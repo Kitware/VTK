@@ -163,6 +163,20 @@ public:
       { return this->Progress; }
     };
   //ETX
+  
+  // Description:
+  // Meant for use by subclasses and vtkRepresentation subclasses.
+  // Call this method to register vtkObjects (generally
+  // vtkAlgorithm subclasses) which fire vtkCommand::ProgressEvent with the
+  // view. The view listens to vtkCommand::ProgressEvent and fires
+  // ViewProgressEvent with ViewProgressEventCallData containing the message and
+  // the progress amount. If message is not provided, then the class name for
+  // the algorithm is used.
+  void RegisterProgress(vtkObject* algorithm, const char* message=NULL);
+
+  // Description:
+  // Unregister objects previously registered with RegisterProgress.
+  void UnRegisterProgress(vtkObject* algorithm);
 
 //BTX
 protected:
@@ -194,19 +208,6 @@ protected:
   // representation should override this method.
   virtual void SetSelectionLink(vtkSelectionLink* vtkNotUsed(link)) { }
 
-  // Description:
-  // Subclasses can call this method to register vtkObjects (generally
-  // vtkAlgorithm subclasses) which fire vtkCommand::ProgressEvent with the
-  // view. The view listens to vtkCommand::ProgressEvent and fires
-  // ViewProgressEvent with ViewProgressEventCallData containing the message and
-  // the progress amount. If message is not provided, then the class name for
-  // the algorithm is used.
-  void RegisterProgress(vtkObject* algorithm, const char* message=NULL);
-
-  // Description:
-  // Unregister objects previously registered with RegisterProgress.
-  void UnRegisterProgress(vtkObject* algorithm);
-  
   vtkCollection* Representations;
 
   // Description:
