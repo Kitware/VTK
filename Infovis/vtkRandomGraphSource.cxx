@@ -23,6 +23,7 @@
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMutableDirectedGraph.h"
@@ -34,7 +35,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.11");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.12");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -50,6 +51,7 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->StartWithTree = 0;
   this->AllowSelfLoops = false;
   this->AllowParallelEdges = false;
+  this->GeneratePedigreeIds = true;
   this->Seed = 1177;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -76,6 +78,7 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StartWithTree: " << this->StartWithTree << endl;
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
   os << indent << "AllowParallelEdges: " << this->AllowParallelEdges << endl;
+  os << indent << "GeneratePedigreeIds: " << this->GeneratePedigreeIds << endl;
   os << indent << "Seed: " << this->Seed << endl;
 }
 
@@ -244,6 +247,31 @@ vtkRandomGraphSource::RequestData(
       }
     output->GetEdgeData()->AddArray(weights);
     weights->Delete();
+    }
+
+  if (this->GeneratePedigreeIds)
+    {
+    vtkIdType numVert = output->GetNumberOfVertices();
+    vtkSmartPointer<vtkIdTypeArray> vertIds =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    vertIds->SetName("id");
+    vertIds->SetNumberOfTuples(numVert);
+    for (vtkIdType i = 0; i < numVert; ++i)
+      {
+      vertIds->SetValue(i, i);
+      }
+    output->GetVertexData()->SetPedigreeIds(vertIds);
+
+    vtkIdType numEdge = output->GetNumberOfEdges();
+    vtkSmartPointer<vtkIdTypeArray> edgeIds =
+      vtkSmartPointer<vtkIdTypeArray>::New();
+    edgeIds->SetName("id");
+    edgeIds->SetNumberOfTuples(numEdge);
+    for (vtkIdType i = 0; i < numEdge; ++i)
+      {
+      edgeIds->SetValue(i, i);
+      }
+    output->GetEdgeData()->SetPedigreeIds(edgeIds);
     }
 
   return 1;

@@ -101,6 +101,12 @@ public:
   vtkBooleanMacro(AllowParallelEdges, bool);
 
   // Description:
+  // Add pedigree ids to vertex and edge data named "id".
+  vtkSetMacro(GeneratePedigreeIds, bool);
+  vtkGetMacro(GeneratePedigreeIds, bool);
+  vtkBooleanMacro(GeneratePedigreeIds, bool);
+
+  // Description:
   // Control the seed used for pseudo-random-number generation.
   // This ensures that vtkRandomGraphSource can produce repeatable
   // results.
@@ -119,6 +125,7 @@ protected:
   bool IncludeEdgeWeights;
   bool AllowSelfLoops;
   bool AllowParallelEdges;
+  bool GeneratePedigreeIds;
   int Seed;
 
   virtual int RequestData(

@@ -44,7 +44,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.11");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.12");
 
 vtkCxxSetObjectMacro(vtkAbstractArray,Information,vtkInformation);
 
@@ -231,6 +231,25 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
   vtkGenericWarningMacro("Unsupported data type: " << dataType
                          << "! Setting to VTK_DOUBLE");
   return vtkDoubleArray::New();
+}
+
+//---------------------------------------------------------------------------
+template <typename T>
+vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)
+{
+  return vtkVariant(arr[index]);
+}
+
+//----------------------------------------------------------------------------
+vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType i)
+{
+  vtkVariant val;
+  switch(this->GetDataType())
+    {
+    vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
+      static_cast<VTK_TT*>(this->GetVoidPointer(0)), i));
+    }
+  return val;
 }
 
 //----------------------------------------------------------------------------

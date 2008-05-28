@@ -28,7 +28,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.20");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.21");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -270,6 +270,7 @@ int vtkSelectionSource::RequestData(
 
   if (
     (this->ContentType == vtkSelection::GLOBALIDS) ||
+    (this->ContentType == vtkSelection::PEDIGREEIDS) ||
     (this->ContentType == vtkSelection::INDICES))
     {    
     oProperties->Set(vtkSelection::CONTENT_TYPE(), 

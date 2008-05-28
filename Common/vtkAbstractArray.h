@@ -264,6 +264,10 @@ public:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
   virtual void LookupValue(vtkVariant value, vtkIdList* ids) = 0;
+
+  // Description:
+  // Retrieve value from the array as a variant.
+  virtual vtkVariant GetVariantValue(vtkIdType idx);
   //ETX
   
   // Description:

@@ -52,7 +52,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.15");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.16");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -205,17 +205,6 @@ void vtkConvertSelectionLookup(
   T* dataArr, 
   vtkIdTypeArray* indices)
 {
-  vtkIdType numTuples = selArr->GetNumberOfTuples();
-  VTK_CREATE(vtkIdList, list);
-  for (vtkIdType i = 0; i < numTuples; i++)
-    {
-    dataArr->LookupValue(selArr->GetValue(i), list);
-    vtkIdType numIds = list->GetNumberOfIds();
-    for (vtkIdType j = 0; j < numIds; j++)
-      {
-      indices->InsertNextValue(list->GetId(j));
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -720,32 +709,18 @@ int vtkConvertSelection::Convert(
       vtkErrorMacro("Selection array does not exist in input dataset.");
       return 0;
       }
-    if (dataArr->GetDataType() != selArr->GetDataType())
-      {
-      vtkErrorMacro("Selection array type does not match input dataset array type.");
-      return 0;
-      }
     
     // Perform the lookup
-    switch (selArr->GetDataType())
+    vtkIdType numTuples = selArr->GetNumberOfTuples();
+    VTK_CREATE(vtkIdList, list);
+    for (vtkIdType i = 0; i < numTuples; i++)
       {
-      vtkTemplateMacro(vtkConvertSelectionLookup(
-        static_cast<vtkDataArrayTemplate<VTK_TT>*>(selArr), 
-        static_cast<vtkDataArrayTemplate<VTK_TT>*>(dataArr),
-        indices));
-      case VTK_STRING:
-        vtkConvertSelectionLookup(
-          vtkStringArray::SafeDownCast(selArr), 
-          vtkStringArray::SafeDownCast(dataArr), indices);
-        break;
-      case VTK_VARIANT:
-        vtkConvertSelectionLookup(
-          vtkVariantArray::SafeDownCast(selArr), 
-          vtkVariantArray::SafeDownCast(dataArr), indices);
-        break;
-      default:
-        vtkErrorMacro("Unsupported data type " << selArr->GetDataType());
-        return 0;
+      dataArr->LookupValue(selArr->GetVariantValue(i), list);
+      vtkIdType numIds = list->GetNumberOfIds();
+      for (vtkIdType j = 0; j < numIds; j++)
+        {
+        indices->InsertNextValue(list->GetId(j));
+        }
       }
     }
   
