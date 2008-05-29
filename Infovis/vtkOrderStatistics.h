@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Get the quantile definition.
-  vtkGetMacro( QuantileDefinition, QuantileDefinitionType );
+  vtkIdType GetQuantileDefinition() { return static_cast<vtkIdType>( this->QuantileDefinition ); }
 
 protected:
   vtkOrderStatistics();
