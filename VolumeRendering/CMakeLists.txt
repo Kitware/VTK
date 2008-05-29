@@ -91,11 +91,12 @@ SET(asm_files
 FOREACH(file ${asm_files})
   SET(src ${VTK_SOURCE_DIR}/VolumeRendering/${file}.asm)
   SET(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
+  SET(resh ${VTK_BINARY_DIR}/VolumeRendering/${file}.h)
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${res}
+    OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file}
+    ARGS ${res} ${src} ${file} --build-header VTK_VOLUMERENDERING_EXPORT vtkSystemIncludes.h
     )
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
 ENDFOREACH(file)
