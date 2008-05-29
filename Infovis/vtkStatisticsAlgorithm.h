@@ -79,10 +79,11 @@ public:
   // Description:
   // Set the execution mode.
   vtkSetMacro( ExecutionMode, ExecutionModeType );
+  void SetExecutionMode( vtkIdType );
 
   // Description:
   // Get the execution mode.
-  vtkGetMacro( ExecutionMode, ExecutionModeType );
+  vtkIdType GetExecutionMode() { return static_cast<vtkIdType>( this->ExecutionMode ); }
 
   // Description:
   // Set the sample size.

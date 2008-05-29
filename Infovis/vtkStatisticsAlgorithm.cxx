@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.4");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -114,4 +114,27 @@ int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* 
 void vtkStatisticsAlgorithm::SetInputStatistics(vtkAlgorithmOutput* in)
 {
   this->SetInputConnection( 1, in );
+}
+
+// ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::SetExecutionMode( vtkIdType em )
+{
+  switch ( em )
+    {
+    case vtkStatisticsAlgorithm::LearnMode:
+      break;
+    case vtkStatisticsAlgorithm::ValidateMode:
+      break;
+    case vtkStatisticsAlgorithm::EvinceMode:
+      break;
+    default:
+      vtkWarningMacro( "Incorrect type of execution mode: "
+                       <<em
+                       <<". Ignoring it." );
+      return;
+    }
+  
+  this->ExecutionMode =  static_cast<vtkStatisticsAlgorithm::ExecutionModeType>( em );
+
+  return;
 }
