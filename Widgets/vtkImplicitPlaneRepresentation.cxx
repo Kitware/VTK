@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.11");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -906,6 +906,7 @@ void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
+  this->ValidPick = 1; // since we have positioned the widget successfully
   this->BuildRepresentation();
 }
 
