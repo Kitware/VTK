@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.70");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.71");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -614,7 +614,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     vtkSmartPointer<vtkInformation> r = 
       vtkSmartPointer<vtkInformation>::New();
 
-    r->Set(FROM_OUTPUT_PORT(), PRODUCER()->GetPort(inInfo));
+    r->Set(FROM_OUTPUT_PORT(), PRODUCER()->GetPort(outInfo));
 
     // The request is forwarded upstream through the pipeline.
     r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
