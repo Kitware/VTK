@@ -68,6 +68,15 @@ public:
   //ETX
 
   // Description:
+  // A convenience method for setting the statistics table input.
+  // NB: This is mainly for the benefit of the VTK client/server 
+  // layer, vanilla VTKcode should use, e.g:
+  //
+  // stats_algo2->SetInputConnection( 1, stats_algo1->output() );
+  //
+  virtual void SetInputStatistics( vtkAlgorithmOutput* );
+
+  // Description:
   // Set the execution mode.
   vtkSetMacro( ExecutionMode, ExecutionModeType );
 
