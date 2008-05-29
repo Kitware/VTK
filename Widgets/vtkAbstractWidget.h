@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAbstractWidget - define API for widget / widget representation
+// .NAME vtkAbstractWidget - define the API for widget / widget representation
 // .SECTION Description
 // The vtkAbstractWidget defines an API and implements methods common to all
 // widgets using the interaction/representation design. In this design, the
@@ -31,11 +31,17 @@
 // to which it responds.
 //
 // .SECTION Caveats
-// The separation of the widget event handling and representation enables
-// users and developers to create new appearances for the widget. It also
-// facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
-// client (and do not handle events).
+// Note that the pair (vtkAbstractWidget/vtkWidgetRepresentation) are an
+// implementation of the second generation VTK Widgets design. In the first
+// generation design, widgets were implemented in a single monotonic
+// class. This design was problematic because in client-server applications
+// it was difficult to manage widgets properly. Also, new "representations"
+// or look-and-feel, for a widget required a whole new class, with a lot of
+// redundant code. The separation of the widget event handling and
+// representation enables users and developers to create new appearances for
+// the widget. It also facilitates parallel processing, where the client
+// application handles events, and remote representations of the widget are
+// slaves to the client (and do not handle events).
 
 // .SECTION See Also
 // vtkWidgetRepresentation vtkWidgetEventTranslator vtkWidgetCallbackMapper
@@ -83,9 +89,10 @@ public:
     {return this->EventTranslator;}
   
   // Description:
-  // Create the default widget representation if one is not set. The representation
-  // defines the geometry of the widget (i.e., how it appears) as well as providing
-  // special methods for manipulting the state and appearance of the widget.
+  // Create the default widget representation if one is not set. The
+  // representation defines the geometry of the widget (i.e., how it appears)
+  // as well as providing special methods for manipulting the state and
+  // appearance of the widget.
   virtual void CreateDefaultRepresentation() = 0;
 
   // Description:
@@ -164,6 +171,7 @@ protected:
   // Flag indicating if the widget should handle interaction events.
   // On by default.
   int ProcessEvents;
+
 private:
   vtkAbstractWidget(const vtkAbstractWidget&);  //Not implemented
   void operator=(const vtkAbstractWidget&);  //Not implemented

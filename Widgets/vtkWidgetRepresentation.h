@@ -12,14 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWidgetRepresentation - abstract class defines widget and widget representation interface
+// .NAME vtkWidgetRepresentation - abstract class defines interface between the widget and widget representation classes
 // .SECTION Description
 // This class is used to define the API for, and partially implement, a
-// representation for different types of widgets. The vtkAbstracWidget
-// handles events and cursor definitions; the vtkWidgetRepresentation is
-// responsible for the geometric representation, and modifies its appearance
-// based on certain types of events. The widget representation is also a type
-// of vtkProp, as such it can be placed in the scene and rendered.
+// representation for different types of widgets. Note that the widget
+// representation (i.e., subclasses of vtkWidgetRepresentation) are a type of
+// vtkProp; meaning that they can be associated with a vtkRenderer end
+// embedded in a scene like any other vtkActor. However,
+// vtkWidgetRepresentation also defines an API that enables it to be paired
+// with a subclass vtkAbstractWidget, meaning that it can be driven by a
+// widget, serving to represent the widget as the widget responds to
+// registered events. 
+//
+// The API defined here should be regarded as a guideline for implementing
+// widgets and widget representations. Widget behavior is complex, as is the
+// way the representation responds to the registered widget events, so the API
+// may vary from widget to widget to reflect this complexity.
 
 // .SECTION Caveats
 // The separation of the widget event handling and representation enables
@@ -129,7 +137,10 @@ public:
   
   // Description:
   // Methods to make this class behave as a vtkProp. They are repeated here (from the
-  // vtkProp superclass) as a reminder to the widget implementor.
+  // vtkProp superclass) as a reminder to the widget implementor. Failure to implement
+  // these methods properly may result in the representation not appearing in the scene
+  // (i.e., not implementing the Render() methods properly) or leaking graphics resources
+  // (i.e., not implementing ReleaseGraphicsResources() properly).
   virtual double *GetBounds() {return NULL;}
   virtual void ShallowCopy(vtkProp *prop);
   virtual void GetActors(vtkPropCollection *) {}
@@ -153,19 +164,20 @@ protected:
   int InteractionState;
 
   // These are used to track the beginning of interaction with the representation
-  // It's dimensioned [3] because some events re processed in 3D
+  // It's dimensioned [3] because some events re processed in 3D.
   double StartEventPosition[3];
 
   // Instance variable and members supporting suclasses
-  double PlaceFactor;
-  int Placed; 
-  void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
+  double PlaceFactor; // Used to control how widget is placed around bounding box
+  int    Placed; // Indicate whether widget has been placed
+  void   AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
   int    ValidPick; //keep track when valid picks are made
-  double InitialBounds[6]; //initial bounds on place widget
+  double InitialBounds[6]; //initial bounds on place widget (valid after PlaceWidget)
   double InitialLength; //initial length on place widget
 
   // Members use to control handle size. The two methods return a "radius"
-  // in world coordinates.
+  // in world coordinates. Note that the HandleSize data member is used
+  // internal to the SizeHandles__() methods.
   double HandleSize; //controlling relative size of widget handles
   double SizeHandlesRelativeToViewport(double factor, double pos[3]);
   double SizeHandlesInPixels(double factor,double pos[3]);
@@ -173,7 +185,8 @@ protected:
   // Try and reduce multiple renders
   int NeedToRender;
   
-  // This is the time that the representation was built.
+  // This is the time that the representation was built. This data member
+  // can be used to reduce the time spent building the widget.
   vtkTimeStamp  BuildTime;
 
 private:
