@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.2");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -405,6 +405,9 @@ void vtkSphereRepresentation::PlaceWidget(double center[3], double handle[3])
   this->InitialBounds[3] = center[1] + r;
   this->InitialBounds[4] = center[2] - r;
   this->InitialBounds[5] = center[2] + r;
+
+  this->ValidPick = 1;
+  this->BuildRepresentation();
 }
 
 //----------------------------------------------------------------------------
@@ -522,6 +525,7 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
+  this->ValidPick = 1; // since we have set up widget properly
   this->SizeHandles();
 }
 

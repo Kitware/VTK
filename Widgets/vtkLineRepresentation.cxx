@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.10");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -452,6 +452,7 @@ void vtkLineRepresentation::PlaceWidget(double bds[6])
 
   // Position the handles at the end of the lines
   this->Placed = 1;
+  this->ValidPick = 1;
   this->BuildRepresentation();
 }
 

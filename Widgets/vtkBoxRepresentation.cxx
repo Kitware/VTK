@@ -37,7 +37,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.5");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
@@ -728,6 +728,7 @@ void vtkBoxRepresentation::PlaceWidget(double bds[6])
 
   this->PositionHandles();
   this->ComputeNormals();
+  this->ValidPick = 1; //since we have set up widget
   this->SizeHandles();
 }
 
