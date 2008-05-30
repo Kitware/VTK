@@ -20,7 +20,69 @@
 #include "vtkSystemIncludes.h" // for cout,endl
 #include <vtkstd/string> 
 #include <vtksys/ios/sstream>
-#include <vtksys/SystemTools.hxx>
+//#include <vtksys/SystemTools.hxx>
+
+// Functions from kwsys SystemTools, as we cannot link vtkEncodeString
+// against vtksys because of installation isssues.
+
+/**
+ * Return file name of a full filename (i.e. file name without path).
+ */
+vtkstd::string GetFilenameName(const vtkstd::string& filename)
+{
+#if defined(_WIN32)
+  vtkstd::string::size_type slash_pos = filename.find_last_of("/\\");
+#else
+  vtkstd::string::size_type slash_pos = filename.find_last_of("/");
+#endif
+  if(slash_pos != vtkstd::string::npos)
+    {
+    return filename.substr(slash_pos + 1);
+    }
+  else
+    {
+    return filename;
+    }
+}
+
+/**
+ * Return file name without extension of a full filename (i.e. without path).
+ * Warning: it considers the longest extension (for example: .tar.gz)
+ */
+vtkstd::string GetFilenameWithoutExtension(const vtkstd::string& filename)
+{
+  vtkstd::string name = GetFilenameName(filename);
+  vtkstd::string::size_type dot_pos = name.find(".");
+  if(dot_pos != vtkstd::string::npos)
+    {
+    return name.substr(0, dot_pos);
+    }
+  else
+    {
+    return name;
+    }
+}
+
+
+/**
+ * Return file name without extension of a full filename (i.e. without path).
+ * Warning: it considers the last extension (for example: removes .gz
+ * from .tar.gz)
+ */
+vtkstd::string GetFilenameWithoutLastExtension(const vtkstd::string& filename)
+{
+  vtkstd::string name = GetFilenameName(filename);
+  vtkstd::string::size_type dot_pos = name.rfind(".");
+  if(dot_pos != vtkstd::string::npos)
+    {
+    return name.substr(0, dot_pos);
+    }
+  else
+    {
+    return name;
+    }
+}
+
 
 class Output
 {
@@ -113,8 +175,7 @@ int main(int argc,
   bool outputIsC=output.find(".c",output.size()-2)!=vtkstd::string::npos;
   bool buildHeader=argc==7;
   
-  vtkstd::string fileName=
-    vtksys::SystemTools::GetFilenameWithoutLastExtension(output);
+  vtkstd::string fileName=GetFilenameWithoutLastExtension(output);
   
   if(!ot.ProcessFile(input.c_str(), argv[3],buildHeader,fileName))
     {
@@ -165,8 +226,7 @@ int main(int argc,
       
       hs.Stream << "#endif /* #ifndef __" <<fileName<< "_h */" << endl;
       
-      vtkstd::string headerOutput=
-        vtksys::SystemTools::GetFilenameWithoutExtension(output)+".h";
+      vtkstd::string headerOutput=GetFilenameWithoutExtension(output)+".h";
       
       FILE *hfp=fopen(headerOutput.c_str(),"w");
       if(!hfp)
