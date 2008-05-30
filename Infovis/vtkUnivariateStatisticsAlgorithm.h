@@ -51,6 +51,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // If \p all is false (default), then all input columns are of interest, irrespective of 
+  // the selection that may have been made using the Add/RemoveColumn[Range]() methods. 
+  // If \p all is true, then only selected columns are of interest.
+  void UseColumnSelection( bool all );
+
+  // Description:
   // Reset list of columns of interest
   void ResetColumns();
 

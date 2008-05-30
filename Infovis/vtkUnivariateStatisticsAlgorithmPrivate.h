@@ -54,6 +54,7 @@ public:
     }
   
   vtkstd::set<vtkIdType> Columns;
+  bool ColumnSelectionUsage;
 };
 
 #endif // __vtkUnivariateStatisticsAlgorithmPrivate_h

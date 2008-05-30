@@ -25,12 +25,13 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.3");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
 {
   this->Internals = new vtkUnivariateStatisticsAlgorithmPrivate;
+  this->Internals->ColumnSelectionUsage = false;
 }
 
 // ----------------------------------------------------------------------
@@ -43,6 +44,12 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+}
+
+// ----------------------------------------------------------------------
+void vtkUnivariateStatisticsAlgorithm::UseColumnSelection( bool all )
+{
+  this->Internals->ColumnSelectionUsage = all;
 }
 
 // ----------------------------------------------------------------------
