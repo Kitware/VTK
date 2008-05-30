@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.3");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -630,7 +630,7 @@ void vtkSphereRepresentation::BuildRepresentation()
     this->RadialLineSource->Update();
     }
   
-  if ( this->HandleText )
+  if ( this->HandleText && this->Renderer )
     {
     char str[256];
     double c[3], hc[3], tc[4];
