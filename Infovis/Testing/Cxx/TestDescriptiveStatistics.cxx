@@ -174,16 +174,14 @@ int TestDescriptiveStatistics( int, char *[] )
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() );
-
-    for ( int i = 1; i < 8; ++ i )
+    cout << "   ";
+    for ( int i = 0; i < 8; ++ i )
       {
-      cout << ", "
-           << outputTable->GetColumnName( i )
+      cout << outputTable->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToDouble();
-      }
+           << outputTable->GetValue( r, i ).ToDouble()
+           << "  ";
+     }
     cout << "\n";
     }
 
