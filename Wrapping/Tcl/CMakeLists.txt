@@ -232,7 +232,7 @@ ENDIF(VTK_TCL_CONFIGURATION_TYPES)
 # Configure the Tcl package index file for the install tree.
 SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]/tcl")
 IF(UNIX)
-  SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [info script]]]")
+  SET(VTK_TCL_LIBRARY_DIR "[file dirname [info script]]")
 ELSE(UNIX)
   SET(VTK_TCL_LIBRARY_DIR
       "[file join [file dirname [file dirname [file dirname [info script]]]] bin]")
