@@ -179,7 +179,7 @@ int TestDescriptiveStatistics( int, char *[] )
       {
       cout << outputTable->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToDouble()
+           << outputTable->GetValue( r, i ).ToString()
            << "  ";
      }
     cout << "\n";

@@ -28,12 +28,13 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.12");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.13");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -72,10 +73,10 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Column" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Minimum" );
@@ -136,7 +137,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
-    idTypeCol = vtkIdTypeArray::New();
+    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
     idTypeCol->SetName( "Cardinality" );
     output->AddColumn( idTypeCol );
     idTypeCol->Delete();
@@ -193,15 +194,15 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
 
     vtkVariantArray* row = vtkVariantArray::New();
     row->SetNumberOfValues( 8 );
+    row->SetValue( 0, dataset->GetColumnName( *it ) );
+    row->SetValue( 1, minVal );
+    row->SetValue( 2, maxVal );
 
     if ( finalize )
       {
       double G2;
       this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, G2 );
 
-      row->SetValue( 0, *it );
-      row->SetValue( 1, minVal );
-      row->SetValue( 2, maxVal );
       row->SetValue( 3, sum1 );
       row->SetValue( 4, sum2 );
       row->SetValue( 5, sum3 );
@@ -210,9 +211,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       }
     else
       {
-      row->SetValue( 0, *it );
-      row->SetValue( 1, minVal );
-      row->SetValue( 2, maxVal );
       row->SetValue( 3, sum1 );
       row->SetValue( 4, sum2 );
       row->SetValue( 5, sum3 );
