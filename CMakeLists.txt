@@ -782,6 +782,7 @@ ENDIF (VTK_USE_FFMPEG_ENCODER)
 #
 # You are solely responsible for any legal issues associated with using
 # patented code in your software.
+# Ref: http://www.vtk.org/get-software.php#addons
 #
 OPTION (VTK_USE_MPEG2_ENCODER
   "Enable use of the patented mpeg2 library. You are solely responsible for any legal issues associated with using patented code in your software."
