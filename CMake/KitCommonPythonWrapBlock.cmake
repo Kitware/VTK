@@ -47,4 +47,15 @@ IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
   IF(WIN32 OR APPLE)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python ${VTK_PYTHON_LIBRARIES})
   ENDIF(WIN32 OR APPLE)
+
+  # Generally the pyhon extension module created is installed using setup.py.
+  # However projects that include VTK (such as ParaView) can override this
+  # behaviour by not using setup.py, instead directly installing the extension
+  # module at the same location as other libraries.
+  IF (VTK_INSTALL_PYTHON_USING_CMAKE AND NOT VTK_INSTALL_NO_LIBRARIES)
+    INSTALL(TARGETS vtk${KIT}Python
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
+  ENDIF (VTK_INSTALL_PYTHON_USING_CMAKE AND NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
