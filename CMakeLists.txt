@@ -908,7 +908,16 @@ IF(VTK_WRAP_PYTHON)
     GET_TARGET_PROPERTY(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit LOCATION)
   ENDIF(CMAKE_CROSSCOMPILING)
 
-  # VTK tcl executables.
+  # Save these in cache as other projects including VTK (such as ParaView) may
+  # want to use these. 
+  SET(VTK_WRAP_PYTHON_EXE 
+    "${VTK_WRAP_PYTHON_EXE}"
+    CACHE INTERNAL "Location of program to do Python wrapping")
+  SET(VTK_WRAP_PYTHON_INIT_EXE 
+    "${VTK_WRAP_PYTHON_INIT_EXE}"
+    CACHE INTERNAL "Location of program to do Python wrapping")
+
+  # VTK python executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
   IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
     SET(PVTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/pvtkpython)
