@@ -1,6 +1,6 @@
 # Configured file and directory locations.
 SET(PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")
-SET(CMAKE_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@")
+SET(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 SET(VTK_BINARY_DIR "@VTK_BINARY_DIR@")
 
 # Convert the prefix to a windows path if necessary.  The python
