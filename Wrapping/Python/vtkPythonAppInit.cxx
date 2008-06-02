@@ -237,20 +237,32 @@ static void vtkPythonAppInitPrependPythonPath(const char* dir)
 static void vtkPythonAppInitPrependPath(const char* self_dir)
 {
   // Try to put the VTK python module location in sys.path.
-  vtkstd::string package_dir = self_dir;
-#if defined(CMAKE_INTDIR)
-  package_dir += "/..";
-#endif
-  package_dir += "/../Wrapping/Python";
-  package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
-  if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+  const char* build_dirs[] = {
+    "/../Wrapping/Python",
+    "/../VTK/Wrapping/Python",
+    0
+  };
+
+  int found_vtk = 0;
+  for (const char** build_dir = build_dirs; *build_dir && !found_vtk; ++build_dir)
     {
-    // This executable is running from the build tree.  Prepend the
-    // library directory and package directory to the search path.
-    vtkPythonAppInitPrependPythonPath(package_dir.c_str());
-    vtkPythonAppInitPrependPythonPath(VTK_PYTHON_LIBRARY_DIR);
+    vtkstd::string package_dir = self_dir;
+#if defined(CMAKE_INTDIR)
+    package_dir += "/..";
+#endif
+    package_dir += (*build_dir);
+    package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
+    if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+      {
+      // This executable is running from the build tree.  Prepend the
+      // library directory and package directory to the search path.
+      vtkPythonAppInitPrependPythonPath(package_dir.c_str());
+      vtkPythonAppInitPrependPythonPath(VTK_PYTHON_LIBRARY_DIR);
+      found_vtk = 1;
+      }
     }
-  else
+
+  if (!found_vtk)
     {
     // This executable is running from an install tree.  Check for
     // possible VTK python module locations.  See
@@ -269,7 +281,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
     vtkstd::string prefix = vtksys::SystemTools::GetFilenamePath(self_dir);
     for(const char** dir = inst_dirs; *dir; ++dir)
       {
-      package_dir = prefix;
+      vtkstd::string package_dir = prefix;
       package_dir += *dir;
       package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
       if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
