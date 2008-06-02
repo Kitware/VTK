@@ -41,7 +41,7 @@ class TestGL2PSExporter(Testing.vtkTest):
     act.GetProperty().SetColor(0.5, 0.5, 1.0)
 
     axes = vtk.vtkCubeAxesActor2D()
-    axes.SetInputConnection(cs.GetOutputPort())
+    axes.SetInput(cs.GetOutput())
     axes.SetFontFactor(2.0)
     axes.SetCornerOffset(0.0)
     axes.GetProperty().SetColor(0,0,0)
@@ -72,6 +72,7 @@ class TestGL2PSExporter(Testing.vtkTest):
     iren.SetRenderWindow(renWin)
 
     cam = ren.GetActiveCamera()
+    ren.ResetCamera()
     cam.Azimuth(30)
 
     iren.Initialize()
