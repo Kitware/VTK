@@ -87,16 +87,18 @@ SET(asm_files
 
 # Create custom commands to encode each assembly file into a C string
 # literal in a header file.
-set(asm_cxx_files)
+
+SET(asm_h_files)
 FOREACH(file ${asm_files})
   SET(src ${VTK_SOURCE_DIR}/VolumeRendering/${file}.asm)
   SET(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
-  set(asm_cxx_files ${asm_cxx_files} "${res}")
+  SET(resh ${VTK_BINARY_DIR}/VolumeRendering/${file}.h)
+  SET(asm_h_files ${asm_h_files} "${resh}")
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${res}
+    OUTPUT ${res} ${resh}
     DEPENDS ${src} vtkEncodeString
     COMMAND ${VTK_ENCODESTRING_EXE}
-    ARGS ${res} ${src} ${file}
+    ARGS ${res} ${src} ${file} --build-header VTK_VOLUMERENDERING_EXPORT vtkSystemIncludes.h
     )
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
 ENDFOREACH(file)
@@ -108,7 +110,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${asm_cxx_files}
+    ${asm_h_files}
     ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)

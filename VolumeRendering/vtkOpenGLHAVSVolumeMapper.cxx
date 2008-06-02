@@ -33,15 +33,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnstructuredGridPartialPreIntegration.h"
 #include "vtkVolumeProperty.h"
 
-extern const char *vtkHAVSVolumeMapper_kbufferVP;
-extern const char *vtkHAVSVolumeMapper_k2BeginFP;
-extern const char *vtkHAVSVolumeMapper_k2FP;
-extern const char *vtkHAVSVolumeMapper_k2EndFP;
-extern const char *vtkHAVSVolumeMapper_k6BeginFP;
-extern const char *vtkHAVSVolumeMapper_k6FP;
-extern const char *vtkHAVSVolumeMapper_k6EndFP;
+#include "vtkHAVSVolumeMapper_kbufferVP.h"
+#include "vtkHAVSVolumeMapper_k2BeginFP.h"
+#include "vtkHAVSVolumeMapper_k2FP.h"
+#include "vtkHAVSVolumeMapper_k2EndFP.h"
+#include "vtkHAVSVolumeMapper_k6BeginFP.h"
+#include "vtkHAVSVolumeMapper_k6FP.h"
+#include "vtkHAVSVolumeMapper_k6EndFP.h"
 
-vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLHAVSVolumeMapper, "1.12.2.1");
 vtkStandardNewMacro(vtkOpenGLHAVSVolumeMapper);
 
 //----------------------------------------------------------------------------
