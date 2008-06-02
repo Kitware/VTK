@@ -178,19 +178,15 @@ int TestOrderStatistics( int, char *[] )
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-         << ":";
-
-    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
+    cout << "   ";
+    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
       {
-      double q = outputTable->GetValue( r, i ).ToDouble(); 
-      cout << " q("
-           << outputTable->GetColumnName( i )
-           << ")="
-           << q;
+      cout << outputTable->GetColumnName( i )
+           << "="
+           << outputTable->GetValue( r, i ).ToString()
+           << "  ";
 
-      if ( q != valsTest1[r * 5 + i] )
+      if ( i && outputTable->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
         {
         testIntValue = 1;
         cout << " !! <> "
@@ -222,19 +218,15 @@ int TestOrderStatistics( int, char *[] )
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-         << ":";
-
-    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
+    cout << "   ";
+    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
       {
-      double q = outputTable->GetValue( r, i ).ToDouble(); 
-      cout << " q("
-           << outputTable->GetColumnName( i )
-           << ")="
-           << q;
+      cout << outputTable->GetColumnName( i )
+           << "="
+           << outputTable->GetValue( r, i ).ToString()
+           << "  ";
 
-      if ( q != valsTest2[r * 5 + i] )
+      if ( i && outputTable->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
         {
         testIntValue = 1;
         cout << " !! <> "
@@ -256,16 +248,13 @@ int TestOrderStatistics( int, char *[] )
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    cout << "   "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-         << ":";
-
-    for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
+    cout << "   ";
+    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
       {
-      cout << " q("
-           << outputTable->GetColumnName( i )
-           << ")="
-           << outputTable->GetValue( r, i ).ToDouble();
+      cout << outputTable->GetColumnName( i )
+           << "="
+           << outputTable->GetValue( r, i ).ToString()
+           << "  ";
       }
     cout << "\n";
     }

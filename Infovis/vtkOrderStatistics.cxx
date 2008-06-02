@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
@@ -35,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.11");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.12");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -78,10 +79,10 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Column" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
   if ( finalize )
     {
@@ -96,7 +97,22 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
       {
       doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName( vtkVariant( i * dq ).ToString().c_str() );
+      if ( ! i )
+        {
+        doubleCol->SetName( "minimum" );
+        }
+      else 
+        {
+        if ( i == this->NumberOfIntervals )
+          {
+          doubleCol->SetName( "maximum" );
+          }
+        else
+          {
+          doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          }
+        }
+
       output->AddColumn( doubleCol );
       doubleCol->Delete();
       }
@@ -142,7 +158,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetNumberOfValues( this->NumberOfIntervals + 2 );
 
       int col = 0;
-      row->SetValue( col ++, *it );
+      row->SetValue( col ++, dataset->GetColumnName( *it ) );
 
       vtkstd::vector<double> quantileThresholds;
       double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
