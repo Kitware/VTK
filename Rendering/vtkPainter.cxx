@@ -24,18 +24,20 @@
 
 #include "vtkPainter.h"
 
+#include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkPainter, "1.5");
+vtkCxxRevisionMacro(vtkPainter, "1.6");
 vtkCxxSetObjectMacro(vtkPainter, Input, vtkDataObject);
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
@@ -269,6 +271,72 @@ void vtkPainter::UpdateBounds(double bounds[6])
     // delegate the task of updating the bounds
     painter->UpdateBounds(bounds);
     }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Helper method to get input array to process.
+vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation, 
+  int fieldAttributeType,
+  vtkDataSet* inputDS,
+  bool *use_cell_data)
+{
+  if (use_cell_data)
+    {
+    *use_cell_data = false;
+    }
+  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+    return inputDS->GetPointData()->GetAbstractAttribute(fieldAttributeType);
+    }
+
+  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
+    {
+    vtkAbstractArray* array = 
+      inputDS->GetPointData()->GetAbstractAttribute(fieldAttributeType);
+    if (array)
+      {
+      return array;
+      }
+    }
+
+  if (use_cell_data)
+    {
+    *use_cell_data = true;
+    }
+  return inputDS->GetCellData()->GetAbstractAttribute(fieldAttributeType);
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Helper method to get input array to process.
+vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
+  const char* name, vtkDataSet* inputDS, bool *use_cell_data)
+{
+  if (use_cell_data)
+    {
+    *use_cell_data = false;
+    }
+  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+    return inputDS->GetPointData()->GetAbstractArray(name);
+    }
+
+  if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
+    {
+    vtkAbstractArray* array = 
+      inputDS->GetPointData()->GetAbstractArray(name);
+    if (array)
+      {
+      return array;
+      }
+    }
+
+  if (use_cell_data)
+    {
+    *use_cell_data = true;
+    }
+  return inputDS->GetCellData()->GetAbstractArray(name);
 }
 
 //-----------------------------------------------------------------------------

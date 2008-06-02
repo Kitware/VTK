@@ -43,8 +43,10 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+class vtkAbstractArray;
 class vtkActor;
 class vtkDataObject;
+class vtkDataSet;
 class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkPainterObserver;
@@ -208,6 +210,16 @@ protected:
   // amount. The parameter amount should range between (0,1).
   // Raises vtkCommand::ProgressEvent.
   void UpdateProgress(double amount);
+
+  // Description:
+  // Helper method to get input array to process.
+  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation, 
+    int fieldAttributeType,
+    vtkDataSet* ds,
+    bool *use_cell_data=0);
+  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation, 
+    const char* name, vtkDataSet* dsl, 
+    bool *use_cell_data=0);
  
   // Time of most recent call to ProcessInformation().
   vtkTimeStamp InformationProcessTime;
