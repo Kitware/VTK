@@ -25,7 +25,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.4");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -55,19 +55,19 @@ void vtkUnivariateStatisticsAlgorithm::UseColumnSelection( bool all )
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::ResetColumns()
 {
-  this->Internals->Columns.clear();
+  this->Internals->SelectedColumns.clear();
 }
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::AddColumn( vtkIdType idxCol )
 {
- this->Internals->Columns.insert( idxCol );
+ this->Internals->SelectedColumns.insert( idxCol );
 }
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::RemoveColumn( vtkIdType idxCol )
 {
- this->Internals->Columns.erase( idxCol );
+ this->Internals->SelectedColumns.erase( idxCol );
 }
 
 // ----------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkUnivariateStatisticsAlgorithm::AddColumnRange( vtkIdType idxColBegin, vt
 {
   for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
     {
-    this->Internals->Columns.insert( idxCol );
+    this->Internals->SelectedColumns.insert( idxCol );
     }
 }
 
@@ -84,6 +84,21 @@ void vtkUnivariateStatisticsAlgorithm::RemoveColumnRange( vtkIdType idxColBegin,
 {
   for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
     {
-    this->Internals->Columns.erase( idxCol );
+    this->Internals->SelectedColumns.erase( idxCol );
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkUnivariateStatisticsAlgorithm::SetColumnSelection( vtkIdType nCol )
+{
+  if ( ! this->Internals->ColumnSelectionUsage )
+    {
+    return;
+    }
+
+  this->Internals->SelectedColumns.clear();
+  for ( int idxCol = 0; idxCol < nCol; ++ idxCol )
+    {
+    this->Internals->SelectedColumns.insert( idxCol );
     }
 }

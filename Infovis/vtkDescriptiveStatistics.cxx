@@ -34,7 +34,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.14");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.15");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -143,21 +143,10 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     idTypeCol->Delete();
     }
 
-  vtkstd::set<vtkIdType> columnSet;
-  if ( this->Internals->ColumnSelectionUsage )
-    {
-    columnSet = this->Internals->Columns;
-    }
-  else
-    {
-    for ( int idxCol = 0; idxCol < nCol; ++ idxCol )
-      {
-      columnSet.insert( idxCol );
-      }
-    }
-
-  for ( vtkstd::set<vtkIdType>::iterator it = columnSet.begin(); 
-        it != columnSet.end(); ++ it )
+  this->SetColumnSelection( nCol );
+  this->SetColumnSelection( nCol );
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+        it != this->Internals->SelectedColumns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nCol )
       {
@@ -287,21 +276,9 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  vtkstd::set<vtkIdType> columnSet;
-  if ( this->Internals->ColumnSelectionUsage )
-    {
-    columnSet = this->Internals->Columns;
-    }
-  else
-    {
-    for ( int idxCol = 0; idxCol < nColD; ++ idxCol )
-      {
-      columnSet.insert( idxCol );
-      }
-    }
-
-  for ( vtkstd::set<vtkIdType>::iterator it = columnSet.begin(); 
-        it != columnSet.end(); ++ it )
+  this->SetColumnSelection( nColD );
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+        it != this->Internals->SelectedColumns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nColD )
       {

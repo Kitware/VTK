@@ -81,6 +81,10 @@ public:
   // for those which are present.
   void RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
 
+  // Description:
+  // Set the column selection, depending on whether the all columns mode is on or off.
+  void SetColumnSelection( vtkIdType nCol );
+
 protected:
   vtkUnivariateStatisticsAlgorithm();
   ~vtkUnivariateStatisticsAlgorithm();

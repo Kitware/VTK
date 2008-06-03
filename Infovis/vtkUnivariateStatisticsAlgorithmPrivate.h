@@ -53,7 +53,7 @@ public:
     {
     }
   
-  vtkstd::set<vtkIdType> Columns;
+  vtkstd::set<vtkIdType> SelectedColumns;
   bool ColumnSelectionUsage;
 };
 

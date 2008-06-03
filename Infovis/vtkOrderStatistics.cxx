@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.13");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.14");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -123,21 +123,9 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkstd::set<vtkIdType> columnSet;
-  if ( this->Internals->ColumnSelectionUsage )
-    {
-    columnSet = this->Internals->Columns;
-    }
-  else
-    {
-    for ( int idxCol = 0; idxCol < nCol; ++ idxCol )
-      {
-      columnSet.insert( idxCol );
-      }
-    }
-
-  for ( vtkstd::set<vtkIdType>::iterator it = columnSet.begin(); 
-        it != columnSet.end(); ++ it )
+  this->SetColumnSelection( nCol );
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+        it != this->Internals->SelectedColumns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nCol )
       {
@@ -264,21 +252,9 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
   
-  vtkstd::set<vtkIdType> columnSet;
-  if ( this->Internals->ColumnSelectionUsage )
-    {
-    columnSet = this->Internals->Columns;
-    }
-  else
-    {
-    for ( int idxCol = 0; idxCol < nColD; ++ idxCol )
-      {
-      columnSet.insert( idxCol );
-      }
-    }
-
-  for ( vtkstd::set<vtkIdType>::iterator it = columnSet.begin(); 
-        it != columnSet.end(); ++ it )
+  this->SetColumnSelection( nColD );
+  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+        it != this->Internals->SelectedColumns.end(); ++ it )
     {
     if ( *it < 0 || *it >= nColD )
       {
