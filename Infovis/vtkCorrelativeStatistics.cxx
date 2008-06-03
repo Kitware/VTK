@@ -52,7 +52,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.4");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.5");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,6 +77,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkCorrelativeStatistics::ResetColumnPairs()
 {
   this->Internals->ColumnPairs.clear();
+  this->Modified();
 }
 
 // ----------------------------------------------------------------------
@@ -84,6 +85,7 @@ void vtkCorrelativeStatistics::AddColumnPair( vtkIdType idxColX, vtkIdType idxCo
 {
   vtkstd::pair<vtkIdType,vtkIdType> idxPair( idxColX, idxColY );
   this->Internals->ColumnPairs.insert( idxPair );
+  this->Modified();
 }
 
 // ----------------------------------------------------------------------
