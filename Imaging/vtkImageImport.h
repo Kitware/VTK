@@ -21,7 +21,8 @@
 // the upper-left corner.  You can use vtkImageFlip to correct the 
 // orientation after the image has been loaded into VTK.
 // Note that is also possible to import the raw data from a Python string
-// instead of from a C array.
+// instead of from a C array. The array applies on scalar point data only, not
+// on cell data.
 // .SECTION See Also
 // vtkImageExport
 
@@ -116,6 +117,11 @@ public:
   virtual int RequestUpdateExtent(  vtkInformation* request,
                                     vtkInformationVector** inputVector,
                                     vtkInformationVector* outputVector);
+
+  // Description:
+  // Set/get the scalar array name for this data set. Initial value is "".
+  vtkSetStringMacro(ScalarArrayName);
+  vtkGetStringMacro(ScalarArrayName);
 
   //BTX
   // Description:
@@ -252,6 +258,7 @@ protected:
   double DataSpacing[3];
   double DataOrigin[3];
 
+  char *ScalarArrayName;
   void* CallbackUserData;
   
   //BTX

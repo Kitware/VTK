@@ -78,7 +78,7 @@ int ImportExport( int argc, char *argv[] )
   importer->SetDataExtentToWholeExtent();
   importer->SetDataScalarTypeToShort();
   importer->SetImportVoidPointer(data);
-
+  importer->SetScalarArrayName("importedScalars");
 
   vtkImageViewer *viewer = vtkImageViewer::New();
   viewer->SetInputConnection(importer->GetOutputPort());
