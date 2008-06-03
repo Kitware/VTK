@@ -198,9 +198,9 @@ int TestCorrelativeStatistics( int, char *[] )
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
     cout << "   (X, Y) = ("
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
+         << outputTable->GetValue( r, 0 ).ToString()
          << ", "
-         << datasetTable->GetColumnName( outputTable->GetValue( r, 1 ).ToInt() )
+         << outputTable->GetValue( r, 1 ).ToString()
          << ")";
 
     for ( int i = 2; i < 7; ++ i )
@@ -211,7 +211,7 @@ int TestCorrelativeStatistics( int, char *[] )
            << outputTable->GetValue( r, i ).ToDouble();
       }
 
-    if ( ! outputTable->GetValue( r,  7 ).ToInt () )
+    if ( outputTable->GetValue( r,  7 ).ToString() == vtkStdString( "valid" ) )
       {
       cout << "\n   Y = "
            << outputTable->GetValue( r,  8 ).ToDouble()

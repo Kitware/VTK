@@ -27,6 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
@@ -52,7 +53,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.5");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.6");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -108,15 +109,15 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column X" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Column X" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
-  idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column Y" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "Column Y" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
   if ( finalize )
     {
@@ -131,47 +132,47 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Variance X" );
+    doubleCol->SetName( "Var(X)" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Variance Y" );
+    doubleCol->SetName( "Var(Y)" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Covariance" );
+    doubleCol->SetName( "Cov(X,Y)" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    stringCol = vtkStringArray::New();
+    stringCol->SetName( "Linear Correlation" );
+    output->AddColumn( stringCol );
+    stringCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Slope Y/X" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "SlopeYX" );
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    idTypeCol = vtkIdTypeArray::New();
-    idTypeCol->SetName( "Linear Correlation" );
-    output->AddColumn( idTypeCol );
-    idTypeCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Intersect YX" );
+    doubleCol->SetName( "Intersect Y/X" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Slope XY" );
+    doubleCol->SetName( "Slope X/Y" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Intersect XY" );
+    doubleCol->SetName( "Intersect X/Y" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Correlation" );
+    doubleCol->SetName( "Corr. Coeff." );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
     }
@@ -202,7 +203,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
-    idTypeCol = vtkIdTypeArray::New();
+    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
     idTypeCol->SetName( "Cardinality" );
     output->AddColumn( idTypeCol );
     idTypeCol->Delete();
@@ -254,14 +255,14 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
       double correlations[5];
       int res = this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
       
-      row->SetValue( 0, idX );
-      row->SetValue( 1, idY );
+      row->SetValue( 0, dataset->GetColumnName( idX ) );
+      row->SetValue( 1, dataset->GetColumnName( idY ) );
       row->SetValue( 2, sx );
       row->SetValue( 3, sy );
       row->SetValue( 4, sx2 );
       row->SetValue( 5, sy2 );
       row->SetValue( 6, sxy );
-      row->SetValue( 7, res );
+      row->SetValue( 7, ( res ? "invalid" : "valid" ) );
       for ( int i = 0; i < 5; ++ i )
         {
         row->SetValue( i + 8, correlations[i] );
@@ -271,8 +272,8 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
       {
       row->SetNumberOfValues( 8 );
 
-      row->SetValue( 0, idX );
-      row->SetValue( 1, idY );
+      row->SetValue( 0, dataset->GetColumnName( idX ) );
+      row->SetValue( 1, dataset->GetColumnName( idY ) );
       row->SetValue( 2, sx );
       row->SetValue( 3, sy );
       row->SetValue( 4, sx2 );
