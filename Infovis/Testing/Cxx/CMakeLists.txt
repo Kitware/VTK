@@ -7,6 +7,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDataObjectToTable
     TestExtractSelectedGraph
     TestGraph
+    TestGraphAttributes
     TestGraphAlgorithms   
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
