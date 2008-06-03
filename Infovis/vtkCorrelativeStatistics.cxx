@@ -53,7 +53,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.6");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.7");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -110,12 +110,12 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     }
 
   vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Column X" );
+  stringCol->SetName( "Variable X" );
   output->AddColumn( stringCol );
   stringCol->Delete();
 
   stringCol = vtkStringArray::New();
-  stringCol->SetName( "Column Y" );
+  stringCol->SetName( "Variable Y" );
   output->AddColumn( stringCol );
   stringCol->Delete();
 
@@ -334,12 +334,12 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column X" );
+  idTypeCol->SetName( "Variable X" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column Y" );
+  idTypeCol->SetName( "Variable Y" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 

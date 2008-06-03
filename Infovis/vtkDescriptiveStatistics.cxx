@@ -34,7 +34,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.13");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.14");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     }
 
   vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Column" );
+  stringCol->SetName( "Variable" );
   output->AddColumn( stringCol );
   stringCol->Delete();
 
@@ -270,7 +270,7 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column" );
+  idTypeCol->SetName( "Variable" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 

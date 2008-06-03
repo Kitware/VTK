@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.12");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.13");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -80,7 +80,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     }
 
   vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Column" );
+  stringCol->SetName( "Variable" );
   output->AddColumn( stringCol );
   stringCol->Delete();
 
@@ -99,13 +99,13 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
       doubleCol = vtkDoubleArray::New();
       if ( ! i )
         {
-        doubleCol->SetName( "minimum" );
+        doubleCol->SetName( "Minimum" );
         }
       else 
         {
         if ( i == this->NumberOfIntervals )
           {
-          doubleCol->SetName( "maximum" );
+          doubleCol->SetName( "Maximum" );
           }
         else
           {
@@ -247,7 +247,7 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column" );
+  idTypeCol->SetName( "Variable" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
