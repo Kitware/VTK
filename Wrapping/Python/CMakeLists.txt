@@ -72,6 +72,9 @@ IF(BORLAND)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
+  IF (VTK_USE_GEOVIS)
+    SET(KITS ${KITS} Geovis)
+  ENDIF(VTK_USE_GEOVIS)
   IF (VTK_USE_INFOVIS)
     SET(KITS ${KITS} Infovis)
   ENDIF(VTK_USE_INFOVIS)
@@ -116,6 +119,14 @@ IF (VTK_USE_PARALLEL)
       vtkParallelPython
       )
 ENDIF (VTK_USE_PARALLEL)
+
+IF (VTK_USE_GEOVIS)
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkGeovis)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkGeovisPython
+      )
+ENDIF (VTK_USE_GEOVIS)
 
 IF (VTK_USE_INFOVIS)
   SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkInfovis)
@@ -205,6 +216,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/common
     vtk/filtering
     vtk/genericfiltering
+    vtk/geovis
     vtk/graphics
     vtk/hybrid
     vtk/imaging
@@ -442,6 +454,11 @@ IF(VTK_USE_PARALLEL)
 ELSE(VTK_USE_PARALLEL)
   SET(VTK_PYTHON_USE_PARALLEL 0)
 ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_GEOVIS)
+  SET(VTK_PYTHON_USE_GEOVIS 1)
+ELSE(VTK_USE_GEOVIS)
+  SET(VTK_PYTHON_USE_GEOVIS 0)
+ENDIF(VTK_USE_GEOVIS)
 IF(VTK_USE_INFOVIS)
   SET(VTK_PYTHON_USE_INFOVIS 1)
 ELSE(VTK_USE_INFOVIS)

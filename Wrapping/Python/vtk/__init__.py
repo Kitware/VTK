@@ -82,6 +82,12 @@ except ImportError, exc:
     __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
 
 try:
+    from geovis import *
+    kits.append('geovis')
+except ImportError, exc:
+    __helper.refine_import_err('geovis', 'vtkGeovisPython', exc)
+
+try:
     from infovis import *
     kits.append('infovis')
 except ImportError, exc:
