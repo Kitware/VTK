@@ -61,9 +61,10 @@ public:
 
   // Description:
   // Add column name pair (\p namColX, \p namColY).
+  // If \p reset is true, then the list of column pairs is priorly reset.
   // Warning: no name checking is performed on \p namColX nor \p namColY; it is 
   // the user's responsibility to use valid column names.
-  void AddColumnPair( const char* namColX, const char* namColY );
+  void AddColumnPair( const char* namColX, const char* namColY, bool reset = false );
 
   // Description:
   // Calculate the following unbiased estimators from the raw sums:
