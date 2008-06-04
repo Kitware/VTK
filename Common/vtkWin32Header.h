@@ -175,6 +175,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_GENERIC_FILTERING_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkGeovis_EXPORTS)
+  #define VTK_GEOVIS_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_GEOVIS_EXPORT __declspec( dllimport ) 
+ #endif
+
  #if defined(vtkGraphics_EXPORTS)
   #define VTK_GRAPHICS_EXPORT __declspec( dllexport ) 
  #else
