@@ -5,7 +5,7 @@ if {[info commands ::vtk::init::require_package] != ""} {
     package provide vtkgeovis 5.3
   }
 } else {
-  if {[info commands /* vtkGraphLayout */] != "" ||
+  if {[info commands vtkGeoMath] != "" ||
     [::vtk::load_component vtkGeovisTCL] == ""} {
     package provide vtkgeovis 5.3
   }
