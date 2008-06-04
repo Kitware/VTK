@@ -28,7 +28,6 @@
 #define __vtkGeoMath_h
 
 #include "vtkObject.h"
-#include "vtkSmartPointer.h"
 
 class VTK_GEOVIS_EXPORT vtkGeoMath : public vtkObject
 {
