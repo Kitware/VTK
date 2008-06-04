@@ -54,7 +54,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.8");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.9");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -435,10 +435,10 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
     if ( unfound )
       {
       vtkWarningMacro( "Parameter table does not have a row for dataset table column pair ("
-                       <<it->first
-                       <<", "
-                       <<it->second
-                       <<"). Ignoring it." );
+                       << it->first.c_str()
+                       << ", "
+                       << it->second.c_str()
+                       << "). Ignoring it." );
       continue;
       }
     }
