@@ -239,6 +239,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_COMMON_EXPORT
  #define VTK_FILTERING_EXPORT
  #define VTK_GENERIC_FILTERING_EXPORT
+ #define VTK_GEOVIS_EXPORT
  #define VTK_GRAPHICS_EXPORT
  #define VTK_IMAGING_EXPORT
  #define VTK_INFOVIS_EXPORT
