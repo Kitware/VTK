@@ -56,14 +56,14 @@ public:
   static vtkCorrelativeStatistics* New();
 
   // Description:
-  // Reset list of column pairs of interest
+  // Reset list of column pairs of interest. 
   void ResetColumnPairs();
 
   // Description:
-  // Add column index pair (\p idxColX, \p idxColY).
-  // Warning: no range checking is performed on \p idxColX nor \p idxColY; it is 
-  // the user's responsibility to use valid column indices.
-  void AddColumnPair( vtkIdType idxColX, vtkIdType idxColY );
+  // Add column name pair (\p namColX, \p namColY).
+  // Warning: no name checking is performed on \p namColX nor \p namColY; it is 
+  // the user's responsibility to use valid column names.
+  void AddColumnPair( const char* namColX, const char* namColY );
 
   // Description:
   // Calculate the following unbiased estimators from the raw sums:

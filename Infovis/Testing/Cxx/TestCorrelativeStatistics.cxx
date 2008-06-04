@@ -7,8 +7,8 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkCorrelativeStatistics.h"
 
@@ -116,22 +116,22 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkTable* paramsTable = vtkTable::New();
   int nMetricPairs = 3;
-  vtkIdType columnPairs[] = { 0, 1, 1, 0, 2, 1 };
+  vtkStdString columnPairs[] = { "Metric 0", "Metric 1", "Metric 1", "Metric 0", "Metric 2", "Metric 1" };
   double centers[] = { 49.2188, 49.5 };
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
   double threshold = .2 ;
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column X" );
-  idTypeCol->InsertNextValue( 0 );
-  paramsTable->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stdStringCol = vtkStringArray::New();
+  stdStringCol->SetName( "Column X" );
+  stdStringCol->InsertNextValue( "Metric 0" );
+  paramsTable->AddColumn( stdStringCol );
+  stdStringCol->Delete();
 
-  idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column Y" );
-  idTypeCol->InsertNextValue( 1 );
-  paramsTable->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  stdStringCol = vtkStringArray::New();
+  stdStringCol->SetName( "Column Y" );
+  stdStringCol->InsertNextValue( "Metric 1" );
+  paramsTable->AddColumn( stdStringCol );
+  stdStringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Nominal X" );
@@ -178,14 +178,14 @@ int TestCorrelativeStatistics( int, char *[] )
   paramsTable->Delete();
 
 // -- Select Column Pairs of Interest ( Learn Mode ) -- 
-  haruspex->AddColumnPair( 0, 1 ); // A valid pair
-  haruspex->AddColumnPair( 1, 0 ); // The same valid pair, just reversed
-  haruspex->AddColumnPair( 2, 1 ); // Another valid pair
+  haruspex->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
+  haruspex->AddColumnPair( "Metric 1", "Metric 0" ); // The same valid pair, just reversed
+  haruspex->AddColumnPair( "Metric 2", "Metric 1" ); // Another valid pair
   for ( int i = 0; i< nMetricPairs; i += 2 )
     {  // Try to add all valid pairs once more
     haruspex->AddColumnPair( columnPairs[i], columnPairs[i+1] );
     }
-  haruspex->AddColumnPair( 1, 3 ); // An invalid pair
+  haruspex->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -240,9 +240,9 @@ int TestCorrelativeStatistics( int, char *[] )
   for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
     {
     cout << "   (X, Y) = ("
-         << datasetTable->GetColumnName( columnPairs[0] )
+         << columnPairs[0]
          << ", "
-         << datasetTable->GetColumnName( columnPairs[1] )
+         << columnPairs[1]
          << "), Gaussian, mean=("
          << centers[0]
          << ", "
