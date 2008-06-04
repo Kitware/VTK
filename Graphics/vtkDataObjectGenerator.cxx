@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.9");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.10");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -169,8 +169,8 @@ int vtkDataObjectGeneratorGetNextToken(char **str)
     return 0;
     }
 
-  int len = strlen(*str);
-  int l;
+  size_t len = strlen(*str);
+  size_t l;
   while (len && *str)
     {
     for (int i = 0; i < NUMTOKENS; i++)
@@ -601,7 +601,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkHierarchicalBoxDataSet *hbo = 
       vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 
-    hbo->SetNumberOfLevels(structure->children.size());
+    hbo->SetNumberOfLevels(
+                         static_cast<unsigned int>(structure->children.size()));
     vtkstd::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
@@ -702,7 +703,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     this->YOffset += 1.0;
     //fill in the contents of this multiblockdataset
     //by iterating over the children of all my children (which must be groups)
-    mbo->SetNumberOfBlocks(structure->children.size());
+    mbo->SetNumberOfBlocks(
+                         static_cast<unsigned int>(structure->children.size()));
     vtkstd::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
 
