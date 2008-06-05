@@ -208,6 +208,10 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   HandleAddEdgeNN(const vtkstd::pair<vtkVariant, vtkVariant>& msg, 
                   bool directed);
   //ETX
+
+ private:
+  vtkPBGLDistributedGraphHelper(const vtkPBGLDistributedGraphHelper&); // Not implemented
+  void operator=(const vtkPBGLDistributedGraphHelper&); // Not implemented
 };
 
 #endif // __vtkPBGLDistributedGraphHelper_h

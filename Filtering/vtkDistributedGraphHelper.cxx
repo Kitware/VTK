@@ -30,7 +30,18 @@
 //----------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.4");
+vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.5");
+
+//----------------------------------------------------------------------------
+void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  int myRank
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  os << indent << "Processor: " << myRank << " of " << numProcs << endl;
+}
 
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper::vtkDistributedGraphHelper() 

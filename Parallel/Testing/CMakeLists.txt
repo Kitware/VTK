@@ -13,5 +13,6 @@ IF(PYTHON_EXECUTABLE)
     "${VTK_SOURCE_DIR}/Parallel"
     VTK_PARALLEL_EXPORT
     vtkMPI.h
+    vtkPBGLGraphAdapter.h
     )
 ENDIF(PYTHON_EXECUTABLE)

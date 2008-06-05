@@ -40,7 +40,7 @@
 
 class vtkSQLDatabase;
 
-class VTK_INFOVIS_EXPORT vtkPBGLGraphSQLReader : public vtkGraphAlgorithm
+class VTK_PARALLEL_EXPORT vtkPBGLGraphSQLReader : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLGraphSQLReader* New();

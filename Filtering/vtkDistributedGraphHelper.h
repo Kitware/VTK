@@ -33,15 +33,16 @@
 // to communicate with other processors that store other parts of the
 // same distributed graph. The only user-level functionality provided
 // by vtkDistributedGraphHelper involves this communication among
-// processors. For example, the Synchronize() method provides a
-// barrier that allows all processors to catch up to the same point in
-// the code before any processor can leave that Synchronize()
-// call. For example, one would call Synchronize() after adding many
-// edges to a distributed graph, so that all processors can handle the
-// addition of inter-processor edges and continue, after the
-// Synchronize() call, with a consistent view of the distributed
-// graph. For more information about manipulating (distributed)
-// graphs, see the vtkGraph documentation.
+// processors and the ability to map between "distributed" vertex and
+// edge IDs and their component parts (processor and local index). For
+// example, the Synchronize() method provides a barrier that allows
+// all processors to catch up to the same point in the code before any
+// processor can leave that Synchronize() call. For example, one would
+// call Synchronize() after adding many edges to a distributed graph,
+// so that all processors can handle the addition of inter-processor
+// edges and continue, after the Synchronize() call, with a consistent
+// view of the distributed graph. For more information about
+// manipulating (distributed) graphs, see the vtkGraph documentation.
 //
 // .SECTION See Also
 // vtkGraph
@@ -71,6 +72,7 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
  public:
   vtkTypeRevisionMacro (vtkDistributedGraphHelper, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Returns owner of vertex v, by extracting top ceil(log2 P) bits of v.

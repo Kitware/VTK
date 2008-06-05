@@ -26,6 +26,7 @@
 #define __vtkGraphInternals_h
 
 #include "vtkGraph.h"
+#include "vtkObject.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 

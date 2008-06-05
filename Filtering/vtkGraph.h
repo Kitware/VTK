@@ -197,10 +197,10 @@
 #define __vtkGraph_h
 
 #include "vtkDataObject.h"
-#include "vtkDataSetAttributes.h"
 
 class vtkAdjacentVertexIterator;
 class vtkEdgeListIterator;
+class vtkDataSetAttributes;
 class vtkDistributedGraphHelper;
 class vtkGraphInternals;
 class vtkIdTypeArray;

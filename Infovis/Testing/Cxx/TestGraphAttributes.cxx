@@ -18,6 +18,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkAdjacentVertexIterator.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDirectedAcyclicGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInEdgeIterator.h"

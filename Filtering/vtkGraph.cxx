@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.16");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.17");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -932,6 +932,15 @@ void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
   if (this->EdgeData)
     {
     this->EdgeData->PrintSelf(os, indent.GetNextIndent());
+    }
+  if (this->Internals)
+    {
+    os << indent << "DistributedHelper: " 
+       << (this->Internals->DistributedHelper ? "" : "(none)") << endl;
+    if (this->Internals->DistributedHelper)
+      {
+      this->Internals->DistributedHelper->PrintSelf(os, indent.GetNextIndent());
+      }
     }
 }
 
