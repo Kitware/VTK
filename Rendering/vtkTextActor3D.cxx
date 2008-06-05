@@ -26,7 +26,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTextActor3D, "1.8");
+vtkCxxRevisionMacro(vtkTextActor3D, "1.9");
 vtkStandardNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
@@ -85,6 +85,10 @@ double* vtkTextActor3D::GetBounds()
 {
   if (this->ImageActor)
     {
+    // the culler could be asking our bounds, in which case it's possible
+    // that we haven't rendered yet, so we have to make sure our bounds
+    // are up to date so that we don't get culled.
+    this->UpdateImageActor();
     return this->ImageActor->GetBounds();
     }
 
