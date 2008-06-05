@@ -8,7 +8,7 @@
  */
 
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkDescriptiveStatistics.h"
 
@@ -116,18 +116,18 @@ int TestDescriptiveStatistics( int, char *[] )
 
   vtkTable* paramsTable = vtkTable::New();
   int nMetrics = 3;
-  vtkIdType columns[] = { 1, 2, 0 };
+  vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
   double centers[] = { 49.5, -1., 49.2188 };
   double radii[] = { 1.5 * sqrt( 7.54839 ), 0., 1.5 * sqrt( 5.98286 ) };
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Column" );
+  vtkStringArray* stdStringCol = vtkStringArray::New();
+  stdStringCol->SetName( "Column" );
   for ( int i = 0; i < nMetrics; ++ i )
     {
-    idTypeCol->InsertNextValue( columns[i] );
+    stdStringCol->InsertNextValue( columns[i] );
     }
-  paramsTable->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  paramsTable->AddColumn( stdStringCol );
+  stdStringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Nominal" );
@@ -157,12 +157,13 @@ int TestDescriptiveStatistics( int, char *[] )
 
 // -- Select Columns of Interest -- 
   haruspex->UseColumnSelection( true );
-  haruspex->AddColumnRange( 0, 5 ); // Include invalid indices 3 and 4
+  haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
+  haruspex->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )
     {  // Try to add all valid indices once more
     haruspex->AddColumn( columns[i] );
     }
-  haruspex->RemoveColumn( 3 ); // Remove invalid index 3 (but keep 4)
+  haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -190,7 +191,7 @@ int TestDescriptiveStatistics( int, char *[] )
   for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
     {
     cout << "   "
-         << datasetTable->GetColumnName( columns[i] )
+         << columns[i]
          << ", values that deviate of more than "
          << radii[i]
          << " from "
@@ -216,14 +217,14 @@ int TestDescriptiveStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    vtkIdType idX = outputTable->GetValue( r, 0 ).ToInt();
+    vtkStdString col = outputTable->GetValue( r, 0 ).ToString();
     vtkIdType i = outputTable->GetValue( r, 1 ).ToInt();
     cout << "   "
-         << datasetTable->GetColumnName( idX )
+         << col
          << ": "
          << i
          << ": ( "
-         << datasetTable->GetValue( i, idX ).ToDouble()
+         << datasetTable->GetValueByName( i, col ).ToDouble()
          << " ) has a relative deviation of "
          << outputTable->GetValue( r, 2 ).ToDouble()
          << "\n";

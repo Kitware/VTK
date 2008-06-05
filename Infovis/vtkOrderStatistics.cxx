@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.14");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.15");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -123,20 +123,21 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  this->SetColumnSelection( nCol );
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+  this->SetColumnSelection( dataset );
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    if ( *it < 0 || *it >= nCol )
+    vtkStdString col = *it;
+    if ( ! dataset->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
+      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
 
     vtkstd::map<double,vtkIdType> distr;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      ++ distr[dataset->GetValue( r, *it ).ToDouble()];
+      ++ distr[dataset->GetValueByName( r, col ).ToDouble()];
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
@@ -145,8 +146,8 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
       {
       row->SetNumberOfValues( this->NumberOfIntervals + 2 );
 
-      int col = 0;
-      row->SetValue( col ++, dataset->GetColumnName( *it ) );
+      int i = 0;
+      row->SetValue( i ++, col );
 
       vtkstd::vector<double> quantileThresholds;
       double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
@@ -166,16 +167,16 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
                && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
             {
             vtkstd::map<double,vtkIdType>::iterator nit = mit;
-            row->SetValue( col ++, ( (++ nit)->first + mit->first ) * .5 );
+            row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
             }
           else
             {
-            row->SetValue( col ++, mit->first );
+            row->SetValue( i ++, mit->first );
             }
           }
         }
     
-      row->SetValue( col, distr.rbegin()->first );
+      row->SetValue( i, distr.rbegin()->first );
       }
     else
       {
@@ -234,12 +235,12 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Variable" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
-  idTypeCol = vtkIdTypeArray::New();
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Row" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
@@ -251,22 +252,22 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
 
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
-  
-  this->SetColumnSelection( nColD );
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+
+  this->SetColumnSelection( dataset );
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    if ( *it < 0 || *it >= nColD )
+    vtkStdString col = *it;
+    if ( ! dataset->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
+      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
     
     bool unfound = true;
     for ( int i = 0; i < nRowP; ++ i )
       {
-      vtkIdType c = params->GetValue( i, 0 ).ToInt();
-      if ( c == *it )
+      if ( params->GetValue( i, 0 ).ToString() == col )
         {
         unfound = false;
 
@@ -278,10 +279,10 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
         double value;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
           {
-          value  = dataset->GetValue( r, c ).ToDouble();
+          value  = dataset->GetValueByName( r, col ).ToDouble();
           if ( value < minimum || value > maximum )
             {
-            row->SetValue( 0, c );
+            row->SetValue( 0, col );
             row->SetValue( 1, r );
             row->SetValue( 2, ( value - center ) / radius );
 
@@ -296,7 +297,7 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     if ( unfound )
       {
       vtkWarningMacro( "Parameter table does not have a row for dataset table column "
-                       <<*it
+                       <<col.c_str()
                        <<". Ignoring it." );
       continue;
       }

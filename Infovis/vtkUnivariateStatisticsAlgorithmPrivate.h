@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkUnivariateStatisticsAlgorithmPrivate_h
 #define __vtkUnivariateStatisticsAlgorithmPrivate_h
 
-#include "vtkType.h"
+#include "vtkStdString.h"
 
 #include <vtkstd/set> // used to iterate over internal organs
 
@@ -53,7 +53,7 @@ public:
     {
     }
   
-  vtkstd::set<vtkIdType> SelectedColumns;
+  vtkstd::set<vtkStdString> SelectedColumns;
   bool ColumnSelectionUsage;
 };
 

@@ -22,10 +22,12 @@
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
+#include "vtkTable.h"
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.6");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -59,37 +61,19 @@ void vtkUnivariateStatisticsAlgorithm::ResetColumns()
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::AddColumn( vtkIdType idxCol )
+void vtkUnivariateStatisticsAlgorithm::AddColumn( const char* namCol )
 {
- this->Internals->SelectedColumns.insert( idxCol );
+ this->Internals->SelectedColumns.insert( namCol );
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::RemoveColumn( vtkIdType idxCol )
+void vtkUnivariateStatisticsAlgorithm::RemoveColumn( const char* namCol )
 {
- this->Internals->SelectedColumns.erase( idxCol );
+ this->Internals->SelectedColumns.erase( namCol );
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
-{
-  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
-    {
-    this->Internals->SelectedColumns.insert( idxCol );
-    }
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd )
-{
-  for ( int idxCol = idxColBegin; idxCol < idxColEnd; ++ idxCol )
-    {
-    this->Internals->SelectedColumns.erase( idxCol );
-    }
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SetColumnSelection( vtkIdType nCol )
+void vtkUnivariateStatisticsAlgorithm::SetColumnSelection( vtkTable* dataset )
 {
   if ( this->Internals->ColumnSelectionUsage )
     {
@@ -97,8 +81,10 @@ void vtkUnivariateStatisticsAlgorithm::SetColumnSelection( vtkIdType nCol )
     }
 
   this->Internals->SelectedColumns.clear();
+
+  vtkIdType nCol = dataset->GetNumberOfColumns();
   for ( int idxCol = 0; idxCol < nCol; ++ idxCol )
     {
-    this->Internals->SelectedColumns.insert( idxCol );
+    this->Internals->SelectedColumns.insert( dataset->GetColumnName( idxCol ) );
     }
 }

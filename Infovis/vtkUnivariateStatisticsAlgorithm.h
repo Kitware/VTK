@@ -61,29 +61,18 @@ public:
   void ResetColumns();
 
   // Description:
-  // Add column index \p idxCol to the list of columns of interest
-  // Warning: no range checking is performed on \p idxCol; it is the user's
-  // responsibility to use valid column indices.
-  void AddColumn( vtkIdType idxCol );
+  // Add column name \p namCol to the list of columns of interest
+  // Warning: no name checking is performed on \p namCol; it is the user's
+  // responsibility to use valid column names.
+  void AddColumn( const char* namCol );
 
   // Description:
-  // Remove (if it exists) column index \p idxCol to the list of columns of interest
-  void RemoveColumn( vtkIdType idxCol );
+  // Remove (if it exists) column name \p namCol to the list of columns of interest
+  void RemoveColumn( const char* namCol );
 
   // Description:
-  // Add column indices from \p idxColBegin (included) to \p idxColEnd (excluded).
-  // Warning: no range checking is performed on \p idxColBegin nor \p idxColEnd; it is 
-  // the user's responsibility to use valid column indices.
-  void AddColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
-
-  // Description:
-  // Remove column indices from \p idxColBegin (included) to \p idxColEnd (excluded),
-  // for those which are present.
-  void RemoveColumnRange( vtkIdType idxColBegin, vtkIdType idxColEnd );
-
-  // Description:
-  // Set the column selection, depending on whether the all columns mode is on or off.
-  void SetColumnSelection( vtkIdType nCol );
+  // Set the column selection, depending on whether the column selection mode is on or off.
+  void SetColumnSelection( vtkTable* dataset );
 
 protected:
   vtkUnivariateStatisticsAlgorithm();

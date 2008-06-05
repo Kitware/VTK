@@ -29,12 +29,13 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.15");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.16");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -143,18 +144,18 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     idTypeCol->Delete();
     }
 
-  this->SetColumnSelection( nCol );
-  this->SetColumnSelection( nCol );
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+  this->SetColumnSelection( dataset );
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    if ( *it < 0 || *it >= nCol )
+    vtkStdString col = *it;
+    if ( ! dataset->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
+      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
 
-    double minVal = dataset->GetValue( 0, *it ).ToDouble();
+    double minVal = dataset->GetValueByName( 0, col ).ToDouble();
     double maxVal = minVal;
 
     double val  = 0.;
@@ -165,7 +166,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     double sum4 = 0.;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      val  = dataset->GetValue( r, *it ).ToDouble();
+      val  = dataset->GetValueByName( r, col ).ToDouble();
       val2 = val * val;
       sum1 += val;
       sum2 += val2;
@@ -183,7 +184,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
 
     vtkVariantArray* row = vtkVariantArray::New();
     row->SetNumberOfValues( 8 );
-    row->SetValue( 0, dataset->GetColumnName( *it ) );
+    row->SetValue( 0, col );
     row->SetValue( 1, minVal );
     row->SetValue( 2, maxVal );
 
@@ -258,12 +259,12 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Variable" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
+  vtkStringArray* stringCol = vtkStringArray::New();
+  stringCol->SetName( "Variable" );
+  output->AddColumn( stringCol );
+  stringCol->Delete();
 
-  idTypeCol = vtkIdTypeArray::New();
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Row" );
   output->AddColumn( idTypeCol );
   idTypeCol->Delete();
@@ -276,21 +277,21 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  this->SetColumnSelection( nColD );
-  for ( vtkstd::set<vtkIdType>::iterator it = this->Internals->SelectedColumns.begin(); 
+  this->SetColumnSelection( dataset );
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    if ( *it < 0 || *it >= nColD )
+    vtkStdString col = *it;
+    if ( ! dataset->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column with index "<<*it<<". Ignoring it." );
+      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
     
     bool unfound = true;
     for ( int i = 0; i < nRowP; ++ i )
       {
-      vtkIdType c = params->GetValue( i, 0 ).ToInt();
-      if ( c == *it )
+      if ( params->GetValue( i, 0 ).ToString() == col )
         {
         unfound = false;
 
@@ -302,10 +303,11 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
         double value;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
           {
-          value  = dataset->GetValue( r, c ).ToDouble();
+          value  = dataset->GetValueByName( r, col ).ToDouble();
+
           if ( value < minimum || value > maximum )
             {
-            row->SetValue( 0, c );
+            row->SetValue( 0, col );
             row->SetValue( 1, r );
             row->SetValue( 2, ( value - center ) / radius );
 
@@ -320,7 +322,7 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     if ( unfound )
       {
       vtkWarningMacro( "Parameter table does not have a row for dataset table column "
-                       <<*it
+                       <<col.c_str()
                        <<". Ignoring it." );
       continue;
       }
