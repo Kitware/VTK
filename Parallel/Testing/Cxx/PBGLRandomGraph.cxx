@@ -221,7 +221,7 @@ void TestDirectedGraph()
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
     else
-      graph->AddEdge(source, target, (vtkEdgeType *)0);
+      graph->LazyAddEdge(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
     }
@@ -517,7 +517,7 @@ void TestDirectedGraphProperties()
 
     edgePropertyArr->SetValue(0,prop0);
     edgePropertyArr->SetValue(1,prop1);
-    graph->AddEdge(source, target, (vtkEdgeType *)0, edgePropertyArr);
+    graph->LazyAddEdge(source, target, edgePropertyArr);
     prop0 += 1;
     prop1 += 1.0;
 //    cout << myRank <<","<< prop0<<","<<prop1 << endl;
@@ -782,7 +782,7 @@ void TestUndirectedGraph()
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
     else
-      graph->AddEdge(source, target, (vtkEdgeType *)0);
+      graph->LazyAddEdge(source, target);
 
     // If source and target are on the same processor, and source >
     // target, swap them. This ensures that the addedEdges list has
@@ -1121,7 +1121,7 @@ void TestUndirectedGraphProperties()
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
     else
-      graph->AddEdge(source, target, (vtkEdgeType *)0);
+      graph->LazyAddEdge(source, target);
 
     // If source and target are on the same processor, and source >
     // target, swap them. This ensures that the addedEdges list has

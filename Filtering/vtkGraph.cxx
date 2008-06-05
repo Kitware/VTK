@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.15");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.16");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -626,19 +626,51 @@ vtkGraph *vtkGraph::GetData(vtkInformationVector *v, int i)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddVertexInternal()
+void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
+                                 vtkIdType *vertex)
 {
+  // TODO: This isn't going to properly deal with remote vertex
+  // addition in the presence of pedigree IDs. We need to look at the
+  // pedigree ID inside propertyArr and use that to route the vertex
+  // addition.
   this->ForceOwnership();
   this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
-  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+
+  if (propertyArr)      // Add vertex properties
     {
-    return helper->MakeDistributedId
-             (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
-              this->Internals->Adjacency.size() - 1);
+    vtkDataSetAttributes *vertexData = this->GetVertexData();
+    int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+    assert(numProps == vertexData->GetNumberOfArrays());
+    for (int iprop=0; iprop<numProps; iprop++)
+      {
+      vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
+      if (vtkDataArray::SafeDownCast(arr))
+        {
+        vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
+        }
+      else if (vtkStringArray::SafeDownCast(arr))
+        {
+        vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+        }
+      else
+        {
+        vtkErrorMacro("Unsupported array type");
+        }
+      }
     }
-  else
+  
+  if (vertex)
     {
-    return this->Internals->Adjacency.size() - 1;
+    if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+      {
+      *vertex = helper->MakeDistributedId
+                  (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
+                   this->Internals->Adjacency.size() - 1);
+      }
+    else
+      {
+      *vertex = this->Internals->Adjacency.size() - 1;
+      }
     }
 }
 
@@ -671,7 +703,8 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
 
   // Add the vertex locally
   this->ForceOwnership();
-  vtkIdType v = this->AddVertexInternal();
+  vtkIdType v;
+  this->AddVertexInternal(0, &v);
   if (vertex)
     {
     *vertex = v;
@@ -701,30 +734,50 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr)
+void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
+                               vtkVariantArray *propertyArr, vtkEdgeType *edge)
 {
-  // TODO: This isn't going to properly deal with remote vertex
-  // addition in the presence of pedigree IDs. We need to look at the
-  // pedigree ID inside propertyArr and use that to route the vertex
-  // addition.
   this->ForceOwnership();
-  this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
-
-  if (propertyArr)      // Add vertex properties
+  if (this->Internals->DistributedHelper)
     {
-    vtkDataSetAttributes *vertexData = this->GetVertexData();
-    int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
-    assert(numProps == vertexData->GetNumberOfArrays());
+    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, 
+                                                        propertyArr, edge);
+    return;
+    }
+
+  vtkIdType edgeId = this->Internals->NumberOfEdges;
+  this->Internals->NumberOfEdges++;
+  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
+  if (directed)
+    {
+    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
+    }
+  else if (u != v)
+    {
+    // Avoid storing self-loops twice in undirected graphs.
+    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
+    }
+  if (edge)
+    {
+    *edge = vtkEdgeType(u, v, edgeId);
+    }
+
+  if (propertyArr)
+    {
+    // Insert edge properties
+    vtkDataSetAttributes *edgeData = this->GetEdgeData();
+    int numProps = propertyArr->GetNumberOfValues();
+    assert(numProps == edgeData->GetNumberOfArrays());
     for (int iprop=0; iprop<numProps; iprop++)
       {
-      vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
-      if (vtkDataArray::SafeDownCast(arr))
+      vtkAbstractArray* array = edgeData->GetAbstractArray(iprop);
+      if (vtkDataArray::SafeDownCast(array))
         {
-        vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
+        vtkDataArray::SafeDownCast(array)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
         }
-      else if (vtkStringArray::SafeDownCast(arr))
+      else if (vtkStringArray::SafeDownCast(array))
         {
-        vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+        vtkStringArray::SafeDownCast(array)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
         }
       else
         {
@@ -732,141 +785,65 @@ vtkIdType vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr)
         }
       }
     }
-  
-  return this->Internals->Adjacency.size() - 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge)
-{
-  this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
-    {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge);
-    return;
-    }
-
-  vtkIdType edgeId = this->Internals->NumberOfEdges;
-  this->Internals->NumberOfEdges++;
-  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
-  if (directed)
-    {
-    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
-    }
-  else if (u != v)
-    {
-    // Avoid storing self-loops twice in undirected graphs.
-    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
-    }
-  if (edge)
-    {
-    *edge = vtkEdgeType(u, v, edgeId);
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v, 
-                               bool directed, vtkEdgeType *edge)
+                               bool directed, vtkVariantArray *propertyArr, 
+                               vtkEdgeType *edge)
 {
   this->ForceOwnership();
   if (this->Internals->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, v, directed, 
+    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, v, 
+                                                        directed, propertyArr,
                                                         edge);
     return;
     }
   
   vtkIdType u;
   this->AddVertexInternal(uPedigreeId, &u);
-  this->AddEdgeInternal(u, v, directed, edge);
+  this->AddEdgeInternal(u, v, directed, propertyArr, edge);
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId, 
-                               bool directed, vtkEdgeType *edge)
+                               bool directed, vtkVariantArray *propertyArr, 
+                               vtkEdgeType *edge)
 {
   this->ForceOwnership();
   if (this->Internals->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, vPedigreeId, directed, 
+    this->Internals->DistributedHelper->AddEdgeInternal(u, vPedigreeId, 
+                                                        directed, propertyArr,
                                                         edge);
     return;
     }
   
   vtkIdType v;
   this->AddVertexInternal(vPedigreeId, &v);
-  this->AddEdgeInternal(u, v, directed, edge);
+  this->AddEdgeInternal(u, v, directed, propertyArr, edge);
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::AddEdgeInternal(const vtkVariant& uPedigreeId, 
                                const vtkVariant& vPedigreeId, 
-                               bool directed, vtkEdgeType *edge)
+                               bool directed, vtkVariantArray *propertyArr, 
+                               vtkEdgeType *edge)
 {
   this->ForceOwnership();
   if (this->Internals->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, vPedigreeId, directed,
-                                                        edge);
+    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, 
+                                                        vPedigreeId, directed,
+                                                        propertyArr, edge);
     return;
     }
   
   vtkIdType u, v;
   this->AddVertexInternal(uPedigreeId, &u);
   this->AddVertexInternal(vPedigreeId, &v);
-  this->AddEdgeInternal(u, v, directed, edge);
-}
-
-//----------------------------------------------------------------------------
-void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
-                               vtkEdgeType *edge, vtkVariantArray *propertyArray)
-{
-  this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
-    {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, edge, propertyArray);
-    return;
-    }
-
-  vtkIdType edgeId = this->Internals->NumberOfEdges;
-  
-  this->Internals->NumberOfEdges++;
-  this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
-  if (directed)
-    {
-    this->Internals->Adjacency[v].InEdges.push_back(vtkInEdgeType(u, edgeId));
-    }
-  else if (u != v)
-    {
-    // Avoid storing self-loops twice in undirected graphs.
-    this->Internals->Adjacency[v].OutEdges.push_back(vtkOutEdgeType(u, edgeId));
-    }
-  if (edge)
-    {
-    *edge = vtkEdgeType(u, v, edgeId);
-    }
-  
-  // Insert edge properties
-  vtkDataSetAttributes *edgeData = this->GetEdgeData();
-  int numProps = propertyArray->GetNumberOfValues();
-  assert(numProps == edgeData->GetNumberOfArrays());
-  for (int iprop=0; iprop<numProps; iprop++)
-    {
-    vtkAbstractArray* array = edgeData->GetAbstractArray(iprop);
-    if (vtkDataArray::SafeDownCast(array))
-      {
-      vtkDataArray::SafeDownCast(array)->InsertNextTuple1(propertyArray->GetPointer(iprop)->ToDouble());
-      }
-    else if (vtkStringArray::SafeDownCast(array))
-      {
-      vtkStringArray::SafeDownCast(array)->InsertNextValue(propertyArray->GetPointer(iprop)->ToString());
-      }
-    else
-      {
-      vtkErrorMacro("Unsupported array type");
-      }
-    }
-
+  this->AddEdgeInternal(u, v, directed, propertyArr, edge);
 }
 
 //----------------------------------------------------------------------------

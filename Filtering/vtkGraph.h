@@ -456,12 +456,16 @@ protected:
   vtkGraph();
   ~vtkGraph();
 
-  // Description:
-  // Protected method for adding vertices
-  // used by mutable subclasses.
-  vtkIdType AddVertexInternal();
-
   //BTX
+  // Description:
+  // Protected method for adding vertices, optionally with properties,
+  // used by mutable subclasses. If vertex is non-null, it will be set
+  // to the newly-added (or found) vertex. Note that if propertyArr is
+  // non-null and the vertex data contains pedigree IDs, a vertex will
+  // only be added if there is no vertex with that pedigree ID.
+  void AddVertexInternal(vtkVariantArray *propertyArr = 0, 
+                         vtkIdType *vertex = 0);
+
   // Description:
   // Adds a vertex with the given pedigree ID to the graph. If a vertex with
   // this pedigree ID already exists, no new vertex is added, but the vertex
@@ -470,27 +474,21 @@ protected:
   void AddVertexInternal(const vtkVariant& pedigree, vtkIdType *vertex);
   //ETX
 
+  // BTX
   // Description:
-  // Protected method for adding vertices, with properties,
-  // used by mutable subclasses.
-  vtkIdType AddVertexInternal(vtkVariantArray *variantValueArr);
-
-  // Description:
-  // Protected method for adding edges of a certain directedness
-  // used by mutable subclasses. If non-null, edge will receive the
-  // newly-added edge.
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
-  
-  // Description:
-  // Protected method for adding edges, with properties, of a certain directedness
-  // used by mutable subclasses. If non-null, edge will receive the
-  // newly-added edge.
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
-
-  //BTX
-  void AddEdgeInternal(const vtkVariant& uPedigree, vtkIdType v, bool directed, vtkEdgeType *edge);
-  void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigree, bool directed, vtkEdgeType *edge);
-  void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree, bool directed, vtkEdgeType *edge);
+  // Protected method for adding edges of a certain directedness used
+  // by mutable subclasses. If propertyArr is non-null, it specifies
+  // the properties to be attached to the newly-created edge. If
+  // non-null, edge will receive the newly-added edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
+                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
+  void AddEdgeInternal(const vtkVariant& uPedigree, vtkIdType v, bool directed,
+                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
+  void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigree, bool directed,
+                       vtkVariantArray *propertyArr, vtkEdgeType *edge);
+  void AddEdgeInternal(const vtkVariant& uPedigree, const vtkVariant& vPedigree,
+                       bool directed, vtkVariantArray *propertyArr, 
+                       vtkEdgeType *edge);
   //ETX
 
   // Description:

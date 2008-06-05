@@ -25,7 +25,7 @@
 //----------------------------------------------------------------------------
 // class vtkMutableDirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.4");
+vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.1.4.5");
 vtkStandardNewMacro(vtkMutableDirectedGraph);
 //----------------------------------------------------------------------------
 vtkMutableDirectedGraph::vtkMutableDirectedGraph()
@@ -40,101 +40,97 @@ vtkMutableDirectedGraph::~vtkMutableDirectedGraph()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkMutableDirectedGraph::AddVertex()
+vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *propertyArr)
 {
-  return this->AddVertexInternal();
+  vtkIdType vertex;
+  this->AddVertexInternal(propertyArr, &vertex);
+  return vertex;
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkMutableDirectedGraph::AddVertex(const vtkVariant& pedigreeId)
 {
-  vtkIdType result;
-  this->AddVertexInternal(pedigreeId, &result);
-  return result;
+  vtkIdType vertex;
+  this->AddVertexInternal(pedigreeId, &vertex);
+  return vertex;
 }
 
 //----------------------------------------------------------------------------
-void 
-vtkMutableDirectedGraph::AddVertex(const vtkVariant& pedigreeId, 
-                                   vtkIdType *vertex)
-{
-  this->AddVertexInternal(pedigreeId, vertex);
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *variantValueArr)
-{
-  return this->AddVertexInternal(variantValueArr);
-}
-
-//----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v,
+                                             vtkVariantArray *propertyArr)
 {
   vtkEdgeType e;
-  this->AddEdgeInternal(u, v, true, &e);
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
   return e;
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v)
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v,
+                                             vtkVariantArray *propertyArr)
 {
   vtkEdgeType e;
-  this->AddEdgeInternal(u, v, true, &e);
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
   return e;
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v)
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
+                                             vtkVariantArray *propertyArr)
 {
   vtkEdgeType e;
-  this->AddEdgeInternal(u, v, true, &e);
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
   return e;
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, const vtkVariant& v)
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, 
+                                             const vtkVariant& v,
+                                             vtkVariantArray *propertyArr)
 {
   vtkEdgeType e;
-  this->AddEdgeInternal(u, v, true, &e);
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
   return e;
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *variantValueArr)
+void vtkMutableDirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
 {
-  vtkEdgeType e;
-  this->AddEdgeInternal(u, v, true, &e, variantValueArr);
-  return e;
+  this->AddVertexInternal(propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge)
+void vtkMutableDirectedGraph::LazyAddVertex(const vtkVariant& pedigreeId)
 {
-  this->AddEdgeInternal(u, v, true, edge);
+  this->AddVertexInternal(pedigreeId, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v, vtkEdgeType *edge)
+void vtkMutableDirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v,
+                                          vtkVariantArray *propertyArr)
 {
-  this->AddEdgeInternal(u, v, true, edge);
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v, vtkEdgeType *edge)
+void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u, vtkIdType v,
+                                          vtkVariantArray *propertyArr)
 {
-  this->AddEdgeInternal(u, v, true, edge);
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, const vtkVariant& v, vtkEdgeType *edge)
+void vtkMutableDirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
+                                          vtkVariantArray *propertyArr)
 {
-  this->AddEdgeInternal(u, v, true, edge);
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v, vtkEdgeType *edge, vtkVariantArray *variantValueArr)
+void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u, 
+                                          const vtkVariant& v,
+                                          vtkVariantArray *propertyArr)
 {
-  this->AddEdgeInternal(u, v, true, edge, variantValueArr);
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------

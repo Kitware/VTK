@@ -117,46 +117,48 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType *vertex);
 
   // Description:
-  // Adds an edge (u, v) and returns the new edge. The graph edge may or may 
-  // not be directed, depending on the given flag. If edge is non-null, it will
-  // receive the newly-created edge.
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge);
-
+  // Add an edge (u, v) to the distributed graph. The edge may be directed 
+  // undirected. If edge is non-null, it will receive the newly-created edge.
+  // If propertyArr is non-null, it specifies the properties that will be
+  // attached to the newly-created edge.
+  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
+                       vtkVariantArray *propertyArr, 
+                       vtkEdgeType *edge);
+  
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may
   // or may not be directed, depending on the given flag. If edge is
   // non-null, it will receive the newly-created edge. uPedigreeId is
-  // the pedigree ID of vertex u, which will be added if no vertex
-  // with that pedigree ID exists.
+  // the pedigree ID of vertex u, which will be added if no vertex by
+  // that pedigree ID exists. If propertyArr is non-null, it specifies
+  // the properties that will be attached to the newly-created edge.
   void AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v, 
-                       bool directed, vtkEdgeType *edge);
+                       bool directed, vtkVariantArray *propertyArr, 
+                       vtkEdgeType *edge);
 
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may
   // or may not be directed, depending on the given flag. If edge is
   // non-null, it will receive the newly-created edge. vPedigreeId is
-  // the pedigree ID of vertex u, which will be added if no vertex by
-  // that pedigree ID exists.
+  // the pedigree ID of vertex u, which will be added if no vertex
+  // with that pedigree ID exists. If propertyArr is non-null, it specifies
+  // the properties that will be attached to the newly-created edge.
   void AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId, 
-                       bool directed, vtkEdgeType *edge);
+                       bool directed, vtkVariantArray *propertyArr, 
+                       vtkEdgeType *edge);
 
   // Description:
   // Adds an edge (u, v) and returns the new edge. The graph edge may
   // or may not be directed, depending on the given flag. If edge is
   // non-null, it will receive the newly-created edge. uPedigreeId is
-  // the pedigree ID of vertex u and vPedigreeId is the pedigtree ID
-  // of vertex u, each of which will be added if no vertex with that
-  // pedigree ID exists.
+  // the pedigree ID of vertex u and vPedigreeId is the pedigree ID of
+  // vertex u, each of which will be added if no vertex by that
+  // pedigree ID exists. If propertyArr is non-null, it specifies
+  // the properties that will be attached to the newly-created edge.
   void AddEdgeInternal(const vtkVariant& uPedigreeId, 
                        const vtkVariant& vPedigreeId, 
-                       bool directed, vtkEdgeType *edge);
-  
-  // Description:
-  // Adds an edge (u, v), with properties, and returns the new edge. The graph edge may or may 
-  // not be directed, depending on the given flag. If edge is non-null, it will
-  // receive the newly-created edge.
-  void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr);
- 
+                       bool directed, vtkVariantArray *propertyArr, 
+                       vtkEdgeType *edge); 
   // Description:
   // Try to find the vertex with the given pedigree ID. Returns true and
   // fills in the vertex ID if the vertex is found, and returns false
