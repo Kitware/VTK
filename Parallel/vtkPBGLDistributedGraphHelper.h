@@ -36,7 +36,6 @@
 #define __vtkPBGLDistributedGraphHelper_h
 
 #include "vtkDistributedGraphHelper.h"
-#include <vtkstd/utility>
 
 class vtkPBGLDistributedGraphHelperInternals;
 
@@ -169,49 +168,13 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // Attach this distributed graph helper to the given graph. This will
   // be called as part of vtkGraph::SetDistributedGraphHelper.
   void AttachToGraph(vtkGraph *graph);
-
-  // Description:
-  // Handle a FIND_VERTEX_TAG messagae.
-  vtkIdType HandleFindVertex(const vtkVariant& pedigreeId);
-
-  // Description:
-  // Add a vertex with the given pedigree, if a vertex with that
-  // pedigree ID does not already exist. Returns the ID for that
-  // vertex.
-  vtkIdType HandleAddVertex(const vtkVariant& pedigreeId);
-
-  // Description:
-  // Handle a ADD_DIRECTED_BACK_EDGE_TAG or ADD_UNDIRECTED_BACK_END_TAG 
-  // message.
-  void HandleAddBackEdge(vtkEdgeType edge, bool directed);
-
-  // Description: 
-  // Handle ADD_*DIRECTED_EDGE_*_REPLY_TAG messages.
-  vtkEdgeType 
-  HandleAddEdge(const vtkstd::pair<vtkIdType, vtkIdType>& msg, bool directed);
-
-  // Description: 
-  // Handle ADD_*DIRECTED_EDGE_NI_*_REPLY_TAG messages.
-  vtkEdgeType 
-  HandleAddEdgeNI(const vtkstd::pair<vtkVariant, vtkIdType>& msg, 
-                  bool directed);
-
-  // Description: 
-  // Handle ADD_*DIRECTED_EDGE_IN_*_REPLY_TAG messages
-  vtkEdgeType 
-  HandleAddEdgeIN(const vtkstd::pair<vtkIdType, vtkVariant>& msg, 
-                  bool directed);
-
-  // Description: 
-  // Handle ADD_*DIRECTED_EDGE_NN_*_REPLY_TAG messages
-  vtkEdgeType 
-  HandleAddEdgeNN(const vtkstd::pair<vtkVariant, vtkVariant>& msg, 
-                  bool directed);
   //ETX
 
  private:
   vtkPBGLDistributedGraphHelper(const vtkPBGLDistributedGraphHelper&); // Not implemented
   void operator=(const vtkPBGLDistributedGraphHelper&); // Not implemented
+
+  friend class vtkPBGLDistributedGraphHelperInternals;
 };
 
 #endif // __vtkPBGLDistributedGraphHelper_h
