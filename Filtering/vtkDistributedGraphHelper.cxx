@@ -30,7 +30,7 @@
 //----------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.3");
+vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.1.2.4");
 
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper::vtkDistributedGraphHelper() 
@@ -45,10 +45,133 @@ vtkDistributedGraphHelper::~vtkDistributedGraphHelper()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkDistributedGraphHelper::GetVertexOwner(vtkIdType v) const
+{
+  vtkIdType owner = v;
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    // An alternative to this obfuscated code is to provide
+    // an 'unsigned' equivalent to vtkIdType.  Could then safely
+    // do a logical right-shift of bits, e.g.:
+    //   owner = (vtkIdTypeUnsigned) v >> this->indexBits;
+    if (v & this->signBitMask)
+      {
+      owner ^= this->signBitMask;               // remove sign bit
+      vtkIdType tmp = owner >> this->indexBits; // so can right-shift
+      owner = tmp | this->highBitShiftMask;     // and append sign bit back
+      }
+    else
+      {
+      owner = v >> this->indexBits;
+      }
+    }
+  else  // numProcs = 1
+    {
+    owner = 0;
+    }
+
+  return owner;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDistributedGraphHelper::GetVertexIndex(vtkIdType v) const
+{
+  vtkIdType index = v;
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    // Shift off the Owner bits.  (Would a mask be faster?)
+    index = (v << this->procBits) >> this->procBits;
+    }
+  
+  return index;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDistributedGraphHelper::GetEdgeOwner(vtkIdType e_id) const
+{
+  vtkIdType owner = e_id;
+  int numProcs = 
+    this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    if (e_id & this->signBitMask)
+      {
+      owner ^= this->signBitMask;               // remove sign bit
+      vtkIdType tmp = owner >> this->indexBits; // so can right-shift
+      owner = tmp | this->highBitShiftMask;     // and append sign bit back
+      }
+    else
+      {
+      owner = e_id >> this->indexBits;
+      }
+    }
+  else  // numProcs = 1
+    {
+    owner = 0;
+    }
+
+  return owner;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDistributedGraphHelper::GetEdgeIndex(vtkIdType e_id) const
+{
+  vtkIdType index = e_id;
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    // Shift off the Owner bits.  (Would a mask be faster?)
+    index = (e_id << this->procBits) >> this->procBits;
+    }
+  
+  return index;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDistributedGraphHelper::MakeDistributedId(int owner, vtkIdType local)
+{
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+
+  if (numProcs > 1)
+    {
+    return ((vtkIdType)owner << this->indexBits) | local;
+    }
+  
+  return local;
+}
+
+//----------------------------------------------------------------------------
 void vtkDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {
   this->Graph = graph;
 
+  // Some factors and masks to help speed up encoding/decoding {owner,index}
+  int numProcs 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  int tmp = numProcs - 1;
+  // The following is integer arith equiv of ceil(log2(numProcs)):
+  int numProcBits = 0;
+  while( tmp != 0 )
+    {
+    tmp >>= 1;
+    numProcBits++;
+    }
+  if (numProcs == 1)  numProcBits = 1;
+  
+  this->signBitMask = (vtkIdType) 1 << ((sizeof(vtkIdType) * CHAR_BIT) - 1);
+  this->highBitShiftMask = (vtkIdType) 1 << numProcBits;
+  this->procBits = numProcBits + 1;
+  this->indexBits = (sizeof(vtkIdType) * CHAR_BIT) - (numProcBits + 1);
 }
 
 //----------------------------------------------------------------------------

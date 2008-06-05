@@ -73,13 +73,34 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   vtkTypeRevisionMacro (vtkDistributedGraphHelper, vtkObject);
 
   // Description:
+  // Returns owner of vertex v, by extracting top ceil(log2 P) bits of v.
+  vtkIdType GetVertexOwner(vtkIdType v) const;
+
+  // Description:
+  // Returns local index of vertex v, by masking off top ceil(log2 P) bits of v.
+  vtkIdType GetVertexIndex(vtkIdType v) const;
+
+  // Description:
+  // Returns owner of edge with ID e_id, by extracting top ceil(log2 P) bits of e_id.
+  vtkIdType GetEdgeOwner(vtkIdType e_id) const;
+
+  // Description:
+  // Returns local index of edge with ID e_id, by masking off top ceil(log2 P)
+  // bits of e_id.
+  vtkIdType GetEdgeIndex(vtkIdType e_id) const;
+
+  // Description:
+  // Builds a distributed ID consisting of the given owner and the local ID.
+  vtkIdType MakeDistributedId(int owner, vtkIdType local);
+
+  // Description:
   // Set the pedigreeId -> processor distribution function that determines
   // how vertices are distributed when they are associated with 
   // pedigree ID, which must be a unique label such as a URL or IP
   // address. If a NULL function pointer is provided, the default
   // hashed distribution will be used.
   void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func, 
-                                 void *userData);
+                                       void *userData);
 
   // Description:
   // Determine which processor owns the vertex with the given pedigree ID.
@@ -144,10 +165,10 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   virtual void AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, vtkEdgeType *edge, vtkVariantArray *variantValueArr) = 0;
 
   // Description:
-  // Try to find the vertex with the given pedigree ID. Returns true and
-  // fills in the vertex ID if the vertex is found, and returns false
-  // otherwise;
-  virtual bool FindVertex(const vtkVariant& pedigreeId, vtkIdType *vertex) = 0;
+  // Try to find the vertex with the given pedigree ID. Returns the
+  // vertex ID if the vertex is found, or -1 if there is no vertex
+  // with that pedigree ID.
+  virtual vtkIdType FindVertex(const vtkVariant& pedigreeId) = 0;
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will
@@ -159,8 +180,29 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   vtkGraph *Graph;
 
   //BTX
+  // Description:
+  // The distribution function used to map a pedigree ID to a processor.
   vtkVertexPedigreeIdDistribution VertexDistribution;
+
+  // Description:
+  // Extra, user-specified data to be passed into the distribution function.
   void *VertexDistributionUserData;
+
+  // Description:
+  // Bit mask to speed up decoding graph info {owner,index}
+  vtkIdType signBitMask;
+
+  // Description:
+  // Bit mask to speed up decoding graph info {owner,index}
+  vtkIdType highBitShiftMask;
+  
+  // Description:
+  // Number of bits required to represent # of processors (owner)
+  int procBits;
+  
+  // Description:
+  // Number of bits required to represent {vertex,edge} index
+  int indexBits;
   //ETX
 
  private:

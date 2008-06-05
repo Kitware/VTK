@@ -28,6 +28,7 @@
 #define __vtkBoostGraphAdapter_h
 
 #include "vtkDirectedGraph.h"
+#include "vtkDistributedGraphHelper.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -388,11 +389,11 @@ namespace boost {
   {
     typedef graph_traits< vtkGraph* >::vertex_iterator Iter;
     vtkIdType start = 0;
-    if (g->GetDistributedGraphHelper())
+    if (vtkDistributedGraphHelper *helper = g->GetDistributedGraphHelper())
       {
       int rank = 
         g->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-      start = g->MakeDistributedId(rank, start);
+      start = helper->MakeDistributedId(rank, start);
       }
 
     return vtksys_stl::make_pair( Iter(start), 

@@ -95,8 +95,8 @@ void TestDirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, i),
-                     graph->MakeDistributedId(myRank+1, i));
+      graph->AddEdge(helper->MakeDistributedId(myRank, i),
+                     helper->MakeDistributedId(myRank+1, i));
       }
     }
 
@@ -106,8 +106,8 @@ void TestDirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, verticesPerNode),
-                     graph->MakeDistributedId(myRank, i));
+      graph->AddEdge(helper->MakeDistributedId(myRank, verticesPerNode),
+                     helper->MakeDistributedId(myRank, i));
       }
     }
 
@@ -117,8 +117,8 @@ void TestDirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, i),
-                     graph->MakeDistributedId(myRank, verticesPerNode));
+      graph->AddEdge(helper->MakeDistributedId(myRank, i),
+                     helper->MakeDistributedId(myRank, verticesPerNode));
       }
     }
 
@@ -133,7 +133,7 @@ void TestDirectedGraph()
   vtkSmartPointer<vtkBoostBreadthFirstSearch> bfs
     = vtkSmartPointer<vtkBoostBreadthFirstSearch>::New();
   bfs->SetInput(graph);
-  bfs->SetOriginVertex(graph->MakeDistributedId(0, verticesPerNode));
+  bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 
   // Run the breadth-first search
   if (myRank == 0)
@@ -227,8 +227,8 @@ void TestUndirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, i),
-                     graph->MakeDistributedId(myRank+1, i));
+      graph->AddEdge(helper->MakeDistributedId(myRank, i),
+                     helper->MakeDistributedId(myRank+1, i));
       }
     }
 
@@ -238,8 +238,8 @@ void TestUndirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, verticesPerNode),
-                     graph->MakeDistributedId(myRank, i));
+      graph->AddEdge(helper->MakeDistributedId(myRank, verticesPerNode),
+                     helper->MakeDistributedId(myRank, i));
       }
     }
 
@@ -249,8 +249,8 @@ void TestUndirectedGraph()
     {
     for (vtkIdType i = 0; i < verticesPerNode; ++i)
       {
-      graph->AddEdge(graph->MakeDistributedId(myRank, i),
-                     graph->MakeDistributedId(myRank, verticesPerNode));
+      graph->AddEdge(helper->MakeDistributedId(myRank, i),
+                     helper->MakeDistributedId(myRank, verticesPerNode));
       }
     }
 
@@ -265,7 +265,7 @@ void TestUndirectedGraph()
   vtkSmartPointer<vtkBoostBreadthFirstSearch> bfs
     = vtkSmartPointer<vtkBoostBreadthFirstSearch>::New();
   bfs->SetInput(graph);
-  bfs->SetOriginVertex(graph->MakeDistributedId(0, verticesPerNode));
+  bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 
   // Run the breadth-first search
   if (myRank == 0)

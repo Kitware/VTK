@@ -33,7 +33,7 @@
 #define COMMIT_TRANSACTION "COMMIT"
 #define ROLLBACK_TRANSACTION "ROLLBACK"
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.5");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.5.4.1");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 class vtkPostgreSQLQueryPrivate : public vtkObject
@@ -252,7 +252,7 @@ public:
           }
         return vtkVariant( val );
         }
-#ifdef VTK_TYPE_USE_LONG_LONG
+#if defined(VTK_TYPE_USE_LONG_LONG) && 0
     case VTK_LONG_LONG:
         {
         long long val;
@@ -290,6 +290,7 @@ public:
           }
         return vtkVariant( val );
         }
+#if defined(VTK_TYPE_USE_LONG_LONG) && 0
     case VTK_ID_TYPE:
         {
         vtkIdType val;
@@ -299,6 +300,7 @@ public:
           }
         return vtkVariant( val );
         }
+#endif
     case VTK_STRING:
         {
         vtkstd::string val;
@@ -324,7 +326,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkPostgreSQLQueryPrivate);
-vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.5");
+vtkCxxRevisionMacro(vtkPostgreSQLQueryPrivate, "1.5.4.1");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::vtkPostgreSQLQuery() 

@@ -133,13 +133,14 @@ void ExchangeEdges(vtkGraph* graph,
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
 
   // Determine the number of incoming edges to send to each processor.
   vector<int> sendCounts(numProcs, 0);
   for (vector<AddedEdge>::size_type i = 0; i < outEdges.size(); ++i)
     {
-    ++sendCounts[source? graph->GetVertexOwner(outEdges[i].Source)
-                       : graph->GetVertexOwner(outEdges[i].Target)];
+    ++sendCounts[source? helper->GetVertexOwner(outEdges[i].Source)
+                       : helper->GetVertexOwner(outEdges[i].Target)];
     }
   vector<int> offsetsSend(numProcs, 0);
   int count = 0;
@@ -214,8 +215,8 @@ void TestDirectedGraph()
 
   for (vtkIdType e = 0; e < E; ++e)
     {
-    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
 
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
@@ -251,7 +252,7 @@ void TestDirectedGraph()
     {
     (cout << "  Testing vertex descriptors...").flush();
     }
-  vtkIdType vExpected = graph->MakeDistributedId(myRank, 0);
+  vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
@@ -261,7 +262,7 @@ void TestDirectedGraph()
     myassert(vActual == vExpected);
     ++vExpected;
     }
-  myassert(graph->GetVertexIndex(vExpected) == V);
+  myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
@@ -291,15 +292,15 @@ void TestDirectedGraph()
     myEdgesStart = vtkstd::lower_bound(addedEdges.begin(), addedEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
-    startPositions[graph->GetVertexIndex(u)].first = myEdgesStart;
-    startPositions[graph->GetVertexIndex(u)].second = myEdgesEnd;
+    startPositions[helper->GetVertexIndex(u)].first = myEdgesStart;
+    startPositions[helper->GetVertexIndex(u)].second = myEdgesEnd;
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext()) 
@@ -341,7 +342,7 @@ void TestDirectedGraph()
     {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
-        = startPositions[graph->GetVertexIndex(e.Source)];
+        = startPositions[helper->GetVertexIndex(e.Source)];
       
       // Make sure we're expecting to find more edges in this source's
       // bracket
@@ -389,12 +390,12 @@ void TestDirectedGraph()
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
     myEdgesStart = vtkstd::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
-                                         (graph->MakeDistributedId(0, 0), 
+                                         (helper->MakeDistributedId(0, 0), 
                                           u),
                                        OrderEdgesByTarget());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, inEdges.end(),
                                      AddedEdge
-                                       (graph->MakeDistributedId(0, 0),
+                                       (helper->MakeDistributedId(0, 0),
                                         u+1),
                                      OrderEdgesByTarget());
 
@@ -511,8 +512,8 @@ void TestDirectedGraphProperties()
   double prop1 = 42.42;
   for (vtkIdType e = 0; e < E; ++e)
     {
-    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
 
     edgePropertyArr->SetValue(0,prop0);
     edgePropertyArr->SetValue(1,prop1);
@@ -559,7 +560,7 @@ void TestDirectedGraphProperties()
     {
     (cout << "  Testing vertex descriptors...").flush();
     }
-  vtkIdType vExpected = graph->MakeDistributedId(myRank, 0);
+  vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
@@ -569,7 +570,7 @@ void TestDirectedGraphProperties()
     myassert(vActual == vExpected);
     ++vExpected;
     }
-  myassert(graph->GetVertexIndex(vExpected) == V);
+  myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
@@ -599,15 +600,15 @@ void TestDirectedGraphProperties()
     myEdgesStart = vtkstd::lower_bound(addedEdges.begin(), addedEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
-    startPositions[graph->GetVertexIndex(u)].first = myEdgesStart;
-    startPositions[graph->GetVertexIndex(u)].second = myEdgesEnd;
+    startPositions[helper->GetVertexIndex(u)].first = myEdgesStart;
+    startPositions[helper->GetVertexIndex(u)].second = myEdgesEnd;
 
     graph->GetOutEdges(u, outEdges);
     while (outEdges->HasNext()) 
@@ -649,7 +650,7 @@ void TestDirectedGraphProperties()
     {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
-        = startPositions[graph->GetVertexIndex(e.Source)];
+        = startPositions[helper->GetVertexIndex(e.Source)];
       
       // Make sure we're expecting to find more edges in this source's
       // bracket
@@ -697,12 +698,12 @@ void TestDirectedGraphProperties()
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
     myEdgesStart = vtkstd::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
-                                         (graph->MakeDistributedId(0, 0), 
+                                         (helper->MakeDistributedId(0, 0), 
                                           u),
                                        OrderEdgesByTarget());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, inEdges.end(),
                                      AddedEdge
-                                       (graph->MakeDistributedId(0, 0),
+                                       (helper->MakeDistributedId(0, 0),
                                         u+1),
                                      OrderEdgesByTarget());
 
@@ -776,8 +777,8 @@ void TestUndirectedGraph()
 
   for (vtkIdType e = 0; e < E; ++e)
     {
-    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
     else
@@ -788,7 +789,7 @@ void TestUndirectedGraph()
     // the edges with the same (source, target) order that we will see
     // them when traversing all of the edges of the graph with
     // vtkEdgeListIterator.
-    if (graph->GetVertexOwner(source) == graph->GetVertexOwner(target)
+    if (helper->GetVertexOwner(source) == helper->GetVertexOwner(target)
         && source > target)
       vtkstd::swap(source, target);
 
@@ -821,7 +822,7 @@ void TestUndirectedGraph()
     {
     (cout << "  Testing vertex descriptors...").flush();
     }
-  vtkIdType vExpected = graph->MakeDistributedId(myRank, 0);
+  vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
@@ -831,7 +832,7 @@ void TestUndirectedGraph()
     myassert(vActual == vExpected);
     ++vExpected;
     }
-  myassert(graph->GetVertexIndex(vExpected) == V);
+  myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
@@ -879,12 +880,12 @@ void TestUndirectedGraph()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetOutEdges(u, outEdges);
@@ -928,7 +929,7 @@ void TestUndirectedGraph()
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
     {
-      vtkIdType vId = graph->MakeDistributedId(myRank, v);
+      vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
       while (position != addedEdges.end() && position->Source == vId) 
         {
@@ -944,7 +945,7 @@ void TestUndirectedGraph()
     {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
-        = startPositions[graph->GetVertexIndex(e.Source)];
+        = startPositions[helper->GetVertexIndex(e.Source)];
 
       // Make sure we're expecting to find more edges in this source's
       // bracket
@@ -1000,12 +1001,12 @@ void TestUndirectedGraph()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (v,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (v+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetInEdges(v, inEdges);
@@ -1115,8 +1116,8 @@ void TestUndirectedGraphProperties()
 
   for (vtkIdType e = 0; e < E; ++e)
     {
-    vtkIdType source = graph->MakeDistributedId(rand() % numProcs, rand() % V);
-    vtkIdType target = graph->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType source = helper->MakeDistributedId(rand() % numProcs, rand() % V);
+    vtkIdType target = helper->MakeDistributedId(rand() % numProcs, rand() % V);
     if (rand() % 100 < ImmediateAddEdgeChance)
       graph->AddEdge(source, target);
     else
@@ -1127,7 +1128,7 @@ void TestUndirectedGraphProperties()
     // the edges with the same (source, target) order that we will see
     // them when traversing all of the edges of the graph with
     // vtkEdgeListIterator.
-    if (graph->GetVertexOwner(source) == graph->GetVertexOwner(target)
+    if (helper->GetVertexOwner(source) == helper->GetVertexOwner(target)
         && source > target)
       vtkstd::swap(source, target);
 
@@ -1160,7 +1161,7 @@ void TestUndirectedGraphProperties()
     {
     (cout << "  Testing vertex descriptors...").flush();
     }
-  vtkIdType vExpected = graph->MakeDistributedId(myRank, 0);
+  vtkIdType vExpected = helper->MakeDistributedId(myRank, 0);
   vtkSmartPointer<vtkVertexListIterator> vertices
     = vtkSmartPointer<vtkVertexListIterator>::New();
   graph->GetVertices(vertices);
@@ -1170,7 +1171,7 @@ void TestUndirectedGraphProperties()
     myassert(vActual == vExpected);
     ++vExpected;
     }
-  myassert(graph->GetVertexIndex(vExpected) == V);
+  myassert(helper->GetVertexIndex(vExpected) == V);
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
@@ -1218,12 +1219,12 @@ void TestUndirectedGraphProperties()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (u,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (u+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetOutEdges(u, outEdges);
@@ -1267,7 +1268,7 @@ void TestUndirectedGraphProperties()
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
     {
-      vtkIdType vId = graph->MakeDistributedId(myRank, v);
+      vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
       while (position != addedEdges.end() && position->Source == vId) 
         {
@@ -1283,7 +1284,7 @@ void TestUndirectedGraphProperties()
     {
       vtkEdgeType e = edges->Next();
       pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
-        = startPositions[graph->GetVertexIndex(e.Source)];
+        = startPositions[helper->GetVertexIndex(e.Source)];
 
       // Make sure we're expecting to find more edges in this source's
       // bracket
@@ -1339,12 +1340,12 @@ void TestUndirectedGraphProperties()
     myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (v,
-                                          graph->MakeDistributedId(0, 0)),
+                                          helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
     myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (v+1, 
-                                        graph->MakeDistributedId(0, 0)),
+                                        helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetInEdges(v, inEdges);

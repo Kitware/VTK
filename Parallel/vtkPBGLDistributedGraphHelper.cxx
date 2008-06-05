@@ -48,12 +48,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.13");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.1.2.14");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.13");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.1.2.14");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
 {
   int rank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-  int uOwner = this->Graph->GetVertexOwner (u);
+  int uOwner = this->GetVertexOwner (u);
 
   if (uOwner == rank)
     {
@@ -141,28 +141,28 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
     
     // The edge ID involves our rank and the local number of edges.
     vtkIdType edgeId 
-      = this->Graph->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
+      = this->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
 
     // Add the forward edge.
-    GraphInternals->Adjacency[this->Graph->GetVertexIndex(u)]
+    GraphInternals->Adjacency[this->GetVertexIndex(u)]
       .OutEdges.push_back(vtkOutEdgeType(v, edgeId));
 
     // We've added an edge.
     GraphInternals->NumberOfEdges++;
 
-    int vOwner = this->Graph->GetVertexOwner(v);
+    int vOwner = this->GetVertexOwner(v);
     if (vOwner == rank)
       {
         // The target vertex is local. Add the appropriate back edge.
         if (directed)
           {
-          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+          GraphInternals->Adjacency[this->GetVertexIndex(v)]
             .InEdges.push_back(vtkInEdgeType(u, edgeId));
           }
         else if (u != v)
           {
           // Avoid storing self-loops twice in undirected graphs
-          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+          GraphInternals->Adjacency[this->GetVertexIndex(v)]
             .OutEdges.push_back(vtkOutEdgeType(u, edgeId));
           }
       }
@@ -320,7 +320,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
 {
   int rank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   int numProcs = this->Graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-  int uOwner = this->Graph->GetVertexOwner (u);
+  int uOwner = this->GetVertexOwner (u);
 
   if (uOwner == rank)
     {
@@ -329,7 +329,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
     
     // The edge ID involves our rank and the local number of edges.
     vtkIdType edgeId 
-      = this->Graph->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
+      = this->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
     
     if (propertyArr)      // Add edge properties
       {
@@ -355,25 +355,25 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
       }
 
     // Add the forward edge.
-    GraphInternals->Adjacency[this->Graph->GetVertexIndex(u)]
+    GraphInternals->Adjacency[this->GetVertexIndex(u)]
       .OutEdges.push_back(vtkOutEdgeType(v, edgeId));
 
     // We've added an edge.
     GraphInternals->NumberOfEdges++;
 
-    int vOwner = this->Graph->GetVertexOwner(v);
+    int vOwner = this->GetVertexOwner(v);
     if (vOwner == rank)
       {
         // The target vertex is local. Add the appropriate back edge.
         if (directed)
           {
-          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+          GraphInternals->Adjacency[this->GetVertexIndex(v)]
             .InEdges.push_back(vtkInEdgeType(u, edgeId));
           }
         else if (u != v)
           {
           // Avoid storing self-loops twice in undirected graphs
-          GraphInternals->Adjacency[this->Graph->GetVertexIndex(v)]
+          GraphInternals->Adjacency[this->GetVertexIndex(v)]
             .OutEdges.push_back(vtkOutEdgeType(u, edgeId));
           }
       }
@@ -418,8 +418,8 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType u,
 }
 
 //----------------------------------------------------------------------------
-bool vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId, 
-                                               vtkIdType *vertex)
+vtkIdType
+vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId)
 {
   vtkIdType rank 
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -427,31 +427,27 @@ bool vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId,
   if (owner == rank)
     {
     // The vertex is local; just ask the local part of the graph.
-    return this->Graph->FindVertex(pedigreeId, vertex);
+    return this->Graph->FindVertex(pedigreeId);
     }
 
   // The vertex is remote; Send a message looking for this
   // vertex.
-  vtkstd::pair<bool, vtkIdType> result;
+  vtkIdType result;
   send_oob_with_reply(this->Internals->process_group, owner, 
                       FIND_VERTEX_TAG, pedigreeId, result);
-  if (vertex && result.first)
-    {
-    *vertex = result.second;
-    }
-  return result.first;
+  return result;
 }
 
 //----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {
+  this->Graph = graph;
+
   if (graph && 
       (graph->GetNumberOfVertices() != 0 || graph->GetNumberOfEdges() != 0))
     {
     vtkErrorMacro("Cannot attach a distributed graph helper to a non-empty vtkGraph");  
     }
-
-  this->Superclass::AttachToGraph(graph);
 
   if (this->Graph)
     {
@@ -544,15 +540,16 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
        boost::bind(&vtkPBGLDistributedGraphHelper::HandleAddEdgeNN,
                    this, _3, false));
     }
+
+  // vtkDistributedGraphHelper will set up the appropriate masks.
+  this->Superclass::AttachToGraph(graph);
 }
 
 //----------------------------------------------------------------------------
-vtkstd::pair<bool, vtkIdType>
+vtkIdType
 vtkPBGLDistributedGraphHelper::HandleFindVertex(const vtkVariant& pedigreeId)
 {
-  vtkstd::pair<bool, vtkIdType> result;
-  result.first = this->FindVertex(pedigreeId, &result.second);
-  return result;
+  return this->FindVertex(pedigreeId);
 }
 
 //----------------------------------------------------------------------------
@@ -570,17 +567,17 @@ vtkPBGLDistributedGraphHelper::HandleAddBackEdge
   (vtkEdgeType edge, bool directed)
 {
   assert(edge.Source != edge.Target);
-  assert(this->Graph->GetVertexOwner(edge.Target)
+  assert(this->GetVertexOwner(edge.Target)
          == this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER()));
   vtkGraphInternals *GraphInternals = this->Graph->GetGraphInternals(true);
   if (directed)
     {
-    GraphInternals->Adjacency[this->Graph->GetVertexIndex(edge.Target)]
+    GraphInternals->Adjacency[this->GetVertexIndex(edge.Target)]
       .InEdges.push_back(vtkInEdgeType(edge.Source, edge.Id));
     }
   else 
     {
-    GraphInternals->Adjacency[this->Graph->GetVertexIndex(edge.Target)]
+    GraphInternals->Adjacency[this->GetVertexIndex(edge.Target)]
       .OutEdges.push_back(vtkOutEdgeType(edge.Source, edge.Id));
     }
 }

@@ -59,7 +59,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.8");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.9.4.9");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -109,12 +109,13 @@ public:
 
   vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
   {
+    vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
     if (x.second > y.second 
         || (x.second == y.second 
-            && graph->GetVertexOwner(x.first) < graph->GetVertexOwner(y.first))
+            && helper->GetVertexOwner(x.first) < helper->GetVertexOwner(y.first))
         || (x.second == y.second 
-            && graph->GetVertexOwner(x.first) == graph->GetVertexOwner(y.first)
-            && graph->GetVertexIndex(x.first) < graph->GetVertexIndex(y.first)))
+            && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
+            && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
       {
       return x;
       }
@@ -340,9 +341,9 @@ int vtkBoostBreadthFirstSearch::RequestData(
     // Set the distance to the source vertex to zero
     int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
-    if (output->GetVertexOwner(this->OriginVertexIndex) == myRank)
+    if (helper->GetVertexOwner(this->OriginVertexIndex) == myRank)
       {
-      BFSArray->SetValue(output->GetVertexIndex(this->OriginVertexIndex), 0);
+      BFSArray->SetValue(helper->GetVertexIndex(this->OriginVertexIndex), 0);
       }
 
     // Distributed color map
@@ -390,9 +391,9 @@ int vtkBoostBreadthFirstSearch::RequestData(
     // Compute maxFromRootVertex globally
     using boost::parallel::all_reduce;
     int maxDistance = 0;
-    if (output->GetVertexOwner(maxFromRootVertex) == myRank)
+    if (helper->GetVertexOwner(maxFromRootVertex) == myRank)
       {
-      maxDistance = BFSArray->GetValue(output->GetVertexIndex(maxFromRootVertex));
+      maxDistance = BFSArray->GetValue(helper->GetVertexIndex(maxFromRootVertex));
       }
     maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
                                    vtkstd::make_pair(maxFromRootVertex,

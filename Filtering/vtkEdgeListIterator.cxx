@@ -20,12 +20,13 @@
 #include "vtkEdgeListIterator.h"
 
 #include "vtkDirectedGraph.h"
+#include "vtkDistributedGraphHelper.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
 
-vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1.4.2");
+vtkCxxRevisionMacro(vtkEdgeListIterator, "1.1.4.3");
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
@@ -63,11 +64,14 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
     this->Vertex = 0;
     vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
 
-    int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-    if (myRank != -1)
+    int myRank = -1;
+    vtkDistributedGraphHelper *helper 
+      = this->Graph->GetDistributedGraphHelper();
+    if (helper)
       {
-        this->Vertex = this->Graph->MakeDistributedId(myRank, this->Vertex);
-        lastVertex = this->Graph->MakeDistributedId(myRank, lastVertex);
+      myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      this->Vertex = helper->MakeDistributedId(myRank, this->Vertex);
+      lastVertex = helper->MakeDistributedId(myRank, lastVertex);
       }
       
     // Find a vertex with nonzero out degree.
@@ -87,11 +91,11 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
         {
         while (this->Current != 0 
                && (// Skip non-local edges.
-                   (myRank != -1 && this->Graph->GetEdgeOwner(this->Current->Id) != myRank)
+                   (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                    // Skip entirely-local edges where Source > Target
-                   || ((myRank != -1 
-                        && myRank == this->Graph->GetVertexOwner(this->Current->Target)
-                        || myRank == -1)
+                   || ((helper
+                        && myRank == helper->GetVertexOwner(this->Current->Target)
+                        || !helper)
                        && this->Vertex > this->Current->Target)))
           {
           this->Increment();
@@ -113,15 +117,22 @@ vtkEdgeType vtkEdgeListIterator::Next()
   // entirely-local edges whose source is greater than the target.
   if (!this->Directed)
     {
-    int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    int myRank = -1;
+    vtkDistributedGraphHelper *helper 
+      = this->Graph->GetDistributedGraphHelper();
+
+    if (helper)
+      {
+      myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      }
 
     while (this->Current != 0 
            && (// Skip non-local edges.
-               (myRank != -1 && this->Graph->GetEdgeOwner(this->Current->Id) != myRank)
+               (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                // Skip entirely-local edges where Source > Target
-               || ((myRank != -1 
-                    && myRank == this->Graph->GetVertexOwner(this->Current->Target)
-                    || myRank == -1)
+               || ((helper 
+                    && myRank == helper->GetVertexOwner(this->Current->Target)
+                    || !helper)
                    && this->Vertex > this->Current->Target)))
       {
       this->Increment();
@@ -156,11 +167,13 @@ void vtkEdgeListIterator::Increment()
 
   vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
 
-  int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1)
+  vtkDistributedGraphHelper *helper = this->Graph->GetDistributedGraphHelper();
+  if (helper)
     {
-    this->Vertex = this->Graph->MakeDistributedId(myRank, this->Vertex);
-    lastVertex = this->Graph->MakeDistributedId(myRank, lastVertex);
+    int myRank 
+      = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    this->Vertex = helper->MakeDistributedId(myRank, this->Vertex);
+    lastVertex = helper->MakeDistributedId(myRank, lastVertex);
     }
 
   ++this->Current;

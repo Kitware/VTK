@@ -53,13 +53,15 @@ namespace boost {
   struct vtkVertexOwnerMap 
   {
     // Default-construct an empty (useless!) vertex-owner map
-    vtkVertexOwnerMap() : graph(0) { }
+    vtkVertexOwnerMap() : helper(0) { }
     
     // Construct a vertex-owner map for a specific vtkGraph
-    explicit vtkVertexOwnerMap(vtkGraph* graph) : graph(graph) { }
+    explicit vtkVertexOwnerMap(vtkGraph* graph) 
+      : helper(graph? graph->GetDistributedGraphHelper() : 0) { }
     
-    // The graph for which we will map vertices to their owners
-    vtkGraph* graph;
+    // The distributed graph helper that will aid in mapping vertices
+    // to their owners.
+    vtkDistributedGraphHelper *helper;
   };
   
   // Property map traits for the vertex-owner map
@@ -78,7 +80,7 @@ namespace boost {
     vtkVertexOwnerMap owner_map,
     property_traits<vtkVertexOwnerMap>::key_type key)
   {
-    return owner_map.graph->GetVertexOwner(key);
+    return owner_map.helper->GetVertexOwner(key);
   }
    
    // State that the vertex owner property map of a vtkGraph is the
@@ -102,92 +104,92 @@ namespace boost {
    // Map from vertex descriptor to (owner, local descriptor)
    struct vtkVertexGlobalMap 
    {
-     vtkVertexGlobalMap() : graph(0) { }
+     vtkVertexGlobalMap() : helper(0) { }
           
      explicit vtkVertexGlobalMap(vtkGraph* graph) 
-       : graph(graph) { }
+       : helper(graph? graph->GetDistributedGraphHelper() : 0) { }
           
-     vtkGraph* graph;
+     vtkDistributedGraphHelper *helper;
    };
    
    template<>
    struct property_traits<vtkVertexGlobalMap> 
-     {
+   {
      typedef vtkstd::pair<int, vtkIdType> value_type;
      typedef value_type reference;
      typedef vtkIdType key_type;
      typedef readable_property_map_tag category;
-     };
+   };
    
    inline property_traits<vtkVertexGlobalMap>::reference
    get(
      vtkVertexGlobalMap global_map,
      property_traits<vtkVertexGlobalMap>::key_type key)
-     {
-     return vtkstd::pair<int, vtkIdType>(global_map.graph->GetVertexOwner(key),
-                                         global_map.graph->GetVertexIndex(key));
-     }
+   {
+     return vtkstd::pair<int,vtkIdType>(global_map.helper->GetVertexOwner(key),
+                                        global_map.helper->GetVertexIndex(key));
+   }
     
     // 
    template<>
    struct property_map<vtkGraph*, vertex_global_t>
-     {
+   {
      typedef vtkVertexGlobalMap type;
      typedef vtkVertexGlobalMap const_type;
-     };
+   };
     
   SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(vertex_global_t);
 
    inline vtkVertexGlobalMap
    get(vertex_global_t, vtkGraph* graph)
-     {
+   {
      return vtkVertexGlobalMap(graph);
-     }
+   }
    
    // Map from edge descriptor to (owner, local descriptor)
    struct vtkEdgeGlobalMap 
-     {
-     vtkEdgeGlobalMap() : graph(0) { }
+   {
+     vtkEdgeGlobalMap() : helper(0) { }
           
      explicit vtkEdgeGlobalMap(vtkGraph* graph) 
-       : graph(graph) { }
+       : helper(graph? graph->GetDistributedGraphHelper() : 0) { }
           
-     vtkGraph* graph;
-     };
+     vtkDistributedGraphHelper *helper;
+   };
       
    template<>
    struct property_traits<vtkEdgeGlobalMap> 
-     {
+   {
      typedef vtkstd::pair<int, vtkEdgeType> value_type;
      typedef value_type reference;
      typedef vtkEdgeType key_type;
      typedef readable_property_map_tag category;
-     };
+   };
       
    inline property_traits<vtkEdgeGlobalMap>::reference
    get(
      vtkEdgeGlobalMap global_map,
      property_traits<vtkEdgeGlobalMap>::key_type key)
-     {
-     return vtkstd::pair<int, vtkEdgeType>(global_map.graph->GetEdgeOwner(key.Id),
-                                        key);
-     }
+   {
+     return vtkstd::pair<int, vtkEdgeType>(global_map.helper->GetEdgeOwner(key.Id),
+                                           key);
+   }
        
    // 
    template<>
    struct property_map<vtkGraph*, edge_global_t>
-     {
+   {
      typedef vtkEdgeGlobalMap type;
      typedef vtkEdgeGlobalMap const_type;
-     };
+   };
        
   SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(edge_global_t);
 
    inline vtkEdgeGlobalMap
    get(edge_global_t, vtkGraph* graph)
-     {
+   {
      return vtkEdgeGlobalMap(graph);
-     }
+   }
 
 #undef SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS
 } // namespace boost

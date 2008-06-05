@@ -88,7 +88,7 @@ void TestNamedUndirectedGraph()
     {
     vtkIdType vertex = vertices->Next();
     vtkVariant pedigreeId 
-      = pedigreeIds->GetValue(graph->GetVertexIndex(vertex));
+      = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
     cout << "Rank #" << rank << ": vertex " << pedigreeId.ToString() << " (" 
          << hex << vertex << ")\n";
     cout.flush();

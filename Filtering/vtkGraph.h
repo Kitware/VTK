@@ -150,11 +150,14 @@
 // GetNumberOfVertices(), for vertices, or GetNumberOfEdges(), for
 // edges, and can be used to access the local parts of distributed
 // data arrays. When given a vtkIdType identifying a vertex, one can
-// determine the owner of the vertex with GetVertexOwner() and the
-// local index with GetVertexIndex(). With edges, the appropriate
-// methods are GetEdgeOwner() and GetEdgeIndex(), respectively. To
+// determine the owner of the vertex with
+// vtkDistributedGraphHelper::GetVertexOwner() and the local index
+// with vtkDistributedGraphHelper::GetVertexIndex(). With edges, the
+// appropriate methods are vtkDistributedGraphHelper::GetEdgeOwner()
+// and vtkDistributedGraphHelper::GetEdgeIndex(), respectively. To
 // construct a vtkIdType representing either a vertex or edge given
-// only its owner and local index, use MakeDistributedId().
+// only its owner and local index, use
+// vtkDistributedGraphHelper::MakeDistributedId().
 //
 // The edges in a distributed graph are always stored on the
 // processors that own the vertices named by the edge. For example,
@@ -171,7 +174,7 @@
 // local vertices or the edge list.
 //
 // Distributed graphs can have pedigree IDs for the vertices in the
-// same way that non-distributed vertices can. In this case, the
+// same way that non-distributed graphs can. In this case, the
 // distribution of the vertices in the graph is based on pedigree
 // ID. For example, a vertex with the pedigree ID "Here" might land on
 // processor 0 while a vertex pedigree ID "There" would end up on
@@ -372,31 +375,7 @@ public:
   // returns the number of local vertices in the graph.
   virtual vtkIdType GetNumberOfVertices();
   
-  //BTX
-  // The following methods are for distributed graphs.
-  // P=# of procs in process group.
-
-  // Description:
-  // Returns owner of vertex v, by extracting top ceil(log2 P) bits of v.
-  vtkIdType GetVertexOwner(vtkIdType v) const;
-
-  // Description:
-  // Returns local index of vertex v, by masking off top ceil(log2 P) bits of v.
-  vtkIdType GetVertexIndex(vtkIdType v) const;
-
-  // Description:
-  // Returns owner of edge with ID e_id, by extracting top ceil(log2 P) bits of e_id.
-  vtkIdType GetEdgeOwner(vtkIdType e_id) const;
-
-  // Description:
-  // Returns local index of edge with ID e_id, by masking off top ceil(log2 P)
-  // bits of e_id.
-  vtkIdType GetEdgeIndex(vtkIdType e_id) const;
-
-  // Description:
-  // Builds a distributed ID consisting of the given owner and the local ID.
-  vtkIdType MakeDistributedId(int owner, vtkIdType local);
-
+  // BTX
   // Description:
   // Sets the distributed graph helper of this graph, turning it into a 
   // distributed graph. This operation can only be executed on an empty 
@@ -409,11 +388,11 @@ public:
   //ETX
 
   // Description:
-  // Retrieve the vertex with the given name. If successful, returns true
-  // and puts the vertex ID into @c vertex. This operation is only usable
-  // when the vertices have names, e.g., GetVertexNameArray returns a 
-  // non-NULL array.
-  bool FindVertex(const vtkVariant& name, vtkIdType *vertex);
+  // Retrieve the vertex with the given pedigree ID. If successful,
+  // returns the ID of the vertex. Otherwise, either the vertex data
+  // does not have a pedigree ID array or there is no vertex with the
+  // given pedigree ID, so this function returns -1.
+  vtkIdType FindVertex(const vtkVariant& pedigreeID);
 
   // Description:
   // Shallow copies the data object into this graph.
@@ -542,11 +521,6 @@ protected:
   virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
 
   // Description:
-  // Updates the internal pedigree->vertex map to reflect the pedigree IDs of
-  // each vertex.
-  void UpdateVertexPedigreeMap();
-
-  // Description:
   // Friend iterator classes.
   //BTX
   friend class vtkAdjacentVertexIterator;
@@ -574,24 +548,7 @@ protected:
   // Description:
   // The vertex locations.
   vtkPoints *Points;
-  static double DefaultPoint[3];
-  
-  // Description:
-  // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
-  vtkIdType signBitMask;
-
-  // Description:
-  // Bit mask to speed up decoding graph info {owner,index} (for distrib graph)
-  vtkIdType highBitShiftMask;
-  
-  // Description:
-  // Number of bits required to represent # of processors (owner) (for distrib graph)
-  int procBits;
-  
-  // Description:
-  // Number of bits required to represent {vertex,edge} index (for distrib graph)
-  int indexBits;
-  
+  static double DefaultPoint[3];  
   
   //ETX
 private:

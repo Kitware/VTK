@@ -161,7 +161,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // Try to find the vertex with the given pedigree ID. Returns true and
   // fills in the vertex ID if the vertex is found, and returns false
   // otherwise;
-  bool FindVertex(const vtkVariant& pedigreeId, vtkIdType *vertex);
+  vtkIdType FindVertex(const vtkVariant& pedigreeId);
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will
@@ -170,7 +170,7 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
 
   // Description:
   // Handle a FIND_VERTEX_TAG messagae.
-  vtkstd::pair<bool, vtkIdType> HandleFindVertex(const vtkVariant& pedigreeId);
+  vtkIdType HandleFindVertex(const vtkVariant& pedigreeId);
 
   // Description:
   // Add a vertex with the given pedigree, if a vertex with that

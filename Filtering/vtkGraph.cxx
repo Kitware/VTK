@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.14");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.15");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -92,13 +92,19 @@ void vtkGraph::GetPoint(vtkIdType ptId, double x[3])
 {
   if (this->Points)
     {
-    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-    if (myRank != -1 && myRank != this->GetVertexOwner(ptId))
+    vtkIdType index = ptId;
+    if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
       {
-      vtkErrorMacro("vtkGraph cannot retrieve a point for a non-local vertex");
+        int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+        if (myRank != helper->GetVertexOwner(ptId))
+          {
+          vtkErrorMacro("vtkGraph cannot retrieve a point for a non-local vertex");
+          }
+
+        index = helper->GetVertexIndex(ptId);
       }
 
-    this->Points->GetPoint(this->GetVertexIndex(ptId), x);
+    this->Points->GetPoint(index, x);
     }
   else
     {
@@ -194,16 +200,18 @@ void vtkGraph::Initialize()
   this->VertexData->Initialize();
   this->Internals->NumberOfEdges = 0;
   this->Internals->Adjacency.clear();
-  this->Internals->VertexPedigreeMap.clear();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      }
     }
 
   if (it)
@@ -215,16 +223,22 @@ void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
 //----------------------------------------------------------------------------
 void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType & nedges)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      }
+
+    index = helper->GetVertexIndex(v);
     }
 
-  nedges = this->Internals->Adjacency[this->GetVertexIndex(v)].OutEdges.size();
+  nedges = this->Internals->Adjacency[index].OutEdges.size();
   if (nedges > 0)
     {
-    edges = &(this->Internals->Adjacency[this->GetVertexIndex(v)].OutEdges[0]);
+    edges = &(this->Internals->Adjacency[index].OutEdges[0]);
     }
   else
     {
@@ -235,34 +249,52 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetOutDegree(vtkIdType v)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot determine the out degree for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot determine the out degree for a non-local vertex");
+      }
+
+    index = helper->GetVertexIndex(v);
     }
-  return this->Internals->Adjacency[this->GetVertexIndex(v)].OutEdges.size();
+  return this->Internals->Adjacency[index].OutEdges.size();
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetDegree(vtkIdType v)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+ 
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot determine the degree for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot determine the degree for a non-local vertex");
+      }
+
+    index = helper->GetVertexIndex(v);
     }
-  return this->Internals->Adjacency[this->GetVertexIndex(v)].InEdges.size() +
-         this->Internals->Adjacency[this->GetVertexIndex(v)].OutEdges.size();
+
+  return this->Internals->Adjacency[index].InEdges.size() +
+         this->Internals->Adjacency[index].OutEdges.size();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+      }
     }
+
   if (it)
     {
     it->Initialize(this, v);
@@ -272,15 +304,23 @@ void vtkGraph::GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
 //----------------------------------------------------------------------------
 void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+      }
+
+    index = helper->GetVertexIndex(v);
     }
-  nedges = this->Internals->Adjacency[this->GetVertexIndex(v)].InEdges.size();
+
+  nedges = this->Internals->Adjacency[index].InEdges.size();
   if (nedges > 0)
     {
-    edges = &(this->Internals->Adjacency[this->GetVertexIndex(v)].InEdges[0]);
+    edges = &(this->Internals->Adjacency[index].InEdges[0]);
     }
   else
     {
@@ -291,21 +331,32 @@ void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType &
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetInDegree(vtkIdType v)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot determine the in degree for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot determine the in degree for a non-local vertex");
+      }
+
+    index = helper->GetVertexIndex(v);
     }
-  return this->Internals->Adjacency[this->GetVertexIndex(v)].InEdges.size();
+
+  return this->Internals->Adjacency[index].InEdges.size();
 }
 
 //----------------------------------------------------------------------------
 void vtkGraph::GetAdjacentVertices(vtkIdType v, vtkAdjacentVertexIterator *it)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot retrieve the adjacent vertices for a non-local vertex");
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the adjacent vertices for a non-local vertex");
+      }
     }
 
   if (it)
@@ -345,107 +396,6 @@ vtkIdType vtkGraph::GetNumberOfVertices()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetVertexOwner(vtkIdType v) const
-{
-  vtkIdType owner = v;
-  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-
-  if (numProcs > 1)
-    {
-    // An alternative to this obfuscated code is to provide
-    // an 'unsigned' equivalent to vtkIdType.  Could then safely
-    // do a logical right-shift of bits, e.g.:
-    //   owner = (vtkIdTypeUnsigned) v >> this->indexBits;
-    if (v & this->signBitMask)
-      {
-      owner ^= this->signBitMask;               // remove sign bit
-      vtkIdType tmp = owner >> this->indexBits; // so can right-shift
-      owner = tmp | this->highBitShiftMask;     // and append sign bit back
-      }
-    else
-      {
-      owner = v >> this->indexBits;
-      }
-    }
-  else  // numProcs = 1
-    {
-    owner = 0;
-    }
-
-  return owner;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetVertexIndex(vtkIdType v) const
-{
-  vtkIdType index = v;
-  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-
-  if (numProcs > 1)
-    {
-    // Shift off the Owner bits.  (Would a mask be faster?)
-    index = (v << this->procBits) >> this->procBits;
-    }
-  
-  return index;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetEdgeOwner(vtkIdType e_id) const
-{
-  vtkIdType owner = e_id;
-  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-
-  if (numProcs > 1)
-    {
-    if (e_id & this->signBitMask)
-      {
-      owner ^= this->signBitMask;               // remove sign bit
-      vtkIdType tmp = owner >> this->indexBits; // so can right-shift
-      owner = tmp | this->highBitShiftMask;     // and append sign bit back
-      }
-    else
-      {
-      owner = e_id >> this->indexBits;
-      }
-    }
-  else  // numProcs = 1
-    {
-    owner = 0;
-    }
-
-  return owner;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::GetEdgeIndex(vtkIdType e_id) const
-{
-  vtkIdType index = e_id;
-  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-
-  if (numProcs > 1)
-    {
-    // Shift off the Owner bits.  (Would a mask be faster?)
-    index = (e_id << this->procBits) >> this->procBits;
-    }
-  
-  return index;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGraph::MakeDistributedId(int owner, vtkIdType local)
-{
-  int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-
-  if (numProcs > 1)
-    {
-    return ((vtkIdType)owner << this->indexBits) | local;
-    }
-  
-  return local;
-}
-
-//----------------------------------------------------------------------------
 void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
 {
   if (this->Internals->DistributedHelper)
@@ -456,23 +406,6 @@ void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
     {
     this->Internals->DistributedHelper->Register(this);
     this->Internals->DistributedHelper->AttachToGraph(this);
-    
-    // Some factors and masks to help speed up encoding/decoding {owner,index}
-    int numProcs = this->Information->Get(DATA_NUMBER_OF_PIECES());
-    int tmp = numProcs - 1;
-    // The following is integer arith equiv of ceil(log2(numProcs)):
-    int numProcBits = 0;
-    while( tmp != 0 )
-      {
-      tmp >>= 1;
-      numProcBits++;
-      }
-    if (numProcs == 1)  numProcBits = 1;
-
-    this->signBitMask = (vtkIdType) 1 << ((sizeof(vtkIdType) * CHAR_BIT) - 1);
-    this->highBitShiftMask = (vtkIdType) 1 << (numProcBits - 1);
-    this->procBits = numProcBits;
-    this->indexBits = (sizeof(vtkIdType) * CHAR_BIT) - numProcBits;
     }
 }
 
@@ -483,43 +416,39 @@ vtkDistributedGraphHelper *vtkGraph::GetDistributedGraphHelper()
 }
 
 //----------------------------------------------------------------------------
-bool vtkGraph::FindVertex(const vtkVariant& pedigreeId, vtkIdType *vertex)
+vtkIdType vtkGraph::FindVertex(const vtkVariant& pedigreeId)
 {
   vtkAbstractArray *abstract = this->GetVertexData()->GetPedigreeIds();
   if (abstract == NULL)
     {
-    return false;
+    return -1;
     }
   vtkVariantArray *pedigrees = vtkVariantArray::SafeDownCast(abstract);
   if (pedigrees == NULL)
     {
-    return false;
+    return -1;
     }
 
-  vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
-  vtkIdType myRank = 0;
-  if (helper)
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-    if (helper->GetVertexOwnerByPedigreeId(pedigreeId) != myRank) 
+    vtkIdType myRank 
+      = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (helper->GetVertexOwnerByPedigreeId(pedigreeId) 
+          != myRank)
       {
       // The vertex is remote; ask the distributed graph helper to
       // find it.
-      return helper->FindVertex(pedigreeId, vertex);
+      return helper->FindVertex(pedigreeId);
       }
+    
+    vtkIdType result = pedigrees->LookupValue(pedigreeId);
+    if (result == -1)
+      return -1;
 
-    // Fall through: the vertex is stored locally.
+    return helper->MakeDistributedId(myRank, result);
     }
 
-  vtkIdType result = pedigrees->LookupValue(pedigreeId);
-  if (result == -1)
-    return false;
-
-  if (vertex)
-    {
-    *vertex = this->MakeDistributedId(myRank, result);
-    }
-  return true;
+  return pedigrees->LookupValue(pedigreeId);
 }
 
 //----------------------------------------------------------------------------
@@ -618,11 +547,6 @@ void vtkGraph::CopyStructure(vtkGraph *g)
   this->Information->Set
     (vtkDataObject::DATA_NUMBER_OF_PIECES(),
      g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
-
-  this->signBitMask = g->signBitMask;
-  this->highBitShiftMask = g->highBitShiftMask;
-  this->procBits = g->procBits;
-  this->indexBits = g->indexBits;
 }
 
 //----------------------------------------------------------------------------
@@ -676,11 +600,6 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   this->Information->Set
     (vtkDataObject::DATA_NUMBER_OF_PIECES(),
      g->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES()));
-  
-  this->signBitMask = g->signBitMask;
-  this->highBitShiftMask = g->highBitShiftMask;
-  this->procBits = g->procBits;
-  this->indexBits = g->indexBits;
 }
 
 //----------------------------------------------------------------------------
@@ -711,15 +630,15 @@ vtkIdType vtkGraph::AddVertexInternal()
 {
   this->ForceOwnership();
   this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
-  if (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()) == -1)
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    return this->Internals->Adjacency.size() - 1;
+    return helper->MakeDistributedId
+             (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
+              this->Internals->Adjacency.size() - 1);
     }
   else
     {
-    return this->MakeDistributedId
-             (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
-              this->Internals->Adjacency.size() - 1);
+    return this->Internals->Adjacency.size() - 1;
     }
 }
 
@@ -739,10 +658,15 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
       }
     }
 
-  if (this->FindVertex(pedigreeId, vertex))
+  vtkIdType existingVertex = this->FindVertex(pedigreeId);
+  if (existingVertex != -1)
     {
     // We found this vertex; nothing more to do.
-    return;
+    if (vertex)
+      {
+      *vertex = existingVertex;
+      }
+    return ;
     }
 
   // Add the vertex locally
@@ -767,12 +691,22 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
     return;
     }
 
-  pedigrees->InsertValue(this->GetVertexIndex(v), pedigreeId);
+  vtkIdType index = v;
+  if (helper)
+    {
+    index = helper->GetVertexIndex(v);
+    }
+
+  pedigrees->InsertValue(index, pedigreeId);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr)
 {
+  // TODO: This isn't going to properly deal with remote vertex
+  // addition in the presence of pedigree IDs. We need to look at the
+  // pedigree ID inside propertyArr and use that to route the vertex
+  // addition.
   this->ForceOwnership();
   this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
 
@@ -938,22 +872,28 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
 //----------------------------------------------------------------------------
 void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
 {
-  int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  if (myRank != -1 && myRank != this->GetVertexOwner(v))
+  vtkIdType index = v;
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
     {
-    vtkErrorMacro("vtkGraph cannot reorder the out vertices for a non-local vertex");
-    return;
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot reorder the out vertices for a non-local vertex");
+      return;
+      }
+
+    index = helper->GetVertexIndex(v);
     }
 
   this->ForceOwnership();
   vtksys_stl::vector<vtkOutEdgeType> outEdges;
   vtksys_stl::vector<vtkOutEdgeType>::iterator it, itEnd;
-  itEnd = this->Internals->Adjacency[v].OutEdges.end();
+  itEnd = this->Internals->Adjacency[index].OutEdges.end();
   for (vtkIdType i = 0; i < vertices->GetNumberOfTuples(); ++i)
     {
     vtkIdType vert = vertices->GetValue(i);
     // Find the matching edge
-    for (it = this->Internals->Adjacency[v].OutEdges.begin(); it != itEnd; ++it)
+    for (it = this->Internals->Adjacency[index].OutEdges.begin(); it != itEnd; ++it)
       {
       if (it->Target == vert)
         {
@@ -962,12 +902,12 @@ void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
         }
       }
     }
-  if (outEdges.size() != this->Internals->Adjacency[v].OutEdges.size())
+  if (outEdges.size() != this->Internals->Adjacency[index].OutEdges.size())
     {
     vtkErrorMacro("Invalid reorder list.");
     return;
     }
-  this->Internals->Adjacency[v].OutEdges = outEdges;
+  this->Internals->Adjacency[index].OutEdges = outEdges;
 }
 
 //----------------------------------------------------------------------------
