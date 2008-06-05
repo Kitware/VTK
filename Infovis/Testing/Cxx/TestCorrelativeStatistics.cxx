@@ -119,7 +119,7 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkStdString columnPairs[] = { "Metric 0", "Metric 1", "Metric 1", "Metric 0", "Metric 2", "Metric 1" };
   double centers[] = { 49.2188, 49.5 };
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = .2 ;
+  double threshold = .2;
 
   vtkStringArray* stdStringCol = vtkStringArray::New();
   stdStringCol->SetName( "Column X" );
@@ -278,15 +278,15 @@ int TestCorrelativeStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    vtkIdType idX = outputTable->GetValue( r, 0 ).ToInt();
-    vtkIdType idY = outputTable->GetValue( r, 1 ).ToInt();
+    vtkStdString colX = outputTable->GetValue( r, 0 ).ToString();
+    vtkStdString colY = outputTable->GetValue( r, 1 ).ToString();
     vtkIdType i = outputTable->GetValue( r, 2 ).ToInt();
     cout << "   "
          << i
          << ": ( "
-         << datasetTable->GetValue( i, idX ).ToDouble()
+         << datasetTable->GetValueByName( i, colX ).ToDouble()
          << " , "
-         << datasetTable->GetValue( i, idY ).ToDouble()
+         << datasetTable->GetValueByName( i, colY ).ToDouble()
          << " ) has a relative PDF of "
          << outputTable->GetValue( r, 3 ).ToDouble()
          << "\n";
