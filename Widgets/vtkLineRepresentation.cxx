@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.11");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -282,6 +282,16 @@ void vtkLineRepresentation::SetPoint2DisplayPosition(double x[3])
   double p[3];
   this->Point2Representation->GetWorldPosition(p);
   this->Point2Representation->SetWorldPosition(p);
+}
+
+//----------------------------------------------------------------------
+void vtkLineRepresentation::SetRenderer(vtkRenderer* ren)
+{
+  this->HandleRepresentation->SetRenderer(ren);
+  this->Point1Representation->SetRenderer(ren);
+  this->Point2Representation->SetRenderer(ren);
+  this->LineHandleRepresentation->SetRenderer(ren);
+  this->Superclass::SetRenderer(ren);
 }
 
 //----------------------------------------------------------------------
