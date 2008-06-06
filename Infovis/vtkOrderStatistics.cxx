@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.15");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.16");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -151,9 +151,9 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
 
       vtkstd::vector<double> quantileThresholds;
       double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
-      for ( int i = 0; i < this->NumberOfIntervals; ++ i )
+      for ( int j = 0; j < this->NumberOfIntervals; ++ j )
         {
-        quantileThresholds.push_back( i * dh );
+        quantileThresholds.push_back( j * dh );
         }
 
       double sum = 0;
