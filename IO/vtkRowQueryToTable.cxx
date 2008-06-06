@@ -29,7 +29,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQueryToTable, "1.3");
+vtkCxxRevisionMacro(vtkRowQueryToTable, "1.4");
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()
@@ -115,10 +115,21 @@ int vtkRowQueryToTable::RequestData(
     }
 
   // Fill the table
+  int numRows = 0;
+  float progressGuess = 0;
   vtkVariantArray* rowArray = vtkVariantArray::New();
   while (this->Query->NextRow(rowArray))
     {
     output->InsertNextRow(rowArray);
+    
+    // Update progress every 1000 rows
+    numRows++;
+    if ((numRows%1000)==0)
+      {
+      // 1% for every 1000 rows, an then 'spin around'
+      progressGuess = ((numRows/1000)%100)*.01;
+      this->UpdateProgress(progressGuess); 
+      } 
     }
   rowArray->Delete();
  
