@@ -171,9 +171,15 @@ protected:
   double PlaceFactor; // Used to control how widget is placed around bounding box
   int    Placed; // Indicate whether widget has been placed
   void   AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
-  int    ValidPick; //keep track when valid picks are made
   double InitialBounds[6]; //initial bounds on place widget (valid after PlaceWidget)
   double InitialLength; //initial length on place widget
+
+  // Sizing handles is tricky because the procedure requires information
+  // relative to the last pick, as well as a live renderer to perform
+  // coordinate conversions. In some cases, a pick is never made so handle
+  // sizing has to follow a different path. The following ivars help with
+  // this process.
+  int    ValidPick; //indicate when valid picks are made
 
   // Members use to control handle size. The two methods return a "radius"
   // in world coordinates. Note that the HandleSize data member is used
