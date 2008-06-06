@@ -40,21 +40,57 @@ class vtkCorrelativeStatisticsPrivate
 public:
   vtkCorrelativeStatisticsPrivate();
   ~vtkCorrelativeStatisticsPrivate();
+  void EffectColumnBuffer();
 
   vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> > ColumnPairs;
+  vtkStdString BufferedX;
+  vtkStdString BufferedY;
+  bool MustEffect;
+  vtkCorrelativeStatistics::EffectBufferActionType Action;
 };
 
 vtkCorrelativeStatisticsPrivate::vtkCorrelativeStatisticsPrivate()
 {
+  this->MustEffect = false;
 }
 
 vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 {
 }
 
+void vtkCorrelativeStatisticsPrivate::EffectColumnBuffer() 
+{
+  if ( ! this->MustEffect )
+    {
+    return;
+    }
+
+  switch ( this->Action )
+    {
+    case vtkCorrelativeStatistics::Reset:
+      this->ColumnPairs.clear();
+      break;
+    case vtkCorrelativeStatistics::Add:
+      {
+      vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
+                                                       this->BufferedY );
+      this->ColumnPairs.insert( namPair );
+      break;
+      }
+    case vtkCorrelativeStatistics::Remove:
+      {
+      vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
+                                                       this->BufferedY );
+      this->ColumnPairs.erase( namPair );
+      break;
+      }
+    }
+
+  this->MustEffect = false;
+}
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.11");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.12");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -79,6 +115,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkCorrelativeStatistics::ResetColumnPairs()
 {
   this->Internals->ColumnPairs.clear();
+
   this->Modified();
 }
 
@@ -92,6 +129,57 @@ void vtkCorrelativeStatistics::AddColumnPair( const char* namColX, const char* n
 
   vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
   this->Internals->ColumnPairs.insert( namPair );
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::RemoveColumnPair( const char* namColX, const char* namColY )
+{
+  vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
+  this->Internals->ColumnPairs.erase( namPair );
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::BufferColumnX( const char* namColX )
+{
+  this->Internals->BufferedX = vtkStdString( namColX );
+  this->Internals->MustEffect = true;
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::BufferColumnY( const char* namColY )
+{
+  this->Internals->BufferedY = vtkStdString( namColY );
+  this->Internals->MustEffect = true;
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::SetAction( vtkIdType action ) 
+{
+  switch ( action )
+    {
+    case vtkCorrelativeStatistics::Reset:
+      this->Internals->Action = vtkCorrelativeStatistics::Reset;
+      break;
+    case vtkCorrelativeStatistics::Add:
+      this->Internals->Action = vtkCorrelativeStatistics::Add;
+      break;
+    case vtkCorrelativeStatistics::Remove:
+      this->Internals->Action = vtkCorrelativeStatistics::Remove;
+      break;
+    default:
+      return;
+    }
+
+  this->Internals->MustEffect = true;
+
   this->Modified();
 }
 
@@ -114,6 +202,8 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );
@@ -337,6 +427,8 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
     vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );

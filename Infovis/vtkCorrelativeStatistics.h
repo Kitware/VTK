@@ -56,6 +56,16 @@ public:
   static vtkCorrelativeStatistics* New();
 
   // Description:
+  // The types of actions with which a selection buffer can be effected.
+  //BTX
+  enum EffectBufferActionType {
+    Reset  = 0, // Reset the entire selection
+    Add    = 1, // Add (if absent) the buffered pair to the selection
+    Remove = 2, // Remove (if present) the buffered pair to the selection
+    };
+  //ETX
+
+  // Description:
   // Reset list of column pairs of interest. 
   void ResetColumnPairs();
 
@@ -65,6 +75,18 @@ public:
   // Warning: no name checking is performed on \p namColX nor \p namColY; it is 
   // the user's responsibility to use valid column names.
   void AddColumnPair( const char* namColX, const char* namColY, bool reset = false );
+
+  // Description:
+  // Remove, if it is present, column name pair (\p namColX, \p namColY).
+ void RemoveColumnPair( const char* namColX, const char* namColY );
+
+  // Description:
+  // These methods are mostly provided for UI wrapping purposes. Although they can be
+  // used in vanilla VTK code, this is not the recommended approach. Please utilize
+  // AddColumnPair() instead.
+  void BufferColumnX( const char* );
+  void BufferColumnY( const char* );
+  void SetAction( vtkIdType );
 
   // Description:
   // Calculate the following unbiased estimators from the raw sums:
