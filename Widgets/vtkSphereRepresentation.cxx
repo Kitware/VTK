@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.4");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -666,7 +666,10 @@ int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport *v)
     {
     count += this->SphereActor->RenderOpaqueGeometry(v);
     }
-  count += this->HandleActor->RenderOpaqueGeometry(v);
+  if ( this->HandleVisibility )
+    {
+    count += this->HandleActor->RenderOpaqueGeometry(v);
+    }
   if ( this->RadialLine )
     {
     count += this->RadialLineActor->RenderOpaqueGeometry(v);
@@ -684,7 +687,10 @@ int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
     {
     count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
     }
-  count += this->HandleActor->RenderTranslucentPolygonalGeometry(v);
+  if ( this->HandleVisibility )
+    {
+    count += this->HandleActor->RenderTranslucentPolygonalGeometry(v);
+    }
   if ( this->RadialLine )
     {
     count += this->RadialLineActor->RenderTranslucentPolygonalGeometry(v);
@@ -716,7 +722,10 @@ int vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
     {
     result |= this->SphereActor->HasTranslucentPolygonalGeometry();
     }
-  result |= this->HandleActor->HasTranslucentPolygonalGeometry();
+  if ( this->HandleVisibility )
+    {
+    result |= this->HandleActor->HasTranslucentPolygonalGeometry();
+    }
   if ( this->HandleText )
     {
     result |= this->HandleTextActor->HasTranslucentPolygonalGeometry();
