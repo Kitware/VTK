@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.6");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -242,8 +242,9 @@ void vtkSphereRepresentation::Scale(double *p1, double *p2,
     sf = 1.0 - sf;
     }
   
-  // Make sure that the radius is valid
-  if ( sf*radius < 1.0e-03*this->InitialLength )
+  // Make sure that the radius is valid; don't let it shrink further
+  // but it can still grow in radius.
+  if ( Y < this->LastEventPosition[1] && sf*radius < 1.0e-06*this->InitialLength )
     {
     return;
     }
@@ -441,7 +442,7 @@ void vtkSphereRepresentation::SetCenter(double center[3])
 //----------------------------------------------------------------------------
 void vtkSphereRepresentation::SetRadius(double r)
 {
-  r = (r <= 0.0 ? 0.00001 : r);
+  r = (r <= this->InitialLength*1.0e-06 ? this->InitialLength*1.0e-06 : r);
   if ( r != this->SphereSource->GetRadius() )
     {
     double center[3];
