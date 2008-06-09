@@ -76,6 +76,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestParametricFunctions
       TestPlatonicSolids
       TestQuadricClustering
+      TestRandomAttributeGenerator
       TestRectilinearGridToTetrahedra
       TestRectilinearSynchronizedTemplates
       TestRegularPolygonSource
