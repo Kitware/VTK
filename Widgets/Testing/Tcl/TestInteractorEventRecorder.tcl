@@ -54,10 +54,6 @@ vtkRenderWindowInteractor iren
 # The SetInteractor method is how 3D widgets are associated with the render
 # window interactor. Internally, SetInteractor sets up a bunch of callbacks
 # using the Command/Observer mechanism (AddObserver()).
-vtkBoxWidget boxWidget
-    boxWidget SetInteractor iren
-    boxWidget SetPlaceFactor 1.25
-
 ren1 AddActor maceActor
 ren1 AddActor selectActor
 
@@ -69,9 +65,15 @@ renWin SetSize 300 300
 # Place the interactor initially. The input to a 3D widget is used to 
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
-boxWidget SetInputConnection [glyph GetOutputPort]
-boxWidget PlaceWidget
+vtkBoxRepresentation boxRep
+boxRep SetPlaceFactor  0.75
+eval boxRep PlaceWidget [[glyph GetOutput] GetBounds]
+
+vtkBoxWidget2  boxWidget
+boxWidget SetInteractor  iren  
+boxWidget SetRepresentation  boxRep  
 boxWidget AddObserver EndInteractionEvent SelectPolygons
+boxWidget SetPriority 1 
 
 # record events
 vtkInteractorEventRecorder recorder
@@ -90,10 +92,11 @@ wm withdraw .
 # This does the actual work: updates the vtkPlanes implicit function.
 # This in turn causes the pipeline to update.
 proc SelectPolygons {} {
-   boxWidget GetPlanes planes
+   boxRep GetPlanes planes
    selectActor VisibilityOn
 }
 
 recorder Play
 recorder Off
 set threshold 15
+
