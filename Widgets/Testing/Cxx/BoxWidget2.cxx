@@ -539,6 +539,7 @@ int BoxWidget2( int argc, char *argv[] )
   t->Delete();
   myCallback->Delete();
   boxWidget->Delete();
+  boxRep->Delete();
   sphere->Delete();
   cone->Delete();
   glyph->Delete();
