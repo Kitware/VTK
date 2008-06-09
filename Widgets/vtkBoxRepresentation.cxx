@@ -37,7 +37,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.6");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
@@ -616,6 +616,7 @@ void vtkBoxRepresentation::GetPlanes(vtkPlanes *planes)
     
   planes->SetPoints(this->PlanePoints);
   planes->SetNormals(this->PlaneNormals);
+  planes->Modified();
 }
 
 //----------------------------------------------------------------------------
