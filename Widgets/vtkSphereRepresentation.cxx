@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.5");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -242,6 +242,13 @@ void vtkSphereRepresentation::Scale(double *p1, double *p2,
     sf = 1.0 - sf;
     }
   
+  // Make sure that the radius is valid
+  if ( sf*radius < 1.0e-03*this->InitialLength )
+    {
+    return;
+    }
+
+  // Need to prevent radius going to zero
   this->SphereSource->SetRadius(sf*radius);
   this->HandlePosition[0] = c[0]+sf*(this->HandlePosition[0]-c[0]);
   this->HandlePosition[1] = c[1]+sf*(this->HandlePosition[1]-c[1]);
@@ -546,26 +553,31 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
 {
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
+  this->InteractionState = vtkSphereRepresentation::Outside;
   if (!this->Renderer || !this->Renderer->IsInViewport(X, Y))
     {
-    this->InteractionState = vtkSphereRepresentation::Outside;
     return this->InteractionState;
     }
   
-  vtkAssemblyPath *path;
-
   // Try and pick a handle first. This allows the picking of the handle even
   // if it is "behind" the sphere.
-  this->HandlePicker->Pick(X,Y,0.0,this->Renderer);
-  path = this->HandlePicker->GetPath();
-  if ( path != NULL )
+  vtkAssemblyPath *path;
+  int handlePicked = 0;
+  if ( this->HandleVisibility || this->HandleText || this->RadialLine )
     {
-    this->ValidPick = 1;
-    this->InteractionState = vtkSphereRepresentation::MovingHandle;
-    this->HandleSource->GetCenter(this->LastPickPosition);
-    this->HandleSource->GetCenter(this->HandlePosition);
+    this->HandlePicker->Pick(X,Y,0.0,this->Renderer);
+    path = this->HandlePicker->GetPath();
+    if ( path != NULL )
+      {
+      this->ValidPick = 1;
+      this->InteractionState = vtkSphereRepresentation::MovingHandle;
+      this->HandleSource->GetCenter(this->LastPickPosition);
+      this->HandleSource->GetCenter(this->HandlePosition);
+      handlePicked = 1;
+      }
     }
-  else
+  
+  if ( ! handlePicked )
     {
     this->SpherePicker->Pick(X,Y,0.0,this->Renderer);
     path = this->SpherePicker->GetPath();
@@ -574,10 +586,6 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
       this->ValidPick = 1;
       this->InteractionState = vtkSphereRepresentation::OnSphere;
       this->SpherePicker->GetPickPosition(this->LastPickPosition);
-      }
-    else
-      {
-      this->InteractionState = vtkSphereRepresentation::Outside;
       }
     }
 
