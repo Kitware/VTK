@@ -521,7 +521,7 @@ int BoxWidget2( int argc, char *argv[] )
   //
   iren->Initialize();
   renWin->Render();
-//  recorder->Play();
+  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

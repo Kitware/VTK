@@ -2,6 +2,7 @@ SET(KIT Widgets)
 # add tests that do not require data
 SET(MyTests     
   BoxWidget.cxx
+  BoxWidget2.cxx
 #  TestAffineWidget.cxx
 #  TestAngleWidget.cxx
 #  TestBalloonWidget.cxx
@@ -55,6 +56,7 @@ ENDIF (VTK_DATA_ROOT)
 IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests     
     BoxWidget.cxx
+    BoxWidget2.cxx
     ImagePlaneWidget.cxx
     TestContourWidget2.cxx
     TestImageTracerWidget.cxx
