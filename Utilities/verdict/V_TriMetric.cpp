@@ -213,10 +213,10 @@ C_FUNC_DEF double v_tri_aspect_ratio( int /*num_nodes*/, double coordinates[][3]
    the radius ratio of a triangle
 
    NB (P. Pebay 01/13/07): 
-     CR / (3.0*IR) where CR is the circumradius and IR is the inradius
+     CR / (2.0*IR) where CR is the circumradius and IR is the inradius
 
-     this quality function is also known to VERDICT, for tetrahedral elements only,
-     a the "aspect beta"
+     The radius ratio is also known to VERDICT, for tetrahedral elements only,
+     as the "aspect beta".
    
 */
 C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
