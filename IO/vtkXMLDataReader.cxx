@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.35");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.36");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -206,8 +206,7 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
   {
-  vtkInformation *localInfo = 
-    this->GetExecutive()->GetOutputInformation( port );
+  vtkInformation *localInfo = this->GetCurrentOutputInformation();
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );
@@ -306,8 +305,9 @@ void vtkXMLDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
+  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
+  vtkPointData* pointData = output->GetPointData();
+  vtkCellData* cellData = output->GetCellData();
   
   // Get the size of the output arrays.
   unsigned long pointTuples = this->GetNumberOfPoints();
@@ -451,8 +451,10 @@ int vtkXMLDataReader::ReadPieceData(int piece)
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadPieceData()
 {
-  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
+  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
+
+  vtkPointData* pointData = output->GetPointData();
+  vtkCellData* cellData = output->GetCellData();
   vtkXMLDataElement* ePointData = this->PointDataElements[this->Piece];
   vtkXMLDataElement* eCellData = this->CellDataElements[this->Piece];
   
@@ -554,7 +556,7 @@ void vtkXMLDataReader::ReadXMLData()
   if (this->FieldDataElement) // read the field data information
     {
     int i, numTuples;
-    vtkFieldData *fieldData = this->GetOutputDataObject(0)->GetFieldData();
+    vtkFieldData *fieldData = this->GetCurrentOutput()->GetFieldData();
     for(i=0; i < this->FieldDataElement->GetNumberOfNestedElements() &&
              !this->AbortExecute; i++)
       {

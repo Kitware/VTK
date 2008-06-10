@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.49");
+vtkCxxRevisionMacro(vtkXMLReader, "1.50");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -85,7 +85,6 @@ vtkXMLReader::vtkXMLReader()
   this->InformationError = 0;
   this->DataError = 0;
   this->ReadError = 0;
-  this->CurrentOutput = -1;
   this->ProgressRange[0] = 0;
   this->ProgressRange[1] = 1;
   
@@ -117,6 +116,8 @@ vtkXMLReader::vtkXMLReader()
 
   this->FileMinorVersion = -1;
   this->FileMajorVersion = -1;
+  
+  this->CurrentOutput = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -328,7 +329,6 @@ int vtkXMLReader::ReadXMLInformation()
     // reported by OpenVTKFile.
     if(!this->OpenVTKFile())
       {
-      this->SetupEmptyOutput();
       return 0;
       }
 
@@ -358,7 +358,6 @@ int vtkXMLReader::ReadXMLInformation()
       // The output should be empty to prevent the rest of the pipeline
       // from executing.
       this->ReadError = 1;
-      this->SetupEmptyOutput();
       }
 
     // Close the file to prevent resource leaks.
@@ -437,20 +436,12 @@ int vtkXMLReader::RequestData(vtkInformation *request,
                               vtkInformationVector **vtkNotUsed(inputVector),
                               vtkInformationVector *outputVector)
 {
-  // Set which output we are updating.  If the given object is not one
-  // of our outputs, just initialize it to empty and return.
-  this->CurrentOutput = request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
-  if(this->CurrentOutput < 0)
-    {
-    this->GetExecutive()->GetOutputData(0)->Initialize();
-    return 0;
-    }
-
   this->CurrentTimeStep = this->TimeStep;
 
   // Get the output pipeline information and data object.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  this->CurrentOutput = output;
 
   // Save the time value in the output data information.
   double* steps =
@@ -496,6 +487,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
   if(!this->OpenVTKFile())
     {
     this->SetupEmptyOutput();
+    this->CurrentOutput = 0;
     return 0;
     }
   if(!this->XMLParser)
@@ -527,13 +519,13 @@ int vtkXMLReader::RequestData(vtkInformation *request,
     // If we aborted or there was an error, provide empty output.
     if(this->DataError || this->AbortExecute)
       {
-      this->GetOutputAsDataSet(this->CurrentOutput)->Initialize();
+      this->SetupEmptyOutput();
       }
     }
   else
     {
     // There was an error reading the file.  Provide empty output.
-    this->GetOutputAsDataSet(this->CurrentOutput)->Initialize();
+    this->SetupEmptyOutput();
     }
   
   // We have finished reading.
@@ -547,6 +539,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
     this->TimeStepWasReadOnce = 1; 
     }
 
+  this->CurrentOutput = 0;
   return 1;
 }
 
@@ -641,11 +634,7 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLReader::SetupOutputData()
 {
   // Initialize the output.
-  int i;
-  for(i=0; i < this->GetNumberOfOutputPorts(); ++i)
-    {
-    this->GetExecutive()->GetOutputData(i)->Initialize();
-    }
+  this->CurrentOutput->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -1135,6 +1124,8 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
+  this->CurrentOutputInformation =
+    outputVector->GetInformationObject(0);
   // FIXME This piece of code should be rewritten to handle at the same
   // time Pieces and TimeSteps. The REQUEST_DATA_NOT_GENERATED should
   // ideally be changed during execution, so that allocation still
@@ -1144,10 +1135,8 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
     request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    if ( this->CurrentOutput == 0)
-      {
-      outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
-      }
+    outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+    this->CurrentOutputInformation = 0;
     return 1;
     }
   // END FIXME 
@@ -1155,30 +1144,41 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    return this->RequestData(request, inputVector, outputVector);
+    int retVal = this->RequestData(request, inputVector, outputVector);
+    this->CurrentOutputInformation = 0;
+    return retVal;
     }
 
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
     {
-    return this->RequestDataObject(request, inputVector, outputVector);
+    int retVal = this->RequestDataObject(request, inputVector, outputVector);
+    this->CurrentOutputInformation = 0;
+    return retVal;
     }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    return this->RequestInformation(request, inputVector, outputVector);
+    int retVal = this->RequestInformation(request, inputVector, outputVector);
+    this->CurrentOutputInformation = 0;
+    return retVal;
     }
 
   // return UE info
   if(request->Has
      (vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT_INFORMATION()))
     {
-    return this->RequestUpdateExtentInformation(request, 
-                                                inputVector, outputVector);
+    int retVal = this->RequestUpdateExtentInformation(request, 
+        inputVector, outputVector);
+    this->CurrentOutputInformation = 0;
+    return retVal;
     }
 
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  int retVal = 
+    this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  this->CurrentOutputInformation = 0;
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
@@ -1207,3 +1207,14 @@ int vtkXMLReader::IsTimeStepInArray(int timestep, int* timesteps, int length)
   return 0;
 }
 
+//----------------------------------------------------------------------------
+vtkDataObject* vtkXMLReader::GetCurrentOutput()
+{
+  return this->CurrentOutput;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkXMLReader::GetCurrentOutputInformation()
+{
+  return this->CurrentOutputInformation;
+}

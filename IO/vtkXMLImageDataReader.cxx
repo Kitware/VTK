@@ -22,18 +22,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.12");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
 vtkXMLImageDataReader::vtkXMLImageDataReader()
 {
-  vtkImageData *output = vtkImageData::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -45,12 +39,6 @@ vtkXMLImageDataReader::~vtkXMLImageDataReader()
 void vtkXMLImageDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLImageDataReader::SetOutput(vtkImageData *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -75,7 +63,7 @@ const char* vtkXMLImageDataReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLImageDataReader::SetOutputExtent(int* extent)
 {
-  this->GetOutput()->SetExtent(extent);
+  vtkImageData::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -118,7 +106,7 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+  vtkInformation *localInfo = this->GetCurrentOutputInformation();
   
   if ( localInfo->Has(vtkDataObject::ORIGIN()) )
     {

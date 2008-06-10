@@ -30,19 +30,12 @@
 #include "vtkIntArray.h"
 #include "vtkFieldData.h"
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.4");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeReader, "1.5");
 vtkStandardNewMacro(vtkXMLHyperOctreeReader);
 
 //----------------------------------------------------------------------------
 vtkXMLHyperOctreeReader::vtkXMLHyperOctreeReader()
 {
-  // Copied from vtkHyperOctreeReader constructor:
-  vtkHyperOctree *output = vtkHyperOctree::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -54,12 +47,6 @@ vtkXMLHyperOctreeReader::~vtkXMLHyperOctreeReader()
 void vtkXMLHyperOctreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLHyperOctreeReader::SetOutput(vtkHyperOctree *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +70,7 @@ const char* vtkXMLHyperOctreeReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLHyperOctreeReader::SetupEmptyOutput()
 {
-  this->GetOutputAsDataSet(0)->SetUpdateExtent(0, 0);
+  this->GetCurrentOutput()->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -96,13 +83,13 @@ int vtkXMLHyperOctreeReader::FillOutputPortInformation(int, vtkInformation *info
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLHyperOctreeReader::GetNumberOfPoints() 
 {
-  return this->GetOutput()->GetNumberOfPoints();
+  return vtkDataSet::SafeDownCast(this->GetCurrentOutput())->GetNumberOfPoints();
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLHyperOctreeReader::GetNumberOfCells()
 {
-  return this->GetOutput()->GetNumberOfCells();
+  return vtkDataSet::SafeDownCast(this->GetCurrentOutput())->GetNumberOfCells();
 }
 
 //----------------------------------------------------------------------------
@@ -162,7 +149,8 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
     Origin[2] = 0;
     } 
 
-  vtkHyperOctree *output = this->GetOutput();
+  vtkHyperOctree *output = vtkHyperOctree::SafeDownCast(
+      this->GetCurrentOutput());
   output->SetDimension(Dimension);
   output->SetSize(Size);
   output->SetOrigin(Origin);
@@ -252,7 +240,8 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   this->SetProgressRange(progressRange, 1, fractions);
 
   //Restore the topology from the vtkIntArray. Do it recursively, cell by cell.
-  vtkHyperOctreeCursor *cursor=this->GetOutput()->NewCellCursor();
+  vtkHyperOctreeCursor *cursor=vtkHyperOctree::SafeDownCast(
+      this->GetCurrentOutput())->NewCellCursor();
   cursor->ToRoot();
   //Where in the array we need to read from next.
   this->ArrayIndex = 0; 
@@ -286,14 +275,14 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
     {
     //terminal node
     //subdivide but stop there
-    this->GetOutput()->SubdivideLeaf(cursor); 
+    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor); 
     }
 */
   else
     {
     //internal node
     //subdivide
-    this->GetOutput()->SubdivideLeaf(cursor); 
+    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor); 
     //then keep going down
     int i=0;
     while(i<nchildren)

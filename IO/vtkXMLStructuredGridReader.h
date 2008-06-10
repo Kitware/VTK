@@ -38,8 +38,7 @@ public:
   static vtkXMLStructuredGridReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkStructuredGrid *output);
+  // Get the reader's output.
   vtkStructuredGrid *GetOutput();
   vtkStructuredGrid *GetOutput(int idx);
 

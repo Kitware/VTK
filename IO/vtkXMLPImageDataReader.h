@@ -38,8 +38,7 @@ public:
   static vtkXMLPImageDataReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkImageData *output);
+  // Get the reader's output.
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
   
@@ -55,7 +54,8 @@ protected:
   double Spacing[3];
   
   vtkImageData* GetPieceInput(int index);
-  
+
+  void SetupEmptyOutput();
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);

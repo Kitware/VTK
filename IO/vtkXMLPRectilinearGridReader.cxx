@@ -22,19 +22,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPRectilinearGridReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLPRectilinearGridReader, "1.13");
 vtkStandardNewMacro(vtkXMLPRectilinearGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPRectilinearGridReader::vtkXMLPRectilinearGridReader()
 {
-  // Copied from vtkRectilinearGridReader constructor:
-  vtkRectilinearGrid *output = vtkRectilinearGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -49,9 +42,9 @@ void vtkXMLPRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPRectilinearGridReader::SetOutput(vtkRectilinearGrid *output)
+void vtkXMLPRectilinearGridReader::SetupEmptyOutput()
 {
-  this->GetExecutive()->SetOutputData(0, output);
+  this->GetCurrentOutput()->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +76,7 @@ const char* vtkXMLPRectilinearGridReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLPRectilinearGridReader::SetOutputExtent(int* extent)
 {
-  this->GetOutput()->SetExtent(extent);
+  vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -116,7 +109,7 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   if(!this->PCoordinatesElement)
     {
     int extent[6];
-    this->GetOutput()->GetWholeExtent(extent);
+    vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->GetWholeExtent(extent);
     if((extent[0] <= extent[1]) && (extent[2] <= extent[3]) &&
        (extent[4] <= extent[5]))
       {
@@ -141,7 +134,8 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
     }
 
   // Allocate the coordinate arrays.
-  vtkRectilinearGrid* output = this->GetOutput();  
+  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
+      this->GetCurrentOutput());  
 
   vtkXMLDataElement* xc = this->PCoordinatesElement->GetNestedElement(0);
   vtkXMLDataElement* yc = this->PCoordinatesElement->GetNestedElement(1);
@@ -183,7 +177,8 @@ int vtkXMLPRectilinearGridReader::ReadPieceData()
   
   // Copy the coordinates arrays from the input piece.
   vtkRectilinearGrid* input = this->GetPieceInput(this->Piece);
-  vtkRectilinearGrid* output = this->GetOutput();
+  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
+      this->GetCurrentOutput());
   this->CopySubCoordinates(this->SubPieceExtent, this->UpdateExtent,
                            this->SubExtent, input->GetXCoordinates(),
                            output->GetXCoordinates());

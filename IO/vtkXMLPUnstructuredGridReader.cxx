@@ -24,19 +24,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.10");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredGridReader::vtkXMLPUnstructuredGridReader()
 {
-  // Copied from vtkUnstructuredGridReader constructor:
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -48,12 +41,6 @@ vtkXMLPUnstructuredGridReader::~vtkXMLPUnstructuredGridReader()
 void vtkXMLPUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLPUnstructuredGridReader::SetOutput(vtkUnstructuredGrid *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -79,7 +66,13 @@ void vtkXMLPUnstructuredGridReader::GetOutputUpdateExtent(int& piece,
                                                           int& numberOfPieces,
                                                           int& ghostLevel)
 {
-  this->GetOutput()->GetUpdateExtent(piece, numberOfPieces, ghostLevel);
+  vtkInformation* outInfo = this->GetCurrentOutputInformation();
+  piece = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numberOfPieces = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------
@@ -106,7 +99,8 @@ void vtkXMLPUnstructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   
-  vtkUnstructuredGrid* output = this->GetOutput();
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
+    this->GetCurrentOutput());
   
   // Setup the output's cell arrays.
   vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
@@ -140,7 +134,8 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   
   vtkPointSet* ips = this->GetPieceInputAsPointSet(this->Piece);
   vtkUnstructuredGrid* input = static_cast<vtkUnstructuredGrid*>(ips);
-  vtkUnstructuredGrid* output = this->GetOutput();  
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
+      this->GetCurrentOutput());  
   
   // Save the start location where the new cell connectivity will be
   // appended.

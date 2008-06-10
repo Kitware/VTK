@@ -38,8 +38,7 @@ public:
   static vtkXMLPPolyDataReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkPolyData *output);
+  // Get the reader's output.
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
   

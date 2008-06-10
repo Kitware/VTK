@@ -22,19 +22,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.13");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.14");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 {
-  // Copied from vtkRectilinearGridReader constructor:
-  vtkRectilinearGrid *output = vtkRectilinearGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
   this->CoordinateElements = 0;
 }
 
@@ -51,12 +44,6 @@ vtkXMLRectilinearGridReader::~vtkXMLRectilinearGridReader()
 void vtkXMLRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLRectilinearGridReader::SetOutput(vtkRectilinearGrid *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -80,7 +67,7 @@ const char* vtkXMLRectilinearGridReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLRectilinearGridReader::SetOutputExtent(int* extent)
 {
-  this->GetOutput()->SetExtent(extent);
+  vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -145,7 +132,8 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
     }
 
   // Allocate the coordinate arrays.
-  vtkRectilinearGrid* output = this->GetOutput();  
+  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
+      this->GetCurrentOutput());
 
   vtkXMLDataElement* xc = this->CoordinateElements[0]->GetNestedElement(0);
   vtkXMLDataElement* yc = this->CoordinateElements[0]->GetNestedElement(1);
@@ -233,7 +221,8 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
   vtkXMLDataElement* yc = this->CoordinateElements[index]->GetNestedElement(1);
   vtkXMLDataElement* zc = this->CoordinateElements[index]->GetNestedElement(2);
   int* pieceExtent = this->PieceExtents + index*6;
-  vtkRectilinearGrid* output = this->GetOutput();
+  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
+      this->GetCurrentOutput());
   int result = 1;
   
   // Set the range of progress for the X coordinates array.

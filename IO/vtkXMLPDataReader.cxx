@@ -28,7 +28,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.19");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.20");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -83,7 +83,7 @@ vtkDataSet* vtkXMLPDataReader::GetPieceInputAsDataSet(int piece)
     {
     return 0;
     }
-  return static_cast<vtkDataSet*>(reader->GetExecutive()->GetOutputData(0));
+  return static_cast<vtkDataSet*>(reader->GetOutputDataObject(0));
 }
 
 
@@ -95,8 +95,9 @@ void vtkXMLPDataReader::SetupOutputData()
   // Setup the output arrays.
   vtkXMLDataElement* ePointData = this->PPointDataElement;
   vtkXMLDataElement* eCellData = this->PCellDataElement;
-  vtkPointData* pointData = this->GetOutputAsDataSet(0)->GetPointData();
-  vtkCellData* cellData = this->GetOutputAsDataSet(0)->GetCellData();
+  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
+  vtkPointData* pointData = output->GetPointData();
+  vtkCellData* cellData = output->GetCellData();
   
   // Get the size of the output arrays.
   unsigned long pointTuples = this->GetNumberOfPoints();
@@ -213,7 +214,7 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
 //----------------------------------------------------------------------------
 void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
   {
-  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+  vtkInformation *localInfo = this->GetCurrentOutputInformation();
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );
@@ -378,7 +379,7 @@ int vtkXMLPDataReader::ReadPieceData(int index)
 int vtkXMLPDataReader::ReadPieceData()
 {
   vtkDataSet* input = this->GetPieceInputAsDataSet(this->Piece);
-  vtkDataSet* output = this->GetOutputAsDataSet(0);
+  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
   
   // copy any field data
   if (input->GetFieldData())

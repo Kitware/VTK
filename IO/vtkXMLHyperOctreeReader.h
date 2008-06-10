@@ -40,8 +40,7 @@ public:
   static vtkXMLHyperOctreeReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkHyperOctree *output);
+  // Get the reader's output.
   vtkHyperOctree *GetOutput();
   vtkHyperOctree *GetOutput(int idx);
   

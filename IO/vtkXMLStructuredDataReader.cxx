@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.26");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.27");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -68,7 +68,9 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
     {
     // Set the output's whole extent.
-    this->GetOutputAsDataSet(0)->SetWholeExtent(extent);
+    vtkInformation* outInfo = this->GetCurrentOutputInformation();
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+        extent, 6);
 
     // Check each axis to see if it has cells.
     for(int a=0; a < 3; ++a)
@@ -94,7 +96,7 @@ vtkXMLStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
   this->Superclass::CopyOutputInformation(outInfo, port);
 
   // All structured data has a whole extent.
-  vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
+  vtkInformation* localInfo = this->GetCurrentOutputInformation();
   if(localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
     {
     outInfo->CopyEntry(localInfo,
@@ -105,9 +107,7 @@ vtkXMLStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataReader::SetupEmptyOutput()
 {
-  // Special extent to indicate no input.
-  this->GetOutputAsDataSet(0)->SetWholeExtent(0, -1, 0, -1, 0, -1);
-  this->GetOutputAsDataSet(0)->SetUpdateExtent(0, -1, 0, -1, 0, -1);
+  this->GetCurrentOutput()->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -206,7 +206,9 @@ int vtkXMLStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 void vtkXMLStructuredDataReader::ReadXMLData()
 {
   // Get the requested Update Extent.
-  this->GetOutputAsDataSet(0)->GetUpdateExtent(this->UpdateExtent);
+  vtkInformation* outInfo = this->GetCurrentOutputInformation();
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      this->UpdateExtent);
   
   vtkDebugMacro("Updating extent "
                 << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "

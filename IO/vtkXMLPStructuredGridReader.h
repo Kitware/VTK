@@ -38,8 +38,7 @@ public:
   static vtkXMLPStructuredGridReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkStructuredGrid *output);
+  // Get the reader's output.
   vtkStructuredGrid *GetOutput();
 
   // Description:
@@ -51,7 +50,8 @@ protected:
   ~vtkXMLPStructuredGridReader();
   
   vtkStructuredGrid* GetPieceInput(int index);
-  
+
+  void SetupEmptyOutput();
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);

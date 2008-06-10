@@ -21,19 +21,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.13");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredGridReader::vtkXMLStructuredGridReader()
 {
-  // Copied from vtkStructuredGridReader constructor:
-  vtkStructuredGrid *output = vtkStructuredGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
   this->PointElements = 0;
 }
 
@@ -47,12 +40,6 @@ vtkXMLStructuredGridReader::~vtkXMLStructuredGridReader()
 void vtkXMLStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLStructuredGridReader::SetOutput(vtkStructuredGrid *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -77,7 +64,7 @@ const char* vtkXMLStructuredGridReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridReader::SetOutputExtent(int* extent)
 {
-  this->GetOutput()->SetExtent(extent);
+  vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -165,7 +152,7 @@ void vtkXMLStructuredGridReader::SetupOutputData()
       }
     }
   
-  this->GetOutput()->SetPoints(points);
+  vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
 }
 
@@ -216,7 +203,8 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Read the points array.
-  vtkStructuredGrid* output = this->GetOutput();
+  vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
+      this->GetCurrentOutput());
   vtkXMLDataElement* ePoints = this->PointElements[this->Piece];
   return this->ReadArrayForPoints(ePoints->GetNestedElement(0),
                                   output->GetPoints()->GetData());

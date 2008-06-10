@@ -23,18 +23,12 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.11");
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPImageDataReader::vtkXMLPImageDataReader()
 {
-  vtkImageData *output = vtkImageData::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -46,12 +40,6 @@ vtkXMLPImageDataReader::~vtkXMLPImageDataReader()
 void vtkXMLPImageDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLPImageDataReader::SetOutput(vtkImageData *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -81,9 +69,15 @@ const char* vtkXMLPImageDataReader::GetDataSetName()
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLPImageDataReader::SetupEmptyOutput()
+{
+  this->GetCurrentOutput()->Initialize();
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLPImageDataReader::SetOutputExtent(int* extent)
 {
-  this->GetOutput()->SetExtent(extent);
+  vtkImageData::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -132,7 +126,7 @@ void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
   {
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+  vtkInformation *localInfo = this->GetCurrentOutputInformation();
 
   if ( localInfo->Has(vtkDataObject::ORIGIN()) )
     {

@@ -38,8 +38,7 @@ public:
   static vtkXMLPRectilinearGridReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkRectilinearGrid *output);
+  // Get the reader's output.
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
   
@@ -48,7 +47,8 @@ protected:
   ~vtkXMLPRectilinearGridReader();
   
   vtkRectilinearGrid* GetPieceInput(int index);
-  
+
+  void SetupEmptyOutput();
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   void GetPieceInputExtent(int index, int* extent);

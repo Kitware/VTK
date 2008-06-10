@@ -38,8 +38,7 @@ public:
   static vtkXMLUnstructuredGridReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkUnstructuredGrid *output);
+  // Get the reader's output.
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
 

@@ -24,20 +24,12 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.11");
 vtkStandardNewMacro(vtkXMLPolyDataReader);
 
 //----------------------------------------------------------------------------
 vtkXMLPolyDataReader::vtkXMLPolyDataReader()
 {
-  // Copied from vtkPolyDataReader constructor:
-  vtkPolyData *output = vtkPolyData::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  output->ReleaseData();
-  output->Delete();
-  
   this->VertElements = 0;
   this->LineElements = 0;
   this->StripElements = 0;
@@ -71,12 +63,6 @@ vtkXMLPolyDataReader::~vtkXMLPolyDataReader()
 void vtkXMLPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLPolyDataReader::SetOutput(vtkPolyData *output)
-{
-  this->GetExecutive()->SetOutputData(0, output);
 }
 
 //----------------------------------------------------------------------------
@@ -126,7 +112,13 @@ void vtkXMLPolyDataReader::GetOutputUpdateExtent(int& piece,
                                                  int& numberOfPieces,
                                                  int& ghostLevel)
 {
-  this->GetOutput()->GetUpdateExtent(piece, numberOfPieces, ghostLevel);
+  vtkInformation* outInfo = this->GetCurrentOutputInformation();
+  piece = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numberOfPieces= outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------
@@ -207,7 +199,7 @@ vtkIdType vtkXMLPolyDataReader::GetNumberOfCellsInPiece(int piece)
 void vtkXMLPolyDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  vtkPolyData* output = this->GetOutput();
+  vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
   
   // Setup the output's cell arrays.  
   vtkCellArray* outVerts = vtkCellArray::New();
@@ -345,7 +337,7 @@ int vtkXMLPolyDataReader::ReadPieceData()
     return 0;
     }
   
-  vtkPolyData* output = this->GetOutput();
+  vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
   
   // Set the range of progress for the Verts.
   this->SetProgressRange(progressRange, 1, fractions);

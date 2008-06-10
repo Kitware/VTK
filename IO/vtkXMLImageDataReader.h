@@ -38,8 +38,7 @@ public:
   static vtkXMLImageDataReader *New();
   
   // Description:
-  // Get/Set the reader's output.
-  void SetOutput(vtkImageData *output);
+  // Get the reader's output.
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
 

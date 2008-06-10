@@ -66,7 +66,6 @@ protected:
   
   void SetupOutputData();
 
-  void SetupEmptyOutput();
   void SetupPieces(int numPieces);
   void DestroyPieces();
   int ReadPiece(vtkXMLDataElement* ePiece);
@@ -99,7 +98,11 @@ protected:
   
   // Information per-piece.
   int* PieceExtents;
-  
+
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
+
 private:
   vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&);  // Not implemented.
   void operator=(const vtkXMLPStructuredDataReader&);  // Not implemented.
