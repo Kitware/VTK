@@ -41,7 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.7");
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -693,4 +693,39 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Projection Normal: ";
+  if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::XAxis )
+    {
+    os << "XAxis\n";
+    }
+  else if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::YAxis )
+    {
+    os << "YAxis\n";
+    }
+  else if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::ZAxis )
+    {
+    os << "ZAxis\n";
+    }
+  else //if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::Oblique )
+    {
+    os << "Oblique\n";
+    }
+  
+  os << indent << "Active Property: ";
+  this->ActiveProperty->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
+
+  os << indent << "Property: ";
+  this->Property->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Selected Property: ";
+  this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Oblique Plane: ";
+  this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Bounding Planes: ";
+  this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
+
 }
