@@ -56,16 +56,6 @@ public:
   static vtkCorrelativeStatistics* New();
 
   // Description:
-  // The types of actions with which a selection buffer can be effected.
-  //BTX
-  enum EffectBufferActionType {
-    Reset  = 0, // Reset the entire selection
-    Add    = 1, // Add (if absent) the buffered pair to the selection
-    Remove = 2, // Remove (if present) the buffered pair to the selection
-    };
-  //ETX
-
-  // Description:
   // Reset list of column pairs of interest. 
   void ResetColumnPairs();
 

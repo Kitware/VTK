@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.16");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.17");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -73,6 +73,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -258,6 +260,8 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );

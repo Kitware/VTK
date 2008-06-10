@@ -58,6 +58,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // The types of actions with which a column selection buffer can be effected.
+  //BTX
+  enum EffectBufferActionType {
+    Reset  = 0, // Empty the column selection
+    Add    = 1, // Add (if absent) the buffered column(s) to the selection
+    Remove = 2, // Remove (if present) the buffered column(s) to the selection
+    };
+  //ETX
+
+  // Description:
   // The execution mode of the statistics algorithm.
   //BTX
   enum ExecutionModeType {

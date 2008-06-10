@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.16");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.17");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -78,6 +78,8 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -234,6 +236,8 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
+
+  this->Internals->EffectColumnBuffer();
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
