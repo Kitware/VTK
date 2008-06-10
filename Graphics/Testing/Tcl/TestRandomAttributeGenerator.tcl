@@ -9,6 +9,10 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
+# Force a starting random value
+vtkMath raMath
+raMath RandomSeed 6
+
 # Generate random attributes on a plane
 #
 vtkPlaneSource ps 
@@ -65,4 +69,3 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
