@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.12");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -813,6 +813,25 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
+  if ( this->EndPointProperty )
+    {
+    os << indent << "End Point Property: " << this->EndPointProperty << "\n";
+    }
+  else
+    {
+    os << indent << "End Point Property: (none)\n";
+    }
+  if ( this->SelectedEndPointProperty )
+    {
+    os << indent << "Selected End Point Property: " << this->SelectedEndPointProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected End Point Property: (none)\n";
+    }
+
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+
   os << indent << "Constrain To Bounds: "
      << (this->ClampToBounds ? "On\n" : "Off\n");
 
@@ -827,6 +846,19 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << pt2[0] << ", "
                                << pt2[1] << ", "
                                << pt2[2] << ")\n";
+
+  os << indent << "Point1 Representation: ";
+  this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Point2 Representation: ";
+  this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Line Handle Representation: ";
+  this->LineHandleRepresentation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Representation State: " << this->RepresentationState << "\n";
+  
 }
+
 
 

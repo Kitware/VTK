@@ -320,6 +320,7 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
  
   os << indent << "ProcessEvents: " 
     << (this->ProcessEvents? "On" : "Off") << "\n";
+
   if ( this->WidgetRep )
     {
     os << indent << "Widget Representation: " << this->WidgetRep << "\n";
@@ -328,4 +329,9 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Widget Representation: (none)\n";
     }
+
+  os << indent << "Manages Cursor: " 
+    << (this->ManagesCursor? "On" : "Off") << "\n";
+
+  os << indent << "Parent: " << this->Parent << "\n";
 }
