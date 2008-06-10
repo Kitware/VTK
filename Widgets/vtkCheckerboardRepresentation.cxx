@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkCheckerboardRepresentation, "1.6");
 vtkStandardNewMacro(vtkCheckerboardRepresentation);
 
 vtkCxxSetObjectMacro(vtkCheckerboardRepresentation,Checkerboard,vtkImageCheckerboard);
@@ -364,4 +364,17 @@ void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     }
   
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
+
+  os << indent << "Top Representation\n";
+  this->TopRepresentation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Bottom Representation\n";
+  this->BottomRepresentation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Right Representation\n";
+  this->RightRepresentation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Left Representation\n";
+  this->LeftRepresentation->PrintSelf(os,indent.GetNextIndent());
+
 }
