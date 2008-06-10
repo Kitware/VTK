@@ -235,9 +235,9 @@ C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3]
                    coordinates[0][1] - coordinates[2][1],
                    coordinates[0][2] - coordinates[2][2] );
 
-  double a2 = a.length_squared();
-  double b2 = b.length_squared();
-  double c2 = c.length_squared();
+  double a1 = a.length();
+  double b1 = b.length();
+  double c1 = c.length();
  
   VerdictVector ab = a * b;
   double denominator = ab.length_squared();
@@ -246,7 +246,7 @@ C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3]
     return (double)VERDICT_DBL_MAX;
 
   double radius_ratio;
-  radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
+  radius_ratio = .25 * a1 * b1 * c1 * ( a1 + b1 + c1 ) / denominator;
   
   if( radius_ratio > 0 )
     return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
