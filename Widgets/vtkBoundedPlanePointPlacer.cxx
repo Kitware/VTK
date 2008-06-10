@@ -26,7 +26,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.8");
+vtkCxxRevisionMacro(vtkBoundedPlanePointPlacer, "1.9");
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
@@ -388,4 +388,26 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Projection Normal: ";
+  if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::XAxis )
+    {
+    os << "XAxis\n";
+    }
+  else if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::YAxis )
+    {
+    os << "YAxis\n";
+    }
+  else if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::ZAxis )
+    {
+    os << "ZAxis\n";
+    }
+  else //if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::Oblique )
+    {
+    os << "Oblique\n";
+    }
+  
+  os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
+
+  os << indent << "Bounding Planes:\n";
+  this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
 }
