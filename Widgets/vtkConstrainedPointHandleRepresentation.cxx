@@ -41,7 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkConstrainedPointHandleRepresentation, "1.8");
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -723,9 +723,22 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
   this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Oblique Plane: ";
-  this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
+  if ( this->ObliquePlane )
+    {
+    this->ObliquePlane->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 
   os << indent << "Bounding Planes: ";
-  this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
-
+  if ( this->BoundingPlanes )
+    {
+    this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
 }
