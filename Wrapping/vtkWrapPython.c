@@ -1342,17 +1342,17 @@ static void create_class_doc(FILE *fp, FileInfo *data)
 
   if (data->SeeAlso)
     {
-    char *dup, *tok;
+    char *sdup, *tok;
     
     fprintf(fp,"  \"See Also:\\n\\n");
-    dup = strdup(data->SeeAlso);
-    tok = strtok(dup," ");
+    sdup = strdup(data->SeeAlso);
+    tok = strtok(sdup," ");
     while (tok)
       {
       fprintf(fp," %s",quote_string(tok,120));
       tok = strtok(NULL," ");
       }
-    free(dup);
+    free(sdup);
     fprintf(fp,"\\n\",\n");
     }
 

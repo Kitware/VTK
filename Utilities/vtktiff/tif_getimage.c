@@ -1539,7 +1539,7 @@ DECLARESepPutFunc(putRGBUAseparate16bittile)
 
     (void) img; (void) y;
     while (h-- > 0) {
-        uint32 r,g,b,a;
+        uint32 lr,lg,lb,la;
         /*
          * We shift alpha down four bits just in case unsigned
          * arithmetic doesn't handle the full range.
@@ -1549,11 +1549,11 @@ DECLARESepPutFunc(putRGBUAseparate16bittile)
          * we divide by (0xffff * 0xfff) / 0xff == 0x10eff.
          */
         for (x = w; x-- > 0;) {
-            a = *wa++ >> 4; 
-            r = (*wr++ * a) / 0x10eff;
-            g = (*wg++ * a) / 0x10eff;
-            b = (*wb++ * a) / 0x10eff;
-            *cp++ = PACK4(r,g,b,a);
+            la = *wa++ >> 4; 
+            lr = (*wr++ * la) / 0x10eff;
+            lg = (*wg++ * la) / 0x10eff;
+            lb = (*wb++ * la) / 0x10eff;
+            *cp++ = PACK4(lr,lg,lb,la);
         }
         SKEW4(wr, wg, wb, wa, fromskew);
         cp += toskew;

@@ -16,6 +16,8 @@ jmorecfg.h was altered to support Windows DLL generation. We also
 changed the typedef INT32 to be an "int" instead of a "long". 
 
 
+some "index" parameters have been renamed to index2 to avoid shadowing
+index BSD function.
 
 
 

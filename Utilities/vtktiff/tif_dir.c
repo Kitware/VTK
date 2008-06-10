@@ -494,61 +494,61 @@ _TIFFVSetField(TIFF* tif, ttag_t tag, va_list ap)
                      * passed as a list of separate values. This behaviour
                      * must be changed in the future!
                      */
-                    int i;
+                    int i2;
                     char *val = (char *)tv->value;
 
-                    for (i = 0; i < tv->count; i++, val += tv_size) {
+                    for (i2 = 0; i2 < tv->count; i2++, val += tv_size) {
                             switch (fip->field_type) {
                                 case TIFF_BYTE:
                                 case TIFF_UNDEFINED:
                                     {
-                                        uint8 v = (uint8)va_arg(ap, int);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        uint8 v2 = (uint8)va_arg(ap, int);
+                                        _TIFFmemcpy(val, &v2, tv_size);
                                     }
                                     break;
                                 case TIFF_SBYTE:
                                     {
-                                        int8 v = (int8)va_arg(ap, int);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        int8 v3 = (int8)va_arg(ap, int);
+                                        _TIFFmemcpy(val, &v3, tv_size);
                                     }
                                     break;
                                 case TIFF_SHORT:
                                     {
-                                        uint16 v = (uint16)va_arg(ap, int);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        uint16 v4 = (uint16)va_arg(ap, int);
+                                        _TIFFmemcpy(val, &v4, tv_size);
                                     }
                                     break;
                                 case TIFF_SSHORT:
                                     {
-                                        int16 v = (int16)va_arg(ap, int);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        int16 v5 = (int16)va_arg(ap, int);
+                                        _TIFFmemcpy(val, &v5, tv_size);
                                     }
                                     break;
                                 case TIFF_LONG:
                                 case TIFF_IFD:
                                     {
-                                        uint32 v = va_arg(ap, uint32);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        uint32 v6 = va_arg(ap, uint32);
+                                        _TIFFmemcpy(val, &v6, tv_size);
                                     }
                                     break;
                                 case TIFF_SLONG:
                                     {
-                                        int32 v = va_arg(ap, int32);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        int32 v7 = va_arg(ap, int32);
+                                        _TIFFmemcpy(val, &v7, tv_size);
                                     }
                                     break;
                                 case TIFF_RATIONAL:
                                 case TIFF_SRATIONAL:
                                 case TIFF_FLOAT:
                                     {
-                                        float v = (float)va_arg(ap, double);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        float v8 = (float)va_arg(ap, double);
+                                        _TIFFmemcpy(val, &v8, tv_size);
                                     }
                                     break;
                                 case TIFF_DOUBLE:
                                     {
-                                        double v = va_arg(ap, double);
-                                        _TIFFmemcpy(val, &v, tv_size);
+                                        double v9 = va_arg(ap, double);
+                                        _TIFFmemcpy(val, &v9, tv_size);
                                     }
                                     break;
                                 default:

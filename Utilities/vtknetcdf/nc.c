@@ -231,7 +231,7 @@ NC_begins(NC *ncp,
 {
   size_t ii;
   int sizeof_off_t;
-  off_t index;
+  off_t index2;
   NC_var **vpp;
   NC_var *last = NULL;
 
@@ -256,14 +256,14 @@ NC_begins(NC *ncp,
   if ((size_t)ncp->begin_var < ncp->xsz + h_minfree ||
       ncp->begin_var != D_RNDUP(ncp->begin_var, v_align) ) 
   {
-    index = (off_t) ncp->xsz;
-    ncp->begin_var = D_RNDUP(index, v_align);
-    if(ncp->begin_var < index + (off_t)h_minfree)
+    index2 = (off_t) ncp->xsz;
+    ncp->begin_var = D_RNDUP(index2, v_align);
+    if(ncp->begin_var < index2 + (off_t)h_minfree)
     {
-      ncp->begin_var = D_RNDUP(index + (off_t)h_minfree, v_align);
+      ncp->begin_var = D_RNDUP(index2 + (off_t)h_minfree, v_align);
     }
   }
-  index = ncp->begin_var;
+  index2 = ncp->begin_var;
 
   /* loop thru vars, first pass is for the 'non-record' vars */
   vpp = ncp->vars.value;
@@ -275,29 +275,29 @@ NC_begins(NC *ncp,
       continue;
     }
 #if 0
-fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
+fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
 #endif
-                if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) ) 
+                if( sizeof_off_t == 4 && (index2 > X_OFF_MAX || index2 < 0) ) 
     {
         return NC_EVARSIZE;
                 }
-    (*vpp)->begin = index;
-    index += (*vpp)->len;
+    (*vpp)->begin = index2;
+    index2 += (*vpp)->len;
   }
 
   /* only (re)calculate begin_rec if there is not sufficient
      space at end of non-record variables or if start of record
      variables is not aligned as requested by r_align */
-  if (ncp->begin_rec < index + (off_t)v_minfree ||
+  if (ncp->begin_rec < index2 + (off_t)v_minfree ||
       ncp->begin_rec != D_RNDUP(ncp->begin_rec, r_align) )
   {
-    ncp->begin_rec = D_RNDUP(index, r_align);
-    if(ncp->begin_rec < index + (off_t)v_minfree)
+    ncp->begin_rec = D_RNDUP(index2, r_align);
+    if(ncp->begin_rec < index2 + (off_t)v_minfree)
     {
-      ncp->begin_rec = D_RNDUP(index + (off_t)v_minfree, r_align);
+      ncp->begin_rec = D_RNDUP(index2 + (off_t)v_minfree, r_align);
     }
   }
-  index = ncp->begin_rec;
+  index2 = ncp->begin_rec;
 
   ncp->recsize = 0;
 
@@ -312,14 +312,14 @@ fprintf(stderr, "    VAR %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
     }
 
 #if 0
-fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
+fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index2);
 #endif
-                if( sizeof_off_t == 4 && (index > X_OFF_MAX || index < 0) ) 
+                if( sizeof_off_t == 4 && (index2 > X_OFF_MAX || index2 < 0) ) 
     {
         return NC_EVARSIZE;
                 }
-    (*vpp)->begin = index;
-    index += (*vpp)->len;
+    (*vpp)->begin = index2;
+    index2 += (*vpp)->len;
     /* check if record size must fit in 32-bits */
 #if SIZEOF_OFF_T == SIZEOF_SIZE_T && SIZEOF_SIZE_T == 4
     if( ncp->recsize > X_UINT_MAX - (*vpp)->len )

@@ -9,6 +9,9 @@ The only differences to the vendor's release are:
   included.
 - Tabs aren't allowed by VTK's CVS checkin scripts, so they
   have been converted to spaces.
+- some "index" parameters have been renamed to "index2" to avoid
+  shadowing "index" BSD function.
+
 
 The head of the netcdf-release branch corresponds to the
 NetCDF 3.6.2 release.

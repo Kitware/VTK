@@ -8559,7 +8559,7 @@ static int vxprintf(
    "                                                                         ";
 #define etSPACESIZE (sizeof(spaces)-1)
 #ifndef VTK_SQLITE_OMIT_FLOATING_POINT
-  int  exp, e2;              /* exponent of real numbers */
+  int  expo, e2;              /* exponent of real numbers */
   double rounder;            /* Used for rounding floating point values */
   etByte flag_dp;            /* True if decimal point should be shown */
   etByte flag_rtz;           /* True if trailing zeros should be removed */
@@ -8775,19 +8775,19 @@ static int vxprintf(
 #endif
         if( xtype==etFLOAT ) realvalue += rounder;
         /* Normalize realvalue to within 10.0 > realvalue >= 1.0 */
-        exp = 0;
+        expo = 0;
         if( vtk_sqlite3_isnan(realvalue) ){
           bufpt = "NaN";
           length = 3;
           break;
         }
         if( realvalue>0.0 ){
-          while( realvalue>=1e32 && exp<=350 ){ realvalue *= 1e-32; exp+=32; }
-          while( realvalue>=1e8 && exp<=350 ){ realvalue *= 1e-8; exp+=8; }
-          while( realvalue>=10.0 && exp<=350 ){ realvalue *= 0.1; exp++; }
-          while( realvalue<1e-8 && exp>=-350 ){ realvalue *= 1e8; exp-=8; }
-          while( realvalue<1.0 && exp>=-350 ){ realvalue *= 10.0; exp--; }
-          if( exp>350 || exp<-350 ){
+          while( realvalue>=1e32 && expo<=350 ){ realvalue *= 1e-32; expo+=32; }
+          while( realvalue>=1e8 && expo<=350 ){ realvalue *= 1e-8; expo+=8; }
+          while( realvalue>=10.0 && expo<=350 ){ realvalue *= 0.1; expo++; }
+          while( realvalue<1e-8 && expo>=-350 ){ realvalue *= 1e8; expo-=8; }
+          while( realvalue<1.0 && expo>=-350 ){ realvalue *= 10.0; expo--; }
+          if( expo>350 || expo<-350 ){
             if( prefix=='-' ){
               bufpt = "-Inf";
             }else if( prefix=='+' ){
@@ -8807,14 +8807,14 @@ static int vxprintf(
         flag_exp = xtype==etEXP;
         if( xtype!=etFLOAT ){
           realvalue += rounder;
-          if( realvalue>=10.0 ){ realvalue *= 0.1; exp++; }
+          if( realvalue>=10.0 ){ realvalue *= 0.1; expo++; }
         }
         if( xtype==etGENERIC ){
           flag_rtz = !flag_alternateform;
-          if( exp<-4 || exp>precision ){
+          if( expo<-4 || expo>precision ){
             xtype = etEXP;
           }else{
-            precision = precision - exp;
+            precision = precision - expo;
             xtype = etFLOAT;
           }
         }else{
@@ -8823,7 +8823,7 @@ static int vxprintf(
         if( xtype==etEXP ){
           e2 = 0;
         }else{
-          e2 = exp;
+          e2 = expo;
         }
         nsd = 0;
         flag_dp = (etByte)((precision>0) | flag_alternateform | flag_altform2);
@@ -8865,19 +8865,19 @@ static int vxprintf(
           }
         }
         /* Add the "eNNN" suffix */
-        if( flag_exp || (xtype==etEXP && exp) ){
+        if( flag_exp || (xtype==etEXP && expo) ){
           *(bufpt++) = aDigits[infop->charset];
-          if( exp<0 ){
-            *(bufpt++) = '-'; exp = -exp;
+          if( expo<0 ){
+            *(bufpt++) = '-'; expo = -expo;
           }else{
             *(bufpt++) = '+';
           }
-          if( exp>=100 ){
-            *(bufpt++) = (char)((exp/100)+'0');                /* 100's digit */
-            exp %= 100;
+          if( expo>=100 ){
+            *(bufpt++) = (char)((expo/100)+'0');                /* 100's digit */
+            expo %= 100;
           }
-          *(bufpt++) = (char)(exp/10+'0');                     /* 10's digit */
-          *(bufpt++) = (char)(exp%10+'0');                     /* 1's digit */
+          *(bufpt++) = (char)(expo/10+'0');                     /* 10's digit */
+          *(bufpt++) = (char)(expo%10+'0');                     /* 1's digit */
         }
         *bufpt = 0;
 
@@ -19588,10 +19588,10 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3PagerSetCachesize(Pager *pPager, int mxPage){
 ** and FULL=3.
 */
 #ifndef VTK_SQLITE_OMIT_PAGER_PRAGMAS
-VTK_SQLITE_PRIVATE void vtk_sqlite3PagerSetSafetyLevel(Pager *pPager, int level, int full_fsync){
+VTK_SQLITE_PRIVATE void vtk_sqlite3PagerSetSafetyLevel(Pager *pPager, int level, int full_fsync2){
   pPager->noSync =  (u8)(level==1 || pPager->tempFile);
   pPager->fullSync = (u8)(level==3 && !pPager->tempFile);
-  pPager->full_fsync = (u8)(full_fsync);
+  pPager->full_fsync = (u8)(full_fsync2);
   if( pPager->noSync ) pPager->needSync = 0;
 }
 #endif
@@ -23592,7 +23592,7 @@ static int defragmentPage(MemPage *pPage){
   int size;                  /* Size of a cell */
   int usableSize;            /* Number of usable bytes on a page */
   int cellOffset;            /* Offset to the cell pointer array */
-  int brk;                   /* Offset to the cell content area */
+  int brk2;                   /* Offset to the cell content area */
   int nCell;                 /* Number of cells on the page */
   unsigned char *data;       /* The page data */
   unsigned char *temp;       /* Temp area for cell content */
@@ -23609,26 +23609,26 @@ static int defragmentPage(MemPage *pPage){
   nCell = pPage->nCell;
   assert( nCell==get2byte(&data[hdr+3]) );
   usableSize = pPage->pBt->usableSize;
-  brk = get2byte(&data[hdr+5]);
-  memcpy(&temp[brk], &data[brk], usableSize - brk);
-  brk = usableSize;
+  brk2 = get2byte(&data[hdr+5]);
+  memcpy(&temp[brk2], &data[brk2], usableSize - brk2);
+  brk2 = usableSize;
   for(i=0; i<nCell; i++){
     u8 *pAddr;     /* The i-th cell pointer */
     pAddr = &data[cellOffset + i*2];
     pc = get2byte(pAddr);
     assert( pc<pPage->pBt->usableSize );
     size = cellSizePtr(pPage, &temp[pc]);
-    brk -= size;
-    memcpy(&data[brk], &temp[pc], size);
-    put2byte(pAddr, brk);
+    brk2 -= size;
+    memcpy(&data[brk2], &temp[pc], size);
+    put2byte(pAddr, brk2);
   }
-  assert( brk>=cellOffset+2*nCell );
-  put2byte(&data[hdr+5], brk);
+  assert( brk2>=cellOffset+2*nCell );
+  put2byte(&data[hdr+5], brk2);
   data[hdr+1] = 0;
   data[hdr+2] = 0;
   data[hdr+7] = 0;
   addr = cellOffset+2*nCell;
-  memset(&data[addr], 0, brk-addr);
+  memset(&data[addr], 0, brk2-addr);
   vtk_sqliteFree(temp);
   return VTK_SQLITE_OK;
 }
@@ -27990,7 +27990,7 @@ static int balance_deeper(MemPage *pPage){
   u8 *data;           /* Content of the parent page */
   u8 *cdata;          /* Content of the child page */
   int hdr;            /* Offset to page header in parent */
-  int brk;            /* Offset to content of first cell in parent */
+  int brk2;            /* Offset to content of first cell in parent */
 
   assert( pPage->pParent==0 );
   assert( pPage->nOverflow>0 );
@@ -28001,10 +28001,10 @@ static int balance_deeper(MemPage *pPage){
   usableSize = pBt->usableSize;
   data = pPage->aData;
   hdr = pPage->hdrOffset;
-  brk = get2byte(&data[hdr+5]);
+  brk2 = get2byte(&data[hdr+5]);
   cdata = pChild->aData;
   memcpy(cdata, &data[hdr], pPage->cellOffset+2*pPage->nCell-hdr);
-  memcpy(&cdata[brk], &data[brk], usableSize-brk);
+  memcpy(&cdata[brk2], &data[brk2], usableSize-brk2);
   assert( pChild->isInit==0 );
   rc = vtk_sqlite3BtreeInitPage(pChild, pPage);
   if( rc ) goto balancedeeper_out;
@@ -31606,10 +31606,10 @@ static int vdbeCommit(vtk_sqlite3 *db){
 
     /* Select a master journal file name */
     do {
-      u32 random;
+      u32 random2;
       vtk_sqliteFree(zMaster);
-      vtk_sqlite3Randomness(sizeof(random), &random);
-      zMaster = vtk_sqlite3MPrintf("%s-mj%08X", zMainFile, random&0x7fffffff);
+      vtk_sqlite3Randomness(sizeof(random2), &random2);
+      zMaster = vtk_sqlite3MPrintf("%s-mj%08X", zMainFile, random2&0x7fffffff);
       if( !zMaster ){
         return VTK_SQLITE_NOMEM;
       }
@@ -45465,7 +45465,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DropTable(Parse *pParse, SrcList *pName, int 
 
 #ifndef VTK_SQLITE_OMIT_VIRTUALTABLE
     if( IsVirtual(pTab) ){
-      Vdbe *v = vtk_sqlite3GetVdbe(pParse);
+      v = vtk_sqlite3GetVdbe(pParse);
       if( v ){
         vtk_sqlite3VdbeAddOp(v, OP_VBegin, 0, 0);
       }
@@ -54560,7 +54560,7 @@ static void generateSortTail(
   int eDest,       /* Write the sorted results here */
   int iParm        /* Optional parameter associated with eDest */
 ){
-  int brk = vtk_sqlite3VdbeMakeLabel(v);
+  int brk2 = vtk_sqlite3VdbeMakeLabel(v);
   int cont = vtk_sqlite3VdbeMakeLabel(v);
   int addr;
   int iTab;
@@ -54573,7 +54573,7 @@ static void generateSortTail(
     vtk_sqlite3VdbeAddOp(v, OP_OpenPseudo, pseudoTab, 0);
     vtk_sqlite3VdbeAddOp(v, OP_SetNumColumns, pseudoTab, nColumn);
   }
-  addr = 1 + vtk_sqlite3VdbeAddOp(v, OP_Sort, iTab, brk);
+  addr = 1 + vtk_sqlite3VdbeAddOp(v, OP_Sort, iTab, brk2);
   codeOffset(v, p, cont, 0);
   if( eDest==SRT_Callback || eDest==SRT_Subroutine ){
     vtk_sqlite3VdbeAddOp(v, OP_Integer, 1, 0);
@@ -54628,14 +54628,14 @@ static void generateSortTail(
   */
   if( p->iLimit>=0 ){
     vtk_sqlite3VdbeAddOp(v, OP_MemIncr, -1, p->iLimit);
-    vtk_sqlite3VdbeAddOp(v, OP_IfMemZero, p->iLimit, brk);
+    vtk_sqlite3VdbeAddOp(v, OP_IfMemZero, p->iLimit, brk2);
   }
 
   /* The bottom of the loop
   */
   vtk_sqlite3VdbeResolveLabel(v, cont);
   vtk_sqlite3VdbeAddOp(v, OP_Next, iTab, addr);
-  vtk_sqlite3VdbeResolveLabel(v, brk);
+  vtk_sqlite3VdbeResolveLabel(v, brk2);
   if( eDest==SRT_Callback || eDest==SRT_Subroutine ){
     vtk_sqlite3VdbeAddOp(v, OP_Close, pseudoTab, 0);
   }
@@ -56251,7 +56251,7 @@ static int simpleMinMaxQuery(Parse *pParse, Select *p, int eDest, int iParm){
   ExprList *pEList, *pList, eList;
   struct ExprList_item eListItem;
   SrcList *pSrc;
-  int brk;
+  int brk2;
   int iDb;
 
   /* Check to see if this query is a simple min() or max() query.  Return
@@ -56326,8 +56326,8 @@ static int simpleMinMaxQuery(Parse *pParse, Select *p, int eDest, int iParm){
   vtk_sqlite3CodeVerifySchema(pParse, iDb);
   vtk_sqlite3TableLock(pParse, iDb, pTab->tnum, 0, pTab->zName);
   base = pSrc->a[0].iCursor;
-  brk = vtk_sqlite3VdbeMakeLabel(v);
-  computeLimitRegisters(pParse, p, brk);
+  brk2 = vtk_sqlite3VdbeMakeLabel(v);
+  computeLimitRegisters(pParse, p, brk2);
   if( pSrc->a[0].pSelect==0 ){
     vtk_sqlite3OpenTable(pParse, base, iDb, pTab, OP_OpenRead);
   }
@@ -56371,8 +56371,8 @@ static int simpleMinMaxQuery(Parse *pParse, Select *p, int eDest, int iParm){
   memset(&eListItem, 0, sizeof(eListItem));
   eList.a = &eListItem;
   eList.a[0].pExpr = pExpr;
-  selectInnerLoop(pParse, p, &eList, 0, 0, 0, -1, eDest, iParm, brk, brk, 0);
-  vtk_sqlite3VdbeResolveLabel(v, brk);
+  selectInnerLoop(pParse, p, &eList, 0, 0, 0, -1, eDest, iParm, brk2, brk2, 0);
+  vtk_sqlite3VdbeResolveLabel(v, brk2);
   vtk_sqlite3VdbeAddOp(v, OP_Close, base, 0);
   
   return 1;
@@ -61265,7 +61265,6 @@ static double bestVirtualIndex(
   */
   pIdxInfo = *ppIdxInfo;
   if( pIdxInfo==0 ){
-    WhereTerm *pTerm;
     int nTerm;
     WHERETRACE(("Recomputing index info for %s...\n", pTab->zName));
 
@@ -61997,7 +61996,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
   int i;                     /* Loop counter */
   WhereInfo *pWInfo;         /* Will become the return value of this function */
   Vdbe *v = pParse->pVdbe;   /* The virtual database engine */
-  int brk, cont = 0;         /* Addresses used during code generation */
+  int brk2, cont = 0;         /* Addresses used during code generation */
   Bitmask notReady;          /* Cursors that are not yet positioned */
   WhereTerm *pTerm;          /* A single term in the WHERE clause */
   ExprMaskSet maskSet;       /* The expression mask set */
@@ -62276,7 +62275,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
     ** there are no IN operators in the constraints, the "nxt" label
     ** is the same as "brk".
     */
-    brk = pLevel->brk = pLevel->nxt = vtk_sqlite3VdbeMakeLabel(v);
+    brk2 = pLevel->brk = pLevel->nxt = vtk_sqlite3VdbeMakeLabel(v);
     cont = pLevel->cont = vtk_sqlite3VdbeMakeLabel(v);
 
     /* If this is the right table of a LEFT OUTER JOIN, allocate and
@@ -62295,7 +62294,6 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       /* Case 0:  The table is a virtual-table.  Use the VFilter and VNext
       **          to access the data.
       */
-      int j;
       vtk_sqlite3_index_info *pBestIdx = pLevel->pBestIdx;
       int nConstraint = pBestIdx->nConstraint;
       struct vtk_sqlite3_index_constraint_usage *aUsage =
@@ -62316,7 +62314,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       }
       vtk_sqlite3VdbeAddOp(v, OP_Integer, j-1, 0);
       vtk_sqlite3VdbeAddOp(v, OP_Integer, pBestIdx->idxNum, 0);
-      vtk_sqlite3VdbeOp3(v, OP_VFilter, iCur, brk, pBestIdx->idxStr,
+      vtk_sqlite3VdbeOp3(v, OP_VFilter, iCur, brk2, pBestIdx->idxStr,
                       pBestIdx->needToFreeIdxStr ? P3_MPRINTF : P3_STATIC);
       pBestIdx->needToFreeIdxStr = 0;
       for(j=0; j<pBestIdx->nConstraint; j++){
@@ -62369,12 +62367,12 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
         assert( pX!=0 );
         assert( pStart->leftCursor==iCur );
         vtk_sqlite3ExprCode(pParse, pX->pRight);
-        vtk_sqlite3VdbeAddOp(v, OP_ForceInt, pX->op==TK_LE || pX->op==TK_GT, brk);
-        vtk_sqlite3VdbeAddOp(v, bRev ? OP_MoveLt : OP_MoveGe, iCur, brk);
+        vtk_sqlite3VdbeAddOp(v, OP_ForceInt, pX->op==TK_LE || pX->op==TK_GT, brk2);
+        vtk_sqlite3VdbeAddOp(v, bRev ? OP_MoveLt : OP_MoveGe, iCur, brk2);
         VdbeComment((v, "pk"));
         disableTerm(pLevel, pStart);
       }else{
-        vtk_sqlite3VdbeAddOp(v, bRev ? OP_Last : OP_Rewind, iCur, brk);
+        vtk_sqlite3VdbeAddOp(v, bRev ? OP_Last : OP_Rewind, iCur, brk2);
       }
       if( pEnd ){
         Expr *pX;
@@ -62398,7 +62396,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       if( testOp!=OP_Noop ){
         vtk_sqlite3VdbeAddOp(v, OP_Rowid, iCur, 0);
         vtk_sqlite3VdbeAddOp(v, OP_MemLoad, pLevel->iMem, 0);
-        vtk_sqlite3VdbeAddOp(v, testOp, VTK_SQLITE_AFF_NUMERIC|0x100, brk);
+        vtk_sqlite3VdbeAddOp(v, testOp, VTK_SQLITE_AFF_NUMERIC|0x100, brk2);
       }
     }else if( pLevel->flags & WHERE_COLUMN_RANGE ){
       /* Case 3: The WHERE clause term that refers to the right-most
@@ -62483,7 +62481,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
           vtk_sqlite3VdbeAddOp(v, OP_MemStore, pLevel->iMem, 1);
         }
       }else if( bRev ){
-        vtk_sqlite3VdbeAddOp(v, OP_Last, iIdxCur, brk);
+        vtk_sqlite3VdbeAddOp(v, OP_Last, iIdxCur, brk2);
       }
 
       /* Generate the start key.  This is the key that defines the lower
@@ -62523,7 +62521,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       }else if( bRev ){
         testOp = OP_Noop;
       }else{
-        vtk_sqlite3VdbeAddOp(v, OP_Rewind, iIdxCur, brk);
+        vtk_sqlite3VdbeAddOp(v, OP_Rewind, iIdxCur, brk2);
       }
 
       /* Generate the the top of the loop.  If there is a termination
@@ -62603,7 +62601,7 @@ VTK_SQLITE_PRIVATE WhereInfo *vtk_sqlite3WhereBegin(
       assert( bRev==0 );
       pLevel->op = OP_Next;
       pLevel->p1 = iCur;
-      pLevel->p2 = 1 + vtk_sqlite3VdbeAddOp(v, OP_Rewind, iCur, brk);
+      pLevel->p2 = 1 + vtk_sqlite3VdbeAddOp(v, OP_Rewind, iCur, brk2);
     }
     notReady &= ~getMask(&maskSet, iCur);
 

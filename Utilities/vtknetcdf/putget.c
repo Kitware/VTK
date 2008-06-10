@@ -5071,7 +5071,7 @@ nc_put_vara_text(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5097,7 +5097,7 @@ nc_put_vara_text(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5178,7 +5178,7 @@ nc_put_vara_uchar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5204,7 +5204,7 @@ nc_put_vara_uchar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5284,7 +5284,7 @@ nc_put_vara_schar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5310,7 +5310,7 @@ nc_put_vara_schar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5390,7 +5390,7 @@ nc_put_vara_short(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5416,7 +5416,7 @@ nc_put_vara_short(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5496,7 +5496,7 @@ nc_put_vara_int(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5522,7 +5522,7 @@ nc_put_vara_int(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5602,7 +5602,7 @@ nc_put_vara_long(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5628,7 +5628,7 @@ nc_put_vara_long(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5708,7 +5708,7 @@ nc_put_vara_float(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5734,7 +5734,7 @@ nc_put_vara_float(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5814,7 +5814,7 @@ nc_put_vara_double(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5840,7 +5840,7 @@ nc_put_vara_double(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -5917,7 +5917,7 @@ nc_get_vara_text(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -5943,7 +5943,7 @@ nc_get_vara_text(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6018,7 +6018,7 @@ nc_get_vara_uchar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6044,7 +6044,7 @@ nc_get_vara_uchar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6118,7 +6118,7 @@ nc_get_vara_schar(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6144,7 +6144,7 @@ nc_get_vara_schar(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6218,7 +6218,7 @@ nc_get_vara_short(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6244,7 +6244,7 @@ nc_get_vara_short(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6318,7 +6318,7 @@ nc_get_vara_int(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6344,7 +6344,7 @@ nc_get_vara_int(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6418,7 +6418,7 @@ nc_get_vara_long(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6444,7 +6444,7 @@ nc_get_vara_long(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6518,7 +6518,7 @@ nc_get_vara_float(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6544,7 +6544,7 @@ nc_get_vara_float(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);
@@ -6618,7 +6618,7 @@ nc_get_vara_double(int ncid, int varid,
   { /* inline */
   ALLOC_ONSTACK(coord, size_t, varp->ndims);
   ALLOC_ONSTACK(upper, size_t, varp->ndims);
-  const size_t index = ii;
+  const size_t index2 = ii;
 
   /* copy in starting indices */
   (void) memcpy(coord, start, varp->ndims * sizeof(size_t));
@@ -6644,7 +6644,7 @@ nc_get_vara_double(int ncid, int varid,
         status = lstatus;
     }
     value += iocount;
-    odo1(start, upper, coord, &upper[index], &coord[index]);
+    odo1(start, upper, coord, &upper[index2], &coord[index2]);
   }
 
   FREE_ONSTACK(upper);

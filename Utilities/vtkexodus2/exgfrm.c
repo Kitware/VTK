@@ -86,7 +86,7 @@ int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids,
 {
   int dimid;                       /* ID of the dimension of # frames */
   char errmsg[MAX_ERR_LENGTH];
-  int exerrval;                    /* returned error value           */
+  int exerrval2;                    /* returned error value           */
   int varids;                      /* variable id for the frame ids  */
   long int start=0;                /* start value for varputs        */
   long int count;                  /* number vars to put in varput   */
@@ -110,22 +110,22 @@ int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids,
   if ( cf_ids )
     if ( (varids=ncvarid(exoid,FRAME_IDS))==-1  ||
          ncvarget(exoid,varids,&start,&count,cf_ids)== -1 ) {
-      exerrval = ncerr;
+      exerrval2 = ncerr;
       sprintf(errmsg,
               "Error: failed to read number coordinate ids from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval);
+      ex_err((char*)PROCNAME,errmsg,exerrval2);
       return (EX_FATAL);
     }
 
   if ( tags )
     if ( (varids=ncvarid(exoid,FRAME_TAGS))==-1  ||
          ncvarget(exoid,varids,&start,&count,tags)== -1 ) {
-      exerrval = ncerr;
+      exerrval2 = ncerr;
       sprintf(errmsg,
               "Error: failed to read number coordinate tags from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval);
+      ex_err((char*)PROCNAME,errmsg,exerrval2);
       return (EX_FATAL);
     }
 
@@ -134,11 +134,11 @@ int ex_get_coordinate_frames( int exoid, int *nframes, int *cf_ids,
     assert(pt_c!=0);
     if ( (varids=ncvarid(exoid,FRAME_COORDS))==-1  ||
          ncvarget(exoid,varids,&start,&count9,pt_c)== -1 ) {
-      exerrval = ncerr;
+      exerrval2 = ncerr;
       sprintf(errmsg,
               "Error: failed to read number coordinate tags from file id %d",
               exoid);
-      ex_err((char*)PROCNAME,errmsg,exerrval);
+      ex_err((char*)PROCNAME,errmsg,exerrval2);
       return (EX_FATAL);
     }
     else {

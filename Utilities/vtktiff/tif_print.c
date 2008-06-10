@@ -503,12 +503,12 @@ TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
         ** Custom tag support.
         */
         {
-            int  i;
+            int  i2;
             short count;
 
             count = (short) TIFFGetTagListCount(tif);
-            for(i = 0; i < count; i++) {
-                ttag_t  tag = TIFFGetTagListEntry(tif, i);
+            for(i2 = 0; i2 < count; i2++) {
+                ttag_t  tag = TIFFGetTagListEntry(tif, i2);
                 const TIFFFieldInfo *fip;
                 uint16 value_count;
                 int mem_alloc = 0;
