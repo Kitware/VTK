@@ -590,17 +590,17 @@ static int gl2psListNbr(GL2PSlist *list)
   return(list->n);
 }
 
-static void *gl2psListPointer(GL2PSlist *list, GLint index)
+static void *gl2psListPointer(GL2PSlist *list, GLint indx)
 {
   if(!list){
     gl2psMsg(GL2PS_ERROR, "Cannot point into unallocated list");
     return NULL;
   }
-  if((index < 0) || (index >= list->n)){
+  if((indx < 0) || (indx >= list->n)){
     gl2psMsg(GL2PS_ERROR, "Wrong list index in gl2psListPointer");
     return NULL;
   }
-  return(&list->array[index * list->size]);
+  return(&list->array[indx * list->size]);
 }
 
 static void gl2psListSort(GL2PSlist *list,
@@ -631,11 +631,11 @@ static void gl2psListActionInverse(GL2PSlist *list, void (*action)(void *data))
 
 #if defined(GL2PS_HAVE_LIBPNG)
 
-static void gl2psListRead(GL2PSlist *list, int index, void *data)
+static void gl2psListRead(GL2PSlist *list, int indx, void *data)
 {
-  if((index < 0) || (index >= list->n))
+  if((indx < 0) || (indx >= list->n))
     gl2psMsg(GL2PS_ERROR, "Wrong list index in gl2psListRead");
-  memcpy(data, &list->array[index * list->size], list->size);
+  memcpy(data, &list->array[indx * list->size], list->size);
 }
 
 static void gl2psEncodeBase64Block(unsigned char in[3], unsigned char out[4], int len)
@@ -652,25 +652,25 @@ static void gl2psEncodeBase64Block(unsigned char in[3], unsigned char out[4], in
 static void gl2psListEncodeBase64(GL2PSlist *list)
 {
   unsigned char *buffer, in[3], out[4];
-  int i, n, index, len;
+  int i, n, indx, len;
 
   n = list->n * list->size;
   buffer = (unsigned char*)gl2psMalloc(n * sizeof(unsigned char));
   memcpy(buffer, list->array, n * sizeof(unsigned char));
   gl2psListReset(list);
 
-  index = 0;
-  while(index < n) {
+  indx = 0;
+  while(indx < n) {
     len = 0;
     for(i = 0; i < 3; i++) {
-      if(index < n){
-        in[i] = buffer[index];
+      if(indx < n){
+        in[i] = buffer[indx];
         len++;
       }
       else{
         in[i] = 0;
       }
-      index++;
+      indx++;
     }
     if(len) {
       gl2psEncodeBase64Block(in, out, len);
@@ -809,6 +809,7 @@ static void gl2psUserWritePNG(png_structp png_ptr, png_bytep data, png_size_t le
 
 static void gl2psUserFlushPNG(png_structp png_ptr)
 {
+  (void)png_ptr; // to avoid warning about unused parameter
 }
 
 static void gl2psConvertPixmapToPNG(GL2PSimage *pixmap, GL2PSlist *png)
@@ -1420,7 +1421,7 @@ static int gl2psTrianglesFirst(const void *a, const void *b)
 
 static GLint gl2psFindRoot(GL2PSlist *primitives, GL2PSprimitive **root)
 {
-  GLint i, j, count, best = 1000000, index = 0;
+  GLint i, j, count, best = 1000000, indx = 0;
   GL2PSprimitive *prim1, *prim2;
   GL2PSplane plane;
   GLint maxp;
@@ -1450,13 +1451,13 @@ static GLint gl2psFindRoot(GL2PSlist *primitives, GL2PSprimitive **root)
       }
       if(count < best){
         best = count;
-        index = i;
+        indx = i;
         *root = prim1;
-        if(!count) return index;
+        if(!count) return indx;
       }
     }
-    /* if(index) gl2psMsg(GL2PS_INFO, "GL2PS_BEST_ROOT was worth it: %d", index); */
-    return index;
+    /* if(indx) gl2psMsg(GL2PS_INFO, "GL2PS_BEST_ROOT was worth it: %d", indx); */
+    return indx;
   }
   else{
     return 0;
@@ -1535,12 +1536,12 @@ static void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives)
 {
   GL2PSprimitive *prim, *frontprim = NULL, *backprim = NULL;
   GL2PSlist *frontlist, *backlist;
-  GLint i, index;
+  GLint i, indx;
 
   tree->front = NULL;
   tree->back = NULL;
   tree->primitives = gl2psListCreate(1, 2, sizeof(GL2PSprimitive*));
-  index = gl2psFindRoot(primitives, &prim);
+  indx = gl2psFindRoot(primitives, &prim);
   gl2psGetPlane(prim, tree->plane);
   gl2psAddPrimitiveInList(prim, tree->primitives);
 
@@ -1548,7 +1549,7 @@ static void gl2psBuildBspTree(GL2PSbsptree *tree, GL2PSlist *primitives)
   backlist = gl2psListCreate(1, 2, sizeof(GL2PSprimitive*));
 
   for(i = 0; i < gl2psListNbr(primitives); i++){
-    if(i != index){
+    if(i != indx){
       prim = *(GL2PSprimitive**)gl2psListPointer(primitives,i);
       switch(gl2psSplitPrimitive(prim, tree->plane, &frontprim, &backprim)){
       case GL2PS_COINCIDENT:
@@ -3118,7 +3119,7 @@ static void gl2psPrintPostScriptFooter(void)
 
 static void gl2psPrintPostScriptBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint indx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
 
@@ -3137,10 +3138,10 @@ static void gl2psPrintPostScriptBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &indx);
+      rgba[0] = gl2ps->colormap[indx][0];
+      rgba[1] = gl2ps->colormap[indx][1];
+      rgba[2] = gl2ps->colormap[indx][2];
       rgba[3] = 1.0F;
     }
     gl2psPrintf("%g %g %g C\n"
@@ -3312,6 +3313,7 @@ static void gl2psPrintTeXFooter(void)
 
 static void gl2psPrintTeXBeginViewport(GLint viewport[4])
 {
+  (void)viewport; // to remove warning about unused parameter.
   glRenderMode(GL_FEEDBACK);
   
   if(gl2ps->header){
@@ -4746,7 +4748,7 @@ static void gl2psPrintPDFFooter(void)
 static void gl2psPrintPDFBeginViewport(GLint viewport[4])
 {
   int offs = 0;
-  GLint index;
+  GLint indx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
   
@@ -4764,10 +4766,10 @@ static void gl2psPrintPDFBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &indx);
+      rgba[0] = gl2ps->colormap[indx][0];
+      rgba[1] = gl2ps->colormap[indx][1];
+      rgba[2] = gl2ps->colormap[indx][2];
       rgba[3] = 1.0F;
     }
     offs += gl2psPrintPDFFillColor(rgba);
@@ -5121,7 +5123,7 @@ static void gl2psPrintSVGFooter(void)
 
 static void gl2psPrintSVGBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint indx;
   char col[32];
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
@@ -5138,10 +5140,10 @@ static void gl2psPrintSVGBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &indx);
+      rgba[0] = gl2ps->colormap[indx][0];
+      rgba[1] = gl2ps->colormap[indx][1];
+      rgba[2] = gl2ps->colormap[indx][2];
       rgba[3] = 1.0F;
     }
     gl2psSVGGetColorString(rgba, col);
@@ -5351,7 +5353,7 @@ static void gl2psPrintPGFFooter(void)
 
 static void gl2psPrintPGFBeginViewport(GLint viewport[4])
 {
-  GLint index;
+  GLint indx;
   GLfloat rgba[4];
   int x = viewport[0], y = viewport[1], w = viewport[2], h = viewport[3];
 
@@ -5368,10 +5370,10 @@ static void gl2psPrintPGFBeginViewport(GLint viewport[4])
       glGetFloatv(GL_COLOR_CLEAR_VALUE, rgba);
     }
     else{
-      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-      rgba[0] = gl2ps->colormap[index][0];
-      rgba[1] = gl2ps->colormap[index][1];
-      rgba[2] = gl2ps->colormap[index][2];
+      glGetIntegerv(GL_INDEX_CLEAR_VALUE, &indx);
+      rgba[0] = gl2ps->colormap[indx][0];
+      rgba[1] = gl2ps->colormap[indx][1];
+      rgba[2] = gl2ps->colormap[indx][2];
       rgba[3] = 1.0F;
     }
     gl2psPrintPGFColor(rgba);
@@ -5538,7 +5540,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
                                   GLint nr, GLint ng, GLint nb, GLint buffersize,
                                   FILE *stream, const char *filename)
 {
-  GLint index;
+  GLint indx;
   int i;
 
   if(gl2ps){
@@ -5649,10 +5651,10 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
     gl2ps->colorsize = colorsize;
     gl2ps->colormap = (GL2PSrgba*)gl2psMalloc(gl2ps->colorsize * sizeof(GL2PSrgba));
     memcpy(gl2ps->colormap, colormap, gl2ps->colorsize * sizeof(GL2PSrgba));
-    glGetIntegerv(GL_INDEX_CLEAR_VALUE, &index);
-    gl2ps->bgcolor[0] = gl2ps->colormap[index][0];
-    gl2ps->bgcolor[1] = gl2ps->colormap[index][1];
-    gl2ps->bgcolor[2] = gl2ps->colormap[index][2];
+    glGetIntegerv(GL_INDEX_CLEAR_VALUE, &indx);
+    gl2ps->bgcolor[0] = gl2ps->colormap[indx][0];
+    gl2ps->bgcolor[1] = gl2ps->colormap[indx][1];
+    gl2ps->bgcolor[2] = gl2ps->colormap[indx][2];
     gl2ps->bgcolor[3] = 1.0F;
   }
   else{
