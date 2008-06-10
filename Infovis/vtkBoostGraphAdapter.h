@@ -107,7 +107,7 @@ namespace boost {
     {
     public:
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
-        graph(g), vertex(v), iter(0), end(0), directed(false)
+      directed(false), vertex(v), iter(0), end(0), graph(g)
         {
         if (graph != 0 && vertex < graph->GetNumberOfVertices())
           {
