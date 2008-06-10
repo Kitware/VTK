@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.17");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.18");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -75,6 +75,12 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     }
 
   this->Internals->EffectColumnBuffer();
+  this->SetColumnSelection( dataset );
+  if ( ! this->Internals->SelectedColumns.size() )
+    {
+    vtkWarningMacro( "No columns selected. Doing nothing." );
+    return;
+    }
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -146,7 +152,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     idTypeCol->Delete();
     }
 
-  this->SetColumnSelection( dataset );
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
@@ -262,6 +267,12 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   this->Internals->EffectColumnBuffer();
+  this->SetColumnSelection( dataset );
+  if ( ! this->Internals->SelectedColumns.size() )
+    {
+    vtkWarningMacro( "No columns selected. Doing nothing." );
+    return;
+    }
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -281,7 +292,6 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  this->SetColumnSelection( dataset );
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {

@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.17");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.18");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -80,6 +80,12 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     }
 
   this->Internals->EffectColumnBuffer();
+  this->SetColumnSelection( dataset );
+  if ( ! this->Internals->SelectedColumns.size() )
+    {
+    vtkWarningMacro( "No columns selected. Doing nothing." );
+    return;
+    }
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -125,7 +131,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  this->SetColumnSelection( dataset );
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
@@ -238,6 +243,12 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   this->Internals->EffectColumnBuffer();
+  this->SetColumnSelection( dataset );
+  if ( ! this->Internals->SelectedColumns.size() )
+    {
+    vtkWarningMacro( "No columns selected. Doing nothing." );
+    return;
+    }
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
@@ -257,7 +268,6 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  this->SetColumnSelection( dataset );
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
