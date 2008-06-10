@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.50");
+vtkCxxRevisionMacro(vtkXMLReader, "1.51");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -432,7 +432,7 @@ int vtkXMLReader
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::RequestData(vtkInformation *request, 
+int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
                               vtkInformationVector **vtkNotUsed(inputVector),
                               vtkInformationVector *outputVector)
 {

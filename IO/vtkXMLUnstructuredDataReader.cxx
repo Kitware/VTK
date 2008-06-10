@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.29");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.30");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -36,7 +36,7 @@ vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
   this->TotalNumberOfCells = 0;
 
   this->PointsTimeStep = -1;  //invalid state
-  this->PointsOffset = (unsigned long)-1;
+  this->PointsOffset = static_cast<unsigned long>(-1);
 }
 
 //----------------------------------------------------------------------------
