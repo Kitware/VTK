@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.18");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.19");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -62,7 +62,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     this->SampleSize = 0;
     return;
     }
@@ -70,7 +69,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
   this->SampleSize = dataset->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -78,7 +76,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
   this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
-    vtkWarningMacro( "No columns selected. Doing nothing." );
     return;
     }
 
@@ -239,14 +236,12 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     return;
     }
 
   vtkIdType nRowD = dataset->GetNumberOfRows();
   if ( ! nRowD )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -262,7 +257,6 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nRowP = params->GetNumberOfRows();
   if ( ! nRowP )
     {
-    vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -270,7 +264,6 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
   this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
-    vtkWarningMacro( "No columns selected. Doing nothing." );
     return;
     }
 

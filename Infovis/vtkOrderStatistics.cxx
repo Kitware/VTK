@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.18");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.19");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -67,7 +67,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     this->SampleSize = 0;
     return;
     }
@@ -75,7 +74,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
   this->SampleSize = dataset->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -83,7 +81,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
   this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
-    vtkWarningMacro( "No columns selected. Doing nothing." );
     return;
     }
 
@@ -96,7 +93,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     {
     if ( this->NumberOfIntervals < 1 )
       {
-      vtkWarningMacro( "Invalid number of intervals: "<<this->NumberOfIntervals<<". Doing nothing." );
       return;
       }
     
@@ -215,14 +211,12 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     return;
     }
 
   vtkIdType nRowD = dataset->GetNumberOfRows();
   if ( ! nRowD )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -238,7 +232,6 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nRowP = params->GetNumberOfRows();
   if ( ! nRowP )
     {
-    vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -246,7 +239,6 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
   this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
-    vtkWarningMacro( "No columns selected. Doing nothing." );
     return;
     }
 

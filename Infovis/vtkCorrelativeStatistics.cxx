@@ -90,7 +90,7 @@ void vtkCorrelativeStatisticsPrivate::EffectColumnBuffer()
 }
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.14");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.15");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -191,7 +191,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
   vtkIdType nCol = dataset->GetNumberOfColumns();
   if ( ! nCol )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     this->SampleSize = 0;
     return;
     }
@@ -199,14 +198,12 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
   this->SampleSize = dataset->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
   this->Internals->EffectColumnBuffer();
   if ( ! this->Internals->ColumnPairs.size() )
     {
-    vtkWarningMacro( "No column pairs selected. Doing nothing." );
     return;
     }
 
@@ -406,14 +403,12 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
-    vtkWarningMacro( "Dataset table does not have any columns. Doing nothing." );
     return;
     }
 
   vtkIdType nRowD = dataset->GetNumberOfRows();
   if ( ! nRowD )
     {
-    vtkWarningMacro( "Dataset table does not have any rows. Doing nothing." );
     return;
     }
 
@@ -429,14 +424,12 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
   vtkIdType nRowP = params->GetNumberOfRows();
   if ( ! nRowP )
     {
-    vtkWarningMacro( "Parameter table does not have any rows. Doing nothing." );
     return;
     }
 
   this->Internals->EffectColumnBuffer();
   if ( ! this->Internals->ColumnPairs.size() )
     {
-    vtkWarningMacro( "No column pairs selected. Doing nothing." );
     return;
     }
 
