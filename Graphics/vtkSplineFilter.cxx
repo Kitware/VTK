@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.18");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.19");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -99,7 +99,6 @@ int vtkSplineFilter::RequestData(
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    vtkWarningMacro(<< " No input data!");
     return 1;
     }
 

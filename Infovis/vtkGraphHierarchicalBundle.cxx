@@ -83,7 +83,7 @@ vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
 }
 
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.8");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.9");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -125,7 +125,13 @@ int vtkGraphHierarchicalBundle::RequestData(
     treeInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
+
+  // If graph or tree is empty, we're done.
+  if (graph->GetNumberOfVertices() == 0 ||
+      tree->GetNumberOfVertices() == 0)
+    {
+    return 1;
+    }
 
   // Create a map from graph indices to tree indices
   // If we are using DirectMapping this is trivial
@@ -152,7 +158,7 @@ int vtkGraphHierarchicalBundle::RequestData(
     {
     // Check for valid pedigree id arrays.
     vtkAbstractArray* graphIdArray = 
-      graph->GetVertexData()->GetAbstractArray("PedigreeId");
+      graph->GetVertexData()->GetPedigreeIds();
     if (graphIdArray == NULL)
       {
       // Check for any id array.
@@ -164,7 +170,7 @@ int vtkGraphHierarchicalBundle::RequestData(
         }
       }
     vtkAbstractArray* treeIdArray = 
-      tree->GetVertexData()->GetAbstractArray("PedigreeId");
+      tree->GetVertexData()->GetPedigreeIds();
     if (treeIdArray == NULL)
       {
       // Check for any id array.
