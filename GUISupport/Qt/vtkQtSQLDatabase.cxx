@@ -36,7 +36,7 @@
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.4");
+vtkCxxRevisionMacro(vtkQtSQLDatabase, "1.5");
 vtkStandardNewMacro(vtkQtSQLDatabase);
 
 int vtkQtSQLDatabase::id = 0;
@@ -46,7 +46,6 @@ vtkQtSQLDatabase::vtkQtSQLDatabase()
   this->DatabaseType = NULL;
   this->HostName = NULL;
   this->UserName = NULL;
-  this->Password = NULL;
   this->DatabaseName = NULL;
   this->Port = -1;
   this->ConnectOptions = NULL;
@@ -59,14 +58,13 @@ vtkQtSQLDatabase::~vtkQtSQLDatabase()
   this->SetDatabaseType(NULL);
   this->SetHostName(NULL);
   this->SetUserName(NULL);
-  this->SetPassword(NULL);
   this->SetDatabaseName(NULL);
   this->SetConnectOptions(NULL);
   this->myTables->Delete();
   this->currentRecord->Delete();
 }
 
-bool vtkQtSQLDatabase::Open()
+bool vtkQtSQLDatabase::Open(const char* password)
 {
   if (!QCoreApplication::instance())
     {
@@ -93,14 +91,6 @@ bool vtkQtSQLDatabase::Open()
     {
     this->QtDatabase.setDatabaseName(this->DatabaseName);
     }
-  if (this->UserName != NULL)
-    {
-    this->QtDatabase.setUserName(this->UserName);
-    }
-  if (this->Password != NULL)
-    {
-    this->QtDatabase.setPassword(this->Password);
-    }
   if (this->ConnectOptions != NULL)
     {
     this->QtDatabase.setConnectOptions(this->ConnectOptions);
@@ -109,7 +99,12 @@ bool vtkQtSQLDatabase::Open()
     {
     this->QtDatabase.setPort(this->Port);
     }
-  return this->QtDatabase.open();
+  if (this->QtDatabase.open(this->UserName, password))
+    {
+    return true;
+    }
+
+  return false;
 }
 
 void vtkQtSQLDatabase::Close()
@@ -241,7 +236,6 @@ void vtkQtSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
   os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
-  os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "Port: " << this->Port << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
@@ -252,7 +246,7 @@ vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL( const char* URL )
 {
   vtkstd::string protocol;
   vtkstd::string username; 
-  vtkstd::string password;
+  vtkstd::string unused;
   vtkstd::string hostname; 
   vtkstd::string dataport; 
   vtkstd::string database;
@@ -277,7 +271,7 @@ vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL( const char* URL )
     
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
-                                        password, hostname, dataport, database) )
+                                        unused, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return 0;
@@ -293,7 +287,6 @@ vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL( const char* URL )
   vtkQtSQLDatabase *qt_db = vtkQtSQLDatabase::SafeDownCast(db);
   qt_db->SetDatabaseType(qtType.toAscii());
   qt_db->SetUserName(username.c_str());
-  qt_db->SetPassword(password.c_str());
   qt_db->SetHostName(hostname.c_str());
   qt_db->SetPort(atoi(dataport.c_str()));
   qt_db->SetDatabaseName(database.c_str());
@@ -308,8 +301,6 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url = this->GetDatabaseType();
   url += "://";
   url += this->GetUserName();
-  url += ":";
-  url += this->GetPassword();
   url += "@";
   url += this->GetHostName();
   url += ":";

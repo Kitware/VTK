@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.28");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.29");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -49,13 +49,11 @@ vtkMySQLDatabase::vtkMySQLDatabase() :
   this->SetDatabaseType( "mysql" );
   this->HostName = 0;
   this->User = 0;
-  this->Password = 0;
   this->DatabaseName = 0;
   this->ConnectOptions = 0;
   // Default: connect to local machine on standard port
   this->SetHostName( "localhost" );
   this->ServerPort = VTK_MYSQL_DEFAULT_PORT;
-  //this->SetPassword( "" );
 }
 
 // ----------------------------------------------------------------------
@@ -68,7 +66,6 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   this->SetDatabaseType( 0 );
   this->SetHostName( 0 );
   this->SetUser( 0 );
-  this->SetPassword( 0 );
   this->SetDatabaseName( 0 );
   this->SetConnectOptions( 0 );
 
@@ -84,7 +81,6 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
   os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
-  os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
@@ -137,9 +133,8 @@ bool vtkMySQLDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
-bool vtkMySQLDatabase::Open()
+bool vtkMySQLDatabase::Open(const char* password)
 {
-
   if ( this->IsOpen() )
     {
     vtkGenericWarningMacro( "Open(): Database is already open." );
@@ -152,7 +147,7 @@ bool vtkMySQLDatabase::Open()
     mysql_real_connect( &this->Private->NullConnection, 
                         this->GetHostName(),
                         this->GetUser(),
-                        this->GetPassword(), 
+                        password, 
                         this->GetDatabaseName(),
                         this->GetServerPort(),
                         0, 0);
@@ -166,6 +161,9 @@ bool vtkMySQLDatabase::Open()
   else
     {
     vtkDebugMacro(<<"Open() succeeded.");
+
+    this->Password = password ? password : "";
+
     return true;
     }
 }
@@ -293,11 +291,6 @@ vtkStdString vtkMySQLDatabase::GetURL()
   if ( this->GetUser() && strlen( this->GetUser() ) )
     {
     url += this->GetUser();
-    if ( this->GetPassword() && strlen( this->GetPassword() ) )
-      {
-      url += ":";
-      url += this->GetPassword();
-      }
     url += "@";
     }
   if ( this->GetHostName() && strlen( this->GetHostName() ) )
@@ -548,7 +541,7 @@ bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = f
   query->Delete();
   // Close and re-open in case we deleted and recreated the current database
   this->Close();
-  this->Open();
+  this->Open(this->Password.c_str());
   return status;
 }
 

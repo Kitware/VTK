@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.26");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.27");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -45,7 +45,6 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->SetDatabaseType("psql");
   this->HostName = 0;
   this->User = 0;
-  this->Password = 0;
   this->DatabaseName = 0;
   this->ServerPort = -1;
   this->ConnectOptions = 0;
@@ -62,7 +61,6 @@ vtkPostgreSQLDatabase::~vtkPostgreSQLDatabase()
 
   this->SetHostName( 0 );
   this->SetUser( 0 );
-  this->SetPassword( 0 );
   this->SetDatabaseName( 0 );
   this->SetConnectOptions( 0 );
   this->SetDatabaseType( 0 );
@@ -85,7 +83,6 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
   os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
-  os << indent << "Password: " << (this->Password ? this->Password : "NULL") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
@@ -224,7 +221,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
 }
 
 // ----------------------------------------------------------------------
-bool vtkPostgreSQLDatabase::Open()
+bool vtkPostgreSQLDatabase::Open(const char* password)
 {
   if ( ! this->HostName || ! this->DatabaseName )
     {
@@ -258,10 +255,10 @@ bool vtkPostgreSQLDatabase::Open()
     options += " user=";
     options += this->User;
     }
-  if ( this->Password && strlen( this->Password ) > 0 )
+  if ( password && strlen( password ) > 0 )
     {
     options += " password=";
-    options += this->Password;
+    options += password;
     }
   if ( this->ConnectOptions && strlen( this->ConnectOptions ) > 0 )
     {
@@ -277,6 +274,7 @@ bool vtkPostgreSQLDatabase::Open()
       {
       this->SetLastErrorText( 0 );
       this->Connection->LastErrorText.clear();
+      this->Password = password ? password : "";
       return true;
       }
     }
@@ -287,6 +285,7 @@ bool vtkPostgreSQLDatabase::Open()
     {
     this->SetLastErrorText( 0 );
     this->Connection->LastErrorText.clear();
+    this->Password = password ? password : "";
     return true;
     }
 
@@ -345,11 +344,6 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     if ( this->User )
       {
       url += this->User;
-      if ( this->Password && strlen( this->Password ) )
-        {
-        url += ":";
-        url += this->Password;
-        }
       url += "@";
       }
     url += this->HostName;

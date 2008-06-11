@@ -136,9 +136,8 @@ int TestQtSQLDatabase(int argc, char* argv[])
   db->SetDatabaseType(dbtype.toStdString().c_str());
   db->SetDatabaseName(database.toStdString().c_str());
   db->SetUserName(user.toStdString().c_str());
-  db->SetPassword(password.toStdString().c_str());
   db->SetPort(port);
-  if (!db->Open())
+  if (!db->Open(password.toStdString().c_str()))
     {
     cerr << "Unable to open database" << endl;
     return 1;

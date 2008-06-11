@@ -44,7 +44,7 @@ int TestSQLGraphReader(int argc, char* argv[])
   VTK_CREATE(vtkSQLiteDatabase, database);
   database->SetDatabaseFileName(":memory:");
 
-  bool ok = database->Open();
+  bool ok = database->Open("");
   if (!ok)
     {
     cerr << "Could not open database!" << endl;

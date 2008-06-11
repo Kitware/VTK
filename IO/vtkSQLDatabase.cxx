@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.43");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.44");
 
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
@@ -307,7 +307,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
   vtkstd::string protocol;
   vtkstd::string username; 
-  vtkstd::string password;
+  vtkstd::string unused;
   vtkstd::string hostname; 
   vtkstd::string dataport; 
   vtkstd::string database;
@@ -330,7 +330,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
-                                        password, hostname, dataport, database) )
+                                        unused, hostname, dataport, database) )
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return 0;
@@ -342,7 +342,6 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     db = vtkPostgreSQLDatabase::New();
     vtkPostgreSQLDatabase *post_db = vtkPostgreSQLDatabase::SafeDownCast(db);
     post_db->SetUser(username.c_str());
-    post_db->SetPassword(password.c_str());
     post_db->SetHostName(hostname.c_str());
     post_db->SetServerPort(atoi(dataport.c_str()));
     post_db->SetDatabaseName(database.c_str());
@@ -357,10 +356,6 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     if ( username.size() )
       {
       mysql_db->SetUser(username.c_str());
-      }
-    if ( password.size() )
-      {
-      mysql_db->SetPassword(password.c_str());
       }
     if ( dataport.size() )
       {

@@ -35,7 +35,7 @@
 int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
   vtkSQLiteDatabase* db = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://:memory:" ) );
-  bool status = db->Open();
+  bool status = db->Open("");
 
   if ( ! status )
     {
@@ -165,7 +165,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   cerr << "@@ Converting the schema into a SQLite database...";
 
   vtkSQLiteDatabase* dbSch = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://:memory:" ) );
-  status = dbSch->Open();
+  status = dbSch->Open("");
 
   if ( ! status )
     {

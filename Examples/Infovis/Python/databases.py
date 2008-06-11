@@ -1,7 +1,7 @@
 from vtk import *
 
-database = vtkSQLDatabase.CreateFromURL("mysql://enron:enron@vizdb.srn.sandia.gov:3306/enron")
-database.Open()
+database = vtkSQLDatabase.CreateFromURL("mysql://enron@vizdb.srn.sandia.gov:3306/enron")
+database.Open("enron")
 
 edge_query = database.GetQueryInstance()
 edge_query.SetQuery("select sendID, recvID, weight from email_arcs")

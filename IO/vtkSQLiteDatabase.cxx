@@ -31,7 +31,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.17");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.18");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -240,8 +240,12 @@ bool vtkSQLiteDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
-bool vtkSQLiteDatabase::Open()
+bool vtkSQLiteDatabase::Open(const char* password)
 {
+  if(password && strlen(password))
+    {
+    vtkGenericWarningMacro("Password will be ignored by vtkSQLiteDatabase::Open().");
+    }
 
   if ( this->IsOpen() )
     {

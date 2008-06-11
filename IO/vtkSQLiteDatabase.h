@@ -65,7 +65,7 @@ public:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
   // database was opened successfully; false otherwise.
-  bool Open();
+  bool Open(const char* password);
 
   // Description:
   // Close the connection to the database.

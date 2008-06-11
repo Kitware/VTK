@@ -61,7 +61,7 @@ public:
   // Open a new connection to the database.  You need to set the
   // filename before calling this function.  Returns true if the
   // database was opened successfully; false otherwise.
-  bool Open();
+  bool Open(const char* password);
 
   // Description:
   // Close the connection to the database.
@@ -96,11 +96,6 @@ public:
   // The user name for connecting to the database server.
   virtual void SetUser( const char* );
   vtkGetStringMacro(User);
-
-  // Description:
-  // The user's password for connecting to the database server.
-  virtual void SetPassword( const char* );
-  vtkGetStringMacro(Password);
 
   // Description:
   // The name of the database to connect to.
@@ -181,7 +176,7 @@ protected:
   char* DatabaseType;
   char* HostName;
   char* User;
-  char* Password;
+  vtkStdString Password;
   char* DatabaseName;
   int ServerPort;
   char* ConnectOptions;

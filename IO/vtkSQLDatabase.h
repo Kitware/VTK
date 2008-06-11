@@ -85,8 +85,9 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // Description:
   // Open a new connection to the database.
   // You need to set up any database parameters before calling this function.
+  // For database connections that do not require a password, pass an empty string.
   // Returns true is the database was opened sucessfully, and false otherwise.
-  virtual bool Open() = 0;
+  virtual bool Open(const char* password) = 0;
 
   // Description:
   // Close the connection to the database.
