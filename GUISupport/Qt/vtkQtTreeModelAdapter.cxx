@@ -73,9 +73,9 @@ void vtkQtTreeModelAdapter::SetKeyColumnName(const char* name)
 void vtkQtTreeModelAdapter::SetVTKDataObject(vtkDataObject *obj)
 {
   vtkTree *t = vtkTree::SafeDownCast(obj);
-  if (!t)
+  if (obj && !t)
     {
-    cerr << "vtkQtTreeModelAdapter needs a vtkTree for SetVTKDataObject";
+    cerr << "vtkQtTreeModelAdapter needs a vtkTree for SetVTKDataObject" << endl;
     return;
     }
     
