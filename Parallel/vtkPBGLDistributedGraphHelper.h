@@ -174,7 +174,9 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   vtkPBGLDistributedGraphHelper(const vtkPBGLDistributedGraphHelper&); // Not implemented
   void operator=(const vtkPBGLDistributedGraphHelper&); // Not implemented
 
+  //BTX
   friend class vtkPBGLDistributedGraphHelperInternals;
+  //ETX
 };
 
 #endif // __vtkPBGLDistributedGraphHelper_h
