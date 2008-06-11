@@ -30,7 +30,7 @@
 #include "vtkTransformPolyDataFilter.h"
 
 
-vtkCxxRevisionMacro(vtkCameraRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkCameraRepresentation, "1.5");
 vtkStandardNewMacro(vtkCameraRepresentation);
 
 vtkCxxSetObjectMacro(vtkCameraRepresentation, Camera, vtkCamera);
@@ -264,5 +264,6 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Camera Interpolator: " << this->Interpolator << "\n";
   os << indent << "Camera: " << this->Camera << "\n";
+  os << indent << "Number of Frames: " << this->NumberOfFrames << "\n";
   
 }

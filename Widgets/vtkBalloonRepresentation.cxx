@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.9");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -463,5 +463,35 @@ void vtkBalloonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Offset: (" << this->Offset[0] << ","
      << this->Offset[1] << ")\n";
+
+  if ( this->FrameProperty )
+    {
+    os << indent << "Frame Property:\n";
+    this->FrameProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Frame Property: (none)\n";
+    }
+
+  if ( this->ImageProperty )
+    {
+    os << indent << "Image Property:\n";
+    this->ImageProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Image Property: (none)\n";
+    }
+
+  if ( this->TextProperty )
+    {
+    os << indent << "Text Property:\n";
+    this->TextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Text Property: (none)\n";
+    }
 }
 

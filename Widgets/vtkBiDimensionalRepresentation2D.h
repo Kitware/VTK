@@ -177,9 +177,10 @@ public:
 
   // Description:
   // Toggle whether to display the label above or below the widget.
-  // Defaults to 1
+  // Defaults to 1.
   vtkSetMacro(ShowLabelAboveWidget, int);
   vtkGetMacro(ShowLabelAboveWidget, int);
+  vtkBooleanMacro(ShowLabelAboveWidget, int);
 
   // Description:
   // Set/get the id to display in the label.

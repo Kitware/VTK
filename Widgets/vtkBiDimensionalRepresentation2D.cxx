@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.24");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.25");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -1089,5 +1089,32 @@ void vtkBiDimensionalRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Handle Representation: " << this->HandleRepresentation << "\n";
+  
+  os << indent << "ID: " << this->ID << "\n";
+
+  os << indent << "Label Format: ";
+  if ( this->LabelFormat )
+    {
+    os << this->LabelFormat << "\n";
+    }
+  else
+    {
+    os << "(null))\n";
+    }
+  
+  os << indent << "Point1 Representation\n";
+  this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Point2 Representation\n";
+  this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Point3 Representation\n";
+  this->Point3Representation->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Point4 Representation\n";
+  this->Point4Representation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Show Label Above Widget: "
+     << (this->ShowLabelAboveWidget ? "On\n" : "Off\n");
 }
 

@@ -26,7 +26,7 @@
 #include "vtkTextMapper.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.7");
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //-------------------------------------------------------------------------
@@ -281,4 +281,7 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
+
+  os << indent << "Anchor Representation:\n";
+  this->AnchorRepresentation->PrintSelf(os,indent.GetNextIndent());
 }
