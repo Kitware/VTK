@@ -66,7 +66,7 @@ static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.10");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.11");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -103,6 +103,8 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
 
   this->UsingScalarColoring = 0;
   this->ScalarVisibility = 1;
+
+  this->LastUsedAlpha = -1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -335,6 +337,7 @@ void vtkScalarsToColorsPainter::PrepareForRendering(vtkRenderer* renderer,
       this->GetPremultiplyColorsWithAlpha(actor),
       vtkPolyData::SafeDownCast(input));
     }
+  this->LastUsedAlpha = actor->GetProperty()->GetOpacity();
   this->Superclass::PrepareForRendering(renderer, actor);
 }
 
@@ -544,8 +547,12 @@ void vtkScalarsToColorsPainter::MapScalars(vtkPolyData* output,
     {
     colors = opfd->GetArray("Color");
     }
-  
-  if (colors && lut->GetAlpha() == alpha)
+ 
+  // The LastUsedAlpha checks ensures that opacity changes are reflected
+  // correctly when this->MapScalars(..) is called when iterating over a
+  // composite dataset.
+  if (colors && lut->GetAlpha() == alpha &&
+    this->LastUsedAlpha == alpha)
     {
     if (this->GetMTime() < colors->GetMTime() &&
       input->GetMTime() < colors->GetMTime() &&

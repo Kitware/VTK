@@ -200,6 +200,8 @@ protected:
   int InterpolateScalarsBeforeMapping;
   int ScalarMode;
   int ScalarMaterialMode;
+  double LastUsedAlpha; // Essential to ensure alpha changes work correctly 
+                        // for composite datasets.
   double ScalarRange[2];
   int ScalarVisibility;
   int UseLookupTableScalarRange;
