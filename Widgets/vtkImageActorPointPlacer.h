@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME vtkImageActorPointPlacer - Converts 2D display positions to world positions such that they lie on an ImageActor
 // .SECTION Description
-// 
-//
+// This PointPlacer is used to constrain the placement of points on the
+// supplied image actor. Additionally, you may set bounds to restrict the 
+// placement of the points. The placement of points will then be constrained 
+// to lie not only on the ImageActor but also within the bounds specified. 
+// If no bounds are specified, they may lie anywhere on the supplied ImageActor.
 // .SECTION See Also
 
 #ifndef __vtkImageActorPointPlacer_h

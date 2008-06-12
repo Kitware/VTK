@@ -12,11 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParallelopipedRepresentation - representation for the class vtkParallelopipedWidget
+// .NAME vtkParallelopipedRepresentation - Default representation for vtkParallelopipedWidget
 // .SECTION Description
-// See the vtkParallelopipedWidget class for details.
+// This class provides the default geometrical representation for 
+// vtkParallelopipedWidget. As a result of interactions of the widget, this
+// representation can take on of the following shapes:
+// <p>1) A parallelopiped. (8 handles, 6 faces)
+// <p>2) Paralleopiped with a chair depression on any one handle. (A chair
+// is a depression on one of the handles that carves inwards so as to allow 
+// the user to visualize cuts in the volume). (14 handles, 9 faces).
 //
-// .SECTION Caveats
 // .SECTION See Also
 // vtkParallelopipedWidget
 

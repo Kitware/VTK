@@ -12,10 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME vtkClosedSurfacePointPlacer - PointPlacer to constrain validity within a set of convex planes
 // .SECTION Description
+// This placer takes a set of boudning planes and constraints the validity
+// within the supplied convex planes. It is used by the 
+// ParallelopPipedRepresentation to place constraints on the motion the 
+// handles within the parallelopiped.
 // 
-// .SECTION See Also
+// .SECTION See Also 
+// vtkParallelopipedRepresentation
 
 #ifndef __vtkClosedSurfacePointPlacer_h
 #define __vtkClosedSurfacePointPlacer_h

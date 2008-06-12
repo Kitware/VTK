@@ -12,11 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME vtkBezierContourLineInterpolator - Interpolates supplied nodes with bezier line segments
 // .SECTION Description
-// 
+// The line interpolator interpolates supplied nodes (see InterpolateLine)
+// with bezier line segments. The finess of the curve may be controlled using
+// SetMaximumCurveError and SetMaximumNumberOfLineSegments.
 //
 // .SECTION See Also
+// vtkContourLineInterpolator
 
 #ifndef __vtkBezierContourLineInterpolator_h
 #define __vtkBezierContourLineInterpolator_h
@@ -41,9 +44,17 @@ public:
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 );
   
+  // Description:
+  // The difference between a line segment connecting two points and the curve
+  // connecting the same points. In the limit of the length of the curve 
+  // dx -> 0, the two values will be the same. The smaller this number, the 
+  // finer the bezier curve will be interpolated. Default is 0.005
   vtkSetClampMacro(MaximumCurveError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumCurveError, double);
 
+  // Description:
+  // Maximum number of bezier line segments between two nodes. Larger values
+  // create a finer interpolation. Default is 100.
   vtkSetClampMacro(MaximumCurveLineSegments, int, 1, 1000);
   vtkGetMacro(MaximumCurveLineSegments, int);
   
