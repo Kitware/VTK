@@ -29,7 +29,9 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQueryToTable, "1.4");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkRowQueryToTable, "1.5");
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()
@@ -109,7 +111,28 @@ int vtkRowQueryToTable::RequestData(
       arr = vtkAbstractArray::CreateArray(type);
       }
 
-    arr->SetName(this->Query->GetFieldName(c));
+    // Make sure name doesn't clash with existing name.
+    const char* name = this->Query->GetFieldName(c);
+    if (output->GetColumnByName(name))
+      {
+      int i = 1;
+      vtksys_ios::ostringstream oss;
+      vtkStdString newName;
+      do
+        {
+        oss.str("");
+        oss << name << "_" << i;
+        newName = oss.str();
+        ++i;
+        } while (output->GetColumnByName(newName));
+      arr->SetName(newName);
+      }
+    else
+      {
+      arr->SetName(name);
+      }
+
+    // Add the column to the table.
     output->AddColumn(arr);
     arr->Delete();
     }
