@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkParallelopipedWidget.h" // REMOVE
 
-vtkCxxRevisionMacro(vtkWidgetSet, "1.2");
+vtkCxxRevisionMacro(vtkWidgetSet, "1.3");
 vtkStandardNewMacro(vtkWidgetSet);
 
 //----------------------------------------------------------------------
@@ -60,7 +60,7 @@ void vtkWidgetSet::AddWidget( vtkAbstractWidget *w )
   w->Register(this);
 
   // TODO : Won't be necessary if we move this to the AbstractWidget.. superclass
-  ((vtkParallelopipedWidget*)w)->WidgetSet = this;
+  static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = this;
 }
 
 //----------------------------------------------------------------------
@@ -72,7 +72,7 @@ void vtkWidgetSet::RemoveWidget( vtkAbstractWidget * w)
     if (*it == w)
       {
       this->Widget.erase(it);
-      ((vtkParallelopipedWidget*)w)->WidgetSet = NULL;
+      static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = NULL;
       w->UnRegister(this);
       break;
       }

@@ -286,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.9");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -1426,7 +1426,8 @@ void vtkParallelopipedRepresentation::Translate( int X, int Y )
 
   // First compute the centroid. Its only use is to determine a reference 
   // plane, on which we will assume lastEventPos and eventPos lie.
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double center[3] = {0.0, 0.0, 0.0};
   for (int i=0; i<8; i++)
     {
@@ -1466,7 +1467,8 @@ void vtkParallelopipedRepresentation::Translate( int X, int Y )
 // Loop through all points and translate them
 void vtkParallelopipedRepresentation::Translate(double translation[3])
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   for (int i=0; i<16; i++)
     {
     *pts++ += translation[0];
@@ -1482,9 +1484,10 @@ void vtkParallelopipedRepresentation::Translate(double translation[3])
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::Scale( int vtkNotUsed(X), int Y )
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+          static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *center 
-    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double sf = ( Y > this->LastEventPosition[1] ? 1.03 : 0.97 );
   
   for (int i=0; i<16; i++, pts+=3)

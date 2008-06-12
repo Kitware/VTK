@@ -157,7 +157,7 @@ public:
     for (WidgetIteratorType it  = this->Widget.begin(); 
                             it != this->Widget.end()  ; ++it)
       {
-      TWidget *w = (TWidget *)(*it);
+      TWidget *w = static_cast<TWidget *>(*it);
       if (caller == w)
         {
         ((*w).*(action))(caller); 
@@ -169,7 +169,7 @@ public:
     for (WidgetIteratorType it  = this->Widget.begin(); 
                             it != this->Widget.end()  ; ++it)
       {
-      TWidget *w = (TWidget *)(*it);
+      TWidget *w = static_cast<TWidget *>(*it);
       if (caller != w) ((*w).*(action))(caller);
       }
     }

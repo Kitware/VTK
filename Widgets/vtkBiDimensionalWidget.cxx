@@ -314,7 +314,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
     vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->StartWidgetDefinition(e);
     self->CurrentHandle = 0;
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Line1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
     self->CurrentHandle++;
@@ -323,10 +323,10 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
   // If defining we are placing the second or third point
   else if ( self->WidgetState == vtkBiDimensionalWidget::Define )
     {
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     if ( self->CurrentHandle == 1 )
       {
-      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+      self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
       vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point2WidgetInteraction(e);
       self->CurrentHandle++;
       self->Point2Widget->SetEnabled(1);
@@ -336,7 +336,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       }
     else if ( self->CurrentHandle == 2 )
       {
-      self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+      self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
       self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;

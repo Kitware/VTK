@@ -32,7 +32,7 @@
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.1");
+vtkCxxRevisionMacro(vtkPolygonalHandleRepresentation3D, "1.2");
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 
 vtkCxxSetObjectMacro(vtkPolygonalHandleRepresentation3D,Property,vtkProperty);
@@ -477,8 +477,8 @@ void vtkPolygonalHandleRepresentation3D::Translate(double *p1, double *p2)
 void vtkPolygonalHandleRepresentation3D
 ::Scale(double *, double *, double eventPos[2])
 {
-  double sf = 1.0 + (double)(eventPos[1] - this->LastEventPosition[1])
-                   / (double)(this->Renderer->GetSize()[1]);
+  double sf = 1.0 + (eventPos[1] - this->LastEventPosition[1])
+                   / this->Renderer->GetSize()[1];
   if (sf == 1.0)
     {
     return;

@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.25");
+vtkCxxRevisionMacro(vtkBiDimensionalRepresentation2D, "1.26");
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 
@@ -884,44 +884,44 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     int maxX = VTK_INT_MIN, maxY = VTK_INT_MIN;
     if (p1[1] > maxY)
       {
-      maxX = (int)p1[0];
-      maxY = (int)p1[1];
+      maxX = static_cast<int>(p1[0]);
+      maxY = static_cast<int>(p1[1]);
       }
     if (p2[1] > maxY)
       {
-      maxX = (int)p2[0];
-      maxY = (int)p2[1];
+      maxX = static_cast<int>(p2[0]);
+      maxY = static_cast<int>(p2[1]);
       }
     if (p3[1] > maxY)
       {
-      maxX = (int)p3[0];
-      maxY = (int)p3[1];
+      maxX = static_cast<int>(p3[0]);
+      maxY = static_cast<int>(p3[1]);
       }
     if (p4[1] > maxY)
       {
-      maxX = (int)p4[0];
-      maxY = (int)p4[1];
+      maxX = static_cast<int>(p4[0]);
+      maxY = static_cast<int>(p4[1]);
       }
     int minX = VTK_INT_MAX, minY = VTK_INT_MAX;
     if (p1[1] < minY)
       {
-      minX = (int)p1[0];
-      minY = (int)p1[1];
+      minX = static_cast<int>(p1[0]);
+      minY = static_cast<int>(p1[1]);
       }
     if (p2[1] < minY)
       {
-      minX = (int)p2[0];
-      minY = (int)p2[1];
+      minX = static_cast<int>(p2[0]);
+      minY = static_cast<int>(p2[1]);
       }
     if (p3[1] < minY)
       {
-      minX = (int)p3[0];
-      minY = (int)p3[1];
+      minX = static_cast<int>(p3[0]);
+      minY = static_cast<int>(p3[1]);
       }
     if (p4[1] < minY)
       {
-      minX = (int)p4[0];
-      minY = (int)p4[1];
+      minX = static_cast<int>(p4[0]);
+      minY = static_cast<int>(p4[1]);
       }
     int textSize[2];
     this->TextMapper->GetSize(this->Renderer, textSize);
