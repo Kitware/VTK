@@ -286,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.8");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -1575,5 +1575,71 @@ void vtkParallelopipedRepresentation::BuildRepresentation()
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
- this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Minimum Thickness: " << this->MinimumThickness << "\n";
+
+  if ( this->HandleProperty )
+    {
+    os << indent << "Handle Property: " << this->HandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Handle Property: (none)\n";
+    }
+
+  if ( this->HoveredHandleProperty )
+    {
+    os << indent << "Hovered Handle Property: " << this->HoveredHandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Hovered Handle Property: (none)\n";
+    }
+
+  if ( this->FaceProperty )
+    {
+    os << indent << "Face Property: " << this->FaceProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Face Property: (none)\n";
+    }
+
+  if ( this->OutlineProperty )
+    {
+    os << indent << "Outline Property: " << this->OutlineProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Outline Property: (none)\n";
+    }
+
+  if ( this->SelectedHandleProperty )
+    {
+    os << indent << "Selected Handle Property: " << this->SelectedHandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Handle Property: (none)\n";
+    }
+
+  if ( this->SelectedFaceProperty )
+    {
+    os << indent << "Selected Face Property: " << this->SelectedFaceProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Face Property: (none)\n";
+    }
+
+  if ( this->SelectedOutlineProperty )
+    {
+    os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Outline Property: (none)\n";
+    }
+
 }
