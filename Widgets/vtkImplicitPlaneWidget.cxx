@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.10");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -448,6 +448,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
+
+  os << indent << "Diagonal Ratio: " << this->DiagonalRatio << "\n";
 }
 
 

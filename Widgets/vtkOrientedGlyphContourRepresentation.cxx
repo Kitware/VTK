@@ -41,7 +41,7 @@
 #include "vtkBezierContourLineInterpolator.h"
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.16");
+vtkCxxRevisionMacro(vtkOrientedGlyphContourRepresentation, "1.17");
 vtkStandardNewMacro(vtkOrientedGlyphContourRepresentation);
 
 //----------------------------------------------------------------------
@@ -723,4 +723,34 @@ void vtkOrientedGlyphContourRepresentation::PrintSelf(ostream& os,
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Always On Top: " 
+     << (this->AlwaysOnTop ? "On\n" : "Off\n");
+
+  if ( this->Property )
+    {
+    os << indent << "Property: " << this->Property << "\n";
+    }
+  else
+    {
+    os << indent << "Property: (none)\n";
+    }
+
+  if ( this->ActiveProperty )
+    {
+    os << indent << "Active Property: " << this->ActiveProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Active Property: (none)\n";
+    }
+
+  if ( this->LinesProperty )
+    {
+    os << indent << "Lines Property: " << this->LinesProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Lines Property: (none)\n";
+    }
+
 }
