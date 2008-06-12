@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.25");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.26");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -540,11 +540,11 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     {
     this->EdgeActor->RenderOpaqueGeometry(ren);
     }
-  this->VertexActor->RenderOpaqueGeometry(ren);
   if (this->OutlineActor->GetVisibility())
     {
     this->OutlineActor->RenderOpaqueGeometry(ren);
     }
+  this->VertexActor->RenderOpaqueGeometry(ren);
   if (this->IconActor->GetVisibility())
     {
     this->IconActor->RenderOpaqueGeometry(ren);
