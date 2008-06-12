@@ -158,6 +158,11 @@ public:
   // of the first point and the index of the last point.  The extent should
   // be set before the "Scalars" are set or allocated.  The Extent is
   // stored in the order (X, Y, Z).
+  // The dataset extent does not have to start at (0,0,0). (0,0,0) is just the
+  // extent of the origin.
+  // The first point (the one with Id=0) is at extent
+  // (Extent[0],Extent[2],Extent[4]). As for any dataset, a data array on point
+  // data starts at Id=0.
   virtual void SetExtent(int extent[6]);
   virtual void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   vtkGetVector6Macro(Extent, int);
@@ -253,8 +258,12 @@ public:
   vtkGetVector3Macro(Spacing,double);
 
   // Description:
-  // Set the origin of the data. The origin plus spacing determine the
-  // position in space of the points.
+  // Set/Get the origin of the dataset. The origin is the position in world
+  // coordinates of the point of extent (0,0,0). This point does not have to be
+  // part of the dataset, in other words, the dataset extent does not have to
+  // start at (0,0,0) and the origin can be outside of the dataset bounding
+  // box.
+  // The origin plus spacing determine the position in space of the points.
   vtkSetVector3Macro(Origin,double);
   vtkGetVector3Macro(Origin,double);
 
