@@ -40,7 +40,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkSphereRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkSphereRepresentation, "1.8");
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //----------------------------------------------------------------------------
@@ -835,6 +835,24 @@ void vtkSphereRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Handle Text: " << this->HandleText << "\n";
   os << indent << "Radial Line: " << this->RadialLine << "\n";
+  
+  if ( this->HandleTextProperty )
+    {
+    os << indent << "Handle Text Property: " << this->HandleTextProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Handle Text Property: (none)\n";
+    }
+
+  if ( this->RadialLineProperty )
+    {
+    os << indent << "Radial Line Property: " << this->RadialLineProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Radial Line Property: (none)\n";
+    }
 }
 
 

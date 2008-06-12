@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.13");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -858,6 +858,8 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Representation State: " << this->RepresentationState << "\n";
   
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }
 
 

@@ -65,7 +65,7 @@ protected:
   vtkPolyDataContourLineInterpolator();
   ~vtkPolyDataContourLineInterpolator();
 
-  vtkPolyDataCollection                   *Polys;
+  vtkPolyDataCollection *Polys;
 
 private:
   vtkPolyDataContourLineInterpolator(

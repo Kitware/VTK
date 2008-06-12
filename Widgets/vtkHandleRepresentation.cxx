@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPointPlacer.h"
 
-vtkCxxRevisionMacro(vtkHandleRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkHandleRepresentation, "1.12");
 
 vtkCxxSetObjectMacro(vtkHandleRepresentation, PointPlacer, vtkPointPlacer );
 
@@ -195,4 +195,7 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "PointPlacer: (none)\n";
     }
+
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }

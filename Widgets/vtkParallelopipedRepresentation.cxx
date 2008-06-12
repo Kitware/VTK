@@ -286,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.10");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -1645,4 +1645,6 @@ void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Outline Property: (none)\n";
     }
 
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }

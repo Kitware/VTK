@@ -50,7 +50,7 @@ protected:
     
 };
 
-vtkCxxRevisionMacro(vtkTextRepresentation, "1.10");
+vtkCxxRevisionMacro(vtkTextRepresentation, "1.11");
 vtkStandardNewMacro(vtkTextRepresentation);
 
 //-------------------------------------------------------------------------
@@ -365,5 +365,21 @@ void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Text Actor: " << this->TextActor << "\n";
-  
+
+  os << indent << "Window Location: ";
+  switch ( this->WindowLocation )
+    {
+    case LowerLeftCorner:
+      os << "LowerLeftCorner\n";
+    case LowerRightCorner:
+      os << "LowerRightCorner\n";
+    case LowerCenter:
+      os << "LowerCenter\n";
+    case UpperLeftCorner:
+      os << "UpperLeftCorner\n";
+    case UpperRightCorner:
+      os << "UpperRightCorner\n";
+    case UpperCenter:
+      os << "UpperCenter\n";
+    }
 }

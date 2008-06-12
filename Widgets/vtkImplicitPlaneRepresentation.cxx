@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.12");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -602,6 +602,9 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Enabled: " 
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
+
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }
 
 
