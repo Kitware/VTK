@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.2");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.3");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 
 
@@ -200,7 +200,7 @@ void vtkGeoAlignedImageSource::LoadTiles(const char* loc, vtkGeoImageNode* n)
 
     // Find the max depth of the database.
     this->TileDatabaseDepth = 0;
-    vtksys_ios::ifstream in;
+    ifstream in;
     char tileFile[100];
     sprintf(tileFile, "%s/tile_%d_0.vti", loc, this->TileDatabaseDepth);
     in.open(tileFile, ifstream::in);
