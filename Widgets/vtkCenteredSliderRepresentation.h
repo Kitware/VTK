@@ -171,7 +171,8 @@ private:
   double ButtonSize;
   double TubeSize;
 
-  vtkCenteredSliderRepresentation(const vtkCenteredSliderRepresentation&); // Not implented
+  vtkCenteredSliderRepresentation
+    (const vtkCenteredSliderRepresentation&); // Not implemented
   void operator=(const vtkCenteredSliderRepresentation&);  //Not implemented
 };
 
