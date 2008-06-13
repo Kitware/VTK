@@ -30,13 +30,12 @@
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 #include "vtkSmartPointer.h" // for SP
-//#include "vtkGeoPatch.h" // for SP
 #include "vtkGeoAlignedImageCache.h"
 
 
 class vtkGeoTerrain;
 class vtkAssembly;
-class vtkGeoPatch'
+class vtkGeoPatch;
 
 class VTK_GEOVIS_EXPORT vtkGeoAlignedImage : public vtkObject
 {
