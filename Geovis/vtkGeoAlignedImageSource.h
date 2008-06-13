@@ -29,8 +29,8 @@
 #define __vtkGeoAlignedImageSource_h
 
 #include "vtkObject.h"
-#include "vtkSmartPointer.h"
-#include "vtkGeoImageNode.h"
+#include "vtkSmartPointer.h" // for SP
+#include "vtkGeoImageNode.h" // for SP
 
 class vtkImageData;
 
