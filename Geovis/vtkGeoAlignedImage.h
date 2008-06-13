@@ -27,8 +27,8 @@
 #ifndef __vtkGeoAlignedImage_h
 #define __vtkGeoAlignedImage_h
 
-#include <vtkstd/vector>
-#include <vtkstd/stack>
+#include <vtkstd/vector> // vector
+#include <vtkstd/stack> // stack
 #include "vtkSmartPointer.h" // for SP
 #include "vtkGeoAlignedImageCache.h"
 

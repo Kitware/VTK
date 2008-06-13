@@ -33,7 +33,7 @@
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
-#include <vtkstd/vector>
+#include <vtkstd/vector> // vector
 
 class vtkGeoTerrainNode;
 class vtkGeoTerrainCache;
