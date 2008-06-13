@@ -36,11 +36,10 @@
 
 #include "vtkGeoRepresentation.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkAssembly.h"
-#include "vtkGeoAlignedImage.h"
+#include "vtkSmartPointer.h" // for SP
+#include "vtkAssembly.h" // for SP
+#include "vtkGeoAlignedImage.h" // for SP
 
-class vtkAssembly;
 class vtkRenderer;
 class vtkGeoCamera;
 

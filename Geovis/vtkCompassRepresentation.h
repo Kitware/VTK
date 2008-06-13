@@ -29,8 +29,8 @@
 
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
-#include "vtkCenteredSliderRepresentation.h"
-#include "vtkSmartPointer.h"
+#include "vtkCenteredSliderRepresentation.h" // to use in a SP
+#include "vtkSmartPointer.h" // used for SmartPointers
 
 class vtkActor2D;
 class vtkPoints;
@@ -195,8 +195,8 @@ protected:
   double Distance;
 
 private:
-  vtkCompassRepresentation(const vtkCompassRepresentation&); 
-  void operator=(const vtkCompassRepresentation&); 
+  vtkCompassRepresentation(const vtkCompassRepresentation&); //Not implemented 
+  void operator=(const vtkCompassRepresentation&); //Not implemented
 };
 
 #endif

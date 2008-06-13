@@ -26,10 +26,8 @@
 #define __vtkGeoTerrainGlobeSource_h
 
 #include "vtkGeoTerrainSource.h"
-#include "vtkSmartPointer.h"
 
 class vtkGeoTerrainNode;
-class vtkPolyData;
 
 class VTK_GEOVIS_EXPORT vtkGeoTerrainGlobeSource : public vtkGeoTerrainSource
 {

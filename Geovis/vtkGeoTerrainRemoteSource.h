@@ -28,10 +28,8 @@
 #define __vtkGeoTerrainRemoteSource_h
 
 #include "vtkGeoTerrainSource.h"
-#include "vtkSmartPointer.h"
 
 class vtkGeoTerrainNode;
-class vtkPolyData;
 
 class VTK_GEOVIS_EXPORT vtkGeoTerrainRemoteSource : public vtkGeoTerrainSource
 {

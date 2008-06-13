@@ -34,17 +34,14 @@
 #ifndef __vtkGeoTerrainCache_h
 #define __vtkGeoTerrainCache_h
 
-#include "vtkObject.h"
-#include "vtkSmartPointer.h"
-#include "vtkGeoTerrainNode.h"
-#include "vtkGeoTerrainSource.h"
-#include "vtkMultiThreader.h"
+#include "vtkSmartPointer.h" // for SP
+#include "vtkGeoTerrainNode.h" // for SP
+#include "vtkGeoTerrainSource.h" // for SP
+#include "vtkMultiThreader.h" // for SP
 
 class vtkCamera;
 class vtkGeoCamera;
 class vtkGeoTerrain;
-class vtkGeoTerrainNode;
-class vtkGeoTerrainSource;
 
 class VTK_GEOVIS_EXPORT vtkGeoTerrainCache : public vtkObject
 {
@@ -106,7 +103,7 @@ protected:
   void Request(vtkGeoTerrainNode* node, vtkGeoCamera* cam);
 
   //BTX
-vtkSmartPointer<vtkGeoTerrainNode> EasternHemisphere;
+  vtkSmartPointer<vtkGeoTerrainNode> EasternHemisphere;
   vtkSmartPointer<vtkGeoTerrainNode> WesternHemisphere;
   vtkSmartPointer<vtkGeoTerrainSource> TerrainSource;
 
