@@ -31,10 +31,11 @@
 #define __vtkGeoAlignedImageCache_h
 
 #include "vtkSmartPointer.h" // for SP
-#include "vtkGeoAlignedImageSource.h"
+#include "vtkGeoAlignedImageSource.h" // for SP
 #include "vtkGeoImageNode.h" // for SP
 #include "vtkGeoTerrain.h" // for SP
 #include "vtkMultiThreader.h" // for SP
+#include "vtkObject.h"
 
 class vtkGeoTerrainNode;
 

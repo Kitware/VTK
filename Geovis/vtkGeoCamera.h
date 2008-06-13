@@ -69,8 +69,9 @@
 #ifndef __vtkGeoCamera_h
 #define __vtkGeoCamera_h
 
+#include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
-#include "vtkCamera.h"
+#include "vtkCamera.h" // for SP
 #include "vtkTransform.h" // for SP
 
 class vtkGeoTerrainNode;

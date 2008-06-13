@@ -30,7 +30,8 @@
 #include <vtkstd/vector> // vector
 #include <vtkstd/stack> // stack
 #include "vtkSmartPointer.h" // for SP
-#include "vtkGeoAlignedImageCache.h"
+#include "vtkGeoAlignedImageCache.h" // for SP
+#include "vtkObject.h"
 
 
 class vtkGeoTerrain;
