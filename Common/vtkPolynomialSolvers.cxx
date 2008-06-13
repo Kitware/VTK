@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.35");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.36");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -323,7 +323,7 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
                                                      SSS + offset,            degree, 
                                                      SSS + offset + degree + 1,
                                                      1.e-6 );
-    offsets[nSSS + 1] = offsets[nSSS] + 2 * degrees[nSSS] - degrees[nSSS + 1];
+    offsets[nSSS + 1] = offset + 2 * degrees[nSSS] - degrees[nSSS + 1];
    }
 
   int nRoots = varSgn[0] - varSgn[1];
