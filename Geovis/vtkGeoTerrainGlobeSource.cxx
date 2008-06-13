@@ -1,7 +1,7 @@
 /*=============================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeoMath.cxx
+  Module:    vtkGeoTerrainGlobeSource.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,64 +12,62 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =============================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-
 #include "vtkObjectFactory.h"
-#include "vtkGeoMath.h"
-#include "vtkMath.h"
+#include "vtkGeoTerrainGlobeSource.h"
+#include "vtkGeoTerrainNode.h"
+#include "vtkGlobeSource.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGeoMath, "1.2");
-vtkStandardNewMacro(vtkGeoMath);
+vtkCxxRevisionMacro(vtkGeoTerrainGlobeSource, "1.1");
+vtkStandardNewMacro(vtkGeoTerrainGlobeSource);
 
 
 //----------------------------------------------------------------------------
-vtkGeoMath::vtkGeoMath() 
+vtkGeoTerrainGlobeSource::vtkGeoTerrainGlobeSource() 
 {
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoMath::~vtkGeoMath() 
+vtkGeoTerrainGlobeSource::~vtkGeoTerrainGlobeSource() 
 {  
 }
 
 //-----------------------------------------------------------------------------
-void vtkGeoMath::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGeoTerrainGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
-
 //-----------------------------------------------------------------------------
-double vtkGeoMath::DistanceSquared(double pt0[3], double pt1[3])
+void vtkGeoTerrainGlobeSource::GenerateTerrainForNode(vtkGeoTerrainNode* node)
 {
-  double tmp;
-  double d2;
+  double* range;
+  vtkSmartPointer<vtkGlobeSource> globe = vtkSmartPointer<vtkGlobeSource>::New();
+
+  range = node->GetLongitudeRange();
+  globe->SetStartLongitude(range[0]);
+  globe->SetEndLongitude(range[1]);
+
+  range = node->GetLatitudeRange();
+  globe->SetStartLatitude(range[0]);
+  globe->SetEndLatitude(range[1]);
+
+  globe->SetLongitudeResolution(16);
+  globe->SetLatitudeResolution(16);
   
-  tmp = pt1[0] - pt0[0];
-  d2 = tmp * tmp;
-  tmp = pt1[1] - pt0[1];
-  d2 += tmp * tmp;
-  tmp = pt1[2] - pt0[2];
-  d2 += tmp * tmp;
-  
-  return d2;
+  globe->SetCurtainHeight(20000.0);
+  globe->Update();
+
+  vtkSmartPointer<vtkPolyData> model = vtkSmartPointer<vtkPolyData>::New();
+  model->ShallowCopy(globe->GetOutput());
+
+  node->SetModel(model);
+  node->UpdateBoundingSphere();
 }
 
-//-----------------------------------------------------------------------------
-void vtkGeoMath::LongLatAltToRect(double longLatAlt[3], double rect[3])
-{
-  double theta = longLatAlt[0] * vtkMath::DegreesToRadians();
-  double phi = longLatAlt[1] * vtkMath::DegreesToRadians();
-  double cosPhi = cos(phi);
-  double radius = vtkGeoMath::EarthRadiusMeters()+ longLatAlt[2];
-
-  rect[2] = sin(phi) * radius;
-  rect[1] = cos(theta) * cosPhi * radius;
-  rect[0] = -sin(theta) * cosPhi * radius;
-}
 

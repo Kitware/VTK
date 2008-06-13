@@ -1,18 +1,50 @@
 SET(KIT Geovis)
 SET(UKIT GEOVIS)
-SET(KIT_TCL_LIBS vtkWidgetsTCL)
-SET(KIT_PYTHON_LIBS vtkWidgetsPythonD)
-SET(KIT_JAVA_LIBS vtkWidgetsJava)
-SET(KIT_LIBS vtkWidgets ${VTK_LIBXML2_LIBRARIES})
+SET(KIT_TCL_LIBS vtkWidgetsTCL vtkViewsTCL)
+SET(KIT_PYTHON_LIBS vtkWidgetsPythonD vtkViewsPythonD)
+SET(KIT_JAVA_LIBS vtkWidgetsJava vtkViewsJava)
+SET(KIT_LIBS vtkWidgets vtkViews ${VTK_LIBXML2_LIBRARIES})
 
 SET( Kit_SRCS
+  vtkCompassRepresentation.cxx
+  vtkCompassWidget.cxx
+  vtkGeoAdaptiveArcs.cxx
+  vtkGeoAlignedImage.cxx
+  vtkGeoAlignedImageCache.cxx
+  vtkGeoAlignedImageRepresentation.cxx
+  vtkGeoAlignedImageSource.cxx
+  vtkGeoArcs.cxx
+  vtkGeoAssignCoordinates.cxx
+  vtkGeoCamera.cxx
+  vtkGeoComputeTextureCoordinates.cxx  
+  vtkGeoGraphRepresentation.cxx
+  vtkGeoImageNode.cxx
+  vtkGeoInteractorStyle.cxx
+  vtkGeoLineRepresentation.cxx
   vtkGeoMath.cxx
+  vtkGeoPatch.cxx
+  vtkGeoRepresentation.cxx
+  vtkGeoSampleArcs.cxx  
+  vtkGeoTreeNode.cxx
+  vtkGeoTerrain.cxx
+  vtkGeoTerrainCache.cxx
+  vtkGeoTerrainGlobeSource.cxx
+  vtkGeoTerrainNode.cxx
+  vtkGeoTerrainRemoteSource.cxx
+  vtkGeoTerrainSource.cxx
+  vtkGeoView.cxx
+  vtkGlobeSource.cxx
 )
 
-#SET_SOURCE_FILES_PROPERTIES(
-#vtkUnivariateStatisticsAlgorithm.cxx
-#ABSTRACT
-#)
+SET_SOURCE_FILES_PROPERTIES(
+  vtkGeoPatch.cxx
+  ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkGeoPatch.cxx
+  WRAP_EXCLUDE
+)
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

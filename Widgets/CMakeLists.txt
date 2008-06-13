@@ -30,7 +30,10 @@ vtkCameraRepresentation.cxx
 vtkCameraWidget.cxx
 vtkCaptionRepresentation.cxx
 vtkCaptionWidget.cxx
+vtkCenteredSliderRepresentation.cxx
 vtkCenteredSliderWidget.cxx
+vtkContinuousValueWidget.cxx
+vtkContinuousValueWidgetRepresentation.cxx
 vtkContourLineInterpolator.cxx
 vtkContourRepresentation.cxx
 vtkFocalPlaneContourRepresentation.cxx
@@ -112,12 +115,14 @@ vtk3DWidget
 vtkAbstractWidget
 vtkAffineRepresentation
 vtkAngleRepresentation
-vtkPolyDataContourLineInterpolator
+vtkContinuousValueWidget.cxx
+vtkContinuousValueWidgetRepresentation.cxx
 vtkContourLineInterpolator
 vtkContourRepresentation
 vtkFocalPlaneContourRepresentation
 vtkDistanceRepresentation
 vtkHandleRepresentation
+vtkPolyDataContourLineInterpolator
 vtkPolyDataSourceWidget
 vtkSliderRepresentation
 vtkTensorProbeRepresentation
