@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.1");
+vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.2");
 vtkStandardNewMacro(vtkGeoSampleArcs);
 
 vtkGeoSampleArcs::vtkGeoSampleArcs()
@@ -84,8 +84,6 @@ int vtkGeoSampleArcs::RequestData(
     double curPoint[3];
     double lastPtLL[2];
     double curPtLL[2];
-    double lastVec[3];
-    double curVec[3];
     curPoint[0] = pointsPtr[3*pts[0]+0];
     curPoint[1] = pointsPtr[3*pts[0]+1];
     curPoint[2] = pointsPtr[3*pts[0]+2];
