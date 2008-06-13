@@ -21,12 +21,13 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgeCenters, "1.1");
+vtkCxxRevisionMacro(vtkEdgeCenters, "1.2");
 vtkStandardNewMacro(vtkEdgeCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -87,9 +88,53 @@ int vtkEdgeCenters::RequestData(
     double p2[3];
     input->GetPoint(e.Source, p1);
     input->GetPoint(e.Target, p2);
-    for (int c = 0; c < 3; ++c)
+    vtkIdType npts = 0;
+    double* pts = 0;
+    input->GetEdgePoints(e.Id, npts, pts);
+    // Find the length of the edge
+    if (npts == 0)
       {
-      x[c] = (p1[c] + p2[c]) / 2.0;
+      for (int c = 0; c < 3; ++c)
+        {
+        x[c] = (p1[c] + p2[c]) / 2.0;
+        }
+      }
+    else
+      {
+      vtkIdType nptsFull = npts + 2;
+      double* ptsFull = new double[3*(nptsFull)];
+      ptsFull[0] = p1[0];
+      ptsFull[1] = p1[1];
+      ptsFull[2] = p1[2];
+      memcpy(ptsFull+3, pts, sizeof(double)*3*npts);
+      ptsFull[3*(nptsFull-1)+0] = p2[0];
+      ptsFull[3*(nptsFull-1)+1] = p2[1];
+      ptsFull[3*(nptsFull-1)+2] = p2[2];
+
+      double len = 0.0;
+      double* curPt = ptsFull;
+      for (vtkIdType i = 0; i < nptsFull-1; ++i, curPt += 3)
+        {
+        len += sqrt(vtkMath::Distance2BetweenPoints(curPt, curPt+3));
+        }
+      double half = len / 2;
+      len = 0.0;
+      curPt = ptsFull;
+      for (vtkIdType i = 0; i < nptsFull-1; ++i, curPt += 3)
+        {
+        double curDist = sqrt(vtkMath::Distance2BetweenPoints(curPt, curPt+3));
+        if (len + curDist > half)
+          {
+          double alpha = (half - len)/curDist;
+          for (int c = 0; c < 3; ++c)
+            {
+            x[c] = (1.0 - alpha)*curPt[c] + alpha*curPt[c+3];
+            }
+          break;
+          }
+        len += curDist;
+        }
+      delete [] ptsFull;
       }
     newPts->SetPoint(e.Id, x);
     ++processed;
