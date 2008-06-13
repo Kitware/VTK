@@ -73,7 +73,7 @@ protected:
 private:
   vtkContinuousValueWidgetRepresentation
   (const vtkContinuousValueWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkContinuousValueWidgetRepresentation&);  
+  void operator=(const vtkContinuousValueWidgetRepresentation&); // Not implemented
 };
 
 #endif
