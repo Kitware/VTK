@@ -34,6 +34,7 @@
 #ifndef __vtkGeoTerrainCache_h
 #define __vtkGeoTerrainCache_h
 
+#include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
 #include "vtkGeoTerrainNode.h" // for SP
 #include "vtkGeoTerrainSource.h" // for SP

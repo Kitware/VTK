@@ -28,7 +28,7 @@
 #define __vtkGeoTerrainNode_h
 
 #include "vtkGeoTreeNode.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // for SP
 
 class vtkPolyData;
 
