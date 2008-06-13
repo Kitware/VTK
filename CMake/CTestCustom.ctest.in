@@ -56,7 +56,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
   # results:
   "include.[Qq]t([Cc]ore|[Gg]ui).*warning C4127: conditional expression is constant"
-  "[Qq]t.*h.*warning.*declaration of .parent. shadows a member of .this"
+  "[Qq]t.*h.*warning.*declaration of .* shadows a member of .this"
   "[Qq]t.*h.*warning.*(copy constructor|assignment operator) could not be generated"
 
   # Specifically for HP compiler, mask out
