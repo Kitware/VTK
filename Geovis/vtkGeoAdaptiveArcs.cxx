@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.1");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.2");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
 vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs()
@@ -177,7 +177,7 @@ int vtkGeoAdaptiveArcs::RequestData(
       curPoint[2] = pointsPtr[3*pts[p]+2];
       curPtLL[0] = this->InputLongitude->GetValue(pts[p]);
       curPtLL[1] = this->InputLatitude->GetValue(pts[p]);
-      double curVecSize = 0;
+      curVecSize = 0;
       for (int c = 0; c < 3; ++c)
         {
         curVec[c] = curPoint[c] - cameraPos[c];
