@@ -32,8 +32,8 @@
 #define __vtkGeoTerrain_h
 
 #include "vtkObject.h"
-#include "vtkSmartPointer.h"
-#include "vtkstd/vector"
+#include "vtkSmartPointer.h" // for SP
+#include <vtkstd/vector>
 
 class vtkGeoTerrainNode;
 class vtkGeoTerrainCache;

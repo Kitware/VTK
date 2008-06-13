@@ -44,32 +44,32 @@ public:
   // Description:
   // Load an image from a file with the default extent of the full globe.
   // If dbLocation is specified, output all tiles to that location.
-  void LoadImage(const char* fileName, const char* dbLocation = 0)
+  void LoadAnImage(const char* fileName, const char* dbLocation = 0)
     {
     double ext[4] = {-180.0, 180.0, -90.0, 90.0};
-    this->LoadImage(fileName, ext, dbLocation);
+    this->LoadAnImage(fileName, ext, dbLocation);
     }
-  void LoadImage(vtkImageData* data, const char* dbLocation = 0)
+  void LoadAnImage(vtkImageData* data, const char* dbLocation = 0)
     {
     double ext[4] = {-180.0, 180.0, -90.0, 90.0};
-    this->LoadImage(data, ext, dbLocation);
+    this->LoadAnImage(data, ext, dbLocation);
     }
 
   // Description:
   // Load an image from a file which covers a certain latitute/longitude extent.
   // longLatExtent has the format {long min, long max, lat min, lat max}.
   // If dbLocation is specified, output all tiles to that location.
-  void LoadImage(
+  void LoadAnImage(
     const char* fileName,
     double longLatExtent[4],
     const char* dbLocation = 0);
-  void LoadImage(
+  void LoadAnImage(
     vtkImageData* data,
     double longLatExtent[4],
     const char* dbLocation = 0);
 
   // Description:
-  // Load tiles from a database of files generated from a LoadImage.
+  // Load tiles from a database of files generated from a LoadAnImage.
   void LoadTiles(const char* loc, vtkGeoImageNode* n = 0);
 
   // Temporarily public until we get an API to the source.

@@ -41,7 +41,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
 
-vtkCxxRevisionMacro(vtkGeoView, "1.1");
+vtkCxxRevisionMacro(vtkGeoView, "1.2");
 vtkStandardNewMacro(vtkGeoView);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
@@ -182,7 +182,7 @@ vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(cons
   VTK_CREATE(vtkGeoAlignedImage, image);
   VTK_CREATE(vtkGeoAlignedImageSource, imageSource);
   
-  imageSource->LoadImage(filename);
+  imageSource->LoadAnImage(filename);
   
   VTK_CREATE(vtkGeoAlignedImageCache, imageCache);
   imageCache->SetSource(imageSource);

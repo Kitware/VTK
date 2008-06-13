@@ -29,13 +29,13 @@
 #ifndef __vtkGeoPatch_h
 #define __vtkGeoPatch_h
 
-#include "vtkSmartPointer.h"
-#include "vtkGeoTerrainNode.h"
-#include "vtkGeoImageNode.h"
-#include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkTexture.h"
-#include "vtkGeoComputeTextureCoordinates.h"
+#include "vtkSmartPointer.h" // for SP
+#include "vtkGeoTerrainNode.h" // for SP
+#include "vtkGeoImageNode.h" // for SP
+#include "vtkActor.h" // for SP
+#include "vtkPolyDataMapper.h" // for SP
+#include "vtkTexture.h" // for SP
+#include "vtkGeoComputeTextureCoordinates.h" // for SP
 
 
 class VTK_GEOVIS_EXPORT vtkGeoPatch

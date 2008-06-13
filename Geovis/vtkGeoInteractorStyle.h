@@ -29,11 +29,11 @@
 #ifndef __vtkGeoInteractorStyle_h
 #define __vtkGeoInteractorStyle_h
 
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // for SP
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkGeoCamera.h"
-#include "vtkCompassWidget.h"
-#include "vtkCommand.h"
+#include "vtkGeoCamera.h" // for SP
+#include "vtkCompassWidget.h" // for SP
+#include "vtkCommand.h" // for SP
 
 class vtkUnsignedCharArray;
 

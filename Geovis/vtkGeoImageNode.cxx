@@ -23,7 +23,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.1");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.2");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -175,7 +175,7 @@ void vtkGeoImageNode::CropImageForTile(
 }
 
 //-----------------------------------------------------------------------------
-void vtkGeoImageNode::LoadImage(const char* prefix)
+void vtkGeoImageNode::LoadAnImage(const char* prefix)
 {
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
   char fn[512];

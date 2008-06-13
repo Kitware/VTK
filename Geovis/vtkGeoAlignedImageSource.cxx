@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.1");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.2");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 
 
@@ -105,7 +105,7 @@ void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 // This assumes a jpeg image for now.
-void vtkGeoAlignedImageSource::LoadImage(
+void vtkGeoAlignedImageSource::LoadAnImage(
   const char* fileName, 
   double imageLonLatExtent[4],
   const char* dbLocation)
@@ -123,11 +123,11 @@ void vtkGeoAlignedImageSource::LoadImage(
   reader->Update();
   vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
   image->ShallowCopy(reader->GetOutput());
-  this->LoadImage(image, imageLonLatExtent, dbLocation);
+  this->LoadAnImage(image, imageLonLatExtent, dbLocation);
 }
 
 //-----------------------------------------------------------------------------
-void vtkGeoAlignedImageSource::LoadImage(
+void vtkGeoAlignedImageSource::LoadAnImage(
   vtkImageData* inImage,
   double imageLonLatExtent[4],
   const char* dbLocation)
@@ -218,7 +218,7 @@ void vtkGeoAlignedImageSource::LoadTiles(const char* loc, vtkGeoImageNode* n)
     this->LoadTiles(loc, this->EasternHemisphere);
     return;
     }
-  n->LoadImage(loc);
+  n->LoadAnImage(loc);
   // For now, just load the top level.
   // Load other levels on demand.
 #if 0

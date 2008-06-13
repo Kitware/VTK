@@ -26,8 +26,8 @@
 #define __vtkGeoImageNode_h
 
 #include "vtkGeoTreeNode.h"
-#include "vtkSmartPointer.h"
-#include "vtkImageData.h"
+#include "vtkSmartPointer.h" // for SP
+#include "vtkImageData.h" // for SP
 
 class vtkPolyData;
 
@@ -59,7 +59,7 @@ public:
 
   // Description:
   // This loads the image from a tile database at the specified location.
-  void LoadImage(const char* prefix);
+  void LoadAnImage(const char* prefix);
 
   
 protected:
