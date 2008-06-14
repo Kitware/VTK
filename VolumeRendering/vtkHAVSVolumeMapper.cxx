@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.7");
+vtkCxxRevisionMacro(vtkHAVSVolumeMapper, "1.8");
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
 
@@ -592,9 +592,18 @@ void vtkHAVSVolumeMapper::InitializeLevelOfDetail()
         (p2[2]-p3[2])*(p2[2]-p3[2]);
       
       // Randomize area
-      float total = (d1+d2+d3) * ((float)rand()/(float)RAND_MAX);
-      
-      vtkHAVSSortedFace a(f, *(unsigned int *)&total);
+      union float_to_unsigned_int
+      {
+        float f;
+        unsigned int ui;
+      };
+
+      float_to_unsigned_int total;
+
+      total.f = (d1+d2+d3) *
+                     (static_cast<float>(rand())/static_cast<float>(RAND_MAX));
+
+      vtkHAVSSortedFace a(f, total.ui);
       areas[i] = a;
       }
     
