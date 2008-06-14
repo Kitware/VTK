@@ -19,7 +19,7 @@ import getopt
 
 
 def getReaderWriter(file_name, out_dir=None):
-    r = vtk.vtkDataReader()
+    r = vtk.vtkDataSetReader()
     r.SetFileName(file_name)
     f_base = os.path.splitext(file_name)[0]
     r.Update()
