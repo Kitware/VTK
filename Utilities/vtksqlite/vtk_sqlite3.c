@@ -59882,7 +59882,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VtabCallDestroy(vtk_sqlite3 *db, int iDb, cons
 **
 ** The array is cleared after invoking the callbacks. 
 */
-static void callFinaliser(vtk_sqlite3 *db, ssize_t offset){
+static void callFinaliser(vtk_sqlite3 *db, size_t offset){
   int i;
   if( db->aVTrans ){
     for(i=0; i<db->nVTrans && db->aVTrans[i]; i++){
@@ -59935,7 +59935,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VtabSync(vtk_sqlite3 *db, int rc2){
 ** vtk_sqlite3.aVTrans array. Then clear the array itself.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3VtabRollback(vtk_sqlite3 *db){
-  callFinaliser(db, (ssize_t)(&((vtk_sqlite3_module *)0)->xRollback));
+  callFinaliser(db, (size_t)(&((vtk_sqlite3_module *)0)->xRollback));
   return VTK_SQLITE_OK;
 }
 
@@ -59944,7 +59944,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3VtabRollback(vtk_sqlite3 *db){
 ** vtk_sqlite3.aVTrans array. Then clear the array itself.
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3VtabCommit(vtk_sqlite3 *db){
-  callFinaliser(db, (ssize_t)(&((vtk_sqlite3_module *)0)->xCommit));
+  callFinaliser(db, (size_t)(&((vtk_sqlite3_module *)0)->xCommit));
   return VTK_SQLITE_OK;
 }
 
