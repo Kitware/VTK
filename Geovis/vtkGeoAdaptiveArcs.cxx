@@ -39,9 +39,10 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.2");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.3");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
+//-------------------------------------------------------------------------
 vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs()
 {
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
@@ -54,12 +55,14 @@ vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs()
   this->InputLongitude = vtkDoubleArray::New();
 }
 
+//-------------------------------------------------------------------------
 vtkGeoAdaptiveArcs::~vtkGeoAdaptiveArcs()
 {
   this->InputLatitude->Delete();
   this->InputLongitude->Delete();
 }
 
+//-------------------------------------------------------------------------
 int vtkGeoAdaptiveArcs::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -123,9 +126,7 @@ int vtkGeoAdaptiveArcs::RequestData(
     lines->GetNextCell(npts, pts);
     
     bool lastPointOffScreen = false;
-    bool lastPointOnOtherSide = false;
     bool lastPointTooClose = false;
-    double lastPoint[3];
     double curPoint[3];
     double lastPtLL[2];
     double curPtLL[2];
@@ -154,13 +155,14 @@ int vtkGeoAdaptiveArcs::RequestData(
         {
         for (int c = 0; c < 3; ++c)
           {
-          lastPoint[c] = curPoint[c];
+//          lastPoint[c] = curPoint[c];
           lastVec[c] = curVec[c];
           }
         lastPtLL[0] = curPtLL[0];
         lastPtLL[1] = curPtLL[1];
         }
 #if 0
+      // If this code is uncommented, then
       // Be aggressive ... skip several points if the last
       // one was offscreen or on the other side of the globe.
       if (lastPointOffScreen || lastPointOnOtherSide)
@@ -189,7 +191,7 @@ int vtkGeoAdaptiveArcs::RequestData(
       curVec[2] /= curVecSize;
 
       // Clear flags
-      lastPointOnOtherSide = false;
+//      lastPointOnOtherSide = false;
       lastPointOffScreen = false;
       lastPointTooClose = false;
 
@@ -216,7 +218,7 @@ int vtkGeoAdaptiveArcs::RequestData(
           curPoint[1]*cameraPos[1]+
           curPoint[2]*cameraPos[2] < 0)
         {
-        lastPointOnOtherSide = true;
+//        lastPointOnOtherSide = true;
         continue;
         }
       
@@ -273,12 +275,14 @@ int vtkGeoAdaptiveArcs::RequestData(
   return 1;
 }
 
+//-------------------------------------------------------------------------
 void vtkGeoAdaptiveArcs::SetRenderer(vtkRenderer *ren)
 {
   // Do not reference count this, it will cause a loop.
   this->Renderer = ren;
 }
 
+//-------------------------------------------------------------------------
 unsigned long vtkGeoAdaptiveArcs::GetMTime()
 {
   unsigned long retMTime = this->Superclass::GetMTime();
@@ -300,6 +304,7 @@ unsigned long vtkGeoAdaptiveArcs::GetMTime()
   return retMTime;
 }
 
+//-------------------------------------------------------------------------
 void vtkGeoAdaptiveArcs::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

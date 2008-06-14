@@ -53,7 +53,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.1");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.2");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6357000.0
@@ -1111,7 +1111,6 @@ void vtkGeoInteractorStyle::UpdateLights()
   vtkCamera *camera;
   vtkLightCollection* lights; 
   vtkLight *light;
-  vtkMatrix4x4 *lightMatrix;
   double position[3];
   double focalPoint[3];
 
@@ -1128,7 +1127,7 @@ void vtkGeoInteractorStyle::UpdateLights()
   position[1] = position[1] * 2.0;
   position[2] = position[2] * 2.0;
   focalPoint[0] = focalPoint[1] = focalPoint[2] = 0.0;
-  lightMatrix = camera->GetCameraLightTransformMatrix();
+  //vtkMatrix4x4 *lightMatrix = camera->GetCameraLightTransformMatrix();
 
   lights = this->CurrentRenderer->GetLights();
   vtkCollectionSimpleIterator sit;

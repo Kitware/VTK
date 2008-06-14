@@ -24,15 +24,14 @@
 #include "vtkGeoTerrainNode.h"
 #include "vtkMutexLock.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageCache, "1.2");
+vtkCxxRevisionMacro(vtkGeoAlignedImageCache, "1.3");
 vtkStandardNewMacro(vtkGeoAlignedImageCache);
 
 //-----------------------------------------------------------------------------
 VTK_THREAD_RETURN_TYPE vtkGeoAlignedImageCacheThreadStart( void *arg )
 {
-  int threadId, threadCount;
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
+//  int threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
+//  int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   
   vtkGeoAlignedImageCache* self;
   self = (vtkGeoAlignedImageCache*)
