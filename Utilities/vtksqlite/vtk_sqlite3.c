@@ -1785,7 +1785,7 @@ int vtk_sqlite3_value_bytes16(vtk_sqlite3_value*);
 double vtk_sqlite3_value_double(vtk_sqlite3_value*);
 int vtk_sqlite3_value_int(vtk_sqlite3_value*);
 vtk_sqlite_int64 vtk_sqlite3_value_int64(vtk_sqlite3_value*);
-const unsigned char *vtk_sqlite3_value_text(vtk_sqlite3_value*);
+unsigned char *vtk_sqlite3_value_text(vtk_sqlite3_value*);
 const void *vtk_sqlite3_value_text16(vtk_sqlite3_value*);
 const void *vtk_sqlite3_value_text16le(vtk_sqlite3_value*);
 const void *vtk_sqlite3_value_text16be(vtk_sqlite3_value*);
@@ -2733,7 +2733,7 @@ int vtk_sqlite3_blob_read(vtk_sqlite3_blob *, void *z, int n, int iOffset);
 ** [VTK_SQLITE_ERROR | SQLite error code] or an
 ** [VTK_SQLITE_IOERR_READ | extended error code] is returned.
 */
-int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, const void *z, int n, int iOffset);
+int vtk_sqlite3_blob_write(vtk_sqlite3_blob *, void *z, int n, int iOffset);
 
 /*
 ** Undo the hack that converts floating point types to integer for
@@ -5295,7 +5295,7 @@ struct Index {
 ** and Token.n when Token.z==0.
 */
 struct Token {
-  const unsigned char *z; /* Text of the token.  Not NULL-terminated! */
+  unsigned char *z; /* Text of the token.  Not NULL-terminated! */
   unsigned dyn  : 1;      /* True for malloced memory, false for static */
   unsigned n    : 31;     /* Number of characters in this token */
 };
@@ -6208,7 +6208,7 @@ VTK_SQLITE_PRIVATE   void vtk_sqlite3AuthContextPop(AuthContext*);
 #endif
 VTK_SQLITE_PRIVATE void vtk_sqlite3Attach(Parse*, Expr*, Expr*, Expr*);
 VTK_SQLITE_PRIVATE void vtk_sqlite3Detach(Parse*, Expr*);
-VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFactory(const vtk_sqlite3 *db, const char *zFilename,
+VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFactory(vtk_sqlite3 *db, const char *zFilename,
                        int omitJournal, int nCache, Btree **ppBtree);
 VTK_SQLITE_PRIVATE int vtk_sqlite3FixInit(DbFixer*, Parse*, int, const char*, const Token*);
 VTK_SQLITE_PRIVATE int vtk_sqlite3FixSrcList(DbFixer*, SrcList*);
@@ -20794,7 +20794,7 @@ static int pagerSharedLock(Pager *pPager){
         */
         rc = VTK_SQLITE_BUSY;
         if( vtk_sqlite3OsFileExists(pPager->zJournal) ){
-          int ro;
+          int ro=1;
           assert( !pPager->tempFile );
           rc = vtk_sqlite3OsOpenReadWrite(pPager->zJournal, &pPager->jfd, &ro);
           assert( rc!=VTK_SQLITE_OK || pPager->jfd );
@@ -25527,6 +25527,10 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeKeySize(BtCursor *pCur, i64 *pSize){
       *pSize = pCur->info.nKey;
     }
   }
+  else
+    {
+      *pSize = 0 ; // just to avoid some warning
+    }
   return rc;
 }
 
@@ -25549,6 +25553,10 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDataSize(BtCursor *pCur, u32 *pSize){
       *pSize = pCur->info.nData;
     }
   }
+  else
+    {
+      *pSize = 0; // to avoid compiler warning.
+    }
   return rc;
 }
 
@@ -26119,7 +26127,11 @@ static int moveToRightmost(BtCursor *pCur){
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFirst(BtCursor *pCur, int *pRes){
   int rc;
   rc = moveToRoot(pCur);
-  if( rc ) return rc;
+  if( rc )
+    {
+      *pRes=1; // not relevant, just to avoid compiler warning.
+      return rc;
+    }
   if( pCur->eState==CURSOR_INVALID ){
     assert( pCur->pPage->nCell==0 );
     *pRes = 1;
@@ -26138,7 +26150,11 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFirst(BtCursor *pCur, int *pRes){
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeLast(BtCursor *pCur, int *pRes){
   int rc;
   rc = moveToRoot(pCur);
-  if( rc ) return rc;
+  if( rc )
+    {
+      *pRes=1;
+      return rc;
+    }
   if( CURSOR_INVALID==pCur->eState ){
     assert( pCur->pPage->nCell==0 );
     *pRes = 1;
@@ -32748,8 +32764,8 @@ int vtk_sqlite3_value_int(vtk_sqlite3_value *pVal){
 vtk_sqlite_int64 vtk_sqlite3_value_int64(vtk_sqlite3_value *pVal){
   return vtk_sqlite3VdbeIntValue((Mem*)pVal);
 }
-const unsigned char *vtk_sqlite3_value_text(vtk_sqlite3_value *pVal){
-  return (const unsigned char *)vtk_sqlite3ValueText(pVal, VTK_SQLITE_UTF8);
+unsigned char *vtk_sqlite3_value_text(vtk_sqlite3_value *pVal){
+  return (unsigned char *)vtk_sqlite3ValueText(pVal, VTK_SQLITE_UTF8);
 }
 #ifndef VTK_SQLITE_OMIT_UTF16
 const void *vtk_sqlite3_value_text16(vtk_sqlite3_value* pVal){
@@ -37282,6 +37298,7 @@ case OP_Rowid: {
     v = keyToInt(pC->iKey);
   }else if( pC->nullRow || pC->pCursor==0 ){
     pTos->flags = MEM_Null;
+    v = 0; // just to stop warning
     break;
   }else{
     assert( pC->pCursor!=0 );
@@ -39126,7 +39143,7 @@ int vtk_sqlite3_blob_read(vtk_sqlite3_blob *pBlob, void *z, int n, int iOffset){
 /*
 ** Write data to a blob handle.
 */
-int vtk_sqlite3_blob_write(vtk_sqlite3_blob *pBlob, const void *z, int n, int iOffset){
+int vtk_sqlite3_blob_write(vtk_sqlite3_blob *pBlob, void *z, int n, int iOffset){
   return blobReadWrite(pBlob, (void *)z, n, iOffset, vtk_sqlite3BtreePutData);
 }
 
@@ -41766,12 +41783,12 @@ static void renameTableFunc(
   int argc,
   vtk_sqlite3_value **argv
 ){
-  unsigned char const *zSql = vtk_sqlite3_value_text(argv[0]);
+  unsigned char *zSql = vtk_sqlite3_value_text(argv[0]);
   unsigned char const *zTableName = vtk_sqlite3_value_text(argv[1]);
 
   int token;
   Token tname;
-  unsigned char const *zCsr = zSql;
+  unsigned char *zCsr = zSql;
   int len = 0;
   char *zRet;
 
@@ -41820,13 +41837,13 @@ static void renameTriggerFunc(
   int argc,
   vtk_sqlite3_value **argv
 ){
-  unsigned char const *zSql = vtk_sqlite3_value_text(argv[0]);
+  unsigned char *zSql = vtk_sqlite3_value_text(argv[0]);
   unsigned char const *zTableName = vtk_sqlite3_value_text(argv[1]);
 
   int token;
   Token tname;
   int dist = 3;
-  unsigned char const *zCsr = zSql;
+  unsigned char *zCsr = zSql;
   int len = 0;
   char *zRet;
 
@@ -45093,7 +45110,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateView(
 ){
   Table *p;
   int n;
-  const unsigned char *z;
+  unsigned char *z;
   Token sEnd;
   DbFixer sFix;
   Token *pName;
@@ -45142,7 +45159,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3CreateView(
   }
   sEnd.n = 0;
   n = sEnd.z - pBegin->z;
-  z = (const unsigned char*)pBegin->z;
+  z = (unsigned char*)pBegin->z;
   while( n>0 && (z[n-1]==';' || isspace(z[n-1])) ){ n--; }
   sEnd.z = &z[n-1];
   sEnd.n = 1;
@@ -47623,6 +47640,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3DeleteFrom(
 #endif
 
   sContext.pParse = 0;
+  sContext.zAuthContext = NULL;
   if( pParse->nErr || vtk_sqlite3MallocFailed() ){
     goto delete_from_cleanup;
   }
@@ -58490,6 +58508,7 @@ VTK_SQLITE_PRIVATE void vtk_sqlite3Update(
   int oldIdx      = -1;  /* index of trigger "old" temp table       */
 
   sContext.pParse = 0;
+  sContext.zAuthContext = NULL;
   if( pParse->nErr || vtk_sqlite3MallocFailed() ){
     goto update_cleanup;
   }
@@ -67252,7 +67271,7 @@ void *vtk_sqlite3_rollback_hook(
 **           3               any             memory
 */
 VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFactory(
-  const vtk_sqlite3 *db,        /* Main database when opening aux otherwise 0 */
+  vtk_sqlite3 *db,        /* Main database when opening aux otherwise 0 */
   const char *zFilename,    /* Name of the file containing the BTree database */
   int omitJournal,          /* if TRUE then do not journal this file */
   int nCache,               /* How many pages in the page cache */
@@ -67287,7 +67306,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeFactory(
 
   rc = vtk_sqlite3BtreeOpen(zFilename, (vtk_sqlite3 *)db, ppBtree, btree_flags);
   if( rc==VTK_SQLITE_OK ){
-    vtk_sqlite3BtreeSetBusyHandler(*ppBtree, (void*)&db->busyHandler);
+    vtk_sqlite3BtreeSetBusyHandler(*ppBtree, (void *)&db->busyHandler);
     vtk_sqlite3BtreeSetCacheSize(*ppBtree, nCache);
   }
   return rc;
