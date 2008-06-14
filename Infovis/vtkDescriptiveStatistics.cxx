@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.19");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.20");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -98,6 +98,11 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     {
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Mean" );
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Standard Deviation" );
     output->AddColumn( doubleCol );
     doubleCol->Delete();
 
@@ -187,24 +192,30 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( 8 );
-    row->SetValue( 0, col );
-    row->SetValue( 1, minVal );
-    row->SetValue( 2, maxVal );
 
     if ( finalize )
       {
+      double sd;
       double G2;
-      this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, G2 );
+      this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, sd, G2 );
 
+      row->SetNumberOfValues( 9 );
+      row->SetValue( 0, col );
+      row->SetValue( 1, minVal );
+      row->SetValue( 2, maxVal );
       row->SetValue( 3, sum1 );
       row->SetValue( 4, sum2 );
       row->SetValue( 5, sum3 );
       row->SetValue( 6, sum4 );
-      row->SetValue( 7, G2 );
+      row->SetValue( 7, sd );
+      row->SetValue( 8, G2 );
       }
     else
       {
+      row->SetNumberOfValues( 8 );
+      row->SetValue( 0, col );
+      row->SetValue( 1, minVal );
+      row->SetValue( 2, maxVal );
       row->SetValue( 3, sum1 );
       row->SetValue( 4, sum2 );
       row->SetValue( 5, sum3 );
@@ -246,11 +257,11 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     }
 
   vtkIdType nColP = params->GetNumberOfColumns();
-  if ( nColP != 3 )
+  if ( nColP < 3 )
     {
     vtkWarningMacro( "Parameter table has " 
                      << nColP
-                     << " != 3 columns. Doing nothing." );
+                     << " < 3 columns. Doing nothing." );
     return;
     }
 
@@ -302,8 +313,8 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
         {
         unfound = false;
 
-        double center = params->GetValue( i, 1 ).ToDouble();
-        double radius = params->GetValue( i, 2 ).ToDouble();
+        double center = params->GetValueByName( i, "Mean" ).ToDouble();
+        double radius = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
         double minimum = center - radius;
         double maximum = center + radius;
 
@@ -345,6 +356,7 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
                                                  double& s2,
                                                  double& s3,
                                                  double& s4,
+                                                 double& sd,
                                                  double& G2 )
 {
   if ( n < 1 ) 
@@ -360,6 +372,7 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
   if ( n == 1 )
     {
     s2 = 0.;
+    sd = 0.;
     s3 = 0.;
     s4 = 0.;
     G2 = 0.;
@@ -382,10 +395,12 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
       / pow( var, 1.5 );
 
     s2 = var;
+    sd = sqrt( s2 );
     }
   else
     {
     s2 = var;
+    sd = 0.;
     s3 = 0.;
     s4 = 0.;
     G2 = 0.;

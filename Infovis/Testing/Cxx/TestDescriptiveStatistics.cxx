@@ -130,7 +130,7 @@ int TestDescriptiveStatistics( int, char *[] )
   stdStringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Nominal" );
+  doubleCol->SetName( "Mean" );
   for ( int i = 0; i < nMetrics; ++ i )
     {
     doubleCol->InsertNextValue( centers[i] );
@@ -139,7 +139,7 @@ int TestDescriptiveStatistics( int, char *[] )
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Deviation" );
+  doubleCol->SetName( "Standard Deviation" );
   for ( int i = 0; i < nMetrics; ++ i )
     {
     doubleCol->InsertNextValue( radii[i] );
@@ -176,7 +176,7 @@ int TestDescriptiveStatistics( int, char *[] )
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < 8; ++ i )
+    for ( int i = 0; i < 9; ++ i )
       {
       cout << outputTable->GetColumnName( i )
            << "="

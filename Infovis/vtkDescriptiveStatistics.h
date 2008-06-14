@@ -57,7 +57,7 @@ public:
   // Description:
   // Calculate descriptive statistics estimators from the raw sums: 
   // mean (unbiased), variance (unbiased), sample skewness, 
-  // kurtosis excess (sample and G2 estimators).
+  // sample kurtosis excess, standard deviation, and G2 kurtosis excess estimators.
   // Input: the sample size and a vector of doubles of size 5, with its 4 first entries 
   //        initialized as (in this order) the 1st to 4th raw sums.
   // Output: -1 if meaningless input (sample size < 1),
@@ -70,10 +70,11 @@ public:
                                 double& s2,
                                 double& s3,
                                 double& s4,
+                                double& sd,
                                 double& G2 );
   static int CalculateFromSums( int n, double* s ) 
     { 
-    return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5] );
+      return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5], s[6] );
     }
 
 protected:
