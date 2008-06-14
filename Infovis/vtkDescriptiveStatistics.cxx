@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.20");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.21");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -204,10 +204,10 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 1, minVal );
       row->SetValue( 2, maxVal );
       row->SetValue( 3, sum1 );
-      row->SetValue( 4, sum2 );
-      row->SetValue( 5, sum3 );
-      row->SetValue( 6, sum4 );
-      row->SetValue( 7, sd );
+      row->SetValue( 4, sd );
+      row->SetValue( 5, sum2 );
+      row->SetValue( 6, sum3 );
+      row->SetValue( 7, sum4 );
       row->SetValue( 8, G2 );
       }
     else
