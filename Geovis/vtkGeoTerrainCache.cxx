@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkGeoTerrainCache, "1.2");
+vtkCxxRevisionMacro(vtkGeoTerrainCache, "1.3");
 vtkStandardNewMacro(vtkGeoTerrainCache);
 #if _WIN32
 #include "windows.h"
@@ -101,6 +101,11 @@ void vtkGeoTerrainCache::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkGeoTerrainCache::SetTerrainSource(vtkGeoTerrainSource* source)
 {
+  if ( !source )
+    {
+    return;
+    }
+  
   this->TerrainSource = source;
   this->WesternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
   this->EasternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
