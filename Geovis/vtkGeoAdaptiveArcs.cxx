@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.3");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.4");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
 //-------------------------------------------------------------------------
@@ -127,6 +127,9 @@ int vtkGeoAdaptiveArcs::RequestData(
     
     bool lastPointOffScreen = false;
     bool lastPointTooClose = false;
+#if VTK_AGGRESSIVE_ARCS
+    bool lastPointOnOtherSide = false;
+#endif
     double curPoint[3];
     double lastPtLL[2];
     double curPtLL[2];
@@ -161,7 +164,7 @@ int vtkGeoAdaptiveArcs::RequestData(
         lastPtLL[0] = curPtLL[0];
         lastPtLL[1] = curPtLL[1];
         }
-#if 0
+#if VTK_AGGRESSIVE_ARCS
       // If this code is uncommented, then
       // Be aggressive ... skip several points if the last
       // one was offscreen or on the other side of the globe.
@@ -191,7 +194,9 @@ int vtkGeoAdaptiveArcs::RequestData(
       curVec[2] /= curVecSize;
 
       // Clear flags
-//      lastPointOnOtherSide = false;
+#if VTK_AGGRESSIVE_ARCS
+      lastPointOnOtherSide = false;
+#endif
       lastPointOffScreen = false;
       lastPointTooClose = false;
 
@@ -218,7 +223,9 @@ int vtkGeoAdaptiveArcs::RequestData(
           curPoint[1]*cameraPos[1]+
           curPoint[2]*cameraPos[2] < 0)
         {
-//        lastPointOnOtherSide = true;
+#if VTK_AGGRESSIVE_ARCS
+        lastPointOnOtherSide = true;
+#endif
         continue;
         }
       

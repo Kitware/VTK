@@ -56,7 +56,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.2");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -671,6 +671,7 @@ vtkSelection* vtkGeoGraphRepresentation::ConvertSelection(
 void vtkGeoGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
   os << indent << "AssignCoordinates:" << endl;
   this->AssignCoordinates->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GraphToPolyData:" << endl;
@@ -684,10 +685,6 @@ void vtkGeoGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VertexMapper:" << endl;
   this->VertexMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "OutlineMapper:" << endl;
-  this->OutlineMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "OutlineActor:" << endl;
-  this->OutlineActor->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VertexLabelMaskPoints:" << endl;
   this->VertexLabelMaskPoints->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexLabelSelectVisiblePoints:" << endl;
   this->VertexLabelSelectVisiblePoints->PrintSelf(os, indent.GetNextIndent());
@@ -721,5 +718,9 @@ void vtkGeoGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     this->SelectionActor->PrintSelf(os, indent.GetNextIndent());
     os << indent << "SelectionVertexActor:" << endl;
     this->SelectionVertexActor->PrintSelf(os, indent.GetNextIndent());
+    this->OutlineMapper->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "OutlineActor:" << endl;
+    this->OutlineActor->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "VertexLabelMaskPoints:" << endl;
     }
 }
