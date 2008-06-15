@@ -22,7 +22,7 @@
 #include "vtkGeoTerrainCache.h"
 #include "vtkGeoTerrainGlobeSource.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.1");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.2");
 vtkStandardNewMacro(vtkGeoTerrain);
 
 
@@ -82,7 +82,7 @@ void vtkGeoTerrain::FinishEdit()
 //-----------------------------------------------------------------------------
 int vtkGeoTerrain::GetNumberOfNodes()
 {
-  return this->Nodes.size();
+  return static_cast<int>(this->Nodes.size());
 }
 
 //-----------------------------------------------------------------------------

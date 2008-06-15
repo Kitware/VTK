@@ -32,7 +32,7 @@
 #include "vtkGeoTerrain.h"
 
 
-vtkCxxRevisionMacro(vtkGeoAlignedImage, "1.2");
+vtkCxxRevisionMacro(vtkGeoAlignedImage, "1.3");
 vtkStandardNewMacro(vtkGeoAlignedImage);
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void vtkGeoAlignedImage::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkGeoPatch *patch;
   int num, ii;
-  num = this->Patches.size();
+  num = static_cast<int>(this->Patches.size());
   for (ii = 0; ii < num; ++ii)
     {
     patch = this->Patches[ii];
@@ -133,7 +133,7 @@ bool vtkGeoAlignedImage::Update(vtkGeoTerrain* terrain)
   
   // Loop through the new terrain nodes.
   numNewNodes = terrain->GetNumberOfNodes();
-  numOldNodes = this->Patches.size();
+  numOldNodes = static_cast<int>(this->Patches.size());
   oldIdx = 0;
   newIdx = 0;
   while (newIdx < numNewNodes)
@@ -279,7 +279,7 @@ void vtkGeoAlignedImage::DeletePatches()
     this->PatchHeap.pop();
     delete patch;
     }
-  num = this->Patches.size();
+  num = static_cast<int>(this->Patches.size());
   for (ii = 0; ii < num; ++ii)
     {
     patch = this->Patches[ii];
@@ -301,7 +301,7 @@ void vtkGeoAlignedImage::UpdateAssembly(vtkAssembly* assembly)
   
   // I assume this is only called when the update modified the terrain or image.
   assembly->GetParts()->RemoveAllItems();
-  numPatches = this->Patches.size();
+  numPatches = static_cast<int>(this->Patches.size());
   for (idx = 0; idx < numPatches; ++idx)
     {
     patch = this->Patches[idx];
