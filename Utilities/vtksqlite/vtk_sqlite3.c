@@ -28545,6 +28545,7 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDropTable(Btree *p, int iTable, int *piMo
   int rc;
   MemPage *pPage = 0;
   BtShared *pBt = p->pBt;
+  *piMoved = 0;
 
   if( p->inTrans!=TRANS_WRITE ){
     return pBt->readOnly ? VTK_SQLITE_READONLY : VTK_SQLITE_ERROR;
@@ -28567,8 +28568,6 @@ VTK_SQLITE_PRIVATE int vtk_sqlite3BtreeDropTable(Btree *p, int iTable, int *piMo
     releasePage(pPage);
     return rc;
   }
-
-  *piMoved = 0;
 
   if( iTable>1 ){
 #ifdef VTK_SQLITE_OMIT_AUTOVACUUM
