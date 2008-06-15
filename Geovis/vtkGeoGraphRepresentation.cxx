@@ -56,7 +56,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.3");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -217,6 +217,7 @@ vtkGeoGraphRepresentation::~vtkGeoGraphRepresentation()
   this->EdgeLabelMaskPoints->Delete();
   this->EdgeLabelSelectVisiblePoints->Delete();
   this->EdgeLabelTransform->Delete();
+  this->EdgeCellCenters->Delete();
   this->EdgeLabelMapper->Delete();
   this->EdgeLabelActor->Delete();
   this->ExtractSelection->Delete();

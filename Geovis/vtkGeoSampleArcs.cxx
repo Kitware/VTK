@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.3");
+vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.4");
 vtkStandardNewMacro(vtkGeoSampleArcs);
 
 vtkGeoSampleArcs::vtkGeoSampleArcs()
@@ -69,12 +69,12 @@ int vtkGeoSampleArcs::RequestData(
 
   // Traverse input lines, adding a circle for each line segment.
   vtkCellArray* lines = input->GetLines();
-  vtkCellArray* newLines = vtkCellArray::New();
   vtkPoints* points = input->GetPoints();
   if ( !points )
     {
     return 0;
     }
+  vtkCellArray* newLines = vtkCellArray::New();
   float* pointsPtr = static_cast<float*>(points->GetVoidPointer(0));
   vtkPoints* newPoints = vtkPoints::New();
   lines->InitTraversal();
