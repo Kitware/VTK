@@ -84,7 +84,7 @@ public:
   //
   // stats_algo2->SetInputConnection( 1, stats_algo1->output() );
   //
-  virtual void SetInputStatistics( vtkAlgorithmOutput* );
+  virtual void SetInputStatisticsConnection( vtkAlgorithmOutput* );
 
   // Description:
   // Set the execution mode.
