@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.13");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.14");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -866,8 +866,42 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     int nedges = cell->GetNumberOfEdges();
     if (nedges < 1)
       {
-      delete[] vertbuffer;
-      return this->IsectDegenerateCell(cell);
+      // VTK_LINE and VTK_POLY_LINE have no "edges" -- the cells
+      // themselves are edges.  We catch them here and assemble the
+      // list of vertices by hand because the code below assumes that
+      // GetNumberOfEdges()==0 means a degenerate cell containing only
+      // points.
+      if (cell->GetCellType() == VTK_LINE)
+        {
+        nedges = 2;
+        vtkPoints *points = cell->GetPoints();
+        points->GetPoint(0, &vlist[0*3]);
+        points->GetPoint(1, &vlist[1*3]);
+        }
+      else if (cell->GetCellType() == VTK_POLY_LINE)
+        {
+        nedges = cell->GetPointIds()->GetNumberOfIds();
+        vtkPoints *points = cell->GetPoints();
+        if (nedges + 4 > maxedges)
+          {
+          delete [] vertbuffer;
+          maxedges = (nedges + 4) * 2;
+          vertbuffer = new double[3*maxedges + 3];
+          vlist = &vertbuffer[0*maxedges*3];
+          wvlist = &vertbuffer[1*maxedges*3];
+          ovlist = &vertbuffer[2*maxedges*3];
+          }
+        for (int i = 0; i < cell->GetPointIds()->GetNumberOfIds(); ++i)
+          {
+          points->GetPoint(cell->GetPointIds()->GetId(i),
+                           &vlist[i*3]);
+          }
+        }
+      else
+        {
+        delete[] vertbuffer;
+        return this->IsectDegenerateCell(cell);
+        }
       }
     if (nedges+4 > maxedges)
       {
@@ -879,9 +913,12 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       ovlist = &vertbuffer[2*maxedges*3];
       }
     edge = cell->GetEdge(0);
-    pts = edge->GetPoints();
-    pts->GetPoint(0, &vlist[0*3]);
-    pts->GetPoint(1, &vlist[1*3]);
+    if (edge)
+      {
+      pts = edge->GetPoints();
+      pts->GetPoint(0, &vlist[0*3]);
+      pts->GetPoint(1, &vlist[1*3]);
+      }
     switch (cell->GetCellType())
       {
       case VTK_PIXEL:
@@ -900,9 +937,10 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
         break;
         }
       case VTK_LINE:
-        {
-        break;
-        }
+      case VTK_POLY_LINE:
+      {
+      break;
+      }
       default:
         {
         for (int e = 1; e < nedges-1; e++)
