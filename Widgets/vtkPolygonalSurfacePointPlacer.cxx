@@ -141,7 +141,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPolygonalSurfacePointPlacer, "1.3");
+vtkCxxRevisionMacro(vtkPolygonalSurfacePointPlacer, "1.3.6.1");
 vtkStandardNewMacro(vtkPolygonalSurfacePointPlacer);
 
 //----------------------------------------------------------------------
@@ -304,13 +304,13 @@ void vtkPolygonalSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "CellPicker: " << this->CellPicker << endl;
+  os << indent << "Cell Picker: " << this->CellPicker << endl;
   if (this->CellPicker)
     {
     this->CellPicker->PrintSelf(os, indent.GetNextIndent());
     }
 
-  os << indent << "SurfaceProps: " << this->SurfaceProps << endl;
+  os << indent << "Surface Props: " << this->SurfaceProps << endl;
   if (this->SurfaceProps)
     {
     this->SurfaceProps->PrintSelf(os, indent.GetNextIndent());
@@ -321,6 +321,7 @@ void vtkPolygonalSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Polys->PrintSelf(os, indent.GetNextIndent());
     }
-  // Internals
+
+  os << indent << "Distance Offset: " << this->DistanceOffset << "\n";
 }
 

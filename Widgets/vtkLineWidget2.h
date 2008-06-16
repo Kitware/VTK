@@ -117,6 +117,7 @@ public:
   // Methods to change the whether the widget responds to interaction.
   // Overridden to pass the state to component widgets.
   virtual void SetProcessEvents(int);
+
 protected:
   vtkLineWidget2();
   ~vtkLineWidget2();

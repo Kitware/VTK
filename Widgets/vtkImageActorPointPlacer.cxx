@@ -20,7 +20,7 @@
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.3");
+vtkCxxRevisionMacro(vtkImageActorPointPlacer, "1.3.2.1");
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
 vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
@@ -255,5 +255,22 @@ void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  double *bounds = this->GetBounds();
+  if ( bounds != NULL )
+    {
+    os << indent << "Bounds: \n";
+    os << indent << "  Xmin,Xmax: ("
+       << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: ("
+       << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: ("
+       << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
+    }
+  else
+    {
+    os << indent << "Bounds: (not defined)\n";
+    }
+
+  os << indent << "Image Actor: " << this->ImageActor << "\n";
 }
 

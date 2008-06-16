@@ -12,11 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME vtkBoundedPlanePointPlacer - a placer that constrains a handle to a finite plane
 // .SECTION Description
-// 
+// vtkBoundedPlanePointPlacer is a type of point placer that constrains its
+// points to a finite (i.e., bounded) plance.
 //
 // .SECTION See Also
+// vtkPointPlacer vtkHandleWidget vtkHandleRepresentation
 
 #ifndef __vtkBoundedPlanePointPlacer_h
 #define __vtkBoundedPlanePointPlacer_h
@@ -60,13 +62,13 @@ public:
 
   // Description:
   // If the ProjectionNormal is set to Oblique, then this is the 
-  // oblique plane used to constrain the handle position
+  // oblique plane used to constrain the handle position.
   void SetObliquePlane(vtkPlane *);
 
   // Description:
   // The position of the bounding plane from the origin along the
   // normal. The origin and normal are defined in the oblique plane
-  // when the ProjectionNormal is Oblique. For the X, Y, and Z
+  // when the ProjectionNormal is oblique. For the X, Y, and Z
   // axes projection normals, the normal is the axis direction, and
   // the origin is (0,0,0).
   void SetProjectionPosition(double position);

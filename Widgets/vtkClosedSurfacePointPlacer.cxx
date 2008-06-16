@@ -26,7 +26,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkClosedSurfacePointPlacer, "1.4");
+vtkCxxRevisionMacro(vtkClosedSurfacePointPlacer, "1.4.2.1");
 vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes,vtkPlaneCollection);
 
@@ -365,4 +365,15 @@ void vtkClosedSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Bounding Planes:\n";
+  if ( this->BoundingPlanes )
+    {
+    this->BoundingPlanes->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << " (none)\n";
+    }
+
+  os << indent << "Minimum Distance: " << this->MinimumDistance << "\n";
 }

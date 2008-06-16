@@ -32,7 +32,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.22");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.22.2.1");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -118,8 +118,8 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
                                                           int displayPos[2] )
 {
   double dispPos[2];
-  dispPos[0] = (double) displayPos[0];
-  dispPos[1] = (double) displayPos[1];
+  dispPos[0] = static_cast<double>(displayPos[0]);
+  dispPos[1] = static_cast<double>(displayPos[1]);
   this->AddNodeAtPositionInternal( worldPos, worldOrient, dispPos );
 }
 
@@ -691,7 +691,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
           closestWorldPos[1] = p6[1];
           closestWorldPos[2] = p6[2];
           closestDistance2 = d;
-          closestNode = (int)i;
+          closestNode = static_cast<int>(i);
           }
         }
       else
@@ -703,7 +703,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
           closestWorldPos[1] = p3[1];
           closestWorldPos[2] = p3[2];
           closestDistance2 = d;
-          closestNode = (int)i;
+          closestNode = static_cast<int>(i);
           }
         
         d = vtkLine::DistanceToLine( p4, p1, p2 );
@@ -713,7 +713,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
           closestWorldPos[1] = p4[1];
           closestWorldPos[2] = p4[2];
           closestDistance2 = d;
-          closestNode = (int)i;
+          closestNode = static_cast<int>(i);
           }        
         }
       }
@@ -1031,12 +1031,12 @@ void vtkContourRepresentation
                                 double worldOrient[9], int displayPos[2] )
 {
   double dispPos[2]; 
-  dispPos[0] = (double) displayPos[0]; 
-  dispPos[1] = (double) displayPos[1];
+  dispPos[0] = static_cast<double>(displayPos[0]);
+  dispPos[1] = static_cast<double>(displayPos[1]);
   this->GetRendererComputedDisplayPositionFromWorldPosition( worldPos, 
                                                 worldOrient, dispPos );
-  displayPos[0] = (int) dispPos[0];
-  displayPos[1] = (int) dispPos[1];
+  displayPos[0] = static_cast<int>(dispPos[0]);
+  displayPos[1] = static_cast<int>(dispPos[1]);
 }
 
 //----------------------------------------------------------------------
@@ -1121,5 +1121,21 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Pixel Tolerance: " << this->PixelTolerance <<"\n";
   os << indent << "World Tolerance: " << this->WorldTolerance <<"\n";
+
+  os << indent << "Closed Loop: " << (this->ClosedLoop ? "On\n" : "Off\n");
+  
+  os << indent << "Current Operation: ";
+  if ( this->CurrentOperation == vtkContourRepresentation::Inactive )
+    {
+    os << "Inactive\n";
+    }
+  else
+    {
+    os << "Translate\n";
+    }
+
+  os << indent << "Line Interpolator: " << this->LineInterpolator << "\n";
+  os << indent << "Point Placer: " << this->PointPlacer << "\n";
+  
 }
 

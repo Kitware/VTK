@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.9.2.1");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -285,6 +285,16 @@ void vtkLineRepresentation::SetPoint2DisplayPosition(double x[3])
 }
 
 //----------------------------------------------------------------------
+void vtkLineRepresentation::SetRenderer(vtkRenderer* ren)
+{
+  this->HandleRepresentation->SetRenderer(ren);
+  this->Point1Representation->SetRenderer(ren);
+  this->Point2Representation->SetRenderer(ren);
+  this->LineHandleRepresentation->SetRenderer(ren);
+  this->Superclass::SetRenderer(ren);
+}
+
+//----------------------------------------------------------------------
 void vtkLineRepresentation::StartWidgetInteraction(double e[2])
 {
   // Store the start position
@@ -452,6 +462,7 @@ void vtkLineRepresentation::PlaceWidget(double bds[6])
 
   // Position the handles at the end of the lines
   this->Placed = 1;
+  this->ValidPick = 1;
   this->BuildRepresentation();
 }
 
@@ -802,6 +813,25 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
+  if ( this->EndPointProperty )
+    {
+    os << indent << "End Point Property: " << this->EndPointProperty << "\n";
+    }
+  else
+    {
+    os << indent << "End Point Property: (none)\n";
+    }
+  if ( this->SelectedEndPointProperty )
+    {
+    os << indent << "Selected End Point Property: " << this->SelectedEndPointProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected End Point Property: (none)\n";
+    }
+
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+
   os << indent << "Constrain To Bounds: "
      << (this->ClampToBounds ? "On\n" : "Off\n");
 
@@ -816,6 +846,21 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << pt2[0] << ", "
                                << pt2[1] << ", "
                                << pt2[2] << ")\n";
+
+  os << indent << "Point1 Representation: ";
+  this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Point2 Representation: ";
+  this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Line Handle Representation: ";
+  this->LineHandleRepresentation->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Representation State: " << this->RepresentationState << "\n";
+  
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }
+
 
 

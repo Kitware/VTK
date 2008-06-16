@@ -18,7 +18,7 @@
 #include "vtkInteractorObserver.h"
 
 
-vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkWidgetRepresentation, "1.7.38.1");
 
 
 //----------------------------------------------------------------------
@@ -27,9 +27,9 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
   this->Renderer = NULL;
   
   this->InteractionState = 0;
-  this->StartEventPosition[0] = 0;
-  this->StartEventPosition[1] = 0;
-  this->StartEventPosition[2] = 0;
+  this->StartEventPosition[0] = 0.0;
+  this->StartEventPosition[1] = 0.0;
+  this->StartEventPosition[2] = 0.0;
 
   this->PlaceFactor = 0.5;
   this->Placed = 0;
@@ -186,4 +186,7 @@ void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Renderer: " << this->Renderer << "\n";
   os << indent << "Interaction State: " << this->InteractionState << "\n";
+  os << indent << "Handle Size: " << this->HandleSize << "\n";
+  os << indent << "Need to Render: " << (this->NeedToRender ? "On\n" : "Off\n");
+  os << indent << "Place Factor: " << this->PlaceFactor << "\n";
 }

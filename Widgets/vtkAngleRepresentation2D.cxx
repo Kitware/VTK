@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.10");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.10.12.1");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -293,4 +293,35 @@ void vtkAngleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Ray1: ";
+  if ( this->Ray1 )
+    {
+    this->Ray1->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+
+  os << indent << "Ray2: ";
+  if ( this->Ray2 )
+    {
+    this->Ray2->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+
+  os << indent << "Arc: ";
+  if ( this->Arc )
+    {
+    this->Arc->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+
 }

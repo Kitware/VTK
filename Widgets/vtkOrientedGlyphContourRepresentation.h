@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOrientedGlyphContourRepresentation - point representation constrained to a 2D plane
+// .NAME vtkOrientedGlyphContourRepresentation - Default representation for the contour widget
 // .SECTION Description
-//
+// This class provides the default concrete representation for the 
+// vtkContourWidget. It works in conjunction with the 
+// vtkContourLineInterpolator and vtkPointPlacer. See vtkContourWidget
+// for details.
 // .SECTION See Also
-// vtkContourRepresentation vtkContourWidget
-
+// vtkContourRepresentation vtkContourWidget vtkPointPlacer 
+// vtkContourLineInterpolator
 
 #ifndef __vtkOrientedGlyphContourRepresentation_h
 #define __vtkOrientedGlyphContourRepresentation_h

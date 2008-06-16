@@ -26,7 +26,7 @@
 #include "vtkWidgetEvent.h"
 
 
-vtkCxxRevisionMacro(vtkBorderWidget, "1.7");
+vtkCxxRevisionMacro(vtkBorderWidget, "1.7.12.1");
 vtkStandardNewMacro(vtkBorderWidget);
 
 
@@ -301,4 +301,5 @@ void vtkBorderWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Selectable: " << (this->Selectable ? "On\n" : "Off\n");
+  os << indent << "Resizable: " << (this->Resizable ? "On\n" : "Off\n");
 }

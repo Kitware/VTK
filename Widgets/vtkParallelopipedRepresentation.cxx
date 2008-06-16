@@ -286,7 +286,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7.2.1");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -1426,7 +1426,8 @@ void vtkParallelopipedRepresentation::Translate( int X, int Y )
 
   // First compute the centroid. Its only use is to determine a reference 
   // plane, on which we will assume lastEventPos and eventPos lie.
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double center[3] = {0.0, 0.0, 0.0};
   for (int i=0; i<8; i++)
     {
@@ -1466,7 +1467,8 @@ void vtkParallelopipedRepresentation::Translate( int X, int Y )
 // Loop through all points and translate them
 void vtkParallelopipedRepresentation::Translate(double translation[3])
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   for (int i=0; i<16; i++)
     {
     *pts++ += translation[0];
@@ -1482,9 +1484,10 @@ void vtkParallelopipedRepresentation::Translate(double translation[3])
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::Scale( int vtkNotUsed(X), int Y )
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+          static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *center 
-    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double sf = ( Y > this->LastEventPosition[1] ? 1.03 : 0.97 );
   
   for (int i=0; i<16; i++, pts+=3)
@@ -1575,5 +1578,73 @@ void vtkParallelopipedRepresentation::BuildRepresentation()
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
- this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Minimum Thickness: " << this->MinimumThickness << "\n";
+
+  if ( this->HandleProperty )
+    {
+    os << indent << "Handle Property: " << this->HandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Handle Property: (none)\n";
+    }
+
+  if ( this->HoveredHandleProperty )
+    {
+    os << indent << "Hovered Handle Property: " << this->HoveredHandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Hovered Handle Property: (none)\n";
+    }
+
+  if ( this->FaceProperty )
+    {
+    os << indent << "Face Property: " << this->FaceProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Face Property: (none)\n";
+    }
+
+  if ( this->OutlineProperty )
+    {
+    os << indent << "Outline Property: " << this->OutlineProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Outline Property: (none)\n";
+    }
+
+  if ( this->SelectedHandleProperty )
+    {
+    os << indent << "Selected Handle Property: " << this->SelectedHandleProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Handle Property: (none)\n";
+    }
+
+  if ( this->SelectedFaceProperty )
+    {
+    os << indent << "Selected Face Property: " << this->SelectedFaceProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Face Property: (none)\n";
+    }
+
+  if ( this->SelectedOutlineProperty )
+    {
+    os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
+    }
+  else
+    {
+    os << indent << "Selected Outline Property: (none)\n";
+    }
+
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }

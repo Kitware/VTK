@@ -26,7 +26,7 @@
 #include "vtkTextMapper.h"
 #include "vtkFreeTypeUtilities.h"
 
-vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkCaptionRepresentation, "1.5.2.1");
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //-------------------------------------------------------------------------
@@ -136,14 +136,15 @@ void vtkCaptionRepresentation::BuildRepresentation()
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
 
-    // If the text actor's ScaledText is off, we still want to be able
+    // If the text actor's text scaling is off, we still want to be able
     // to change the caption's text size programmatically by changing a 
     // *relative* font size factor. We will also need to change the  
     // caption's boundary size accordingly.
 
     if(!this->Moving && this->CaptionActor2D 
         && this->CaptionActor2D->GetCaption()
-        && !this->CaptionActor2D->GetTextActor()->GetScaledText())
+        && (   !this->CaptionActor2D->GetTextActor()->GetTextScaleMode()
+            == vtkTextActor::TEXT_SCALE_MODE_NONE ))
       {
       // Create a dummy text mapper for getting font sizes
       vtkTextMapper *textMapper = vtkTextMapper::New();
@@ -280,4 +281,7 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
+
+  os << indent << "Anchor Representation:\n";
+  this->AnchorRepresentation->PrintSelf(os,indent.GetNextIndent());
 }

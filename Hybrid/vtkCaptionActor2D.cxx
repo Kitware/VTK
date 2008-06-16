@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.36");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.36.2.1");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -82,7 +82,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
   this->TextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
   this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
-  this->TextActor->SetScaledText(1);
+  this->TextActor->SetTextScaleModeToProp();
   this->TextActor->SetTextProperty(this->CaptionTextProperty);
 
   this->BorderPolyData = vtkPolyData::New();

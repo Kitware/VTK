@@ -166,7 +166,8 @@ public:
 
   // Description:
   // Set/Get the direction vector of the handle relative to the center of
-  // the sphere.
+  // the sphere. The direction of the handle is from the sphere center to
+  // the handle position.
   vtkSetVector3Macro(HandleDirection,double);
   vtkGetVector3Macro(HandleDirection,double);
 
@@ -184,7 +185,7 @@ public:
 
   // Description:
   // Get the spherical implicit function defined by this widget.  Note that
-  // vtkPlanes is a subclass of vtkImplicitFunction, meaning that it can be
+  // vtkSphere is a subclass of vtkImplicitFunction, meaning that it can be
   // used by a variety of filters to perform clipping, cutting, and selection
   // of data.
   void GetSphere(vtkSphere *sphere);

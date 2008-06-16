@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9.2.1");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //----------------------------------------------------------------------------
@@ -448,6 +448,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
+
+  os << indent << "Diagonal Ratio: " << this->DiagonalRatio << "\n";
 }
 
 
@@ -799,7 +801,7 @@ void vtkImplicitPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double
              *(X-this->Interactor->GetLastEventPosition()[0])
              +(Y-this->Interactor->GetLastEventPosition()[1])
              *(Y-this->Interactor->GetLastEventPosition()[1]);
-  theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
+  theta = 360.0 * sqrt(l2/(size[0]*size[0]+size[1]*size[1]));
 
   //Manipulate the transform to reflect the rotation
   this->Transform->Identity();

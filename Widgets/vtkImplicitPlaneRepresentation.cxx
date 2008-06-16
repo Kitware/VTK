@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.9.2.1");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -49,6 +49,9 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->NormalToXAxis = 0;
   this->NormalToYAxis = 0;
   this->NormalToZAxis = 0;
+
+  // Handle size is in pixels for this widget
+  this->HandleSize = 5.0;
 
   // Build the representation of the widget
   // 
@@ -381,8 +384,7 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
   // Compute the two points defining the motion vector
   double pos[3];
   this->Picker->GetPickPosition(pos);
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
-                                               pos[0], pos[1], pos[2],
+  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, pos[0], pos[1], pos[2],
                                                focalPoint);
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,this->LastEventPosition[0],
@@ -426,7 +428,6 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
 void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double* vtkNotUsed(e[2]))
 {
   this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
-  this->SizeHandles();
 }
 
 //----------------------------------------------------------------------
@@ -503,7 +504,6 @@ int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(
 int vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
-  this->BuildRepresentation();
   result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
   result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
   result |= this->ConeActor->HasTranslucentPolygonalGeometry();
@@ -602,6 +602,38 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Enabled: " 
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
+
+  os << indent << "Representation State: ";
+  switch ( this->RepresentationState )
+    {
+    case Outside:
+      os << "Outside\n";
+      break;
+    case Moving:
+      os << "Moving\n";
+      break;
+    case MovingOutline:
+      os << "MovingOutline\n";
+      break;
+    case MovingOrigin:
+      os << "MovingOrigin\n";
+      break;
+    case Rotating:
+      os << "Rotating\n";
+      break;
+    case Pushing:
+      os << "Pushing\n";
+      break;
+    case MovingPlane:
+      os << "MovingPlane\n";
+      break;
+    case Scaling:
+      os << "Scaling\n";
+      break;
+    }
+
+  // this->InteractionState is printed in superclass
+  // this is commented to avoid PrintSelf errors
 }
 
 
@@ -906,9 +938,8 @@ void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
+  this->ValidPick = 1; // since we have positioned the widget successfully
   this->BuildRepresentation();
-
-  this->SizeHandles();
 }
 
 //----------------------------------------------------------------------------
@@ -1145,13 +1176,15 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     {
     this->EdgesMapper->SetInput(this->Edges->GetOutput());
     }
+
+  this->SizeHandles();
 }
 
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::SizeHandles()
 {
   double radius = 
-    this->vtkWidgetRepresentation::SizeHandlesRelativeToViewport(1.35,this->Sphere->GetCenter());
+    this->vtkWidgetRepresentation::SizeHandlesInPixels(1.5,this->Sphere->GetCenter());
 
   this->ConeSource->SetHeight(2.0*radius);
   this->ConeSource->SetRadius(radius);

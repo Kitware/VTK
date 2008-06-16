@@ -42,7 +42,6 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkLineSource;
 class vtkSphereSource;
-class vtkCellPicker;
 class vtkProperty;
 class vtkPolyData;
 class vtkPolyDataAlgorithm;
@@ -141,7 +140,7 @@ public:
   virtual void WidgetInteraction(double e[2]);
   virtual double *GetBounds();
   
-  // Decsription:
+  // Description:
   // Methods supporting the rendering process.
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
@@ -172,6 +171,10 @@ public:
   // Overload the superclasses' GetMTime() because internal classes
   // are used to keep the state of the representation.
   virtual unsigned long GetMTime();
+
+  // Description:
+  // Overridden to set the rendererer on the internal representations.
+  virtual void SetRenderer(vtkRenderer *ren);
 
 protected:
   vtkLineRepresentation();
