@@ -39,7 +39,7 @@
 #include <vtkstd/vector>
 #include <vtksys/SystemTools.hxx>
 
-vtkCxxRevisionMacro(vtkXMLCompositeDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLCompositeDataReader, "1.1.2.1");
 
 struct vtkXMLCompositeDataReaderEntry
 {
@@ -261,13 +261,25 @@ void vtkXMLCompositeDataReader::ReadXMLData()
   // Determine the leaves that this process is going to read.
   unsigned int numDatasets = this->CountLeaves(this->GetPrimaryElement());
   unsigned int numDatasetsPerPiece = 1;
+
+  unsigned int remaining_blocks = 0;
   if (updateNumPieces < numDatasets)
     {
     numDatasetsPerPiece = numDatasets / updateNumPieces;
+    remaining_blocks = numDatasets % updateNumPieces;
     }
 
-  this->Internal->MinDataset = numDatasetsPerPiece*updatePiece;
-  this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece;
+  if (updatePiece < remaining_blocks)
+    {
+    this->Internal->MinDataset = (numDatasetsPerPiece+1)*updatePiece;
+    this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece + 1;
+    }
+  else
+    {
+    this->Internal->MinDataset = (numDatasetsPerPiece +1)* remaining_blocks + 
+      numDatasetsPerPiece * (updatePiece-remaining_blocks); 
+    this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece;
+    }
 
   // All process create the  entire tree structure however, only each one only
   // reads the datasets assigned to it.
