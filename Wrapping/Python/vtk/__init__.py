@@ -15,7 +15,12 @@ import sys
 try:
     import dl
 except ImportError:
-    dl = None
+    # do not give up too early:
+    # are we on AMD64 ?
+    try:
+      import DLFCN as dl
+    except ImportError:
+      dl = None
 except SystemError:
     dl = None
 
