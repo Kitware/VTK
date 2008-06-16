@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.13");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.13.66.1");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -447,6 +447,22 @@ void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 void vtkPCAAnalysisFilter::SetInput(int idx, vtkPointSet *p)
 {
   this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkPCAAnalysisFilter::SetInput(int idx, vtkDataObject* input)
+{
+  vtkPointSet* p = vtkPointSet::SafeDownCast(input);
+
+  if (p)
+    {
+    this->SetInput(idx, p);
+    }
+  else
+    {
+    vtkErrorMacro(<< this->GetClassName() << " input is a " <<
+      input->GetClassName() << " -- it should be a vtkPointSet");
+    }
 }
 
 //----------------------------------------------------------------------------
