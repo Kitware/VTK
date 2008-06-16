@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.20");
+vtkCxxRevisionMacro(vtkProcrustesAlignmentFilter, "1.20.66.1");
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 
 //----------------------------------------------------------------------------
@@ -362,6 +362,22 @@ void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
 void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkPointSet *p)
 {
   this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkDataObject* input)
+{
+  vtkPointSet* p = vtkPointSet::SafeDownCast(input);
+
+  if (p)
+    {
+    this->SetInput(idx, p);
+    }
+  else
+    {
+    vtkErrorMacro(<< this->GetClassName() << " input is a " <<
+      input->GetClassName() << " -- it should be a vtkPointSet");
+    }
 }
 
 //----------------------------------------------------------------------------
