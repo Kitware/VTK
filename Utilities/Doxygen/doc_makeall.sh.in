@@ -182,6 +182,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Geovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
@@ -217,6 +218,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Geovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
@@ -244,6 +246,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering/Testing/Cxx" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Geovis" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/MFC" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GUISupport/Qt" \
