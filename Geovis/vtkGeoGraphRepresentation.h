@@ -28,24 +28,28 @@
 #define __vtkGeoGraphRepresentation_h
 
 #include "vtkDataRepresentation.h"
+#include "vtkSmartPointer.h" // for ivars
 
 class vtkActor;
 class vtkActor2D;
 class vtkAlgorithmOutput;
-class vtkCellCenters;
 class vtkDataObject;
+class vtkEdgeCenters;
+class vtkEdgeLayout;
 class vtkExtractSelectedGraph;
-class vtkGeoArcs;
 class vtkGeoAssignCoordinates;
-class vtkGeometryFilter;
+class vtkGeoEdgeStrategy;
+class vtkGraphMapper;
 class vtkGraphToPolyData;
 class vtkLabeledDataMapper;
+//class vtkPointSetToLabelHierarchy;
+//class vtkLabelPlacer;
+//class vtkLabelSizeCalculator;
 class vtkMaskPoints;
 class vtkPolyDataMapper;
 class vtkSelection;
 class vtkSelectVisiblePoints;
 class vtkTransformPolyDataFilter;
-class vtkVertexGlyphFilter;
 class vtkView;
 class vtkViewTheme;
 
@@ -149,46 +153,34 @@ protected:
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
   
+  //BTX
   // Description:
   // Internal pipeline objects.
-  vtkGeoAssignCoordinates*    AssignCoordinates;
-  vtkGraphToPolyData*         GraphToPolyData;
-  vtkGeoArcs*                 GeoArcs;
-  vtkCellCenters*             EdgeCellCenters;
-  vtkLabeledDataMapper*       EdgeLabelMapper;
-  vtkActor2D*                 EdgeLabelActor;
-  vtkMaskPoints*              EdgeLabelMaskPoints;
-  vtkSelectVisiblePoints*     EdgeLabelSelectVisiblePoints;
-  vtkTransformPolyDataFilter* EdgeLabelTransform;
-  vtkPolyDataMapper*          EdgeMapper;
-  vtkActor*                   EdgeActor;
-  vtkVertexGlyphFilter*       VertexGlyph;
-  vtkPolyDataMapper*          VertexMapper;
-  vtkActor*                   VertexActor;
-  vtkPolyDataMapper*          OutlineMapper;
-  vtkActor*                   OutlineActor;
-  vtkLabeledDataMapper*       VertexLabelMapper;
-  vtkActor2D*                 VertexLabelActor;
-  vtkMaskPoints*              VertexLabelMaskPoints;
-  vtkSelectVisiblePoints*     VertexLabelSelectVisiblePoints;
-  vtkTransformPolyDataFilter* VertexLabelTransform;
-  vtkExtractSelectedGraph*    ExtractSelection;
-  vtkGraphToPolyData*         SelectionToPolyData;
-  vtkGeoAssignCoordinates*    SelectionAssignCoords;
-  vtkGeoArcs*                 SelectionGeoArcs;
-  vtkPolyDataMapper*          SelectionMapper;
-  vtkActor*                   SelectionActor;
-  vtkVertexGlyphFilter*       SelectionVertexGlyph;
-  vtkPolyDataMapper*          SelectionVertexMapper;
-  vtkActor*                   SelectionVertexActor;
+  vtkSmartPointer<vtkGeoAssignCoordinates>    AssignCoordinates;
+  vtkSmartPointer<vtkMaskPoints>              LabelMaskPoints;
+  vtkSmartPointer<vtkSelectVisiblePoints>     LabelSelectVisiblePoints;
+  vtkSmartPointer<vtkTransformPolyDataFilter> LabelTransform;
+  //vtkSmartPointer<vtkLabelSizeCalculator>     LabelSize;
+  //vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
+  //vtkSmartPointer<vtkLabelPlacer>             LabelPlacer;
+  vtkSmartPointer<vtkLabeledDataMapper>       LabelMapper;
+  vtkSmartPointer<vtkActor2D>                 LabelActor;
+  vtkSmartPointer<vtkEdgeLayout>              EdgeLayout;
+  vtkSmartPointer<vtkGeoEdgeStrategy>         GeoEdgeStrategy;
+  vtkSmartPointer<vtkGraphMapper>             GraphMapper;
+  vtkSmartPointer<vtkActor>                   GraphActor;
+  vtkSmartPointer<vtkGraphToPolyData>         GraphToPolyData;
+  vtkSmartPointer<vtkEdgeCenters>             EdgeCenters;
+  vtkSmartPointer<vtkLabeledDataMapper>       EdgeLabelMapper;
+  vtkSmartPointer<vtkActor2D>                 EdgeLabelActor;
+  vtkSmartPointer<vtkMaskPoints>              EdgeLabelMaskPoints;
+  vtkSmartPointer<vtkSelectVisiblePoints>     EdgeLabelSelectVisiblePoints;
+  vtkSmartPointer<vtkTransformPolyDataFilter> EdgeLabelTransform;
+  vtkSmartPointer<vtkExtractSelectedGraph>    ExtractSelection;
+  vtkSmartPointer<vtkGraphMapper>             SelectionMapper;
+  vtkSmartPointer<vtkActor>                   SelectionActor;
+  //ETX
 
-  vtkGetStringMacro(VertexColorArrayNameInternal);
-  vtkSetStringMacro(VertexColorArrayNameInternal);
-  char* VertexColorArrayNameInternal;
-  vtkGetStringMacro(EdgeColorArrayNameInternal);
-  vtkSetStringMacro(EdgeColorArrayNameInternal);
-  char* EdgeColorArrayNameInternal;
-  
 private:
   vtkGeoGraphRepresentation(const vtkGeoGraphRepresentation&);  // Not implemented.
   void operator=(const vtkGeoGraphRepresentation&);  // Not implemented.

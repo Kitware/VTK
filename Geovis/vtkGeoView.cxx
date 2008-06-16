@@ -41,7 +41,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
 
-vtkCxxRevisionMacro(vtkGeoView, "1.2");
+vtkCxxRevisionMacro(vtkGeoView, "1.3");
 vtkStandardNewMacro(vtkGeoView);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
@@ -78,6 +78,9 @@ vtkGeoView::vtkGeoView()
   this->LowResEarthActor->SetScale(0.95); 
   
   this->RenderWindow = 0;
+
+  // Perform frustum selection by default
+  this->SetSelectionModeToFrustum();
 }
 
 //----------------------------------------------------------------------------

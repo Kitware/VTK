@@ -17,6 +17,7 @@ SET( Kit_SRCS
   vtkGeoAssignCoordinates.cxx
   vtkGeoCamera.cxx
   vtkGeoComputeTextureCoordinates.cxx  
+  vtkGeoEdgeStrategy.cxx
   vtkGeoGraphRepresentation.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx

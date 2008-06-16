@@ -53,7 +53,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.2");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.3");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6357000.0
@@ -254,24 +254,15 @@ void vtkGeoInteractorStyle::OnLeftButtonUp()
   if (this->DraggingRubberBandBoxState)
     {
     this->DraggingRubberBandBoxState = 0;
-    // Only use extents that are larger than 10x10 pixels.
-    if (this->RubberBandExtent[1]-this->RubberBandExtent[0] < 10 ||
-        this->RubberBandExtent[3]-this->RubberBandExtent[2] < 10)
-      { // Extent is too small.  Just render to get rid of it.
-      this->RubberBandExtentEnabled = 0;
-      this->DisableRubberBandRedraw();
-      this->Interactor->Render();
-      }
-    else
-      { // Save the extent to be verified with another click.
-      this->RubberBandExtentEnabled = 1;
-      }
+    this->RubberBandExtentEnabled = 0;
+    this->DisableRubberBandRedraw();
+    this->Interactor->Render();
     
     unsigned int rect[5];
-    rect[0] = this->RubberBandExtent[0];
-    rect[1] = this->RubberBandExtent[2];
-    rect[2] = this->RubberBandExtent[1];
-    rect[3] = this->RubberBandExtent[3];
+    rect[0] = this->StartPosition[0];
+    rect[1] = this->StartPosition[1];
+    rect[2] = this->EndPosition[0];
+    rect[3] = this->EndPosition[1];
     if (this->Interactor->GetShiftKey())
       {
       rect[4] = vtkInteractorStyleRubberBand3D::SELECT_UNION;
