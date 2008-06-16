@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelectedThresholds, "1.15");
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //----------------------------------------------------------------------------
@@ -265,16 +265,31 @@ int vtkExtractSelectedThresholds::ExtractCells(
     cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
-    
+
+    // BUG: This code misses the case where the threshold is contained
+    // completely within the cell but none of its points are inside
+    // the range.  Consider as an example the threshold range [1, 2]
+    // with a cell [0, 3].  
     if ( usePointScalars )
       {
       keepCell = 0;
+      int totalAbove = 0;
+      int totalBelow = 0;
       for ( i=0; 
             (i < numCellPts) && (passThrough || !keepCell); 
             i++)
         {
+        int above = 0; 
+        int below = 0;
         ptId = cellPts->GetId(i);
-        int inside = this->EvaluateValue( inScalars, ptId, lims );
+        int inside = this->EvaluateValue( inScalars, ptId, lims, &above, &below, NULL );
+        totalAbove += above;
+        totalBelow += below;
+        // Have we detected a cell that straddles the threshold?
+        if ((!inside) && (totalAbove && totalBelow))
+          {
+          inside = 1;
+          }
         if (passThrough && (inside ^ inverse))
           {
           pointInArray->SetValue(ptId, flag);
@@ -484,6 +499,43 @@ int vtkExtractSelectedThresholds::EvaluateValue(
       keepCell = 1;
       }
     }
+  return keepCell;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkExtractSelectedThresholds::EvaluateValue(
+  vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims,
+  int *AboveCount, int *BelowCount, int *InsideCount)
+{
+  int keepCell = 0;
+  //check the value in the array against all of the thresholds in lims
+  //if it is inside any, return true
+  int above = 0;
+  int below = 0;
+  int inside = 0;
+  for (int i = 0; i < lims->GetNumberOfTuples(); i+=2)
+    {
+    double value = scalars->GetComponent(id, 0);
+    double low = lims->GetValue(i);
+    double high = lims->GetValue(i+1);
+    if (value >= low && value <= high)
+      {
+      keepCell = 1;
+      ++inside;
+      }
+    else if (value < low)
+      {
+      ++below;
+      }
+    else if (value > high)
+      {
+      ++above;
+      }
+    }
+  if (AboveCount) *AboveCount = above;
+  if (BelowCount) *BelowCount = below;
+  if (InsideCount) *InsideCount = inside;
   return keepCell;
 }
 

@@ -49,8 +49,17 @@ public:
 
   // Description:
   // Function for determining whether a value in a data array passes
-  // the threshold test(s) provided in lims.
+  // the threshold test(s) provided in lims.  Returns 1 if the value
+  // passes at least one of the threshold tests.
   static int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims);
+
+  // Description:
+  // Function for determining whether a value in a data array passes
+  // the threshold test(s) provided in lims.  Returns 1 if the value
+  // passes at least one of the threshold tests.  Also returns in
+  // AboveCount, BelowCount and InsideCount the number of tests where
+  // the value was above, below or inside the interval.
+  static int EvaluateValue(vtkDataArray *scalars, vtkIdType id, vtkDoubleArray *lims, int *AboveCount, int *BelowCount, int *InsideCount);
 
 protected:
   vtkExtractSelectedThresholds();
