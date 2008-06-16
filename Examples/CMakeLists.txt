@@ -1,5 +1,10 @@
-# VTK examples now require CMake 2.0 or higher.
+# VTK examples now require CMake 2.4 or higher.
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+
+# Remove these policy lines when CMake 2.6 is the minimum version.
+IF(COMMAND CMAKE_POLICY)
+  CMAKE_POLICY(SET CMP0003 NEW)
+ENDIF(COMMAND CMAKE_POLICY)
 
 # Choose behavior based on whether we are building inside the VTK tree.
 IF(VTK_BINARY_DIR)
