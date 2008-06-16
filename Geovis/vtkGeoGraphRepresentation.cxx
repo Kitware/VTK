@@ -60,7 +60,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.6");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -201,7 +201,7 @@ void vtkGeoGraphRepresentation::SetVertexLabelArrayName(const char* name)
   //  SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   //this->LabelHierarchy->
   //  SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-  this->LabelMapper->GetFieldDataName();
+  this->LabelMapper->SetFieldDataName(name);
 }
 
 //----------------------------------------------------------------------------
