@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.1.2.1");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.1.2.2");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
@@ -179,13 +179,6 @@ int vtkPBGLGraphSQLReaderRequestData(
   self->SetDistributionUserData(total, num_verts);
   helper->SetVertexPedigreeIdDistribution(IdentityDistribution, self->GetDistributionUserData());
 
-  // Add local vertex data arrays
-  vtkSmartPointer<vtkVariantArray> pedigree =
-    vtkSmartPointer<vtkVariantArray>::New();
-  pedigree->SetName(self->GetVertexIdField());
-  builder->GetVertexData()->SetPedigreeIds(pedigree);
-  helper->Synchronize();
-
   // Read my vertices from vertex query, adding attribute values
   oss.str("");
   oss << "select * from " << self->GetVertexTable()
@@ -195,15 +188,39 @@ int vtkPBGLGraphSQLReaderRequestData(
   vertex_query.TakeReference(self->GetDatabase()->GetQueryInstance());
   vertex_query->SetQuery(oss.str().c_str());
   vertex_query->Execute();
-  int vertex_id = vertex_query->GetFieldIndex(self->GetVertexIdField());
-  while (vertex_query->NextRow())
+
+  // Add local vertex data arrays
+  for (int i = 0; i < vertex_query->GetNumberOfFields(); ++i)
     {
-    vtkVariant id = vertex_query->DataValue(vertex_id);
-    builder->AddVertex(id);
+    vtkStdString field_name = vertex_query->GetFieldName(i);
+    // Currently, the pedigree ids must be stored in a
+    // vtkVariantArray.
+    if (field_name == self->GetVertexIdField())
+      {
+      vtkSmartPointer<vtkVariantArray> arr =
+        vtkSmartPointer<vtkVariantArray>::New();
+      arr->SetName(field_name);
+      builder->GetVertexData()->SetPedigreeIds(arr);
+      }
+    else
+      {
+      vtkSmartPointer<vtkAbstractArray> arr;
+      arr.TakeReference(vtkAbstractArray::CreateArray(
+        vertex_query->GetFieldType(i)));
+      arr->SetName(field_name);
+      builder->GetVertexData()->AddArray(arr);
+      }
     }
   helper->Synchronize();
 
-  // Add local edge data arrays
+  // Add the vertices
+  vtkSmartPointer<vtkVariantArray> row =
+    vtkSmartPointer<vtkVariantArray>::New();
+  while (vertex_query->NextRow(row))
+    {
+    builder->AddVertex(row);
+    }
+  helper->Synchronize();
 
   // Read edges from edge query, adding attribute values
   oss.str("");
@@ -214,13 +231,27 @@ int vtkPBGLGraphSQLReaderRequestData(
   edge_query.TakeReference(self->GetDatabase()->GetQueryInstance());
   edge_query->SetQuery(oss.str().c_str());
   edge_query->Execute();
+
+  // Add local edge data arrays
+  for (int i = 0; i < edge_query->GetNumberOfFields(); ++i)
+    {
+    vtkStdString field_name = edge_query->GetFieldName(i);
+    vtkSmartPointer<vtkAbstractArray> arr;
+    arr.TakeReference(vtkAbstractArray::CreateArray(
+      edge_query->GetFieldType(i)));
+    arr->SetName(field_name);
+    builder->GetEdgeData()->AddArray(arr);
+    }
+  helper->Synchronize();
+
+  // Add the edges
   int source_id = edge_query->GetFieldIndex(self->GetSourceField());
   int target_id = edge_query->GetFieldIndex(self->GetTargetField());
-  while (edge_query->NextRow())
+  while (edge_query->NextRow(row))
     {
     vtkVariant source = edge_query->DataValue(source_id);
     vtkVariant target = edge_query->DataValue(target_id);
-    builder->AddEdge(source, target);
+    builder->AddEdge(source, target, row);
     }
   helper->Synchronize();
 

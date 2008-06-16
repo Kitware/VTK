@@ -48,7 +48,7 @@ double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraph, "1.12.4.17");
+vtkCxxRevisionMacro(vtkGraph, "1.12.4.18");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -652,6 +652,10 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
         {
         vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
         }
+      else if (vtkVariantArray::SafeDownCast(arr))
+        {
+        vtkVariantArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetValue(iprop));
+        }
       else
         {
         vtkErrorMacro("Unsupported array type");
@@ -778,6 +782,10 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
       else if (vtkStringArray::SafeDownCast(array))
         {
         vtkStringArray::SafeDownCast(array)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+        }
+      else if (vtkVariantArray::SafeDownCast(array))
+        {
+        vtkVariantArray::SafeDownCast(array)->InsertNextValue(propertyArr->GetValue(iprop));
         }
       else
         {
