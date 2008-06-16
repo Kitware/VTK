@@ -36,7 +36,7 @@
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.1");
+vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.2");
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
 vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
@@ -54,7 +54,6 @@ void vtkGeoEdgeStrategy::Layout()
   vtkSmartPointer<vtkEdgeListIterator> it = 
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
-  double avgEdgeLength = 0.0;
   while (it->HasNext())
     {
     vtkEdgeType e = it->Next();
@@ -163,7 +162,6 @@ void vtkGeoEdgeStrategy::Layout()
       {
       double angle = (this->NumberOfSubdivisions - 1.0 - s)
         * theta / (this->NumberOfSubdivisions - 1.0);
-      double circlePt[3];
       for (int c = 0; c < 3; ++c)
         {
         pts[3*s + c] = center[c]
