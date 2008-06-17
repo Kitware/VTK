@@ -84,6 +84,16 @@ public:
   // Get method to check if orientation type is specified
   vtkGetMacro( OrientationTypeSpecifiedFlag, bool );
   
+  // Set/get methods to see if manual Origin/Spacing have
+  // been set.
+  vtkSetMacro( OriginSpecifiedFlag, bool );
+  vtkGetMacro( OriginSpecifiedFlag, bool );
+  vtkBooleanMacro( OriginSpecifiedFlag, bool );
+  
+  vtkSetMacro( SpacingSpecifiedFlag, bool );
+  vtkGetMacro( SpacingSpecifiedFlag, bool );
+  vtkBooleanMacro( SpacingSpecifiedFlag, bool );
+  
   //BTX
   enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
 
@@ -130,6 +140,8 @@ private:
   int *InternalExtents;
   unsigned int OrientationType;
   bool OrientationTypeSpecifiedFlag;
+  bool OriginSpecifiedFlag;
+  bool SpacingSpecifiedFlag;
 };
 #endif
 
