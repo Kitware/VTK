@@ -77,7 +77,7 @@ public:
 // Used to clean up the Callbacks 
 static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.46");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.47");
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
 {
@@ -397,7 +397,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( protocol == "sqlite" )
     {
     db = vtkSQLiteDatabase::New();
-    db->ParseURL(dataglom.c_str());
+    db->ParseURL(URL);
     return db;
     }
     
