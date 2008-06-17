@@ -54,10 +54,11 @@
 //
 // The output graph will contain three additional arrays in the vertex data.
 // The "domain" column is a string array containing the domain of each vertex.
-// The "value" column is a string version of the distinct value that, along
-// with the domain, defines that vertex. The "variantvalue" column also contains
+// The "label" column is a string version of the distinct value that, along
+// with the domain, defines that vertex. The "id" column also contains
 // the distinguishing value, but as a vtkVariant holding the raw value instead
-// of being converted to a string.
+// of being converted to a string. The "id" column is set as the vertex pedigree
+// ID attribute.
 
 #ifndef __vtkTableToGraph_h
 #define __vtkTableToGraph_h

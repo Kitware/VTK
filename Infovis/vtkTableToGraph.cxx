@@ -51,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.11");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.12");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -353,11 +353,11 @@ void vtkTableToGraphFindVertices(
   vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
                                      // A map of domain-value pairs to graph id
   vtkStringArray *domainArr,         // The domain of each vertex
-  vtkStringArray *stringValueArr,    // The string value of each vertex
-  vtkVariantArray *variantValueArr,  // The variant value of each vertex
+  vtkStringArray *labelArr,          // The label of each vertex
+  vtkVariantArray *idArr,            // The pedigree id of each vertex
   vtkIdType & curVertex,             // The current vertex id
-  vtkTable *vertexTable,  // An array that holds the actual value of each vertex
-  vtkStdString domain)  // The domain of the array
+  vtkTable *vertexTable,             // An array that holds the actual value of each vertex
+  vtkStdString domain)               // The domain of the array
 {
   for (vtkIdType i = 0; i < size; i++)
     {
@@ -370,8 +370,8 @@ void vtkTableToGraphFindVertices(
       vertexTable->SetValueByName(row, domain, val);
       vertexMap[value] = row;
       domainArr->InsertNextValue(domain);
-      stringValueArr->InsertNextValue(val.ToString());
-      variantValueArr->InsertNextValue(val);
+      labelArr->InsertNextValue(val.ToString());
+      idArr->InsertNextValue(val);
       curVertex = row;
       }
     }
@@ -498,10 +498,10 @@ int vtkTableToGraph::RequestData(
   // Variant value contains the raw value of the vertex as a variant.
   VTK_CREATE(vtkStringArray, domainArr);
   domainArr->SetName("domain");
-  VTK_CREATE(vtkStringArray, stringValueArr);
-  stringValueArr->SetName("value");
-  VTK_CREATE(vtkVariantArray, variantValueArr);
-  variantValueArr->SetName("variantvalue");
+  VTK_CREATE(vtkStringArray, labelArr);
+  labelArr->SetName("label");
+  VTK_CREATE(vtkVariantArray, idArr);
+  idArr->SetName("id");
   
   // Create the lookup maps for vertices and hidden vertices.
   // When edges are added later, we need to be able to lookup the
@@ -578,7 +578,7 @@ int vtkTableToGraph::RequestData(
           vtkExtendedTemplateMacro(vtkTableToGraphFindVertices(
             static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
             arr->GetNumberOfTuples(), vertexMap, domainArr, 
-            stringValueArr, variantValueArr, curVertex,
+            labelArr, idArr, curVertex,
             vertexTable, domain));
           }
         }
@@ -599,8 +599,8 @@ int vtkTableToGraph::RequestData(
     // We know the number of vertices, so set the auxiliary array sizes.
     vtkIdType numRows = vertexTable->GetNumberOfRows();
     domainArr->SetNumberOfTuples(numRows);
-    stringValueArr->SetNumberOfTuples(numRows);
-    variantValueArr->SetNumberOfTuples(numRows);
+    labelArr->SetNumberOfTuples(numRows);
+    idArr->SetNumberOfTuples(numRows);
     
     // Keep track of the current hidden vertex id.
     vtkIdType curHiddenVertex = 0;
@@ -652,8 +652,8 @@ int vtkTableToGraph::RequestData(
             {
             vertexMap[value] = i;
             domainArr->InsertValue(i, domain);
-            stringValueArr->InsertValue(i, val.ToString());
-            variantValueArr->InsertValue(i, val);
+            labelArr->InsertValue(i, val.ToString());
+            idArr->InsertValue(i, val);
             }
           }
         }
@@ -710,8 +710,8 @@ int vtkTableToGraph::RequestData(
     }
   
   // Add the auxiliary arrays to the vertex table.
-  builder->GetVertexData()->AddArray(stringValueArr);
-  builder->GetVertexData()->AddArray(variantValueArr);
+  builder->GetVertexData()->AddArray(labelArr);
+  builder->GetVertexData()->SetPedigreeIds(idArr);
   builder->GetVertexData()->AddArray(domainArr);
 
   // Now go through the edge table, adding edges.

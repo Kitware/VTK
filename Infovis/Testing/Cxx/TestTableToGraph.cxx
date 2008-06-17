@@ -158,7 +158,7 @@ int TestTableToGraph(int argc, char* argv[])
     {
     if (!strcmp(argv[a], "-L"))
       {
-      label = "value";
+      label = "label";
       }
     if (!strcmp(argv[a], "-F"))
       {
@@ -328,7 +328,7 @@ int TestTableToGraph(int argc, char* argv[])
 //  VTK_CREATE(vtkGraphLayoutView, view);
 //  view->SetupRenderWindow(win);
 //  view->AddRepresentationFromInputConnection(tableToGraph->GetOutputPort());
-//  view->SetVertexLabelArrayName("value");
+//  view->SetVertexLabelArrayName("label");
 //  view->VertexLabelVisibilityOn();
 //  view->SetLayoutStrategyToCircular();
 //  view->Update();
