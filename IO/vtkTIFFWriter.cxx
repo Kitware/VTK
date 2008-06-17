@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTIFFWriter.cxx,v
+  Module:    vtkTIFFWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.40");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.44");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   width = (max0 - min0 + 1);
   height = (max1 - min1 + 1);
 
-  TIFF* tif = TIFFClientOpen(this->GetFileName(), "w",
+  TIFF* tif = TIFFClientOpen(this->InternalFileName, "w",
     (thandle_t) ost,
     reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFRead), 
     reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFWrite),
@@ -179,7 +179,8 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
     }
   //compression = COMPRESSION_JPEG;
   TIFFSetField(tif, TIFFTAG_COMPRESSION, compression); // Fix for compression
-  uint16 photometric = (stype == VTK_FLOAT ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
+  uint16 photometric =
+    (scomponents == 1 ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
   if ( compression == COMPRESSION_JPEG )
     {
     TIFFSetField(tif, TIFFTAG_JPEGQUALITY, 75); // Parameter
