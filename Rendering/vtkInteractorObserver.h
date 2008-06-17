@@ -23,6 +23,7 @@
 // disables the processing of events by the vtkInteractorObserver. Use the
 // methods EnabledOn() or SetEnabled(1) to turn on the interactor observer,
 // and the methods EnabledOff() or SetEnabled(0) to turn off the interactor.
+// Initial value is 0.
 //
 // To support interactive manipulation of objects, this class (and
 // subclasses) invoke the events StartInteractionEvent, InteractionEvent, and
@@ -61,7 +62,7 @@ public:
   // Enabling a vtkInteractorObserver has the side effect of adding
   // observers; disabling it removes the observers. Prior to enabling the
   // vtkInteractorObserver you must set the render window interactor (via
-  // SetInteractor()).
+  // SetInteractor()). Initial value is 0.
   virtual void SetEnabled(int) {};
   int GetEnabled() {return this->Enabled;}
   void EnabledOn() {this->SetEnabled(1);}
