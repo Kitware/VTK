@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.35");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.36");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -221,8 +221,14 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   char c=0;
   long returnPosition = this->TellG();
   this->SeekG(this->GetXMLByteIndex());
-  while(this->Stream->get(c) && (c != '>'));
-  while(this->Stream->get(c) && this->IsSpace(c));
+  while(this->Stream->get(c) && (c != '>'))
+    {
+    ;
+    }
+  while(this->Stream->get(c) && this->IsSpace(c))
+    {
+    ;
+    }
 
   // Store the start of the appended data.  We skip the first
   // character because it is always a "_".
@@ -251,8 +257,14 @@ vtkXMLDataParser::FindInlineDataPosition(OffsetType start)
   // Scan for the start of the actual inline data.
   char c=0;
   this->SeekG(start);
-  while(this->Stream->get(c) && (c != '>'));
-  while(this->Stream->get(c) && this->IsSpace(c));
+  while(this->Stream->get(c) && (c != '>'))
+    {
+    ;
+    }
+  while(this->Stream->get(c) && this->IsSpace(c))
+    {
+    ;
+    }
 
   // Make sure some data were found.
   if(c == '<') { return 0; }
