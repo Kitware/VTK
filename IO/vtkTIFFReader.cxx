@@ -292,6 +292,8 @@ vtkTIFFReader::vtkTIFFReader()
   this->InternalExtents = 0;
 
   this->OrientationTypeSpecifiedFlag = false;
+  this->OriginSpecifiedFlag = false;
+  this->SpacingSpecifiedFlag = false;
 
   //Make the default orientation type to be ORIENTATION_BOTLEFT
   this->OrientationType = 4;
@@ -334,29 +336,35 @@ void vtkTIFFReader::ExecuteInformation()
     this->GetInternalImage()->Orientation = OrientationType;
     }
 
-  this->DataSpacing[0] = 1.0; 
-  this->DataSpacing[1] = 1.0;
+  if( !SpacingSpecifiedFlag )
+    {
+    this->DataSpacing[0] = 1.0; 
+    this->DataSpacing[1] = 1.0;
 
   // If we have some spacing information we use it
-  if(this->GetInternalImage()->ResolutionUnit>0
-    && this->GetInternalImage()->XResolution>0
-    && this->GetInternalImage()->YResolution>0
-    )
-    {
-    if(this->GetInternalImage()->ResolutionUnit == 2) // inches
+    if(this->GetInternalImage()->ResolutionUnit>0
+      && this->GetInternalImage()->XResolution>0
+      && this->GetInternalImage()->YResolution>0
+      )
       {
-      this->DataSpacing[0] = 25.4/this->GetInternalImage()->XResolution; 
-      this->DataSpacing[1] = 25.4/this->GetInternalImage()->YResolution; 
-      }
-    else if(this->GetInternalImage()->ResolutionUnit == 3) // cm
-      {
-      this->DataSpacing[0] = 10.0/this->GetInternalImage()->XResolution; 
-      this->DataSpacing[1] = 10.0/this->GetInternalImage()->YResolution; 
+      if(this->GetInternalImage()->ResolutionUnit == 2) // inches
+        {
+        this->DataSpacing[0] = 25.4/this->GetInternalImage()->XResolution; 
+        this->DataSpacing[1] = 25.4/this->GetInternalImage()->YResolution; 
+        }
+      else if(this->GetInternalImage()->ResolutionUnit == 3) // cm
+        {
+        this->DataSpacing[0] = 10.0/this->GetInternalImage()->XResolution; 
+        this->DataSpacing[1] = 10.0/this->GetInternalImage()->YResolution; 
+        }
       }
     }
 
-  this->DataOrigin[0] = 0.0;
-  this->DataOrigin[1] = 0.0;
+  if( !OriginSpecifiedFlag )
+    {
+    this->DataOrigin[0] = 0.0;
+    this->DataOrigin[1] = 0.0;
+    }
 
   // pull out the width/height, etc.
   this->DataExtent[0] = 0;
@@ -429,10 +437,16 @@ void vtkTIFFReader::ExecuteInformation()
       {
       this->DataExtent[5] = this->GetInternalImage()->NumberOfPages;
       }
-     this->DataSpacing[2] = 1.0;
-     this->DataOrigin[2]  = 0.0;
-     }
 
+    if( !SpacingSpecifiedFlag )
+      {
+      this->DataSpacing[2] = 1.0;
+      }
+    if( !OriginSpecifiedFlag )
+      {
+      this->DataOrigin[2]  = 0.0;
+      }
+    }
 
 
    // if the tiff is tiled
@@ -441,8 +455,14 @@ void vtkTIFFReader::ExecuteInformation()
      this->DataExtent[1]  = this->GetInternalImage()->TileWidth;
      this->DataExtent[3]  = this->GetInternalImage()->TileHeight;
      this->DataExtent[5]  = this->GetInternalImage()->NumberOfTiles;
-     this->DataSpacing[2] = 1.0;
-     this->DataOrigin[2]  = 0.0;
+     if( !SpacingSpecifiedFlag )
+       {
+       this->DataSpacing[2] = 1.0;
+       }
+     if( !OriginSpecifiedFlag )
+       {
+       this->DataOrigin[2]  = 0.0;
+       }
      }
 
   this->vtkImageReader2::ExecuteInformation();
@@ -1615,12 +1635,6 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
 
   unsigned int format = this->GetFormat();
 
-
-  if ( this->GetInternalImage()->Compression == COMPRESSION_PACKBITS )
-    {
-    height /= this->GetInternalImage()->BitsPerSample;
-    }
-
   switch ( format ) 
     {
     case vtkTIFFReader::GRAYSCALE:
@@ -1755,4 +1769,6 @@ void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "OrientationType: " << this->OrientationType << endl;
   os << indent << "OrientationTypeSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
+  os << indent << "OriginSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
+  os << indent << "SpacingSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
 }
