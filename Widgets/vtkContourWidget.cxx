@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.23");
+vtkCxxRevisionMacro(vtkContourWidget, "1.24");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -364,7 +364,10 @@ void vtkContourWidget::Initialize( vtkPolyData * pd, int state )
 
     if ( pd == NULL )
       {
-      while( rep->DeleteLastNode() );
+      while( rep->DeleteLastNode() )
+        {
+        ;
+        }
       rep->ClosedLoopOff();
       this->Render();
       rep->NeedToRenderOff();

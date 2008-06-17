@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -131,7 +131,10 @@ void vtkUnstructuredGridBunykRayCastIterator::Initialize(int x, int y)
                         (double *)NULL,
                         (float *)NULL,
                         (float *)NULL,
-                        this->MaxNumberOfIntersections) > 0);
+                        this->MaxNumberOfIntersections) > 0)
+    {
+    ;
+    }
 }
 
 vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(

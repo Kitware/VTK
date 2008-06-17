@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.96");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.97");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -455,7 +455,10 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     }
 
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   if (front)
     {
@@ -569,7 +572,10 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   if (front)
     {
@@ -810,7 +816,10 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   if (front)
     {
@@ -903,7 +912,10 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }  
 
   if (front)
     {
@@ -1105,7 +1117,10 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 
 
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   if (front)
     {
@@ -1201,7 +1216,10 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   if (front)
     {
@@ -1324,7 +1342,10 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
@@ -1425,7 +1446,10 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   // Error checking
   // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR);
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
 
   glViewport(0, 0, this->Size[0], this->Size[1]);
   glMatrixMode( GL_MODELVIEW );
