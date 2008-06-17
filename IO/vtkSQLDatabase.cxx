@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 
 
-class vtkSQLiteDatabase::vtkCallbackVector : 
+class vtkSQLDatabase::vtkCallbackVector : 
   public vtkstd::vector<vtkSQLDatabase::CreateFunction>
 {
 public:
@@ -77,7 +77,7 @@ public:
 // Used to clean up the Callbacks 
 static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.45");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.46");
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
 {
