@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.29");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.30");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -352,6 +352,36 @@ vtkStdString vtkPostgreSQLDatabase::GetURL()
     url += this->DatabaseName;
     }
   return url;
+}
+
+// ----------------------------------------------------------------------
+bool vtkPostgreSQLDatabase::ParseURL( const char* URL )
+{
+  vtkstd::string protocol;
+  vtkstd::string username; 
+  vtkstd::string unused;
+  vtkstd::string hostname; 
+  vtkstd::string dataport; 
+  vtkstd::string database;
+
+  // Okay now for all the other database types get more detailed info
+  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
+                                        unused, hostname, dataport, database) )
+    {
+    vtkErrorMacro( "Invalid URL: " << URL );
+    return false;
+    }
+  
+  if ( protocol == "psql" )
+    {
+    this->SetUser(username.c_str());
+    this->SetHostName(hostname.c_str());
+    this->SetServerPort(atoi(dataport.c_str()));
+    this->SetDatabaseName(database.c_str());
+    return true;
+    }
+
+  return false;
 }
 
 // ----------------------------------------------------------------------

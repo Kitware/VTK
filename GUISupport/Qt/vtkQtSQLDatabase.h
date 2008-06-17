@@ -134,6 +134,7 @@ public:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
 
+//BTX
 protected:
   vtkQtSQLDatabase();
   ~vtkQtSQLDatabase();
@@ -147,10 +148,13 @@ protected:
 
   QSqlDatabase QtDatabase;
 
-  //BTX
   friend class vtkQtSQLQuery;
-  //ETX
 
+  // Description:
+  // Overridden to determine connection paramters given the URL. 
+  // This is called by CreateFromURL() to initialize the instance.
+  // Look at CreateFromURL() for details about the URL format.
+  virtual bool ParseURL(const char* url);
 private:
   
   // Storing the tables in the database, this array
@@ -163,12 +167,11 @@ private:
   vtkStringArray *currentRecord;
   
   // Used to assign unique identifiers for database instances
-  //BTX
   static int id;
-  //ETX
   
   vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
   void operator=(const vtkQtSQLDatabase &); // Not implemented.
+//ETX
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.31");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.32");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -315,6 +315,40 @@ vtkStdString vtkMySQLDatabase::GetURL()
   if ( this->GetDatabaseName() && strlen( this->GetDatabaseName() ) )
     url += this->GetDatabaseName();
   return url;
+}
+
+// ----------------------------------------------------------------------
+bool vtkMySQLDatabase::ParseURL(const char* URL)
+{
+  vtkstd::string protocol;
+  vtkstd::string username; 
+  vtkstd::string unused;
+  vtkstd::string hostname; 
+  vtkstd::string dataport; 
+  vtkstd::string database;
+  
+  if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
+                                        unused, hostname, dataport, database) )
+    {
+    vtkGenericWarningMacro( "Invalid URL: " << URL );
+    return false;
+    }
+  
+  if ( protocol == "mysql" )
+    {
+    if ( username.size() )
+      {
+      this->SetUser(username.c_str());
+      }
+    if ( dataport.size() )
+      {
+      this->SetServerPort(atoi(dataport.c_str()));
+      }
+    this->SetHostName(hostname.c_str());
+    this->SetDatabaseName(database.c_str());
+    return true;
+    }
+  return false;
 }
 
 // ----------------------------------------------------------------------

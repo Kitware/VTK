@@ -78,7 +78,7 @@ class vtkStringArray;
 
 class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
 {
- public:
+public:
   vtkTypeRevisionMacro(vtkSQLDatabase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -191,13 +191,40 @@ class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
   // Effect a database schema.
   virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
 
- protected:
+//BTX
+  // Description:
+  // Type for CreateFromURL callback.
+  typedef vtkSQLDatabase* (*CreateFunction)(const char* URL);
+//ETX
+
+  // Description:
+  // Provides mechanism to register/unregister additional callbacks to create
+  // concrete subclasses of vtkSQLDatabase to handle different protocols.
+  // The registered callbacks are tried in the order they are registered.
+  static void RegisterCreateFromURLCallback(CreateFunction callback);
+  static void UnRegisterCreateFromURLCallback(CreateFunction callback);
+  static void UnRegisterAllCreateFromURLCallbacks();
+
+//BTX
+protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
+  
+  // Description:
+  // Subclasses should override this method to determine connection paramters
+  // given the URL. This is called by CreateFromURL() to initialize the instance.
+  // Look at CreateFromURL() for details about the URL format.
+  virtual bool ParseURL( const char* url ) = 0;
 
- private:
+private:
   vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.
   void operator=(const vtkSQLDatabase &); // Not implemented.
+
+  // Description;
+  // Datastructure used to store registered callbacks.
+  class vtkCallbackVector;
+  static vtkCallbackVector* Callbacks;
+//ETX
 };
 
 #endif // __vtkSQLDatabase_h

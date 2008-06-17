@@ -31,7 +31,7 @@
 #include <vtksqlite/vtk_sqlite3.h>
 
 vtkStandardNewMacro(vtkSQLiteDatabase);
-vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.18");
+vtkCxxRevisionMacro(vtkSQLiteDatabase, "1.19");
 
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
@@ -393,6 +393,27 @@ vtkStdString vtkSQLiteDatabase::GetURL()
     url += fname;
     }
   return url;
+}
+
+// ----------------------------------------------------------------------
+bool vtkSQLiteDatabase::ParseURL(const char* URL)
+{
+  vtkstd::string protocol;
+  vtkstd::string dataglom;
+  
+  if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
+    {
+    vtkErrorMacro( "Invalid URL: " << URL );
+    return false;
+    }
+
+  if ( protocol == "sqlite" )
+    {
+    this->SetDatabaseFileName(dataglom.c_str());
+    return true;
+    }
+
+  return false;
 }
 
 // ----------------------------------------------------------------------

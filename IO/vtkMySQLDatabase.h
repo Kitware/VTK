@@ -171,6 +171,12 @@ protected:
   vtkMySQLDatabase();
   ~vtkMySQLDatabase();
 
+  // Description:
+  // Overridden to determine connection paramters given the URL. 
+  // This is called by CreateFromURL() to initialize the instance.
+  // Look at CreateFromURL() for details about the URL format.
+  virtual bool ParseURL(const char* url);
+
 private:
   // We want this to be private, a user of this class
   // should not be setting this for any reason

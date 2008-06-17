@@ -40,8 +40,44 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.44");
 
+class vtkSQLiteDatabase::vtkCallbackVector : 
+  public vtkstd::vector<vtkSQLDatabase::CreateFunction>
+{
+public:
+  vtkSQLDatabase* CreateFromURL(const char* URL)
+    {
+    iterator iter;
+    for (iter = this->begin(); iter != this->end(); ++iter)
+      {
+      vtkSQLDatabase* db =(*(*iter))(URL);
+      if (db)
+        {
+        return db;
+        }
+      }
+    return NULL;
+    }
+};
+vtkSQLDatabase::vtkCallbackVector* vtkSQLDatabase::Callbacks = 0;
+
+// Ensures that there are no leaks when the application exits.
+class vtkSQLDatabaseCleanup
+{
+public:
+  inline void Use()
+    {
+    };
+  ~vtkSQLDatabaseCleanup()
+    {
+    vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks();
+    }
+};
+
+// Used to clean up the Callbacks 
+static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
+
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.45");
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
 {
@@ -50,6 +86,44 @@ vtkSQLDatabase::vtkSQLDatabase()
 // ----------------------------------------------------------------------
 vtkSQLDatabase::~vtkSQLDatabase()
 {
+}
+
+// ----------------------------------------------------------------------
+void vtkSQLDatabase::RegisterCreateFromURLCallback(
+  vtkSQLDatabase::CreateFunction func)
+{
+  if (!vtkSQLDatabase::Callbacks)
+    {
+    vtkCleanupSQLDatabaseGlobal.Use();
+    vtkSQLDatabase::Callbacks = new vtkCallbackVector();
+    }
+  vtkSQLDatabase::Callbacks->push_back(func);
+}
+
+// ----------------------------------------------------------------------
+void vtkSQLDatabase::UnRegisterCreateFromURLCallback(
+  vtkSQLDatabase::CreateFunction func)
+{
+  if (vtkSQLDatabase::Callbacks)
+    {
+    vtkSQLDatabase::vtkCallbackVector::iterator iter;
+    for (iter = vtkSQLDatabase::Callbacks->begin();
+      iter != vtkSQLDatabase::Callbacks->end(); ++iter)
+      {
+      if ((*iter) ==  func)
+        {
+        vtkSQLDatabase::Callbacks->erase(iter);
+        break;
+        }
+      }
+    }
+}
+
+// ----------------------------------------------------------------------
+void vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks()
+{
+  delete vtkSQLDatabase::Callbacks;
+  vtkSQLDatabase::Callbacks = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -323,8 +397,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( protocol == "sqlite" )
     {
     db = vtkSQLiteDatabase::New();
-    vtkSQLiteDatabase *sqlite_db = vtkSQLiteDatabase::SafeDownCast(db);
-    sqlite_db->SetDatabaseFileName(dataglom.c_str());
+    db->ParseURL(dataglom.c_str());
     return db;
     }
     
@@ -340,34 +413,29 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   if ( protocol == "psql" )
     {
     db = vtkPostgreSQLDatabase::New();
-    vtkPostgreSQLDatabase *post_db = vtkPostgreSQLDatabase::SafeDownCast(db);
-    post_db->SetUser(username.c_str());
-    post_db->SetHostName(hostname.c_str());
-    post_db->SetServerPort(atoi(dataport.c_str()));
-    post_db->SetDatabaseName(database.c_str());
-    return db;
+    db->ParseURL(URL);
     }
 #endif // VTK_USE_POSTGRES
+
 #ifdef VTK_USE_MYSQL
   if ( protocol == "mysql" )
     {
     db = vtkMySQLDatabase::New();
-    vtkMySQLDatabase *mysql_db = vtkMySQLDatabase::SafeDownCast(db);
-    if ( username.size() )
-      {
-      mysql_db->SetUser(username.c_str());
-      }
-    if ( dataport.size() )
-      {
-      mysql_db->SetServerPort(atoi(dataport.c_str()));
-      }
-    mysql_db->SetHostName(hostname.c_str());
-    mysql_db->SetDatabaseName(database.c_str());
-    return db;
+    db->ParseURL(URL);
     }
 #endif // VTK_USE_MYSQL
 
-  vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
+  // Now try to look at registered callback to try and find someone who can
+  // provide us with the required implementation.
+  if (!db && vtkSQLDatabase::Callbacks)
+    {
+    db = vtkSQLDatabase::Callbacks->CreateFromURL(URL);
+    }
+
+  if (!db)
+    {
+    vtkGenericWarningMacro( "Unsupported protocol: " << protocol.c_str() );
+    }
   return db;
 }
 
