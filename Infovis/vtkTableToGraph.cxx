@@ -51,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.12");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.13");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -493,15 +493,15 @@ int vtkTableToGraph::RequestData(
 
   // Create the auxiliary arrays.  These arrays summarize the
   // meaning of each row in the vertex table.
-  // Domain contains the domain string of the vertex.
-  // Value contains the string value of each vertex (appropriate for labeling).
-  // Variant value contains the raw value of the vertex as a variant.
+  // domainArr contains the domain string of the vertex.
+  // labelArr contains the string value of each vertex (appropriate for labeling).
+  // idArr contains the raw value of the vertex as a variant.
   VTK_CREATE(vtkStringArray, domainArr);
   domainArr->SetName("domain");
   VTK_CREATE(vtkStringArray, labelArr);
   labelArr->SetName("label");
   VTK_CREATE(vtkVariantArray, idArr);
-  idArr->SetName("id");
+  idArr->SetName("ids");
   
   // Create the lookup maps for vertices and hidden vertices.
   // When edges are added later, we need to be able to lookup the
