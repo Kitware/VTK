@@ -52,6 +52,11 @@ public:
   // Can we pick the tensor glyph at the current cursor pos
   virtual int SelectProbe( int pos[2] );
 
+  // Description:
+  // See vtkProp for details.  
+  virtual void GetActors(vtkPropCollection *);
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+  
 protected:
   vtkEllipsoidTensorProbeRepresentation();
   ~vtkEllipsoidTensorProbeRepresentation();

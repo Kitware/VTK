@@ -72,6 +72,11 @@ public:
   // This method is invoked by the widget during user interaction.
   // Move probe based on the position and the motion vector.
   virtual int Move( double motionVector[2] );
+
+  // Description:
+  // See vtkProp for details.  
+  virtual void GetActors(vtkPropCollection *);
+  virtual void ReleaseGraphicsResources(vtkWindow *);
   
 protected:
   vtkTensorProbeRepresentation();

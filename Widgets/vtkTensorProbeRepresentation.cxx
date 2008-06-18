@@ -30,7 +30,7 @@
 #define min(x,y) ((x<y) ? (x) : (y))
 #define max(x,y) ((x>y) ? (x) : (y))
 
-vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.2");
+vtkCxxRevisionMacro(vtkTensorProbeRepresentation, "1.3");
 
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
@@ -212,6 +212,18 @@ int vtkTensorProbeRepresentation
 void vtkTensorProbeRepresentation::BuildRepresentation()
 {
   this->Initialize();
+}
+
+//----------------------------------------------------------------------
+void vtkTensorProbeRepresentation::GetActors(vtkPropCollection *pc)
+{
+  this->TrajectoryActor->GetActors(pc);
+}
+
+//----------------------------------------------------------------------
+void vtkTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->TrajectoryActor->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------

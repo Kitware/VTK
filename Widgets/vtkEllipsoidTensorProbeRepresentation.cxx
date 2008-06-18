@@ -31,7 +31,7 @@
 #include "vtkCellPicker.h"
 #include "vtkAssemblyPath.h"
 
-vtkCxxRevisionMacro(vtkEllipsoidTensorProbeRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkEllipsoidTensorProbeRepresentation, "1.2");
 vtkStandardNewMacro(vtkEllipsoidTensorProbeRepresentation);
 
 //----------------------------------------------------------------------
@@ -174,6 +174,18 @@ void vtkEllipsoidTensorProbeRepresentation::BuildRepresentation()
   this->EvaluateTensor( t );
   this->TensorSource->GetPointData()->GetTensors()->SetTuple( 0, t );
   this->TensorSource->Modified();
+}
+
+//----------------------------------------------------------------------
+void vtkEllipsoidTensorProbeRepresentation::GetActors(vtkPropCollection *pc)
+{
+  this->EllipsoidActor->GetActors(pc);
+}
+
+//----------------------------------------------------------------------
+void vtkEllipsoidTensorProbeRepresentation::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->EllipsoidActor->ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------
