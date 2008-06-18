@@ -331,7 +331,7 @@ void vtkTIFFReader::ExecuteInformation()
 
   // if orientation information is provided, overwrite the value
   // read from the tiff image
-  if( OrientationTypeSpecifiedFlag )
+  if( this->OrientationTypeSpecifiedFlag )
     {
     this->GetInternalImage()->Orientation = OrientationType;
     }
@@ -491,8 +491,18 @@ void vtkTIFFReader::SetOrientationType( unsigned int orientationType )
     return;
     }
 
-  OrientationType = orientationType;
-  OrientationTypeSpecifiedFlag = true;
+  if( this->OrientationType != orientationType )
+    {
+    this->OrientationType = orientationType;
+    this->Modified();
+    }
+  if( !this->OrientationTypeSpecifiedFlag )
+    {
+    this->Modified();
+    }
+  // To preserve backward compatibility OrientationTypeSpecifiedFlag would
+  // always be set to true whatever user input...
+  this->OrientationTypeSpecifiedFlag = true;
 }
 
 //-------------------------------------------------------------------------
