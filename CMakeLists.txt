@@ -250,7 +250,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for perf
 
 VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating packaged and linked views." ON "VTK_USE_INFOVIS" OFF)
 
-VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON "VTK_USE_RENDERING" OFF)
+VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON "VTK_USE_VIEWS" OFF)
 
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
