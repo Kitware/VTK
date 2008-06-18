@@ -450,6 +450,116 @@ int TestPolynomialSolvers( int, char *[] )
        << timer->GetElapsedTime() << "s\n";
   for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
 
+  // 11. Find the roots of a sparse degree 10 polynomial with SturmBisectionSolve to exercise a particular
+  // case where of the euclidean division routine, where the remainder does not have maximal degree. 
+  rootInt[0] = -10.;
+  rootInt[1] = 10.;
+  double P84[] = 
+    {
+      55.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      -79.000000,
+      90.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      37.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      49.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      0.000000,
+      -12.000000
+    };
+  PrintPolynomial( P84, 84 );
+
+  timer->StartTimer();
+  testIntValue = vtkPolynomialSolvers::SturmBisectionSolve( P84, 84, rootInt, upperBnds, tolSturm );
+  timer->StopTimer();
+
+  if ( testIntValue != 2 )
+    {
+    vtkGenericWarningMacro("SturmBisectionSolve( 55x^84-79x^72+90x^71+37x^44+49x^21-12, ]-10;10] ): "<<testIntValue<<" root(s) instead of 2");
+    return 1;
+    }
+  cout << "SturmBisection +/-" << tolSturm << " ]" 
+       << rootInt[0] << ";"
+       << rootInt[1] << "], "
+       << testIntValue << " "
+       << timer->GetElapsedTime() << "s\n";
+  for ( int i = 0; i < testIntValue ; ++ i ) cout << upperBnds[i] - tolSturm * .5 << "\n";
+
   timer->Delete();
   return 0;
 }
