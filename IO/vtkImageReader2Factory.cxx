@@ -26,13 +26,14 @@
 #include "vtkPNMReader.h"
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
+#include "vtkMetaImageReader.h"
 
 // Destroying the prototype readers requires information keys.
 // Include the manager here to make sure the keys are not destroyed
 // until after the AvailableReaders singleton has been destroyed.
 #include "vtkFilteringInformationKeyManager.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.20");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.21");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkImageReader2FactoryCleanup
@@ -153,6 +154,9 @@ void vtkImageReader2Factory::InitializeReaders()
   reader->Delete();
   vtkImageReader2Factory::AvailableReaders->
     AddItem((reader = vtkMINCImageReader::New()));
+  reader->Delete();
+  vtkImageReader2Factory::AvailableReaders->
+    AddItem((reader = vtkMetaImageReader::New()));
   reader->Delete();
 }
 
