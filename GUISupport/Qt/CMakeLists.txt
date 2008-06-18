@@ -253,6 +253,12 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.ctest" @ONLY IMMEDIATE)
 
+
+# recurse into Chart directory if we have Qt4
+IF(DESIRED_QT_VERSION MATCHES 4)
+  SUBDIRS(Chart)
+ENDIF(DESIRED_QT_VERSION MATCHES 4)
+
 # recurse into testing directory if testing is on
 IF(DESIRED_QT_VERSION MATCHES 4)
   IF(BUILD_TESTING)

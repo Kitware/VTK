@@ -1,0 +1,181 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkQtChartSeriesLayer.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+
+/// \file vtkQtChartSeriesLayer.h
+/// \date February 14, 2008
+
+#ifndef _vtkQtChartSeriesLayer_h
+#define _vtkQtChartSeriesLayer_h
+
+#include "vtkQtChartExport.h"
+#include "vtkQtChartLayer.h"
+
+class vtkQtChartContentsArea;
+class vtkQtChartSeriesModel;
+class vtkQtChartSeriesOptions;
+class vtkQtChartSeriesSelection;
+class vtkQtChartSeriesSelectionModel;
+class QPointF;
+class QRectF;
+
+
+/// \class vtkQtChartSeriesLayer
+/// \brief
+///   The vtkQtChartSeriesLayer class is the base class for chart
+///   layers that use the chart series model.
+///
+/// It stores the pointer to the chart series model and the list of
+/// options for the series. The series options are created using the
+/// \c createOptions method. Subclasses should overload this method to
+/// create the appropriate type of options object.
+class VTKQTCHART_EXPORT vtkQtChartSeriesLayer : public vtkQtChartLayer
+{
+  Q_OBJECT
+
+public:
+  enum {Type = vtkQtChart_SeriesLayerType};
+
+public:
+  vtkQtChartSeriesLayer();
+  virtual ~vtkQtChartSeriesLayer() {}
+
+  virtual int type() const {return vtkQtChartSeriesLayer::Type;}
+
+  /// \brief
+  ///   Sets the chart area for the chart layer.
+  ///
+  /// If the model is set before the chart layer is added to a chart
+  /// area, series options will not be available. Setting the chart
+  /// area will create the series options for the model in this case.
+  /// Subclasses can extend this method to handle the new options.
+  ///
+  /// \param area The new chart area.
+  virtual void setChartArea(vtkQtChartArea *area);
+
+  /// \brief
+  ///   Gets the chart series model.
+  /// \return
+  ///   A pointer to the chart series model.
+  vtkQtChartSeriesModel *getModel() const {return this->Model;}
+
+  /// \brief
+  ///   Sets the chart series model.
+  /// \param model The new chart series model.
+  virtual void setModel(vtkQtChartSeriesModel *model);
+
+  /// \brief
+  ///   Gets the drawing options for the given series.
+  /// \param series The index of the series.
+  /// \return
+  ///   A pointer to the drawing options for the given series.
+  vtkQtChartSeriesOptions *getSeriesOptions(int series) const;
+
+  /// \brief
+  ///   Gets the index for the given series options.
+  /// \param options The series options object.
+  /// \return
+  ///   The index for the given series options.
+  int getSeriesOptionsIndex(vtkQtChartSeriesOptions *options) const;
+
+  /// \brief
+  ///   Gets the chart series selection model.
+  /// \return
+  ///   A pointer to the chart series selection model.
+  vtkQtChartSeriesSelectionModel *getSelectionModel() const;
+
+  virtual void getSeriesAt(const QPointF &point,
+      vtkQtChartSeriesSelection &selection) const;
+
+  virtual void getPointsAt(const QPointF &point,
+      vtkQtChartSeriesSelection &selection) const;
+
+  virtual void getSeriesIn(const QRectF &area,
+      vtkQtChartSeriesSelection &selection) const;
+
+  virtual void getPointsIn(const QRectF &area,
+      vtkQtChartSeriesSelection &selection) const;
+
+public slots:
+  /// \brief
+  ///   Sets the contents x-axis offset.
+  /// \param offset The new x-axis offset.
+  void setXOffset(float offset);
+
+  /// \brief
+  ///   Sets the contents y-axis offset.
+  /// \param offset The new y-axis offset.
+  void setYOffset(float offset);
+
+  /// Resets the series options for the model.
+  void resetSeriesOptions();
+
+protected:
+  /// \brief
+  ///   Creates an options object for a series.
+  /// \note
+  ///   Subclasses should only create the options in this method. Use
+  ///   the \c setupOptions to set up connections.
+  /// \param parent The parent of the options object.
+  /// \return
+  ///   A pointer to a new options object.
+  /// \sa
+  ///   vtkQtChaerSeriesLayer::setupOptions(vtkQtChartSeriesOptions *)
+  virtual vtkQtChartSeriesOptions *createOptions(QObject *parent) = 0;
+
+  /// \brief
+  ///   Sets up the options object.
+  ///
+  /// The style has been reserved and set before this method is called.
+  /// Signal connections should be set up here in order to avoid slot
+  /// calls during setup.
+  ///
+  /// \param options The newly created series options.
+  virtual void setupOptions(vtkQtChartSeriesOptions *options) = 0;
+
+private slots:
+  /// \brief
+  ///   Inserts new options for the given series.
+  /// \param first The first index of the new series.
+  /// \param last The last index of the new series.
+  void insertSeriesOptions(int first, int last);
+
+  /// \brief
+  ///   Removes options for the given series.
+  /// \param first The first index of the series to remove.
+  /// \param last The last index of the series to remove.
+  void removeSeriesOptions(int first, int last);
+
+private:
+  /// Removes all the series options.
+  void clearOptions();
+
+protected:
+  /// Stores the series/point selection.
+  vtkQtChartSeriesSelectionModel *Selection;
+  vtkQtChartSeriesModel *Model;     ///< Stores the series model.
+  vtkQtChartContentsArea *Contents; ///< Used for panning.
+
+private:
+  /// Stores the series options.
+  QList<vtkQtChartSeriesOptions *> Options;
+};
+
+#endif
+

@@ -32,3 +32,30 @@ FOREACH (test ${TestsToRun})
     ADD_TEST(QVTK-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH (test) 
+
+
+# testing of vtkQtChart
+SET(Tests
+  TestLineSeries.cxx
+  TestBarChart.cxx
+  TestStackedChart.cxx
+  TestStatisticalBoxChart.cxx
+  PolylineItem.cxx
+  PointMarkerItems.cxx
+  Test1.cxx
+  TestChartWidget.cxx
+  TestOrderStatisticsBoxChart.cxx
+  )
+
+INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
+
+CREATE_TEST_SOURCELIST(TestSrcs QtChartCxxTests.cxx ${Tests} )
+
+ADD_EXECUTABLE(QtChartCxxTests ${TestSrcs} QTestApp.cxx)
+TARGET_LINK_LIBRARIES(QtChartCxxTests vtkQtChart vtkInfovis)
+
+FOREACH(test ${Tests})
+  GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
+  ADD_TEST(QtChart-${testname} ${CXX_TEST_PATH}/QtChartCxxTests ${testname} --exit)
+ENDFOREACH(test)
+
