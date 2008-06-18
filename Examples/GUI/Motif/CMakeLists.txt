@@ -1,6 +1,8 @@
 IF (VTK_USE_X)
   PROJECT (MotifExamples)
 
+  FIND_PACKAGE(Motif REQUIRED)
+
   INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
   CHECK_INCLUDE_FILE_CXX("Xm/PushB.h" HAVE_XM_PUSHB_H)
 
@@ -8,7 +10,7 @@ IF (VTK_USE_X)
     # WARNING: The Motif library HAS to be placed BEFORE the Xt library
     # brought in by VTK (see Motif FAQ item 335)
 
-    LINK_LIBRARIES(-lXm)
+    LINK_LIBRARIES(${MOTIF_LIBRARIES})
 
     FIND_PACKAGE(VTK)
     IF(NOT VTK_DIR)
