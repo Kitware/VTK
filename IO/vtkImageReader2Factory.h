@@ -16,15 +16,15 @@
 // .SECTION Description
 // vtkImageReader2Factory: This class is used to create a vtkImageReader2
 // object given a path name to a file.  It calls CanReadFile on all
-// availiable readers until one of them returns ture.  The availiable reader
+// available readers until one of them returns true.  The available reader
 // list comes from three places.  In the InitializeReaders function of this
 // class, built-in VTK classes are added to the list, users can call
 // RegisterReader, or users can create a vtkObjectFactory that has
 // CreateObject method that returns a new vtkImageReader2 sub class when
 // given the string "vtkImageReaderObject".  This way applications can be
-// extened with new readers via a plugin dll or by calling RegisterReader.
+// extended with new readers via a plugin dll or by calling RegisterReader.
 // Of course all of the readers that are part of the vtk release are made
-// automatically availiable.
+// automatically available.
 //
 // .SECTION See Also
 // vtkImageReader2 
