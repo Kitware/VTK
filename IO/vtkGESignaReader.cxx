@@ -19,8 +19,9 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkMedicalImageProperties.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.20");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.21");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -36,7 +37,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
   fread(&magic, 4, 1, fp);
   vtkByteSwap::Swap4BE(&magic);
   
-  if (magic != 0x494d4746)
+  if (magic != 0x494d4746) // "IMGF"
     {
     fclose(fp);
     return 0;
@@ -105,26 +106,61 @@ void vtkGESignaReader::ExecuteInformation()
   vtkByteSwap::Swap4BE(&imgHdrOffset);
 
   // seek to the exam and read some info
-  fseek(fp, examHdrOffset + 84, SEEK_SET);
   char tmpStr[1024];
+  // suite ID
+  fseek(fp, examHdrOffset + 0, SEEK_SET);
+  fread(tmpStr,4,1,fp);
+  tmpStr[4] = 0;
+  this->GetMedicalImageProperties()->SetStudyDescription( tmpStr ); // StudyID would be more suited...
+  // exam number
+  fseek(fp, examHdrOffset + 8, SEEK_SET);
+  unsigned short examnumber;
+  fread(&examnumber,2,1,fp);
+  vtkByteSwap::Swap2BE(&examnumber);
+  sprintf(tmpStr,"%d",examnumber);
+  //this->SetStudyNumber(tmpStr);
+  // Patient ID
+  fseek(fp, examHdrOffset + 84, SEEK_SET);
   fread(tmpStr,13,1,fp);
   tmpStr[13] = 0;
   this->SetPatientID(tmpStr);
+  // Patient Name
   fread(tmpStr,25,1,fp);
   tmpStr[25] = 0;
   this->SetPatientName(tmpStr);
+  // Patient Age
+  fseek(fp, examHdrOffset + 122, SEEK_SET);
+  short patientage;
+  fread(&patientage,2,1,fp);
+  vtkByteSwap::Swap2BE(&patientage);
+  sprintf(tmpStr,"%d",patientage);
+  this->GetMedicalImageProperties()->SetPatientAge( tmpStr );
+  // Patient Sex
+  fseek(fp, examHdrOffset + 126, SEEK_SET);
+  short patientsex;
+  fread(&patientsex,2,1,fp);
+  vtkByteSwap::Swap2BE(&patientsex);
+  sprintf(tmpStr,"%d",patientsex);
+  this->GetMedicalImageProperties()->SetPatientSex( tmpStr );
+  // Modality
+  fseek(fp, examHdrOffset + 305, SEEK_SET);
+  fread(tmpStr,3,1,fp);
+  tmpStr[3] = 0;
+  this->SetModality(tmpStr);
   
   // seek to the series and read some info
+  // series number
   fseek(fp, seriesHdrOffset + 10, SEEK_SET);
   short series;
   fread(&series,2,1,fp);
   vtkByteSwap::Swap2BE(&series);
   sprintf(tmpStr,"%d",series);
   this->SetSeries(tmpStr);
+  // scan protocol name
   fseek(fp, seriesHdrOffset + 92, SEEK_SET);
   fread(tmpStr,25,1,fp);
   tmpStr[25] = 0;
-  this->SetStudy(tmpStr);
+  this->SetStudy(tmpStr); // ??
 
   // now seek to the image header and read some values
   float tmpX, tmpY, tmpZ;
@@ -137,6 +173,7 @@ void vtkGESignaReader::ExecuteInformation()
   fseek(fp, imgHdrOffset + 116, SEEK_SET);  
   fread(&spacingZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingZ);
+  // Slice Thickness
   fseek(fp, imgHdrOffset + 26, SEEK_SET);  
   fread(&tmpZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpZ);
@@ -177,6 +214,21 @@ void vtkGESignaReader::ExecuteInformation()
   origX = origX + tmpX;
   origY = origY + tmpY;
   origZ = origZ + tmpZ;
+
+  /*
+  http://www.dclunie.com/medical-image-faq/html/part4.html#Signa5X
+  image header - for MR (1022 bytes long):
+
+  194 - int      - repetition time(usec)
+  198 - int      - inversion time(usec)
+  202 - int      - echo time(usec)
+  210 - short    - number of echoes
+  212 - short    - echo number
+  218 - float    - NEX
+  308 - char[33] - pulse sequence name
+  362 - char[17] - coil name
+  640 - short    - ETL for FSE
+   */
   
   this->SetDataOrigin(origX, origY, origZ);
   
