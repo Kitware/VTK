@@ -52,13 +52,13 @@ public:
   // arrays in the vertex data retrieved by GetVertexData.
   vtkIdType AddVertex(vtkVariantArray *propertyArr = 0);
 
-  // BTX
+  //BTX
   // Description:
   // Adds a vertex with the given pedigree ID to the graph (if a
   // vertex with that pedigree ID does not already exist) and returns
   // the id the vertex with that pedigree ID.
   vtkIdType AddVertex(const vtkVariant& pedigreeId);
-  // ETX
+  //ETX
 
   // Description:
   // Adds a directed edge from u to v to the graph and returns a
@@ -68,8 +68,8 @@ public:
   // returned by GetEdgeData.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v, 
                       vtkVariantArray *propertyArr = 0);
-  
-  //BTX
+
+  //BTX  
   // Description:
   // Adds a directed edge from u to v to the graph and returns a
   // vtkEdgeType structure for that edge. uPedigreeId is the pedigree
@@ -110,13 +110,12 @@ public:
   // arrays in the vertex data retrieved by GetVertexData.
   void LazyAddVertex(vtkVariantArray *propertyArr = 0);
 
-  // BTX
+  //BTX
   // Description:
   // Adds a vertex with the given pedigree ID to the graph (if a
   // vertex with that pedigree ID does not already exist) and returns
   // the id the vertex with that pedigree ID.
   void LazyAddVertex(const vtkVariant& pedigreeId);
-  // ETX
 
   // Description:
   // Adds a directed edge from u to v to the graph. The edge may not
@@ -128,7 +127,6 @@ public:
   // returned by GetEdgeData.
   void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr = 0);
 
-  //BTX  
   // Description:
   // Adds a directed edge from u to v to the graph. The edge may not
   // be added immediately, which provides more optimization

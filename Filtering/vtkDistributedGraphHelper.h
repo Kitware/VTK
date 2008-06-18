@@ -104,9 +104,11 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func, 
                                        void *userData);
 
+  //BTX
   // Description:
   // Determine which processor owns the vertex with the given pedigree ID.
   vtkIdType GetVertexOwnerByPedigreeId(const vtkVariant& pedigreeId);
+  //ETX
 
   // Description:
   // Synchronizes all of the processors involved in this distributed

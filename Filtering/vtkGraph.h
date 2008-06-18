@@ -390,12 +390,14 @@ public:
   vtkDistributedGraphHelper *GetDistributedGraphHelper();
   //ETX
 
+  //BTX
   // Description:
   // Retrieve the vertex with the given pedigree ID. If successful,
   // returns the ID of the vertex. Otherwise, either the vertex data
   // does not have a pedigree ID array or there is no vertex with the
   // given pedigree ID, so this function returns -1.
   vtkIdType FindVertex(const vtkVariant& pedigreeID);
+  //ETX
 
   // Description:
   // Shallow copies the data object into this graph.
@@ -513,7 +515,6 @@ protected:
   vtkGraph();
   ~vtkGraph();
 
-  //BTX
   // Description:
   // Protected method for adding vertices, optionally with properties,
   // used by mutable subclasses. If vertex is non-null, it will be set
@@ -529,9 +530,7 @@ protected:
   // argument is set to the ID of the existing vertex.  Otherwise, a
   // new vertex is added and its ID is provided.
   void AddVertexInternal(const vtkVariant& pedigree, vtkIdType *vertex);
-  //ETX
 
-  // BTX
   // Description:
   // Protected method for adding edges of a certain directedness used
   // by mutable subclasses. If propertyArr is non-null, it specifies

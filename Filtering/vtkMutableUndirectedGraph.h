@@ -50,13 +50,13 @@ public:
   // arrays in the vertex data retrieved by GetVertexData.
   vtkIdType AddVertex(vtkVariantArray *propertyArr = 0);
 
-  // BTX
+  //BTX
   // Description:
   // Adds a vertex with the given pedigree ID to the graph (if a
   // vertex with that pedigree ID does not already exist) and returns
   // the id the vertex with that pedigree ID.
   vtkIdType AddVertex(const vtkVariant& pedigreeId);
-  // ETX
+  //ETX
 
   // Description:
   // Adds an undirected edge from u to v to the graph and returns a
@@ -108,13 +108,13 @@ public:
   // arrays in the vertex data retrieved by GetVertexData.
   void LazyAddVertex(vtkVariantArray *propertyArr = 0);
 
-  // BTX
+  //BTX
   // Description:
   // Adds a vertex with the given pedigree ID to the graph (if a
   // vertex with that pedigree ID does not already exist) and returns
   // the id the vertex with that pedigree ID.
   void LazyAddVertex(const vtkVariant& pedigreeId);
-  // ETX
+  //ETX
 
   // Description:
   // Adds an undirected edge from u to v to the graph. The edge may not
