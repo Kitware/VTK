@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.23");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.24");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -53,6 +53,7 @@ vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "MultiplicativeFactor: " << this->MultiplicativeFactor << endl;
 }
 
 // ----------------------------------------------------------------------
