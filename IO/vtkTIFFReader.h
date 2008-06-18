@@ -69,27 +69,33 @@ public:
   // Reads 3D data from tiled tiff
   virtual void ReadTiles(void* buffer);
 
-  /* Set orientation type 
-  ORIENTATION_TOPLEFT         1       (row 0 top, col 0 lhs)
-  ORIENTATION_TOPRIGHT        2       (row 0 top, col 0 rhs)
-  ORIENTATION_BOTRIGHT        3       (row 0 bottom, col 0 rhs)
-  ORIENTATION_BOTLEFT         4       (row 0 bottom, col 0 lhs)
-  ORIENTATION_LEFTTOP         5       (row 0 lhs, col 0 top)
-  ORIENTATION_RIGHTTOP        6       (row 0 rhs, col 0 top)
-  ORIENTATION_RIGHTBOT        7       (row 0 rhs, col 0 bottom)
-  ORIENTATION_LEFTBOT         8       (row 0 lhs, col 0 bottom) */ 
+  // Description:
+  // Set orientation type 
+  // ORIENTATION_TOPLEFT         1       (row 0 top, col 0 lhs)
+  // ORIENTATION_TOPRIGHT        2       (row 0 top, col 0 rhs)
+  // ORIENTATION_BOTRIGHT        3       (row 0 bottom, col 0 rhs)
+  // ORIENTATION_BOTLEFT         4       (row 0 bottom, col 0 lhs)
+  // ORIENTATION_LEFTTOP         5       (row 0 lhs, col 0 top)
+  // ORIENTATION_RIGHTTOP        6       (row 0 rhs, col 0 top)
+  // ORIENTATION_RIGHTBOT        7       (row 0 rhs, col 0 bottom)
+  // ORIENTATION_LEFTBOT         8       (row 0 lhs, col 0 bottom)
+  // User need to explicitely include vtk_tiff.h header to have access to those #define
   void SetOrientationType( unsigned int orientationType );
   vtkGetMacro( OrientationType, unsigned int );
 
+  // Description:
   // Get method to check if orientation type is specified
   vtkGetMacro( OrientationTypeSpecifiedFlag, bool );
   
+  // Description:
   // Set/get methods to see if manual Origin/Spacing have
   // been set.
   vtkSetMacro( OriginSpecifiedFlag, bool );
   vtkGetMacro( OriginSpecifiedFlag, bool );
   vtkBooleanMacro( OriginSpecifiedFlag, bool );
   
+  // Description:
+  // 
   vtkSetMacro( SpacingSpecifiedFlag, bool );
   vtkGetMacro( SpacingSpecifiedFlag, bool );
   vtkBooleanMacro( SpacingSpecifiedFlag, bool );
