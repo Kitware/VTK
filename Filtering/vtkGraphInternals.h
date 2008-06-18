@@ -48,7 +48,7 @@ public:
 //----------------------------------------------------------------------------
 // class vtkGraphInternals
 //----------------------------------------------------------------------------
-class vtkGraphInternals : public vtkObject
+class VTK_FILTERING_EXPORT vtkGraphInternals : public vtkObject
 {
 public:
   static vtkGraphInternals *New();
