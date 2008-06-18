@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.22");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.23");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -315,9 +315,10 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
         unfound = false;
 
         double nominal = params->GetValueByName( i, "Mean" ).ToDouble();
-        double deviation = this->MultiplicativeFactor * params->GetValueByName( i, "Standard Deviation" ).ToDouble();
-        double minimum = nominal - deviation;
-        double maximum = nominal + deviation;
+        double deviation = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
+        double threshold = this->MultiplicativeFactor * deviation;
+        double minimum = nominal - threshold;
+        double maximum = nominal + threshold;
 
         double value;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
@@ -328,7 +329,14 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
             {
             row->SetValue( 0, col );
             row->SetValue( 1, r );
-            row->SetValue( 2, ( value - nominal ) / deviation );
+            if ( deviation != 0. )
+              {
+              row->SetValue( 2, ( value - nominal ) / deviation );
+              }
+            else
+              {
+              row->SetValue( 2, 0. );
+              }
 
             output->InsertNextRow( row );
             }
