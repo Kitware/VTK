@@ -953,7 +953,21 @@ void vtkQtStackedChart::layoutHighlights()
         {
         (*iter)->IsHighlighted = false;
         options = this->getStackedSeriesOptions(i);
-        (*iter)->Polygon->setBrush(options->getBrush());
+        if(this->Options->isGradientDislpayed())
+          {
+          QRectF bounds = (*iter)->Polygon->boundingRect();
+          float center = bounds.center().x();
+          QLinearGradient gradient(center, bounds.top(),
+              center, bounds.bottom());
+          QColor color = options->getBrush().color();
+          gradient.setColorAt(0.0, color);
+          gradient.setColorAt(1.0, color.darker());
+          (*iter)->Polygon->setBrush(QBrush(gradient));
+          }
+        else
+          {
+          (*iter)->Polygon->setBrush(options->getBrush());
+          }
         }
       }
 
