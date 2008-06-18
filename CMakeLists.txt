@@ -575,6 +575,11 @@ VTK_DEPENDENT_OPTION(VTK_USE_MATROX_IMAGING
                      "VTK_USE_RENDERING;WIN32" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
                      "VTK_USE_RENDERING" ON)
+VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL_BGL
+                     "Use the Parallel Boost Graph Library"
+                     OFF
+                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;VTK_USE_64BIT_IDS" 
+                     OFF)
 
 SET(VTK_CAN_USE_TK)
 IF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
@@ -591,7 +596,8 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_GL2PS
                  VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
-                 VTK_USE_MPI)
+                 VTK_USE_MPI
+                 VTK_USE_PARALLEL_BGL)
 
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
@@ -692,6 +698,17 @@ IF(VTK_USE_MPI AND BUILD_TESTING)
   SEPARATE_ARGUMENTS(VTK_MPI_PREFLAGS)
   SEPARATE_ARGUMENTS(VTK_MPI_POSTFLAGS)
 ENDIF(VTK_USE_MPI AND BUILD_TESTING)
+
+#-----------------------------------------------------------------------------
+# Configure Parallel BGL support.
+IF(VTK_USE_PARALLEL_BGL)
+  CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+  FIND_PACKAGE(PBGL REQUIRED)
+  ADD_DEFINITIONS(-DVTK_USE_PARALLEL_BGL)
+  IF (PBGL_INCLUDE_DIR)
+    INCLUDE_DIRECTORIES(BEFORE ${PBGL_INCLUDE_DIR})
+  ENDIF (PBGL_INCLUDE_DIR)
+ENDIF(VTK_USE_PARALLEL_BGL)
 
 #-----------------------------------------------------------------------------
 # Create STL header wrappers to block warnings in the STL headers.
@@ -958,7 +975,16 @@ MARK_AS_ADVANCED(VTK_USE_BOOST)
 
 # Look for Boost only if using Boost
 IF(VTK_USE_BOOST)
-  FIND_PACKAGE(Boost REQUIRED)
+  if (VTK_USE_PARALLEL_BGL)
+    if (MSVC)
+      set(Boost_USE_STATIC_LIBS ON)
+    endif (MSVC)
+    FIND_PACKAGE(Boost 1.35.1 REQUIRED
+      COMPONENTS mpi serialization filesystem system)
+  else (VTK_USE_PARALLEL_BGL)
+    FIND_PACKAGE(Boost REQUIRED COMPONENTS serialization)
+  endif (VTK_USE_PARALLEL_BGL)
+
   INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
 
 # We need Boost 1.32 or later

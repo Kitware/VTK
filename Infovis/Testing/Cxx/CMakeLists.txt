@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestDescriptiveStatistics
     TestExtractSelectedGraph
     TestGraph
+    TestGraphAttributes
     TestGraphAlgorithms   
     TestGraphHierarchicalBundle
     TestGraphLayoutStrategy
@@ -48,11 +49,29 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestBoostAlgorithms
       )
 
+    # The variant-serialization test is kept separate, because it
+    # needs to link against the serialization library.
+    ADD_EXECUTABLE(TestVariantSerialization TestVariantSerialization.cxx)
+    TARGET_LINK_LIBRARIES(TestVariantSerialization vtkInfovis ${Boost_SERIALIZATION_LIBRARY})
+    ADD_TEST(TestVariantSerialization ${CXX_TEST_PATH}/TestVariantSerialization)
+
     IF(VTK_DATA_ROOT)
       SET(MyTests ${MyTests}
         TestBoostSplitTableField
         )
     ENDIF(VTK_DATA_ROOT)
+
+    IF (VTK_USE_PARALLEL_BGL)
+      # Add tests using the Parallel BGL
+      ADD_EXECUTABLE(TestPBGLAlgorithms TestPBGLAlgorithms.cxx)
+      TARGET_LINK_LIBRARIES(TestPBGLAlgorithms vtkInfovis ${Boost_LIBRARIES})
+
+      ADD_TEST(TestPBGLAlgorithms
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/TestPBGLAlgorithms
+        ${VTK_MPI_POSTFLAGS})
+    ENDIF (VTK_USE_PARALLEL_BGL)   
   ENDIF (VTK_USE_BOOST)
   SET(VTK_HAS_UINT64_ARRAY 0)
   IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")

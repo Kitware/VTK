@@ -26,7 +26,7 @@
 //----------------------------------------------------------------------------
 // class vtkMutableDirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.2");
+vtkCxxRevisionMacro(vtkMutableDirectedGraph, "1.3");
 vtkStandardNewMacro(vtkMutableDirectedGraph);
 //----------------------------------------------------------------------------
 vtkMutableDirectedGraph::vtkMutableDirectedGraph()
@@ -41,15 +41,97 @@ vtkMutableDirectedGraph::~vtkMutableDirectedGraph()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkMutableDirectedGraph::AddVertex()
+vtkIdType vtkMutableDirectedGraph::AddVertex(vtkVariantArray *propertyArr)
 {
-  return this->AddVertexInternal();
+  vtkIdType vertex;
+  this->AddVertexInternal(propertyArr, &vertex);
+  return vertex;
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
+vtkIdType vtkMutableDirectedGraph::AddVertex(const vtkVariant& pedigreeId)
 {
-  return this->AddEdgeInternal(u, v, true);
+  vtkIdType vertex;
+  this->AddVertexInternal(pedigreeId, &vertex);
+  return vertex;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, vtkIdType v,
+                                             vtkVariantArray *propertyArr)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, vtkIdType v,
+                                             vtkVariantArray *propertyArr)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
+                                             vtkVariantArray *propertyArr)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, 
+                                             const vtkVariant& v,
+                                             vtkVariantArray *propertyArr)
+{
+  vtkEdgeType e;
+  this->AddEdgeInternal(u, v, true, propertyArr, &e);
+  return e;
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
+{
+  this->AddVertexInternal(propertyArr, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddVertex(const vtkVariant& pedigreeId)
+{
+  this->AddVertexInternal(pedigreeId, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v,
+                                          vtkVariantArray *propertyArr)
+{
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u, vtkIdType v,
+                                          vtkVariantArray *propertyArr)
+{
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
+                                          vtkVariantArray *propertyArr)
+{
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u, 
+                                          const vtkVariant& v,
+                                          vtkVariantArray *propertyArr)
+{
+  this->AddEdgeInternal(u, v, true, propertyArr, 0);
 }
 
 //----------------------------------------------------------------------------

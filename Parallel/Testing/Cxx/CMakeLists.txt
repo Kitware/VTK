@@ -94,6 +94,36 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ${CXX_TEST_PATH}/GenericCommunicator
       ${VTK_MPI_POSTFLAGS})
 
+    IF (VTK_USE_PARALLEL_BGL)
+      # Add tests using the Parallel BGL
+      ADD_EXECUTABLE(PBGLRandomGraph PBGLRandomGraph.cxx)
+      TARGET_LINK_LIBRARIES(PBGLRandomGraph vtkParallel ${Boost_LIBRARIES})
+
+      ADD_EXECUTABLE(PBGLNamedVertexGraph PBGLNamedVertexGraph.cxx)
+      TARGET_LINK_LIBRARIES(PBGLNamedVertexGraph vtkParallel ${Boost_LIBRARIES})
+
+      ADD_EXECUTABLE(TestPBGLGraphSQLReader TestPBGLGraphSQLReader.cxx)
+      TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReader vtkParallel ${Boost_LIBRARIES})
+
+      ADD_TEST(PBGLRandomGraph
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/PBGLRandomGraph
+        ${VTK_MPI_POSTFLAGS})
+
+      ADD_TEST(PBGLNamedVertexGraph
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/PBGLNamedVertexGraph
+        ${VTK_MPI_POSTFLAGS})
+
+      ADD_TEST(TestPBGLGraphSQLReader
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/TestPBGLGraphSQLReader
+        ${VTK_MPI_POSTFLAGS})
+    ENDIF (VTK_USE_PARALLEL_BGL)
+
     #
     # Add tests, with the data
     #

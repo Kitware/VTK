@@ -17,6 +17,11 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
+/* 
+ * Copyright (C) 2008 The Trustees of Indiana University.
+ * Use, modification and distribution is subject to the Boost Software
+ * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
+ */
 #include "vtkBoostBreadthFirstSearch.h"
 
 #include "vtkCellArray.h"
@@ -30,10 +35,19 @@
 #include "vtkDataArray.h"
 #include "vtkSelection.h"
 #include "vtkStringArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
+
+#ifdef VTK_USE_PARALLEL_BGL
+#  include "vtkDistributedGraphHelper.h"
+#  include "vtkPBGLGraphAdapter.h"
+#  include "vtkPBGLDistributedGraphHelper.h"
+#  include <boost/graph/distributed/breadth_first_search.hpp>
+#  include <boost/parallel/algorithm.hpp>
+#endif
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/visitors.hpp>
@@ -42,11 +56,12 @@
 #include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
+#include <vtksys/stl/utility> // for pair
+
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.10");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.11");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
-
 
 // Redefine the bfs visitor, the only visitor we
 // are using is the tree_edge visitor.
@@ -59,13 +74,12 @@ public:
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
-  void discover_vertex(Vertex v, const Graph& vtkNotUsed(g))
+  void examine_vertex(Vertex v, const Graph& vtkNotUsed(g))
   {
-    // If this is the start vertex, initialize far vertex and distance
-    if (*far_vertex < 0)
+    if (get(d, v) > far_dist)
       {
       *far_vertex = v;
-      far_dist = 0;
+      far_dist = get(d, v);
       }
   }
 
@@ -75,17 +89,45 @@ public:
     typename graph_traits<Graph>::vertex_descriptor
     u = source(e, g), v = target(e, g);
     put(d, v, get(d, u) + 1);
-    if (get(d, v) > far_dist)
-      {
-      *far_vertex = v;
-      far_dist = get(d, v);
-      }
   }
 
 private:
   DistanceMap d;
   vtkIdType* far_vertex;
   vtkIdType far_dist;
+};
+
+// Function object used to reduce (vertex, distance) pairs to find
+// the furthest vertex. This ordering favors vertices on processors
+// with a lower rank. Used only for the Parallel BGL breadth-first
+// search.
+class furthest_vertex 
+{
+public:
+  furthest_vertex() : graph(0) { }
+
+  furthest_vertex(vtkGraph *graph) : graph(graph) { }
+
+  vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
+  {
+    vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+    if (x.second > y.second 
+        || (x.second == y.second 
+            && helper->GetVertexOwner(x.first) < helper->GetVertexOwner(y.first))
+        || (x.second == y.second 
+            && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
+            && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
+      {
+      return x;
+      }
+    else
+      {
+      return y;
+      }
+  }
+
+private:
+  vtkGraph *graph;
 };
   
 // Constructor/Destructor
@@ -198,7 +240,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
 
   // Send the data to output.
   output->ShallowCopy(input);
-    
+
   // Sanity check
   // The Boost BFS likes to crash on empty datasets
   if (input->GetNumberOfVertices() == 0)
@@ -274,28 +316,115 @@ int vtkBoostBreadthFirstSearch::RequestData(
   // Initialize the BFS array to all 0's
   for(int i=0;i< BFSArray->GetNumberOfTuples(); ++i)
     {
-    BFSArray->SetValue(i,0);
+      BFSArray->SetValue(i, VTK_INT_MAX);
     }
-  
-  // Create a color map (used for marking visited nodes)
-  vector_property_map<default_color_type> color;
- 
-  // Create a queue to hand off to the BFS
-  boost::queue<int> Q;
 
-  vtkIdType maxFromRootVertex = 0;
-  my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
-  
-  // Is the graph directed or undirected
-  if (vtkDirectedGraph::SafeDownCast(output))
+  vtkIdType maxFromRootVertex = this->OriginVertexIndex;
+
+  // Create a color map (used for marking visited nodes)
+  vector_property_map<default_color_type> color(output->GetNumberOfVertices());
+
+#ifdef VTK_USE_PARALLEL_BGL
+  vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
+  if (helper)
     {
-    vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+    // Distributed breadth-first search. 
+      
+    // We can only deal with Parallel BGL-distributed graphs.
+    vtkPBGLDistributedGraphHelper *pbglHelper
+      = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+    if (!pbglHelper)
+      {
+      vtkErrorMacro("Can only perform Parallel BGL breadth-first search on a Parallel BGL distributed graph");
+      return 1;
+      }
+
+    // Set the distance to the source vertex to zero
+    int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+    if (helper->GetVertexOwner(this->OriginVertexIndex) == myRank)
+      {
+      BFSArray->SetValue(helper->GetVertexIndex(this->OriginVertexIndex), 0);
+      }
+
+    // Distributed color map
+    typedef boost::parallel::distributed_property_map<
+              boost::graph::distributed::mpi_process_group,
+              boost::vtkVertexGlobalMap,
+              vector_property_map<default_color_type> 
+            > DistributedColorMap;
+    DistributedColorMap distribColor(pbglHelper->GetProcessGroup(),
+                                     boost::vtkVertexGlobalMap(output),
+                                     color);
+
+    // Distributed distance map
+    typedef vtkDistributedVertexPropertyMapType<vtkIntArray>::type
+      DistributedDistanceMap;
+    
+    // Distributed distance recorder
+    DistributedDistanceMap distribBFSArray
+      = MakeDistributedVertexPropertyMap(output, BFSArray);
+    set_property_map_role(boost::vertex_distance, distribBFSArray);
+    my_distance_recorder<DistributedDistanceMap> 
+      bfsVisitor(distribBFSArray, &maxFromRootVertex);
+
+    // The use of parallel_bfs_helper works around the fact that a
+    // vtkGraph (and its descendents) will not be viewed as a
+    // distributed graph by the Parallel BGL.
+    if (vtkDirectedGraph::SafeDownCast(output))
+      {
+      vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
+      boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                         distribColor, 
+                                         bfsVisitor, 
+                                         boost::detail::error_property_not_found(),
+                                         get(vertex_index, g));
+      }
+    else
+      {
+      vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
+      boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                         distribColor, bfsVisitor, 
+                                         boost::detail::error_property_not_found(),
+                                         get(vertex_index, g));
+      }
+
+    // Compute maxFromRootVertex globally
+    using boost::parallel::all_reduce;
+    int maxDistance = 0;
+    if (helper->GetVertexOwner(maxFromRootVertex) == myRank)
+      {
+      maxDistance = BFSArray->GetValue(helper->GetVertexIndex(maxFromRootVertex));
+      }
+    maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
+                                   vtkstd::make_pair(maxFromRootVertex,
+                                                     maxDistance),
+                                   furthest_vertex(output)).first;
     }
   else
-    {
-    vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+#endif
+    { 
+    // Non-distributed breadth-first search
+
+    // Set the distance to the source vertex to zero
+    BFSArray->SetValue(this->OriginVertexIndex, 0);
+
+    // Create a queue to hand off to the BFS
+    boost::queue<int> Q;
+
+    my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
+  
+    // Is the graph directed or undirected
+    if (vtkDirectedGraph::SafeDownCast(output))
+      {
+      vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
+      breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+      }
+    else
+      {
+      vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
+      breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+      }
     }
 
   // Add attribute array to the output

@@ -29,9 +29,12 @@
 #define __vtkBoostGraphAdapter_h
 
 #include "vtkDirectedGraph.h"
+#include "vtkDistributedGraphHelper.h"
+#include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
@@ -386,7 +389,16 @@ namespace boost {
   vertices(vtkGraph *g)
   {
     typedef graph_traits< vtkGraph* >::vertex_iterator Iter;
-    return vtksys_stl::make_pair( Iter(0), Iter(g->GetNumberOfVertices()) );
+    vtkIdType start = 0;
+    if (vtkDistributedGraphHelper *helper = g->GetDistributedGraphHelper())
+      {
+      int rank = 
+        g->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      start = helper->MakeDistributedId(rank, start);
+      }
+
+    return vtksys_stl::make_pair( Iter(start), 
+                                  Iter(start + g->GetNumberOfVertices()) );
   }
 
   inline vtksys_stl::pair<
@@ -631,6 +643,42 @@ namespace boost {
   {
     return key;
   }
+
+  // Allow algorithms to automatically extract vtkGraphIndexMap from a
+  // VTK graph
+  template<>
+  struct property_map<vtkGraph*, vertex_index_t>
+  {
+    typedef vtkGraphIndexMap type;
+    typedef vtkGraphIndexMap const_type;
+  };
+
+  template<>
+  struct property_map<vtkDirectedGraph*, vertex_index_t>
+    : property_map<vtkGraph*, vertex_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph*, vertex_index_t>
+    : property_map<vtkGraph*, vertex_index_t> { };
+
+  inline vtkGraphIndexMap get(vertex_index_t, vtkGraph*) { return vtkGraphIndexMap(); }
+
+  template<>
+  struct property_map<vtkGraph*, edge_index_t>
+  {
+    typedef vtkGraphIndexMap type;
+    typedef vtkGraphIndexMap const_type;
+  };
+
+  template<>
+  struct property_map<vtkDirectedGraph*, edge_index_t>
+    : property_map<vtkGraph*, edge_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph*, edge_index_t>
+    : property_map<vtkGraph*, edge_index_t> { };
+
+  inline vtkGraphIndexMap get(edge_index_t, vtkGraph*) { return vtkGraphIndexMap(); }
 
 } // namespace boost
 

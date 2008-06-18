@@ -51,6 +51,7 @@
 class vtkStdString;
 class vtkObjectBase;
 class vtkAbstractArray;
+struct vtkVariantLessThan;
 
 class VTK_COMMON_EXPORT vtkVariant
 {
@@ -280,6 +281,12 @@ public:
   template <typename T>
   T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
+  // Description:
+  // Determines whether two variants have the same value. They do
+  // not need to be storing exactly the same type to have the same
+  // value.
+  bool IsEqual(const vtkVariant& other) const;
+
 private:
   union
   {
@@ -308,6 +315,8 @@ private:
 
   unsigned char Valid;
   unsigned char Type;
+
+  friend struct vtkVariantLessThan;
 };
 
 // A STL-style function object so you can compare two variants using

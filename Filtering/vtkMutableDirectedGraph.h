@@ -36,6 +36,7 @@
 
 class vtkEdgeListIterator;
 class vtkGraphEdge;
+class vtkVariant;
 
 class VTK_FILTERING_EXPORT vtkMutableDirectedGraph : public vtkDirectedGraph
 {
@@ -46,13 +47,125 @@ public:
 
   // Description:
   // Adds a vertex to the graph, and returns the id of that vertex.
-  vtkIdType AddVertex();
+  // If non-null, propertyArr provides properties that will be attached
+  // to this vertex. The values in propertyArr must match up with the
+  // arrays in the vertex data retrieved by GetVertexData.
+  vtkIdType AddVertex(vtkVariantArray *propertyArr = 0);
 
+  // BTX
+  // Description:
+  // Adds a vertex with the given pedigree ID to the graph (if a
+  // vertex with that pedigree ID does not already exist) and returns
+  // the id the vertex with that pedigree ID.
+  vtkIdType AddVertex(const vtkVariant& pedigreeId);
+  // ETX
+
+  // Description:
+  // Adds a directed edge from u to v to the graph and returns a
+  // vtkEdgeType structure for that edge. If provided, propertyArr
+  // provides edge properties for the newly-created edge. The values
+  // in propertyArr must match up with the arrays in the edge data
+  // returned by GetEdgeData.
+  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v, 
+                      vtkVariantArray *propertyArr = 0);
+  
   //BTX
   // Description:
-  // Adds a directed edge from u to v to the graph and returns
-  // a vtkEdgeType structure for that edge.
-  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
+  // Adds a directed edge from u to v to the graph and returns a
+  // vtkEdgeType structure for that edge. uPedigreeId is the pedigree
+  // ID of a vertex, which will be automatically added if it does not
+  // already exist. If provided, propertyArr provides edge properties
+  // for the newly-created edge. The values in propertyArr must match
+  // up with the arrays in the edge data returned by GetEdgeData.
+  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId, vtkIdType v, 
+                      vtkVariantArray *propertyArr = 0);
+
+  // Description:
+  // Adds a directed edge from u to v to the graph and returns a
+  // vtkEdgeType structure for that edge. vPedigreeId is the pedigree
+  // ID of a vertex, which will be automatically added if it does not
+  // already exist. If provided, propertyArr provides edge properties
+  // for the newly-created edge. The values in propertyArr must match
+  // up with the arrays in the edge data returned by GetEdgeData.
+  vtkEdgeType AddEdge(vtkIdType u, const vtkVariant& vPedigreeId, 
+                      vtkVariantArray *propertyArr = 0);
+
+  // Description:
+  // Adds a directed edge from u to v to the graph and returns a
+  // vtkEdgeType structure for that edge. uPedigreeId and vPedigreeId
+  // are the pedigree IDs of vertices u and v, which will be
+  // automatically added if they do not already exist. If provided,
+  // propertyArr provides edge properties for the newly-created
+  // edge. The values in propertyArr must match up with the arrays in
+  // the edge data returned by GetEdgeData.
+  vtkEdgeType AddEdge(const vtkVariant& uPedigreeId, 
+                      const vtkVariant& vPedigreeId, 
+                      vtkVariantArray *propertyArr = 0);
+  //ETX
+
+  // Description:
+  // Adds a vertex to the graph, and returns the id of that vertex.
+  // If non-null, propertyArr provides properties that will be attached
+  // to this vertex. The values in propertyArr must match up with the
+  // arrays in the vertex data retrieved by GetVertexData.
+  void LazyAddVertex(vtkVariantArray *propertyArr = 0);
+
+  // BTX
+  // Description:
+  // Adds a vertex with the given pedigree ID to the graph (if a
+  // vertex with that pedigree ID does not already exist) and returns
+  // the id the vertex with that pedigree ID.
+  void LazyAddVertex(const vtkVariant& pedigreeId);
+  // ETX
+
+  // Description:
+  // Adds a directed edge from u to v to the graph. The edge may not
+  // be added immediately, which provides more optimization
+  // opportunities for distributed graphs; consequently, the edge
+  // itself is not actually returned. If provided, propertyArr
+  // provides edge properties for the newly-created edge. The values
+  // in propertyArr must match up with the arrays in the edge data
+  // returned by GetEdgeData.
+  void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr = 0);
+
+  //BTX  
+  // Description:
+  // Adds a directed edge from u to v to the graph. The edge may not
+  // be added immediately, which provides more optimization
+  // opportunities for distributed graphs; consequently, the edge
+  // itself is not actually returned. uPedigreeId is the pedigree
+  // ID of a vertex, which will be automatically added if it does not
+  // already exist. If provided, propertyArr provides edge properties
+  // for the newly-created edge. The values in propertyArr must match
+  // up with the arrays in the edge data returned by GetEdgeData.
+  void LazyAddEdge(const vtkVariant& uPedigreeId, vtkIdType v, 
+                   vtkVariantArray *propertyArr = 0);
+
+  // Description:
+  // Adds a directed edge from u to v to the graph. The edge may not
+  // be added immediately, which provides more optimization
+  // opportunities for distributed graphs; consequently, the edge
+  // itself is not actually returned. vPedigreeId is the pedigree
+  // ID of a vertex, which will be automatically added if it does not
+  // already exist. If provided, propertyArr provides edge properties
+  // for the newly-created edge. The values in propertyArr must match
+  // up with the arrays in the edge data returned by GetEdgeData.
+  void LazyAddEdge(vtkIdType u, const vtkVariant& vPedigreeId, 
+                   vtkVariantArray *propertyArr = 0);
+
+  // Description:
+  // Adds a directed edge from u to v to the graph. The edge may not
+  // be added immediately, which provides more optimization
+  // opportunities for distributed graphs; consequently, the edge
+  // itself is not actually returned. uPedigreeId and vPedigreeId
+  // are the pedigree IDs of vertices u and v, which will be
+  // automatically added if they do not already exist. If provided,
+  // propertyArr provides edge properties for the newly-created
+  // edge. The values in propertyArr must match up with the arrays in
+  // the edge data returned by GetEdgeData.
+  void LazyAddEdge(const vtkVariant& uPedigreeId, 
+                   const vtkVariant& vPedigreeId, 
+                   vtkVariantArray *propertyArr = 0);
   //ETX
 
   // Description:

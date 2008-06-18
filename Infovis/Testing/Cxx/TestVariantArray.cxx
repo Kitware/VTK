@@ -24,7 +24,9 @@
 #include "vtkVariantArray.h"
 #include "vtkArrayIterator.h"
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkSmartPointer.h"
 
 #include <time.h>
 #include <vtkstd/vector>
@@ -40,6 +42,81 @@ void PrintArrays(vector<double> vec, vtkVariantArray* arr)
     cerr << i << ", " << vec[i] << ", " << arr->GetValue(i).ToDouble() << endl;
     }
   cerr << endl;
+}
+
+int TestLookup()
+{
+  vtkSmartPointer<vtkVariantArray> array =
+    vtkSmartPointer<vtkVariantArray>::New();
+
+  vtkSmartPointer<vtkIdList> idList =
+    vtkSmartPointer<vtkIdList>::New();
+
+  array->SetNumberOfValues(4);
+  array->SetValue(0, "a");
+  array->SetValue(1, "a");
+  array->SetValue(2, "a");
+  array->SetValue(3, "b");
+
+  array->LookupValue("a", idList);
+  if (idList->GetNumberOfIds() != 3) 
+    {
+    cerr << "Expected 3 a's, found " << idList->GetNumberOfIds() 
+         << " of them\n";
+    return 1;
+    }
+
+  if (idList->GetId(0) != 0 || idList->GetId(1) != 1 || idList->GetId(2) != 2)
+    {
+    cerr << "idList for a is wrong\n";
+    return 1;
+    }
+
+  array->LookupValue("b", idList);
+  if (idList->GetNumberOfIds() != 1) 
+    {
+    cerr << "Expected 1 b, found " << idList->GetNumberOfIds() 
+         << " of them\n";
+    return 1;
+    }
+
+  if (idList->GetId(0) != 3)
+    {
+    cerr << "idList for b is wrong\n";
+    return 1;
+    }
+
+  array->SetValue(1, "b");
+
+  array->LookupValue("a", idList);
+  if (idList->GetNumberOfIds() != 2) 
+    {
+    cerr << "Expected 2 a's, found " << idList->GetNumberOfIds() 
+         << " of them\n";
+    return 1;
+    }
+
+  if (idList->GetId(0) != 0 || idList->GetId(1) != 2)
+    {
+    cerr << "idList for a is wrong\n";
+    return 1;
+    }
+
+  array->LookupValue("b", idList);
+  if (idList->GetNumberOfIds() != 2) 
+    {
+    cerr << "Expected 2 b's, found " << idList->GetNumberOfIds() 
+         << " of them\n";
+    return 1;
+    }
+
+  if (idList->GetId(0) != 1 || idList->GetId(1) != 3)
+    {
+    cerr << "idList for b is wrong\n";
+    return 1;
+    }
+
+  return 0;
 }
 
 int TestVariantArray(int, char*[])
@@ -324,6 +401,11 @@ int TestVariantArray(int, char*[])
   copy->Delete();
 
   arr->Delete();
+
+  if (int result = TestLookup())
+    {
+    return result;
+    }
 
   return 0;
 }

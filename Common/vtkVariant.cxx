@@ -41,7 +41,7 @@ bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) 
 {
   if (s1.IsString() && s2.IsString())
     {
-    return s1.ToString() < s2.ToString();
+    return *s1.Data.String < *s2.Data.String;
     }
   return s1.ToDouble() < s2.ToDouble();
 }
@@ -709,6 +709,15 @@ vtkTypeInt64 vtkVariant::ToTypeInt64(bool* valid) const
 vtkTypeUInt64 vtkVariant::ToTypeUInt64(bool* valid) const
 {
   return this->ToNumeric(valid, static_cast<vtkTypeUInt64 *>(0));
+}
+
+bool vtkVariant::IsEqual(const vtkVariant& other) const
+{
+  if (this->IsString() && other.IsString())
+    {
+    return *this->Data.String == *other.Data.String;
+    }
+  return this->ToDouble() == other.ToDouble();
 }
 
 //----------------------------------------------------------------------------

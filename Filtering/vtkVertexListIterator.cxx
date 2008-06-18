@@ -20,10 +20,13 @@
 
 #include "vtkVertexListIterator.h"
 
+#include "vtkDataObject.h"
+#include "vtkDistributedGraphHelper.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkGraph.h"
 
-vtkCxxRevisionMacro(vtkVertexListIterator, "1.2");
+vtkCxxRevisionMacro(vtkVertexListIterator, "1.3");
 vtkStandardNewMacro(vtkVertexListIterator);
 //----------------------------------------------------------------------------
 vtkVertexListIterator::vtkVertexListIterator()
@@ -50,6 +53,18 @@ void vtkVertexListIterator::SetGraph(vtkGraph *graph)
     {
     this->Current = 0;
     this->End = this->Graph->GetNumberOfVertices();
+
+    // For a distributed graph, shift the iteration space to cover
+    // local vertices
+    vtkDistributedGraphHelper *helper 
+      = this->Graph->GetDistributedGraphHelper();
+    if (helper)
+      {
+      int myRank 
+        = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      this->Current = helper->MakeDistributedId(myRank, this->Current);
+      this->End = helper->MakeDistributedId(myRank, this->End);
+      }
     }
 }
 

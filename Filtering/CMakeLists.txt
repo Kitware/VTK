@@ -55,6 +55,7 @@ vtkDemandDrivenPipeline.cxx
 vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
 vtkDirectedGraph.cxx
+vtkDistributedGraphHelper.cxx
 vtkEdgeListIterator.cxx
 vtkEmptyCell.cxx
 vtkExecutive.cxx
@@ -77,6 +78,7 @@ vtkGeometricErrorMetric.cxx
 vtkGraphAlgorithm.cxx
 vtkGraph.cxx
 vtkGraphEdge.cxx
+vtkGraphInternals.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataIterator.cxx
@@ -227,6 +229,7 @@ vtkDataSetToPolyDataFilter
 vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
+vtkDistributedGraphHelper
 vtkExecutive
 vtkExplicitCell
 vtkFilteringInformationKeyManager
