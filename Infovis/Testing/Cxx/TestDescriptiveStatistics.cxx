@@ -117,8 +117,8 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkTable* paramsTable = vtkTable::New();
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
-  double centers[] = { 49.5, -1., 49.2188 };
-  double radii[] = { 1.5 * sqrt( 7.54839 ), 0., 1.5 * sqrt( 5.98286 ) };
+  double means[] = { 49.5, -1., 49.2188 };
+  double stdevs[] = { sqrt( 7.54839 ), 0., sqrt( 5.98286 ) };
 
   vtkStringArray* stdStringCol = vtkStringArray::New();
   stdStringCol->SetName( "Column" );
@@ -133,7 +133,7 @@ int TestDescriptiveStatistics( int, char *[] )
   doubleCol->SetName( "Mean" );
   for ( int i = 0; i < nMetrics; ++ i )
     {
-    doubleCol->InsertNextValue( centers[i] );
+    doubleCol->InsertNextValue( means[i] );
     }
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
@@ -142,7 +142,7 @@ int TestDescriptiveStatistics( int, char *[] )
   doubleCol->SetName( "Standard Deviation" );
   for ( int i = 0; i < nMetrics; ++ i )
     {
-    doubleCol->InsertNextValue( radii[i] );
+    doubleCol->InsertNextValue( stdevs[i] );
     }
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
@@ -193,13 +193,14 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "   "
          << columns[i]
          << ", values that deviate of more than "
-         << radii[i]
+         << stdevs[i]
          << " from "
-         << centers[i]
+         << means[i]
          << ".\n";
       }
 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::EvinceMode );
+  haruspex->SetMultiplicativeFactor( 1.5 );
   haruspex->Update();
 
   testIntValue = outputTable->GetNumberOfRows();

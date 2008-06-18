@@ -35,12 +35,13 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.21");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.22");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
+  this->MultiplicativeFactor = 1.;
 }
 
 // ----------------------------------------------------------------------
@@ -313,10 +314,10 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
         {
         unfound = false;
 
-        double center = params->GetValueByName( i, "Mean" ).ToDouble();
-        double radius = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
-        double minimum = center - radius;
-        double maximum = center + radius;
+        double nominal = params->GetValueByName( i, "Mean" ).ToDouble();
+        double deviation = this->MultiplicativeFactor * params->GetValueByName( i, "Standard Deviation" ).ToDouble();
+        double minimum = nominal - deviation;
+        double maximum = nominal + deviation;
 
         double value;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
@@ -327,7 +328,7 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
             {
             row->SetValue( 0, col );
             row->SetValue( 1, r );
-            row->SetValue( 2, ( value - center ) / radius );
+            row->SetValue( 2, ( value - nominal ) / deviation );
 
             output->InsertNextRow( row );
             }

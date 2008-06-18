@@ -77,6 +77,14 @@ public:
       return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5], s[6] );
     }
 
+  // Description:
+  // Set the multiplicative factor (used in Evince mode).
+  vtkSetMacro( MultiplicativeFactor, double );
+
+  // Description:
+  // Get the multiplicative factor (used in Evince mode).
+  vtkGetMacro( MultiplicativeFactor, double );
+
 protected:
   vtkDescriptiveStatistics();
   ~vtkDescriptiveStatistics();
@@ -92,6 +100,8 @@ protected:
   virtual void ExecuteEvince( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
+  
+  double MultiplicativeFactor;
 
 private:
   vtkDescriptiveStatistics(const vtkDescriptiveStatistics&); // Not implemented
