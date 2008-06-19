@@ -75,8 +75,6 @@ protected:
 
   void CopyData(vtkStructuredGrid *inData, vtkStructuredGrid *outData, int *ext);
 
-  int SplitExtentTmp(int piece, int numPieces, int *ext);
-
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);
