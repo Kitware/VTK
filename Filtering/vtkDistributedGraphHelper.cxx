@@ -27,10 +27,12 @@
 #include "vtkStdString.h"
 #include "vtkVariant.h"
 
+#include <limits.h> // CHAR_BIT
+
 //----------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.2");
+vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.3");
 
 //----------------------------------------------------------------------------
 void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
