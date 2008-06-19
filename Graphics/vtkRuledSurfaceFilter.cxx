@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.25");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.26");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -445,14 +445,32 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
   // and generating triangles as we go.
   loc = 0;
   loc2 = startLoop2;
-  while ( loc < (npts-1) || loc2 != endLoop2 )
+  bool endOfLoop2 = false;
+  while ( loc < (npts-1) || (!endOfLoop2))
     {
     
     // Determine the next point in loop 2
     next2 = loc2+1;
-    if (next2 == npts2)
+    if ((!startLoop2) && (next2 == endLoop2))
       {
-      next2 = 0;
+      // If we started 0 then when we hit the end of the loop 
+      // we are done
+      endOfLoop2 = true;
+      }
+    else if (next2 == startLoop2)
+      {
+      // If we are here we have reached the end of the loop 
+      // though we need to still process the starting point a second time
+      // to close the surface
+      endOfLoop2 = true;
+      }
+    else if (next2 == npts2)
+      {
+      // The only way we would reach the end of the original
+      // loop is if we did not start with the 0th point - since
+      // this point is repeated (its the same at the npts2-1 point
+      // we need to skip it
+      next2 = 1;
       }
 
     if ( loc >= (npts-1) ) //clamped at end of first line
