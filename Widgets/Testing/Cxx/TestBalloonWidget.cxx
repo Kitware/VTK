@@ -66,7 +66,7 @@ int TestBalloonWidget( int argc, char *argv[] )
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
   vtkTIFFReader *image1 = vtkTIFFReader::New();
   image1->SetFileName(fname);
-  image1->SetOrientation( 4 );
+  image1->SetOrientationType( 4 );
 
   // Create a test pipeline
   //
