@@ -917,7 +917,10 @@ static PyObject *vtkBuildDocString(char *docstring[])
   int *m;
   int total = 0;
 
-  for (n = 0; docstring[n] != NULL; n++);
+  for (n = 0; docstring[n] != NULL; n++)
+    {
+    ;
+    }
 
   m = new int[n];
 
@@ -1188,7 +1191,10 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyVTKSpecialObject *self,
       PyObject *lst;
       int i, n;
 
-      for (n = 0; meth && meth[n].ml_name; n++);
+      for (n = 0; meth && meth[n].ml_name; n++)
+        {
+        ;
+        }
 
       if ((lst = PyList_New(n)) != NULL)
         {
