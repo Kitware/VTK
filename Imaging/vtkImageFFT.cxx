@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.42");
+vtkCxxRevisionMacro(vtkImageFFT, "1.43");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
@@ -278,7 +278,6 @@ int vtkImageFFT::SplitExtent(int splitExt[6], int startExt[6],
   vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
                 << splitExt[2] << ", " << splitExt[3] << ", "
                 << splitExt[4] << ", " << splitExt[5] << ")");
-  fflush(stderr);
 
   return total;
 }

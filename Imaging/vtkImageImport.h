@@ -30,7 +30,6 @@
 #define __vtkImageImport_h
 
 #include "vtkImageAlgorithm.h"
-//#include "vtkTransform.h"
 
 class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageAlgorithm
 {
@@ -126,7 +125,7 @@ public:
   //BTX
   // Description:
   // These are function pointer types for the pipeline connection
-  // callbacks.  See furhter documentation on each individual callback.
+  // callbacks.  See further documentation on each individual callback.
   typedef void (*UpdateInformationCallbackType)(void*);
   typedef int (*PipelineModifiedCallbackType)(void*);
   typedef int* (*WholeExtentCallbackType)(void*);
@@ -268,8 +267,8 @@ protected:
   SpacingCallbackType               SpacingCallback;
   OriginCallbackType                OriginCallback;
   ScalarTypeCallbackType            ScalarTypeCallback;
-  NumberOfComponentsCallbackType    NumberOfComponentsCallback;  
-  PropagateUpdateExtentCallbackType PropagateUpdateExtentCallback;  
+  NumberOfComponentsCallbackType    NumberOfComponentsCallback;
+  PropagateUpdateExtentCallbackType PropagateUpdateExtentCallback;
   UpdateDataCallbackType            UpdateDataCallback;
   DataExtentCallbackType            DataExtentCallback;
   BufferPointerCallbackType         BufferPointerCallback;
