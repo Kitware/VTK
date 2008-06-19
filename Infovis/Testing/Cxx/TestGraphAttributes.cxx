@@ -170,15 +170,15 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_CREATE(vtkTree, t);
   
   //  Create some vertex property arrays
-  vtkVariantArray* vertexPropertyArr = vtkVariantArray::New();
+  VTK_CREATE(vtkVariantArray, vertexPropertyArr);
   int numVertexProperties = 2;
   vertexPropertyArr->SetNumberOfValues(numVertexProperties);
 
-  vtkStringArray* vertexProp0Array = vtkStringArray::New();
+  VTK_CREATE(vtkStringArray, vertexProp0Array);
   vertexProp0Array->SetName("labels");
   mdgTree->GetVertexData()->AddArray(vertexProp0Array);
 
-  vtkIntArray* vertexProp1Array = vtkIntArray::New();
+  VTK_CREATE(vtkIntArray, vertexProp1Array);
   vertexProp1Array->SetName("weight");
   mdgTree->GetVertexData()->AddArray(vertexProp1Array);
 
