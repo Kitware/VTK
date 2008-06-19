@@ -51,18 +51,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // If \p all is true (default), then all input columns are selected, irrespective of 
-  // the selection that may have been made using the Add/RemoveColumn[Range]() methods. 
-  // If \p all is false, then only selected columns are of interest.
-  void SelectAllColumns( bool all );
-
-  // Description:
   // Reset list of columns of interest
   void ResetColumns();
-
-  // Description:
-  // Method for UI to call to add/remove columns to/from the list
-  void SetColumnStatus( const char* namCol, int status );
 
   // Description:
   // Add column name \p namCol to the list of columns of interest
@@ -75,15 +65,8 @@ public:
   void RemoveColumn( const char* namCol );
 
   // Description:
-  // These methods are mostly provided for UI wrapping purposes. Although they can be
-  // used in vanilla VTK code, this is not the recommended approach. Please utilize
-  // AddColumn() or SelectAllColumns() instead.
-  void BufferColumn( const char* );
-  void SetAction( vtkIdType );
-
-  // Description:
-  // Set the column selection, depending on whether the all column selection mode is on or off.
-  void SetColumnSelection( vtkTable* dataset );
+  // Method for UI to call to add/remove columns to/from the list
+  void SetColumnStatus( const char* namCol, int status );
 
 protected:
   vtkUnivariateStatisticsAlgorithm();

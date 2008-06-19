@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.20");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.21");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,8 +77,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
-  this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
     return;
@@ -249,8 +247,6 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
-  this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
     return;

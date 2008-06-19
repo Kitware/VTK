@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.24");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.25");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -74,8 +74,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
-  this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
     return;
@@ -273,8 +271,6 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
-  this->SetColumnSelection( dataset );
   if ( ! this->Internals->SelectedColumns.size() )
     {
     return;

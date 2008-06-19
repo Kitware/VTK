@@ -156,7 +156,6 @@ int TestOrderStatistics( int, char *[] )
   paramsTable->Delete();
 
 // -- Select Columns of Interest -- 
-  haruspex->SelectAllColumns( false );
   haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
   haruspex->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )

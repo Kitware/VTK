@@ -48,44 +48,12 @@ class vtkUnivariateStatisticsAlgorithmPrivate
 public:
   vtkUnivariateStatisticsAlgorithmPrivate()
     {
-    this->MustEffect = false;
     }
   ~vtkUnivariateStatisticsAlgorithmPrivate()
     {
     }
   
-  void EffectColumnBuffer() 
-    {
-    if ( ! this->MustEffect )
-      {
-      return;
-      }
-
-    switch ( this->Action )
-      {
-      case vtkStatisticsAlgorithm::Reset:
-        this->SelectedColumns.clear();
-        break;
-      case vtkStatisticsAlgorithm::Add:
-        {
-        this->SelectedColumns.insert( vtkStdString( this->Buffered ) );
-        break;
-        }
-      case vtkStatisticsAlgorithm::Remove:
-        {
-        this->SelectedColumns.erase( vtkStdString( this->Buffered ) );
-        break;
-        }
-      }
-
-    this->MustEffect = false;
-    }
-
   vtkstd::set<vtkStdString> SelectedColumns;
-  bool AllColumns;
-  vtkStdString Buffered;
-  bool MustEffect;
-  vtkStatisticsAlgorithm::EffectBufferActionType Action;
 };
 
 #endif // __vtkUnivariateStatisticsAlgorithmPrivate_h

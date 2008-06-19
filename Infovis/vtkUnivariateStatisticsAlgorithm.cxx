@@ -27,13 +27,12 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.9");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
 {
   this->Internals = new vtkUnivariateStatisticsAlgorithmPrivate;
-  this->Internals->AllColumns = false;
 }
 
 // ----------------------------------------------------------------------
@@ -46,29 +45,6 @@ vtkUnivariateStatisticsAlgorithm::~vtkUnivariateStatisticsAlgorithm()
 void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SelectAllColumns( bool all )
-{
-  this->Internals->AllColumns = all;
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
-{
-  if( status )
-    {
-    this->Internals->SelectedColumns.insert( namCol );
-    }
-  else
-    {
-    this->Internals->SelectedColumns.erase( namCol );
-    }
-
-  this->Modified();
 }
 
 // ----------------------------------------------------------------------
@@ -90,51 +66,17 @@ void vtkUnivariateStatisticsAlgorithm::RemoveColumn( const char* namCol )
 }
 
 // ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::BufferColumn( const char* namCol )
+void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
 {
-  this->Internals->Buffered = vtkStdString( namCol );
-
-  this->Internals->MustEffect = true;
+  if( status )
+    {
+    this->Internals->SelectedColumns.insert( namCol );
+    }
+  else
+    {
+    this->Internals->SelectedColumns.erase( namCol );
+    }
 
   this->Modified();
 }
 
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SetAction( vtkIdType action ) 
-{
-  switch ( action )
-    {
-    case vtkStatisticsAlgorithm::Reset:
-      this->Internals->Action = vtkStatisticsAlgorithm::Reset;
-      break;
-    case vtkStatisticsAlgorithm::Add:
-      this->Internals->Action = vtkStatisticsAlgorithm::Add;
-      break;
-    case vtkStatisticsAlgorithm::Remove:
-      this->Internals->Action = vtkStatisticsAlgorithm::Remove;
-      break;
-    default:
-      return;
-    }
-
-  this->Internals->MustEffect = true;
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkUnivariateStatisticsAlgorithm::SetColumnSelection( vtkTable* dataset )
-{
-  if ( ! this->Internals->AllColumns )
-    {
-    return;
-    }
-
-  this->Internals->SelectedColumns.clear();
-
-  vtkIdType nCol = dataset->GetNumberOfColumns();
-  for ( int idxCol = 0; idxCol < nCol; ++ idxCol )
-    {
-    this->Internals->SelectedColumns.insert( dataset->GetColumnName( idxCol ) );
-    }
-}

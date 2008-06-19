@@ -46,7 +46,7 @@ public:
   vtkStdString BufferedX;
   vtkStdString BufferedY;
   bool MustEffect;
-  vtkStatisticsAlgorithm::EffectBufferActionType Action;
+  vtkIdType Action;
 };
 
 vtkCorrelativeStatisticsPrivate::vtkCorrelativeStatisticsPrivate()
@@ -67,17 +67,17 @@ void vtkCorrelativeStatisticsPrivate::EffectColumnBuffer()
 
   switch ( this->Action )
     {
-    case vtkCorrelativeStatistics::Reset:
+    case 0:
       this->ColumnPairs.clear();
       break;
-    case vtkCorrelativeStatistics::Add:
+    case 1:
       {
       vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
                                                        this->BufferedY );
       this->ColumnPairs.insert( namPair );
       break;
       }
-    case vtkCorrelativeStatistics::Remove:
+    case 2:
       {
       vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
                                                        this->BufferedY );
@@ -90,7 +90,7 @@ void vtkCorrelativeStatisticsPrivate::EffectColumnBuffer()
 }
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.15");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.16");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -163,21 +163,7 @@ void vtkCorrelativeStatistics::BufferColumnY( const char* namColY )
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::SetAction( vtkIdType action ) 
 {
-  switch ( action )
-    {
-    case vtkCorrelativeStatistics::Reset:
-      this->Internals->Action = vtkCorrelativeStatistics::Reset;
-      break;
-    case vtkCorrelativeStatistics::Add:
-      this->Internals->Action = vtkCorrelativeStatistics::Add;
-      break;
-    case vtkCorrelativeStatistics::Remove:
-      this->Internals->Action = vtkCorrelativeStatistics::Remove;
-      break;
-    default:
-      return;
-    }
-
+  this->Internals->Action = action;
   this->Internals->MustEffect = true;
 
   this->Modified();
