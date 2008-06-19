@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.19");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.20");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -101,22 +101,36 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
     for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
       {
       doubleCol = vtkDoubleArray::New();
-      if ( ! i )
-        {
-        doubleCol->SetName( "Minimum" );
-        }
-      else 
-        {
-        if ( i == this->NumberOfIntervals )
-          {
-          doubleCol->SetName( "Maximum" );
-          }
-        else
-          {
-          doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
-          }
-        }
+      div_t q = div( i << 2, this->NumberOfIntervals );
 
+      if ( q.rem )
+        {
+        doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+        }
+      else
+        {
+        switch ( q.quot )
+          {
+          case 0:
+            doubleCol->SetName( "Minimum" );
+            break;
+          case 1:
+            doubleCol->SetName( "First Quartile" );
+            break;
+          case 2:
+            doubleCol->SetName( "Median" );
+            break;
+          case 3:
+            doubleCol->SetName( "Third Quartile" );
+            break;
+          case 4:
+            doubleCol->SetName( "Maximum" );
+            break;
+          default:
+            doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+            break;
+          }
+        }
       output->AddColumn( doubleCol );
       doubleCol->Delete();
       }
