@@ -186,7 +186,7 @@ protected:
   char* DatabaseType;
   char* HostName;
   char* User;
-  vtkStdString Password;
+  char* Password;
   char* DatabaseName;
   int ServerPort;
   char* ConnectOptions;

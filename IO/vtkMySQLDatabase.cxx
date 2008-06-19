@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.32");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.33");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -49,6 +49,7 @@ vtkMySQLDatabase::vtkMySQLDatabase() :
   this->SetDatabaseType( "mysql" );
   this->HostName = 0;
   this->User = 0;
+  this->Password = 0;
   this->DatabaseName = 0;
   this->ConnectOptions = 0;
   // Default: connect to local machine on standard port
@@ -81,7 +82,7 @@ void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
   os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
   os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
-  os << indent << "Password: " << (this->Password? "(hidden)":"(none)") << endl;
+  os << indent << "Password: " << (this->Password ? "(hidden)":"(none)") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
@@ -134,7 +135,7 @@ bool vtkMySQLDatabase::IsSupported(int feature)
 }
 
 // ----------------------------------------------------------------------
-bool vtkMySQLDatabase::Open(const char* password)
+bool vtkMySQLDatabase::Open( const char* password )
 {
   if ( this->IsOpen() )
     {
@@ -163,7 +164,14 @@ bool vtkMySQLDatabase::Open(const char* password)
     {
     vtkDebugMacro(<<"Open() succeeded.");
 
-    this->Password = password ? password : "";
+    if ( this->Password != password )
+      {
+      if ( this->Password )
+        {
+        delete [] this->Password;
+        }
+      this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
+      }
 
     return true;
     }
@@ -576,7 +584,7 @@ bool vtkMySQLDatabase::CreateDatabase( const char* dbName, bool dropExisting = f
   query->Delete();
   // Close and re-open in case we deleted and recreated the current database
   this->Close();
-  this->Open(this->Password.c_str());
+  this->Open( this->Password );
   return status;
 }
 

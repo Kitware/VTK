@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <pqxx/pqxx>
 
 vtkStandardNewMacro(vtkPostgreSQLDatabase);
-vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.30");
+vtkCxxRevisionMacro(vtkPostgreSQLDatabase, "1.31");
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
@@ -45,6 +45,7 @@ vtkPostgreSQLDatabase::vtkPostgreSQLDatabase()
   this->SetDatabaseType("psql");
   this->HostName = 0;
   this->User = 0;
+  this->Password = 0;
   this->DatabaseName = 0;
   this->ServerPort = -1;
   this->ConnectOptions = 0;
@@ -222,7 +223,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
 }
 
 // ----------------------------------------------------------------------
-bool vtkPostgreSQLDatabase::Open(const char* password)
+bool vtkPostgreSQLDatabase::Open( const char* password )
 {
   if ( ! this->HostName || ! this->DatabaseName )
     {
@@ -275,7 +276,14 @@ bool vtkPostgreSQLDatabase::Open(const char* password)
       {
       this->SetLastErrorText( 0 );
       this->Connection->LastErrorText.clear();
-      this->Password = password ? password : "";
+      if ( this->Password != password )
+        {
+        if ( this->Password )
+          {
+          delete [] this->Password;
+          }
+        this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
+        }
       return true;
       }
     }
@@ -286,7 +294,14 @@ bool vtkPostgreSQLDatabase::Open(const char* password)
     {
     this->SetLastErrorText( 0 );
     this->Connection->LastErrorText.clear();
-    this->Password = password ? password : "";
+    if ( this->Password != password )
+      {
+      if ( this->Password )
+        {
+        delete this->Password;
+        }
+      this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
+      }
     return true;
     }
 
