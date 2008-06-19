@@ -61,6 +61,10 @@ public:
   void ResetColumns();
 
   // Description:
+  // Method for UI to call to add/remove columns to/from the list
+  void SetColumnStatus( const char* namCol, int status );
+
+  // Description:
   // Add column name \p namCol to the list of columns of interest
   // Warning: no name checking is performed on \p namCol; it is the user's
   // responsibility to use valid column names.

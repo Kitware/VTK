@@ -27,7 +27,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.8");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -52,6 +52,21 @@ void vtkUnivariateStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent 
 void vtkUnivariateStatisticsAlgorithm::SelectAllColumns( bool all )
 {
   this->Internals->AllColumns = all;
+
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int status )
+{
+  if( status )
+    {
+    this->Internals->SelectedColumns.insert( namCol );
+    }
+  else
+    {
+    this->Internals->SelectedColumns.erase( namCol );
+    }
 
   this->Modified();
 }
