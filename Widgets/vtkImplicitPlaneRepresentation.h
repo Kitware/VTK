@@ -182,9 +182,9 @@ public:
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double*);
-  virtual void WidgetInteraction(double*);
-  virtual void EndWidgetInteraction(double*);
+  virtual void StartWidgetInteraction(double eventPos[2]);
+  virtual void WidgetInteraction(double newEventPos[2]);
+  virtual void EndWidgetInteraction(double newEventPos[2]);
 
   // Decsription:
   // Methods supporting the rendering process.
