@@ -291,7 +291,7 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   boxes->setModel(table);
 
   chart->show();
-  int status = app.exec();
+  app.exec();
 
   delete chart;
   haruspex->Delete();
