@@ -32,17 +32,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkActor2DCollection.h"
-#include "vtkImageMapper.h"
-#include "vtkImageData.h"
-#include "vtkMapper2D.h"
-#include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 #include "vtkMath.h"
-#include "vtkTextActor.h"
-#include "vtkTextProperty.h"
-#include "vtkPropPicker.h"
 #include "vtkIndent.h"
-#include "vtkJPEGWriter.h"
 #include "vtkAssemblyPath.h"
 #include "vtkProperty.h"
 #include "vtkTimerLog.h"
@@ -53,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.3");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.4");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6357000.0
@@ -165,10 +157,6 @@ void vtkGeoInteractorStyle::OnMiddleButtonUp()
     case VTKIS_PAN:
       this->EndPan();
       break;
-
-    case VTKIS_FORWARDFLY:
-      this->EndForwardFly();
-      break;
   }
 }
 
@@ -203,13 +191,6 @@ void vtkGeoInteractorStyle::OnLeftButtonDown()
     return;
     }
 
-  //control + rightclick = reversefly 
-  if (this->Interactor->GetControlKey()) 
-    {
-    this->StartReverseFly();
-    return;
-    }
-    
   // don't turn on if already rubberbanding
   if (this->RubberBandExtentEnabled == 0) 
     {
@@ -227,13 +208,6 @@ void vtkGeoInteractorStyle::OnLeftButtonDown()
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::OnLeftButtonUp()
 {
-  
-  if (this->State == VTKIS_REVERSEFLY)
-    {
-    this->EndReverseFly();
-    return;
-    }
-
   if (!this->Interactor)
     {
     return;
@@ -1010,22 +984,6 @@ void vtkGeoInteractorStyle::OnTimer()
         }
       break;
 
-    case VTKIS_FORWARDFLY:
-      //this->Fly(1.0);
-      if (this->UseTimers)
-        {
-        rwi->CreateTimer(VTKI_TIMER_UPDATE);
-        }
-      break;
-
-    case VTKIS_REVERSEFLY:
-      //this->Fly(-1.0);
-      if (this->UseTimers)
-        {
-        rwi->CreateTimer(VTKI_TIMER_UPDATE);
-        }
-      break;
-
     case VTKIS_TIMER:
       rwi->Render();
       if (this->UseTimers)
@@ -1038,56 +996,6 @@ void vtkGeoInteractorStyle::OnTimer()
       break;
     }
 }
-
-
-//-----------------------------------------------------------------------------
-void vtkGeoInteractorStyle::StartForwardFly() 
-{
-  if (this->State != VTKIS_NONE) 
-    {
-    return;
-    }
-  // This is used to get a constant speed regardless of frame rate.  
-  this->LastTime = vtkTimerLog::GetUniversalTime();
-  this->UseTimers = 1;
-  this->StartState(VTKIS_FORWARDFLY);
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoInteractorStyle::EndForwardFly() 
-{
-  if (this->State != VTKIS_FORWARDFLY) 
-    {
-    return;
-    }
-  this->UseTimers = 0;
-  this->StopState();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoInteractorStyle::StartReverseFly() 
-{
-  if (this->State != VTKIS_NONE) 
-    {
-    return;
-    }
-  // This is used to get a constant speed regardless of frame rate.  
-  this->LastTime = vtkTimerLog::GetUniversalTime();    
-  this->UseTimers = 1;
-  this->StartState(VTKIS_REVERSEFLY);
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoInteractorStyle::EndReverseFly() 
-{
-  if (this->State != VTKIS_REVERSEFLY) 
-    {
-    return;
-    }
-  this->UseTimers = 0;
-  this->StopState();
-}
-
 
 
 //-----------------------------------------------------------------------------

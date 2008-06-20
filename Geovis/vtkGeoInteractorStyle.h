@@ -116,12 +116,7 @@ protected:
   // We should really inherit directy from vtkInteractorStyle
   virtual void Dolly(double);  
   
-  void StartForwardFly();
-  void EndForwardFly();
-  void StartReverseFly();
-  void EndReverseFly();
   void OnTimer();
-  void Fly(double speed);
   // Used to get a constant speed regardless of frame rate.
   double LastTime;
 
