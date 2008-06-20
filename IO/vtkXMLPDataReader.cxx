@@ -28,7 +28,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -213,9 +213,10 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
 //----------------------------------------------------------------------------
 void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo,
-                                              int vtkNotUsed(port))
-  {
-  vtkInformation *localInfo = this->GetCurrentOutputInformation();
+                                              int port)
+{
+  vtkInformation *localInfo = 
+    this->GetExecutive()->GetOutputInformation( port );
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );
@@ -224,7 +225,7 @@ void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo,
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::CELL_DATA_VECTOR() );
     }
-  }
+}
 
 
 //----------------------------------------------------------------------------

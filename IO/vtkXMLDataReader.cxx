@@ -29,7 +29,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.37");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.38");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -205,9 +205,11 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
 
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo,
-                                             int vtkNotUsed(port))
-  {
-  vtkInformation *localInfo = this->GetCurrentOutputInformation();
+                                             int port)
+{
+  vtkInformation *localInfo = 
+    this->GetExecutive()->GetOutputInformation( port );
+
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );
@@ -216,7 +218,7 @@ void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo,
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::CELL_DATA_VECTOR() );
     }
-  }
+}
 
 
 //----------------------------------------------------------------------------

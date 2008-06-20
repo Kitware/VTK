@@ -23,7 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLPImageDataReader, "1.12");
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -124,10 +124,11 @@ void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
 //----------------------------------------------------------------------------
 void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
-  {
+{
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo = this->GetCurrentOutputInformation();
 
+  vtkInformation *localInfo = 
+    this->GetExecutive()->GetOutputInformation( port );
   if ( localInfo->Has(vtkDataObject::ORIGIN()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::ORIGIN() );
@@ -136,7 +137,7 @@ void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int 
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::SPACING() );
     }
-  }
+}
 
 
 //----------------------------------------------------------------------------

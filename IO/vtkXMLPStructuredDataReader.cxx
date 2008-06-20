@@ -26,7 +26,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.25");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.26");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -223,7 +223,8 @@ vtkXMLPStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
   this->Superclass::CopyOutputInformation(outInfo, port);
 
   // All structured data has a whole extent.
-  vtkInformation* localInfo = this->GetCurrentOutputInformation();
+  vtkInformation *localInfo = 
+    this->GetExecutive()->GetOutputInformation( port );
   if(localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
     {
     outInfo->CopyEntry(localInfo,
