@@ -40,57 +40,21 @@ class vtkCorrelativeStatisticsPrivate
 public:
   vtkCorrelativeStatisticsPrivate();
   ~vtkCorrelativeStatisticsPrivate();
-  void EffectColumnBuffer();
 
   vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> > ColumnPairs;
-  vtkStdString BufferedX;
-  vtkStdString BufferedY;
-  bool MustEffect;
-  vtkIdType Action;
+  vtkstd::set<vtkStdString> BufferedColumns;
 };
 
 vtkCorrelativeStatisticsPrivate::vtkCorrelativeStatisticsPrivate()
 {
-  this->MustEffect = false;
 }
 
 vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 {
 }
-
-void vtkCorrelativeStatisticsPrivate::EffectColumnBuffer() 
-{
-  if ( ! this->MustEffect )
-    {
-    return;
-    }
-
-  switch ( this->Action )
-    {
-    case 0:
-      this->ColumnPairs.clear();
-      break;
-    case 1:
-      {
-      vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
-                                                       this->BufferedY );
-      this->ColumnPairs.insert( namPair );
-      break;
-      }
-    case 2:
-      {
-      vtkstd::pair<vtkStdString,vtkStdString> namPair( this->BufferedX, 
-                                                       this->BufferedY );
-      this->ColumnPairs.erase( namPair );
-      break;
-      }
-    }
-
-  this->MustEffect = false;
-}
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.16");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.17");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -143,28 +107,31 @@ void vtkCorrelativeStatistics::RemoveColumnPair( const char* namColX, const char
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::BufferColumnX( const char* namColX )
+void vtkCorrelativeStatistics::SetColumnStatus( const char* namCol, int status )
 {
-  this->Internals->BufferedX = vtkStdString( namColX );
-  this->Internals->MustEffect = true;
+  if( status )
+    {
+    this->Internals->BufferedColumns.insert( namCol );
+    }
+  else
+    {
+    this->Internals->BufferedColumns.erase( namCol );
+    }
+  
+  this->Internals->ColumnPairs.clear();
 
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::BufferColumnY( const char* namColY )
-{
-  this->Internals->BufferedY = vtkStdString( namColY );
-  this->Internals->MustEffect = true;
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::SetAction( vtkIdType action ) 
-{
-  this->Internals->Action = action;
-  this->Internals->MustEffect = true;
+  int i = 0;
+  for ( vtkstd::set<vtkStdString>::iterator ait = this->Internals->BufferedColumns.begin(); 
+        ait != this->Internals->BufferedColumns.end(); ++ ait, ++ i )
+    {
+    int j = 0;
+    for ( vtkstd::set<vtkStdString>::iterator bit = this->Internals->BufferedColumns.begin(); 
+          j < i ; ++ bit, ++ j )
+      {
+      vtkstd::pair<vtkStdString,vtkStdString> namPair( *bit, *ait );
+      this->Internals->ColumnPairs.insert( namPair );
+      }
+    }
 
   this->Modified();
 }
@@ -187,7 +154,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
   if ( ! this->Internals->ColumnPairs.size() )
     {
     return;
@@ -413,7 +379,6 @@ void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  this->Internals->EffectColumnBuffer();
   if ( ! this->Internals->ColumnPairs.size() )
     {
     return;

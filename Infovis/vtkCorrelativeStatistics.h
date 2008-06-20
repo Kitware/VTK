@@ -71,12 +71,8 @@ public:
  void RemoveColumnPair( const char* namColX, const char* namColY );
 
   // Description:
-  // These methods are mostly provided for UI wrapping purposes. Although they can be
-  // used in vanilla VTK code, this is not the recommended approach. Please utilize
-  // AddColumnPair() instead.
-  void BufferColumnX( const char* );
-  void BufferColumnY( const char* );
-  void SetAction( vtkIdType );
+  // Method for UI to call to add/remove columns to/from the list
+  void SetColumnStatus( const char* namCol, int status );
 
   // Description:
   // Calculate the following unbiased estimators from the raw sums:
