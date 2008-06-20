@@ -31,7 +31,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRowQueryToTable, "1.5");
+vtkCxxRevisionMacro(vtkRowQueryToTable, "1.6");
 vtkStandardNewMacro(vtkRowQueryToTable);
 
 vtkRowQueryToTable::vtkRowQueryToTable()
@@ -145,12 +145,12 @@ int vtkRowQueryToTable::RequestData(
     {
     output->InsertNextRow(rowArray);
     
-    // Update progress every 1000 rows
+    // Update progress every 100 rows
     numRows++;
-    if ((numRows%1000)==0)
+    if ((numRows%100)==0)
       {
-      // 1% for every 1000 rows, an then 'spin around'
-      progressGuess = ((numRows/1000)%100)*.01;
+      // 1% for every 100 rows, and then 'spin around'
+      progressGuess = ((numRows/100)%100)*.01;
       this->UpdateProgress(progressGuess); 
       } 
     }
