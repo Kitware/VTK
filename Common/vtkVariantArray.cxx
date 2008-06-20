@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.11");
+vtkCxxRevisionMacro(vtkVariantArray, "1.12");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -834,7 +834,8 @@ void vtkVariantArray::DataElementChanged(vtkIdType id)
         return;
         }
 
-      if (this->Lookup->CachedUpdates.size() > this->GetNumberOfTuples()/10)
+      if (this->Lookup->CachedUpdates.size() >
+          static_cast<size_t>(this->GetNumberOfTuples()/10))
         {
         // At this point, just rebuild the full table.
         this->Lookup->Rebuild = true;
