@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.114");
+vtkCxxRevisionMacro(vtkCamera, "1.115");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -498,15 +498,6 @@ void vtkCamera::ApplyTransform(vtkTransform *t)
   fpOld[3] = 1.0;
   vuOld[3] = 1.0;
 
-  double norm = vtkMath::Norm(posOld);
-  // To minimize double presion errors, we work in the normalized space.
-  if (norm > 0.0)
-    {
-    posOld[0] /= norm;
-    posOld[1] /= norm;
-    posOld[2] /= norm;
-    }
-
   vuOld[0] += posOld[0];
   vuOld[1] += posOld[1];
   vuOld[2] += posOld[2];
@@ -519,17 +510,9 @@ void vtkCamera::ApplyTransform(vtkTransform *t)
   vuNew[1] -= posNew[1];
   vuNew[2] -= posNew[2];
 
-  if (norm > 0.0)
-    {
-    posNew[0] *= norm;
-    posNew[1] *= norm;
-    posNew[2] *= norm;
-    }
-
   this->SetPosition(posNew);
   this->SetFocalPoint(fpNew);
   this->SetViewUp(vuNew);
-
 }
 
 //----------------------------------------------------------------------------
