@@ -1779,6 +1779,6 @@ void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "OrientationType: " << this->OrientationType << endl;
   os << indent << "OrientationTypeSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
-  os << indent << "OriginSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
-  os << indent << "SpacingSpecifiedFlag: " << this->OrientationTypeSpecifiedFlag << endl;
+  os << indent << "OriginSpecifiedFlag: " << this->OriginSpecifiedFlag << endl;
+  os << indent << "SpacingSpecifiedFlag: " << this->SpacingSpecifiedFlag << endl;
 }
