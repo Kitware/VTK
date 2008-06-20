@@ -32,7 +32,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompassWidget, "1.1");
+vtkCxxRevisionMacro(vtkCompassWidget, "1.2");
 vtkStandardNewMacro(vtkCompassWidget);
 
 //------------------------------------------------------------
@@ -73,6 +73,7 @@ void vtkCompassWidget::CreateDefaultRepresentation()
 //-----------------------------------------------------------------
 double vtkCompassWidget::GetHeading()
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetHeading();
@@ -81,6 +82,7 @@ double vtkCompassWidget::GetHeading()
 //-----------------------------------------------------------------
 void vtkCompassWidget::SetHeading(double value)
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetHeading(value);
@@ -89,6 +91,7 @@ void vtkCompassWidget::SetHeading(double value)
 //-----------------------------------------------------------------
 double vtkCompassWidget::GetTilt()
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetTilt();
@@ -97,6 +100,7 @@ double vtkCompassWidget::GetTilt()
 //-----------------------------------------------------------------
 void vtkCompassWidget::SetTilt(double value)
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetTilt(value);
@@ -105,6 +109,7 @@ void vtkCompassWidget::SetTilt(double value)
 //-----------------------------------------------------------------
 double vtkCompassWidget::GetDistance()
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetDistance();
@@ -113,6 +118,7 @@ double vtkCompassWidget::GetDistance()
 //-----------------------------------------------------------------
 void vtkCompassWidget::SetDistance(double value)
 {
+  this->CreateDefaultRepresentation();
   vtkCompassRepresentation *slider = 
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetDistance(value);
@@ -138,6 +144,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
   
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
+  self->CreateDefaultRepresentation();
   self->WidgetRep->StartWidgetInteraction(eventPos);
   int interactionState = self->WidgetRep->GetInteractionState();
 
@@ -237,6 +244,7 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkCompassWidget*>(w);
 
   // do we need to change highlight state?
+  self->CreateDefaultRepresentation();
   int interactionState = self->WidgetRep->ComputeInteractionState
     (self->Interactor->GetEventPosition()[0],
      self->Interactor->GetEventPosition()[1]);
