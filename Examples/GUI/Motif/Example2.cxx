@@ -128,7 +128,8 @@ int main (int argc, char *argv[])
 }
 
 // quit when the Exit button is clicked
-void quit_cb(Widget w,XtPointer client_data, XtPointer call_data)
+void quit_cb(Widget vtkNotUsed(w),XtPointer vtkNotUsed(client_data),
+             XtPointer vtkNotUsed(call_data))
 {
   exit(0);
 }

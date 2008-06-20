@@ -98,7 +98,8 @@ int main (int argc, char *argv[])
 }
 
 // simple quit callback
-void quit_cb(Widget w,XtPointer client_data, XtPointer call_data)
+void quit_cb(Widget vtkNotUsed(w),XtPointer vtkNotUsed(client_data),
+             XtPointer vtkNotUsed(call_data))
 {
   exit(0);
 }
