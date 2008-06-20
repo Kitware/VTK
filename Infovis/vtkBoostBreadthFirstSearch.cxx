@@ -60,7 +60,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.11");
+vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.12");
 vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
@@ -106,7 +106,7 @@ class furthest_vertex
 public:
   furthest_vertex() : graph(0) { }
 
-  furthest_vertex(vtkGraph *graph) : graph(graph) { }
+  furthest_vertex(vtkGraph *g) : graph(g) { }
 
   vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
   {
