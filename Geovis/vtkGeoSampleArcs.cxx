@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.4");
+vtkCxxRevisionMacro(vtkGeoSampleArcs, "1.5");
 vtkStandardNewMacro(vtkGeoSampleArcs);
 
 vtkGeoSampleArcs::vtkGeoSampleArcs()
@@ -80,8 +80,8 @@ int vtkGeoSampleArcs::RequestData(
   lines->InitTraversal();
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
     {
-    vtkIdType npts;
-    vtkIdType* pts;
+      vtkIdType npts=0; // to remove warning
+      vtkIdType* pts=0; // to remove warning
     lines->GetNextCell(npts, pts);
     
     double lastPoint[3];

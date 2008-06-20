@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.4");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.5");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
 //-------------------------------------------------------------------------
@@ -121,8 +121,8 @@ int vtkGeoAdaptiveArcs::RequestData(
   lines->InitTraversal();
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
     {
-    vtkIdType npts;
-    vtkIdType* pts;
+    vtkIdType npts=0; // to remove warning
+    vtkIdType* pts=0; // to remove warning
     lines->GetNextCell(npts, pts);
     
     bool lastPointOffScreen = false;

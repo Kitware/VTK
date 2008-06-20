@@ -35,7 +35,7 @@
 #include "vtkLine.h"
 #include "vtkSelection.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.14");
+vtkCxxRevisionMacro(vtkExtractSelectedFrustum, "1.15");
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum,Frustum,vtkPlanes);
 
@@ -850,7 +850,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   */
   vtkCell *face;
   vtkCell *edge;
-  vtkPoints *pts;
+  vtkPoints *pts=0;
   double *vertbuffer;
   int maxedges = 16;
   //be ready to resize if we hit a polygon with many vertices
