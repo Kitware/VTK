@@ -44,7 +44,8 @@
 // vtkStdString serialization code
 //----------------------------------------------------------------------------
 template<typename Archiver>
-void serialize(Archiver& ar, vtkStdString& str, const unsigned int version)
+void serialize(Archiver& ar, vtkStdString& str,
+               const unsigned int vtkNotUsed(version))
 {
   ar & boost::serialization::base_object<vtkstd::string>(str);
 }
@@ -54,7 +55,8 @@ void serialize(Archiver& ar, vtkStdString& str, const unsigned int version)
 //----------------------------------------------------------------------------
 
 template<typename Archiver>
-void save(Archiver& ar, const vtkVariant& variant, const unsigned int version)
+void save(Archiver& ar, const vtkVariant& variant,
+          const unsigned int vtkNotUsed(version))
 {
   if (!variant.IsValid()) 
     {
@@ -106,7 +108,8 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int version)
 }
 
 template<typename Archiver>
-void load(Archiver& ar, vtkVariant& variant, const unsigned int version)
+void load(Archiver& ar, vtkVariant& variant,
+          const unsigned int vtkNotUsed(version))
 {
   char Type;
   ar & Type;
@@ -157,7 +160,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(vtkVariant)
 
 template<typename Archiver>
 void save(Archiver& ar, const vtkVariantArray& c_array, 
-          const unsigned int version)
+          const unsigned int vtkNotUsed(version))
 {
   vtkVariantArray& array = const_cast<vtkVariantArray&>(c_array);
 
@@ -175,7 +178,8 @@ void save(Archiver& ar, const vtkVariantArray& c_array,
 }
 
 template<typename Archiver>
-void load(Archiver& ar, vtkVariantArray& array, const unsigned int version)
+void load(Archiver& ar, vtkVariantArray& array,
+          const unsigned int vtkNotUsed(version))
 {
   // Array name
   vtkStdString name;
