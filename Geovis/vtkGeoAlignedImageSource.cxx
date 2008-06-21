@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.3");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.4");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 
 
@@ -101,6 +101,12 @@ vtkGeoAlignedImageSource::~vtkGeoAlignedImageSource()
 void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "TileDatabaseDepth: " << this->TileDatabaseDepth << endl;
+  os << indent << "TileDatabaseLocation: " 
+     << (this->TileDatabaseLocation ? this->TileDatabaseLocation : "(null)")
+     << endl;
+  os << indent << "UseTileDatabase: " 
+    << (this->UseTileDatabase ? " true" : " false") << endl;
 }
 
 //-----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.1");
+vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.2");
 vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
@@ -55,6 +55,31 @@ vtkGeoTerrainNode::~vtkGeoTerrainNode()
 void vtkGeoTerrainNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "BoundingSphereCenter: " 
+    << this->BoundingSphereCenter[0] << ", " 
+    << this->BoundingSphereCenter[1] << ", "
+    << this->BoundingSphereCenter[2] << "\n";
+  os << indent << "BoundingSphereRadius: " 
+    << this->BoundingSphereRadius << "\n";
+  
+  os << indent << "CornerNormal00: " 
+    << this->CornerNormal00[0] << ", " 
+    << this->CornerNormal00[1] << ", "
+    << this->CornerNormal00[2] << "\n";
+  os << indent << "CornerNormal01: " 
+    << this->CornerNormal01[0] << ", " 
+    << this->CornerNormal01[1] << ", "
+    << this->CornerNormal01[2] << "\n";
+  os << indent << "CornerNormal10: " 
+    << this->CornerNormal10[0] << ", " 
+    << this->CornerNormal10[1] << ", "
+    << this->CornerNormal10[2] << "\n";
+  os << indent << "CornerNormal11: " 
+    << this->CornerNormal11[0] << ", " 
+    << this->CornerNormal11[1] << ", "
+    << this->CornerNormal11[2] << "\n";
+
 }
 
 //-----------------------------------------------------------------------------

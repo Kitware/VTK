@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.4");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.5");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6357000.0
@@ -111,6 +111,7 @@ vtkGeoInteractorStyle::~vtkGeoInteractorStyle()
 void vtkGeoInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "LockHeading: " << this->GetLockHeading() << endl;
 }
 
 //-----------------------------------------------------------------------------

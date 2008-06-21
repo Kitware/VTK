@@ -1,14 +1,14 @@
 # if we have rendering add the following tests
-IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+IF (VTK_USE_DISPLAY)
   SET(KIT Geovis)
   # add tests that do not require data
   SET(MyTests  
-    TestVariant
+    TestGeoAssignCoordinates.cxx
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
-      TestChacoGraphReader
+      TestGeoView.cxx
       )
   ENDIF (VTK_DATA_ROOT)
 
@@ -32,4 +32,4 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       ADD_TEST(Geovis-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 
-ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+ENDIF (VTK_USE_DISPLAY)

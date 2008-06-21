@@ -29,7 +29,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.1");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.2");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -60,6 +60,7 @@ vtkGeoCamera::~vtkGeoCamera()
 void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Distance: " << this->Distance << endl;
   os << indent << "Tilt: " << this->Tilt << endl;
   os << indent << "Heading: " << this->Heading << endl;
   os << indent << "Latitude: " << this->Latitude << endl;

@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.1");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.2");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -363,6 +363,7 @@ void vtkGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "CurtainHeight: " << this->CurtainHeight << "\n";
   os << indent << "Longitude Resolution: " << this->LongitudeResolution << "\n";
   os << indent << "Latitude Resolution: " << this->LatitudeResolution << "\n";
   os << indent << "Longitude Start: " << this->StartLongitude << "\n";
