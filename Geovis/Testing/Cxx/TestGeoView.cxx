@@ -54,6 +54,5 @@ int TestGeoView(int argc, char* argv[])
     }
 
   return !retVal;
-  return 0;
 }
 
