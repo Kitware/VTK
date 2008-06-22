@@ -43,7 +43,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCenteredSliderRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkCenteredSliderRepresentation, "1.2");
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
 //----------------------------------------------------------------------
@@ -94,10 +94,10 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   // The slider
   this->SliderCells = vtkCellArray::New();
   this->SliderCells->InsertNextCell(4);
-  this->SliderCells->InsertCellPoint(this->ArcCount*2+16);
-  this->SliderCells->InsertCellPoint(this->ArcCount*2+17);
-  this->SliderCells->InsertCellPoint(this->ArcCount*2+18);
-  this->SliderCells->InsertCellPoint(this->ArcCount*2+19);
+  this->SliderCells->InsertCellPoint(this->ArcCount*2+8);
+  this->SliderCells->InsertCellPoint(this->ArcCount*2+9);
+  this->SliderCells->InsertCellPoint(this->ArcCount*2+10);
+  this->SliderCells->InsertCellPoint(this->ArcCount*2+11);
   this->Slider = vtkPolyData::New();
   this->Slider->SetPoints(this->Points);
   this->Slider->SetPolys(this->SliderCells);
@@ -156,26 +156,6 @@ void vtkCenteredSliderRepresentation::BuildTube()
   this->TubeCells->InsertCellPoint(2*this->ArcCount+4+2);
   this->TubeCells->InsertCellPoint(this->ArcCount+2);
 
-  // build the arc
-#if 0
-  this->TubeCells->InsertNextCell(this->ArcCount);
-  for (int i = 0; i < this->ArcCount; ++i)
-    {
-    this->TubeCells->InsertCellPoint(i+2);
-    }
-  this->TubeCells->InsertNextCell(this->ArcCount);
-  for (int i = 0; i < this->ArcCount; ++i)
-    {
-    this->TubeCells->InsertCellPoint(this->ArcCount+i+6);
-    }
-  for (int i = 1; i < this->ArcCount -1; ++i)
-    {
-    this->TubeCells->InsertNextCell(2);
-    this->TubeCells->InsertCellPoint(i+2);
-    this->TubeCells->InsertCellPoint(i+this->ArcCount+6);
-    }
-#endif
-
   for (int i = 0; i < this->ArcCount; i += 2)
     {
     this->TubeCells->InsertNextCell(4);
@@ -188,7 +168,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
   vtkSmartPointer<vtkUnsignedCharArray> colors = 
     vtkSmartPointer<vtkUnsignedCharArray>::New();
   colors->SetNumberOfComponents(4);
-  colors->SetNumberOfTuples(this->ArcCount*2+20);
+  colors->SetNumberOfTuples(this->ArcCount*2+12);
 
   if (this->Tube)
     {
@@ -246,19 +226,19 @@ void vtkCenteredSliderRepresentation::BuildTube()
     }
 
   // last four points are the slider
-  this->Points->SetPoint(this->ArcCount*2+16, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+8, 0.0, 
                          (this->ArcStart + this->ArcEnd)/2.0 + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+17, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+9, 0.0, 
                          (this->ArcStart + this->ArcEnd)/2.0 - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+18, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+10, 1.0, 
                          (this->ArcStart + this->ArcEnd)/2.0 - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+19, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+11, 1.0, 
                          (this->ArcStart + this->ArcEnd)/2.0 + 0.025, 0.0);
   col[0] = 255; col[1] = 255; col[2] = 255; col[3] = 255;
-  colors->SetTupleValue(this->ArcCount*2+16,col);
-  colors->SetTupleValue(this->ArcCount*2+17,col);
-  colors->SetTupleValue(this->ArcCount*2+18,col);
-  colors->SetTupleValue(this->ArcCount*2+19,col);
+  colors->SetTupleValue(this->ArcCount*2+8,col);
+  colors->SetTupleValue(this->ArcCount*2+9,col);
+  colors->SetTupleValue(this->ArcCount*2+10,col);
+  colors->SetTupleValue(this->ArcCount*2+11,col);
 }
 
 //----------------------------------------------------------------------
@@ -437,13 +417,13 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
   double t = (this->Value-this->MinimumValue) / 
     (this->MaximumValue-this->MinimumValue);
   double pos = this->ArcStart + t*(this->ArcEnd - this->ArcStart);
-  this->Points->SetPoint(this->ArcCount*2+16, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+8, 0.0, 
                          pos - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+17, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+9, 0.0, 
                          pos + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+18, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+10, 1.0, 
                          pos + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+19, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+11, 1.0, 
                          pos - 0.025, 0.0);
   
 
