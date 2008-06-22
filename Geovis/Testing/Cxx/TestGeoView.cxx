@@ -53,6 +53,7 @@ int TestGeoView(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
+  delete [] fname;
   return !retVal;
 }
 
