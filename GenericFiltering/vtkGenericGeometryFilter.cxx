@@ -39,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.13");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.14");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter,Locator,vtkPointLocator);
@@ -185,8 +185,8 @@ int vtkGenericGeometryFilter::RequestData(
       {
       cell = cellIt->GetCell();
       cellId = cell->GetId();
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-           cellId > this->CellMaximum )
+      if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                  cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }

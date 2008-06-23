@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridGeometryFilter, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 
 #if 0
@@ -847,8 +847,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     while(connectivity->GetNextCell(npts,pts))
       {
       if((cellGhostLevels!=0 && cellGhostLevels[cellId] > updateLevel)||
-         (this->CellClipping && cellId < this->CellMinimum ||
-                cellId > this->CellMaximum) )
+         (this->CellClipping && (cellId < this->CellMinimum ||
+                                 cellId > this->CellMaximum)) )
         {
         // the cell is a ghost cell or is clipped.
         cellVis[cellId] = 0;
