@@ -34,7 +34,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBridgeAttribute, "1.6");
+vtkCxxRevisionMacro(vtkBridgeAttribute, "1.7");
 vtkStandardNewMacro(vtkBridgeAttribute);
 
 void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -78,7 +78,7 @@ int vtkBridgeAttribute::GetCentering()
     {
     result=vtkCellCentered;
     }
-  assert("post: valid_result" && (result==vtkPointCentered) || (result==vtkCellCentered) || (result==vtkBoundaryCentered));
+  assert("post: valid_result" && ((result==vtkPointCentered) || (result==vtkCellCentered) || (result==vtkBoundaryCentered)));
   return result;
 }
 

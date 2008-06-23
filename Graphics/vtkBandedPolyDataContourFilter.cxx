@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.56");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.57");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -170,7 +170,7 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
   int idx = this->ComputeScalarIndex(s+this->ClipTolerance);
 
   if ( !this->Clipping || 
-       idx >= this->ClipIndex[0] && idx < this->ClipIndex[1] )
+       (idx >= this->ClipIndex[0] && idx < this->ClipIndex[1]) )
     {
     cells->InsertNextCell(npts,pts);
 
