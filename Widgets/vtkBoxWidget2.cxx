@@ -26,7 +26,7 @@
 #include "vtkRenderer.h"
 
 
-vtkCxxRevisionMacro(vtkBoxWidget2, "1.2");
+vtkCxxRevisionMacro(vtkBoxWidget2, "1.3");
 vtkStandardNewMacro(vtkBoxWidget2);
 
 //----------------------------------------------------------------------------
@@ -41,15 +41,39 @@ vtkBoxWidget2::vtkBoxWidget2()
 
   // Define widget events
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+                                          vtkEvent::NoModifier,
+                                          0, 0, NULL,
                                           vtkWidgetEvent::Select,
                                           this, vtkBoxWidget2::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
+                                          vtkEvent::NoModifier,
+                                          0, 0, NULL,
                                           vtkWidgetEvent::EndSelect,
                                           this, vtkBoxWidget2::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
                                           vtkWidgetEvent::Translate,
                                           this, vtkBoxWidget2::TranslateAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,
+                                          vtkWidgetEvent::EndTranslate,
+                                          this, vtkBoxWidget2::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+                                          vtkEvent::ControlModifier,
+                                          0, 0, NULL,
+                                          vtkWidgetEvent::Translate,
+                                          this, vtkBoxWidget2::TranslateAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
+                                            vtkEvent::ControlModifier,
+                                            0, 0, NULL,
+                                          vtkWidgetEvent::EndTranslate,
+                                          this, vtkBoxWidget2::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
+                                          vtkEvent::ShiftModifier,
+                                          0, 0, NULL,
+                                          vtkWidgetEvent::Translate,
+                                          this, vtkBoxWidget2::TranslateAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
+                                            vtkEvent::ShiftModifier,
+                                            0, 0, NULL,
                                           vtkWidgetEvent::EndTranslate,
                                           this, vtkBoxWidget2::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::RightButtonPressEvent,
@@ -101,20 +125,11 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
-
-  // Modifier keys force us into translare mode
+  
   // The SetInteractionState has the side effect of highlighting the widget
-  if ( self->Interactor->GetShiftKey() || self->Interactor->GetControlKey() )
-    {
-    reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->
-      SetInteractionState(vtkBoxRepresentation::Translating);
-    }
-  else 
-    {
-    reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->
-      SetInteractionState(interactionState);
-    }
-
+  reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->
+    SetInteractionState(interactionState);
+ 
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();

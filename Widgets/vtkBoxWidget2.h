@@ -154,10 +154,9 @@ protected:
   int TranslationEnabled;
   int ScalingEnabled;
   int RotationEnabled;
-
 private:
   vtkBoxWidget2(const vtkBoxWidget2&);  //Not implemented
   void operator=(const vtkBoxWidget2&);  //Not implemented
 };
-
+ 
 #endif
