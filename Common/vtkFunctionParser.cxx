@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.39");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.40");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1556,10 +1556,10 @@ int vtkFunctionParser::CheckSyntax()
       // Check for possible argument in a multiple argument function. In this
       // case the next character might be a comman, so break out to the outer
       // loop before incrementing index. 
-      if (expectCommaOnParenthesisCount[parenthesisCount] > 0 &&
-          expectCommaOnParenthesisCount[parenthesisCount] < 2 ||
-          expectTwoCommasOnParenthesisCount[parenthesisCount] > 0 &&
-          expectTwoCommasOnParenthesisCount[parenthesisCount] < 3)
+      if ((expectCommaOnParenthesisCount[parenthesisCount] > 0 &&
+           expectCommaOnParenthesisCount[parenthesisCount] < 2) ||
+          (expectTwoCommasOnParenthesisCount[parenthesisCount] > 0 &&
+           expectTwoCommasOnParenthesisCount[parenthesisCount] < 3))
         {
         breakToOuterLoop = true;
         break;
@@ -2301,7 +2301,7 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&
       this->EvaluateMTime.GetMTime() > this->VariableMTime.GetMTime() &&
-      this->StackPointer == 0 || this->StackPointer == 2)
+      (this->StackPointer == 0 || this->StackPointer == 2))
     {
     if (this->StackPointer == 0)
       {
