@@ -373,7 +373,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
     // the first prop in the collection will be the cube outline, the last
     // will be the text outlines
     //
-    if ( node && i == 0 || i == (nprops - 1) )
+    if ( node && (i == 0 || i == (nprops - 1)) )
       {
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
       if ( poly )
