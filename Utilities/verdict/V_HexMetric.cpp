@@ -248,8 +248,8 @@ double safe_ratio3( const double numerator,
   else
     {
     return_value = fabs(numerator) / max_ratio >= fabs(denominator) ?
-      ( numerator >= 0.0 && denominator >= 0.0 ||
-        numerator < 0.0 && denominator < 0.0 ?
+      ( (numerator >= 0.0 && denominator >= 0.0) ||
+        (numerator < 0.0 && denominator < 0.0) ?
         max_ratio : -max_ratio )
       : numerator / denominator;
     }

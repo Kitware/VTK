@@ -55,7 +55,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.39");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.40");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -1116,7 +1116,7 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
     this->Mesh->GetCellPoints(cellId, npts, pts);
     // making sure we don't already have the triangle we're about to
     // change this one to
-    if (pts[0] == pt1Id && this->Mesh->IsTriangle(pt0Id, pts[1], pts[2]) ||
+    if ((pts[0] == pt1Id && this->Mesh->IsTriangle(pt0Id, pts[1], pts[2])) ||
         (pts[1] == pt1Id && this->Mesh->IsTriangle(pts[0], pt0Id, pts[2])) ||
         (pts[2] == pt1Id && this->Mesh->IsTriangle(pts[0], pts[1], pt0Id)))
       {

@@ -42,7 +42,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.64");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.65");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -1402,9 +1402,9 @@ void vtkRIBExporter::ModifyArrayName(char *newname, const char* name)
   int cc = 0;
   for ( cc =0; name[cc]; cc++ )
     {
-    if ( name[cc] >= 'A' && name[cc] <= 'Z' ||
-         name[cc] >= '0' && name[cc] <= '9' ||
-         name[cc] >= 'a' && name[cc] <= 'z' )
+      if ( (name[cc] >= 'A' && name[cc] <= 'Z') ||
+           (name[cc] >= '0' && name[cc] <= '9') ||
+           (name[cc] >= 'a' && name[cc] <= 'z') )
       {
       newname[cc] = name[cc];
       }
