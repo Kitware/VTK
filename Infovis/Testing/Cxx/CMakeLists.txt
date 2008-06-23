@@ -49,11 +49,13 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestBoostAlgorithms
       )
 
-    # The variant-serialization test is kept separate, because it
-    # needs to link against the serialization library.
-    ADD_EXECUTABLE(TestVariantSerialization TestVariantSerialization.cxx)
-    TARGET_LINK_LIBRARIES(TestVariantSerialization vtkInfovis ${Boost_SERIALIZATION_LIBRARY})
-    ADD_TEST(TestVariantSerialization ${CXX_TEST_PATH}/TestVariantSerialization)
+    IF (VTK_USE_PARALLEL_BGL)
+      # The variant-serialization test is kept separate, because it
+      # needs to link against the serialization library.
+      ADD_EXECUTABLE(TestVariantSerialization TestVariantSerialization.cxx)
+      TARGET_LINK_LIBRARIES(TestVariantSerialization vtkInfovis ${Boost_SERIALIZATION_LIBRARY})
+      ADD_TEST(TestVariantSerialization ${CXX_TEST_PATH}/TestVariantSerialization)
+    ENDIF (VTK_USE_PARALLEL_BGL)
 
     IF(VTK_DATA_ROOT)
       SET(MyTests ${MyTests}

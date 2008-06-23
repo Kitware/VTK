@@ -982,7 +982,7 @@ IF(VTK_USE_BOOST)
     FIND_PACKAGE(Boost 1.35.1 REQUIRED
       COMPONENTS mpi serialization filesystem system)
   else (VTK_USE_PARALLEL_BGL)
-    FIND_PACKAGE(Boost REQUIRED COMPONENTS serialization)
+    FIND_PACKAGE(Boost REQUIRED)
   endif (VTK_USE_PARALLEL_BGL)
 
   INCLUDE(${VTK_CMAKE_DIR}/ExtractBoostVersion.cmake)
