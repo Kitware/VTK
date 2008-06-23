@@ -25,13 +25,10 @@
 // the documentation for vtkSQLQuery for information about what the
 // methods do.
 //
-// .SECTION Bugs
-//
-// The PostgreSQL adaptor classes use pqxx instead of libpq.
-//
 // .SECTION Thanks
-// Thanks to David Thompson from Sandia National Laboratories for implementing
-// this class. Thanks to Andrew Wilson for the SQLite example.
+//
+// Thanks to David Thompson and Andy Wilson from Sandia National
+// Laboratories for implementing this class.
 //
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkPostgreSQLDatabase
@@ -101,13 +98,27 @@ public:
   virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
   //ETX
 
+  // Description:
+  // Unlike some databases, Postgres can tell you right away how many
+  // rows are in the results of your query.
+  int GetNumberOfRows();
+
 protected:
   vtkPostgreSQLQuery();
   ~vtkPostgreSQLQuery();
 
-  void SetLastErrorText( const char* msg );
+  vtkSetStringMacro(LastErrorText);
 
-  vtkPostgreSQLQueryPrivate* Transactor;
+  bool IsColumnBinary(int whichColumn);
+  const char *GetColumnRawData(int whichColumn);
+
+  bool TransactionInProgress;
+  char *LastErrorText;
+  int CurrentRow;
+
+  vtkPostgreSQLQueryPrivate *QueryInternals;
+
+  void DeleteQueryResults();
 
   //BTX
   friend class vtkPostgreSQLDatabase;

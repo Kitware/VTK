@@ -265,7 +265,7 @@ ENDIF (VTK_USE_MPEG2_ENCODER)
 OPTION( VTK_USE_POSTGRES "Build the PostgreSQL driver for vtkSQLDatabase." OFF)
 MARK_AS_ADVANCED(VTK_USE_POSTGRES)
 IF ( VTK_USE_POSTGRES )
-  FIND_PACKAGE( PQXX REQUIRED )
+  FIND_PACKAGE( POSTGRES REQUIRED )
   IF ( BUILD_TESTING )
     SET ( VTK_PSQL_TEST_URL "" CACHE STRING "A URL for a PostgreSQL server of the form psql://[[username[:password]@]hostname[:port]]/[dbname]" ) 
   ENDIF ( BUILD_TESTING )
@@ -274,15 +274,15 @@ ENDIF ( VTK_USE_POSTGRES )
 # Only include the Postgres backend if the user has explicitly turned on
 # VTK_USE_POSTGRES. If so, user must also have set POSTGRES_LIBRARIES
 # and POSTGRES_INCLUDE_DIRECTORIES to valid values.
-IF ( VTK_USE_POSTGRES AND PQXX_FOUND )
-  INCLUDE_DIRECTORIES( ${PQXX_INCLUDE_DIRECTORIES} )
+IF ( VTK_USE_POSTGRES AND POSTGRES_FOUND )
+  INCLUDE_DIRECTORIES( ${POSTGRES_INCLUDE_DIRECTORIES} )
   SET( Kit_SRCS
     ${Kit_SRCS}
     vtkPostgreSQLDatabase.cxx
     vtkPostgreSQLQuery.cxx
   )
-  LINK_LIBRARIES( ${PQXX_LIBRARIES} )
-ENDIF ( VTK_USE_POSTGRES AND PQXX_FOUND )
+  LINK_LIBRARIES( ${POSTGRES_LIBRARIES} )
+ENDIF ( VTK_USE_POSTGRES AND POSTGRES_FOUND )
 
 #-----------------------------------------------------------------------------
 # MySQL

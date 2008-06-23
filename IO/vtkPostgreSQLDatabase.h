@@ -1,3 +1,4 @@
+/* -*- Mode: C++; -*- */
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -27,11 +28,14 @@
 // belong to another process.
 //
 // This class provides a VTK interface to PostgreSQL.  You do need to
-// download external libraries: we need a copy of PostgreSQL 8 and libpqxx.
+// download external libraries: we need a copy of PostgreSQL 8
+// (currently 8.2 or 8.3) so that we can link against the libpq C
+// interface.
 //
 // .SECTION Thanks
-// Thanks to David Thompson from Sandia National Laboratories for implementing
-// this class based on Andy Wilson's vtkSQLiteDatabase class.
+//
+// Thanks to David Thompson and Andy Wilson from Sandia National
+// Laboratories for implementing this class.
 //
 // .SECTION See Also
 // vtkPostgreSQLQuery
@@ -44,6 +48,7 @@
 class vtkPostgreSQLQuery;
 class vtkStringArray;
 class vtkPostgreSQLDatabasePrivate;
+struct PQconn;
 
 class VTK_IO_EXPORT vtkPostgreSQLDatabase : public vtkSQLDatabase
 {
@@ -170,6 +175,21 @@ protected:
   ~vtkPostgreSQLDatabase();
 
   // Description:
+  // Create or refresh the map from Postgres column types to VTK array types.
+  //
+  // Postgres defines a table for types so that users may define types.
+  // This adaptor does not support user-defined types or even all of the
+  // default types defined by Postgres (some are inherently difficult to
+  // translate into VTK since Postgres allows columns to have composite types,
+  // vector-valued types, and extended precision types that vtkVariant does
+  // not support.
+  //
+  // This routine examines the pg_types table to get a map from Postgres column
+  // type IDs (stored as OIDs) to VTK array types. It is called whenever a new
+  // database connection is initiated.
+  void UpdateDataTypeMap();
+
+  // Description:
   // Overridden to determine connection paramters given the URL. 
   // This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
@@ -181,7 +201,7 @@ protected:
   bool OpenInternal( const char* connectionOptions );
 
   vtkTimeStamp URLMTime;
-  vtkPostgreSQLDatabasePrivate* Connection;
+  vtkPostgreSQLDatabasePrivate *Connection; 
   vtkTimeStamp ConnectionMTime;
   char* DatabaseType;
   char* HostName;

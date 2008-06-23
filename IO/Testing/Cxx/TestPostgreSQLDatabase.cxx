@@ -70,11 +70,16 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
 
   vtkSQLQuery* query = db->GetQueryInstance();
 
-  // Force a database connection open/close
+  // Force a database connection close
   // This also forces us to connect to the database named in the test URL.
   vtkStdString fauxDatabase = realDatabase + "blarney";
   db->SetDatabaseName( fauxDatabase.c_str() );
   db->SetDatabaseName( realDatabase.c_str() );
+
+  if (!db->Open())
+    {
+    cerr << "Error: " << db->GetLastErrorText() << endl;
+    }
 
   // Test that bad queries fail without segfaulting...
   vtkStdString dropQuery( "DROP TABLE people" );
