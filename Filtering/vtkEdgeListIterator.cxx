@@ -27,7 +27,7 @@
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
 
-vtkCxxRevisionMacro(vtkEdgeListIterator, "1.3");
+vtkCxxRevisionMacro(vtkEdgeListIterator, "1.4");
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------
 vtkEdgeListIterator::vtkEdgeListIterator()
@@ -94,8 +94,8 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
                && (// Skip non-local edges.
                    (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                    // Skip entirely-local edges where Source > Target
-                   || ((helper
-                        && myRank == helper->GetVertexOwner(this->Current->Target)
+                   || (((helper
+                         && myRank == helper->GetVertexOwner(this->Current->Target))
                         || !helper)
                        && this->Vertex > this->Current->Target)))
           {
@@ -131,8 +131,8 @@ vtkEdgeType vtkEdgeListIterator::Next()
            && (// Skip non-local edges.
                (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                // Skip entirely-local edges where Source > Target
-               || ((helper 
-                    && myRank == helper->GetVertexOwner(this->Current->Target)
+               || (((helper 
+                     && myRank == helper->GetVertexOwner(this->Current->Target))
                     || !helper)
                    && this->Vertex > this->Current->Target)))
       {
