@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.30");
+vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.31");
 vtkStandardNewMacro(vtkPerspectiveTransform);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkPerspectiveTransform::SetInput(vtkHomogeneousTransform *input)
 int vtkPerspectiveTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkHomogeneousTransform::CircuitCheck(transform) ||
-      this->Input && this->Input->CircuitCheck(transform))
+      (this->Input && this->Input->CircuitCheck(transform)))
     {
     return 1;
     }
