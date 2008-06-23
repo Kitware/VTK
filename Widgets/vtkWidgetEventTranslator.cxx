@@ -24,7 +24,7 @@
 #include <vtkstd/map>
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkWidgetEventTranslator, "1.4");
+vtkCxxRevisionMacro(vtkWidgetEventTranslator, "1.5");
 vtkStandardNewMacro(vtkWidgetEventTranslator);
 
 
@@ -324,7 +324,7 @@ void vtkWidgetEventTranslator::PrintSelf(ostream& os, vtkIndent indent)
     vtkstd::list<EventItem>::iterator liter = elist.begin();
     for ( ; liter != elist.end(); ++liter)
       {
-      os << "VTKEvent(" << liter->VTKEvent->GetEventId() << ","
+      os << "VTKEvent(" << vtkCommand::GetStringFromEventId(liter->VTKEvent->GetEventId()) << ","
          << liter->VTKEvent->GetModifier() << "," << liter->VTKEvent->GetKeyCode() << ","
          << liter->VTKEvent->GetRepeatCount() << ",";
       os << (liter->VTKEvent->GetKeySym() ? liter->VTKEvent->GetKeySym() : "(any)");
