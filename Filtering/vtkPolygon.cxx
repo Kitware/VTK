@@ -28,7 +28,7 @@
 #include "vtkBox.h"
 #include "vtkMergePoints.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.8");
+vtkCxxRevisionMacro(vtkPolygon, "1.9");
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -1753,9 +1753,9 @@ double vtkPolygon::DistanceToPolygon(double x[3], int numPts, double *pts,
 {
   // First check to see if the point is inside the polygon
   // do a quick bounds check
-  if ( x[0] >= bounds[0] && x[0] <= bounds[1] ||
-       x[1] >= bounds[2] || x[1] <= bounds[3] ||
-       x[2] >= bounds[4] || x[2] <= bounds[5])
+  if ( x[0] >= bounds[0] && x[0] <= bounds[1] &&
+       x[1] >= bounds[2] && x[1] <= bounds[3] &&
+       x[2] >= bounds[4] && x[2] <= bounds[5])
     {
     double n[3];
     vtkPolygon::ComputeNormal(numPts, pts, n);
