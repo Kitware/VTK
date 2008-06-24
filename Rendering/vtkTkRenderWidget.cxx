@@ -524,7 +524,7 @@ extern "C"
     Tk_SetClass(tkwin, (char *) "vtkTkRenderWidget");
     
     // Create vtkTkRenderWidget data structure 
-    self = (struct vtkTkRenderWidget *)ckalloc(sizeof(struct vtkTkRenderWidget));
+    self=(struct vtkTkRenderWidget *)ckalloc(sizeof(struct vtkTkRenderWidget));
     self->TkWin = tkwin;
     self->Interp = interp;
     self->Width = 0;
@@ -902,7 +902,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
                                "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
+    self->RW = ckalloc(
+                  static_cast<unsigned int>(strlen(self->Interp->result) + 1));
     strcpy(self->RW, self->Interp->result);
     self->Interp->result[0] = '\0';
     }
@@ -1078,7 +1079,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
           "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
+    self->RW = ckalloc(
+                  static_cast<unsigned int>(strlen(self->Interp->result) + 1));
     strcpy(self->RW, self->Interp->result);
     self->Interp->result[0] = '\0';
     }
@@ -1250,7 +1252,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
           "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
+    self->RW = ckalloc(
+                  static_cast<unsigned int>(strlen(self->Interp->result) + 1));
     strcpy(self->RW, self->Interp->result);
     self->Interp->result[0] = '\0';
     }
