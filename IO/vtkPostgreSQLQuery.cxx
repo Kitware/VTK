@@ -67,7 +67,7 @@ void ConvertFromNetworkOrder(T &target, const char *rawBytes)
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.10");
+vtkCxxRevisionMacro(vtkPostgreSQLQuery, "1.11");
 vtkStandardNewMacro(vtkPostgreSQLQuery);
 
 // ----------------------------------------------------------------------
@@ -94,7 +94,7 @@ public:
 
 // ----------------------------------------------------------------------
 
-vtkVariant vtkPostgreSQLQuery::DataValue( int column )
+vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
 {
   if ( this->IsActive() == false )
     {
