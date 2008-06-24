@@ -26,9 +26,8 @@ PURPOSE.  See the above copyright notice for more information.
 // This is done by the means of the following functions:
 //
 // ResetColumns() - reset the list of columns of interest.
-// Add/RemoveColum( i ) - try to add/remove column with index to the list.
-// Add/RemoveColumnRange( i1, i2 ) - try to add/remove all columns with indices
-// at least equal to i1 and strictly smaller to i2 to the list.
+// Add/RemoveColum( namCol ) - try to add/remove column with name namCol to/from
+// the list.
 // The verb "try" is used in the sense that attempting to neither attempting to 
 // repeat an existing entry nor to remove a non-existent entry will work.
 // 
