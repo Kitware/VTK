@@ -15,7 +15,7 @@
 //=============================================================================
 int TestDescriptiveStatistics( int, char *[] )
 {
-  int testIntValue = 0;
+  int testStatus = 0;
 
   double mingledData[] = 
     {
@@ -199,38 +199,43 @@ int TestDescriptiveStatistics( int, char *[] )
       }
 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::EvinceMode );
-  haruspex->SetMultiplicativeFactor( 1.5 );
+  haruspex->SignedDeviationsOff();
   haruspex->Update();
 
-  testIntValue = outputTable->GetNumberOfRows();
-  if ( testIntValue != 10 )
-    {
-    cerr << "Reported an incorrect number of outliers: "
-         << testIntValue
-         << " != 10.\n";
-    return 1;
-    }
-
-  cout << "Found "
-       << testIntValue
-       << " outliers:\n";
-
+  int m0outliers = 0;
+  int m1outliers = 0;
+  cout << "Outliers:\n";
+  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast( outputTable->GetColumnByName( "Relative Deviation of Metric 0" ) );
+  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast( outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+  double dev;
+  double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
     {
-    vtkStdString col = outputTable->GetValue( r, 0 ).ToString();
-    vtkIdType i = outputTable->GetValue( r, 1 ).ToInt();
-    cout << "   "
-         << col
-         << ": "
-         << i
-         << ": ( "
-         << datasetTable->GetValueByName( i, col ).ToDouble()
-         << " ) has a relative deviation of "
-         << outputTable->GetValue( r, 2 ).ToDouble()
-         << "\n";
+    dev = m0reld->GetValue( r );
+    if ( dev > maxdev )
+      {
+      ++ m0outliers;
+      cout << "   Metric 0: row " << r << " deviation " << dev << " > " << maxdev << "\n";
+      }
+    }
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+    {
+    dev = m1reld->GetValue( r );
+    if ( dev > maxdev )
+      {
+      ++ m1outliers;
+      cout << "   Metric 1: row " << r << " deviation " << dev << " > " << maxdev << "\n";
+      }
+    }
+  cout
+    << "Found " << m0outliers << " outliers for Metric 0"
+    << " and " << m1outliers << " outliers for Metric 1.\n";
+  if ( m0outliers != 4 || m1outliers != 6 )
+    {
+    cout << "Error: Expected 4 outliers for Metric 0 and 6 outliers for Metric 1.\n";
+    testStatus = 1;
     }
 
   haruspex->Delete();
-
-  return 0;
+  return testStatus;
 }

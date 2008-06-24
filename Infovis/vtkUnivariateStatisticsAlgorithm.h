@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 // ResetColumns() - reset the list of columns of interest.
 // Add/RemoveColum( namCol ) - try to add/remove column with name namCol to/from
 // the list.
-// The verb "try" is used in the sense that attempting to neither attempting to 
+// The verb "try" is used in the sense that neither attempting to 
 // repeat an existing entry nor to remove a non-existent entry will work.
 // 
 // .SECTION Thanks

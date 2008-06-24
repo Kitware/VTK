@@ -34,14 +34,15 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.25");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.26");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
-  this->MultiplicativeFactor = 1.;
+  this->SignedDeviations = 1;
 }
 
 // ----------------------------------------------------------------------
@@ -53,7 +54,7 @@ vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "MultiplicativeFactor: " << this->MultiplicativeFactor << endl;
+  os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
 }
 
 // ----------------------------------------------------------------------
@@ -240,10 +241,111 @@ void vtkDescriptiveStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::ComputeDeviations(
+  vtkDoubleArray* relDev, DeviantFunctor* dfunc, vtkIdType nRow )
+{
+  for ( vtkIdType r = 0; r < nRow; ++ r )
+    {
+    relDev->SetValue( r, (*dfunc)( r ) );
+    }
+}
+
+// ----------------------------------------------------------------------
+class ZedDeviationDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
+{
+public:
+  virtual ~ZedDeviationDeviantFunctor() { }
+  virtual double operator() ( vtkIdType )
+    {
+    return 0.;
+    }
+};
+
+// ----------------------------------------------------------------------
+class DataArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
+{
+public:
+  vtkDataArray* Array;
+};
+
+class SignedDataArrayDeviantFunctor : public DataArrayDeviantFunctor
+{
+public:
+  SignedDataArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+    {
+    this->Array = arr;
+    this->Nominal = nominal;
+    this->Deviation = stdev;
+    }
+  virtual ~SignedDataArrayDeviantFunctor() { }
+  virtual double operator() ( vtkIdType row )
+    {
+    return ( this->Array->GetTuple( row )[0] - this->Nominal ) / this->Deviation;
+    }
+};
+
+class UnsignedDataArrayDeviantFunctor : public DataArrayDeviantFunctor
+{
+public:
+  UnsignedDataArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+    {
+    this->Array = arr;
+    this->Nominal = nominal;
+    this->Deviation = stdev;
+    }
+  virtual ~UnsignedDataArrayDeviantFunctor() { }
+  virtual double operator() ( vtkIdType row )
+    {
+    return fabs ( this->Array->GetTuple( row )[0] - this->Nominal ) / this->Deviation;
+    }
+};
+
+// ----------------------------------------------------------------------
+class AbstractArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
+{
+public:
+  vtkAbstractArray* Array;
+};
+
+class SignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
+{
+public:
+  SignedAbstractArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+    {
+    this->Array = arr;
+    this->Nominal = nominal;
+    this->Deviation = stdev;
+    }
+  virtual ~SignedAbstractArrayDeviantFunctor() { }
+  virtual double operator() ( vtkIdType row )
+    {
+    return ( this->Array->GetVariantValue( row ).ToDouble() - this->Nominal ) / this->Deviation;
+    }
+};
+
+class UnsignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
+{
+public:
+  UnsignedAbstractArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+    {
+    this->Array = arr;
+    this->Nominal = nominal;
+    this->Deviation = stdev;
+    }
+  virtual ~UnsignedAbstractArrayDeviantFunctor() { }
+  virtual double operator() ( vtkIdType row )
+    {
+    return fabs ( this->Array->GetVariantValue( row ).ToDouble() - this->Nominal ) / this->Deviation;
+    }
+};
+
+// ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {
+  output->ShallowCopy( dataset );
+
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
@@ -276,84 +378,77 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     return;
     }
 
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  output->AddColumn( stringCol );
-  stringCol->Delete();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Row" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Relative Deviation" );
-  output->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 3 );
-
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
-        it != this->Internals->SelectedColumns.end(); ++ it )
+  // Loop over rows of the parameter table looking for columns that
+  // specify the mean and standard deviation of some requested table column.
+  for ( int i = 0; i < nRowP; ++ i )
     {
-    vtkStdString col = *it;
-    if ( ! dataset->GetColumnByName( col ) )
-      {
-      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
+    // Is the parameter one that's been requested?
+    vtkStdString colName = params->GetValue( i, 0 ).ToString();
+    vtkstd::set<vtkStdString>::iterator it =
+      this->Internals->SelectedColumns.find( colName );
+    if ( it == this->Internals->SelectedColumns.end() )
+      { // Have parameter values. But user doesn't want it... skip it.
       continue;
       }
-    
-    bool unfound = true;
-    for ( int i = 0; i < nRowP; ++ i )
+    double nominal = params->GetValueByName( i, "Mean" ).ToDouble();
+    double deviation = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
+
+    // Does the requested array exist in the input dataset?
+    vtkAbstractArray* arr;
+    if ( ! ( arr = dataset->GetColumnByName( colName ) ) )
+      { // User requested it. Params table has it. But dataset doesn't... whine
+      vtkWarningMacro(
+        "Dataset table does not have a column "
+        << colName.c_str() << ". Ignoring it." );
+      continue;
+      }
+    vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
+
+    // Create the output column
+    vtkDoubleArray* relativeDeviations = vtkDoubleArray::New();
+    vtksys_ios::ostringstream devColName;
+    devColName << "Relative Deviation of " << colName;
+    relativeDeviations->SetName( devColName.str().c_str() );
+    relativeDeviations->SetNumberOfTuples( nRowD );
+
+    DeviantFunctor* dfunc = 0;
+    if ( deviation == 0. )
       {
-      if ( params->GetValue( i, 0 ).ToString() == col )
+      dfunc = new ZedDeviationDeviantFunctor;
+      }
+    else
+      {
+      if ( darr )
         {
-        unfound = false;
-
-        double nominal = params->GetValueByName( i, "Mean" ).ToDouble();
-        double deviation = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
-        double threshold = this->MultiplicativeFactor * deviation;
-        double minimum = nominal - threshold;
-        double maximum = nominal + threshold;
-
-        double value;
-        for ( vtkIdType r = 0; r < nRowD; ++ r )
+        if ( this->GetSignedDeviations() )
           {
-          value  = dataset->GetValueByName( r, col ).ToDouble();
-
-          if ( value < minimum || value > maximum )
-            {
-            row->SetValue( 0, col );
-            row->SetValue( 1, r );
-            if ( deviation != 0. )
-              {
-              row->SetValue( 2, ( value - nominal ) / deviation );
-              }
-            else
-              {
-              row->SetValue( 2, 0. );
-              }
-
-            output->InsertNextRow( row );
-            }
+          dfunc = new SignedDataArrayDeviantFunctor( darr, nominal, deviation );
           }
-
-        break;
+        else
+          {
+          dfunc = new UnsignedDataArrayDeviantFunctor( darr, nominal, deviation );
+          }
+        }
+      else
+        {
+        if ( this->GetSignedDeviations() )
+          {
+          dfunc = new SignedAbstractArrayDeviantFunctor( darr, nominal, deviation );
+          }
+        else
+          {
+          dfunc = new UnsignedAbstractArrayDeviantFunctor( darr, nominal, deviation );
+          }
         }
       }
 
-    if ( unfound )
-      {
-      vtkWarningMacro( "Parameter table does not have a row for dataset table column "
-                       <<col.c_str()
-                       <<". Ignoring it." );
-      continue;
-      }
-    }
-  row->Delete();
+    // Compute the deviation of each entry for the column
+    this->ComputeDeviations( relativeDeviations, dfunc, nRowD );
 
-  return;
+    // Add the column to the output
+    output->AddColumn( relativeDeviations );
+    relativeDeviations->Delete();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -425,4 +520,5 @@ int vtkDescriptiveStatistics::CalculateFromSums( int n,
     return 1;
     }
 }
+
 

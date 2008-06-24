@@ -46,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnivariateStatisticsAlgorithm.h"
 
 class vtkTable;
+class vtkDoubleArray;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
@@ -74,16 +75,28 @@ public:
                                 double& G2 );
   static int CalculateFromSums( int n, double* s ) 
     { 
-      return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5], s[6] );
+    return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5], s[6] );
     }
 
   // Description:
-  // Set the multiplicative factor (used in Evince mode).
-  vtkSetMacro( MultiplicativeFactor, double );
+  // Set/get whether the deviations returned should be signed, or should
+  // only have their magnitude reported.
+  // The default is that signed deviations will be computed.
+  vtkSetMacro(SignedDeviations,int);
+  vtkGetMacro(SignedDeviations,int);
+  vtkBooleanMacro(SignedDeviations,int);
 
+  //BTX
   // Description:
-  // Get the multiplicative factor (used in Evince mode).
-  vtkGetMacro( MultiplicativeFactor, double );
+  // A base class for a functor that computes deviations.
+  class DeviantFunctor {
+  public:
+    double Nominal;
+    double Deviation;
+    virtual double operator() ( vtkIdType row ) = 0;
+    virtual ~DeviantFunctor() { }
+  };
+  //ETX
 
 protected:
   vtkDescriptiveStatistics();
@@ -100,12 +113,18 @@ protected:
   virtual void ExecuteEvince( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
-  
-  double MultiplicativeFactor;
 
+  //BTX
+  // Description:
+  // The routine to compute the deviations for an entire array.
+  void ComputeDeviations( vtkDoubleArray* relDev, DeviantFunctor* dfunc, vtkIdType nrow );
+  //ETX
+
+  int SignedDeviations;
+  
 private:
-  vtkDescriptiveStatistics(const vtkDescriptiveStatistics&); // Not implemented
-  void operator=(const vtkDescriptiveStatistics&);   // Not implemented
+  vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented
+  void operator = ( const vtkDescriptiveStatistics& );   // Not implemented
 };
 
 #endif
