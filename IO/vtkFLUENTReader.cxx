@@ -58,11 +58,11 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.17");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.18");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
-struct Cell
+struct vtkFLUENTReader::Cell
 {
   int type;
   int zone;
@@ -72,7 +72,7 @@ struct Cell
   vtkstd::vector< int > nodes;
 };
 
-struct Face
+struct vtkFLUENTReader::Face
 {
   int type;
   int zone;
@@ -88,14 +88,14 @@ struct Face
   int ncgChild;
 };
 
-struct ScalarDataChunk
+struct vtkFLUENTReader::ScalarDataChunk
 {
   int subsectionId;
   int zoneId;
   vtkstd::vector< double > scalarData;
 };
 
-struct VectorDataChunk
+struct vtkFLUENTReader::VectorDataChunk
 {
   int subsectionId;
   int zoneId;
@@ -104,43 +104,43 @@ struct VectorDataChunk
   vtkstd::vector< double > kComponentData;
 };
 
-struct stdString
+struct vtkFLUENTReader::stdString
 {
   vtkstd::string value;
 };
-struct intVector
+struct vtkFLUENTReader::intVector
 {
   vtkstd::vector<int> value;
 };
-struct doubleVector
+struct vtkFLUENTReader::doubleVector
 {
   vtkstd::vector<double> value;
 };
-struct stringVector
+struct vtkFLUENTReader::stringVector
 {
   vtkstd::vector< vtkstd::string > value;
 };
-struct cellVector
+struct vtkFLUENTReader::cellVector
 {
   vtkstd::vector< Cell > value;
 };
-struct faceVector
+struct vtkFLUENTReader::faceVector
 {
   vtkstd::vector< Face > value;
 };
-struct stdMap
+struct vtkFLUENTReader::stdMap
 {
   vtkstd::map< int, vtkstd::string > value;
 };
-struct scalarDataVector
+struct vtkFLUENTReader::scalarDataVector
 {
   vtkstd::vector< ScalarDataChunk > value;
 };
-struct vectorDataVector
+struct vtkFLUENTReader::vectorDataVector
 {
   vtkstd::vector< VectorDataChunk > value;
 };
-struct intVectorVector
+struct vtkFLUENTReader::intVectorVector
 {
   vtkstd::vector< vtkstd::vector< int > > value;
 };
