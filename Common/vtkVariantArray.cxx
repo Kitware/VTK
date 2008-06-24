@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.12");
+vtkCxxRevisionMacro(vtkVariantArray, "1.13");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -843,8 +843,9 @@ void vtkVariantArray::DataElementChanged(vtkIdType id)
       else
         {
         // Insert this change into the set of cached updates
-        this->Lookup->CachedUpdates.insert(
-          vtkstd::make_pair(this->GetValue(id), id));
+        vtkstd::pair<const vtkVariant, vtkIdType> 
+          value(this->GetValue(id), id);
+        this->Lookup->CachedUpdates.insert(value);
         }
     }
 }
