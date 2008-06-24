@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.21");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.22");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -324,7 +324,7 @@ void vtkOrderStatistics::ExecuteEvince( vtkTable* dataset,
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::SetQuantileDefinition( vtkIdType qd )
+void vtkOrderStatistics::SetQuantileDefinition( int qd )
 {
   switch ( qd )
     {

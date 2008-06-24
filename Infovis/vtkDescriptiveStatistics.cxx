@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.26");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.27");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -444,6 +444,7 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
 
     // Compute the deviation of each entry for the column
     this->ComputeDeviations( relativeDeviations, dfunc, nRowD );
+    delete dfunc;
 
     // Add the column to the output
     output->AddColumn( relativeDeviations );

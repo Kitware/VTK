@@ -67,7 +67,7 @@ public:
   // Description:
   // Set the quantile definition.
   vtkSetMacro( QuantileDefinition, QuantileDefinitionType );
-  void SetQuantileDefinition ( vtkIdType );
+  void SetQuantileDefinition ( int );
 
   // Description:
   // Get the quantile definition.

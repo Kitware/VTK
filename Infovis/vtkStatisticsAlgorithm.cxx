@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.6");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -36,7 +36,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->SetNumberOfOutputPorts( 1 );
 
   // If not told otherwise, run in Learn mode
-  this->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  this->ExecutionMode = vtkStatisticsAlgorithm::LearnMode;
 }
 
 // ----------------------------------------------------------------------
