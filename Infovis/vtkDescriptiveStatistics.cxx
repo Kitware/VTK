@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.30");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.31");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -286,6 +286,8 @@ public:
   vtkAbstractArray* Array;
 };
 
+// When the deviation is 0, we can't normalize. Instead, a non-zero value (1)
+// is returned only when the nominal value is matched exactly.
 class ZedDeviationDeviantFunctor : public AbstractArrayDeviantFunctor
 {
 public:
@@ -297,7 +299,7 @@ public:
   virtual ~ZedDeviationDeviantFunctor() { }
   virtual double operator() ( vtkIdType row )
     {
-    return ( this->Array->GetVariantValue( row ).ToDouble() == this->Nominal ) ? 1. : 0.;
+    return ( this->Array->GetVariantValue( row ).ToDouble() == this->Nominal ) ? 0. : 1.;
     }
 };
 

@@ -162,7 +162,7 @@ int TestDescriptiveStatistics( int, char *[] )
     {  // Try to add all valid indices once more
     haruspex->AddColumn( columns[i] );
     }
-  haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
+  haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -205,8 +205,14 @@ int TestDescriptiveStatistics( int, char *[] )
   int m0outliers = 0;
   int m1outliers = 0;
   cout << "Outliers:\n";
-  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast( outputTable->GetColumnByName( "Relative Deviation of Metric 0" ) );
-  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast( outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Relative Deviation of Metric 0" ) );
+  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+  vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Metric 0" ) );
+  vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Metric 1" ) );
   double dev;
   double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
@@ -215,7 +221,9 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m0outliers;
-      cout << "   Metric 0: row " << r << " deviation " << dev << " > " << maxdev << "\n";
+      cout
+        << "   Metric 0: row " << r << " deviation " << dev << " > " << maxdev
+        << " (value: " << m0vals->GetValue( r ) << ")\n";
       }
     }
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
@@ -224,7 +232,9 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m1outliers;
-      cout << "   Metric 1: row " << r << " deviation " << dev << " > " << maxdev << "\n";
+      cout
+        << "   Metric 1: row " << r << " deviation " << dev << " > " << maxdev
+        << " (value: " << m1vals->GetValue( r ) << ")\n";
       }
     }
   cout
@@ -232,7 +242,37 @@ int TestDescriptiveStatistics( int, char *[] )
     << " and " << m1outliers << " outliers for Metric 1.\n";
   if ( m0outliers != 4 || m1outliers != 6 )
     {
-    cout << "Error: Expected 4 outliers for Metric 0 and 6 outliers for Metric 1.\n";
+    cout
+      << "Error: "
+      << "Expected 4 outliers for Metric 0"
+      << " and 6 outliers for Metric 1.\n";
+    testStatus = 1;
+    }
+
+  paramsTable->SetValueByName( 0, "Standard Deviation", 0. );
+  paramsTable->SetValueByName( 0, "Mean", 50. );
+  haruspex->Modified(); // FIXME: Why is this necessary? The MTime on paramsTable should be sufficient.
+  haruspex->Update();
+  m1vals = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Metric 1" ) );
+  m1reld = vtkDoubleArray::SafeDownCast(
+    outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+  cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
+  m1outliers = 0;
+  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+    {
+    dev = m1reld->GetValue( r );
+    if ( dev )
+      {
+      ++ m1outliers;
+      cout
+        << "   " << m1reld->GetName() << " row " << r << ": " << dev
+        << " value " << m1vals->GetValue( r ) << "\n";
+      }
+    }
+  if ( m1outliers != 28 )
+    {
+    cout << "Error: Expected 28 outliers for Metric 1, got " << m1outliers << ".\n";
     testStatus = 1;
     }
 
