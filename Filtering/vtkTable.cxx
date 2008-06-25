@@ -35,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.12");
+vtkCxxRevisionMacro(vtkTable, "1.13");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -53,6 +53,7 @@ vtkTable::vtkTable()
   // Use vtkDataSetAttributes instance as the field data.
   vtkDataSetAttributes* dsa = vtkDataSetAttributes::New();
   this->SetFieldData(dsa);
+  dsa->Delete();
 }
 
 //----------------------------------------------------------------------------
