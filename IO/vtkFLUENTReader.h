@@ -81,6 +81,24 @@ public:
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
+  //
+  //  Structures
+  //
+  struct Cell;
+  struct Face;
+  struct ScalarDataChunk;
+  struct VectorDataChunk;
+  struct stdString;
+  struct intVector;
+  struct doubleVector;
+  struct stringVector;
+  struct cellVector;
+  struct faceVector;
+  struct stdMap;
+  struct scalarDataVector;
+  struct vectorDataVector;
+  struct intVectorVector;
+
 protected:
   vtkFLUENTReader();
   ~vtkFLUENTReader();
@@ -138,24 +156,6 @@ protected:
   float                  GetDataBufferFloat(int ptr);
   double                 GetDataBufferDouble(int ptr);
   void                   GetData(int dataType);
-
-  //
-  //  Structures
-  //
-  struct Cell;
-  struct Face;
-  struct ScalarDataChunk;
-  struct VectorDataChunk;
-  struct stdString;
-  struct intVector;
-  struct doubleVector;
-  struct stringVector;
-  struct cellVector;
-  struct faceVector;
-  struct stdMap;
-  struct scalarDataVector;
-  struct vectorDataVector;
-  struct intVectorVector;
 
   //
   //  Variables
