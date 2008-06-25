@@ -29,6 +29,7 @@
 #define __vtkProperty_h
 
 #include "vtkObject.h"
+#include "vtkTexture.h"
 
 // shading models
 #define VTK_FLAT    0
@@ -330,6 +331,15 @@ public:
   // must be assigned unique names.
   void SetTexture(const char* name, vtkTexture* texture);
   vtkTexture* GetTexture(const char* name);
+
+  // Description:
+  // Set/Get the texture object to control rendering texture maps.  This will
+  // be a vtkTexture object. A property does not need to have an associated
+  // texture map and multiple properties can share one texture. Textures
+  // must be assigned unique names.
+  void SetTexture(VTKTextureUnit unit, vtkTexture* texture);
+  vtkTexture* GetTexture(VTKTextureUnit unit);
+
 
   // Description:
   // Remove a texture from the collection. Note that the

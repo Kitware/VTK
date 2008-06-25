@@ -41,6 +41,7 @@
 #include "vtkPolyDataPainter.h"
 
 class vtkCellArray;
+class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 class vtkShaderDeviceAdapter;
@@ -51,6 +52,7 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkStandardPolyDataPainter *New();
 
+  void AddMultiTextureCoordsArray(vtkDataArray * array);
 //BTX
 protected:
   vtkStandardPolyDataPainter();
@@ -74,6 +76,7 @@ protected:
   virtual void ProcessInformation(vtkInformation*);
 
   void UpdateGenericAttributesCache(vtkShaderDeviceAdapter*);
+
   vtkIdType TotalCells;
 private:
   vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.

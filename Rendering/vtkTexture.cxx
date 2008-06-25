@@ -21,8 +21,9 @@
 #include "vtkLookupTable.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.55");
+vtkCxxRevisionMacro(vtkTexture, "1.56");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -39,10 +40,14 @@ vtkTexture::vtkTexture()
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
   this->MapColorScalarsThroughLookupTable = 0;
+  this->Transform = NULL;
 
   this->SelfAdjustingTableRange = 0;
 
   this->SetNumberOfOutputPorts(0);
+
+  this->TextureUnit = VTK_TEXTURE_UNIT_0;
+  this->BlendingMode = VTK_TEXTURE_BLENDING_MODE_NONE;
 
   // By default select active point scalars.
   this->SetInputArrayToProcess(0,0,0,
@@ -61,6 +66,11 @@ vtkTexture::~vtkTexture()
   if (this->LookupTable != NULL) 
     {
     this->LookupTable->UnRegister(this);
+    }
+
+  if(this->Transform != NULL)
+    {
+    this->Transform->UnRegister(this);
     }
 }
 
@@ -81,6 +91,28 @@ vtkImageData *vtkTexture::GetInput()
     return 0;
     }
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0)); 
+}
+
+//----------------------------------------------------------------------------
+void vtkTexture::SetTransform(vtkTransform *transform)
+{
+  if (transform == this->Transform)
+    {
+    return;
+    }
+
+  if (this->Transform)
+    {
+    this->Transform->Delete();
+    this->Transform = NULL;
+    }
+
+  if (transform)
+    {
+    this->Transform = transform;
+    this->Transform->Register(this);
+    }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -131,6 +163,15 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Mapped Scalars: (none)\n";
+    }
+
+  if ( this->Transform )
+    {
+    os << indent << "Transform: " << this->Transform << "\n";
+    }
+  else
+    {
+    os << indent << "Transform: (none)\n";
     }
 }
 

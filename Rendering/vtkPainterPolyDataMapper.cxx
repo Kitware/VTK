@@ -24,6 +24,7 @@
 #include "vtkGenericVertexAttributeMapping.h"
 #include "vtkInformation.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
@@ -32,9 +33,10 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
+#include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.12")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.13")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -114,6 +116,34 @@ void vtkPainterPolyDataMapper::MapDataArrayToVertexAttribute(
 
   mappings->AddMapping(
     vertexAttributeName, dataArrayName, field, componentno);
+}
+
+//---------------------------------------------------------------------------
+void vtkPainterPolyDataMapper::MapDataArrayToMultiTextureAttribute(
+  VTKTextureUnit unit,
+  const char* dataArrayName, 
+  int field,
+  int componentno)
+{
+  vtkGenericVertexAttributeMapping* mappings = 0;
+  if( this->PainterInformation->Has(
+      vtkPrimitivePainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()) )
+    {
+    mappings = vtkGenericVertexAttributeMapping::SafeDownCast(
+      this->PainterInformation->Get(
+        vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
+    }
+
+  if (mappings==NULL)
+    {
+    mappings = vtkGenericVertexAttributeMapping::New();
+    this->PainterInformation->Set(
+      vtkPolyDataPainter::DATA_ARRAY_TO_VERTEX_ATTRIBUTE(), mappings);
+    mappings->Delete();
+    }
+
+  mappings->AddMapping(
+    unit, dataArrayName, field, componentno);
 }
 
 //-----------------------------------------------------------------------------
@@ -226,6 +256,22 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
 void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 {
   vtkPolyData *input= this->GetInput();
+  
+   vtkStandardPolyDataPainter * painter = 
+    vtkStandardPolyDataPainter::SafeDownCast(this->Painter);
+  if(painter != NULL)
+    {
+    vtkInformationVector *inArrayVec = 
+      this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+    int numArrays = inArrayVec->GetNumberOfInformationObjects();
+
+    for(int i = 0; i < numArrays; i++)
+      {
+      painter->AddMultiTextureCoordsArray(this->GetInputArrayToProcess(i,input));
+      }
+    }
+  
+
   //
   // make sure that we've been properly initialized
   //

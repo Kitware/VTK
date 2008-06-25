@@ -26,6 +26,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkRenderer.h"
 #include "vtkgl.h"
 
@@ -36,7 +37,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.20");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.21");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -57,6 +58,39 @@ vtkOpenGLPainterDeviceAdapter::~vtkOpenGLPainterDeviceAdapter()
 void vtkOpenGLPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::Initialize(vtkRenderer * ren)
+{
+  if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
+    {
+    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
+    extensions->SetRenderWindow( ren->GetRenderWindow() );
+
+    // multitexture is core feature of OpenGL 1.3.
+    // multitexture is an ARB extension of OpenGL 1.2.1
+    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
+    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
+    int supports_ARB_mutlitexture = 
+      extensions->ExtensionSupported("GL_ARB_multitexture");
+    
+    
+    if(supports_GL_1_3)
+      {
+      extensions->LoadExtension("GL_VERSION_1_3");
+      }
+    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
+      {
+      extensions->LoadExtension("GL_VERSION_1_2");
+      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    else
+      {
+      vtkErrorMacro( "Your OpenGL library must support GL_ARB_multitexture." );
+      }
+    extensions->Delete();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -450,6 +484,7 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
           return;
         }
       break;
+  
   case vtkDataSetAttributes::TCOORDS:     // Texture Coordinate
       if ((numcomp < 1) || (numcomp > 4))
         {
@@ -535,6 +570,100 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
       vtkErrorMacro("Unsupported attribute index: " << index);
       return;
     };
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
+  int type, const void *attribute, int idx, unsigned long offset)
+{
+  if(! vtkgl::MultiTexCoord2d)
+    {
+    vtkErrorMacro("MultiTexturing not supported.");
+    return;
+    }
+
+  if ((numcomp < 1) || (numcomp > 4))
+    {
+    vtkErrorMacro("Bad number of components.");
+    return;
+    }
+
+  int textureIndex = vtkgl::TEXTURE0 + idx;
+  switch (VTK2SignedOpenGLType(type))
+    {
+    case GL_SHORT:
+      switch (numcomp)
+        {
+        case 1:
+          vtkgl::MultiTexCoord1sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
+          break;
+        case 2:
+          vtkgl::MultiTexCoord2sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
+          break;
+        case 3:
+          vtkgl::MultiTexCoord3sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
+          break;
+        case 4:
+          vtkgl::MultiTexCoord4sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
+          break;
+        }
+      break;
+    case GL_INT:
+      switch (numcomp)
+        {
+        case 1:
+          vtkgl::MultiTexCoord1iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
+          break;
+        case 2:
+          vtkgl::MultiTexCoord2iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
+          break;
+        case 3:
+          vtkgl::MultiTexCoord3iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
+          break;
+        case 4:
+          vtkgl::MultiTexCoord4iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
+          break;
+        }
+      break;
+    case GL_FLOAT:
+      switch (numcomp)
+        {
+        case 1:
+          vtkgl::MultiTexCoord1fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
+          break;
+        case 2:
+          vtkgl::MultiTexCoord2fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
+          break;
+        case 3:
+          vtkgl::MultiTexCoord3fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
+          break;
+        case 4:
+          vtkgl::MultiTexCoord4fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
+          break;
+        }
+      break;
+    case GL_DOUBLE:
+      switch (numcomp)
+        {
+        case 1:
+          vtkgl::MultiTexCoord1dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
+          break;
+        case 2:
+          vtkgl::MultiTexCoord2dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
+          break;
+        case 3:
+          vtkgl::MultiTexCoord3dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
+          break;
+        case 4:
+          vtkgl::MultiTexCoord4dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
+          break;
+        }
+      break;
+    default:
+      vtkErrorMacro("Unsupported type for texture coordinates: " << type);
+      return;
+    }
+  
 }
 
 //-----------------------------------------------------------------------------

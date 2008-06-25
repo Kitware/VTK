@@ -14,13 +14,16 @@
 =========================================================================*/
 #include "vtkOpenGLTexture.h"
 
+#include "vtkHomogeneousTransform.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkTransform.h"
 
 #include "vtkOpenGL.h"
 #include "vtkgl.h" // vtkgl namespace
@@ -28,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.67");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.68");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -48,6 +51,39 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
   this->RenderWindow = NULL;
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLTexture::Initialize(vtkRenderer * ren)
+{
+  if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
+    {
+    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
+    extensions->SetRenderWindow( ren->GetRenderWindow() );
+
+    // multitexture is a core feature of OpenGL 1.3.
+    // multitexture is an ARB extension of OpenGL 1.2.1
+    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
+    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
+    int supports_ARB_mutlitexture = 
+      extensions->ExtensionSupported("GL_ARB_multitexture");
+    
+    
+    if(supports_GL_1_3)
+      {
+      extensions->LoadExtension("GL_VERSION_1_3");
+      }
+    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
+      {
+      extensions->LoadExtension("GL_VERSION_1_2");
+      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    /*else
+      {
+      vtkErrorMacro( "Your OpenGL library must support GL_ARB_multitexture." );
+      }*/
+    extensions->Delete();
+    }
+}
+
 // Release the graphics resources used by this texture.  
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
@@ -61,6 +97,10 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
       GLuint tempIndex;
       tempIndex = this->Index;
       // NOTE: Sun's OpenGL seems to require disabling of texture before delete
+      if(vtkgl::ActiveTexture)
+        {
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + this->TextureUnit);
+        }
       glDisable(GL_TEXTURE_2D);
       glDeleteTextures(1, &tempIndex);
       }
@@ -81,7 +121,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
   GLenum format = GL_LUMINANCE;
   vtkImageData *input = this->GetInput();
-  
+
+  this->Initialize(ren);
+
   // Need to reload the texture.
   // There used to be a check on the render window's mtime, but
   // this is too broad of a check (e.g. it would cause all textures
@@ -90,6 +132,61 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // like the graphics context.
   vtkOpenGLRenderWindow* renWin = 
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+
+  if(vtkgl::ActiveTexture)
+    {
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0 + this->TextureUnit);
+    }
+
+  if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE && vtkgl::ActiveTexture)
+    {
+    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, vtkgl::COMBINE);
+
+    switch(this->BlendingMode)
+      {
+      case VTK_TEXTURE_BLENDING_MODE_REPLACE:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_REPLACE);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_REPLACE);
+        break;
+        }
+      case VTK_TEXTURE_BLENDING_MODE_MODULATE:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_MODULATE);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_MODULATE);
+        break;
+        }
+      case VTK_TEXTURE_BLENDING_MODE_ADD:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
+        break;
+        }
+      case VTK_TEXTURE_BLENDING_MODE_ADD_SIGNED:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::ADD_SIGNED);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::ADD_SIGNED);
+        break;
+        }
+      case VTK_TEXTURE_BLENDING_MODE_INTERPOLATE:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::INTERPOLATE);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::INTERPOLATE);
+        break;
+        }
+      case VTK_TEXTURE_BLENDING_MODE_SUBTRACT:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, vtkgl::SUBTRACT);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, vtkgl::SUBTRACT);
+        break;
+        }
+      default:
+        {
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_RGB, GL_ADD);
+        glTexEnvf (GL_TEXTURE_ENV, vtkgl::COMBINE_ALPHA, GL_ADD);
+        }
+      }
+    }
 
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
       input->GetMTime() > this->LoadTime.GetMTime() ||
@@ -252,6 +349,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
  
     // define a display list for this texture
     // get a unique display list id
+
 #ifdef GL_VERSION_1_1
     glGenTextures(1, &tempIndex);
     this->Index = static_cast<long>(tempIndex);
@@ -350,8 +448,37 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
   glEnable (GL_ALPHA_TEST);
 
-  // now bind it 
+  // now bind it
   glEnable(GL_TEXTURE_2D);
+
+  // build transformation 
+  if (this->Transform)
+    {
+    double *mat = this->Transform->GetMatrix()->Element[0];
+    double mat2[16];
+    mat2[0] = mat[0];
+    mat2[1] = mat[4];
+    mat2[2] = mat[8];
+    mat2[3] = mat[12];
+    mat2[4] = mat[1];
+    mat2[5] = mat[5];
+    mat2[6] = mat[9];
+    mat2[7] = mat[13];
+    mat2[8] = mat[2];
+    mat2[9] = mat[6];
+    mat2[10] = mat[10];
+    mat2[11] = mat[14];
+    mat2[12] = mat[3];
+    mat2[13] = mat[7];
+    mat2[14] = mat[11];
+    mat2[15] = mat[15];
+    
+    // insert texture transformation 
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMultMatrixd(mat2);
+    glMatrixMode(GL_MODELVIEW);
+    }
   
   GLint uUseTexture=-1;
   GLint uTexture=-1;
@@ -364,6 +491,11 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     uTexture=oRenderer->GetTextureUniformVariable();
     vtkgl::Uniform1i(uUseTexture,1);
     vtkgl::Uniform1i(uTexture,0); // active texture 0
+    }
+
+  if(vtkgl::ActiveTexture)
+    {
+    vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
     }
 }
 

@@ -51,6 +51,10 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Handle loading in extension support
+  virtual void Initialize(vtkRenderer * ren);
+
+  // Description:
   // Converts mode from VTK_* to GL_* and calls glBegin.
   virtual void BeginPrimitive(int mode);
 
@@ -67,6 +71,11 @@ public:
   // Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
   virtual void SendAttribute(int index, int components, int type,
                              const void *attribute, unsigned long offset=0);
+
+  // Description:
+  // Calls glMultiTex
+  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
+                                      int idx, unsigned long offset);
 
   // Description:
   // Calls one of glVertexPointer, glNormalPointer, glColorPointer, or

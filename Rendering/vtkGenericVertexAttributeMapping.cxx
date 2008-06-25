@@ -18,6 +18,8 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
+#include <vtksys/ios/sstream>
+
 class vtkGenericVertexAttributeMapping::vtkInternal
 {
 public:
@@ -27,6 +29,7 @@ public:
     vtkstd::string ArrayName;
     int FieldAssociation;
     int Component;
+    int TextureUnit;
     };
 
   typedef vtkstd::vector<vtkInfo> VectorType;
@@ -34,7 +37,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkGenericVertexAttributeMapping);
-vtkCxxRevisionMacro(vtkGenericVertexAttributeMapping, "1.2");
+vtkCxxRevisionMacro(vtkGenericVertexAttributeMapping, "1.3");
 //----------------------------------------------------------------------------
 vtkGenericVertexAttributeMapping::vtkGenericVertexAttributeMapping()
 {
@@ -69,6 +72,30 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   info.ArrayName = arrayName;
   info.FieldAssociation = fieldAssociation;
   info.Component = component;
+  info.TextureUnit = -1;
+  this->Internal->Mappings.push_back(info);
+}
+
+//----------------------------------------------------------------------------
+void vtkGenericVertexAttributeMapping::AddMapping(
+  int unit, const char* arrayName, int fieldAssociation,
+  int component)
+{
+  vtksys_ios::ostringstream attributeName;
+  attributeName << unit;
+
+  if (this->RemoveMapping(attributeName.str().c_str()))
+    {
+    vtkWarningMacro("Replacing existsing mapping for attribute " 
+      << attributeName);
+    }
+
+  vtkInternal::vtkInfo info;
+  info.AttributeName = attributeName.str().c_str();
+  info.ArrayName = arrayName;
+  info.FieldAssociation = fieldAssociation;
+  info.Component = component;
+  info.TextureUnit = unit;
   this->Internal->Mappings.push_back(info);
 }
 
@@ -143,6 +170,17 @@ int vtkGenericVertexAttributeMapping::GetComponent(unsigned int index)
     return 0;
     }
   return this->Internal->Mappings[index].Component;
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericVertexAttributeMapping::GetTextureUnit(unsigned int index)
+{
+  if (index >= this->Internal->Mappings.size())
+    {
+    vtkErrorMacro("Invalid index " << index);
+    return 0;
+    }
+  return this->Internal->Mappings[index].TextureUnit;
 }
 
 //----------------------------------------------------------------------------

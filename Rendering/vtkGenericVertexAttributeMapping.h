@@ -42,6 +42,15 @@ public:
     int fieldAssociation, int component);
 
   // Description:
+  // Select a data array and use it as multitexture texture
+  // coordinates.
+  // Note the texture unit parameter should correspond to the texture
+  // unit set on the texture.
+  void vtkGenericVertexAttributeMapping::AddMapping(
+    int unit, const char* arrayName, int fieldAssociation,
+    int component);
+
+  // Description:
   // Remove a vertex attribute mapping.
   bool RemoveMapping(const char* attributeName);
 
@@ -68,6 +77,10 @@ public:
   // Description:
   // Get the component no. at the given index.
   int GetComponent(unsigned int index);
+
+  // Description:
+  // Get the component no. at the given index.
+  int GetTextureUnit(unsigned int index);
 
 //BTX
 protected:

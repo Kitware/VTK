@@ -55,13 +55,15 @@ public:
     vtkDataArray* Array;
     };
   typedef vtkstd::vector<vtkInfo> InfoVector;
+  typedef vtkstd::vector<vtkDataArray *> DataArrayVector;
   InfoVector CellAttributesCache;
   InfoVector PointAttributesCache;
+  DataArrayVector MultiTextureCoords;
   vtkSmartPointer<vtkGenericVertexAttributeMapping> Mappings;
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.9");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.10");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -94,6 +96,11 @@ vtkStandardPolyDataPainter::~vtkStandardPolyDataPainter()
 void vtkStandardPolyDataPainter::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+void vtkStandardPolyDataPainter::AddMultiTextureCoordsArray(vtkDataArray * array)
+{
+  this->Internal->MultiTextureCoords.push_back(array);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,7 +166,7 @@ void vtkStandardPolyDataPainter::UpdateGenericAttributesCache(
         // This caches the attribute index.
         // This is essential since we don't want to call GetAttributeLocation in
         // glBegin()/glEnd().
-        shaderDevice->SendAttribute(vertexAttributeName, 0, 0, 0, 0);
+        //shaderDevice->SendAttribute(vertexAttributeName, 0, 0, 0, 0);
         }
       }
     }
@@ -199,8 +206,10 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
       {
       shaderDevice->PrepareForRender();
       }
-    this->UpdateGenericAttributesCache(shaderDevice);
+    //this->UpdateGenericAttributesCache(shaderDevice);
     }
+
+  this->UpdateGenericAttributesCache(shaderDevice);
 
 
   if (typeflags & vtkPainter::VERTS)
@@ -264,6 +273,7 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
+  device->Initialize(renderer);
 
   vtkCellData* cellData = pd->GetCellData();
   vtkPointData* pointData = pd->GetPointData();
@@ -444,11 +454,39 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
           a->GetVoidPointer(numc*pointId));
         }
 
-      // Send the point position as the last attribute.
-      // TODO: how to mark that point position is being sent? since,
-      // vtkDataSetAttributes doesn't define point positions and hence has
-      // no enum for that. For now, vtkPointData::NUM_ATTRIBUTES marks
-      // point positions.
+      // Check for any multitexture attributes and send them.
+      gaIter = this->Internal->PointAttributesCache.begin();
+      for (; gaIter != this->Internal->PointAttributesCache.end(); ++gaIter)
+        {
+        vtkDataArray* a = gaIter->Array; 
+        unsigned int mappingsIndex = gaIter->MappingsIndex;
+        int numc = a->GetNumberOfComponents();
+        int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
+        int textureIndex = this->Internal->Mappings->GetTextureUnit(mappingsIndex);
+
+        if(textureIndex >= 0)
+          {
+          cout << textureIndex << endl;
+          device->SendMultiTextureCoords(
+            (siComp>=0)? 1: numc,
+            a->GetDataType(), 
+            a->GetVoidPointer(0),
+            textureIndex,
+            numc*pointId
+            );
+          }
+        }
+
+      //vtkInformationVector *inArrayVec = 
+      //  this->Information->Get(vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS());
+      //int numArrays = inArrayVec->GetNumberOfInformationObjects();
+
+      //for(int i = 0; i < numArrays; i++)
+      //  {
+      //  //this->
+      //  }
+
+
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3, 
         pointtype, voidpoints, 3*pointId);
       }

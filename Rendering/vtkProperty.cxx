@@ -35,6 +35,7 @@
 #include "vtkXMLShader.h"
 
 #include <stdlib.h>
+#include <vtksys/ios/sstream>
 
 #include <vtkstd/map>
 #include <vtksys/SystemTools.hxx>
@@ -47,7 +48,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.71");
+vtkCxxRevisionMacro(vtkProperty, "1.72");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -347,6 +348,38 @@ vtkTexture* vtkProperty::GetTexture(const char* name)
 {
   vtkPropertyInternals::MapOfTextures::iterator iter = 
     this->Internals->Textures.find(vtkStdString(name));
+  if (iter != this->Internals->Textures.end())
+    {
+    return iter->second.GetPointer();
+    }
+  vtkErrorMacro("No texture with name " << name << " exists.");
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::SetTexture(VTKTextureUnit unit, vtkTexture* tex)
+{
+  vtksys_ios::ostringstream name;
+  name << unit;
+
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.find(name.str().c_str());
+  if (iter != this->Internals->Textures.end())
+    {
+    vtkWarningMacro("Texture with name " << name 
+      << " exists. It will be replaced.");
+    }
+  this->Internals->Textures[name.str().c_str()] = tex;
+}
+
+//----------------------------------------------------------------------------
+vtkTexture* vtkProperty::GetTexture(VTKTextureUnit unit)
+{
+  vtksys_ios::ostringstream name;
+  name << unit;
+
+  vtkPropertyInternals::MapOfTextures::iterator iter = 
+    this->Internals->Textures.find(name.str().c_str());
   if (iter != this->Internals->Textures.end())
     {
     return iter->second.GetPointer();

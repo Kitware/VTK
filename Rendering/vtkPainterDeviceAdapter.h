@@ -56,6 +56,10 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Handle any needed initialization. 
+  virtual void Initialize(vtkRenderer * ren) = 0;
+
+  // Description:
   // Signals the start of sending a primitive to the graphics card.  The
   // mode is one of VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
   // VTK_TRIANGLE, VTK_TRIANGLE_STRIP, VTK_POLYGON, or VTK_QUAD.  The
@@ -74,6 +78,11 @@ public:
   // Returns if the given attribute type is supported by the device.
   // Returns 1 is supported, 0 otherwise.
   virtual int IsAttributesSupported(int attribute)=0;
+
+  // Description:
+  // Calls glMultiTex
+  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
+                                      int idx, unsigned long offset) = 0;
 
   // Description:
   // Sends a single attribute to the graphics card.  The index parameter

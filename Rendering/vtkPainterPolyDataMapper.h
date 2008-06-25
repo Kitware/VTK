@@ -71,6 +71,10 @@ public:
     const char* vertexAttributeName,
     const char* dataArrayName, int fieldAssociation, int componentno=-1);
 
+  virtual void MapDataArrayToMultiTextureAttribute(
+    VTKTextureUnit unit,
+    const char* dataArrayName, int fieldAssociation, int componentno=-1);
+
   // Description:
   // Remove a vertex attribute mapping.
   virtual void RemoveVertexAttributeMapping(const char* vertexAttributeName);

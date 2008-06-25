@@ -49,10 +49,40 @@ class vtkRenderer;
 class vtkUnsignedCharArray;
 class vtkWindow;
 class vtkDataArray;
+class vtkTransform;
 
 #define VTK_TEXTURE_QUALITY_DEFAULT 0
 #define VTK_TEXTURE_QUALITY_16BIT   16
 #define VTK_TEXTURE_QUALITY_32BIT   32
+
+// Description:
+// Used to specify which texture unit a texture will use.
+// Only relevant when multitexturing.
+typedef enum
+{
+  VTK_TEXTURE_UNIT_0 = 0,
+  VTK_TEXTURE_UNIT_1,
+  VTK_TEXTURE_UNIT_2,
+  VTK_TEXTURE_UNIT_3,
+  VTK_TEXTURE_UNIT_4,
+  VTK_TEXTURE_UNIT_5,
+  VTK_TEXTURE_UNIT_6,
+  VTK_TEXTURE_UNIT_7
+} VTKTextureUnit;
+
+// Description:
+// Used to specify how the texture will blend its RGB and Alpha values
+// with other textures and the fragment the texture is rendered upon.
+typedef enum
+{
+  VTK_TEXTURE_BLENDING_MODE_NONE = -1,
+  VTK_TEXTURE_BLENDING_MODE_REPLACE = 0,
+  VTK_TEXTURE_BLENDING_MODE_MODULATE,
+  VTK_TEXTURE_BLENDING_MODE_ADD,
+  VTK_TEXTURE_BLENDING_MODE_ADD_SIGNED,
+  VTK_TEXTURE_BLENDING_MODE_INTERPOLATE,
+  VTK_TEXTURE_BLENDING_MODE_SUBTRACT
+} VTKTextureBlendingMode;
 
 class VTK_RENDERING_EXPORT vtkTexture : public vtkImageAlgorithm
 {
@@ -132,6 +162,18 @@ public:
   // Map scalar values into color scalars.
   unsigned char *MapScalarsToColors (vtkDataArray *scalars);
 
+  // Description:
+  // Set a transform on the texture which allows one to scale,
+  // rotate and translate the texture.
+  void SetTransform(vtkTransform *transform);
+  vtkGetObjectMacro(Transform, vtkTransform);
+
+  vtkGetMacro(BlendingMode, VTKTextureBlendingMode);
+  vtkSetMacro(BlendingMode, VTKTextureBlendingMode);
+
+  vtkGetMacro(TextureUnit, VTKTextureUnit);
+  vtkSetMacro(TextureUnit, VTKTextureUnit);
+
 protected:
   vtkTexture();
   ~vtkTexture();
@@ -142,6 +184,10 @@ protected:
   int   MapColorScalarsThroughLookupTable;
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *MappedScalars;
+  vtkTransform  *Transform;
+
+  VTKTextureUnit TextureUnit;
+  VTKTextureBlendingMode BlendingMode;
   
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;

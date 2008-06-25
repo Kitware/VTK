@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPainterPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.45");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.46");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -185,6 +185,33 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
   // Now do superclass
   this->vtkMapper::ShallowCopy(mapper);
 }
+
+void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
+    const char* vertexAttributeName,
+    const char* dataArrayName, int fieldAssociation, int componentno)
+{
+  vtkErrorMacro("Not impmlemented at this level...");
+}
+
+void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
+    VTKTextureUnit unit,
+    const char* dataArrayName, int fieldAssociation, int componentno)
+{
+  vtkErrorMacro("Not impmlemented at this level...");
+}
+
+
+void vtkPolyDataMapper::RemoveVertexAttributeMapping(const char* vertexAttributeName)
+{
+  vtkErrorMacro("Not impmlemented at this level...");
+}
+
+
+void vtkPolyDataMapper::RemoveAllVertexAttributeMappings()
+{
+  vtkErrorMacro("Not impmlemented at this level...");
+}
+
 
 void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {

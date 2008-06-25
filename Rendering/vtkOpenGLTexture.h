@@ -66,6 +66,11 @@ protected:
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.
+
+  // Description:
+  // Handle loading in extension support
+  virtual void Initialize(vtkRenderer * ren);
+
 //ETX
 };
 

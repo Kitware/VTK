@@ -41,6 +41,8 @@ IF(VTK_USE_DISPLAY)
     SET(RenderingTestsWithArguments
       ${RenderingTestsWithArguments}
       TestAreaSelections.cxx
+      TestMultiTexturing.cxx
+      TestMultiTexturingTransform.cxx
       TestScenePicker.cxx
       TestTextureRGBA.cxx
       TestTextureRGBADepthPeeling.cxx
