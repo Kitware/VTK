@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.28");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.29");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -241,16 +241,6 @@ void vtkDescriptiveStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ComputeDeviations(
-  vtkDoubleArray* relDev, DeviantFunctor* dfunc, vtkIdType nRow )
-{
-  for ( vtkIdType r = 0; r < nRow; ++ r )
-    {
-    relDev->SetValue( r, (*dfunc)( r ) );
-    }
-}
-
-// ----------------------------------------------------------------------
 class DataArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
 {
 public:
@@ -447,7 +437,10 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
       }
 
     // Compute the deviation of each entry for the column
-    this->ComputeDeviations( relativeDeviations, dfunc, nRowD );
+    for ( vtkIdType r = 0; r < nRowD; ++ r )
+      {
+      relativeDeviations->SetValue( r, (*dfunc)( r ) );
+      }
     delete dfunc;
 
     // Add the column to the output
