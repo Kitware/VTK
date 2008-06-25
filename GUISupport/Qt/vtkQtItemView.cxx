@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 
-vtkCxxRevisionMacro(vtkQtItemView, "1.4");
+vtkCxxRevisionMacro(vtkQtItemView, "1.5");
 vtkStandardNewMacro(vtkQtItemView);
 
 
@@ -153,7 +153,8 @@ QItemSelectionModel* vtkQtItemView::GetSelectionModel()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtItemView::AddInputConnection(vtkAlgorithmOutput* conn)
+void vtkQtItemView::AddInputConnection(
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Make sure I have a view and a model
   if (CheckViewAndModelError()) return;
@@ -179,7 +180,8 @@ void vtkQtItemView::AddInputConnection(vtkAlgorithmOutput* conn)
 }
 
 //----------------------------------------------------------------------------
-void vtkQtItemView::RemoveInputConnection(vtkAlgorithmOutput* conn)
+void vtkQtItemView::RemoveInputConnection(
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   // Make sure I have a view and a model
   if (CheckViewAndModelError()) return;

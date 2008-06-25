@@ -25,6 +25,7 @@
 
 #include "vtkSelectionAlgorithm.h"
 
+class vtkDataObjectCollection;
 class vtkInformation;
 class vtkInformationVector;
 class vtkSelection;
@@ -41,6 +42,14 @@ public:
   vtkGetObjectMacro(Selection, vtkSelection);
   void SetSelection(vtkSelection* selection);
   
+  // Description:
+  // The domain mappings.
+  void AddDomainMap(vtkTable* map);
+  void RemoveDomainMap(vtkTable* map);
+  void RemoveAllDomainMaps();
+  int GetNumberOfDomainMaps();
+  vtkTable* GetDomainMap(int i);
+  
 protected:
   vtkSelectionLink();
   ~vtkSelectionLink();
@@ -51,10 +60,18 @@ protected:
     vtkInformation *info,
     vtkInformationVector **inVector,
     vtkInformationVector *outVector);
+
+  // Description:
+  // Set up output ports.
+  virtual int FillOutputPortInformation(int, vtkInformation*);
   
   // Description:
   // The shared selection.
   vtkSelection* Selection;
+
+  // Description:
+  // The mappings between domains.
+  vtkDataObjectCollection* DomainMaps;
   
 private:
   vtkSelectionLink(const vtkSelectionLink&);  // Not implemented.

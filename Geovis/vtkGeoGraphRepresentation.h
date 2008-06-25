@@ -65,10 +65,6 @@ public:
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
   
   // Description:
-  // Plugs the selection link into the internal pipeGraph.
-  virtual void SetSelectionLink(vtkSelectionLink* link);
-  
-  // Description:
   // The array to use for vertex labeling.  Default is "label".
   virtual void SetVertexLabelArrayName(const char* name);
   virtual const char* GetVertexLabelArrayName();

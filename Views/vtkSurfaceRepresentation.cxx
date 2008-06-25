@@ -39,7 +39,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.5");
+vtkCxxRevisionMacro(vtkSurfaceRepresentation, "1.6");
 vtkStandardNewMacro(vtkSurfaceRepresentation);
 //----------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -55,7 +55,7 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
   // Connect pipeline
   this->Mapper->SetInputConnection(this->GeometryFilter->GetOutputPort());
   this->Actor->SetMapper(this->Mapper);
-  this->ExtractSelection->SetInputConnection(1, this->SelectionLink->GetOutputPort());
+  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
   this->SelectionGeometryFilter->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionMapper->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
   this->SelectionActor->SetMapper(this->SelectionMapper);
@@ -85,13 +85,6 @@ void vtkSurfaceRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
   this->Superclass::SetInputConnection(conn);
   this->GeometryFilter->SetInputConnection(conn);
   this->ExtractSelection->SetInputConnection(conn);
-}
-
-//----------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSelectionLink(vtkSelectionLink* link)
-{
-  this->Superclass::SetSelectionLink(link);
-  this->ExtractSelection->SetInputConnection(1, link->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
@@ -156,12 +149,12 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
     vtkSmartPointer<vtkIdTypeArray>::New();
   converted->SetSelectionList(empty);
   // Convert to the correct type of selection
-  if (this->InputConnection)
+  if (this->GetInputConnection())
     {
-    vtkAlgorithm* producer = this->InputConnection->GetProducer();
+    vtkAlgorithm* producer = this->GetInputConnection()->GetProducer();
     producer->Update();
     vtkDataObject* obj = producer->GetOutputDataObject(
-      this->InputConnection->GetIndex());
+      this->GetInputConnection()->GetIndex());
     if (obj)
       {
       vtkSelection* index = vtkConvertSelection::ToSelectionType(

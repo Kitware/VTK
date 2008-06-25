@@ -69,7 +69,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.34");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.35");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -113,7 +113,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   
   // Setup view
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
-  this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+  //this->InteractorStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
   this->Coordinate->SetCoordinateSystemToDisplay();
   
   // Setup parameters on the various mappers and actors
@@ -626,11 +626,13 @@ void vtkGraphLayoutView::SetupRenderWindow(vtkRenderWindow* win)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
+void vtkGraphLayoutView::AddInputConnection(
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
+    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
   
     this->Renderer->AddActor(this->GraphActor);
     this->Renderer->AddActor(this->SelectedGraphActor);
@@ -645,24 +647,20 @@ void vtkGraphLayoutView::AddInputConnection(vtkAlgorithmOutput* conn)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::RemoveInputConnection(vtkAlgorithmOutput* conn)
+void vtkGraphLayoutView::RemoveInputConnection(
+  vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) > 0 &&
       this->GraphLayout->GetInputConnection(0, 0) == conn)
     {
     this->GraphLayout->RemoveInputConnection(0, conn);
+    this->ExtractSelectedGraph->RemoveInputConnection(1, selectionConn);
   
     this->Renderer->RemoveActor(this->GraphActor);
     this->Renderer->RemoveActor(this->SelectedGraphActor);
     this->Renderer->RemoveActor(this->VertexLabelActor);
     this->Renderer->RemoveActor(this->EdgeLabelActor);
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkGraphLayoutView::SetSelectionLink(vtkSelectionLink* link)
-{
-  this->ExtractSelectedGraph->SetInputConnection(1, link->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
@@ -820,15 +818,10 @@ void vtkGraphLayoutView::PrepareForRendering()
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
   if (this->GraphLayout->GetInputConnection(0, 0) != conn)
     {
-    this->RemoveInputConnection(this->GraphLayout->GetInputConnection(0, 0));
-    this->AddInputConnection(conn);
-    }
-  
-  // Make sure the selection link is up to date.
-  vtkSelectionLink* link = rep->GetSelectionLink();
-  if (this->ExtractSelectedGraph->GetInputConnection(1, 0)->GetProducer() != link)
-    {
-    this->SetSelectionLink(link);
+    this->RemoveInputConnection(
+      this->GraphLayout->GetInputConnection(0, 0),
+      this->ExtractSelectedGraph->GetInputConnection(1, 0));
+    this->AddInputConnection(conn, rep->GetSelectionConnection());
     }
   
   this->Superclass::PrepareForRendering();

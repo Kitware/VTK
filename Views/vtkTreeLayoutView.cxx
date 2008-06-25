@@ -57,7 +57,7 @@
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.10");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.11");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -396,11 +396,13 @@ void vtkTreeLayoutView::SetupRenderWindow(vtkRenderWindow *win)
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::AddInputConnection(vtkAlgorithmOutput *conn)
+void vtkTreeLayoutView::AddInputConnection(
+  vtkAlgorithmOutput *conn, vtkAlgorithmOutput *selectionConn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
+    this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
   
     this->Renderer->AddActor(this->VertexActor);
     this->Renderer->AddActor(this->OutlineActor);
@@ -418,12 +420,14 @@ void vtkTreeLayoutView::AddInputConnection(vtkAlgorithmOutput *conn)
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeLayoutView::RemoveInputConnection(vtkAlgorithmOutput *conn)
+void vtkTreeLayoutView::RemoveInputConnection(
+  vtkAlgorithmOutput *conn, vtkAlgorithmOutput *selectionConn)
 {
   if (this->GraphLayout->GetNumberOfInputConnections(0) > 0 &&
       this->GraphLayout->GetInputConnection(0, 0) == conn)
     {
     this->GraphLayout->RemoveInputConnection(0, conn);
+    this->ExtractSelectedGraph->RemoveInputConnection(1, selectionConn);
   
     this->Renderer->RemoveActor(this->VertexActor);
     this->Renderer->RemoveActor(this->OutlineActor);
@@ -432,12 +436,6 @@ void vtkTreeLayoutView::RemoveInputConnection(vtkAlgorithmOutput *conn)
     this->Renderer->RemoveActor(this->SelectionVertexActor);
     this->Renderer->RemoveActor(this->SelectionEdgeActor);
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkTreeLayoutView::SetSelectionLink(vtkSelectionLink* link)
-{
-  this->ExtractSelectedGraph->SetInputConnection(1, link->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
@@ -612,17 +610,12 @@ void vtkTreeLayoutView::PrepareForRendering()
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
   if (this->GraphLayout->GetInputConnection(0, 0) != conn)
     {
-    this->RemoveInputConnection(this->GraphLayout->GetInputConnection(0, 0));
-    this->AddInputConnection(conn);
+    this->RemoveInputConnection(
+      this->GraphLayout->GetInputConnection(0, 0),
+      this->ExtractSelectedGraph->GetInputConnection(1, 0));
+    this->AddInputConnection(conn, rep->GetSelectionConnection());
     }
 
-  // Make sure the selection link is up to date.
-  vtkSelectionLink* link = rep->GetSelectionLink();
-  if (this->ExtractSelectedGraph->GetInputConnection(1, 0)->GetProducer() != link)
-    {
-    this->SetSelectionLink(link);
-    }
-  
   // Update the pipeline up until the graph to polydata
   this->GraphToPolyData->Update();
   vtkPolyData* pd = this->GraphToPolyData->GetOutput();

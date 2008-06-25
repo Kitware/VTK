@@ -66,6 +66,11 @@ public:
   vtkBooleanMacro(IncludeEdgeWeights, bool);
 
   // Description:
+  // The name of the edge weight array. Default "edge weight".
+  vtkSetStringMacro(EdgeWeightArrayName);
+  vtkGetStringMacro(EdgeWeightArrayName);
+
+  // Description:
   // When set, creates a directed graph, as opposed to an undirected graph.
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
@@ -101,10 +106,20 @@ public:
   vtkBooleanMacro(AllowParallelEdges, bool);
 
   // Description:
-  // Add pedigree ids to vertex and edge data named "id".
+  // Add pedigree ids to vertex and edge data.
   vtkSetMacro(GeneratePedigreeIds, bool);
   vtkGetMacro(GeneratePedigreeIds, bool);
   vtkBooleanMacro(GeneratePedigreeIds, bool);
+
+  // Description:
+  // The name of the vertex pedigree id array. Default "vertex id".
+  vtkSetStringMacro(VertexPedigreeIdArrayName);
+  vtkGetStringMacro(VertexPedigreeIdArrayName);
+
+  // Description:
+  // The name of the edge pedigree id array. Default "edge id".
+  vtkSetStringMacro(EdgePedigreeIdArrayName);
+  vtkGetStringMacro(EdgePedigreeIdArrayName);
 
   // Description:
   // Control the seed used for pseudo-random-number generation.
@@ -127,6 +142,9 @@ protected:
   bool AllowParallelEdges;
   bool GeneratePedigreeIds;
   int Seed;
+  char* EdgeWeightArrayName;
+  char* VertexPedigreeIdArrayName;
+  char* EdgePedigreeIdArrayName;
 
   virtual int RequestData(
     vtkInformation*, 

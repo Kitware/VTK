@@ -35,7 +35,7 @@
 #include <vtksys/stl/set>
 #include <vtksys/stl/algorithm>
 
-vtkCxxRevisionMacro(vtkRandomGraphSource, "1.12");
+vtkCxxRevisionMacro(vtkRandomGraphSource, "1.13");
 vtkStandardNewMacro(vtkRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -52,6 +52,12 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->AllowSelfLoops = false;
   this->AllowParallelEdges = false;
   this->GeneratePedigreeIds = true;
+  this->VertexPedigreeIdArrayName = 0;
+  this->SetVertexPedigreeIdArrayName("vertex id");
+  this->EdgePedigreeIdArrayName = 0;
+  this->SetEdgePedigreeIdArrayName("edge id");
+  this->EdgeWeightArrayName = 0;
+  this->SetEdgeWeightArrayName("edge weight");
   this->Seed = 1177;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -61,6 +67,9 @@ vtkRandomGraphSource::vtkRandomGraphSource()
 
 vtkRandomGraphSource::~vtkRandomGraphSource()
 {
+  this->SetVertexPedigreeIdArrayName(0);
+  this->SetEdgePedigreeIdArrayName(0);
+  this->SetEdgeWeightArrayName(0);
 }
 
 // ----------------------------------------------------------------------
@@ -79,6 +88,12 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
   os << indent << "AllowParallelEdges: " << this->AllowParallelEdges << endl;
   os << indent << "GeneratePedigreeIds: " << this->GeneratePedigreeIds << endl;
+  os << indent << "VertexPedigreeIdArrayName: "
+    << (this->VertexPedigreeIdArrayName ? this->VertexPedigreeIdArrayName : "(null)") << endl;
+  os << indent << "EdgePedigreeIdArrayName: "
+    << (this->EdgePedigreeIdArrayName ? this->EdgePedigreeIdArrayName : "(null)") << endl;
+  os << indent << "EdgeWeightArrayName: "
+    << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(null)") << endl;
   os << indent << "Seed: " << this->Seed << endl;
 }
 
@@ -239,8 +254,14 @@ vtkRandomGraphSource::RequestData(
 
   if (this->IncludeEdgeWeights)
     {
+    if (!this->EdgeWeightArrayName)
+      {
+      vtkErrorMacro("When generating edge weights, "
+        << "edge weights array name must be defined.");
+      return 0;
+      }
     vtkFloatArray *weights = vtkFloatArray::New();
-    weights->SetName("edge_weights");
+    weights->SetName(this->EdgeWeightArrayName);
     for (vtkIdType i = 0; i < output->GetNumberOfEdges(); ++i)
       {
       weights->InsertNextValue(vtkMath::Random());
@@ -251,10 +272,16 @@ vtkRandomGraphSource::RequestData(
 
   if (this->GeneratePedigreeIds)
     {
+    if (!this->VertexPedigreeIdArrayName || !this->EdgePedigreeIdArrayName)
+      {
+      vtkErrorMacro("When generating pedigree ids, "
+        << "vertex and edge pedigree id array names must be defined.");
+      return 0;
+      }
     vtkIdType numVert = output->GetNumberOfVertices();
     vtkSmartPointer<vtkIdTypeArray> vertIds =
       vtkSmartPointer<vtkIdTypeArray>::New();
-    vertIds->SetName("id");
+    vertIds->SetName(this->VertexPedigreeIdArrayName);
     vertIds->SetNumberOfTuples(numVert);
     for (vtkIdType i = 0; i < numVert; ++i)
       {
@@ -265,7 +292,7 @@ vtkRandomGraphSource::RequestData(
     vtkIdType numEdge = output->GetNumberOfEdges();
     vtkSmartPointer<vtkIdTypeArray> edgeIds =
       vtkSmartPointer<vtkIdTypeArray>::New();
-    edgeIds->SetName("id");
+    edgeIds->SetName(this->EdgePedigreeIdArrayName);
     edgeIds->SetNumberOfTuples(numEdge);
     for (vtkIdType i = 0; i < numEdge; ++i)
       {

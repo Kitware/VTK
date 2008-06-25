@@ -56,10 +56,6 @@ public:
   virtual void SetInputConnection(vtkAlgorithmOutput *conn);
   
   // Description:
-  // Plugs the selection link into the internal pipeline.
-  virtual void SetSelectionLink(vtkSelectionLink *link);
-  
-  // Description:
   // The point array holding the latitude.
   virtual void SetLatitudeArrayName(const char *name);
   virtual const char* GetLatitudeArrayName();

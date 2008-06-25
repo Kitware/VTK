@@ -63,7 +63,7 @@ public:
 };
 
 
-vtkCxxRevisionMacro(vtkView, "1.5");
+vtkCxxRevisionMacro(vtkView, "1.6");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -117,8 +117,7 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
     if (rep->AddToView(this))
       {
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-      this->AddInputConnection(rep->GetInputConnection());
-      this->SetSelectionLink(rep->GetSelectionLink());
+      this->AddInputConnection(rep->GetInputConnection(), rep->GetSelectionConnection());
       this->Representations->AddItem(rep);
       }
     }
@@ -131,7 +130,7 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     {
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
-    this->RemoveInputConnection(rep->GetInputConnection());
+    this->RemoveInputConnection(rep->GetInputConnection(), rep->GetSelectionConnection());
     this->Representations->RemoveItem(rep);
     }
 }

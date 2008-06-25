@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkInfovisJava)
 SET(KIT_LIBS vtkInfovis)
 
 SET( Kit_SRCS
+vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
 vtkGraphLayoutView.cxx
 vtkRenderView.cxx

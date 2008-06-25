@@ -50,10 +50,6 @@ public:
   // Sets the input pipeline connection to this representation.
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
   
-  // Description:
-  // Plugs the selection link into the internal pipeline.
-  virtual void SetSelectionLink(vtkSelectionLink* link);
-  
 protected:
   vtkSurfaceRepresentation();
   ~vtkSurfaceRepresentation();

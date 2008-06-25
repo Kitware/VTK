@@ -50,9 +50,11 @@
 #include "vtkObject.h"
 
 class vtkAlgorithmOutput;
+class vtkConvertSelectionDomain;
 class vtkDataObject;
 class vtkSelection;
 class vtkSelectionLink;
+class vtkTable;
 class vtkView;
 
 class VTK_VIEWS_EXPORT vtkDataRepresentation : public vtkObject
@@ -72,15 +74,23 @@ public:
   // This method should be overridden by subclasses to connect to the
   // internal pipeline.
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-  vtkGetObjectMacro(InputConnection, vtkAlgorithmOutput);
+  virtual vtkAlgorithmOutput* GetInputConnection()
+    { return this->GetInputConnectionInternal(); }
   
   // Description:
-  // Handle a selection a view.  Subclasses should not generally override this.
+  // Handle a selection from a view.  Subclasses should not generally override this.
   // This function calls ConvertSelection() to (possibly) convert the selection
   // into something appropriate for linked representations.
   // This function then calls UpdateSelection() with the result of the
   // conversion.
   void Select(vtkView* view, vtkSelection* selection);
+
+  // Description:
+  // Whether this representation is able to handle a selection.
+  // Default is true.
+  vtkSetMacro(Selectable, bool);
+  vtkGetMacro(Selectable, bool);
+  vtkBooleanMacro(Selectable, bool);
   
   // Description:
   // Copies the selection into the representation's linked selection
@@ -92,8 +102,15 @@ public:
   // Set the same selection link on multiple representations to link views.
   // Subclasses should override SetSelectionLink to additionally connect
   // the selection link into the internal selection pipeline.
-  vtkGetObjectMacro(SelectionLink, vtkSelectionLink);
+  virtual vtkSelectionLink* GetSelectionLink()
+    { return this->GetSelectionLinkInternal(); }
   virtual void SetSelectionLink(vtkSelectionLink* link);
+
+  // Description:
+  // The output port that contains the selection after it has gone through
+  // the domain map. ExtractSelection filters in views/representations
+  // should use this port for the selection input.
+  vtkAlgorithmOutput* GetSelectionConnection();
   
 protected:
   vtkDataRepresentation();
@@ -119,11 +136,21 @@ protected:
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
   
   // The input connection.
-  vtkAlgorithmOutput* InputConnection;
+  vtkGetObjectMacro(InputConnectionInternal, vtkAlgorithmOutput);
+  void SetInputConnectionInternal(vtkAlgorithmOutput* conn);
+  vtkAlgorithmOutput* InputConnectionInternal;
   
   // The linked selection.
-  vtkSelectionLink* SelectionLink;
-  
+  vtkGetObjectMacro(SelectionLinkInternal, vtkSelectionLink);
+  void SetSelectionLinkInternal(vtkSelectionLink* link);
+  vtkSelectionLink* SelectionLinkInternal;
+
+  // The filter used to map the selection to the appropriate domain.
+  vtkConvertSelectionDomain* ConvertDomain;
+
+  // Whether is represenation can handle a selection.
+  bool Selectable;
+
   //BTX
   friend class vtkView;
   //ETX

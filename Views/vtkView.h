@@ -194,20 +194,18 @@ protected:
   // Connects to the internal pipeline.
   // Subclasses that handle tight integration between view and
   // representation should override this method.
-  virtual void AddInputConnection(vtkAlgorithmOutput* vtkNotUsed(conn)) { }
+  virtual void AddInputConnection(
+    vtkAlgorithmOutput* vtkNotUsed(conn),
+    vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
   
   // Description:
   // Disconnects the internal pipeline.
   // Subclasses that handle tight integration between view and
   // representation should override this method.
-  virtual void RemoveInputConnection(vtkAlgorithmOutput* vtkNotUsed(conn)) { }
+  virtual void RemoveInputConnection(
+    vtkAlgorithmOutput* vtkNotUsed(conn),
+    vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
   
-  // Description:
-  // Is called when the representation's selection link changes.
-  // Subclasses that handle tight integration between view and
-  // representation should override this method.
-  virtual void SetSelectionLink(vtkSelectionLink* vtkNotUsed(link)) { }
-
   vtkCollection* Representations;
 
   // Description:

@@ -16,18 +16,23 @@
 #include "vtkSelectionLink.h"
 
 #include "vtkCommand.h"
+#include "vtkDataObjectCollection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkSelectionLink, "1.1");
+vtkCxxRevisionMacro(vtkSelectionLink, "1.2");
 vtkStandardNewMacro(vtkSelectionLink);
 //----------------------------------------------------------------------------
 vtkSelectionLink::vtkSelectionLink()
 {
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(2);
+  this->DomainMaps = vtkDataObjectCollection::New();
   
   // Start with an empty index selection
   this->Selection = vtkSelection::New();
@@ -41,6 +46,7 @@ vtkSelectionLink::vtkSelectionLink()
 vtkSelectionLink::~vtkSelectionLink()
 {
   this->Selection->Delete();
+  this->DomainMaps->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -57,6 +63,39 @@ void vtkSelectionLink::SetSelection(vtkSelection* selection)
 }
 
 //----------------------------------------------------------------------------
+void vtkSelectionLink::AddDomainMap(vtkTable* map)
+{
+  if (!this->DomainMaps->IsItemPresent(map))
+    {
+    this->DomainMaps->AddItem(map);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionLink::RemoveDomainMap(vtkTable* map)
+{
+  this->DomainMaps->RemoveItem(map);
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionLink::RemoveAllDomainMaps()
+{
+  this->DomainMaps->RemoveAllItems();
+}
+
+//----------------------------------------------------------------------------
+int vtkSelectionLink::GetNumberOfDomainMaps()
+{
+  return this->DomainMaps->GetNumberOfItems();
+}
+
+//----------------------------------------------------------------------------
+vtkTable* vtkSelectionLink::GetDomainMap(int i)
+{
+  return vtkTable::SafeDownCast(this->DomainMaps->GetItem(i));
+}
+
+//----------------------------------------------------------------------------
 int vtkSelectionLink::RequestData(
   vtkInformation *vtkNotUsed(info),
   vtkInformationVector **vtkNotUsed(inVector),
@@ -67,12 +106,36 @@ int vtkSelectionLink::RequestData(
   vtkInformation *outInfo = outVector->GetInformationObject(0);
   vtkSelection* output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation *mapInfo = outVector->GetInformationObject(1);
+  vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
+    mapInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if (this->Selection)
     {
     output->ShallowCopy(this->Selection);
     }
+
+  unsigned int numMaps = static_cast<unsigned int>(this->DomainMaps->GetNumberOfItems());
+  maps->SetNumberOfBlocks(numMaps);
+  for (unsigned int i = 0; i < numMaps; ++i)
+    {
+    maps->SetBlock(i, this->DomainMaps->GetItem(i));
+    }
   
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSelectionLink::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 0)
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkSelection");
+    }
+  else
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+    }
   return 1;
 }
 
@@ -84,6 +147,11 @@ void vtkSelectionLink::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Selection)
     {
     this->Selection->PrintSelf(os, indent.GetNextIndent());
+    }
+  os << indent << "DomainMaps: " << (this->DomainMaps ? "" : "null") << endl;
+  if (this->DomainMaps)
+    {
+    this->DomainMaps->PrintSelf(os, indent.GetNextIndent());
     }
 }
 

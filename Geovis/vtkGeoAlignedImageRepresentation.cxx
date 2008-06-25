@@ -31,7 +31,7 @@
 #include "vtkTimerLog.h"
 #include "vtkView.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.2");
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
 
 
@@ -41,6 +41,9 @@ vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
   this->Actor = vtkSmartPointer<vtkAssembly>::New();
   this->Terrain = 0;
   this->Image = 0;
+
+  // Turn off selectability.
+  this->SelectableOff();
 }
 
 //-----------------------------------------------------------------------------

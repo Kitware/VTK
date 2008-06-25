@@ -44,6 +44,7 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/algorithm>
+#include <vtkstd/map>
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
@@ -52,7 +53,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.16");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.17");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -196,15 +197,6 @@ int vtkConvertSelection::ConvertToIndexSelection(
   indexArray->Delete();
   extract->Delete();
   return 1;
-}
-
-//----------------------------------------------------------------------------
-template <class T>
-void vtkConvertSelectionLookup(
-  T* selArr, 
-  T* dataArr, 
-  vtkIdTypeArray* indices)
-{
 }
 
 //----------------------------------------------------------------------------
@@ -448,6 +440,67 @@ int vtkConvertSelection::Convert(
         }
       output->AddChild(outputChild);
       }
+
+#if 0
+    // If converting to raw indices, check whether the children
+    // are all "compatible". If so, create one selection object
+    // containing all the indices.
+    if (this->OutputType == vtkSelection::INDICES && output->GetNumberOfChildren() > 0)
+      {
+      vtkSelection* first = output->GetChild(0);
+      bool match = true;
+      int hind = first->GetProperties()->Get(vtkSelection::HIERARCHICAL_INDEX());
+      int hlev = first->GetProperties()->Get(vtkSelection::HIERARCHICAL_LEVEL());
+      int inv  = first->GetProperties()->Get(vtkSelection::INVERSE());
+      int pid  = first->GetProperties()->Get(vtkSelection::PROCESS_ID());
+      int cind = first->GetProperties()->Get(vtkSelection::COMPOSITE_INDEX());
+      int ft   = first->GetFieldType();
+      for (unsigned int i = 1; i < output->GetNumberOfChildren(); ++i)
+        {
+        vtkSelection* cur = output->GetChild(i);
+        int cur_hind = cur->GetProperties()->Get(vtkSelection::HIERARCHICAL_INDEX());
+        int cur_hlev = cur->GetProperties()->Get(vtkSelection::HIERARCHICAL_LEVEL());
+        int cur_inv  = cur->GetProperties()->Get(vtkSelection::INVERSE());
+        int cur_pid  = cur->GetProperties()->Get(vtkSelection::PROCESS_ID());
+        int cur_cind = cur->GetProperties()->Get(vtkSelection::COMPOSITE_INDEX());
+        int cur_ft   = cur->GetFieldType();
+        if (cur_hind != hind ||
+            cur_hlev != hlev ||
+            cur_inv  != inv  ||
+            cur_pid  != pid  ||
+            cur_cind != cind ||
+            cur_ft   != ft)
+          {
+          match = false;
+          break;
+          }
+        }
+      if (match)
+        {
+        vtkSmartPointer<vtkIdTypeArray> ids =
+          vtkSmartPointer<vtkIdTypeArray>::New();
+        vtkSmartPointer<vtkSelection> collapsed =
+          vtkSmartPointer<vtkSelection>::New();
+        collapsed->ShallowCopy(first);
+        for (unsigned int i = 0; i < output->GetNumberOfChildren(); ++i)
+          {
+          vtkIdTypeArray* curIds = vtkIdTypeArray::SafeDownCast(output->GetChild(i)->GetSelectionList());
+          if (!curIds)
+            {
+            vtkWarningMacro("INDICES selection should contain vtkIdTypeArray.");
+            continue;
+            }
+          vtkIdType numTuples = curIds->GetNumberOfTuples();
+          for (vtkIdType j = 0; j < numTuples; ++j)
+            {
+            ids->InsertNextValue(curIds->GetValue(j));
+            }
+          }
+        collapsed->SetSelectionList(ids);
+        output->ShallowCopy(collapsed);
+        }
+      }
+#endif
     return 1;
     }
   
@@ -709,17 +762,42 @@ int vtkConvertSelection::Convert(
       vtkErrorMacro("Selection array does not exist in input dataset.");
       return 0;
       }
-    
-    // Perform the lookup
-    vtkIdType numTuples = selArr->GetNumberOfTuples();
-    VTK_CREATE(vtkIdList, list);
-    for (vtkIdType i = 0; i < numTuples; i++)
+
+    // Handle the special case where we have a domain array.
+    vtkStringArray* domainArr = dsa ? vtkStringArray::SafeDownCast(dsa->GetAbstractArray("domain")) : 0;
+    if (input->GetContentType() == vtkSelection::PEDIGREEIDS &&
+        domainArr && selArr->GetName())
       {
-      dataArr->LookupValue(selArr->GetVariantValue(i), list);
-      vtkIdType numIds = list->GetNumberOfIds();
-      for (vtkIdType j = 0; j < numIds; j++)
+      // Perform the lookup, keeping only those items in the correct domain.
+      vtkStdString domain = selArr->GetName();
+      vtkIdType numTuples = selArr->GetNumberOfTuples();
+      VTK_CREATE(vtkIdList, list);
+      for (vtkIdType i = 0; i < numTuples; i++)
         {
-        indices->InsertNextValue(list->GetId(j));
+        dataArr->LookupValue(selArr->GetVariantValue(i), list);
+        vtkIdType numIds = list->GetNumberOfIds();
+        for (vtkIdType j = 0; j < numIds; j++)
+          {
+          if (domainArr->GetValue(list->GetId(j)) == domain)
+            {
+            indices->InsertNextValue(list->GetId(j));
+            }
+          }
+        }
+      }
+    else
+      {
+      // Perform the lookup
+      vtkIdType numTuples = selArr->GetNumberOfTuples();
+      VTK_CREATE(vtkIdList, list);
+      for (vtkIdType i = 0; i < numTuples; i++)
+        {
+        dataArr->LookupValue(selArr->GetVariantValue(i), list);
+        vtkIdType numIds = list->GetNumberOfIds();
+        for (vtkIdType j = 0; j < numIds; j++)
+          {
+          indices->InsertNextValue(list->GetId(j));
+          }
         }
       }
     }
@@ -743,6 +821,59 @@ int vtkConvertSelection::Convert(
   if (this->OutputType == vtkSelection::VALUES)
     {
     numOutputArrays = this->ArrayNames->GetNumberOfValues();
+    }
+
+  // Handle the special case where we have a pedigree id selection with a domain array.
+  vtkStringArray* outputDomainArr = vtkStringArray::SafeDownCast(
+    dsa->GetAbstractArray("domain"));
+  if (this->OutputType == vtkSelection::PEDIGREEIDS && outputDomainArr)
+    {
+    vtkAbstractArray* outputDataArr = dsa->GetPedigreeIds();
+    // Check array existence.
+    if (!outputDataArr)
+      {
+      vtkErrorMacro("Output selection array does not exist in input dataset.");
+      return 0;
+      }
+
+    output->SetContentType(vtkSelection::SELECTIONS);
+    vtkstd::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
+    vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
+    vtkIdType numIndices = indices->GetNumberOfTuples();
+    for (vtkIdType i = 0; i < numIndices; ++i)
+      {
+      vtkIdType index = indices->GetValue(i);
+      if (index >= numTuples)
+        {
+        continue;
+        }
+      vtkStdString domain = outputDomainArr->GetValue(index);
+      if (domainArrays.count(domain) == 0)
+        {
+        domainArrays[domain].TakeReference(
+          vtkAbstractArray::CreateArray(outputDataArr->GetDataType()));
+        domainArrays[domain]->SetName(domain);
+        }
+      vtkAbstractArray* domainArr = domainArrays[domain];
+      domainArr->InsertNextTuple(index, outputDataArr);
+      if (i % 1000 == 0)
+        {
+        progress = 0.8 + (0.2 * i / numIndices);
+        this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
+        }
+      }
+    output->SetContentType(vtkSelection::SELECTIONS);
+    vtkstd::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> >::iterator it, itEnd;
+    it = domainArrays.begin();
+    itEnd = domainArrays.end();
+    for (; it != itEnd; ++it)
+      {
+      vtkSmartPointer<vtkSelection> child = vtkSmartPointer<vtkSelection>::New();
+      child->SetContentType(vtkSelection::PEDIGREEIDS);
+      child->SetSelectionList(it->second);
+      output->AddChild(child);
+      }
+    return 1;
     }
   
   VTK_CREATE(vtkFieldData, outputData);
@@ -779,13 +910,10 @@ int vtkConvertSelection::Convert(
       vtkErrorMacro("Output selection array does not exist in input dataset.");
       return 0;
       }
-    
+
     // Put the array's values into the selection.
     vtkAbstractArray* outputArr = vtkAbstractArray::CreateArray(outputDataArr->GetDataType());
-    if (this->OutputType == vtkSelection::VALUES)
-      {
-      outputArr->SetName(outputDataArr->GetName());
-      }
+    outputArr->SetName(outputDataArr->GetName());
     vtkIdType numTuples = outputDataArr->GetNumberOfTuples();
     vtkIdType numIndices = indices->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numIndices; ++i)

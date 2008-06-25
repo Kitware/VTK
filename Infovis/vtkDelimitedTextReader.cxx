@@ -19,12 +19,16 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkDelimitedTextReader.h"
+
 #include "vtkCommand.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkInformation.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 
@@ -32,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.20");
+vtkCxxRevisionMacro(vtkDelimitedTextReader, "1.21");
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 struct vtkDelimitedTextReaderInternals
@@ -282,6 +286,28 @@ int vtkDelimitedTextReader::RequestData(
     // Insert the data into the table
     table->InsertNextRow(dataArray);
     dataArray->Delete();
+    }
+
+  // Use vtkDataSetAttributes to store the data in the table,
+  // so we get attribute capabilities.
+  vtkSmartPointer<vtkDataSetAttributes> dsa =
+    vtkSmartPointer<vtkDataSetAttributes>::New();
+  dsa->ShallowCopy(table->GetFieldData());
+  table->SetFieldData(dsa);
+
+  // Look for pedigree id array.
+  vtkAbstractArray* pedIds = table->GetColumnByName("id");
+  if (!pedIds)
+    {
+    pedIds = table->GetColumnByName("edge id");
+    }
+  if (!pedIds)
+    {
+    pedIds = table->GetColumnByName("vertex id");
+    }
+  if (pedIds)
+    {
+    dsa->SetPedigreeIds(pedIds);
     }
  
   return 1;

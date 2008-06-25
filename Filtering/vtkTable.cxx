@@ -23,6 +23,7 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -34,7 +35,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.11");
+vtkCxxRevisionMacro(vtkTable, "1.12");
 vtkStandardNewMacro(vtkTable);
 
 //----------------------------------------------------------------------------
@@ -48,6 +49,10 @@ vtkTable::vtkTable()
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+
+  // Use vtkDataSetAttributes instance as the field data.
+  vtkDataSetAttributes* dsa = vtkDataSetAttributes::New();
+  this->SetFieldData(dsa);
 }
 
 //----------------------------------------------------------------------------

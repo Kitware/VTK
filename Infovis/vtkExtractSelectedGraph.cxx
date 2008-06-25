@@ -47,7 +47,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.25");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.26");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -135,51 +135,74 @@ int vtkExtractSelectedGraph::RequestData(
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]);
 
-  // If there is no list, there is nothing to select.
-  vtkAbstractArray* list = selection->GetSelectionList();
-  if (!list)
+  // Convert the selection to an INDICES selection
+  vtkSmartPointer<vtkSelection> converted;
+  converted.TakeReference(vtkConvertSelection::ToIndexSelection(selection, input));
+  if (!converted.GetPointer())
+    {
+    vtkErrorMacro("Selection conversion to INDICES failed.");
+    return 0;
+    }
+
+  // Find a vertex or edge selection, with preference to a vertex selection.
+  vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
+  if (converted->GetContentType() == vtkSelection::SELECTIONS)
+    {
+    int type = -1;
+    for (int i = 0; i < converted->GetNumberOfChildren(); ++i)
+      {
+      vtkSelection* child = converted->GetChild(i);
+      if (child->GetFieldType() == vtkSelection::VERTEX)
+        {
+        if (type != vtkSelection::VERTEX)
+          {
+          indexSelection->SetSelectionList(0);
+          }
+        type = vtkSelection::VERTEX;
+        indexSelection->SetFieldType(vtkSelection::VERTEX);
+        }
+      else if (type != vtkSelection::VERTEX && child->GetFieldType() == vtkSelection::EDGE)
+        {
+        type = vtkSelection::EDGE;
+        indexSelection->SetFieldType(vtkSelection::EDGE);
+        }
+      else
+        {
+        continue;
+        }
+      // Append the selection list to the selection
+      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(child->GetSelectionList());
+      if (curList)
+        {
+        vtkIdTypeArray* list = vtkIdTypeArray::SafeDownCast(indexSelection->GetSelectionList());
+        if (!list)
+          {
+          indexSelection->SetSelectionList(curList);
+          }
+        else
+          {
+          vtkIdType numTuples = curList->GetNumberOfTuples();
+          for (vtkIdType i = 0; i < numTuples; ++i)
+            {
+            list->InsertNextValue(curList->GetValue(i));
+            }
+          } // end else
+        } // end if (curList)
+      } // end for each child
+    } // end if content type is SELECTIONS
+  else
+    {
+    indexSelection->ShallowCopy(converted);
+    }
+  
+  // If there is no selection list, return an empty graph
+  vtkAbstractArray* arr = indexSelection->GetSelectionList();
+  if (arr == NULL)
     {
     return 1;
     }
 
-  // If it is a selection with multiple parts, find a point or cell
-  // child selection, with preference to points.
-  if (selection->GetContentType() == vtkSelection::SELECTIONS)
-    {
-    vtkSelection* child = 0;
-    for (unsigned int i = 0; i < selection->GetNumberOfChildren(); i++)
-      {
-      vtkSelection* cur = selection->GetChild(i);
-      if (cur->GetFieldType() == vtkSelection::VERTEX)
-        {
-        child = cur;
-        break;
-        }
-      else if (cur->GetFieldType() == vtkSelection::EDGE)
-        {
-        child = cur;
-        }
-      }
-    selection = child;
-    }
-    
-  // Convert the selection to an INDICES selection
-  vtkSmartPointer<vtkSelection> indexSelection;
-  indexSelection.TakeReference(
-    vtkConvertSelection::ToIndexSelection(selection, input));
-  if (!indexSelection)
-    {
-    vtkErrorMacro("Selection conversion to INDICES failed.");
-    indexSelection->Delete();
-    return 0;
-    }
-  
-  vtkAbstractArray* arr = indexSelection->GetSelectionList();
-  if (arr == NULL)
-    {
-    vtkErrorMacro("Selection list not found.");
-    return 0;
-    }
+  // If there is a selection list, it must be a vtkIdTypeArray
   vtkIdTypeArray* selectArr = vtkIdTypeArray::SafeDownCast(arr);
   if (selectArr == NULL)
     {
@@ -298,6 +321,11 @@ int vtkExtractSelectedGraph::RequestData(
             f = undirBuilder->AddEdge(u, v);
             }
           builderEdgeData->CopyData(inputEdgeData, e.Id, f.Id);
+          // Copy edge layout to the output.
+          vtkIdType npts;
+          double* pts;
+          input->GetEdgePoints(e.Id, npts, pts);
+          builder->SetEdgePoints(f.Id, npts, pts);
           }
         }
       builder->SetPoints(newPoints);
@@ -338,6 +366,11 @@ int vtkExtractSelectedGraph::RequestData(
             outputEdge = undirBuilder->AddEdge(e.Source, e.Target);
             }
           builderEdgeData->CopyData(inputEdgeData, e.Id, outputEdge.Id);
+          // Copy edge layout to the output.
+          vtkIdType npts;
+          double* pts;
+          input->GetEdgePoints(e.Id, npts, pts);
+          builder->SetEdgePoints(outputEdge.Id, npts, pts);
           }
         }
 

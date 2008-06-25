@@ -42,10 +42,11 @@
 #include "vtkRenderView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
+#include "vtkSmartPointer.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkGeoLineRepresentation, "1.2");
 vtkStandardNewMacro(vtkGeoLineRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoLineRepresentation::vtkGeoLineRepresentation()
@@ -78,7 +79,7 @@ vtkGeoLineRepresentation::vtkGeoLineRepresentation()
   this->VertexGlyphFilter->SetInputConnection(this->GeoSampleArcs->GetOutputPort());
   this->VertexMapper->SetInputConnection(this->VertexGlyphFilter->GetOutputPort());
   this->VertexActor->SetMapper(this->VertexMapper);
-  this->ExtractSelection->SetInputConnection(1, this->SelectionLink->GetOutputPort());
+  this->ExtractSelection->SetInputConnection(1, this->GetSelectionConnection());
   this->SelectionGeometryFilter->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionAssignCoords->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
   //this->SelectionGeoArcs->SetInputConnection(this->SelectionAssignCoords->GetOutputPort());
@@ -105,6 +106,10 @@ vtkGeoLineRepresentation::vtkGeoLineRepresentation()
   this->SelectionActor->GetProperty()->SetColor(1, 0, 1);
   this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
   this->SelectionActor->PickableOff();
+
+  // This normally represents static lines like political boundaries,
+  // so turn off selectability by default.
+  this->SelectableOff();
 }
 
 //----------------------------------------------------------------------------
@@ -134,13 +139,6 @@ void vtkGeoLineRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
   this->Superclass::SetInputConnection(conn);
   this->GeometryFilter->SetInputConnection(conn);
   this->ExtractSelection->SetInputConnection(conn);
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoLineRepresentation::SetSelectionLink(vtkSelectionLink* link)
-{
-  this->Superclass::SetSelectionLink(link);
-  this->ExtractSelection->SetInputConnection(1, link->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
