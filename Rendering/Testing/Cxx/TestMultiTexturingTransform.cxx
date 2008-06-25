@@ -182,9 +182,21 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   //points->Delete();
   //cells->Delete();
   polyData->Delete();
+  mapper->Delete();
+  actor->Delete();
+  renWin->Delete();
+  renderer->Delete();
+  iren->Delete();
   imageReaderRed->Delete();
   imageReaderBlue->Delete();
   imageReaderGreen->Delete();
+  textureRed->Delete();
+  textureBlue->Delete();
+  textureGreen->Delete();
+  transformRed->Delete();
+  transformGreen->Delete();
+  transformBlue->Delete();
+  TCoords->Delete();
 
   return !retVal;
 }

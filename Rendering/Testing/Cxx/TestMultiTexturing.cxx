@@ -112,6 +112,8 @@ int TestMultiTexturing(int argc, char *argv[])
 
   polyData->GetPointData()->AddArray(TCoords);
 
+  TCoords->Delete();
+
   vtkTexture * textureRed =  vtkTexture::New();
   vtkTexture * textureBlue =  vtkTexture::New();
   vtkTexture * textureGreen =  vtkTexture::New();
@@ -165,9 +167,17 @@ int TestMultiTexturing(int argc, char *argv[])
   //points->Delete();
   //cells->Delete();
   polyData->Delete();
+  mapper->Delete();
+  actor->Delete();
+  renWin->Delete();
+  renderer->Delete();
+  iren->Delete();
   imageReaderRed->Delete();
   imageReaderBlue->Delete();
   imageReaderGreen->Delete();
+  textureRed->Delete();
+  textureBlue->Delete();
+  textureGreen->Delete();
 
   return !retVal;
 }

@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.12");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.13");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -469,7 +469,6 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
         if(textureIndex >= 0)
           {
-          cout << textureIndex << endl;
           device->SendMultiTextureCoords(
             (siComp>=0)? 1: numc,
             a->GetDataType(), 

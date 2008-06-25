@@ -29,7 +29,7 @@
 #define __vtkProperty_h
 
 #include "vtkObject.h"
-#include "vtkTexture.h"
+#include "vtkTexture.h" // used to include texture unit enum.
 
 // shading models
 #define VTK_FLAT    0

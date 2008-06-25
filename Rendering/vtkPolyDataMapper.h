@@ -23,7 +23,7 @@
 #define __vtkPolyDataMapper_h
 
 #include "vtkMapper.h"
-#include "vtkTexture.h"
+#include "vtkTexture.h" // used to include texture unit enum.
 
 class vtkPolyData;
 class vtkRenderer;

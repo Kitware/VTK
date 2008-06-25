@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.68");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.69");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -76,10 +76,6 @@ void vtkOpenGLTexture::Initialize(vtkRenderer * ren)
       extensions->LoadExtension("GL_VERSION_1_2");
       extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
       }
-    /*else
-      {
-      vtkErrorMacro( "Your OpenGL library must support GL_ARB_multitexture." );
-      }*/
     extensions->Delete();
     }
 }
