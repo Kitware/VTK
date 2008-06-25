@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.97");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.98");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -1275,6 +1275,9 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  // Disable writing on the z-buffer.
+  glDepthMask(GL_FALSE);
+  glDisable(GL_DEPTH_TEST);
 
   glDisable( GL_SCISSOR_TEST );
   
@@ -1294,6 +1297,10 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
                   data);
     }
+
+  // Renenable writing on the z-buffer.
+  glDepthMask(GL_TRUE);
+  glEnable(GL_DEPTH_TEST);
 
   // This seems to be necessary for the image to show up
   glFlush();  
