@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.22");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.23");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -138,7 +138,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       }
 
     int result = 1;
-    if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0 || this->WritePiece >= 0)
+    if ((this->CurrentPiece == 0 && this->CurrentTimeIndex == 0) || this->WritePiece >= 0)
       {
       // We are just starting to write.  Do not call
       // UpdateProgressDiscrete because we want a 0 progress callback the
