@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.22");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.23");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -47,6 +47,7 @@ vtkOpenGLPainterDeviceAdapter::vtkOpenGLPainterDeviceAdapter()
   this->RangeNear = 0.0;
   this->RangeFar = 1.0;
   this->MaxStencil = 0;
+  this->Initialized = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,30 +64,36 @@ void vtkOpenGLPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::Initialize(vtkRenderer * ren)
 {
-  if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
+  if(!this->Initialized)
     {
-    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
-    extensions->SetRenderWindow( ren->GetRenderWindow() );
+    // Warning!! Might not work if there is an OpenGL context switch between different
+    // implementations.
+    if (!vtkgl::MultiTexCoord2d || !vtkgl::ActiveTexture )
+      {
+      vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
+      extensions->SetRenderWindow( ren->GetRenderWindow() );
 
-    // multitexture is core feature of OpenGL 1.3.
-    // multitexture is an ARB extension of OpenGL 1.2.1
-    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
-    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = 
-      extensions->ExtensionSupported("GL_ARB_multitexture");
-    
-    
-    if(supports_GL_1_3)
-      {
-      extensions->LoadExtension("GL_VERSION_1_3");
+      // multitexture is core feature of OpenGL 1.3.
+      // multitexture is an ARB extension of OpenGL 1.2.1
+      int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
+      int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
+      int supports_ARB_mutlitexture = 
+        extensions->ExtensionSupported("GL_ARB_multitexture");
+      
+      
+      if(supports_GL_1_3)
+        {
+        extensions->LoadExtension("GL_VERSION_1_3");
+        }
+      else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
+        {
+        extensions->LoadExtension("GL_VERSION_1_2");
+        extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+        }
+      extensions->Delete();
       }
-    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
-      {
-      extensions->LoadExtension("GL_VERSION_1_2");
-      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
-    extensions->Delete();
     }
+  this->Initialized = true;
 }
 
 //-----------------------------------------------------------------------------

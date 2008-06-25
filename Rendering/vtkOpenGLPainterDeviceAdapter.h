@@ -144,6 +144,7 @@ protected:
   double RangeNear;
   double RangeFar;
   int MaxStencil;
+  bool Initialized;
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
   void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.

@@ -46,7 +46,7 @@ public:
   // coordinates.
   // Note the texture unit parameter should correspond to the texture
   // unit set on the texture.
-  void vtkGenericVertexAttributeMapping::AddMapping(
+  void AddMapping(
     int unit, const char* arrayName, int fieldAssociation,
     int component);
 
