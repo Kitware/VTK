@@ -15,6 +15,7 @@ vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
 vtkCommunity2DLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
+vtkContingencyStatistics.cxx
 vtkCorrelativeStatistics.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
