@@ -53,7 +53,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.17");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.18");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -440,67 +440,6 @@ int vtkConvertSelection::Convert(
         }
       output->AddChild(outputChild);
       }
-
-#if 0
-    // If converting to raw indices, check whether the children
-    // are all "compatible". If so, create one selection object
-    // containing all the indices.
-    if (this->OutputType == vtkSelection::INDICES && output->GetNumberOfChildren() > 0)
-      {
-      vtkSelection* first = output->GetChild(0);
-      bool match = true;
-      int hind = first->GetProperties()->Get(vtkSelection::HIERARCHICAL_INDEX());
-      int hlev = first->GetProperties()->Get(vtkSelection::HIERARCHICAL_LEVEL());
-      int inv  = first->GetProperties()->Get(vtkSelection::INVERSE());
-      int pid  = first->GetProperties()->Get(vtkSelection::PROCESS_ID());
-      int cind = first->GetProperties()->Get(vtkSelection::COMPOSITE_INDEX());
-      int ft   = first->GetFieldType();
-      for (unsigned int i = 1; i < output->GetNumberOfChildren(); ++i)
-        {
-        vtkSelection* cur = output->GetChild(i);
-        int cur_hind = cur->GetProperties()->Get(vtkSelection::HIERARCHICAL_INDEX());
-        int cur_hlev = cur->GetProperties()->Get(vtkSelection::HIERARCHICAL_LEVEL());
-        int cur_inv  = cur->GetProperties()->Get(vtkSelection::INVERSE());
-        int cur_pid  = cur->GetProperties()->Get(vtkSelection::PROCESS_ID());
-        int cur_cind = cur->GetProperties()->Get(vtkSelection::COMPOSITE_INDEX());
-        int cur_ft   = cur->GetFieldType();
-        if (cur_hind != hind ||
-            cur_hlev != hlev ||
-            cur_inv  != inv  ||
-            cur_pid  != pid  ||
-            cur_cind != cind ||
-            cur_ft   != ft)
-          {
-          match = false;
-          break;
-          }
-        }
-      if (match)
-        {
-        vtkSmartPointer<vtkIdTypeArray> ids =
-          vtkSmartPointer<vtkIdTypeArray>::New();
-        vtkSmartPointer<vtkSelection> collapsed =
-          vtkSmartPointer<vtkSelection>::New();
-        collapsed->ShallowCopy(first);
-        for (unsigned int i = 0; i < output->GetNumberOfChildren(); ++i)
-          {
-          vtkIdTypeArray* curIds = vtkIdTypeArray::SafeDownCast(output->GetChild(i)->GetSelectionList());
-          if (!curIds)
-            {
-            vtkWarningMacro("INDICES selection should contain vtkIdTypeArray.");
-            continue;
-            }
-          vtkIdType numTuples = curIds->GetNumberOfTuples();
-          for (vtkIdType j = 0; j < numTuples; ++j)
-            {
-            ids->InsertNextValue(curIds->GetValue(j));
-            }
-          }
-        collapsed->SetSelectionList(ids);
-        output->ShallowCopy(collapsed);
-        }
-      }
-#endif
     return 1;
     }
   
