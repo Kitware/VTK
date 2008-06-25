@@ -102,6 +102,10 @@ public:
   void Squeeze() { this->ResizeAndExtend (this->MaxId+1); }
 
   // Description:
+  // Return the capacity in typeof T units of the current array.
+  vtkIdType Capacity() { return this->Size; }
+
+  // Description:
   // Resize the array while conserving the data.
   virtual int Resize(vtkIdType numTuples);
 
