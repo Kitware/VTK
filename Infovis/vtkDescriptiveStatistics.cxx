@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.27");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.28");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -251,17 +251,6 @@ void vtkDescriptiveStatistics::ComputeDeviations(
 }
 
 // ----------------------------------------------------------------------
-class ZedDeviationDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
-{
-public:
-  virtual ~ZedDeviationDeviantFunctor() { }
-  virtual double operator() ( vtkIdType )
-    {
-    return 0.;
-    }
-};
-
-// ----------------------------------------------------------------------
 class DataArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
 {
 public:
@@ -307,10 +296,25 @@ public:
   vtkAbstractArray* Array;
 };
 
+class ZedDeviationDeviantFunctor : public AbstractArrayDeviantFunctor
+{
+public:
+  ZedDeviationDeviantFunctor( vtkAbstractArray* arr, double nominal )
+    {
+    this->Array = arr;
+    this->Nominal = nominal;
+    }
+  virtual ~ZedDeviationDeviantFunctor() { }
+  virtual double operator() ( vtkIdType row )
+    {
+    return ( this->Array->GetVariantValue( row ).ToDouble() == this->Nominal ) ? 1. : 0.;
+    }
+};
+
 class SignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
 {
 public:
-  SignedAbstractArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+  SignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double stdev )
     {
     this->Array = arr;
     this->Nominal = nominal;
@@ -326,7 +330,7 @@ public:
 class UnsignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
 {
 public:
-  UnsignedAbstractArrayDeviantFunctor( vtkDataArray* arr, double nominal, double stdev )
+  UnsignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double stdev )
     {
     this->Array = arr;
     this->Nominal = nominal;
@@ -414,7 +418,7 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
     DeviantFunctor* dfunc = 0;
     if ( deviation == 0. )
       {
-      dfunc = new ZedDeviationDeviantFunctor;
+      dfunc = new ZedDeviationDeviantFunctor( arr, nominal );
       }
     else
       {
@@ -433,11 +437,11 @@ void vtkDescriptiveStatistics::ExecuteEvince( vtkTable* dataset,
         {
         if ( this->GetSignedDeviations() )
           {
-          dfunc = new SignedAbstractArrayDeviantFunctor( darr, nominal, deviation );
+          dfunc = new SignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
           }
         else
           {
-          dfunc = new UnsignedAbstractArrayDeviantFunctor( darr, nominal, deviation );
+          dfunc = new UnsignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
           }
         }
       }
