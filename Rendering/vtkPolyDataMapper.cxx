@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkPainterPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.46");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.47");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -187,21 +187,27 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 }
 
 void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
-    const char* vertexAttributeName,
-    const char* dataArrayName, int fieldAssociation, int componentno)
+    const char* vtkNotUsed(vertexAttributeName),
+    const char* vtkNotUsed(dataArrayName),
+    int vtkNotUsed(fieldAssociation),
+    int vtkNotUsed(componentno)
+    )
 {
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
 void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
-    VTKTextureUnit unit,
-    const char* dataArrayName, int fieldAssociation, int componentno)
+    VTKTextureUnit vtkNotUsed(unit),
+    const char* vtkNotUsed(dataArrayName), 
+    int vtkNotUsed(fieldAssociation), 
+    int vtkNotUsed(componentno)
+    )
 {
   vtkErrorMacro("Not impmlemented at this level...");
 }
 
 
-void vtkPolyDataMapper::RemoveVertexAttributeMapping(const char* vertexAttributeName)
+void vtkPolyDataMapper::RemoveVertexAttributeMapping(const char* vtkNotUsed(vertexAttributeName))
 {
   vtkErrorMacro("Not impmlemented at this level...");
 }
