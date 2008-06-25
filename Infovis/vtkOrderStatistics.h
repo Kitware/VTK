@@ -26,8 +26,8 @@ PURPOSE.  See the above copyright notice for more information.
 // * Learn: calculate 5-point statistics (minimum, 1st quartile, median, third
 //   quartile, maximum) and all other deciles (1,2,3,4,6,7,8,9).
 // * Validate: not implemented.
-// * Evince: given an input data set in port 0, and two percentiles p1 < p2,
-//   evince all entries in the data set which are outside of [p1,p2].
+// * Assess: given an input data set in port 0, and two percentiles p1 < p2,
+//   assess all entries in the data set which are outside of [p1,p2].
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
@@ -85,7 +85,7 @@ protected:
   virtual void ExecuteValidate( vtkTable* dataset,
                                 vtkTable* params,
                                 vtkTable* output); 
-  virtual void ExecuteEvince( vtkTable* dataset,
+  virtual void ExecuteAssess( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
 

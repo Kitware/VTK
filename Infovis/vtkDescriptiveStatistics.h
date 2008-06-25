@@ -32,8 +32,8 @@ PURPOSE.  See the above copyright notice for more information.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
 // * Validate: not implemented.
-// * Evince: given an input data set in port 0, and a reference value x along
-//   with an acceptable deviation d>0, evince all entries in the data set which
+// * Assess: given an input data set in port 0, and a reference value x along
+//   with an acceptable deviation d>0, assess all entries in the data set which
 //   are outside of [x-d,x+d].
 //
 // .SECTION Thanks
@@ -110,7 +110,7 @@ protected:
   virtual void ExecuteValidate( vtkTable* dataset,
                                 vtkTable* params,
                                 vtkTable* output); 
-  virtual void ExecuteEvince( vtkTable* dataset,
+  virtual void ExecuteAssess( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
 

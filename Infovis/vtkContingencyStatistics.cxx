@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.1");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.2");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -178,7 +178,7 @@ void vtkContingencyStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteEvince( vtkTable* dataset,
+void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {

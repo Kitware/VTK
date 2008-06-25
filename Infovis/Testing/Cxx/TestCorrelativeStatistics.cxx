@@ -231,11 +231,11 @@ int TestCorrelativeStatistics( int, char *[] )
       }
     }
 
-// -- Select Column Pairs of Interest ( Evince Mode ) -- 
+// -- Select Column Pairs of Interest ( Assess Mode ) -- 
   haruspex->ResetColumnPairs(); // Clear existing pairs
   haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
-// -- Test Evince Mode -- 
+// -- Test Assess Mode -- 
   cout << "## Searching for the following outliers:\n";
   for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
     {
@@ -260,7 +260,7 @@ int TestCorrelativeStatistics( int, char *[] )
          << "\n";
     }
 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::EvinceMode );
+  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex->Update();
 
   testIntValue = outputTable->GetNumberOfRows();

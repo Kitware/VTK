@@ -54,7 +54,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 }
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.17");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.18");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -348,7 +348,7 @@ void vtkCorrelativeStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteEvince( vtkTable* dataset,
+void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {

@@ -185,7 +185,7 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
-// -- Test Evince Mode -- 
+// -- Test Assess Mode -- 
   cout << "## Searching for the following outliers:\n";
   for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
     {
@@ -198,7 +198,7 @@ int TestDescriptiveStatistics( int, char *[] )
          << ".\n";
       }
 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::EvinceMode );
+  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex->SignedDeviationsOff();
   haruspex->Update();
 

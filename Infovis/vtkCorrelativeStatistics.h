@@ -31,9 +31,9 @@ PURPOSE.  See the above copyright notice for more information.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkCorrelativeStatistics object.
 // * Validate: not validate mode for this statistics class.
-// * Evince: given two data vectors X and Y with the same number of entries as
+// * Assess: given two data vectors X and Y with the same number of entries as
 //   input in port 0, and reference means, variances, and covariance, along
-//   with an acceptable threshold t>1, evince all pairs of values of (X,Y) 
+//   with an acceptable threshold t>1, assess all pairs of values of (X,Y) 
 //   whose relative PDF (assuming a bivariate Gaussian model) is below t.
 //  
 // .SECTION Thanks
@@ -109,7 +109,7 @@ protected:
   virtual void ExecuteValidate( vtkTable* dataset,
                                 vtkTable* params,
                                 vtkTable* output); 
-  virtual void ExecuteEvince( vtkTable* dataset,
+  virtual void ExecuteAssess( vtkTable* dataset,
                               vtkTable* params,
                               vtkTable* output ); 
 

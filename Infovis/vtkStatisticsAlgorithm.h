@@ -27,8 +27,8 @@ PURPOSE.  See the above copyright notice for more information.
 // * Validate: given an input data set and input statistics of some kind, 
 //   calculate to what extent these statistics are applicable to this data set.
 //   Some type of thresholding may be part of the assessment process.
-// * Evince: given an input data set, input statistics, and some form of 
-//   threshold, evince a subset of the data set. 
+// * Assess: given an input data set, input statistics, and some form of 
+//   threshold, assess a subset of the data set. 
 // Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
 // * 2 input ports:
 //   * Data (mandatory)
@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 //     the input dataset.
 //   * When in Validate mode, the output table contains a summary of how well 
 //     the model fits the data.
-//   * When in Evince mode, the output table is a list of input rows that don't 
+//   * When in Assess mode, the output table is a list of input rows that don't 
 //     fit (or fit) the model to within some amount specified by the filter input 
 //     parameters.
 //
@@ -63,7 +63,7 @@ public:
   enum ExecutionModeType {
     LearnMode    = 0,
     ValidateMode = 1,
-    EvinceMode   = 2,
+    AssessMode   = 2,
     };
   //ETX
 
@@ -112,7 +112,7 @@ protected:
   virtual void ExecuteValidate( vtkTable*,
                                 vtkTable*,
                                 vtkTable* ) = 0; 
-  virtual void ExecuteEvince( vtkTable*,
+  virtual void ExecuteAssess( vtkTable*,
                               vtkTable*,
                               vtkTable* ) = 0; 
 
