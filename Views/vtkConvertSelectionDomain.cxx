@@ -37,7 +37,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.1");
+vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.2");
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
@@ -149,7 +149,7 @@ int vtkConvertSelectionDomain::RequestData(
   output->SetContentType(vtkSelection::SELECTIONS);
 
   // Iterate over all input selections
-  for (int i = 0; i < input->GetNumberOfChildren(); ++i)
+  for (unsigned int i = 0; i < input->GetNumberOfChildren(); ++i)
     {
     vtkSelection* curInput = input->GetChild(i);
     vtkSmartPointer<vtkSelection> curOutput =

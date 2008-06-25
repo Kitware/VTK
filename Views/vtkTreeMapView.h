@@ -106,11 +106,15 @@ protected:
   
   // Description:
   // Connects the algorithm output to the internal pipeline.
-  virtual void AddInputConnection(vtkAlgorithmOutput* conn);
+  virtual void AddInputConnection(
+    vtkAlgorithmOutput* conn,
+    vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Disconnects the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(vtkAlgorithmOutput* conn);
+  virtual void RemoveInputConnection(
+    vtkAlgorithmOutput* conn,
+    vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Called to process the user event from the interactor style.

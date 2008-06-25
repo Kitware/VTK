@@ -49,7 +49,7 @@
 #include "vtkTreeMapToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkTreeMapView, "1.4");
+vtkCxxRevisionMacro(vtkTreeMapView, "1.5");
 vtkStandardNewMacro(vtkTreeMapView);
 //----------------------------------------------------------------------------
 vtkTreeMapView::vtkTreeMapView()
@@ -264,7 +264,9 @@ void vtkTreeMapView::SetupRenderWindow(vtkRenderWindow* win)
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeMapView::AddInputConnection(vtkAlgorithmOutput* conn)
+void vtkTreeMapView::AddInputConnection(
+  vtkAlgorithmOutput* conn,
+  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   if (this->TreeLevelsFilter->GetNumberOfInputConnections(0) == 0)
     {
@@ -281,7 +283,9 @@ void vtkTreeMapView::AddInputConnection(vtkAlgorithmOutput* conn)
 }
 
 //----------------------------------------------------------------------------
-void vtkTreeMapView::RemoveInputConnection(vtkAlgorithmOutput* conn)
+void vtkTreeMapView::RemoveInputConnection(
+  vtkAlgorithmOutput* conn,
+  vtkAlgorithmOutput* vtkNotUsed(selectionConn))
 {
   if (this->TreeLevelsFilter->GetNumberOfInputConnections(0) > 0 &&
       this->TreeLevelsFilter->GetInputConnection(0, 0) == conn)
@@ -338,12 +342,15 @@ void vtkTreeMapView::PrepareForRendering()
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
   if (this->TreeLevelsFilter->GetInputConnection(0, 0) != conn)
     {
-    this->RemoveInputConnection(this->TreeLevelsFilter->GetInputConnection(0, 0));
-    this->AddInputConnection(conn);
+    this->RemoveInputConnection(this->TreeLevelsFilter->GetInputConnection(0, 0), 0);
+    this->AddInputConnection(conn, rep->GetSelectionConnection());
     }
   
   // Use the most recent selection
-  vtkSelection* selection = rep->GetSelectionLink()->GetSelection();
+  vtkAlgorithm* alg = rep->GetSelectionConnection()->GetProducer();
+  alg->Update();
+  vtkSelection* selection = vtkSelection::SafeDownCast(
+    alg->GetOutputDataObject(rep->GetSelectionConnection()->GetIndex()));
   // TODO: Should be pedigree ids.
   if (selection->GetProperties()->Get(vtkSelection::CONTENT_TYPE()) != vtkSelection::INDICES)
     {
