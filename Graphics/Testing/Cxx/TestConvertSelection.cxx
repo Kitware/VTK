@@ -189,6 +189,7 @@ void GraphConvertSelections(int & errors, int size)
   globalIdsSelection->SetContentType(vtkSelection::GLOBALIDS);
   globalIdsSelection->SetFieldType(vtkSelection::VERTEX);
   VTK_CREATE(vtkIdTypeArray, globalIdsArr);
+  globalIdsArr->SetName("GlobalId");
   globalIdsSelection->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
     {
@@ -200,6 +201,7 @@ void GraphConvertSelections(int & errors, int size)
   pedigreeIdsSelection->SetContentType(vtkSelection::PEDIGREEIDS);
   pedigreeIdsSelection->SetFieldType(vtkSelection::VERTEX);
   VTK_CREATE(vtkIdTypeArray, pedigreeIdsArr);
+  pedigreeIdsArr->SetName("PedId");
   pedigreeIdsSelection->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
     {
@@ -376,6 +378,7 @@ void PolyDataConvertSelections(int & errors, int size)
   globalIdsSelection->SetContentType(vtkSelection::GLOBALIDS);
   globalIdsSelection->SetFieldType(vtkSelection::POINT);
   VTK_CREATE(vtkIdTypeArray, globalIdsArr);
+  globalIdsArr->SetName("GlobalId");
   globalIdsSelection->SetSelectionList(globalIdsArr);
   for (int i = 0; i < size; i += 2)
     {
@@ -387,6 +390,7 @@ void PolyDataConvertSelections(int & errors, int size)
   pedigreeIdsSelection->SetContentType(vtkSelection::PEDIGREEIDS);
   pedigreeIdsSelection->SetFieldType(vtkSelection::POINT);
   VTK_CREATE(vtkIdTypeArray, pedigreeIdsArr);
+  pedigreeIdsArr->SetName("PedId");
   pedigreeIdsSelection->SetSelectionList(pedigreeIdsArr);
   for (int i = 0; i < size; i += 2)
     {
