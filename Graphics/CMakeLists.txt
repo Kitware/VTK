@@ -3,7 +3,10 @@ SET(UKIT GRAPHICS)
 SET(KIT_TCL_LIBS vtkFilteringTCL)
 SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering vtkverdict )
+SET(KIT_LIBS vtkFiltering)
+IF(VTK_USE_VERDICT)
+  SET(KIT_LIBS ${KIT_LIBS} vtkverdict )
+ENDIF(VTK_USE_VERDICT)
 
 
 SET( Kit_SRCS
@@ -146,7 +149,6 @@ vtkMergeCells.cxx
 vtkMergeDataObjectFilter.cxx
 vtkMergeFields.cxx
 vtkMergeFilter.cxx
-vtkMeshQuality.cxx
 vtkModelMetadata.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
@@ -256,6 +258,10 @@ vtkWarpTo.cxx
 vtkWarpVector.cxx
 vtkWindowedSincPolyDataFilter.cxx
 )
+
+IF(VTK_USE_VERDICT)
+  SET( Kit_SRCS ${Kit_SRCS} vtkMeshQuality.cxx )
+ENDIF(VTK_USE_VERDICT)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
