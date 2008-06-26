@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests  
     TestArcEdges
     TestAssignCoordinates
+    TestContingencyStatistics
     TestCorrelativeStatistics
     TestDataObjectToTable
     TestDescriptiveStatistics
