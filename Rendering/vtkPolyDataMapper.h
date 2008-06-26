@@ -92,7 +92,7 @@ public:
     const char* dataArrayName, int fieldAssociation, int componentno=-1);
 
   virtual void MapDataArrayToMultiTextureAttribute(
-    VTKTextureUnit unit,
+    int unit,
     const char* dataArrayName, int fieldAssociation, int componentno=-1);
 
   // Description:

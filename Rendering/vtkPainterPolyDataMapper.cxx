@@ -36,7 +36,7 @@
 #include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.13")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.14")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -120,7 +120,7 @@ void vtkPainterPolyDataMapper::MapDataArrayToVertexAttribute(
 
 //---------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::MapDataArrayToMultiTextureAttribute(
-  VTKTextureUnit unit,
+  int unit,
   const char* dataArrayName, 
   int field,
   int componentno)

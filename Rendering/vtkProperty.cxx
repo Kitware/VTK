@@ -48,7 +48,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.72");
+vtkCxxRevisionMacro(vtkProperty, "1.73");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -357,7 +357,7 @@ vtkTexture* vtkProperty::GetTexture(const char* name)
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::SetTexture(VTKTextureUnit unit, vtkTexture* tex)
+void vtkProperty::SetTexture(int unit, vtkTexture* tex)
 {
   vtksys_ios::ostringstream name;
   name << unit;
@@ -373,7 +373,7 @@ void vtkProperty::SetTexture(VTKTextureUnit unit, vtkTexture* tex)
 }
 
 //----------------------------------------------------------------------------
-vtkTexture* vtkProperty::GetTexture(VTKTextureUnit unit)
+vtkTexture* vtkProperty::GetTexture(int unit)
 {
   vtksys_ios::ostringstream name;
   name << unit;

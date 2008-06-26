@@ -337,8 +337,8 @@ public:
   // be a vtkTexture object. A property does not need to have an associated
   // texture map and multiple properties can share one texture. Textures
   // must be assigned unique names.
-  void SetTexture(VTKTextureUnit unit, vtkTexture* texture);
-  vtkTexture* GetTexture(VTKTextureUnit unit);
+  void SetTexture(int unit, vtkTexture* texture);
+  vtkTexture* GetTexture(int unit);
 
 
   // Description:
