@@ -62,28 +62,6 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   imageReaderBlue->Update();
   imageReaderGreen->Update();
 
-  /*vtkPolyData * polyData = vtkPolyData::New();
-  vtkPoints * points = vtkPoints::New();
-  points->Allocate(16);
-
-  points->InsertNextPoint(-1.0, -1.0, 0.0);
-  points->InsertNextPoint(1.0, -1.0, 0.0);
-  points->InsertNextPoint(1.0, 1.0, 0.0);
-  points->InsertNextPoint(-1.0, 1.0, 0.0);
-
-  polyData->SetPoints(points);
-
-  vtkCellArray * cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(1, 4));
-  cells->InsertNextCell(4);
-  cells->InsertCellPoint(0);
-  cells->InsertCellPoint(1);
-  cells->InsertCellPoint(2);
-  cells->InsertCellPoint(3);
-
-  polyData->SetPolys(cells);*/
-
-
   vtkPlaneSource *planeSource = vtkPlaneSource::New();
   planeSource->Update();
 
@@ -120,9 +98,6 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   textureRed->SetInputConnection(imageReaderRed->GetOutputPort());
   textureBlue->SetInputConnection(imageReaderBlue->GetOutputPort());
   textureGreen->SetInputConnection(imageReaderGreen->GetOutputPort());
-  //textureRed->RepeatOff();
-  //textureBlue->RepeatOff();
-  //textureGreen->RepeatOff();
 
   textureRed->SetTextureUnit(VTK_TEXTURE_UNIT_0);
   textureBlue->SetTextureUnit(VTK_TEXTURE_UNIT_1);
@@ -179,8 +154,6 @@ int TestMultiTexturingTransform(int argc, char *argv[])
     iren->Start();
     }
 
-  //points->Delete();
-  //cells->Delete();
   polyData->Delete();
   mapper->Delete();
   actor->Delete();
