@@ -47,6 +47,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/MFC" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/Qt" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/Qt/Chart" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Infovis" \
