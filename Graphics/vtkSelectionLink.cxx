@@ -23,9 +23,10 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkSelectionLink, "1.2");
+vtkCxxRevisionMacro(vtkSelectionLink, "1.3");
 vtkStandardNewMacro(vtkSelectionLink);
 //----------------------------------------------------------------------------
 vtkSelectionLink::vtkSelectionLink()
@@ -37,9 +38,8 @@ vtkSelectionLink::vtkSelectionLink()
   // Start with an empty index selection
   this->Selection = vtkSelection::New();
   this->Selection->SetContentType(vtkSelection::INDICES);
-  vtkIdTypeArray* ids = vtkIdTypeArray::New();
+  vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
   this->Selection->SetSelectionList(ids);
-  ids->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,9 @@ int vtkSelectionLink::RequestData(
   maps->SetNumberOfBlocks(numMaps);
   for (unsigned int i = 0; i < numMaps; ++i)
     {
-    maps->SetBlock(i, this->DomainMaps->GetItem(i));
+    vtkSmartPointer<vtkTable> map = vtkSmartPointer<vtkTable>::New();
+    map->ShallowCopy(this->DomainMaps->GetItem(i));
+    maps->SetBlock(i, map);
     }
   
   return 1;

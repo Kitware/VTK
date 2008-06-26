@@ -30,7 +30,7 @@
 #include "vtkSelectionLink.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkDataRepresentation, "1.4");
 vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation, InputConnectionInternal, vtkAlgorithmOutput);
 vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionLinkInternal, vtkSelectionLink);
@@ -101,7 +101,6 @@ void vtkDataRepresentation::Select(
     vtkSelection* converted = this->ConvertSelection(view, selection);
     if (converted)
       {
-      converted->GetProperties()->Set(vtkSelection::SOURCE(), this);
       this->UpdateSelection(converted);
       converted->Delete();
       }
