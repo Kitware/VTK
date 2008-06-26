@@ -35,7 +35,9 @@
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.4");
+#include <vtksys/ios/sstream>
+
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.5");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -228,13 +230,21 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
   
   // Create the output columns
   vtkDoubleArray* pYcondX = vtkDoubleArray::New();
-  pYcondX->SetName( "p(Y|X)" );
+  vtksys_ios::ostringstream pYCondXName;
+  pYCondXName
+    << "p(" << ( colY.size() ? colY.c_str() : "Y" )
+    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")";
+  pYcondX->SetName( pYCondXName.str().c_str() );
   pYcondX->SetNumberOfTuples( nRowD );
   output->AddColumn( pYcondX );
   pYcondX->Delete();
 
   vtkDoubleArray* pXcondY = vtkDoubleArray::New();
-  pXcondY->SetName( "p(X|Y)" );
+  vtksys_ios::ostringstream pXCondYName;
+  pXCondYName
+    << "p(" << ( colX.size() ? colX.c_str() : "X" )
+    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  pXcondY->SetName( pXCondYName.str().c_str() );
   pXcondY->SetNumberOfTuples( nRowD );
   output->AddColumn( pXcondY );
   pXcondY->Delete();
@@ -273,8 +283,8 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     x = dataset->GetValueByName( r, colX ).ToDouble();
     y = dataset->GetValueByName( r, colY ).ToDouble();
 
-    output->SetValueByName( r, "p(Y|X)", pdfYcondX[x][y] );
-    output->SetValueByName( r, "p(X|Y)", pdfXcondY[x][y] );
+    output->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
+    output->SetValueByName( r, pXCondYName.str().c_str(), pdfXcondY[x][y] );
     }
 
   return;
