@@ -47,7 +47,7 @@
 #include <vtksys/stl/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.27");
+vtkCxxRevisionMacro(vtkExtractSelectedGraph, "1.28");
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
 vtkExtractSelectedGraph::vtkExtractSelectedGraph()
@@ -182,9 +182,9 @@ int vtkExtractSelectedGraph::RequestData(
         else
           {
           vtkIdType numTuples = curList->GetNumberOfTuples();
-          for (vtkIdType i = 0; i < numTuples; ++i)
+          for (vtkIdType j = 0; j < numTuples; ++j)
             {
-            list->InsertNextValue(curList->GetValue(i));
+            list->InsertNextValue(curList->GetValue(j));
             }
           } // end else
         } // end if (curList)
