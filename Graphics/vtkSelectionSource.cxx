@@ -29,7 +29,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.22");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.23");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -297,9 +297,9 @@ int vtkSelectionSource::RequestData(
 
   // First look for string ids.
   if (
-    (this->ContentType == vtkSelection::GLOBALIDS) ||
+    ((this->ContentType == vtkSelection::GLOBALIDS) ||
     (this->ContentType == vtkSelection::PEDIGREEIDS) ||
-    (this->ContentType == vtkSelection::INDICES) &&
+    (this->ContentType == vtkSelection::INDICES)) &&
     !this->Internal->StringIDs.empty())
     {    
     oProperties->Set(vtkSelection::CONTENT_TYPE(), 
@@ -354,9 +354,9 @@ int vtkSelectionSource::RequestData(
 
   // If no string ids, use integer ids.
   if (
-    (this->ContentType == vtkSelection::GLOBALIDS) ||
+    ((this->ContentType == vtkSelection::GLOBALIDS) ||
     (this->ContentType == vtkSelection::PEDIGREEIDS) ||
-    (this->ContentType == vtkSelection::INDICES) &&
+    (this->ContentType == vtkSelection::INDICES)) &&
     this->Internal->StringIDs.empty())
     {    
     oProperties->Set(vtkSelection::CONTENT_TYPE(), 
