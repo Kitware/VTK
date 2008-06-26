@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.56");
+vtkCxxRevisionMacro(vtkTexture, "1.57");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -173,6 +173,32 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Transform: (none)\n";
     }
+  os << indent << "MultiTexture Blending Mode:     ";
+  switch (this->BlendingMode)
+    {
+    case VTK_TEXTURE_BLENDING_MODE_NONE:
+      os << "None\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_REPLACE:
+      os << "Replace\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_MODULATE:
+      os << "Modulate\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_ADD:
+      os << "Add\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_ADD_SIGNED:
+      os << "Add Signed\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_INTERPOLATE:
+      os << "Interpolate\n";
+      break;
+    case VTK_TEXTURE_BLENDING_MODE_SUBTRACT:
+      os << "Subtract\n";
+      break;
+    }
+  os << indent << "Texture Unit: " << this->TextureUnit;
 }
 
 //----------------------------------------------------------------------------
