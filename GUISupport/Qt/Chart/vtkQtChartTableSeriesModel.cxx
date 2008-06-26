@@ -118,8 +118,9 @@ QVariant vtkQtChartTableSeriesModel::getSeriesValue(int series, int index,
     {
     if(component == 0)
       {
-      return this->Model->headerData(index,
+      QVariant value = this->Model->headerData(index,
           this->ColumnsAsSeries ? Qt::Vertical : Qt::Horizontal);
+      return value.isValid() ? value : index;
       }
     else
       {
