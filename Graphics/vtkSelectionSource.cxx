@@ -22,13 +22,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedIntArray.h"
 
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.21");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.22");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -38,6 +39,10 @@ public:
   typedef vtkstd::vector<IDSetType> IDsType;
   IDsType IDs;
   
+  typedef vtkstd::set<vtkStdString> StringIDSetType;
+  typedef vtkstd::vector<StringIDSetType> StringIDsType;
+  StringIDsType StringIDs;
+
   vtkstd::vector<double> Thresholds;
   vtkstd::vector<double> Locations;
   IDSetType Blocks;
@@ -82,6 +87,13 @@ void vtkSelectionSource::RemoveAllIDs()
 }
 
 //----------------------------------------------------------------------------
+void vtkSelectionSource::RemoveAllStringIDs()
+{
+  this->Internal->StringIDs.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkSelectionSource::RemoveAllLocations()
 {
   this->Internal->Locations.clear();
@@ -106,6 +118,21 @@ void vtkSelectionSource::AddID(vtkIdType proc, vtkIdType id)
     this->Internal->IDs.resize(proc+1);
     }
   vtkSelectionSourceInternals::IDSetType& idSet = this->Internal->IDs[proc];
+  idSet.insert(id);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelectionSource::AddStringID(vtkIdType proc, const char* id)
+{
+  // proc == -1 means all processes. All other are stored at index proc+1
+  proc++;
+
+  if (proc >= (vtkIdType)this->Internal->StringIDs.size())
+    {
+    this->Internal->StringIDs.resize(proc+1);
+    }
+  vtkSelectionSourceInternals::StringIDSetType& idSet = this->Internal->StringIDs[proc];
   idSet.insert(id);
   this->Modified();
 }
@@ -268,10 +295,69 @@ int vtkSelectionSource::RequestData(
       this->HierarchicalIndex);
     }
 
+  // First look for string ids.
   if (
     (this->ContentType == vtkSelection::GLOBALIDS) ||
     (this->ContentType == vtkSelection::PEDIGREEIDS) ||
-    (this->ContentType == vtkSelection::INDICES))
+    (this->ContentType == vtkSelection::INDICES) &&
+    !this->Internal->StringIDs.empty())
+    {    
+    oProperties->Set(vtkSelection::CONTENT_TYPE(), 
+      this->ContentType);
+    oProperties->Set(vtkSelection::FIELD_TYPE(),
+      this->FieldType);
+
+    // Number of selected items common to all pieces
+    vtkIdType numCommonElems = 0;
+    if (!this->Internal->StringIDs.empty())
+      {
+      numCommonElems = this->Internal->StringIDs[0].size();
+      }
+    if (piece+1 >= (int)this->Internal->StringIDs.size() &&
+        numCommonElems == 0)
+      {
+      vtkDebugMacro("No selection for piece: " << piece);
+      return 1;
+      }
+    
+    // idx == 0 is the list for all pieces
+    // idx == piece+1 is the list for the current piece
+    size_t pids[2] = {0, piece+1};
+    for(int i=0; i<2; i++)
+      {
+      size_t idx = pids[i];
+      if (idx >= this->Internal->StringIDs.size())
+        {
+        continue;
+        }
+      
+      vtkSelectionSourceInternals::StringIDSetType& selSet =
+        this->Internal->StringIDs[idx];
+      
+      if (selSet.size() > 0)
+        {
+        // Create the selection list
+        vtkStringArray* selectionList = vtkStringArray::New();
+        selectionList->SetNumberOfTuples(selSet.size());
+        // iterate over ids and insert to the selection list
+        vtkSelectionSourceInternals::StringIDSetType::iterator iter =
+          selSet.begin();
+        for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+          {
+          selectionList->SetValue(idx2, *iter);
+          }
+        output->SetSelectionList(selectionList);
+        selectionList->Delete();
+        }
+      }
+    }
+
+  // If no string ids, use integer ids.
+  if (
+    (this->ContentType == vtkSelection::GLOBALIDS) ||
+    (this->ContentType == vtkSelection::PEDIGREEIDS) ||
+    (this->ContentType == vtkSelection::INDICES) &&
+    this->Internal->StringIDs.empty())
     {    
     oProperties->Set(vtkSelection::CONTENT_TYPE(), 
       this->ContentType);

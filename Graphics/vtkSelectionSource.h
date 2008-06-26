@@ -38,6 +38,7 @@ public:
   // only the ids for which piece == UPDATE_PIECE_NUMBER.
   // If piece == -1, the id applies to all pieces.
   void AddID(vtkIdType piece, vtkIdType id);
+  void AddStringID(vtkIdType piece, const char* id);
 
   // Description:
   // Add a point in world space to probe at.
@@ -58,6 +59,7 @@ public:
   // Description:
   // Removes all IDs.
   void RemoveAllIDs();
+  void RemoveAllStringIDs();
 
   // Description:
   // Remove all thresholds added with AddThreshold.
