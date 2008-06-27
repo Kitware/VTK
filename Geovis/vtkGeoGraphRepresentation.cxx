@@ -60,7 +60,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.7");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.8");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -368,11 +368,11 @@ void vtkGeoGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
   vtkSmartPointer<vtkViewTheme> selectTheme =
     vtkSmartPointer<vtkViewTheme>::New();
   selectTheme->SetPointColor(theme->GetSelectedPointColor());
-  selectTheme->SetCellColor(theme->GetSelectedCellColor());
+  selectTheme->SetCellColor(theme->GetSelectedPointColor());
   selectTheme->SetOutlineColor(theme->GetSelectedPointColor());
   this->SelectionMapper->ApplyViewTheme(selectTheme);
-  this->SelectionMapper->SetVertexPointSize(theme->GetPointSize()+2);
-  this->SelectionMapper->SetEdgeLineWidth(theme->GetLineWidth()+1);
+  this->SelectionMapper->SetVertexPointSize(theme->GetPointSize()+4);
+  this->SelectionMapper->SetEdgeLineWidth(theme->GetLineWidth()+3);
 }
 
 //----------------------------------------------------------------------------
