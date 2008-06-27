@@ -88,15 +88,15 @@ int TestContingencyStatistics( int, char *[] )
 
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "Metric 0" );
+  dataset1Arr->SetName( "X0" );
 
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Metric 1" );
+  dataset2Arr->SetName( "X1" );
 
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "Metric 2" );
+  dataset3Arr->SetName( "X2" );
 
   for ( int i = 0; i < nVals; ++ i )
     {
@@ -121,8 +121,8 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->Delete();
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex->SetX( "Metric 0" );
-  haruspex->SetY( "Metric 1" );
+  haruspex->SetX( "X0" );
+  haruspex->SetY( "X1" );
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -170,29 +170,32 @@ int TestContingencyStatistics( int, char *[] )
   vtkTable* outputTable2 = haruspex2->GetOutput();
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex2->SetX( "Metric 0" );
-  haruspex2->SetY( "Metric 1" );
-
-  cout << "## Calculated the following conditional probabilities:\n";
+  haruspex2->SetX( "X0" );
+  haruspex2->SetY( "X1" );
 
   haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex2->Update();
 
+  cout << "## Calculated the following probabilities:\n";
+
+  int ids[] = { 0, 1, 3, 4, 5 };
+  for ( int i = 0; i < 5; ++ i )
+    {
+    cout << "   "
+         << outputTable2->GetColumnName( ids[i] )
+         << "  ";
+    }
+  cout << "\n";
+
   for ( vtkIdType r = 0; r < outputTable2->GetNumberOfRows(); ++ r )
     {
-    cout << "   (X, Y) = ("
-         << outputTable2->GetValue( r, 0 ).ToString()
-         << ", "
-         << outputTable2->GetValue( r, 1 ).ToString()
-         << "), "
-         << outputTable2->GetColumnName( 3 )
-         << "="
-         << outputTable2->GetValue( r, 3 ).ToDouble()
-         << ", "
-         << outputTable2->GetColumnName( 4 )
-         << "="
-         << outputTable2->GetValue( r, 4 ).ToDouble()
-         << "\n";
+    for ( int i = 0; i < 5; ++ i )
+      {
+      cout << "   "
+           << outputTable2->GetValue( r, ids[i] ).ToString()
+           << "  ";
+      }
+    cout << "\n";
     }
 
   haruspex2->Delete();

@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.5");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.6");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -229,6 +229,16 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     }
   
   // Create the output columns
+  vtkDoubleArray* pXY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream pXYName;
+  pXYName
+    << "p(" << ( colX.size() ? colX.c_str() : "X" )
+    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  pXY->SetName( pXYName.str().c_str() );
+  pXY->SetNumberOfTuples( nRowD );
+  output->AddColumn( pXY );
+  pXY->Delete();
+
   vtkDoubleArray* pYcondX = vtkDoubleArray::New();
   vtksys_ios::ostringstream pYCondXName;
   pYCondXName
@@ -283,6 +293,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     x = dataset->GetValueByName( r, colX ).ToDouble();
     y = dataset->GetValueByName( r, colY ).ToDouble();
 
+    output->SetValueByName( r, pXYName.str().c_str(), pdfXY[x][y] );
     output->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
     output->SetValueByName( r, pXCondYName.str().c_str(), pdfXcondY[x][y] );
     }
