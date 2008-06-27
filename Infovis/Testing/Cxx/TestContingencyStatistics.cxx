@@ -7,9 +7,9 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkVariantArray.h"
 #include "vtkContingencyStatistics.h"
 
 //=============================================================================
@@ -17,93 +17,45 @@ int TestContingencyStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  double mingledData[] = 
+  vtkStdString mingledData[] = 
     {
-    46,
-    45,
-    47,
-    49,
-    46,
-    47,
-    46,
-    46,
-    47,
-    46,
-    47,
-    49,
-    49,
-    49,
-    47,
-    45,
-    50,
-    50,
-    46,
-    46,
-    51,
-    50,
-    48,
-    48,
-    52,
-    54,
-    48,
-    47,
-    52,
-    52,
-    49,
-    49,
-    53,
-    54,
-    50,
-    50,
-    53,
-    54,
-    50,
-    52,
-    53,
-    53,
-    50,
-    51,
-    54,
-    54,
-    49,
-    49,
-    52,
-    52,
-    50,
-    51,
-    52,
-    52,
-    49,
-    47,
-    48,
-    48,
-    48,
-    50,
-    46,
-    48,
-    47,
-    47,
+      "123", "456", "80", "HTTP",
+      "123", "789", "80", "HTTP",
+      "123", "789", "80", "HTTP",
+      "123", "456", "80", "HTTP",
+      "456", "123", "80", "HTTP",
+      "456", "123", "80", "HTTP",
+      "456", "123", "8080", "HTTP",
+      "789", "123", "1122", "HTTP",
+      "456", "789", "80", "HTTP",
+      "456", "789", "25", "SMTP",
+      "456", "789", "25", "SMTP",
+      "456", "789", "25", "SMTP",
+      "456", "789", "25", "SMTP",
+      "123", "789", "25", "SMTP",
+      "789", "123", "80", "SMTP",
+      "123", "456", "20", "FTP",
+      "789", "456", "20", "FTP",
+      "789", "123", "20", "FTP",
+      "789", "123", "122", "FTP",
+      "789", "456", "20", "FTP",
+      "789", "456", "20", "FTP",
     };
-  int nVals = 32;
+  int nVals = 21;
 
-  vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
+  vtkVariantArray* dataset1Arr = vtkVariantArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "X0" );
+  dataset1Arr->SetName( "X" );
 
-  vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
+  vtkVariantArray* dataset2Arr = vtkVariantArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "X1" );
-
-  vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
-  dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "X2" );
+  dataset2Arr->SetName( "Y" );
 
   for ( int i = 0; i < nVals; ++ i )
     {
-    int ti = i << 1;
-    dataset1Arr->InsertNextValue( mingledData[ti] );
-    dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( -1. );
+    int ti = i << 2;
+    dataset1Arr->InsertNextValue( mingledData[ti + 2] );
+    dataset2Arr->InsertNextValue( mingledData[ti + 3] );
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -111,8 +63,6 @@ int TestContingencyStatistics( int, char *[] )
   dataset1Arr->Delete();
   datasetTable->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
-  datasetTable->AddColumn( dataset3Arr );
-  dataset3Arr->Delete();
 
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
   haruspex->SetInput( 0, datasetTable );
@@ -121,8 +71,8 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->Delete();
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex->SetX( "X0" );
-  haruspex->SetY( "X1" );
+  haruspex->SetX( "X" );
+  haruspex->SetY( "Y" );
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -170,19 +120,18 @@ int TestContingencyStatistics( int, char *[] )
   vtkTable* outputTable2 = haruspex2->GetOutput();
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex2->SetX( "X0" );
-  haruspex2->SetY( "X1" );
+  haruspex2->SetX( "X" );
+  haruspex2->SetY( "Y" );
 
   haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex2->Update();
 
   cout << "## Calculated the following probabilities:\n";
 
-  int ids[] = { 0, 1, 3, 4, 5 };
   for ( int i = 0; i < 5; ++ i )
     {
     cout << "   "
-         << outputTable2->GetColumnName( ids[i] )
+         << outputTable2->GetColumnName( i )
          << "  ";
     }
   cout << "\n";
@@ -192,7 +141,7 @@ int TestContingencyStatistics( int, char *[] )
     for ( int i = 0; i < 5; ++ i )
       {
       cout << "   "
-           << outputTable2->GetValue( r, ids[i] ).ToString()
+           << outputTable2->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";

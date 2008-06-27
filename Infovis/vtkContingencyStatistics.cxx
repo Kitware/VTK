@@ -36,7 +36,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.8");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.9");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -291,8 +291,8 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
 
   for ( vtkIdType r = 0; r < nRowD; ++ r )
     {
-    x = dataset->GetValueByName( r, colX ).ToDouble();
-    y = dataset->GetValueByName( r, colY ).ToDouble();
+    x = dataset->GetValueByName( r, colX );
+    y = dataset->GetValueByName( r, colY );
 
     output->SetValueByName( r, pXYName.str().c_str(), pdfXY[x][y] );
     output->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
