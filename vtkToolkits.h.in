@@ -127,9 +127,6 @@
 /* Whether the user has built the MetaIO library or not  */
 #cmakedefine VTK_USE_METAIO
 
-/* Whether the user has built the Verdict library or not  */
-#cmakedefine VTK_USE_VERDICT
-
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
