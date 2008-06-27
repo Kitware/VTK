@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.9");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.10");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -49,12 +49,13 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->Dimensions[0] = 0;
   this->Dimensions[1] = 0;
   this->Dimensions[2] = 0;
-  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 
   int extent[6] = {0, -1, 0, -1, 0, -1};
   memcpy(this->Extent, extent, 6*sizeof(int));
   this->DataDescription = VTK_EMPTY;
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 
   vtkDoubleArray *fs=vtkDoubleArray::New(); fs->Allocate(1);
   fs->SetNumberOfTuples(1);

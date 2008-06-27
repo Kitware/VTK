@@ -30,7 +30,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.7");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.8");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -61,11 +61,11 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 
-  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
-
   int extent[6] = {0, -1, 0, -1, 0, -1};
   memcpy(this->Extent, extent, 6*sizeof(int));
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 }
 
 //----------------------------------------------------------------------------

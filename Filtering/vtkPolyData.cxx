@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.10");
+vtkCxxRevisionMacro(vtkPolyData, "1.11");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -239,13 +239,6 @@ void vtkPolyData::CopyStructure(vtkDataSet *ds)
     this->Links->UnRegister(this);
     this->Links = NULL;
     }
-
-  // Reset this information to mantain the functionality that was present when
-  // CopyStructure called Initialize, which incorrectly wiped out attribute
-  // data.  Someone MIGHT argue that this isn't the right thing to do.
-  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
 //----------------------------------------------------------------------------
@@ -855,9 +848,9 @@ void vtkPolyData::Initialize()
 
   if(this->Information)
     {
-  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+    this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
     }
 }
 
