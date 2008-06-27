@@ -30,6 +30,7 @@
 #include "vtkDataObject.h"
 #include "vtkEdgeCenters.h"
 #include "vtkEdgeLayout.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkExtractSelection.h"
 #include "vtkGeoAssignCoordinates.h"
@@ -60,7 +61,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.8");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.9");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -470,10 +471,11 @@ vtkSelection* vtkGeoGraphRepresentation::ConvertSelection(
   vtkDataSet* extractedData = vtkDataSet::SafeDownCast(extract->GetOutput());
   vtkAbstractArray* extractPedIds = extractedData->GetPointData()->GetPedigreeIds();
 
-  // Extract the points on the correct side of the globe
   vtkSmartPointer<vtkIdTypeArray> facingIds = vtkSmartPointer<vtkIdTypeArray>::New();
+  vtkSmartPointer<vtkIdTypeArray> edgeIds = vtkSmartPointer<vtkIdTypeArray>::New();
   if (extractPedIds)
     {
+    // Extract the vertices on the correct side of the globe
     vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
     vtkCamera* cam = rv->GetRenderer()->GetActiveCamera();
     double pos[3];
@@ -496,20 +498,42 @@ vtkSelection* vtkGeoGraphRepresentation::ConvertSelection(
         facingIds->InsertNextValue(graphPedIds->LookupValue(v));
         }
       }
+
+    // Extract edges connecting selected vertices
+    vtkSmartPointer<vtkEdgeListIterator> it = vtkSmartPointer<vtkEdgeListIterator>::New();
+    graph->GetEdges(it);
+    while (it->HasNext())
+      {
+      vtkEdgeType e = it->Next();
+      if (facingIds->LookupValue(e.Source) >= 0 && facingIds->LookupValue(e.Target) >= 0)
+        {
+        edgeIds->InsertNextValue(e.Id);
+        }
+      }
     }
-  vtkSmartPointer<vtkSelection> pedIdSel = vtkSmartPointer<vtkSelection>::New();
-  pedIdSel->SetSelectionList(facingIds);
-  pedIdSel->SetContentType(vtkSelection::INDICES);
-  pedIdSel->SetFieldType(vtkSelection::VERTEX);
+  vtkSmartPointer<vtkSelection> vertSel = vtkSmartPointer<vtkSelection>::New();
+  vertSel->SetSelectionList(facingIds);
+  vertSel->SetContentType(vtkSelection::INDICES);
+  vertSel->SetFieldType(vtkSelection::VERTEX);
+
+  vtkSmartPointer<vtkSelection> edgeSel = vtkSmartPointer<vtkSelection>::New();
+  edgeSel->SetSelectionList(edgeIds);
+  edgeSel->SetContentType(vtkSelection::INDICES);
+  edgeSel->SetFieldType(vtkSelection::EDGE);
+
+  vtkSmartPointer<vtkSelection> parentSel = vtkSmartPointer<vtkSelection>::New();
+  parentSel->SetContentType(vtkSelection::SELECTIONS);
+  parentSel->AddChild(vertSel);
+  parentSel->AddChild(edgeSel);
 
   // Convert to the selection type needed for this view
-  vtkSmartPointer<vtkSelection> index;
-  index.TakeReference(vtkConvertSelection::ToSelectionType(
-    pedIdSel, this->AssignCoordinates->GetOutput(), view->GetSelectionType(),
+  vtkSmartPointer<vtkSelection> conv;
+  conv.TakeReference(vtkConvertSelection::ToSelectionType(
+    parentSel, this->AssignCoordinates->GetOutput(), view->GetSelectionType(),
     view->GetSelectionArrayNames()));
 
   vtkSelection* converted = vtkSelection::New();
-  converted->ShallowCopy(index);
+  converted->ShallowCopy(conv);
   return converted;
 }
 
