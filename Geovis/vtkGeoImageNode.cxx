@@ -23,7 +23,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.2");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.3");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -184,7 +184,6 @@ void vtkGeoImageNode::LoadAnImage(const char* prefix)
   reader->Update();
   vtkImageData* image = reader->GetOutput();
   this->Image = image;
-  this->Image->Register(0);
   this->LongitudeRange[0] = this->Image->GetOrigin()[0];
   this->LatitudeRange[0] = this->Image->GetOrigin()[1];
   this->LongitudeRange[1] = this->Image->GetSpacing()[0];
