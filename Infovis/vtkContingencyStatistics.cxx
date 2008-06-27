@@ -33,11 +33,10 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/map>
-#include <vtkstd/set>
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.6");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.7");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -116,11 +115,11 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
     doubleCol->Delete();
     }
 
-  typedef vtkstd::map<double,vtkIdType> Distribution;
-  vtkstd::map<double,Distribution> conTable;
+  typedef vtkstd::map<vtkVariant,vtkIdType,vtkVariantLessThan> Distribution;
+  vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan> conTable;
   for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
     {
-    ++ conTable[dataset->GetValueByName( r, colX ).ToDouble()][dataset->GetValueByName( r, colY ).ToDouble()];
+    ++ conTable[dataset->GetValueByName( r, colX )][dataset->GetValueByName( r, colY )];
     }
 
   vtkVariantArray* row = vtkVariantArray::New();
@@ -129,7 +128,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
     {
     row->SetNumberOfValues( 4 );
 
-    for ( vtkstd::map<double,Distribution>::iterator it = conTable.begin(); 
+    for ( vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan>::iterator it = conTable.begin(); 
           it != conTable.end(); ++ it )
       {
       row->SetValue( 0, it->first );
@@ -147,7 +146,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
     {
     row->SetNumberOfValues( 3 );
 
-    for ( vtkstd::map<double,Distribution>::iterator it = conTable.begin(); 
+    for ( vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan>::iterator it = conTable.begin(); 
           it != conTable.end(); ++ it )
       {
       row->SetValue( 0, it->first );
@@ -259,13 +258,15 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
   output->AddColumn( pXcondY );
   pXcondY->Delete();
 
-  vtkstd::map<double,double> pdfX, pdfY;
-  vtkstd::map<double,vtkstd::map<double,double> > pdfXY;
-  double x, y, p;
+  typedef vtkstd::map<vtkVariant,double,vtkVariantLessThan> PDF;
+  PDF pdfX, pdfY;
+  vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXY;
+  vtkVariant x, y;
+  double p;
   for ( vtkIdType r = 0; r < nRowP; ++ r )
     {
-    x = params->GetValueByName( r, colX ).ToDouble();
-    y = params->GetValueByName( r, colY ).ToDouble();
+    x = params->GetValueByName( r, colX );
+    y = params->GetValueByName( r, colY );
     p = params->GetValueByName( r, "Probability" ).ToDouble();
 
     pdfX[x] += p;
@@ -273,13 +274,13 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     pdfXY[x][y] = p;
     }
 
-  vtkstd::map<double,vtkstd::map<double,double> > pdfYcondX;
-  vtkstd::map<double,vtkstd::map<double,double> > pdfXcondY;
-  for ( vtkstd::map<double,vtkstd::map<double,double> >::iterator xit = pdfXY.begin();
+  vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfYcondX;
+  vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXcondY;
+  for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit = pdfXY.begin();
         xit != pdfXY.end(); ++ xit )
     {
     x = xit->first;
-    for ( vtkstd::map<double,double>::iterator yit = xit->second.begin(); 
+    for ( vtkstd::map<vtkVariant,double>::iterator yit = xit->second.begin(); 
           yit != xit->second.end(); ++ yit )
       {
       y = yit->first;
