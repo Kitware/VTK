@@ -119,7 +119,7 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkStdString columnPairs[] = { "Metric 0", "Metric 1", "Metric 1", "Metric 0", "Metric 2", "Metric 1" };
   double centers[] = { 49.2188, 49.5 };
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = .2;
+  double threshold = exp( -2. );
 
   vtkStringArray* stdStringCol = vtkStringArray::New();
   stdStringCol->SetName( "Column X" );
@@ -264,11 +264,11 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->Update();
 
   testIntValue = outputTable->GetNumberOfRows();
-  if ( testIntValue != 7 )
+  if ( testIntValue != 3 )
     {
     cerr << "Reported an incorrect number of outliers: "
          << testIntValue
-         << " != 7.\n";
+         << " != 3.\n";
     return 1;
     }
 
