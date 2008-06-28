@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.54");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.55");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -777,6 +777,35 @@ vtkStreamingDemandDrivenPipeline
   // Tell outputs they have been generated.
   this->Superclass::MarkOutputsGenerated(request,inInfoVec,outInfoVec);
 
+  int outputPort = 0;
+  if(request->Has(FROM_OUTPUT_PORT()))
+    {
+    outputPort = request->Get(FROM_OUTPUT_PORT());
+    outputPort = (outputPort >= 0 ? outputPort : 0);
+    }
+
+  // Get the piece request from the update port (port 0 if none)
+  // The defaults are:
+  int piece = 0;
+  int numPieces = 1;
+  int ghostLevel = 0;
+  if (outputPort < outInfoVec->GetNumberOfInformationObjects())
+    {
+    vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+    if (outInfo->Has(UPDATE_PIECE_NUMBER()))
+      {
+      piece = outInfo->Get(UPDATE_PIECE_NUMBER());
+      }
+    if (outInfo->Has(UPDATE_NUMBER_OF_PIECES()))
+      {
+      numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
+      }
+    if (outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
+      {
+      ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+      }
+    }
+
   for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
     {
     vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
@@ -795,6 +824,18 @@ vtkStreamingDemandDrivenPipeline
           }
         }
       
+      // Copy the update piece information from the update port to
+      // the data piece information of all output ports UNLESS the
+      // algorithm already specified it.
+      vtkInformation* dataInfo = data->GetInformation();
+      if (!dataInfo->Has(vtkDataObject::DATA_PIECE_NUMBER()) ||
+          dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER()) == - 1)
+        {
+        dataInfo->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
+        dataInfo->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), numPieces);
+        dataInfo->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+        }
+        
       // In this block, we make sure that DATA_TIME_STEPS() is set if:
       // * There was someone upstream that supports time (TIME_RANGE() key
       //   is present)
@@ -807,7 +848,6 @@ vtkStreamingDemandDrivenPipeline
       // be copied from input to output.
       //
       // Check if the output has DATA_TIME_STEPS().
-      vtkInformation* dataInfo = data->GetInformation();
       if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()) &&
           outInfo->Has(TIME_RANGE()))
         {

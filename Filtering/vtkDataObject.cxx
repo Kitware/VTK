@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.39");
+vtkCxxRevisionMacro(vtkDataObject, "1.40");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -740,19 +740,6 @@ void vtkDataObject::DataHasBeenGenerated()
 {
   this->DataReleased = 0;
   this->UpdateTime.Modified();
-
-  // Assume that the algorithm produced the required data unless the
-  // algorithm sets otherwise.
-  if (!this->Information->Has(DATA_PIECE_NUMBER()) ||
-      this->Information->Get(DATA_PIECE_NUMBER()) == - 1)
-    {
-    this->Information->Set(DATA_PIECE_NUMBER(), 
-                           this->GetUpdatePiece());
-    this->Information->Set(DATA_NUMBER_OF_PIECES(), 
-                           this->GetUpdateNumberOfPieces());
-    this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), 
-                           this->GetUpdateGhostLevel());
-    }
 }
 
 //----------------------------------------------------------------------------
