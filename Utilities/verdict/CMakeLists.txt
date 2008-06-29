@@ -62,12 +62,25 @@ else ( VERDICT_MANGLE )
   set( verdict_LIBRARY "verdict" )
 endif ( VERDICT_MANGLE )
 
+# Setting the VERSION and SOVERSION of a library will include
+# version information either in the library, or in the library
+# name (depending on the platform). You may choose to exclude
+# this information.
+if ( NOT VERDICT_NO_LIBRARY_VERSION )
+  set( VERDICT_LIBRARY_PROPERTIES
+    ${VERDICT_LIBRARY_PROPERTIES}
+    VERSION "${verdict_VERSION}"
+    SOVERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}"
+  )
+endif ( NOT VERDICT_NO_LIBRARY_VERSION )
+
 add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
-set_target_properties( ${verdict_LIBRARY}
-  PROPERTIES 
-    VERSION ${verdict_VERSION}
-    SOVERSION ${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}
-)
+# Apply user-defined properties to the library targets.
+if ( VERDICT_LIBRARY_PROPERTIES )
+  set_target_properties( ${verdict_LIBRARY}
+    PROPERTIES ${VERDICT_LIBRARY_PROPERTIES}
+  )
+endif ( VERDICT_LIBRARY_PROPERTIES )
 
 if ( VERDICT_ENABLE_TESTING )
   enable_testing()
