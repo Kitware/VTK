@@ -617,7 +617,7 @@ C_FUNC_DEF double v_tri_relative_size_squared( int /*num_nodes*/, double coordin
   
   v_tri_get_weight(w11,w21,w12,w22);
 
-  double detw = determinant(w11,w21,w12,w22);
+  double detw = v_determinant(w11,w21,w12,w22);
 
   if(detw == 0.0)
     return 0.0;
@@ -1108,7 +1108,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3],
     double w11, w21, w12, w22;
     v_tri_get_weight(w11,w21,w12,w22);
     // get the determinant
-    double detw = determinant(w11,w21,w12,w22);
+    double detw = v_determinant(w11,w21,w12,w22);
     // use the area from above and divide with the determinant
     if( metric_vals->area == 0.0  || detw == 0.0 )
       metric_vals->relative_size_squared = 0.0;

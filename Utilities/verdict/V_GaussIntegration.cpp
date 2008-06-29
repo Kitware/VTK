@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-double verdictSqrt2 = sqrt( (double)2.0 );
+double v_sqrt_2 = sqrt( (double)2.0 );
 
 int numberGaussPoints;
 int numberNodes;

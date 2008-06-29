@@ -32,15 +32,13 @@
 
 
 //! the average area of a quad
-double verdict_quad_size = 0;
+static double v_quad_size = 0;
 
 /*!
   weights based on the average size of a quad
 */
-int get_weight ( double &m11,
-    double &m21,
-    double &m12,
-    double &m22 )
+static int v_quad_get_weight (
+  double &m11, double &m21, double &m12, double &m22 )
 {
   
   m11=1;
@@ -48,7 +46,7 @@ int get_weight ( double &m11,
   m12=0;
   m22=1;
   
-  double scale = sqrt( verdict_quad_size/(m11*m22-m21*m12));
+  double scale = sqrt( v_quad_size/(m11*m22-m21*m12));
 
   m11 *= scale;
   m21 *= scale;
@@ -62,11 +60,11 @@ int get_weight ( double &m11,
 //! return the average area of a quad
 C_FUNC_DEF void v_set_quad_size( double size )
 {
-  verdict_quad_size = size;
+  v_quad_size = size;
 }
 
 //! returns whether the quad is collapsed or not
-VerdictBoolean is_collapsed_quad ( double coordinates[][3] )
+static VerdictBoolean v_is_collapsed_quad ( double coordinates[][3] )
 {
   if( coordinates[3][0] == coordinates[2][0] &&
       coordinates[3][1] == coordinates[2][1] &&
@@ -77,7 +75,7 @@ VerdictBoolean is_collapsed_quad ( double coordinates[][3] )
     return VERDICT_FALSE;
 }
 
-void make_quad_edges( VerdictVector edges[4], double coordinates[][3] )
+static void v_make_quad_edges( VerdictVector edges[4], double coordinates[][3] )
 {
 
   edges[0].set(
@@ -102,10 +100,10 @@ void make_quad_edges( VerdictVector edges[4], double coordinates[][3] )
       );
 }
 
-void signed_corner_areas( double areas[4], double coordinates[][3] )
+static void v_signed_corner_areas( double areas[4], double coordinates[][3] )
 {
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   VerdictVector corner_normals[4];
   corner_normals[0] = edges[3] * edges[0];
@@ -130,6 +128,7 @@ void signed_corner_areas( double areas[4], double coordinates[][3] )
 
 }
 
+#if 0 /* Not currently used and not exposed in verdict.h */
 /*!
   localize the coordinates of a quad
 
@@ -139,7 +138,7 @@ void signed_corner_areas( double areas[4], double coordinates[][3] )
   and the quad normal lines up with the y axis.
 
 */
-void localize_quad_coordinates(VerdictVector nodes[4])
+static void v_localize_quad_coordinates(VerdictVector nodes[4])
 {
   int i;
   VerdictVector global[4] = { nodes[0], nodes[1], nodes[2], nodes[3] };
@@ -190,7 +189,7 @@ void localize_quad_coordinates(VerdictVector nodes[4])
   moves and rotates the quad such that it enables us to 
   use components of ef's
 */
-void localize_quad_for_ef( VerdictVector node_pos[4])
+static void v_localize_quad_for_ef( VerdictVector node_pos[4] )
 {
 
   VerdictVector centroid(node_pos[0]);
@@ -220,11 +219,12 @@ void localize_quad_for_ef( VerdictVector node_pos[4])
     node_pos[i].x(xnew);
   }
 }
+#endif /* Not currently used and not exposed in verdict.h */
 
 /*!
   returns the normal vector of a quad
 */
-VerdictVector quad_normal( double coordinates[][3] )
+static VerdictVector v_quad_normal( double coordinates[][3] )
 {
   // get normal at node 0
   VerdictVector edge0, edge1;
@@ -306,7 +306,7 @@ VerdictVector quad_normal( double coordinates[][3] )
 C_FUNC_DEF double v_quad_edge_ratio( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double a2 = edges[0].length_squared();
   double b2 = edges[1].length_squared();
@@ -390,7 +390,7 @@ C_FUNC_DEF double v_quad_aspect_ratio( int /*num_nodes*/, double coordinates[][3
 {
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double a1 = edges[0].length();
   double b1 = edges[1].length();
@@ -428,7 +428,7 @@ C_FUNC_DEF double v_quad_radius_ratio( int /*num_nodes*/, double coordinates[][3
   static const double normal_coeff = 1. / ( 2. * sqrt( 2. ) );
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double a2 = edges[0].length_squared();
   double b2 = edges[1].length_squared();
@@ -487,7 +487,7 @@ C_FUNC_DEF double v_quad_med_aspect_frobenius( int /*num_nodes*/, double coordin
 {
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double a2 = edges[0].length_squared();
   double b2 = edges[1].length_squared();
@@ -533,7 +533,7 @@ C_FUNC_DEF double v_quad_max_aspect_frobenius( int /*num_nodes*/, double coordin
 {
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double a2 = edges[0].length_squared();
   double b2 = edges[1].length_squared();
@@ -640,7 +640,7 @@ C_FUNC_DEF double v_quad_warpage( int /*num_nodes*/, double coordinates[][3] )
 {
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   VerdictVector corner_normals[4];
   corner_normals[0] = edges[3] * edges[0];
@@ -673,7 +673,7 @@ C_FUNC_DEF double v_quad_area( int /*num_nodes*/, double coordinates[][3] )
 {    
 
   double corner_areas[4];
-  signed_corner_areas( corner_areas, coordinates );
+  v_signed_corner_areas( corner_areas, coordinates );
 
   double area = 0.25 * (corner_areas[0] + corner_areas[1] + corner_areas[2] + corner_areas[3]);
 
@@ -691,7 +691,7 @@ C_FUNC_DEF double v_quad_area( int /*num_nodes*/, double coordinates[][3] )
 C_FUNC_DEF double v_quad_stretch( int /*num_nodes*/, double coordinates[][3] )
 {
   VerdictVector edges[4], temp;
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double lengths_squared[4];
   lengths_squared[0] = edges[0].length_squared();
@@ -738,7 +738,7 @@ C_FUNC_DEF double v_quad_maximum_angle( int /*num_nodes*/, double coordinates[][
 
   // if this is a collapsed quad, just pass it on to 
   // the tri_largest_angle routine
-  if( is_collapsed_quad(coordinates) == VERDICT_TRUE )
+  if( v_is_collapsed_quad(coordinates) == VERDICT_TRUE )
     return v_tri_maximum_angle(3, coordinates);
 
   double angle;
@@ -796,7 +796,7 @@ C_FUNC_DEF double v_quad_maximum_angle( int /*num_nodes*/, double coordinates[][
 
   //if any signed areas are < 0, then you are getting the wrong angle
   double areas[4]; 
-  signed_corner_areas( areas, coordinates );
+  v_signed_corner_areas( areas, coordinates );
 
   if( areas[0] < 0 || areas[1] < 0 || 
       areas[2] < 0 || areas[3] < 0 )
@@ -818,7 +818,7 @@ C_FUNC_DEF double v_quad_minimum_angle( int /*num_nodes*/, double coordinates[][
 {
   // if this quad is a collapsed quad, then just
   // send it to the tri_smallest_angle routine 
-  if ( is_collapsed_quad(coordinates) == VERDICT_TRUE )
+  if ( v_is_collapsed_quad(coordinates) == VERDICT_TRUE )
     return v_tri_minimum_angle(3, coordinates);
 
   double angle;
@@ -930,11 +930,11 @@ C_FUNC_DEF double v_quad_oddy( int /*num_nodes*/, double coordinates[][3] )
 C_FUNC_DEF double v_quad_condition( int /*num_nodes*/, double coordinates[][3] )
 {
 
-  if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
+  if ( v_is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
     return v_tri_condition(3,coordinates);
  
   double areas[4]; 
-  signed_corner_areas( areas, coordinates );
+  v_signed_corner_areas( areas, coordinates );
 
   double max_condition = 0.;
   
@@ -976,11 +976,11 @@ C_FUNC_DEF double v_quad_condition( int /*num_nodes*/, double coordinates[][3] )
 C_FUNC_DEF double v_quad_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
    
-  if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE )
+  if ( v_is_collapsed_quad( coordinates ) == VERDICT_TRUE )
     return (double)(v_tri_area(3, coordinates) * 2.0);
   
   double areas[4]; 
-  signed_corner_areas( areas, coordinates );
+  v_signed_corner_areas( areas, coordinates );
 
   double jacobian = VERDICT_MIN( VERDICT_MIN( areas[0], areas[1] ), 
                                  VERDICT_MIN( areas[2], areas[3] ) );
@@ -998,14 +998,14 @@ C_FUNC_DEF double v_quad_jacobian( int /*num_nodes*/, double coordinates[][3] )
 */
 C_FUNC_DEF double v_quad_scaled_jacobian( int /*num_nodes*/, double coordinates[][3] )
 {
-  if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
+  if ( v_is_collapsed_quad( coordinates ) == VERDICT_TRUE ) 
     return v_tri_scaled_jacobian(3, coordinates);
  
   double corner_areas[4], min_scaled_jac = VERDICT_DBL_MAX, scaled_jac;
-  signed_corner_areas( corner_areas, coordinates );
+  v_signed_corner_areas( corner_areas, coordinates );
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double length[4];
   length[0] = edges[0].length();
@@ -1062,10 +1062,10 @@ C_FUNC_DEF double v_quad_shape( int /*num_nodes*/, double coordinates[][3] )
 {
 
   double corner_areas[4], min_shape = VERDICT_DBL_MAX, shape; 
-  signed_corner_areas( corner_areas, coordinates );
+  v_signed_corner_areas( corner_areas, coordinates );
 
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double length_squared[4];
   length_squared[0] = edges[0].length_squared();
@@ -1115,8 +1115,8 @@ C_FUNC_DEF double v_quad_relative_size_squared( int /*num_nodes*/, double coordi
   
   v_set_quad_size( quad_area );
   double w11,w21,w12,w22;
-  get_weight(w11,w21,w12,w22);
-  double avg_area = determinant(w11,w21,w12,w22);
+  v_quad_get_weight(w11,w21,w12,w22);
+  double avg_area = v_determinant(w11,w21,w12,w22);
   
   if ( avg_area > VERDICT_DBL_MIN ) 
   {
@@ -1204,7 +1204,7 @@ C_FUNC_DEF double v_quad_distortion( int num_nodes, double coordinates[][3] )
 
   int total_number_of_gauss_points = number_of_gauss_points*number_of_gauss_points;
 
-  VerdictVector face_normal = quad_normal( coordinates );
+  VerdictVector face_normal = v_quad_normal( coordinates );
 
   double distortion = VERDICT_DBL_MAX;
 
@@ -1212,7 +1212,7 @@ C_FUNC_DEF double v_quad_distortion( int num_nodes, double coordinates[][3] )
 
   int i;
   //Will work out the case for collapsed quad later
-  if ( is_collapsed_quad( coordinates ) == VERDICT_TRUE )
+  if ( v_is_collapsed_quad( coordinates ) == VERDICT_TRUE )
     {
     for (  i=0; i<3; i++ )
       {
@@ -1413,10 +1413,10 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
   
   // vectors for each side
   VerdictVector edges[4];
-  make_quad_edges( edges, coordinates );
+  v_make_quad_edges( edges, coordinates );
 
   double areas[4]; 
-  signed_corner_areas( areas, coordinates );
+  v_signed_corner_areas( areas, coordinates );
 
   double lengths[4];
   lengths[0] = edges[0].length();
@@ -1424,7 +1424,7 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
   lengths[2] = edges[2].length();
   lengths[3] = edges[3].length();
 
-  VerdictBoolean is_collapsed = is_collapsed_quad(coordinates);
+  VerdictBoolean is_collapsed = v_is_collapsed_quad(coordinates);
 
   // handle collapsed quads functions here
   if(is_collapsed == VERDICT_TRUE && metrics_request_flag & 
@@ -1545,8 +1545,8 @@ C_FUNC_DEF void v_quad_quality( int num_nodes, double coordinates[][3],
     double quad_area = v_quad_area (4, coordinates); 
     v_set_quad_size( quad_area );
     double w11,w21,w12,w22;
-    get_weight(w11,w21,w12,w22);
-    double avg_area = determinant(w11,w21,w12,w22);
+    v_quad_get_weight(w11,w21,w12,w22);
+    double avg_area = v_determinant(w11,w21,w12,w22);
 
     if( avg_area < VERDICT_DBL_MIN )
       metric_vals->relative_size_squared = 0.0;
