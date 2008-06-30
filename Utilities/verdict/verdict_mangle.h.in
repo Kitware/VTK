@@ -89,7 +89,6 @@ used when the shared library is loaded/unloaded from an executable.
 #define v_set_tet_size @VERDICT_MANGLE_PREFIX@_v_set_tet_size
 #define v_set_tri_normal_func @VERDICT_MANGLE_PREFIX@_v_set_tri_normal_func
 #define v_set_tri_size @VERDICT_MANGLE_PREFIX@_v_set_tri_size
-#define v_sqrt_2 @VERDICT_MANGLE_PREFIX@_v_sqrt_2
 #define v_tet_aspect_beta @VERDICT_MANGLE_PREFIX@_v_tet_aspect_beta
 #define v_tet_aspect_frobenius @VERDICT_MANGLE_PREFIX@_v_tet_aspect_frobenius
 #define v_tet_aspect_gamma @VERDICT_MANGLE_PREFIX@_v_tet_aspect_gamma

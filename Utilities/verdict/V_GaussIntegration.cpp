@@ -28,8 +28,6 @@
 
 #include <math.h>
 
-double v_sqrt_2 = sqrt( (double)2.0 );
-
 static int numberGaussPoints;
 static int numberNodes;
 static int numberDims;
