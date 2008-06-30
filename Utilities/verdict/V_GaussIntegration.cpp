@@ -30,23 +30,23 @@
 
 double v_sqrt_2 = sqrt( (double)2.0 );
 
-int numberGaussPoints;
-int numberNodes;
-int numberDims;
-double gaussPointY[maxNumberGaussPoints];
-double gaussWeight[maxNumberGaussPoints];
-double shapeFunction[maxTotalNumberGaussPoints][maxNumberNodes];
-double dndy1GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-double dndy2GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-double dndy3GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
-double totalGaussWeight[maxTotalNumberGaussPoints];
-int totalNumberGaussPts;
-double y1Area[maxNumberGaussPointsTri];
-double y2Area[maxNumberGaussPointsTri];
-double y1Volume[maxNumberGaussPointsTet];
-double y2Volume[maxNumberGaussPointsTet];
-double y3Volume[maxNumberGaussPointsTet];
-double y4Volume[maxNumberGaussPointsTet];  
+static int numberGaussPoints;
+static int numberNodes;
+static int numberDims;
+static double gaussPointY[maxNumberGaussPoints];
+static double gaussWeight[maxNumberGaussPoints];
+static double shapeFunction[maxTotalNumberGaussPoints][maxNumberNodes];
+static double dndy1GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+static double dndy2GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+static double dndy3GaussPts[maxTotalNumberGaussPoints][maxNumberNodes];
+static double totalGaussWeight[maxTotalNumberGaussPoints];
+static int totalNumberGaussPts;
+static double y1Area[maxNumberGaussPointsTri];
+static double y2Area[maxNumberGaussPointsTri];
+static double y1Volume[maxNumberGaussPointsTet];
+static double y2Volume[maxNumberGaussPointsTet];
+static double y3Volume[maxNumberGaussPointsTet];
+static double y4Volume[maxNumberGaussPointsTet];  
 
 void GaussIntegration::initialize(int n, int m, int dim, int tri)
 {
