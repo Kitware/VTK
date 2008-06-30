@@ -36,7 +36,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.9");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.10");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -227,37 +227,6 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     return;
     }
   
-  // Create the output columns
-  vtkDoubleArray* pXY = vtkDoubleArray::New();
-  vtksys_ios::ostringstream pXYName;
-  pXYName
-    << "p(" << ( colX.size() ? colX.c_str() : "X" )
-    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
-  pXY->SetName( pXYName.str().c_str() );
-  pXY->SetNumberOfTuples( nRowD );
-  output->AddColumn( pXY );
-  pXY->Delete();
-
-  vtkDoubleArray* pYcondX = vtkDoubleArray::New();
-  vtksys_ios::ostringstream pYCondXName;
-  pYCondXName
-    << "p(" << ( colY.size() ? colY.c_str() : "Y" )
-    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")";
-  pYcondX->SetName( pYCondXName.str().c_str() );
-  pYcondX->SetNumberOfTuples( nRowD );
-  output->AddColumn( pYcondX );
-  pYcondX->Delete();
-
-  vtkDoubleArray* pXcondY = vtkDoubleArray::New();
-  vtksys_ios::ostringstream pXCondYName;
-  pXCondYName
-    << "p(" << ( colX.size() ? colX.c_str() : "X" )
-    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
-  pXcondY->SetName( pXCondYName.str().c_str() );
-  pXcondY->SetNumberOfTuples( nRowD );
-  output->AddColumn( pXcondY );
-  pXcondY->Delete();
-
   typedef vtkstd::map<vtkVariant,double,vtkVariantLessThan> PDF;
   PDF pdfX, pdfY;
   vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXY;
@@ -288,6 +257,60 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
       pdfXcondY[x][y] = yit->second / pdfY[y];
       }
     }
+
+  double HYcondX = 0.;
+  double HXcondY = 0.;
+  double HXY = 0.;
+  for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit =  pdfXY.begin();
+        xit != pdfXY.end(); ++ xit )
+    {
+    vtkVariant x = xit->first;
+    for ( vtkstd::map<vtkVariant,double,vtkVariantLessThan>::iterator yit = xit->second.begin(); 
+          yit != xit->second.end(); ++ yit )
+      {
+      vtkVariant y = yit->first;
+      double pxy = yit->second;
+
+      HYcondX -= pxy * log( pdfYcondX[x][y] );
+      HXcondY -= pxy * log( pdfXcondY[x][y] );
+      HXY -= pxy * log( pxy );
+      }
+    }
+  
+  // Create the output columns
+  vtkDoubleArray* pXY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream pXYName;
+  pXYName
+    << "p(" << ( colX.size() ? colX.c_str() : "X" )
+    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  pXY->SetName( pXYName.str().c_str() );
+  pXY->SetNumberOfTuples( nRowD );
+  output->AddColumn( pXY );
+  pXY->Delete();
+
+  vtkDoubleArray* pYcondX = vtkDoubleArray::New();
+  vtksys_ios::ostringstream pYCondXName;
+  pYCondXName
+    << "p(" << ( colY.size() ? colY.c_str() : "Y" )
+    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")"
+    << " H/Hjoint: "
+    << 1. - HYcondX / HXY;
+  pYcondX->SetName( pYCondXName.str().c_str() );
+  pYcondX->SetNumberOfTuples( nRowD );
+  output->AddColumn( pYcondX );
+  pYcondX->Delete();
+
+  vtkDoubleArray* pXcondY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream pXCondYName;
+  pXCondYName
+    << "p(" << ( colX.size() ? colX.c_str() : "X" )
+    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")"
+    << " H/Hjoint: "
+    << 1. - HXcondY / HXY;
+  pXcondY->SetName( pXCondYName.str().c_str() );
+  pXcondY->SetNumberOfTuples( nRowD );
+  output->AddColumn( pXcondY );
+  pXcondY->Delete();
 
   for ( vtkIdType r = 0; r < nRowD; ++ r )
     {
