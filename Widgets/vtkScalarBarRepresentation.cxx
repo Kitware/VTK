@@ -27,15 +27,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
 #include "vtkScalarBarActor.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
 //=============================================================================
-vtkCxxRevisionMacro(vtkScalarBarRepresentation, "1.1");
+vtkCxxRevisionMacro(vtkScalarBarRepresentation, "1.2");
 vtkStandardNewMacro(vtkScalarBarRepresentation);
-
-vtkCxxSetObjectMacro(vtkScalarBarRepresentation,
-                     ScalarBarActor, vtkScalarBarActor);
-
 //-----------------------------------------------------------------------------
 vtkScalarBarRepresentation::vtkScalarBarRepresentation()
 {
@@ -51,16 +48,52 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
   this->BWActor->VisibilityOff();
 }
 
+//-----------------------------------------------------------------------------
 vtkScalarBarRepresentation::~vtkScalarBarRepresentation()
 {
   this->SetScalarBarActor(NULL);
 }
 
+//-----------------------------------------------------------------------------
+void vtkScalarBarRepresentation::SetScalarBarActor(vtkScalarBarActor* actor)
+{
+  if (this->ScalarBarActor != actor)
+    {
+    vtkSmartPointer<vtkScalarBarActor> oldActor = this->ScalarBarActor;
+    vtkSetObjectBodyMacro(ScalarBarActor, vtkScalarBarActor, actor);
+    if (actor && oldActor)
+      {
+      actor->SetOrientation(oldActor->GetOrientation());
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkScalarBarRepresentation::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ScalarBarActor: " << this->ScalarBarActor << endl;
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarBarRepresentation::SetOrientation(int orientation)
+{
+  if (this->ScalarBarActor)
+    {
+    this->ScalarBarActor->SetOrientation(orientation);
+    }
+}
+
+//-----------------------------------------------------------------------------
+int vtkScalarBarRepresentation::GetOrientation()
+{
+  if (this->ScalarBarActor)
+    {
+    return this->ScalarBarActor->GetOrientation();
+    }
+  vtkErrorMacro("No scalar bar");
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
