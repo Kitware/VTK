@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkXOpenGLRenderWindow.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkXOpenGLRenderWindow.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #ifndef VTK_IMPLEMENT_MESA_CXX
@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.91");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.92");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -643,7 +643,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
       {
       XGetWindowAttributes(this->DisplayId,
                            this->WindowId,&winattr);
-      };
+      }
     }
   // free the visual info
   if (v)
@@ -1656,11 +1656,14 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
 
   for (int i = 0; i < n; i++) 
     {
-    if (i != n-1) {
-    strm << extlist[i] << ", ";
-    } else {
-    strm << extlist[i] << endl;
-    }
+    if (i != n-1)
+      {
+      strm << extlist[i] << ", ";
+      }
+    else
+      {
+      strm << extlist[i] << endl;
+      }
     }
 
   delete[] this->Capabilities;
@@ -1675,7 +1678,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
 
 int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
-  MakeCurrent();
+  this->MakeCurrent();
   if (!this->DisplayId) 
     {
     return 0;
@@ -1695,7 +1698,7 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
 int vtkXOpenGLRenderWindow::IsDirect()
 {
-  MakeCurrent();
+  this->MakeCurrent();
   this->UsingHardware = 0;
   if (this->OffScreenRendering && this->Internal->PbufferContextId)
     {
@@ -1722,7 +1725,7 @@ void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
   strcpy(name, cname);
   XTextProperty win_name_text_prop;
 
-  vtkOpenGLRenderWindow::SetWindowName( name );
+  this->vtkOpenGLRenderWindow::SetWindowName( name );
 
   if (this->Mapped)
     {

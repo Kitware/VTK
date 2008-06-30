@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkOpenGLRenderWindow.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLRenderWindow.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.98");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.99");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -1551,11 +1551,14 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     {
     if(!supports_GL_EXT_framebuffer_object)
       {
-      vtkDebugMacro(<<" extension GL_EXT_framebuffer_object is not supported. Hardware accelerated offscreen rendering is not available");
+      vtkDebugMacro( << " extension GL_EXT_framebuffer_object is not supported. "
+        "Hardware accelerated offscreen rendering is not available" );
       }
     if(!supports_texture_non_power_of_two)
       {
-      vtkDebugMacro(<<" extension texture_non_power_of_two is not supported because neither OpenGL 2.0 nor GL_ARB_texture_non_power_of_two extension is supported. Hardware accelerated offscreen rendering is not available");
+      vtkDebugMacro( << " extension texture_non_power_of_two is not supported "
+        "because neither OpenGL 2.0 nor GL_ARB_texture_non_power_of_two extension "
+        "is supported. Hardware accelerated offscreen rendering is not available");
       }
     if(!supports_texture_rectangle)
       {
@@ -1563,11 +1566,13 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     if(isMesa)
       {
-      vtkDebugMacro(<<" Renderer is Mesa. Hardware accelerated offscreen rendering is not available");
+      vtkDebugMacro(<<" Renderer is Mesa. Hardware accelerated offscreen "
+        "rendering is not available");
       }
     if(this->StencilCapable && !supports_packed_depth_stencil)
       {
-      vtkDebugMacro(<<" a stencil buffer is required but extension GL_EXT_packed_depth_stencil is not supported");
+      vtkDebugMacro(<<" a stencil buffer is required but extension "
+        "GL_EXT_packed_depth_stencil is not supported");
       }
     this->DestroyWindow();
     }
