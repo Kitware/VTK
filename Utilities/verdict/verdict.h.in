@@ -38,14 +38,35 @@
 # define VERDICT_SHARED_LIB
 #endif
 
-/*!\page Mangling
+/*!\page VerdictAsASubProject Verdict as a Subproject
+ *
  * Should a project wish to include a private version of verdict, it may
- * turn on the CMake VERDICT_MANGLE option and define VERDICT_MANGLE_PREFIX.
- * This will use the verdict_mangle.h file to define macros that rename all
+ * turn on the CMake \c VERDICT_MANGLE option and define \c VERDICT_MANGLE_PREFIX.
+ * This will use the \c verdict_mangle.h file to define macros that rename all
  * verdict library symbols using the given prefix.
  *
  * This allows programs using the parent project to link to the parent project
  * as well as other versions of verdict than the one used by the parent project.
+ * If you are using mangling, you should consider setting \c VERDICT_NO_LIBRARY_VERSION
+ * to 1 and \c VERDICT_LIBRARY_PROPERTIES to include your parent project's shared
+ * library version number.
+ *
+ * Here is an example. Assume we have a library named XXX which we would like to use
+ * a private copy of the verdict library (instead of the version installed in a system
+ * directory). The XXX project source directory would contain a copy of the verdict
+ * source and the CMake file for XXX would include:\code
+ *   set( VERDICT_MANGLE "ON" CACHE BOOL "XXX requires Verdict to be mangled" FORCE )
+ *   set( VERDICT_MANGLE_PREFIX "xxx" CACHE STRING "Verdict routines prefixed with xxx_" FORCE )
+ *   set( VERDICT_NO_LIBRARY_VERSION 1 )
+ *   set( VERDICT_LIBRARY_PROPERTIES
+ *     ${VERDICT_LIBRARY_PROPERTIES}
+ *     VERSION "xxx${XXX_VERSION}"
+ *   )
+ *   add_subdirectory( verdict )
+ * \endcode
+ * By setting these variables before descending into the verdict directory,
+ * we force all the symbol names in the library to be prefaced with \c xxx_
+ * and the resulting library will be named \a xxxverdict instead of simply \a verdict.
  */
 #cmakedefine VERDICT_MANGLE
 #ifdef VERDICT_MANGLE
@@ -91,12 +112,11 @@ extern "C" {
 #endif
 
 
-/** HexMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_hex_quality(...)</em> 
-
-    HexMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_hex_quality.
+  *
+  * HexMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct HexMetricVals
 {
   /** \sa v_hex_edge_ratio */
@@ -141,51 +161,48 @@ struct HexMetricVals
   double distortion; 
 };
 
-/** EdgeMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_edge_quality(...)</em> 
-
-    EdgeMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_edge_quality.
+  *
+  * EdgeMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct EdgeMetricVals
 {
   double length ; 
 };
 
 
-/** KnifeMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_knife_quality(...)</em> 
-
-    KnifeMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_knife_quality.
+  *
+  * KnifeMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct KnifeMetricVals
 {
   double volume ; 
 };
 
-
-/** QuadMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_quad_quality(...)</em> 
- 
-    The following is an example of how this struct is used with Verdict.
-
-    Example: \code
-    QuadMetricVals quad_metrics = {0};
-    unsigned long metrics_flag = 0;
-    metrics_flag += V_QUAD_SHAPE;
-    metrics_flag += V_QUAD_DISTORTION;
-    metrics_flag += V_QUAD_AREA;   
-    double quad_nodes[4][3];
-    get_quad_nodes( quad_nodes );  //some user-defined function to load 
-                                   //xyz coordinate info. into array  
-    v_quad_quality( 4, quad_nodes, metrics_flag, quad_metrics );
-    double my_shape      = quad_metrics.shape; 
-    double my_distortion = quad_metrics.distortion; 
-    double my_area       = quad_metrics.area;  \endcode
-     
- */
-
+/**\brief A <em>struct</em> to hold values computed by \ref v_quad_quality.
+  *
+  * \section UsingQuadMetricVals Example Usage of the QuadMetricVals Structure
+  *
+  * The following is an example of how this struct is used with Verdict.
+  *
+  * Example: \code
+  * QuadMetricVals quad_metrics = {0};
+  * unsigned long metrics_flag = 0;
+  * metrics_flag += V_QUAD_SHAPE;
+  * metrics_flag += V_QUAD_DISTORTION;
+  * metrics_flag += V_QUAD_AREA;   
+  * double quad_nodes[4][3];
+  * get_quad_nodes( quad_nodes );  //some user-defined function to load 
+  *                                //xyz coordinate info. into array  
+  * v_quad_quality( 4, quad_nodes, metrics_flag, quad_metrics );
+  * double my_shape      = quad_metrics.shape; 
+  * double my_distortion = quad_metrics.distortion; 
+  * double my_area       = quad_metrics.area;  \endcode
+  *  
+  */
 struct QuadMetricVals
 {
   /** \sa v_quad_edge_ratio function */
@@ -236,34 +253,31 @@ struct QuadMetricVals
   double distortion; 
 };
 
-/** PyramidMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_pyramid_quality(...)</em> 
-
-    PyramidMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_pyramid_quality.
+  *
+  * PyramidMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct PyramidMetricVals
 {
   double volume ; 
 };
    
-/** WedgeMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_wedge_quality(...)</em> 
-
-    WedgeMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_wedge_quality.
+  *
+  * WedgeMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct WedgeMetricVals
 {
   double volume ; 
 };
      
-/** TetMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_tet_quality(...)</em> 
-
-    TetMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_tet_quality.
+  *
+  * TetMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct TetMetricVals
 {
   /** \sa v_tet_edge_ratio*/
@@ -300,12 +314,11 @@ struct TetMetricVals
   double distortion; 
 };
 
-/** TriMetricVals is a <em>struct</em> used to return calculated metrics  
-    when calling the function <em>v_tri_quality(...)</em> 
-
-    TriMetricVals is used just as QuadMetricVals.
-    For an example, see Detailed Description in QuadMetricVals  
-*/
+/**\brief A <em>struct</em> to hold values computed by \ref v_tri_quality.
+  *
+  * TriMetricVals is used just as QuadMetricVals.
+  * For an example, see the \ref UsingQuadMetricVals.  
+  */
 struct TriMetricVals
 {
   /** \sa v_tri_edge_ratio */
@@ -340,192 +353,332 @@ struct TriMetricVals
 
 /* definition of bit fields to determine which metrics to calculate */
 
-//! \name Hex bit fields
+//! \name Atomic hex quality flags
 //! 
 //@{
 
-#define V_HEX_MAX_EDGE_RATIO        1      /*!< \hideinitializer */
-#define V_HEX_SKEW                   2      /*!< \hideinitializer */
-#define V_HEX_TAPER                  4      /*!< \hideinitializer */
-#define V_HEX_VOLUME                 8      /*!< \hideinitializer */
-#define V_HEX_STRETCH                16     /*!< \hideinitializer */
-#define V_HEX_DIAGONAL               32     /*!< \hideinitializer */
-#define V_HEX_DIMENSION              64     /*!< \hideinitializer */
-#define V_HEX_ODDY                   128    /*!< \hideinitializer */
-#define V_HEX_MAX_ASPECT_FROBENIUS   256    /*!< \hideinitializer */
-#define V_HEX_CONDITION              256    /*!< \hideinitializer */
-#define V_HEX_JACOBIAN               512    /*!< \hideinitializer */
-#define V_HEX_SCALED_JACOBIAN        1024   /*!< \hideinitializer */
-#define V_HEX_SHEAR                  2048   /*!< \hideinitializer */
-#define V_HEX_SHAPE                  4096   /*!< \hideinitializer */
-#define V_HEX_RELATIVE_SIZE_SQUARED  8192   /*!< \hideinitializer */
-#define V_HEX_SHAPE_AND_SIZE         16384  /*!< \hideinitializer */
-#define V_HEX_SHEAR_AND_SIZE         32768  /*!< \hideinitializer */
-#define V_HEX_DISTORTION             65536  /*!< \hideinitializer */
-#define V_HEX_EDGE_RATIO             131072 /*!< \hideinitializer */
-#define V_HEX_MED_ASPECT_FROBENIUS   262144 /*!< \hideinitializer */
-#define V_HEX_ALL                    524287 /*!< \hideinitializer */
-/*!< \hideinitializer */
-#define V_HEX_TRADITIONAL            V_HEX_MAX_EDGE_RATIO + \
-                                     V_HEX_SKEW            + \
-                                     V_HEX_TAPER           + \
-                                     V_HEX_STRETCH         + \
-                                     V_HEX_DIAGONAL        + \
-                                     V_HEX_ODDY            + \
-                                     V_HEX_CONDITION       + \
-                                     V_HEX_JACOBIAN        + \
-                                     V_HEX_SCALED_JACOBIAN + \
-                                     V_HEX_DIMENSION
-
-/*!< \hideinitializer */
-#define V_HEX_DIAGNOSTIC             V_HEX_VOLUME
-/*!< \hideinitializer */
-#define V_HEX_ALGEBRAIC              V_HEX_SHAPE                  + \
-                                     V_HEX_SHEAR                  + \
-                                     V_HEX_RELATIVE_SIZE_SQUARED  + \
-                                     V_HEX_SHAPE_AND_SIZE         + \
-                                     V_HEX_SHEAR_AND_SIZE
-/*!< \hideinitializer */
-#define V_HEX_ROBINSON               V_HEX_SKEW + \
-                                     V_HEX_TAPER    
+/*!\hideinitializer \brief Request that the maximum edge ratio be computed. \sa v_hex_max_edge_ratio */
+#define V_HEX_MAX_EDGE_RATIO         1
+/*!\hideinitializer \brief Request that skew be computed. \sa v_hex_skew */
+#define V_HEX_SKEW                   2
+/*!\hideinitializer \brief Request that taper be computed. \sa v_hex_taper */
+#define V_HEX_TAPER                  4
+/*!\hideinitializer \brief Request that volume be computed. \sa v_hex_volume */
+#define V_HEX_VOLUME                 8
+/*!\hideinitializer \brief Request that stretch be computed. \sa v_hex_stretch */
+#define V_HEX_STRETCH                16
+/*!\hideinitializer \brief Request that the diagonal be computed. \sa v_hex_diagonal */
+#define V_HEX_DIAGONAL               32
+/*!\hideinitializer \brief Request that the dimension be computed. \sa v_hex_dimension */
+#define V_HEX_DIMENSION              64
+/*!\hideinitializer \brief Request that the Oddy quality be computed. \sa v_hex_oddy */
+#define V_HEX_ODDY                   128
+/*!\hideinitializer \brief Request that maximum Frobenius aspect be computed. \sa v_hex_condition */
+#define V_HEX_MAX_ASPECT_FROBENIUS   256
+/*!\hideinitializer \brief Request that the condition be computed. \sa v_hex_condition */
+#define V_HEX_CONDITION              256
+/*!\hideinitializer \brief Request that the Jacobian be computed. \sa v_hex_jacobian */
+#define V_HEX_JACOBIAN               512
+/*!\hideinitializer \brief Request that the scaled Jacobian be computed. \sa v_hex_scaled_jacobian */
+#define V_HEX_SCALED_JACOBIAN        1024
+/*!\hideinitializer \brief Request that shear be computed. \sa v_hex_shear */
+#define V_HEX_SHEAR                  2048
+/*!\hideinitializer \brief Request that shape be computed. \sa v_hex_shape */
+#define V_HEX_SHAPE                  4096
+/*!\hideinitializer \brief Request that the square of the relative size be computed. \sa v_hex_relative_size_squared */
+#define V_HEX_RELATIVE_SIZE_SQUARED  8192
+/*!\hideinitializer \brief Request that the product of shape and size be computed. \sa v_hex_shape_and_size */
+#define V_HEX_SHAPE_AND_SIZE         16384
+/*!\hideinitializer \brief Request that the product of shear and size be computed. \sa v_hex_shear_and_size */
+#define V_HEX_SHEAR_AND_SIZE         32768
+/*!\hideinitializer \brief Request that distortion be computed. \sa v_hex_distortion */
+#define V_HEX_DISTORTION             65536
+/*!\hideinitializer \brief Request that the edge ratio be computed. \sa v_hex_edge_ratio */
+#define V_HEX_EDGE_RATIO             131072
+/*!\hideinitializer \brief Request that average Frobenius aspect be computed. \sa v_hex_med_aspect_frobenius */
+#define V_HEX_MED_ASPECT_FROBENIUS   262144
+//!\name Composite hex quality flags
+//! These flags are bitwise combinations of the atomic flags above.
+//@{
+/*!\hideinitializer \brief Request that all hex metrics be computed. */
+#define V_HEX_ALL                    524287
+/*!\hideinitializer \brief Request the traditional hex qualities be computed.
+ *                  
+ * This includes
+ * \ref V_HEX_MAX_EDGE_RATIO, \ref V_HEX_SKEW,     \ref V_HEX_TAPER
+ * \ref V_HEX_STRETCH,        \ref V_HEX_DIAGONAL, \ref V_HEX_ODDY,
+ * \ref V_HEX_CONDITION,      \ref V_HEX_JACOBIAN, \ref V_HEX_SCALED_JACOBIAN, and
+ * \ref V_HEX_DIMENSION.
+ */
+#define V_HEX_TRADITIONAL \
+  V_HEX_MAX_EDGE_RATIO + \
+  V_HEX_SKEW            + \
+  V_HEX_TAPER           + \
+  V_HEX_STRETCH         + \
+  V_HEX_DIAGONAL        + \
+  V_HEX_ODDY            + \
+  V_HEX_CONDITION       + \
+  V_HEX_JACOBIAN        + \
+  V_HEX_SCALED_JACOBIAN + \
+  V_HEX_DIMENSION
+/*!\hideinitializer \brief Request hex qualities used to diagnose mesh or solver problems.
+ *
+ * This is currently a synonym for \ref V_HEX_VOLUME but may include more qualities in the future.
+ */
+#define V_HEX_DIAGNOSTIC V_HEX_VOLUME
+/*!\hideinitializer \brief Request hex qualities that have an algebraic expression be computed.
+ *
+ * This includes
+ * \ref V_HEX_SHAPE, \ref V_HEX_SHEAR, \ref V_HEX_RELATIVE_SIZE_SQUARED,
+ * \ref V_HEX_SHAPE_AND_SIZE, and \ref V_HEX_SHEAR_AND_SIZE.
+ */
+#define V_HEX_ALGEBRAIC \
+  V_HEX_SHAPE                  + \
+  V_HEX_SHEAR                  + \
+  V_HEX_RELATIVE_SIZE_SQUARED  + \
+  V_HEX_SHAPE_AND_SIZE         + \
+  V_HEX_SHEAR_AND_SIZE
+/*!\hideinitializer \brief Request hex qualities for Mr. Robinson.
+ */
+#define V_HEX_ROBINSON \
+  V_HEX_SKEW + \
+  V_HEX_TAPER
 //@}
-                                     
-//! \name Tet bit fields
+//@}
+
+//! \name Atomic tetrahedral quality flags
 //! 
 //@{
-#define V_TET_RADIUS_RATIO           1   /*!< \hideinitializer */
-#define V_TET_ASPECT_BETA            2   /*!< \hideinitializer */
-#define V_TET_ASPECT_GAMMA           4   /*!< \hideinitializer */
-#define V_TET_VOLUME                 8   /*!< \hideinitializer */
-#define V_TET_CONDITION              16  /*!< \hideinitializer */
-#define V_TET_JACOBIAN               32   /*!< \hideinitializer */
-#define V_TET_SCALED_JACOBIAN        64   /*!< \hideinitializer */
-#define V_TET_SHAPE                  128  /*!< \hideinitializer */
-#define V_TET_RELATIVE_SIZE_SQUARED  256   /*!< \hideinitializer */
-#define V_TET_SHAPE_AND_SIZE         512   /*!< \hideinitializer */
-#define V_TET_DISTORTION             1024  /*!< \hideinitializer */
-#define V_TET_EDGE_RATIO             2048   /*!< \hideinitializer */
-#define V_TET_ASPECT_RATIO           4096   /*!< \hideinitializer */
-#define V_TET_ASPECT_FROBENIUS       8192   /*!< \hideinitializer */
-#define V_TET_MINIMUM_ANGLE          16384  /*!< \hideinitializer */
-#define V_TET_COLLAPSE_RATIO         32768   /*!< \hideinitializer */
-#define V_TET_ALL                    65535   /*!< \hideinitializer */
-/*!< \hideinitializer */
+/*!\hideinitializer \brief Request that the radius ratio be computed. \sa v_tet_radius_ratio */
+#define V_TET_RADIUS_RATIO           1
+/*!\hideinitializer \brief Request that the aspect ratio beta be computed. \sa v_tet_aspect_beta */
+#define V_TET_ASPECT_BETA            2
+/*!\hideinitializer \brief Request that the aspect ratio gamma be computed. \sa v_tet_aspect_gamma */
+#define V_TET_ASPECT_GAMMA           4
+/*!\hideinitializer \brief Request that the volume be computed. \sa v_tet_volume */
+#define V_TET_VOLUME                 8
+/*!\hideinitializer \brief Request that the condition be computed. \sa v_tet_condition */
+#define V_TET_CONDITION              16
+/*!\hideinitializer \brief Request that the Jacobian be computed. \sa v_tet_jacobian */
+#define V_TET_JACOBIAN               32
+/*!\hideinitializer \brief Request that the scaled Jacobian be computed. \sa v_tet_scaled_jacobian */
+#define V_TET_SCALED_JACOBIAN        64
+/*!\hideinitializer \brief Request that the shape be computed. \sa v_tet_shape */
+#define V_TET_SHAPE                  128
+/*!\hideinitializer \brief Request that the square of the relative size be computed. \sa v_tet_relative_size_squared */
+#define V_TET_RELATIVE_SIZE_SQUARED  256
+/*!\hideinitializer \brief Request that the product of shape and size be computed. \sa v_tet_shape_and_size */
+#define V_TET_SHAPE_AND_SIZE         512
+/*!\hideinitializer \brief Request that the distortion be computed. \sa v_tet_distortion */
+#define V_TET_DISTORTION             1024
+/*!\hideinitializer \brief Request that the ratio of edge lengths be computed. \sa v_tet_edge_ratio */
+#define V_TET_EDGE_RATIO             2048
+/*!\hideinitializer \brief Request that the aspect ratio be computed. \sa v_tet_aspect_ratio */
+#define V_TET_ASPECT_RATIO           4096
+/*!\hideinitializer \brief Request that the Frobenius aspect be computed. \sa v_tet_aspect_frobenius */
+#define V_TET_ASPECT_FROBENIUS       8192
+/*!\hideinitializer \brief Request that the minimum dihedral angle be computed. \sa v_tet_minimum_angle */
+#define V_TET_MINIMUM_ANGLE          16384
+/*!\hideinitializer \brief Request that the collapse ratio be computed. \sa v_tet_collapse_ratio */
+#define V_TET_COLLAPSE_RATIO         32768
+//! Composite tetrahedral quality flags
+//! These flags are bitwise combinations of the atomic flags above.
+//@{
+/*!\hideinitializer \brief Request that the all tetrahedral qualities be computed. */
+#define V_TET_ALL                    65535
+/*!\hideinitializer \brief Request that the tradtional tetrahedral qualities be computed.
+ *
+ * This includes
+ * \ref V_TET_ASPECT_BETA, \ref V_TET_ASPECT_GAMMA, \ref V_TET_CONDITION,
+ * \ref V_TET_JACOBIAN, and \ref V_TET_SCALED_JACOBIAN.
+ */
 #define V_TET_TRADITIONAL            V_TET_ASPECT_BETA + \
                                      V_TET_ASPECT_GAMMA + \
                                      V_TET_CONDITION + \
                                      V_TET_JACOBIAN + \
                                      V_TET_SCALED_JACOBIAN  
-/*!< \hideinitializer */
+/*!\hideinitializer \brief Request hex qualities used to diagnose mesh or solver problems.
+ *
+ * This is currently a synonym for \ref V_TET_VOLUME but may include more qualities in the future.
+ */
 #define V_TET_DIAGNOSTIC             V_TET_VOLUME
-/*!< \hideinitializer */
+/*!\hideinitializer \brief Request hex qualities that have an algebraic expression be computed.
+ *
+ * This includes
+ * \ref V_TET_SHAPE, \ref V_TET_RELATIVE_SIZE_SQUARED, and \ref V_TET_SHAPE_AND_SIZE.
+ */
 #define V_TET_ALGEBRAIC              V_TET_SHAPE                  + \
                                      V_TET_RELATIVE_SIZE_SQUARED  + \
                                      V_TET_SHAPE_AND_SIZE
+//@}
 //@}
 
  
 //! \name Pyramid bit fields
 //! 
 //@{
-#define V_PYRAMID_VOLUME             1   /*!< \hideinitializer */
+/*!\hideinitializer \brief */
+#define V_PYRAMID_VOLUME             1
+/*!\hideinitializer \brief */
+#define V_PYRAMID_ALL \
+  V_PYRAMID_VOLUME
 //@}
 
 //! \name Wedge bit fields
 //! 
 //@{
-#define V_WEDGE_VOLUME               1   /*!< \hideinitializer */
+/*!\hideinitializer \brief */
+#define V_WEDGE_VOLUME               1
+/*!\hideinitializer \brief */
+#define V_WEDGE_ALL \
+  V_WEDGE_VOLUME
 //@}
  
 //! \name Knife bit fields
 //! 
 //@{
-#define V_KNIFE_VOLUME               1   /*!< \hideinitializer */
+/*!\hideinitializer \brief */
+#define V_KNIFE_VOLUME               1
+/*!\hideinitializer \brief */
+#define V_KNIFE_ALL \
+  V_KNIFE_VOLUME
 //@}
  
 //! \name Quad bit fields
 //! 
 //@{
-#define V_QUAD_MAX_EDGE_RATIO       1   /*!< \hideinitializer */
-#define V_QUAD_SKEW                  2   /*!< \hideinitializer */
-#define V_QUAD_TAPER                 4   /*!< \hideinitializer */
-#define V_QUAD_WARPAGE               8   /*!< \hideinitializer */
-#define V_QUAD_AREA                  16   /*!< \hideinitializer */
-#define V_QUAD_STRETCH               32   /*!< \hideinitializer */
-#define V_QUAD_MINIMUM_ANGLE         64   /*!< \hideinitializer */
-#define V_QUAD_MAXIMUM_ANGLE         128   /*!< \hideinitializer */
-#define V_QUAD_ODDY                  256   /*!< \hideinitializer */
-#define V_QUAD_CONDITION             512   /*!< \hideinitializer */
-#define V_QUAD_JACOBIAN              1024   /*!< \hideinitializer */
-#define V_QUAD_SCALED_JACOBIAN       2048   /*!< \hideinitializer */
-#define V_QUAD_SHEAR                 4096   /*!< \hideinitializer */
-#define V_QUAD_SHAPE                 8192   /*!< \hideinitializer */
-#define V_QUAD_RELATIVE_SIZE_SQUARED 16384   /*!< \hideinitializer */
-#define V_QUAD_SHAPE_AND_SIZE        32768   /*!< \hideinitializer */
-#define V_QUAD_SHEAR_AND_SIZE        65536   /*!< \hideinitializer */
-#define V_QUAD_DISTORTION            131072   /*!< \hideinitializer */
-#define V_QUAD_EDGE_RATIO            262144   /*!< \hideinitializer */
-#define V_QUAD_ASPECT_RATIO          524288   /*!< \hideinitializer */
-#define V_QUAD_RADIUS_RATIO          1048576  /*!< \hideinitializer */
-#define V_QUAD_MED_ASPECT_FROBENIUS  2097152  /*!< \hideinitializer */
-#define V_QUAD_MAX_ASPECT_FROBENIUS  4194304  /*!< \hideinitializer */
-#define V_QUAD_ALL                   8388607  /*!< \hideinitializer */
-/*!< \hideinitializer */
-#define V_QUAD_TRADITIONAL           V_QUAD_MAX_EDGE_RATIO + \
-                                     V_QUAD_SKEW            + \
-                                     V_QUAD_TAPER           + \
-                                     V_QUAD_WARPAGE         + \
-                                     V_QUAD_STRETCH         + \
-                                     V_QUAD_MINIMUM_ANGLE   + \
-                                     V_QUAD_MAXIMUM_ANGLE   + \
-                                     V_QUAD_ODDY            + \
-                                     V_QUAD_CONDITION       + \
-                                     V_QUAD_JACOBIAN        + \
-                                     V_QUAD_SCALED_JACOBIAN 
-/*!< \hideinitializer */
-#define V_QUAD_DIAGNOSTIC            V_QUAD_AREA
-/*!< \hideinitializer */
-#define V_QUAD_ALGEBRAIC             V_QUAD_SHEAR                 + \
-                                     V_QUAD_SHAPE                 + \
-                                     V_QUAD_RELATIVE_SIZE_SQUARED + \
-                                     V_QUAD_SHAPE_AND_SIZE     
-/*!< \hideinitializer */
-#define V_QUAD_ROBINSON              V_QUAD_MAX_EDGE_RATIO + \
-                                     V_QUAD_SKEW   + \
-                                     V_QUAD_TAPER
+/*!\hideinitializer \brief */
+#define V_QUAD_MAX_EDGE_RATIO        1
+/*!\hideinitializer \brief */
+#define V_QUAD_SKEW                  2
+/*!\hideinitializer \brief */
+#define V_QUAD_TAPER                 4
+/*!\hideinitializer \brief */
+#define V_QUAD_WARPAGE               8
+/*!\hideinitializer \brief */
+#define V_QUAD_AREA                  16
+/*!\hideinitializer \brief */
+#define V_QUAD_STRETCH               32
+/*!\hideinitializer \brief */
+#define V_QUAD_MINIMUM_ANGLE         64
+/*!\hideinitializer \brief */
+#define V_QUAD_MAXIMUM_ANGLE         128
+/*!\hideinitializer \brief */
+#define V_QUAD_ODDY                  256
+/*!\hideinitializer \brief */
+#define V_QUAD_CONDITION             512
+/*!\hideinitializer \brief */
+#define V_QUAD_JACOBIAN              1024
+/*!\hideinitializer \brief */
+#define V_QUAD_SCALED_JACOBIAN       2048
+/*!\hideinitializer \brief */
+#define V_QUAD_SHEAR                 4096
+/*!\hideinitializer \brief */
+#define V_QUAD_SHAPE                 8192
+/*!\hideinitializer \brief */
+#define V_QUAD_RELATIVE_SIZE_SQUARED 16384
+/*!\hideinitializer \brief */
+#define V_QUAD_SHAPE_AND_SIZE        32768
+/*!\hideinitializer \brief */
+#define V_QUAD_SHEAR_AND_SIZE        65536
+/*!\hideinitializer \brief */
+#define V_QUAD_DISTORTION            131072
+/*!\hideinitializer \brief */
+#define V_QUAD_EDGE_RATIO            262144
+/*!\hideinitializer \brief */
+#define V_QUAD_ASPECT_RATIO          524288
+/*!\hideinitializer \brief */
+#define V_QUAD_RADIUS_RATIO          1048576
+/*!\hideinitializer \brief */
+#define V_QUAD_MED_ASPECT_FROBENIUS  2097152
+/*!\hideinitializer \brief */
+#define V_QUAD_MAX_ASPECT_FROBENIUS  4194304
+/*!\hideinitializer \brief */
+#define V_QUAD_ALL                   8388607
+/*!\hideinitializer \brief */
+#define V_QUAD_TRADITIONAL \
+  V_QUAD_MAX_EDGE_RATIO + \
+  V_QUAD_SKEW            + \
+  V_QUAD_TAPER           + \
+  V_QUAD_WARPAGE         + \
+  V_QUAD_STRETCH         + \
+  V_QUAD_MINIMUM_ANGLE   + \
+  V_QUAD_MAXIMUM_ANGLE   + \
+  V_QUAD_ODDY            + \
+  V_QUAD_CONDITION       + \
+  V_QUAD_JACOBIAN        + \
+  V_QUAD_SCALED_JACOBIAN 
+/*!\hideinitializer \brief */
+#define V_QUAD_DIAGNOSTIC \
+  V_QUAD_AREA
+/*!\hideinitializer \brief */
+#define V_QUAD_ALGEBRAIC \
+  V_QUAD_SHEAR                 + \
+  V_QUAD_SHAPE                 + \
+  V_QUAD_RELATIVE_SIZE_SQUARED + \
+  V_QUAD_SHAPE_AND_SIZE     
+/*!\hideinitializer \brief */
+#define V_QUAD_ROBINSON \
+  V_QUAD_MAX_EDGE_RATIO + \
+  V_QUAD_SKEW   + \
+  V_QUAD_TAPER
 //@}
 
 
 //! \name Tri bit fields
 //! 
 //@{
-#define V_TRI_ASPECT_FROBENIUS       1   /*!< \hideinitializer */
-#define V_TRI_AREA                   2   /*!< \hideinitializer */
-#define V_TRI_MINIMUM_ANGLE          4   /*!< \hideinitializer */
-#define V_TRI_MAXIMUM_ANGLE          8   /*!< \hideinitializer */
-#define V_TRI_CONDITION              16   /*!< \hideinitializer */
-#define V_TRI_SCALED_JACOBIAN        32   /*!< \hideinitializer */
-#define V_TRI_SHAPE                  64   /*!< \hideinitializer */
-#define V_TRI_RELATIVE_SIZE_SQUARED  128   /*!< \hideinitializer */
-#define V_TRI_SHAPE_AND_SIZE         256   /*!< \hideinitializer */
-#define V_TRI_DISTORTION             512   /*!< \hideinitializer */
-#define V_TRI_RADIUS_RATIO           1024   /*!< \hideinitializer */
-#define V_TRI_EDGE_RATIO             2048   /*!< \hideinitializer */
-#define V_TRI_ALL                    4095   /*!< \hideinitializer */
-/*!< \hideinitializer */
-#define V_TRI_TRADITIONAL            V_TRI_ASPECT_FROBENIUS + \
-                                     V_TRI_MINIMUM_ANGLE + \
-                                     V_TRI_MAXIMUM_ANGLE + \
-                                     V_TRI_CONDITION + \
-                                     V_TRI_SCALED_JACOBIAN 
-/*!< \hideinitializer */
-#define V_TRI_DIAGNOSTIC             V_TRI_AREA
-/*!< \hideinitializer */
-#define V_TRI_ALGEBRAIC              V_TRI_SHAPE + \
-                                     V_TRI_SHAPE_AND_SIZE + \
-                                     V_TRI_RELATIVE_SIZE_SQUARED
+/*!\hideinitializer \brief */
+#define V_TRI_ASPECT_FROBENIUS       1
+/*!\hideinitializer \brief */
+#define V_TRI_AREA                   2
+/*!\hideinitializer \brief */
+#define V_TRI_MINIMUM_ANGLE          4
+/*!\hideinitializer \brief */
+#define V_TRI_MAXIMUM_ANGLE          8
+/*!\hideinitializer \brief */
+#define V_TRI_CONDITION              16
+/*!\hideinitializer \brief */
+#define V_TRI_SCALED_JACOBIAN        32
+/*!\hideinitializer \brief */
+#define V_TRI_SHAPE                  64
+/*!\hideinitializer \brief */
+#define V_TRI_RELATIVE_SIZE_SQUARED  128
+/*!\hideinitializer \brief */
+#define V_TRI_SHAPE_AND_SIZE         256
+/*!\hideinitializer \brief */
+#define V_TRI_DISTORTION             512
+/*!\hideinitializer \brief */
+#define V_TRI_RADIUS_RATIO           1024
+/*!\hideinitializer \brief */
+#define V_TRI_EDGE_RATIO             2048
+/*!\hideinitializer \brief */
+#define V_TRI_ALL                    4095
+/*!\hideinitializer \brief */
+#define V_TRI_TRADITIONAL \
+  V_TRI_ASPECT_FROBENIUS + \
+  V_TRI_MINIMUM_ANGLE + \
+  V_TRI_MAXIMUM_ANGLE + \
+  V_TRI_CONDITION + \
+  V_TRI_SCALED_JACOBIAN 
+/*!\hideinitializer \brief */
+#define V_TRI_DIAGNOSTIC \
+  V_TRI_AREA
+/*!\hideinitializer \brief */
+#define V_TRI_ALGEBRAIC \
+  V_TRI_SHAPE + \
+  V_TRI_SHAPE_AND_SIZE + \
+  V_TRI_RELATIVE_SIZE_SQUARED
+//@}
  
-#define V_EDGE_LENGTH                1   /*!< \hideinitializer */
+//! \name Tri bit fields
+//! 
+//@{
+/*!\hideinitializer \brief */
+#define V_EDGE_LENGTH                1
+/*!\hideinitializer \brief */
+#define V_EDGE_ALL \
+  V_EDGE_LENGTH
 //@}
 
                                      
@@ -534,7 +687,7 @@ struct TriMetricVals
 
     \li Hexahedra
     \li Tetrahedra
-    \li Pryamid 
+    \li Pyramid 
     \li Wedge 
     \li Knife 
     \li Quadrilateral
@@ -546,7 +699,13 @@ struct TriMetricVals
   multiple metrics on a single element.  Individual metrics may be 
   calculated on a single element as well. 
 
-  \section jack Using Verdict
+  \section GetVerdict Obtaining, Configuring, Building, and Installing Verdict
+
+  Since your are reading reference documentation generated from the source code,
+  you ostensibly already have Verdict.
+  Instructions for this are on a separate page: \ref ObtainConfigureBuildInstall .
+
+  \section UsingVerdict Using Verdict
 
   The v_*_quality functions take the following parameters: 
 
@@ -570,13 +729,13 @@ struct TriMetricVals
   \code
   unsigned int metrics_request_flag = 0;
   metrics_request_flag += V_TRI_ASPECT_FROBENIUS;  
-  metrics_request_flag += V_CONDITION;
-  metrics_request_flag += V_SHAPE;
-  metrics_request_flag += V_SHEAR;
+  metrics_request_flag += V_TRI_CONDITION;
+  metrics_request_flag += V_TRI_SHAPE;
+  metrics_request_flag += V_TRI_SHEAR;
   \endcode 
 
-  The bitwise field can also be set for many metrics at once using #deinfed numbers.  V_HEX_ALL,
-  V_HEX_DIAGNOSTIC, V_TRI_ALGEBRAIC are examples.
+  The bitwise field can also be set for many metrics at once using summary tags such as \ref V_HEX_ALL,
+  \ref V_HEX_DIAGNOSTIC, or \ref V_TRI_ALGEBRAIC.
 
   Below is an example of how use Verdict's functions:
 
@@ -620,6 +779,48 @@ struct TriMetricVals
     \endcode
 
 */
+
+/*!\page ObtainConfigureBuildInstall Obtain, Configure, Build, and Install Verdict
+
+  \section ObtainVerdict Obtaining the Verdict Source Code
+
+  The verdict source code repository is now maintained by <a href="http://www.kitware.com/">Kitware</a>.
+  You can check out the source with \code
+    cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/Verdict login
+    cvs -d :pserver:anonymous@public.kitware.com:/cvsroot/Verdict -z3 co Verdict
+  \endcode
+  When asked for a password, enter "verdict".
+
+  \section ConfiguringVerdict Configuring Verdict
+
+  Verdict uses <a href="http://www.cmake.org/">CMake</a> to create project files.
+  To build Verdict from source, you will need to obtain CMake.
+  
+  We strongly suggest that you build Verdict in a separate directory tree from the source code.
+  Life is just too short to explain why; if you're curious, search the CMake mailing list.
+  To make the instructions clear, we'll assume that you have the Verdict source code in \c /tmp/Verdict.
+  Configuring Verdict is then as simple as \code
+    mkdir /tmp/VerdictBuild
+    cd /tmp/VerdictBuild
+    cmake ../Verdict
+  \endcode
+  At this point, you may wish to edit <tt>/tmp/VerdictBuild/CMakeCache.txt</tt> to change settings
+  from their default values.
+  
+  If you are going to include Verdict inside another library, you might want to read
+  how to use \ref VerdictAsASubProject.
+
+  \section BuildingAndInstallingVerdict Building and Installing Verdict
+
+  Assuming you are using CMake's Makefile generator, building and installing Verdict
+  is accomplished with \code
+    make
+    make install
+  \endcode
+  By default, Verdict will be installed in \c /usr/local.
+  If you wish to change the location, edit your <tt>CMakeCache.txt</tt> file so that
+  \c CMAKE_INSTALL_PREFIX contains a different directory and re-run \c cmake.
+ */
 
     //! Calculates quality metrics for hexahedral elements.
     C_FUNC_DEF void v_hex_quality( int num_nodes, double coordinates[][3], 
@@ -719,6 +920,7 @@ struct TriMetricVals
        Optimization of the Jacobian Matrix Norm and Associated Quantities, 
        Intl. J. Numer. Meth. Engng. 2000, 48:1165-1185. */ 
     C_FUNC_DEF double v_hex_max_aspect_frobenius( int num_nodes, double coordinates[][3] ); 
+    //! Calculates hex condition metric. This is a synonym for \ref v_hex_max_aspect_frobenius.
     C_FUNC_DEF double v_hex_condition( int num_nodes, double coordinates[][3] ); 
 
     //! Calculates hex jacobian metric   
@@ -1038,7 +1240,7 @@ struct TriMetricVals
     //! Sets average size (area) of tri, needed for v_tri_relative_size(...) 
     C_FUNC_DEF void  v_set_tri_size( double size );
 
-    //! Sets fuction pointer to calculate tri normal wrt surface 
+    //! Sets function pointer to calculate tri normal wrt surface 
     C_FUNC_DEF void v_set_tri_normal_func( ComputeNormal func );
 
     //! Calculates tri metric.

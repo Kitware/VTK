@@ -48,6 +48,7 @@ set( verdict_SRCS
 configure_file(
   ${verdict_SOURCE_DIR}/verdict.h.in
   ${verdict_BINARY_DIR}/verdict.h
+  @ONLY
 )
 
 if ( VERDICT_MANGLE )
