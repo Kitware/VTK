@@ -417,6 +417,18 @@ bool vtkQtStackedChart::getHelpText(const QPointF &point, QString &text)
         seriesDomain->getXDomain().getDomain(isRange)[index]));
     args.append(yAxis->formatValue(QVariant(
         this->Internal->Groups.Tables[item->Group][item->Index][index])));
+    if(item->Index > 0)
+      {
+      double value =
+          this->Internal->Groups.Tables[item->Group][item->Index][index] -
+          this->Internal->Groups.Tables[item->Group][item->Index - 1][index];
+      args.append(yAxis->formatValue(QVariant(value)));
+      }
+    else
+      {
+      args.append(args[1]);
+      }
+
     text = this->Options->getHelpFormat()->getHelpText(
         this->Model->getSeriesName(series).toString(), args);
     return true;

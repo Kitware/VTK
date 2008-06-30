@@ -30,7 +30,7 @@ vtkQtStackedChartOptions::vtkQtStackedChartOptions(QObject *parentObject)
   : QObject(parentObject)
 {
   this->Axes = vtkQtChartLayer::BottomLeft;
-  this->Help = new vtkQtChartHelpFormatter("%s: %1, %2");
+  this->Help = new vtkQtChartHelpFormatter("%s: %1, %3");
   this->Normalized = false;
   this->Gradient = false;
 }
