@@ -36,7 +36,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.10");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.11");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -178,8 +178,6 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {
-  output->ShallowCopy( dataset );
-
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
@@ -264,11 +262,11 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
   for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit =  pdfXY.begin();
         xit != pdfXY.end(); ++ xit )
     {
-    vtkVariant x = xit->first;
+    x = xit->first;
     for ( vtkstd::map<vtkVariant,double,vtkVariantLessThan>::iterator yit = xit->second.begin(); 
           yit != xit->second.end(); ++ yit )
       {
-      vtkVariant y = yit->first;
+      y = yit->first;
       double pxy = yit->second;
 
       HYcondX -= pxy * log( pdfYcondX[x][y] );
