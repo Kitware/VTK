@@ -110,7 +110,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.92");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.93");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -639,6 +639,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     XSync(this->DisplayId,False);
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId,&winattr);
+    // guarantee that the window is mapped before the program continues 
+    // on to do the OpenGL rendering.
     while (winattr.map_state == IsUnmapped)
       {
       XGetWindowAttributes(this->DisplayId,
