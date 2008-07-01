@@ -50,7 +50,14 @@ public:
   // If non-null, propertyArr provides properties that will be attached
   // to this vertex. The values in propertyArr must match up with the
   // arrays in the vertex data retrieved by GetVertexData.
-  vtkIdType AddVertex(vtkVariantArray *propertyArr = 0);
+  vtkIdType AddVertex();
+
+  // Description:
+  // Adds a vertex to the graph, and returns the id of that vertex.
+  // If non-null, propertyArr provides properties that will be attached
+  // to this vertex. The values in propertyArr must match up with the
+  // arrays in the vertex data retrieved by GetVertexData.
+  vtkIdType AddVertex(vtkVariantArray *propertyArr);
 
   //BTX
   // Description:
