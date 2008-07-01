@@ -10,11 +10,3 @@ viewer SetColorWindow 100.0
 viewer SetColorLevel 127.5
 
 viewer Render
-
-#make interface
-viewer Render
-
-vtkWindowToImageFilter windowToimage
-  windowToimage SetInput [viewer GetRenderWindow]
-
-
