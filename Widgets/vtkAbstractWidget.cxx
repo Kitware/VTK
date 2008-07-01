@@ -69,6 +69,7 @@ vtkAbstractWidget::~vtkAbstractWidget()
 
   this->EventTranslator->Delete();
   this->CallbackMapper->Delete();
+  this->SetEnabled(0);
 }
 
 //----------------------------------------------------------------------
