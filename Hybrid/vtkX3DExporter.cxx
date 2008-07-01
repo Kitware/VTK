@@ -76,7 +76,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.13");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.14");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void vtkX3DExporter::WriteData()
   vtkLightCollection *lc;
   vtkLight *aLight;
   vtkCamera *cam;
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
 
   // make sure the user specified a FileName or FilePointer
   if (this->FileName == NULL)

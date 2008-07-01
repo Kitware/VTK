@@ -22,6 +22,7 @@
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 
+#include <vtksys/ios/sstream>
 #include <vtkstd/string>
 #include <cassert>
 
@@ -44,7 +45,7 @@ class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.1");
+vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.2");
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter(void)
 {

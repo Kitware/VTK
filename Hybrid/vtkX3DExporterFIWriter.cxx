@@ -200,7 +200,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.1");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.2");
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter(void)
 {
@@ -384,7 +384,7 @@ void vtkX3DExporterFIWriter::EndAttribute()
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d)
 {
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
 
@@ -433,7 +433,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
   vtkstd::vector<double> values;
 
   this->StartAttribute(attributeID, true, false);
@@ -526,7 +526,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
   vtkstd::vector<int> values;
 
   vtkIdType npts = 0;
@@ -579,7 +579,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int value)
 {
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
   this->StartAttribute(attributeID, true, false);
 
   // Xj3D writes out single value fields in string encoding. Expected:
@@ -591,7 +591,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int value)
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 {
-  vtkstd::stringstream ss;
+  vtksys_ios::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
 
