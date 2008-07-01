@@ -9,33 +9,6 @@ IF(VTK_HAS_EXODUS)
   SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
 ENDIF(VTK_HAS_EXODUS)
 
-OPTION(VTK_X3D_USE_JAVA "Build X3D exporter with Java support. This allows binary X3Db exporting" OFF)
-MARK_AS_ADVANCED(VTK_X3D_USE_JAVA)
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
-IF(VTK_X3D_USE_JAVA)
-  FIND_PACKAGE(JNI)
-  SET(__my_dirs)
-  FOREACH(dir ${JAVA_AWT_LIBRARY_DIRECTORIES})
-    SET(__my_dirs
-      ${__my_dirs}
-      "${dir}"
-      "${dir}/server"
-      )
-  ENDFOREACH(dir)
-  FIND_LIBRARY(JAVA_JVM_LIBRARY
-    NAMES jvm JavaVM
-    PATHS ${__my_dirs})
-
-  INCLUDE_DIRECTORIES(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
-  SET(KIT_LIBS ${KIT_LIBS} ${JAVA_JVM_LIBRARY})
-  CONFIGURE_FILE("${VTK_SOURCE_DIR}/Wrapping/Java/FastInfoset.jar"
-    "${EXECUTABLE_OUTPUT_PATH}/FastInfoset.jar"
-    COPYONLY IMMEDIATE)
-ENDIF(VTK_X3D_USE_JAVA)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/vtkX3DExporterConfiguration.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkX3DExporterConfiguration.h"
-  @ONLY IMMEDIATE)
-
 IF (WIN32)
   IF (VTK_VFW_SUPPORTS_CAPTURE)
     IF(BORLAND)
@@ -96,12 +69,13 @@ vtkVectorText.cxx
 vtkVideoSource.cxx
 vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
+vtkX3D.cxx
 vtkX3DExporter.cxx
+vtkX3DExporterWriter.cxx
+vtkX3DExporterXMLWriter.cxx
+vtkX3DExporterFIWriter.cxx
 )
-IF(VTK_X3D_USE_JAVA)
-  SET(Kit_SRCS ${Kit_SRCS}
-    vtkX3DExporterJavaHelper.cxx)
-ENDIF(VTK_X3D_USE_JAVA)
+
 IF(VTK_HAS_EXODUS)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkExodusIICache.cxx
@@ -133,6 +107,10 @@ ENDIF (WIN32)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkVRML
+vtkX3D
+vtkX3DExporterWriter
+vtkX3DExporterFIWriter
+vtkX3DExporterXMLWriter
 WRAP_EXCLUDE)
 
 SET(Kit_EXTRA_SRCS)
