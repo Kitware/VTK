@@ -212,7 +212,7 @@ public:
       char span = 0;
       size_t i = 0;
       int f; unsigned char *p;
-      vtkstd::basic_string<unsigned char> deltas;
+      vtkstd::vector<unsigned char> deltas;
 
       if (image)
         {
@@ -223,7 +223,10 @@ public:
           int *vp = reinterpret_cast<int*>(&v);
           f = vtkX3DExporterFIWriterHelper::ReverseBytes(vp);
           p = reinterpret_cast <unsigned char*> (&f);
-          deltas.append(p, 4);
+          deltas.push_back(p[0]);
+          deltas.push_back(p[1]);
+          deltas.push_back(p[2]);
+          deltas.push_back(p[3]);
           }
         compressor->SetCompressionLevel(9);
         }
@@ -246,7 +249,10 @@ public:
           f = vtkX3DExporterFIWriterHelper::ReverseBytes(vp);
 
           p = reinterpret_cast <unsigned char*> (&f);
-          deltas.append(p, 4);
+          deltas.push_back(p[0]);
+          deltas.push_back(p[1]);
+          deltas.push_back(p[2]);
+          deltas.push_back(p[3]);
           }
         for(i = span; i < size; i++)
           {
@@ -254,7 +260,10 @@ public:
           f = vtkX3DExporterFIWriterHelper::ReverseBytes(&v);
 
           p = reinterpret_cast <unsigned char*> (&f);
-          deltas.append(p, 4);
+          deltas.push_back(p[0]);
+          deltas.push_back(p[1]);
+          deltas.push_back(p[2]);
+          deltas.push_back(p[3]);
           }
         }
 
