@@ -34,6 +34,8 @@
 
 #include <vtkstd/set>
 
+#include <vtksys/ios/sstream>
+
 // = Start Private Implementation =======================================
 class vtkCorrelativeStatisticsPrivate
 {
@@ -54,7 +56,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 }
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.18");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.19");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -365,11 +367,11 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
     }
 
   vtkIdType nColP = params->GetNumberOfColumns();
-  if ( nColP != 8 )
+  if ( nColP < 7 )
     {
     vtkWarningMacro( "Parameter table has " 
                      << nColP
-                     << " != 8 columns. Doing nothing." );
+                     << " < 7 columns. Doing nothing." );
     return;
     }
 
@@ -383,26 +385,6 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
     {
     return;
     }
-
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable X" );
-  output->AddColumn( stringCol );
-  stringCol->Delete();
-
-  stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable Y" );
-  output->AddColumn( stringCol );
-  stringCol->Delete();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Row" );
-  output->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Relative PDF" );
-  output->AddColumn( doubleCol );
-  doubleCol->Delete();
 
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 4 );
@@ -450,7 +432,6 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
         
         double nominalX = params->GetValue( i, 2 ).ToDouble();
         double nominalY = params->GetValue( i, 3 ).ToDouble();
-        double thresPDF = params->GetValue( i, 7 ).ToDouble();
         double eFac = -.5 / d;
         covr *= 2.;
         
@@ -461,22 +442,25 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
           colY = tmp;
           }
 
-        double x, y, rPDF;
+        // Create the output column
+        vtkDoubleArray* pXY = vtkDoubleArray::New();
+        vtksys_ios::ostringstream pXYName;
+        pXYName
+          << "p(" << ( colX.size() ? colX.c_str() : "X" )
+          << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")/p_max";
+        pXY->SetName( pXYName.str().c_str() );
+        pXY->SetNumberOfTuples( nRowD );
+        output->AddColumn( pXY );
+        pXY->Delete();
+
+        double x, y;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
           {
           x = dataset->GetValueByName( r, colX ).ToDouble() - nominalX;
           y = dataset->GetValueByName( r, colY ).ToDouble() - nominalY;
           
-          rPDF = exp( eFac * ( varY * x * x - covr * x * y + varX * y * y ) );
-          if ( rPDF < thresPDF )
-            {
-            row->SetValue( 0, colX );
-            row->SetValue( 1, colY );
-            row->SetValue( 2, r );
-            row->SetValue( 3, rPDF );
-
-            output->InsertNextRow( row );
-            }
+          output->SetValueByName( r, pXYName.str().c_str(), 
+                                  exp( eFac * ( varY * x * x - covr * x * y + varX * y * y ) ) );
           }
 
         break;

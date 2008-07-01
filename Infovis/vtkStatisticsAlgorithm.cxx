@@ -27,13 +27,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.8");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
   this->SetNumberOfInputPorts( 2 );
-  this->SetNumberOfOutputPorts( 1 );
+  this->SetNumberOfOutputPorts( 2 );
 
   // If not told otherwise, run in Learn mode
   this->ExecutionMode = vtkStatisticsAlgorithm::LearnMode;
@@ -57,19 +57,20 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector )
 {
-  // Extract dataset table
-  vtkInformation* datasetInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkTable* dataset = vtkTable::SafeDownCast( datasetInfo->Get(vtkDataObject::DATA_OBJECT() ) );
+  // Extract input data table
+  vtkTable* inData = vtkTable::GetData( inputVector[0], 0 );
 
-  // Extract output table
-  vtkInformation* outputInfo = outputVector->GetInformationObject( 0 );
-  vtkTable* output = vtkTable::SafeDownCast( outputInfo->Get(vtkDataObject::DATA_OBJECT() ) );
+  // Extract output tables
+  vtkTable* outData = vtkTable::GetData( outputVector, 0 );
+  vtkTable* outMeta = vtkTable::GetData( outputVector, 1 );
+
+  outData->ShallowCopy( inData );
 
   switch ( this->ExecutionMode )
     {
     case LearnMode:
       {
-      this->ExecuteLearn( dataset, output );
+      this->ExecuteLearn( inData, outMeta );
       break;
       }
     case ValidateMode:
@@ -79,10 +80,10 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
       }
     case AssessMode:
       {
-      // Extract params table
-      vtkInformation* paramsInfo = inputVector[1]->GetInformationObject( 0 );
-      vtkTable* params = vtkTable::SafeDownCast( paramsInfo->Get(vtkDataObject::DATA_OBJECT() ) );
-      this->ExecuteAssess( dataset, params, output );
+      // Extract additional tables
+      vtkTable* inMeta = vtkTable::GetData( inputVector[1], 0 );
+
+      this->ExecuteAssess( inData, inMeta, outData );
       break;
       }
     default:
@@ -105,6 +106,22 @@ int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* 
     {
     info->Set( vtkAlgorithm::INPUT_IS_OPTIONAL(), 1 );
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
+    return 1;
+    }
+  return 0;
+}
+
+// ----------------------------------------------------------------------
+int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
+{
+  if ( port == 0 )
+    {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    return 1;
+    }
+  else if ( port == 1 )
+    {
+    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
     }
   return 0;

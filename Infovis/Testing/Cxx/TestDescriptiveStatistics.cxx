@@ -150,7 +150,8 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
-  vtkTable* outputTable = haruspex->GetOutput();
+  vtkTable* outputData = haruspex->GetOutput( 0 );
+  vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
   paramsTable->Delete();
@@ -172,14 +173,14 @@ int TestDescriptiveStatistics( int, char *[] )
   cout << "## Calculated the following statistics ( "
        << n
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
     for ( int i = 0; i < 9; ++ i )
       {
-      cout << outputTable->GetColumnName( i )
+      cout << outputMeta->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToString()
+           << outputMeta->GetValue( r, i ).ToString()
            << "  ";
      }
     cout << "\n";
@@ -206,16 +207,16 @@ int TestDescriptiveStatistics( int, char *[] )
   int m1outliers = 0;
   cout << "Outliers:\n";
   vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Relative Deviation of Metric 0" ) );
+    outputData->GetColumnByName( "Relative Deviation of Metric 0" ) );
   vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+    outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Metric 0" ) );
+    outputData->GetColumnByName( "Metric 0" ) );
   vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Metric 1" ) );
+    outputData->GetColumnByName( "Metric 1" ) );
   double dev;
   double maxdev = 1.5;
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
     dev = m0reld->GetValue( r );
     if ( dev > maxdev )
@@ -226,7 +227,7 @@ int TestDescriptiveStatistics( int, char *[] )
         << " (value: " << m0vals->GetValue( r ) << ")\n";
       }
     }
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
     dev = m1reld->GetValue( r );
     if ( dev > maxdev )
@@ -254,12 +255,12 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->Modified(); // FIXME: Why is this necessary? The MTime on paramsTable should be sufficient.
   haruspex->Update();
   m1vals = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Metric 1" ) );
+    outputData->GetColumnByName( "Metric 1" ) );
   m1reld = vtkDoubleArray::SafeDownCast(
-    outputTable->GetColumnByName( "Relative Deviation of Metric 1" ) );
+    outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
   cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
   m1outliers = 0;
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
     dev = m1reld->GetValue( r );
     if ( dev )
@@ -272,7 +273,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   if ( m1outliers != 28 )
     {
-    cout << "Error: Expected 28 outliers for Metric 1, got " << m1outliers << ".\n";
+    cout << "Error: Expected 28 outliers for Metric 1, found " << m1outliers << ".\n";
     testStatus = 1;
     }
 

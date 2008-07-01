@@ -150,7 +150,7 @@ int TestOrderStatistics( int, char *[] )
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
-  vtkTable* outputTable = haruspex->GetOutput();
+  vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
   paramsTable->Delete();
@@ -176,17 +176,17 @@ int TestOrderStatistics( int, char *[] )
   cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
       {
-      cout << outputTable->GetColumnName( i )
+      cout << outputMeta->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToString()
+           << outputMeta->GetValue( r, i ).ToString()
            << "  ";
 
-      if ( i && outputTable->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
+      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
         {
         testIntValue = 1;
         cout << " !! <> "
@@ -216,17 +216,17 @@ int TestOrderStatistics( int, char *[] )
   cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
       {
-      cout << outputTable->GetColumnName( i )
+      cout << outputMeta->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToString()
+           << outputMeta->GetValue( r, i ).ToString()
            << "  ";
 
-      if ( i && outputTable->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
+      if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
         {
         testIntValue = 1;
         cout << " !! <> "
@@ -246,14 +246,14 @@ int TestOrderStatistics( int, char *[] )
   cout << "## Calculated the following deciles with InverseCDF quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputTable->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
       {
-      cout << outputTable->GetColumnName( i )
+      cout << outputMeta->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToString()
+           << outputMeta->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";

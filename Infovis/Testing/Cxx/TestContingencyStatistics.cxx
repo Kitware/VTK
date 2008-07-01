@@ -66,7 +66,7 @@ int TestContingencyStatistics( int, char *[] )
 
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
   haruspex->SetInput( 0, datasetTable );
-  vtkTable* outputTable = haruspex->GetOutput();
+  vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
 
@@ -83,23 +83,23 @@ int TestContingencyStatistics( int, char *[] )
   cout << "## Calculated the following statistics ( grand total: "
        << n
        << " ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
-    int c = outputTable->GetValue( r, 2 ).ToInt();
+    int c = outputMeta->GetValue( r, 2 ).ToInt();
     testIntValue += c;
 
     cout << "   (X, Y) = ("
-         << outputTable->GetValue( r, 0 ).ToString()
+         << outputMeta->GetValue( r, 0 ).ToString()
          << ", "
-         << outputTable->GetValue( r, 1 ).ToString()
+         << outputMeta->GetValue( r, 1 ).ToString()
          << "), "
-         << outputTable->GetColumnName( 2 )
+         << outputMeta->GetColumnName( 2 )
          << "="
          << c
          << ", "
-         << outputTable->GetColumnName( 3 )
+         << outputMeta->GetColumnName( 3 )
          << "="
-         << outputTable->GetValue( r, 3 ).ToDouble()
+         << outputMeta->GetValue( r, 3 ).ToDouble()
          << "\n";
     }
 
@@ -116,8 +116,8 @@ int TestContingencyStatistics( int, char *[] )
 // -- Test Assess Mode -- 
   vtkContingencyStatistics* haruspex2 = vtkContingencyStatistics::New();
   haruspex2->SetInput( 0, datasetTable );
-  haruspex2->SetInput( 1, outputTable );
-  vtkTable* outputTable2 = haruspex2->GetOutput();
+  haruspex2->SetInput( 1, outputMeta );
+  vtkTable* outputData2 = haruspex2->GetOutput( 0 );
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
   haruspex2->SetX( "X" );
@@ -131,17 +131,17 @@ int TestContingencyStatistics( int, char *[] )
   for ( int i = 0; i < 5; ++ i )
     {
     cout << "   "
-         << outputTable2->GetColumnName( i )
+         << outputData2->GetColumnName( i )
          << "  ";
     }
   cout << "\n";
 
-  for ( vtkIdType r = 0; r < outputTable2->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
     for ( int i = 0; i < 5; ++ i )
       {
       cout << "   "
-           << outputTable2->GetValue( r, i ).ToString()
+           << outputData2->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";

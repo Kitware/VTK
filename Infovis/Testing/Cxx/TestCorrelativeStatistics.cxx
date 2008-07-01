@@ -15,7 +15,7 @@
 //=============================================================================
 int TestCorrelativeStatistics( int, char *[] )
 {
-  int testIntValue = 0;
+  int testStatus = 0;
 
   double mingledData[] = 
     {
@@ -134,13 +134,13 @@ int TestCorrelativeStatistics( int, char *[] )
   stdStringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Nominal X" );
+  doubleCol->SetName( "Mean X" );
   doubleCol->InsertNextValue( centers[0] );
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Nominal Y" );
+  doubleCol->SetName( "Mean Y" );
   doubleCol->InsertNextValue( centers[1] );
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
@@ -163,16 +163,11 @@ int TestCorrelativeStatistics( int, char *[] )
   paramsTable->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Threshold" );
-  doubleCol->InsertNextValue( threshold );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
   vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
-  vtkTable* outputTable = haruspex->GetOutput();
+  vtkTable* outputData = haruspex->GetOutput( 0 );
+  vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
   paramsTable->Delete();
@@ -195,34 +190,34 @@ int TestCorrelativeStatistics( int, char *[] )
   cout << "## Calculated the following statistics ( "
        << n
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   (X, Y) = ("
-         << outputTable->GetValue( r, 0 ).ToString()
+         << outputMeta->GetValue( r, 0 ).ToString()
          << ", "
-         << outputTable->GetValue( r, 1 ).ToString()
+         << outputMeta->GetValue( r, 1 ).ToString()
          << ")";
 
     for ( int i = 2; i < 7; ++ i )
       {
       cout << ", "
-           << outputTable->GetColumnName( i )
+           << outputMeta->GetColumnName( i )
            << "="
-           << outputTable->GetValue( r, i ).ToDouble();
+           << outputMeta->GetValue( r, i ).ToDouble();
       }
 
-    if ( outputTable->GetValue( r,  7 ).ToString() == vtkStdString( "valid" ) )
+    if ( outputMeta->GetValue( r,  7 ).ToString() == vtkStdString( "valid" ) )
       {
       cout << "\n   Y = "
-           << outputTable->GetValue( r,  8 ).ToDouble()
+           << outputMeta->GetValue( r,  8 ).ToDouble()
            << " * X + "
-           << outputTable->GetValue( r,  9 ).ToDouble()
+           << outputMeta->GetValue( r,  9 ).ToDouble()
            << ", X = "
-           << outputTable->GetValue( r, 10 ).ToDouble()
+           << outputMeta->GetValue( r, 10 ).ToDouble()
            << " * Y + "
-           << outputTable->GetValue( r, 11 ).ToDouble()
+           << outputMeta->GetValue( r, 11 ).ToDouble()
            << ", corr. coeff.: "
-           << outputTable->GetValue( r, 12 ).ToDouble()
+           << outputMeta->GetValue( r, 12 ).ToDouble()
            << "\n";
       }
     else
@@ -236,7 +231,7 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
 // -- Test Assess Mode -- 
-  cout << "## Searching for the following outliers:\n";
+  cout << "## Searching for outliers with respect to this bivariate distribution:\n";
   for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
     {
     cout << "   (X, Y) = ("
@@ -263,36 +258,39 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex->Update();
 
-  testIntValue = outputTable->GetNumberOfRows();
-  if ( testIntValue != 3 )
+  int nOutliers = 0;
+  int tableIdx[] = { 0, 1, 3 };
+  cout << "   Found the following outliers:\n";
+  for ( int i = 0; i < 3; ++ i )
     {
-    cerr << "Reported an incorrect number of outliers: "
-         << testIntValue
-         << " != 3.\n";
-    return 1;
+    cout << "   "
+         << outputData->GetColumnName( tableIdx[i] );
+    }
+  cout << "\n";
+
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    if ( outputData->GetValue( r, tableIdx[2] ).ToDouble() < threshold )
+      {
+      ++ nOutliers;
+
+      for ( int i = 0; i < 3; ++ i )
+        {
+        cout << "     "
+             << outputData->GetValue( r,  tableIdx[i] ).ToString()
+             << "    ";
+        }
+      cout << "\n";
+      }
     }
 
-  cout << "Found "
-       << testIntValue
-       << " outliers:\n";
-
-  for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
+  if ( nOutliers != 3 )
     {
-    vtkStdString colX = outputTable->GetValue( r, 0 ).ToString();
-    vtkStdString colY = outputTable->GetValue( r, 1 ).ToString();
-    vtkIdType i = outputTable->GetValue( r, 2 ).ToInt();
-    cout << "   "
-         << i
-         << ": ( "
-         << datasetTable->GetValueByName( i, colX ).ToDouble()
-         << " , "
-         << datasetTable->GetValueByName( i, colY ).ToDouble()
-         << " ) has a relative PDF of "
-         << outputTable->GetValue( r, 3 ).ToDouble()
-         << "\n";
+    cout << "Error: Expected 3 outliers, found " << nOutliers << ".\n";
+    testStatus = 1;
     }
 
   haruspex->Delete();
 
-  return 0;
+  return testStatus;
 }

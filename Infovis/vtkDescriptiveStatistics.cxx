@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.31");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.32");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -340,8 +340,6 @@ void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* dataset,
                                               vtkTable* params,
                                               vtkTable* output)
 {
-  output->ShallowCopy( dataset );
-
   vtkIdType nColD = dataset->GetNumberOfColumns();
   if ( ! nColD )
     {
