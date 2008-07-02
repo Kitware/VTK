@@ -144,7 +144,7 @@ private:
   unsigned int ImageFormat;
   vtkTIFFReaderInternal *InternalImage;
   int *OutputExtent;
-  int *OutputIncrements;
+  vtkIdType *OutputIncrements;
   unsigned int OrientationType;
   bool OrientationTypeSpecifiedFlag;
   bool OriginSpecifiedFlag;
