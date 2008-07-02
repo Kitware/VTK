@@ -70,7 +70,7 @@ void vtkQtChartSeriesModelRange::resetSeries()
 {
   // Clean up the range information.
   this->Range[0].clear();
-  this->Range[0].clear();
+  this->Range[1].clear();
 
   // Add the new model series.
   if(this->Model)
