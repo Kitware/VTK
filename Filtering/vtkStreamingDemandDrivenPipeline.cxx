@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.55");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.56");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -789,20 +789,21 @@ vtkStreamingDemandDrivenPipeline
   int piece = 0;
   int numPieces = 1;
   int ghostLevel = 0;
+  vtkInformation* fromInfo = 0;
   if (outputPort < outInfoVec->GetNumberOfInformationObjects())
     {
-    vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
-    if (outInfo->Has(UPDATE_PIECE_NUMBER()))
+    fromInfo = outInfoVec->GetInformationObject(outputPort);
+    if (fromInfo->Has(UPDATE_PIECE_NUMBER()))
       {
-      piece = outInfo->Get(UPDATE_PIECE_NUMBER());
+      piece = fromInfo->Get(UPDATE_PIECE_NUMBER());
       }
-    if (outInfo->Has(UPDATE_NUMBER_OF_PIECES()))
+    if (fromInfo->Has(UPDATE_NUMBER_OF_PIECES()))
       {
-      numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
+      numPieces = fromInfo->Get(UPDATE_NUMBER_OF_PIECES());
       }
-    if (outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
+    if (fromInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
       {
-      ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+      ghostLevel = fromInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
       }
     }
 
@@ -876,11 +877,11 @@ vtkStreamingDemandDrivenPipeline
         }
 
       // We are keeping track of the previous time request.
-      if (outInfo->Has(UPDATE_TIME_STEPS()))
+      if (fromInfo->Has(UPDATE_TIME_STEPS()))
         {
         outInfo->Set(PREVIOUS_UPDATE_TIME_STEPS(),
-                     outInfo->Get(UPDATE_TIME_STEPS()),
-                     outInfo->Length(UPDATE_TIME_STEPS()));
+                     fromInfo->Get(UPDATE_TIME_STEPS()),
+                     fromInfo->Length(UPDATE_TIME_STEPS()));
         }
       else
         {
