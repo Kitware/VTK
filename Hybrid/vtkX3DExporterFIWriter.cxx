@@ -33,9 +33,9 @@ using namespace vtkX3D;
 /*======================================================================== */
 struct NodeInfo 
 {
-  NodeInfo(int nodeId)
+  NodeInfo(int _nodeId)
     {
-    this->nodeId = nodeId;
+    this->nodeId = _nodeId;
     this->isChecked = false;
     this->attributesTerminated = true;
     }
@@ -200,7 +200,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.4");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.5");
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter(void)
 {
