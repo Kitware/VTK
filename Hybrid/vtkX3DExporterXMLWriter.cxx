@@ -45,7 +45,7 @@ class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.3");
+vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.4");
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter(void)
 {
@@ -264,12 +264,10 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, float value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkX3DExporterXMLWriter::SetField(int attributeID, double value)
+void vtkX3DExporterXMLWriter::SetField(int attributeID, double vtkNotUsed(value))
 {
   this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << "WHY DOUBLE?" << "\"";
   assert(false);
-  // prevent ununsed parameter warning
-  value = 0.0;
 }
 
 //-----------------------------------------------------------------------------
