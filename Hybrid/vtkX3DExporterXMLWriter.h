@@ -59,8 +59,8 @@ public:
   void SetField(int attributeID, const int* values, size_t size, bool image = false);
 
 protected:
-  vtkX3DExporterXMLWriter(void);
-  ~vtkX3DExporterXMLWriter(void);
+  vtkX3DExporterXMLWriter();
+  ~vtkX3DExporterXMLWriter();
 
 private:
  

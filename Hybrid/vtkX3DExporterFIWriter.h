@@ -73,8 +73,8 @@ public:
   vtkBooleanMacro(Fastest, int);
   vtkGetMacro(Fastest, int);
 protected:
-  vtkX3DExporterFIWriter(void);
-  ~vtkX3DExporterFIWriter(void);
+  vtkX3DExporterFIWriter();
+  ~vtkX3DExporterFIWriter();
 
 
 private:

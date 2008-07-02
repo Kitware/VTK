@@ -18,5 +18,7 @@ IF(PYTHON_EXECUTABLE)
     vtk3DS.h
     vtkExodusIIReaderPrivate.h
     vtkVRML.h
+    vtkX3D.h
+    vtkX3DExporterFIWriterHelper.h
     )
 ENDIF(PYTHON_EXECUTABLE)

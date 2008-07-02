@@ -76,7 +76,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.15");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.16");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -551,6 +551,7 @@ void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Speed: " << this->Speed << "\n";
   os << indent << "Binary: " << this->Binary << "\n";
+  os << indent << "Fastest: " << this->Fastest << endl;
 }
 
 

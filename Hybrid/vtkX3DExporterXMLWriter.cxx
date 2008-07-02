@@ -45,9 +45,9 @@ class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.4");
+vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.5");
 //-----------------------------------------------------------------------------
-vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter(void)
+vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
 {
   delete this->InfoStack;
 }

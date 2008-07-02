@@ -200,9 +200,9 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.5");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.6");
 //----------------------------------------------------------------------------
-vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter(void)
+vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
 {
   delete this->InfoStack;
   this->Compressor->Delete();
@@ -223,6 +223,7 @@ vtkX3DExporterFIWriter::vtkX3DExporterFIWriter()
 void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Fastest: " << this->Fastest << endl;
 }
 
 //----------------------------------------------------------------------------
