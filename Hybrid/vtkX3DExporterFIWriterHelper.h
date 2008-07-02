@@ -101,7 +101,7 @@ public:
   // on the fifth bit of an octet
   static inline void EncodeNonEmptyOctetString5(vtkX3DExporterFIByteWriter* writer, vtkstd::string value)
     {
-    int length = value.length();
+    int length = static_cast<int>(value.length());
     if (length <= 8)
       {
       writer->PutBit(0);
@@ -250,7 +250,7 @@ public:
           {
           if (value[i] == -1)
             {
-            span = i + 1;
+            span = static_cast<char>(i) + 1;
             break;
             }
           }
@@ -286,7 +286,7 @@ public:
       size_t newSize = compressor->Compress(&deltas[0], deltas.size(), buffer, bufferSize);
 
       vtkstd::string octets;
-      int size32 = size;
+      int size32 = static_cast<int>(size);
       int size32_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&size32);
       char *s = reinterpret_cast <char*> (&size32_reversed);
       octets.append(s, 4);
@@ -346,7 +346,9 @@ public:
     // Compress the data
     size_t bufferSize = (size * 4) + ((unsigned int)ceil((size * 4)*0.001)) + 12;
     unsigned char* buffer = new unsigned char[bufferSize];
-    size_t newSize = compressor->Compress(octets, (size * 4), buffer, bufferSize);
+    size_t newSize = compressor->Compress(octets,
+      static_cast<unsigned long>(size * 4), buffer,
+      static_cast<unsigned long>(bufferSize));
 
     char *s;
     // Put the number of bits for exponent
@@ -354,13 +356,13 @@ public:
     // Put the number of bits for mantissa
     octetsCompressed.push_back(23);
     // Put the length
-    int length = size*4;
+    int length = static_cast<int>(size*4);
     int length_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&length);
     s = reinterpret_cast <char*> (&length_reversed);
     octetsCompressed.append(s, 4);
 
     // Put the number of floats
-    int numFloats = size;
+    int numFloats = static_cast<int>(size);
     int numFloats_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&numFloats);;
     s = reinterpret_cast <char*> (&numFloats_reversed);
     octetsCompressed.append(s, 4);
