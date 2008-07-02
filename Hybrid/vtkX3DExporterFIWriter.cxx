@@ -200,7 +200,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.3");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.4");
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter(void)
 {
@@ -603,11 +603,10 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 }
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int attributeID, double value)
+void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID), 
+  double vtkNotUsed(value))
 {
   cout << "Function not implemented yet." << endl;
-  // prevent unreferenced formal parameter warning
-  value = 0.0; attributeID = 0;
   assert(false);
 }
 
@@ -619,12 +618,11 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, bool value)
 }
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value, bool mfstring)
+void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value,
+  bool vtkNotUsed(mfstring))
 {
   this->StartAttribute(attributeID, true, true);
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, vtkstd::string(value));
-  // Prevent unreferenced formal parameter warning
-  mfstring = true;
 }
 
 //----------------------------------------------------------------------------
