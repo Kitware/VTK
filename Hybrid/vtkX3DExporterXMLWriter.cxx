@@ -30,9 +30,9 @@ using namespace vtkX3D;
 
 struct XMLInfo {
 
-XMLInfo(int elementId)
+XMLInfo(int _elementId)
 {
-  this->elementId = elementId;
+  this->elementId = _elementId;
   this->endTagWritten = false;
 }
   int elementId;
@@ -45,7 +45,7 @@ class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkX3DExporterXMLWriter);
-vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.2");
+vtkCxxRevisionMacro(vtkX3DExporterXMLWriter, "1.3");
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter(void)
 {
