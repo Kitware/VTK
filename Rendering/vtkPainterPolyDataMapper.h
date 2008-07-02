@@ -54,8 +54,9 @@ public:
 
   // Description:
   // Re-implement the superclass GetBounds method.
-  void GetBounds(double bounds[6]);
-  double *GetBounds();
+  virtual void GetBounds(double bounds[6])
+    { this->Superclass::GetBounds(bounds); }
+  virtual double *GetBounds();
 
   // Description:
   // Select a data array from the point/cell data

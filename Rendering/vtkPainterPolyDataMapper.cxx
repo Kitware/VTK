@@ -36,7 +36,7 @@
 #include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.14")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.15")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -331,13 +331,6 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 }
 
 //-------------------------------------------------------------------------
-void vtkPainterPolyDataMapper::GetBounds(double bounds[6])
-{
-  this->GetBounds();
-  memcpy(bounds,this->Bounds,6*sizeof(double));
-}
-
-//-------------------------------------------------------------------------
 double* vtkPainterPolyDataMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
@@ -363,16 +356,18 @@ double* vtkPainterPolyDataMapper::GetBounds()
 
       // first get the bounds from the input
       this->Update();
-      this->GetInput()->GetBounds(this->Bounds);
-
-      // if the mapper has a painter, update the bounds in the painter
-      vtkPainter *painter = this->GetPainter();
-
-      if( painter )
-        {
-        painter->UpdateBounds(this->Bounds);
-        }
       }
+
+    this->GetInput()->GetBounds(this->Bounds);
+
+    // if the mapper has a painter, update the bounds in the painter
+    vtkPainter *painter = this->GetPainter();
+
+    if (painter)
+      {
+      painter->UpdateBounds(this->Bounds);
+      }
+
     // if the bounds indicate NAN and subpieces are being used then
     // return NULL
     if (!vtkMath::AreBoundsInitialized(this->Bounds)

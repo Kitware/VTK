@@ -20,9 +20,8 @@
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
-#include "vtkPainterPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.48");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.49");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -144,22 +143,9 @@ double *vtkPolyDataMapper::GetBounds()
       //this->GetInput()->Update();
 
       this->Update();
-
-      // get the default painter in the chain of painters if any
-      vtkPainterPolyDataMapper *painterMapper =
-        vtkPainterPolyDataMapper::SafeDownCast(this);
-
-      // if the mapper has a painter, update the bounds in the painter
-      if( painterMapper )
-        {
-        painterMapper->GetBounds();
-        }
-      else
-        {
-        // the mapper has no painter, get the bounds from the input
-        this->GetInput()->GetBounds(this->Bounds);
-        }
       }
+    this->GetInput()->GetBounds(this->Bounds);
+
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
     if (!vtkMath::AreBoundsInitialized(this->Bounds)
