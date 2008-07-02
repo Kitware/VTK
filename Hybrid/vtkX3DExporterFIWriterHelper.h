@@ -269,7 +269,7 @@ public:
 
       size_t bufferSize = deltas.size() + ((unsigned int)ceil(deltas.size()*0.001)) + 12;
       unsigned char* buffer = new unsigned char[bufferSize];
-      size_t newSize = compressor->Compress(deltas.data(), deltas.size(), buffer, bufferSize);
+      size_t newSize = compressor->Compress(&deltas[0], deltas.size(), buffer, bufferSize);
 
       vtkstd::string octets;
       int size32 = size;
