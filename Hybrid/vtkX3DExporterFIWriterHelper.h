@@ -352,9 +352,9 @@ public:
 
     char *s;
     // Put the number of bits for exponent
-    octetsCompressed.push_back(8);
+    octetsCompressed += static_cast<char>(8);
     // Put the number of bits for mantissa
-    octetsCompressed.push_back(23);
+    octetsCompressed += static_cast<char>(23);
     // Put the length
     int length = static_cast<int>(size*4);
     int length_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&length);
@@ -370,7 +370,7 @@ public:
     for (i = 0; i < newSize; i++)
       {
       unsigned char c = buffer[i];
-      octetsCompressed.push_back(c);
+      octetsCompressed += c;
       }
     vtkX3DExporterFIWriterHelper::EncodeNonEmptyOctetString5(writer, octetsCompressed);
     delete buffer;
