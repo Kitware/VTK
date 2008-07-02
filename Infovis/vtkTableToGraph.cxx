@@ -51,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.13");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.14");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -542,20 +542,27 @@ int vtkTableToGraph::RequestData(
         vertexTable->Delete();
         return 0;
         }
-      // For each new domain, add a variant array for that domain 
+      // For each new domain, add an array for that domain 
       // containing the values for only that domain.
-      vtkVariantArray *domainValuesArr = 
-        vtkVariantArray::SafeDownCast(vertexTable->GetColumnByName(domain));
+      vtkAbstractArray *domainValuesArr = vertexTable->GetColumnByName(domain);
       if (!domainValuesArr && !hidden)
         {
-        domainValuesArr = vtkVariantArray::New();
+        domainValuesArr = vtkAbstractArray::CreateArray(arr->GetDataType());
         domainValuesArr->SetName(domain);
-        for (vtkIdType i = 0; i < vertexTable->GetNumberOfRows(); ++i)
-          {
-          domainValuesArr->InsertNextValue(vtkVariant());
-          }
+        domainValuesArr->SetNumberOfTuples(vertexTable->GetNumberOfRows());
         vertexTable->AddColumn(domainValuesArr);
         domainValuesArr->Delete();
+        for (vtkIdType r = 0; r < vertexTable->GetNumberOfRows(); ++r)
+          {
+          if (vtkStringArray::SafeDownCast(domainValuesArr))
+            {
+            vertexTable->SetValueByName(r, domain, "");
+            }
+          else
+            {
+            vertexTable->SetValueByName(r, domain, 0);
+            }
+          }
         }
       if (hidden)
         {
