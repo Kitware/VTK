@@ -143,7 +143,8 @@ private:
   int TotalColors;
   unsigned int ImageFormat;
   vtkTIFFReaderInternal *InternalImage;
-  int *InternalExtents;
+  int *OutputExtent;
+  int *OutputIncrements;
   unsigned int OrientationType;
   bool OrientationTypeSpecifiedFlag;
   bool OriginSpecifiedFlag;
