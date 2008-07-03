@@ -263,7 +263,7 @@ EXTERNL const char *
 nc_inq_libvers(void);
 
 EXTERNL const char *
-nc_strerror(int ncerr);
+nc_strerror(int ncerr_arg);
 
 EXTERNL int
 nc__create(const char *path, int cmode, size_t initialsz,
