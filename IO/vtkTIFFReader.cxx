@@ -1274,7 +1274,7 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage( void *out,
 
 
 void vtkTIFFReader::ReadGenericImage( void *out, 
-                                      unsigned int width, 
+                                      unsigned int, 
                                       unsigned int height )
 {
   unsigned int isize = TIFFScanlineSize(this->GetInternalImage()->Image);
