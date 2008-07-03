@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.32");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.33");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -58,18 +58,18 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
-                                             vtkTable* output,
+void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
+                                             vtkTable* outMeta,
                                              bool finalize )
 {
-  vtkIdType nCol = dataset->GetNumberOfColumns();
+  vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
     {
     this->SampleSize = 0;
     return;
     }
 
-  this->SampleSize = dataset->GetNumberOfRows();
+  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
@@ -82,76 +82,76 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  output->AddColumn( stringCol );
+  outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Minimum" );
-  output->AddColumn( doubleCol );
+  outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Maximum" );
-  output->AddColumn( doubleCol );
+  outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
   if ( finalize )
     {
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Mean" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Standard Deviation" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Variance" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Skewness" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sample Kurtosis" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "G2 Kurtosis" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
     }
   else
     {
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x2" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x3" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x4" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
     idTypeCol->SetName( "Cardinality" );
-    output->AddColumn( idTypeCol );
+    outMeta->AddColumn( idTypeCol );
     idTypeCol->Delete();
     }
 
@@ -159,13 +159,13 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
     vtkStdString col = *it;
-    if ( ! dataset->GetColumnByName( col ) )
+    if ( ! inData->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
 
-    double minVal = dataset->GetValueByName( 0, col ).ToDouble();
+    double minVal = inData->GetValueByName( 0, col ).ToDouble();
     double maxVal = minVal;
 
     double val  = 0.;
@@ -176,7 +176,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
     double sum4 = 0.;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      val  = dataset->GetValueByName( r, col ).ToDouble();
+      val  = inData->GetValueByName( r, col ).ToDouble();
       val2 = val * val;
       sum1 += val;
       sum2 += val2;
@@ -224,7 +224,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 7, this->SampleSize );
       }
 
-    output->InsertNextRow( row );
+    outMeta->InsertNextRow( row );
 
     row->Delete();
     }
@@ -336,23 +336,24 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* dataset,
-                                              vtkTable* params,
-                                              vtkTable* output)
+void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* inData,
+                                              vtkTable* inMeta,
+                                              vtkTable* outData,
+                                              vtkTable* outMeta )
 {
-  vtkIdType nColD = dataset->GetNumberOfColumns();
+  vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
     {
     return;
     }
 
-  vtkIdType nRowD = dataset->GetNumberOfRows();
+  vtkIdType nRowD = inData->GetNumberOfRows();
   if ( ! nRowD )
     {
     return;
     }
 
-  vtkIdType nColP = params->GetNumberOfColumns();
+  vtkIdType nColP = inMeta->GetNumberOfColumns();
   if ( nColP < 3 )
     {
     vtkWarningMacro( "Parameter table has " 
@@ -361,7 +362,7 @@ void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* dataset,
     return;
     }
 
-  vtkIdType nRowP = params->GetNumberOfRows();
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
   if ( ! nRowP )
     {
     return;
@@ -377,28 +378,28 @@ void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* dataset,
   for ( int i = 0; i < nRowP; ++ i )
     {
     // Is the parameter one that's been requested?
-    vtkStdString colName = params->GetValue( i, 0 ).ToString();
+    vtkStdString colName = inMeta->GetValue( i, 0 ).ToString();
     vtkstd::set<vtkStdString>::iterator it =
       this->Internals->SelectedColumns.find( colName );
     if ( it == this->Internals->SelectedColumns.end() )
       { // Have parameter values. But user doesn't want it... skip it.
       continue;
       }
-    double nominal = params->GetValueByName( i, "Mean" ).ToDouble();
-    double deviation = params->GetValueByName( i, "Standard Deviation" ).ToDouble();
+    double nominal = inMeta->GetValueByName( i, "Mean" ).ToDouble();
+    double deviation = inMeta->GetValueByName( i, "Standard Deviation" ).ToDouble();
 
-    // Does the requested array exist in the input dataset?
+    // Does the requested array exist in the input inData?
     vtkAbstractArray* arr;
-    if ( ! ( arr = dataset->GetColumnByName( colName ) ) )
-      { // User requested it. Params table has it. But dataset doesn't... whine
+    if ( ! ( arr = inData->GetColumnByName( colName ) ) )
+      { // User requested it. InMeta table has it. But inData doesn't... whine
       vtkWarningMacro(
-        "Dataset table does not have a column "
+        "InData table does not have a column "
         << colName.c_str() << ". Ignoring it." );
       continue;
       }
     vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
 
-    // Create the output column
+    // Create the outData column
     vtkDoubleArray* relativeDeviations = vtkDoubleArray::New();
     vtksys_ios::ostringstream devColName;
     devColName << "Relative Deviation of " << colName;
@@ -437,16 +438,20 @@ void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* dataset,
       }
 
     // Compute the deviation of each entry for the column
+    double dev;
     for ( vtkIdType r = 0; r < nRowD; ++ r )
       {
-      relativeDeviations->SetValue( r, (*dfunc)( r ) );
+      dev = (*dfunc)( r );
+      relativeDeviations->SetValue( r, dev );
       }
     delete dfunc;
 
-    // Add the column to the output
-    output->AddColumn( relativeDeviations );
+    // Add the column to the outData
+    outData->AddColumn( relativeDeviations );
     relativeDeviations->Delete();
     }
+
+  outMeta->ShallowCopy( inMeta );
 }
 
 // ----------------------------------------------------------------------

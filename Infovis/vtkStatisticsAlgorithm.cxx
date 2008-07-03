@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.9");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -59,6 +59,11 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 {
   // Extract input data table
   vtkTable* inData = vtkTable::GetData( inputVector[0], 0 );
+  if ( ! inData )
+    {
+    vtkWarningMacro( "Input port 0 is null. Doing nothing." );
+    return 0;
+    }
 
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
@@ -82,8 +87,13 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
       {
       // Extract additional tables
       vtkTable* inMeta = vtkTable::GetData( inputVector[1], 0 );
+      if ( ! inMeta )
+        {
+        vtkWarningMacro( "Input port 1 is null. Doing nothing." );
+        return 0;
+        }
 
-      this->ExecuteAssess( inData, inMeta, outData );
+      this->ExecuteAssess( inData, inMeta, outData, outMeta );
       break;
       }
     default:

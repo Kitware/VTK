@@ -36,7 +36,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.11");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.12");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -62,56 +62,56 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
  }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
-                                             vtkTable* output,
+void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
+                                             vtkTable* outMeta,
                                              bool finalize )
 {
-  if ( ! dataset->GetNumberOfColumns() )
+  if ( ! inData->GetNumberOfColumns() )
     {
     this->SampleSize = 0;
     return;
     }
 
-  this->SampleSize = dataset->GetNumberOfRows();
+  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
     }
 
   vtkStdString colX = this->X;
-  if ( ! dataset->GetColumnByName( colX ) )
+  if ( ! inData->GetColumnByName( colX ) )
     {
-    vtkWarningMacro( "Dataset table does not have a column "<<colX.c_str()<<". Doing nothing." );
+    vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Doing nothing." );
     return;
     }
 
   vtkStdString colY = this->Y;
-  if ( ! dataset->GetColumnByName( colY ) )
+  if ( ! inData->GetColumnByName( colY ) )
     {
-    vtkWarningMacro( "Dataset table does not have a column "<<colY.c_str()<<". Doing nothing." );
+    vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Doing nothing." );
     return;
     }
     
   vtkVariantArray* variantCol = vtkVariantArray::New();
   variantCol->SetName( X );
-  output->AddColumn( variantCol );
+  outMeta->AddColumn( variantCol );
   variantCol->Delete();
 
   variantCol = vtkVariantArray::New();
   variantCol->SetName( Y );
-  output->AddColumn( variantCol );
+  outMeta->AddColumn( variantCol );
   variantCol->Delete();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Cardinality" );
-  output->AddColumn( idTypeCol );
+  outMeta->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   if ( finalize )
     {
     vtkDoubleArray* doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Probability" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
     }
 
@@ -119,7 +119,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
   vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan> conTable;
   for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
     {
-    ++ conTable[dataset->GetValueByName( r, colX )][dataset->GetValueByName( r, colY )];
+    ++ conTable[inData->GetValueByName( r, colX )][inData->GetValueByName( r, colY )];
     }
 
   vtkVariantArray* row = vtkVariantArray::New();
@@ -138,7 +138,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
         row->SetValue( 2, dit->second );
         row->SetValue( 3, dit->second / n );
 
-        output->InsertNextRow( row );
+        outMeta->InsertNextRow( row );
         }
       }
     }
@@ -155,7 +155,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* dataset,
         row->SetValue( 1, dit->first );
         row->SetValue( 2, dit->second );
 
-        output->InsertNextRow( row );
+        outMeta->InsertNextRow( row );
         }
       }
     }
@@ -174,23 +174,24 @@ void vtkContingencyStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
-                                              vtkTable* params,
-                                              vtkTable* output)
+void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
+                                              vtkTable* inMeta,
+                                              vtkTable* outData,
+                                              vtkTable* outMeta )
 {
-  vtkIdType nColD = dataset->GetNumberOfColumns();
+  vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
     {
     return;
     }
 
-  vtkIdType nRowD = dataset->GetNumberOfRows();
+  vtkIdType nRowD = inData->GetNumberOfRows();
   if ( ! nRowD )
     {
     return;
     }
 
-  vtkIdType nColP = params->GetNumberOfColumns();
+  vtkIdType nColP = inMeta->GetNumberOfColumns();
   if ( nColP < 3 )
     {
     vtkWarningMacro( "Parameter table has " 
@@ -199,29 +200,29 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     return;
     }
 
-  vtkIdType nRowP = params->GetNumberOfRows();
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
   if ( ! nRowP )
     {
     return;
     }
 
   vtkStdString colX = this->X;
-  if ( ! dataset->GetColumnByName( colX ) )
+  if ( ! inData->GetColumnByName( colX ) )
     {
-    vtkWarningMacro( "Dataset table does not have a column "<<colX.c_str()<<". Doing nothing." );
+    vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Doing nothing." );
     return;
     }
   
   vtkStdString colY = this->Y;
-  if ( ! dataset->GetColumnByName( colY ) )
+  if ( ! inData->GetColumnByName( colY ) )
     {
-    vtkWarningMacro( "Dataset table does not have a column "<<colY.c_str()<<". Doing nothing." );
+    vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Doing nothing." );
     return;
     }
   
-  if ( ! params->GetColumnByName( "Probability" ) )
+  if ( ! inMeta->GetColumnByName( "Probability" ) )
     {
-    vtkWarningMacro( "Dataset table does not have a column Probability. Doing nothing." );
+    vtkWarningMacro( "InData table does not have a column Probability. Doing nothing." );
     return;
     }
   
@@ -232,15 +233,19 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
   double p;
   for ( vtkIdType r = 0; r < nRowP; ++ r )
     {
-    x = params->GetValueByName( r, colX );
-    y = params->GetValueByName( r, colY );
-    p = params->GetValueByName( r, "Probability" ).ToDouble();
+    x = inMeta->GetValueByName( r, colX );
+    y = inMeta->GetValueByName( r, colY );
+    p = inMeta->GetValueByName( r, "Probability" ).ToDouble();
 
     pdfX[x] += p;
     pdfY[y] += p;
     pdfXY[x][y] = p;
     }
 
+  double HYcondX = 0.;
+  double HXcondY = 0.;
+  double HXY = 0.;
+  double pxy;
   vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfYcondX;
   vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXcondY;
   for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit = pdfXY.begin();
@@ -251,31 +256,17 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
           yit != xit->second.end(); ++ yit )
       {
       y = yit->first;
-      pdfYcondX[x][y] = yit->second / pdfX[x];
-      pdfXcondY[x][y] = yit->second / pdfY[y];
-      }
-    }
+      pxy = yit->second;
+      pdfYcondX[x][y] = pxy / pdfX[x];
+      pdfXcondY[x][y] = pxy / pdfY[y];
 
-  double HYcondX = 0.;
-  double HXcondY = 0.;
-  double HXY = 0.;
-  for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit =  pdfXY.begin();
-        xit != pdfXY.end(); ++ xit )
-    {
-    x = xit->first;
-    for ( vtkstd::map<vtkVariant,double,vtkVariantLessThan>::iterator yit = xit->second.begin(); 
-          yit != xit->second.end(); ++ yit )
-      {
-      y = yit->first;
-      double pxy = yit->second;
-
+      HXY -= pxy * log( pxy );
       HYcondX -= pxy * log( pdfYcondX[x][y] );
       HXcondY -= pxy * log( pdfXcondY[x][y] );
-      HXY -= pxy * log( pxy );
       }
     }
-  
-  // Create the output columns
+
+  // Add outData data columns
   vtkDoubleArray* pXY = vtkDoubleArray::New();
   vtksys_ios::ostringstream pXYName;
   pXYName
@@ -283,42 +274,74 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* dataset,
     << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
   pXY->SetName( pXYName.str().c_str() );
   pXY->SetNumberOfTuples( nRowD );
-  output->AddColumn( pXY );
+  outData->AddColumn( pXY );
   pXY->Delete();
 
   vtkDoubleArray* pYcondX = vtkDoubleArray::New();
   vtksys_ios::ostringstream pYCondXName;
   pYCondXName
     << "p(" << ( colY.size() ? colY.c_str() : "Y" )
-    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")"
-    << " H/Hjoint: "
-    << 1. - HYcondX / HXY;
+    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")";
   pYcondX->SetName( pYCondXName.str().c_str() );
   pYcondX->SetNumberOfTuples( nRowD );
-  output->AddColumn( pYcondX );
+  outData->AddColumn( pYcondX );
   pYcondX->Delete();
 
   vtkDoubleArray* pXcondY = vtkDoubleArray::New();
   vtksys_ios::ostringstream pXCondYName;
   pXCondYName
     << "p(" << ( colX.size() ? colX.c_str() : "X" )
-    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")"
-    << " H/Hjoint: "
-    << 1. - HXcondY / HXY;
+    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
   pXcondY->SetName( pXCondYName.str().c_str() );
   pXcondY->SetNumberOfTuples( nRowD );
-  output->AddColumn( pXcondY );
+  outData->AddColumn( pXcondY );
   pXcondY->Delete();
 
   for ( vtkIdType r = 0; r < nRowD; ++ r )
     {
-    x = dataset->GetValueByName( r, colX );
-    y = dataset->GetValueByName( r, colY );
+    x = inData->GetValueByName( r, colX );
+    y = inData->GetValueByName( r, colY );
 
-    output->SetValueByName( r, pXYName.str().c_str(), pdfXY[x][y] );
-    output->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
-    output->SetValueByName( r, pXCondYName.str().c_str(), pdfXcondY[x][y] );
+    outData->SetValueByName( r, pXYName.str().c_str(), pdfXY[x][y] );
+    outData->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
+    outData->SetValueByName( r, pXCondYName.str().c_str(), pdfXcondY[x][y] );
     }
+
+  // Add outMeta data columns
+  vtkDoubleArray* hXY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream hXYName;
+  hXYName
+    << "H(" << ( colX.size() ? colX.c_str() : "X" )
+    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  hXY->SetName( hXYName.str().c_str() );
+  outMeta->AddColumn( hXY );
+  hXY->Delete();
+
+  vtkDoubleArray* hX = vtkDoubleArray::New();
+  vtksys_ios::ostringstream hXName;
+  hXName
+    << "H(" << ( colX.size() ? colX.c_str() : "X" ) << ")";
+  hX->SetName( hXName.str().c_str() );
+  outMeta->AddColumn( hX );
+  hX->Delete();
+
+  vtkDoubleArray* hY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream hYName;
+  hYName
+    << "H(" << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  hY->SetName( hYName.str().c_str() );
+  outMeta->AddColumn( hY );
+  hY->Delete();
+
+  // Insert Meta values
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 3 );
+  row->SetValue( 0, HXY );
+  row->SetValue( 1, HXY - HYcondX );
+  row->SetValue( 2, HXY - HXcondY );
+  outMeta->InsertNextRow( row );
+
+  row->Delete();
 
   return;
 }

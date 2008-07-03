@@ -79,15 +79,16 @@ protected:
 
   // Description:
   // Execute the required calculations in the specified execution modes
-  virtual void ExecuteLearn( vtkTable* dataset,
-                             vtkTable* output,
+  virtual void ExecuteLearn( vtkTable* inData,
+                             vtkTable* outMeta,
                              bool finalize = true );
-  virtual void ExecuteValidate( vtkTable* dataset,
-                                vtkTable* params,
-                                vtkTable* output); 
-  virtual void ExecuteAssess( vtkTable* dataset,
-                              vtkTable* params,
-                              vtkTable* output ); 
+  virtual void ExecuteValidate( vtkTable* inData,
+                                vtkTable* inMeta,
+                                vtkTable* outMeta ); 
+  virtual void ExecuteAssess( vtkTable* inData,
+                              vtkTable* inMeta,
+                              vtkTable* outData,
+                              vtkTable* outData );
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;

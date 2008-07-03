@@ -56,7 +56,7 @@ vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
 }
 // = End Private Implementation =========================================
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.19");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.20");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -139,18 +139,18 @@ void vtkCorrelativeStatistics::SetColumnStatus( const char* namCol, int status )
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
-                                             vtkTable* output,
+void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
+                                             vtkTable* outMeta,
                                              bool finalize )
 {
-  vtkIdType nCol = dataset->GetNumberOfColumns();
+  vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
     {
     this->SampleSize = 0;
     return;
     }
 
-  this->SampleSize = dataset->GetNumberOfRows();
+  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
@@ -163,101 +163,101 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );
-  output->AddColumn( stringCol );
+  outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
   stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable Y" );
-  output->AddColumn( stringCol );
+  outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
   if ( finalize )
     {
     vtkDoubleArray* doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Mean X" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Mean Y" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Var(X)" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Var(Y)" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Cov(X,Y)" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     stringCol = vtkStringArray::New();
     stringCol->SetName( "Linear Correlation" );
-    output->AddColumn( stringCol );
+    outMeta->AddColumn( stringCol );
     stringCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Slope Y/X" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Intersect Y/X" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Slope X/Y" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Intersect X/Y" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Corr. Coeff." );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
     }
   else
     {
     vtkDoubleArray* doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum y" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum x2" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum y2" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     doubleCol = vtkDoubleArray::New();
     doubleCol->SetName( "Sum xy" );
-    output->AddColumn( doubleCol );
+    outMeta->AddColumn( doubleCol );
     doubleCol->Delete();
 
     vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
     idTypeCol->SetName( "Cardinality" );
-    output->AddColumn( idTypeCol );
+    outMeta->AddColumn( idTypeCol );
     idTypeCol->Delete();
     }
 
@@ -265,16 +265,16 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
         it != this->Internals->ColumnPairs.end(); ++ it )
     {
     vtkStdString colX = it->first;
-    if ( ! dataset->GetColumnByName( colX ) )
+    if ( ! inData->GetColumnByName( colX ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
       continue;
       }
 
     vtkStdString colY = it->second;
-    if ( ! dataset->GetColumnByName( colY ) )
+    if ( ! inData->GetColumnByName( colY ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
       continue;
       }
     
@@ -287,8 +287,8 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
     double sxy = 0.;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      x = dataset->GetValueByName( r, colX ).ToDouble();
-      y = dataset->GetValueByName( r, colY ).ToDouble();
+      x = inData->GetValueByName( r, colX ).ToDouble();
+      y = inData->GetValueByName( r, colY ).ToDouble();
       
       sx  += x;
       sy  += y;
@@ -333,7 +333,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* dataset,
       row->SetValue( 7, this->SampleSize );
       }
 
-    output->InsertNextRow( row );
+    outMeta->InsertNextRow( row );
 
     row->Delete();
     }
@@ -350,23 +350,24 @@ void vtkCorrelativeStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
-                                              vtkTable* params,
-                                              vtkTable* output)
+void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
+                                              vtkTable* inMeta,
+                                              vtkTable* outData,
+                                              vtkTable* outMeta )
 {
-  vtkIdType nColD = dataset->GetNumberOfColumns();
+  vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
     {
     return;
     }
 
-  vtkIdType nRowD = dataset->GetNumberOfRows();
+  vtkIdType nRowD = inData->GetNumberOfRows();
   if ( ! nRowD )
     {
     return;
     }
 
-  vtkIdType nColP = params->GetNumberOfColumns();
+  vtkIdType nColP = inMeta->GetNumberOfColumns();
   if ( nColP < 7 )
     {
     vtkWarningMacro( "Parameter table has " 
@@ -375,7 +376,7 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
     return;
     }
 
-  vtkIdType nRowP = params->GetNumberOfRows();
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
   if ( ! nRowP )
     {
     return;
@@ -393,31 +394,31 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
         it != this->Internals->ColumnPairs.end(); ++ it )
     {
     vtkStdString colX = it->first;
-    if ( ! dataset->GetColumnByName( colX ) )
+    if ( ! inData->GetColumnByName( colX ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
       continue;
       }
 
     vtkStdString colY = it->second;
-    if ( ! dataset->GetColumnByName( colY ) )
+    if ( ! inData->GetColumnByName( colY ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
       continue;
       }
 
     bool unfound = true;
     for ( int i = 0; i < nRowP; ++ i )
       {
-      vtkStdString c1 = params->GetValue( i, 0 ).ToString();
-      vtkStdString c2 = params->GetValue( i, 1 ).ToString();
+      vtkStdString c1 = inMeta->GetValue( i, 0 ).ToString();
+      vtkStdString c2 = inMeta->GetValue( i, 1 ).ToString();
       if ( ( c1 == it->first && c2 == it->second ) ||  ( c2 == it->first && c1 == it->second ) )
         {
         unfound = false;
 
-        double varX = params->GetValue( i, 4 ).ToDouble();
-        double varY = params->GetValue( i, 5 ).ToDouble();
-        double covr = params->GetValue( i, 6 ).ToDouble();
+        double varX = inMeta->GetValue( i, 4 ).ToDouble();
+        double varY = inMeta->GetValue( i, 5 ).ToDouble();
+        double covr = inMeta->GetValue( i, 6 ).ToDouble();
         
         double d = varX * varY - covr * covr;
         if ( d <= 0. )
@@ -430,8 +431,8 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
           continue;
           }
         
-        double nominalX = params->GetValue( i, 2 ).ToDouble();
-        double nominalY = params->GetValue( i, 3 ).ToDouble();
+        double nominalX = inMeta->GetValue( i, 2 ).ToDouble();
+        double nominalY = inMeta->GetValue( i, 3 ).ToDouble();
         double eFac = -.5 / d;
         covr *= 2.;
         
@@ -442,7 +443,7 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
           colY = tmp;
           }
 
-        // Create the output column
+        // Add a column to outData
         vtkDoubleArray* pXY = vtkDoubleArray::New();
         vtksys_ios::ostringstream pXYName;
         pXYName
@@ -450,16 +451,16 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
           << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")/p_max";
         pXY->SetName( pXYName.str().c_str() );
         pXY->SetNumberOfTuples( nRowD );
-        output->AddColumn( pXY );
+        outData->AddColumn( pXY );
         pXY->Delete();
 
         double x, y;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
           {
-          x = dataset->GetValueByName( r, colX ).ToDouble() - nominalX;
-          y = dataset->GetValueByName( r, colY ).ToDouble() - nominalY;
+          x = inData->GetValueByName( r, colX ).ToDouble() - nominalX;
+          y = inData->GetValueByName( r, colY ).ToDouble() - nominalY;
           
-          output->SetValueByName( r, pXYName.str().c_str(), 
+          outData->SetValueByName( r, pXYName.str().c_str(), 
                                   exp( eFac * ( varY * x * x - covr * x * y + varX * y * y ) ) );
           }
 
@@ -469,7 +470,7 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
 
     if ( unfound )
       {
-      vtkWarningMacro( "Parameter table does not have a row for dataset table column pair ("
+      vtkWarningMacro( "Parameter table does not have a row for inData table column pair ("
                        << it->first.c_str()
                        << ", "
                        << it->second.c_str()
@@ -478,6 +479,8 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* dataset,
       }
     }
   row->Delete();
+
+  outMeta->ShallowCopy( inMeta );
 
   return;
 }

@@ -117,7 +117,8 @@ int TestContingencyStatistics( int, char *[] )
   vtkContingencyStatistics* haruspex2 = vtkContingencyStatistics::New();
   haruspex2->SetInput( 0, datasetTable );
   haruspex2->SetInput( 1, outputMeta );
-  vtkTable* outputData2 = haruspex2->GetOutput( 0 );
+  vtkTable* outData2 = haruspex2->GetOutput( 0 );
+  vtkTable* outMeta2 = haruspex2->GetOutput( 1 );
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
   haruspex2->SetX( "X" );
@@ -126,22 +127,31 @@ int TestContingencyStatistics( int, char *[] )
   haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex2->Update();
 
-  cout << "## Calculated the following probabilities:\n";
+  cout << "## Calculated the following information entropies:\n";
+  for ( int i = 0; i < outMeta2->GetNumberOfColumns(); ++ i )
+    {
+    cout << "   "
+         << outMeta2->GetColumnName( i )
+         << " = "
+         << outMeta2->GetValue( 0, i ).ToString()
+         << "\n";
+    }
 
+  cout << "## Calculated the following probabilities:\n";
   for ( int i = 0; i < 5; ++ i )
     {
     cout << "   "
-         << outputData2->GetColumnName( i )
+         << outData2->GetColumnName( i )
          << "  ";
     }
   cout << "\n";
 
-  for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outData2->GetNumberOfRows(); ++ r )
     {
     for ( int i = 0; i < 5; ++ i )
       {
       cout << "   "
-           << outputData2->GetValue( r, i ).ToString()
+           << outData2->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";

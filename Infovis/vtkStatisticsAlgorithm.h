@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   * Statistics (optional) 
 // * 1 output port (called Output):
 //   * When in Learn mode, the output table contains summary statistics of 
-//     the input dataset.
+//     the input inData.
 //   * When in Validate mode, the output table contains a summary of how well 
 //     the model fits the data.
 //   * When in Assess mode, the output table is a list of input rows that don't 
@@ -114,6 +114,7 @@ protected:
                                 vtkTable*,
                                 vtkTable* ) = 0; 
   virtual void ExecuteAssess( vtkTable*,
+                              vtkTable*,
                               vtkTable*,
                               vtkTable* ) = 0; 
 

@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.23");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.24");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -60,18 +60,18 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
+void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
                                        vtkTable* output,
                                        bool finalize )
 {
-  vtkIdType nCol = dataset->GetNumberOfColumns();
+  vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
     {
     this->SampleSize = 0;
     return;
     }
 
-  this->SampleSize = dataset->GetNumberOfRows();
+  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
@@ -143,16 +143,16 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* dataset,
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
     vtkStdString col = *it;
-    if ( ! dataset->GetColumnByName( col ) )
+    if ( ! inData->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
 
     vtkstd::map<double,vtkIdType> distr;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      ++ distr[dataset->GetValueByName( r, col ).ToDouble()];
+      ++ distr[inData->GetValueByName( r, col ).ToDouble()];
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
@@ -216,23 +216,24 @@ void vtkOrderStatistics::ExecuteValidate( vtkTable*,
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteAssess( vtkTable* dataset,
-                                        vtkTable* params,
-                                        vtkTable* output)
+void vtkOrderStatistics::ExecuteAssess( vtkTable* inData,
+                                        vtkTable* inMeta,
+                                        vtkTable* outData, 
+                                        vtkTable* outMeta )
 {
-  vtkIdType nColD = dataset->GetNumberOfColumns();
+  vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
     {
     return;
     }
 
-  vtkIdType nRowD = dataset->GetNumberOfRows();
+  vtkIdType nRowD = inData->GetNumberOfRows();
   if ( ! nRowD )
     {
     return;
     }
 
-  vtkIdType nColP = params->GetNumberOfColumns();
+  vtkIdType nColP = inMeta->GetNumberOfColumns();
   if ( nColP != 3 )
     {
     vtkWarningMacro( "Parameter table has " 
@@ -241,7 +242,7 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* dataset,
     return;
     }
 
-  vtkIdType nRowP = params->GetNumberOfRows();
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
   if ( ! nRowP )
     {
     return;
@@ -254,17 +255,17 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* dataset,
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  output->AddColumn( stringCol );
+  outData->AddColumn( stringCol );
   stringCol->Delete();
 
   vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
   idTypeCol->SetName( "Row" );
-  output->AddColumn( idTypeCol );
+  outData->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Relative Deviation" );
-  output->AddColumn( doubleCol );
+  outData->AddColumn( doubleCol );
   doubleCol->Delete();
 
   vtkVariantArray* row = vtkVariantArray::New();
@@ -274,35 +275,35 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* dataset,
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
     vtkStdString col = *it;
-    if ( ! dataset->GetColumnByName( col ) )
+    if ( ! inData->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "Dataset table does not have a column "<<col.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
       continue;
       }
     
     bool unfound = true;
     for ( int i = 0; i < nRowP; ++ i )
       {
-      if ( params->GetValue( i, 0 ).ToString() == col )
+      if ( inMeta->GetValue( i, 0 ).ToString() == col )
         {
         unfound = false;
 
-        double center = params->GetValue( i, 1 ).ToDouble();
-        double radius = params->GetValue( i, 2 ).ToDouble();
+        double center = inMeta->GetValue( i, 1 ).ToDouble();
+        double radius = inMeta->GetValue( i, 2 ).ToDouble();
         double minimum = center - radius;
         double maximum = center + radius;
 
         double value;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
           {
-          value  = dataset->GetValueByName( r, col ).ToDouble();
+          value  = inData->GetValueByName( r, col ).ToDouble();
           if ( value < minimum || value > maximum )
             {
             row->SetValue( 0, col );
             row->SetValue( 1, r );
             row->SetValue( 2, ( value - center ) / radius );
 
-            output->InsertNextRow( row );
+            outData->InsertNextRow( row );
             }
           }
 
@@ -312,13 +313,15 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* dataset,
 
     if ( unfound )
       {
-      vtkWarningMacro( "Parameter table does not have a row for dataset table column "
+      vtkWarningMacro( "Parameter table does not have a row for inData table column "
                        <<col.c_str()
                        <<". Ignoring it." );
       continue;
       }
     }
   row->Delete();
+
+  outMeta->ShallowCopy( inMeta );
 
   return;
 }
