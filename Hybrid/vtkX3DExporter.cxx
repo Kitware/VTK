@@ -76,7 +76,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.16");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.17");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void vtkX3DExporter::WriteData()
 
   writer->StartNode(X3D);
   writer->SetField(profile, "Immersive");
-  writer->SetField(version, "3.0");
+  writer->SetField(vtkX3D::version, "3.0");
 
   writer->StartNode(head);
 
