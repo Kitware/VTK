@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.115");
+vtkCxxRevisionMacro(vtkCamera, "1.116");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -309,9 +309,9 @@ void vtkCamera::ComputeDistance()
 
   this->Distance = sqrt(dx*dx + dy*dy + dz*dz);
 
-  if (this->Distance < 0.0002) 
+  if (this->Distance < 1e-20) 
     {
-    this->Distance = 0.0002;
+    this->Distance = 1e-20;
     vtkDebugMacro(<< " Distance is set to minimum.");
 
     double *vec = this->DirectionOfProjection;
@@ -606,20 +606,20 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
     farz = temp;
     }
 
-  // front should be greater than 0.0001
-  if (nearz < 0.0001)
+  // front should be greater than 1e-20
+  if (nearz < 1e-20)
     {
-    farz += 0.0001 - nearz;
-    nearz = 0.0001;
+    farz += 1e-20 - nearz;
+    nearz = 1e-20;
     vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
 
   thickness = farz - nearz;
 
-  // thickness should be greater than 0.0001
-  if (thickness < 0.0001)
+  // thickness should be greater than 1e-20
+  if (thickness < 1e-20)
     {
-    thickness = 0.0001;
+    thickness = 1e-20;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
 
     // set back plane
@@ -656,10 +656,10 @@ void vtkCamera::SetThickness(double s)
 
   this->Thickness = s;
 
-  // thickness should be greater than 0.0001
-  if (this->Thickness < 0.0001)
+  // thickness should be greater than 1e-20
+  if (this->Thickness < 1e-20)
     {
-    this->Thickness = 0.0001;
+    this->Thickness = 1e-20;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     }
 
