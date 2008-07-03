@@ -86,7 +86,7 @@ protected:
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,
-                              vtkTable* outData ); 
+                              vtkTable* outMeta ); 
 
 
   char* X;
