@@ -57,27 +57,27 @@ class vtkX3DExporterFIByteWriter
 public:
   ~vtkX3DExporterFIByteWriter();
   vtkX3DExporterFIByteWriter() {};
-  // This is the current octet to fill
+  // This is the current byte to fill
   unsigned char CurrentByte;
-  // This is the current octet position. Range: 0-7
+  // This is the current byte position. Range: 0-7
   unsigned char CurrentBytePos;
 
   // Opens the specified file in binary mode. Returns 0
   // if failed
   int OpenFile(const char* file);
 
-  // Puts a bitstring to the current octet bit by bit
+  // Puts a bitstring to the current byte bit by bit
   void PutBits(const vtkstd::string &bitstring);
   // Puts the integer value to the stream using count bits
   // for encoding
   void PutBits(unsigned int value, unsigned char count);
-  // Puts on bit to the current octet true = 1, false = 0
+  // Puts on bit to the current byte true = 1, false = 0
   void PutBit(bool on);
-  // Puts whole octets to the file stream. CurrentBytePos must
+  // Puts whole bytes to the file stream. CurrentBytePos must
   // be 0 for this
   void PutBytes(const char* bytes, size_t length);
-  // Fills up the current octet with 0 values
-  void FillOctet();
+  // Fills up the current byte with 0 values
+  void FillByte();
 
 private:
   unsigned char Append(unsigned int value, unsigned char count);
@@ -118,7 +118,7 @@ void vtkX3DExporterFIByteWriter::TryFlush()
 }
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIByteWriter::FillOctet()
+void vtkX3DExporterFIByteWriter::FillByte()
 {
   while (this->CurrentBytePos !=0)
     {
@@ -200,7 +200,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
 
 /* ------------------------------------------------------------------------- */
 vtkStandardNewMacro(vtkX3DExporterFIWriter);
-vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.6");
+vtkCxxRevisionMacro(vtkX3DExporterFIWriter, "1.7");
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
 {
@@ -296,7 +296,7 @@ void vtkX3DExporterFIWriter::StartNode(int elementID)
       {
       vtkX3DExporterFIWriterHelper::EncodeLineFeed(this->Writer);
       }
-    this->Writer->FillOctet();
+    this->Writer->FillByte();
     }
 
   this->InfoStack->push_back(NodeInfo(elementID));

@@ -16,7 +16,7 @@
 #define __vtkX3DExporterFIWriterHelper_h
 
 //#include "vtkX3DExporterFIByteWriter.h"
-#include <vtkZLibDataCompressor.h>
+#include "vtkZLibDataCompressor.h"
 #include <cassert>
 
 #define EXPONENT_MASK_32 0x7f800000
@@ -28,6 +28,13 @@
 class vtkX3DExporterFIWriterHelper 
 {
 public:
+  union float_to_unsigned_int_to_bytes
+      {
+        float f;
+        unsigned int ui;
+        unsigned char ub[4]; // unsigned bytes
+      };
+
   template<typename T>
     static inline void EncodeFloatFI(vtkX3DExporterFIByteWriter* writer, T* value, size_t size)
       {
@@ -40,27 +47,27 @@ public:
       // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 7,
       writer->PutBits(7-1, 8);
 
-      vtkstd::string octets;
-      char octet[4];
+      vtkstd::string bytes;
+      char byte[4];
       for (size_t i = 0; i < size; i++)
         {
-        float v = value[i];
+        float_to_unsigned_int_to_bytes v;
+        v.f = value[i];
 
         // Avoid -0
-        if (*reinterpret_cast<unsigned int *>(&v) == 0x80000000)
+        if (v.ui == 0x80000000)
           {
-          v = 0;
+          v.f = 0;
           }
 
-        unsigned char *s = reinterpret_cast <unsigned char*> (&v);
-        octet[0] = s[3];
-        octet[1] = s[2];
-        octet[2] = s[1];
-        octet[3] = s[0];
+        byte[0] = v.ub[3];
+        byte[1] = v.ub[2];
+        byte[2] = v.ub[1];
+        byte[3] = v.ub[0];
 
-        octets.append(octet, 4);
+        bytes.append(byte, 4);
         }
-      EncodeNonEmptyOctetString5(writer, octets);
+      EncodeNonEmptyByteString5(writer, bytes);
       }
 
   template<typename T>
@@ -74,15 +81,15 @@ public:
       writer->PutBits("11");
       // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 4,
       writer->PutBits(4-1, 8);
-      vtkstd::string octets;
+      vtkstd::string bytes;
       for(size_t i = 0; i < size; i++)
         {
         int v = value[i];
         int f = ReverseBytes(&v);
         char *p = reinterpret_cast <char*> (&f);
-        octets.append(p, 4);
+        bytes.append(p, 4);
         }
-      EncodeNonEmptyOctetString5(writer, octets);
+      EncodeNonEmptyByteString5(writer, bytes);
       }
 
   static inline void EncodeCharacterString3(vtkX3DExporterFIByteWriter* writer, vtkstd::string value)
@@ -93,13 +100,13 @@ public:
     // ITU C.19.3.1 If the alternative utf-8 is present, then the two bits '00' 
     // are appended to the bit stream.
     writer->PutBits("00");
-    // ITU C.19.4: The component octets is encoded as described in C.23.
-    EncodeNonEmptyOctetString5(writer, value);
+    // ITU C.19.4: The component bytes is encoded as described in C.23.
+    EncodeNonEmptyByteString5(writer, value);
     }
 
-  // ITU C.23: Encoding of the NonEmptyOctetString starting
-  // on the fifth bit of an octet
-  static inline void EncodeNonEmptyOctetString5(vtkX3DExporterFIByteWriter* writer, vtkstd::string value)
+  // ITU C.23: Encoding of the NonEmptyByteString starting
+  // on the fifth bit of an byte
+  static inline void EncodeNonEmptyByteString5(vtkX3DExporterFIByteWriter* writer, vtkstd::string value)
     {
     int length = static_cast<int>(value.length());
     if (length <= 8)
@@ -122,7 +129,7 @@ public:
 
 
   // ITU C.27: Encoding of integers in the range 1 to 2^20
-  // starting on the third bit of an octet
+  // starting on the third bit of an byte
   static inline void EncodeInteger3(vtkX3DExporterFIByteWriter* writer, unsigned int value)
     {
     // We want to start at position 3
@@ -151,7 +158,7 @@ public:
     }
 
   // ITU C.25: Encoding of integers in the range 1 to 2^20
-  // starting on the second bit of an octet
+  // starting on the second bit of an byte
   static inline void EncodeInteger2(vtkX3DExporterFIByteWriter* writer, unsigned int value)
     {
     // We want to start at position 2
@@ -177,7 +184,7 @@ public:
   static inline void EncodeLineFeed(vtkX3DExporterFIByteWriter* writer)
     {
     static bool firstTime = true;
-    writer->FillOctet();
+    writer->FillByte();
     if (firstTime)
       {
       writer->PutBits("1001000000001010");
@@ -256,7 +263,7 @@ public:
           }
         if (!span) span = 4;
 
-        for(i = 0; i < (size_t)span; i++)
+        for(i = 0; i < static_cast<size_t>(span); i++)
           {
           int v = 1 + value[i];
           int *vp = reinterpret_cast<int*>(&v);
@@ -281,25 +288,25 @@ public:
           }
         }
 
-      size_t bufferSize = deltas.size() + ((unsigned int)ceil(deltas.size()*0.001)) + 12;
+      size_t bufferSize = deltas.size() + static_cast<unsigned int>(ceil(deltas.size()*0.001)) + 12;
       unsigned char* buffer = new unsigned char[bufferSize];
-      size_t newSize = compressor->Compress(&deltas[0], deltas.size(), buffer, bufferSize);
+      size_t newSize = compressor->Compress(&deltas[0],static_cast<unsigned long>(deltas.size()), buffer, static_cast<unsigned long>(bufferSize));
 
-      vtkstd::string octets;
+      vtkstd::string bytes;
       int size32 = static_cast<int>(size);
       int size32_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&size32);
       char *s = reinterpret_cast <char*> (&size32_reversed);
-      octets.append(s, 4);
-      octets.append(&span, 1);
+      bytes.append(s, 4);
+      bytes.append(&span, 1);
 
       for (i = 0; i < newSize; i++)
         {
         unsigned char c = buffer[i];
-        octets += c;
+        bytes += c;
         }
       delete buffer;
 
-      vtkX3DExporterFIWriterHelper::EncodeNonEmptyOctetString5(writer, octets);
+      vtkX3DExporterFIWriterHelper::EncodeNonEmptyByteString5(writer, bytes);
       if (image) 
         {
         compressor->SetCompressionLevel(5);
@@ -317,64 +324,69 @@ public:
     // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 33
     writer->PutBits(34, 8);
 
-    unsigned char* octets = new unsigned char[size*4];
-    unsigned char* octetpos = octets;
-    vtkstd::string octetsCompressed;
+    unsigned char* bytes = new unsigned char[size*4];
+    unsigned char* bytepos = bytes;
+    vtkstd::string bytesCompressed;
     size_t i;
 
     const double* vd = value;
     for (i = 0; i < size; i++)
       {
-      float v = (*vd) * 2.0;
+      union float_to_unsigned_int_to_bytes
+      {
+        float f;
+        unsigned int ui;
+        unsigned char ub[4]; // unsigned bytes
+      };
+      float_to_unsigned_int_to_bytes v;
+      v.f = (*vd) * 2.0;
 
       // Avoid -0
-      if ((*reinterpret_cast<unsigned int*>(&v)) == 0x80000000)
+      if (v.ui == 0x80000000)
         {
-        v = 0.0f;
+        v.f = 0.0f;
         }
-
-      unsigned char *s = reinterpret_cast <unsigned char*> (&v);
       //vtkGenericWarningMacro(<< "value: " << v << " bytes: " << (int)s[0] << " " << (int)s[1] << " " << (int)s[2] << " " << (int)s[3]);
-      *octetpos++ = s[3];
-      *octetpos++ = s[2];
-      *octetpos++ = s[1];
-      *octetpos++ = s[0];
+      *bytepos++ = v.ub[3];
+      *bytepos++ = v.ub[2];
+      *bytepos++ = v.ub[1];
+      *bytepos++ = v.ub[0];
       vd++;
       }
 
 
     // Compress the data
-    size_t bufferSize = (size * 4) + ((unsigned int)ceil((size * 4)*0.001)) + 12;
+    size_t bufferSize = (size * 4) + static_cast<size_t>(ceil((size * 4)*0.001)) + 12;
     unsigned char* buffer = new unsigned char[bufferSize];
-    size_t newSize = compressor->Compress(octets,
+    size_t newSize = compressor->Compress(bytes,
       static_cast<unsigned long>(size * 4), buffer,
       static_cast<unsigned long>(bufferSize));
 
     char *s;
     // Put the number of bits for exponent
-    octetsCompressed += static_cast<char>(8);
+    bytesCompressed += static_cast<char>(8);
     // Put the number of bits for mantissa
-    octetsCompressed += static_cast<char>(23);
+    bytesCompressed += static_cast<char>(23);
     // Put the length
     int length = static_cast<int>(size*4);
     int length_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&length);
     s = reinterpret_cast <char*> (&length_reversed);
-    octetsCompressed.append(s, 4);
+    bytesCompressed.append(s, 4);
 
     // Put the number of floats
     int numFloats = static_cast<int>(size);
     int numFloats_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&numFloats);;
     s = reinterpret_cast <char*> (&numFloats_reversed);
-    octetsCompressed.append(s, 4);
+    bytesCompressed.append(s, 4);
 
     for (i = 0; i < newSize; i++)
       {
       unsigned char c = buffer[i];
-      octetsCompressed += c;
+      bytesCompressed += c;
       }
-    vtkX3DExporterFIWriterHelper::EncodeNonEmptyOctetString5(writer, octetsCompressed);
+    vtkX3DExporterFIWriterHelper::EncodeNonEmptyByteString5(writer, bytesCompressed);
     delete buffer;
-    delete octets;
+    delete bytes;
     }
 
 };
