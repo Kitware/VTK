@@ -311,7 +311,7 @@ public:
         {
         compressor->SetCompressionLevel(5);
         }
-      };
+      }
 
   static inline void EncodeQuantizedzlibFloatArray(vtkX3DExporterFIByteWriter* writer, const double* value, size_t size, vtkZLibDataCompressor* compressor)
     {
