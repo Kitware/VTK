@@ -1674,7 +1674,7 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type)
 // list is modified.
 
 template<class T>
-static inline
+inline
 int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int n)
 {
   int changed = 0;
@@ -1706,7 +1706,7 @@ int vtkPythonCheckFloatArray(PyObject *args, int i, T *a, int n)
 }
 
 template<class T>
-static inline
+inline
 int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
 {
   int changed = 0;
@@ -1739,7 +1739,7 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
 
 #if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
 template<class T>
-static inline
+inline
 int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
 {
   int changed = 0;

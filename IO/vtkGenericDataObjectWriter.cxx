@@ -36,11 +36,11 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectWriter, "1.2");
+vtkCxxRevisionMacro(vtkGenericDataObjectWriter, "1.3");
 vtkStandardNewMacro(vtkGenericDataObjectWriter);
 
 template<typename WriterT, typename DataT>
-static vtkDataWriter* CreateWriter(vtkDataObject* Data)
+vtkDataWriter* CreateWriter(vtkDataObject* Data)
 {
   WriterT* const writer = WriterT::New();
   writer->SetInput(static_cast<DataT*>(Data));

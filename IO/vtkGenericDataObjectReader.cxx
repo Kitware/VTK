@@ -37,11 +37,11 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.3");
+vtkCxxRevisionMacro(vtkGenericDataObjectReader, "1.4");
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
 template<typename ReaderT, typename DataT>
-static void ReadData(const char* DataClass, vtkDataReader* Owner, vtkTimeStamp& MTime, vtkDataObject* Output)
+void ReadData(const char* DataClass, vtkDataReader* Owner, vtkTimeStamp& MTime, vtkDataObject* Output)
 {
   ReaderT* const reader = ReaderT::New();
   
@@ -312,7 +312,7 @@ int vtkGenericDataObjectReader::ReadOutputType()
     return -1;
     }
 
-  if(!strncmp(this->LowerCase(line),"dataset",(unsigned long)7))
+  if(!strncmp(this->LowerCase(line),"dataset",static_cast<unsigned long>(7)))
     {
     // See iftype is recognized.
     //
@@ -365,7 +365,7 @@ int vtkGenericDataObjectReader::ReadOutputType()
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
     return -1;
     }
-  else if(!strncmp(this->LowerCase(line),"field",(unsigned long)5))
+  else if(!strncmp(this->LowerCase(line),"field",static_cast<unsigned long>(5)))
     {
     vtkDebugMacro(<<"This object can only read data objects, not fields");
     }
