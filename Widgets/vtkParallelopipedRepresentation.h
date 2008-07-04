@@ -159,7 +159,7 @@ public:
     ChairMode,
     TranslatingParallelopiped,
     ScalingParallelopiped,
-    RotatingParallelopiped,
+    RotatingParallelopiped
   };
   //ETX
 

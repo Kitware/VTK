@@ -69,7 +69,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
       BLOB      = 8,
       TIME      = 9,
       DATE      = 10,
-      TIMESTAMP = 11,
+      TIMESTAMP = 11
     };
 
   // Description:
@@ -78,7 +78,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
     {
       INDEX       = 0, // Non-unique index of values in named columns
       UNIQUE      = 1, // Index of values in named columns required to have at most one entry per pair of valid values.
-      PRIMARY_KEY = 2, // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
+      PRIMARY_KEY = 2 // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
     };
 
   // Description:
@@ -90,7 +90,7 @@ class VTK_IO_EXPORT vtkSQLDatabaseSchema : public vtkObject
       BEFORE_UPDATE = 2, // Just before a row's values are changed
       AFTER_UPDATE  = 3,  // Just after a row's values are changed
       BEFORE_DELETE = 4, // Just before a row is deleted
-      AFTER_DELETE  = 5,  // Just after a row is deleted
+      AFTER_DELETE  = 5  // Just after a row is deleted
     };
   //ETX
 
