@@ -1303,6 +1303,16 @@ void vtkTIFFReader::ReadGenericImage( void *out,
       break;
     }
 
+  // Inc is never used because we use the increment set previously.
+  // I do not want to get rid of the varialbe inc completely,
+  // so i added this test.  It might be better as a warning.
+  if (inc != this->OutputIncrements[0])
+    {
+    vtkDebugMacro("Computed increment " << inc 
+                  << " does not match information increment " 
+                  << this->OutputIncrements[0]);
+    }
+  
   if(this->GetDataScalarType() == VTK_UNSIGNED_CHAR)
     {
     unsigned char* image;
