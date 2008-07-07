@@ -112,6 +112,13 @@ public:
   void SetViewport(double minX, double minY, double maxX, double maxY);
   double* GetViewport();
 
+  // Description:
+  // The tolerance representing the distance to the widget (in pixels)
+  // in which the cursor is considered to be on the widget, or on a
+  // widget feature (e.g., a corner point or edge).
+  vtkSetClampMacro(Tolerance,int,1,10);
+  vtkGetMacro(Tolerance,int);
+
 protected:
   vtkOrientationMarkerWidget();
   ~vtkOrientationMarkerWidget();
@@ -135,6 +142,8 @@ protected:
   vtkOrientationMarkerWidgetObserver *Observer;
 
   int Interactive;
+  int Tolerance;
+  int Moving;
 
   // used to compute relative movements
   int StartPosition[2];
@@ -145,7 +154,7 @@ protected:
   {
     Outside = 0,
     Inside,
-    Moving,
+    Translating,
     AdjustingP1,
     AdjustingP2,
     AdjustingP3,
