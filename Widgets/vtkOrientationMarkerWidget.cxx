@@ -19,7 +19,6 @@
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
-#include "vtkObserverMediator.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -30,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.4");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.5");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -903,4 +902,5 @@ void vtkOrientationMarkerWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "OrientationMarker: " << this->OrientationMarker << endl;
   os << indent << "Interactive: " << this->Interactive << endl;
+  os << indent << "Tolerance: " << this->Tolerance << endl;
 }
