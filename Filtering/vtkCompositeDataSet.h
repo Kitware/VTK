@@ -136,6 +136,10 @@ protected:
   void SetChild(unsigned int index, vtkDataObject*);
 
   // Description:
+  // Remove the child at a given index. 
+  void RemoveChild(unsigned int index);
+
+  // Description:
   // Returns a child dataset at a given index.
   vtkDataObject* GetChild(unsigned int num);
 

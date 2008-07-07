@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.14");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.15");
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -99,6 +99,20 @@ void vtkCompositeDataSet::SetChild(unsigned int index, vtkDataObject* dobj)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkCompositeDataSet::RemoveChild(unsigned int index)
+{
+  if (this->Internals->Children.size() <= index)
+    {
+    vtkErrorMacro("The input index is out of range.");
+    return;
+    }
+
+  vtkCompositeDataSetItem& item = this->Internals->Children[index];
+  item.DataObject = NULL;
+  this->Internals->Children.erase(this->Internals->Children.begin()+index);
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataSet::GetChild(unsigned int index)

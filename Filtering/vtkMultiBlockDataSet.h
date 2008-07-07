@@ -71,6 +71,10 @@ public:
   void SetBlock(unsigned int blockno, vtkDataObject* block);
 
   // Description:
+  // Remove the given block from the dataset.
+  void RemoveBlock(unsigned int blockno);
+
+  // Description:
   // Returns true if meta-data is available for a given block.
   int HasMetaData(unsigned int blockno)
     { return this->Superclass::HasChildMetaData(blockno); }

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMultiBlockDataSet);
-vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.8");
+vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.9");
 //----------------------------------------------------------------------------
 vtkMultiBlockDataSet::vtkMultiBlockDataSet()
 {
@@ -74,6 +74,12 @@ void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
     return;
     }
   this->Superclass::SetChild(blockno, block);
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockDataSet::RemoveBlock(unsigned int blockno)
+{
+  this->Superclass::RemoveChild(blockno);
 }
 
 //----------------------------------------------------------------------------
