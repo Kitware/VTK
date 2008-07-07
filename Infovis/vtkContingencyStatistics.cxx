@@ -21,6 +21,7 @@
 #include "vtkToolkits.h"
 
 #include "vtkContingencyStatistics.h"
+#include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -36,29 +37,23 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.12");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.13");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
-  this->X = 0;
-  this->Y = 0;
 }
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::~vtkContingencyStatistics()
 {
-  this->SetX( 0 );
-  this->SetY( 0 );
 }
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "X: " << (this->X ? this->X : "(none)") << endl;
-  os << indent << "Y: " << (this->Y ? this->Y : "(none)") << endl;
  }
 
 // ----------------------------------------------------------------------
@@ -78,14 +73,14 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
-  vtkStdString colX = this->X;
+  vtkStdString colX = this->Internals->ColumnPairs.begin()->first;
   if ( ! inData->GetColumnByName( colX ) )
     {
     vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Doing nothing." );
     return;
     }
 
-  vtkStdString colY = this->Y;
+  vtkStdString colY = this->Internals->ColumnPairs.begin()->second;
   if ( ! inData->GetColumnByName( colY ) )
     {
     vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Doing nothing." );
@@ -93,12 +88,12 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
     }
     
   vtkVariantArray* variantCol = vtkVariantArray::New();
-  variantCol->SetName( X );
+  variantCol->SetName( colX );
   outMeta->AddColumn( variantCol );
   variantCol->Delete();
 
   variantCol = vtkVariantArray::New();
-  variantCol->SetName( Y );
+  variantCol->SetName( colY );
   outMeta->AddColumn( variantCol );
   variantCol->Delete();
 
@@ -206,14 +201,14 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  vtkStdString colX = this->X;
+  vtkStdString colX = this->Internals->ColumnPairs.begin()->first;
   if ( ! inData->GetColumnByName( colX ) )
     {
     vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Doing nothing." );
     return;
     }
   
-  vtkStdString colY = this->Y;
+  vtkStdString colY = this->Internals->ColumnPairs.begin()->second;
   if ( ! inData->GetColumnByName( colY ) )
     {
     vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Doing nothing." );

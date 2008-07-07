@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkCorrelativeStatistics object.
-// * Validate: not validate mode for this statistics class.
 // * Assess: given two data vectors X and Y with the same number of entries as
 //   input in port 0, and reference means, variances, and covariance, along
 //   with an acceptable threshold t>1, assess all pairs of values of (X,Y) 
@@ -43,36 +42,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkCorrelativeStatistics_h
 #define __vtkCorrelativeStatistics_h
 
-#include "vtkStatisticsAlgorithm.h"
+#include "vtkBivariateStatisticsAlgorithm.h"
 
-class vtkCorrelativeStatisticsPrivate;
+class vtkBivariateStatisticsAlgorithmPrivate;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkBivariateStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCorrelativeStatistics, vtkStatisticsAlgorithm);
+  vtkTypeRevisionMacro(vtkCorrelativeStatistics, vtkBivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCorrelativeStatistics* New();
-
-  // Description:
-  // Reset list of column pairs of interest. 
-  void ResetColumnPairs();
-
-  // Description:
-  // Add column name pair (\p namColX, \p namColY).
-  // If \p reset is true, then the list of column pairs is priorly reset.
-  // Warning: no name checking is performed on \p namColX nor \p namColY; it is 
-  // the user's responsibility to use valid column names.
-  void AddColumnPair( const char* namColX, const char* namColY, bool reset = false );
-
-  // Description:
-  // Remove, if it is present, column name pair (\p namColX, \p namColY).
- void RemoveColumnPair( const char* namColX, const char* namColY );
-
-  // Description:
-  // Method for UI to call to add/remove columns to/from the list
-  void SetColumnStatus( const char* namCol, int status );
 
   // Description:
   // Calculate the following unbiased estimators from the raw sums:
@@ -113,8 +93,6 @@ protected:
                               vtkTable* inMeta,
                               vtkTable* outData,
                               vtkTable* outMeta ); 
-
-  vtkCorrelativeStatisticsPrivate* Internals;
 
 private:
   vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented

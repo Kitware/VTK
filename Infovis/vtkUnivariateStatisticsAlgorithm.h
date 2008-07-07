@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkDescriptiveStatistics - Base class for univariate statistics 
+// .NAME vtkUnivariateStatistics - Base class for univariate statistics 
 // algorithms
 //
 // .SECTION Description
@@ -28,6 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 // ResetColumns() - reset the list of columns of interest.
 // Add/RemoveColum( namCol ) - try to add/remove column with name namCol to/from
 // the list.
+// SetColumnStatus ( namCol, status ) - mostly for UI wrapping purposes, try to 
+// add/remove (depending on status) namCol from the list of columns of interest.
 // The verb "try" is used in the sense that neither attempting to 
 // repeat an existing entry nor to remove a non-existent entry will work.
 // 

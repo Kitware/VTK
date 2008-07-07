@@ -21,6 +21,7 @@
 #include "vtkToolkits.h"
 
 #include "vtkCorrelativeStatistics.h"
+#include "vtkBivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -36,106 +37,23 @@
 
 #include <vtksys/ios/sstream>
 
-// = Start Private Implementation =======================================
-class vtkCorrelativeStatisticsPrivate
-{
-public:
-  vtkCorrelativeStatisticsPrivate();
-  ~vtkCorrelativeStatisticsPrivate();
-
-  vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> > ColumnPairs;
-  vtkstd::set<vtkStdString> BufferedColumns;
-};
-
-vtkCorrelativeStatisticsPrivate::vtkCorrelativeStatisticsPrivate()
-{
-}
-
-vtkCorrelativeStatisticsPrivate::~vtkCorrelativeStatisticsPrivate()
-{
-}
-// = End Private Implementation =========================================
-
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.20");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.21");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
-  this->Internals = new vtkCorrelativeStatisticsPrivate;
 }
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
-  delete this->Internals;
 }
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ResetColumnPairs()
-{
-  this->Internals->ColumnPairs.clear();
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::AddColumnPair( const char* namColX, const char* namColY, bool reset )
-{
-  if ( reset )
-    {
-    this->Internals->ColumnPairs.clear();
-    }
-
-  vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
-  this->Internals->ColumnPairs.insert( namPair );
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::RemoveColumnPair( const char* namColX, const char* namColY )
-{
-  vtkstd::pair<vtkStdString,vtkStdString> namPair( namColX, namColY );
-  this->Internals->ColumnPairs.erase( namPair );
-
-  this->Modified();
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::SetColumnStatus( const char* namCol, int status )
-{
-  if( status )
-    {
-    this->Internals->BufferedColumns.insert( namCol );
-    }
-  else
-    {
-    this->Internals->BufferedColumns.erase( namCol );
-    }
-  
-  this->Internals->ColumnPairs.clear();
-
-  int i = 0;
-  for ( vtkstd::set<vtkStdString>::iterator ait = this->Internals->BufferedColumns.begin(); 
-        ait != this->Internals->BufferedColumns.end(); ++ ait, ++ i )
-    {
-    int j = 0;
-    for ( vtkstd::set<vtkStdString>::iterator bit = this->Internals->BufferedColumns.begin(); 
-          j < i ; ++ bit, ++ j )
-      {
-      vtkstd::pair<vtkStdString,vtkStdString> namPair( *bit, *ait );
-      this->Internals->ColumnPairs.insert( namPair );
-      }
-    }
-
-  this->Modified();
 }
 
 // ----------------------------------------------------------------------
@@ -289,7 +207,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       {
       x = inData->GetValueByName( r, colX ).ToDouble();
       y = inData->GetValueByName( r, colY ).ToDouble();
-      
+
       sx  += x;
       sy  += y;
       sx2 += x * x;

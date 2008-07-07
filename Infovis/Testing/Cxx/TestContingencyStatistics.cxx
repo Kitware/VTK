@@ -45,11 +45,11 @@ int TestContingencyStatistics( int, char *[] )
 
   vtkVariantArray* dataset1Arr = vtkVariantArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "X" );
+  dataset1Arr->SetName( "Port" );
 
   vtkVariantArray* dataset2Arr = vtkVariantArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Y" );
+  dataset2Arr->SetName( "Protocol" );
 
   for ( int i = 0; i < nVals; ++ i )
     {
@@ -71,8 +71,8 @@ int TestContingencyStatistics( int, char *[] )
   datasetTable->Delete();
 
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex->SetX( "X" );
-  haruspex->SetY( "Y" );
+  haruspex->AddColumnPair( "Port", "Protocol" ); // A valid pair
+  haruspex->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -88,7 +88,7 @@ int TestContingencyStatistics( int, char *[] )
     int c = outputMeta->GetValue( r, 2 ).ToInt();
     testIntValue += c;
 
-    cout << "   (X, Y) = ("
+    cout << "   (Port, Protocol) = ("
          << outputMeta->GetValue( r, 0 ).ToString()
          << ", "
          << outputMeta->GetValue( r, 1 ).ToString()
@@ -120,9 +120,9 @@ int TestContingencyStatistics( int, char *[] )
   vtkTable* outData2 = haruspex2->GetOutput( 0 );
   vtkTable* outMeta2 = haruspex2->GetOutput( 1 );
 
-// -- Select Column Pair of Interest ( Learn Mode ) -- 
-  haruspex2->SetX( "X" );
-  haruspex2->SetY( "Y" );
+// -- Select Column Pair of Interest ( Assess Mode ) -- 
+  haruspex2->AddColumnPair( "Port", "Protocol" ); // A valid pair
+  haruspex2->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
 
   haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex2->Update();

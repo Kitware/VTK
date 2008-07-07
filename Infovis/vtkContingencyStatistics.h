@@ -42,34 +42,19 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkContingencyStatistics_h
 #define __vtkContingencyStatistics_h
 
-#include "vtkStatisticsAlgorithm.h"
+#include "vtkBivariateStatisticsAlgorithm.h"
 
 #include "vtkStdString.h" // Because at least one method returns a vtkStdString
 
+class vtkBivariateStatisticsAlgorithmPrivate;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkStatisticsAlgorithm
+class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkBivariateStatisticsAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContingencyStatistics, vtkStatisticsAlgorithm);
+  vtkTypeRevisionMacro(vtkContingencyStatistics, vtkBivariateStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkContingencyStatistics* New();
-
-  // Description:
-  // Set variable X.
-  vtkSetStringMacro(X);
-
-  // Description:
-  // Get variable X.
-  vtkGetStringMacro(X);
-
-  // Description:
-  // Set variable Y.
-  vtkSetStringMacro(Y);
-
-  // Description:
-  // Get variable Y.
-  vtkGetStringMacro(Y);
 
 protected:
   vtkContingencyStatistics();
@@ -87,10 +72,6 @@ protected:
                               vtkTable* inMeta,
                               vtkTable* outData,
                               vtkTable* outMeta ); 
-
-
-  char* X;
-  char* Y;
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented

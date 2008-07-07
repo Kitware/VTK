@@ -9,6 +9,7 @@ SET( Kit_SRCS
 vtkArcParallelEdgeStrategy.cxx
 vtkArrayMap.cxx
 vtkAssignCoordinates.cxx
+vtkBivariateStatisticsAlgorithm.cxx
 vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
 vtkCircularLayoutStrategy.cxx
@@ -114,6 +115,7 @@ IF(VTK_HAS_UINT64_ARRAY)
 ENDIF(VTK_HAS_UINT64_ARRAY)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkBivariateStatisticsAlgorithm.cxx
 vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
