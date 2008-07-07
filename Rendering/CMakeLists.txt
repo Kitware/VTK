@@ -515,7 +515,41 @@ IF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 ENDIF (VTK_WRAP_PYTHON AND VTK_USE_TK AND TK_FOUND)
 
 IF(VTK_USE_X)
-  TARGET_LINK_LIBRARIES(vtk${KIT} -lXt ${X11_LIBRARIES})
+  SET(X11_LIB_SEARCH_PATH
+    /usr/X11R6/lib
+    /usr/local/lib 
+    /usr/openwin/lib 
+    /usr/lib 
+    )
+  FIND_LIBRARY(X11_Xt_LIB Xt ${X11_LIB_SEARCH_PATH})
+  MARK_AS_ADVANCED(X11_Xt_LIB)
+  IF (X11_Xt_LIB)
+    TARGET_LINK_LIBRARIES(vtk${KIT} ${X11_Xt_LIB})
+  ENDIF (X11_Xt_LIB)
+  TARGET_LINK_LIBRARIES(vtk${KIT} ${X11_LIBRARIES})
+  IF (VTK_USE_TK)
+    # Definitely needed in case we are linking against a Tcl/Tk 8.5 static,
+    # which by default seems to be missing Xss and Xft. It can not just be
+    # attached to the vtk interpreter because sub-projects may need the
+    # very same fix.
+    FIND_LIBRARY(X11_Xscreensaver_LIB Xss ${X11_LIB_SEARCH_PATH})
+    MARK_AS_ADVANCED(X11_Xscreensaver_LIB)
+    IF(X11_Xscreensaver_LIB)
+      TARGET_LINK_LIBRARIES(vtk${KIT} ${X11_Xscreensaver_LIB})
+    ENDIF(X11_Xscreensaver_LIB)
+    FIND_LIBRARY(X11_Xft_LIB Xft ${X11_LIB_SEARCH_PATH})
+    MARK_AS_ADVANCED(X11_Xft_LIB)
+    IF(X11_Xft_LIB)
+      TARGET_LINK_LIBRARIES(vtk${KIT} ${X11_Xft_LIB})
+    ENDIF(X11_Xft_LIB)
+    IF(APPLE)
+      FIND_LIBRARY(X11_fontconfig_LIB fontconfig ${X11_LIB_SEARCH_PATH})
+      MARK_AS_ADVANCED(X11_fontconfig_LIB)
+      IF(X11_fontconfig_LIB)
+        TARGET_LINK_LIBRARIES(vtk${KIT} ${X11_fontconfig_LIB})
+      ENDIF(X11_fontconfig_LIB)
+    ENDIF(APPLE)
+  ENDIF(VTK_USE_TK)
 ENDIF(VTK_USE_X)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
