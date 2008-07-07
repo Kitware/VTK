@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkContingencyStatistics object.
-// * Validate: no validate mode for this statistics class.
 // * Assess: given two columns of interest with the same number of entries as
 //   input in port 0, and a corresponding bivariate probability distribution,
 //  
@@ -65,9 +64,6 @@ protected:
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta,
                              bool finalize = true );
-  virtual void ExecuteValidate( vtkTable* inData,
-                                vtkTable* inMeta,
-                                vtkTable* outMeta ); 
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,

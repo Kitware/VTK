@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.9");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.10");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -77,11 +77,6 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
       {
       this->ExecuteLearn( inData, outMeta );
       break;
-      }
-    case ValidateMode:
-      {
-      vtkWarningMacro( "Incorrect execution mode requested: "<<this->ExecutionMode<<". Doing nothing." );
-      return 0;
       }
     case AssessMode:
       {
@@ -149,8 +144,6 @@ void vtkStatisticsAlgorithm::SetExecutionMode( vtkIdType em )
   switch ( em )
     {
     case vtkStatisticsAlgorithm::LearnMode:
-      break;
-    case vtkStatisticsAlgorithm::ValidateMode:
       break;
     case vtkStatisticsAlgorithm::AssessMode:
       break;

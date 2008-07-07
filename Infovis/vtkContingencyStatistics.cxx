@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.13");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.14");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -158,14 +158,6 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
   row->Delete();
 
   return;
-}
-
-// ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteValidate( vtkTable*,
-                                                vtkTable*,
-                                                vtkTable* )
-{
-  // Not implemented for this statistical engine
 }
 
 // ----------------------------------------------------------------------

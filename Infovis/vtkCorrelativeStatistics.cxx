@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.21");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.22");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -257,14 +257,6 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     }
     
   return;
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteValidate( vtkTable*,
-                                                vtkTable*,
-                                                vtkTable* )
-{
-  // Not implemented for this statistical engine
 }
 
 // ----------------------------------------------------------------------

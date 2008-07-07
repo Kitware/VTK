@@ -25,7 +25,6 @@ PURPOSE.  See the above copyright notice for more information.
 // execution mode it is executed in:
 // * Learn: calculate 5-point statistics (minimum, 1st quartile, median, third
 //   quartile, maximum) and all other deciles (1,2,3,4,6,7,8,9).
-// * Validate: not implemented.
 // * Assess: given an input data set in port 0, and two percentiles p1 < p2,
 //   assess all entries in the data set which are outside of [p1,p2].
 //
@@ -82,9 +81,6 @@ protected:
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta,
                              bool finalize = true );
-  virtual void ExecuteValidate( vtkTable* inData,
-                                vtkTable* inMeta,
-                                vtkTable* outMeta ); 
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,

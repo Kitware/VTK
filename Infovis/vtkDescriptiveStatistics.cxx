@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.33");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.34");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -230,14 +230,6 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   return;
-}
-
-// ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteValidate( vtkTable*,
-                                                vtkTable*,
-                                                vtkTable* )
-{
-  // Not implemented for this statistical engine
 }
 
 // ----------------------------------------------------------------------

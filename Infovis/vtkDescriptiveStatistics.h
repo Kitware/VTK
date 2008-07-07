@@ -31,7 +31,6 @@ PURPOSE.  See the above copyright notice for more information.
 //   option is made for efficient parallel calculations.
 //   Note that CalculateFromSums is a static function, so that it can be used
 //   directly with no need to instantiate a vtkDescriptiveStatistics object.
-// * Validate: not implemented.
 // * Assess: given an input data set in port 0, and a reference value x along
 //   with an acceptable deviation d>0, assess all entries in the data set which
 //   are outside of [x-d,x+d].
@@ -107,9 +106,6 @@ protected:
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta,
                              bool finalize = true );
-  virtual void ExecuteValidate( vtkTable* inData,
-                                vtkTable* inMeta,
-                                vtkTable* outMeta ); 
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,

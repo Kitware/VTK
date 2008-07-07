@@ -24,9 +24,6 @@ PURPOSE.  See the above copyright notice for more information.
 // execution modes:
 // * Learn: given an input data set, calculate some type of statistics (e.g., 
 //   descriptive, 5-point, correlations, PCA).
-// * Validate: given an input data set and input statistics of some kind, 
-//   calculate to what extent these statistics are applicable to this data set.
-//   Some type of thresholding may be part of the assessment process.
 // * Assess: given an input data set, input statistics, and some form of 
 //   threshold, assess a subset of the data set. 
 // Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
@@ -36,8 +33,6 @@ PURPOSE.  See the above copyright notice for more information.
 // * 1 output port (called Output):
 //   * When in Learn mode, the output table contains summary statistics of 
 //     the input inData.
-//   * When in Validate mode, the output table contains a summary of how well 
-//     the model fits the data.
 //   * When in Assess mode, the output table is a list of input rows that don't 
 //     fit (or fit) the model to within some amount specified by the filter input 
 //     parameters.
@@ -62,7 +57,6 @@ public:
   //BTX
   enum ExecutionModeType {
     LearnMode    = 0,
-    ValidateMode = 1,
     AssessMode   = 2,
     };
   //ETX
@@ -110,9 +104,6 @@ protected:
   virtual void ExecuteLearn( vtkTable*,
                              vtkTable*,
                              bool finalize = true ) = 0;
-  virtual void ExecuteValidate( vtkTable*,
-                                vtkTable*,
-                                vtkTable* ) = 0; 
   virtual void ExecuteAssess( vtkTable*,
                               vtkTable*,
                               vtkTable*,

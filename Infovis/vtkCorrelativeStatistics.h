@@ -86,9 +86,6 @@ protected:
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta,
                              bool finalize = true );
-  virtual void ExecuteValidate( vtkTable* inData,
-                                vtkTable* inMeta,
-                                vtkTable* outMeta ); 
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,
