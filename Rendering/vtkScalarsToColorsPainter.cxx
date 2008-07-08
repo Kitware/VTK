@@ -41,7 +41,7 @@
 #define COLOR_TEXTURE_MAP_SIZE 256
 
 //-----------------------------------------------------------------------------
-static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
+static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 {
   vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
   if (!colors || colors->GetNumberOfComponents() != 4)
@@ -66,7 +66,7 @@ static inline void vtkMulitplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.11");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.12");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -468,7 +468,7 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
       this->LookupTable->MapScalars(tmp, this->ColorMode, 0);
     if (multiply_with_alpha)
       {
-      vtkMulitplyColorsWithAlpha(colors);
+      vtkMultiplyColorsWithAlpha(colors);
       }
 
     this->ColorTextureMap->GetPointData()->SetScalars(colors);
@@ -580,7 +580,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkPolyData* output,
       colors = scalars->NewInstance();
       colors->DeepCopy(scalars);
       }
-    vtkMulitplyColorsWithAlpha(colors);
+    vtkMultiplyColorsWithAlpha(colors);
     }
   if (cellFlag == 0)
     {
