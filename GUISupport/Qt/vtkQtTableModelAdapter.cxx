@@ -205,7 +205,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
     {
     // Create a QBtyeArray out of the variant
     vtkStdString s = v.ToString();
-    QByteArray byteArray(s,s.length());
+    QByteArray byteArray(s, static_cast<int>(s.length()));
     return QVariant(byteArray);
     }
   
