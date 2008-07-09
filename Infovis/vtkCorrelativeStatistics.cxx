@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.22");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.23");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -297,9 +297,6 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 4 );
-  
   for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
         it != this->Internals->ColumnPairs.end(); ++ it )
     {
@@ -388,7 +385,6 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
       continue;
       }
     }
-  row->Delete();
 
   outMeta->ShallowCopy( inMeta );
 

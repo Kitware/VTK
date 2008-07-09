@@ -43,26 +43,42 @@ int TestContingencyStatistics( int, char *[] )
     };
   int nVals = 21;
 
+  vtkVariantArray* dataset0Arr = vtkVariantArray::New();
+  dataset0Arr->SetNumberOfComponents( 1 );
+  dataset0Arr->SetName( "Source" );
+
   vtkVariantArray* dataset1Arr = vtkVariantArray::New();
   dataset1Arr->SetNumberOfComponents( 1 );
-  dataset1Arr->SetName( "Port" );
+  dataset1Arr->SetName( "Destination" );
 
   vtkVariantArray* dataset2Arr = vtkVariantArray::New();
   dataset2Arr->SetNumberOfComponents( 1 );
-  dataset2Arr->SetName( "Protocol" );
+  dataset2Arr->SetName( "Port" );
+
+  vtkVariantArray* dataset3Arr = vtkVariantArray::New();
+  dataset3Arr->SetNumberOfComponents( 1 );
+  dataset3Arr->SetName( "Protocol" );
 
   for ( int i = 0; i < nVals; ++ i )
     {
     int ti = i << 2;
-    dataset1Arr->InsertNextValue( mingledData[ti + 2] );
-    dataset2Arr->InsertNextValue( mingledData[ti + 3] );
+    dataset0Arr->InsertNextValue( mingledData[ti] );
+    dataset1Arr->InsertNextValue( mingledData[ti + 1] );
+    dataset2Arr->InsertNextValue( mingledData[ti + 2] );
+    dataset3Arr->InsertNextValue( mingledData[ti + 3] );
     }
 
   vtkTable* datasetTable = vtkTable::New();
+  datasetTable->AddColumn( dataset0Arr );
+  dataset0Arr->Delete();
   datasetTable->AddColumn( dataset1Arr );
   dataset1Arr->Delete();
   datasetTable->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
+  datasetTable->AddColumn( dataset3Arr );
+  dataset3Arr->Delete();
+
+  int nMetricPairs = 3;
 
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
   haruspex->SetInput( 0, datasetTable );
@@ -73,6 +89,8 @@ int TestContingencyStatistics( int, char *[] )
 // -- Select Column Pair of Interest ( Learn Mode ) -- 
   haruspex->AddColumnPair( "Port", "Protocol" ); // A valid pair
   haruspex->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
+  haruspex->AddColumnPair( "Source", "Port" ); // Another valid pair
+  haruspex->AddColumnPair( "Source", "Dummy" ); // An invalid pair
 
 // -- Test Learn Mode -- 
   haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
@@ -85,30 +103,34 @@ int TestContingencyStatistics( int, char *[] )
        << " ):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
-    int c = outputMeta->GetValue( r, 2 ).ToInt();
+    int c = outputMeta->GetValue( r, 4 ).ToInt();
     testIntValue += c;
 
-    cout << "   (Port, Protocol) = ("
+    cout << "   ("
          << outputMeta->GetValue( r, 0 ).ToString()
          << ", "
          << outputMeta->GetValue( r, 1 ).ToString()
+         << ") = ("
+         << outputMeta->GetValue( r, 2 ).ToString()
+         << ", "
+         << outputMeta->GetValue( r, 3 ).ToString()
          << "), "
-         << outputMeta->GetColumnName( 2 )
+         << outputMeta->GetColumnName( 4 )
          << "="
          << c
          << ", "
-         << outputMeta->GetColumnName( 3 )
+         << outputMeta->GetColumnName( 5 )
          << "="
-         << outputMeta->GetValue( r, 3 ).ToDouble()
+         << outputMeta->GetValue( r, 5 ).ToDouble()
          << "\n";
     }
 
-  if ( testIntValue != n )
+  if ( testIntValue != n * nMetricPairs )
     {
     cerr << "Reported an incorrect number of doublets: "
          << testIntValue
          << " != "
-         << n
+         << n * nMetricPairs
          << ".\n";
     testStatus = 1;
     }
@@ -122,37 +144,44 @@ int TestContingencyStatistics( int, char *[] )
 
 // -- Select Column Pair of Interest ( Assess Mode ) -- 
   haruspex2->AddColumnPair( "Port", "Protocol" ); // A valid pair
-  haruspex2->AddColumnPair( "Protocol", "Port" ); // The same valid pair, just reversed
+  haruspex2->AddColumnPair( "Source", "Port" ); // Another valid pair
 
   haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
   haruspex2->Update();
 
-  cout << "## Calculated the following information entropies:\n";
+  cout << "## Calculated the following information entropies:\n   ";
   for ( int i = 0; i < outMeta2->GetNumberOfColumns(); ++ i )
     {
-    cout << "   "
-         << outMeta2->GetColumnName( i )
-         << " = "
-         << outMeta2->GetValue( 0, i ).ToString()
-         << "\n";
+    cout << outMeta2->GetColumnName( i )
+         << "   ";
+    }
+  cout << "\n";
+
+  for ( vtkIdType r = 0; r < outMeta2->GetNumberOfRows(); ++ r )
+    {
+    for ( int i = 0; i < outMeta2->GetNumberOfColumns(); ++ i )
+      {
+      cout << "   "
+           << outMeta2->GetValue( r, i ).ToString();
+      }
+    cout << "\n";
     }
 
-  cout << "## Calculated the following probabilities:\n";
-  for ( int i = 0; i < 5; ++ i )
+  cout << "## Calculated the following probabilities:\n   ";
+  for ( int i = 0; i < outData2->GetNumberOfColumns(); ++ i )
     {
-    cout << "   "
-         << outData2->GetColumnName( i )
-         << "  ";
+    cout << outData2->GetColumnName( i )
+         << " ";
     }
   cout << "\n";
 
   for ( vtkIdType r = 0; r < outData2->GetNumberOfRows(); ++ r )
     {
-    for ( int i = 0; i < 5; ++ i )
+    for ( int i = 0; i < outData2->GetNumberOfColumns(); ++ i )
       {
       cout << "   "
            << outData2->GetValue( r, i ).ToString()
-           << "  ";
+           << "    ";
       }
     cout << "\n";
     }
