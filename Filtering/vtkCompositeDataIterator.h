@@ -57,8 +57,10 @@ public:
   virtual void GoToNextItem();
 
   // Description:
-  // Test whether the iterator is currently pointing to a valid item. Returns 1
-  // for yes, and 0 for no.
+  // Test whether the iterator is finished with the traversal.
+  // Returns 1 for yes, and 0 for no. 
+  // It is safe to call any of the GetCurrent...() methods only when
+  // IsDoneWithTraversal() returns 0.
   virtual int IsDoneWithTraversal();
 
   // Description:
