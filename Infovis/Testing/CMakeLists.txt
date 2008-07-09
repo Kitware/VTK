@@ -13,6 +13,7 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/Infovis"
     VTK_INFOVIS_EXPORT
+    vtkBivariateStatisticsAlgorithmPrivate.h 
     vtkBoostGraphAdapter.h
     vtkUnivariateStatisticsAlgorithmPrivate.h
     )
