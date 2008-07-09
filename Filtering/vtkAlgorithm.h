@@ -356,6 +356,12 @@ public:
   // in CreateDefaultExecutive() using NewInstance().
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
 
+  // Description:
+  // Returns the priority of the piece described by the current update 
+  // extent. The priority is a number between 0.0 and 1.0 with 0 meaning 
+  // skippable (REQUEST_DATA not needed) and 1.0 meaning important. 
+  virtual double ComputePriority();
+
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

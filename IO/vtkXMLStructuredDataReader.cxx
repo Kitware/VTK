@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.28");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.29");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -42,6 +42,13 @@ vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
   this->CellDimensions[0] = 0;
   this->CellDimensions[1] = 0;
   this->CellDimensions[2] = 0;
+  
+  this->WholeExtent[0] = 0;
+  this->WholeExtent[1] = -1;
+  this->WholeExtent[2] = 0;
+  this->WholeExtent[3] = -1;
+  this->WholeExtent[4] = 0;
+  this->WholeExtent[5] = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -67,6 +74,8 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   int extent[6];
   if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
     {
+    memcpy(this->WholeExtent, extent, 6*sizeof(int));
+    
     // Set the output's whole extent.
     vtkInformation* outInfo = this->GetCurrentOutputInformation();
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),

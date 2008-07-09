@@ -110,6 +110,20 @@ public:
   int GetUpdateGhostLevel(vtkInformation *);
 
   // Description:
+  // Convenience method to set a particular minor update piece within
+  // a particular major update piece. For example, when streaming in
+  // parallel. This is needed in paraview, to let each processor set 
+  // their own piece locally, independent of processor.
+  int SetSplitUpdateExtent(int port, 
+                           int major, int minor,
+                           int numPieces, 
+                           int ghostLevel)
+  {
+    return this->SetUpdateExtent(port, major+minor, numPieces, ghostLevel);
+  }
+  
+
+  // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
   int SetUpdateTimeSteps(int port, double *times, int length);
   int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
@@ -188,6 +202,11 @@ public:
   static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   // Description:
+  // Key to store the bounding box of a portion of the data set in 
+  // pipeline information.
+  static vtkInformationDoubleVectorKey* PIECE_BOUNDING_BOX();
+
+  // Description:
   // Key to specify the request for exact extent in pipeline information.
   static vtkInformationIntegerKey* EXACT_EXTENT();
 
@@ -225,6 +244,17 @@ public:
   static vtkInformationStringKey* FAST_PATH_ID_TYPE();
   // The id (either index or global id) being requested
   static vtkInformationIdTypeKey* FAST_PATH_OBJECT_ID();
+
+  // Description:
+  // Issues pipeline request to determine and return the priority of the 
+  // piece described by the current update extent. The priority is a 
+  // number between 0.0 and 1.0 with 0 meaning skippable (REQUEST_DATA 
+  // not needed) and 1.0 meaning important. 
+  double ComputePriority()
+    {
+      return this->ComputePriority(0);
+    }
+  virtual double ComputePriority(int port);
 
 protected:
   vtkStreamingDemandDrivenPipeline();

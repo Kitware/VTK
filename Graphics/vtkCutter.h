@@ -176,6 +176,12 @@ protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
 
+  // Description:
+  // Overridden to process REQUEST_UPDATE_EXTENT_INFORMATION.
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);

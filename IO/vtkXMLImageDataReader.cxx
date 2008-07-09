@@ -21,8 +21,9 @@
 #include "vtkXMLDataElement.h"
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.13");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.14");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -86,7 +87,7 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     this->Spacing[1] = 1;
     this->Spacing[2] = 1;
     }
-  
+
   return 1;
 }
 
@@ -99,6 +100,16 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+
+  double bounds[6];
+  bounds[0] = this->Origin[0] + this->Spacing[0] * this->WholeExtent[0];
+  bounds[1] = this->Origin[0] + this->Spacing[0] * this->WholeExtent[1];
+  bounds[2] = this->Origin[1] + this->Spacing[1] * this->WholeExtent[2];
+  bounds[3] = this->Origin[1] + this->Spacing[1] * this->WholeExtent[3];
+  bounds[4] = this->Origin[2] + this->Spacing[2] * this->WholeExtent[4];
+  bounds[5] = this->Origin[2] + this->Spacing[2] * this->WholeExtent[5];
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
+               bounds, 6);
 }
 
 
@@ -126,3 +137,28 @@ int vtkXMLImageDataReader::FillOutputPortInformation(int, vtkInformation* info)
   return 1;
 }
 
+//----------------------------------------------------------------------------
+void vtkXMLImageDataReader::SetupUpdateExtentInformation(
+  vtkInformation *outInfo)
+{
+  int pieceNum = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  if (pieceNum > -1)
+    {
+    int* pieceExtent = this->PieceExtents + pieceNum*6;
+    
+    static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+   
+    bounds[0] = this->Origin[0]+pieceExtent[0]*this->Spacing[0];
+    bounds[1] = this->Origin[0]+pieceExtent[1]*this->Spacing[0];
+    bounds[2] = this->Origin[1]+pieceExtent[2]*this->Spacing[1];
+    bounds[3] = this->Origin[1]+pieceExtent[3]*this->Spacing[1];
+    bounds[4] = this->Origin[2]+pieceExtent[4]*this->Spacing[2];
+    bounds[5] = this->Origin[2]+pieceExtent[5]*this->Spacing[2];
+    
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::PIECE_BOUNDING_BOX(),
+      bounds, 6);
+    }
+  
+  this->Superclass::SetupUpdateExtentInformation(outInfo);
+}

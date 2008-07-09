@@ -81,6 +81,8 @@ protected:
   int CellDimensions[3];
   vtkIdType PointIncrements[3];
   vtkIdType CellIncrements[3];
+
+  int WholeExtent[6];
   
   // The extent currently being read.
   int SubExtent[6];

@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.56");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.57");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -51,6 +51,7 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline,
                                  EXTENT_TRANSLATOR, ObjectBase,
                                  "vtkExtentTranslator");
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
+vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, PIECE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_UPDATE_TIME_STEPS, DoubleVector);
@@ -321,6 +322,8 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, EXTENT_TRANSLATOR());
           outInfo->CopyEntry(inInfo, TIME_STEPS());
           outInfo->CopyEntry(inInfo, TIME_RANGE());
+          outInfo->CopyEntry(inInfo, PIECE_BOUNDING_BOX());
+          outInfo->CopyEntry(inInfo, vtkDataObject::FIELD_RANGE());
           }
         }
       }
@@ -1710,4 +1713,53 @@ double* vtkStreamingDemandDrivenPipeline::GetWholeBoundingBox(int port)
     info->Set(WHOLE_BOUNDING_BOX(), emptyBoundingBox, 6);
     }
   return info->Get(WHOLE_BOUNDING_BOX());
+}
+
+//----------------------------------------------------------------------------
+double vtkStreamingDemandDrivenPipeline::ComputePriority(int port)
+{
+  vtkInformation* rqst;
+
+  vtkInformationVector **inVec = this->GetInputInformation();
+  vtkInformationVector *outVec = this->GetOutputInformation();
+
+  //make sure global information is up to date
+  this->UpdateInformation();
+
+  //tell pipeline what piece to ask about
+  rqst = vtkInformation::New();
+  rqst->Set(REQUEST_UPDATE_EXTENT());
+  rqst->Set(vtkExecutive::FORWARD_DIRECTION(),
+            vtkExecutive::RequestUpstream);
+  rqst->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+  rqst->Set(vtkExecutive::FROM_OUTPUT_PORT(), port);
+  this->ProcessRequest(rqst, inVec, outVec);
+  rqst->Delete();
+
+  //ask upstream filters to estimate priority for the piece
+  rqst = vtkInformation::New();
+  rqst->Set(REQUEST_UPDATE_EXTENT_INFORMATION());
+  rqst->Set(vtkExecutive::FORWARD_DIRECTION(),
+            vtkExecutive::RequestUpstream);
+  rqst->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+  rqst->Set(vtkExecutive::FROM_OUTPUT_PORT(), port);
+  //be sure pipeline propagates
+  //scalar ranges
+  rqst->Append(vtkExecutive::KEYS_TO_COPY(), vtkDataObject::FIELD_RANGE());
+  //geometric extent
+  rqst->Append(vtkExecutive::KEYS_TO_COPY(), PIECE_BOUNDING_BOX());
+  //result
+  rqst->Append(vtkExecutive::KEYS_TO_COPY(), PRIORITY());
+  this->ProcessRequest(rqst, inVec, outVec);
+  rqst->Delete();
+
+  //obtain the priority returned
+  double priority = 1.0;
+  vtkInformation *info = outVec->GetInformationObject(port);
+  if (info && info->Has(PRIORITY()))
+    {
+    priority = info->Get(PRIORITY());
+    }
+
+  return priority;
 }
