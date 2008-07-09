@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.14");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.15");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -258,7 +258,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   vtksys_ios::ostringstream pXYName;
   pXYName
     << "p(" << ( colX.size() ? colX.c_str() : "X" )
-    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+    << ", "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
   pXY->SetName( pXYName.str().c_str() );
   pXY->SetNumberOfTuples( nRowD );
   outData->AddColumn( pXY );
@@ -268,7 +268,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   vtksys_ios::ostringstream pYCondXName;
   pYCondXName
     << "p(" << ( colY.size() ? colY.c_str() : "Y" )
-    << "|"  << ( colX.size() ? colX.c_str() : "X" ) << ")";
+    << " | "  << ( colX.size() ? colX.c_str() : "X" ) << ")";
   pYcondX->SetName( pYCondXName.str().c_str() );
   pYcondX->SetNumberOfTuples( nRowD );
   outData->AddColumn( pYcondX );
@@ -278,7 +278,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   vtksys_ios::ostringstream pXCondYName;
   pXCondYName
     << "p(" << ( colX.size() ? colX.c_str() : "X" )
-    << "|"  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+    << " | "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
   pXcondY->SetName( pXCondYName.str().c_str() );
   pXcondY->SetNumberOfTuples( nRowD );
   outData->AddColumn( pXcondY );
@@ -299,7 +299,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   vtksys_ios::ostringstream hXYName;
   hXYName
     << "H(" << ( colX.size() ? colX.c_str() : "X" )
-    << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+    << ", "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
   hXY->SetName( hXYName.str().c_str() );
   outMeta->AddColumn( hXY );
   hXY->Delete();
@@ -312,6 +312,15 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   outMeta->AddColumn( hX );
   hX->Delete();
 
+  vtkDoubleArray* hYcondX = vtkDoubleArray::New();
+  vtksys_ios::ostringstream hYcondXName;
+  hYcondXName
+    << "H(" << ( colY.size() ? colY.c_str() : "Y" )
+    << " | "  << ( colX.size() ? colX.c_str() : "X" ) << ")";
+  hYcondX->SetName( hYcondXName.str().c_str() );
+  outMeta->AddColumn( hYcondX );
+  hYcondX->Delete();
+
   vtkDoubleArray* hY = vtkDoubleArray::New();
   vtksys_ios::ostringstream hYName;
   hYName
@@ -320,12 +329,23 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   outMeta->AddColumn( hY );
   hY->Delete();
 
+  vtkDoubleArray* hXcondY = vtkDoubleArray::New();
+  vtksys_ios::ostringstream hXcondYName;
+  hXcondYName
+    << "H(" << ( colX.size() ? colX.c_str() : "X" )
+    << " | "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+  hXcondY->SetName( hXcondYName.str().c_str() );
+  outMeta->AddColumn( hXcondY );
+  hXcondY->Delete();
+
   // Insert Meta values
   vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 3 );
+  row->SetNumberOfValues( 5 );
   row->SetValue( 0, HXY );
   row->SetValue( 1, HXY - HYcondX );
-  row->SetValue( 2, HXY - HXcondY );
+  row->SetValue( 2, HYcondX );
+  row->SetValue( 3, HXY - HXcondY );
+  row->SetValue( 4, HXcondY );
   outMeta->InsertNextRow( row );
 
   row->Delete();
