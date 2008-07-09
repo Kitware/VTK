@@ -14,16 +14,20 @@
 =========================================================================*/
 #include "vtkReflectionFilter.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.17");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.18");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -49,21 +53,97 @@ void vtkReflectionFilter::FlipVector(double tuple[3], int mirrorDir[3])
 }
 
 //---------------------------------------------------------------------------
+int vtkReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
+{
+  // get the input and ouptut
+  vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);;
+  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::SafeDownCast(input);
+
+  if (inputDS)
+    {
+    inputDS->GetBounds(bounds);
+    return 1;
+    }
+
+  if (inputCD)
+    {
+    vtkBoundingBox bbox;
+
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(inputCD->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (!ds)
+        {
+        vtkErrorMacro("Input composite dataset must be comprised for vtkDataSet "
+          "subclasses alone.");
+        return 0;
+        }
+      bbox.AddBounds(ds->GetBounds());
+      }
+    if (bbox.IsValid())
+      {
+      bbox.GetBounds(bounds);
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+//---------------------------------------------------------------------------
 int vtkReflectionFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
   // get the input and ouptut
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *inputDS = vtkDataSet::GetData(inputVector[0], 0);
+  vtkUnstructuredGrid *outputUG = vtkUnstructuredGrid::GetData(outputVector, 0);
 
+  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkCompositeDataSet *outputCD = vtkCompositeDataSet::GetData(outputVector, 0);
+
+  if (inputDS && outputUG)
+    {
+    double bounds[6];
+    this->ComputeBounds(inputDS, bounds);
+    return this->RequestDataInternal(inputDS, outputUG, bounds);
+    }
+
+  if (inputCD && outputCD)
+    {
+    outputCD->CopyStructure(inputCD);
+    double bounds[6];
+    if (this->ComputeBounds(inputCD, bounds))
+      {
+      vtkSmartPointer<vtkCompositeDataIterator> iter;
+      iter.TakeReference(inputCD->NewIterator());
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+        {
+        vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        vtkSmartPointer<vtkUnstructuredGrid> ug = 
+          vtkSmartPointer<vtkUnstructuredGrid>::New();
+        if (!this->RequestDataInternal(ds, ug, bounds))
+          {
+          return 0; 
+          }
+
+        outputCD->SetDataSet(iter, ug);
+        }
+      }
+    return 1;
+    }
+
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+int vtkReflectionFilter::RequestDataInternal(
+  vtkDataSet* input, vtkUnstructuredGrid* output,
+  double bounds[6])
+{
   vtkIdType i;
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
@@ -71,7 +151,6 @@ int vtkReflectionFilter::RequestData(
   vtkCellData *outCD = output->GetCellData();  
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  double bounds[6];
   double tuple[3];
   vtkPoints *outPoints;
   double point[3];
@@ -81,7 +160,6 @@ int vtkReflectionFilter::RequestData(
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkIdList *ptIds = vtkIdList::New();
 
-  input->GetBounds(bounds);
   outPoints = vtkPoints::New();
 
   if (this->CopyInput)
@@ -268,8 +346,55 @@ int vtkReflectionFilter::RequestData(
 //---------------------------------------------------------------------------
 int vtkReflectionFilter::FillInputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  // Input can be a dataset or a composite of datasets.
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
+}
+
+//---------------------------------------------------------------------------
+int vtkReflectionFilter::RequestDataObject(
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+
+  vtkDataObject *input = vtkDataObject::GetData(inInfo);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (input)
+    {
+    vtkDataObject *output = vtkDataObject::GetData(outInfo);
+    // If input is composite dataset, output is a vtkMultiBlockDataSet of
+    // unstructrued grids.
+    // If input is a dataset, output is an unstructured grid.
+    if (!output || 
+      (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
+      (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
+      {
+      vtkDataObject* newOutput = 0;
+      if (input->IsA("vtkCompositeDataSet"))
+        {
+        newOutput = vtkMultiBlockDataSet::New();
+        }
+      else // if (input->IsA("vtkDataSet"))
+        {
+        newOutput = vtkUnstructuredGrid::New();
+        }
+      newOutput->SetPipelineInformation(outInfo);
+      newOutput->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+      }
+    return 1;
+    }
+
+  return 0;
 }
 
 //---------------------------------------------------------------------------

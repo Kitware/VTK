@@ -55,6 +55,7 @@ vtkPPolyDataNormals.cxx
 vtkPProbeFilter.cxx
 vtkProcessGroup.cxx
 vtkProcessIdScalars.cxx
+vtkPReflectionFilter.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkRectilinearGridOutlineFilter.cxx

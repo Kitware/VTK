@@ -22,14 +22,16 @@
 #ifndef __vtkReflectionFilter_h
 #define __vtkReflectionFilter_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
+class vtkUnstructuredGrid;
+class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkReflectionFilter : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkReflectionFilter : public vtkDataObjectAlgorithm
 {
 public:
   static vtkReflectionFilter *New();
   
-  vtkTypeRevisionMacro(vtkReflectionFilter, vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
   
 //BTX
@@ -77,7 +79,24 @@ public:
 protected:
   vtkReflectionFilter();
   ~vtkReflectionFilter();
-  
+
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
+  // Overridden to create the correct type of output.
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector**,
+                                vtkInformationVector*);
+
+  // Description:
+  // Actual implementation for reflection.
+  virtual int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output,
+    double bounds[6]);
+
+  // Description:
+  // Internal method to compute bounds.
+  virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
