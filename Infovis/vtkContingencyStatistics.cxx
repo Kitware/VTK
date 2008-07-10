@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.16");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.17");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -142,11 +142,11 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
       ++ conTable[inData->GetValueByName( r, colX )][inData->GetValueByName( r, colY )];
       }
 
-    for ( vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan>::iterator it = conTable.begin(); 
-          it != conTable.end(); ++ it )
+    for ( vtkstd::map<vtkVariant,Distribution,vtkVariantLessThan>::iterator mit = conTable.begin(); 
+          mit != conTable.end(); ++ mit )
       {
-      row->SetValue( 2, it->first );
-      for ( Distribution::iterator dit = it->second.begin(); dit != it->second.end(); ++ dit )
+      row->SetValue( 2, mit->first );
+      for ( Distribution::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
         {
         row->SetValue( 3, dit->first );
         row->SetValue( 4, dit->second );
