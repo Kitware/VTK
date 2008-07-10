@@ -19,7 +19,7 @@
 #include "vtkMultiProcessController.h"
 
 vtkStandardNewMacro(vtkPReflectionFilter);
-vtkCxxRevisionMacro(vtkPReflectionFilter, "1.1");
+vtkCxxRevisionMacro(vtkPReflectionFilter, "1.2");
 vtkCxxSetObjectMacro(vtkPReflectionFilter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkPReflectionFilter::vtkPReflectionFilter()
@@ -44,11 +44,15 @@ int vtkPReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
     bbox.SetBounds(bounds);
     }
 
-  this->Controller->GetCommunicator()->ComputeGlobalBounds(
-    this->Controller->GetLocalProcessId(),
-    this->Controller->GetNumberOfProcesses(),
-    &bbox);
-  bbox.GetBounds(bounds);
+  if (this->Controller)
+    {
+    this->Controller->GetCommunicator()->ComputeGlobalBounds(
+      this->Controller->GetLocalProcessId(),
+      this->Controller->GetNumberOfProcesses(),
+      &bbox);
+    bbox.GetBounds(bounds);
+    }
+
   return 1;
 }
 
