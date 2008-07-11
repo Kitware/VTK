@@ -27,16 +27,18 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.10");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.11");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
   this->SetNumberOfInputPorts( 2 );
-  this->SetNumberOfOutputPorts( 2 );
+  this->SetNumberOfOutputPorts( 3 );
 
-  // If not told otherwise, run in Learn mode
-  this->ExecutionMode = vtkStatisticsAlgorithm::LearnMode;
+  // If not told otherwise, run in Learn mode only
+  this->Learn = true;
+  this->Validate = false;
+  this->Assess = false;
 }
 
 // ----------------------------------------------------------------------
@@ -48,8 +50,10 @@ vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "ExecutionMode: " << this->ExecutionMode << endl;
   os << indent << "SampleSize: " << this->SampleSize << endl;
+  os << indent << "Learn: " << this->Learn << endl;
+  os << indent << "Validate: " << this->Validate << endl;
+  os << indent << "Assess: " << this->Assess << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -67,33 +71,38 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
-  vtkTable* outMeta = vtkTable::GetData( outputVector, 1 );
+  vtkTable* outMeta1 = vtkTable::GetData( outputVector, 1 );
+  vtkTable* outMeta2 = vtkTable::GetData( outputVector, 2 );
 
   outData->ShallowCopy( inData );
 
-  switch ( this->ExecutionMode )
+  if ( this->Learn )
     {
-    case LearnMode:
-      {
-      this->ExecuteLearn( inData, outMeta );
-      break;
-      }
-    case AssessMode:
-      {
-      // Extract additional tables
-      vtkTable* inMeta = vtkTable::GetData( inputVector[1], 0 );
-      if ( ! inMeta )
-        {
-        vtkWarningMacro( "Input port 1 is null. Doing nothing." );
-        return 0;
-        }
+    this->ExecuteLearn( inData, outMeta1 );
+    }
 
-      this->ExecuteAssess( inData, inMeta, outData, outMeta );
-      break;
+  if ( this->Assess )
+    {
+    // Extract input meta tables
+    vtkTable* inMeta;
+
+    if ( this->Learn )
+      {
+      inMeta = outMeta1;
       }
-    default:
-      vtkWarningMacro( "Incorrect execution mode requested: "<<this->ExecutionMode<<". Doing nothing." );
-      return 0;
+    else
+      {
+      inMeta = vtkTable::GetData( inputVector[1], 0 );
+      outMeta1->ShallowCopy( inMeta );
+      }
+      
+    if ( ! inMeta )
+      {
+      vtkWarningMacro( "Input port 1 is null. Cannot assess data." );
+      return 1;
+      }
+
+    this->ExecuteAssess( inData, inMeta, outData, outMeta2 );
     }
 
   return 1;
@@ -113,22 +122,19 @@ int vtkStatisticsAlgorithm::FillInputPortInformation( int port, vtkInformation* 
     info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable" );
     return 1;
     }
+
   return 0;
 }
 
 // ----------------------------------------------------------------------
 int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation* info )
 {
-  if ( port == 0 )
+  if ( port >= 0 )
     {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
     return 1;
     }
-  else if ( port == 1 )
-    {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
-    return 1;
-    }
+
   return 0;
 }
 
@@ -136,25 +142,4 @@ int vtkStatisticsAlgorithm::FillOutputPortInformation( int port, vtkInformation*
 void vtkStatisticsAlgorithm::SetInputStatisticsConnection( vtkAlgorithmOutput* in )
 { 
   this->SetInputConnection( 1, in );
-}
-
-// ----------------------------------------------------------------------
-void vtkStatisticsAlgorithm::SetExecutionMode( vtkIdType em )
-{
-  switch ( em )
-    {
-    case vtkStatisticsAlgorithm::LearnMode:
-      break;
-    case vtkStatisticsAlgorithm::AssessMode:
-      break;
-    default:
-      vtkWarningMacro( "Incorrect type of execution mode: "
-                       <<em
-                       <<". Ignoring it." );
-      return;
-    }
-  
-  this->ExecutionMode =  static_cast<vtkStatisticsAlgorithm::ExecutionModeType>( em );
-
-  return;
 }

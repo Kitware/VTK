@@ -166,7 +166,8 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
 // -- Test Learn Mode -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetLearn( true );
+  haruspex->SetAssess( false );
   haruspex->Update();
   vtkIdType n = haruspex->GetSampleSize();
 
@@ -197,9 +198,10 @@ int TestDescriptiveStatistics( int, char *[] )
          << " from "
          << means[i]
          << ".\n";
-      }
+    }
 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
+  haruspex->SetLearn( false );
+  haruspex->SetAssess( true );
   haruspex->SignedDeviationsOff();
   haruspex->Update();
 

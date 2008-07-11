@@ -82,6 +82,7 @@ int TestContingencyStatistics( int, char *[] )
 
   vtkContingencyStatistics* haruspex = vtkContingencyStatistics::New();
   haruspex->SetInput( 0, datasetTable );
+  vtkTable* outputData = haruspex->GetOutput( 0 );
   vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
@@ -93,7 +94,8 @@ int TestContingencyStatistics( int, char *[] )
   haruspex->AddColumnPair( "Source", "Dummy" ); // An invalid pair
 
 // -- Test Learn Mode -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetLearn( true );
+  haruspex->SetAssess( true );
   haruspex->Update();
   vtkIdType n = haruspex->GetSampleSize();
   int testIntValue = 0;
@@ -135,58 +137,43 @@ int TestContingencyStatistics( int, char *[] )
     testStatus = 1;
     }
 
-// -- Test Assess Mode -- 
-  vtkContingencyStatistics* haruspex2 = vtkContingencyStatistics::New();
-  haruspex2->SetInput( 0, datasetTable );
-  haruspex2->SetInput( 1, outputMeta );
-  vtkTable* outData2 = haruspex2->GetOutput( 0 );
-  vtkTable* outMeta2 = haruspex2->GetOutput( 1 );
+//   cout << "## Calculated the following information entropies:\n   ";
+//   for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
+//     {
+//     cout << outputMeta2->GetColumnName( i )
+//          << "   ";
+//     }
+//   cout << "\n";
 
-// -- Select Column Pair of Interest ( Assess Mode ) -- 
-  haruspex2->AddColumnPair( "Port", "Protocol" ); // A valid pair
-  haruspex2->AddColumnPair( "Source", "Port" ); // Another valid pair
-
-  haruspex2->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
-  haruspex2->Update();
-
-  cout << "## Calculated the following information entropies:\n   ";
-  for ( int i = 0; i < outMeta2->GetNumberOfColumns(); ++ i )
-    {
-    cout << outMeta2->GetColumnName( i )
-         << "   ";
-    }
-  cout << "\n";
-
-  for ( vtkIdType r = 0; r < outMeta2->GetNumberOfRows(); ++ r )
-    {
-    for ( int i = 0; i < outMeta2->GetNumberOfColumns(); ++ i )
-      {
-      cout << "   "
-           << outMeta2->GetValue( r, i ).ToString();
-      }
-    cout << "\n";
-    }
+//   for ( vtkIdType r = 0; r < outputMeta2->GetNumberOfRows(); ++ r )
+//     {
+//     for ( int i = 0; i < outputMeta2->GetNumberOfColumns(); ++ i )
+//       {
+//       cout << "   "
+//            << outputMeta2->GetValue( r, i ).ToString();
+//       }
+//     cout << "\n";
+//     }
 
   cout << "## Calculated the following probabilities:\n   ";
-  for ( int i = 0; i < outData2->GetNumberOfColumns(); ++ i )
+  for ( int i = 0; i < outputData->GetNumberOfColumns(); ++ i )
     {
-    cout << outData2->GetColumnName( i )
+    cout << outputData->GetColumnName( i )
          << " ";
     }
   cout << "\n";
 
-  for ( vtkIdType r = 0; r < outData2->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    for ( int i = 0; i < outData2->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputData->GetNumberOfColumns(); ++ i )
       {
       cout << "   "
-           << outData2->GetValue( r, i ).ToString()
+           << outputData->GetValue( r, i ).ToString()
            << "    ";
       }
     cout << "\n";
     }
 
-  haruspex2->Delete();
   haruspex->Delete();
 
   return testStatus;

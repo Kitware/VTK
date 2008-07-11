@@ -53,15 +53,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The execution mode of the statistics algorithm.
-  //BTX
-  enum ExecutionModeType {
-    LearnMode    = 0,
-    AssessMode   = 2,
-    };
-  //ETX
-
-  // Description:
   // A convenience method for setting the statistics table input.
   // NB: This is mainly for the benefit of the VTK client/server 
   // layer, vanilla VTKcode should use, e.g:
@@ -71,21 +62,36 @@ public:
   virtual void SetInputStatisticsConnection( vtkAlgorithmOutput* );
 
   // Description:
-  // Set the execution mode.
-  vtkSetMacro( ExecutionMode, ExecutionModeType );
-  void SetExecutionMode( vtkIdType );
-
-  // Description:
-  // Get the execution mode.
-  vtkIdType GetExecutionMode() { return static_cast<vtkIdType>( this->ExecutionMode ); }
-
-  // Description:
   // Set the sample size.
   vtkSetMacro( SampleSize, vtkIdType );
 
   // Description:
   // Get the sample size.
   vtkGetMacro( SampleSize, vtkIdType );
+
+  // Description:
+  // Set the Learn option.
+  vtkSetMacro( Learn, bool );
+
+  // Description:
+  // Get the Learn option.
+  vtkGetMacro( Learn, bool );
+
+  // Description:
+  // Set the Validate option.
+  vtkSetMacro( Validate, bool );
+
+  // Description:
+  // Get the Validate option.
+  vtkGetMacro( Validate, bool );
+
+  // Description:
+  // Set the Assess option.
+  vtkSetMacro( Assess, bool );
+
+  // Description:
+  // Get the Assess option.
+  vtkGetMacro( Assess, bool );
 
 protected:
   vtkStatisticsAlgorithm();
@@ -110,7 +116,9 @@ protected:
                               vtkTable* ) = 0; 
 
   vtkIdType SampleSize;
-  ExecutionModeType ExecutionMode;
+  bool Learn;
+  bool Validate;
+  bool Assess;
   
 private:
   vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented

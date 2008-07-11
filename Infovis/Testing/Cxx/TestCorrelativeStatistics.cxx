@@ -183,7 +183,8 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->AddColumnPair( "Metric 1", "Metric 3" ); // An invalid pair
 
 // -- Test Learn Mode -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetLearn( true );
+  haruspex->SetAssess( false );
   haruspex->Update();
   vtkIdType n = haruspex->GetSampleSize();
 
@@ -255,7 +256,8 @@ int TestCorrelativeStatistics( int, char *[] )
          << "\n";
     }
 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::AssessMode );
+  haruspex->SetLearn( false );
+  haruspex->SetAssess( true );
   haruspex->Update();
 
   int nOutliers = 0;

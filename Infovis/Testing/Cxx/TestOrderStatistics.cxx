@@ -165,7 +165,8 @@ int TestOrderStatistics( int, char *[] )
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
 // -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
+  haruspex->SetLearn( true );
+  haruspex->SetAssess( false );
   haruspex->Update();
 
   double valsTest1 [] = { 0.,
@@ -204,7 +205,6 @@ int TestOrderStatistics( int, char *[] )
     }
 
 // -- Test Learn Mode for quartiles with InverseCDF quantile definition -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
   haruspex->Update();
 
@@ -238,7 +238,6 @@ int TestOrderStatistics( int, char *[] )
     }
 
 // -- Test Learn Mode for deciles with InverseCDF quantile definition (as with Octave) -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   haruspex->SetNumberOfIntervals( 10 );
   haruspex->Update();
