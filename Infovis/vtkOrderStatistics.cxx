@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.25");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.26");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -211,7 +211,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 void vtkOrderStatistics::ExecuteAssess( vtkTable* inData,
                                         vtkTable* inMeta,
                                         vtkTable* outData, 
-                                        vtkTable* outMeta )
+                                        vtkTable* vtkNotUsed( outMeta ) )
 {
   vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
@@ -312,8 +312,6 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* inData,
       }
     }
   row->Delete();
-
-  outMeta->ShallowCopy( inMeta );
 
   return;
 }
