@@ -44,7 +44,6 @@ SET(Tests
   PointMarkerItems.cxx
   Test1.cxx
   TestChartWidget.cxx
-  TestOrderStatisticsBoxChart.cxx
   )
 
 INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
