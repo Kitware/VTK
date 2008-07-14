@@ -39,6 +39,13 @@ vtkVariantLessThan::vtkVariantLessThan()
 // Implementation of vtkVariant's less than operation
 bool vtkVariantLessThan::operator()(const vtkVariant& s1, const vtkVariant& s2) const
 {
+  // First sort on type if they are different
+  if (s1.Type != s2.Type)
+    {
+    return s1.Type < s2.Type;
+    }
+    
+  // Okay they must be of the same type
   if (s1.IsString() && s2.IsString())
     {
     return *s1.Data.String < *s2.Data.String;

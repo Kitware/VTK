@@ -38,31 +38,6 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-
-//---------------------------------------------------------------------------
-class vtkVariantCompare
-{
-public:
-  bool operator()(
-    const vtkVariant& a,
-    const vtkVariant& b) const
-  {
-    if (a.GetType() == VTK_STRING)
-      {
-      return a.ToString() < b.ToString();
-      }
-    else if (a.IsNumeric())
-      {
-      return a.ToDouble() < b.ToDouble();
-      }
-    else
-      {
-      // Punt, just do pointer difference.
-      return &a < &b;
-      }
-  }
-};
-
 //---------------------------------------------------------------------------
 template <typename T>
 vtkVariant vtkGetValue(T* arr, vtkIdType index)
@@ -83,7 +58,7 @@ vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
 }
 
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.9");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.10");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -182,7 +157,7 @@ int vtkGraphHierarchicalBundle::RequestData(
         }
       }
 
-    map<vtkVariant,vtkIdType,vtkVariantCompare> graphIdMap;
+    map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
     
     // Create a map from graph id to graph index
     for (int i=0; i<graph->GetNumberOfVertices(); ++i)
@@ -194,7 +169,7 @@ int vtkGraphHierarchicalBundle::RequestData(
     for (int i=0; i<tree->GetNumberOfVertices(); ++i)
       {
       vtkVariant id = vtkGetVariantValue(treeIdArray,i);
-      if (graphIdMap.count(id) > 0)
+      if (graphIdMap.count(id))
         {
         graphIndexToTreeIndex[graphIdMap[id]] = i;
         }
