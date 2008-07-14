@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.26");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.27");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -705,12 +705,11 @@ int vtkGraphMapper::FillInputPortInformation(
 //----------------------------------------------------------------------------
 double *vtkGraphMapper::GetBounds()
 {
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
   vtkGraph *graph = vtkGraph::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
   if (!graph) 
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   if (!this->Static)
     {
@@ -719,7 +718,8 @@ double *vtkGraphMapper::GetBounds()
     }
   if (!graph)
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   graph->GetBounds(this->Bounds);
   return this->Bounds;

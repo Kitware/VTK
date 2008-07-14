@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper, "1.1");
+vtkCxxRevisionMacro(vtkCompositePolyDataMapper, "1.2");
 vtkStandardNewMacro(vtkCompositePolyDataMapper);
 
 class vtkCompositePolyDataMapperInternals
@@ -272,24 +272,22 @@ void vtkCompositePolyDataMapper::ComputeBounds()
   this->BoundsMTime.Modified();
 }
 
-double* vtkCompositePolyDataMapper::GetBounds()
-{
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-  
+double *vtkCompositePolyDataMapper::GetBounds()
+{ 
   if ( ! this->GetExecutive()->GetInputData(0, 0) ) 
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   else
     {
-
     this->Update();
     
     //only compute bounds when the input data has changed
     vtkCompositeDataPipeline * executive = vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
     if( executive->GetPipelineMTime() > this->BoundsMTime.GetMTime() )
       {
-      ComputeBounds();
+      this->ComputeBounds();
       }
     
     return this->Bounds;

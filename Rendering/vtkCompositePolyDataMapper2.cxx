@@ -31,7 +31,7 @@
 #include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.1");
+vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.2");
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
@@ -158,8 +158,6 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
 
-  input->Update();
-
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
   // the bounds of the input polydata.
@@ -168,7 +166,9 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
     this->Superclass::GetBounds();
     return;
     }
-  
+
+  input->Update();
+
   // We do have hierarchical data - so we need to loop over
   // it and get the total bounds.
   vtkCompositeDataIterator* iter = input->NewIterator();
@@ -211,13 +211,12 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
 }
 
 //-----------------------------------------------------------------------------
-double* vtkCompositePolyDataMapper2::GetBounds()
-{
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-  
+double *vtkCompositePolyDataMapper2::GetBounds()
+{ 
   if ( !this->GetExecutive()->GetInputData(0, 0) ) 
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   else
     {

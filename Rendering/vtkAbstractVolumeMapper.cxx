@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.11");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.12");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -44,11 +44,10 @@ vtkAbstractVolumeMapper::~vtkAbstractVolumeMapper()
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkAbstractVolumeMapper::GetBounds()
 {
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
   if ( ! this->GetDataSetInput() ) 
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   else
     {

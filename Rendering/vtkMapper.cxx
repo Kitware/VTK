@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.122");
+vtkCxxRevisionMacro(vtkMapper, "1.123");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -90,12 +90,10 @@ vtkMapper::~vtkMapper()
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkMapper::GetBounds()
 {
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
   vtkDataSet *input = this->GetInput();
   if ( ! input ) 
     {
-    return bounds;
+      vtkMath::UninitializeBounds(this->Bounds);
     }
   else
     {
@@ -104,8 +102,8 @@ double *vtkMapper::GetBounds()
       this->Update();
       }
     input->GetBounds(this->Bounds);
-    return this->Bounds;
     }
+  return this->Bounds;
 }
 
 vtkDataSet *vtkMapper::GetInput()

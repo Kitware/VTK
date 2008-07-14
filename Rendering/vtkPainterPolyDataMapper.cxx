@@ -36,7 +36,7 @@
 #include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.15")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.16")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -333,12 +333,11 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
 //-------------------------------------------------------------------------
 double* vtkPainterPolyDataMapper::GetBounds()
 {
-  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
   // do we have an input
   if ( ! this->GetNumberOfInputConnections(0) )
     {
-    return bounds;
+    vtkMath::UninitializeBounds(this->Bounds);
+    return this->Bounds;
     }
   else
     {
