@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.35");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.36");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -59,8 +59,7 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta,
-                                             bool finalize )
+                                             vtkTable* outMeta )
 {
   vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
@@ -95,65 +94,35 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  if ( finalize )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Mean" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Standard Deviation" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Variance" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Skewness" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sample Kurtosis" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "G2 Kurtosis" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-  else
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x2" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x3" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x4" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-    idTypeCol->SetName( "Cardinality" );
-    outMeta->AddColumn( idTypeCol );
-    idTypeCol->Delete();
-    }
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Mean" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Standard Deviation" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Variance" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Skewness" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Sample Kurtosis" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "G2 Kurtosis" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
 
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
@@ -194,35 +163,20 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    if ( finalize )
-      {
-      double sd;
-      double G2;
-      this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, sd, G2 );
-
-      row->SetNumberOfValues( 9 );
-      row->SetValue( 0, col );
-      row->SetValue( 1, minVal );
-      row->SetValue( 2, maxVal );
-      row->SetValue( 3, sum1 );
-      row->SetValue( 4, sd );
-      row->SetValue( 5, sum2 );
-      row->SetValue( 6, sum3 );
-      row->SetValue( 7, sum4 );
-      row->SetValue( 8, G2 );
-      }
-    else
-      {
-      row->SetNumberOfValues( 8 );
-      row->SetValue( 0, col );
-      row->SetValue( 1, minVal );
-      row->SetValue( 2, maxVal );
-      row->SetValue( 3, sum1 );
-      row->SetValue( 4, sum2 );
-      row->SetValue( 5, sum3 );
-      row->SetValue( 6, sum4 );
-      row->SetValue( 7, this->SampleSize );
-      }
+    double sd;
+    double G2;
+    this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, sd, G2 );
+    
+    row->SetNumberOfValues( 9 );
+    row->SetValue( 0, col );
+    row->SetValue( 1, minVal );
+    row->SetValue( 2, maxVal );
+    row->SetValue( 3, sum1 );
+    row->SetValue( 4, sd );
+    row->SetValue( 5, sum2 );
+    row->SetValue( 6, sum3 );
+    row->SetValue( 7, sum4 );
+    row->SetValue( 8, G2 );
 
     outMeta->InsertNextRow( row );
 

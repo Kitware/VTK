@@ -108,8 +108,7 @@ protected:
   // Description:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable*,
-                             vtkTable*,
-                             bool finalize = true ) = 0;
+                             vtkTable* ) = 0;
   virtual void ExecuteAssess( vtkTable*,
                               vtkTable*,
                               vtkTable*,

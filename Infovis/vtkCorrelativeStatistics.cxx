@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.24");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.25");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -58,8 +58,7 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta,
-                                             bool finalize )
+                                             vtkTable* outMeta )
 {
   vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
@@ -89,95 +88,60 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
-  if ( finalize )
-    {
-    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Mean X" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Mean Y" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Var(X)" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Var(Y)" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Cov(X,Y)" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    stringCol = vtkStringArray::New();
-    stringCol->SetName( "Linear Correlation" );
-    outMeta->AddColumn( stringCol );
-    stringCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Slope Y/X" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Intersect Y/X" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Slope X/Y" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Intersect X/Y" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Corr. Coeff." );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-  else
-    {
-    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum y" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum x2" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum y2" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Sum xy" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-
-    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-    idTypeCol->SetName( "Cardinality" );
-    outMeta->AddColumn( idTypeCol );
-    idTypeCol->Delete();
-    }
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Mean X" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Mean Y" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Var(X)" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Var(Y)" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Cov(X,Y)" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  stringCol = vtkStringArray::New();
+  stringCol->SetName( "Linear Correlation" );
+  outMeta->AddColumn( stringCol );
+  stringCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Slope Y/X" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Intersect Y/X" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Slope X/Y" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Intersect X/Y" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Corr. Coeff." );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
 
   for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
         it != this->Internals->ColumnPairs.end(); ++ it )
@@ -217,38 +181,22 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    if ( finalize )
+    row->SetNumberOfValues( 13 );
+    
+    double correlations[5];
+    int res = this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
+    
+    row->SetValue( 0, colX );
+    row->SetValue( 1, colY );
+    row->SetValue( 2, sx );
+    row->SetValue( 3, sy );
+    row->SetValue( 4, sx2 );
+    row->SetValue( 5, sy2 );
+    row->SetValue( 6, sxy );
+    row->SetValue( 7, ( res ? "invalid" : "valid" ) );
+    for ( int i = 0; i < 5; ++ i )
       {
-      row->SetNumberOfValues( 13 );
-
-      double correlations[5];
-      int res = this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
-      
-      row->SetValue( 0, colX );
-      row->SetValue( 1, colY );
-      row->SetValue( 2, sx );
-      row->SetValue( 3, sy );
-      row->SetValue( 4, sx2 );
-      row->SetValue( 5, sy2 );
-      row->SetValue( 6, sxy );
-      row->SetValue( 7, ( res ? "invalid" : "valid" ) );
-      for ( int i = 0; i < 5; ++ i )
-        {
         row->SetValue( i + 8, correlations[i] );
-        }
-      }
-    else 
-      {
-      row->SetNumberOfValues( 8 );
-
-      row->SetValue( 0, colX );
-      row->SetValue( 1, colY );
-      row->SetValue( 2, sx );
-      row->SetValue( 3, sy );
-      row->SetValue( 4, sx2 );
-      row->SetValue( 5, sy2 );
-      row->SetValue( 6, sxy );
-      row->SetValue( 7, this->SampleSize );
       }
 
     outMeta->InsertNextRow( row );

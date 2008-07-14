@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.26");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.27");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -61,8 +61,7 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
-                                       vtkTable* output,
-                                       bool finalize )
+                                       vtkTable* output )
 {
   vtkIdType nCol = inData->GetNumberOfColumns();
   if ( ! nCol )
@@ -87,56 +86,48 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
   output->AddColumn( stringCol );
   stringCol->Delete();
 
-  if ( finalize )
+  if ( this->NumberOfIntervals < 1 )
     {
-    if ( this->NumberOfIntervals < 1 )
-      {
-      return;
-      }
-    
-    vtkDoubleArray* doubleCol;
-    double dq = 1. / static_cast<double>( this->NumberOfIntervals );
-    for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
-      {
-      doubleCol = vtkDoubleArray::New();
-      div_t q = div( i << 2, this->NumberOfIntervals );
-
-      if ( q.rem )
-        {
-        doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
-        }
-      else
-        {
-        switch ( q.quot )
-          {
-          case 0:
-            doubleCol->SetName( "Minimum" );
-            break;
-          case 1:
-            doubleCol->SetName( "First Quartile" );
-            break;
-          case 2:
-            doubleCol->SetName( "Median" );
-            break;
-          case 3:
-            doubleCol->SetName( "Third Quartile" );
-            break;
-          case 4:
-            doubleCol->SetName( "Maximum" );
-            break;
-          default:
-            doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
-            break;
-          }
-        }
-      output->AddColumn( doubleCol );
-      doubleCol->Delete();
-      }
-    }
-  else
-    {
-    vtkWarningMacro( "Parallel implementation: not implemented yet." );
     return;
+    }
+  
+  vtkDoubleArray* doubleCol;
+  double dq = 1. / static_cast<double>( this->NumberOfIntervals );
+  for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
+    {
+    doubleCol = vtkDoubleArray::New();
+    div_t q = div( i << 2, this->NumberOfIntervals );
+    
+    if ( q.rem )
+      {
+      doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+      }
+    else
+      {
+      switch ( q.quot )
+        {
+        case 0:
+          doubleCol->SetName( "Minimum" );
+          break;
+        case 1:
+          doubleCol->SetName( "First Quartile" );
+          break;
+        case 2:
+          doubleCol->SetName( "Median" );
+          break;
+        case 3:
+          doubleCol->SetName( "Third Quartile" );
+          break;
+        case 4:
+          doubleCol->SetName( "Maximum" );
+          break;
+        default:
+          doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          break;
+        }
+      }
+    output->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
@@ -157,50 +148,42 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    if ( finalize )
+    row->SetNumberOfValues( this->NumberOfIntervals + 2 );
+    
+    int i = 0;
+    row->SetValue( i ++, col );
+    
+    vtkstd::vector<double> quantileThresholds;
+    double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
+    for ( int j = 0; j < this->NumberOfIntervals; ++ j )
       {
-      row->SetNumberOfValues( this->NumberOfIntervals + 2 );
-
-      int i = 0;
-      row->SetValue( i ++, col );
-
-      vtkstd::vector<double> quantileThresholds;
-      double dh = this->SampleSize / static_cast<double>( this->NumberOfIntervals );
-      for ( int j = 0; j < this->NumberOfIntervals; ++ j )
+      quantileThresholds.push_back( j * dh );
+      }
+    
+    double sum = 0;
+    vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
+    for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
+          mit != distr.end(); ++ mit  )
+      {
+      for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
         {
-        quantileThresholds.push_back( j * dh );
-        }
-
-      double sum = 0;
-      vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
-      for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
-            mit != distr.end(); ++ mit  )
-        {
-        for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
+        if ( sum == *qit
+             && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
           {
-          if ( sum == *qit
-               && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
-            {
-            vtkstd::map<double,vtkIdType>::iterator nit = mit;
-            row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
-            }
-          else
-            {
-            row->SetValue( i ++, mit->first );
-            }
+          vtkstd::map<double,vtkIdType>::iterator nit = mit;
+          row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
+          }
+        else
+          {
+          row->SetValue( i ++, mit->first );
           }
         }
+      }
     
-      row->SetValue( i, distr.rbegin()->first );
-      }
-    else
-      {
-      vtkWarningMacro( "Parallel implementation: not implemented yet." );
-      return;
-      }
-
+    row->SetValue( i, distr.rbegin()->first );
+    
     output->InsertNextRow( row );
-
+    
     row->Delete();
     }
 
@@ -226,11 +209,11 @@ void vtkOrderStatistics::ExecuteAssess( vtkTable* inData,
     }
 
   vtkIdType nColP = inMeta->GetNumberOfColumns();
-  if ( nColP != 3 )
+  if ( nColP < 3 )
     {
     vtkWarningMacro( "Parameter table has " 
                      << nColP
-                     << " != 3 columns. Doing nothing." );
+                     << " < 3 columns. Doing nothing." );
     return;
     }
 

@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.17");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.18");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -58,8 +58,7 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta,
-                                             bool finalize )
+                                             vtkTable* outMeta )
 {
   if ( ! inData->GetNumberOfColumns() )
     {
@@ -101,18 +100,11 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
   double n = static_cast<double>( this->SampleSize );
   vtkVariantArray* row = vtkVariantArray::New();
 
-  if ( finalize )
-    {
-    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Probability" );
-    outMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    row->SetNumberOfValues( 6 );
-    }
-  else 
-    {
-    row->SetNumberOfValues( 5 );
-    }
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Probability" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  row->SetNumberOfValues( 6 );
 
   typedef vtkstd::map<vtkVariant,vtkIdType,vtkVariantLessThan> Distribution;
 
@@ -150,11 +142,7 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
         {
         row->SetValue( 3, dit->first );
         row->SetValue( 4, dit->second );
-
-        if ( finalize )
-          {
-          row->SetValue( 5, dit->second / n );
-          }
+        row->SetValue( 5, dit->second / n );
 
         outMeta->InsertNextRow( row );
         }
