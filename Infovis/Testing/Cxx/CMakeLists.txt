@@ -38,10 +38,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestFixedWidthTextReader
       TestRISReader
       TestStringToNumeric
-      TestTableToGraph
       TestTreeMapViewer
       TestTulipReader
       )
+    IF (VTK_USE_VIEWS)
+      SET(MyTests ${MyTests}
+        TestTableToGraph
+      )
+    ENDIF (VTK_USE_VIEWS)
   ENDIF (VTK_DATA_ROOT)
   IF (VTK_USE_BOOST)
     # add boost tests
