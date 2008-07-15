@@ -1,20 +1,36 @@
 # Copyright (c) 2003,2006 Sandia National Laboratories <cubit@sandia.gov>
 project(verdict)
 
-option(BUILD_SHARED_LIBS "Build Verdict with shared libraries." OFF)
-option(VERDICT_BUILD_DOC "Build the 2007 Verdict User Manual" OFF)
+cmake_minimum_required( VERSION 2.4.5 )
+if ( COMMAND CMAKE_POLICY )
+  cmake_policy( SET CMP0003 NEW )
+endif( COMMAND CMAKE_POLICY )
 
 set( verdict_MAJOR_VERSION "1")
 set( verdict_MINOR_VERSION "2")
 set( verdict_BUILD_VERSION "0")
-
 set( verdict_VERSION_FLAT "${verdict_MAJOR_VERSION}${verdict_MINOR_VERSION}${verdict_BUILD_VERSION}" )
 set( verdict_VERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}.${verdict_BUILD_VERSION}" )
+
+option(BUILD_SHARED_LIBS "Build Verdict with shared libraries." OFF)
+option(VERDICT_BUILD_DOC "Build the 2007 Verdict User Manual" OFF)
+option(VERDICT_MANGLE "Mangle verdict names for inclusion in a larger library?" OFF)
+if ( VERDICT_MANGLE )
+  set( VERDICT_MANGLE_PREFIX "" CACHE STRING "A string to prepend to all verdict function names and classes." )
+  mark_as_advanced( VERDICT_MANGLE_PREFIX )
+  configure_file(
+    ${verdict_SOURCE_DIR}/verdict_mangle.h.in
+    ${verdict_BINARY_DIR}/verdict_mangle.h
+  )
+endif ( VERDICT_MANGLE )
+mark_as_advanced( VERDICT_MANGLE )
+
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
 
-
-include_directories(${verdict_BINARY_DIR})
-include_directories(${verdict_SOURCE_DIR})
+include_directories(
+  ${verdict_BINARY_DIR}
+  ${verdict_SOURCE_DIR}
+)
 
 set( verdict_SRCS
   V_EdgeMetric.cpp
@@ -29,27 +45,43 @@ set( verdict_SRCS
   V_WedgeMetric.cpp
   )
 
-set(verdict_INCLUDE_SUBDIR "include")
 configure_file(
   ${verdict_SOURCE_DIR}/verdict.h.in
   ${verdict_BINARY_DIR}/verdict.h
+  @ONLY
 )
 
-if(NOT DEFINED verdict_LIBRARY)
-  set(verdict_LIBRARY verdict)
-else(NOT DEFINED verdict_LIBRARY)
+if ( VERDICT_MANGLE )
+  set( verdict_LIBRARY "${VERDICT_MANGLE_PREFIX}verdict" )
   # if the name of the library is not 'verdict', then add verdict_EXPORTS 
   # manually so that the usual dllexport/dllimport tricks still work.
   if(WIN32)
     set_source_files_properties(${verdict_SRCS} PROPERTIES
       COMPILE_FLAGS "-Dverdict_EXPORTS")
   endif(WIN32)
-endif(NOT DEFINED verdict_LIBRARY)
+else ( VERDICT_MANGLE )
+  set( verdict_LIBRARY "verdict" )
+endif ( VERDICT_MANGLE )
+
+# Setting the VERSION and SOVERSION of a library will include
+# version information either in the library, or in the library
+# name (depending on the platform). You may choose to exclude
+# this information.
+if ( NOT VERDICT_NO_LIBRARY_VERSION )
+  set( VERDICT_LIBRARY_PROPERTIES
+    ${VERDICT_LIBRARY_PROPERTIES}
+    VERSION "${verdict_VERSION}"
+    SOVERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}"
+  )
+endif ( NOT VERDICT_NO_LIBRARY_VERSION )
+
 add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
-set_target_properties(${verdict_LIBRARY} PROPERTIES 
-  VERSION ${verdict_VERSION}
-  SOVERSION ${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}
-)
+# Apply user-defined properties to the library targets.
+if ( VERDICT_LIBRARY_PROPERTIES )
+  set_target_properties( ${verdict_LIBRARY}
+    PROPERTIES ${VERDICT_LIBRARY_PROPERTIES}
+  )
+endif ( VERDICT_LIBRARY_PROPERTIES )
 
 if ( VERDICT_ENABLE_TESTING )
   enable_testing()
@@ -97,25 +129,19 @@ install(FILES
   COMPONENT Development
 )
 
-# verdict.h for the installed tree, which in turns include 
-# "${verdict_INSTALL_INCLUDE_SUBDIR}/verdict.h"
-# verdict.h for the build tree includes "include/verdict.h"
-
-set(verdict_INCLUDE_SUBDIR "${verdict_INSTALL_INCLUDE_SUBDIR}")
-configure_file(
-  ${verdict_SOURCE_DIR}/verdict.h.in
-  ${verdict_BINARY_DIR}/Install/verdict.h
-)
-
-install(FILES ${verdict_BINARY_DIR}/Install/verdict.h
+install(
+  FILES ${verdict_BINARY_DIR}/verdict.h
   DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
   COMPONENT Development
 )
 
-install(FILES ${verdict_SOURCE_DIR}/include/verdict.h
-  DESTINATION ${verdict_INSTALL_INCLUDE_DIR}/${verdict_INSTALL_INCLUDE_SUBDIR}
-  COMPONENT Development
-)
+if ( VERDICT_MANGLE )
+  install(
+    FILES ${verdict_BINARY_DIR}/verdict_mangle.h
+    DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
+    COMPONENT Development
+  )
+endif ( VERDICT_MANGLE )
 
 install(TARGETS ${verdict_LIBRARY}
       RUNTIME DESTINATION ${verdict_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries # .exe, .dll
