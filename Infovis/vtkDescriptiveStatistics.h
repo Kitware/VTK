@@ -55,29 +55,6 @@ public:
   static vtkDescriptiveStatistics* New();
 
   // Description:
-  // Calculate descriptive statistics estimators from the raw sums: 
-  // mean (unbiased), variance (unbiased), sample skewness, 
-  // sample kurtosis excess, standard deviation, and G2 kurtosis excess estimators.
-  // Input: the sample size and a vector of doubles of size 5, with its 4 first entries 
-  //        initialized as (in this order) the 1st to 4th raw sums.
-  // Output: -1 if meaningless input (sample size < 1),
-  //          1 if could not calculate all estimators (e.g., sample size too small),
-  //          0 otherwise.
-  // NB: this is a static function, so as to provide this functionality even when no
-  // vtkStatistics are instantiated.
-  static int CalculateFromSums( int n, 
-                                double& s1,
-                                double& s2,
-                                double& s3,
-                                double& s4,
-                                double& sd,
-                                double& G2 );
-  static int CalculateFromSums( int n, double* s ) 
-    { 
-    return CalculateFromSums( n, s[0], s[1], s[2], s[4], s[5], s[6] );
-    }
-
-  // Description:
   // Set/get whether the deviations returned should be signed, or should
   // only have their magnitude reported.
   // The default is that signed deviations will be computed.

@@ -36,7 +36,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.36");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.37");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -110,12 +110,17 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   doubleCol->Delete();
   
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Skewness" );
+  doubleCol->SetName( "g1 Skewness" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
   
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Sample Kurtosis" );
+  doubleCol->SetName( "G1 Skewness" );
+  outMeta->AddColumn( doubleCol );
+  doubleCol->Delete();
+  
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "g2 Kurtosis" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
   
@@ -136,21 +141,29 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 
     double minVal = inData->GetValueByName( 0, col ).ToDouble();
     double maxVal = minVal;
+    double mean = 0.;
+    double mom2 = 0.;
+    double mom3 = 0.;
+    double mom4 = 0.;
 
-    double val  = 0.;
-    double val2 = 0.;
-    double sum1 = 0.;
-    double sum2 = 0.;
-    double sum3 = 0.;
-    double sum4 = 0.;
+    double val, delta, n, A, B;
+    double inv_n;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
       val  = inData->GetValueByName( r, col ).ToDouble();
-      val2 = val * val;
-      sum1 += val;
-      sum2 += val2;
-      sum3 += val2 * val;
-      sum4 += val2 * val2;
+
+      n = r + 1.;
+      inv_n = 1. / n;
+      delta = val - mean;
+
+      A = delta * inv_n; 
+      mean += A;
+      mom4 += A * ( A * A * delta * r * ( n * ( n - 3. ) + 3. ) + 6. * A * mom2 - 4. * mom3  );
+
+      B = val - mean;
+      mom3 += A * ( B * delta * ( n - 2. ) - 3. * mom2 );
+      mom2 += delta * B;
+
       if ( val < minVal )
         {
         minVal = val;
@@ -161,22 +174,59 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
         }
       }
 
+    double nm1, nm2, variance, skewness, G1, kurtosis, G2;
+    if ( this->SampleSize == 1 || mom2 < 1.e-150 )
+      {
+      variance = 0.;
+      skewness = 0.;
+      G1 = 0.;
+      kurtosis = 0.;
+      G2 = 0.;
+      }
+    else
+      {
+      nm1 = this->SampleSize - 1.;
+      variance = mom2 / nm1;
+      double var_inv = 1. / variance;
+      double nvar_inv = var_inv * inv_n;
+      skewness = nvar_inv * sqrt( var_inv ) * mom3;
+      kurtosis = nvar_inv * var_inv * mom4 - 3.;
+      if ( n > 2 )
+        {
+        // G1 skewness estimate
+        nm2 = nm1 - 1.;
+        G1 = ( n * n ) / ( nm1 * nm2 ) * skewness;
+ 
+        if ( n > 3 )
+          { 
+          // G2 kurtosis estimate
+          G2 = ( ( n + 1. ) * kurtosis + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
+          }
+        else
+          {
+          G2 = kurtosis;
+          }
+        }
+      else
+        {
+        G1 = skewness;
+        G2 = kurtosis;
+        }
+      }
+
     vtkVariantArray* row = vtkVariantArray::New();
 
-    double sd;
-    double G2;
-    this->CalculateFromSums( this->SampleSize, sum1, sum2, sum3, sum4, sd, G2 );
-    
-    row->SetNumberOfValues( 9 );
+    row->SetNumberOfValues( 10 );
     row->SetValue( 0, col );
     row->SetValue( 1, minVal );
     row->SetValue( 2, maxVal );
-    row->SetValue( 3, sum1 );
-    row->SetValue( 4, sd );
-    row->SetValue( 5, sum2 );
-    row->SetValue( 6, sum3 );
-    row->SetValue( 7, sum4 );
-    row->SetValue( 8, G2 );
+    row->SetValue( 3, mean );
+    row->SetValue( 4, sqrt( fabs( variance ) ) );
+    row->SetValue( 5, variance );
+    row->SetValue( 6, skewness );
+    row->SetValue( 7, G1 );
+    row->SetValue( 8, kurtosis );
+    row->SetValue( 9, G2 );
 
     outMeta->InsertNextRow( row );
 
@@ -399,75 +449,3 @@ void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* inData,
 
   return;
 }
-
-// ----------------------------------------------------------------------
-int vtkDescriptiveStatistics::CalculateFromSums( int n, 
-                                                 double& s1,
-                                                 double& s2,
-                                                 double& s3,
-                                                 double& s4,
-                                                 double& sd,
-                                                 double& G2 )
-{
-  if ( n < 1 ) 
-    {
-    return -1;
-    }
-
-  double nd = static_cast<double>( n );
-
-  // (unbiased) estimation of the mean
-  s1 /= nd;
-
-  if ( n == 1 )
-    {
-    s2 = 0.;
-    sd = 0.;
-    s3 = 0.;
-    s4 = 0.;
-    G2 = 0.;
-    return 1;
-    }
-
-  // (unbiased) estimation of the variance
-  double nm1 = nd - 1.;
-  double s1p2 = s1 * s1;
-  double var = ( s2 - s1p2 * nd ) / nm1;
-
-  if ( var > 0. )
-    {
-    // sample estimation of the kurtosis "excess"
-    s4 = ( s4 / nd - 4. * s1 * s3 / nd + 6. * s1p2 * s2 / nd - 3. * s1p2 * s1p2 )
-      / ( var * var ) - 3.;
-    
-    // sample estimation of the skewness
-    s3 = ( s3 / nd - 3. * s1 * s2 / nd + 2. * s1p2 * s1 ) 
-      / pow( var, 1.5 );
-
-    s2 = var;
-    sd = sqrt( s2 );
-    }
-  else
-    {
-    s2 = var;
-    sd = 0.;
-    s3 = 0.;
-    s4 = 0.;
-    G2 = 0.;
-    return 1;
-    }
-
-  // G2 estimation of the kurtosis "excess"
-  if ( n > 3 )
-    {
-    G2 = ( ( nd + 1. ) * s4 + 6. ) * nm1 / ( ( nd - 2. ) * ( nd - 3. ) );
-    return 0;
-    }
-  else
-    {
-    G2 = s4;
-    return 1;
-    }
-}
-
-

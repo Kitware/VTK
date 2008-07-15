@@ -177,7 +177,7 @@ int TestDescriptiveStatistics( int, char *[] )
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < 9; ++ i )
+    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
       {
       cout << outputMeta->GetColumnName( i )
            << "="
