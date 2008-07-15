@@ -213,10 +213,10 @@ C_FUNC_DEF double v_tri_aspect_ratio( int /*num_nodes*/, double coordinates[][3]
    the radius ratio of a triangle
 
    NB (P. Pebay 01/13/07): 
-     CR / (3.0*IR) where CR is the circumradius and IR is the inradius
+     CR / (2.0*IR) where CR is the circumradius and IR is the inradius
 
-     this quality function is also known to VERDICT, for tetrahedral elements only,
-     a the "aspect beta"
+     The radius ratio is also known to VERDICT, for tetrahedral elements only,
+     as the "aspect beta".
    
 */
 C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3] )
@@ -235,9 +235,9 @@ C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3]
                    coordinates[0][1] - coordinates[2][1],
                    coordinates[0][2] - coordinates[2][2] );
 
-  double a2 = a.length_squared();
-  double b2 = b.length_squared();
-  double c2 = c.length_squared();
+  double a1 = a.length();
+  double b1 = b.length();
+  double c1 = c.length();
  
   VerdictVector ab = a * b;
   double denominator = ab.length_squared();
@@ -246,7 +246,7 @@ C_FUNC_DEF double v_tri_radius_ratio( int /*num_nodes*/, double coordinates[][3]
     return (double)VERDICT_DBL_MAX;
 
   double radius_ratio;
-  radius_ratio = .25 * a2 * b2 * c2 * ( a2 + b2 + c2 ) / denominator;
+  radius_ratio = .25 * a1 * b1 * c1 * ( a1 + b1 + c1 ) / denominator;
   
   if( radius_ratio > 0 )
     return (double) VERDICT_MIN( radius_ratio, VERDICT_DBL_MAX );
@@ -617,7 +617,7 @@ C_FUNC_DEF double v_tri_relative_size_squared( int /*num_nodes*/, double coordin
   
   v_tri_get_weight(w11,w21,w12,w22);
 
-  double detw = determinant(w11,w21,w12,w22);
+  double detw = v_determinant(w11,w21,w12,w22);
 
   if(detw == 0.0)
     return 0.0;
@@ -1108,7 +1108,7 @@ C_FUNC_DEF void v_tri_quality( int num_nodes, double coordinates[][3],
     double w11, w21, w12, w22;
     v_tri_get_weight(w11,w21,w12,w22);
     // get the determinant
-    double detw = determinant(w11,w21,w12,w22);
+    double detw = v_determinant(w11,w21,w12,w22);
     // use the area from above and divide with the determinant
     if( metric_vals->area == 0.0  || detw == 0.0 )
       metric_vals->relative_size_squared = 0.0;
