@@ -1,5 +1,4 @@
 .git*            export-ignore
 
-*.dsp           -crlf
 newalpha         crlf=input
 newversion       crlf=input
