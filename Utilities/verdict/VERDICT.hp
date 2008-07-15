@@ -1,8 +1,0 @@
-# Copyright (c) 2003 Sandia National Laboratories <cubit@sandia.gov>
-
-LINKER = /opt/aCC/bin/aCC -o
-LFLAGS = -b
-VERDICT_LIB_NAME = libverdict${VERDICT_VERSIONA}.sl
-CXX = /opt/aCC/bin/aCC
-CXXFLAGS = -O +z
-
