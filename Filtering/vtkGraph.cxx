@@ -62,7 +62,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.21");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.22");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -71,7 +71,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.21");
+vtkCxxRevisionMacro(vtkGraph, "1.22");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -86,6 +86,7 @@ vtkGraph::vtkGraph()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Internals = vtkGraphInternals::New();
+  this->DistributedHelper = 0;
   this->EdgePoints = 0;
   this->EdgeList = 0;
 }
@@ -100,6 +101,10 @@ vtkGraph::~vtkGraph()
     this->Points->Delete();
     }
   this->Internals->Delete();
+  if (this->DistributedHelper)
+    {
+    this->DistributedHelper->Delete();
+    }
   if (this->EdgeList)
     {
     this->EdgeList->Delete();
@@ -435,21 +440,21 @@ vtkIdType vtkGraph::GetNumberOfVertices()
 //----------------------------------------------------------------------------
 void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
 {
-  if (this->Internals->DistributedHelper)
-    this->Internals->DistributedHelper->AttachToGraph(0);
+  if (this->DistributedHelper)
+    this->DistributedHelper->AttachToGraph(0);
 
-  this->Internals->DistributedHelper = helper;
-  if (this->Internals->DistributedHelper)
+  this->DistributedHelper = helper;
+  if (this->DistributedHelper)
     {
-    this->Internals->DistributedHelper->Register(this);
-    this->Internals->DistributedHelper->AttachToGraph(this);
+    this->DistributedHelper->Register(this);
+    this->DistributedHelper->AttachToGraph(this);
     }
 }
 
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper *vtkGraph::GetDistributedGraphHelper()
 {
-  return this->Internals->DistributedHelper;
+  return this->DistributedHelper;
 }
 
 //----------------------------------------------------------------------------
@@ -597,8 +602,21 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
     {
     vtkDataObject::ShallowCopy(g);
     }
+  if (g->DistributedHelper)
+    {
+    if (!this->DistributedHelper)
+      {
+      this->SetDistributedGraphHelper(g->DistributedHelper->Clone());
+      }
+    }
+  else if (this->DistributedHelper)
+    {
+    this->SetDistributedGraphHelper(0);
+    }
+
   // Copy on write.
   this->SetInternals(g->Internals);
+
   if (deep)
     {
     this->EdgeData->DeepCopy(g->EdgeData);
@@ -1042,9 +1060,9 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
                                vtkVariantArray *propertyArr, vtkEdgeType *edge)
 {
   this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
+  if (this->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, v, directed, 
+    this->DistributedHelper->AddEdgeInternal(u, v, directed, 
                                                         propertyArr, edge);
     return;
     }
@@ -1108,9 +1126,9 @@ void vtkGraph::AddEdgeInternal(const vtkVariant& uPedigreeId, vtkIdType v,
                                vtkEdgeType *edge)
 {
   this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
+  if (this->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, v, 
+    this->DistributedHelper->AddEdgeInternal(uPedigreeId, v, 
                                                         directed, propertyArr,
                                                         edge);
     return;
@@ -1127,9 +1145,9 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, const vtkVariant& vPedigreeId,
                                vtkEdgeType *edge)
 {
   this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
+  if (this->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(u, vPedigreeId, 
+    this->DistributedHelper->AddEdgeInternal(u, vPedigreeId, 
                                                         directed, propertyArr,
                                                         edge);
     return;
@@ -1147,9 +1165,9 @@ void vtkGraph::AddEdgeInternal(const vtkVariant& uPedigreeId,
                                vtkEdgeType *edge)
 {
   this->ForceOwnership();
-  if (this->Internals->DistributedHelper)
+  if (this->DistributedHelper)
     {
-    this->Internals->DistributedHelper->AddEdgeInternal(uPedigreeId, 
+    this->DistributedHelper->AddEdgeInternal(uPedigreeId, 
                                                         vPedigreeId, directed,
                                                         propertyArr, edge);
     return;
@@ -1251,10 +1269,10 @@ void vtkGraph::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Internals)
     {
     os << indent << "DistributedHelper: " 
-       << (this->Internals->DistributedHelper ? "" : "(none)") << endl;
-    if (this->Internals->DistributedHelper)
+       << (this->DistributedHelper ? "" : "(none)") << endl;
+    if (this->DistributedHelper)
       {
-      this->Internals->DistributedHelper->PrintSelf(os, indent.GetNextIndent());
+      this->DistributedHelper->PrintSelf(os, indent.GetNextIndent());
       }
     }
 }

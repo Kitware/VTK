@@ -57,7 +57,6 @@ public:
   vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
   //ETX
   vtkIdType NumberOfEdges;
-  vtkDistributedGraphHelper *DistributedHelper;
 
 protected:
   vtkGraphInternals();

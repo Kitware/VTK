@@ -91,12 +91,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.2");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.3");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.2");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.3");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -116,6 +116,12 @@ vtkPBGLDistributedGraphHelper::~vtkPBGLDistributedGraphHelper()
 void vtkPBGLDistributedGraphHelper::Synchronize()
 {
   synchronize(this->Internals->process_group);
+}
+
+//----------------------------------------------------------------------------
+vtkDistributedGraphHelper *vtkPBGLDistributedGraphHelper::Clone()
+{
+  return vtkPBGLDistributedGraphHelper::New();
 }
 
 //----------------------------------------------------------------------------

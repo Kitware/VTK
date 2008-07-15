@@ -32,7 +32,6 @@
 #include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkVertexListIterator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/stl/algorithm>
@@ -279,7 +278,6 @@ void TestUndirectedGraph()
   exec->SetUpdatePiece(exec->GetOutputInformation(0), myRank);
   bfs->Update();
 
-
   // Verify the results of the breadth-first search
   if (myRank == 0)
     {
@@ -302,9 +300,13 @@ void TestUndirectedGraph()
     assert(distArray->GetValue(i) == myRank + 1);
     }
   if (myRank == 0)
+    {
     assert(distArray->GetValue(verticesPerNode) == 0);
+    }
   if (myRank == numProcs - 1)
+    {
     assert(distArray->GetValue(verticesPerNode) == numProcs + 1);
+    }
   helper->Synchronize();
   if (myRank == 0)
     {

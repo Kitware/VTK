@@ -119,6 +119,12 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   // corresponding back-edges).
   virtual void Synchronize() = 0;
 
+  // Description:
+  // Clones the distributed graph helper, returning another
+  // distributed graph helper of the same kind that can be used in
+  // another vtkGraph.
+  virtual vtkDistributedGraphHelper *Clone() = 0;
+
  protected:
   vtkDistributedGraphHelper();
   virtual ~vtkDistributedGraphHelper();

@@ -64,6 +64,10 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // corresponding back-edges).
   void Synchronize();
 
+  // Description:
+  // Clones this distributed graph helper.
+  vtkDistributedGraphHelper *Clone();
+
   //BTX
   // Description:
   // Return the process group associated with this distributed graph.

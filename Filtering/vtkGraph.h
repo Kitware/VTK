@@ -561,6 +561,10 @@ protected:
   vtkGraphInternals *Internals;
 
   // Description:
+  // The distributed graph helper. Only non-NULL for distributed graphs.
+  vtkDistributedGraphHelper *DistributedHelper;
+
+  // Description:
   // Private method for setting internals.
   void SetInternals(vtkGraphInternals* internals);
 

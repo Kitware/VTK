@@ -22,18 +22,15 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.2");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.3");
 
 //----------------------------------------------------------------------------
 vtkGraphInternals::vtkGraphInternals()
 { 
   this->NumberOfEdges = 0; 
-  this->DistributedHelper = 0; 
 }
 
 //----------------------------------------------------------------------------
 vtkGraphInternals::~vtkGraphInternals()
 {
-  if (this->DistributedHelper)
-    this->DistributedHelper->Delete();
 }
