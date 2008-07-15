@@ -229,7 +229,7 @@ public:
   friend int operator!=(const VerdictVector &v1, const VerdictVector &v2);
     //- Inequality operator
   
-  friend VerdictVector interpolate(const double param, const VerdictVector &v1,
+  friend VerdictVector v_interpolate(const double param, const VerdictVector &v1,
                                  const VerdictVector &v2);
     //- Interpolate between two vectors. Returns (1-param)*v1 + param*v2
 
@@ -243,9 +243,8 @@ private:
   double zVal;  //- z component of vector.
 };
 
-VerdictVector vectorRotate(const double angle, 
-                         const VerdictVector &normalAxis,
-                         const VerdictVector &referenceAxis);
+VerdictVector v_vector_rotate(
+  const double angle, const VerdictVector &normalAxis, const VerdictVector &referenceAxis );
   //- A new coordinate system is created with the xy plane corresponding
   //- to the plane normal to {normalAxis}, and the x axis corresponding to
   //- the projection of {referenceAxis} onto the normal plane.  The normal
