@@ -82,6 +82,9 @@ int main(int argc, char* argv[])
   VTK_CREATE(vtkPRandomGraphSource, source);
 
   int errors = 0;
+
+  source->SetNumberOfVertices(wantVertices);
+  source->SetNumberOfEdges(wantEdges);
   
   if (!onlyConnected)
     {
@@ -90,8 +93,6 @@ int main(int argc, char* argv[])
       cerr << "Testing simple random generator (" << wantVertices << ", "
            << wantEdges << ")..." << endl;
       }
-    source->SetNumberOfVertices(wantVertices);
-    source->SetNumberOfEdges(wantEdges);
     source->Update();
     g = source->GetOutput();
 
