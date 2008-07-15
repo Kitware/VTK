@@ -51,7 +51,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.62");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.63");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -307,6 +307,40 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     outPolys->Delete();
     }
   outPoints = vtkPoints::New();
+  int dataType;
+  switch (input->GetDataObjectType())
+    {
+    case VTK_RECTILINEAR_GRID:
+      {
+      vtkRectilinearGrid *grid = vtkRectilinearGrid::SafeDownCast(input);
+      dataType = grid->GetXCoordinates()->GetDataType();// ????
+      break;
+      }
+    case VTK_STRUCTURED_GRID:
+      {
+      vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(input);
+      dataType = grid->GetPoints()->GetDataType();
+      break;
+      }
+    case VTK_UNIFORM_GRID:
+      {
+      // same as vtk_image_data
+      }
+    case VTK_STRUCTURED_POINTS:      
+      {
+      // same as vtk_image_data
+      }
+     case VTK_IMAGE_DATA:      
+      {
+      dataType = VTK_DOUBLE;
+      break;
+      }
+    default:
+      dataType = VTK_DOUBLE;
+      vtkWarningMacro("Invalid data set type.");
+    }
+
+  outPoints->SetDataType(dataType);
   outPoints->Allocate(numPoints);
   output->SetPoints(outPoints);
   outPoints->Delete();
@@ -580,7 +614,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   vtkIdType    pInc[3];
   vtkIdType    qInc[3];
   vtkIdType    cOutInc;
-  double        pt[3];
+  double       pt[3];
   vtkIdType    inStartPtId;
   vtkIdType    inStartCellId;
   vtkIdType    outStartPtId;
@@ -732,6 +766,8 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   // Allocate
   //
   newPts = vtkPoints::New();
+  // we don't know what type of data the input points are so
+  // we keep the output points to have the default type (float)
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyGlobalIdsOn();
@@ -931,6 +967,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   
   pts = vtkIdList::New();  
   coords = vtkPoints::New();
+  // might not be necessary to set the data type for coords
+  // but certainly safer to do so
+  coords->SetDataType(input->GetPoints()->GetData()->GetDataType());
   cell = vtkGenericCell::New();
 
   this->NumberOfNewCells = 0;
@@ -939,6 +978,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   // Allocate
   //
   newPts = vtkPoints::New();
+  newPts->SetDataType(input->GetPoints()->GetData()->GetDataType());
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(4*numCells,numCells/2);
