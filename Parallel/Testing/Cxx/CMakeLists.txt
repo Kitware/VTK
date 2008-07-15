@@ -105,10 +105,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       ADD_EXECUTABLE(TestPBGLGraphSQLReader TestPBGLGraphSQLReader.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReader vtkParallel ${Boost_LIBRARIES})
 
-      ADD_EXECUTABLE(TestPRandomGraphSource TestPRandomGraphSource.cxx)
-      TARGET_LINK_LIBRARIES(TestPRandomGraphSource
-        vtkParallel ${Boost_LIBRARIES})
-
       ADD_TEST(PBGLRandomGraph
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${VTK_MPI_PREFLAGS} 
@@ -127,11 +123,17 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         ${CXX_TEST_PATH}/TestPBGLGraphSQLReader
         ${VTK_MPI_POSTFLAGS})
 
-      ADD_TEST(TestPRandomGraphSource
-        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-        ${VTK_MPI_PREFLAGS} 
-        ${CXX_TEST_PATH}/TestPRandomGraphSource
-        ${VTK_MPI_POSTFLAGS})
+      IF (VTK_USE_INFOVIS)
+        ADD_EXECUTABLE(TestPRandomGraphSource TestPRandomGraphSource.cxx)
+        TARGET_LINK_LIBRARIES(TestPRandomGraphSource
+          vtkParallel vtkInfovis ${Boost_LIBRARIES})
+
+        ADD_TEST(TestPRandomGraphSource
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+          ${VTK_MPI_PREFLAGS} 
+          ${CXX_TEST_PATH}/TestPRandomGraphSource
+          ${VTK_MPI_POSTFLAGS})
+      ENDIF (VTK_USE_INFOVIS)
     ENDIF (VTK_USE_PARALLEL_BGL)
 
     #

@@ -32,7 +32,6 @@
 #include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/stl/algorithm>
 #include <vtksys/stl/functional>
