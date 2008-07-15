@@ -26,9 +26,8 @@
 #include "verdict.h"
 #include <math.h>
 
-/*! 
-  length of and edge
-  length is calculated by taking the distance between the end nodes
+/*!\brief Length of and edge.
+ * Length is calculated by taking the distance between the end nodes.
  */
 C_FUNC_DEF double v_edge_length( int /*num_nodes*/, double coordinates[][3] )
 {
@@ -39,18 +38,14 @@ C_FUNC_DEF double v_edge_length( int /*num_nodes*/, double coordinates[][3] )
   return (double)( sqrt (x*x + y*y + z*z) );
 }
 
-/*!
-  
-  higher order function for calculating multiple metrics at once.
-
-  for an edge, there is only one metric, edge length.
-*/
-
-C_FUNC_DEF void edge_quality( int num_nodes, double coordinates[][3], 
+/*!\brief Higher order function for calculating multiple metrics at once.
+ * For an edge, there is only one metric, edge length.
+ */
+C_FUNC_DEF void v_edge_quality( int num_nodes, double coordinates[][3], 
     unsigned int metrics_request_flag, struct EdgeMetricVals *metric_vals )
 {
-  if(metrics_request_flag & V_EDGE_LENGTH)
-    metric_vals->length = v_edge_length(num_nodes, coordinates);
+  if ( metrics_request_flag & V_EDGE_LENGTH )
+    metric_vals->length = v_edge_length( num_nodes, coordinates );
 }
 
 
