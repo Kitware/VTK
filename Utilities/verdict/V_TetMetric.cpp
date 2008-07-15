@@ -31,23 +31,22 @@
 #include <memory.h>
 
 //! the average volume of a tet
-double verdict_tet_size = 0;
+static double v_tet_size = 0;
 
 /*! 
   set the average volume of a tet
 */
 C_FUNC_DEF void v_set_tet_size( double size )
 {
-  verdict_tet_size = size;
+  v_tet_size = size;
 }
 
 /*!
   get the weights based on the average size
   of a tet
 */
-int get_weight ( VerdictVector &w1,
-                 VerdictVector &w2,
-                 VerdictVector &w3 )
+static int v_tet_get_weight (
+  VerdictVector &w1, VerdictVector &w2, VerdictVector &w3 )
 {
   static const double rt3 = sqrt(3.0);
   static const double root_of_2 = sqrt(2.0);
@@ -56,7 +55,7 @@ int get_weight ( VerdictVector &w1,
   w2.set(0.5, 0.5*rt3, 0 );
   w3.set(0.5, rt3/6.0, root_of_2/rt3); 
 
-  double scale = pow( 6.*verdict_tet_size/determinant(w1,w2,w3),0.3333333333333);   
+  double scale = pow( 6.*v_tet_size/v_determinant(w1,w2,w3),0.3333333333333);   
 
   w1 *= scale;
   w2 *= scale;
@@ -821,7 +820,7 @@ C_FUNC_DEF double v_tet_relative_size_squared( int /*num_nodes*/, double coordin
 {
   double size;
   VerdictVector w1, w2, w3;
-  get_weight(w1,w2,w3);
+  v_tet_get_weight(w1,w2,w3);
   double avg_volume = (w1 % (w2 *w3))/6.0;
   
   double volume = v_tet_volume(4, coordinates);
@@ -1103,7 +1102,7 @@ C_FUNC_DEF void v_tet_quality( int num_nodes, double coordinates[][3],
   if(metrics_request_flag & (V_TET_RELATIVE_SIZE_SQUARED | V_TET_SHAPE_AND_SIZE ))
   {
     VerdictVector w1, w2, w3;
-    get_weight(w1,w2,w3);
+    v_tet_get_weight(w1,w2,w3);
     double avg_vol = (w1 % (w2 *w3))/6;
     
     if( avg_vol < VERDICT_DBL_MIN )
