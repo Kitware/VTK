@@ -86,7 +86,7 @@
 #ifndef __vtkDistributedDataFilter_h
 #define __vtkDistributedDataFilter_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 
 class vtkBSPCuts;
 class vtkDataArray;
@@ -101,10 +101,10 @@ class vtkPKdTree;
 class vtkUnstructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkUnstructuredGridAlgorithm
+class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
 {
   vtkTypeRevisionMacro(vtkDistributedDataFilter, 
-    vtkUnstructuredGridAlgorithm);
+    vtkDataObjectAlgorithm);
 
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -272,11 +272,24 @@ protected:
   //   data distributed across processes.  Execute() must be called
   //   by all processes, or it will hang.
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *);
   void SingleProcessExecute(vtkDataSet *input, vtkUnstructuredGrid *output);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-
+  
+  // Description:
+  // Overridden to create the correct type of data output. If input is dataset,
+  // output is vtkUnstructuredGrid. If input is composite dataset, output is
+  // vtkMultiBlockDataSet.
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector**,
+                                vtkInformationVector*);
+  
+  // Description:
+  // Implementation for request data.
+  int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output);
 private:
 
 //BTX

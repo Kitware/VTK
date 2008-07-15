@@ -19,13 +19,15 @@
 
 #include "vtkDistributedDataFilter.h"
 
-#include "vtkBSPCuts.h"
 #include "vtkBox.h"
 #include "vtkBoxClipDataSet.h"
+#include "vtkBSPCuts.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkClipDataSet.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
 #include "vtkExtractCells.h"
@@ -38,12 +40,14 @@
 #include "vtkIntArray.h"
 #include "vtkMergeCells.h"
 #include "vtkModelMetadata.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkSmartPointer.h"
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkToolkits.h"
@@ -54,7 +58,9 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.48")
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.49")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -391,6 +397,7 @@ int vtkDistributedDataFilter::RequestInformation(
   return 1;
 }
 
+
 //----------------------------------------------------------------------------
 int vtkDistributedDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -398,16 +405,132 @@ int vtkDistributedDataFilter::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  this->GhostLevel = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  this->GhostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  // get the input and ouptut
+  vtkDataSet *inputDS = vtkDataSet::GetData(inputVector[0], 0);
+  vtkUnstructuredGrid *outputUG = vtkUnstructuredGrid::GetData(outInfo);
+  if (inputDS && outputUG)
+    {
+    return this->RequestDataInternal(inputDS, outputUG);
+    }
+
+  vtkCompositeDataSet* inputCD = 
+    vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkMultiBlockDataSet* outputMB = 
+    vtkMultiBlockDataSet::GetData(outputVector, 0);
+  if (!inputCD || !outputMB)
+    {
+    vtkErrorMacro("Input must either be a composite dataset or a vtkDataSet.");
+    return 0;
+    }
+
+  outputMB->CopyStructure(inputCD);
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(inputCD->NewIterator());
+  // We want to traverse over empty nodes as well. This ensures that this
+  // algorithm will work correctly in parallel.
+  iter->SkipEmptyNodesOff(); 
+
+  // Collect information about datatypes all the processes have at all the leaf
+  // nodes. Ideally all processes will either have the same type or an empty
+  // dataset. This assumes that all processes have the same composite structure.
+  vtkstd::vector<int> leafTypes;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
+    {
+    vtkDataObject* dObj = iter->GetCurrentDataObject();
+    if (dObj)
+      {
+      leafTypes.push_back(dObj->GetDataObjectType());
+      }
+    else
+      {
+      leafTypes.push_back(-1);
+      }
+    }
+  unsigned int numLeaves = static_cast<unsigned int>(leafTypes.size());
+
+  int myId = this->Controller->GetLocalProcessId();
+  int numProcs = this->Controller->GetNumberOfProcesses();
+  if (numProcs > 1 && numLeaves > 0)
+    {
+    if (myId == 0)
+      {
+      for (int cc=1; cc < numProcs; cc++)
+        {
+        vtkstd::vector<int> receivedTypes;
+        receivedTypes.resize(numLeaves, -1);
+        if (!this->Controller->Receive(&receivedTypes[0],
+            numLeaves, cc, 1020202))
+          {
+          vtkErrorMacro("Communication error.");
+          return 0;
+          }
+        for (unsigned int kk=0; kk < numLeaves; kk++)
+          {
+          if (leafTypes[kk] == -1)
+            {
+            leafTypes[kk] = receivedTypes[kk];
+            }
+          if (receivedTypes[kk] != -1 && leafTypes[kk] != -1 &&
+            receivedTypes[kk] != leafTypes[kk])
+            {
+            vtkWarningMacro("Data type mismatch on processes.");
+            }
+          }
+        }
+      for (int kk=0; kk < numProcs; kk++)
+        {
+        this->Controller->Send(&leafTypes[0], numLeaves, kk, 1020203);
+        }
+      }
+    else
+      {
+      this->Controller->Send(&leafTypes[0], numLeaves, 0, 1020202);
+      this->Controller->Receive(&leafTypes[0], numLeaves, 0, 1020203);
+      }
+    }
+  
+  unsigned int cc=0;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem(), cc++)
+    {
+    vtkSmartPointer<vtkDataSet> ds;
+    ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds.GetPointer() == NULL)
+      {
+      if (leafTypes[cc] == -1)
+        {
+        // This is an empty block on all processes, just skip it.
+        continue;
+        }
+
+      ds = vtkDataSet::SafeDownCast(
+        vtkDataObjectTypes::NewDataObject(leafTypes[cc]));
+      }
+    vtkSmartPointer<vtkUnstructuredGrid> ug =
+      vtkSmartPointer<vtkUnstructuredGrid>::New();
+    if (!this->RequestDataInternal(ds, ug))
+      {
+      return 0;
+      }
+    if (ug->GetNumberOfPoints() >0)
+      {
+      outputMB->SetDataSet(iter, ug);
+      }
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
+  vtkUnstructuredGrid* output)
+{
   this->NextProgressStep = 0;
   int progressSteps = 5 + this->GhostLevel;
   if (this->ClipCells)
@@ -4550,9 +4673,54 @@ int vtkDistributedDataFilter::HasMetadata(vtkDataSet *s)
 }
 
 //-------------------------------------------------------------------------
+int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+
+  vtkDataObject *input = vtkDataObject::GetData(inInfo);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (input)
+    {
+    vtkDataObject *output = vtkDataObject::GetData(outInfo);
+    // If input is composite dataset, output is a vtkMultiBlockDataSet of
+    // unstructrued grids.
+    // If input is a dataset, output is an unstructured grid.
+    if (!output || 
+      (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
+      (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
+      {
+      vtkDataObject* newOutput = 0;
+      if (input->IsA("vtkCompositeDataSet"))
+        {
+        newOutput = vtkMultiBlockDataSet::New();
+        }
+      else // if (input->IsA("vtkDataSet"))
+        {
+        newOutput = vtkUnstructuredGrid::New();
+        }
+      newOutput->SetPipelineInformation(outInfo);
+      newOutput->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+      }
+    return 1;
+    }
+
+  return 0;
+}
+
+//-------------------------------------------------------------------------
 int vtkDistributedDataFilter::FillInputPortInformation(int, vtkInformation *info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
