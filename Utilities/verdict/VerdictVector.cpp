@@ -100,7 +100,7 @@ double VerdictVector::interior_angle(const VerdictVector &otherVector)
 
 // Interpolate between two vectors.
 // Returns (1-param)*v1 + param*v2
-VerdictVector interpolate(const double param, const VerdictVector &v1,
+VerdictVector v_interpolate(const double param, const VerdictVector &v1,
                         const VerdictVector &v2)
 {
   VerdictVector temp = (1.0 - param) * v1;
@@ -230,9 +230,8 @@ double VerdictVector::vector_angle_quick(const VerdictVector& vec1, const Verdic
   return angle;
 }
 
-VerdictVector vectorRotate(const double angle,
-                         const VerdictVector &normalAxis,
-                         const VerdictVector &referenceAxis)
+VerdictVector v_vector_rotate(
+  const double angle, const VerdictVector &normalAxis, const VerdictVector &referenceAxis )
 {
     // A new coordinate system is created with the xy plane corresponding
     // to the plane normal to the normal axis, and the x axis corresponding to
