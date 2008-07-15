@@ -261,3 +261,57 @@ double vtkBoundingBox::GetMaxLength() const
     }
   return l[2];
 }
+
+// ---------------------------------------------------------------------------
+// Description:
+// Scale each dimension of the box by some given factor.
+// If the box is not valid, it stays unchanged.
+// If the scalar factor is negative, bounds are flipped: for example,
+// if (xMin,xMax)=(-2,4) and sx=-3, (xMin,xMax) becomes (-12,6).
+void vtkBoundingBox::Scale(double sx,
+                           double sy,
+                           double sz)
+{
+  if(this->IsValid())
+    {
+      if(sx>=0.0)
+        {
+          this->MinPnt[0]*=sx;
+          this->MaxPnt[0]*=sx;
+        }
+      else
+        {
+          double tmp=this->MinPnt[0];
+          this->MinPnt[0]=sx*this->MaxPnt[0];
+          this->MaxPnt[0]=sx*tmp;
+        }
+      if(sy>=0.0)
+        {
+          this->MinPnt[1]*=sy;
+          this->MaxPnt[1]*=sy;
+        }
+      else
+        {
+          double tmp=this->MinPnt[1];
+          this->MinPnt[1]=sy*this->MaxPnt[1];
+          this->MaxPnt[1]=sy*tmp;
+        }
+      if(sz>=0.0)
+        {
+          this->MinPnt[2]*=sz;
+          this->MaxPnt[2]*=sz;
+        }
+      else
+        {
+          double tmp=this->MinPnt[2];
+          this->MinPnt[2]=sz*this->MaxPnt[2];
+          this->MaxPnt[2]=sz*tmp;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+void vtkBoundingBox::Scale(double s[3])
+{
+  this->Scale(s[0],s[1],s[2]);
+}

@@ -145,6 +145,17 @@ public:
   // Description:
   // Returns the box to its initialized state
   void Reset();
+
+  // Description:
+  // Scale each dimension of the box by some given factor.
+  // If the box is not valid, it stays unchanged.
+  // If the scalar factor is negative, bounds are flipped: for example,
+  // if (xMin,xMax)=(-2,4) and sx=-3, (xMin,xMax) becomes (-12,6).
+  void Scale(double s[3]);
+  void Scale(double sx,
+             double sy,
+             double sz);
+
 protected:
   double MinPnt[3], MaxPnt[3];
 };
