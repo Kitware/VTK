@@ -138,6 +138,11 @@ public:
   double GetMaxLength() const;
 
   // Description:
+  // Return the length of the diagonal.
+  // \pre not_empty: this->IsValid()
+  double GetDiagonalLength() const;
+
+  // Description:
   // Returns 1 if the bounds have been set and 0 if the box is in its
   // initialized state which is an inverted state
   int IsValid() const;

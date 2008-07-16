@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include "vtkBoundingBox.h"
+#include <assert.h>
+#include <math.h>
 
 void vtkBoundingBox::AddPoint(double px, double py, double pz)
 {
@@ -243,6 +245,7 @@ int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
 }
 
 
+// ---------------------------------------------------------------------------
 double vtkBoundingBox::GetMaxLength() const
 {
   double l[3];
@@ -260,6 +263,17 @@ double vtkBoundingBox::GetMaxLength() const
     return l[1];
     }
   return l[2];
+}
+
+// ---------------------------------------------------------------------------
+double vtkBoundingBox::GetDiagonalLength() const
+{
+  assert("pre: not_empty" && this->IsValid());
+
+  double l[3];
+  this->GetLengths(l);
+
+  return sqrt(l[0]*l[0]+l[1]*l[1]+l[2]*l[2]);
 }
 
 // ---------------------------------------------------------------------------
