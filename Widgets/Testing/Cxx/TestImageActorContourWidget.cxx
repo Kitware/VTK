@@ -801,7 +801,7 @@ public:
     { return new vtkSliderCallback; }
   void SetImageViewer(vtkImageViewer2 *viewer)
     { m_Viewer =  viewer; }
-  virtual void Execute(vtkObject *caller, unsigned long ul, void* vd)
+  virtual void Execute(vtkObject *caller, unsigned long , void* )
     {
     vtkSliderWidget *slider = (vtkSliderWidget *)caller;
     vtkSliderRepresentation *sliderRepres = (vtkSliderRepresentation *)slider->GetRepresentation();      
