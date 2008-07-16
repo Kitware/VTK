@@ -34,6 +34,7 @@
 #define __vtkMath_h
 
 #include "vtkObject.h"
+#include <assert.h> // assert() in inline implementations.
 
 #ifndef DBL_EPSILON
 #  define VTK_DBL_EPSILON    2.2204460492503131e-16
@@ -671,6 +672,14 @@ public:
     const double *values, int nb_values, const double range[2], double *clamped_values);
 
   // Description:
+  // Clamp a value against a range and then normalized it between 0 and 1.
+  // If range[0]==range[1], the result is 0.
+  // \pre valid_range: range[0]<=range[1]
+  // \post valid_result: result>=0.0 && result<=1.0
+  static double ClampAndNormalizeValue(double value,
+                                       const double range[2]);
+
+  // Description:
   // Return the scalar type that is most likely to have enough precision 
   // to store a given range of data once it has been scaled and shifted 
   // (i.e. [range_min * scale + shift, range_max * scale + shift]. 
@@ -937,6 +946,45 @@ inline void vtkMath::ClampValue(
       *clamped_value = value;
       }
     }
+}
+
+// ---------------------------------------------------------------------------
+inline double vtkMath::ClampAndNormalizeValue(double value,
+                                              const double range[2])
+{
+  assert("pre: valid_range" && range[0]<=range[1]);
+  
+  double result;
+  if(range[0]==range[1])
+    {
+      result=0.0;
+    }
+  else
+    {
+      // clamp
+      if(value<range[0])
+        {
+          result=range[0];
+        }
+      else
+        {
+          if(value>range[1])
+            {
+              result=range[1];
+            }
+          else
+            {
+              result=value;
+            }
+        }
+
+      // normalize
+      result=(result-range[0])/(range[1]-range[0]);
+    }
+
+  assert("post: valid_result" && result>=0.0 && result<=1.0);
+
+  return result;
 }
 
 #endif
