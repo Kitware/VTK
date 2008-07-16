@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 int vtkMPIController::Initialized = 0;
 char vtkMPIController::ProcessorName[MPI_MAX_PROCESSOR_NAME] = "";
+int vtkMPIController::UseSsendForRMI = 0;
 
 // Output window which prints out the process id
 // with the error or warning messages
@@ -69,9 +70,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.24");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.25");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.24");
+vtkCxxRevisionMacro(vtkMPIController, "1.25");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -109,6 +110,27 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
+
+//----------------------------------------------------------------------------
+void vtkMPIController::TriggerRMIInternal(int remoteProcessId, 
+    void* arg, int argLength, int rmiTag)
+{
+  vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(
+    this->RMICommunicator);
+  int use_ssend = mpiComm->GetUseSsend(); 
+  if (vtkMPIController::UseSsendForRMI == 0 && use_ssend == 0)
+    {
+    mpiComm->SetUseSsend(1);
+    }
+
+  this->Superclass::TriggerRMIInternal(remoteProcessId,
+    arg, argLength, rmiTag);
+
+  if (vtkMPIController::UseSsendForRMI == 0 && use_ssend == 0)
+    {
+    mpiComm->SetUseSsend(0);
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize(int* argc, char*** argv, 

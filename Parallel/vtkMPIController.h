@@ -174,6 +174,13 @@ public:
 
   static const char* GetProcessorName();
 
+  // Description:
+  // When set to 1, TriggerRMI uses Ssend() instead of Send() calls.
+  // Off (0) by default.
+  static void SetUseSsendForRMI(int use_send)
+    { vtkMPIController::UseSsendForRMI = (use_send != 0)? 1: 0; }
+  static int GetUseSsendForRMI() { return vtkMPIController::UseSsendForRMI; }
+//BTX
 protected:
   vtkMPIController();
   ~vtkMPIController();
@@ -184,6 +191,13 @@ protected:
   // Duplicate the current communicator, creating RMICommunicator
   void InitializeRMICommunicator();
 
+  // Description:
+  // Implementation for TriggerRMI() provides subclasses an opportunity to
+  // modify the behaviour eg. MPIController provides ability to use Ssend
+  // instead of Send.
+  virtual void TriggerRMIInternal(int remoteProcessId, 
+    void* arg, int argLength, int rmiTag);
+
   // MPI communicator created when Initialize() called.
   // This is a copy of MPI_COMM_WORLD but uses a new
   // context, i.e. even if the tags are the same, the
@@ -191,18 +205,20 @@ protected:
   // messages.
   static vtkMPICommunicator* WorldRMICommunicator;
 
-  //BTX
   friend class vtkMPIOutputWindow;
-  //ETX
 
   // Initialize only once.
   static int Initialized;
 
   static char ProcessorName[];
 
+  // Description:
+  // When set, TriggerRMI uses Ssend instead of Send.
+  static int UseSsendForRMI;
 private:
   vtkMPIController(const vtkMPIController&);  // Not implemented.
   void operator=(const vtkMPIController&);  // Not implemented.
+//ETX
 };
 
 

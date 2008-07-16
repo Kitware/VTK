@@ -30,7 +30,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.47");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.48");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
@@ -200,23 +200,40 @@ template <class T>
 int vtkMPICommunicatorSendData(const T* data, int length, int sizeoftype, 
                                int remoteProcessId, int tag, 
                                MPI_Datatype datatype, MPI_Comm *Handle, 
-                               int useCopy) 
+                               int useCopy,
+                               int useSsend)
 {
   if (useCopy)
     {
     int retVal;
-    
+
     char* tmpData = vtkMPICommunicator::Allocate(length*sizeoftype);
     memcpy(tmpData, data, length*sizeoftype);
-    retVal = MPI_Send(tmpData, length, datatype, remoteProcessId, tag, 
-                      *(Handle));
+    if (useSsend)
+      {
+      retVal = MPI_Ssend(tmpData, length, datatype, remoteProcessId, tag, 
+        *(Handle));
+      }
+    else
+      {
+      retVal = MPI_Send(tmpData, length, datatype, remoteProcessId, tag, 
+        *(Handle));
+      }
     vtkMPICommunicator::Free(tmpData);
     return retVal;
     }
   else
     {
-    return MPI_Send(const_cast<T *>(data), length, datatype,
-                    remoteProcessId, tag, *(Handle));
+    if (useSsend)
+      {
+      return MPI_Ssend(const_cast<T *>(data), length, datatype,
+        remoteProcessId, tag, *(Handle));
+      }
+    else
+      {
+      return MPI_Send(const_cast<T *>(data), length, datatype,
+        remoteProcessId, tag, *(Handle));
+      }
     }
 }
 //----------------------------------------------------------------------------
@@ -365,6 +382,7 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+  os << indent << "UseSsend: " << (this->UseSsend? "On" : " Off") << endl;
   os << indent << "Initialized: " << (this->Initialized ? "On\n" : "Off\n");
   os << indent << "Keep handle: " << (this->KeepHandle ? "On\n" : "Off\n");
   if ( this != vtkMPICommunicator::WorldCommunicator )
@@ -391,6 +409,7 @@ vtkMPICommunicator::vtkMPICommunicator()
   this->Initialized = 0;
   this->KeepHandle = 0;
   this->LastSenderId = -1;
+  this->UseSsend = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -691,14 +710,15 @@ int vtkMPICommunicator::SendVoidArray(const void *data, vtkIdType length,
     {
     vtkMPICommunicatorSendData(byteData, maxSend, sizeOfType, remoteProcessId,
                                tag, mpiType, this->MPIComm->Handle,
-                               vtkCommunicator::UseCopy);
+                               vtkCommunicator::UseCopy,
+                               this->UseSsend);
     byteData += maxSend*sizeOfType;
     length -= maxSend;
     }
   return CheckForMPIError
     (vtkMPICommunicatorSendData(byteData, length, sizeOfType, remoteProcessId,
                                 tag, mpiType, this->MPIComm->Handle,
-                                vtkCommunicator::UseCopy));
+                                vtkCommunicator::UseCopy, this->UseSsend));
 }
 
 //-----------------------------------------------------------------------------

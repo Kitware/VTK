@@ -197,6 +197,12 @@ public:
   static void Free(char* ptr);
 
 
+  // Description:
+  // When set to 1, all MPI_Send calls are replaced by MPI_Ssend calls.
+  // Default is 0.
+  vtkSetClampMacro(UseSsend, int, 0, 1);
+  vtkGetMacro(UseSsend, int);
+  vtkBooleanMacro(UseSsend, int);
 protected:
   vtkMPICommunicator();
   ~vtkMPICommunicator();
@@ -246,7 +252,7 @@ protected:
   int KeepHandle;
 
   int LastSenderId;
-
+  int UseSsend;
   static int CheckForMPIError(int err);
 
 private:

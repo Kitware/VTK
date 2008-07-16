@@ -841,6 +841,13 @@ public:
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
+
+  // Description:
+  // Implementation for TriggerRMI() provides subclasses an opportunity to
+  // modify the behaviour eg. MPIController provides ability to use SSend
+  // instead of Send.
+  virtual void TriggerRMIInternal(int remoteProcessId, 
+    void* arg, int argLength, int rmiTag);
   
   vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;
