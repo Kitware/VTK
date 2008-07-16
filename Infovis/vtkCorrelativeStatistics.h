@@ -54,29 +54,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCorrelativeStatistics* New();
 
-  // Description:
-  // Calculate the following unbiased estimators from the raw sums:
-  // means, variances, and covariance estimators, as well as the linear regressions
-  // of X in Y, and Y in X, along with the correlation coefficient of X and Y.
-  // Input: the sample size and a vector of doubles of size 5, initialized as (in this
-  //        order) sum X, sum Y, sum X^2, sum Y^2, and sum XY.
-  // Output: -1 if meaningless input (sample size < 2),
-  //          1 if one of the variances is 0,
-  //          0 otherwise.
-  // NB: this is a static function, so as to provide this functionality even when no
-  // vtkStatistics are instantiated.
-  static int CalculateFromSums( int n, 
-                                double& sx,
-                                double& sy,
-                                double& sx2,
-                                double& sy2,
-                                double& sxy,
-                                double* correlations );
-  static int CalculateFromSums( int n, double* sums, double* correlations )
-    { 
-    return CalculateFromSums( n, sums[0], sums[1], sums[2], sums[4], sums[5], correlations ); 
-    }
-
 protected:
   vtkCorrelativeStatistics();
   ~vtkCorrelativeStatistics();

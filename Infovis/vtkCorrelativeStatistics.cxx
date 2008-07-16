@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.25");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.26");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -160,43 +160,91 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
     
-    double x   = 0.;
-    double y   = 0.;
-    double sx  = 0.;
-    double sy  = 0.;
-    double sx2 = 0.;
-    double sy2 = 0.;
-    double sxy = 0.;
+    double meanX = 0.;
+    double meanY = 0.;
+    double mom2X = 0.;
+    double mom2Y = 0.;
+    double momXY = 0.;
+
+    double inv_n, x, y, delta, deltaXn;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      x = inData->GetValueByName( r, colX ).ToDouble();
-      y = inData->GetValueByName( r, colY ).ToDouble();
+      inv_n = 1. / ( r + 1. );
 
-      sx  += x;
-      sy  += y;
-      sx2 += x * x;
-      sy2 += y * y;
-      sxy += x * y;
+      x = inData->GetValueByName( r, colX ).ToDouble();
+      delta = x - meanX;
+      meanX += delta * inv_n;
+      deltaXn = x - meanX;
+      mom2X += delta * deltaXn;
+
+      y = inData->GetValueByName( r, colY ).ToDouble();
+      delta = y - meanY;
+      meanY += delta * inv_n;
+      mom2Y += delta * ( y - meanY );
+
+      momXY += delta * deltaXn;
+      }
+
+    double inv_nm1, varX, varY, covXY;
+    if ( this->SampleSize == 1 )
+      {
+      varX  = 0.;
+      varY  = 0.;
+      covXY = 0.;
+      }
+    else
+      {
+      inv_nm1 = 1. / ( this->SampleSize - 1. );
+      varX  = mom2X * inv_nm1;
+      varY  = mom2Y * inv_nm1;
+      covXY = momXY * inv_nm1;
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
 
     row->SetNumberOfValues( 13 );
     
-    double correlations[5];
-    int res = this->CalculateFromSums( this->SampleSize, sx, sy, sx2, sy2, sxy, correlations );
-    
     row->SetValue( 0, colX );
     row->SetValue( 1, colY );
-    row->SetValue( 2, sx );
-    row->SetValue( 3, sy );
-    row->SetValue( 4, sx2 );
-    row->SetValue( 5, sy2 );
-    row->SetValue( 6, sxy );
-    row->SetValue( 7, ( res ? "invalid" : "valid" ) );
+    row->SetValue( 2, meanX );
+    row->SetValue( 3, meanY );
+    row->SetValue( 4, varX );
+    row->SetValue( 5, varY );
+    row->SetValue( 6, covXY );
+
+    double correlations[5];
+    bool validity = true;
+    if ( varX > 0. && varY > 0. )
+      {
+      // variable Y on variable X:
+      //   slope
+      correlations[0] = covXY / varX;
+      //   intersect
+      correlations[1] = meanY - correlations[0] * meanX;
+
+      //   variable X on variable Y:
+      //   slope
+      correlations[2] = covXY / varY;
+      //   intersect
+      correlations[3] = meanX - correlations[2] * meanY;
+      
+      // correlation coefficient
+      correlations[4] = covXY / sqrt( varX * varY );
+      }
+    else
+      {
+      correlations[0] = 0.;
+      correlations[1] = 0.;
+      correlations[2] = 0.;
+      correlations[3] = 0.;
+      correlations[4] = 0.;
+      validity = false;
+      }
+
+    row->SetValue( 7, ( validity ? "valid" : "invalid" ) );
     for ( int i = 0; i < 5; ++ i )
       {
-        row->SetValue( i + 8, correlations[i] );
+      row->SetValue( i + 8, correlations[i] );
       }
 
     outMeta->InsertNextRow( row );
@@ -335,76 +383,4 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
     }
 
   return;
-}
-
-// ----------------------------------------------------------------------
-int vtkCorrelativeStatistics::CalculateFromSums( int n,
-                                                 double& sx,
-                                                 double& sy,
-                                                 double& sx2,
-                                                 double& sy2,
-                                                 double& sxy,
-                                                 double* correlations )
-{
-  if ( n < 2 ) 
-    {
-    return -1;
-    }
-
-  double nd = static_cast<double>( n );
-
-  // (unbiased) estimation of the means
-  sx /= nd;
-  sy /= nd;
-
-  if ( n == 1 )
-    {
-    sx2 = sy2 = sxy = 0.;
-    return 0;
-    }
-
-  // (unbiased) estimation of the variances and covariance
-  double f = 1. / ( nd - 1. );
-  sx2 = ( sx2 - sx * sx * nd ) * f;
-  sy2 = ( sy2 - sy * sy * nd ) * f;
-  sxy = ( sxy - sx * sy * nd ) * f;
-
-  // linear regression
-
-  if ( sx2 > 0. && sy2 > 0. )
-    {
-    // variable Y on variable X:
-    //   slope
-    correlations[0] = sxy / sx2;
-    //   intersect
-    correlations[1] = sy - correlations[0] * sx;
-
-    //   variable X on variable Y:
-    //   slope
-    correlations[2] = sxy / sy2;
-    //   intersect
-    correlations[3] = sx - correlations[2] * sy;
-
-    // correlation coefficient
-    double d = sx2 * sy2;
-    if ( d > 0 )
-      {
-      correlations[4] = sxy / sqrt( d );
-      return 0;
-      }
-    else
-      {
-      correlations[4] = 0.;
-      return 1;
-      }
-    }
-  else
-    {
-    correlations[0] = 0.;
-    correlations[1] = 0.;
-    correlations[2] = 0.;
-    correlations[3] = 0.;
-    correlations[4] = 0.;
-    return 1;
-    }
 }
