@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.26");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.27");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -185,7 +185,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       momXY += delta * deltaXn;
       }
 
-    double inv_nm1, varX, varY, covXY;
+    double varX, varY, covXY;
     if ( this->SampleSize == 1 )
       {
       varX  = 0.;
@@ -194,6 +194,7 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       }
     else
       {
+      double inv_nm1;
       inv_nm1 = 1. / ( this->SampleSize - 1. );
       varX  = mom2X * inv_nm1;
       varY  = mom2Y * inv_nm1;
