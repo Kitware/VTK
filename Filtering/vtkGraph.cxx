@@ -62,7 +62,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.23");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.24");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -71,7 +71,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.23");
+vtkCxxRevisionMacro(vtkGraph, "1.24");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -742,6 +742,18 @@ void vtkGraph::BuildEdgeList()
 //----------------------------------------------------------------------------
 void vtkGraph::SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts)
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot set edge points for a non-local vertex");
+      return;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -766,6 +778,18 @@ void vtkGraph::SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts)
 //----------------------------------------------------------------------------
 void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve edge points for a non-local vertex");
+      return;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -796,6 +820,18 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
 //----------------------------------------------------------------------------
 vtkIdType vtkGraph::GetNumberOfEdgePoints(vtkIdType e)
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve edge points for a non-local vertex");
+      return 0;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -816,6 +852,18 @@ vtkIdType vtkGraph::GetNumberOfEdgePoints(vtkIdType e)
 //----------------------------------------------------------------------------
 double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot receive edge points for a non-local vertex");
+      return 0;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -843,6 +891,18 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
 //----------------------------------------------------------------------------
 void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, double x[3])
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot set edge points for a non-local vertex");
+      return;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -873,6 +933,18 @@ void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, double x[3])
 //----------------------------------------------------------------------------
 void vtkGraph::ClearEdgePoints(vtkIdType e)
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot clear edge points for a non-local vertex");
+      return;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
+
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
@@ -894,6 +966,17 @@ void vtkGraph::ClearEdgePoints(vtkIdType e)
 //----------------------------------------------------------------------------
 void vtkGraph::AddEdgePoint(vtkIdType e, double x[3])
 {
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetEdgeOwner(e))
+      {
+      vtkErrorMacro("vtkGraph cannot set edge points for a non-local vertex");
+      return;
+      }
+    
+    e = helper->GetEdgeIndex(e);
+    }
   if (e < 0 || e > this->Internals->NumberOfEdges)
     {
     vtkErrorMacro("Invalid edge id.");
