@@ -33,7 +33,7 @@
 #include <vtkstd/map>
 #include <vtkstd/utility>
 
-vtkCxxRevisionMacro(vtkArrayMap, "1.5");
+vtkCxxRevisionMacro(vtkArrayMap, "1.5.2.1");
 vtkStandardNewMacro(vtkArrayMap);
 
 typedef vtkstd::map< vtkVariant, vtkVariant, vtkVariantLessThan > MapBase;
@@ -54,6 +54,8 @@ vtkArrayMap::vtkArrayMap()
 
 vtkArrayMap::~vtkArrayMap()
 {
+  this->SetInputArrayName(0);
+  this->SetOutputArrayName(0);
   delete this->Map;
 }
 
@@ -182,8 +184,9 @@ int vtkArrayMap::RequestData(
   if(this->PassArray)
     {
     // Make sure the DeepCopy will succeed
-    if((inputArray->IsA("vtkDataArray") && outputArray->IsA("vtkDataArray") ||
-      (inputArray->IsA("vtkStringArray") && outputArray->IsA("vtkStringArray"))))
+      if((inputArray->IsA("vtkDataArray") && outputArray->IsA("vtkDataArray"))
+         || (inputArray->IsA("vtkStringArray")
+             && outputArray->IsA("vtkStringArray")))
       {
       outputArray->DeepCopy(inputArray);
       }
