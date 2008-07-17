@@ -107,7 +107,7 @@ void TestPSQLGraphReader()
   exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
   reader->Update();
   vtkGraph* output = reader->GetOutput();
-  vtkVariantArray* idArr = vtkVariantArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("id"));
+  vtkAbstractArray* idArr = vtkAbstractArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("id"));
   vtkStringArray* nameArr = vtkStringArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("name"));
   vtkSmartPointer<vtkVertexListIterator> vit =
     vtkSmartPointer<vtkVertexListIterator>::New();
@@ -117,7 +117,7 @@ void TestPSQLGraphReader()
     vtkIdType v = vit->Next();
     int ind = output->GetDistributedGraphHelper()->GetVertexIndex(v);
     int owner = output->GetDistributedGraphHelper()->GetVertexOwner(v);
-    int id = idArr->GetValue(ind).ToInt();
+    int id = idArr->GetVariantValue(ind).ToInt();
     vtkStdString name = nameArr->GetValue(ind);
     cerr << "PROCESS " << rank << " vertex: " << hex << v
       << "," << name

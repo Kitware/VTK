@@ -268,6 +268,10 @@ public:
   // Description:
   // Retrieve value from the array as a variant.
   virtual vtkVariant GetVariantValue(vtkIdType idx);
+
+  // Description:
+  // Insert a value into the array from a variant.
+  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
   //ETX
   
   // Description:

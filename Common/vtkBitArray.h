@@ -136,6 +136,13 @@ public:
   // Description:
   // Insets values and checks to make sure there is enough memory
   void InsertValue(vtkIdType id, int i);
+
+  //BTX
+  // Description:
+  // Insert a value into the array from a variant.
+  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  //ETX
+
   vtkIdType InsertNextValue(int i);
 
   // Description:
@@ -273,6 +280,11 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
     this->MaxId = id;
     }
   this->DataChanged();
+}
+
+inline void vtkBitArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  this->InsertValue(id, value.ToInt());
 }
 
 inline vtkIdType vtkBitArray::InsertNextValue(int i)

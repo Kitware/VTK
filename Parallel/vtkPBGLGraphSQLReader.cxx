@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.2");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.3");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
@@ -193,21 +193,17 @@ int vtkPBGLGraphSQLReaderRequestData(
   for (int i = 0; i < vertex_query->GetNumberOfFields(); ++i)
     {
     vtkStdString field_name = vertex_query->GetFieldName(i);
-    // Currently, the pedigree ids must be stored in a
-    // vtkVariantArray.
+    vtkSmartPointer<vtkAbstractArray> arr;
+    arr.TakeReference(vtkAbstractArray::CreateArray(
+      vertex_query->GetFieldType(i)));
+    arr->SetName(field_name);
+
     if (field_name == self->GetVertexIdField())
       {
-      vtkSmartPointer<vtkVariantArray> arr =
-        vtkSmartPointer<vtkVariantArray>::New();
-      arr->SetName(field_name);
       builder->GetVertexData()->SetPedigreeIds(arr);
       }
     else
       {
-      vtkSmartPointer<vtkAbstractArray> arr;
-      arr.TakeReference(vtkAbstractArray::CreateArray(
-        vertex_query->GetFieldType(i)));
-      arr->SetName(field_name);
       builder->GetVertexData()->AddArray(arr);
       }
     }

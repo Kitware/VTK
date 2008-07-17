@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.13");
+vtkCxxRevisionMacro(vtkVariantArray, "1.14");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -554,6 +554,12 @@ void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
     this->MaxId = id;
     }
   this->DataElementChanged(id);
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  this->InsertValue(id, value);
 }
 
 //----------------------------------------------------------------------------

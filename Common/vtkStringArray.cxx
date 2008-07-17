@@ -39,6 +39,11 @@ VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 
 #include <vtkstd/utility>
 #include <vtkstd/algorithm>
+#include <vtkstd/map>
+
+// Map containing updates to a vtkStringArray that have occurred
+// since we last build the vtkStringArrayLookup.
+typedef vtkstd::multimap<vtkStdString, vtkIdType> vtkStringCachedUpdates;
 
 //-----------------------------------------------------------------------------
 class vtkStringArrayLookup
@@ -64,10 +69,11 @@ public:
     }
   vtkStringArray* SortedArray;
   vtkIdList* IndexArray;
+  vtkStringCachedUpdates CachedUpdates;
   bool Rebuild;
 };
 
-vtkCxxRevisionMacro(vtkStringArray, "1.15");
+vtkCxxRevisionMacro(vtkStringArray, "1.16");
 vtkStandardNewMacro(vtkStringArray);
 
 //-----------------------------------------------------------------------------
@@ -461,14 +467,14 @@ void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
     {
     this->MaxId = id;
     }
-  this->DataChanged();
+  this->DataElementChanged(id);
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 {
   this->InsertValue (++this->MaxId,f);
-  this->DataChanged();
+  this->DataElementChanged(this->MaxId);
   return this->MaxId;
 }
 
@@ -656,6 +662,7 @@ void vtkStringArray::UpdateLookup()
     vtkSortDataArray::Sort(this->Lookup->SortedArray,
                            this->Lookup->IndexArray);
     this->Lookup->Rebuild = false;
+    this->Lookup->CachedUpdates.clear();
     }
 }
 
@@ -675,15 +682,69 @@ void vtkStringArray::LookupValue(vtkVariant var, vtkIdList* ids)
 vtkIdType vtkStringArray::LookupValue(vtkStdString value)
 {
   this->UpdateLookup();
+
+  // First look into the cached updates, to see if there were any
+  // cached changes. Find an equivalent element in the set of cached
+  // indices for this value. Some of the indices may have changed
+  // values since the cache was built, so we need to do this equality
+  // check.
+  typedef vtkStringCachedUpdates::iterator CacheIterator;
+  CacheIterator cached    = this->Lookup->CachedUpdates.lower_bound(value),
+                cachedEnd = this->Lookup->CachedUpdates.end();
+  while (cached != cachedEnd)
+    {
+    // Check that we are still in the same equivalence class as the
+    // value.
+    if (value == cached->first)
+      {
+      // Check that the value in the original array hasn't changed.
+      vtkStdString currentValue = this->GetValue(cached->second);
+      if (value == currentValue)
+        {
+        return cached->second;
+        }
+      }
+    else
+      {
+      break;
+      }
+
+    ++cached;
+    }
+
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
   vtkStdString* ptrEnd = ptr + numComps*numTuples;
   vtkStdString* found = vtkstd::lower_bound(ptr, ptrEnd, value);
-  if (found != ptrEnd && *found == value)
+
+  // Find an index with a matching value. Non-matching values might
+  // show up here when the underlying value at that index has been
+  // changed (so the sorted array is out-of-date).
+  vtkIdType offset = static_cast<vtkIdType>(found - ptr);
+  while (found != ptrEnd)
     {
-    return this->Lookup->IndexArray->GetId(static_cast<vtkIdType>(found - ptr));
+    // Check whether we still have a value equivalent to what we're
+    // looking for.
+      if (value == *found)
+      {
+      // Check that the value in the original array hasn't changed.
+      vtkIdType index = this->Lookup->IndexArray->GetId(offset);
+      vtkStdString currentValue = this->GetValue(index);
+      if (value == currentValue)
+        {
+        return index;
+        }
+      }
+    else
+      {
+      break;
+      }
+
+    ++found; 
+    ++offset;
     }
+
   return -1;
 }
 
@@ -692,16 +753,48 @@ void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
 {
   this->UpdateLookup();
   ids->Reset();
+
+  // First look into the cached updates, to see if there were any
+  // cached changes. Find an equivalent element in the set of cached
+  // indices for this value. Some of the indices may have changed
+  // values since the cache was built, so we need to do this equality
+  // check.
+  typedef vtkStringCachedUpdates::iterator CacheIterator;
+  vtkstd::pair<CacheIterator, CacheIterator> cached    
+    = this->Lookup->CachedUpdates.equal_range(value);
+  while (cached.first != cached.second) 
+    {
+    // Check that the value in the original array hasn't changed.
+    vtkStdString currentValue = this->GetValue(cached.first->second);
+    if (cached.first->first == currentValue)
+      {
+      ids->InsertNextId(cached.first->second);
+      }
+
+    ++cached.first;
+    }
+
+  // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
   vtkstd::pair<vtkStdString*,vtkStdString*> found = 
     vtkstd::equal_range(ptr, ptr + numComps*numTuples, value);
-  vtkIdType ind = static_cast<vtkIdType>(found.first - ptr);
-  vtkIdType endInd = static_cast<vtkIdType>(found.second - ptr);
-  for (; ind != endInd; ++ind)
+
+  // Add the indices of the found items to the ID list.
+  vtkIdType offset = static_cast<vtkIdType>(found.first - ptr);
+  while (found.first != found.second)
     {
-    ids->InsertNextId(this->Lookup->IndexArray->GetId(ind));
+    // Check that the value in the original array hasn't changed.
+    vtkIdType index = this->Lookup->IndexArray->GetId(offset); 
+    vtkStdString currentValue = this->GetValue(index);
+    if (*found.first == currentValue)
+      {
+      ids->InsertNextId(index);
+      }
+
+    ++found.first;
+    ++offset;
     }
 }
 
@@ -711,6 +804,33 @@ void vtkStringArray::DataChanged()
   if (this->Lookup)
     {
     this->Lookup->Rebuild = true;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStringArray::DataElementChanged(vtkIdType id)
+{
+  if (this->Lookup)
+    {
+      if (this->Lookup->Rebuild)
+        {
+        // We're already going to rebuild the lookup table. Do nothing.
+        return;
+        }
+
+      if (this->Lookup->CachedUpdates.size() >
+          static_cast<size_t>(this->GetNumberOfTuples()/10))
+        {
+        // At this point, just rebuild the full table.
+        this->Lookup->Rebuild = true;
+        }
+      else
+        {
+        // Insert this change into the set of cached updates
+        vtkstd::pair<const vtkStdString, vtkIdType> 
+          value(this->GetValue(id), id);
+        this->Lookup->CachedUpdates.insert(value);
+        }
     }
 }
 
@@ -744,6 +864,11 @@ void vtkStringArray::SetValue( vtkIdType id, const char *value )
 void vtkStringArray::InsertValue( vtkIdType id, const char *value )
 {
   this->InsertValue( id, vtkStdString( value ) );
+}
+
+void vtkStringArray::InsertVariantValue( vtkIdType id, vtkVariant value )
+{
+  this->InsertValue( id, value.ToString() );
 }
 
 vtkIdType vtkStringArray::InsertNextValue( const char *value )

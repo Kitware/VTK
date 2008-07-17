@@ -130,6 +130,10 @@ public:
   void InsertValue(vtkIdType id, T f);
 
   // Description:
+  // Insert data at a specified position in the array.
+  void InsertVariantValue(vtkIdType id, vtkVariant value);
+
+  // Description:
   // Insert data at the end of the array. Return its location in the array.
   vtkIdType InsertNextValue(T f);
 
@@ -242,6 +246,12 @@ public:
   // functions will give incorrect results.
   virtual void DataChanged();
   
+  // Description:
+  // Tell the array explicitly that a single data element has
+  // changed. Like DataChanged(), then is only necessary when you
+  // modify the array contents without using the array's API. 
+  virtual void DataElementChanged(vtkIdType id);
+
   // Description:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
