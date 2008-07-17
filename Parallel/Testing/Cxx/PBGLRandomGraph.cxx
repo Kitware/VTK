@@ -319,12 +319,16 @@ void TestDirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       vtkstd::swap(*found, *myEdgesEnd);
+
+      // Check the source and target of the edge.
+      myassert(u == graph->GetSourceVertex(e.Id));
+      myassert(e.Target == graph->GetTargetVertex(e.Id));
       }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
     }
-  MPI_Barrier(MPI_COMM_WORLD);
+  helper->Synchronize();
   if (myRank == 0)
     {
     (cout << "done.\n").flush();
@@ -418,12 +422,16 @@ void TestDirectedGraph()
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
       vtkstd::swap(*found, *myEdgesEnd);
+
+      // Check the source and target of the edge.
+      myassert(e.Source == graph->GetSourceVertex(e.Id));
+      myassert(u == graph->GetTargetVertex(e.Id));
       }
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
     }  
-  MPI_Barrier(MPI_COMM_WORLD);
+  helper->Synchronize();
   if (myRank == 0)
     {
     (cout << "done.\n").flush();

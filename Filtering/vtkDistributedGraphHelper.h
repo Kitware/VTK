@@ -185,6 +185,14 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
   virtual vtkIdType FindVertex(const vtkVariant& pedigreeId) = 0;
 
   // Description:
+  // Determine the source and target of the edge with the given
+  // ID. Used internally by vtkGraph::GetSourceVertex and
+  // vtkGraph::GetTargetVertex.
+  virtual void 
+  FindEdgeSourceAndTarget(vtkIdType id, 
+                          vtkIdType *source, vtkIdType *target) = 0;
+
+  // Description:
   // Attach this distributed graph helper to the given graph. This will
   // be called as part of vtkGraph::SetDistributedGraphHelper.
   virtual void AttachToGraph(vtkGraph *graph);

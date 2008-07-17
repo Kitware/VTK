@@ -22,12 +22,13 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkGraphInternals);
-vtkCxxRevisionMacro(vtkGraphInternals, "1.3");
+vtkCxxRevisionMacro(vtkGraphInternals, "1.4");
 
 //----------------------------------------------------------------------------
 vtkGraphInternals::vtkGraphInternals()
 { 
   this->NumberOfEdges = 0; 
+  this->LastRemoteEdgeId = -1;
 }
 
 //----------------------------------------------------------------------------

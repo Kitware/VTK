@@ -88,6 +88,8 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   {
     // Find a vertex by pedigree ID. This always has a reply.
     FIND_VERTEX_TAG,
+    // Find the source and target by edge ID. This always has a reply.
+    FIND_EDGE_SOURCE_TARGET_TAG,
     // Add a vertex with the given pedigree ID.
     ADD_VERTEX_NO_REPLY_TAG,
     ADD_VERTEX_WITH_REPLY_TAG,
@@ -167,6 +169,13 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
   // fills in the vertex ID if the vertex is found, and returns false
   // otherwise;
   vtkIdType FindVertex(const vtkVariant& pedigreeId);
+
+  // Description:
+  // Determine the source and target of the edge with the given
+  // ID. Used internally by vtkGraph::GetSourceVertex and
+  // vtkGraph::GetTargetVertex.
+  void FindEdgeSourceAndTarget(vtkIdType id, 
+                               vtkIdType *source, vtkIdType *target);
 
   // Description:
   // Attach this distributed graph helper to the given graph. This will

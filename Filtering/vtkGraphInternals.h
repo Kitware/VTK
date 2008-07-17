@@ -58,6 +58,10 @@ public:
   //ETX
   vtkIdType NumberOfEdges;
 
+  vtkIdType LastRemoteEdgeId;
+  vtkIdType LastRemoteEdgeSource;
+  vtkIdType LastRemoteEdgeTarget;
+
 protected:
   vtkGraphInternals();
   ~vtkGraphInternals();

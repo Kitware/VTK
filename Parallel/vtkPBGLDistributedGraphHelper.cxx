@@ -48,6 +48,10 @@ public:
   vtkIdType HandleFindVertex(const vtkVariant& pedigreeId);
 
   // Description:
+  // Handle a FIND_EDGE_SOURCE_TARGET_TAG message.
+  vtkstd::pair<vtkIdType, vtkIdType> HandleFindEdgeSourceTarget(vtkIdType id);
+
+  // Description:
   // Add a vertex with the given pedigree, if a vertex with that
   // pedigree ID does not already exist. Returns the ID for that
   // vertex.
@@ -91,12 +95,12 @@ public:
 };
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.3");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.4");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.3");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.4");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -423,6 +427,43 @@ vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId)
 }
 
 //----------------------------------------------------------------------------
+void 
+vtkPBGLDistributedGraphHelper::FindEdgeSourceAndTarget(vtkIdType id, 
+                                                       vtkIdType *source, 
+                                                       vtkIdType *target)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkIdType owner = this->GetEdgeOwner(id);
+
+  if (owner == rank) 
+    {
+    if (source)
+      {
+      *source = this->Graph->GetSourceVertex(id);
+      }
+    if (target)
+      {
+      *target = this->Graph->GetTargetVertex(id);
+      }
+    return;
+    }
+
+  vtkstd::pair<vtkIdType, vtkIdType> result;
+  send_oob_with_reply(this->Internals->process_group, owner,
+                      FIND_EDGE_SOURCE_TARGET_TAG, id, result);
+
+  if (source)
+    {
+    *source = result.first;
+    }
+  if (target)
+    {
+    *target = result.second;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 {
   this->Graph = graph;
@@ -450,6 +491,11 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
     this->Internals->process_group.trigger_with_reply<vtkVariant>
       (FIND_VERTEX_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleFindVertex, 
+                   this->Internals, _3));
+    this->Internals->process_group.trigger_with_reply<vtkIdType>
+      (FIND_EDGE_SOURCE_TARGET_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals
+                     ::HandleFindEdgeSourceTarget,
                    this->Internals, _3));
     this->Internals->process_group.trigger<vtkVariant>
       (ADD_VERTEX_NO_REPLY_TAG,
@@ -538,6 +584,16 @@ vtkPBGLDistributedGraphHelperInternals::
 HandleFindVertex(const vtkVariant& pedigreeId)
 {
   return this->Helper->FindVertex(pedigreeId);
+}
+
+//----------------------------------------------------------------------------
+vtkstd::pair<vtkIdType, vtkIdType>
+vtkPBGLDistributedGraphHelperInternals::
+HandleFindEdgeSourceTarget(vtkIdType id)
+{
+  vtkstd::pair<vtkIdType, vtkIdType> result;
+  this->Helper->FindEdgeSourceAndTarget(id, &result.first, &result.second);
+  return result;
 }
 
 //----------------------------------------------------------------------------
