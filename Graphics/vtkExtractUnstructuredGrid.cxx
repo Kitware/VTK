@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.36");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.36.66.1");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -150,8 +150,8 @@ int vtkExtractUnstructuredGrid::RequestData(
     {
     for(cellId=0; cellId < numCells; cellId++)
       {
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-      cellId > this->CellMaximum )
+        if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                    cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }
