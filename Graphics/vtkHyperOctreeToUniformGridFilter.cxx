@@ -26,7 +26,7 @@
 #include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h" // WHOLE_EXTENT() key
 
-vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeToUniformGridFilter, "1.3.50.1");
 vtkStandardNewMacro(vtkHyperOctreeToUniformGridFilter);
 
 // merging: locator
@@ -185,13 +185,13 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   cout<<"output="<<output->GetNumberOfPoints()<<endl;
   cout<<"maxinput="<<input->GetMaxNumberOfPoints(0)<<endl;
   assert("check: valid_number_of_points" && output->GetNumberOfPoints()>=input->GetMaxNumberOfPoints(0)); // not equal if LEVELS()>GetNumberOfLevels()
-  assert("check valid_y_extent" && this->YExtent==1 || this->YExtent==2);
-  assert("check valid_z_extent" && this->ZExtent==1 || this->ZExtent==2);
+  assert("check valid_y_extent" && (this->YExtent==1 || this->YExtent==2));
+  assert("check valid_z_extent" && (this->ZExtent==1 || this->ZExtent==2));
   //A=>B: not A or B
   // yextent==1 => zextent==1
-  assert("check valid_z_extent2" && this->YExtent!=1 || this->ZExtent==1);
+  assert("check valid_z_extent2" && (this->YExtent!=1 || this->ZExtent==1));
   // zextent==2 => yextent==2
-  assert("check valid_z_extent3" && this->ZExtent!=2 || this->YExtent==2);
+  assert("check valid_z_extent3" && (this->ZExtent!=2 || this->YExtent==2));
   
   cout<<"number of cells="<<output->GetNumberOfCells()<<endl;
   
