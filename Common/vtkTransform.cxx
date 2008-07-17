@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.108");
+vtkCxxRevisionMacro(vtkTransform, "1.108.2.1");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -282,7 +282,7 @@ void vtkTransform::SetInput(vtkLinearTransform *input)
 int vtkTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkLinearTransform::CircuitCheck(transform) ||
-      this->Input && this->Input->CircuitCheck(transform))
+      (this->Input && this->Input->CircuitCheck(transform)))
     {
     return 1;
     }
