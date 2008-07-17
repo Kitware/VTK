@@ -199,7 +199,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.25");
+vtkCxxRevisionMacro(vtkVisibleCellSelector, "1.25.2.1");
 vtkStandardNewMacro(vtkVisibleCellSelector);
 vtkCxxSetObjectMacro(vtkVisibleCellSelector, Renderer, vtkRenderer);
 
@@ -514,9 +514,9 @@ void vtkVisibleCellSelector::ComputeSelectedIds()
         if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
           {          
           vtkIdType vertid = 
-            (static_cast<vtkIdType>(vert[0])<<16) |
-            (static_cast<vtkIdType>(vert[1])<< 8) |
-            (static_cast<vtkIdType>(vert[2])    ) - 1;
+            ((static_cast<vtkIdType>(vert[0])<<16) |
+             (static_cast<vtkIdType>(vert[1])<< 8) |
+             (static_cast<vtkIdType>(vert[2])    )) - 1;
           //cerr << "found vertex " << vertid << endl;
           hitrecords.find(nhit)->visverts.insert(vertid);
           }
@@ -925,9 +925,9 @@ void vtkVisibleCellSelector::GetPixelSelection(
     // vertId
     if (this->DoVertices && vert && (vert[0] || vert[1] || vert[2]))
       {
-      vertId = (static_cast<vtkIdType>(vert[0])<<16) |
-        (static_cast<vtkIdType>(vert[1])<< 8) |
-        (static_cast<vtkIdType>(vert[2])    ) - 1;
+        vertId = ((static_cast<vtkIdType>(vert[0])<<16) |
+                  (static_cast<vtkIdType>(vert[1])<< 8) |
+                  (static_cast<vtkIdType>(vert[2])    )) - 1;
       }
     }
 }
