@@ -44,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkUnivariateStatisticsAlgorithmPrivate;
 class vtkTable;
+class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
 {
@@ -68,6 +69,31 @@ public:
   // Description:
   // Method for UI to call to add/remove columns to/from the list
   void SetColumnStatus( const char* namCol, int status );
+
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void ExecuteAssess( vtkTable* inData,
+                              vtkTable* inMeta,
+                              vtkTable* outData,
+                              vtkTable* outMeta ); 
+
+//BTX
+  // Description:
+  // A base class for a functor that assesses data.
+  class AssessFunctor {
+  public:
+    double Nominal;
+    double Deviation;
+    virtual double operator() ( vtkIdType row ) = 0;
+    virtual ~AssessFunctor() { }
+  };
+
+  // Description:
+  // A pure virtual method to select the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc ) = 0;
+//ETX
 
 protected:
   vtkUnivariateStatisticsAlgorithm();

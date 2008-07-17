@@ -240,7 +240,7 @@ int TestOrderStatistics( int, char *[] )
 // -- Test Learn Mode for deciles with InverseCDF quantile definition (as with Octave) -- 
   haruspex->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   haruspex->SetNumberOfIntervals( 10 );
-  haruspex->SetAssess( true );
+  haruspex->SetAssess( false );
   haruspex->Update();
 
   cout << "## Calculated the following deciles with InverseCDF quantile definition ( "

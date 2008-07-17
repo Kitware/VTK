@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.27");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.28");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -44,6 +44,7 @@ vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
+  this->SetAssessmentName( "Quantile" );
 }
 
 // ----------------------------------------------------------------------
@@ -191,115 +192,6 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteAssess( vtkTable* inData,
-                                        vtkTable* inMeta,
-                                        vtkTable* outData, 
-                                        vtkTable* vtkNotUsed( outMeta ) )
-{
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
-    {
-    return;
-    }
-
-  vtkIdType nRowD = inData->GetNumberOfRows();
-  if ( ! nRowD )
-    {
-    return;
-    }
-
-  vtkIdType nColP = inMeta->GetNumberOfColumns();
-  if ( nColP < 3 )
-    {
-    vtkWarningMacro( "Parameter table has " 
-                     << nColP
-                     << " < 3 columns. Doing nothing." );
-    return;
-    }
-
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->SelectedColumns.size() )
-    {
-    return;
-    }
-
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  outData->AddColumn( stringCol );
-  stringCol->Delete();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Row" );
-  outData->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Relative Deviation" );
-  outData->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 3 );
-
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
-        it != this->Internals->SelectedColumns.end(); ++ it )
-    {
-    vtkStdString col = *it;
-    if ( ! inData->GetColumnByName( col ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
-      continue;
-      }
-    
-    bool unfound = true;
-    for ( int i = 0; i < nRowP; ++ i )
-      {
-      if ( inMeta->GetValue( i, 0 ).ToString() == col )
-        {
-        unfound = false;
-
-        double center = inMeta->GetValue( i, 1 ).ToDouble();
-        double radius = inMeta->GetValue( i, 2 ).ToDouble();
-        double minimum = center - radius;
-        double maximum = center + radius;
-
-        double value;
-        for ( vtkIdType r = 0; r < nRowD; ++ r )
-          {
-          value  = inData->GetValueByName( r, col ).ToDouble();
-          if ( value < minimum || value > maximum )
-            {
-            row->SetValue( 0, col );
-            row->SetValue( 1, r );
-            row->SetValue( 2, ( value - center ) / radius );
-
-            outData->InsertNextRow( row );
-            }
-          }
-
-        break;
-        }
-      }
-
-    if ( unfound )
-      {
-      vtkWarningMacro( "Parameter table does not have a row for inData table column "
-                       <<col.c_str()
-                       <<". Ignoring it." );
-      continue;
-      }
-    }
-  row->Delete();
-
-  return;
-}
-
-// ----------------------------------------------------------------------
 void vtkOrderStatistics::SetQuantileDefinition( int qd )
 {
   switch ( qd )
@@ -319,4 +211,11 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
   this->Modified();
 
   return;
+}
+
+// ----------------------------------------------------------------------
+void vtkOrderStatistics::SelectAssessFunctor( vtkAbstractArray* vtkNotUsed(arr),
+                                              vtkVariantArray* vtkNotUsed(row),
+                                              AssessFunctor*& vtkNotUsed(dfunc) )
+{
 }

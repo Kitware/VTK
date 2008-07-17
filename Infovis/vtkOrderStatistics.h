@@ -72,18 +72,22 @@ public:
   // Get the quantile definition.
   vtkIdType GetQuantileDefinition() { return static_cast<vtkIdType>( this->QuantileDefinition ); }
 
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc );
+//ETX
+
 protected:
   vtkOrderStatistics();
   ~vtkOrderStatistics();
 
   // Description:
-  // Execute the required calculations in the specified execution modes
+  // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta );
-  virtual void ExecuteAssess( vtkTable* inData,
-                              vtkTable* inMeta,
-                              vtkTable* outData,
-                              vtkTable* outMeta );
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;

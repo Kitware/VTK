@@ -46,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkTable;
 class vtkDoubleArray;
+class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
 {
@@ -62,39 +63,25 @@ public:
   vtkGetMacro(SignedDeviations,int);
   vtkBooleanMacro(SignedDeviations,int);
 
-  //BTX
-  // Description:
-  // A base class for a functor that computes deviations.
-  class DeviantFunctor {
-  public:
-    double Nominal;
-    double Deviation;
-    virtual double operator() ( vtkIdType row ) = 0;
-    virtual ~DeviantFunctor() { }
-  };
-  //ETX
-
 protected:
   vtkDescriptiveStatistics();
   ~vtkDescriptiveStatistics();
 
   // Description:
-  // Execute the required calculations in the specified execution modes
+  // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta );
-  virtual void ExecuteAssess( vtkTable* inData,
-                              vtkTable* inMeta,
-                              vtkTable* outData,
-                              vtkTable* outMeta ); 
-
-  //BTX
-  // Description:
-  // The routine to compute the deviations for an entire array.
-  void ComputeDeviations( vtkDoubleArray* relDev, DeviantFunctor* dfunc, vtkIdType nrow );
-  //ETX
 
   int SignedDeviations;
-  
+
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc );
+//ETX
+
 private:
   vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented
   void operator = ( const vtkDescriptiveStatistics& );   // Not implemented

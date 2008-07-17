@@ -34,20 +34,25 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
-#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.38");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.39");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
+  this->SetAssessmentName( "Relative Deviation" );
+  this->AssessParameters = vtkVariantArray::New();
+  this->AssessParameters->SetNumberOfValues( 2 );
+  this->AssessParameters->SetValue( 0, "Mean" );
+  this->AssessParameters->SetValue( 1, "Standard Deviation" );
   this->SignedDeviations = 1;
 }
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
 {
+  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -236,7 +241,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-class DataArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
+
+class DataArrayDeviantFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkDataArray* Array;
@@ -275,7 +281,7 @@ public:
 };
 
 // ----------------------------------------------------------------------
-class AbstractArrayDeviantFunctor : public vtkDescriptiveStatistics::DeviantFunctor
+class AbstractArrayDeviantFunctor : public vtkDescriptiveStatistics::AssessFunctor
 {
 public:
   vtkAbstractArray* Array;
@@ -331,120 +337,42 @@ public:
 };
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteAssess( vtkTable* inData,
-                                              vtkTable* inMeta,
-                                              vtkTable* outData,
-                                              vtkTable* vtkNotUsed( outMeta ) )
+void vtkDescriptiveStatistics::SelectAssessFunctor( vtkAbstractArray* arr,
+                                                    vtkVariantArray* row,
+                                                    AssessFunctor*& dfunc )
 {
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
+  double nominal   = row->GetValue( 0 ).ToDouble();
+  double deviation = row->GetValue( 1 ).ToDouble();
+
+  if ( deviation == 0. )
     {
-    return;
+    dfunc = new ZedDeviationDeviantFunctor( arr, nominal );
     }
-
-  vtkIdType nRowD = inData->GetNumberOfRows();
-  if ( ! nRowD )
+  else
     {
-    return;
-    }
-
-  vtkIdType nColP = inMeta->GetNumberOfColumns();
-  if ( nColP < 3 )
-    {
-    vtkWarningMacro( "Parameter table has " 
-                     << nColP
-                     << " < 3 columns. Doing nothing." );
-    return;
-    }
-
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->SelectedColumns.size() )
-    {
-    return;
-    }
-
-  // Loop over rows of the parameter table looking for columns that
-  // specify the mean and standard deviation of some requested table column.
-  for ( int i = 0; i < nRowP; ++ i )
-    {
-    // Is the parameter one that's been requested?
-    vtkStdString colName = inMeta->GetValue( i, 0 ).ToString();
-    vtkstd::set<vtkStdString>::iterator it =
-      this->Internals->SelectedColumns.find( colName );
-    if ( it == this->Internals->SelectedColumns.end() )
-      { // Have parameter values. But user doesn't want it... skip it.
-      continue;
-      }
-    double nominal = inMeta->GetValueByName( i, "Mean" ).ToDouble();
-    double deviation = inMeta->GetValueByName( i, "Standard Deviation" ).ToDouble();
-
-    // Does the requested array exist in the input inData?
-    vtkAbstractArray* arr;
-    if ( ! ( arr = inData->GetColumnByName( colName ) ) )
-      { // User requested it. InMeta table has it. But inData doesn't... whine
-      vtkWarningMacro(
-        "InData table does not have a column "
-        << colName.c_str() << ". Ignoring it." );
-      continue;
-      }
     vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
 
-    // Create the outData column
-    vtkDoubleArray* relativeDeviations = vtkDoubleArray::New();
-    vtksys_ios::ostringstream devColName;
-    devColName << "Relative Deviation of " << colName;
-    relativeDeviations->SetName( devColName.str().c_str() );
-    relativeDeviations->SetNumberOfTuples( nRowD );
-
-    DeviantFunctor* dfunc = 0;
-    if ( deviation == 0. )
+    if ( darr )
       {
-      dfunc = new ZedDeviationDeviantFunctor( arr, nominal );
-      }
-    else
-      {
-      if ( darr )
+      if ( this->GetSignedDeviations() )
         {
-        if ( this->GetSignedDeviations() )
-          {
-          dfunc = new SignedDataArrayDeviantFunctor( darr, nominal, deviation );
-          }
-        else
-          {
-          dfunc = new UnsignedDataArrayDeviantFunctor( darr, nominal, deviation );
-          }
+        dfunc = new SignedDataArrayDeviantFunctor( darr, nominal, deviation );
         }
       else
         {
-        if ( this->GetSignedDeviations() )
-          {
-          dfunc = new SignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
-          }
-        else
-          {
-          dfunc = new UnsignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
-          }
+        dfunc = new UnsignedDataArrayDeviantFunctor( darr, nominal, deviation );
         }
       }
-
-    // Compute the deviation of each entry for the column
-    double dev;
-    for ( vtkIdType r = 0; r < nRowD; ++ r )
+    else
       {
-      dev = (*dfunc)( r );
-      relativeDeviations->SetValue( r, dev );
+      if ( this->GetSignedDeviations() )
+        {
+        dfunc = new SignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
+        }
+      else
+        {
+        dfunc = new UnsignedAbstractArrayDeviantFunctor( arr, nominal, deviation );
+        }
       }
-    delete dfunc;
-
-    // Add the column to the outData
-    outData->AddColumn( relativeDeviations );
-    relativeDeviations->Delete();
     }
-
-  return;
 }
