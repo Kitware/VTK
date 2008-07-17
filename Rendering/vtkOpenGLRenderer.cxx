@@ -43,7 +43,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.87.2.1");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.87.2.2");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -528,8 +528,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
                     &mesa_major, &mesa_minor, &mesa_patch) >= 2)
             {
             if(mesa_major  < 6 ||
-               mesa_major == 6 && mesa_major  < 5 ||
-               mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3)
+               (mesa_major == 6 && mesa_major  < 5) ||
+               (mesa_major == 6 && mesa_minor == 5 && mesa_patch < 3))
               {
               this->DepthPeelingIsSupported = 0;
               }
@@ -1117,6 +1117,7 @@ void vtkOpenGLRenderer::Clear(void)
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
+    glShadeModel(GL_SMOOTH); // color interpolation
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
