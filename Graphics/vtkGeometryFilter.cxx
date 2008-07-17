@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.106");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.106.42.1");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
 
@@ -208,8 +208,8 @@ int vtkGeometryFilter::RequestData(
     {
     for(cellId=0; cellId < numCells; cellId++)
       {
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-      cellId > this->CellMaximum )
+        if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                    cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }
@@ -530,8 +530,8 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
     visible = 1;
     if ( !allVisible )
       {
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-      cellId > this->CellMaximum )
+        if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                    cellId > this->CellMaximum) )
         {
         visible = 0;
         }
@@ -676,8 +676,8 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
          cellId++)
       {
       cellVis[cellId] = 1;
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-           cellId > this->CellMaximum )
+      if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                  cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }
@@ -1120,8 +1120,8 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
     for(cellId=0; cellId < numCells; cellId++)
       {
       cellVis[cellId] = 1;
-      if ( this->CellClipping && cellId < this->CellMinimum ||
-      cellId > this->CellMaximum )
+      if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                  cellId > this->CellMaximum) )
         {
         cellVis[cellId] = 0;
         }
