@@ -56,7 +56,7 @@ public:
   // communicator (MPI_COMM_WORLD)
   static vtkMPICommunicator* GetWorldCommunicator();
   
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Used to initialize the communicator (i.e. create the underlying MPI_Comm).
