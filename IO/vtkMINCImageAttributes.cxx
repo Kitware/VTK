@@ -122,7 +122,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.8");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.8.6.1");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -1405,8 +1405,8 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
 
     // Sometimes the range is accidentally set to the full
     // float range.  In that case, we ignore the valid_range.
-    if (this->DataType == VTK_FLOAT && range[1] == FLT_MAX ||
-        this->DataType == VTK_DOUBLE && range[1] == DBL_MAX)
+    if ((this->DataType == VTK_FLOAT && range[1] == FLT_MAX) ||
+        (this->DataType == VTK_DOUBLE && range[1] == DBL_MAX))
       {
       range[0] = 0.0;
       range[1] = 1.0;
