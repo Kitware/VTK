@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.16.2.1");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.16.2.2");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1214,8 +1214,8 @@ void vtkImagePlaneWidget::SetWindowLevel(double window, double level, int copy)
     }
 
   // if the new window is negative and the old window was positive invert table
-  if ( ( window < 0 && this->CurrentWindow > 0 ) || \
-       ( window > 0 && this->CurrentWindow < 0 ) && \
+  if ( (( window < 0 && this->CurrentWindow > 0 ) ||
+        ( window > 0 && this->CurrentWindow < 0 )) &&
         !this->UserControlledLookupTable )
     {
     this->InvertTable();
