@@ -21,16 +21,19 @@
 //
 // .SECTION Description
 // vtkTable is a basic data structure for storing columns of data.
-// Internally, columns are stored in a vtkFieldData structure.
-// However, using the vtkTable API additionally ensures that every column
+// Internally, columns are stored in a vtkDataSetAttributes structure called
+// RowData. However, using the vtkTable API additionally ensures that every column
 // has the same number of entries, and provides row access (using vtkVariantArray)
 // and single entry access (using vtkVariant).
 //
+// The field data inherited from vtkDataObject may be used to store metadata
+// related to the table.
+//
 // .SECTION Caveats
-// You should use the vtkTable API to change the table data.  Performing
-// vtkFieldData operations on the object returned by GetFieldData() may
-// yield unexpected results.  vtkTable does allow the user to set the field
-// data using SetFieldData(); the number of rows in the table is determined
+// You should use the vtkTable API to change the table data. Performing
+// operations on the object returned by GetRowData() may
+// yield unexpected results. vtkTable does allow the user to set the field
+// data using SetRowData(); the number of rows in the table is determined
 // by the number of tuples in the first array (it is assumed that all arrays
 // are the same length).
 //
@@ -47,6 +50,7 @@
 #include "vtkDataObject.h"
 
 class vtkAbstractArray;
+class vtkDataSetAttributes;
 class vtkVariant;
 class vtkVariantArray;
 
@@ -62,8 +66,17 @@ public:
   int GetDataObjectType() {return VTK_TABLE;}
 
   // Description:
-  // Sets the field data for the table.
-  virtual void SetFieldData(vtkFieldData* data);
+  // Return the actual size of the data in kilobytes. This number
+  // is valid only after the pipeline has updated. The memory size
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to represent the data (e.g., extra space in
+  // arrays, etc. are not included in the return value).
+  virtual unsigned long GetActualMemorySize();
+
+  // Description:
+  // Get/Set the main data (columns) of the table.
+  vtkGetObjectMacro(RowData, vtkDataSetAttributes);
+  virtual void SetRowData(vtkDataSetAttributes* data);
 
   //
   // Row functions
@@ -172,12 +185,12 @@ protected:
   ~vtkTable();
 
   // Description:
-  // Holds row information returned by GetRow().
-  vtkVariantArray *RowArray;
+  // Holds the column data of the table.
+  vtkDataSetAttributes* RowData;
 
   // Description:
-  // The number of rows in the table.
-  vtkIdType Rows;
+  // Holds row information returned by GetRow().
+  vtkVariantArray* RowArray;
 
 private:
   vtkTable(const vtkTable&); // Not implemented

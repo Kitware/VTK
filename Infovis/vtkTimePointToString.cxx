@@ -31,10 +31,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkTimePointToString, "1.5");
+vtkCxxRevisionMacro(vtkTimePointToString, "1.6");
 vtkStandardNewMacro(vtkTimePointToString);
 
 vtkTimePointToString::vtkTimePointToString()
@@ -207,6 +208,18 @@ int vtkTimePointToString::RequestData(
       if (inputArray == outputGraph->GetEdgeData()->GetAbstractArray(i))
         {
         outputGraph->GetEdgeData()->AddArray(stringArray);
+        addedArray = true;
+        }
+      }
+    }
+  vtkTable* outputTable;
+  if (!addedArray && (outputTable = vtkTable::SafeDownCast(output)))
+    {
+    for (vtkIdType i = 0; i < outputTable->GetRowData()->GetNumberOfArrays(); i++)
+      {
+      if (inputArray == outputTable->GetRowData()->GetAbstractArray(i))
+        {
+        outputTable->GetRowData()->AddArray(stringArray);
         addedArray = true;
         }
       }

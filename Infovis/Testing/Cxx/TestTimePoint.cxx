@@ -83,7 +83,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Testing vtkTimePointToString on a vtkTable with datetime array ..." << endl;
   timeToString->SetInput(table);
-  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "datetime");
+  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "datetime");
   timeToString->SetOutputArrayName("datetime [to string]");
   timeToString->SetISO8601Format(vtkTimePointUtility::ISO8601_DATETIME_MILLIS);
   timeToString->Update();
@@ -102,7 +102,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Converting string array back to a datetime ..." << endl;
   stringToTime->SetInput(tableOutput);
-  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "datetime [to string]");
+  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "datetime [to string]");
   stringToTime->SetOutputArrayName("datetime [to string] [to datetime]");
   stringToTime->Update();
   tableOutput2 = vtkTable::SafeDownCast(stringToTime->GetOutput());
@@ -125,7 +125,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Testing vtkTimePointToString on a vtkTable with date array ..." << endl;
   timeToString->SetInput(table);
-  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "date");
+  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "date");
   timeToString->SetISO8601Format(vtkTimePointUtility::ISO8601_DATE);
   timeToString->SetOutputArrayName("date [to string]");
   timeToString->Update();
@@ -144,7 +144,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Converting string array back to a date ..." << endl;
   stringToTime->SetInput(tableOutput);
-  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "date [to string]");
+  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "date [to string]");
   stringToTime->SetOutputArrayName("date [to string] [to date]");
   stringToTime->Update();
   tableOutput2 = vtkTable::SafeDownCast(stringToTime->GetOutput());
@@ -167,7 +167,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Testing vtkTimePointToString on a vtkTable with time array ..." << endl;
   timeToString->SetInput(table);
-  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "time");
+  timeToString->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "time");
   timeToString->SetISO8601Format(vtkTimePointUtility::ISO8601_TIME_MILLIS);
   timeToString->SetOutputArrayName("time [to string]");
   timeToString->Update();
@@ -186,7 +186,7 @@ int TestTimePoint(int, char*[])
 
   cerr << "Converting string array back to a time ..." << endl;
   stringToTime->SetInput(tableOutput);
-  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "time [to string]");
+  stringToTime->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "time [to string]");
   stringToTime->SetOutputArrayName("time [to string] [to time]");
   stringToTime->Update();
   tableOutput2 = vtkTable::SafeDownCast(stringToTime->GetOutput());

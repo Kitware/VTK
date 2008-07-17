@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.40");
+vtkCxxRevisionMacro(vtkDataObject, "1.41");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -107,7 +107,8 @@ const char vtkDataObject
   "vtkDataObject::FIELD_ASSOCIATION_NONE",
   "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS",
   "vtkDataObject::FIELD_ASSOCIATION_VERTICES",
-  "vtkDataObject::FIELD_ASSOCIATION_EDGES"
+  "vtkDataObject::FIELD_ASSOCIATION_EDGES",
+  "vtkDataObject::FIELD_ASSOCIATION_ROWS"
 };
 
 //----------------------------------------------------------------------------

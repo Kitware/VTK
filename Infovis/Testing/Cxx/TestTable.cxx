@@ -17,13 +17,12 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkTable.h"
-#include "vtkIntArray.h"
-#include "vtkStringArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkVariantArray.h"
-#include "vtkFieldData.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkVariantArray.h"
 
 #include <time.h>
 #include <vtkstd/vector>

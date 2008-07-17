@@ -51,7 +51,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTableToGraph, "1.15");
+vtkCxxRevisionMacro(vtkTableToGraph, "1.16");
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //---------------------------------------------------------------------------
@@ -679,7 +679,7 @@ int vtkTableToGraph::RequestData(
 
   // Add the correct number of vertices to the graph based on the number of
   // rows in the vertex table.
-  builder->GetVertexData()->PassData(vertexTable->GetFieldData());
+  builder->GetVertexData()->PassData(vertexTable->GetRowData());
   for (vtkIdType i = 0; i < vertexTable->GetNumberOfRows(); ++i)
     {
     if (this->Directed)
@@ -701,7 +701,7 @@ int vtkTableToGraph::RequestData(
   // For each row in the edge table, add one edge to the
   // output graph for each edge in the link graph.
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
-  edgeTableData->ShallowCopy(edgeTable->GetFieldData());
+  edgeTableData->ShallowCopy(edgeTable->GetRowData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
   vtksys_stl::map<vtkIdType, vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
   vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> > hiddenOutEdges;

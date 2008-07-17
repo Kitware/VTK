@@ -122,8 +122,8 @@ int TestGroupLeafVertices(int argc, char* argv[])
 
   VTK_CREATE(vtkGroupLeafVertices, group);
   group->SetInputConnection(tableToTree->GetOutputPort());
-  group->SetInputArrayToProcess(0, 0, 0, vtkDataSet::FIELD_ASSOCIATION_NONE, "type");
-  group->SetInputArrayToProcess(1, 0, 0, vtkDataSet::FIELD_ASSOCIATION_NONE, "name");
+  group->SetInputArrayToProcess(0, 0, 0, vtkDataSet::FIELD_ASSOCIATION_VERTICES, "type");
+  group->SetInputArrayToProcess(1, 0, 0, vtkDataSet::FIELD_ASSOCIATION_VERTICES, "name");
   group->Update();
   tree = group->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
@@ -133,8 +133,8 @@ int TestGroupLeafVertices(int argc, char* argv[])
 
   VTK_CREATE(vtkGroupLeafVertices, group2);
   group2->SetInputConnection(group->GetOutputPort());
-  group2->SetInputArrayToProcess(0, 0, 0, vtkDataSet::FIELD_ASSOCIATION_NONE, "color");
-  group2->SetInputArrayToProcess(1, 0, 0, vtkDataSet::FIELD_ASSOCIATION_NONE, "name");
+  group2->SetInputArrayToProcess(0, 0, 0, vtkDataSet::FIELD_ASSOCIATION_VERTICES, "color");
+  group2->SetInputArrayToProcess(1, 0, 0, vtkDataSet::FIELD_ASSOCIATION_VERTICES, "name");
   group2->Update();
   tree = group2->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)

@@ -211,7 +211,8 @@ public:
     POINT,
     FIELD,
     VERTEX,
-    EDGE
+    EDGE,
+    ROW
   };
 //ETX
   

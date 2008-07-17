@@ -37,7 +37,7 @@
 
 #include <vtksys/stl/set>
 
-vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.3");
+vtkCxxRevisionMacro(vtkConvertSelectionDomain, "1.4");
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
 vtkConvertSelectionDomain::vtkConvertSelectionDomain()
@@ -123,8 +123,8 @@ int vtkConvertSelectionDomain::RequestData(
     }
   else if (vtkTable::SafeDownCast(data))
     {
-    dsa1 = vtkDataSetAttributes::SafeDownCast(vtkTable::SafeDownCast(data)->GetFieldData());
-    fieldType1 = vtkSelection::FIELD;
+    dsa1 = vtkDataSetAttributes::SafeDownCast(vtkTable::SafeDownCast(data)->GetRowData());
+    fieldType1 = vtkSelection::ROW;
     }
 
   vtksys_stl::set<vtkStdString> domains1;

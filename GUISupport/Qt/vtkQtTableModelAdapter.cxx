@@ -24,7 +24,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
-#include "vtkFieldData.h"
 
 #include <QIcon>
 #include <QPixmap>

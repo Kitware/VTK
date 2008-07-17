@@ -24,15 +24,17 @@
 #include "vtkDataSet.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkFieldData.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTimePointUtility.h"
 #include "vtkTypeUInt64Array.h"
 
-vtkCxxRevisionMacro(vtkStringToTimePoint, "1.3");
+vtkCxxRevisionMacro(vtkStringToTimePoint, "1.4");
 vtkStandardNewMacro(vtkStringToTimePoint);
 
 vtkStringToTimePoint::vtkStringToTimePoint()
@@ -129,6 +131,38 @@ int vtkStringToTimePoint::RequestData(
       if (stringArray == outputDataSet->GetCellData()->GetAbstractArray(i))
         {
         outputDataSet->GetCellData()->AddArray(outputArray);
+        addedArray = true;
+        }
+      }
+    }
+  vtkGraph* outputGraph;
+  if (!addedArray && (outputGraph = vtkGraph::SafeDownCast(output)))
+    {
+    for (vtkIdType i = 0; i < outputGraph->GetVertexData()->GetNumberOfArrays(); i++)
+      {
+      if (stringArray == outputGraph->GetVertexData()->GetAbstractArray(i))
+        {
+        outputGraph->GetVertexData()->AddArray(outputArray);
+        addedArray = true;
+        }
+      }
+    for (vtkIdType i = 0; i < outputGraph->GetEdgeData()->GetNumberOfArrays(); i++)
+      {
+      if (stringArray == outputGraph->GetEdgeData()->GetAbstractArray(i))
+        {
+        outputGraph->GetEdgeData()->AddArray(outputArray);
+        addedArray = true;
+        }
+      }
+    }
+  vtkTable* outputTable;
+  if (!addedArray && (outputTable = vtkTable::SafeDownCast(output)))
+    {
+    for (vtkIdType i = 0; i < outputTable->GetRowData()->GetNumberOfArrays(); i++)
+      {
+      if (stringArray == outputTable->GetRowData()->GetAbstractArray(i))
+        {
+        outputTable->GetRowData()->AddArray(outputArray);
         addedArray = true;
         }
       }

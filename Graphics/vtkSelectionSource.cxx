@@ -29,7 +29,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.23");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.24");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -235,6 +235,9 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
       break;
     case vtkSelection::EDGE:
       os << "EDGE";
+      break;
+    case vtkSelection::ROW:
+      os << "ROW";
       break;
     default:
       os << "UNKNOWN";

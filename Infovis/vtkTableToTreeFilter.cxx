@@ -35,7 +35,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.4");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.5");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -114,7 +114,7 @@ int vtkTableToTreeFilter::RequestData(
     }
 
   // Copy the table data into the tree vertex data
-  tree->GetVertexData()->PassData(table->GetFieldData());
+  tree->GetVertexData()->PassData(table->GetRowData());
  
   return 1;
 }

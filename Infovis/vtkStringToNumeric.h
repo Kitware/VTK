@@ -70,6 +70,14 @@ public:
   vtkBooleanMacro(ConvertEdgeData, bool);
 
   // Description:
+  // Whether to detect and convert row data arrays.  Default is on.
+  virtual void SetConvertRowData(bool b)
+    { this->SetConvertPointData(b); }
+  virtual bool GetConvertRowData()
+    { return this->GetConvertPointData(); }
+  vtkBooleanMacro(ConvertRowData, bool);
+
+  // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
   virtual int ProcessRequest(vtkInformation* request, 
                              vtkInformationVector** inputVector,

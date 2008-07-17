@@ -53,7 +53,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.18");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.19");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -567,6 +567,23 @@ int vtkConvertSelection::Convert(
       return 0;
       }
     }
+  else if (vtkTable::SafeDownCast(data))
+    {
+    if (!input->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
+        input->GetFieldType() == vtkSelection::ROW)
+      {
+      dsa = vtkTable::SafeDownCast(data)->GetRowData();
+      }
+    else if (input->GetFieldType() == vtkSelection::FIELD)
+      {
+      fd = data->GetFieldData();
+      }
+    else
+      {
+      vtkErrorMacro("Inappropriate selection type for a vtkTable");
+      return 0;
+      }
+    }
   else
     {
     if (!input->GetProperties()->Has(vtkSelection::FIELD_TYPE()) ||
@@ -646,7 +663,7 @@ int vtkConvertSelection::Convert(
     {
     vtkFieldData* selData = input->GetSelectionData();
     VTK_CREATE(vtkTable, selTable);
-    selTable->SetFieldData(selData);
+    selTable->GetRowData()->ShallowCopy(selData);
     VTK_CREATE(vtkTable, dataTable);
     for (vtkIdType col = 0; col < selTable->GetNumberOfColumns(); col++)
       {

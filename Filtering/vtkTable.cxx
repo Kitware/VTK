@@ -24,7 +24,6 @@
 #include "vtkAbstractArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -35,64 +34,61 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.13");
+vtkCxxRevisionMacro(vtkTable, "1.14");
 vtkStandardNewMacro(vtkTable);
+vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
 //----------------------------------------------------------------------------
-
 vtkTable::vtkTable()
 {
-  this->Rows = 0;
   this->RowArray = vtkVariantArray::New();
+  this->RowData = vtkDataSetAttributes::New();
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
-
-  // Use vtkDataSetAttributes instance as the field data.
-  vtkDataSetAttributes* dsa = vtkDataSetAttributes::New();
-  this->SetFieldData(dsa);
-  dsa->Delete();
 }
 
 //----------------------------------------------------------------------------
-
 vtkTable::~vtkTable()
 {
-  this->RowArray->Delete();
+  if (this->RowArray)
+    {
+    this->RowArray->Delete();
+    }
+  if (this->RowData)
+    {
+    this->RowData->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
 {
   vtkDataObject::PrintSelf(os, indent);
-  os << indent << "Number Of Rows: " << this->Rows << endl;
+  os << indent << "RowData: " << (this->RowData ? "" : "(none)") << endl;
+  if (this->RowData)
+    {
+    this->RowData->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 //----------------------------------------------------------------------------
-
-void vtkTable::SetFieldData(vtkFieldData* data)
-{
-  // Set the Rows field to the appropriate value
-  if (data != NULL && data->GetNumberOfArrays() > 0)
-    {
-    this->Rows = data->GetAbstractArray(0)->GetNumberOfTuples();
-    }
-  else
-    {
-    this->Rows = 0;
-    }
-  this->Superclass::SetFieldData(data);
-}
-
-//----------------------------------------------------------------------------
-
 void vtkTable::Initialize()
 {
   this->Superclass::Initialize();
-  this->Rows = 0;
+  if (this->RowData)
+    {
+    this->RowData->Initialize();
+    }
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkTable::GetActualMemorySize()
+{
+  return this->RowData->GetActualMemorySize() +
+         this->Superclass::GetActualMemorySize();
 }
 
 //
@@ -100,55 +96,61 @@ void vtkTable::Initialize()
 //
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkTable::GetNumberOfRows()
 {
-  return this->Rows;
+  if (this->GetNumberOfColumns() > 0)
+    {
+    return this->GetColumn(0)->GetNumberOfTuples();
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariantArray* vtkTable::GetRow(vtkIdType row)
 {
-  this->RowArray->SetNumberOfTuples(0);
-  for (int i = 0; i < this->FieldData->GetNumberOfArrays(); i++)
+  vtkIdType ncol = this->GetNumberOfColumns();
+  this->RowArray->SetNumberOfTuples(ncol);
+  for (vtkIdType i = 0; i < ncol; i++)
     {
-    this->RowArray->InsertNextValue(this->GetValue(row, i));
+    this->RowArray->SetValue(i, this->GetValue(row, i));
     }
   return this->RowArray;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::GetRow(vtkIdType row, vtkVariantArray *values)
 {
-  values->SetNumberOfTuples(0);
-  for (int i = 0; i < this->FieldData->GetNumberOfArrays(); i++)
+  vtkIdType ncol = this->GetNumberOfColumns();
+  values->SetNumberOfTuples(ncol);
+  for (vtkIdType i = 0; i < ncol; i++)
     {
-    values->InsertNextValue(this->GetValue(row, i));
+    values->SetValue(i, this->GetValue(row, i));
     }
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::SetRow(vtkIdType row, vtkVariantArray *values)
 {
-  for (int i = 0; i < this->GetNumberOfColumns(); i++)
+  vtkIdType ncol = this->GetNumberOfColumns();
+  if (values->GetNumberOfTuples() != ncol)
+    {
+    vtkErrorMacro(<< "Incorrect number of tuples in SetRow");
+    }
+  for (vtkIdType i = 0; i < ncol; i++)
     {
     this->SetValue(row, i, values->GetValue(i));
     }
 }
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkTable::InsertNextBlankRow()
 {
-  int n = this->FieldData->GetNumberOfArrays();
-  for (int i = 0; i < n; i++)
+  vtkIdType ncol = this->GetNumberOfColumns();
+  for (vtkIdType i = 0; i < ncol; i++)
     {
-    vtkAbstractArray* arr = this->FieldData->GetAbstractArray(i);
+    vtkAbstractArray* arr = this->GetColumn(i);
     int comps = arr->GetNumberOfComponents();
-    if (arr->IsA("vtkDataArray"))
+    if (vtkDataArray::SafeDownCast(arr))
       {
       vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
       double* tuple = new double[comps];
@@ -159,7 +161,7 @@ vtkIdType vtkTable::InsertNextBlankRow()
       data->InsertNextTuple(tuple);
       delete[] tuple;
       }
-    else if (arr->IsA("vtkStringArray"))
+    else if (vtkStringArray::SafeDownCast(arr))
       {
       vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
       for (int j = 0; j < comps; j++)
@@ -167,7 +169,7 @@ vtkIdType vtkTable::InsertNextBlankRow()
         data->InsertNextValue(vtkStdString(""));
         }
       }
-    else if (arr->IsA("vtkVariantArray"))
+    else if (vtkVariantArray::SafeDownCast(arr))
       {
       vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
       for (int j = 0; j < comps; j++)
@@ -175,17 +177,24 @@ vtkIdType vtkTable::InsertNextBlankRow()
         data->InsertNextValue(vtkVariant());
         }
       }
+    else
+      {
+      vtkErrorMacro(<< "Unsupported array type for InsertNextBlankRow");
+      }
     }
-  this->Rows++;
-  return this->Rows - 1;
+  return this->GetNumberOfRows() - 1;
 }
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkTable::InsertNextRow(vtkVariantArray* values)
 {
+  vtkIdType ncol = this->GetNumberOfColumns();
+  if (values->GetNumberOfTuples() != ncol)
+    {
+    vtkErrorMacro(<< "Incorrect number of tuples in SetRow");
+    }
   vtkIdType row = this->InsertNextBlankRow();
-  for (int i = 0; i < this->GetNumberOfColumns(); i++)
+  for (vtkIdType i = 0; i < ncol; i++)
     {
     this->SetValue(row, i, values->GetValue(i));
     }
@@ -193,20 +202,19 @@ vtkIdType vtkTable::InsertNextRow(vtkVariantArray* values)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::RemoveRow(vtkIdType row)
 {
-  int n = this->FieldData->GetNumberOfArrays();
-  for (int i = 0; i < n; i++)
+  vtkIdType ncol = this->GetNumberOfColumns();
+  for (vtkIdType i = 0; i < ncol; i++)
     {
-    vtkAbstractArray* arr = this->FieldData->GetAbstractArray(i);
+    vtkAbstractArray* arr = this->GetColumn(i);
     int comps = arr->GetNumberOfComponents();
-    if (arr->IsA("vtkDataArray"))
+    if (vtkDataArray::SafeDownCast(arr))
       {
       vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
       data->RemoveTuple(row);
       }
-    else if (arr->IsA("vtkStringArray"))
+    else if (vtkStringArray::SafeDownCast(arr))
       {
       // Manually move all elements past the index back one place.
       vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
@@ -216,7 +224,7 @@ void vtkTable::RemoveRow(vtkIdType row)
         }
       data->Resize(data->GetNumberOfTuples() - 1);
       }
-    else if (arr->IsA("vtkVariantArray"))
+    else if (vtkVariantArray::SafeDownCast(arr))
       {
       // Manually move all elements past the index back one place.
       vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
@@ -227,7 +235,6 @@ void vtkTable::RemoveRow(vtkIdType row)
       data->Resize(data->GetNumberOfTuples() - 1);
       }
     }
-  this->Rows--;
 }
 
 //
@@ -235,69 +242,56 @@ void vtkTable::RemoveRow(vtkIdType row)
 //
 
 //----------------------------------------------------------------------------
-
 vtkIdType vtkTable::GetNumberOfColumns()
 {
-  return this->FieldData->GetNumberOfArrays();
+  return this->RowData->GetNumberOfArrays();
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::AddColumn(vtkAbstractArray* arr)
 {
-  if (this->FieldData->GetNumberOfArrays() == 0)
+  if (this->GetNumberOfColumns() > 0 &&
+      arr->GetNumberOfTuples() != this->GetNumberOfRows())
     {
-    this->FieldData->AddArray(arr);
-    this->Rows = arr->GetNumberOfTuples();
+    vtkErrorMacro(<< "Column \"" << arr->GetName() << "\" must have " 
+      << this->GetNumberOfRows() << " rows, but has "
+      << arr->GetNumberOfTuples() << ".");
+    return;
     }
-  else
-    {
-    if (arr->GetNumberOfTuples() != this->Rows)
-      {
-      vtkErrorMacro(<< "Column \"" << arr->GetName() << "\" must have " 
-        << this->Rows << " rows, but has " << arr->GetNumberOfTuples() << ".");
-      return;
-      }
-    this->FieldData->AddArray(arr);
-    }
+  this->RowData->AddArray(arr);
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::RemoveColumnByName(const char* name)
 {
-  this->FieldData->RemoveArray(name);
+  this->RowData->RemoveArray(name);
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::RemoveColumn(vtkIdType col)
 {
   int column = static_cast<int>(col);
-  this->FieldData->RemoveArray(this->FieldData->GetArrayName(column));
+  this->RowData->RemoveArray(this->RowData->GetArrayName(column));
 }
 
 //----------------------------------------------------------------------------
-
 const char* vtkTable::GetColumnName(vtkIdType col)
 {
   int column = static_cast<int>(col);
-  return this->FieldData->GetArrayName(column);
+  return this->RowData->GetArrayName(column);
 }
 
 //----------------------------------------------------------------------------
-
 vtkAbstractArray* vtkTable::GetColumnByName(const char* name)
 {
-  return this->FieldData->GetAbstractArray(name);
+  return this->RowData->GetAbstractArray(name);
 }
 
 //----------------------------------------------------------------------------
-
 vtkAbstractArray* vtkTable::GetColumn(vtkIdType col)
 {
   int column = static_cast<int>(col);
-  return this->FieldData->GetAbstractArray(column);
+  return this->RowData->GetAbstractArray(column);
 }
 
 //
@@ -305,7 +299,6 @@ vtkAbstractArray* vtkTable::GetColumn(vtkIdType col)
 //
 
 //----------------------------------------------------------------------------
-
 void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
 {
   int column = static_cast<int>(col);
@@ -313,12 +306,16 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
 {
   vtkAbstractArray* arr = this->GetColumnByName(col);
+  if (!arr)
+    {
+    vtkErrorMacro(<< "Could not find column named " << col);
+    return;
+    }
   int comps = arr->GetNumberOfComponents();
-  if (arr->IsA("vtkDataArray"))
+  if (vtkDataArray::SafeDownCast(arr))
     {
     vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
     if (comps == 1)
@@ -327,7 +324,8 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
       }
     else
       {
-      if (value.IsArray() && value.ToArray()->IsA("vtkDataArray") && value.ToArray()->GetNumberOfComponents() == comps)
+      if (value.IsArray() && vtkDataArray::SafeDownCast(value.ToArray()) &&
+          value.ToArray()->GetNumberOfComponents() == comps)
         {
         data->SetTuple(row, vtkDataArray::SafeDownCast(value.ToArray())->GetTuple(0));
         }
@@ -338,7 +336,7 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
         }
       }
     }
-  else if (arr->IsA("vtkStringArray"))
+  else if (vtkStringArray::SafeDownCast(arr))
     {
     vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
     if (comps == 1)
@@ -347,7 +345,8 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
       }
     else
       {
-      if (value.IsArray() && value.ToArray()->IsA("vtkStringArray") && value.ToArray()->GetNumberOfComponents() == comps)
+      if (value.IsArray() && vtkStringArray::SafeDownCast(value.ToArray()) &&
+          value.ToArray()->GetNumberOfComponents() == comps)
         {
         data->SetTuple(row, 0, vtkStringArray::SafeDownCast(value.ToArray()));
         }
@@ -358,7 +357,7 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
         }
       }
     }
-  else if (arr->IsA("vtkVariantArray"))
+  else if (vtkVariantArray::SafeDownCast(arr))
     {
     vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
     if (comps == 1)
@@ -381,16 +380,13 @@ void vtkTable::SetValueByName(vtkIdType row, const char* col, vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
 {
   int column = static_cast<int>(col);
   return this->GetValueByName(row, this->GetColumnName(column));
 }
 
-
 //----------------------------------------------------------------------------
-
 template <typename iterT>
 vtkVariant vtkTableGetVariantValue(iterT* it, vtkIdType row)
 {
@@ -398,7 +394,6 @@ vtkVariant vtkTableGetVariantValue(iterT* it, vtkIdType row)
 }
 
 //----------------------------------------------------------------------------
-
 vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
 {
   vtkAbstractArray* arr = this->GetColumnByName(col);
@@ -408,7 +403,7 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
     }
 
   int comps = arr->GetNumberOfComponents();
-  if (arr->IsA("vtkDataArray"))
+  if (vtkDataArray::SafeDownCast(arr))
     {
     if (comps == 1)
       {
@@ -434,7 +429,7 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
       return v;
       }
     }
-  else if (arr->IsA("vtkStringArray"))
+  else if (vtkStringArray::SafeDownCast(arr))
     {
     vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
     if (comps == 1)
@@ -452,7 +447,7 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
       return v;
       }
     }
-  else if (arr->IsA("vtkVariantArray"))
+  else if (vtkVariantArray::SafeDownCast(arr))
     {
     vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
     if (comps == 1)
@@ -485,12 +480,14 @@ vtkTable* vtkTable::GetData(vtkInformationVector* v, int i)
   return vtkTable::GetData(v->GetInformationObject(i));
 }
 
+//----------------------------------------------------------------------------
 void vtkTable::ShallowCopy(vtkDataObject* src)
 {
-  if(vtkTable* const table = vtkTable::SafeDownCast(src))
+  if (vtkTable* const table = vtkTable::SafeDownCast(src))
     {
-    this->Rows = table->Rows;
+    this->RowData->ShallowCopy(table->RowData);
     }
 
   Superclass::ShallowCopy(src);
 }
+

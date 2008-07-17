@@ -36,6 +36,7 @@
 #include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -60,7 +61,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.153");
+vtkCxxRevisionMacro(vtkDataReader, "1.154");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -1203,6 +1204,136 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
     else
       {
       vtkErrorMacro(<< "Unsupported vertex attribute type: " << line 
+                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+      return 0;
+      }
+    }
+
+  return 1;
+}
+
+// Read the row data of a vtk data file.
+int vtkDataReader::ReadRowData(vtkTable *t, int numEdges)
+{
+  char line[256];
+  vtkDataSetAttributes *a=t->GetRowData();
+
+  vtkDebugMacro(<< "Reading vtk row data");
+    
+  //
+  // Read keywords until end-of-file
+  //
+  while (this->ReadString(line))
+    {
+    //
+    // read scalar data
+    //
+    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+      {
+      if ( ! this->ReadScalarData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read vector data
+    //
+    else if ( ! strncmp(line, "vectors", 7) )
+      {
+      if ( ! this->ReadVectorData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read 3x3 tensor data
+    //
+    else if ( ! strncmp(line, "tensors", 7) )
+      {
+      if ( ! this->ReadTensorData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read normals data
+    //
+    else if ( ! strncmp(line, "normals", 7) )
+      {
+      if ( ! this->ReadNormalData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read texture coordinates data
+    //
+    else if ( ! strncmp(line, "texture_coordinates", 19) )
+      {
+      if ( ! this->ReadTCoordsData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the global id data
+    //
+    else if ( ! strncmp(line, "global_ids", 10) )
+      {
+      if ( ! this->ReadGlobalIds(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the pedigree id data
+    //
+    else if ( ! strncmp(line, "pedigree_ids", 10) )
+      {
+      if ( ! this->ReadPedigreeIds(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read color scalars data
+    //
+    else if ( ! strncmp(line, "color_scalars", 13) )
+      {
+      if ( ! this->ReadCoScalarData(a, numEdges) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read lookup table. Associate with scalar data.
+    //
+    else if ( ! strncmp(line, "lookup_table", 12) )
+      {
+      if ( ! this->ReadLutData(a) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read field of data
+    //
+    else if ( ! strncmp(line, "field", 5) )
+      {
+      vtkFieldData *f;
+      if ( ! (f=this->ReadFieldData()) )
+        {
+        return 0;
+        }
+      for(int i=0; i<f->GetNumberOfArrays(); i++)
+        {
+        a->AddArray(f->GetAbstractArray(i));
+        }
+      f->Delete();
+      }
+    else
+      {
+      vtkErrorMacro(<< "Unsupported row attribute type: " << line 
                     << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
       return 0;
       }

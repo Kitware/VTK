@@ -45,7 +45,7 @@ using vtksys_stl::map;
 using vtksys_stl::pair;
 using vtksys_stl::vector;
 
-vtkCxxRevisionMacro(vtkCollectGraph, "1.4");
+vtkCxxRevisionMacro(vtkCollectGraph, "1.5");
 vtkStandardNewMacro(vtkCollectGraph);
 
 vtkCxxSetObjectMacro(vtkCollectGraph,Controller, vtkMultiProcessController);
@@ -58,7 +58,7 @@ vtkCollectGraph::vtkCollectGraph()
   this->SocketController = NULL;
 
   // Default vertex id array.
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "id");
+  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id");
 
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;

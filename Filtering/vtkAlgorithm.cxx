@@ -36,11 +36,12 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
 
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.43");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.44");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -382,6 +383,18 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
       return fd->GetAbstractArray(name);
       }
     
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_ROWS)
+      {
+      vtkTable *inputT = vtkTable::SafeDownCast(input);
+      if (!inputT)
+        {
+        vtkErrorMacro("Attempt to get row data from a non-table");
+        return NULL;
+        }
+      vtkFieldData *fd = inputT->GetRowData();
+      return fd->GetAbstractArray(name);
+      }
+
     if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
         fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES)
       {

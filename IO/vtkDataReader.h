@@ -39,6 +39,7 @@ class vtkFieldData;
 class vtkGraph;
 class vtkPointSet;
 class vtkRectilinearGrid;
+class vtkTable;
 
 class VTK_IO_EXPORT vtkDataReader : public vtkAlgorithm
 {
@@ -257,6 +258,10 @@ public:
   // graph) must match the number of edges defined in edge attributes
   // (unless no geometry was defined).
   int ReadEdgeData(vtkGraph *g, int numEdges);
+
+  // Description:
+  // Read the row data of a vtk data file.
+  int ReadRowData(vtkTable *t, int numEdges);
 
   // Description:
   // Read a bunch of "cells". Return 0 if error.

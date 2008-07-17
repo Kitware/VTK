@@ -23,7 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkFieldData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -31,7 +31,7 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkDataObjectToTable, "1.5");
+vtkCxxRevisionMacro(vtkDataObjectToTable, "1.6");
 vtkStandardNewMacro(vtkDataObjectToTable);
 //---------------------------------------------------------------------------
 vtkDataObjectToTable::vtkDataObjectToTable()
@@ -67,7 +67,14 @@ int vtkDataObjectToTable::RequestData(
   vtkTable* output = vtkTable::SafeDownCast(
     outputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkFieldData* data = vtkFieldData::New();
+  // If the input is a table, just copy it into the output.
+  if (vtkTable::SafeDownCast(input))
+    {
+    output->ShallowCopy(input);
+    return 1;
+    }
+
+  vtkDataSetAttributes* data = vtkDataSetAttributes::New();
   
   switch(this->FieldType)
     {
@@ -115,7 +122,7 @@ int vtkDataObjectToTable::RequestData(
       break;
     }
     
-  output->SetFieldData(data);
+  output->SetRowData(data);
   data->Delete();
   return 1;
 }

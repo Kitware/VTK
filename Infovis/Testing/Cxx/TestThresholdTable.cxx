@@ -63,7 +63,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->SetInput(table);
   
   int errors = 0;
-  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "intArr");
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "intArr");
   threshold->SetMinValue(vtkVariant(3));
   threshold->SetMaxValue(vtkVariant(5));
   threshold->SetMode(vtkThresholdTable::ACCEPT_BETWEEN);
@@ -96,7 +96,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   
-  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "doubleArr");
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "doubleArr");
   threshold->SetMaxValue(vtkVariant(1.2));
   threshold->SetMode(vtkThresholdTable::ACCEPT_LESS_THAN);
   threshold->Update();
@@ -133,7 +133,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   
-  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "stringArr");
+  threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "stringArr");
   threshold->SetMinValue(vtkVariant("10"));
   threshold->SetMaxValue(vtkVariant("13"));
   threshold->SetMode(vtkThresholdTable::ACCEPT_OUTSIDE);

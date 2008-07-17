@@ -26,7 +26,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkTableWriter, "1.1");
+vtkCxxRevisionMacro(vtkTableWriter, "1.2");
 vtkStandardNewMacro(vtkTableWriter);
 
 void vtkTableWriter::WriteData()
@@ -51,6 +51,7 @@ void vtkTableWriter::WriteData()
   *fp << "DATASET TABLE\n"; 
 
   this->WriteFieldData(fp, this->GetInput()->GetFieldData());
+  this->WriteRowData(fp, this->GetInput());
 
   this->CloseVTKFile(fp);  
 }

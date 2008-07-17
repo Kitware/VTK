@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkTableReader, "1.1");
+vtkCxxRevisionMacro(vtkTableReader, "1.2");
 vtkStandardNewMacro(vtkTableReader);
 
 #ifdef read
@@ -153,6 +153,21 @@ int vtkTableReader::RequestData(
       vtkFieldData* const field_data = this->ReadFieldData();
       output->SetFieldData(field_data);
       field_data->Delete();
+      continue;
+      }
+
+    if(!strncmp(this->LowerCase(line), "row_data", 8))
+      {
+      int row_count = 0;
+      if(!this->Read(&row_count))
+        {
+        vtkErrorMacro(<<"Cannot read number of rows!");
+        this->CloseVTKFile();
+        return 1;
+        }
+
+
+      this->ReadRowData(output, row_count);
       continue;
       }
 

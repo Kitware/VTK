@@ -37,7 +37,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.8");
+vtkCxxRevisionMacro(vtkGroupLeafVertices, "1.9");
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 //---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ int vtkGroupLeafVertices::RequestData(
   // so we can call InsertNextBlankRow.
   vtkSmartPointer<vtkTable> treeTable = 
     vtkSmartPointer<vtkTable>::New();
-  treeTable->SetFieldData(builder->GetVertexData());
+  treeTable->SetRowData(builder->GetVertexData());
 
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.

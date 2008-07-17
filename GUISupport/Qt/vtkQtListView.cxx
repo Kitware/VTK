@@ -22,11 +22,10 @@
 
 #include <QListView>
 
-#include "vtkTable.h"
 #include "vtkQtTableModelAdapter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQtListView, "1.2");
+vtkCxxRevisionMacro(vtkQtListView, "1.3");
 vtkStandardNewMacro(vtkQtListView);
 
 //----------------------------------------------------------------------------

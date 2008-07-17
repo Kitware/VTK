@@ -23,11 +23,11 @@
 // vtkMergeColumns replaces two columns in a table with a single column
 // containing data in both columns.  The columns are set using
 //
-//   SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "col1")
+//   SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "col1")
 //
 // and
 //
-//   SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_NONE, "col2")
+//   SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "col2")
 //
 // where "col1" and "col2" are the names of the columns to merge.
 // The user may also specify the name of the merged column.
