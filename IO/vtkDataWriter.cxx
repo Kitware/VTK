@@ -43,7 +43,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.132");
+vtkCxxRevisionMacro(vtkDataWriter, "1.133");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -824,7 +824,7 @@ int vtkDataWriter::WriteEdgeData(ostream *fp, vtkGraph *g)
 // Returns 0 if error.
 int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
 {
-  int numEdges;
+  int numRows;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -834,6 +834,8 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   vtkAbstractArray *pedigreeIds;
   vtkFieldData *field;
   vtkDataSetAttributes *cd=t->GetRowData();
+
+  numRows = t->GetNumberOfRows();
 
   vtkDebugMacro(<<"Writing row data...");
 
@@ -875,7 +877,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
     return 1;
     }
 
-  *fp << "ROW_DATA " << numEdges << "\n";
+  *fp << "ROW_DATA " << numRows << "\n";
   //
   // Write scalar data
   //
