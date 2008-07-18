@@ -26,7 +26,6 @@ public:
   vtkTypeRevisionMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkPPolyDataNormals *New();
 
   // Description:

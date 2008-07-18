@@ -289,6 +289,9 @@ public:
   virtual double *GetParametricCoords();
 
   // Description:
+  // Compute the interpolation functions/derivatives
+  // (aka shape functions/derivatives)
+  // No-ops at this level. Typically overridden in subclasses.
   virtual void InterpolateFunctions(double pcoords[3], double weights[3])
     {
     (void)pcoords;

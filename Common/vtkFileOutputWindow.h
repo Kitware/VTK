@@ -33,23 +33,27 @@ public:
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:  Put the text into the log file
+  // Description:
+  // Put the text into the log file.
   // New lines are converted to carriage return new lines.
   virtual void DisplayText(const char*);
 
-  // Description: Sets the name for the log file.
+  // Description:
+  // Sets the name for the log file.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  // Description: Turns on buffer flushing for the output 
+  // Description:
+  // Turns on buffer flushing for the output 
   // to the log file.
   vtkSetMacro(Flush, int);
   vtkGetMacro(Flush, int);
   vtkBooleanMacro(Flush, int);
-        
-  // Description: Setting append will cause the log file to be 
+
+  // Description:
+  // Setting append will cause the log file to be
   // opened in append mode.  Otherwise, if the log file exists,
-  // it will be overwritten each time the vtkFileOutputWindow 
+  // it will be overwritten each time the vtkFileOutputWindow
   // is created.
   vtkSetMacro(Append, int);
   vtkGetMacro(Append, int);
@@ -59,6 +63,7 @@ protected:
   vtkFileOutputWindow(); 
   virtual ~vtkFileOutputWindow(); 
   void Initialize();
+
   char* FileName;
   ofstream* OStream;
   int Flush;
@@ -68,7 +73,6 @@ private:
   vtkFileOutputWindow(const vtkFileOutputWindow&);  // Not implemented.
   void operator=(const vtkFileOutputWindow&);  // Not implemented.
 };
-
 
 
 #endif

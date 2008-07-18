@@ -28,7 +28,6 @@ public:
   vtkTypeRevisionMacro(vtkPProbeFilter,vtkCompositeDataProbeFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkPProbeFilter *New();
 
   // Description:

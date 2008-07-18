@@ -53,8 +53,10 @@ public:
   // Returns the depth of the BMP, either 8 or 24.
   vtkGetMacro(Depth,int);
   
-  // Description: is the given file name a BMP file?
+  // Description:
+  // Is the given file a BMP file?
   virtual int CanReadFile(const char* fname);
+
   // Description:
   // Get the file extensions for this format.
   // Returns a string with a space separated list of extensions in 

@@ -33,7 +33,6 @@ public:
   vtkTypeRevisionMacro(vtkDistributedStreamTracer,vtkPStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkDistributedStreamTracer *New();
 
 protected:

@@ -35,8 +35,6 @@ class VTK_WIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation :
                public vtkTensorProbeRepresentation
 {
 public:
-
-  // Description:
   static vtkEllipsoidTensorProbeRepresentation *New();
 
   // Description:
