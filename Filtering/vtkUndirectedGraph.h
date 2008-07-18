@@ -63,6 +63,14 @@ public:
   virtual vtkInEdgeType GetInEdge(vtkIdType v, vtkIdType i);
   //ETX
 
+  // Description:
+  // Random-access method for retrieving incoming edges to vertex v.
+  // The method fills the vtkGraphEdge instance with the id, source, and
+  // target of the edge. This method is provided for wrappers,
+  // GetInEdge(vtkIdType, vtkIdType) is preferred.
+  virtual void GetInEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e)
+    { this->Superclass::GetInEdge(v, i, e); }
+
   //BTX
   // Description:
   // Retrieve a graph from an information vector.
