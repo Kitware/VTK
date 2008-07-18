@@ -203,6 +203,7 @@ class vtkAdjacentVertexIterator;
 class vtkCellArray;
 class vtkEdgeListIterator;
 class vtkDataSetAttributes;
+class vtkGraphEdge;
 class vtkGraphEdgePoints;
 class vtkDistributedGraphHelper;
 class vtkGraphInternals;
@@ -321,7 +322,7 @@ public:
   // returns all incident edges. In a distributed graph, the vertex
   // v must be local to this processor.
   virtual void GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it);
-  
+
   // Description:
   // The total of all incoming and outgoing vertices for vertex v.
   // For undirected graphs, this is simply the number of edges incident
@@ -334,19 +335,45 @@ public:
   // For undirected graphs, returns the same as GetDegree(). In a 
   // distributed graph, the vertex v must be local to this processor.
   virtual vtkIdType GetOutDegree(vtkIdType v);
-  
+
+  //BTX
+  // Description:
+  // Random-access method for retrieving outgoing edges from vertex v.
+  virtual vtkOutEdgeType GetOutEdge(vtkIdType v, vtkIdType index);
+  //ETX
+
+  // Description:
+  // Random-access method for retrieving outgoing edges from vertex v.
+  // The method fills the vtkGraphEdge instance with the id, source, and
+  // target of the edge. This method is provided for wrappers,
+  // GetOutEdge(vtkIdType, vtkIdType) is preferred.
+  virtual void GetOutEdge(vtkIdType v, vtkIdType index, vtkGraphEdge* e);
+
   // Description:
   // Initializes the in edge iterator to iterate over
   // all incoming edges to vertex v.  For an undirected graph,
   // returns all incident edges. In a distributed graph, the vertex
   // v must be local to this processor.
   virtual void GetInEdges(vtkIdType v, vtkInEdgeIterator *it);
-  
+
   // Description:
   // The number of incoming edges to vertex v.
   // For undirected graphs, returns the same as GetDegree(). In a 
   // distributed graph, the vertex v must be local to this processor.
   virtual vtkIdType GetInDegree(vtkIdType v);
+
+  //BTX
+  // Description:
+  // Random-access method for retrieving incoming edges to vertex v.
+  virtual vtkInEdgeType GetInEdge(vtkIdType v, vtkIdType index);
+  //ETX
+
+  // Description:
+  // Random-access method for retrieving incoming edges to vertex v.
+  // The method fills the vtkGraphEdge instance with the id, source, and
+  // target of the edge. This method is provided for wrappers,
+  // GetInEdge(vtkIdType, vtkIdType) is preferred.
+  virtual void GetInEdge(vtkIdType v, vtkIdType index, vtkGraphEdge* e);
 
   // Description:
   // Initializes the adjacent vertex iterator to iterate over

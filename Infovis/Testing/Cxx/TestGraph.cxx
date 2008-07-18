@@ -65,13 +65,13 @@ void TestGraphIterators(vtkGraph *g, int & errors)
     vtkEdgeType e = edges->Next();
     if (g->GetSourceVertex(e.Id) != e.Source)
       {
-      cerr << "ERROR: Source does not match (" 
+      cerr << "ERROR: Source does not match ("
            << g->GetSourceVertex(e.Id) << "!=" << e.Source << ")" << endl;
       ++errors;
       }
     if (g->GetTargetVertex(e.Id) != e.Target)
       {
-      cerr << "ERROR: Target does not match (" 
+      cerr << "ERROR: Target does not match ("
            << g->GetTargetVertex(e.Id) << "!=" << e.Target << ")" << endl;
       ++errors;
       }
@@ -89,15 +89,30 @@ void TestGraphIterators(vtkGraph *g, int & errors)
     {
     vtkIdType v = vertices->Next();
     g->GetOutEdges(v, outEdges);
+    vtkIdType index = 0;
     while (outEdges->HasNext())
       {
       vtkOutEdgeType e = outEdges->Next();
+      vtkOutEdgeType e2 = g->GetOutEdge(v, index);
       ++numEdges;
       // Count self-loops twice, to ensure all edges are counted twice.
       if (vtkUndirectedGraph::SafeDownCast(g) && v == e.Target)
         {
         ++numEdges;
         }
+      if (e.Id != e2.Id)
+        {
+        cerr << "ERROR: Random-access id != iterator id "
+             << e.Id << "!=" << e2.Id << endl;
+        ++errors;
+        }
+      if (e.Target != e2.Target)
+        {
+        cerr << "ERROR: Random-access target != iterator target "
+             << e.Target << "!=" << e2.Target << endl;
+        ++errors;
+        }
+      ++index;
       }
     }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
@@ -117,15 +132,30 @@ void TestGraphIterators(vtkGraph *g, int & errors)
     {
     vtkIdType v = vertices->Next();
     g->GetInEdges(v, inEdges);
+    vtkIdType index = 0;
     while (inEdges->HasNext())
       {
       vtkInEdgeType e = inEdges->Next();
+      vtkInEdgeType e2 = g->GetInEdge(v, index);
       ++numEdges;
       // Count self-loops twice, to ensure all edges are counted twice.
       if (vtkUndirectedGraph::SafeDownCast(g) && v == e.Source)
         {
         ++numEdges;
         }
+      if (e.Id != e2.Id)
+        {
+        cerr << "ERROR: Random-access id != iterator id "
+             << e.Id << "!=" << e2.Id << endl;
+        ++errors;
+        }
+      if (e.Source != e2.Source)
+        {
+        cerr << "ERROR: Random-access source != iterator source "
+             << e.Source << "!=" << e2.Source << endl;
+        ++errors;
+        }
+      ++index;
       }
     }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)

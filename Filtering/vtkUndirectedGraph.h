@@ -56,6 +56,11 @@ public:
   // Returns the full degree of the vertex.
   virtual vtkIdType GetInDegree(vtkIdType v);
 
+  // Description:
+  // Random-access method for retrieving the in edges of a vertex.
+  // For an undirected graph, this is the same as the out edges.
+  virtual vtkInEdgeType GetInEdge(vtkIdType v, vtkIdType i);
+
   //BTX
   // Description:
   // Retrieve a graph from an information vector.

@@ -25,6 +25,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkGraphEdge.h"
 #include "vtkGraphInternals.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInEdgeIterator.h"
@@ -62,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.25");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.26");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -71,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.25");
+vtkCxxRevisionMacro(vtkGraph, "1.26");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -137,6 +138,7 @@ void vtkGraph::GetPoint(vtkIdType ptId, double x[3])
         if (myRank != helper->GetVertexOwner(ptId))
           {
           vtkErrorMacro("vtkGraph cannot retrieve a point for a non-local vertex");
+          return;
           }
 
         index = helper->GetVertexIndex(ptId);
@@ -253,6 +255,7 @@ void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      return;
       }
     }
 
@@ -260,6 +263,38 @@ void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
     {
     it->Initialize(this, v);
     }
+}
+
+//----------------------------------------------------------------------------
+vtkOutEdgeType vtkGraph::GetOutEdge(vtkIdType v, vtkIdType i)
+{
+  vtkIdType index = v;
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      return vtkOutEdgeType();
+      }
+    index = helper->GetVertexIndex(v);
+    }
+
+  if (i < this->GetOutDegree(v))
+    {
+    return this->Internals->Adjacency[index].OutEdges[i];
+    }
+  vtkErrorMacro("Out edge index out of bounds");
+  return vtkOutEdgeType();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetOutEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e)
+{
+  vtkOutEdgeType oe = this->GetOutEdge(v, i);
+  e->SetId(oe.Id);
+  e->SetSource(v);
+  e->SetTarget(oe.Target);
 }
 
 //----------------------------------------------------------------------------
@@ -272,6 +307,7 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      return;
       }
 
     index = helper->GetVertexIndex(v);
@@ -298,6 +334,7 @@ vtkIdType vtkGraph::GetOutDegree(vtkIdType v)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot determine the out degree for a non-local vertex");
+      return 0;
       }
 
     index = helper->GetVertexIndex(v);
@@ -316,6 +353,7 @@ vtkIdType vtkGraph::GetDegree(vtkIdType v)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot determine the degree for a non-local vertex");
+      return 0;
       }
 
     index = helper->GetVertexIndex(v);
@@ -334,6 +372,7 @@ void vtkGraph::GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+      return;
       }
     }
 
@@ -341,6 +380,38 @@ void vtkGraph::GetInEdges(vtkIdType v, vtkInEdgeIterator *it)
     {
     it->Initialize(this, v);
     }
+}
+
+//----------------------------------------------------------------------------
+vtkInEdgeType vtkGraph::GetInEdge(vtkIdType v, vtkIdType i)
+{
+  vtkIdType index = v;
+  if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    {
+    int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    if (myRank != helper->GetVertexOwner(v))
+      {
+      vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+      return vtkInEdgeType();
+      }
+    index = helper->GetVertexIndex(v);
+    }
+
+  if (i < this->GetInDegree(v))
+    {
+    return this->Internals->Adjacency[index].InEdges[i];
+    }
+  vtkErrorMacro("In edge index out of bounds");
+  return vtkInEdgeType();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraph::GetInEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e)
+{
+  vtkInEdgeType ie = this->GetInEdge(v, i);
+  e->SetId(ie.Id);
+  e->SetSource(ie.Source);
+  e->SetTarget(v);
 }
 
 //----------------------------------------------------------------------------
@@ -354,6 +425,7 @@ void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType &
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the in edges for a non-local vertex");
+      return;
       }
 
     index = helper->GetVertexIndex(v);
@@ -381,6 +453,7 @@ vtkIdType vtkGraph::GetInDegree(vtkIdType v)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot determine the in degree for a non-local vertex");
+      return 0;
       }
 
     index = helper->GetVertexIndex(v);
@@ -398,6 +471,7 @@ void vtkGraph::GetAdjacentVertices(vtkIdType v, vtkAdjacentVertexIterator *it)
     if (myRank != helper->GetVertexOwner(v))
       {
       vtkErrorMacro("vtkGraph cannot retrieve the adjacent vertices for a non-local vertex");
+      return;
       }
     }
 
