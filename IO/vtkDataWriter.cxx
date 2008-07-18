@@ -43,7 +43,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.133");
+vtkCxxRevisionMacro(vtkDataWriter, "1.134");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -883,7 +883,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if( scalars )
     {
-    if ( ! this->WriteScalarData(fp, scalars, numEdges) )
+    if ( ! this->WriteScalarData(fp, scalars, numRows) )
       {
       return 0;
       }
@@ -893,7 +893,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if( vectors )
     {
-    if ( ! this->WriteVectorData(fp, vectors, numEdges) )
+    if ( ! this->WriteVectorData(fp, vectors, numRows) )
       {
       return 0;
       }
@@ -903,7 +903,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if ( normals )
     {
-    if ( ! this->WriteNormalData(fp, normals, numEdges) )
+    if ( ! this->WriteNormalData(fp, normals, numRows) )
       {
       return 0;
       }
@@ -913,7 +913,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if ( tcoords )
     {
-    if ( ! this->WriteTCoordData(fp, tcoords, numEdges) )
+    if ( ! this->WriteTCoordData(fp, tcoords, numRows) )
       {
       return 0;
       }
@@ -923,7 +923,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if ( tensors )
     {
-    if ( ! this->WriteTensorData(fp, tensors, numEdges) )
+    if ( ! this->WriteTensorData(fp, tensors, numRows) )
       {
       return 0;
       }
@@ -933,7 +933,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if ( globalIds )
     {
-    if ( ! this->WriteGlobalIdData(fp, globalIds, numEdges) )
+    if ( ! this->WriteGlobalIdData(fp, globalIds, numRows) )
       {
       return 0;
       }
@@ -943,7 +943,7 @@ int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
   //
   if ( pedigreeIds )
     {
-    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numEdges) )
+    if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numRows) )
       {
       return 0;
       }
