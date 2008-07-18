@@ -35,14 +35,14 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.40");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.41");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
   this->SetAssessmentName( "Relative Deviation" );
-  this->AssessParameters = vtkVariantArray::New();
+  this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 2 );
   this->AssessParameters->SetValue( 0, "Mean" );
   this->AssessParameters->SetValue( 1, "Standard Deviation" );
@@ -60,6 +60,18 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "SignedDeviations: " << this->SignedDeviations << "\n";
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::SetNominalParameter( vtkStdString name ) 
+{ 
+  this->SetAssessParameter( 0, name ); 
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::SetDeviationParameter( vtkStdString name ) 
+{ 
+  this->SetAssessParameter( 1, name ); 
 }
 
 // ----------------------------------------------------------------------

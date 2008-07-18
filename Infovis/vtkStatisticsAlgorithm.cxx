@@ -25,9 +25,10 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.13");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -59,6 +60,26 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Assess: " << this->Assess << endl;
   os << indent << "AssessmentName: " << this->AssessmentName << endl;
 }
+
+// ----------------------------------------------------------------------
+void vtkStatisticsAlgorithm::SetAssessParameter( vtkIdType id, vtkStdString name )
+{
+  if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
+    {
+    this->AssessParameters->SetValue( id, name );
+    this->Modified();
+    }
+} 
+
+// ----------------------------------------------------------------------
+vtkStdString vtkStatisticsAlgorithm::SetAssessParameter( vtkIdType id )
+{
+  if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
+    {
+    return this->AssessParameters->GetValue( id );
+    }
+  return 0;
+} 
 
 // ----------------------------------------------------------------------
 int vtkStatisticsAlgorithm::RequestData( vtkInformation*,

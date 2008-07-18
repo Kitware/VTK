@@ -23,13 +23,14 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.13");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -180,7 +181,7 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
       {
       for ( vtkIdType j = 0; j < nColP; ++ j )
         {
-        row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ).ToString() ) );
+        row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ) ) );
         }
       }
     else

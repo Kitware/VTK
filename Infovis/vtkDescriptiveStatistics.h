@@ -44,8 +44,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkUnivariateStatisticsAlgorithm.h"
 
-class vtkTable;
 class vtkDoubleArray;
+class vtkStdString;
+class vtkTable;
 class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkDescriptiveStatistics : public vtkUnivariateStatisticsAlgorithm
@@ -62,6 +63,18 @@ public:
   vtkSetMacro(SignedDeviations,int);
   vtkGetMacro(SignedDeviations,int);
   vtkBooleanMacro(SignedDeviations,int);
+
+//BTX
+  // Description:
+  // A convenience method (in particular for UI wrapping) to set the name of the
+  // column that contains the nominal value for the Assess option.
+  void SetNominalParameter( vtkStdString name );
+
+  // Description:
+  // A convenience method (in particular for UI wrapping) to set the name of the
+  // column that contains the deviation for the Assess option.
+  void SetDeviationParameter( vtkStdString name );
+//ETX
 
 protected:
   vtkDescriptiveStatistics();

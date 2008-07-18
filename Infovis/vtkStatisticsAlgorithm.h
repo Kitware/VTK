@@ -46,7 +46,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkTableAlgorithm.h"
 
-class vtkVariantArray;
+class vtkStdString;
+class vtkStringArray;
 
 class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
 {
@@ -103,7 +104,15 @@ public:
   // Get the assessment name.
   vtkGetStringMacro( AssessmentName );
 
-  vtkVariantArray* AssessParameters;
+//BTX
+  // Description:
+  // Set the name of a parameter of the Assess option
+  void SetAssessParameter( vtkIdType id, vtkStdString name );
+
+  // Description:
+  // Get the name of a parameter of the Assess option
+  vtkStdString SetAssessParameter( vtkIdType id );
+//ETX
 
 protected:
   vtkStatisticsAlgorithm();
@@ -131,6 +140,7 @@ protected:
   bool Validate;
   bool Assess;
   char* AssessmentName;
+  vtkStringArray* AssessParameters;
 
 private:
   vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented
