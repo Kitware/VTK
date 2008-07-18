@@ -41,17 +41,8 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>
 
-vtkCxxRevisionMacro(vtkPRandomGraphSource, "1.1");
+vtkCxxRevisionMacro(vtkPRandomGraphSource, "1.2");
 vtkStandardNewMacro(vtkPRandomGraphSource);
-
-
-// ----------------------------------------------------------------------
-vtkIdType 
-vtkVertexBlockDistribution(const vtkVariant& pedigreeId, void* userData)
-{
-  int numProcs = reinterpret_cast<int>(userData);
-  return pedigreeId.ToInt(0);
-}
 
 // ----------------------------------------------------------------------
 vtkPRandomGraphSource::vtkPRandomGraphSource()
@@ -202,11 +193,11 @@ vtkPRandomGraphSource::RequestData(
 
       if (this->Directed)
         {
-        dirBuilder->AddEdge(jVertex, iVertex); 
+        dirBuilder->LazyAddEdge(jVertex, iVertex); 
         }
       else
         {
-        undirBuilder->AddEdge(jVertex, iVertex);
+        undirBuilder->LazyAddEdge(jVertex, iVertex);
         }
       }
 
@@ -230,11 +221,11 @@ vtkPRandomGraphSource::RequestData(
           {
           if (this->Directed)
             {
-            dirBuilder->AddEdge(iVertex, jVertex);
+            dirBuilder->LazyAddEdge(iVertex, jVertex);
             }
           else
             {
-            undirBuilder->AddEdge(iVertex, jVertex);
+            undirBuilder->LazyAddEdge(iVertex, jVertex);
             }
           }
         }
@@ -296,11 +287,11 @@ vtkPRandomGraphSource::RequestData(
         vtkDebugMacro(<<"Adding edge " << s << " to " << t);
         if (this->Directed)
           {
-          dirBuilder->AddEdge(sVertex, tVertex);
+          dirBuilder->LazyAddEdge(sVertex, tVertex);
           }
         else
           {
-          undirBuilder->AddEdge(sVertex, tVertex);
+          undirBuilder->LazyAddEdge(sVertex, tVertex);
           }
         newEdgeFound = true;
         }
