@@ -36,7 +36,7 @@
 #include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.17")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.18")
 
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
@@ -316,7 +316,7 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
       {
       this->Painter->SetInput(input);
       }
-    this->Painter->Render(ren, act, 0xff,this->ForceCompileOnly);
+    this->Painter->Render(ren, act, 0xff,this->ForceCompileOnly==1);
     this->TimeToDraw = this->Painter->GetTimeToDraw();
     }
 

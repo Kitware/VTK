@@ -31,7 +31,7 @@
 #include "vtkDefaultPainter.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
-vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.3");
+vtkCxxRevisionMacro(vtkCompositePolyDataMapper2, "1.4");
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
@@ -107,7 +107,7 @@ void vtkCompositePolyDataMapper2::RenderPiece(vtkRenderer* ren, vtkActor* act)
       {
       this->Painter->SetInput(inputDO);
       }
-    this->Painter->Render(ren, act, 0xff,this->ForceCompileOnly);
+    this->Painter->Render(ren, act, 0xff,this->ForceCompileOnly==1);
     this->TimeToDraw = this->Painter->GetTimeToDraw();
     }
 
