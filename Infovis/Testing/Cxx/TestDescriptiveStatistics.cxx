@@ -9,6 +9,7 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
+#include "vtkVariantArray.h"
 #include "vtkTable.h"
 #include "vtkDescriptiveStatistics.h"
 
@@ -208,9 +209,9 @@ int TestDescriptiveStatistics( int, char *[] )
   int m0outliers = 0;
   int m1outliers = 0;
   cout << "Outliers:\n";
-  vtkDoubleArray* m0reld = vtkDoubleArray::SafeDownCast(
+  vtkVariantArray* m0reld = vtkVariantArray::SafeDownCast(
     outputData->GetColumnByName( "Relative Deviation of Metric 0" ) );
-  vtkDoubleArray* m1reld = vtkDoubleArray::SafeDownCast(
+  vtkVariantArray* m1reld = vtkVariantArray::SafeDownCast(
     outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 0" ) );
@@ -220,7 +221,7 @@ int TestDescriptiveStatistics( int, char *[] )
   double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m0reld->GetValue( r );
+    dev = m0reld->GetValue( r ).ToDouble();
     if ( dev > maxdev )
       {
       ++ m0outliers;
@@ -231,7 +232,7 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r );
+    dev = m1reld->GetValue( r ).ToDouble();
     if ( dev > maxdev )
       {
       ++ m1outliers;
@@ -258,13 +259,13 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->Update();
   m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
-  m1reld = vtkDoubleArray::SafeDownCast(
+  m1reld = vtkVariantArray::SafeDownCast(
     outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
   cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
   m1outliers = 0;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    dev = m1reld->GetValue( r );
+    dev = m1reld->GetValue( r ).ToDouble();
     if ( dev )
       {
       ++ m1outliers;

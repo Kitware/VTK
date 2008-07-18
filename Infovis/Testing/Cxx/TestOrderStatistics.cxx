@@ -12,10 +12,11 @@
 #include "vtkTable.h"
 #include "vtkOrderStatistics.h"
 
+#include <vtkstd/map>
 //=============================================================================
 int TestOrderStatistics( int, char *[] )
 {
-  int testIntValue = 0;
+  int testStatus = 0;
 
   double mingledData[] = 
     {
@@ -150,6 +151,7 @@ int TestOrderStatistics( int, char *[] )
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
+  vtkTable* outputData = haruspex->GetOutput( 0 );
   vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
@@ -164,7 +166,7 @@ int TestOrderStatistics( int, char *[] )
     }
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
-// -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
+// -- Test Learn option for quartiles with InverseCDFAveragedSteps quantile definition -- 
   haruspex->SetLearn( true );
   haruspex->SetAssess( false );
   haruspex->Update();
@@ -189,23 +191,21 @@ int TestOrderStatistics( int, char *[] )
 
       if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest1[r * 5 + i] )
         {
-        testIntValue = 1;
-        cout << " !! <> "
+        testStatus = 1;
+        cout << "Error: "
+             << "Incorrect 5-points statistics: "
              << valsTest1[r * 5 + i]
-             << " !!";
+             << ".\n";
         }
       }
     cout << "\n";
-
-    if ( testIntValue )
-      {
-      vtkGenericWarningMacro("Incorrect 5-points statistics");
-      return 1;
-      }
     }
 
-// -- Test Learn Mode for quartiles with InverseCDF quantile definition -- 
+// -- Test Learn and Assess options for quartiles with InverseCDF quantile definition -- 
   haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
+  haruspex->RemoveColumn( "Metric 2" ); // Remove invalid Metric 2 (but which contains only value -1)
+  haruspex->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
+  haruspex->SetAssess( true );
   haruspex->Update();
 
   double valsTest2 [] = { 0.,
@@ -228,18 +228,54 @@ int TestOrderStatistics( int, char *[] )
 
       if ( i && outputMeta->GetValue( r, i ).ToDouble() != valsTest2[r * 5 + i] )
         {
-        testIntValue = 1;
-        cout << " !! <> "
+        testStatus = 1;
+        cout << "Error: "
+             << "Incorrect 5-points statistics: "
              << valsTest2[r * 5 + i]
-             << " !!";
+             << ".\n";
         }
       }
     cout << "\n";
     }
 
-// -- Test Learn Mode for deciles with InverseCDF quantile definition (as with Octave) -- 
+  vtkstd::map<int,int> histoMetric[2];
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    ++ histoMetric[0][outputData->GetValueByName( r, "Quantile of Metric 0" ).ToInt()];
+    ++ histoMetric[1][outputData->GetValueByName( r, "Quantile of Metric 1" ).ToInt()];
+    }
+
+  int cpt[] = { 0, 0 };
+  cout << "## Calculated the following histograms:\n";
+  for ( int i = 0; i < 2; ++ i )
+    {
+    cout << "   "
+         << outputData->GetColumnName( i )
+         << ":\n";
+    for ( vtkstd::map<int,int>::iterator it = histoMetric[i].begin(); 
+          it != histoMetric[i].end(); ++ it )
+      {
+      cpt[i] += it->second;
+      cout << "    "
+           << it->first << " |-> " << it->second << "\n";
+      }
+
+    if ( cpt[i] != outputData->GetNumberOfRows() )
+      {
+      cout << "Error: "
+           << "Histogram count is "
+           << cpt[i]
+           << " != "
+           << outputData->GetNumberOfRows()
+           << ".\n";
+      testStatus = 1;
+      }
+    }
+
+// -- Test Learn option for deciles with InverseCDF quantile definition (as with Octave) -- 
   haruspex->SetQuantileDefinition( 0 ); // 0: vtkOrderStatistics::InverseCDF
   haruspex->SetNumberOfIntervals( 10 );
+  haruspex->RemoveColumn( "Metric 4" ); // Remove invalid Metric 4
   haruspex->SetAssess( false );
   haruspex->Update();
 
@@ -261,5 +297,5 @@ int TestOrderStatistics( int, char *[] )
 
   haruspex->Delete();
 
-  return 0;
+  return testStatus;
 }

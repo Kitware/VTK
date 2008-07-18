@@ -44,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkUnivariateStatisticsAlgorithmPrivate;
 class vtkTable;
+class vtkVariant;
 class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
@@ -82,9 +83,7 @@ public:
   // A base class for a functor that assesses data.
   class AssessFunctor {
   public:
-    double Nominal;
-    double Deviation;
-    virtual double operator() ( vtkIdType row ) = 0;
+    virtual vtkVariant operator() ( vtkIdType id ) = 0;
     virtual ~AssessFunctor() { }
   };
 

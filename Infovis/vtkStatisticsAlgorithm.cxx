@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.11");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.12");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -35,15 +35,18 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->SetNumberOfInputPorts( 2 );
   this->SetNumberOfOutputPorts( 3 );
 
-  // If not told otherwise, run in Learn mode only
+  // If not told otherwise, only run Learn option
   this->Learn = true;
   this->Validate = false;
   this->Assess = false;
+  this->AssessmentName = 0;
+  this->AssessParameters = 0;
 }
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 {
+  this->SetAssessmentName( 0 );
 }
 
 // ----------------------------------------------------------------------
@@ -54,6 +57,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Validate: " << this->Validate << endl;
   os << indent << "Assess: " << this->Assess << endl;
+  os << indent << "AssessmentName: " << this->AssessmentName << endl;
 }
 
 // ----------------------------------------------------------------------

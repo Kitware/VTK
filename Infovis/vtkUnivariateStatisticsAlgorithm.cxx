@@ -21,7 +21,6 @@
 #include "vtkUnivariateStatisticsAlgorithm.h"
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
-#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -30,7 +29,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.11");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.12");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -107,14 +106,27 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  vtkIdType nColP = this->AssessParameters->GetNumberOfValues();
-  if ( inMeta->GetNumberOfColumns() < nColP )
+  vtkIdType nColP;
+  if ( this->AssessParameters )
     {
-    vtkWarningMacro( "Parameter table has " 
-                     << inMeta->GetNumberOfColumns()
-                     << " < "
-                     << nColP
-                     << " columns. Doing nothing." );
+    nColP = this->AssessParameters->GetNumberOfValues();
+    if ( inMeta->GetNumberOfColumns() < nColP )
+      {
+      vtkWarningMacro( "Parameter table has " 
+                       << inMeta->GetNumberOfColumns()
+                       << " < "
+                       << nColP
+                       << " columns. Doing nothing." );
+      return;
+      }
+    }
+  else
+    {
+    nColP = inMeta->GetNumberOfColumns() - 1;
+    }
+
+  if ( nColP < 1 )
+    {
     return;
     }
 
@@ -153,34 +165,44 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
       }
 
     // Create the outData column
-    vtkDoubleArray* assessedValues = vtkDoubleArray::New();
-    vtksys_ios::ostringstream devColName;
-    devColName << this->AssessmentName
-               << " of "
-               << colName;
-    assessedValues->SetName( devColName.str().c_str() );
+    vtkVariantArray* assessedValues = vtkVariantArray::New();
+    vtksys_ios::ostringstream assessColName;
+    assessColName << this->AssessmentName
+                  << " of "
+                  << colName;
+    assessedValues->SetName( assessColName.str().c_str() );
     assessedValues->SetNumberOfTuples( nRowD );
 
     vtkVariantArray* row = vtkVariantArray::New();
     row->SetNumberOfValues( nColP );
-    for ( vtkIdType j = 0; j < nColP; ++ j )
+    
+    if ( this->AssessParameters )
       {
-      row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ).ToString()  ) );
+      for ( vtkIdType j = 0; j < nColP; ++ j )
+        {
+        row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ).ToString() ) );
+        }
+      }
+    else
+      {
+      for ( vtkIdType j = 0; j < nColP; ++ j )
+        {
+        row->SetValue( j, inMeta->GetValue( i, j + 1 ) );
+        }
       }
 
     AssessFunctor* dfunc;
     this->SelectAssessFunctor( arr, row, dfunc );
 
-    row->Delete();
-
     // Assess each entry of the column
-    double dev;
+    vtkVariant assess;
     for ( vtkIdType r = 0; r < nRowD; ++ r )
       {
-      dev = (*dfunc)( r );
-      assessedValues->SetValue( r, dev );
+      assess = (*dfunc)( r );
+      assessedValues->SetValue( r, assess );
       }
     delete dfunc;
+    row->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
 
     // Add the column to the outData
     outData->AddColumn( assessedValues );

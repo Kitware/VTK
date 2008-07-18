@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.39");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.40");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -241,11 +241,12 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-
 class DataArrayDeviantFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkDataArray* Array;
+  double Nominal;
+  double Deviation;
 };
 
 class SignedDataArrayDeviantFunctor : public DataArrayDeviantFunctor
@@ -258,7 +259,7 @@ public:
     this->Deviation = stdev;
     }
   virtual ~SignedDataArrayDeviantFunctor() { }
-  virtual double operator() ( vtkIdType row )
+  virtual vtkVariant operator() ( vtkIdType row )
     {
     return ( this->Array->GetTuple( row )[0] - this->Nominal ) / this->Deviation;
     }
@@ -274,7 +275,7 @@ public:
     this->Deviation = stdev;
     }
   virtual ~UnsignedDataArrayDeviantFunctor() { }
-  virtual double operator() ( vtkIdType row )
+  virtual vtkVariant operator() ( vtkIdType row )
     {
     return fabs ( this->Array->GetTuple( row )[0] - this->Nominal ) / this->Deviation;
     }
@@ -285,6 +286,8 @@ class AbstractArrayDeviantFunctor : public vtkDescriptiveStatistics::AssessFunct
 {
 public:
   vtkAbstractArray* Array;
+  double Nominal;
+  double Deviation;
 };
 
 // When the deviation is 0, we can't normalize. Instead, a non-zero value (1)
@@ -298,41 +301,41 @@ public:
     this->Nominal = nominal;
     }
   virtual ~ZedDeviationDeviantFunctor() { }
-  virtual double operator() ( vtkIdType row )
+  virtual vtkVariant operator() ( vtkIdType id )
     {
-    return ( this->Array->GetVariantValue( row ).ToDouble() == this->Nominal ) ? 0. : 1.;
+    return ( this->Array->GetVariantValue( id ).ToDouble() == this->Nominal ) ? 0. : 1.;
     }
 };
 
 class SignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
 {
 public:
-  SignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double stdev )
+  SignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double deviation )
     {
     this->Array = arr;
     this->Nominal = nominal;
-    this->Deviation = stdev;
+    this->Deviation = deviation;
     }
   virtual ~SignedAbstractArrayDeviantFunctor() { }
-  virtual double operator() ( vtkIdType row )
+  virtual vtkVariant operator() ( vtkIdType id )
     {
-    return ( this->Array->GetVariantValue( row ).ToDouble() - this->Nominal ) / this->Deviation;
+    return ( this->Array->GetVariantValue( id ).ToDouble() - this->Nominal ) / this->Deviation;
     }
 };
 
 class UnsignedAbstractArrayDeviantFunctor : public AbstractArrayDeviantFunctor
 {
 public:
-  UnsignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double stdev )
+  UnsignedAbstractArrayDeviantFunctor( vtkAbstractArray* arr, double nominal, double deviation )
     {
     this->Array = arr;
     this->Nominal = nominal;
-    this->Deviation = stdev;
+    this->Deviation = deviation;
     }
   virtual ~UnsignedAbstractArrayDeviantFunctor() { }
-  virtual double operator() ( vtkIdType row )
+  virtual vtkVariant operator() ( vtkIdType id )
     {
-    return fabs ( this->Array->GetVariantValue( row ).ToDouble() - this->Nominal ) / this->Deviation;
+    return fabs ( this->Array->GetVariantValue( id ).ToDouble() - this->Nominal ) / this->Deviation;
     }
 };
 

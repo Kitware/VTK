@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.28");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.29");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -214,8 +214,83 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::SelectAssessFunctor( vtkAbstractArray* vtkNotUsed(arr),
-                                              vtkVariantArray* vtkNotUsed(row),
-                                              AssessFunctor*& vtkNotUsed(dfunc) )
+class DataArrayBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
 {
+public:
+  DataArrayBucketingFunctor( vtkDataArray* arr, vtkVariantArray* quantiles )
+    {
+    this->Array = arr;
+    this->Quantiles = quantiles;
+    }
+  virtual ~DataArrayBucketingFunctor() { }
+  virtual vtkVariant operator() ( vtkIdType id )
+    {
+
+    double x = this->Array->GetTuple( id )[0];
+    if ( x < this->Quantiles->GetValue( 0 ).ToDouble() )
+      {
+      // x is smaller than lower bound
+      return 0;
+      }
+
+    vtkIdType n = this->Quantiles->GetNumberOfValues() + 1;
+    vtkIdType q = 1;
+    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
+      {
+      ++ q;
+      }
+    return q; // if x is greater than upper bound, then n + 1 is returned
+    }
+
+  vtkDataArray* Array;
+  vtkVariantArray* Quantiles;
+};
+
+// ----------------------------------------------------------------------
+class AbstractArrayBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
+{
+public:
+  AbstractArrayBucketingFunctor( vtkAbstractArray* arr, vtkVariantArray* quantiles )
+    {
+    this->Array = arr;
+    this->Quantiles = quantiles;
+    }
+  virtual ~AbstractArrayBucketingFunctor() { }
+  virtual vtkVariant operator() ( vtkIdType id )
+    {
+    double x = this->Array->GetVariantValue( id ).ToDouble();
+    if ( x < this->Quantiles->GetValue( 0 ).ToDouble() )
+      {
+      // x is smaller than lower bound
+      return 0;
+      }
+
+    vtkIdType n = this->Quantiles->GetNumberOfValues() + 1;
+    vtkIdType q = 1;
+    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
+      {
+      ++ q;
+      }
+    return q; // if x is greater than upper bound, then n + 1 is returned
+    }
+
+  vtkAbstractArray* Array;
+  vtkVariantArray* Quantiles;
+};
+
+// ----------------------------------------------------------------------
+void vtkOrderStatistics::SelectAssessFunctor( vtkAbstractArray* arr,
+                                              vtkVariantArray* row,
+                                              AssessFunctor*& dfunc )
+{
+  vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
+  
+  if ( darr )
+    {
+    dfunc = new DataArrayBucketingFunctor( darr, row );
+    }
+  else
+    {
+    dfunc = new AbstractArrayBucketingFunctor( arr, row );
+    }
 }
