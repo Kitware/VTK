@@ -107,6 +107,7 @@ public:
   virtual int GetLayoutStrategy();
 
   // Description:
+  // Get/Set the fraction of the treemap box to use in the border.
   void SetBorderPercentage(double pcent);
   double GetBorderPercentage();
 
@@ -139,18 +140,27 @@ public:
   void HighLightItem(vtkIdType id);
 
   // Description:
+  // Get/Set the range of levels to attempt to label.
+  // The level of a vertex is the length of the path to the root
+  // (the root has level 0).
   void SetLabelLevelRange(int start, int end);
   void GetLabelLevelRange(int range[2]);
 
   // Description:
+  // Get/Set the level at which treemap labeling is dynamic.
   void SetDynamicLabelLevel(int level);
   int GetDynamicLabelLevel();
 
   // Description:
+  // Get/Set whether the label may be moved by its ancestors.
   void SetChildLabelMotion(int mode);
   int GetChildLabelMotion();
 
   // Description:
+  // Get/Set if the label can be displayed clipped by the window.
+  // 0 - ok to clip labels
+  // 1 - auto center labels w/r to the area of the vertex's clipped
+  // region
   void SetLabelClipMode(int mode);
   int GetLabelClipMode();
 

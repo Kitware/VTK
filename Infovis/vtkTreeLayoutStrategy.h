@@ -82,6 +82,8 @@ public:
   vtkGetMacro(LeafSpacing, double);
 
   // Description:
+  // Get/Set the array to use to determine the distance from the
+  // root.
   vtkSetStringMacro(DistanceArrayName);
   vtkGetStringMacro(DistanceArrayName);
 
