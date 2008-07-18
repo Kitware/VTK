@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.6");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.7");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -52,7 +52,7 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->LabelHeight = 0.025;
   this->TitleHeight = 0.030;
 
-  this->SliderLength = 0.001;
+  this->SliderLength = 0.01;
   this->SliderWidth = 0.02;
   this->EndCapLength = 0.005;
   this->TubeWidth = 0.01;
