@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.8");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -42,8 +42,10 @@ vtkOpenGLRepresentationPainter::~vtkOpenGLRepresentationPainter()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer, 
-  vtkActor* actor, unsigned long typeflags)
+void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer, 
+                                                    vtkActor *actor,
+                                                    unsigned long typeflags,
+                                                    bool forceCompileOnly)
 {
   vtkProperty* prop = actor->GetProperty();
   int rep = prop->GetRepresentation();
@@ -74,7 +76,8 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     break;
     }
 
-  this->Superclass::RenderInternal(renderer, actor, typeflags);
+  this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                   forceCompileOnly);
   this->TimeToDraw += this->DelegatePainter? 
     this->DelegatePainter->GetTimeToDraw() : 0;
   if (reset_needed)
@@ -103,7 +106,8 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer* renderer,
     glDisable(GL_TEXTURE_2D);
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
-    this->Superclass::RenderInternal(renderer, actor, typeflags);
+    this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                     forceCompileOnly);
     this->TimeToDraw += this->DelegatePainter? 
       this->DelegatePainter->GetTimeToDraw() : 0;
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());

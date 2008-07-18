@@ -91,7 +91,7 @@ protected:
   ~vtkIdentColoredPainter();
   
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-    unsigned long typeflags);
+                              unsigned long typeflags,bool forceCompileOnly);
 
   void DrawCells(int mode, vtkCellArray *connectivity,
     vtkIdType startCellId, vtkRenderer *renderer);

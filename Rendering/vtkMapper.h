@@ -196,6 +196,19 @@ public:
     {vtkMapper::SetGlobalImmediateModeRendering(0);};
   static int  GetGlobalImmediateModeRendering();
 
+  //BTX
+  // Description:
+  // Force compile only mode in case display lists are used
+  // (ImmediateModeRendering is false). If ImmediateModeRendering is true,
+  // no rendering happens. Changing the value of this flag does not change
+  // modified time of the mapper. Initial value is false.
+  // This can be used by another rendering class which also uses display lists
+  // (call of display lists can be nested but not their creation.)
+  // There is no good reason to expose it to wrappers.
+  vtkGetMacro(ForceCompileOnly,int);
+  void SetForceCompileOnly(int value);
+  //ETX
+
   // Description:
   // Control how the filter works with scalar point data and cell attribute
   // data.  By default (ScalarModeToDefault), the filter will use point data,
@@ -384,6 +397,8 @@ protected:
   int ArrayAccessMode;
 
   int Static;
+
+  int ForceCompileOnly;
   
 private:
   vtkMapper(const vtkMapper&);  // Not implemented.

@@ -59,6 +59,7 @@ protected:
   vtkSetMacro(ImmediateModeRendering,int);
 
   int ImmediateModeRendering;
+
 private:
   vtkDisplayListPainter(const vtkDisplayListPainter&); // Not implemented.
   void operator=(const vtkDisplayListPainter&); // Not implemented.

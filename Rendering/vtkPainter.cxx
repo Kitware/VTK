@@ -37,7 +37,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkPainter, "1.6");
+vtkCxxRevisionMacro(vtkPainter, "1.7");
 vtkCxxSetObjectMacro(vtkPainter, Input, vtkDataObject);
 vtkCxxSetObjectMacro(vtkPainter, Information, vtkInformation);
 vtkInformationKeyMacro(vtkPainter, STATIC_DATA, Integer);
@@ -190,7 +190,7 @@ void vtkPainter::ReportReferences(vtkGarbageCollector *collector)
 
 //-----------------------------------------------------------------------------
 void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor, 
-  unsigned long typeflags)
+                        unsigned long typeflags, bool forceCompileOnly)
 {
   this->TimeToDraw = 0.0;
   if (renderer->GetRenderWindow()->CheckAbortStatus())
@@ -210,17 +210,17 @@ void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor,
     }
 
   this->PrepareForRendering(renderer, actor);
-  this->RenderInternal(renderer, actor, typeflags);
+  this->RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 }
 
 //-----------------------------------------------------------------------------
 void vtkPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-  unsigned long typeflags)
+                                unsigned long typeflags, bool forceCompileOnly)
 {
   if (this->DelegatePainter)
     {
     this->UpdateDelegatePainter();
-    this->DelegatePainter->Render(renderer, actor, typeflags);
+    this->DelegatePainter->Render(renderer, actor, typeflags,forceCompileOnly);
     }
 }
 

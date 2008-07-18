@@ -35,7 +35,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.7");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.8");
 //---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
@@ -117,13 +117,16 @@ void vtkPrimitivePainter::PrepareForRendering(vtkRenderer* renderer,
 
 //---------------------------------------------------------------------------
 void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
-    vtkActor* act, unsigned long typeflags)
+                                         vtkActor* act,
+                                         unsigned long typeflags,
+                                         bool forceCompileOnly)
 {
   unsigned long supported_typeflags = this->SupportedPrimitive & typeflags;
   if (!supported_typeflags)
     {
     // no supported primitive requested to be rendered.
-    this->Superclass::RenderInternal(renderer, act, typeflags);
+      this->Superclass::RenderInternal(renderer, act, typeflags,
+                                       forceCompileOnly);
     return;
     }
 
@@ -278,7 +281,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
 
-  this->Superclass::RenderInternal(renderer, act, typeflags);
+  this->Superclass::RenderInternal(renderer, act, typeflags,forceCompileOnly);
 }
 
 //---------------------------------------------------------------------------

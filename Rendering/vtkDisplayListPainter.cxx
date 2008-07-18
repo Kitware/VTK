@@ -22,8 +22,9 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkDisplayListPainter);
-vtkCxxRevisionMacro(vtkDisplayListPainter, "1.3");
+vtkCxxRevisionMacro(vtkDisplayListPainter, "1.4");
 vtkInformationKeyMacro(vtkDisplayListPainter, IMMEDIATE_MODE_RENDERING, Integer);
+
 //----------------------------------------------------------------------------
 vtkDisplayListPainter::vtkDisplayListPainter()
 {
@@ -49,6 +50,7 @@ void vtkDisplayListPainter::ProcessInformation(vtkInformation* info)
     {
     this->SetImmediateModeRendering(info->Get(IMMEDIATE_MODE_RENDERING()));
     }
+
   this->Superclass::ProcessInformation(info);
 }
 

@@ -50,8 +50,10 @@ protected:
   // Description:
   // Setups lighting state before calling render on delegate 
   // painter.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+  virtual void RenderInternal(vtkRenderer *renderer,
+                              vtkActor *actor, 
+                              unsigned long typeflags,
+                              bool forceCompileOnly);
 
 private:
   vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&); // Not implemented.

@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.24");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.25");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -258,7 +258,8 @@ void vtkIdentColoredPainter::GetCurrentColor(unsigned char *RGB)
 //-----------------------------------------------------------------------------
 void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer, 
                                             vtkActor* actor, 
-                                            unsigned long typeflags)
+                                            unsigned long typeflags,
+                                            bool forceCompileOnly)
 {
   if (typeflags == 0)
     {
@@ -342,7 +343,8 @@ void vtkIdentColoredPainter::RenderInternal(vtkRenderer* renderer,
   // let the superclass pass on the request to delegate painter.
   // Ofcouse, more than likely, this call will never have a delegate,
   // but anyways.
-  this->Superclass::RenderInternal(renderer, actor, typeflags);
+  this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                   forceCompileOnly);
 }
 
 //-----------------------------------------------------------------------------

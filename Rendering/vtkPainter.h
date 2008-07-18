@@ -109,8 +109,9 @@ public:
   // of primitives can be requested by or-ring the primitive flags. 
   // Default implementation calls UpdateDelegatePainter() to update the 
   // deletagate painter and then calls RenderInternal().
+  // forceCompileOnly is passed to the display list painters.
   virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                      unsigned long typeflags, bool forceCompileOnly);
   
   // Description:
   // Release any graphics resources that are being consumed by this painter.
@@ -187,7 +188,7 @@ protected:
   // DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
   // has been called.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
   // Called when the delegate painter reports its progress.

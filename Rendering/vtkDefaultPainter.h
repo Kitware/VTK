@@ -99,7 +99,7 @@ public:
   // Building of the chain does not depend on input polydata,
   // hence it does not check if the input has changed at all.
   virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                      unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
   // Release any graphics resources that are being consumed by this painter.

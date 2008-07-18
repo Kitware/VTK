@@ -65,7 +65,7 @@ protected:
   // DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
   // has been called.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags, bool forceCompileOnly);
 
   vtkSetMacro(ColorLeaves, int);
   vtkGetMacro(ColorLeaves, int);

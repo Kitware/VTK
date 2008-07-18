@@ -47,7 +47,8 @@ protected:
   // If not using ImmediateModeRendering, this will build a display list,
   // if outdated and use the display list.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags,
+                              bool forceCompileOnly);
 
   unsigned long LastUsedTypeFlags;
 private:

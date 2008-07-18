@@ -80,7 +80,7 @@ public:
   // Overridden to stop the render call if input polydata is not set,
   // since PolyDataPainter cannot paint without any polydata input.
   virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                      unsigned long typeflags, bool forceCompileOnly);
 
 protected:
   vtkPolyDataPainter();

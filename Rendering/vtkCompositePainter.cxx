@@ -29,7 +29,7 @@
 # include "vtkOpenGL.h"
 #endif
 vtkStandardNewMacro(vtkCompositePainter);
-vtkCxxRevisionMacro(vtkCompositePainter, "1.1");
+vtkCxxRevisionMacro(vtkCompositePainter, "1.2");
 vtkInformationKeyMacro(vtkCompositePainter, COLOR_LEAVES, Integer);
 //----------------------------------------------------------------------------
 vtkCompositePainter::vtkCompositePainter()
@@ -64,8 +64,10 @@ vtkDataObject* vtkCompositePainter::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositePainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-  unsigned long typeflags)
+void vtkCompositePainter::RenderInternal(vtkRenderer* renderer,
+                                         vtkActor* actor,
+                                         unsigned long typeflags,
+                                         bool forceCompileOnly)
 {
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
@@ -73,7 +75,8 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(this->GetInput());
   if (!input || !this->DelegatePainter)
     {
-    this->Superclass::RenderInternal(renderer, actor, typeflags);
+      this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                       forceCompileOnly);
     return;
     }
 
@@ -117,7 +120,8 @@ void vtkCompositePainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
 
       this->DelegatePainter->SetInput(dobj);
       this->OutputData = dobj;
-      this->Superclass::RenderInternal(renderer, actor, typeflags);
+      this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                       forceCompileOnly);
       this->OutputData = 0;
       }
     }

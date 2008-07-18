@@ -54,7 +54,7 @@ protected:
   // Subclasses may override this method. Default implementation propagates
   // the call to Deletegate Painter, in any.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags,bool forceCompileOnly);
 
 private:
   vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.

@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataPainter, "1.4");
+vtkCxxRevisionMacro(vtkPolyDataPainter, "1.5");
 vtkInformationKeyMacro(vtkPolyDataPainter, BUILD_NORMALS, Integer);
 vtkInformationKeyMacro(vtkPolyDataPainter, DATA_ARRAY_TO_VERTEX_ATTRIBUTE, ObjectBase);
 vtkInformationKeyMacro(vtkPolyDataPainter, DISABLE_SCALAR_COLOR, Integer);
@@ -49,7 +49,7 @@ vtkPolyDataPainter::~vtkPolyDataPainter()
 
 //-----------------------------------------------------------------------------
 void vtkPolyDataPainter::Render(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags)
+                                unsigned long typeflags,bool forceCompileOnly)
 {
   if (!this->GetInputAsPolyData())
     {
@@ -57,7 +57,7 @@ void vtkPolyDataPainter::Render(vtkRenderer* renderer, vtkActor* actor,
     return;
     }
 
-  this->Superclass::Render(renderer, actor, typeflags);
+  this->Superclass::Render(renderer, actor, typeflags,forceCompileOnly);
 }
 
 //-----------------------------------------------------------------------------

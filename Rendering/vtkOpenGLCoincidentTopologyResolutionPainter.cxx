@@ -26,7 +26,7 @@
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
 vtkCxxRevisionMacro(vtkOpenGLCoincidentTopologyResolutionPainter, 
-  "1.5");
+  "1.6");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLCoincidentTopologyResolutionPainter::
@@ -43,7 +43,10 @@ vtkOpenGLCoincidentTopologyResolutionPainter::
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
-  vtkRenderer* renderer, vtkActor* actor, unsigned long typeflags)
+   vtkRenderer *renderer,
+   vtkActor *actor,
+   unsigned long typeflags,
+    bool forceCompileOnly)
 {
   int resolve=0, zResolve=0;
   double zRes = 0.0;
@@ -74,24 +77,26 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderInternal(
  
   if (!zResolve)
     {
-    this->Superclass::RenderInternal(renderer, actor, typeflags);
+      this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                       forceCompileOnly);
     }
   else
     {
     if (typeflags & vtkPainter::VERTS)
       {
-      this->Superclass::RenderInternal(renderer, actor , vtkPainter::VERTS);
+        this->Superclass::RenderInternal(renderer, actor , vtkPainter::VERTS,
+                                         forceCompileOnly);
       }
     if (typeflags & vtkPainter::LINES || typeflags & vtkPainter::POLYS)
       {
       glDepthRange(zRes, 1.);
       this->Superclass::RenderInternal(renderer, actor, typeflags 
-        & (vtkPainter::LINES | vtkPainter::POLYS));
+                                       & (vtkPainter::LINES | vtkPainter::POLYS),forceCompileOnly);
       }
     if (typeflags & vtkPainter::STRIPS)
       {
       glDepthRange(2*zRes, 1.);
-      this->Superclass::RenderInternal(renderer, actor , vtkPainter::STRIPS);
+      this->Superclass::RenderInternal(renderer, actor , vtkPainter::STRIPS,forceCompileOnly);
       }
     }
 

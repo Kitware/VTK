@@ -28,7 +28,7 @@
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.5");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.6");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -289,7 +289,8 @@ vtkPolyDataPainter* vtkChooserPainter::CreatePainter(const char *paintertype)
 
 //-----------------------------------------------------------------------------
 void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags)
+                                       unsigned long typeflags,
+                                       bool forceCompileOnly)
 {
   vtkPolyData* pdInput = this->GetInputAsPolyData();
   vtkIdType numVerts = pdInput->GetNumberOfVerts();
@@ -318,7 +319,8 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Verts" << endl;
     this->ProgressScaleFactor = static_cast<double>(numVerts)/total_cells;
-    this->VertPainter->Render(renderer, actor, vtkPainter::VERTS);
+    this->VertPainter->Render(renderer, actor, vtkPainter::VERTS,
+                              forceCompileOnly);
     this->TimeToDraw += this->VertPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
@@ -327,7 +329,8 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Lines" << endl;
     this->ProgressScaleFactor = static_cast<double>(numLines)/total_cells;
-    this->LinePainter->Render(renderer, actor, vtkPainter::LINES);
+    this->LinePainter->Render(renderer, actor, vtkPainter::LINES,
+                              forceCompileOnly);
     this->TimeToDraw += this->LinePainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
@@ -337,7 +340,8 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Polys" << endl;
     this->ProgressScaleFactor = static_cast<double>(numPolys)/total_cells;
-    this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS);
+    this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
+                              forceCompileOnly);
     this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
@@ -346,10 +350,11 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Strips" << endl;
     this->ProgressScaleFactor = static_cast<double>(numStrips)/total_cells;
-    this->StripPainter->Render(renderer, actor, vtkPainter::STRIPS);
+    this->StripPainter->Render(renderer, actor, vtkPainter::STRIPS,
+                               forceCompileOnly);
     this->TimeToDraw += this->StripPainter->GetTimeToDraw();
     }
-  this->Superclass::RenderInternal(renderer, actor, typeflags);
+  this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 }
 
 //-----------------------------------------------------------------------------

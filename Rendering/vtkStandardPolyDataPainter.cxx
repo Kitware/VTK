@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.13");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.14");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -176,8 +176,10 @@ void vtkStandardPolyDataPainter::UpdateGenericAttributesCache(
 }
 
 //-----------------------------------------------------------------------------
-void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-  unsigned long typeflags)
+void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer,
+                                                vtkActor* actor, 
+                                                unsigned long typeflags,
+                                                bool forceCompileOnly)
 {
   if (typeflags == 0)
     {
@@ -258,7 +260,7 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer, vtkActor*
   // let the superclass pass on the request to delegate painter.
   // Ofcouse, more than likely, this call will never have a delegate,
   // but anyways.
-  this->Superclass::RenderInternal(renderer, actor, typeflags);
+  this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 
 
   this->Internal->PointAttributesCache.clear();

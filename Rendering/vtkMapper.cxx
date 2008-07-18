@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.123");
+vtkCxxRevisionMacro(vtkMapper, "1.124");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -64,6 +64,8 @@ vtkMapper::vtkMapper()
   this->InterpolateScalarsBeforeMapping = 0;
   this->ColorCoordinates = 0;
   this->ColorTextureMap = 0;
+
+  this->ForceCompileOnly=0;
 }
 
 vtkMapper::~vtkMapper()
@@ -114,6 +116,16 @@ vtkDataSet *vtkMapper::GetInput()
     }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
+}
+
+void vtkMapper::SetForceCompileOnly(int value)
+{
+  if(this->ForceCompileOnly!=value)
+    {
+      this->ForceCompileOnly=value;
+      // make sure we don't call this->Modified();
+      //      this->Modified();
+    }
 }
 
 void vtkMapper::SetGlobalImmediateModeRendering(int val)
@@ -671,6 +683,10 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Immediate Mode Rendering: " 
     << (this->ImmediateModeRendering ? "On\n" : "Off\n");
+
+   os << indent << "Force compile only for display lists: " 
+    << (this->ForceCompileOnly ? "On\n" : "Off\n");
+
   os << indent << "Global Immediate Mode Rendering: " << 
     (vtkMapperGlobalImmediateModeRendering ? "On\n" : "Off\n");
 

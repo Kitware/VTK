@@ -44,7 +44,7 @@ protected:
   // Overriden to set RenderPolys flag. When set, polys are rendered
   // as line loops.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
   // The actual rendering happens here. This method is called only when

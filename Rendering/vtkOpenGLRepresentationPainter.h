@@ -50,7 +50,7 @@ protected:
   // Description:
   // Changes the polygon mode according to the representation.
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                      unsigned long typeflags,bool forceCompileOnly);
 private:
   vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&); // Not implemented.
   void operator=(const vtkOpenGLRepresentationPainter&); // Not implemented.

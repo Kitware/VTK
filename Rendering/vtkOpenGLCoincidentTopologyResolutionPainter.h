@@ -41,7 +41,7 @@ protected:
   // DelegatePainter is in sync with this painter i.e. UpdatePainter()
   // has been called.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
-    unsigned long typeflags);
+                              unsigned long typeflags, bool forceCompileOnly);
 private:
   vtkOpenGLCoincidentTopologyResolutionPainter(
     const vtkOpenGLCoincidentTopologyResolutionPainter&); // Not implemented.
