@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.42");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.43");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -167,6 +167,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
       n = r + 1.;
+      inv_n = 1. / n;
 
       val = inData->GetValueByName( r, col ).ToDouble();
       delta = val - mean;
@@ -203,6 +204,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       n = this->SampleSize;
       inv_n = 1. / n;
       nm1 = n - 1.;
+
       variance = mom2 / nm1;
       double var_inv = 1. / variance;
       double nvar_inv = var_inv * inv_n;

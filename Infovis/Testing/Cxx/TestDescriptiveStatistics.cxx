@@ -184,7 +184,7 @@ int TestDescriptiveStatistics( int, char *[] )
            << "="
            << outputMeta->GetValue( r, i ).ToString()
            << "  ";
-     }
+      }
     cout << "\n";
     }
 
