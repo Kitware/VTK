@@ -18,8 +18,8 @@
 // This painter does not do any actual rendering.
 // Sets up a default pipeline of painters to mimick the behaiour of 
 // old vtkPolyDataMapper. The chain is as follows:
-// input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
-// vtkDisplayListPainter --> vtkCompositePainter -->
+// input--> vtkScalarsToColorsPainter --> vtkDisplayListPainter -->
+// vtkClipPlanesPainter --> vtkCompositePainter -->
 // vtkCoincidentTopologyResolutionPainter -->
 // vtkLightingPainter --> vtkRepresentationPainter --> 
 // <Delegate of vtkDefaultPainter>.
@@ -53,19 +53,19 @@ public:
   vtkGetObjectMacro(ScalarsToColorsPainter, vtkScalarsToColorsPainter);
 
   // Description:
+  // Get/Set the painter that builds display lists.
+  void SetDisplayListPainter(vtkDisplayListPainter*);
+  vtkGetObjectMacro(DisplayListPainter, vtkDisplayListPainter);
+
+  // Description:
   // Get/Set the painter that handles clipping.
   void SetClipPlanesPainter(vtkClipPlanesPainter*);
   vtkGetObjectMacro(ClipPlanesPainter, vtkClipPlanesPainter);
 
   // Description:
-  // Get/Set the painter that controls lighting.
-  void SetLightingPainter(vtkLightingPainter*);
-  vtkGetObjectMacro(LightingPainter, vtkLightingPainter);
-
-  // Description:
-  // Get/Set the painter that builds display lists.
-  void SetDisplayListPainter(vtkDisplayListPainter*);
-  vtkGetObjectMacro(DisplayListPainter, vtkDisplayListPainter);
+  // Get/Set the painter used to handle composite datasets.
+  void SetCompositePainter(vtkCompositePainter*);
+  vtkGetObjectMacro(CompositePainter, vtkCompositePainter);
 
   // Description:
   // Painter used to resolve coincident topology.
@@ -75,14 +75,14 @@ public:
     vtkCoincidentTopologyResolutionPainter);
 
   // Description:
+  // Get/Set the painter that controls lighting.
+  void SetLightingPainter(vtkLightingPainter*);
+  vtkGetObjectMacro(LightingPainter, vtkLightingPainter);
+
+  // Description:
   // Painter used to convert polydata to Wireframe/Points representation.
   void SetRepresentationPainter(vtkRepresentationPainter*);
   vtkGetObjectMacro(RepresentationPainter, vtkRepresentationPainter);
-
-  // Description:
-  // Get/Set the painter used to handle composite datasets.
-  void SetCompositePainter(vtkCompositePainter*);
-  vtkGetObjectMacro(CompositePainter, vtkCompositePainter);
 
   // Description:
   // Set/Get the painter to which this painter should propagare its draw calls.
@@ -126,13 +126,13 @@ protected:
   // Take part in garbage collection.
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
-  vtkClipPlanesPainter* ClipPlanesPainter;
-  vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
-  vtkCompositePainter* CompositePainter;
+  vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkDisplayListPainter* DisplayListPainter;
+  vtkClipPlanesPainter* ClipPlanesPainter;
+  vtkCompositePainter* CompositePainter;
+  vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
   vtkLightingPainter* LightingPainter;
   vtkRepresentationPainter* RepresentationPainter;
-  vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkTimeStamp ChainBuildTime;
 
   vtkPainter* DefaultPainterDelegate;
