@@ -25,7 +25,6 @@ class vtkPolyDataMapper;
 class VTK_PARALLEL_EXPORT vtkPipelineSize : public vtkObject
 {
 public:
-  // Description:
   static vtkPipelineSize* New();
   vtkTypeRevisionMacro(vtkPipelineSize,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
