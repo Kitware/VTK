@@ -31,7 +31,6 @@ public:
   vtkTypeRevisionMacro(vtkPCellDataToPointData,vtkCellDataToPointData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkPCellDataToPointData *New();
 
   // Description:
