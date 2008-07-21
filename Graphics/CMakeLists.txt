@@ -260,7 +260,6 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
-vtkDijkstraGraphGeodesicPath
 vtkEdgeSubdivisionCriterion.cxx 
 vtkExtractSelectionBase
 vtkGeodesicPath
