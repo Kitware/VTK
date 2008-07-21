@@ -43,6 +43,13 @@ IF(PYTHON_ENABLE_MODULE_vtk${KIT}Python)
   IF(WIN32 AND NOT CYGWIN)
     SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES SUFFIX ".pyd")
   ENDIF(WIN32 AND NOT CYGWIN)
+
+  # The python modules are installed by a setup.py script which does
+  # not know how to adjust the RPATH field of the binary.  Therefore
+  # we must simply build the modules with no RPATH at all.  The
+  # vtkpython executable in the build tree should have the needed
+  # RPATH anyway.
+  SET_TARGET_PROPERTIES(vtk${KIT}Python PROPERTIES SKIP_BUILD_RPATH 1)
   
   IF(WIN32 OR APPLE)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python ${VTK_PYTHON_LIBRARIES})
