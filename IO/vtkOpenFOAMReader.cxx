@@ -58,7 +58,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.12");
+vtkCxxRevisionMacro(vtkOpenFOAMReader, "1.12.2.1");
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 struct stdString
@@ -703,7 +703,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::MakeInternalMesh()
         for(k = 0; k < (int)this->FacePoints->value[
           this->FacesOfCell->value[i][j].faceIndex].size(); k++)
           {
-          for(l = 0; l < (int)cellPoints.size(); l++);
+          for(l = 0; l < (int)cellPoints.size(); l++)
             {
             if(cellPoints[l] == this->FacePoints->value[
               this->FacesOfCell->value[i][j].faceIndex][k])
@@ -3321,7 +3321,7 @@ vtkUnstructuredGrid * vtkOpenFOAMReader::GetCellZoneMesh(int timeState,
         for(k = 0; k < (int)this->FacePoints->value[
             this->FacesOfCell->value[i][j].faceIndex].size(); k++)
           {
-          for(l = 0; l < (int)cellPoints.size(); l++);
+          for(l = 0; l < (int)cellPoints.size(); l++)
             {
             if(cellPoints[l] == this->FacePoints->value[this->FacesOfCell->
                                 value[cellZone[i]][j].faceIndex][k])
