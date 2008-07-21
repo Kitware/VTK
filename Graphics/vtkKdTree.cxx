@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.20");
+vtkCxxRevisionMacro(vtkKdTree, "1.20.2.1");
 
 // Timing data ---------------------------------------------
 
@@ -1465,7 +1465,10 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
       {
       Exchange(X, ids, I, J);
 
-      while (Xcomponent[(++I)*3] < T);
+      while (Xcomponent[(++I)*3] < T)
+        {
+        ;
+        }
 
       while ((J>L) && (Xcomponent[(--J)*3] >= T))
         {
@@ -1499,10 +1502,16 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 
       while (I < J)
         {
-        while ((++I < J) && (Xcomponent[I*3] == T));
+        while ((++I < J) && (Xcomponent[I*3] == T))
+          {
+          ;
+          }
         if (I == J) break;
 
-        while ((--J > I) && (Xcomponent[J*3] > T));
+        while ((--J > I) && (Xcomponent[J*3] > T))
+          {
+          ;
+          }
         if (J == I) break;
 
         Exchange(X, ids, I, J);
