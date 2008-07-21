@@ -79,7 +79,10 @@ public:
       }
     int i = 0;
     for (vtkstd::set< vtkIdType >::const_iterator it = neighbors.begin(); 
-         it != neighbors.end(); neighborPtIds[i++] = *it, ++it);
+         it != neighbors.end(); neighborPtIds[i++] = *it, ++it)
+      {
+      ;
+      }
     }
 
   void GetNeighbors( vtkIdType node, vtkIdType neighborPtIds[3], 
@@ -133,7 +136,10 @@ public:
     m_Topology.push_back(clique);
 
     for ( vtkIdType i = 0; i < 8; 
-          m_Topology.push_back( GetChairClique( i++, clique ) ) );
+          m_Topology.push_back( GetChairClique( i++, clique ) ) )
+      {
+      ;
+      }
 
     // README : The goal of the class is succintly described by the line below
     // PrintTopology( cout );
@@ -239,7 +245,10 @@ private:
       vtkIdType *ids = new vtkIdType[clit->size()];
       int i = 0;
       for (CellType::const_iterator cit = clit->begin(); 
-           cit != clit->end(); ids[i++] = *cit, ++cit );
+           cit != clit->end(); ids[i++] = *cit, ++cit )
+        {
+        ;
+        }
       cellArray->InsertNextCell( clit->size(), ids );
       delete [] ids;
       }
@@ -267,7 +276,10 @@ private:
   static void PrintCell( const CellType & cell, ostream &os )
     {
     for (CellType::const_iterator cit = cell.begin(); 
-         cit != cell.end(); os << *cit << " ", ++cit );
+         cit != cell.end(); os << *cit << " ", ++cit )
+      {
+      ;
+      }
     }
 
   static void PrintClique( const CliqueType & clique, ostream &os )
@@ -286,7 +298,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7.2.1");
+vtkCxxRevisionMacro(vtkParallelopipedRepresentation, "1.7.2.2");
 vtkStandardNewMacro(vtkParallelopipedRepresentation);
 
 vtkCxxSetObjectMacro(vtkParallelopipedRepresentation, 
@@ -444,7 +456,10 @@ void vtkParallelopipedRepresentation
     if (!this->HandleRepresentations)
       {
       this->HandleRepresentations = new vtkHandleRepresentation* [8];      
-      for (int i=0; i<8; this->HandleRepresentations[i++] = NULL);
+      for (int i=0; i<8; this->HandleRepresentations[i++] = NULL)
+        {
+        ;
+        }
       }
     }
   else
@@ -452,7 +467,10 @@ void vtkParallelopipedRepresentation
     // Free the 8 handles if they haven't been freed.
     if (this->HandleRepresentations)
       {
-      for (int i=0; i<8; this->HandleRepresentations[i++]->Delete());
+      for (int i=0; i<8; this->HandleRepresentations[i++]->Delete())
+        {
+        ;
+        }
       delete [] this->HandleRepresentations;
       this->HandleRepresentations = NULL;
       }
@@ -1094,7 +1112,10 @@ int vtkParallelopipedRepresentation
       
       // Translate this face...
       for (vtkIdType i = 0; i < npts; 
-           this->TranslatePoint( cellPtIds[i++], handleTranslation ));
+           this->TranslatePoint( cellPtIds[i++], handleTranslation ))
+        {
+        ;
+        }
         
       // Cache the axis along which we resized the previous time, so we don't
       // have to recompute it.
@@ -1357,13 +1378,19 @@ void vtkParallelopipedRepresentation::PositionHandles()
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HandlesOn()
 {
-  for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(1));
+  for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(1))
+    {
+    ;
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HandlesOff()
 {
-  for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(0));
+  for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(0))
+    {
+    ;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1528,7 +1555,10 @@ void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
   double center[3] = {0.0, 0.0, 0.0}, newCorners[8][3];
   for (int j = 0; j < 3; j++)
     {
-    for (int i = 0; i < 8; center[j] += corners[i][j], i++);
+    for (int i = 0; i < 8; center[j] += corners[i][j], i++)
+      {
+      ;
+      }
     center[j] /= 8.0;
     
     for (int i = 0; i < 8; i++)
