@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.7");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.8");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -473,7 +473,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
 }
 
 //----------------------------------------------------------------------
-void vtkSliderRepresentation2D::GetActors(vtkPropCollection *pc)
+void vtkSliderRepresentation2D::GetActors2D(vtkPropCollection *pc)
 {
   pc->AddItem(this->SliderActor);
   pc->AddItem(this->TubeActor);

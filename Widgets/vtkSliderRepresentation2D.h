@@ -115,7 +115,7 @@ public:
 
   // Decsription:
   // Methods supporting the rendering process.
-  virtual void GetActors(vtkPropCollection*);
+  virtual void GetActors2D(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
