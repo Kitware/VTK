@@ -38,7 +38,8 @@ public:
   vtkTypeRevisionMacro(vtkGESignaReader,vtkMedicalImageReader2);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description: is the given file name a GESigna file?
+  // Description:
+  // Is the given file a GESigna file?
   virtual int CanReadFile(const char* fname);
 
   // Description:
