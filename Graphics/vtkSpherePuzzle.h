@@ -31,7 +31,6 @@ public:
   vtkTypeRevisionMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkSpherePuzzle *New();
 
   // Description:
@@ -45,7 +44,7 @@ public:
   // Description:
   // Rotate vertical half of sphere along one of the longitude lines.
   void MoveVertical(int section, int percentage, int rightFlag);
-  
+
   // Description:
   // SetPoint will be called as the mouse moves over the screen.
   // The output will change to indicate the pending move.
