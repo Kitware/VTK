@@ -100,7 +100,7 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
       return (s1.Data.__Int64 < s2.Data.__Int64);
 
     case VTK_UNSIGNED___INT64:
-      return (s1.Data.Unsigned__Int64 < s2.Data.Unsigned__Int64());
+      return (s1.Data.Unsigned__Int64 < s2.Data.Unsigned__Int64);
 #endif
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
@@ -191,7 +191,7 @@ vtkVariantStrictEquality::operator()(const vtkVariant &s1, const vtkVariant &s2)
       return (s1.Data.__Int64 == s2.Data.__Int64);
 
     case VTK_UNSIGNED___INT64:
-      return (s1.Data.Unsigned__Int64 == s2.Data.Unsigned__Int64());
+      return (s1.Data.Unsigned__Int64 == s2.Data.Unsigned__Int64);
 #endif
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
