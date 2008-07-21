@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-MACRO(VTK_EXPORT_KIT kit ukit sources)
+MACRO(VTK_EXPORT_KIT2 kit ukit dest_dir sources)
   SET(VTK_EXPORT_KIT ${kit})
   SET(VTK_EXPORT_UKIT ${ukit})
   SET(VTK_EXPORT_KIT_DOLLAR "$")
@@ -25,11 +25,11 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
     ENDIF(IS_EXCLUDE MATCHES "^1$")
   ENDFOREACH(src)
   CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkKit.cmake.in
-                 ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
+                 ${dest_dir}/InstallOnly/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
   IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     INSTALL(FILES
-      ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
+      ${dest_dir}/InstallOnly/vtk${kit}Kit.cmake
       DESTINATION "${VTK_INSTALL_PACKAGE_DIR_CM24}"
       COMPONENT Development)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
@@ -56,6 +56,11 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
     ENDIF(IS_EXCLUDE MATCHES "^1$")
   ENDFOREACH(src)
   CONFIGURE_FILE(${VTK_CMAKE_DIR}/vtkKit.cmake.in
-                 ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
+                 ${dest_dir}/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
+ENDMACRO(VTK_EXPORT_KIT2)
+
+#-----------------------------------------------------------------------------
+MACRO(VTK_EXPORT_KIT kit ukit sources)
+  VTK_EXPORT_KIT2(${kit} ${ukit} ${VTK_BINARY_DIR}/Utilities "${sources}")
 ENDMACRO(VTK_EXPORT_KIT)
