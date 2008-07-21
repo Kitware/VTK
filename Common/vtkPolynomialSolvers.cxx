@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.34");
+vtkCxxRevisionMacro(vtkPolynomialSolvers, "1.34.2.1");
 vtkStandardNewMacro(vtkPolynomialSolvers);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -260,57 +260,70 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
 
   double bounds[] = { a[0], a[1] };
   double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2];
-  int* degSSS = new int[d + 2];
-  
-  int offsetA = 0;
-  degSSS[0] = d;
+  int* degrees = new int[d + 2];
+  int* offsets = new int[d + 2];
+
+  int dp1 = d + 1;
+  offsets[0] = 0;
+  offsets[1] = dp1;
+
+  degrees[0] = d;
+  degrees[1] = d - 1;
+
   SSS[0] = P[0];
   SSS[d] = P[d];
-
-  int offsetB = d + 1;
-  degSSS[1] = d - 1;
-  SSS[offsetB] = static_cast<double>( d ) * P[0];
+  SSS[dp1] = static_cast<double>( d ) * P[0];
   
   int i, k;
   double oldVal[] = { P[0], P[0] };
   for ( i = 1; i < d; ++ i ) 
     {
     SSS[i] = P[i];
-    SSS[offsetB + i] = static_cast<double>( d - i ) * P[i];
+    SSS[dp1 + i] = static_cast<double>( d - i ) * P[i];
     for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[i];
     }
   for ( k = 0; k < 2; ++ k ) oldVal[k] = oldVal[k] * bounds[k] + P[d];
 
   double perturbation = tol * .5 / static_cast<double>( d );
-  while ( IsZero( oldVal[0] ) && IsZero( evaluateHorner( SSS + offsetB, d - 1, bounds[0] ) ) )
+  while ( IsZero( oldVal[0] ) && IsZero( evaluateHorner( SSS + dp1, d - 1, bounds[0] ) ) )
     {
     bounds[0] -= perturbation;
     oldVal[0] = evaluateHorner( SSS, d, bounds[0] );
     }
-  while ( IsZero( oldVal[1] ) && IsZero( evaluateHorner( SSS + offsetB, d - 1, bounds[1] ) ) )
+  while ( IsZero( oldVal[1] ) && IsZero( evaluateHorner( SSS + dp1, d - 1, bounds[1] ) ) )
     {
     bounds[1] += perturbation;
     oldVal[1] = evaluateHorner( SSS, d, bounds[1] );
     }
 
   int varSgn[] = { 0, 0 };
-  int offsetR;
   int nSSS = 1;
-  for ( ; degSSS[nSSS] > -1; ++ nSSS )
+  for ( ; degrees[nSSS] > -1; ++ nSSS )
     {
-    double newVal[] = { SSS[offsetB], SSS[offsetB] };
+    int offset = offsets[nSSS];
+    int degree = degrees[nSSS];
+    double newVal[] = { SSS[offset], SSS[offset] };
     for ( k = 0; k < 2; ++ k )
       {
-      for ( i = 1; i <= degSSS[nSSS]; ++ i ) newVal[k] = newVal[k] * bounds[k] + SSS[offsetB + i];
-      if ( oldVal[k] * newVal[k] < 0. ) ++ varSgn[k];
-      if ( newVal[k] ) oldVal[k] = newVal[k];
+      for ( i = 1; i <= degree; ++ i ) 
+        {
+        newVal[k] = newVal[k] * bounds[k] + SSS[offset + i];
+        }
+      if ( oldVal[k] * newVal[k] < 0. )  
+        {
+        ++ varSgn[k];
+        }
+      if ( newVal[k] )
+        {
+        oldVal[k] = newVal[k];
+        }
       }
 
-    offsetR = offsetB + degSSS[nSSS] + 1;
-    degSSS[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsetA, degSSS[nSSS - 1], SSS + offsetB, degSSS[nSSS], SSS + offsetR, 1.e-6 );
-   
-    offsetA = offsetB;
-    offsetB = offsetR;
+    degrees[nSSS + 1] = polynomialEucliDivOppositeR( SSS + offsets[nSSS - 1], degrees[nSSS - 1], 
+                                                     SSS + offset,            degree, 
+                                                     SSS + offset + degree + 1,
+                                                     1.e-6 );
+    offsets[nSSS + 1] = offset + 2 * degrees[nSSS] - degrees[nSSS + 1];
    }
 
   int nRoots = varSgn[0] - varSgn[1];
@@ -335,12 +348,11 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     for ( i = 0; i < nloc; ++ i )
       {
       x = upperBnds[i] - localTol;
-      offsetA = 0;
       xOldVal = 0.;
       midVarSgn = 0;
-      for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
+      for ( int j = 0; j < nSSS; ++ j )
         {
-        xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
+        xVal = evaluateHorner( SSS + offsets[j], degrees[j], x );
         if ( IsZero( xVal ) )
           {
           continue;
@@ -386,12 +398,11 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
         x = upperBnds[i] - localTol;
         if ( multipleRoot[i] )
           {
-          offsetA = 0;
           xOldVal = 0.;
           midVarSgn = 0;
-          for ( int j = 0; j < nSSS; offsetA += degSSS[j ++] + 1 )
+          for ( int j = 0; j < nSSS; ++j )
             {
-            xVal = evaluateHorner( SSS + offsetA, degSSS[j], x );
+            xVal = evaluateHorner( SSS + offsets[j], degrees[j], x );
             if ( IsZero( xVal ) )
               {
               continue;
@@ -421,7 +432,8 @@ int vtkPolynomialSolvers::SturmBisectionSolve( double* P, int d, double* a, doub
     }
 
   delete [] upperVarSgn;
-  delete [] degSSS;
+  delete [] offsets;
+  delete [] degrees;
   delete [] SSS;
 
   return nIntervals;
