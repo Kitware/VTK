@@ -133,22 +133,42 @@ public:
   vtkGetObjectMacro(PositionInterpolator,vtkTupleInterpolator);
 
   // Description:
+  // Set/Get the tuple interpolator used to interpolate the focal point portion
+  // of the camera. Note that you can modify the behavior of the interpolator
+  // (linear vs spline interpolation; change spline basis) by manipulating
+  // the interpolator instances directly.
   virtual void SetFocalPointInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(FocalPointInterpolator,vtkTupleInterpolator);
 
   // Description:
+  // Set/Get the tuple interpolator used to interpolate the view up portion
+  // of the camera. Note that you can modify the behavior of the interpolator
+  // (linear vs spline interpolation; change spline basis) by manipulating
+  // the interpolator instances directly.
   virtual void SetViewUpInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(ViewUpInterpolator,vtkTupleInterpolator);
 
   // Description:
+  // Set/Get the tuple interpolator used to interpolate the view angle portion
+  // of the camera. Note that you can modify the behavior of the interpolator
+  // (linear vs spline interpolation; change spline basis) by manipulating
+  // the interpolator instances directly.
   virtual void SetViewAngleInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(ViewAngleInterpolator,vtkTupleInterpolator);
 
   // Description:
+  // Set/Get the tuple interpolator used to interpolate the parallel scale portion
+  // of the camera. Note that you can modify the behavior of the interpolator
+  // (linear vs spline interpolation; change spline basis) by manipulating
+  // the interpolator instances directly.
   virtual void SetParallelScaleInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(ParallelScaleInterpolator,vtkTupleInterpolator);
 
   // Description:
+  // Set/Get the tuple interpolator used to interpolate the clipping range portion
+  // of the camera. Note that you can modify the behavior of the interpolator
+  // (linear vs spline interpolation; change spline basis) by manipulating
+  // the interpolator instances directly.
   virtual void SetClippingRangeInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(ClippingRangeInterpolator,vtkTupleInterpolator);
 
