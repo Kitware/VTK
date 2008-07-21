@@ -267,6 +267,10 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
   unsigned int size = static_cast<unsigned int>(this->ControlPoints.size());
   if( !size )
     {
+      c[0] = 0.0;
+      c[1] = 0.0;
+      c[2] = 0.0;
+      c[3] = 0.0;
     return;
     }
   while (this->ControlPoints[i] < x && i < size-1) 
@@ -289,7 +293,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.6.2.1");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
