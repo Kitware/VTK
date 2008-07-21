@@ -15,7 +15,7 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.15");
+vtkCxxRevisionMacro(vtkHeap, "1.15.4.1");
 vtkStandardNewMacro(vtkHeap);
 
 struct vtkTestAlignLong
@@ -137,7 +137,10 @@ void vtkHeap::CleanAll()
 {
   this->Current = this->First;
   if (!this->Current) { return; }
-  while (this->DeleteAndNext());
+  while (this->DeleteAndNext())
+    {
+    ;
+    }
   this->First = this->Current = this->Last = 0;
   this->Position = 0;
 }
