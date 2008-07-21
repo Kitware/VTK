@@ -52,16 +52,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Finds all REAL roots (within tolerance \tol) of the \a d -th degree polynomial 
+  // Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial 
   //   P[0] X^d + ... + P[d-1] X + P[d] 
-  // in ]\a[0] ; \a[1]] using Sturm's theorem ( polynomial 
-  // coefficients are REAL ) and returns the count \nr. All roots are bracketed
-  // in the \nr first ]\upperBnds[i] - tol ; \upperBnds[i]] intervals.
+  // in ]\a a[0] ; \a a[1]] using Sturm's theorem ( polynomial 
+  // coefficients are REAL ) and returns the count \a nr. All roots are bracketed
+  // in the \nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
   // Returns -1 if anything went wrong (such as: polynomial does not have
-  // degree d, the interval provided by the other is absurd, etc.).
-  // Warning: it is the user's responsibility to make sure the \upperBnds 
-  // Note that \nr is smaller or equal to the actual number of roots in 
-  // ]\a[0] ; \a[1]] since roots within \tol are lumped in the same bracket.
+  // degree \a d, the interval provided by the other is absurd, etc.).
+  // Warning: it is the user's responsibility to make sure the \a upperBnds 
+  // array is large enough to contain the maximal number of expected roots.
+  // Note that \a nr is smaller or equal to the actual number of roots in 
+  // ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
   // array is large enough to contain the maximal number of expected upper bounds.
   static int SturmBisectionSolve( double* P, int d, double* a, double *upperBnds, double tol );
 
@@ -69,10 +70,10 @@ public:
   // Seeks all REAL roots of the \a d -th degree polynomial 
   //   c[0] X^d + ... + c[d-1] X + c[d] = 0
   // equation Lin-Bairstow's method ( polynomial coefficients are REAL ) and 
-  // stores the \nr roots found ( multiple roots are multiply stored ) in \a r.
-  // \tolerance is the user-defined solver tolerance; this variable may be 
+  // stores the \a nr roots found ( multiple roots are multiply stored ) in \a r.
+  // \a tolerance is the user-defined solver tolerance; this variable may be 
   // relaxed by the iterative solver if needed.
-  // Returns \nr.
+  // Returns \a nr.
   // Warning: it is the user's responsibility to make sure the \a r
   // array is large enough to contain the maximal number of expected roots.
   static int LinBairstowSolve( double* c, int d, double* r, double& tolerance );
@@ -82,10 +83,10 @@ public:
   // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
   // and stores them (when they exist) and their respective multiplicities
   // in the \a r and \a m arrays, based on Ferrari's method.
-  // Some numerical noise can be filtered by the use of a tolerance \tol 
+  // Some numerical noise can be filtered by the use of a tolerance \a tol 
   // instead of equality with 0 (one can use, e.g., VTK_DBL_EPSILON).
   // Returns the number of roots.
-  // Warning: it is the user's responsibility to pass a non-negative \tol.
+  // Warning: it is the user's responsibility to pass a non-negative \a tol.
   static int FerrariSolve( double* c, double* r, int* m, double tol );
 
   // Description:
@@ -93,7 +94,7 @@ public:
   // REAL coefficients X^3 + c[0] X^2 + c[1] X + c[2]
   // and stores them (when they exist) and their respective multiplicities
   // in the \a r and \a m arrays.
-  // Some numerical noise can be filtered by the use of a tolerance \tol 
+  // Some numerical noise can be filtered by the use of a tolerance \a tol 
   // instead of equality with 0 (one can use, e.g., VTK_DBL_EPSILON).
   // The main differences with SolveCubic are that (1) the polynomial must have
   // unit leading coefficient, (2) complex roots are discarded upfront, 
