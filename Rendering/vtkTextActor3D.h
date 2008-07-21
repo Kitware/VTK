@@ -62,8 +62,15 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).  
+  // These are the padded-to-power-of-two texture bounds.
   virtual double *GetBounds();
+
+  // Description:
+  // Get the Freetype-derived real bounding box for the given vtkTextProperty
+  // and text string str.  Results are returned in the four element bbox int
+  // array.  This call can be used for sizing other elements.
+  int GetBoundingBox(int bbox[4]);
 
   //BTX
   // Description:
