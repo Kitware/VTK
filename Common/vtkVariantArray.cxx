@@ -76,7 +76,7 @@ public:
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkVariantArray, "1.14");
+vtkCxxRevisionMacro(vtkVariantArray, "1.15");
 vtkStandardNewMacro(vtkVariantArray);
 //----------------------------------------------------------------------------
 void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -705,7 +705,6 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
   // indices for this value. Some of the indices may have changed
   // values since the cache was built, so we need to do this equality
   // check.
-  vtkVariantLessThan less;
   typedef vtkVariantCachedUpdates::iterator CacheIterator;
   CacheIterator cached    = this->Lookup->CachedUpdates.lower_bound(value),
                 cachedEnd = this->Lookup->CachedUpdates.end();
@@ -713,13 +712,13 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
     {
     // Check that we are still in the same equivalence class as the
     // value.
-    if (value.IsEqual(cached->first))
+    if (value == (*cached).first)
       {
       // Check that the value in the original array hasn't changed.
       vtkVariant currentValue = this->GetValue(cached->second);
-      if (value.IsEqual(currentValue))
+      if (value == currentValue)
         {
-        return cached->second;
+        return (*cached).second;
         }
       }
     else
@@ -746,12 +745,12 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
     {
     // Check whether we still have a value equivalent to what we're
     // looking for.
-      if (value.IsEqual(*found))
+    if (value == *found)
       {
       // Check that the value in the original array hasn't changed.
       vtkIdType index = this->Lookup->IndexArray->GetId(offset);
       vtkVariant currentValue = this->GetValue(index);
-      if (value.IsEqual(currentValue))
+      if (value == currentValue)
         {
         return index;
         }
@@ -779,7 +778,6 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   // indices for this value. Some of the indices may have changed
   // values since the cache was built, so we need to do this equality
   // check.
-  vtkVariantLessThan less;
   typedef vtkVariantCachedUpdates::iterator CacheIterator;
   vtkstd::pair<CacheIterator, CacheIterator> cached    
     = this->Lookup->CachedUpdates.equal_range(value);
@@ -787,7 +785,7 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
     {
     // Check that the value in the original array hasn't changed.
     vtkVariant currentValue = this->GetValue(cached.first->second);
-    if (cached.first->first.IsEqual(currentValue))
+    if (cached.first->first == currentValue)
       {
       ids->InsertNextId(cached.first->second);
       }
@@ -810,7 +808,7 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
     // Check that the value in the original array hasn't changed.
     vtkIdType index = this->Lookup->IndexArray->GetId(offset); 
     vtkVariant currentValue = this->GetValue(index);
-    if (found.first->IsEqual(currentValue))
+    if (*(found.first) == currentValue)
       {
       ids->InsertNextId(index);
       }

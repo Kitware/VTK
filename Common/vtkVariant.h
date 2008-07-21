@@ -284,7 +284,12 @@ public:
   // Description:
   // Determines whether two variants have the same value. They do
   // not need to be storing exactly the same type to have the same
-  // value.
+  // value.  In practice you don't need to use this method: just use
+  // operator== instead.  If you want precise equality down to the bit
+  // level use the following idiom:
+  //
+  // vtkVariantStrictEquality comparator;
+  // bool variantsEqual = comparator(firstVariant, secondVariant);
   bool IsEqual(const vtkVariant& other) const;
 
   // Description:

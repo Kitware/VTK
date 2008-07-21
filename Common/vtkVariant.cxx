@@ -897,11 +897,7 @@ vtkTypeUInt64 vtkVariant::ToTypeUInt64(bool* valid) const
 
 bool vtkVariant::IsEqual(const vtkVariant& other) const
 {
-  if (this->IsString() && other.IsString())
-    {
-    return *this->Data.String == *other.Data.String;
-    }
-  return this->ToDouble() == other.ToDouble();
+  return this->operator==(other);
 }
 
 //----------------------------------------------------------------------------
