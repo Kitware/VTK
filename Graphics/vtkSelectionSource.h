@@ -94,10 +94,13 @@ public:
   vtkGetMacro(ContainingCells, int);
 
   // Description:
+  // Determines whether the selection describes what to include or exclude. 
+  // Default is 0, meaning include.
   vtkSetMacro(Inverse, int);
   vtkGetMacro(Inverse, int);
 
   // Description:
+  // Access to the name of the selection's subset description array.
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
   
