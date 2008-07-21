@@ -16,6 +16,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestPolynomialSolvers.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
+  TestVariantComparison.cxx
   SystemInformation.cxx
   EXTRA_INCLUDE vtkTestDriver.h
 )

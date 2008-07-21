@@ -287,6 +287,45 @@ public:
   // value.
   bool IsEqual(const vtkVariant& other) const;
 
+  // Description:
+  // Compare two variants for equality, greater than, and less than.
+  // These operators use the value represented by the variant instead
+  // of the particular type/bit pattern used to represent it.  This
+  // behavior is similar to the default behavior in C and C++,
+  // including type promotion, with the following caveats:
+  //
+  // * When comparing type X with a string, type X will first be
+  //   converted to string, then compared lexically (the usual
+  //   behavior of string::operator< and company).  
+  //
+  // * vtkObject pointers will be converted to an unsigned integer of
+  //   appropriate size.  If both variants contain vtkObjects then
+  //   they are comparable directly.
+  // 
+  // * Comparing char values with strings will not work the way you
+  //   might expect if you're treating a char as a numeric type.  Char
+  //   values are written to strings as literal ASCII characters
+  //   instead of numbers.
+  //
+  // This approach follows the principle of least surprise at the
+  // expense of speed.  Casting integers to floating-point values is
+  // relatively slow.  Casting numeric types to strings is very slow.
+  // If you prefer speed at the expense of counterintuitive behavior
+  // -- for example, when using vtkVariants as keys in STL containers
+  // -- you can use the functors described at the bottom of this file.
+  //
+  // The actual definitions of these operators are in
+  // vtkVariantInlineOperators.cxx.
+  bool operator==(const vtkVariant &other) const;
+  bool operator!=(const vtkVariant &other) const;
+  bool operator<(const vtkVariant &other) const;
+  bool operator>(const vtkVariant &other) const;
+  bool operator<=(const vtkVariant &other) const;
+  bool operator>=(const vtkVariant &other) const;
+
+
+
+
 private:
   union
   {
@@ -317,14 +356,44 @@ private:
   unsigned char Type;
 
   friend struct vtkVariantLessThan;
+  friend struct vtkVariantEqual;
+  friend struct vtkVariantStrictWeakOrder;
+  friend struct vtkVariantStrictEquality;
 };
 
+#include "vtkVariantInlineOperators.cxx" // needed for operator== and company
+
 // A STL-style function object so you can compare two variants using
-// comp(s1,s2) where comp is an instance of vtkVariantLessThan.
+// comp(s1,s2) where comp is an instance of vtkVariantStrictWeakOrder.
+// This is a faster version of operator< that makes no attempt to
+// compare values.  It satisfies the STL requirement for a comparison
+// function for ordered containers like map and set.
+
 struct VTK_COMMON_EXPORT vtkVariantLessThan
 {
-  vtkVariantLessThan();
+public:
+  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+};
+
+struct VTK_COMMON_EXPORT vtkVariantEqual
+{
+public:
+  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
+};
+
+struct VTK_COMMON_EXPORT vtkVariantStrictWeakOrder
+{
+public:
   bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
+};
+
+// Similarly, this is a fast version of operator== that requires that
+// the types AND the values be equal in order to admit equality.
+
+struct VTK_COMMON_EXPORT vtkVariantStrictEquality
+{
+public:
+  bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
 
 #endif
