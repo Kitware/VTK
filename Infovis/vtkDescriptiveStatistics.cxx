@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.43");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.44");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -63,13 +63,13 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetNominalParameter( vtkStdString name ) 
+void vtkDescriptiveStatistics::SetNominalParameter( const char* name ) 
 { 
   this->SetAssessParameter( 0, name ); 
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::SetDeviationParameter( vtkStdString name ) 
+void vtkDescriptiveStatistics::SetDeviationParameter( const char* name ) 
 { 
   this->SetAssessParameter( 1, name ); 
 }
