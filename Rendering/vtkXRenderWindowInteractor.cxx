@@ -29,7 +29,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.134");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.134.2.1");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -288,6 +288,11 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 // want to have mouse interaction.
 void vtkXRenderWindowInteractor::Initialize()
 {
+  if (this->Initialized)
+    {
+      return;
+    }
+
   vtkXOpenGLRenderWindow *ren;
   int depth;
   Colormap cmap;
