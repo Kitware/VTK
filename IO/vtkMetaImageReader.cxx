@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.29");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.29.12.1");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -144,9 +144,9 @@ void vtkMetaImageReader::ExecuteInformation()
       break;
     }
 
-  int extent[6];
-  double spacing[3];
-  double origin[3];
+  int extent[6]={0,0,0,0,0,0};
+  double spacing[3]={1.0, 1.0, 1.0};
+  double origin[3]={0.0, 0.0, 0.0};
   for(i=0; i<FileDimensionality; i++)
     {
     extent[2*i] = 0;
