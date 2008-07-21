@@ -178,7 +178,10 @@ public:
   static vtkTable* GetData(vtkInformation* info);
   static vtkTable* GetData(vtkInformationVector* v, int i=0);
 
+  // Description:
+  // Shallow/deep copy the data from src into this object.
   virtual void ShallowCopy(vtkDataObject* src);
+  virtual void DeepCopy(vtkDataObject* src);
 
 protected:
   vtkTable();
