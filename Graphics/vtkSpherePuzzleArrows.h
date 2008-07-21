@@ -31,7 +31,6 @@ public:
   vtkTypeRevisionMacro(vtkSpherePuzzleArrows,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
   static vtkSpherePuzzleArrows *New();
 
   // Description:
