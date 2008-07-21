@@ -22,6 +22,7 @@ SET(MyTests
 #  TestRectilinearWipeWidget.cxx
 #  TestSeedWidget.cxx
   TestSliderWidget.cxx
+  TestSliderWidget2D.cxx
 #  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
   TestDijkstraGraphGeodesicPath.cxx
