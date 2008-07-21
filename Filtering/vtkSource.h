@@ -69,12 +69,29 @@ public:
   virtual void UpdateInformation();
 
   // Description:
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // The update extent for this object is propagated up the pipeline.
+  // This propagation may early terminate based on the PipelineMTime.
   virtual void PropagateUpdateExtent(vtkDataObject *output);
 
   // Description:
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // Propagate back up the pipeline for ports and trigger the update on the
+  // other side of the port to allow for asynchronous parallel processing in
+  // the pipeline.
+  // This propagation may early terminate based on the PipelineMTime.
   virtual void TriggerAsynchronousUpdate();
 
   // Description:
+  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
+  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
+  // Propagate the update back up the pipeline, and perform the actual 
+  // work of updating on the way down. When the propagate arrives at a
+  // port, block and wait for the asynchronous update to finish on the
+  // other side.
+  // This propagation may early terminate based on the PipelineMTime.
   virtual void UpdateData(vtkDataObject *output);
 
   // Description:
