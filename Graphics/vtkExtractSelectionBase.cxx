@@ -19,9 +19,10 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.3");
+vtkCxxRevisionMacro(vtkExtractSelectionBase, "1.4");
 //----------------------------------------------------------------------------
 vtkExtractSelectionBase::vtkExtractSelectionBase()
 {
@@ -44,6 +45,7 @@ int vtkExtractSelectionBase::FillInputPortInformation(
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph"); 
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable"); 
     }
   else
     {
@@ -100,7 +102,8 @@ int vtkExtractSelectionBase::RequestDataObject(
     }
 
   vtkGraph *graphInput = vtkGraph::GetData(inInfo);
-  if (graphInput)
+  vtkTable *tableInput = vtkTable::GetData(inInfo);
+  if (graphInput || tableInput)
     {
     // Accept graph input, but we don't produce the correct extracted
     // graph as output yet.
