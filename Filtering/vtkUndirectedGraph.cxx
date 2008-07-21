@@ -31,7 +31,7 @@
 //----------------------------------------------------------------------------
 // class vtkUndirectedGraph
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkUndirectedGraph, "1.3");
+vtkCxxRevisionMacro(vtkUndirectedGraph, "1.4");
 vtkStandardNewMacro(vtkUndirectedGraph);
 //----------------------------------------------------------------------------
 vtkUndirectedGraph::vtkUndirectedGraph()
@@ -55,8 +55,8 @@ void vtkUndirectedGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, v
 vtkInEdgeType vtkUndirectedGraph::GetInEdge(vtkIdType v, vtkIdType i)
 {
   vtkOutEdgeType oe = this->GetOutEdge(v, i);
-  vtkInEdgeType* ie = reinterpret_cast<vtkInEdgeType*>(&oe);
-  return *ie;
+  vtkInEdgeType ie(oe.Target, oe.Id);
+  return ie;
 }
 
 //----------------------------------------------------------------------------
