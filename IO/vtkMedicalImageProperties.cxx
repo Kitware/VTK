@@ -200,6 +200,13 @@ public:
       {
       os << indent << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << endl;
       }
+    os << endl;
+    os << indent << "User Defined Values: (" << Mapping.size() << ")\n";
+    UserDefinedValues::const_iterator it2 = Mapping.begin();
+    for(; it2 != Mapping.end(); ++it2)
+      {
+      os << indent << it2->Name << " -> " << it2->Value << "\n";
+      }
     }
   vtkstd::vector<unsigned int> Orientation;
   void SetOrientation(unsigned int vol, unsigned int ori)
@@ -218,6 +225,7 @@ public:
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
     {
     WindowLevelPresetPool = p->WindowLevelPresetPool;
+    Mapping = p->Mapping;
     UID = p->UID;
     Orientation = p->Orientation;
     }
