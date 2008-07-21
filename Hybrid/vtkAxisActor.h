@@ -115,11 +115,12 @@ public:
   vtkGetVectorMacro(Range,double,2);
 
   // Description:
+  // Set or get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void   SetBounds(double bounds[6]);
   double *GetBounds(void);
   void   GetBounds(double bounds[6]);
 
-  // Description:116
+  // Description:
   // Set/Get the format with which to print the labels on the axis.
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
