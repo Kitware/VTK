@@ -118,13 +118,15 @@ public:
   double GetLeafSpacing();
 
   // Description:
+  // Get/Set the array to use to determine the distance from the
+  // root.
   const char* GetDistanceArrayName();
   void SetDistanceArrayName(const char* name);
-  
+
   // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
-  
+
   // Description:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
