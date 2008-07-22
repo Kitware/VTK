@@ -17,6 +17,7 @@
 #include "vtkObject.h"
 
 #include <vtksys/stl/map>
+#include <cstdio>
 
 int
 TestVariantComparison(int, char *[])
@@ -34,8 +35,8 @@ TestVariantComparison(int, char *[])
   int shiftAmountInt = 8 * sizeof(int) - 2;
   int shiftAmountLong = 8 * sizeof(long) - 2;
 
-  vtkTypeInt64 positive64 = 1 << shiftAmount64;
-  vtkTypeInt64 negative64 = -(1 << shiftAmount64);
+  vtkTypeInt64 positive64 = static_cast<vtkTypeInt64>(1) << shiftAmount64;
+  vtkTypeInt64 negative64 = -positive64; 
 
   // There is nothing inherently magical about these values.  I just
   // happen to like them and they're outside the range of signed
@@ -44,7 +45,7 @@ TestVariantComparison(int, char *[])
   unsigned short unsignedShort = 49152;
   unsigned int unsignedInt = 1<<shiftAmountInt * 3;
   unsigned long unsignedLong = 1<<shiftAmountLong * 3;
-  vtkTypeUInt64 unsigned64 = (1<<shiftAmount64) * 3;
+  vtkTypeUInt64 unsigned64 = 3 * (static_cast<vtkTypeUInt64>(1) << shiftAmount64);
 
   vtkStdString numberString("100000");
   vtkStdString alphaString("ABCDEFG");
@@ -91,17 +92,6 @@ TestVariantComparison(int, char *[])
 
   int errorCount = 0;
   int overallErrorCount = 0;
-
-  cerr << "Data type sizes: char "
-       << sizeof(char) 
-       << " int " << sizeof(int)
-       << " long " << sizeof(long)
-       << " int64 " << sizeof(vtkTypeInt64)
-       << "\n";
-  cerr << "Shift amounts: int " << shiftAmountInt
-       << " long " << shiftAmountLong
-       << " int64 " << shiftAmount64
-       << "\n";
    
 #define CHECK_EXPRESSION_FALSE(expr) { if ((expr)) { ++errorCount; cerr << "TEST FAILED: " << #expr << " should have been false\n\n"; } }
 
@@ -126,21 +116,6 @@ TestVariantComparison(int, char *[])
 
   CHECK_EXPRESSION_FALSE(positive64Variant < negative64Variant);
   CHECK_EXPRESSION_FALSE(unsigned64Variant < positive64Variant);
-  cerr << "DEBUG: unsigned64Variant as unsigned: "
-       << unsigned64Variant.ToTypeUInt64()
-       << "\n";
-  cerr << "DEBUG: unsigned64Variant as signed: "
-       << unsigned64Variant.ToTypeInt64()
-       << "\n";
-  cerr << "DEBUG: positive64Variant as unsigned: "
-       << positive64Variant.ToTypeUInt64()
-       << "\n";
-  cerr << "DEBUG: positive64Variant as signed: "
-       << positive64Variant.ToTypeInt64()
-       << "\n";
-  cerr << "DEBUG: Static casting positive to unsigned: "
-       << static_cast<vtkTypeUInt64>(positive64Variant.ToTypeInt64())
-       << "\n";
   CHECK_EXPRESSION_FALSE(unsigned64Variant < negative64Variant);
   
   CHECK_EXPRESSION_FALSE(positiveFloat < negativeFloat);
