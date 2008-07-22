@@ -31,7 +31,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLDisplayListPainter, "1.8");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLDisplayListPainter::vtkOpenGLDisplayListPainter()
@@ -91,6 +91,7 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
   if (!this->DisplayListId || 
     this->GetMTime() > this->BuildTime ||
     this->GetInput()->GetMTime() > this->BuildTime ||
+    actor->GetMTime() > this->BuildTime ||
     actor->GetProperty()->GetMTime() > this->BuildTime ||
     renderer->GetRenderWindow() != this->LastWindow.GetPointer() ||
     this->Information->GetMTime() > this->BuildTime || 
