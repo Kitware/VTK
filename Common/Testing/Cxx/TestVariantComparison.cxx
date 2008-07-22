@@ -354,7 +354,6 @@ TestVariantComparison(int, char *[])
          << "\n";
     }
   
-  return (overallErrorCount > 0);
-
   fooObject->Delete();
+  return (overallErrorCount > 0);
 }
