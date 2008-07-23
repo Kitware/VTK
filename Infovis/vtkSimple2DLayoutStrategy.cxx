@@ -37,7 +37,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.25");
+vtkCxxRevisionMacro(vtkSimple2DLayoutStrategy, "1.26");
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
 #ifndef MIN
@@ -69,7 +69,7 @@ vtkSimple2DLayoutStrategy::vtkSimple2DLayoutStrategy()
   this->RestDistance = 0;
   this->Jitter = true;
   this->MaxNumberOfIterations = 200;
-  this->EdgeArray = NULL;
+  this->EdgeArray = 0;
 }
 
 // ----------------------------------------------------------------------
