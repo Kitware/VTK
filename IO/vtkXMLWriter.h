@@ -106,7 +106,7 @@ public:
   
   // Description:
   // Get/Set the compressor used to compress binary and appended data
-  // before writing to the file.  Default is no compression.
+  // before writing to the file.  Default is a vtkZLibDataCompressor.
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
   
