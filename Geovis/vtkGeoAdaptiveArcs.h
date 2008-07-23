@@ -48,17 +48,28 @@ public:
   vtkGetMacro(GlobeRadius, double);
   
   // Description:
+  // The maximum number of pixels between points on the arcs.
+  // If two adjacent points are farther than the threshold,
+  // the line segment will be subdivided such that each point
+  // is separated by at most the threshold.
   vtkSetMacro(MaximumPixelSeparation, double);
   vtkGetMacro(MaximumPixelSeparation, double);
   
   // Description:
+  // The minimum number of pixels between points on the arcs.
+  // Points closer than the threshold will be skipped until
+  // a point farther than the minimum threshold is reached.
   vtkSetMacro(MinimumPixelSeparation, double);
   vtkGetMacro(MinimumPixelSeparation, double);
   
   // Description:
+  // The renderer used to estimate the number of pixels between
+  // points.
   virtual void SetRenderer(vtkRenderer *ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
   
+  // Description:
+  // Return the modified time of this object.
   virtual unsigned long GetMTime();
   
 protected:
