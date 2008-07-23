@@ -78,7 +78,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageReader, "1.16");
+vtkCxxRevisionMacro(vtkMINCImageReader, "1.17");
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //-------------------------------------------------------------------------
@@ -1313,8 +1313,18 @@ void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
 
     // Get the min and max values to apply to this chunk
     double chunkRange[2];
-    chunkRange[0] = minPtr[minmaxIdx];
-    chunkRange[1] = maxPtr[minmaxIdx];
+    if (fileType == VTK_FLOAT || fileType == VTK_DOUBLE)
+      {
+      // minc files that are float or double use global scaling
+      chunkRange[0] = this->ImageRange[0];
+      chunkRange[1] = this->ImageRange[1];      
+      }
+    else
+      {
+      // minc files of other types use slice-by-slice scaling
+      chunkRange[0] = minPtr[minmaxIdx];
+      chunkRange[1] = maxPtr[minmaxIdx];
+      }
 
     // Use the range to calculate a linear transformation
     // to apply to the data values of this chunk.
