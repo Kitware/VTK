@@ -37,6 +37,7 @@
   #include <netdb.h>
   #include <unistd.h>
   #include <sys/time.h>
+  #include <errno.h>
 #endif
 #endif
 
@@ -51,7 +52,7 @@
 # pragma warn -8012 /* signed/unsigned comparison */
 #endif
 
-vtkCxxRevisionMacro(vtkSocket, "1.2");
+vtkCxxRevisionMacro(vtkSocket, "1.3");
 //-----------------------------------------------------------------------------
 vtkSocket::vtkSocket()
 {
@@ -389,6 +390,11 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
         Sleep(1);
         continue;
         }
+#else
+      // On unix, a recv may be interrupted by a signal.  In this case we should
+      // retry.
+      int errorNumber = errno;
+      if (errorNumber == EINTR) continue;
 #endif
       vtkErrorMacro("Socket Error: Receive failed.");
       return 0;
