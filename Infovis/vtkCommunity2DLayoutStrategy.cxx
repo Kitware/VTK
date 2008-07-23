@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.15");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.16");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -306,8 +306,8 @@ void vtkCommunity2DLayoutStrategy::Layout()
     this->Graph->GetVertexData()->GetArray(this->CommunityArrayName);
   if (community == NULL)
     {
-    vtkErrorMacro("vtkCommunity2DLayoutStrategy did not find a \"community\" array." <<
-                  "\n so the layout will not pull communities together like it should");
+    vtkWarningMacro("vtkCommunity2DLayoutStrategy did not find a \"community\" array." <<
+                    "\n so the layout will not pull communities together like it should");
     }
   
   // Get a quick pointer to the point data
@@ -439,7 +439,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
         // then decrease the weight between them
         else 
           {
-          communityWeight = .1;
+          communityWeight = .01;
           }     
         } // if community
       

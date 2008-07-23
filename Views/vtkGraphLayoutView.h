@@ -151,6 +151,9 @@ public:
   //   "Simple 2D"      - A simple 2D force directed layout.
   //   "Clustering 2D"  - A 2D force directed layout that's just like
   //                    - simple 2D but uses some techniques to cluster better.
+  //   "Community 2D"   - A linear-time 2D layout that's just like
+  //                    - Fast 2D but looks for and uses a community 
+  //                    - array to 'accentuate' clusters.
   //   "Fast 2D"        - A linear-time 2D layout.
   //   "Pass Through"   - Use locations assigned to the input.
   //   "Circular"       - Places vertices uniformly on a circle.
