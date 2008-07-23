@@ -122,7 +122,7 @@ private:
 };
 
 //--------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.9");
+vtkCxxRevisionMacro(vtkMINCImageAttributes, "1.10");
 vtkStandardNewMacro(vtkMINCImageAttributes);
 
 vtkCxxSetObjectMacro(vtkMINCImageAttributes,ImageMin,vtkDoubleArray);
@@ -1399,17 +1399,9 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
 
     if (this->DataType == VTK_FLOAT)
       {
+      // use float precision if VTK_FLOAT
       range[0] = (float)range[0];
       range[1] = (float)range[1];
-      }
-
-    // Sometimes the range is accidentally set to the full
-    // float range.  In that case, we ignore the valid_range.
-    if ((this->DataType == VTK_FLOAT && range[1] == FLT_MAX) ||
-        (this->DataType == VTK_DOUBLE && range[1] == DBL_MAX))
-      {
-      range[0] = 0.0;
-      range[1] = 1.0;
       }
     }
   else
@@ -1442,6 +1434,33 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
         range[0] = VTK_UNSIGNED_INT_MIN;
         range[1] = VTK_UNSIGNED_INT_MAX;
         break;
+      case VTK_FLOAT:
+        range[0] = -FLT_MAX;
+        range[1] = FLT_MAX;
+        break;
+      case VTK_DOUBLE:
+        range[0] = -DBL_MAX;
+        range[1] = DBL_MAX;
+        break;
+      }
+    }
+
+  // If the valid_range is set to the full float range, replace
+  // with the image range.
+  if ((this->DataType == VTK_FLOAT && range[1] == FLT_MAX) ||
+      (this->DataType == VTK_DOUBLE && range[1] == DBL_MAX))
+    {
+    if (this->ImageMin && this->ImageMax &&
+        this->ImageMin->GetNumberOfTuples() > 0 &&
+        this->ImageMax->GetNumberOfTuples() > 0)
+      {
+      range[0] = this->ImageMin->GetRange()[0];
+      range[1] = this->ImageMax->GetRange()[1];
+      }
+    else
+      {
+      range[0] = 0.0;
+      range[1] = 1.0;
       }
     }
 }
