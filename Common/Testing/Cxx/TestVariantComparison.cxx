@@ -44,7 +44,7 @@ TestVariantComparison(int, char *[])
   unsigned char unsignedChar = 192;
   unsigned short unsignedShort = 49152;
   unsigned int unsignedInt = (static_cast<unsigned int>(1)<<shiftAmountInt) * 3;
-  unsigned long unsignedLong = 1<<shiftAmountLong * 3;
+  unsigned long unsignedLong = (static_cast<unsigned int>(1)<<shiftAmountLong) * 3;
   vtkTypeUInt64 unsigned64 = 3 * (static_cast<vtkTypeUInt64>(1) << shiftAmount64);
 
   vtkStdString numberString("100000");
