@@ -28,14 +28,14 @@
 #include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.8");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.9");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
-vtkCxxSetObjectMacro(vtkDefaultPainter, DisplayListPainter,
-  vtkDisplayListPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ClipPlanesPainter,
   vtkClipPlanesPainter);
+vtkCxxSetObjectMacro(vtkDefaultPainter, DisplayListPainter,
+  vtkDisplayListPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, CompositePainter, vtkCompositePainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, CoincidentTopologyResolutionPainter,
   vtkCoincidentTopologyResolutionPainter);
@@ -45,8 +45,8 @@ vtkCxxSetObjectMacro(vtkDefaultPainter, RepresentationPainter, vtkRepresentation
 vtkDefaultPainter::vtkDefaultPainter()
 {
   this->ScalarsToColorsPainter = 0;
-  this->DisplayListPainter = 0;
   this->ClipPlanesPainter = 0;
+  this->DisplayListPainter = 0;
   this->CompositePainter = 0;
   this->CoincidentTopologyResolutionPainter = 0;
   this->LightingPainter = 0;
@@ -57,13 +57,13 @@ vtkDefaultPainter::vtkDefaultPainter()
   this->SetScalarsToColorsPainter(scp);
   scp->Delete();
 
-  vtkDisplayListPainter* dlp = vtkDisplayListPainter::New();
-  this->SetDisplayListPainter(dlp);
-  dlp->Delete();
-
   vtkClipPlanesPainter* cp = vtkClipPlanesPainter::New();
   this->SetClipPlanesPainter(cp);
   cp->Delete();
+
+  vtkDisplayListPainter* dlp = vtkDisplayListPainter::New();
+  this->SetDisplayListPainter(dlp);
+  dlp->Delete();
 
   vtkCompositePainter* cpp = vtkCompositePainter::New();
   this->SetCompositePainter(cpp);
@@ -87,8 +87,8 @@ vtkDefaultPainter::vtkDefaultPainter()
 vtkDefaultPainter::~vtkDefaultPainter()
 {
   this->SetScalarsToColorsPainter(0);
-  this->SetDisplayListPainter(0);
   this->SetClipPlanesPainter(0);
+  this->SetDisplayListPainter(0);
   this->SetCompositePainter(0);
   this->SetCoincidentTopologyResolutionPainter(0);
   this->SetLightingPainter(0);
@@ -114,7 +114,7 @@ void vtkDefaultPainter::BuildPainterChain()
     headPainter = (headPainter)? headPainter : painter;
     }
 
-  painter = this->GetDisplayListPainter();
+  painter = this->GetClipPlanesPainter();
   if (painter)
     {
     if (prevPainter)
@@ -125,7 +125,7 @@ void vtkDefaultPainter::BuildPainterChain()
     headPainter = (headPainter)? headPainter : painter;
     }
 
-  painter = this->GetClipPlanesPainter();
+  painter = this->GetDisplayListPainter();
   if (painter)
     {
     if (prevPainter)
@@ -292,7 +292,18 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
     }
 
-  os << indent << "DisplayListPainter: " ;
+  os << indent << "ClipPlanesPainter: " ;
+  if (this->ClipPlanesPainter)
+    {
+    os << endl ;
+    this->ClipPlanesPainter->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+
+   os << indent << "DisplayListPainter: " ;
   if (this->DisplayListPainter)
     {
     os << endl;
@@ -304,17 +315,6 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
     }
 
-  os << indent << "ClipPlanesPainter: " ;
-  if (this->ClipPlanesPainter)
-    {
-    os << endl ;
-    this->ClipPlanesPainter->PrintSelf(os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-  
   os << indent << "CompositePainter: ";
   if (this->CompositePainter)
     {

@@ -18,13 +18,13 @@
 // This painter does not do any actual rendering.
 // Sets up a default pipeline of painters to mimick the behaiour of 
 // old vtkPolyDataMapper. The chain is as follows:
-// input--> vtkScalarsToColorsPainter --> vtkDisplayListPainter -->
-// vtkClipPlanesPainter --> vtkCompositePainter -->
+// input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
+// vtkDisplayListPainter --> vtkCompositePainter -->
 // vtkCoincidentTopologyResolutionPainter -->
 // vtkLightingPainter --> vtkRepresentationPainter --> 
 // <Delegate of vtkDefaultPainter>.
 // Typically, the delegate of the default painter be one that is capable of r
-// rendering grpahics primitives or a vtkChooserPainter which can select appropriate
+// rendering graphics primitives or a vtkChooserPainter which can select appropriate
 // painters to do the rendering.
 
 #ifndef __vtkDefaultPainter_h
@@ -53,14 +53,14 @@ public:
   vtkGetObjectMacro(ScalarsToColorsPainter, vtkScalarsToColorsPainter);
 
   // Description:
-  // Get/Set the painter that builds display lists.
-  void SetDisplayListPainter(vtkDisplayListPainter*);
-  vtkGetObjectMacro(DisplayListPainter, vtkDisplayListPainter);
-
-  // Description:
   // Get/Set the painter that handles clipping.
   void SetClipPlanesPainter(vtkClipPlanesPainter*);
   vtkGetObjectMacro(ClipPlanesPainter, vtkClipPlanesPainter);
+
+  // Description:
+  // Get/Set the painter that builds display lists.
+  void SetDisplayListPainter(vtkDisplayListPainter*);
+  vtkGetObjectMacro(DisplayListPainter, vtkDisplayListPainter);
 
   // Description:
   // Get/Set the painter used to handle composite datasets.
@@ -127,8 +127,8 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
   vtkScalarsToColorsPainter* ScalarsToColorsPainter;
-  vtkDisplayListPainter* DisplayListPainter;
   vtkClipPlanesPainter* ClipPlanesPainter;
+  vtkDisplayListPainter* DisplayListPainter;
   vtkCompositePainter* CompositePainter;
   vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
   vtkLightingPainter* LightingPainter;
