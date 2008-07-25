@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.28");
+vtkCxxRevisionMacro(vtkXMLParser, "1.29");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -42,6 +42,7 @@ vtkXMLParser::vtkXMLParser()
   this->Stream            = 0;
   this->Parser            = 0;
   this->FileName          = 0;
+  this->Encoding          = 0;
   this->InputString       = 0;
   this->InputStringLength = 0;
   this->ParseError        = 0;
@@ -53,6 +54,7 @@ vtkXMLParser::~vtkXMLParser()
 {
   this->SetStream(0);
   this->SetFileName(0);
+  this->SetEncoding(0);
 }
 
 //----------------------------------------------------------------------------
@@ -72,6 +74,8 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IgnoreCharacterData: " 
      << (this->IgnoreCharacterData?"On":"Off")
      << endl;
+  os << indent << "Encoding: " << (this->Encoding? this->Encoding : "(none)")
+     << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -229,7 +233,8 @@ int vtkXMLParser::Parse()
     }
 
   // Create the expat XML parser.
-  this->Parser = XML_ParserCreate(0);
+  this->CreateParser();
+
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
@@ -271,16 +276,29 @@ int vtkXMLParser::Parse()
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLParser::CreateParser()
+{
+  if (this->Parser)
+    {
+    vtkErrorMacro("Parser already created");
+    return 0;
+    }
+  // Create the expat XML parser.
+  this->Parser = XML_ParserCreate(this->Encoding);
+  return this->Parser ? 1 : 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLParser::InitializeParser()
 {
-  if ( this->Parser )
+  // Create the expat XML parser.
+  if (!this->CreateParser())
     {
     vtkErrorMacro("Parser already initialized");
     this->ParseError = 1;
     return 0;
     }
-  // Create the expat XML parser.
-  this->Parser = XML_ParserCreate(0);
+
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
