@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.27");
+vtkCxxRevisionMacro(vtkXMLParser, "1.28");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -455,9 +455,15 @@ void vtkXMLParser::ReportUnknownElement(const char* element)
 //----------------------------------------------------------------------------
 void vtkXMLParser::ReportXmlParseError()
 {
-  vtkErrorMacro("Error parsing XML in stream at line "
-                << XML_GetCurrentLineNumber(static_cast<XML_Parser>(this->Parser))
-                << ": " << XML_ErrorString(XML_GetErrorCode(static_cast<XML_Parser>(this->Parser))));
+  vtkErrorMacro(
+    "Error parsing XML in stream at line "
+    << XML_GetCurrentLineNumber(static_cast<XML_Parser>(this->Parser))
+    << ", column "
+    << XML_GetCurrentColumnNumber(static_cast<XML_Parser>(this->Parser))
+    << ", byte index "
+    << XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser))
+    << ": " 
+    << XML_ErrorString(XML_GetErrorCode(static_cast<XML_Parser>(this->Parser))));
 }
 
 //----------------------------------------------------------------------------
