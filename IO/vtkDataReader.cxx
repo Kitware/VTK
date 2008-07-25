@@ -61,7 +61,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.154");
+vtkCxxRevisionMacro(vtkDataReader, "1.155");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -739,7 +739,7 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
         }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
         {
-        a->AddArray(f->GetArray(i));
+        a->AddArray(f->GetAbstractArray(i));
         }
       f->Delete();
       }
@@ -1035,7 +1035,7 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, int numVertices)
         }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
         {
-        a->AddArray(f->GetArray(i));
+        a->AddArray(f->GetAbstractArray(i));
         }
       f->Delete();
       }
@@ -1182,7 +1182,7 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
         }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
         {
-        a->AddArray(f->GetArray(i));
+        a->AddArray(f->GetAbstractArray(i));
         }
       f->Delete();
       }
