@@ -508,9 +508,9 @@ public:
     { return new vtkSliderCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
-      vtkSliderWidget *sliderWidget = 
-        reinterpret_cast<vtkSliderWidget*>(caller);
-      this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+    vtkSliderWidget *sliderWidget = 
+      reinterpret_cast<vtkSliderWidget*>(caller);
+    this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
     }
   vtkSliderCallback():Glyph(0) {}
   vtkGlyph3D *Glyph;

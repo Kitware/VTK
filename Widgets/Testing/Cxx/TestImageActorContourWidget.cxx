@@ -794,11 +794,11 @@ char TestImageActorContourWidgetLog[] =
 "ExitEvent 272 26 0 0 113 1 q\n"
 ;
 
-class vtkSliderCallback : public vtkCommand
+class vtkSliderCallback2 : public vtkCommand
 {
 public:
-  static vtkSliderCallback *New() 
-    { return new vtkSliderCallback; }
+  static vtkSliderCallback2 *New() 
+    { return new vtkSliderCallback2; }
   void SetImageViewer(vtkImageViewer2 *viewer)
     { m_Viewer =  viewer; }
   virtual void Execute(vtkObject *caller, unsigned long , void* )
@@ -880,7 +880,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   SliderWidget->SetAnimationModeToAnimate();
   SliderWidget->SetEnabled(true);
   
-  vtkSliderCallback *SliderCb = vtkSliderCallback::New();
+  vtkSliderCallback2 *SliderCb = vtkSliderCallback2::New();
   SliderCb->SetImageViewer(ImageViewer);
   SliderWidget->AddObserver(vtkCommand::InteractionEvent, SliderCb);  
 
