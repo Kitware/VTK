@@ -37,7 +37,7 @@
 #include "vtkObjectFactory.h"
 
 
-vtkCxxRevisionMacro(vtkBoxRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkBoxRepresentation, "1.7");
 vtkStandardNewMacro(vtkBoxRepresentation);
 
 //----------------------------------------------------------------------------
@@ -1133,7 +1133,15 @@ int vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
 
   result |= this->HexActor->HasTranslucentPolygonalGeometry();
   result |= this->HexOutline->HasTranslucentPolygonalGeometry();
-  result |= this->HexFace->HasTranslucentPolygonalGeometry();
+
+  // If the face is not selected, we are not really rendering translucent faces,
+  // hence don't bother taking it's opacity into consideration.
+  // Look at BUG #7301.
+  if (this->HexFace->GetProperty() == this->SelectedFaceProperty)
+    {
+    result |= this->HexFace->HasTranslucentPolygonalGeometry();
+    }
+
   // render the handles
   for (int j=0; j<7; j++)
     {
