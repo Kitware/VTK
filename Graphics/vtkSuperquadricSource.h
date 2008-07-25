@@ -56,7 +56,8 @@ class VTK_GRAPHICS_EXPORT vtkSuperquadricSource : public vtkPolyDataAlgorithm
 public:
   // Description:
   // Create a default superquadric with a radius of 0.5, non-toroidal,
-  // spherical, and centered at the origin.
+  // spherical, and centered at the origin, with a scaling factor of 1 in each
+  // direction, a theta resolution and a phi resolutions of 16.
   static vtkSuperquadricSource *New();
 
   vtkTypeRevisionMacro(vtkSuperquadricSource,vtkPolyDataAlgorithm);
@@ -73,40 +74,44 @@ public:
   vtkGetVectorMacro(Scale,double,3);
 
   // Description:
-  // Set the number of points in the longitude direction.
+  // Set the number of points in the longitude direction. Initial value is 16.
   vtkGetMacro(ThetaResolution,int);
   void SetThetaResolution(int i);
 
   // Description:
-  // Set the number of points in the latitude direction.
+  // Set the number of points in the latitude direction. Initial value is 16.
   vtkGetMacro(PhiResolution,int);
   void SetPhiResolution(int i);
 
   // Description:
   // Set/Get Superquadric ring thickness (toroids only).
   // Changing thickness maintains the outside diameter of the toroid.
+  // Initial value is 0.3333.
   vtkGetMacro(Thickness,double);
   vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
 
   // Description:
   // Set/Get Superquadric north/south roundness. 
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
+  // Initial value is 1.0.
   vtkGetMacro(PhiRoundness,double);
   void SetPhiRoundness(double e); 
 
   // Description:
   // Set/Get Superquadric east/west roundness.
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
+  // Initial value is 1.0.
   vtkGetMacro(ThetaRoundness,double);
   void SetThetaRoundness(double e);
 
   // Description:
-  // Set/Get Superquadric isotropic size.
+  // Set/Get Superquadric isotropic size. Initial value is 0.5;
   vtkSetMacro(Size,double);
   vtkGetMacro(Size,double);
 
   // Description:
   // Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
+  // Initial value is 0.
   vtkBooleanMacro(Toroidal,int);
   vtkGetMacro(Toroidal,int);
   vtkSetMacro(Toroidal,int);
