@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.14");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -58,7 +58,14 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Validate: " << this->Validate << endl;
   os << indent << "Assess: " << this->Assess << endl;
-  os << indent << "AssessmentName: " << this->AssessmentName << endl;
+  if (this->AssessmentName)
+    {
+    os << indent << "AssessmentName: " << this->AssessmentName << endl;
+    }
+  else
+    {
+    os << indent << "AssessmentName: (null)" << endl;
+    }
 }
 
 // ----------------------------------------------------------------------
