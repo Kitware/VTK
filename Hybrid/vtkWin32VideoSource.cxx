@@ -49,7 +49,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.30");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.31");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 //----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ void vtkWin32VideoSource::Initialize()
     sprintf(this->WndClassName,"VTKVideo %d",i);
     }
     
-  if (i > 32)
+  if (i > 10)
     {
     vtkErrorMacro(<< "Initialize: failed to register VTKVideo class"\
                     << " (" << GetLastError() << ")");
