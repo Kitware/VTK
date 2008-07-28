@@ -366,7 +366,7 @@ private:
   friend struct vtkVariantStrictEquality;
 };
 
-#include "vtkVariantInlineOperators.cxx" // needed for operator== and company
+#include "vtkVariantInlineOperators.h" // needed for operator== and company
 
 // A STL-style function object so you can compare two variants using
 // comp(s1,s2) where comp is an instance of vtkVariantStrictWeakOrder.

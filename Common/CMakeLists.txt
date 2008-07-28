@@ -375,6 +375,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSystemIncludes.h
     vtkType.h
     vtkTypeTraits.h
+    vtkVariantInlineOperators.h
     vtkWeakPointer.h
     vtkWin32Header.h
     vtkWindows.h
