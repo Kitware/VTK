@@ -35,7 +35,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.9");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.10");
 //---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
@@ -84,7 +84,7 @@ void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
     this->MultiTextureAttributes = false;
     if (mappings)
       {
-      for (int i = 0; i < mappings->GetNumberOfMappings(); ++i)
+      for (unsigned int i = 0; i < mappings->GetNumberOfMappings(); ++i)
         {
         if (mappings->GetTextureUnit(i) >= 0)
           {
