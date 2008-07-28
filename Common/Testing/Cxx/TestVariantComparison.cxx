@@ -44,7 +44,7 @@ TestVariantComparison(int, char *[])
   unsigned char unsignedChar = 192;
   unsigned short unsignedShort = 49152;
   unsigned int unsignedInt = (static_cast<unsigned int>(1)<<shiftAmountInt) * 3;
-  unsigned long unsignedLong = (static_cast<unsigned int>(1)<<shiftAmountLong) * 3;
+  unsigned long unsignedLong = (static_cast<unsigned long>(1)<<shiftAmountLong) * 3;
   vtkTypeUInt64 unsigned64 = 3 * (static_cast<vtkTypeUInt64>(1) << shiftAmount64);
 
   vtkStdString numberString("100000");
@@ -105,10 +105,6 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(positiveShortVariant < negativeShortVariant);
   CHECK_EXPRESSION_FALSE(unsignedShortVariant < positiveShortVariant);
   CHECK_EXPRESSION_FALSE(unsignedShortVariant < negativeShortVariant);
-
-  cerr << "DEBUG: positiveInt " << positiveInt << ", "
-       << "negativeInt " << negativeInt << ", "
-       << "unsignedInt " << unsignedInt << "\n";
 
   CHECK_EXPRESSION_FALSE(positiveIntVariant < negativeIntVariant);
   CHECK_EXPRESSION_FALSE(unsignedIntVariant < positiveIntVariant);
@@ -331,6 +327,27 @@ TestVariantComparison(int, char *[])
     {
     cerr << "Some tests failed!  Overall error count: " << overallErrorCount
          << "\n";
+    cerr << "Debug information:\n";
+    cerr << "CHAR(" << sizeof(char) << "): "
+         << "positive " << positiveChar << ", "
+         << "negative " << negativeChar << ", "
+         << "unsigned " << unsignedChar << "\n";
+    cerr << "SHORT(" << sizeof(short) << "): "
+         << "positive " << positiveShort << ", "
+         << "negative " << negativeShort << ", "
+         << "unsigned " << unsignedShort << "\n";
+    cerr << "INT(" << sizeof(int) << "): "
+         << "positive " << positiveInt << ", "
+         << "negative " << negativeInt << ", "
+         << "unsigned " << unsignedInt << "\n";
+    cerr << "LONG(" << sizeof(long) << "): "
+         << "positive " << positiveLong << ", "
+         << "negative " << negativeLong << ", "
+         << "unsigned " << unsignedLong << "\n";
+    cerr << "INT64(" << sizeof(vtkTypeInt64) << "): "
+         << "positive " << positive64 << ", "
+         << "negative " << negative64 << ", "
+         << "unsigned " << unsigned64 << "\n";
     }
   
   fooObject->Delete();
