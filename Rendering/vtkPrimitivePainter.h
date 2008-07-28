@@ -114,6 +114,7 @@ protected:
   vtkPolyData* OutputData;
   vtkTimeStamp OutputUpdateTime;
   bool GenericVertexAttributes;
+  bool MultiTextureAttributes;
 
 private:
   vtkPrimitivePainter(const vtkPrimitivePainter&); // Not implemented.

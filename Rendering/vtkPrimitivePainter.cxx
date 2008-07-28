@@ -35,7 +35,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPrimitivePainter, "1.8");
+vtkCxxRevisionMacro(vtkPrimitivePainter, "1.9");
 //---------------------------------------------------------------------------
 vtkPrimitivePainter::vtkPrimitivePainter()
 {
@@ -44,6 +44,7 @@ vtkPrimitivePainter::vtkPrimitivePainter()
   this->DisableScalarColor = 0;
   this->OutputData = vtkPolyData::New();
   this->GenericVertexAttributes = false;
+  this->MultiTextureAttributes = false;
 }
 
 //---------------------------------------------------------------------------
@@ -80,6 +81,18 @@ void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
       info->Get(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
     this->GenericVertexAttributes = mappings && 
       (mappings->GetNumberOfMappings() > 0);
+    this->MultiTextureAttributes = false;
+    if (mappings)
+      {
+      for (int i = 0; i < mappings->GetNumberOfMappings(); ++i)
+        {
+        if (mappings->GetTextureUnit(i) >= 0)
+          {
+          this->MultiTextureAttributes = true;
+          break;
+          }
+        }
+      }
     }
 
   if (info->Has(DISABLE_SCALAR_COLOR()) &&
@@ -267,6 +280,11 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     }
 
   if (shaderDevice && this->GenericVertexAttributes)
+    {
+    idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
+    }
+
+  if (this->MultiTextureAttributes)
     {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
     }
