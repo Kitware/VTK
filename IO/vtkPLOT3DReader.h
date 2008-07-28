@@ -238,9 +238,6 @@ public:
   // for binary files.
   virtual int CanReadBinaryFile(const char* fname);
 
-  // Description:
-  int GenerateDefaultConfiguration();
-
 //BTX
   enum 
   {
@@ -326,7 +323,6 @@ protected:
   vtkFloatArray** PointCache;
   vtkUnsignedCharArray** IBlankCache;
 
-  int VerifySettings(char* buf, int bufSize);
   void ReadIntBlockV(char** buf, int n, int* block);
   void SkipByteCountV(char** buf);
 

@@ -294,6 +294,8 @@ public:
   void AddInput(vtkGenericDataSet *in);
 
   // Description:
+  // The object used to interpolate the velocity field during
+  // integration is of the same class as this prototype.
   void SetInterpolatorPrototype(vtkGenericInterpolatedVelocityField* ivf);
 
 protected:
