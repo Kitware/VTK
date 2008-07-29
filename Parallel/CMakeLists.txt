@@ -139,6 +139,7 @@ IF (VTK_USE_PARALLEL_BGL)
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
     vtkPRandomGraphSource.cxx
+    vtkPRMATGraphSource.cxx
     )
 ENDIF (VTK_USE_PARALLEL_BGL)
 
