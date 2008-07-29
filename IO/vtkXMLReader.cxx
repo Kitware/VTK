@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.52");
+vtkCxxRevisionMacro(vtkXMLReader, "1.53");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -856,11 +856,14 @@ void vtkXMLReader::DestroyStringArray(int numStrings, char** strings)
 void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
                                           vtkDataArraySelection* sel)
 {
+  sel->RemoveAllArrays();
+
   if(!eDSA)
     {
     sel->SetArrays(0, 0);
     return;
     }
+
   int numArrays = eDSA->GetNumberOfNestedElements();
   if(!numArrays)
     {
