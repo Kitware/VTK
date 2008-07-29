@@ -118,6 +118,7 @@ protected:
   void                   LoadVariableNames();
   int                    GetDataIndex();
   int                    GetDataChunk();
+  void                   GetSpeciesVariableNames();
 
   void                   ParseCaseFile();
   int                    GetDimension();

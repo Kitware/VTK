@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.18");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.19");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -417,10 +417,10 @@ int vtkFLUENTReader::RequestInformation(
     return 0;
     }
 
+  this->LoadVariableNames();
   this->ParseCaseFile();  // Reads Necessary Information from the .cas file.
   this->CleanCells();  //  Removes unnecessary faces from the cells.
   this->PopulateCellNodes();
-  this->LoadVariableNames();
   this->GetNumberOfCellZones();
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
@@ -2363,6 +2363,7 @@ void vtkFLUENTReader::ParseCaseFile()
         this->GetPeriodicShadowFacesAscii();
         break;
       case 37:
+        this->GetSpeciesVariableNames();
         break;
       case 38:
         break;
@@ -4144,5 +4145,40 @@ void vtkFLUENTReader::GetData(int dataType)
       {
       //cout << "Weird Variable Size = " << size << endl;
       }
+    }
+}
+//------------------------------------------------------------------------------
+void vtkFLUENTReader::GetSpeciesVariableNames()
+{
+    //Locate the "(species (names" entry
+    vtkstd::string variables = this->CaseBuffer->value;
+    size_t startPos = variables.find( "(species (names (" ) +17;
+    if( startPos != vtkstd::string::npos )
+    {
+        variables.erase( 0, startPos );
+        
+        size_t endPos = variables.find( ")" );
+        variables.erase( endPos );
+
+        vtkstd::stringstream tokenizer( variables );
+
+        size_t iterator = 0;
+
+        while ( !tokenizer.eof() )
+        {
+            vtkstd::string temp;
+            tokenizer >> temp;
+
+            this->VariableNames->value[200 + iterator] = temp;
+            this->VariableNames->value[250 + iterator] = "M1_" + temp;
+            this->VariableNames->value[300 + iterator] = "M2_" + temp;
+            this->VariableNames->value[450 + iterator] = "DPMS_" + temp;
+            this->VariableNames->value[850 + iterator] = "DPMS_DS_" + temp;
+            this->VariableNames->value[1000 + iterator] = "MEAN_" + temp;
+            this->VariableNames->value[1050 + iterator] = "RMS_" + temp;
+            this->VariableNames->value[1250 + iterator] = "CREV_" + temp;
+
+            iterator++;
+        }
     }
 }
