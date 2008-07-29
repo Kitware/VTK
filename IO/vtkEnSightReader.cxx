@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.77");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.78");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -228,7 +228,7 @@ int vtkEnSightReader::RequestData(
     {
     timeStep = timeStepInFile = 1;
     fileNum = 1;
-    fileName = new char[strlen(this->GeometryFileName) + 1];
+    fileName = new char[strlen(this->GeometryFileName) + 10];
     strcpy(fileName, this->GeometryFileName);
     
     if (this->UseTimeSets)
@@ -312,7 +312,7 @@ int vtkEnSightReader::RequestData(
     {
     timeStep = timeStepInFile = 1;
     fileNum = 1;
-    fileName = new char[strlen(this->MeasuredFileName) + 1];
+    fileName = new char[strlen(this->MeasuredFileName) + 10];
     strcpy(fileName, this->MeasuredFileName);
     
     if (this->UseTimeSets)
@@ -1252,7 +1252,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
     timeStepInFile = 1;
     //fileNum = 1;
     validTime = 1;
-    fileName = new char[strlen(this->VariableFileNames[i]) + 1];
+    fileName = new char[strlen(this->VariableFileNames[i]) + 10];
     strcpy(fileName, this->VariableFileNames[i]);
     if (this->UseTimeSets)
       {
@@ -1394,9 +1394,9 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
     timeStepInFile = 1;
     //fileNum = 1;
     validTime = 1;
-    fileName = new char[strlen(this->ComplexVariableFileNames[2*i]) + 1];
+    fileName = new char[strlen(this->ComplexVariableFileNames[2*i]) + 10];
     strcpy(fileName, this->ComplexVariableFileNames[2*i]);
-    fileName2 = new char[strlen(this->ComplexVariableFileNames[2*i+1]) + 1];
+    fileName2 = new char[strlen(this->ComplexVariableFileNames[2*i+1]) + 10];
     strcpy(fileName2, this->ComplexVariableFileNames[2*i+1]);
     if (this->UseTimeSets)
       {
@@ -1841,77 +1841,45 @@ int vtkEnSightReader::GetElementType(const char* line)
 
 void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 {
-  int wildcardPos, numWildcards, numDigits = 1, i;
+  int wildcardPos, numWildcards, numDigits = 1, i, j;
   int tmpNum = num, multTen = 1;
   char newChar;
   int newNum;
-  
+  char pattern[32];
+  char numStr[32];
+  char filenameTmp[2048];
+  int len, cnt, numStrLen;
+  int foundWildcard = 0;
+
   wildcardPos = static_cast<int>(strcspn(filename, "*"));
   numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
-  
-  if (numWildcards == 0)
+
+  if (numWildcards < 1)
+     return;
+  else if (numWildcards == 1)
+    strcpy(pattern, "%d");
+  else
+    sprintf(pattern, "%%0%dd", numWildcards);
+  sprintf(numStr, pattern, num);
+  numStrLen = strlen(numStr);
+  len = strlen(filename);
+  cnt = 0;
+  for (i = 0 ; i < len ; i++)
     {
-    return;
-    }
-  
-  tmpNum /= 10;
-  while (tmpNum >= 1)
+    if (filename[i] == '*')
     {
-    numDigits++;
-    multTen *= 10;
-    tmpNum /= 10;
+      if (foundWildcard == 0)
+        {
+        for (j = 0 ; j < numStrLen ; j++)
+          filenameTmp[cnt++] = numStr[j];
+        foundWildcard = 1;
+        }
     }
-  
-  for (i = 0; i < numWildcards - numDigits; i++)
-    {
-    filename[i + wildcardPos] = '0';
+    else
+      filenameTmp[cnt++] = filename[i];
     }
-  
-  tmpNum = num;
-  for (i = numWildcards - numDigits; i < numWildcards; i++)
-    {
-    newNum = tmpNum / multTen;
-    switch (newNum)
-      {
-      case 0:
-        newChar = '0';
-        break;
-      case 1:
-        newChar = '1';
-        break;
-      case 2:
-        newChar = '2';
-        break;
-      case 3:
-        newChar = '3';
-        break;
-      case 4:
-        newChar = '4';
-        break;
-      case 5:
-        newChar = '5';
-        break;
-      case 6:
-        newChar = '6';
-        break;
-      case 7:
-        newChar = '7';
-        break;
-      case 8:
-        newChar = '8';
-        break;
-      case 9:
-        newChar = '9';
-        break;
-      default:
-        // This case should never be reached.
-        return;
-      }
-    
-    filename[i + wildcardPos] = newChar;
-    tmpNum -= multTen * newNum;
-    multTen /= 10;
-    }
+  filenameTmp[cnt] = '\0';
+  strcpy(filename, filenameTmp);
 }
 
 //----------------------------------------------------------------------------
