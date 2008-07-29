@@ -79,6 +79,7 @@ IF(PYTHON_EXECUTABLE)
     vtkType.h
     vtkTypeTraits.h
     vtkVariantBoostSerialization.h
+    vtkVariantInlineOperators.h
     vtkVector.h
     vtkVectorIterator.h
     vtkWin32Header.h
