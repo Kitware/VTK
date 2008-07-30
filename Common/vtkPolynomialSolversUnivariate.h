@@ -47,20 +47,6 @@
 #define __vtkPolynomialSolversUnivariate_h
 
 #include "vtkObject.h"
-#include <vtkstd/map>
-#include <vtkstd/vector>
-
-#ifndef DBL_EPSILON
-#  define VTK_DBL_EPSILON    2.2204460492503131e-16
-#else  // DBL_EPSILON
-#  define VTK_DBL_EPSILON    DBL_EPSILON
-#endif  // DBL_EPSILON
-
-#ifndef DBL_MIN
-#  define VTK_DBL_MIN    2.2250738585072014e-308
-#else  // DBL_MIN
-#  define VTK_DBL_MIN    DBL_MIN
-#endif  // DBL_MIN
 
 class VTK_COMMON_EXPORT vtkPolynomialSolversUnivariate : public vtkObject
 {
@@ -164,5 +150,17 @@ private:
   vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&);  // Not implemented.
   void operator=(const vtkPolynomialSolversUnivariate&);  // Not implemented.
 };
+
+#ifndef DBL_EPSILON
+#  define VTK_DBL_EPSILON    2.2204460492503131e-16
+#else  // DBL_EPSILON
+#  define VTK_DBL_EPSILON    DBL_EPSILON
+#endif  // DBL_EPSILON
+
+#ifndef DBL_MIN
+#  define VTK_DBL_MIN    2.2250738585072014e-308
+#else  // DBL_MIN
+#  define VTK_DBL_MIN    DBL_MIN
+#endif  // DBL_MIN
 
 #endif
