@@ -13,7 +13,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestDirectory.cxx
   TestFastNumericConversion.cxx
   TestMath.cxx
-  TestPolynomialSolvers.cxx
+  TestPolynomialSolversUnivariate.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
   TestVariantComparison.cxx

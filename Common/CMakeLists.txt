@@ -102,7 +102,7 @@ vtkLogLookupTable.cxx
 vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkMath.cxx
-vtkPolynomialSolvers.cxx
+vtkPolynomialSolversUnivariate.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
