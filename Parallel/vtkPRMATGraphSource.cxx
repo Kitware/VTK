@@ -24,6 +24,7 @@
  */
 #include "vtkPRMATGraphSource.h"
 
+#include "vtkBlockDistribution.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -46,7 +47,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>
 
-vtkCxxRevisionMacro(vtkPRMATGraphSource, "1.1");
+vtkCxxRevisionMacro(vtkPRMATGraphSource, "1.2");
 vtkStandardNewMacro(vtkPRMATGraphSource);
 
 // ----------------------------------------------------------------------
@@ -194,22 +195,13 @@ vtkPRMATGraphSource::RequestData(
   // distributed graph.
   dirBuilder->SetDistributedGraphHelper(helper);
 
-  // Add NumberOfVertices new vertices, with a simple block
-  // distribution.
-  vtkIdType blockSize = this->NumberOfVertices / numProcs;
-  vtkIdType myNumberOfVertices = blockSize;
-  if (this->NumberOfVertices % numProcs != 0)
-    {
-    ++blockSize;
-    if (myRank < this->NumberOfVertices % numProcs)
-      {
-      ++myNumberOfVertices;
-      }
-    }
+  // Vertex distribution.
+  vtkBlockDistribution distribution(this->NumberOfVertices, numProcs);
 
-  vtkIdType myStartVertex = blockSize * myRank;
+  // Add NumberOfVertices new vertices.
+  vtkIdType myNumberOfVertices = distribution.GetBlockSize(myRank);
+  vtkIdType myStartVertex = distribution.GetFirstGlobalIndexOnProcessor(myRank);
   vtkIdType myEndVertex = myStartVertex + myNumberOfVertices;
-
   for (vtkIdType i = 0; i < myNumberOfVertices; ++i)
     {
     dirBuilder->AddVertex();
@@ -267,9 +259,6 @@ vtkPRMATGraphSource::RequestData(
         continue;
         }
 
-      assert(s >= 0 && s < this->NumberOfVertices);
-      assert(t >= 0 && t < this->NumberOfVertices);
-
       // TODO: We should apply some permutation to the s and t vertex
       // numbers, so that we get some kind of randomized distribution
       // of the vertices. Otherwise, we'll have a severely imbalanced
@@ -279,9 +268,11 @@ vtkPRMATGraphSource::RequestData(
       // sits on top of the block distribution.
 
       vtkIdType sVertex 
-        = helper->MakeDistributedId(s / blockSize, s % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(s),
+                                    distribution.GetLocalIndexOfElement(s));
       vtkIdType tVertex 
-        = helper->MakeDistributedId(t / blockSize, t % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(t),
+                                    distribution.GetLocalIndexOfElement(t));
 
       vtkDebugMacro(<<"Adding edge " << s << " to " << t);
       dirBuilder->LazyAddEdge(sVertex, tVertex);

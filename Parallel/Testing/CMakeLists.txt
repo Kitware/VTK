@@ -12,6 +12,7 @@ IF(PYTHON_EXECUTABLE)
     ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
     "${VTK_SOURCE_DIR}/Parallel"
     VTK_PARALLEL_EXPORT
+    vtkBlockDistribution.h
     vtkMPI.h
     vtkPBGLGraphAdapter.h
     )

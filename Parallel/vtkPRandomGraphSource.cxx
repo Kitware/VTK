@@ -19,6 +19,7 @@
 -------------------------------------------------------------------------*/
 #include "vtkPRandomGraphSource.h"
 
+#include "vtkBlockDistribution.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -41,7 +42,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>
 
-vtkCxxRevisionMacro(vtkPRandomGraphSource, "1.2");
+vtkCxxRevisionMacro(vtkPRandomGraphSource, "1.3");
 vtkStandardNewMacro(vtkPRandomGraphSource);
 
 // ----------------------------------------------------------------------
@@ -142,22 +143,13 @@ vtkPRandomGraphSource::RequestData(
     undirBuilder->SetDistributedGraphHelper(helper);
     }
 
-  // Add NumberOfVertices new vertices, with a simple block
-  // distribution.
-  vtkIdType blockSize = this->NumberOfVertices / numProcs;
-  vtkIdType myNumberOfVertices = blockSize;
-  if (this->NumberOfVertices % numProcs != 0)
-    {
-    ++blockSize;
-    if (myRank < this->NumberOfVertices % numProcs)
-      {
-      ++myNumberOfVertices;
-      }
-    }
+  // A simple block distribution of vertices.
+  vtkBlockDistribution distribution(this->NumberOfVertices, numProcs);
 
-  vtkIdType myStartVertex = blockSize * myRank;
+  // Add NumberOfVertices new vertices.
+  vtkIdType myNumberOfVertices = distribution.GetBlockSize(myRank);
+  vtkIdType myStartVertex = distribution.GetFirstGlobalIndexOnProcessor(myRank);
   vtkIdType myEndVertex = myStartVertex + myNumberOfVertices;
-
   for (vtkIdType i = 0; i < myNumberOfVertices; ++i)
     {
     if (this->Directed)
@@ -187,9 +179,11 @@ vtkPRandomGraphSource::RequestData(
       int j = static_cast<vtkIdType>(vtkMath::Random(0, i));
 
       vtkIdType iVertex 
-        = helper->MakeDistributedId(i / blockSize, i % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
+                                    distribution.GetLocalIndexOfElement(i));
       vtkIdType jVertex 
-        = helper->MakeDistributedId(j / blockSize, j % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
+                                    distribution.GetLocalIndexOfElement(j));
 
       if (this->Directed)
         {
@@ -210,12 +204,14 @@ vtkPRandomGraphSource::RequestData(
     for (vtkIdType i = myStartVertex; i < myEndVertex; i++)
       {
       vtkIdType iVertex 
-        = helper->MakeDistributedId(i / blockSize, i % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
+                                    distribution.GetLocalIndexOfElement(i));
       vtkIdType begin = this->Directed ? 0 : i + 1;
       for (vtkIdType j = begin; j < this->NumberOfVertices; j++)
         {
         vtkIdType jVertex 
-          = helper->MakeDistributedId(j / blockSize, j % blockSize);
+          = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
+                                      distribution.GetLocalIndexOfElement(j));
         double r = vtkMath::Random();
         if (r < this->EdgeProbability)
           {
@@ -280,9 +276,11 @@ vtkPRandomGraphSource::RequestData(
           }
 
       vtkIdType sVertex 
-        = helper->MakeDistributedId(s / blockSize, s % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(s),
+                                    distribution.GetLocalIndexOfElement(s));
       vtkIdType tVertex 
-        = helper->MakeDistributedId(t / blockSize, t % blockSize);
+        = helper->MakeDistributedId(distribution.GetProcessorOfElement(t),
+                                    distribution.GetLocalIndexOfElement(t));
 
         vtkDebugMacro(<<"Adding edge " << s << " to " << t);
         if (this->Directed)
