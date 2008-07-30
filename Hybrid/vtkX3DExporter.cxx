@@ -76,7 +76,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.17");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.18");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -604,7 +604,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
   writer->EndNode(); // Appearance
 
   writer->StartNode(Text);
-  writer->SetField(string, ds);
+  writer->SetField(vtkX3D::string, ds);
 
   vtkstd::string familyStr;
   switch(tp->GetFontFamily())
@@ -969,7 +969,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     defString="VTKnormals";
     writer->StartNode(Normal);
     writer->SetField(DEF, defString.append(indexString).c_str());
-    writer->SetField(vector, MFVEC3F, normals);
+    writer->SetField(vtkX3D::vector, MFVEC3F, normals);
     writer->EndNode();
     }
 
