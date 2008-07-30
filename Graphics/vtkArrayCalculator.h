@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Set/Get the function to be evaluated.
-  void SetFunction(const char* function);
+  virtual void SetFunction(const char* function);
   vtkGetStringMacro(Function);
   
   // Description:
@@ -152,19 +152,19 @@ public:
   
   // Description:
   // Remove all the scalar variable names and their associated array names.
-  void RemoveScalarVariables();
+  virtual void RemoveScalarVariables();
   
   // Description:
   // Remove all the scalar variable names and their associated array names.
-  void RemoveVectorVariables();
+  virtual void RemoveVectorVariables();
   
   // Description:
   // Remove all the coordinate variables.
-  void RemoveCoordinateScalarVariables();
+  virtual void RemoveCoordinateScalarVariables();
   
   // Description:
   // Remove all the coordinate variables.
-  void RemoveCoordinateVectorVariables();
+  virtual void RemoveCoordinateVectorVariables();
 
   // Description:
   // Methods to get information about the current variables.
