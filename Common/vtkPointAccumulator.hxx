@@ -22,9 +22,13 @@
 // that here the memory grows by exactly what is needed, and
 // in VTK data arrays the memory will grow by at least twice
 // what is requested.
+
+#ifndef __vtkPointAccumulator_h
+#define __vtkPointAccumulator_h
+
+
 #include "vtkstd/exception"
 #include "vtkPoints.h"
-
 
 template<typename T_CPP, class T_VTK>
 class vtkPointAccumulator
@@ -149,7 +153,7 @@ class vtkPointAccumulator
       return this->NPts;
     }
     // Description:
-    // Print the conetents of the internal store.
+    // Print the contents of the internal store.
     void Print()
     {
       T_CPP *pBuf=this->PtStore;
@@ -172,3 +176,5 @@ class vtkPointAccumulator
     T_CPP *PtStore;
     vtkIdType NPts;
 };
+#endif
+
