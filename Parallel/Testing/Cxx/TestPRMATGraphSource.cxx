@@ -20,10 +20,15 @@
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkBitArray.h"
 #include "vtkBoostBreadthFirstSearch.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDistributedGraphHelper.h"
+#include "vtkDoubleArray.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkOutEdgeIterator.h"
+#include "vtkMath.h"
+#include "vtkPBGLGraphAdapter.h"
+#include "vtkPBGLShortestPaths.h"
 #include "vtkPRMATGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -53,6 +58,8 @@ int main(int argc, char* argv[])
   double D = 0.25;
   bool doPrint = false;
   bool doBFS = true;
+  bool doSSSP = true;
+  bool doSSSPVerify = true;
 
   if (argc > 6) 
     {
@@ -74,6 +81,14 @@ int main(int argc, char* argv[])
       else if (arg == "--no-bfs")
         {
         doBFS = false;
+        }
+      else if (arg == "--no-sssp")
+        {
+        doSSSP = false;
+        }
+      else if (arg == "--no-sssp-verify")
+        {
+        doSSSPVerify = false;
         }
     }
 
@@ -173,10 +188,104 @@ int main(int argc, char* argv[])
     exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
     bfs->Update();
 
-    // Verify the results of the breadth-first search
     if (world.rank() == 0)
       {
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
+      }
+    }
+
+  if (doSSSP)
+    {
+    vtkSmartPointer<vtkPBGLShortestPaths> sssp
+      = vtkSmartPointer<vtkPBGLShortestPaths>::New();
+    sssp->SetInput(g);
+    sssp->SetOriginVertex(g->GetDistributedGraphHelper()->MakeDistributedId(0, 0));
+    sssp->SetEdgeWeightArrayName("Weight");
+
+    // Create an edge-weight array with edge weights in [0, 1).
+    vtkDoubleArray *edgeWeightArray = vtkDoubleArray::New();
+    edgeWeightArray->SetName("Weight");
+    g->GetEdgeData()->AddArray(edgeWeightArray);
+    edgeWeightArray->SetNumberOfTuples(g->GetNumberOfEdges());
+    vtkMath::RandomSeed(1177 + 17 * world.rank());
+    for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
+      {
+      edgeWeightArray->SetTuple1(i, vtkMath::Random());
+      }
+
+    // Run the shortest paths algorithm.
+    if (world.rank() == 0)
+      {
+      cerr << "Single-source shortest paths...";
+      }
+    boost::mpi::timer timer;
+    sssp->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline* exec =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(sssp->GetExecutive());
+    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
+    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
+    sssp->Update();
+
+    if (world.rank() == 0)
+      {
+      cerr << " done in " << timer.elapsed() << " seconds" << endl;
+      }
+
+    if (doSSSPVerify)
+      {
+      vtkGraph* output = vtkGraph::SafeDownCast(sssp->GetOutput());
+      if (world.rank() == 0)
+        {
+        cerr << " Verify shorting paths...";
+        }
+
+      // Create distributed property maps for path length and edge weight
+      vtkDoubleArray* pathLengthArray
+        = vtkDoubleArray::SafeDownCast
+            (output->GetVertexData()->GetAbstractArray("PathLength"));
+      vtkDistributedVertexPropertyMapType<vtkDoubleArray>::type pathLengthMap 
+        = MakeDistributedVertexPropertyMap(output, pathLengthArray);
+      vtkDistributedEdgePropertyMapType<vtkDoubleArray>::type edgeWeightMap
+        = MakeDistributedEdgePropertyMap(output, edgeWeightArray);
+
+      // Restart the timer
+      timer.restart();
+
+      vtkSmartPointer<vtkVertexListIterator> vertices
+        = vtkSmartPointer<vtkVertexListIterator>::New();
+      output->GetVertices(vertices);
+      while (vertices->HasNext())
+        {
+        vtkIdType u = vertices->Next();
+        vtkSmartPointer<vtkOutEdgeIterator> outEdges
+          = vtkSmartPointer<vtkOutEdgeIterator>::New();
+        
+        output->GetOutEdges(u, outEdges);
+        while (outEdges->HasNext()) 
+          {
+          vtkOutEdgeType eOut = outEdges->Next();
+          vtkEdgeType e(u, eOut.Target, eOut.Id);
+          if (get(pathLengthMap, u) + get(edgeWeightMap, e) 
+                < get(pathLengthMap, e.Target))
+            {
+            cerr << "ERROR: Found a shorter path from source to " 
+                 << e.Target << " through " << u << endl
+                 << "  Recorded path length is " 
+                 << get(pathLengthMap, e.Target) 
+                 << ", but this path has length "
+                 << get(pathLengthMap, u) + get(edgeWeightMap, e) 
+                 << "." << endl;
+            ++errors;
+            }
+          }
+        }
+      
+      output->GetDistributedGraphHelper()->Synchronize();
+
+      if (world.rank() == 0)
+        {
+        cerr << " done in " << timer.elapsed() << " seconds" << endl;
+        }
       }
     }
   return errors;

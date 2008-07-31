@@ -42,25 +42,47 @@
 #include "vtkUndirectedGraph.h"
 #include <stddef.h> // for ptrdiff_t
 
-// Moving these functions before any boost includes to get rid of some linux
-// compile errors.
 namespace boost {
-  inline int
-  get(
-    vtkIntArray* & arr,
-    vtkIdType& key)
-  {
-    return arr->GetValue(key);
+  //===========================================================================
+  // VTK arrays as property maps
+  // These need to be defined before including other boost stuff
+
+  // Forward declarations are required here, so that we aren't forced
+  // to include boost/property_map.hpp.
+  template<typename> class property_traits;
+  class read_write_property_map_tag;
+
+#define vtkPropertyMapMacro(T, V)                       \
+  template <>                                           \
+  struct property_traits<T*>                            \
+    {                                                   \
+    typedef V value_type;                               \
+    typedef V reference;                                \
+    typedef vtkIdType key_type;                         \
+    typedef read_write_property_map_tag category;       \
+    };                                                  \
+                                                        \
+  inline property_traits<T*>::reference                 \
+  get(                                                  \
+    T* const & arr,                                     \
+    property_traits<T*>::key_type key)                  \
+  {                                                     \
+    return arr->GetValue(key);                          \
+  }                                                     \
+                                                        \
+  inline void                                           \
+  put(                                                  \
+    T* arr,                                             \
+    property_traits<T*>::key_type key,                  \
+    const property_traits<T*>::value_type & value)      \
+  {                                                     \
+    arr->InsertValue(key, value);                       \
   }
 
-  inline void
-  put(
-    vtkIntArray* arr,
-    vtkIdType key,
-    const int & value)
-  {
-    arr->InsertValue(key, value);
-  }
+  vtkPropertyMapMacro(vtkIntArray, int)
+  vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
+  vtkPropertyMapMacro(vtkDoubleArray, double)
+  vtkPropertyMapMacro(vtkFloatArray, float)
 }
 
 #include <vtksys/stl/utility>
@@ -518,50 +540,6 @@ namespace boost {
     graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
     return vtksys_stl::make_pair(e, true);
   }
-
-  //===========================================================================
-  // VTK arrays as property maps
-  // These need to be defined before including other boost stuff
-
-#define vtkPropertyMapMacro(T, V)                       \
-  template <>                                           \
-  struct property_traits<T*>                            \
-    {                                                   \
-    typedef V value_type;                               \
-    typedef V reference;                                \
-    typedef vtkIdType key_type;                         \
-    typedef read_write_property_map_tag category;       \
-    };                                                  \
-                                                        \
-  inline property_traits<T*>::reference                 \
-  get(                                                  \
-    T* const & arr,                                     \
-    property_traits<T*>::key_type key)                  \
-  {                                                     \
-    return arr->GetValue(key);                          \
-  }                                                     \
-                                                        \
-  inline void                                           \
-  put(                                                  \
-    T* arr,                                             \
-    property_traits<T*>::key_type key,                  \
-    const property_traits<T*>::value_type & value)      \
-  {                                                     \
-    arr->InsertValue(key, value);                       \
-  }
-
-  template <>
-  struct property_traits<vtkIntArray*>
-    {
-    typedef int value_type;
-    typedef int reference;
-    typedef vtkIdType key_type;
-    typedef read_write_property_map_tag category;
-    };
-
-  vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
-  vtkPropertyMapMacro(vtkDoubleArray, double)
-  vtkPropertyMapMacro(vtkFloatArray, float)
 
   //===========================================================================
   // An edge map for vtkGraph.

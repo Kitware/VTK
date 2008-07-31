@@ -25,14 +25,16 @@
 #ifndef __vtkPBGLGraphAdapter_h
 #define __vtkPBGLGraphAdapter_h
 
+#include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
+
 //BTX
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/parallel/container_traits.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/functional/hash.hpp>
 //ETX
 
-#include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 #include "vtkPBGLDistributedGraphHelper.h"
 
 namespace boost {
@@ -100,6 +102,59 @@ namespace boost {
    {
      return vtkVertexOwnerMap(graph);
    }
+
+  // Property map from a vertex descriptor to the local descriptor of
+  // the vertex
+  struct vtkVertexLocalMap 
+  {
+    // Default-construct an empty (useless!) vertex-local map
+    vtkVertexLocalMap() : helper(0) { }
+    
+    // Construct a vertex-local map for a specific vtkGraph
+    explicit vtkVertexLocalMap(vtkGraph* graph) 
+      : helper(graph? graph->GetDistributedGraphHelper() : 0) { }
+    
+    // The distributed graph helper that will aid in mapping vertices
+    // to their locals.
+    vtkDistributedGraphHelper *helper;
+  };
+  
+  // Property map traits for the vertex-local map
+  template<>
+  struct property_traits<vtkVertexLocalMap> 
+  {
+    typedef int value_type;
+    typedef int reference;
+    typedef vtkIdType key_type;
+    typedef readable_property_map_tag category;
+  };
+  
+  // Retrieve the local descriptor of the given vertex (the key)
+  inline property_traits<vtkVertexLocalMap>::reference
+  get(
+    vtkVertexLocalMap local_map,
+    property_traits<vtkVertexLocalMap>::key_type key)
+  {
+    return local_map.helper->GetVertexIndex(key);
+  }
+   
+   // State that the vertex local property map of a vtkGraph is the
+   // vtkVertexLocalMap
+   template<>
+   struct property_map<vtkGraph*, vertex_local_t>
+   {
+     typedef vtkVertexLocalMap type;
+     typedef vtkVertexLocalMap const_type;
+   };
+   
+  SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(vertex_local_t);
+
+    // Retrieve the vertex-local property map from a vtkGraph
+   inline vtkVertexLocalMap
+   get(vertex_local_t, vtkGraph* graph)
+   {
+     return vtkVertexLocalMap(graph);
+   }
    
    // Map from vertex descriptor to (owner, local descriptor)
    struct vtkVertexGlobalMap 
@@ -160,7 +215,7 @@ namespace boost {
    template<>
    struct property_traits<vtkEdgeGlobalMap> 
    {
-     typedef vtkstd::pair<int, vtkEdgeType> value_type;
+     typedef vtkstd::pair<int, vtkIdType> value_type;
      typedef value_type reference;
      typedef vtkEdgeType key_type;
      typedef readable_property_map_tag category;
@@ -171,8 +226,8 @@ namespace boost {
      vtkEdgeGlobalMap global_map,
      property_traits<vtkEdgeGlobalMap>::key_type key)
    {
-     return vtkstd::pair<int, vtkEdgeType>(global_map.helper->GetEdgeOwner(key.Id),
-                                           key);
+     return vtkstd::pair<int, vtkIdType>
+              (global_map.helper->GetEdgeOwner(key.Id), key.Id);
    }
        
    // 
@@ -192,6 +247,18 @@ namespace boost {
    }
 
 #undef SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS
+
+  //===========================================================================
+  // Hash functions
+  template<> 
+  struct hash<vtkEdgeType>
+  {
+    vtkstd::size_t operator()(const vtkEdgeType& edge) const
+    {
+      return hash_value(edge.Id);
+    }
+  };
+
 } // namespace boost
 
 //----------------------------------------------------------------------------
