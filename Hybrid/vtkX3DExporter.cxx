@@ -76,7 +76,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkX3DExporter, "1.18");
+vtkCxxRevisionMacro(vtkX3DExporter, "1.19");
 vtkStandardNewMacro(vtkX3DExporter);
 
 //----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void vtkX3DExporter::WriteData()
   // Start write the Camera
   cam = ren->GetActiveCamera();
   writer->StartNode(Viewpoint);
-  writer->SetField(fieldOfView, ((float)(cam->GetViewAngle()*vtkMath::DoubleDegreesToRadians())));
+  writer->SetField(fieldOfView,static_cast<float>(cam->GetViewAngle()*vtkMath::DoubleDegreesToRadians()));
   writer->SetField(position, SFVEC3F, cam->GetPosition());
   writer->SetField(description, "Default View");
   writer->SetField(orientation, SFROTATION, cam->GetOrientationWXYZ());
@@ -205,7 +205,7 @@ void vtkX3DExporter::WriteData()
   // do the lights first the ambient then the others
   writer->StartNode(NavigationInfo);
   writer->SetField(type, "\"EXAMINE\" \"FLY\" \"ANY\"", true);
-  writer->SetField(speed, (float) this->Speed);
+  writer->SetField(speed,static_cast<float>(this->Speed));
   writer->SetField(headlight, this->HasHeadLight(ren) ? true : false);
   writer->EndNode();
 
@@ -245,7 +245,7 @@ void vtkX3DExporter::WriteData()
       {
       if(anActor->GetVisibility()!=0)
         {
-        aPart=(vtkActor *)apath->GetLastNode()->GetViewProp();
+        aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
         this->WriteAnActor(aPart, writer, index);
         index++;
         }
@@ -283,7 +283,8 @@ void vtkX3DExporter::WriteData()
       for (anTextActor2D->InitPathTraversal();
         (apath2D=anTextActor2D->GetNextPath()); )
         {
-        aPart2D=(vtkActor2D *)apath2D->GetLastNode()->GetViewProp();
+        aPart2D=
+              static_cast<vtkActor2D *>(apath2D->GetLastNode()->GetViewProp());
         this->WriteATextActor2D(aPart2D, writer);
         }
       }
@@ -340,7 +341,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
       { 
       writer->StartNode(SpotLight);
       writer->SetField(direction, SFVEC3F, dir);
-      writer->SetField(cutOffAngle, (float)aLight->GetConeAngle());
+      writer->SetField(cutOffAngle,static_cast<float>(aLight->GetConeAngle()));
       }
     writer->SetField(location, SFVEC3F, pos);
     writer->SetField(attenuation, SFVEC3F, aLight->GetAttenuationValues());
@@ -354,7 +355,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 
   // TODO: Check correct color
   writer->SetField(color, SFCOLOR, colord);
-  writer->SetField(intensity, (float)aLight->GetIntensity());
+  writer->SetField(intensity, static_cast<float>(aLight->GetIntensity()));
   writer->SetField(on, aLight->GetSwitch() ? true : false); 
   writer->EndNode();
   writer->Flush();
@@ -413,7 +414,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     }
   else
     {
-    pd = (vtkPolyData *)ds;
+    pd = static_cast<vtkPolyData *>(ds);
     }
 
   prop = anActor->GetProperty();
@@ -570,7 +571,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
     return;
     }
 
-  ta = (vtkTextActor*)anTextActor2D;
+  ta = static_cast<vtkTextActor*>(anTextActor2D);
   tp = ta->GetTextProperty();
   ds = NULL;
   ds = ta->GetInput();
@@ -656,7 +657,7 @@ void vtkX3DExporter::WriteAnAppearance(vtkActor *anActor, bool emissive,
 
   writer->StartNode(Appearance);
   writer->StartNode(Material);
-  writer->SetField(ambientIntensity, (float)prop->GetAmbient());
+  writer->SetField(ambientIntensity,static_cast<float>(prop->GetAmbient()));
 
   if (emissive)
     {
@@ -689,9 +690,9 @@ void vtkX3DExporter::WriteAnAppearance(vtkActor *anActor, bool emissive,
   writer->SetField(specularColor, SFCOLOR, tempd);  
 
   // Material shininess
-  writer->SetField(shininess, (float)prop->GetSpecularPower()/128.0f);
+  writer->SetField(shininess,static_cast<float>(prop->GetSpecularPower()/128.0));
   // Material transparency
-  writer->SetField(transparency, (float)(1.0f - prop->GetOpacity()));
+  writer->SetField(transparency,static_cast<float>(1.0 - prop->GetOpacity()));
   writer->EndNode(); // close material
 
   // is there a texture map
@@ -853,13 +854,13 @@ static bool vtkX3DExporterWriterRenderFaceSet(
       {
       for (vtkIdType cc=0; cc < npts; cc++)
         {
-        coordIndexVector.push_back((int)indx[cc]);
+        coordIndexVector.push_back(static_cast<int>(indx[cc]));
         }
 
       if (representation == VTK_WIREFRAME && npts>2 && cellType == VTK_POLYGON)
         {
         // close the polygon.
-        coordIndexVector.push_back((int)indx[0]);
+        coordIndexVector.push_back(static_cast<int>(indx[0]));
         }
       coordIndexVector.push_back(-1);
 
@@ -885,19 +886,19 @@ static bool vtkX3DExporterWriterRenderFaceSet(
           i1 = cc - 2;
           i2 = cc - 1;
           }
-        coordIndexVector.push_back((int)indx[i1]);
-        coordIndexVector.push_back((int)indx[i2]);
-        coordIndexVector.push_back((int)indx[cc]);
+        coordIndexVector.push_back(static_cast<int>(indx[i1]));
+        coordIndexVector.push_back(static_cast<int>(indx[i2]));
+        coordIndexVector.push_back(static_cast<int>(indx[cc]));
 
         if (representation == VTK_WIREFRAME)
           {
           // close the polygon when drawing lines
-          coordIndexVector.push_back((int)indx[i1]);
+            coordIndexVector.push_back(static_cast<int>(indx[i1]));
           }
         coordIndexVector.push_back(-1);
 
         vtkIdType cellid = cellOffset;
-        cellIndexVector.push_back((int)cellid);
+        cellIndexVector.push_back(static_cast<int>(cellid));
         }
       }
     }
@@ -1067,9 +1068,9 @@ static bool vtkX3DExporterWriterRenderVerts(
           colors->GetTupleValue(indx[cc], color);
           }
 
-        colorVector.push_back((float)color[0]/255.0);
-        colorVector.push_back((float)color[1]/255.0);
-        colorVector.push_back((float)color[2]/255.0);
+        colorVector.push_back(color[0]/255.0);
+        colorVector.push_back(color[1]/255.0);
+        colorVector.push_back(color[2]/255.0);
         }
       }
     }
