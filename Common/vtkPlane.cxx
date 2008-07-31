@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlane, "1.41");
+vtkCxxRevisionMacro(vtkPlane, "1.42");
 vtkStandardNewMacro(vtkPlane);
 
 // Construct plane passing through origin and normal to z-axis.
@@ -75,7 +75,7 @@ void vtkPlane::GeneralizedProjectPoint(double x[3], double origin[3],
   xo[2] = x[2] - origin[2];
 
   t = vtkMath::Dot(normal,xo);
-  n2 = vtkMath::Dot(normal, normal);
+  n2 = sqrt(vtkMath::Dot(normal, normal));
 
   if (n2 != 0)
     {
