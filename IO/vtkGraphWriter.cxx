@@ -28,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkGraphWriter, "1.5");
+vtkCxxRevisionMacro(vtkGraphWriter, "1.6");
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()
@@ -83,14 +83,10 @@ void vtkGraphWriter::WriteData()
     *fp << "VERTICES " << vertex_count << "\n";
     const vtkIdType edge_count = input->GetNumberOfEdges();
     *fp << "EDGES " << edge_count << "\n";
-    vtkEdgeListIterator *it = vtkEdgeListIterator::New();
-    input->GetEdges(it);
-    while (it->HasNext())
+    for (vtkIdType e = 0; e < edge_count; ++e)
       {
-      vtkEdgeType e = it->Next();
-      *fp << e.Source << " " << e.Target << "\n";
+      *fp << input->GetSourceVertex(e) << " " << input->GetTargetVertex(e) << "\n";
       }
-    it->Delete();
     }
   if(!error_occurred && !this->WriteEdgeData(fp, input))
     {

@@ -85,6 +85,9 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
       
     if(inputEdge.Target != outputEdge.Target)
       return false;
+
+    if(inputEdge.Id != outputEdge.Id)
+      return false;
     }
   inputEdges->Delete();
   outputEdges->Delete();
