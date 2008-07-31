@@ -359,7 +359,18 @@ ELSE (_boost_IN_CACHE)
   ENDIF (CYGWIN)
   IF (UNIX)
     IF (APPLE)
+      IF(${Boost_MINOR_VERSION} GREATER 35)
+        #find out the version of gcc being used.
+        EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
+            ARGS --version
+            OUTPUT_VARIABLE _boost_COMPILER_VERSION
+        )
+        STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.[0-9] .*" "\\1\\2"
+               _boost_COMPILER_VERSION ${_boost_COMPILER_VERSION})
+        SET (_boost_COMPILER "-xgcc${_boost_COMPILER_VERSION}")
+      ELSE(${Boost_MINOR_VERSION} GREATER 35)
         SET (_boost_COMPILER "")
+      ENDIF(${Boost_MINOR_VERSION} GREATER 35)
     ELSE (APPLE)
       IF (NOT CMAKE_COMPILER_IS_GNUCC)
         # This is for the intel compiler

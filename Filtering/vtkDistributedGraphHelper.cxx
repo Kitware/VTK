@@ -32,7 +32,7 @@
 //----------------------------------------------------------------------------
 // class vtkDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.3");
+vtkCxxRevisionMacro(vtkDistributedGraphHelper, "1.4");
 
 //----------------------------------------------------------------------------
 void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
@@ -157,6 +157,7 @@ vtkIdType vtkDistributedGraphHelper::MakeDistributedId(int owner, vtkIdType loca
 
   if (numProcs > 1)
     {
+    assert(owner >= 0 && owner < numProcs);
     return ((vtkIdType)owner << this->indexBits) | local;
     }
   

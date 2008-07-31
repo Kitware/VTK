@@ -252,11 +252,15 @@ public:
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
   virtual void ClearLookup();
+
+  // Description:
+  // This destructor is public to work around a bug in version 1.36.0 of
+  // the Boost.Serialization library.
+  ~vtkVariantArray();
   
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkVariantArray(vtkIdType numComp=1);
-  ~vtkVariantArray();
 
   // Pointer to data
   //BTX
