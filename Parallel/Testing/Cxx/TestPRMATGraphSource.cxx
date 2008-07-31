@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   bool doPrint = false;
   bool doBFS = true;
   bool doSSSP = true;
-  bool doSSSPVerify = true;
+  bool doVerify = true;
 
   if (argc > 6) 
     {
@@ -86,9 +86,9 @@ int main(int argc, char* argv[])
         {
         doSSSP = false;
         }
-      else if (arg == "--no-sssp-verify")
+      else if (arg == "--no-verify")
         {
-        doSSSPVerify = false;
+        doVerify = false;
         }
     }
 
@@ -231,12 +231,12 @@ int main(int argc, char* argv[])
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
       }
 
-    if (doSSSPVerify)
+    if (doVerify)
       {
       vtkGraph* output = vtkGraph::SafeDownCast(sssp->GetOutput());
       if (world.rank() == 0)
         {
-        cerr << " Verify shorting paths...";
+        cerr << " Verifying shortest paths...";
         }
 
       // Create distributed property maps for path length and edge weight
@@ -288,5 +288,6 @@ int main(int argc, char* argv[])
         }
       }
     }
+
   return errors;
 }

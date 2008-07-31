@@ -20,10 +20,13 @@
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkBitArray.h"
 #include "vtkBoostBreadthFirstSearch.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkOutEdgeIterator.h"
+#include "vtkPBGLGraphAdapter.h"
+#include "vtkPBGLVertexColoring.h"
 #include "vtkPRandomGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -51,6 +54,8 @@ int main(int argc, char* argv[])
   bool doPrint = false;
   bool onlyConnected = false;
   bool doBFS = true;
+  bool doVerify = true;
+  bool doColoring = true;
 
   if (argc > 2) 
     {
@@ -72,6 +77,10 @@ int main(int argc, char* argv[])
       else if (arg == "--no-bfs")
         {
         doBFS = false;
+        }
+      else if (arg == "--no-coloring")
+        {
+        doColoring = false;
         }
     }
 
@@ -203,5 +212,80 @@ int main(int argc, char* argv[])
       cerr << " done in " << timer.elapsed() << " seconds" << endl;
       }
     }
+
+  if (doColoring)
+    {
+    vtkSmartPointer<vtkPBGLVertexColoring> coloring
+      = vtkSmartPointer<vtkPBGLVertexColoring>::New();
+    coloring->SetInput(g);
+
+    // Run the vertex-coloring
+    if (world.rank() == 0)
+      {
+      cerr << "Vertex coloring...";
+      }
+    boost::mpi::timer timer;
+    coloring->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline* exec =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(coloring->GetExecutive());
+    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
+    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
+    coloring->Update();
+
+    if (world.rank() == 0)
+      {
+      cerr << " done in " << timer.elapsed() << " seconds" << endl;
+      }
+
+    if (doVerify)
+      {
+      vtkGraph* output = vtkGraph::SafeDownCast(coloring->GetOutput());
+      if (world.rank() == 0)
+        {
+        cerr << " Verifying vertex coloring...";
+        }
+
+      // Turn the color array into a property map
+      vtkIdTypeArray* colorArray
+        = vtkIdTypeArray::SafeDownCast
+            (output->GetVertexData()->GetAbstractArray("Color"));
+      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type colorMap 
+        = MakeDistributedVertexPropertyMap(output, colorArray);
+
+      // Restart the timer
+      timer.restart();
+
+      vtkSmartPointer<vtkVertexListIterator> vertices
+        = vtkSmartPointer<vtkVertexListIterator>::New();
+      output->GetVertices(vertices);
+      while (vertices->HasNext())
+        {
+        vtkIdType u = vertices->Next();
+        vtkSmartPointer<vtkOutEdgeIterator> outEdges
+          = vtkSmartPointer<vtkOutEdgeIterator>::New();
+        
+        output->GetOutEdges(u, outEdges);
+        while (outEdges->HasNext()) 
+          {
+          vtkOutEdgeType e = outEdges->Next();
+          if (get(colorMap, u) == get(colorMap, e.Target))
+            {
+            cerr << "ERROR: Found adjacent vertices " << u << " and " 
+                 << e.Target << " with the same color value (" 
+                 << get(colorMap, u) << ")" << endl;
+            ++errors;
+            }
+          }
+        }
+      
+      output->GetDistributedGraphHelper()->Synchronize();
+
+      if (world.rank() == 0)
+        {
+        cerr << " done in " << timer.elapsed() << " seconds" << endl;
+        }
+      }
+    }
+
   return errors;
 }

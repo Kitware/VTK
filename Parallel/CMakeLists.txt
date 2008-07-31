@@ -138,6 +138,7 @@ IF (VTK_USE_PARALLEL_BGL)
     ${Kit_SRCS}
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
+    vtkPBGLVertexColoring.cxx
     vtkPBGLShortestPaths.cxx
     vtkPRandomGraphSource.cxx
     vtkPRMATGraphSource.cxx
