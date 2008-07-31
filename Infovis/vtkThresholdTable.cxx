@@ -29,7 +29,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkThresholdTable, "1.7");
+vtkCxxRevisionMacro(vtkThresholdTable, "1.8");
 vtkStandardNewMacro(vtkThresholdTable);
 
 vtkThresholdTable::vtkThresholdTable() : MinValue(0), MaxValue(VTK_INT_MAX), Mode(0)
@@ -99,6 +99,18 @@ void vtkThresholdTableThresholdRows(iterT* it, vtkTable* input, vtkTable* output
     }
 }
 
+void vtkThresholdTable::ThresholdBetween(vtkVariant lower, vtkVariant upper)
+{
+  if ( this->MinValue != lower || this->MaxValue != upper ||
+       this->Mode != vtkThresholdTable::ACCEPT_BETWEEN)
+    {
+    this->MinValue = lower; 
+    this->MaxValue = upper;
+    this->Mode = vtkThresholdTable::ACCEPT_BETWEEN;
+    this->Modified();
+    }
+}
+  
 int vtkThresholdTable::RequestData(
   vtkInformation*, 
   vtkInformationVector** inputVector, 

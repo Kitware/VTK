@@ -81,6 +81,12 @@ public:
     {
     return this->MaxValue;
     }
+
+  // Description:
+  // Criterion is rows whose scalars are between lower and upper thresholds
+  // (inclusive of the end values).
+  void ThresholdBetween(vtkVariant lower, vtkVariant upper);
+
   //ETX
 
   // Description:
@@ -95,6 +101,14 @@ public:
   void SetMaxValue(double v)
   {
     this->SetMaxValue(vtkVariant(v));
+  }
+
+  // Description:
+  // Criterion is rows whose scalars are between lower and upper thresholds
+  // (inclusive of the end values).
+  void ThresholdBetween(double lower, double upper)
+  {
+    this->ThresholdBetween(vtkVariant(lower),vtkVariant(upper));
   }
 
 protected:
