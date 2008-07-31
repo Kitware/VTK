@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.42");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.43");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -57,6 +57,8 @@ vtkArrayCalculator::vtkArrayCalculator()
 
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
+
+  this->ResultArrayType=VTK_DOUBLE;
 }
 
 vtkArrayCalculator::~vtkArrayCalculator()
@@ -414,7 +416,8 @@ int vtkArrayCalculator::RequestData(
     }
   else
     {
-    resultArray = vtkDoubleArray::New();
+      resultArray=
+        vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(this->ResultArrayType));
     }
 
   if (resultType == 0)
@@ -1192,6 +1195,9 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
      << (this->Function ? this->Function : "(none)") << endl;
   os << indent << "Result Array Name: "
      << (this->ResultArrayName ? this->ResultArrayName : "(none)") << endl;
+
+  os << indent << "Result Array Type: " << vtkImageScalarTypeNameMacro(this->ResultArrayType) << endl;
+
   os << indent << "Coordinate Results: " << this->CoordinateResults << endl;
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   os << indent << "Number Of Scalar Arrays: " << this->NumberOfScalarArrays

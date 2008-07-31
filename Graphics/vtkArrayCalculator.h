@@ -115,7 +115,13 @@ public:
   // created with the specified name.
   void SetResultArrayName(const char* name);
   vtkGetStringMacro(ResultArrayName);
-  
+
+  // Description:
+  // Type of the result array. It is ignored if CoordinateResults is true.
+  // Initial value is VTK_DOUBLE.
+  vtkGetMacro(ResultArrayType,int);
+  vtkSetMacro(ResultArrayType,int);
+
   // Description:
   // Set whether to output results as coordinates.  ResultArrayName will be
   // ignored.  Outputing as coordinates is only valid with vector results and
@@ -223,6 +229,8 @@ protected:
   int** SelectedCoordinateVectorComponents;
   int NumberOfCoordinateScalarArrays;
   int NumberOfCoordinateVectorArrays;
+
+  int ResultArrayType;
 
 private:
   vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
