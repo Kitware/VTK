@@ -301,6 +301,15 @@ namespace boost {
       vertex_descriptor, out_edge_iterator>::type adjacency_iterator;
   };
 
+  template<>
+  struct vertex_property_type< vtkGraph* > {
+    typedef no_property type;
+  };
+
+  template<>
+  struct edge_property_type< vtkGraph* > {
+    typedef no_property type;
+  };
 
   //===========================================================================
   // vtkDirectedGraph
@@ -318,6 +327,26 @@ namespace boost {
   // The graph_traits for a const graph are the same as a non-const graph.
   template <>
   struct graph_traits<vtkDirectedGraph* const> : graph_traits<vtkDirectedGraph*> { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkDirectedGraph* > 
+    : vertex_property_type< vtkGraph* > { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkDirectedGraph* const > 
+    : vertex_property_type< vtkGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkDirectedGraph* > 
+    : edge_property_type< vtkGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkDirectedGraph* const > 
+    : edge_property_type< vtkGraph* > { };
 
   //===========================================================================
   // vtkTree
@@ -349,6 +378,26 @@ namespace boost {
   template <>
   struct graph_traits<vtkUndirectedGraph* const> : graph_traits<vtkUndirectedGraph*> { };
 
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkUndirectedGraph* > 
+    : vertex_property_type< vtkGraph* > { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkUndirectedGraph* const > 
+    : vertex_property_type< vtkGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkUndirectedGraph* > 
+    : edge_property_type< vtkGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkUndirectedGraph* const > 
+    : edge_property_type< vtkGraph* > { };
+
   //===========================================================================
   // vtkMutableDirectedGraph
 
@@ -363,6 +412,26 @@ namespace boost {
   template <>
   struct graph_traits<vtkMutableDirectedGraph* const> : graph_traits<vtkMutableDirectedGraph*> { };
 
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkMutableDirectedGraph* > 
+    : vertex_property_type< vtkDirectedGraph* > { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkMutableDirectedGraph* const > 
+    : vertex_property_type< vtkDirectedGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkMutableDirectedGraph* > 
+    : edge_property_type< vtkDirectedGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkMutableDirectedGraph* const > 
+    : edge_property_type< vtkDirectedGraph* > { };
+
   //===========================================================================
   // vtkMutableUndirectedGraph
 
@@ -376,6 +445,26 @@ namespace boost {
   // The graph_traits for a const graph are the same as a non-const graph.
   template <>
   struct graph_traits<vtkMutableUndirectedGraph* const> : graph_traits<vtkMutableUndirectedGraph*> { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkMutableUndirectedGraph* > 
+    : vertex_property_type< vtkUndirectedGraph* > { };
+
+  // Internal vertex properties
+  template<>
+  struct vertex_property_type< vtkMutableUndirectedGraph* const > 
+    : vertex_property_type< vtkUndirectedGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkMutableUndirectedGraph* > 
+    : edge_property_type< vtkUndirectedGraph* > { };
+
+  // Internal edge properties
+  template<>
+  struct edge_property_type< vtkMutableUndirectedGraph* const > 
+    : edge_property_type< vtkUndirectedGraph* > { };
 
   //===========================================================================
   // API implementation
@@ -657,6 +746,23 @@ namespace boost {
     : property_map<vtkGraph*, edge_index_t> { };
 
   inline vtkGraphIndexMap get(edge_index_t, vtkGraph*) { return vtkGraphIndexMap(); }
+
+  // property_map specializations for const-qualified graphs
+  template<>
+  struct property_map<vtkDirectedGraph* const, vertex_index_t>
+    : property_map<vtkDirectedGraph*, vertex_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph* const, vertex_index_t>
+    : property_map<vtkUndirectedGraph*, vertex_index_t> { };
+
+  template<>
+  struct property_map<vtkDirectedGraph* const, edge_index_t>
+    : property_map<vtkDirectedGraph*, edge_index_t> { };
+
+  template<>
+  struct property_map<vtkUndirectedGraph* const, edge_index_t>
+    : property_map<vtkUndirectedGraph*, edge_index_t> { };
 
 } // namespace boost
 

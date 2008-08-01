@@ -136,6 +136,7 @@ IF (VTK_USE_PARALLEL_BGL)
   SET(KIT_LIBS ${KIT_LIBS} boost_graph_mpi ${Boost_LIBRARIES})
   SET ( Kit_SRCS
     ${Kit_SRCS}
+    vtkPBGLConnectedComponents.cxx
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
     vtkPBGLVertexColoring.cxx

@@ -31,6 +31,7 @@
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/parallel/container_traits.hpp>
+#include <boost/parallel/local_property_map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/functional/hash.hpp>
 //ETX
@@ -42,13 +43,21 @@ namespace boost {
 // Define specializations of class template property_map for
 // vtkDirectedGraph and vtkUndirectedGraph, based on the
 // specialization for vtkGraph.
-#define SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(Property) \
-  template<>                                            \
-  struct property_map<vtkDirectedGraph *, Property>     \
-    : property_map<vtkGraph *, Property> { };           \
-                                                        \
-  template<>                                            \
-  struct property_map<vtkUndirectedGraph *, Property>   \
+#define SUBCLASS_PROPERTY_MAP_SPECIALIZATIONS(Property)         \
+  template<>                                                    \
+  struct property_map<vtkDirectedGraph *, Property>             \
+    : property_map<vtkGraph *, Property> { };                   \
+                                                                \
+  template<>                                                    \
+  struct property_map<vtkUndirectedGraph *, Property>           \
+    : property_map<vtkGraph *, Property> { };                   \
+                                                                \
+  template<>                                                    \
+  struct property_map<vtkDirectedGraph * const, Property>       \
+    : property_map<vtkGraph *, Property> { };                   \
+                                                                \
+  template<>                                                    \
+  struct property_map<vtkUndirectedGraph * const, Property>     \
     : property_map<vtkGraph *, Property> { }
 
   // Property map from a vertex descriptor to the owner of the vertex
@@ -279,6 +288,14 @@ namespace boost { namespace graph { namespace parallel {
   template<>
   struct process_group_type<vtkUndirectedGraph *> 
     : process_group_type<vtkGraph *> { };
+
+  template<>
+  struct process_group_type<vtkDirectedGraph * const>
+    : process_group_type<vtkDirectedGraph *> { };
+
+  template<>
+  struct process_group_type<vtkUndirectedGraph * const>
+    : process_group_type<vtkUndirectedGraph *> { };
 } } } // end namespace boost::graph::parallel
 
 boost::graph::distributed::mpi_process_group process_group(vtkGraph *graph);
@@ -331,6 +348,42 @@ void serialize(Archiver& ar, vtkEdgeType& edge, const unsigned int)
 //----------------------------------------------------------------------------
 // Simplified tools to build distributed property maps
 //----------------------------------------------------------------------------
+
+// Description:
+// A property map used as the vertex index map for distributed
+// vtkGraphs.  Using this index property map when building PBGL's
+// vector_property_map or iterator_property_map will automatically
+// make those property maps distributed. This feature is relied upon
+// by several of the PBGL graph algorithms.
+typedef boost::local_property_map<boost::graph::distributed::mpi_process_group,
+                                  boost::vtkVertexGlobalMap,
+                                  boost::vtkGraphIndexMap>
+  vtkGraphDistributedVertexIndexMap;
+
+// Description:
+// Creates the distributed vertex index property map for a vtkGraph.
+inline vtkGraphDistributedVertexIndexMap
+MakeDistributedVertexIndexMap(vtkGraph* graph)
+{
+  vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+  if (!helper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
+    return vtkGraphDistributedVertexIndexMap();
+    }
+
+  vtkPBGLDistributedGraphHelper *pbglHelper 
+    = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+  if (!pbglHelper)
+    {
+    vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
+    return vtkGraphDistributedVertexIndexMap();
+    }
+
+  return vtkGraphDistributedVertexIndexMap(pbglHelper->GetProcessGroup(),
+                                           boost::vtkVertexGlobalMap(graph),
+                                           boost::vtkGraphIndexMap());
+}
 
 // Description:
 // Retrieves the type of the distributed property map indexed by the

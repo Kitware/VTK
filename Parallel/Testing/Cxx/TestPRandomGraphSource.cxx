@@ -25,6 +25,7 @@
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkOutEdgeIterator.h"
+#include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPBGLVertexColoring.h"
 #include "vtkPRandomGraphSource.h"
@@ -53,9 +54,10 @@ int main(int argc, char* argv[])
 
   bool doPrint = false;
   bool onlyConnected = false;
-  bool doBFS = true;
   bool doVerify = true;
+  bool doBFS = true;
   bool doColoring = true;
+  bool doConnectedComponents = true;
 
   if (argc > 2) 
     {
@@ -81,6 +83,10 @@ int main(int argc, char* argv[])
       else if (arg == "--no-coloring")
         {
         doColoring = false;
+        }
+      else if (arg == "--no-connected-components")
+        {
+        doConnectedComponents = false;
         }
     }
 
@@ -273,6 +279,81 @@ int main(int argc, char* argv[])
             cerr << "ERROR: Found adjacent vertices " << u << " and " 
                  << e.Target << " with the same color value (" 
                  << get(colorMap, u) << ")" << endl;
+            ++errors;
+            }
+          }
+        }
+      
+      output->GetDistributedGraphHelper()->Synchronize();
+
+      if (world.rank() == 0)
+        {
+        cerr << " done in " << timer.elapsed() << " seconds" << endl;
+        }
+      }
+    }
+
+  if (doConnectedComponents)
+    {
+    vtkSmartPointer<vtkPBGLConnectedComponents> cc
+      = vtkSmartPointer<vtkPBGLConnectedComponents>::New();
+    cc->SetInput(g);
+
+    // Run the connected components algorithm
+    if (world.rank() == 0)
+      {
+      cerr << "Connected components...";
+      }
+    boost::mpi::timer timer;
+    cc->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline* exec =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(cc->GetExecutive());
+    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
+    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
+    cc->Update();
+
+    if (world.rank() == 0)
+      {
+      cerr << " done in " << timer.elapsed() << " seconds" << endl;
+      }
+
+    if (doVerify)
+      {
+      vtkGraph* output = vtkGraph::SafeDownCast(cc->GetOutput());
+      if (world.rank() == 0)
+        {
+        cerr << " Verifying connected components...";
+        }
+
+      // Turn the component array into a property map
+      vtkIdTypeArray* componentArray
+        = vtkIdTypeArray::SafeDownCast
+            (output->GetVertexData()->GetAbstractArray("Component"));
+      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type componentMap 
+        = MakeDistributedVertexPropertyMap(output, componentArray);
+
+      // Restart the timer
+      timer.restart();
+
+      vtkSmartPointer<vtkVertexListIterator> vertices
+        = vtkSmartPointer<vtkVertexListIterator>::New();
+      output->GetVertices(vertices);
+      while (vertices->HasNext())
+        {
+        vtkIdType u = vertices->Next();
+        vtkSmartPointer<vtkOutEdgeIterator> outEdges
+          = vtkSmartPointer<vtkOutEdgeIterator>::New();
+        
+        output->GetOutEdges(u, outEdges);
+        while (outEdges->HasNext()) 
+          {
+          vtkOutEdgeType e = outEdges->Next();
+          if (get(componentMap, u) != get(componentMap, e.Target))
+            {
+            cerr << "ERROR: Found adjacent vertices " << u << " and " 
+                 << e.Target << " with different component values (" 
+                 << get(componentMap, u) << " and " 
+                 << get(componentMap, e.Target) << ")" << endl;
             ++errors;
             }
           }

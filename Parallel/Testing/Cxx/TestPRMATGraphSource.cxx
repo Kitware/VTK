@@ -27,6 +27,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkMath.h"
+#include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPBGLShortestPaths.h"
 #include "vtkPRMATGraphSource.h"
@@ -57,9 +58,10 @@ int main(int argc, char* argv[])
   double C = 0.15;
   double D = 0.25;
   bool doPrint = false;
+  bool doVerify = true;
   bool doBFS = true;
   bool doSSSP = true;
-  bool doVerify = true;
+  bool doConnectedComponents = true;
 
   if (argc > 6) 
     {
@@ -89,6 +91,10 @@ int main(int argc, char* argv[])
       else if (arg == "--no-verify")
         {
         doVerify = false;
+        }
+      else if (arg == "--no-connected-components")
+        {
+        doConnectedComponents = false;
         }
     }
 
@@ -286,6 +292,31 @@ int main(int argc, char* argv[])
         {
         cerr << " done in " << timer.elapsed() << " seconds" << endl;
         }
+      }
+    }
+
+  if (doConnectedComponents)
+    {
+    vtkSmartPointer<vtkPBGLConnectedComponents> cc
+      = vtkSmartPointer<vtkPBGLConnectedComponents>::New();
+    cc->SetInput(g);
+
+    // Run the connected components algorithm
+    if (world.rank() == 0)
+      {
+      cerr << "Connected components...";
+      }
+    boost::mpi::timer timer;
+    cc->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline* exec =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(cc->GetExecutive());
+    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
+    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
+    cc->Update();
+
+    if (world.rank() == 0)
+      {
+      cerr << " done in " << timer.elapsed() << " seconds" << endl;
       }
     }
 
