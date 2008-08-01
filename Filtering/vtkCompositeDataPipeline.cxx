@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.71");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.72");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -1006,6 +1006,12 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
   int updateNumberOfPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
   int dataNumberOfPieces = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   if(dataNumberOfPieces != updateNumberOfPieces)
+    {
+    return 1;
+    }
+  int dataGhostLevel = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+  int updateGhostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+  if(dataGhostLevel < updateGhostLevel)
     {
     return 1;
     }
