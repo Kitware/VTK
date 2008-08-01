@@ -30,7 +30,7 @@
 #include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPBGLShortestPaths.h"
-#include "vtkPRMATGraphSource.h"
+#include "vtkPBGLRMATGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertexListIterator.h"
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
   vtkIdType totalNumberOfEdges;
   vtkGraph* g;
   
-  VTK_CREATE(vtkPRMATGraphSource, source);
+  VTK_CREATE(vtkPBGLRMATGraphSource, source);
 
   int errors = 0;
 

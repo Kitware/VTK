@@ -28,7 +28,7 @@
 #include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPBGLVertexColoring.h"
-#include "vtkPRandomGraphSource.h"
+#include "vtkPBGLRandomGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertexListIterator.h"
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   vtkIdType totalNumberOfEdges;
   vtkGraph* g;
 
-  VTK_CREATE(vtkPRandomGraphSource, source);
+  VTK_CREATE(vtkPBGLRandomGraphSource, source);
 
   int errors = 0;
 

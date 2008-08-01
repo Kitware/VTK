@@ -140,10 +140,10 @@ IF (VTK_USE_PARALLEL_BGL)
     vtkPBGLConnectedComponents.cxx
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
-    vtkPBGLVertexColoring.cxx
+    vtkPBGLRMATGraphSource.cxx
+    vtkPBGLRandomGraphSource.cxx
     vtkPBGLShortestPaths.cxx
-    vtkPRandomGraphSource.cxx
-    vtkPRMATGraphSource.cxx
+    vtkPBGLVertexColoring.cxx
     )
 ENDIF (VTK_USE_PARALLEL_BGL)
 

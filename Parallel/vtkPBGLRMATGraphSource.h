@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPRMATGraphSource.h
+  Module:    vtkPBGLRMATGraphSource.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,7 +22,7 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-// .NAME vtkPRMATGraphSource - a distributed graph with random edges built
+// .NAME vtkPBGLRMATGraphSource - a distributed graph with random edges built
 // accorting to the recursive matrix (R-MAT) model.
 //
 // .SECTION Description
@@ -58,19 +58,19 @@
 // vtkPRandomGraphSource. Greater skew values tend to produce graphs
 // with a power-law degree distribution, which mimics the behavior of
 // many real-world graphs based on social networks. 
-#ifndef __vtkPRMATGraphSource_h
-#define __vtkPRMATGraphSource_h
+#ifndef __vtkPBGLRMATGraphSource_h
+#define __vtkPBGLRMATGraphSource_h
 
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 class vtkPVXMLElement;
 
-class VTK_PARALLEL_EXPORT vtkPRMATGraphSource : public vtkGraphAlgorithm
+class VTK_PARALLEL_EXPORT vtkPBGLRMATGraphSource : public vtkGraphAlgorithm
 {
 public:
-  static vtkPRMATGraphSource* New();
-  vtkTypeRevisionMacro(vtkPRMATGraphSource,vtkGraphAlgorithm);
+  static vtkPBGLRMATGraphSource* New();
+  vtkTypeRevisionMacro(vtkPBGLRMATGraphSource,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -136,14 +136,14 @@ public:
 
   // Description:
   // Control the seed used for pseudo-random-number generation.
-  // This ensures that vtkPRMATGraphSource can produce repeatable
+  // This ensures that vtkPBGLRMATGraphSource can produce repeatable
   // results. The seed values provided for each process should be different, 
   vtkSetMacro(Seed, int);
   vtkGetMacro(Seed, int);
 
 protected:
-  vtkPRMATGraphSource();
-  ~vtkPRMATGraphSource();
+  vtkPBGLRMATGraphSource();
+  ~vtkPBGLRMATGraphSource();
   vtkIdType NumberOfVertices;
   vtkIdType NumberOfEdges;
   double A, B, C, D;
@@ -167,8 +167,8 @@ protected:
                                 vtkInformationVector* outputVector);
 
 private:
-  vtkPRMATGraphSource(const vtkPRMATGraphSource&); // Not implemented
-  void operator=(const vtkPRMATGraphSource&);   // Not implemented
+  vtkPBGLRMATGraphSource(const vtkPBGLRMATGraphSource&); // Not implemented
+  void operator=(const vtkPBGLRMATGraphSource&);   // Not implemented
 };
 
 #endif

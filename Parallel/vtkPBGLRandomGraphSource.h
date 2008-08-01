@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPRandomGraphSource.h
+  Module:    vtkPBGLRandomGraphSource.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPRandomGraphSource - a distributed graph with random edges
+// .NAME vtkPBGLRandomGraphSource - Generates a distributed graph with 
+// random edges.
 //
 // .SECTION Description
 // Generates a distributed graph with a specified number of vertices,
@@ -28,19 +29,19 @@
 // vtkRandomGraphSource.
 //
 
-#ifndef __vtkPRandomGraphSource_h
-#define __vtkPRandomGraphSource_h
+#ifndef __vtkPBGLRandomGraphSource_h
+#define __vtkPBGLRandomGraphSource_h
 
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 class vtkPVXMLElement;
 
-class VTK_PARALLEL_EXPORT vtkPRandomGraphSource : public vtkGraphAlgorithm
+class VTK_PARALLEL_EXPORT vtkPBGLRandomGraphSource : public vtkGraphAlgorithm
 {
 public:
-  static vtkPRandomGraphSource* New();
-  vtkTypeRevisionMacro(vtkPRandomGraphSource,vtkGraphAlgorithm);
+  static vtkPBGLRandomGraphSource* New();
+  vtkTypeRevisionMacro(vtkPBGLRandomGraphSource,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -132,14 +133,14 @@ public:
 
   // Description:
   // Control the seed used for pseudo-random-number generation.
-  // This ensures that vtkPRandomGraphSource can produce repeatable
+  // This ensures that vtkPBGLRandomGraphSource can produce repeatable
   // results. The seed values provided for each process should be different, 
   vtkSetMacro(Seed, int);
   vtkGetMacro(Seed, int);
 
 protected:
-  vtkPRandomGraphSource();
-  ~vtkPRandomGraphSource();
+  vtkPBGLRandomGraphSource();
+  ~vtkPBGLRandomGraphSource();
   vtkIdType NumberOfVertices;
   vtkIdType NumberOfEdges;
   double EdgeProbability;
@@ -167,8 +168,8 @@ protected:
                                 vtkInformationVector* outputVector);
 
 private:
-  vtkPRandomGraphSource(const vtkPRandomGraphSource&); // Not implemented
-  void operator=(const vtkPRandomGraphSource&);   // Not implemented
+  vtkPBGLRandomGraphSource(const vtkPBGLRandomGraphSource&); // Not implemented
+  void operator=(const vtkPBGLRandomGraphSource&);   // Not implemented
 };
 
 #endif

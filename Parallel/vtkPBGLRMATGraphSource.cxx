@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPRandomGraphSource.cxx
+  Module:    vtkPBGLRMATGraphSource.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,7 +17,12 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkPRandomGraphSource.h"
+/* 
+ * Copyright (C) 2008 The Trustees of Indiana University.
+ * Use, modification and distribution is subject to the Boost Software
+ * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
+ */
+#include "vtkPBGLRMATGraphSource.h"
 
 #include "vtkBlockDistribution.h"
 #include "vtkCellData.h"
@@ -42,24 +47,22 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>
 
-vtkCxxRevisionMacro(vtkPRandomGraphSource, "1.3");
-vtkStandardNewMacro(vtkPRandomGraphSource);
+vtkCxxRevisionMacro(vtkPBGLRMATGraphSource, "1.1");
+vtkStandardNewMacro(vtkPBGLRMATGraphSource);
 
 // ----------------------------------------------------------------------
-vtkPRandomGraphSource::vtkPRandomGraphSource()
+vtkPBGLRMATGraphSource::vtkPBGLRMATGraphSource()
 {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  this->NumberOfVertices = 10;
-  this->NumberOfEdges = 10;
-  this->EdgeProbability = 0.5;
+  this->NumberOfVertices = 128;
+  this->NumberOfEdges = 512;
+  this->A = 0.25;
+  this->B = 0.25;
+  this->C = 0.25;
+  this->D = 0.25;
   this->IncludeEdgeWeights = false;
-  this->Directed = 0;
-  this->UseEdgeProbability = 0;
-  this->StartWithTree = 0;
   this->AllowSelfLoops = false;
-  this->AllowBalancedEdgeDistribution = true;
   this->GeneratePedigreeIds = true;
   this->VertexPedigreeIdArrayName = 0;
   this->SetVertexPedigreeIdArrayName("vertex id");
@@ -74,7 +77,7 @@ vtkPRandomGraphSource::vtkPRandomGraphSource()
 
 // ----------------------------------------------------------------------
 
-vtkPRandomGraphSource::~vtkPRandomGraphSource()
+vtkPBGLRMATGraphSource::~vtkPBGLRMATGraphSource()
 {
   this->SetVertexPedigreeIdArrayName(0);
   this->SetEdgePedigreeIdArrayName(0);
@@ -84,18 +87,14 @@ vtkPRandomGraphSource::~vtkPRandomGraphSource()
 // ----------------------------------------------------------------------
 
 void 
-vtkPRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
+vtkPBGLRMATGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfVertices: " << this->NumberOfVertices << endl;
   os << indent << "NumberOfEdges: " << this->NumberOfEdges << endl;
-  os << indent << "EdgeProbability: " << this->EdgeProbability << endl;
+  os << indent << "Probabilities: " << this->A << ", " << this->B << ", " 
+     << this->C << ", " << this->D << endl;
   os << indent << "IncludeEdgeWeights: " << this->IncludeEdgeWeights << endl;
-  os << indent << "Directed: " << this->Directed << endl;
-  os << indent << "UseEdgeProbability: " << this->UseEdgeProbability << endl;
-  os << indent << "StartWithTree: " << this->StartWithTree << endl;
-  os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
-  os << indent << "AllowBalancedEdgeDistribution: " << this->AllowBalancedEdgeDistribution << endl;
   os << indent << "GeneratePedigreeIds: " << this->GeneratePedigreeIds << endl;
   os << indent << "VertexPedigreeIdArrayName: "
     << (this->VertexPedigreeIdArrayName ? this->VertexPedigreeIdArrayName : "(null)") << endl;
@@ -107,9 +106,71 @@ vtkPRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------
+void vtkPBGLRMATGraphSource::SetNumberOfVertices(vtkIdType value)
+{
+  vtkIdType mask = (vtkIdType) 1 << ((sizeof(vtkIdType) * CHAR_BIT) - 2);
+  while (mask != 0) 
+    {
+    if (value & mask)
+      {
+      // We've found the most significant 1-bit.
+      if (value & (mask >> (vtkIdType) 1))
+        {
+        // Round up to the next power of two.
+        mask = mask << (vtkIdType) 1;
+        }
+      break;
+      }
+
+    mask = mask >> (vtkIdType) 1;
+    }
+
+  this->NumberOfVertices = mask;
+}
+
+// ----------------------------------------------------------------------
+void 
+vtkPBGLRMATGraphSource::SetProbabilities(double A, double B, double C, double D)
+{
+  if (A + B + C + D != 1.0)
+    {
+    vtkErrorMacro("R-MAT probabilities do not add up to 1.0.");
+    return;
+    }
+
+  this->A = A;
+  this->B = B;
+  this->C = C;
+  this->D = D;
+}
+
+// ----------------------------------------------------------------------
+void 
+vtkPBGLRMATGraphSource::GetProbabilities(double *A, double *B, double *C, double *D)
+{
+  if (A) 
+    {
+    *A = this->A;
+    }
+  if (B) 
+    {
+    *B = this->B;
+    }
+  if (C) 
+    {
+    *C = this->C;
+    }
+  if (D) 
+    {
+    *D = this->D;
+    }
+}
+
+
+// ----------------------------------------------------------------------
 
 int 
-vtkPRandomGraphSource::RequestData(
+vtkPBGLRMATGraphSource::RequestData(
   vtkInformation*, 
   vtkInformationVector**, 
   vtkInformationVector *outputVector)
@@ -122,11 +183,9 @@ vtkPRandomGraphSource::RequestData(
   // Seed the random number generator so we can produce repeatable results
   vtkMath::RandomSeed(this->Seed);
   
-  // Create a mutable graph of the appropriate type.
+  // Create a mutable, directed graph.
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
-  vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
-    vtkSmartPointer<vtkMutableUndirectedGraph>::New();
     
   // Create a Parallel BGL distributed graph helper
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
@@ -134,16 +193,9 @@ vtkPRandomGraphSource::RequestData(
 
   // Hook the distributed graph helper into the graph to make it a
   // distributed graph.
-  if (this->Directed)
-    {
-    dirBuilder->SetDistributedGraphHelper(helper);
-    }
-  else
-    {
-    undirBuilder->SetDistributedGraphHelper(helper);
-    }
+  dirBuilder->SetDistributedGraphHelper(helper);
 
-  // A simple block distribution of vertices.
+  // Vertex distribution.
   vtkBlockDistribution distribution(this->NumberOfVertices, numProcs);
 
   // Add NumberOfVertices new vertices.
@@ -152,128 +204,68 @@ vtkPRandomGraphSource::RequestData(
   vtkIdType myEndVertex = myStartVertex + myNumberOfVertices;
   for (vtkIdType i = 0; i < myNumberOfVertices; ++i)
     {
-    if (this->Directed)
-      {
-      dirBuilder->AddVertex();
-      }
-    else
-      {
-      undirBuilder->AddVertex();
-      }
+    dirBuilder->AddVertex();
     }
 
   // Make sure everyone has added their own local vertices.
   helper->Synchronize();
 
-  if (this->StartWithTree)
+  vtkIdType MaxEdges;
+  if (this->AllowSelfLoops)
     {
-    vtkIdType myStart = myStartVertex;
-    if (myStart == 0)
-      {
-      myStart = 1;
-      }
-
-    for (vtkIdType i = myStart; i < myEndVertex; i++)
-      {
-      // Pick a random vertex in [0, i-1].
-      int j = static_cast<vtkIdType>(vtkMath::Random(0, i));
-
-      vtkIdType iVertex 
-        = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
-                                    distribution.GetLocalIndexOfElement(i));
-      vtkIdType jVertex 
-        = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
-                                    distribution.GetLocalIndexOfElement(j));
-
-      if (this->Directed)
-        {
-        dirBuilder->LazyAddEdge(jVertex, iVertex); 
-        }
-      else
-        {
-        undirBuilder->LazyAddEdge(jVertex, iVertex);
-        }
-      }
-
-    // Make sure everyone has added the edges in the random tree.
-    helper->Synchronize();
-    }
-
-  if (this->UseEdgeProbability)
-    {
-    for (vtkIdType i = myStartVertex; i < myEndVertex; i++)
-      {
-      vtkIdType iVertex 
-        = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
-                                    distribution.GetLocalIndexOfElement(i));
-      vtkIdType begin = this->Directed ? 0 : i + 1;
-      for (vtkIdType j = begin; j < this->NumberOfVertices; j++)
-        {
-        vtkIdType jVertex 
-          = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
-                                      distribution.GetLocalIndexOfElement(j));
-        double r = vtkMath::Random();
-        if (r < this->EdgeProbability)
-          {
-          if (this->Directed)
-            {
-            dirBuilder->LazyAddEdge(iVertex, jVertex);
-            }
-          else
-            {
-            undirBuilder->LazyAddEdge(iVertex, jVertex);
-            }
-          }
-        }
-      }
+    MaxEdges = this->NumberOfVertices * this->NumberOfVertices;
     }
   else
     {
-    vtkIdType MaxEdges;
-    if (this->AllowSelfLoops)
-      {
-      MaxEdges = this->NumberOfVertices * this->NumberOfVertices;
-      }
-    else
-      {
-      MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
-      }
-    
-    if (this->NumberOfEdges > MaxEdges)
-      {
-      this->NumberOfEdges = MaxEdges;
-      }
+    MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
+    }
+  
+  if (this->NumberOfEdges > MaxEdges)
+    {
+    this->NumberOfEdges = MaxEdges;
+    }
 
-    vtkIdType avgNumberOfEdges = this->NumberOfEdges / numProcs;
-    vtkIdType myNumberOfEdges = avgNumberOfEdges;
-    if (myRank < this->NumberOfEdges % numProcs)
-      {
-      ++myNumberOfEdges;
-      }
+  vtkIdType avgNumberOfEdges = this->NumberOfEdges / numProcs;
+  vtkIdType myNumberOfEdges = avgNumberOfEdges;
+  if (myRank < this->NumberOfEdges % numProcs)
+    {
+    ++myNumberOfEdges;
+    }
 
-    for (vtkIdType i = 0; i < myNumberOfEdges; i++)
+  vtkIdType numLevels = (vtkIdType) log2(this->NumberOfVertices);
+  double AB = this->A + this->B;
+  double CNorm = this->C / (this->C + this->D);
+  double ANorm = this->A / (this->A + this->B);
+  for (vtkIdType i = 0; i < myNumberOfEdges; i++)
+    {
+    bool newEdgeFound = false;
+    while (!newEdgeFound)
       {
-      bool newEdgeFound = false;
-      while (!newEdgeFound)
+      vtkIdType s = 0;
+      vtkIdType t = 0;
+
+      for (vtkIdType level = 1; level < numLevels; ++level) 
         {
-        vtkIdType s;
-        vtkIdType t;
+        bool sBit = vtkMath::Random() > (this->A + this->B);
+        bool tBit 
+          = (vtkMath::Random() > (CNorm * (sBit ? 1 : 0)
+                                  + ANorm * (sBit ? 1 : 0))) ? 1 : 0;
+        s |= ((vtkIdType) 1 << (level-1)) * (sBit ? 1 : 0); 
+        t |= ((vtkIdType) 1 << (level-1)) * (tBit ? 1 : 0);
+        }
 
-        if (this->AllowBalancedEdgeDistribution)
-          {
-          s = static_cast<vtkIdType>(vtkMath::Random(myStartVertex, 
-                                                     myEndVertex));
-          }
-        else
-          {
-          s = static_cast<vtkIdType>(vtkMath::Random(0, 
-                                                     this->NumberOfVertices));
-          }
-        t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfVertices));
-        if (s == t && (!this->AllowSelfLoops))
-          {
-          continue;
-          }
+      if (s == t && (!this->AllowSelfLoops))
+        {
+        continue;
+        }
+
+      // TODO: We should apply some permutation to the s and t vertex
+      // numbers, so that we get some kind of randomized distribution
+      // of the vertices. Otherwise, we'll have a severely imbalanced
+      // distribution, since the high-degree vertices are likely to
+      // all end up on the lower-numbered ranks. Note that this
+      // doesn't change the block distribution (computed below); it
+      // sits on top of the block distribution.
 
       vtkIdType sVertex 
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(s),
@@ -282,17 +274,9 @@ vtkPRandomGraphSource::RequestData(
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(t),
                                     distribution.GetLocalIndexOfElement(t));
 
-        vtkDebugMacro(<<"Adding edge " << s << " to " << t);
-        if (this->Directed)
-          {
-          dirBuilder->LazyAddEdge(sVertex, tVertex);
-          }
-        else
-          {
-          undirBuilder->LazyAddEdge(sVertex, tVertex);
-          }
-        newEdgeFound = true;
-        }
+      vtkDebugMacro(<<"Adding edge " << s << " to " << t);
+      dirBuilder->LazyAddEdge(sVertex, tVertex);
+      newEdgeFound = true;
       }
     }
 
@@ -301,21 +285,10 @@ vtkPRandomGraphSource::RequestData(
 
   // Copy the structure into the output.
   vtkGraph *output = vtkGraph::GetData(outputVector);
-  if (this->Directed)
+  if (!output->CheckedShallowCopy(dirBuilder))
     {
-    if (!output->CheckedShallowCopy(dirBuilder))
-      {
-      vtkErrorMacro(<<"Invalid structure.");
-      return 0;
-      }
-    }
-  else
-    {
-    if (!output->CheckedShallowCopy(undirBuilder))
-      {
-      vtkErrorMacro(<<"Invalid structure.");
-      return 0;
-      }
+    vtkErrorMacro(<<"Invalid structure.");
+    return 0;
     }
 
   if (this->IncludeEdgeWeights)
@@ -380,25 +353,16 @@ vtkPRandomGraphSource::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkPRandomGraphSource::RequestDataObject(
+int vtkPBGLRMATGraphSource::RequestDataObject(
   vtkInformation*, 
   vtkInformationVector**, 
   vtkInformationVector* )
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current 
-    || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
-    || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
+  if (!current || !vtkDirectedGraph::SafeDownCast(current))
     {
     vtkGraph *output = 0;
-    if (this->Directed)
-      {
-      output = vtkDirectedGraph::New();
-      }
-    else
-      {
-      output = vtkUndirectedGraph::New();
-      }
+    output = vtkDirectedGraph::New();
 
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
