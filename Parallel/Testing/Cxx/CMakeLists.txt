@@ -123,27 +123,25 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         ${CXX_TEST_PATH}/TestPBGLGraphSQLReader
         ${VTK_MPI_POSTFLAGS})
 
-      IF (VTK_USE_INFOVIS)
-        ADD_EXECUTABLE(TestPRandomGraphSource TestPRandomGraphSource.cxx)
-        TARGET_LINK_LIBRARIES(TestPRandomGraphSource
-          vtkParallel vtkInfovis ${Boost_LIBRARIES})
+      ADD_EXECUTABLE(TestPRandomGraphSource TestPRandomGraphSource.cxx)
+      TARGET_LINK_LIBRARIES(TestPRandomGraphSource
+        vtkParallel ${Boost_LIBRARIES})
 
-        ADD_TEST(TestPRandomGraphSource
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-          ${VTK_MPI_PREFLAGS} 
-          ${CXX_TEST_PATH}/TestPRandomGraphSource
-          ${VTK_MPI_POSTFLAGS})
+      ADD_TEST(TestPRandomGraphSource
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/TestPRandomGraphSource
+        ${VTK_MPI_POSTFLAGS})
 
-        ADD_EXECUTABLE(TestPRMATGraphSource TestPRMATGraphSource.cxx)
-        TARGET_LINK_LIBRARIES(TestPRMATGraphSource
-          vtkParallel vtkInfovis ${Boost_LIBRARIES})
-
-        ADD_TEST(TestPRMATGraphSource
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
-          ${VTK_MPI_PREFLAGS} 
-          ${CXX_TEST_PATH}/TestPRMATGraphSource
-          ${VTK_MPI_POSTFLAGS})
-      ENDIF (VTK_USE_INFOVIS)
+      ADD_EXECUTABLE(TestPRMATGraphSource TestPRMATGraphSource.cxx)
+      TARGET_LINK_LIBRARIES(TestPRMATGraphSource
+        vtkParallel ${Boost_LIBRARIES})
+      
+      ADD_TEST(TestPRMATGraphSource
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS} 
+        ${CXX_TEST_PATH}/TestPRMATGraphSource
+        ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)
 
     #

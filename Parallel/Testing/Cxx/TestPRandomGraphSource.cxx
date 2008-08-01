@@ -19,12 +19,12 @@
 -------------------------------------------------------------------------*/
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkBitArray.h"
-#include "vtkBoostBreadthFirstSearch.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkOutEdgeIterator.h"
+#include "vtkPBGLBreadthFirstSearch.h"
 #include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkPBGLVertexColoring.h"
@@ -194,8 +194,8 @@ int main(int argc, char* argv[])
 
   if (doBFS)
     {
-    vtkSmartPointer<vtkBoostBreadthFirstSearch> bfs
-      = vtkSmartPointer<vtkBoostBreadthFirstSearch>::New();
+    vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
+      = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
     bfs->SetInput(g);
     bfs->SetOriginVertex(g->GetDistributedGraphHelper()->MakeDistributedId(0, 0));
 

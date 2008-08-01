@@ -19,7 +19,6 @@
  */
 #include <mpi.h>
 
-#include "vtkBoostBreadthFirstSearch.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInEdgeIterator.h"
@@ -29,6 +28,7 @@
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
+#include "vtkPBGLBreadthFirstSearch.h"
 #include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -128,8 +128,8 @@ void TestDirectedGraph()
     }
 
   // Build the breadth-first search filter
-  vtkSmartPointer<vtkBoostBreadthFirstSearch> bfs
-    = vtkSmartPointer<vtkBoostBreadthFirstSearch>::New();
+  vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
+    = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
   bfs->SetInput(graph);
   bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 
@@ -260,8 +260,8 @@ void TestUndirectedGraph()
     }
 
   // Build the breadth-first search filter
-  vtkSmartPointer<vtkBoostBreadthFirstSearch> bfs
-    = vtkSmartPointer<vtkBoostBreadthFirstSearch>::New();
+  vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
+    = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
   bfs->SetInput(graph);
   bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 

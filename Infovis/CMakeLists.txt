@@ -83,11 +83,6 @@ IF(VTK_USE_BOOST)
     vtkBoostConnectedComponents.cxx
     vtkBoostSplitTableField.cxx
   )
-
-  # If the user requested Parallel BGL support, update appropriately
-  IF (VTK_USE_PARALLEL_BGL)
-    SET(KIT_LIBS ${KIT_LIBS} vtkParallel boost_graph_mpi)
-  ENDIF (VTK_USE_PARALLEL_BGL)
 ENDIF(VTK_USE_BOOST)
 
 # Add these classes only if vtkTypeUInt64Array exists

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBoostBreadthFirstSearch.cxx
+  Module:    vtkPBGLBreadthFirstSearch.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,27 +22,31 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-#include "vtkBoostBreadthFirstSearch.h"
-
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkMath.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
-#include "vtkSelection.h"
-#include "vtkStringArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkPBGLBreadthFirstSearch.h"
 
 #include "vtkBoostGraphAdapter.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDirectedGraph.h"
+#include "vtkDistributedGraphHelper.h"
+#include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPBGLDistributedGraphHelper.h"
+#include "vtkPBGLGraphAdapter.h"
+#include "vtkPointData.h"
+#include "vtkSelection.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkUndirectedGraph.h"
 
-#include <boost/graph/visitors.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/distributed/breadth_first_search.hpp>
+#include <boost/parallel/algorithm.hpp>
+#include <boost/graph/visitors.hpp>
 #include <boost/property_map.hpp>
 #include <boost/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
@@ -51,17 +55,17 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBreadthFirstSearch, "1.13");
-vtkStandardNewMacro(vtkBoostBreadthFirstSearch);
+vtkCxxRevisionMacro(vtkPBGLBreadthFirstSearch, "1.1");
+vtkStandardNewMacro(vtkPBGLBreadthFirstSearch);
 
 // Redefine the bfs visitor, the only visitor we
 // are using is the tree_edge visitor.
 template <typename DistanceMap>
-class my_distance_recorder : public default_bfs_visitor
+class pbgl_bfs_distance_recorder : public default_bfs_visitor
 {
 public:
-  my_distance_recorder() { }
-  my_distance_recorder(DistanceMap dist, vtkIdType* far) 
+  pbgl_bfs_distance_recorder() { }
+  pbgl_bfs_distance_recorder(DistanceMap dist, vtkIdType* far) 
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
@@ -88,8 +92,41 @@ private:
   vtkIdType far_dist;
 };
 
+// Function object used to reduce (vertex, distance) pairs to find
+// the furthest vertex. This ordering favors vertices on processors
+// with a lower rank. Used only for the Parallel BGL breadth-first
+// search.
+class furthest_vertex 
+{
+public:
+  furthest_vertex() : graph(0) { }
+
+  furthest_vertex(vtkGraph *g) : graph(g) { }
+
+  vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
+  {
+    vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
+    if (x.second > y.second 
+        || (x.second == y.second 
+            && helper->GetVertexOwner(x.first) < helper->GetVertexOwner(y.first))
+        || (x.second == y.second 
+            && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
+            && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
+      {
+      return x;
+      }
+    else
+      {
+      return y;
+      }
+  }
+
+private:
+  vtkGraph *graph;
+};
+  
 // Constructor/Destructor
-vtkBoostBreadthFirstSearch::vtkBoostBreadthFirstSearch()
+vtkPBGLBreadthFirstSearch::vtkPBGLBreadthFirstSearch()
 {
   // Default values for the origin vertex
   this->OriginVertexIndex = 0;
@@ -104,13 +141,13 @@ vtkBoostBreadthFirstSearch::vtkBoostBreadthFirstSearch()
   this->SetNumberOfOutputPorts(2);
 }
 
-vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
+vtkPBGLBreadthFirstSearch::~vtkPBGLBreadthFirstSearch()
 {
   this->SetInputArrayName(0);
   this->SetOutputArrayName(0);
 }
 
-void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
+void vtkPBGLBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 {
   this->SetOriginSelectionConnection(s->GetProducerPort());
 }
@@ -118,7 +155,7 @@ void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 // Description:
 // Set the index (into the vertex array) of the 
 // breadth first search 'origin' vertex.
-void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
+void vtkPBGLBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 {
   this->OriginVertexIndex = index;
   this->InputArrayName = NULL; // Reset any origin set by another method
@@ -131,7 +168,7 @@ void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 // but allows the application to simply specify 
 // an array name and value, instead of having to
 // know the specific index of the vertex.
-void vtkBoostBreadthFirstSearch::SetOriginVertex(
+void vtkPBGLBreadthFirstSearch::SetOriginVertex(
   vtkStdString arrayName, vtkVariant value)
 {
   this->SetInputArrayName(arrayName);
@@ -139,13 +176,13 @@ void vtkBoostBreadthFirstSearch::SetOriginVertex(
   this->Modified();
 }
 
-void vtkBoostBreadthFirstSearch::SetOriginVertexString(
+void vtkPBGLBreadthFirstSearch::SetOriginVertexString(
   char* arrayName, char* value)
 {
   this->SetOriginVertex(arrayName, value);
 }
 
-vtkIdType vtkBoostBreadthFirstSearch::GetVertexIndex(
+vtkIdType vtkPBGLBreadthFirstSearch::GetVertexIndex(
   vtkAbstractArray *abstract,vtkVariant value)
 {
 
@@ -181,7 +218,7 @@ vtkIdType vtkBoostBreadthFirstSearch::GetVertexIndex(
 } 
   
 
-int vtkBoostBreadthFirstSearch::RequestData(
+int vtkPBGLBreadthFirstSearch::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -282,25 +319,83 @@ int vtkBoostBreadthFirstSearch::RequestData(
   // Create a color map (used for marking visited nodes)
   vector_property_map<default_color_type> color(output->GetNumberOfVertices());
 
+  vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
+  if (!helper)
+    {
+    vtkErrorMacro("Distributed vtkGraph is required.");
+    return 1;
+    }
+
+  // We can only deal with Parallel BGL-distributed graphs.
+  vtkPBGLDistributedGraphHelper *pbglHelper
+    = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
+  if (!pbglHelper)
+    {
+    vtkErrorMacro("Can only perform parallel breadth-first-search on a Parallel BGL distributed graph");
+    return 1;
+    }
+
   // Set the distance to the source vertex to zero
-  BFSArray->SetValue(this->OriginVertexIndex, 0);
+  int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
-  // Create a queue to hand off to the BFS
-  boost::queue<int> Q;
+  if (helper->GetVertexOwner(this->OriginVertexIndex) == myRank)
+    {
+    BFSArray->SetValue(helper->GetVertexIndex(this->OriginVertexIndex), 0);
+    }
 
-  my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
+  // Distributed color map
+  typedef boost::parallel::distributed_property_map<
+            boost::graph::distributed::mpi_process_group,
+            boost::vtkVertexGlobalMap,
+            vector_property_map<default_color_type> 
+          > DistributedColorMap;
+  DistributedColorMap distribColor(pbglHelper->GetProcessGroup(),
+                                   boost::vtkVertexGlobalMap(output),
+                                   color);
+
+  // Distributed distance map
+  typedef vtkDistributedVertexPropertyMapType<vtkIntArray>::type
+    DistributedDistanceMap;
   
-  // Is the graph directed or undirected
+  // Distributed distance recorder
+  DistributedDistanceMap distribBFSArray
+    = MakeDistributedVertexPropertyMap(output, BFSArray);
+  set_property_map_role(boost::vertex_distance, distribBFSArray);
+  pbgl_bfs_distance_recorder<DistributedDistanceMap> 
+    bfsVisitor(distribBFSArray, &maxFromRootVertex);
+
+  // The use of parallel_bfs_helper works around the fact that a
+  // vtkGraph (and its descendents) will not be viewed as a
+  // distributed graph by the Parallel BGL.
   if (vtkDirectedGraph::SafeDownCast(output))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+    boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                       distribColor, 
+                                       bfsVisitor, 
+                                       boost::detail::error_property_not_found(),
+                                       get(vertex_index, g));
     }
   else
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
-    breadth_first_search(g, this->OriginVertexIndex, Q, bfsVisitor, color);
+    boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
+                                       distribColor, bfsVisitor, 
+                                       boost::detail::error_property_not_found(),
+                                       get(vertex_index, g));
     }
+
+  // Compute maxFromRootVertex globally
+  using boost::parallel::all_reduce;
+  int maxDistance = 0;
+  if (helper->GetVertexOwner(maxFromRootVertex) == myRank)
+    {
+    maxDistance = BFSArray->GetValue(helper->GetVertexIndex(maxFromRootVertex));
+    }
+  maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
+                                 vtkstd::make_pair(maxFromRootVertex,
+                                                   maxDistance),
+                                 furthest_vertex(output)).first;
 
   // Add attribute array to the output
   output->GetVertexData()->AddArray(BFSArray);
@@ -326,7 +421,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
   return 1;
 }
 
-void vtkBoostBreadthFirstSearch::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPBGLBreadthFirstSearch::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   
@@ -351,7 +446,7 @@ void vtkBoostBreadthFirstSearch::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkBoostBreadthFirstSearch::FillInputPortInformation(
+int vtkPBGLBreadthFirstSearch::FillInputPortInformation(
   int port, vtkInformation* info)
 {
   // now add our info
@@ -368,7 +463,7 @@ int vtkBoostBreadthFirstSearch::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkBoostBreadthFirstSearch::FillOutputPortInformation(
+int vtkPBGLBreadthFirstSearch::FillOutputPortInformation(
   int port, vtkInformation* info)
 {
   // now add our info
