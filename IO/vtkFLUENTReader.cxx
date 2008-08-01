@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.19");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.20");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 //Structures
@@ -4151,34 +4151,34 @@ void vtkFLUENTReader::GetData(int dataType)
 void vtkFLUENTReader::GetSpeciesVariableNames()
 {
     //Locate the "(species (names" entry
-    vtkstd::string variables = this->CaseBuffer->value;
-    size_t startPos = variables.find( "(species (names (" ) +17;
-    if( startPos != vtkstd::string::npos )
+  vtkstd::string variables = this->CaseBuffer->value;
+  size_t startPos = variables.find("(species (names (") +17;
+  if (startPos != vtkstd::string::npos)
     {
-        variables.erase( 0, startPos );
-        
-        size_t endPos = variables.find( ")" );
-        variables.erase( endPos );
+    variables.erase( 0, startPos);
 
-        vtkstd::stringstream tokenizer( variables );
+    size_t endPos = variables.find(")");
+    variables.erase(endPos);
 
-        size_t iterator = 0;
+    vtksys_ios::stringstream tokenizer(variables);
 
-        while ( !tokenizer.eof() )
-        {
-            vtkstd::string temp;
-            tokenizer >> temp;
+    size_t iterator = 0;
 
-            this->VariableNames->value[200 + iterator] = temp;
-            this->VariableNames->value[250 + iterator] = "M1_" + temp;
-            this->VariableNames->value[300 + iterator] = "M2_" + temp;
-            this->VariableNames->value[450 + iterator] = "DPMS_" + temp;
-            this->VariableNames->value[850 + iterator] = "DPMS_DS_" + temp;
-            this->VariableNames->value[1000 + iterator] = "MEAN_" + temp;
-            this->VariableNames->value[1050 + iterator] = "RMS_" + temp;
-            this->VariableNames->value[1250 + iterator] = "CREV_" + temp;
+    while ( !tokenizer.eof() )
+      {
+      vtkstd::string temp;
+      tokenizer >> temp;
 
-            iterator++;
-        }
+      this->VariableNames->value[200 + iterator] = temp;
+      this->VariableNames->value[250 + iterator] = "M1_" + temp;
+      this->VariableNames->value[300 + iterator] = "M2_" + temp;
+      this->VariableNames->value[450 + iterator] = "DPMS_" + temp;
+      this->VariableNames->value[850 + iterator] = "DPMS_DS_" + temp;
+      this->VariableNames->value[1000 + iterator] = "MEAN_" + temp;
+      this->VariableNames->value[1050 + iterator] = "RMS_" + temp;
+      this->VariableNames->value[1250 + iterator] = "CREV_" + temp;
+
+      iterator++;
+      }
     }
 }
