@@ -23,10 +23,12 @@
 #include "vtkDistributedGraphHelper.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
+#include "vtkMath.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkPBGLBreadthFirstSearch.h"
 #include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLGraphAdapter.h"
+#include "vtkPBGLMinimumSpanningTree.h"
 #include "vtkPBGLVertexColoring.h"
 #include "vtkPBGLRandomGraphSource.h"
 #include "vtkSmartPointer.h"
@@ -58,13 +60,23 @@ int main(int argc, char* argv[])
   bool doBFS = true;
   bool doColoring = true;
   bool doConnectedComponents = true;
+  bool doMST = true;
 
   if (argc > 2) 
     {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
     }
-                 
+
+  // The Dehne-Gotz minimum spanning tree algorithm actually allocates
+  // O(|V|) memory, where |V| is the size of the full distributed
+  // graph. For this reason, we won't (by default) run the minimum
+  // spanning tree algorithm with > 1 million vertices.
+  if (wantVertices > 1000000)
+    {
+    doMST = false;
+    }
+
   for (int argIdx = 3; argIdx < argc; ++argIdx)
     {
       vtkstd::string arg = argv[argIdx];
@@ -87,6 +99,14 @@ int main(int argc, char* argv[])
       else if (arg == "--no-connected-components")
         {
         doConnectedComponents = false;
+        }
+      else if (arg == "--no-minumum-spanning-tree")
+        {
+        doMST = false;
+        }
+      else if (arg == "--minumum-spanning-tree")
+        {
+        doMST = true;
         }
     }
 
@@ -365,6 +385,43 @@ int main(int argc, char* argv[])
         {
         cerr << " done in " << timer.elapsed() << " seconds" << endl;
         }
+      }
+    }
+
+  if (doMST)
+    {
+    vtkSmartPointer<vtkPBGLMinimumSpanningTree> mst
+      = vtkSmartPointer<vtkPBGLMinimumSpanningTree>::New();
+    mst->SetInput(g);
+    mst->SetEdgeWeightArrayName("Weight");
+
+    // Create an edge-weight array with edge weights in [0, 1).
+    vtkDoubleArray *edgeWeightArray = vtkDoubleArray::New();
+    edgeWeightArray->SetName("Weight");
+    g->GetEdgeData()->AddArray(edgeWeightArray);
+    edgeWeightArray->SetNumberOfTuples(g->GetNumberOfEdges());
+    vtkMath::RandomSeed(1177 + 17 * world.rank());
+    for (vtkIdType i = 0; i < g->GetNumberOfEdges(); ++i)
+      {
+      edgeWeightArray->SetTuple1(i, vtkMath::Random());
+      }
+
+    // Run the shortest paths algorithm.
+    if (world.rank() == 0)
+      {
+      cerr << "Minimum spanning tree...";
+      }
+    boost::mpi::timer timer;
+    mst->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline* exec =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(mst->GetExecutive());
+    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
+    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
+    mst->Update();
+
+    if (world.rank() == 0)
+      {
+      cerr << " done in " << timer.elapsed() << " seconds" << endl;
       }
     }
 

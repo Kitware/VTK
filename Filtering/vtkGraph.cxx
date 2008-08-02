@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.26");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.27");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.26");
+vtkCxxRevisionMacro(vtkGraph, "1.27");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -254,7 +254,9 @@ void vtkGraph::GetOutEdges(vtkIdType v, vtkOutEdgeIterator *it)
     int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
     if (myRank != helper->GetVertexOwner(v))
       {
-      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
+      int* p = 0;
+      *p = 17;
       return;
       }
     }
@@ -274,7 +276,9 @@ vtkOutEdgeType vtkGraph::GetOutEdge(vtkIdType v, vtkIdType i)
     int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
     if (myRank != helper->GetVertexOwner(v))
       {
-      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
+      int* p = 0;
+      *p = 17;
       return vtkOutEdgeType();
       }
     index = helper->GetVertexIndex(v);
@@ -306,7 +310,9 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType
     int myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
     if (myRank != helper->GetVertexOwner(v))
       {
-      vtkErrorMacro("vtkGraph cannot retrieve the out edges for a non-local vertex");
+      vtkErrorMacro("vtkGraph cannot retrieve the out edges for non-local vertex " << v);
+      int* p = 0;
+      *p = 17;
       return;
       }
 

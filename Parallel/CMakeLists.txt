@@ -140,6 +140,7 @@ IF (VTK_USE_PARALLEL_BGL)
     vtkPBGLConnectedComponents.cxx
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
+    vtkPBGLMinimumSpanningTree.cxx
     vtkPBGLRMATGraphSource.cxx
     vtkPBGLRandomGraphSource.cxx
     vtkPBGLShortestPaths.cxx

@@ -134,33 +134,92 @@ namespace boost {
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
       directed(false), vertex(v), iter(0), end(0), graph(g)
         {
-        if (graph != 0 && vertex < graph->GetNumberOfVertices())
+        vtkIdType myRank = -1;  
+        vtkDistributedGraphHelper *helper 
+          = this->graph? this->graph->GetDistributedGraphHelper() : 0;
+        if (helper)
+          {
+          myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+          this->vertex = helper->MakeDistributedId(myRank, this->vertex);
+          this->lastVertex 
+            = helper->MakeDistributedId(myRank, graph->GetNumberOfVertices());
+          }
+          
+        if (graph != 0)
           {
           directed = (vtkDirectedGraph::SafeDownCast(graph) != 0);
-          vtkIdType nedges;
-          graph->GetOutEdges(vertex, iter, nedges);
-          end = iter + nedges;
+          while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
+            {
+            ++vertex;
+            }
+
+          if (vertex < lastVertex)
+            {
+            // Get the outgoing edges of the first vertex that has outgoing
+            // edges
+            vtkIdType nedges;
+            graph->GetOutEdges(vertex, iter, nedges);
+            end = iter + nedges;
+
+            if (!directed)
+              {
+              while(iter != 0
+                    && (// Skip non-local edges
+                        (helper && helper->GetEdgeOwner(iter->Id) != myRank)
+                        // Skip entirely-local edges where Source > Target
+                        || (((helper 
+                              && myRank == helper->GetVertexOwner(iter->Target))
+                             || !helper)
+                            && vertex > iter->Target)))
+                {
+                this->inc();  
+                }
+              }
+            }
+          else
+            {
+            iter = 0;
+            }
           }
         }
-
 
     private:
       vtkEdgeType dereference() const
         { return vtkEdgeType(vertex, iter->Target, iter->Id); }
 
       bool equal(const vtk_edge_iterator& other) const
-        { return iter == other.iter; }
+        { return vertex == other.vertex && iter == other.iter; }
 
       void increment()
         {
         inc();
-        // If it is undirected, skip edges 
-        // whose source is greater than the target.
         if (!directed)
           {
-          while (iter != 0 && vertex > iter->Target)
+          vtkIdType myRank = -1;  
+          vtkDistributedGraphHelper *helper 
+            = this->graph? this->graph->GetDistributedGraphHelper() : 0;
+          if (helper)
             {
-            inc();
+            myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+            }
+          
+          if (vertex < lastVertex)
+            {
+            while (iter != 0 
+                   && (// Skip non-local edges
+                       (helper && helper->GetEdgeOwner(iter->Id) != myRank)
+                       // Skip entirely-local edges where Source > Target
+                       || (((helper
+                             && myRank == helper->GetVertexOwner(iter->Target))
+                            || !helper)
+                           && vertex > iter->Target)))
+              {
+              inc();
+              }
+            }
+          else
+            {
+            iter = 0;
             }
           }
         }
@@ -168,10 +227,16 @@ namespace boost {
       void inc()
         {
         ++iter;
-        if (iter != 0 && iter == end)
+        if (iter == end)
           {
+          // Find a vertex with nonzero out degree.
           ++vertex;
-          if (graph != 0 && vertex < graph->GetNumberOfVertices())
+          while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
+            {
+            ++vertex;
+            }
+
+          if (vertex < lastVertex)
             {
             vtkIdType nedges;
             graph->GetOutEdges(vertex, iter, nedges);
@@ -186,6 +251,7 @@ namespace boost {
 
       bool directed;
       vtkIdType vertex;
+      vtkIdType lastVertex;
       const vtkOutEdgeType * iter;
       const vtkOutEdgeType * end;
       vtkGraph *graph;
@@ -479,157 +545,159 @@ namespace boost {
   public:
     typedef vtkIdType type;
   };
+} // end namespace boost
 
-  inline graph_traits< vtkGraph* >::vertex_descriptor
-  source(graph_traits< vtkGraph* >::edge_descriptor e,
-         vtkGraph *)
-  {
-    return e.Source;
-  }
+inline boost::graph_traits< vtkGraph* >::vertex_descriptor
+source(boost::graph_traits< vtkGraph* >::edge_descriptor e,
+       vtkGraph *)
+{
+  return e.Source;
+}
 
-  inline graph_traits< vtkGraph* >::vertex_descriptor
-  target(graph_traits< vtkGraph* >::edge_descriptor e,
-         vtkGraph *)
-  {
-    return e.Target;
-  }
+inline boost::graph_traits< vtkGraph* >::vertex_descriptor
+target(boost::graph_traits< vtkGraph* >::edge_descriptor e,
+       vtkGraph *)
+{
+  return e.Target;
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkGraph* >::vertex_iterator,
-    graph_traits< vtkGraph* >::vertex_iterator >  
-  vertices(vtkGraph *g)
-  {
-    typedef graph_traits< vtkGraph* >::vertex_iterator Iter;
-    vtkIdType start = 0;
-    if (vtkDistributedGraphHelper *helper = g->GetDistributedGraphHelper())
-      {
-      int rank = 
-        g->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-      start = helper->MakeDistributedId(rank, start);
-      }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkGraph* >::vertex_iterator,
+  boost::graph_traits< vtkGraph* >::vertex_iterator >  
+vertices(vtkGraph *g)
+{
+  typedef boost::graph_traits< vtkGraph* >::vertex_iterator Iter;
+  vtkIdType start = 0;
+  if (vtkDistributedGraphHelper *helper = g->GetDistributedGraphHelper())
+    {
+    int rank = 
+      g->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    start = helper->MakeDistributedId(rank, start);
+    }
 
-    return vtksys_stl::make_pair( Iter(start), 
-                                  Iter(start + g->GetNumberOfVertices()) );
-  }
+  return vtksys_stl::make_pair( Iter(start), 
+                                Iter(start + g->GetNumberOfVertices()) );
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkGraph* >::edge_iterator,
-    graph_traits< vtkGraph* >::edge_iterator >  
-  edges(vtkGraph *g)
-  {
-    typedef graph_traits< vtkGraph* >::edge_iterator Iter;
-    return vtksys_stl::make_pair( Iter(g), Iter(g, g->GetNumberOfVertices()) );
-  }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkGraph* >::edge_iterator,
+  boost::graph_traits< vtkGraph* >::edge_iterator >  
+edges(vtkGraph *g)
+{
+  typedef boost::graph_traits< vtkGraph* >::edge_iterator Iter;
+  return vtksys_stl::make_pair( Iter(g), Iter(g, g->GetNumberOfVertices()) );
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkGraph* >::out_edge_iterator,
-    graph_traits< vtkGraph* >::out_edge_iterator >  
-  out_edges(
-    graph_traits< vtkGraph* >::vertex_descriptor u, 
-    vtkGraph *g)
-  {
-    typedef graph_traits< vtkGraph* >::out_edge_iterator Iter;
-    vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
-    return p;
-  }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkGraph* >::out_edge_iterator,
+  boost::graph_traits< vtkGraph* >::out_edge_iterator >  
+out_edges(
+  boost::graph_traits< vtkGraph* >::vertex_descriptor u, 
+  vtkGraph *g)
+{
+  typedef boost::graph_traits< vtkGraph* >::out_edge_iterator Iter;
+  vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
+  return p;
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkGraph* >::in_edge_iterator,
-    graph_traits< vtkGraph* >::in_edge_iterator >  
-  in_edges(
-    graph_traits< vtkGraph* >::vertex_descriptor u, 
-    vtkGraph *g)
-  {
-    typedef graph_traits< vtkGraph* >::in_edge_iterator Iter;
-    vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
-    return p;
-  }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkGraph* >::in_edge_iterator,
+  boost::graph_traits< vtkGraph* >::in_edge_iterator >  
+in_edges(
+  boost::graph_traits< vtkGraph* >::vertex_descriptor u, 
+  vtkGraph *g)
+{
+  typedef boost::graph_traits< vtkGraph* >::in_edge_iterator Iter;
+  vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
+  return p;
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkGraph* >::adjacency_iterator,
-    graph_traits< vtkGraph* >::adjacency_iterator >
-  adjacent_vertices(
-    graph_traits< vtkGraph* >::vertex_descriptor u, 
-    vtkGraph *g)
-  {
-    typedef graph_traits< vtkGraph* >::adjacency_iterator Iter;
-    typedef graph_traits< vtkGraph* >::out_edge_iterator OutEdgeIter;
-    vtksys_stl::pair<OutEdgeIter, OutEdgeIter> out = out_edges(u, g);
-    return vtksys_stl::make_pair( Iter(out.first, &g), Iter(out.second, &g) );
-  }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkGraph* >::adjacency_iterator,
+  boost::graph_traits< vtkGraph* >::adjacency_iterator >
+adjacent_vertices(
+  boost::graph_traits< vtkGraph* >::vertex_descriptor u, 
+  vtkGraph *g)
+{
+  typedef boost::graph_traits< vtkGraph* >::adjacency_iterator Iter;
+  typedef boost::graph_traits< vtkGraph* >::out_edge_iterator OutEdgeIter;
+  vtksys_stl::pair<OutEdgeIter, OutEdgeIter> out = out_edges(u, g);
+  return vtksys_stl::make_pair( Iter(out.first, &g), Iter(out.second, &g) );
+}
 
-  inline graph_traits< vtkGraph* >::vertices_size_type
-  num_vertices(vtkGraph *g)
-  {
-    return g->GetNumberOfVertices();
-  }
+inline boost::graph_traits< vtkGraph* >::vertices_size_type
+num_vertices(vtkGraph *g)
+{
+  return g->GetNumberOfVertices();
+}
 
-  inline graph_traits< vtkGraph* >::edges_size_type
-  num_edges(vtkGraph *g)
-  {
-    return g->GetNumberOfEdges();
-  }  
+inline boost::graph_traits< vtkGraph* >::edges_size_type
+num_edges(vtkGraph *g)
+{
+  return g->GetNumberOfEdges();
+}  
 
-  inline graph_traits< vtkGraph* >::degree_size_type
-  out_degree(
-    graph_traits< vtkGraph* >::vertex_descriptor u, 
-    vtkGraph *g)
-  {
-    return g->GetOutDegree(u);
-  }
+inline boost::graph_traits< vtkGraph* >::degree_size_type
+out_degree(
+  boost::graph_traits< vtkGraph* >::vertex_descriptor u, 
+  vtkGraph *g)
+{
+  return g->GetOutDegree(u);
+}
 
-  inline graph_traits< vtkDirectedGraph* >::degree_size_type
-  in_degree(
-    graph_traits< vtkDirectedGraph* >::vertex_descriptor u, 
-    vtkDirectedGraph *g)
-  {
-    return g->GetInDegree(u);
-  }
+inline boost::graph_traits< vtkDirectedGraph* >::degree_size_type
+in_degree(
+  boost::graph_traits< vtkDirectedGraph* >::vertex_descriptor u, 
+  vtkDirectedGraph *g)
+{
+  return g->GetInDegree(u);
+}
 
-  inline graph_traits< vtkGraph* >::degree_size_type
-  degree(
-    graph_traits< vtkGraph* >::vertex_descriptor u, 
-    vtkGraph *g)
-  {
-    return g->GetDegree(u);
-  }
-  
-  inline graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor
-  add_vertex(vtkMutableDirectedGraph *g)
-  {
-    return g->AddVertex();
-  }
+inline boost::graph_traits< vtkGraph* >::degree_size_type
+degree(
+  boost::graph_traits< vtkGraph* >::vertex_descriptor u, 
+  vtkGraph *g)
+{
+  return g->GetDegree(u);
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkMutableDirectedGraph* >::edge_descriptor,
-    bool>
-  add_edge(
-    graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor u,
-    graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor v,
-    vtkMutableDirectedGraph *g)
-  {
-    graph_traits< vtkMutableDirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
-    return vtksys_stl::make_pair(e, true);
-  }
+inline boost::graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor
+add_vertex(vtkMutableDirectedGraph *g)
+{
+  return g->AddVertex();
+}
 
-  inline graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor
-  add_vertex(vtkMutableUndirectedGraph *g)
-  {
-    return g->AddVertex();
-  }
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkMutableDirectedGraph* >::edge_descriptor,
+  bool>
+add_edge(
+  boost::graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor u,
+  boost::graph_traits< vtkMutableDirectedGraph* >::vertex_descriptor v,
+  vtkMutableDirectedGraph *g)
+{
+  boost::graph_traits< vtkMutableDirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
+  return vtksys_stl::make_pair(e, true);
+}
 
-  inline vtksys_stl::pair<
-    graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor,
-    bool>
-  add_edge(
-    graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor u,
-    graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor v,
-    vtkMutableUndirectedGraph *g)
-  {
-    graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
-    return vtksys_stl::make_pair(e, true);
-  }
+inline boost::graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor
+add_vertex(vtkMutableUndirectedGraph *g)
+{
+  return g->AddVertex();
+}
 
+inline vtksys_stl::pair<
+  boost::graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor,
+  bool>
+add_edge(
+  boost::graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor u,
+  boost::graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor v,
+  vtkMutableUndirectedGraph *g)
+{
+  boost::graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
+  return vtksys_stl::make_pair(e, true);
+}
+
+namespace boost {
   //===========================================================================
   // An edge map for vtkGraph.
   // This is a common input needed for algorithms.
