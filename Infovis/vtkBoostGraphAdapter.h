@@ -132,17 +132,21 @@ namespace boost {
     {
     public:
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
-      directed(false), vertex(v), iter(0), end(0), graph(g)
+        directed(false), vertex(v), lastVertex(v), iter(0), end(0), graph(g)
         {
+        if (graph)
+          {
+          lastVertex = graph->GetNumberOfVertices();
+          }
+
         vtkIdType myRank = -1;  
         vtkDistributedGraphHelper *helper 
           = this->graph? this->graph->GetDistributedGraphHelper() : 0;
         if (helper)
           {
           myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-          this->vertex = helper->MakeDistributedId(myRank, this->vertex);
-          this->lastVertex 
-            = helper->MakeDistributedId(myRank, graph->GetNumberOfVertices());
+          vertex = helper->MakeDistributedId(myRank, vertex);
+          lastVertex = helper->MakeDistributedId(myRank, lastVertex);
           }
           
         if (graph != 0)
@@ -203,23 +207,16 @@ namespace boost {
             myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
             }
           
-          if (vertex < lastVertex)
+          while (iter != 0 
+                 && (// Skip non-local edges
+                     (helper && helper->GetEdgeOwner(iter->Id) != myRank)
+                     // Skip entirely-local edges where Source > Target
+                     || (((helper
+                           && myRank == helper->GetVertexOwner(iter->Target))
+                          || !helper)
+                         && vertex > iter->Target)))
             {
-            while (iter != 0 
-                   && (// Skip non-local edges
-                       (helper && helper->GetEdgeOwner(iter->Id) != myRank)
-                       // Skip entirely-local edges where Source > Target
-                       || (((helper
-                             && myRank == helper->GetVertexOwner(iter->Target))
-                            || !helper)
-                           && vertex > iter->Target)))
-              {
-              inc();
-              }
-            }
-          else
-            {
-            iter = 0;
+            inc();
             }
           }
         }
