@@ -19,7 +19,8 @@ class vtkMultiProcessController;
 
 #include "exodusII.h"
 
-class vtkExodusIIXMLParser;
+class vtkExodusIIReaderParser;
+class vtkMutableDirectedGraph;
 
 /** This class holds metadata for an Exodus file.
   *
@@ -40,6 +41,10 @@ public:
 
   /// Get metadata for an open file with handle \a exoid.
   int RequestInformation();
+
+  /// Returns the SIL. This valid only after BuildSIL() has been called.
+  vtkMutableDirectedGraph* GetSIL()
+    { return this->SIL; }
 
   /// Send metadata to other processes in a parallel job.
   void Broadcast( vtkMultiProcessController* controller );
@@ -346,6 +351,7 @@ public:
 
   /// A struct to hold information about Exodus blocks
   struct BlockInfoType : public BlockSetInfoType {
+    vtkStdString OriginalName; // useful to reset the name if XML metadata is invalid.
     vtkStdString TypeName;
     // number of boundaries per entry
     // The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
@@ -403,8 +409,8 @@ public:
  
   friend class vtkExodusIIReader;
 
-  virtual void SetParser( vtkExodusIIXMLParser* );
-  vtkGetObjectMacro(Parser,vtkExodusIIXMLParser);
+  virtual void SetParser( vtkExodusIIReaderParser* );
+  vtkGetObjectMacro(Parser,vtkExodusIIReaderParser);
 
   // Because Parts, Materials, and assemblies are not stored as arrays,
   // but rather as maps to the element blocks they make up,  
@@ -477,6 +483,9 @@ public:
 protected:
   vtkExodusIIReaderPrivate();
   ~vtkExodusIIReaderPrivate();
+
+  /// Build SIL. This must be called only after RequestInformation().
+  void BuildSIL();
 
   /// Returns true when order and text of names are consistent with integration 
   /// points. Called from GlomArrayNames().
@@ -554,7 +563,7 @@ protected:
   /** Add fast-path time-varying data to field data of an output block or set.
     */
   int AssembleArraysOverTime(
-    int otyp, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
+    int otyp, BlockSetInfoType* bsinfop, vtkDataObject* output );
 
   // Generate the decorations for edge fields.
   void AssembleOutputEdgeDecorations();
@@ -806,12 +815,13 @@ protected:
     */
   vtkExodusIIReader* Parent;
 
-  vtkExodusIIXMLParser* Parser;
+  vtkExodusIIReaderParser* Parser;
 
   vtkExodusIIReader::ObjectType FastPathObjectType;
   vtkIdType FastPathObjectId;
   char* FastPathIdType;
 
+  vtkMutableDirectedGraph* SIL;
 private:
   vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ); // Not implemented.
   void operator = ( const vtkExodusIIReaderPrivate& ); // Not implemented.

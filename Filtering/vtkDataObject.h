@@ -473,6 +473,9 @@ public:
   static vtkInformationDoubleVectorKey* SPACING();
   static vtkInformationIntegerKey* DATA_GEOMETRY_UNMODIFIED();
 
+  // Key used to put SIL information in the output information by readers.
+  static vtkInformationDataObjectKey* SIL();
+
   //BTX
   // Description:
   // Retrieve an instance of this class from an information object.

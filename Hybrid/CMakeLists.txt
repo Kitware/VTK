@@ -26,6 +26,7 @@ IF (WIN32)
 ENDIF (WIN32)
 
 SET ( Kit_SRCS
+vtkExodusIIReaderParser.cxx
 vtk3DSImporter.cxx
 vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
@@ -111,6 +112,7 @@ vtkX3D
 vtkX3DExporterWriter
 vtkX3DExporterFIWriter
 vtkX3DExporterXMLWriter
+vtkExodusIIReaderParser
 WRAP_EXCLUDE)
 
 SET(Kit_EXTRA_SRCS)

@@ -38,13 +38,14 @@
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class vtkIntArray;
-class vtkFloatArray;
 class vtkDataArray;
 class vtkDataSet;
+class vtkExodusIICache;
 class vtkExodusIIReaderPrivate;
 class vtkExodusModel;
-class vtkExodusIICache;
+class vtkFloatArray;
+class vtkGraph;
+class vtkIntArray;
 class vtkPoints;
 class vtkUnstructuredGrid;
 
@@ -686,6 +687,15 @@ public:
 
   virtual void Dump();
 
+  // Description:
+  // SIL describes organization of/relationships between classifications 
+  // eg. blocks/materials/hierarchies.
+  vtkGraph* GetSIL();
+
+  // Description:
+  // Every time the SIL is updated a this will return a different value.
+  vtkGetMacro(SILUpdateStamp, int);
+
 protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
@@ -747,6 +757,8 @@ protected:
   vtkExodusModel *ExodusModel;
   int PackExodusModelOntoOutput;
   int ExodusModelMetadata;
+
+  int SILUpdateStamp;
 
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
