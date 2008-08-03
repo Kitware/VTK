@@ -188,7 +188,11 @@ public:
   // vtkIdType v = g->AddVertex();
   // g->AddEdge(parent, v);
   // </code>
-  vtkIdType AddChild(vtkIdType parent);
+  // If provided, propertyArr provides edge properties
+  // for the newly-created edge. The values in propertyArr must match
+  // up with the arrays in the edge data returned by GetEdgeData.
+  vtkIdType AddChild(vtkIdType parent,
+                     vtkVariantArray *propertyArr = 0);
 
 protected:
   vtkMutableDirectedGraph();
