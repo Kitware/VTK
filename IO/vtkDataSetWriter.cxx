@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.41");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.42");
 vtkStandardNewMacro(vtkDataSetWriter);
 
 void vtkDataSetWriter::WriteData()
@@ -106,8 +106,6 @@ void vtkDataSetWriter::WriteData()
       delete [] this->OutputString;
       }
     this->OutputStringLength = writer->GetOutputStringLength();
-    // should fill something here.
-    this->OutputStringAllocatedLength = this->OutputStringLength;
     this->OutputString = writer->RegisterAndGetOutputString();
     }
   writer->Delete();

@@ -43,7 +43,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.134");
+vtkCxxRevisionMacro(vtkDataWriter, "1.135");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -79,7 +79,6 @@ vtkDataWriter::vtkDataWriter()
 
   this->WriteToOutputString = 0;
   this->OutputString = NULL;
-  this->OutputStringAllocatedLength = 0;
   this->OutputStringLength = 0;
 }
 
@@ -135,7 +134,6 @@ vtkDataWriter::~vtkDataWriter()
     delete [] this->OutputString;
     this->OutputString = NULL;
     this->OutputStringLength = 0;
-    this->OutputStringAllocatedLength = 0;
     }
 }
 
@@ -163,7 +161,6 @@ ostream *vtkDataWriter::OpenVTKFile()
       delete [] this->OutputString;
       this->OutputString = NULL;
       this->OutputStringLength = 0;
-      this->OutputStringAllocatedLength = 0;
       }
     // Allocate the new output string. (Note: this will only work with binary).
     if (input == NULL)
@@ -172,9 +169,10 @@ ostream *vtkDataWriter::OpenVTKFile()
       return NULL;    
       }
     input->Update();
-    this->OutputStringAllocatedLength =
-      static_cast<int> (500+ 1024 * input->GetActualMemorySize());
-    this->OutputString = new char[this->OutputStringAllocatedLength];
+    /// OutputString will be allocated on CloseVTKFile().
+    /// this->OutputStringAllocatedLength =
+    ///   static_cast<int> (500+ 1024 * input->GetActualMemorySize());
+    /// this->OutputString = new char[this->OutputStringAllocatedLength];
 
     fptr = new vtksys_ios::ostringstream;
     }
@@ -1840,7 +1838,7 @@ void vtkDataWriter::WriteData()
 void vtkDataWriter::CloseVTKFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
- 
+
   if ( fp != NULL )
     {
     if (this->WriteToOutputString)
@@ -1848,23 +1846,11 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
       vtksys_ios::ostringstream *ostr =
         static_cast<vtksys_ios::ostringstream*>(fp);
 
-      if (this->OutputString &&
-          static_cast<unsigned int>(this->OutputStringAllocatedLength) > ostr->str().size())
-        {
-        this->OutputStringLength = static_cast<int>(ostr->str().size());
-        memcpy(this->OutputString, ostr->str().c_str(), 
-          this->OutputStringLength);
-        }
-      else
-        {
-        if (this->OutputString)
-          {
-          this->OutputString[0] = 0;
-          }
-        this->OutputStringLength = 0;
-
-        vtkErrorMacro("OutputString allocated buffer is not large enough.");
-        }
+      delete [] this->OutputString;
+      this->OutputStringLength = static_cast<int>(ostr->str().size());
+      this->OutputString = new char[ostr->str().size()];
+      memcpy(this->OutputString, ostr->str().c_str(), 
+        this->OutputStringLength);
       }
     delete fp;
     }
@@ -1876,7 +1862,6 @@ char *vtkDataWriter::RegisterAndGetOutputString()
   
   this->OutputString = NULL;
   this->OutputStringLength = 0;
-  this->OutputStringAllocatedLength = 0;
   
   return tmp;
 }

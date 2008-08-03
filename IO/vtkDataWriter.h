@@ -207,7 +207,6 @@ protected:
   int WriteToOutputString;
   char *OutputString;
   int OutputStringLength;
-  int OutputStringAllocatedLength;
   
   void WriteData(); //dummy method to allow this class to be instantiated and delegated to
 
