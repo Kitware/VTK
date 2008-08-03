@@ -23,7 +23,7 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkExodusIIReaderParser);
-vtkCxxRevisionMacro(vtkExodusIIReaderParser, "1.1");
+vtkCxxRevisionMacro(vtkExodusIIReaderParser, "1.2");
 //-----------------------------------------------------------------------------
 vtkExodusIIReaderParser::vtkExodusIIReaderParser()
 {
@@ -414,5 +414,6 @@ vtkstd::string vtkExodusIIReaderParser::GetBlockName(int id)
 void vtkExodusIIReaderParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "SIL: " << this->SIL << endl;
 }
 
