@@ -1963,6 +1963,14 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   PyObject *arglist, *result, *obj2;
   const char *eventname;
 
+  // In some rare cases it is possible for the command to be invoked
+  // after Py_Finalize is called, this will cause nasty errors so we
+  // return if the interpreter is not initialized.
+  if (Py_IsInitialized() == 0)
+    {
+    return;
+    }
+
 #ifndef VTK_NO_PYTHON_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
