@@ -482,7 +482,8 @@ void vtkQtLineChart::getPointsAt(const QPointF &point,
             this->getLineSeriesOptions(series);
         QRectF area(point, options->getMarkerSize());
         area.translate(-area.width() * 0.5, -area.height() * 0.5);
-        area.translate(-this->pos().x(), -this->pos().y());
+        area.translate(-this->pos().x() - this->Contents->pos().x(),
+            -this->pos().y() - this->Contents->pos().y());
         vtkQtChartSeriesSelectionItem item(series);
         this->Internal->Series[series]->Locator->findPointsIn(
             area, item.Points);
@@ -530,7 +531,9 @@ void vtkQtLineChart::getPointsIn(const QRectF &area,
   // Get the list of items from the scene. Search the list for series
   // points.
   QList<int> visited;
-  QRectF contentsArea = area.translated(-this->pos().x(), -this->pos().y());
+  QRectF contentsArea = area.translated(
+      -this->pos().x() - this->Contents->pos().x(),
+      -this->pos().y() - this->Contents->pos().y());
   QList<vtkQtChartSeriesSelectionItem> indexes;
   QList<QGraphicsItem *> list = this->scene()->items(area);
   QList<QGraphicsItem *>::Iterator iter = list.begin();
