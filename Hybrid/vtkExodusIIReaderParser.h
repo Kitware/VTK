@@ -139,7 +139,6 @@ protected:
   // Maps the "{part-number} Instance: {part-instance}" key for the vertex id
   // for the part vertex in the Assemblies hierarchy.
   vtkstd::map<vtkstd::string, vtkIdType> Part_To_VertexID;
-  vtkstd::map<vtkIdType, vtkstd::string> PartVertexID_To_Part;
 
   // Maps a block-id to the "{part-number} Instance: {part-instance}" string.
   vtkstd::map<int, vtkstd::string> BlockID_To_Part;
