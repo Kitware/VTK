@@ -103,7 +103,6 @@ public:
 
   QRectF getLayerBounds() const {return this->LayerBounds;}
 
-  virtual int type() const {return vtkQtChartAxisLayer::Type;}
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     QWidget *widget=0);

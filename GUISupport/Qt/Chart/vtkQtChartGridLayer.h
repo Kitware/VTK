@@ -43,8 +43,6 @@ public:
   vtkQtChartGridLayer();
   virtual ~vtkQtChartGridLayer() {}
 
-  virtual int type() const {return vtkQtChartGridLayer::Type;}
-
   virtual void setChartArea(vtkQtChartArea *area);
 
   virtual void layoutChart(const QRectF &area);

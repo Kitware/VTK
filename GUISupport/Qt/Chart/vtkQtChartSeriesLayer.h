@@ -56,8 +56,6 @@ public:
   vtkQtChartSeriesLayer();
   virtual ~vtkQtChartSeriesLayer() {}
 
-  virtual int type() const {return vtkQtChartSeriesLayer::Type;}
-
   /// \brief
   ///   Sets the chart area for the chart layer.
   ///

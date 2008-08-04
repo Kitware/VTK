@@ -21,6 +21,12 @@
 /// \file vtkQtBarChart.cxx
 /// \date February 15, 2008
 
+#ifdef _MSC_VER
+// Disable warnings that Qt headers give.
+#pragma warning(disable:4127)
+#pragma warning(disable:4512)
+#endif
+
 #include "vtkQtBarChart.h"
 
 #include "vtkQtBarChartOptions.h"

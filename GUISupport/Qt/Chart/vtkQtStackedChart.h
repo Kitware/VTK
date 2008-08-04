@@ -98,7 +98,6 @@ public:
 
   /// \name QGraphicsItem Methods
   //@{
-  virtual int type() const {return vtkQtStackedChart::Type;}
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     QWidget *widget=0);
