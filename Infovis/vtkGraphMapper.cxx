@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.28");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.29");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -675,6 +675,24 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "GraphToPoly: (none)\n";
+    }
+
+  if ( this->VertexLookupTable )
+    {
+    os << indent << "VertexLookupTable: (" << this->VertexLookupTable << ")\n";
+    }
+  else
+    {
+    os << indent << "VertexLookupTable: (none)\n";
+    }
+
+  if ( this->EdgeLookupTable )
+    {
+    os << indent << "EdgeLookupTable: (" << this->EdgeLookupTable << ")\n";
+    }
+  else
+    {
+    os << indent << "EdgeLookupTable: (none)\n";
     }
 
   os << indent << "VertexPointSize: " << this->VertexPointSize << endl;
