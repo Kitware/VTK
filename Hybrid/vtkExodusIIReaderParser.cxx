@@ -23,7 +23,7 @@
 #include <cassert>
 
 vtkStandardNewMacro(vtkExodusIIReaderParser);
-vtkCxxRevisionMacro(vtkExodusIIReaderParser, "1.2");
+vtkCxxRevisionMacro(vtkExodusIIReaderParser, "1.3");
 //-----------------------------------------------------------------------------
 vtkExodusIIReaderParser::vtkExodusIIReaderParser()
 {
@@ -138,10 +138,8 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
         vtkstd::string(" Instance: ") + instanceString;
       }
 
-    // Will will create a new vertex if none already exists.
-    vtkIdType partVertex = this->GetPartVertex(partNumberString.c_str());
-    this->CurrentVertex.push_back(partVertex);
     this->InBlocks = true;
+    this->BlockPartNumberString = partNumberString;
     }
   else if (tName == "block")
     {
@@ -154,7 +152,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
     if (id >= 0)
       {
-      if (this->InBlocks)
+      if (this->InBlocks && this->BlockPartNumberString != "")
         {
         // the name for the block is re-generated at the end.
         vtkIdType blockVertex = this->AddVertexToSIL(blockString);
@@ -162,12 +160,12 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
         // This <block /> element was encountered while reading the <mesh />.
         this->BlockID_To_VertexID[id] = blockVertex;
-       
-        // Add cross edge linking the assembly part to the block.
-        vtkIdType partVertex = this->CurrentVertex.back();
-        this->AddCrossEdgeToSIL(partVertex, blockVertex);
-
-        this->BlockID_To_PartVertexID[id] = partVertex;
+      
+        this->BlockID_To_Part[id] = this->BlockPartNumberString;
+        // // Add cross edge linking the assembly part to the block.
+        // vtkIdType partVertex = this->CurrentVertex.back();
+        // this->AddCrossEdgeToSIL(partVertex, blockVertex);
+        // this->BlockID_To_PartVertexID[id] = partVertex;
         }
       else if (this->InMaterialAssignments)
         {
@@ -241,7 +239,7 @@ void vtkExodusIIReaderParser::EndElement(const char* tagName)
   else if (tName == "blocks")
     {
     this->InBlocks = false;
-    this->CurrentVertex.pop_back();
+    this->BlockPartNumberString = "";
     }
   else if (tName == "material-assignments")
     {
@@ -253,6 +251,29 @@ void vtkExodusIIReaderParser::EndElement(const char* tagName)
 //-----------------------------------------------------------------------------
 void vtkExodusIIReaderParser::FinishedParsing()
 {
+  vtkstd::map<int, vtkIdType> blockID_to_partVertexID;
+
+  // * Is assembly was parsed, add cross links between assembly parts and blocks
+  //   belonging to that part.
+  if (this->Part_To_VertexID.size() > 0)
+    {
+    vtkstd::map<int, vtkstd::string>::iterator iterIS;
+    for (iterIS = this->BlockID_To_Part.begin();
+      iterIS != this->BlockID_To_Part.end(); ++iterIS)
+      {
+      if (this->Part_To_VertexID.find(iterIS->second) ==
+        this->Part_To_VertexID.end())
+        {
+        // This block blongs to a part not present in the assembly.
+        continue;
+        }
+      vtkIdType partVertex = this->Part_To_VertexID[iterIS->second];
+      vtkIdType blockVertex = this->BlockID_To_VertexID[iterIS->first];
+      this->AddCrossEdgeToSIL(partVertex, blockVertex);
+      blockID_to_partVertexID[iterIS->first] = partVertex;
+      }
+    }
+
   // * Assign correct names for all the "block" vertices.
   vtkstd::map<int, vtkIdType>::iterator iter;
   for (iter = this->BlockID_To_VertexID.begin();
@@ -260,19 +281,17 @@ void vtkExodusIIReaderParser::FinishedParsing()
     {
     // To locate the part description for this block, first locate the part to
     // which this block belongs.
-    if (this->BlockID_To_PartVertexID.find(iter->first) ==
-      this->BlockID_To_PartVertexID.end())
+    vtkstd::string desc = "None";
+    if (blockID_to_partVertexID.find(iter->first) != blockID_to_partVertexID.end())
       {
-      vtkWarningMacro("Invalid XML.");
-      continue;
+      vtkIdType partVertex = blockID_to_partVertexID[iter->first];
+      desc = this->PartVertexID_To_Descriptions[partVertex];
       }
-
-    vtkIdType partVertex = this->BlockID_To_PartVertexID[iter->first];
 
     vtksys_ios::ostringstream stream;
     stream << "Block: " << iter->first 
-      << " (" << this->PartVertexID_To_Descriptions[partVertex].c_str() << ") "
-      << this->PartVertexID_To_PartNumberInstanceString[partVertex].c_str(); 
+      << " (" << desc.c_str()<< ") "
+      << this->BlockID_To_Part[iter->first].c_str();
     this->NamesArray->SetValue(iter->second, stream.str().c_str());
     }
 
@@ -281,8 +300,8 @@ void vtkExodusIIReaderParser::FinishedParsing()
   if (this->BlockID_To_MaterialName.size() == 0)
     {
     vtkstd::map<int, vtkIdType>::iterator iterII;
-    for (iterII = this->BlockID_To_PartVertexID.begin();
-      iterII != this->BlockID_To_PartVertexID.end();
+    for (iterII = blockID_to_partVertexID.begin();
+      iterII != blockID_to_partVertexID.end();
       iterII++)
       {
       int blockID = iterII->first;
@@ -359,7 +378,6 @@ vtkIdType vtkExodusIIReaderParser::GetPartVertex(const char* part_number_instanc
   vtkIdType vertex = this->AddVertexToSIL(part_number_instance_string);
   // Save the vertex for later use.
   this->Part_To_VertexID[part_number_instance_string] = vertex;
-  this->PartVertexID_To_PartNumberInstanceString[vertex] = part_number_instance_string;
   return vertex;
 }
 
@@ -373,9 +391,8 @@ void vtkExodusIIReaderParser::Go(const char* filename)
   this->MaterialName_To_VertexID.clear();
   this->PartVertexID_To_Descriptions.clear();
   this->Part_To_VertexID.clear();
-  this->PartVertexID_To_PartNumberInstanceString.clear();
   this->MaterialSpecifications.clear();
-  this->BlockID_To_PartVertexID.clear();
+  this->BlockID_To_Part.clear();
   this->InBlocks = false;
   this->InMaterialAssignments = false;
 
