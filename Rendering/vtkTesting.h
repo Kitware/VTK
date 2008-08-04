@@ -146,6 +146,10 @@ public:
   int IsInteractiveModeSpecified();
 
   // Description:
+  // Is some arbitrary user flag ("-X", "-Z" etc) specified
+  int IsFlagSpecified(const char *flag);
+
+  // Description:
   // Number of pixels added as borders to avoid problems with
   // window decorations added by some window managers.
   vtkSetMacro(BorderOffset, int);

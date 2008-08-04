@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.30");
+vtkCxxRevisionMacro(vtkTesting, "1.31");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -239,6 +239,19 @@ int vtkTesting::IsInteractiveModeSpecified()
   for (i = 0; i < this->Args.size(); ++i)
     {
     if ( this->Args[i] == "-I")
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
+int vtkTesting::IsFlagSpecified(const char *flag)
+{
+  unsigned int i;
+  for (i = 0; i < this->Args.size(); ++i)
+    {
+    if ( this->Args[i] == flag)
       {
       return 1;
       }
