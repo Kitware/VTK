@@ -176,6 +176,11 @@ public:
   virtual void GetBounds(double* bounds)
     { Superclass::GetBounds(bounds); }
 
+  // Description: 
+  // Access to the lookup tables used by the vertex and edge mappers.
+  vtkGetObjectMacro(EdgeLookupTable, vtkLookupTable);
+  vtkGetObjectMacro(VertexLookupTable, vtkLookupTable);
+
 protected:
   vtkGraphMapper();
   ~vtkGraphMapper();
@@ -212,11 +217,11 @@ protected:
   vtkSmartPointer<vtkActor>             VertexActor;
   vtkSmartPointer<vtkActor>             OutlineActor;
   vtkSmartPointer<vtkTexturedActor2D>   IconActor;
-  
-  // Color maps
-  vtkSmartPointer<vtkLookupTable>       EdgeLookupTable;
-  vtkSmartPointer<vtkLookupTable>       VertexLookupTable;
   //ETX
+
+  // Color maps
+  vtkLookupTable* EdgeLookupTable;
+  vtkLookupTable* VertexLookupTable;
 
   virtual void ReportReferences(vtkGarbageCollector*);
 

@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.27");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.28");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -76,8 +76,8 @@ vtkGraphMapper::vtkGraphMapper()
   this->VertexActor       = vtkSmartPointer<vtkActor>::New();
   this->OutlineActor      = vtkSmartPointer<vtkActor>::New();
   this->IconActor         = vtkSmartPointer<vtkTexturedActor2D>::New();
-  this->VertexLookupTable = vtkSmartPointer<vtkLookupTable>::New();
-  this->EdgeLookupTable   = vtkSmartPointer<vtkLookupTable>::New();
+  this->VertexLookupTable = vtkLookupTable::New();
+  this->EdgeLookupTable   = vtkLookupTable::New();
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
   this->VertexPointSize = 5;
@@ -148,6 +148,10 @@ vtkGraphMapper::~vtkGraphMapper()
   this->SetVertexColorArrayNameInternal(0);
   this->SetEdgeColorArrayNameInternal(0);
   this->SetIconArrayNameInternal(0);
+  this->VertexLookupTable->Delete();
+  this->VertexLookupTable = 0;
+  this->EdgeLookupTable->Delete();
+  this->EdgeLookupTable = 0;
 }
 
 //----------------------------------------------------------------------------

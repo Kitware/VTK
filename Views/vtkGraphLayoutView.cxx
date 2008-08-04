@@ -58,6 +58,8 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkScalarBarActor.h"
+#include "vtkScalarBarWidget.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSimple2DLayoutStrategy.h"
@@ -69,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.35");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.36");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -101,6 +103,8 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ExtractSelectedGraph   = vtkSmartPointer<vtkExtractSelectedGraph>::New();
   this->SelectedGraphMapper    = vtkSmartPointer<vtkGraphMapper>::New();
   this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
+  this->VertexScalarBar        = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->EdgeScalarBar          = vtkSmartPointer<vtkScalarBarWidget>::New();
   
   this->LayoutStrategyNameInternal = 0;
   this->EdgeLayoutStrategyNameInternal = 0;
@@ -137,6 +141,10 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SelectedGraphActor->PickableOff();
   this->SelectedGraphActor->SetPosition(0, 0, -0.01);
   this->SelectedGraphMapper->SetScalarVisibility(false);
+  this->VertexScalarBar->GetScalarBarActor()->SetLookupTable(
+      this->GraphMapper->GetVertexLookupTable());
+  this->EdgeScalarBar->GetScalarBarActor()->SetLookupTable(
+      this->GraphMapper->GetEdgeLookupTable());
   
   // Set default parameters
   this->SetVertexLabelArrayName("label");
@@ -293,6 +301,7 @@ void vtkGraphLayoutView::EdgeLabelVisibilityOff()
 void vtkGraphLayoutView::SetVertexColorArrayName(const char* name)
 {
   this->GraphMapper->SetVertexColorArrayName(name);
+  this->VertexScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
 //----------------------------------------------------------------------------
@@ -326,9 +335,16 @@ void vtkGraphLayoutView::ColorVerticesOff()
 }
 
 //----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetVertexScalarBarVisibility(bool vis)
+{
+  this->VertexScalarBar->SetEnabled(vis);
+}
+
+//----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeColorArrayName(const char* name)
 {
   this->GraphMapper->SetEdgeColorArrayName(name);
+  this->EdgeScalarBar->GetScalarBarActor()->SetTitle(name);
 }
 
 //----------------------------------------------------------------------------
@@ -359,6 +375,12 @@ void vtkGraphLayoutView::ColorEdgesOn()
 void vtkGraphLayoutView::ColorEdgesOff()
 {
   this->GraphMapper->ColorEdgesOff();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEdgeScalarBarVisibility(bool vis)
+{
+  this->EdgeScalarBar->SetEnabled(vis);
 }
 
 //----------------------------------------------------------------------------
@@ -623,6 +645,8 @@ void vtkGraphLayoutView::SetupRenderWindow(vtkRenderWindow* win)
 {
   this->Superclass::SetupRenderWindow(win);
   win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
+  this->VertexScalarBar->SetInteractor(win->GetInteractor());
+  this->EdgeScalarBar->SetInteractor(win->GetInteractor());
 }
 
 //----------------------------------------------------------------------------

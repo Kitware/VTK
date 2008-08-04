@@ -67,6 +67,7 @@ class vtkPassThroughEdgeStrategy;
 class vtkPassThroughLayoutStrategy;
 class vtkPolyDataMapper;
 class vtkRandomLayoutStrategy;
+class vtkScalarBarWidget;
 class vtkSelectionLink;
 class vtkSimple2DLayoutStrategy;
 class vtkTexture;
@@ -267,6 +268,14 @@ public:
   virtual int GetEdgeLabelFontSize();
 
   // Description:
+  // Whether the scalar bar for edges is visible.  Default is off.
+  void SetEdgeScalarBarVisibility(bool vis);
+
+  // Description:
+  // Whether the scalar bar for vertices is visible.  Default is off.
+  void SetVertexScalarBarVisibility(bool vis);
+
+  // Description:
   // Is the graph layout complete? This method is useful
   // for when the strategy is iterative and the application
   // wants to show the iterative progress of the graph layout
@@ -366,6 +375,8 @@ protected:
   vtkSmartPointer<vtkActor2D>                      VertexLabelActor;
   vtkSmartPointer<vtkDynamic2DLabelMapper>         EdgeLabelMapper;
   vtkSmartPointer<vtkActor2D>                      EdgeLabelActor;
+  vtkSmartPointer<vtkScalarBarWidget>              VertexScalarBar;
+  vtkSmartPointer<vtkScalarBarWidget>              EdgeScalarBar;
   
   // Selection objects
   vtkSmartPointer<vtkKdTreeSelector>               KdTreeSelector;
