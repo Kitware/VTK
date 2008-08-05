@@ -26,18 +26,22 @@
 // is akward for the representation to point to a cache.
 
 // .SECTION See Also
-// vtkGeoTerrainCache vtkGeoBackgroundImageRepresentation.
+// vtkGeoBackgroundImageRepresentation.
 
 #ifndef __vtkGeoTerrain_h
 #define __vtkGeoTerrain_h
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
+#include "vtkGeoTerrainNode.h" // for SP
+#include "vtkGeoTerrainSource.h" // for SP
+#include "vtkMultiThreader.h" // for SP
 #include <vtkstd/vector> // vector
 
 class vtkGeoTerrainNode;
-class vtkGeoTerrainCache;
 class vtkGeoCamera;
+class vtkCamera;
+
 
 class VTK_GEOVIS_EXPORT vtkGeoTerrain : public vtkObject
 {
@@ -64,16 +68,58 @@ public:
   // until FinishedEdit is called..
   int GetNumberOfNodes();
   vtkGeoTerrainNode* GetNode(int idx);
+
+  // Description:
+  // This supplies the terrain polydata patches.
+  void SetTerrainSource(vtkGeoTerrainSource* source);
+  vtkGeoTerrainSource* GetTerrainSource() {return this->TerrainSource;}
   
   // Description:
-  // This terrain object gets its terrain patches from this cache.
-  // The user needs to set this.
-  void SetCache(vtkGeoTerrainCache* cache);
-  vtkGeoTerrainCache* GetCache();
+  // Returns true if the terrain changed.
+  bool Update(vtkGeoTerrain* terrain, vtkGeoCamera* camera);
+  
+  // Description:
+  // Asynchronous update of the terrain.  This returns immediately
+  // The tree will reflect the request sometime in the future.
+  void Request(vtkGeoCamera* camera);
+  
+  // Description:
+  // Terminates the request process.
+  void RequestTerminate();
+  
+  // Description:
+  // This is public so that the multi threader can call this method.
+  void ThreadStart();
   
 protected:
   vtkGeoTerrain();
   ~vtkGeoTerrain();
+
+  // Description:
+  // Non blocking call.  Returns true if the lock was obtained.
+  // If the lock was obtained, then you need to release the lock.
+  bool GetReadLock();
+  void ReleaseReadLock();
+
+  // Description:
+  // This is used by the background thread.
+  // It blocks to get write access to the tree.
+  void GetWriteLock();
+  void ReleaseWriteLock();
+
+  // Set the terrain to be the lowest resolution surface of the Earth.
+  // The terrain will always cover the entire earth.
+  void InitializeTerrain(vtkGeoTerrain* terrain);
+
+  // Returns 0 if there should be no change, -1 if the node resolution is too
+  // high, and +1 if the nodes resolution is too low.
+  int EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* cam);
+
+  // Returns VTK_ERROR if the children are not created.
+  int RefineNode(vtkGeoTerrainNode* node);
+
+  // This is run by the thread to create nodes if necessary.
+  void Request(vtkGeoTerrainNode* node, vtkGeoCamera* cam);
 
 //BTX
   // This is the list of terrain nodes that is used as the official
@@ -83,8 +129,26 @@ protected:
   // It is like a double buffer.  It gets swapped with "Nodes"
   // when update is finished.
   vtkstd::vector<vtkSmartPointer<vtkGeoTerrainNode> > NewNodes;
-  vtkSmartPointer<vtkGeoTerrainCache> Cache;
+
+  vtkSmartPointer<vtkGeoTerrainNode> EasternHemisphere;
+  vtkSmartPointer<vtkGeoTerrainNode> WesternHemisphere;
+  vtkSmartPointer<vtkGeoTerrainSource> TerrainSource;
+
+  
+  vtkSmartPointer<vtkMultiThreader> Threader;
+  // The thread needs the camera.  This is just used to start the thread.
+  vtkSmartPointer<vtkGeoCamera> Camera;
+
+  // Socket would be better ...
+  vtkSmartPointer<vtkMutexLock> WaitForRequestMutex1;
+  // The TreeMutex is used to block the background request thread.
+  // The TreeLock variable is used to control the main thread.
+  vtkSmartPointer<vtkMutexLock> TreeMutex;
 //ETX
+
+  unsigned char TreeLock;
+
+  int ThreadId;
 
 private:
   vtkGeoTerrain(const vtkGeoTerrain&);  // Not implemented.

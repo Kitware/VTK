@@ -28,7 +28,6 @@ SET( Kit_SRCS
   vtkGeoSampleArcs.cxx  
   vtkGeoTreeNode.cxx
   vtkGeoTerrain.cxx
-  vtkGeoTerrainCache.cxx
   vtkGeoTerrainGlobeSource.cxx
   vtkGeoTerrainNode.cxx
   vtkGeoTerrainRemoteSource.cxx
