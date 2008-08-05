@@ -35,6 +35,18 @@ public:
   vtkTypeRevisionMacro(vtkChooserPainter, vtkPolyDataPainter);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  void SetVertPainter(vtkPolyDataPainter*);
+  void SetLinePainter(vtkPolyDataPainter*);
+  void SetPolyPainter(vtkPolyDataPainter*);
+  void SetStripPainter(vtkPolyDataPainter*);
+
+  // Description:
+  // When set, the lines painter is used for drawing wireframes (off by
+  // default, except on Mac, where it's on by default).
+  vtkSetMacro(UseLinesPainterForWireframes, int);
+  vtkGetMacro(UseLinesPainterForWireframes, int);
+  vtkBooleanMacro(UseLinesPainterForWireframes, int);
+
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
@@ -49,10 +61,7 @@ protected:
   vtkPolyDataPainter *PolyPainter;
   vtkPolyDataPainter *StripPainter;
 
-  void SetVertPainter(vtkPolyDataPainter*);
-  void SetLinePainter(vtkPolyDataPainter*);
-  void SetPolyPainter(vtkPolyDataPainter*);
-  void SetStripPainter(vtkPolyDataPainter*);
+
   
   // Description:
   // Some subclasses may need to do some preprocessing
@@ -100,6 +109,8 @@ protected:
 
   vtkRenderer *LastRenderer;
   vtkTimeStamp PaintersChoiceTime;
+
+  int UseLinesPainterForWireframes;
 private:
   vtkChooserPainter(const vtkChooserPainter &); // Not implemented
   void operator=(const vtkChooserPainter &);    // Not implemented

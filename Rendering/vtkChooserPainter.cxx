@@ -28,7 +28,7 @@
 #include "vtkStandardPolyDataPainter.h"
 #include "vtkTStripsPainter.h"
 
-vtkCxxRevisionMacro(vtkChooserPainter, "1.6");
+vtkCxxRevisionMacro(vtkChooserPainter, "1.7");
 vtkStandardNewMacro(vtkChooserPainter);
 
 vtkCxxSetObjectMacro(vtkChooserPainter, VertPainter, vtkPolyDataPainter);
@@ -43,8 +43,15 @@ vtkChooserPainter::vtkChooserPainter()
   this->LinePainter = NULL;
   this->PolyPainter = NULL;
   this->StripPainter = NULL;
-
   this->LastRenderer = NULL;
+  this->UseLinesPainterForWireframes = 0;
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+  /*
+   * On some apples, glPolygonMode(*,GL_LINE) does not render anything
+   * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.
+   */
+  this->UseLinesPainterForWireframes = 1;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -235,24 +242,12 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer, vtkActor* actor)
 
 //-----------------------------------------------------------------------------
 void vtkChooserPainter::SelectPainters(vtkRenderer *vtkNotUsed(renderer),
-    vtkActor* actor, const char *&vertptype, const char *&lineptype,
+    vtkActor* vtkNotUsed(actor), const char *&vertptype, const char *&lineptype,
     const char *&polyptype, const char *&stripptype)
 {
   vertptype = "vtkPointsPainter";
   lineptype = "vtkLinesPainter";
   polyptype = "vtkPolygonsPainter";
-  
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-  /*
-   * On some apples, glPolygonMode(*,GL_LINE) does not render anything
-   * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.
-   */
-  if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-    {
-    polyptype = "vtkLinesPainter";
-    }
-#endif
-  (void)actor; 
   stripptype = "vtkTStripsPainter";
   // No elaborate selection as yet. 
   // Merely create the pipeline as the vtkOpenGLPolyDataMapper.
@@ -340,9 +335,19 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Polys" << endl;
     this->ProgressScaleFactor = static_cast<double>(numPolys)/total_cells;
-    this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
-                              forceCompileOnly);
-    this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
+    if (this->UseLinesPainterForWireframes && 
+      actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      this->LinePainter->Render(renderer, actor, vtkPainter::POLYS,
+        forceCompileOnly);
+      this->TimeToDraw += this->LinePainter->GetTimeToDraw();
+      }
+    else
+      {
+      this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
+        forceCompileOnly);
+      this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
+      }
     this->ProgressOffset += this->ProgressScaleFactor;
     }
 
@@ -366,5 +371,7 @@ void vtkChooserPainter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "LinePainter: " << this->LinePainter << endl;
   os << indent << "PolyPainter: " << this->PolyPainter << endl;
   os << indent << "StripPainter: " << this->StripPainter << endl;
+  os << indent << "UseLinesPainterForWireframes: " 
+    << this->UseLinesPainterForWireframes << endl;
 }
 
