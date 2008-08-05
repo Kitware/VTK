@@ -75,19 +75,52 @@ public:
   // The last non-zero item in the Sturm sequence is the gcd of P and P'. The
   // parameter divideGCD specifies whether the program should attempt to divide
   // by the gcd and run again. It works better with polynomials known to have
-  // high multiplicities. This defaults to 0.
+  // high multiplicities. When divideGCD != 0 then it attempts to divide by the
+  // GCD, if applicable. This defaults to 0.
   //
   // Warning: it is the user's responsibility to make sure the \a upperBnds 
   // array is large enough to contain the maximal number of expected roots.
   // Note that \a nr is smaller or equal to the actual number of roots in 
   // ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
   // array is large enough to contain the maximal number of expected upper bounds.
-  static int SturmBisectionSolve( double* P, int d, double* a, double *upperBnds, double tol, int intervalType, bool divideGCD );
-  static int SturmBisectionSolve( double* P, int d, double* a, double *upperBnds, double tol, int intervalType );
-  static int SturmBisectionSolve( double* P, int d, double* a, double *upperBnds, double tol );
+  static int HabichtBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol,
+    int intervalType = 0, bool divideGCD = false );
+
+  // Description:
+  // Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial 
+  //   P[0] X^d + ... + P[d-1] X + P[d] 
+  // in ]\a a[0] ; \a a[1]] using Sturm's theorem ( polynomial 
+  // coefficients are REAL ) and returns the count \a nr. All roots are bracketed
+  // in the \nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
+  // Returns -1 if anything went wrong (such as: polynomial does not have
+  // degree \a d, the interval provided by the other is absurd, etc.).
+  //
+  // intervalType specifies the search interval as follows:
+  // 0 = 00 = ]a,b[
+  // 1 = 10 = [a,b[
+  // 2 = 01 = ]a,b]
+  // 3 = 11 = [a,b]
+  // This defaults to 0.
+  //
+  // The last non-zero item in the Sturm sequence is the gcd of P and P'. The
+  // parameter divideGCD specifies whether the program should attempt to divide
+  // by the gcd and run again. It works better with polynomials known to have
+  // high multiplicities. When divideGCD != 0 then it attempts to divide by the
+  // GCD, if applicable. This defaults to 0.
+  //
+  // Warning: it is the user's responsibility to make sure the \a upperBnds 
+  // array is large enough to contain the maximal number of expected roots.
+  // Note that \a nr is smaller or equal to the actual number of roots in 
+  // ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
+  // array is large enough to contain the maximal number of expected upper bounds.
+  static int SturmBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol,
+    int intervalType = 0, bool divideGCD = false );
 
   // Description:
   // This uses the derivative sequence to filter possible roots of a polynomial.
+  // First it sorts the roots and removes any duplicates.
   // If the number of sign changes of the derivative sequence at a root at
   // upperBnds[i] == that at upperBnds[i]  - diameter then the i^th value is 
   // removed from upperBnds. It returns the new number of roots.
@@ -135,7 +168,7 @@ public:
   // Description:
   // Set/get the tolerance used when performing polynomial Euclidean division
   // to find polynomial roots. This tolerance is used to decide whether the
-  // leading coefficient(s) of a polynomial remainder are close enough to
+  // coefficient(s) of a polynomial remainder are close enough to
   // zero to be neglected.
   static void SetDivisionTolerance( double tol );
   static double GetDivisionTolerance();

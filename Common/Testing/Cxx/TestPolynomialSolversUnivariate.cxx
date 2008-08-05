@@ -41,16 +41,26 @@ void PrintPolynomial( double* P, unsigned int degP )
 int vtkRunPolynomial(
   double* poly, int degree, double* rootInt, double* upperBnds, 
   double tolSturm, double divtol, double* expected, int expectedLength, 
-  double expectedTol, const char* name, bool divideGCD )
+  double expectedTol, const char* name, bool divideGCD, bool useHabichtSolver = false )
 {
   int rootcount;
+  const char* sname = useHabichtSolver ? "Habicht" : "Sturm";
+
   vtkPolynomialSolversUnivariate::SetDivisionTolerance( divtol );
-  rootcount = vtkPolynomialSolversUnivariate::SturmBisectionSolve(
-    poly, degree, rootInt, upperBnds, tolSturm, 0, divideGCD );
+  if ( useHabichtSolver )
+    {
+    rootcount = vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
+      poly, degree, rootInt, upperBnds, tolSturm, 0, divideGCD );
+    }
+  else
+    {
+    rootcount = vtkPolynomialSolversUnivariate::SturmBisectionSolve(
+      poly, degree, rootInt, upperBnds, tolSturm, 0, divideGCD );
+    }
 
   if ( rootcount != expectedLength )
     {
-    vtkGenericWarningMacro("SturmBisectionSolve( " << name << ", ]"
+    vtkGenericWarningMacro( << sname << "BisectionSolve( " << name << ", ]"
       << rootInt[0] << ", " << rootInt[1] << " [ ), found: "
       << rootcount << " roots, expected " << expectedLength << " roots.");
     return 1;
@@ -61,7 +71,7 @@ int vtkRunPolynomial(
     cout << upperBnds[i] << endl;
     if ( fabs( upperBnds[i] - expected[i] ) > expectedTol )
       {
-      vtkGenericWarningMacro("SturmBisectionSolve( " << name << ", ]"
+      vtkGenericWarningMacro( << sname << "BisectionSolve( " << name << ", ]"
         << rootInt[0] << ", " << rootInt[1] << " [ ), found: "
         << upperBnds[i] << ", expected " << expected[i] << ".");
       return 1;
@@ -77,14 +87,25 @@ int vtkTestPolynomials(
   double expectTol, const char* name, bool divideGCD )
 {
   int rval;
-  cout << endl << name << endl;
-  for(int i = 0; i < len; i++)
+  cout << endl << name << " (Sturm)" << endl;
+  for ( int i = 0; i < len; ++ i )
     {
     rval = vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], 
-      expectd, expectedLength, expectTol, name, divideGCD);
+      expectd, expectedLength, expectTol, name, divideGCD, false );
     if ( rval == 1 )
       {
-      //return 1;
+      return 1;
+      }
+    }
+
+  cout << endl << name << " (Habicht)" << endl;
+  for ( int i = 0; i < len; ++ i )
+    {
+    rval = vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], 
+      expectd, expectedLength, expectTol, name, divideGCD, true );
+    if ( rval == 1 )
+      {
+      return 1;
       }
     }
   return 0;

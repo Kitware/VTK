@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.1");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.2");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -295,6 +295,103 @@ static int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, doub
   return r;
 }
 
+//----------------------------------------------------------------------------
+// Polynomial Euclidean division of A (deg m) by B (deg n).
+// Does not store Q and stores -R instead of R. This premultiplies Ai by mul and
+// then divides mR by div. mR MUST have at least the size of m, because it is
+// used as temporary storage besides as the return value.
+// This shouldn't be too  much slower than the version without mul and div. It
+// has to copy mul*Ai into mR at the beginning. So it has m+1 extra
+// multiplications and assignments. When it assigns final values into mR it
+// divides by div. So it has deg(mR) extra divisions.
+static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* B, int n, double div, double* mR, double rtol )
+{
+  // Note: for execution speed, no sanity checks are performed on A and B. 
+  // You must know what you are doing.
+
+  int mMn = m - n;
+  int i;
+
+  // To save space we will use mR *instead* of Ai. Just have to be sure that
+  // when we write to mR we are writing to a spot that will not be used again.
+  for ( i = 0; i <= m; ++ i ) 
+    {
+    mR[i] = mul*Ai[i];
+    }
+
+  // Remember that mMn >= 0 implies m-n >= 0 implies m  >= n + 1 and so
+  // m + 1 > n.
+  if ( mMn < 0 )
+    {
+    return m;
+    }
+  
+  if ( ! n ) 
+    {
+    return -1;
+    }
+
+  div = 1/div;
+  int nj;
+  double iB0 = 1. / B[0];
+  double* Q = new double[mMn + 1];
+
+  for ( i = 0; i <= mMn; ++ i )
+    {
+    nj = i > n ? n : i;
+    Q[i] = mR[i];
+    for ( int j = 1; j <= nj; ++ j )
+      {
+      Q[i] -= B[j] * Q[i - j];
+      }
+    Q[i] *= iB0;
+    }
+
+  bool nullCoeff = false;
+  int r = 0;
+  for ( i = n; i >= 1; -- i )
+    {
+    double sum = 0;
+    nj = mMn + 1 > i ? i : mMn + 1;
+    for ( int j = 0; j < nj; ++ j )
+      { 
+      sum += B[n - i + 1 + j] * Q[mMn - j];
+      }
+
+    if ( ! AreEqual( mR[m - i + 1], sum, rtol ) )
+      {
+      // Now we have m + 1 > n implies n - i < m - i + 1. Thus since i is
+      // decreasing (hence m - i + 1 increasing) we will never use n - i again,
+      // so we can safely write over it.
+      mR[n - i] = (sum - mR[m - i + 1])*div;
+      // We want the non-zero term with the largest index. So we only write to r
+      // once.
+      if ( r == 0 )
+        {
+        r = i - 1;
+        }
+      }
+    else
+      {
+      // See previous comment.
+      mR[n - i] = 0.;
+      if ( n == i )
+        {
+        nullCoeff = true;
+        }
+      }
+    }
+  delete [] Q;
+  
+  if ( ! r && nullCoeff ) 
+    {
+    r = -1;
+    }
+ 
+  return r;
+}
+
+
 
 
 //----------------------------------------------------------------------------
@@ -311,50 +408,174 @@ inline double evaluateHorner( double* P, int d, double x )
   return val;
 }
 
-int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val, bool debug)
+int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val, int* fsign = 0 )
 {
   int oldVal = 0;
   double v;
   int changes = 0;
-  // When removing debug stuff remove this variable.
-  double min = 1.;
 
   for(int i = 0; i < count; i++)
     {
-      v = evaluateHorner(P+offsets[i], degP[i], val);
-      if(v==0) 
-        {
-        continue;
-        }
+    v = evaluateHorner(P+offsets[i], degP[i], val);
 
-      if(debug)
+    if( fsign && i == 0 )
+      {
+      if ( IsZero( v ) )
         {
-        double lv = log(fabs(v));
-        if(lv < min) 
-          {
-          min = lv;
-          }
+        *fsign = 0;
         }
+      else if ( v > 0 )
+        {
+        *fsign = 1;
+        }
+      else
+        {
+        *fsign = -1;
+        }
+      }
+    if ( v == 0 ) 
+      {
+      continue;
+      }
 
-      if(v*oldVal < 0) 
-        {
-        changes++;
-        oldVal = 0-oldVal;
-        }
+    if ( v * oldVal < 0 )
+      {
+      ++ changes;
+      oldVal = 0 - oldVal;
+      }
 
-      if(oldVal == 0)
-        {
-        if(v < 0) oldVal = -1;
-        else oldVal = 1;
-        }
+    if ( oldVal == 0 )
+      {
+      if ( v < 0 ) oldVal = -1;
+      else oldVal = 1;
+      }
     }
 
   return changes;
 }
 
-int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val)
+// ----------------------------------------------------------
+// Gets the Habicht sequence. SSS and degrees and ofsets are expected to be
+// large enough and the number of non-zero items is returned. P is expected to
+// have degree at least 1.
+//
+// This algorithm is modified from 
+// BPR, Algorithms in Real Algebraic Geometry, page 318
+int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* offsets, double rtol)
 {
-  return vtkGetSignChanges(P, degP, offsets, count, val, false);
+  degrees[0] = d;
+  offsets[0] = 0;
+
+  int dp1 = d+1;
+  double* t = new double[dp1];
+  double* s = new double[dp1];
+
+  degrees[1] = d-1;
+  offsets[1] = dp1;
+  int offset = dp1;
+
+  // Set the first two elements SSS = {P, P'}.
+  for(int k = 0; k < d; k++)
+    {
+    SSS[k] = P[k];
+    SSS[k+offset] = static_cast<double>(d-k)*P[k];
+    }
+  SSS[d] = P[d];
+  if( P[0] > 0. )
+    {
+    t[0] = s[0] = 1.;
+    }
+  else
+    {
+    t[0] = s[0] = -1.;
+    }
+  t[1] = s[1] = SSS[offset];
+
+  int j = 0;
+  int i = -1;
+  int k = 0;
+
+  int deg = d;
+  int degree = d-1;
+  int jp1 = 1;
+  int ip1 = 0;
+  while(degree > 0)
+    {
+    k = deg - degree;
+    if ( k == jp1 )
+      {
+      // Make sure our coeffs aren't going to be too large with a quick
+      // divisions.
+      if( fabs(t[jp1]) > 1e50 )
+        {
+        t[jp1] /= 1e35;
+        }
+      s[jp1] = t[jp1];
+      degrees[k+1] = polynomialEucliDivOppositeR( s[jp1]*s[jp1], SSS + offsets[ip1], degrees[ip1], 
+        SSS + offset, degree, s[j]*t[ip1], SSS + offsets[k] + degree+1, rtol );
+      offsets[k+1] = offset + 2*degree - degrees[k+1];
+      }
+    else
+      {
+      s[jp1] = 0;
+      for(int delta = 1; delta < k-j; delta++)
+        {
+        t[jp1+delta] = (t[jp1]*t[j+delta])/s[j];
+        if ( delta % 2 )
+          {
+          t[jp1+delta] *= -1;
+          }
+        }
+      // Make sure our coeffs aren't going to be too large with a quick
+      // divisions.
+      if( fabs(t[k]) > 1e50 )
+        {
+        t[k] /= 1e35;
+        }
+      s[k] = t[k];
+
+      offsets[k] = offsets[jp1] + degrees[jp1]+1;
+      degrees[k] = degrees[jp1];
+      for ( int dg = 0; dg <= degree; ++ dg )
+        {
+        SSS[offsets[k] + dg] = ( s[k] * SSS[offset + dg] ) / t[jp1];
+        }
+
+      for(int l = j+2; l < k; l++)
+        {
+        degrees[l] = -1;
+        offsets[l] = offsets[k];
+        s[l] = 0;
+        }
+
+      degrees[k+1] = polynomialEucliDivOppositeR(t[jp1]*s[k], SSS+offsets[ip1], degrees[ip1], 
+        SSS+offset, degree, s[j]*t[ip1], SSS+offsets[k]+degrees[k]+1, rtol);
+      offsets[k+1] = offsets[k] + 2*degrees[k] - degrees[k+1];
+      }
+    t[k+1] = SSS[offsets[k+1]];
+    i = j;
+    ip1 = jp1;
+    j = k;
+    jp1 = j+1;
+    degree = degrees[jp1];
+    offset = offsets[jp1];
+    }
+
+  delete [] s;
+  delete [] t;
+
+  if (degree == 0)
+    {
+    return jp1+1;
+    }
+  else
+    {
+    while(degrees[jp1] < 0)
+      {
+      jp1--;
+      }
+    return jp1+1;
+    }
 }
 
 // ----------------------------------------------------------
@@ -427,32 +648,43 @@ int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b);
 // divideGCD == 0 -> never divide
 // divideGCD == 1 -> use logic
 // divideGCD == 2 -> divide as long as non-constant (ignore the logic).
-int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, double tol, 
-  int intervalType, int divideGCD)
+int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, double tol, 
+  int intervalType, int divideGCD, int method)
 {
   // 0. Stupidity checks
+  static const char title1[] = "vtkPolynomialSolversUnivariate::SturmBisectionSolve";
+  static const char title2[] = "vtkPolynomialSolversUnivariate::HabichtBisectionSolve";
+  const char* title;
+  if ( method == 0 )
+    {
+    title = title1;
+    }
+  else
+    {
+    title = title2;
+    }
 
   if ( tol <= 0 )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolversUnivariate::SturmBisectionSolve: Tolerance must be positive");
+    vtkGenericWarningMacro(<< title <<": Tolerance must be positive");
     return -1;
     }
 
   if ( IsZero( P[0] ) )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolversUnivariate::SturmBisectionSolve: Zero leading coefficient");
+    vtkGenericWarningMacro(<< title <<": Zero leading coefficient");
     return -1;
     }
 
   if ( d < 1 )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolversUnivariate::SturmBisectionSolve: Degree < 1");
+    vtkGenericWarningMacro(<< title <<": Degree < 1");
     return -1;
     }
 
   if ( a[1] < a[0] + tol )
     {
-    vtkGenericWarningMacro(<<"vtkPolynomialSolversUnivariate::SturmBisectionSolve: Erroneous interval endpoints and/or tolerance");
+    vtkGenericWarningMacro(<< title <<": Erroneous interval endpoints and/or tolerance");
     return -1;
     }
 
@@ -468,13 +700,24 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
   double bounds[] = { a[0], a[1] };
   // Create one large array to hold all the 
   // polynomials.
-  double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2];
-  int* degrees = new int[d + 2];
-  int* offsets = new int[d + 2];
+  //
+  // These need to be a tiny bit larger for the Habicht Sequence which goes a
+  // little bit beyond what the Sturm does.
+  // TODO: Make sure these bounds are good enough!
+  double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2 + 2];
+  int* degrees = new int[d + 2 + 1];
+  int* offsets = new int[d + 3 + 1];
   
   int nSSS;
 
-  nSSS = vtkGetSturmSequence(P, d, SSS, degrees, offsets, vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
+  if ( method == 0 )
+    {
+    nSSS = vtkGetSturmSequence( P, d, SSS, degrees, offsets, vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
+    }
+  else
+    {
+    nSSS = vtkGetHabichtSequence( P, d, SSS, degrees, offsets, vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
+    }
 
   // If degrees[count-1] > 0 then we have degenerate roots.
   // We could possibly then find the degenerate roots.
@@ -497,7 +740,7 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
     delete [] offsets;
     delete [] R;
       
-    int rval = vtkSturmBisectionSolve(Q, deg, a, upperBnds, tol, intervalType, 0);
+    int rval = vtkHabichtOrSturmBisectionSolve(Q, deg, a, upperBnds, tol, intervalType, 0, method);
     delete [] Q;
     if(zeroroot)
       {
@@ -791,29 +1034,97 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
       }
 
     double zv = evaluateHorner(P, d, upperBnds[nloc]);
+    // These are for the possibility that we get sign change differences when
+    // using the sequence.
+    int ls, zs;
+    double lv = evaluateHorner(P, d, lowerBnds[nloc]);
     double z;
 
-    if(IsZero(zv)) 
+    // Neither of the next two conditions should ever be met, but when using
+    // floats we still want to be sure.
+    if ( IsZero( zv ) ) 
       {
       lowerBnds[nloc] = upperBnds[nloc];
       continue;
       }
-    
-    // If we can, use bisection.
-    if(zv*evaluateHorner(P, d, lowerBnds[nloc])<0)
+
+    if( IsZero( lv ) )
       {
-      double tempu = zv;
-      while(upperBnds[nloc] - lowerBnds[nloc] > tol)
+      upperBnds[nloc] = lowerBnds[nloc];
+      continue;
+      }
+
+    int us = (zv > 0)?1:-1;
+    ls = (lv > 0)?1:-1;
+
+    bool bisect = false;
+    // Check to see if we should use the sequence, which is MUCH slower.
+    if ( us*ls > 0 )
+      {
+      int zc;
+      while ( upperBnds[nloc] - lowerBnds[nloc] > tol )
         {
-        z = (upperBnds[nloc] + lowerBnds[nloc])/2;
+        z = ( upperBnds[nloc] + lowerBnds[nloc] ) / 2;
         // Sometimes the tolerance can be poorly chosen causing an infinite
         // loop, this should fix that. That is, u - l > tol, but (u+l)/2 == l|u.
         if( z >= upperBnds[nloc] || z <= lowerBnds[nloc] )
           {
           break;
           }
-        zv = evaluateHorner(P, d, z);
-        if(zv*tempu > 0)
+        zc = vtkGetSignChanges( SSS, degrees, offsets, nSSS, z, &zs );
+
+        // If that point is a zero go ahead and quit.
+        if ( zs == 0 )
+          {
+          upperBnds[nloc] = lowerBnds[nloc] = z;
+          break;
+          }
+
+        // Decide which side it goes on.
+        if((varSgn[0] - zc)  == nloc + 1) 
+          {
+          us = zs;
+          upperBnds[nloc] = z;
+          }
+        else
+          {
+          ls = zs;
+          lowerBnds[nloc] = z;
+          }
+
+        // Maybe we are *now* close enough to use bisection. In which case DO THAT!
+        // One extra multiplication is worth it.
+        if( us*ls < 0 )
+          {
+          bisect = true;
+          }
+        }
+      bisection[nloc] = false;
+      if(bisect == false)
+        {
+        continue;
+        }
+      }
+    else
+      {
+      bisect = true;
+      }
+    
+    // If we can, use bisection.
+    if ( bisect )
+      {
+      double tempu = zv;
+      while ( upperBnds[nloc] - lowerBnds[nloc] > tol )
+        {
+        z = ( upperBnds[nloc] + lowerBnds[nloc] ) / 2;
+        // Sometimes the tolerance can be poorly chosen causing an infinite
+        // loop, this should fix that. That is, u - l > tol, but (u+l)/2 == l|u.
+        if ( z >= upperBnds[nloc] || z <= lowerBnds[nloc] )
+          {
+          break;
+          }
+        zv = evaluateHorner( P, d, z );
+        if ( zv * tempu > 0 )
           {
           tempu = zv;
           upperBnds[nloc] = z;
@@ -826,21 +1137,7 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
     // Otherwise use a sequence. This is of course MUCH slower.
     else
       {
-      while(upperBnds[nloc] - lowerBnds[nloc] > tol)
-        {
-        z = (upperBnds[nloc] + lowerBnds[nloc])/2;
-        // Sometimes the tolerance can be poorly chosen causing an infinite
-        // loop, this should fix that. That is, u - l > tol, but (u+l)/2 == l|u.
-        if( z >= upperBnds[nloc] || z <= lowerBnds[nloc] )
-          {
-          break;
-          }
-        if((varSgn[0] - vtkGetSignChanges(SSS, degrees, offsets, nSSS, z) == nloc + 1)) 
-          upperBnds[nloc] = z;
-        else
-          lowerBnds[nloc] = z;
-        }
-      bisection[nloc] = false;
+      // FIXME
       }
     }
 
@@ -850,22 +1147,24 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
   qsort(lowerBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots);
 
   // Remove duplicate roots.
-  for(int j = 1; j < nIntervals; j++)
+  for ( int j = 1; j < nIntervals; ++ j )
     {
-    if((upperBnds[j] < upperBnds[j-1]+2*tol || lowerBnds[j] < lowerBnds[j-1]+2*tol || (zeroroot && fabs(upperBnds[j]) < 2*tol)))
+    if (
+        upperBnds[j] < ( upperBnds[j - 1] + 2 * tol ) ||
+        lowerBnds[j] < ( lowerBnds[j - 1] + 2 * tol ) ||
+        ( zeroroot && fabs( upperBnds[j] ) < 2 * tol ) )
       {
-      for(int k = j+1; k < nIntervals; k++)
+      for ( int k = j + 1; k < nIntervals; ++ k )
         {
-        upperBnds[k-1] = upperBnds[k];
-        lowerBnds[k-1] = lowerBnds[k];
+        upperBnds[k - 1] = upperBnds[k];
+        lowerBnds[k - 1] = lowerBnds[k];
         }
-      j--;
-      nIntervals--;
+      -- j;
+      -- nIntervals;
       continue;
       }
     }
 
-  //if(lowerBnds)
   delete [] bisection;
   delete [] lowerBnds;
 
@@ -893,6 +1192,20 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
 
 //----------------------------------------------------------------------------
 // Find all real roots in ] a[0] ; a[1] [ of a real 
+// d-th degree polynomial using the Habicht sequence.
+// intervalType specifies as follows (in binary)
+// 0 = 00 = ]a,b[
+// 1 = 10 = [a,b[
+// 2 = 01 = ]a,b]
+// 3 = 11 = [a,b]
+int vtkPolynomialSolversUnivariate::HabichtBisectionSolve( double* P, int d, double* a, 
+  double* upperBnds, double tol, int intervalType, bool divideGCD )
+{
+  return vtkHabichtOrSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, divideGCD?1:0, 1);
+}
+
+//----------------------------------------------------------------------------
+// Find all real roots in ] a[0] ; a[1] [ of a real 
 // d-th degree polynomial using the Sturm sequence.
 // intervalType specifies as follows (in binary)
 // 0 = 00 = ]a,b[
@@ -902,19 +1215,7 @@ int vtkSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, doubl
 int vtkPolynomialSolversUnivariate::SturmBisectionSolve( double* P, int d, double* a, 
   double *upperBnds, double tol, int intervalType, bool divideGCD )
 {
-  return vtkSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, divideGCD?1:0);
-}
-
-int vtkPolynomialSolversUnivariate::SturmBisectionSolve( double* P, int d, double* a, 
-  double *upperBnds, double tol, int intervalType )
-{
-  return vtkSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, 0);
-}
-
-int vtkPolynomialSolversUnivariate::SturmBisectionSolve( double* P, int d, double* a, 
-  double *upperBnds, double tol )
-{
-  return vtkSturmBisectionSolve(P, d, a, upperBnds, tol, 0, 0);
+  return vtkHabichtOrSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, divideGCD?1:0, 0);
 }
 
 // Assume that dP = {f} and p is the degree of f.
