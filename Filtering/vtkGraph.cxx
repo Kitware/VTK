@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.27");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.28");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.27");
+vtkCxxRevisionMacro(vtkGraph, "1.28");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1255,6 +1255,12 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
     {
     this->DistributedHelper->AddEdgeInternal(u, v, directed, 
                                                         propertyArr, edge);
+    return;
+    }
+
+  if (u >= this->GetNumberOfVertices() || v >= this->GetNumberOfVertices())
+    {
+    vtkErrorMacro(<< "Vertex index out of range");
     return;
     }
 
