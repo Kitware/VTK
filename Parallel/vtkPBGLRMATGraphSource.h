@@ -146,7 +146,10 @@ protected:
   ~vtkPBGLRMATGraphSource();
   vtkIdType NumberOfVertices;
   vtkIdType NumberOfEdges;
-  double A, B, C, D;
+  double A;
+  double B;
+  double C;
+  double D;
   bool IncludeEdgeWeights;
   bool AllowSelfLoops;
   bool GeneratePedigreeIds;
