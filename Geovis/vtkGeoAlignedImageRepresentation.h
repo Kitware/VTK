@@ -34,7 +34,7 @@
 #ifndef __vtkGeoAlignedImageRepresentation_h
 #define __vtkGeoAlignedImageRepresentation_h
 
-#include "vtkGeoRepresentation.h"
+#include "vtkDataRepresentation.h"
 
 #include "vtkSmartPointer.h" // for SP
 #include "vtkAssembly.h" // for SP
@@ -43,11 +43,11 @@
 class vtkRenderer;
 class vtkGeoCamera;
 
-class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkGeoRepresentation
+class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkGeoAlignedImageRepresentation *New();
-  vtkTypeRevisionMacro(vtkGeoAlignedImageRepresentation, vtkGeoRepresentation);
+  vtkTypeRevisionMacro(vtkGeoAlignedImageRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

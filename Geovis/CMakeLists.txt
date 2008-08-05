@@ -24,7 +24,6 @@ SET( Kit_SRCS
   vtkGeoLineRepresentation.cxx
   vtkGeoMath.cxx
   vtkGeoPatch.cxx
-  vtkGeoRepresentation.cxx
   vtkGeoSampleArcs.cxx  
   vtkGeoTreeNode.cxx
   vtkGeoTerrain.cxx
