@@ -6,6 +6,7 @@ IF (VTK_PYTHON_EXE)
       PythonSmoke
       TestWeakref
       TestNumpySupport
+      TestTerminationCrash
       )
     ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
       ${VTK_SOURCE_DIR}/Common/Testing/Python/${tfile}.py)

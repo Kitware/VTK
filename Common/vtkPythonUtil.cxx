@@ -1944,8 +1944,8 @@ vtkPythonCommand::vtkPythonCommand()
 }
 
 vtkPythonCommand::~vtkPythonCommand()
-{ 
-  if (this->obj)
+{
+  if (this->obj && Py_IsInitialized())
     {
     Py_DECREF(this->obj);
     }
@@ -1963,9 +1963,9 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   PyObject *arglist, *result, *obj2;
   const char *eventname;
 
-  // In some rare cases it is possible for the command to be invoked
-  // after Py_Finalize is called, this will cause nasty errors so we
-  // return if the interpreter is not initialized.
+  // Sometimes it is possible for the command to be invoked after
+  // Py_Finalize is called, this will cause nasty errors so we return if
+  // the interpreter is not initialized.
   if (Py_IsInitialized() == 0)
     {
     return;
