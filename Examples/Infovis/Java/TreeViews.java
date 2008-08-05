@@ -41,17 +41,19 @@ public class TreeViews extends JFrame {
     vtkStringArray nameArr = new vtkStringArray();
     nameArr.SetName("name");
     // Start by adding a root to the tree
-    vtkTree tree = new vtkTree();
-    tree.AddRoot();
+    vtkMutableDirectedGraph g = new vtkMutableDirectedGraph();
+    g.AddVertex();
     nameArr.InsertNextValue("0");
     Random r = new Random();
     for (int i = 1; i < 100; ++i) {
       // Add a child to a random vertex in the tree.
-      tree.AddChild(r.nextInt(i));
+      g.AddChild(r.nextInt(i));
       nameArr.InsertNextValue("" + i);
     }
-    tree.GetVertexData().AddArray(nameArr);
+    g.GetVertexData().AddArray(nameArr);
     
+    vtkTree tree = new vtkTree();
+    tree.ShallowCopy(g);
     levels.SetInput(tree);
 
     // Create the selection link.
