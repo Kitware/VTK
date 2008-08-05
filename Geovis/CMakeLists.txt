@@ -29,7 +29,6 @@ SET( Kit_SRCS
   vtkGeoTerrain.cxx
   vtkGeoTerrainGlobeSource.cxx
   vtkGeoTerrainNode.cxx
-  vtkGeoTerrainRemoteSource.cxx
   vtkGeoTerrainSource.cxx
   vtkGeoView.cxx
   vtkGlobeSource.cxx
