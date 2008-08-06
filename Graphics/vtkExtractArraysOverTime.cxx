@@ -534,7 +534,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.22");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.23");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
@@ -1029,7 +1029,7 @@ static bool vtkUpdateFastPathIDsInternal(
     return true;
     }
 
-  unsigned int composite_index = -1;
+  unsigned int composite_index = 0;
   if (selProperties->Has(vtkSelection::COMPOSITE_INDEX()))
     {
     composite_index = static_cast<unsigned int>(
