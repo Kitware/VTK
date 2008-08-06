@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.23");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.24");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -453,8 +453,6 @@ int vtkPExodusIIReader::RequestData(
   // our append object that puts the 'pieces' together
   unsigned int numMyFiles = max - min + 1;
 
-  int totalCells = 0;
-  int totalPoints = 0;
   vtkSmartPointer<vtkAppendCompositeDataLeaves> append =
     vtkSmartPointer<vtkAppendCompositeDataLeaves>::New();
   append->AppendFieldDataOn();
@@ -642,46 +640,15 @@ int vtkPExodusIIReader::RequestData(
       const char *idType = outInfo->Get(
             vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() );
 
-      // If the id is a VTK index, check whether it resides in this file,
-      // if not, set objectId to -1. The reason we pass the keys to the reader
-      // either way is to make sure the sub-reader gets re-executed. Because 
-      // even if the id doesn't belong to the file, the
-      // previous id from the previous fast-path request may have and we want
-      // to make sure that its output field data does not include old temporal
-      // arrays.
-      if ( strcmp( idType, "INDEX" ) == 0 )
-        {
-        if ( strcmp( objectType, "POINT" ) == 0 )
-          {
-          if (
-            objectId < totalPoints || 
-            objectId >= totalPoints + this->NumberOfPointsPerFile[reader_idx] )
-            {
-            objectId = -1;
-            }
-          else
-            {
-            objectId = objectId - totalPoints;
-            }
-          }
-        else if ( strcmp( objectType, "CELL" ) == 0 )
-          {
-          if (
-            objectId < totalCells || 
-            objectId >= totalCells + this->NumberOfCellsPerFile[reader_idx] )
-            {
-            objectId = -1;
-            }
-          else
-            {
-            objectId = objectId - totalCells;
-            }
-          }
-        }
-
       this->ReaderList[reader_idx]->SetFastPathObjectType( objectType );
       this->ReaderList[reader_idx]->SetFastPathObjectId( objectId );
       this->ReaderList[reader_idx]->SetFastPathIdType( idType );
+      }
+    else
+      {
+      this->ReaderList[reader_idx]->SetFastPathObjectType("CELL");
+      this->ReaderList[reader_idx]->SetFastPathObjectId(-1);
+      this->ReaderList[reader_idx]->SetFastPathIdType(0);
       }
 
     this->ReaderList[reader_idx]->Update();

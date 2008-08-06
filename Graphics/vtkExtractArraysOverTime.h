@@ -92,8 +92,8 @@ protected:
   // Description:
   // This method doesn't care about the content type of the selection, 
   // just grabs the value. 
-  vtkIdType GetSelectedId( vtkInformationVector** inputV, 
-                         vtkInformation* outInfo);
+  bool UpdateFastPathIDs(
+    vtkInformationVector** inputV, vtkInformation* outInfo);
 
   // Description:
   // This looks at the arrays in the vtkFieldData of input and copies those
@@ -113,7 +113,6 @@ protected:
   bool WaitingForFastPathData;
   bool IsExecuting;
   bool UseFastPath;
-  vtkIdType SelectedId;
 
   int Error;
 

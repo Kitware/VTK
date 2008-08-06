@@ -363,7 +363,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.67");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.68");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -1261,18 +1261,11 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
 }
 
 //-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::AssembleArraysOverTime(
-  int otyp, BlockSetInfoType* bsinfop, vtkDataObject* output )
+int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* output )
 {
   if ( this->FastPathObjectId < 0 )
     {
     // No downstream filter has requested temporal data from this reader.
-    return 0;
-    }
-
-  if ( this->FastPathObjectType != otyp )
-    {
-    // Request is not for this block.
     return 0;
     }
 
@@ -1285,26 +1278,7 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(
 
   // We need to get the internal id used by the exodus file from either the 
   // VTK index, or from the global id
-  if ( ! strcmp( this->FastPathIdType, "INDEX" ) )
-    {
-    // map the "used" index to the "original" index
-    if ( this->FastPathObjectType == vtkExodusIIReader::NODAL )
-      {
-      if ( this->SqueezePoints )
-        {
-        internalExodusId = bsinfop->ReversePointMap[this->FastPathObjectId];
-        }
-      else
-        {
-        internalExodusId = this->FastPathObjectId + 1;
-        }
-      }
-    else
-      {
-      internalExodusId = bsinfop->FileOffset + this->FastPathObjectId;
-      }
-    }
-  else if( strcmp( this->FastPathIdType, "GLOBAL" ) )
+  if (strcmp( this->FastPathIdType, "GLOBAL" )  == 0)
     {
     vtkExodusIICacheKey globalIdMapKey;
     switch ( this->FastPathObjectType )
@@ -1324,36 +1298,32 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(
 
     vtkIdTypeArray* globalIdMap = vtkIdTypeArray::SafeDownCast(
       this->GetCacheOrRead( globalIdMapKey ) );
-    if ( ! globalIdMap )
+    if (!globalIdMap)
       {
       return 0;
       }
 
-    for ( vtkIdType j = 0; j < globalIdMap->GetNumberOfTuples(); ++j )
+    vtkIdType index = globalIdMap->LookupValue(this->FastPathObjectId);
+    if (index >= 0)
       {
-      if ( globalIdMap->GetValue( j ) == this->FastPathObjectId )
-        {
-        // exodus ids are 1-based:
-        internalExodusId = j + 1;
-        break;
-        }
+      internalExodusId = index + 1;
       }
     }
 
   // This will happen if the data does not reside in this file
-  if ( internalExodusId < 0 )
+  if (internalExodusId < 0)
     {
     //vtkWarningMacro( "Unable to map id to internal exodus id." );
     return 0;
     }
 
-  for (
-    ai = this->ArrayInfo[ this->FastPathObjectType ].begin();
-    ai != this->ArrayInfo[ this->FastPathObjectType ].end();
-    ++ai, ++aidx )
+  for (ai = this->ArrayInfo[this->FastPathObjectType].begin();
+    ai != this->ArrayInfo[this->FastPathObjectType].end(); ++ai, ++aidx)
     {
-    if ( ! ai->Status )
+    if (! ai->Status)
+      {
       continue; // Skip arrays we don't want.
+      }
 
     // If this array isn't defined over the block that the element resides in,
     // skip. Right now this is only done when the fast-path id type is "INDEX".
@@ -1377,7 +1347,6 @@ int vtkExodusIIReaderPrivate::AssembleArraysOverTime(
       status = 0;
       continue;
       }
-
     ofd->AddArray(temporalData);
     }
 
@@ -4589,15 +4558,13 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
       // and thus must be subset for the unstructured grid of interest.
       this->AssembleOutputPointMaps( timeStep, bsinfop, ug );
       this->AssembleOutputCellMaps( timeStep, otyp, obj, bsinfop, ug );
-
-      // Pack temporal data onto output field data arrays if fast path.
-      // option is available:
-      this->AssembleArraysOverTime( otyp, bsinfop, output);
-
       ++nbl;
       }
     }
 
+  // Pack temporal data onto output field data arrays if fast path.
+  // option is available:
+  this->AssembleArraysOverTime(output);
 
   // Finally, generate the decorations for edge and face fields.
   this->AssembleOutputEdgeDecorations();
@@ -5278,7 +5245,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.67");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.68");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);

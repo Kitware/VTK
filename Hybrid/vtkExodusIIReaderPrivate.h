@@ -562,8 +562,7 @@ protected:
     int otyp, int oidx, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output );
   /** Add fast-path time-varying data to field data of an output block or set.
     */
-  int AssembleArraysOverTime(
-    int otyp, BlockSetInfoType* bsinfop, vtkDataObject* output );
+  int AssembleArraysOverTime(vtkMultiBlockDataSet* output);
 
   // Generate the decorations for edge fields.
   void AssembleOutputEdgeDecorations();

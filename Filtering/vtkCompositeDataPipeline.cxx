@@ -81,7 +81,7 @@ PURPOSE.  See the above copyright notice for more information.
         !strcmp(name, "vtkTemporalStreamTracer")) \
       { \
 */
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.72");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.73");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
@@ -1026,6 +1026,11 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
     }
 
   if (this->NeedToExecuteBasedOnTime(outInfo, dataObject))
+    {
+    return 1;
+    }
+
+  if (this->NeedToExecuteBasedOnFastPathData(outInfo))
     {
     return 1;
     }
