@@ -1878,6 +1878,14 @@ void vtkPythonVoidFunc(void *arg)
   PyObject *arglist, *result;
   PyObject *func = (PyObject *)arg;
 
+  // Sometimes it is possible for the function to be invoked after
+  // Py_Finalize is called, this will cause nasty errors so we return if
+  // the interpreter is not initialized.
+  if (Py_IsInitialized() == 0)
+    {
+    return;
+    }
+
 #ifndef VTK_NO_PYTHON_THREADS
 #if (PY_MAJOR_VERSION > 2) || \
 ((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
@@ -1916,6 +1924,14 @@ void vtkPythonVoidFunc(void *arg)
 void vtkPythonVoidFuncArgDelete(void *arg)
 {
   PyObject *func = (PyObject *)arg;
+
+  // Sometimes it is possible for the function to be invoked after
+  // Py_Finalize is called, this will cause nasty errors so we return if
+  // the interpreter is not initialized.
+  if (Py_IsInitialized() == 0)
+    {
+    return;
+    }
 
 #ifndef VTK_NO_PYTHON_THREADS
 #if (PY_MAJOR_VERSION > 2) || \

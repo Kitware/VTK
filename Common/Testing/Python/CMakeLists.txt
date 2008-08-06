@@ -7,6 +7,7 @@ IF (VTK_PYTHON_EXE)
       TestWeakref
       TestNumpySupport
       TestTerminationCrash
+      TestExecuteMethodFinalizeCrash
       )
     ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
       ${VTK_SOURCE_DIR}/Common/Testing/Python/${tfile}.py)
