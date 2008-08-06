@@ -260,6 +260,14 @@ protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
 
+  // Description:
+  // Called before RequestUpdateExtent() pass on the algorithm. Here we remove
+  // all update-related keys from the input information.
+  // Currently this only removes the fast-path related keys.
+  virtual void ResetUpdateInformation(vtkInformation* request,
+    vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec);
+
   // Keep track of the update time request corresponding to the
   // previous executing. If the previous update request did not
   // correspond to an existing time step and the reader chose 

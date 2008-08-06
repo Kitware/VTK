@@ -534,7 +534,7 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
 }
 
 //****************************************************************************
-vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.21");
+vtkCxxRevisionMacro(vtkExtractArraysOverTime, "1.22");
 vtkStandardNewMacro(vtkExtractArraysOverTime);
 //----------------------------------------------------------------------------
 vtkExtractArraysOverTime::vtkExtractArraysOverTime()
@@ -680,12 +680,6 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
     inInfo1->Set(vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE(),
       "GLOBAL");
     this->WaitingForFastPathData = true;
-    }
-  else
-    {
-    inInfo1->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
-    inInfo1->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
-    inInfo1->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
     }
 
   /* Again, extent related stuff is no longer relevant since we are not

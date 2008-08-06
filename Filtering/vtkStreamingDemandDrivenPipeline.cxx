@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.57");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.58");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -137,6 +137,9 @@ int vtkStreamingDemandDrivenPipeline
         {
         return 0;
         }
+
+      // Remove update-related keys from the input information.
+      this->ResetUpdateInformation(request, inInfoVec, outInfoVec);
 
       // Invoke the request on the algorithm.
       this->LastPropogateUpdateExtentShortCircuited = 0;
@@ -1762,4 +1765,28 @@ double vtkStreamingDemandDrivenPipeline::ComputePriority(int port)
     }
 
   return priority;
+}
+
+//----------------------------------------------------------------------------
+void vtkStreamingDemandDrivenPipeline::ResetUpdateInformation(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inInfoVec,
+  vtkInformationVector* vtkNotUsed(outInfoVec))
+{
+  int num_ports = this->GetNumberOfInputPorts();
+
+  for (int cc=0; cc < num_ports; cc++)
+    {
+    int num_conns = inInfoVec[cc]->GetNumberOfInformationObjects();
+    for (int kk=0; kk < num_conns; kk++)
+      {
+      vtkInformation* inInfo = inInfoVec[cc]->GetInformationObject(kk);
+      if (inInfo)
+        {
+        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID());
+        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE());
+        inInfo->Remove(vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE());
+        }
+      }
+    }
 }
