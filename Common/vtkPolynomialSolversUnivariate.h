@@ -84,8 +84,13 @@ public:
   // ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
   // array is large enough to contain the maximal number of expected upper bounds.
   static int HabichtBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol );
+  static int HabichtBisectionSolve(
     double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType = 0, bool divideGCD = false );
+    int intervalType );
+  static int HabichtBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol,
+    int intervalType, bool divideGCD );
 
   // Description:
   // Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial 
@@ -115,8 +120,13 @@ public:
   // ]\a a[0] ; \a a[1]] since roots within \tol are lumped in the same bracket.
   // array is large enough to contain the maximal number of expected upper bounds.
   static int SturmBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol );
+  static int SturmBisectionSolve(
     double* P, int d, double* a, double* upperBnds, double tol,
-    int intervalType = 0, bool divideGCD = false );
+    int intervalType );
+  static int SturmBisectionSolve(
+    double* P, int d, double* a, double* upperBnds, double tol,
+    int intervalType, bool divideGCD );
 
   // Description:
   // This uses the derivative sequence to filter possible roots of a polynomial.

@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.3");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.4");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -475,13 +475,13 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
   int offset = dp1;
 
   // Set the first two elements SSS = {P, P'}.
-  for(int m = 0; m < d; m++)
+  for ( int m = 0; m < d; ++ m )
     {
     SSS[m] = P[m];
-    SSS[m+offset] = static_cast<double>(d-m)*P[m];
+    SSS[m + offset] = static_cast<double>( d - m ) * P[m];
     }
   SSS[d] = P[d];
-  if( P[0] > 0. )
+  if ( P[0] > 0. )
     {
     t[0] = s[0] = 1.;
     }
@@ -496,10 +496,10 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
   int k = 0;
 
   int deg = d;
-  int degree = d-1;
+  int degree = d - 1;
   int jp1 = 1;
   int ip1 = 0;
-  while(degree > 0)
+  while ( degree > 0 )
     {
     k = deg - degree;
     if ( k == jp1 )
@@ -1198,10 +1198,24 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
 // 1 = 10 = [a,b[
 // 2 = 01 = ]a,b]
 // 3 = 11 = [a,b]
-int vtkPolynomialSolversUnivariate::HabichtBisectionSolve( double* P, int d, double* a, 
-  double* upperBnds, double tol, int intervalType, bool divideGCD )
+int vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
+  double* P, int d, double* a, double* upperBnds, double tol )
 {
-  return vtkHabichtOrSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, divideGCD?1:0, 1);
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, 0, 0, 1 );
+}
+
+int vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
+  double* P, int d, double* a, double* upperBnds, double tol,
+  int intervalType )
+{
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, intervalType, 0, 1 );
+}
+
+int vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
+  double* P, int d, double* a, double* upperBnds, double tol,
+  int intervalType, bool divideGCD )
+{
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, intervalType, divideGCD ? 1 : 0, 1 );
 }
 
 //----------------------------------------------------------------------------
@@ -1212,10 +1226,24 @@ int vtkPolynomialSolversUnivariate::HabichtBisectionSolve( double* P, int d, dou
 // 1 = 10 = [a,b[
 // 2 = 01 = ]a,b]
 // 3 = 11 = [a,b]
-int vtkPolynomialSolversUnivariate::SturmBisectionSolve( double* P, int d, double* a, 
-  double *upperBnds, double tol, int intervalType, bool divideGCD )
+int vtkPolynomialSolversUnivariate::SturmBisectionSolve(
+  double* P, int d, double* a, double *upperBnds, double tol )
 {
-  return vtkHabichtOrSturmBisectionSolve(P, d, a, upperBnds, tol, intervalType, divideGCD?1:0, 0);
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, 0, 0, 0 );
+}
+
+int vtkPolynomialSolversUnivariate::SturmBisectionSolve(
+  double* P, int d, double* a, double *upperBnds, double tol,
+  int intervalType )
+{
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, intervalType, 0, 0 );
+}
+
+int vtkPolynomialSolversUnivariate::SturmBisectionSolve(
+  double* P, int d, double* a, double *upperBnds, double tol,
+  int intervalType, bool divideGCD )
+{
+  return vtkHabichtOrSturmBisectionSolve( P, d, a, upperBnds, tol, intervalType, divideGCD ? 1 : 0, 0 );
 }
 
 // Assume that dP = {f} and p is the degree of f.
