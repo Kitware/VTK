@@ -192,7 +192,9 @@ public:
   // for the newly-created edge. The values in propertyArr must match
   // up with the arrays in the edge data returned by GetEdgeData.
   vtkIdType AddChild(vtkIdType parent,
-                     vtkVariantArray *propertyArr = 0);
+                     vtkVariantArray *propertyArr);
+  vtkIdType AddChild(vtkIdType parent)
+    { return this->AddChild(parent, 0); }
 
 protected:
   vtkMutableDirectedGraph();
