@@ -39,8 +39,8 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int errors = 0;
   
   // Create input graph
-  vtkIdType numVert = 1000;
-  vtkIdType numEdges = 2000;
+  vtkIdType numVert = 100;
+  vtkIdType numEdges = 150;
   VTK_CREATE(vtkRandomGraphSource, source);
   source->SetNumberOfVertices(numVert);
   source->SetNumberOfEdges(numEdges);

@@ -90,7 +90,7 @@ public:
   // Description:
   // Turn on/off layout of graph in three dimensions. If off, graph
   // layout occurs in two dimensions. By default, three dimensional
-  // layout is on.
+  // layout is off.
   vtkSetMacro(ThreeDimensionalLayout, int);
   vtkGetMacro(ThreeDimensionalLayout, int);
   vtkBooleanMacro(ThreeDimensionalLayout, int);

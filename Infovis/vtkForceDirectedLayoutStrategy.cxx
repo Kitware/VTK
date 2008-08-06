@@ -35,7 +35,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkForceDirectedLayoutStrategy, "1.9");
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
 vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
@@ -49,7 +49,7 @@ vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
   this->CoolDownRate = 10.0;
   this->LayoutComplete = 0;
   this->AutomaticBoundsComputation = false;
-  this->ThreeDimensionalLayout = true;
+  this->ThreeDimensionalLayout = false;
   this->RandomInitialPoints = true;
   this->v = NULL;
   this->e = NULL;
