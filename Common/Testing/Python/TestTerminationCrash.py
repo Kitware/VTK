@@ -29,5 +29,5 @@ class TerminationCrashTestCase:
     def Handler(self, obj, evt) :
         print 'event received'
 
-test = TernminationCrashTestCase() 
+test = TerminationCrashTestCase() 
 
