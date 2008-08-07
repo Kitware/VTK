@@ -48,7 +48,14 @@ public:
   // If non-null, propertyArr provides properties that will be attached
   // to this vertex. The values in propertyArr must match up with the
   // arrays in the vertex data retrieved by GetVertexData.
-  vtkIdType AddVertex(vtkVariantArray *propertyArr = 0);
+  vtkIdType AddVertex();
+  
+  // Description:
+  // Adds a new vertex to the graph and returns the id of that vertex.
+  // If non-null, propertyArr provides properties that will be attached
+  // to this vertex. The values in propertyArr must match up with the
+  // arrays in the vertex data retrieved by GetVertexData.
+  vtkIdType AddVertex(vtkVariantArray *propertyArr);
 
   //BTX
   // Description:
@@ -64,8 +71,16 @@ public:
   // provides edge properties for the newly-created edge. The values
   // in propertyArr must match up with the arrays in the edge data
   // returned by GetEdgeData.
+  vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
+  
+  // Description:
+  // Adds an undirected edge from u to v to the graph and returns a
+  // vtkEdgeType structure for that edge. If provided, propertyArr
+  // provides edge properties for the newly-created edge. The values
+  // in propertyArr must match up with the arrays in the edge data
+  // returned by GetEdgeData.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v, 
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr);
   
   //BTX
   // Description:
@@ -106,7 +121,14 @@ public:
   // If non-null, propertyArr provides properties that will be attached
   // to this vertex. The values in propertyArr must match up with the
   // arrays in the vertex data retrieved by GetVertexData.
-  void LazyAddVertex(vtkVariantArray *propertyArr = 0);
+  void LazyAddVertex();
+  
+  // Description:
+  // Adds a vertex to the graph, and returns the id of that vertex.
+  // If non-null, propertyArr provides properties that will be attached
+  // to this vertex. The values in propertyArr must match up with the
+  // arrays in the vertex data retrieved by GetVertexData.
+  void LazyAddVertex(vtkVariantArray *propertyArr);
 
   //BTX
   // Description:
@@ -124,7 +146,17 @@ public:
   // provides edge properties for the newly-created edge. The values
   // in propertyArr must match up with the arrays in the edge data
   // returned by GetEdgeData.
-  void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr = 0);
+  void LazyAddEdge(vtkIdType u, vtkIdType v);
+  
+  // Description:
+  // Adds an undirected edge from u to v to the graph. The edge may not
+  // be added immediately, which provides more optimization
+  // opportunities for distributed graphs; consequently, the edge
+  // itself is not actually returned. If provided, propertyArr
+  // provides edge properties for the newly-created edge. The values
+  // in propertyArr must match up with the arrays in the edge data
+  // returned by GetEdgeData.
+  void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr);
 
   //BTX  
   // Description:
