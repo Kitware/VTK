@@ -33,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.8");
+vtkCxxRevisionMacro(vtkSliderRepresentation2D, "1.9");
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
 //----------------------------------------------------------------------
@@ -365,6 +365,14 @@ void vtkSliderRepresentation2D::BuildRepresentation()
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
+    int *size = this->Renderer->GetSize();
+    if (0 == size[0] || 0 == size[1])
+      {
+      // Renderer has no size yet: wait until the next
+      // BuildRepresentation...
+      return;
+      }
+
     double t = (this->Value-this->MinimumValue) / (this->MaximumValue-this->MinimumValue);
 
     // Setup the geometry of the widget (canonical along the x-axis).
@@ -376,10 +384,9 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     double delY = static_cast<double>(p2[1]-p1[1]);
     double length = sqrt ( delX*delX + delY*delY );
     length = (length <= 0.0 ? 1.0 : length);
-    int *size = this->Renderer->GetSize();
     this->X = 0.5 * (length/size[0]);
     double theta = atan2(delY,delX);
-    
+
     // Generate the points
     double x[6], y[6];
     x[0] = -this->X;
