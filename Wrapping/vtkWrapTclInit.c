@@ -136,6 +136,14 @@ static void CreateInitFile(const char *libName,
     fprintf(fout,"  Tcl_CreateCommand(interp,(char *)(\"vtkCommand\"),\n"
       "                    reinterpret_cast<vtkTclCommandType>(vtkCreateCommand),\n"
       "                    static_cast<ClientData *>(NULL), NULL);\n\n");
+
+    /*
+     * Set the default precision of tcl to match the legacy vtk default
+     * precsion.  Wrapped code will use the tcl_precision variable to
+     * define the output resolution for converting doubles to strings
+     */
+    fprintf(fout,
+            "  Tcl_SetVar2(interp, \"tcl_precision\", (char *) NULL, \"6\", TCL_GLOBAL_ONLY);\n");
     }
 
   for (i = 0; i < numCommands; i++)

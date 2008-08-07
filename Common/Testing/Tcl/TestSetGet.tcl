@@ -55,9 +55,29 @@ proc TestOne {cname} {
          }
       }
    }
-   # Test the PrintRevisions method.
-   b PrintRevisions
-   b Delete
+  puts "Testing DescribeMethods Class $cname"
+  # $object DescribeMethods with no arguments returns a list of methods for the object.
+  # $object DescribeMethods <MethodName> returns a list containing the following:
+  # MethodName {arglist} {description} {c++ signature} DefiningSuperclass
+  set Methods [b DescribeMethods]
+  # Find the Get methods
+  foreach GetMethod [lsearch -inline -all -glob $Methods Get*] {
+    # See how many arguments it requires, and only test get methods with 0 arguments
+    if { [llength [lindex [b DescribeMethods $GetMethod] 1]] > 0 } { continue }
+    # check the exceptions list
+    if {[lsearch $exceptions "$cname-$GetMethod"] != -1} { continue }
+    puts "  Invoking $GetMethod"
+    set tmp [b $GetMethod]
+    set SetMethodSearch Set[string range $GetMethod 3 end]
+    foreach SetMethod [lsearch -inline -all $Methods $SetMethodSearch] {
+      puts "    Invoking $SetMethod"
+      catch { eval b $SetMethod $tmp }
+      catch { b $SetMethod $tmp }
+    }
+  }
+  # Test the PrintRevisions method.
+  b PrintRevisions
+  b Delete
 }
 
 set classExceptions {

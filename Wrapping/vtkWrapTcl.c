@@ -13,7 +13,9 @@
 
 =========================================================================*/
 
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "vtkParse.h"
 #include "vtkConfigure.h"
@@ -22,6 +24,81 @@ int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
 extern FunctionInfo *currentFunction;
 
+/* convert special characters in a string into their escape codes,
+   so that the string can be quoted in a source file (the specified
+   maxlen must be at least 32 chars)*/
+static const char *quote_string(const char *comment, int maxlen)
+{
+  static char *result = 0;
+  static int oldmaxlen = 0;
+  int i, j, n;
+
+  if (maxlen > oldmaxlen)
+    {
+    if (result)
+      {
+      free(result);
+      }
+    result = (char *)malloc(maxlen);
+    oldmaxlen = maxlen;
+    }
+
+  if (comment == NULL)
+    {
+    return "";
+    }
+
+  j = 0;
+
+  n = (int)strlen(comment);
+  for (i = 0; i < n; i++)
+    {
+    if (comment[i] == '\"')
+      {
+      strcpy(&result[j],"\\\"");
+      j += 2;
+      }
+    else if (comment[i] == '\\')
+      {
+      strcpy(&result[j],"\\\\");
+      j += 2;
+      }
+    else if (comment[i] == ']')
+      {
+      strcpy(&result[j],"\\\\]");
+      j += 3;
+      }
+    else if (comment[i] == '[')
+      {
+      strcpy(&result[j],"\\\\[");
+      j += 3;
+      }
+    else if (comment[i] == '\n')
+      {
+      strcpy(&result[j],"\\n");
+      j += 2;
+      }      
+    else if (isprint(comment[i]))
+      {
+      result[j] = comment[i];
+      j++;
+      }
+    else
+      {
+      sprintf(&result[j],"\\%3.3o",comment[i]);
+      j += 4;
+      }
+    if (j >= maxlen - 21)
+      {      
+      sprintf(&result[j]," ...\\n [Truncated]\\n");
+      j += (int)strlen(" ...\\n [Truncated]\\n");
+      break;
+      }
+    }
+  result[j] = '\0';
+
+  return result;
+}
 
 void output_temp(FILE *fp, int i, int aType, char *Id, int count)
 {
@@ -103,16 +180,26 @@ void use_hints(FILE *fp)
   fprintf(fp,INDENT "if(temp%i)\n",MAX_ARGS);
   fprintf(fp,INDENT "  {\n");
   fprintf(fp,INDENT "  char tempResult[1024];\n");
+  fprintf(fp,INDENT "  *tempResult = '\\0';\n");
 
-  fprintf(fp,INDENT "  sprintf(tempResult,\"");
+  /* special case for double: use Tcl_PrintDouble to control precision */
+  if (currentFunction->ReturnType % 0x1000 != 0x301
+       && currentFunction->ReturnType % 0x1000 != 0x307 )
+    {
+    fprintf(fp,INDENT "  sprintf(tempResult,\"");
+    }
 
   /* use the hint */
   switch (currentFunction->ReturnType % 0x1000)
     {
     case 0x301: case 0x307:  
+      fprintf(fp,INDENT "  char converted[1024];\n");
+      fprintf(fp,INDENT "  *converted = '\\0';\n");
       for (i = 0; i < currentFunction->HintSize; i++)
         {
-        fprintf(fp,"%%g ");
+        fprintf(fp,INDENT "  Tcl_PrintDouble(interp,temp%i[%i], converted);\n",MAX_ARGS,i);
+        fprintf(fp,INDENT "  strcat(tempResult, \" \");\n");
+        fprintf(fp,INDENT "  strcat(tempResult, converted);\n");
         }
       break;
 
@@ -212,12 +299,16 @@ void use_hints(FILE *fp)
       break;
     }
 
-  fprintf(fp,"\"");
-  for (i = 0; i < currentFunction->HintSize; i++)
+  if (currentFunction->ReturnType % 0x1000 != 0x301
+       && currentFunction->ReturnType % 0x1000 != 0x307 )
     {
-    fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+    fprintf(fp,"\"");
+    for (i = 0; i < currentFunction->HintSize; i++)
+      {
+      fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+      }
+    fprintf(fp,");\n");
     }
-  fprintf(fp,");\n");
 
   fprintf(fp,INDENT "  Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
   fprintf(fp,INDENT "  }\n");
@@ -238,7 +329,11 @@ void return_result(FILE *fp)
       break;
     case 0x1: case 0x7: 
       fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"%%g\",temp%i);\n",
+       /*
+        * use tcl's print double function to support variable
+        * precision at runtime
+        */
+      fprintf(fp,"    Tcl_PrintDouble(interp,temp%i,tempResult);\n",
               MAX_ARGS); 
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
@@ -673,7 +768,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 /* print the parsed structures */
 void vtkParseOutput(FILE *fp, FileInfo *data)
 {
-  int i,j;
+  int i,j,k;
   
   fprintf(fp,"// tcl wrapper for %s object\n//\n",data->ClassName);
   fprintf(fp,"#define VTK_WRAPPING_CXX\n");
@@ -829,6 +924,172 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   fprintf(fp,"    return TCL_OK;\n    }\n");
   
+  /* add the DescribeMethods method */
+  fprintf(fp,"\n  if (!strcmp(\"DescribeMethods\",argv[1]))\n    {\n");
+  fprintf(fp,"    if(argc>3) {\n" );
+  fprintf(fp,"      Tcl_SetResult ( interp, \"Wrong number of arguments: object DescribeMethods <MethodName>\", TCL_VOLATILE ); \n" );
+  fprintf(fp,"      return TCL_ERROR;\n }\n" );
+  
+  fprintf(fp,"    if(argc==2) {\n" );
+  // Return a list of methods
+  fprintf(fp,"\n  Tcl_DString dString, dStringParent;\n");
+  fprintf(fp,"\n  Tcl_DStringInit ( &dString );\n" );
+  fprintf(fp,"\n  Tcl_DStringInit ( &dStringParent );\n" );
+  /* recurse up the tree */
+  for (i = 0; i < data->NumberOfSuperClasses; i++)
+    {
+    fprintf(fp,"    %sCppCommand(op,interp,argc,argv);\n",
+            data->SuperClasses[i]);
+    /* append the result to our string */
+    fprintf(fp,"    Tcl_DStringGetResult ( interp, &dStringParent );\n" );
+    fprintf(fp,"    Tcl_DStringAppend ( &dString, Tcl_DStringValue ( &dStringParent ), -1 );\n" );
+    }
+  for (k = 0; k < numberOfWrappedFunctions; k++)
+    {
+      int numArgs = 0;
+      currentFunction = wrappedFunctions[k];
+      if(currentFunction->IsLegacy)
+        {
+          fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
+      fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", currentFunction->Name );
+     if(currentFunction->IsLegacy)
+        {
+          fprintf(fp,"#endif\n");
+        }
+    }
+  fprintf(fp,"  Tcl_DStringResult ( interp, &dString );\n" );
+  fprintf(fp,"  Tcl_DStringFree ( &dString );\n" );
+  fprintf(fp,"  Tcl_DStringFree ( &dStringParent );\n" );
+  fprintf(fp,"    return TCL_OK;\n    }\n");
+
+  /* Now handle if we are asked for a specific function */
+  fprintf(fp,"    if(argc==3) {\n" );
+  fprintf(fp,"      Tcl_DString dString;\n");
+  if (data->NumberOfSuperClasses > 0)
+  {
+    fprintf(fp,"      int SuperClassStatus;\n" );
+  }
+  /* recurse up the tree */
+  for (i = 0; i < data->NumberOfSuperClasses; i++)
+    {
+    fprintf(fp,"    SuperClassStatus = %sCppCommand(op,interp,argc,argv);\n",
+            data->SuperClasses[i]);
+    fprintf(fp,"    if ( SuperClassStatus == TCL_OK ) { return TCL_OK; }\n" );
+    }
+  // Now we handle it ourselves
+  for (k = 0; k < numberOfWrappedFunctions; k++)
+    {
+      int numArgs = 0;
+      currentFunction = wrappedFunctions[k];
+      if(currentFunction->IsLegacy)
+        {
+          fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
+        }
+      fprintf(fp,"    /* Starting function: %s */\n", currentFunction->Name );
+      fprintf(fp,"    if ( strcmp ( argv[2], \"%s\" ) == 0 ) {\n", currentFunction->Name );
+      fprintf(fp,"    Tcl_DStringInit ( &dString );\n" );
+      
+      fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", currentFunction->Name );
+      
+      /* calc the total required args */
+      fprintf(fp,"    /* Arguments */\n" );
+      fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
+      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+        {
+          int argtype;
+          if (currentFunction->ArgTypes[i] == 0x5000)
+            {
+              fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"function\" );\n" );
+              continue;
+            }
+          
+          argtype = currentFunction->ArgTypes[i] % 0x1000;
+          switch (argtype)
+            {
+            case 0x301:
+            case 0x307:
+              /* Vector */
+              fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
+              for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+                {
+                  fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"float\" );\n" );
+                }
+              fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
+              break;
+            case 0x304:
+              /* Vector */
+              fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
+              for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+                {
+                  fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"int\" );\n" );
+                }
+              fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
+              break;
+            case 0x30A:
+              /* Vector */
+              fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
+              for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+                {
+                  fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"int\" );\n" );
+                }
+              fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
+              break;
+            case 0x30B: case 0x30C:
+              /* Vector */
+              fprintf(fp,"    Tcl_DStringStartSublist ( &dString );\n" );
+              for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+                {
+                  fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"int\" );\n" );
+                }
+              fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
+              break;
+            case 0x109:
+            case 0x309: fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", currentFunction->ArgClasses[i] ); break;
+            case 0x302:
+            case 0x303: fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"string\" );\n" ); break;
+            case 0x1:
+            case 0x7:   fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"float\" );\n" ); break;
+            case 0xD:
+            case 0xA:
+            case 0x1B:
+            case 0xB:
+            case 0x1C:
+            case 0xC:
+            case 0x14:
+            case 0x4:
+            case 0x15:
+            case 0x5:
+            case 0x16:
+            case 0x6:   fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"int\" );\n" ); break;
+            case 0x3:   fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"char\" );\n" ); break;
+            case 0x13:  fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"int\" );\n" ); break;
+            case 0xE:   fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"bool\" );\n" ); break;
+            }
+        }
+      fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
+     if(currentFunction->IsLegacy)
+        {
+          fprintf(fp,"#endif\n");
+        }
+
+     /* Documentation */
+     fprintf(fp,"    /* Documentation for %s */\n", currentFunction->Name );
+     fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( currentFunction->Comment, 500 ) );
+     fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( currentFunction->Signature, 500 ) );
+     fprintf(fp,"    Tcl_DStringAppendElement ( &dString, \"%s\" );\n", quote_string ( data->ClassName, 500 ) );
+     fprintf(fp,"    /* Closing for %s */\n\n", currentFunction->Name );
+     fprintf(fp,"    Tcl_DStringResult ( interp, &dString );\n" );
+     fprintf(fp,"    Tcl_DStringFree ( &dString );\n" );
+     fprintf(fp,"    return TCL_OK;\n    }\n");
+    }
+  /* Didn't find anything, return an error */
+  fprintf(fp,"   Tcl_SetResult ( interp, \"Could not find method\", TCL_VOLATILE ); \n" );
+  fprintf(fp,"   return TCL_ERROR;\n" );
+  fprintf(fp,"   }\n" );
+  fprintf(fp," }\n" );
+  
+
   /* try superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
@@ -836,6 +1097,16 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->SuperClasses[i], data->SuperClasses[i]);
     fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
     }
+
+
+  /* try superclasses */
+  for (i = 0; i < data->NumberOfSuperClasses; i++)
+    {
+    fprintf(fp,"\n  if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n",
+            data->SuperClasses[i], data->SuperClasses[i]);
+    fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
+    }
+
   
   /* Add the Print method to vtkObjectBase. */
   if (!strcmp("vtkObjectBase",data->ClassName))
