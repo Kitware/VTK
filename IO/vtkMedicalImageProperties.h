@@ -68,8 +68,9 @@ public:
 
   // For Tcl:
   // From C++ use GetPatientAge + GetAgeAsField
-  // Those function parse a DICOM string, and return the value of the number expressed
-  // this is either expressed in year, month or days. Thus if a string is expressed in years
+  // Those function parse a DICOM string, and return the value of the number
+  // expressed this is either expressed in year, month or days. Thus if a
+  // string is expressed in years 
   // GetPatientAgeDay/GetPatientAgeWeek/GetPatientAgeMonth will return 0 
   int GetPatientAgeYear();
   int GetPatientAgeMonth();
@@ -328,8 +329,9 @@ public:
 
   // Description: 
   // Mapping from a sliceidx within a volumeidx into a DICOM Instance UID
-  // Some DICOM reader can populate this structure so that later on from a slice index
-  // in a vtkImageData volume we can backtrack and find out which 2d slice it was coming from
+  // Some DICOM reader can populate this structure so that later on from 
+  // a slice index in a vtkImageData volume we can backtrack and find out
+  // which 2d slice it was coming from
   const char *GetInstanceUIDFromSliceID(int volumeidx, int sliceid);
   void SetInstanceUIDFromSliceID(int volumeidx, int sliceid, const char *uid);
   
@@ -338,16 +340,21 @@ public:
   // not found.
   int GetSliceIDFromInstanceUID(int &volumeidx, const char *uid);
 
-//BTX
+  //BTX
   typedef enum {
     AXIAL = 0,
     CORONAL,
     SAGITTAL
   } OrientationType;
-//ETX
+  //ETX
   int GetOrientationType(int volumeidx);
   void SetOrientationType(int volumeidx, int orientation);
   static const char *GetStringFromOrientationType(unsigned int type);
+
+  // Description:
+  // Get the direction cosine (default to 1,0,0,0,1,0)
+  vtkSetVector6Macro(DirectionCosine,double);
+  vtkGetVector6Macro(DirectionCosine,double);
 
 protected:
   vtkMedicalImageProperties();
@@ -384,6 +391,7 @@ protected:
   char *StudyDescription;
   char *StudyID;
   char *XRayTubeCurrent;
+  double DirectionCosine[6];
 
   // Description:
   // PIMPL Encapsulation for STL containers

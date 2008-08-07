@@ -267,6 +267,13 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
   this->StudyDescription       = NULL;
   this->StudyID                = NULL;
   this->XRayTubeCurrent        = NULL;
+
+  this->DirectionCosine[0] = 1;
+  this->DirectionCosine[1] = 0;
+  this->DirectionCosine[2] = 0;
+  this->DirectionCosine[3] = 0;
+  this->DirectionCosine[4] = 1;
+  this->DirectionCosine[5] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -390,6 +397,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetStudyDescription(p->GetStudyDescription());
   this->SetStudyID(p->GetStudyID());
   this->SetXRayTubeCurrent(p->GetXRayTubeCurrent());
+  this->SetDirectionCosine(p->GetDirectionCosine());
 
   this->Internals->DeepCopy( p->Internals );
 }
@@ -1009,6 +1017,11 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->Exposure;
     }
+
+  os << indent << "Direction Cosine: (" << this->DirectionCosine[0] << ", " 
+     << this->DirectionCosine[1] << ", " << this->DirectionCosine[2] << "), ("
+     << this->DirectionCosine[3] << ", " << this->DirectionCosine[4] 
+     << ", " << this->DirectionCosine[5] << ")\n";
 
   this->Internals->Print(os << "\n", indent.GetNextIndent() );
 }
