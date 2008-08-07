@@ -36,7 +36,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.74");
+vtkCxxRevisionMacro(vtkImageReslice, "1.75");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1690,9 +1690,13 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
 
 //--------------------------------------------------------------------------
 // pixel copy function, templated for different scalar types
-template<class T>
-void vtkSetPixels(T *&outPtr, const T *inPtr, int numscalars, int n)
+template <class T>
+struct vtkImageResliceSetPixels
 {
+static void Set(void *&outPtrV, const void *inPtrV, int numscalars, int n)
+{
+  const T* inPtr = static_cast<const T*>(inPtrV);
+  T* outPtr = static_cast<T*>(outPtrV);
   for (int i = 0; i < n; i++)
     {
     const T *tmpPtr = inPtr;
@@ -1703,19 +1707,23 @@ void vtkSetPixels(T *&outPtr, const T *inPtr, int numscalars, int n)
       }
     while (--m);
     }
+  outPtrV = outPtr;
 }
 
 // optimized for 1 scalar components
-template<class T>
-void vtkSetPixels1(T *&outPtr, const T *inPtr,
+static void Set1(void *&outPtrV, const void *inPtrV,
                           int vtkNotUsed(numscalars), int n)
 {
+  const T* inPtr = static_cast<const T*>(inPtrV);
+  T* outPtr = static_cast<T*>(outPtrV);
   T val = *inPtr;
   for (int i = 0; i < n; i++)
     {
     *outPtr++ = val;
     }
+  outPtrV = outPtr;
 }
+};
 
 // get a pixel copy function that is appropriate for the data type
 void vtkGetSetPixelsFunc(vtkImageReslice *self,
@@ -1730,18 +1738,18 @@ void vtkGetSetPixelsFunc(vtkImageReslice *self,
     case 1:
       switch (dataType)
         {
-        vtkTemplateAliasMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-                                      int numscalars, int n))setpixels) = \
-                         vtkSetPixels1);
+        vtkTemplateAliasMacro(
+          *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set1
+          );
         default:
           setpixels = 0;
         }
     default:
       switch (dataType)
         {
-        vtkTemplateAliasMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-                                      int numscalars, int n))setpixels) = \
-                         vtkSetPixels);
+        vtkTemplateAliasMacro(
+          *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set
+          );
         default:
           setpixels = 0;
         }
