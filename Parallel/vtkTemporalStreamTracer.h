@@ -143,11 +143,17 @@ public:
     void SetSource2Connection(vtkAlgorithmOutput* algOutput);
 
     // Description:
+    // The Particle tracers accept seed points from multiple sources. When
+    // EnableSourceX is On, the seeds from that source are injected at each
+    // reinjection time. Particles from each source are tagged with an
+    // identifier that allows them to be processed separately after the
+    // animation/simulation has completed. The EnableSourceX methods are now
+    // obsolete as the particle tracer accepts multiple inputs on both the
+    // data and seedpoint ports. The methods are slated to be removed with
+    // the next minor release of VTK.
     vtkSetMacro(EnableSource1,int);
     vtkGetMacro(EnableSource1,int);
     vtkBooleanMacro(EnableSource1,int);
-
-    // Description:
     vtkSetMacro(EnableSource2,int);
     vtkGetMacro(EnableSource2,int);
     vtkBooleanMacro(EnableSource2,int);
