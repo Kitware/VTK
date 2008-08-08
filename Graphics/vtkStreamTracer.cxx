@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.46");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.47");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -683,6 +683,7 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
         {
         vtkDebugMacro("One of the input blocks does not contain a "
                       "velocity vector.");
+        iterP->GoToNextItem();
         continue;
         }
       int cellSize = inp->GetMaxCellSize();
