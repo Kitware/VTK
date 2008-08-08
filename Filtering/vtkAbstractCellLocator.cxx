@@ -23,7 +23,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.1");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.2");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -99,7 +99,7 @@ int vtkAbstractCellLocator::IntersectWithLine(
   return 0;
 }
 //----------------------------------------------------------------------------
-vtkIdType vtkAbstractCellLocator::IntersectWithLine(
+int vtkAbstractCellLocator::IntersectWithLine(
   const double [3]vtkNotUsed(a0), const double [3]vtkNotUsed(a1),
   vtkPoints *vtkNotUsed(points), vtkIdList *vtkNotUsed(cellIds))
 {
