@@ -49,7 +49,7 @@
 #ifndef __vtkOBBTree_h
 #define __vtkOBBTree_h
 
-#include "vtkCellLocator.h"
+#include "vtkAbstractCellLocator.h"
 
 class vtkMatrix4x4;
 
@@ -73,16 +73,22 @@ public:
 //ETX
 //
 
-class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkCellLocator
+class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkAbstractCellLocator
 {
 public:
-  vtkTypeRevisionMacro(vtkOBBTree,vtkCellLocator);
+  vtkTypeRevisionMacro(vtkOBBTree,vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with automatic computation of divisions, averaging
   // 25 cells per octant.
   static vtkOBBTree *New();
+
+//BTX
+  using vtkAbstractCellLocator::IntersectWithLine;
+  using vtkAbstractCellLocator::FindClosestPoint;
+  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
+//ETX
 
   // Description:
   // Compute an OBB from the list of points given. Return the corner point
@@ -122,14 +128,6 @@ public:
   // Return the first intersection of the specified line segment with
   // the OBB tree, as well as information about the cell which the
   // line segment intersected.
-  int IntersectWithLine(double a0[3], double a1[3], double tol,
-                        double& t, double x[3], double pcoords[3],
-                        int &subId);
-
-  int IntersectWithLine(double a0[3], double a1[3], double tol,
-                        double& t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId);
-  
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId, vtkGenericCell *cell);
@@ -194,7 +192,6 @@ protected:
   vtkPoints *PointsList;
   int *InsertedPoints;
   int OBBCount;
-  int DeepestLevel;
 
   void DeleteTree(vtkOBBNode *OBBptr);
   void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, 

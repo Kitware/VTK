@@ -26,7 +26,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkOBBTree, "1.65");
+vtkCxxRevisionMacro(vtkOBBTree, "1.66");
 vtkStandardNewMacro(vtkOBBTree);
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
@@ -79,7 +79,7 @@ vtkOBBTree::vtkOBBTree()
   this->Tree = NULL;
   this->PointsList = NULL;
   this->InsertedPoints = NULL;
-  this->OBBCount = this->DeepestLevel = 0;
+  this->OBBCount = this->Level = 0;
 }
 
 vtkOBBTree::~vtkOBBTree()
@@ -893,46 +893,13 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
   return rval;
 }
 
-// Return intersection point of line defined by two points (a0,a1) in dataset
-// coordinate system; returning cellId (or -1 if no intersection). The 
-// argument list returns the intersection parametric coordinate, t, along 
-// the line; the coordinate of intersection, x[3]; the cell parametric
-// coordinates, pcoords[3]; and subId of the cell. (Not yet implemented.)
-int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
-                                  double& t, double x[3], double pcoords[3],
-                                  int &subId)
-{
-  vtkIdType cellId = -1;
-
-  return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
-                                  subId, cellId );
-}
-
-// Return intersection point of line defined by two points (a0,a1) in dataset
-// coordinate system; returning cellId (or -1 if no intersection). The 
-// argument list returns the intersection parametric coordinate, t, along 
-// the line; the coordinate of intersection, x[3]; the cell parametric
-// coordinates, pcoords[3]; and subId of the cell. (Not yet implemented.)
-int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
-                                  double& t, double x[3], double pcoords[3],
-                                  int &subId, vtkIdType &cellId)
-{
-  vtkGenericCell *cell=vtkGenericCell::New();
-  int returnVal;
-
-  returnVal = this->IntersectWithLine( a0, a1, tol, t, x, pcoords, subId,
-                                       cellId, cell);
-
-  cell->Delete();
-  return returnVal;
-}
 
 // Return intersection point (if any) AND the cell which was intersected by
 // finite line
 int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int &subId, vtkIdType &cellId,
-                                      vtkGenericCell *cell)
+                                       double& t, double x[3], double pcoords[3],
+                                       int &subId, vtkIdType &cellId,
+                                       vtkGenericCell *cell)
 {
   vtkOBBNode **OBBstack, *node;
   vtkIdList *cells;
@@ -1122,12 +1089,12 @@ void vtkOBBTree::BuildLocator()
     delete this->Tree;
     }
   this->Tree = new vtkOBBNode;
-  this->DeepestLevel = 0;
+  this->Level = 0;
   this->BuildTree(cellList,this->Tree,0);
-  this->Level = this->DeepestLevel;
+  this->Level = this->Level;
 
   vtkDebugMacro(<<"# Cells: " << numCells << ", Deepest tree level: " <<
-                this->DeepestLevel <<", Created: " << this->OBBCount << " OBB nodes");
+                this->Level <<", Created: " << this->OBBCount << " OBB nodes");
   if ( this->GetDebug() > 1 )
     { // print tree
     double volume = 0.0;
@@ -1158,9 +1125,9 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   vtkIdList *cellPts = vtkIdList::New();
   double size[3];
 
-  if ( level > this->DeepestLevel )
+  if ( level > this->Level )
     {
-    this->DeepestLevel = level;
+    this->Level = level;
     }
   //
   // Now compute the OBB
@@ -1172,7 +1139,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   // Check whether to continue recursing; if so, create two children and
   // assign cells to appropriate child.
   //
-  if ( level < this->MaxLevel && numCells > this->NumberOfCellsPerBucket )
+  if ( level < this->MaxLevel && numCells > this->NumberOfCellsPerNode )
     {
     vtkIdList *LHlist = vtkIdList::New();
     LHlist->Allocate(cells->GetNumberOfIds()/2);
@@ -1936,5 +1903,4 @@ void vtkOBBTree::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "OBBCount " << this->OBBCount << "\n";
-  os << indent << "DeepestLevel " << this->DeepestLevel << "\n";
 }

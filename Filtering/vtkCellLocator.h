@@ -35,18 +35,14 @@
 #ifndef __vtkCellLocator_h
 #define __vtkCellLocator_h
 
-#include "vtkLocator.h"
+#include "vtkAbstractCellLocator.h"
 
-class vtkCellArray;
-class vtkGenericCell;
-class vtkIdList;
 class vtkNeighborCells;
-class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkCellLocator : public vtkLocator
+class VTK_FILTERING_EXPORT vtkCellLocator : public vtkAbstractCellLocator
 {
 public:
-  vtkTypeRevisionMacro(vtkCellLocator,vtkLocator);
+  vtkTypeRevisionMacro(vtkCellLocator,vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,48 +52,26 @@ public:
 
   // Description:
   // Specify the average number of cells in each octant.
-  vtkSetClampMacro(NumberOfCellsPerBucket,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(NumberOfCellsPerBucket,int);
+  void SetNumberOfCellsPerBucket(int N) 
+  { this->SetNumberOfCellsPerNode(N); }
+  int GetNumberOfCellsPerBucket()  
+  { return this->NumberOfCellsPerNode; }
 
-  // Description:
-  // Boolean controls whether the bounds of each cell are computed only
-  // once and then saved.  Should be 10 to 20% faster if repeatedly 
-  // calling any of the FindClosestPoint routines and the extra memory
-  // won't cause disk caching (24 extra bytes per cell are required to
-  // save the bounds).
-  vtkSetMacro(CacheCellBounds,int);
-  vtkGetMacro(CacheCellBounds,int);
-  vtkBooleanMacro(CacheCellBounds,int);
-
-  // Description:
-  // Return intersection point (if any) of finite line with cells contained
-  // in cell locator.
-  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
-                                double& t, double x[3], double pcoords[3],
-                                int &subId);
-
-  // Description:
-  // Return intersection point (if any) AND the cell which was intersected by
-  // the finite line.
-  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
-                                double& t, double x[3], double pcoords[3],
-                                int &subId, vtkIdType &cellId);
+//BTX
+  using vtkAbstractCellLocator::IntersectWithLine;
+  using vtkAbstractCellLocator::FindClosestPoint;
+  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
+//ETX
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
+  // For other IntersectWithLine signatures, see vtkAbstractCellLocator
   virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell);
 
-  // Description:
-  // Return the closest point and the cell which is closest to the point x.
-  // The closest point is somewhere on a cell, it need not be one of the
-  // vertices of the cell.
-  void FindClosestPoint(double x[3], double closestPoint[3], vtkIdType &cellId,
-                        int &subId, double& dist2);
-  
   // Description:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
@@ -108,38 +82,11 @@ public:
   // deallocation can be done only once outside the for loop.  If a cell is
   // found, "cell" contains the points and ptIds for the cell "cellId" upon
   // exit.
-  void FindClosestPoint(double x[3], double closestPoint[3],
-                        vtkGenericCell *cell, vtkIdType &cellId, int &subId,
-                        double& dist2);
-  
-  // Description:
-  // Return the closest point within a specified radius and the cell which is
-  // closest to the point x. The closest point is somewhere on a cell, it
-  // need not be one of the vertices of the cell. This method returns 1 if
-  // a point is found within the specified radius. If there are no cells within
-  // the specified radius, the method returns 0 and the values of closestPoint,
-  // cellId, subId, and dist2 are undefined.
-  int FindClosestPointWithinRadius(double x[3], double radius,
-                                   double closestPoint[3], vtkIdType &cellId,
-                                   int &subId, double& dist2);
- 
-  // Description:
-  // Return the closest point within a specified radius and the cell which is
-  // closest to the point x. The closest point is somewhere on a cell, it
-  // need not be one of the vertices of the cell. This method returns 1 if a
-  // point is found within the specified radius. If there are no cells within
-  // the specified radius, the method returns 0 and the values of
-  // closestPoint, cellId, subId, and dist2 are undefined. This version takes
-  // in a vtkGenericCell to avoid allocating and deallocating the cell.  This
-  // is much faster than the version which does not take a *cell, especially
-  // when this function is called many times in a row such as by a for loop,
-  // where the allocation and deallocation can be done only once outside the
-  // for loop.  If a closest point is found, "cell" contains the points and
-  // ptIds for the cell "cellId" upon exit.
-  int FindClosestPointWithinRadius(double x[3], double radius,
-                                   double closestPoint[3],
-                                   vtkGenericCell *cell, vtkIdType &cellId,
-                                   int &subId, double& dist2);
+  // For other FindClosestPoint signatures, see vtkAbstractCellLocator
+  virtual void FindClosestPoint(
+    double x[3], double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId, 
+    int &subId, double& dist2);
 
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -156,10 +103,11 @@ public:
   // ptIds for the cell "cellId" upon exit.  If a closest point is found,
   // inside returns the return value of the EvaluatePosition call to the
   // closest cell; inside(=1) or outside(=0).
-  int FindClosestPointWithinRadius(double x[3], double radius,
-                                   double closestPoint[3],
-                                   vtkGenericCell *cell, vtkIdType &cellId,
-                                   int &subId, double& dist2, int &inside);
+  // For other FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double x[3], double radius, double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId,
+    int &subId, double& dist2, int &inside);
   
   // Description:
   // Get the cells in a particular bucket.
@@ -174,7 +122,7 @@ public:
   // Return a list of unique cell ids inside of a given bounding box. The
   // user must provide the vtkIdList to populate. This method returns data
   // only after the locator has been built.
-  void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+  virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
 
   // Description:
   // Given a finite line defined by the two points (p1,p2), return the list
@@ -182,14 +130,14 @@ public:
   // that an empty cell list is returned. The user must provide the vtkIdList
   // to populate. This method returns data only after the locator has been
   // built.
-  void FindCellsAlongLine(double p1[3], double p2[3], double tolerance,
-                          vtkIdList *cells);
+  virtual void FindCellsAlongLine(
+    double p1[3], double p2[3], double tolerance, vtkIdList *cells);
 
   // Description:
   // Satisfy vtkLocator abstract interface.
-  void FreeSearchStructure();
-  void BuildLocator();
-  void GenerateRepresentation(int level, vtkPolyData *pd);
+  virtual void FreeSearchStructure();
+  virtual void BuildLocator();
+  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
   
 protected:
   vtkCellLocator();
@@ -205,7 +153,6 @@ protected:
   double Distance2ToBucket(double x[3], int nei[3]);
   double Distance2ToBounds(double x[3], double bounds[6]);
   
-  int NumberOfCellsPerBucket; // cells per octant
   int NumberOfOctants; // number of octants in tree
   double Bounds[6]; // bounding box root octant
   int NumberOfParents; // number of parent octants
@@ -223,10 +170,6 @@ protected:
   vtkNeighborCells *Buckets;
   unsigned char *CellHasBeenVisited;
   unsigned char QueryNumber;
-  int CacheCellBounds;
-//BTX - begin tcl exclude
-  double (*CellBounds)[6];
-//ETX - end tcl exclude
 
   void ComputeOctantBounds(int i, int j, int k);
   double OctantBounds[6]; //the bounds of the current octant

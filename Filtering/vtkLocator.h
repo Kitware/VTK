@@ -93,14 +93,6 @@ public:
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Boolean controls whether to maintain list of entities in each bucket.
-  // Normally the lists are maintained, but if the locator is being used
-  // as a geometry simplification technique, there is no need to keep them.
-  vtkSetMacro(RetainCellLists,int);
-  vtkGetMacro(RetainCellLists,int);
-  vtkBooleanMacro(RetainCellLists,int);
-
-  // Description:
   // Cause the locator to rebuild itself if it or its input dataset has 
   // changed.
   virtual void Update();
@@ -141,7 +133,6 @@ protected:
   double Tolerance; // for performing merging
   int MaxLevel;
   int Level;
-  int RetainCellLists;
 
   vtkTimeStamp BuildTime;  // time at which locator was built
 

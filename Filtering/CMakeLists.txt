@@ -6,6 +6,7 @@ SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_LIBS vtkCommon)
 
 SET( Kit_SRCS
+vtkAbstractCellLocator.cxx
 vtkAbstractMapper.cxx
 vtkActor2DCollection.cxx
 vtkActor2D.cxx
@@ -215,6 +216,7 @@ vtkWedge.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkAbstractCellLocator
 vtkAbstractMapper
 vtkCell
 vtkCell3D

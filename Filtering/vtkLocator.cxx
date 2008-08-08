@@ -17,7 +17,7 @@
 #include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkLocator, "1.3");
+vtkCxxRevisionMacro(vtkLocator, "1.4");
 
 vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
@@ -26,11 +26,8 @@ vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 vtkLocator::vtkLocator()
 {
   this->DataSet = NULL;
-  this->MaxLevel = 8;
-  this->Level = 8;
   this->Tolerance = 0.001;
   this->Automatic = 1;
-  this->RetainCellLists = 1;
 }
 
 vtkLocator::~vtkLocator()
@@ -73,12 +70,11 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DataSet: (none)\n";
     }
 
-  os << indent << "Automatic: " << (this->Automatic ? "On\n" : "Off\n");
-  os << indent << "Tolerance: " << this->Tolerance << "\n" ;
-  os << indent << "Level: " << this->Level << "\n" ;
-  os << indent << "MaxLevel: " << this->MaxLevel << "\n" ;
-  os << indent << "Retain Cell Lists: " << (this->RetainCellLists ? "On\n" : "Off\n");
+  os << indent << "Automatic: "  << (this->Automatic ? "On\n" : "Off\n");
+  os << indent << "Tolerance: "  << this->Tolerance << "\n" ;
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
+  os << indent << "MaxLevel: "   << this->MaxLevel << "\n" ;
+  os << indent << "Level: "      << this->Level << "\n" ;
 }
 
 //----------------------------------------------------------------------------

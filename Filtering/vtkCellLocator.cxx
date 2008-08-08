@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.86");
+vtkCxxRevisionMacro(vtkCellLocator, "1.87");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -62,7 +62,7 @@ inline int vtkNeighborCells::InsertNextPoint(int *x)
 // 25 cells per bucket.
 vtkCellLocator::vtkCellLocator()
 {
-  this->NumberOfCellsPerBucket = 25;
+  this->NumberOfCellsPerNode = 25;
   this->Tree = NULL;
   this->CellHasBeenVisited = NULL;
   this->QueryNumber = 0;
@@ -70,8 +70,6 @@ vtkCellLocator::vtkCellLocator()
   this->NumberOfDivisions = 1;
 
   this->Buckets = new vtkNeighborCells(10, 10);
-  this->CacheCellBounds = 0;
-  this->CellBounds = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -84,17 +82,12 @@ vtkCellLocator::~vtkCellLocator()
     }
   
   this->FreeSearchStructure();
+  this->FreeCellBounds();
  
   if (this->CellHasBeenVisited)
     {
     delete [] this->CellHasBeenVisited;
     this->CellHasBeenVisited = NULL;
-    }
-
-  if (this->CellBounds)
-    {
-    delete [] this->CellBounds;
-    this->CellBounds = NULL;
     }
 }
 
@@ -143,19 +136,6 @@ int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j,
 
 
 //----------------------------------------------------------------------------
-// Return intersection point (if any) of finite line with cells contained
-// in cell locator.
-int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int &subId)
-{
-  vtkIdType cellId = -1;
-  
-  return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
-                                  subId, cellId);
-}
-
-//----------------------------------------------------------------------------
 void vtkCellLocator::ComputeOctantBounds(int i, int j, int k)
 {
   this->OctantBounds[0] = this->Bounds[0] + i*H[0];
@@ -165,24 +145,6 @@ void vtkCellLocator::ComputeOctantBounds(int i, int j, int k)
   this->OctantBounds[4] = this->Bounds[4] + k*H[2];
   this->OctantBounds[5] = this->OctantBounds[4] + H[2];
 }
-
-//----------------------------------------------------------------------------
-// Return intersection point (if any) AND the cell which was intersected by
-// finite line
-int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
-                                      double& t, double x[3], double pcoords[3],
-                                      int &subId, vtkIdType &cellId)
-{
-  vtkGenericCell *cell=vtkGenericCell::New();
-  int returnVal;
-
-  returnVal = this->IntersectWithLine( a0, a1, tol, t, x, pcoords, subId,
-                                       cellId, cell);
-
-  cell->Delete();
-  return returnVal;
-}
-  
     
 //----------------------------------------------------------------------------
 // Return intersection point (if any) AND the cell which was intersected by
@@ -685,22 +647,8 @@ void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
     }
 }
 
-
 //----------------------------------------------------------------------------
-// Return closest point (if any) AND the cell on which this closest point lies
-void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
-                                      vtkIdType &cellId, int &subId,
-                                      double& dist2)
-{
-  vtkGenericCell *cell = vtkGenericCell::New();
-  
-  this->FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
-  
-  cell->Delete();
-}
-
-//----------------------------------------------------------------------------
-int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
+vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
                                                  double closestPoint[3],
                                                  vtkGenericCell *cell,
                                                  vtkIdType &cellId, int &subId,
@@ -1001,36 +949,6 @@ int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
 }
 
 //----------------------------------------------------------------------------
-int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
-                                                 double closestPoint[3],
-                                                 vtkGenericCell *cell,
-                                                 vtkIdType &cellId,
-                                                 int &subId, double& dist2)
-{
-  int inside;
-
-  return 
-    this->FindClosestPointWithinRadius(x, radius, closestPoint,
-                                       cell, cellId, subId, dist2, inside);
-}
-
-//----------------------------------------------------------------------------
-int vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
-                                                 double closestPoint[3],
-                                                 vtkIdType &cellId, int &subId,
-                                                 double& dist2)
-{
-  vtkGenericCell *cell = vtkGenericCell::New();
-  int found, inside;
-  
-  found = 
-    this->FindClosestPointWithinRadius(x, radius, closestPoint,
-                                       cell, cellId, subId, dist2, inside);
-  cell->Delete();
-  return found;
-}
-
-//----------------------------------------------------------------------------
 //  Internal function to get bucket neighbors at specified "level". The
 //  bucket neighbors are indices into the "leaf-node" layer of the octree.
 //  These indices must be offset by number of octants before the leaf node
@@ -1230,7 +1148,7 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 
 //----------------------------------------------------------------------------
 //  Method to form subdivision of space based on the cells provided and
-//  subject to the constraints of levels and NumberOfCellsPerBucket.
+//  subject to the constraints of levels and NumberOfCellsPerNode.
 //  The result is directly addressable and of uniform subdivision.
 //
 void vtkCellLocator::BuildLocator()
@@ -1242,7 +1160,7 @@ void vtkCellLocator::BuildLocator()
   vtkIdType cellId, idx;
   int parentOffset;
   vtkIdList *octant;
-  int numCellsPerBucket = this->NumberOfCellsPerBucket;
+  int numCellsPerBucket = this->NumberOfCellsPerNode;
   typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
   double hTol[3];
@@ -1272,11 +1190,7 @@ void vtkCellLocator::BuildLocator()
     delete [] this->CellHasBeenVisited;
     this->CellHasBeenVisited = NULL;
     }
-  if (this->CellBounds)
-    {
-    delete [] this->CellBounds;
-    this->CellBounds = NULL;
-    }
+  this->FreeCellBounds();
   
   //  Size the root cell.  Initialize cell data structure, compute
   //  level and divisions.
@@ -1322,7 +1236,7 @@ void vtkCellLocator::BuildLocator()
 
   if (this->CacheCellBounds)
     {
-    this->CellBounds = new double [numCells][6];
+    this->StoreCellBounds();
     }
   
   //  Compute width of leaf octant in three directions
@@ -1341,10 +1255,9 @@ void vtkCellLocator::BuildLocator()
   boundsPtr = cellBounds;
   for (cellId=0; cellId<numCells; cellId++) 
     {
-    if (this->CacheCellBounds)
+    if (this->CellBounds)
       {
       boundsPtr = this->CellBounds[cellId];
-      this->DataSet->GetCellBounds(cellId, boundsPtr);
       }
     else
       {
@@ -1963,9 +1876,5 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNo
 void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Number of Cells Per Bucket: " 
-     << this->NumberOfCellsPerBucket << "\n";
-  os << indent << "Cache Cell Bounds: " << this->CacheCellBounds << "\n";  
 }
   
