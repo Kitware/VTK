@@ -111,9 +111,9 @@ public:
   // space where the widget should be placed.
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double*);
+  virtual void StartWidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void WidgetInteraction(double*);
+  virtual void WidgetInteraction(double eventPos[2]);
   virtual void Highlight(int);
 
   // Decsription:
