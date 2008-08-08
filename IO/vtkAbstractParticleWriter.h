@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkAbstractParticleWriter is an abstract class which is used by
 // vtkTemporalStreamTracer to write particles out during simulations.
-// This calls is abstract and provides a TimeStep and FileName.
+// This class is abstract and provides a TimeStep and FileName.
 // Subclasses of this should provide the necessary IO.
 
 // .SECTION Caveats
