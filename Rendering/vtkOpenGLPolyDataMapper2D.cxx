@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.58.2.1");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -402,6 +402,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   
   // Turn it back on in case we've turned it off
   glDepthMask( GL_TRUE );
+  glDisable( GL_TEXTURE_2D );
 }
   
 //----------------------------------------------------------------------------
