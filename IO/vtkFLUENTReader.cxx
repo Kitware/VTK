@@ -58,8 +58,11 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.20");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.21");
 vtkStandardNewMacro(vtkFLUENTReader);
+
+#define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
+#define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
 //Structures
 struct vtkFLUENTReader::Cell
@@ -148,6 +151,7 @@ struct vtkFLUENTReader::intVectorVector
 //----------------------------------------------------------------------------
 vtkFLUENTReader::vtkFLUENTReader()
 {
+  this->SwapBytes = 0;
   this->SetNumberOfInputPorts(0);
   this->FileName  = NULL;
   this->Points = vtkPoints::New();
@@ -178,6 +182,7 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->FluentDataFile = new ifstream;
 
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->SetDataByteOrderToLittleEndian();
 }
 
 //----------------------------------------------------------------------------
@@ -587,9 +592,10 @@ int vtkFLUENTReader::GetCaseChunk ()
     strcpy(end, "End of Binary Section   ");
     strcat(end, index.c_str());
     strcat(end, ")");
+    size_t len = strlen(end);
 
     // Load the case buffer enough to start comparing to the end vtkstd::string.
-    while (this->CaseBuffer->value.size() < strlen(end))
+    while (this->CaseBuffer->value.size() < len)
       {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += this->FluentCaseFile->get();
@@ -598,7 +604,7 @@ int vtkFLUENTReader::GetCaseChunk ()
     //while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
     //strlen(end), end))
     while (strcmp(this->CaseBuffer->value.c_str()+
-                   (this->CaseBuffer->value.size()-strlen(end)), end))
+                   (this->CaseBuffer->value.size()-len), end))
       {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
       this->CaseBuffer->value += this->FluentCaseFile->get();
@@ -735,9 +741,10 @@ int vtkFLUENTReader::GetDataChunk ()
     strcpy(end, "End of Binary Section   ");
     strcat(end, index.c_str());
     strcat(end, ")");
+    size_t len = strlen(end);
 
     // Load the data buffer enough to start comparing to the end vtkstd::string.
-    while (this->DataBuffer->value.size() < strlen(end))
+    while (this->DataBuffer->value.size() < len)
       {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += this->FluentDataFile->get();
@@ -746,7 +753,7 @@ int vtkFLUENTReader::GetDataChunk ()
     //while (DataBuffer.compare(DataBuffer.size()-strlen(end),
     //strlen(end), end))
     while (strcmp(this->DataBuffer->value.c_str()+
-                  (this->DataBuffer->value.size()-strlen(end)), end))
+                  (this->DataBuffer->value.size()-len), end))
       {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
       this->DataBuffer->value += this->FluentDataFile->get();
@@ -2478,11 +2485,11 @@ void vtkFLUENTReader::GetLittleEndianFlag()
 
   if (flag == 60)
     {
-    this->LittleEndianFlag = 1;
+    this->SetDataByteOrderToLittleEndian();
     }
   else
     {
-    this->LittleEndianFlag = 0;
+    this->SetDataByteOrderToBigEndian();
     }
 }
 
@@ -3200,7 +3207,7 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 
   for (int j = 0; j < 4; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       mi.c[3 - j] = this->CaseBuffer->value.at(ptr+j);
       }
@@ -3223,7 +3230,7 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 
   for (int j = 0; j < 4; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       mf.c[3 - j] = this->CaseBuffer->value.at(ptr+j);
       }
@@ -3246,7 +3253,7 @@ double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
 
   for (int j = 0; j < 8; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       md.c[7 - j] = this->CaseBuffer->value.at(ptr+j);
       }
@@ -3954,7 +3961,7 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
 
   for (int j = 0; j < 4; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       mi.c[3 - j] = this->DataBuffer->value.at(ptr+j);
       }
@@ -3977,7 +3984,7 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 
   for (int j = 0; j < 4; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       mf.c[3 - j] = this->DataBuffer->value.at(ptr+j);
       }
@@ -4000,7 +4007,7 @@ double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 
   for (int j = 0; j < 8; j++)
     {
-    if (!this->LittleEndianFlag)
+    if (this->GetSwapBytes())
       {
       md.c[7 - j] = this->DataBuffer->value.at(ptr+j);
       }
@@ -4146,6 +4153,82 @@ void vtkFLUENTReader::GetData(int dataType)
       //cout << "Weird Variable Size = " << size << endl;
       }
     }
+}
+//----------------------------------------------------------------------------
+void vtkFLUENTReader::SetDataByteOrderToBigEndian()
+{
+#ifndef VTK_WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+//----------------------------------------------------------------------------
+void vtkFLUENTReader::SetDataByteOrderToLittleEndian()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+//----------------------------------------------------------------------------
+void vtkFLUENTReader::SetDataByteOrder(int byteOrder)
+{
+  if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
+    {
+    this->SetDataByteOrderToBigEndian();
+    }
+  else
+    {
+    this->SetDataByteOrderToLittleEndian();
+    }
+}
+//----------------------------------------------------------------------------
+int vtkFLUENTReader::GetDataByteOrder()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    {
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
+  else
+    {
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
+#else
+  if ( this->SwapBytes )
+    {
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
+  else
+    {
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
+#endif
+}
+//----------------------------------------------------------------------------
+const char *vtkFLUENTReader::GetDataByteOrderAsString()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    {
+    return "LittleEndian";
+    }
+  else
+    {
+    return "BigEndian";
+    }
+#else
+  if ( this->SwapBytes )
+    {
+    return "BigEndian";
+    }
+  else
+    {
+    return "LittleEndian";
+    }
+#endif
 }
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetSpeciesVariableNames()

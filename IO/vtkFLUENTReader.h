@@ -81,6 +81,24 @@ public:
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
+  // Description:
+  // These methods should be used instead of the SwapBytes methods.
+  // They indicate the byte ordering of the file you are trying
+  // to read in. These methods will then either swap or not swap
+  // the bytes depending on the byte ordering of the machine it is
+  // being run on. For example, reading in a BigEndian file on a
+  // BigEndian machine will result in no swapping. Trying to read
+  // the same file on a LittleEndian machine will result in swapping.
+  // As a quick note most UNIX machines are BigEndian while PC's
+  // and VAX tend to be LittleEndian. So if the file you are reading
+  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian 
+  // otherwise SetDataByteOrderToBigEndian. Not used when reading
+  // text files. 
+  void SetDataByteOrderToBigEndian();
+  void SetDataByteOrderToLittleEndian();
+  int  GetDataByteOrder();
+  void SetDataByteOrder(int);
+  const char *GetDataByteOrderAsString();
   //
   //  Structures
   //
@@ -106,57 +124,67 @@ protected:
     vtkInformationVector **, vtkInformationVector *);
   int RequestData(vtkInformation *, vtkInformationVector **, 
     vtkInformationVector *);
+
+  // Description:
+  // Set/Get the byte swapping to explicitly swap the bytes of a file.
+  // Not used when reading text files.
+  vtkSetMacro(SwapBytes,int);
+  int GetSwapBytes() {return this->SwapBytes;}
+  vtkBooleanMacro(SwapBytes,int);
+
   vtkDataArraySelection* CellDataArraySelection;
   char * FileName;
   int NumberOfCells;
   int NumberOfCellArrays;
-  bool                    OpenCaseFile(const char *filename);
-  bool                    OpenDataFile(const char *filename);
-  int                    GetCaseChunk ();
-  void                   GetNumberOfCellZones();
-  int                    GetCaseIndex();
-  void                   LoadVariableNames();
-  int                    GetDataIndex();
-  int                    GetDataChunk();
-  void                   GetSpeciesVariableNames();
+  virtual bool                   OpenCaseFile(const char *filename);
+  virtual bool                   OpenDataFile(const char *filename);
+  virtual int                    GetCaseChunk ();
+  virtual void                   GetNumberOfCellZones();
+  virtual int                    GetCaseIndex();
+  virtual void                   LoadVariableNames();
+  virtual int                    GetDataIndex();
+  virtual int                    GetDataChunk();
+  virtual void                   GetSpeciesVariableNames();
 
-  void                   ParseCaseFile();
-  int                    GetDimension();
-  void                   GetLittleEndianFlag();
-  void                   GetNodesAscii();
-  void                   GetNodesSinglePrecision();
-  void                   GetNodesDoublePrecision();
-  void                   GetCellsAscii();
-  void                   GetCellsBinary();
-  void                   GetFacesAscii();
-  void                   GetFacesBinary();
-  void                   GetPeriodicShadowFacesAscii();
-  void                   GetPeriodicShadowFacesBinary();
-  void                   GetCellTreeAscii();
-  void                   GetCellTreeBinary();
-  void                   GetFaceTreeAscii();
-  void                   GetFaceTreeBinary();
-  void                   GetInterfaceFaceParentsAscii();
-  void                   GetInterfaceFaceParentsBinary();
-  void                   GetNonconformalGridInterfaceFaceInformationAscii();
-  void                   GetNonconformalGridInterfaceFaceInformationBinary();
-  void                   CleanCells();
-  void                   PopulateCellNodes();
-  int                    GetCaseBufferInt(int ptr);
-  float                  GetCaseBufferFloat(int ptr);
-  double                 GetCaseBufferDouble(int ptr);
-  void                   PopulateTriangleCell(int i);
-  void                   PopulateTetraCell(int i);
-  void                   PopulateQuadCell(int i);
-  void                   PopulateHexahedronCell(int i);
-  void                   PopulatePyramidCell(int i);
-  void                   PopulateWedgeCell(int i);
-  void                   PopulatePolyhedronCell(int i);
-  void                   ParseDataFile();
-  int                    GetDataBufferInt(int ptr);
-  float                  GetDataBufferFloat(int ptr);
-  double                 GetDataBufferDouble(int ptr);
-  void                   GetData(int dataType);
+  virtual void                   ParseCaseFile();
+  virtual int                    GetDimension();
+  virtual void                   GetLittleEndianFlag();
+  virtual void                   GetNodesAscii();
+  virtual void                   GetNodesSinglePrecision();
+  virtual void                   GetNodesDoublePrecision();
+  virtual void                   GetCellsAscii();
+  virtual void                   GetCellsBinary();
+  virtual void                   GetFacesAscii();
+  virtual void                   GetFacesBinary();
+  virtual void                   GetPeriodicShadowFacesAscii();
+  virtual void                   GetPeriodicShadowFacesBinary();
+  virtual void                   GetCellTreeAscii();
+  virtual void                   GetCellTreeBinary();
+  virtual void                   GetFaceTreeAscii();
+  virtual void                   GetFaceTreeBinary();
+  virtual void                   GetInterfaceFaceParentsAscii();
+  virtual void                   GetInterfaceFaceParentsBinary();
+  virtual void                   GetNonconformalGridInterfaceFaceInformationAscii();
+  virtual void                   GetNonconformalGridInterfaceFaceInformationBinary();
+  virtual void                   GetPartitionInfo() {};
+  virtual void                   CleanCells();
+  virtual void                   PopulateCellNodes();
+  virtual int                    GetCaseBufferInt(int ptr);
+  virtual float                  GetCaseBufferFloat(int ptr);
+  virtual double                 GetCaseBufferDouble(int ptr);
+  virtual void                   PopulateTriangleCell(int i);
+  virtual void                   PopulateTetraCell(int i);
+  virtual void                   PopulateQuadCell(int i);
+  virtual void                   PopulateHexahedronCell(int i);
+  virtual void                   PopulatePyramidCell(int i);
+  virtual void                   PopulateWedgeCell(int i);
+  virtual void                   PopulatePolyhedronCell(int i);
+  virtual void                   ParseDataFile();
+  virtual int                    GetDataBufferInt(int ptr);
+  virtual float                  GetDataBufferFloat(int ptr);
+  virtual double                 GetDataBufferDouble(int ptr);
+  virtual void                   GetData(int dataType);
+  virtual bool                   ParallelCheckCell(int vtkNotUsed(i)) { return true; }
 
   //
   //  Variables
@@ -191,7 +219,7 @@ protected:
   stringVector *VectorVariableNames;
   intVector *VectorSubSectionIds;
 
-  int LittleEndianFlag;
+  int SwapBytes;
   int GridDimension;
   int DataPass;
   int NumberOfScalars;
