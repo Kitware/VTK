@@ -130,7 +130,7 @@ public:
   // Either 'points' or 'cellIds' can be set to NULL if you don't want
   // to receive that information. This method is currently only implemented
   // in vtkOBBTree
-  virtual vtkIdType IntersectWithLine(
+  virtual int IntersectWithLine(
     const double a0[3], const double a1[3],
     vtkPoints *points, vtkIdList *cellIds);
 
