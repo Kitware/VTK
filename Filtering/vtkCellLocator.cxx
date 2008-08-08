@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.87");
+vtkCxxRevisionMacro(vtkCellLocator, "1.88");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -62,12 +62,14 @@ inline int vtkNeighborCells::InsertNextPoint(int *x)
 // 25 cells per bucket.
 vtkCellLocator::vtkCellLocator()
 {
+  this->MaxLevel             = 8;
+  this->Level                = 8;
   this->NumberOfCellsPerNode = 25;
-  this->Tree = NULL;
-  this->CellHasBeenVisited = NULL;
-  this->QueryNumber = 0;
+  this->Tree                 = NULL;
+  this->CellHasBeenVisited   = NULL;
+  this->QueryNumber          = 0;
+  this->NumberOfDivisions    = 1;
   this->H[0] = this->H[1] = this->H[2] = 1.0;
-  this->NumberOfDivisions = 1;
 
   this->Buckets = new vtkNeighborCells(10, 10);
 }
