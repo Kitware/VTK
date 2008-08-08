@@ -927,7 +927,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   /* add the DescribeMethods method */
   fprintf(fp,"\n  if (!strcmp(\"DescribeMethods\",argv[1]))\n    {\n");
   fprintf(fp,"    if(argc>3) {\n" );
-  fprintf(fp,"      Tcl_SetResult ( interp, \"Wrong number of arguments: object DescribeMethods <MethodName>\", TCL_VOLATILE ); \n" );
+  fprintf(fp,"      Tcl_SetResult ( interp, (char*)\"Wrong number of arguments: object DescribeMethods <MethodName>\", TCL_VOLATILE ); \n" );
   fprintf(fp,"      return TCL_ERROR;\n }\n" );
   
   fprintf(fp,"    if(argc==2) {\n" );
@@ -946,7 +946,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   for (k = 0; k < numberOfWrappedFunctions; k++)
     {
-      int numArgs = 0;
       currentFunction = wrappedFunctions[k];
       if(currentFunction->IsLegacy)
         {
@@ -980,7 +979,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   // Now we handle it ourselves
   for (k = 0; k < numberOfWrappedFunctions; k++)
     {
-      int numArgs = 0;
       currentFunction = wrappedFunctions[k];
       if(currentFunction->IsLegacy)
         {
@@ -1084,7 +1082,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
      fprintf(fp,"    return TCL_OK;\n    }\n");
     }
   /* Didn't find anything, return an error */
-  fprintf(fp,"   Tcl_SetResult ( interp, \"Could not find method\", TCL_VOLATILE ); \n" );
+  fprintf(fp,"   Tcl_SetResult ( interp, (char*)\"Could not find method\", TCL_VOLATILE ); \n" );
   fprintf(fp,"   return TCL_ERROR;\n" );
   fprintf(fp,"   }\n" );
   fprintf(fp," }\n" );
