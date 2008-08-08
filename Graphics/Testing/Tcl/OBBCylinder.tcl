@@ -26,7 +26,7 @@ vtkActor model
 
 vtkOBBTree obb
   obb SetMaxLevel 10
-  obb SetNumberOfCellsPerBucket 5
+  obb SetNumberOfCellsPerNode 5
   obb AutomaticOff
 
 vtkSpatialRepresentationFilter boxes

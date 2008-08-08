@@ -15,7 +15,6 @@ vtkLight lgt
 #
 vtkMergePoints locator
   locator SetDivisions 32 32 46
-  locator RetainCellListsOff
   locator SetNumberOfPointsPerBucket 2
   locator AutomaticOff
 

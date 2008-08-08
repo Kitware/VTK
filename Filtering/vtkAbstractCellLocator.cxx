@@ -23,14 +23,14 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.2");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.3");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
   this->CacheCellBounds            = 0;
   this->CellBounds                 = NULL;
-  this->MaxLevel               = 8;
-  this->Level         = 0;
+  this->MaxLevel                   = 8;
+  this->Level                      = 0;
   this->RetainCellLists            = 1;
   this->NumberOfCellsPerNode       = 32;
   this->UseExistingSearchStructure = 0;
