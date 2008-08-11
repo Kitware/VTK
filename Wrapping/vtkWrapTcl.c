@@ -926,6 +926,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }
     }
   fprintf(fp,"    return TCL_OK;\n    }\n");
+
   
   /* add the DescribeMethods method */
   fprintf(fp,"\n  if (!strcmp(\"DescribeMethods\",argv[1]))\n    {\n");
@@ -1069,10 +1070,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             }
         }
       fprintf(fp,"    Tcl_DStringEndSublist ( &dString );\n" );
-     if(currentFunction->IsLegacy)
-        {
-          fprintf(fp,"#endif\n");
-        }
 
      /* Documentation */
      fprintf(fp,"    /* Documentation for %s */\n", currentFunction->Name );
@@ -1083,21 +1080,17 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
      fprintf(fp,"    Tcl_DStringResult ( interp, &dString );\n" );
      fprintf(fp,"    Tcl_DStringFree ( &dString );\n" );
      fprintf(fp,"    return TCL_OK;\n    }\n");
+
+     if(currentFunction->IsLegacy)
+        {
+        fprintf(fp,"#endif\n");
+        }
     }
   /* Didn't find anything, return an error */
   fprintf(fp,"   Tcl_SetResult ( interp, (char*)\"Could not find method\", TCL_VOLATILE ); \n" );
   fprintf(fp,"   return TCL_ERROR;\n" );
   fprintf(fp,"   }\n" );
   fprintf(fp," }\n" );
-  
-
-  /* try superclasses */
-  for (i = 0; i < data->NumberOfSuperClasses; i++)
-    {
-    fprintf(fp,"\n  if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n",
-            data->SuperClasses[i], data->SuperClasses[i]);
-    fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
-    }
 
 
   /* try superclasses */
@@ -1108,7 +1101,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
     }
 
-  
+
   /* Add the Print method to vtkObjectBase. */
   if (!strcmp("vtkObjectBase",data->ClassName))
     {
@@ -1128,6 +1121,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"      TCL_VOLATILE);\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");    
     }
+
   /* Add the AddObserver method to vtkObject. */
   if (!strcmp("vtkObject",data->ClassName))
     {
@@ -1151,6 +1145,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"      return TCL_OK;\n      }\n");
     fprintf(fp,"    }\n");
     }
+
   fprintf(fp,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
   fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n");
   fprintf(fp,"    }\n");
@@ -1160,5 +1155,4 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"    return TCL_ERROR;\n");
   fprintf(fp,"    }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");
-
 }
