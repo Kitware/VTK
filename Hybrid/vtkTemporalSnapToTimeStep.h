@@ -18,6 +18,14 @@
 // the data without changing the data itself. The data is not resampled
 // by this filter, only the information accompanying the data is modified.
 
+// .SECTION Thanks
+// John Bidiscombe of CSCS - Swiss National Supercomputing Centre
+// for creating and contributing this class.
+// For related material, please refer to : 
+// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+// "Time Dependent Processing in a Parallel Pipeline Architecture", 
+// IEEE Visualization 2007. 
+
 #ifndef __vtkTemporalSnapToTimeStep_h
 #define __vtkTemporalSnapToTimeStep_h
 

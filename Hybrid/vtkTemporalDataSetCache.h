@@ -16,7 +16,14 @@
 // .SECTION Description
 // vtkTemporalDataSetCache cache time step requests of a temporal dataset,
 // when cached data is requested it is returned using a shallow copy.
-
+// .SECTION Thanks
+// Ken Martin (Kitware) and John Bidiscombe of 
+// CSCS - Swiss National Supercomputing Centre
+// for creating and contributing this class.
+// For related material, please refer to : 
+// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+// "Time Dependent Processing in a Parallel Pipeline Architecture", 
+// IEEE Visualization 2007. 
 
 #ifndef __vtkTemporalDataSetCache_h
 #define __vtkTemporalDataSetCache_h

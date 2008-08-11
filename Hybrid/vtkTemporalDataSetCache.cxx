@@ -22,7 +22,8 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.7");
+vtkCxxRevisionMacro(vtkTemporalDataSetCache, "1.8");
+//---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
 //----------------------------------------------------------------------------
@@ -180,14 +181,15 @@ int vtkTemporalDataSetCache
       }
     }
 
+/*
   if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
     {
-    // well really, the lest they could do is pass something in
+    // well really, the least they could do is pass something in
     int updateExtent[6];
-    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
       {
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), updateExtent);
-      int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+      int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent, len);
       }
     else return 1;
@@ -199,7 +201,13 @@ int vtkTemporalDataSetCache
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
     int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent, len);
+    vtkDebugMacro(<<"vtkTemporalDataSetCache Extent : " 
+      << updateExtent[0] << " " << updateExtent[1] << " " 
+      << updateExtent[2] << " " << updateExtent[3] << " " 
+      << updateExtent[4] << " " << updateExtent[5]);
+
     }
+*/
 
   return 1;
 }
@@ -213,17 +221,11 @@ int vtkTemporalDataSetCache::RequestData(
 {
   vtkInformation      *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation     *outInfo = outputVector->GetInformationObject(0);
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject       *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast(output);
   
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkTemporalDataSet *temporal = vtkTemporalDataSet::SafeDownCast(input);
-  if (input->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-  {
-    // we got it!
-//    vtkstd even commented the bloody cvs check finds it 
-    // c_o_u_t << "Hello Fixed Geometry!\n";
-  }
 
   // get some time information
   double *upTimes =
@@ -261,9 +263,14 @@ int vtkTemporalDataSetCache::RequestData(
           if (temporal) 
             {
             outData->SetTimeStep(i, temporal->GetTimeStep(j));
+            if (input->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+              {
+              vtkDebugMacro(<<"Dataset has DATA_GEOMETRY_UNMODIFIED");
+              }
             }
           else
             {
+            vtkDebugMacro(<<"Cache : Should not be here 1");
             outData->SetTimeStep(i, input);
             }
           found = 1;
@@ -315,6 +322,7 @@ int vtkTemporalDataSetCache::RequestData(
           }
         else
           {
+          vtkDebugMacro(<<"Cache : Should not be here 2");
           this->Cache[inTimes[j]] = 
             vtkstd::pair<unsigned long, vtkDataObject *>
             (outData->GetUpdateTime(), input);

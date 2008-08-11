@@ -12,12 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-/*================================================
-  Created by Ken Martin, 
-  leveraging code written by John Biddiscombe
-  ================================================*/
-
 #include "vtkTemporalInterpolator.h"
 
 #include "vtkCellData.h"
@@ -37,7 +31,7 @@
 #include "vtkstd/algorithm"
 #include "vtkstd/vector"
 
-vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.11");
+vtkCxxRevisionMacro(vtkTemporalInterpolator, "1.12");
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //----------------------------------------------------------------------------
@@ -220,7 +214,10 @@ int vtkTemporalInterpolator::RequestData(
       out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
       outData->SetTimeStep(upIdx, out1);
-//      outData->ShallowCopy(out1);
+      if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+        {
+        out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
+        }
       out1->Delete();
       }
     // above the range?
@@ -232,7 +229,10 @@ int vtkTemporalInterpolator::RequestData(
       out1 = in1->NewInstance();
       out1->ShallowCopy(in1);
       outData->SetTimeStep(upIdx, out1);
-//      outData->ShallowCopy(out1);
+        if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+          {
+          out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
+          }
       out1->Delete();
       }
     // in the middle, interpolate
@@ -252,7 +252,10 @@ int vtkTemporalInterpolator::RequestData(
         out1 = in1->NewInstance();
         out1->ShallowCopy(in1);
         outData->SetTimeStep(upIdx, out1);
-//        outData->ShallowCopy(out1);
+        if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+          {
+          out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
+          }
         out1->Delete();
         }
       else
@@ -265,7 +268,6 @@ int vtkTemporalInterpolator::RequestData(
           << " : " << upTimes[upIdx] << " Interpolation ratio " << ratio );
         out1 = this->InterpolateDataObject(in1,in2,ratio);
         outData->SetTimeStep(upIdx, out1);
-//        outData->ShallowCopy(out1);
         out1->Delete();
         }
       out1->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), 
@@ -447,6 +449,11 @@ vtkDataObject *vtkTemporalInterpolator
         return NULL;
         }
       }
+    if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()) &&
+        in2->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+      {
+      output->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
+      }
     return output;
     }
   else 
@@ -475,29 +482,40 @@ vtkDataSet *vtkTemporalInterpolator
   vtkPointSet *outPointSet = vtkPointSet::SafeDownCast(output);
   if (inPointSet1 && inPointSet2) 
     {
-    vtkDataArray *arrays[2];
-    arrays[0] = inPointSet1->GetPoints()->GetData();
-    arrays[1] = inPointSet2->GetPoints()->GetData();
+    vtkDataArray *outarray = NULL;
+    vtkPoints *outpoints;
 
-    // allocate double for output if input is double - otherwise float
-    // do a quick check to see if all arrays have the same number of tuples
-    if (!this->VerifyArrays(arrays, 2)) 
+    if (inPointSet1->GetNumberOfPoints()>0 && inPointSet2->GetNumberOfPoints()>0)
       {
-      vtkWarningMacro
-        ("Interpolation aborted for points because the number of "
-         "tuples/components in each time step are different");
-      }
-    vtkDataArray *outarray = 
-      this->InterpolateDataArray(
-        ratio, arrays,arrays[0]->GetNumberOfTuples());
+      vtkDataArray *arrays[2];
+      arrays[0] = inPointSet1->GetPoints()->GetData();
+      arrays[1] = inPointSet2->GetPoints()->GetData();
 
-    // Do not shallow copy points from either input, because otherwise when
-    // we set the actual point coordinate data we overwrite the original
-    // we must instantiate a new points object 
-    // (ie we override the copystrucure above)
-    vtkPoints *inpoints = inPointSet1->GetPoints();
-    vtkPoints *outpoints = inpoints->NewInstance();
-    outPointSet->SetPoints(outpoints);
+      // allocate double for output if input is double - otherwise float
+      // do a quick check to see if all arrays have the same number of tuples
+      if (!this->VerifyArrays(arrays, 2)) 
+        {
+        vtkWarningMacro
+          ("Interpolation aborted for points because the number of "
+           "tuples/components in each time step are different");
+        }
+      outarray = this->InterpolateDataArray(
+          ratio, arrays,arrays[0]->GetNumberOfTuples());
+      // Do not shallow copy points from either input, because otherwise when
+      // we set the actual point coordinate data we overwrite the original
+      // we must instantiate a new points object 
+      // (ie we override the copystrucure above)
+      vtkPoints *inpoints = inPointSet1->GetPoints();
+      outpoints = inpoints->NewInstance();
+      outPointSet->SetPoints(outpoints);
+      }
+    else
+      {
+      // not much we can do really
+      outpoints = vtkPoints::New();
+      outPointSet->SetPoints(outpoints);
+      }
+
     if (vtkDoubleArray::SafeDownCast(outarray)) 
       {
       outpoints->SetDataTypeToDouble();
@@ -506,10 +524,13 @@ vtkDataSet *vtkTemporalInterpolator
       {
       outpoints->SetDataTypeToFloat();
       }
-    outpoints->SetNumberOfPoints(arrays[0]->GetNumberOfTuples());
+    outpoints->SetNumberOfPoints(inPointSet1->GetNumberOfPoints());
     outpoints->SetData(outarray);
     outpoints->Delete();
-    outarray->Delete();
+    if (outarray)
+      {
+      outarray->Delete();
+      }
     }
   //
   // Interpolate pointdata if present
@@ -597,6 +618,11 @@ vtkDataSet *vtkTemporalInterpolator
                                  arrays[0]->GetNumberOfTuples());
     output->GetCellData()->AddArray(outarray);
     outarray->Delete();
+    }
+  if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()) &&
+      in2->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+    {
+    output->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
     }
   return output;
 }

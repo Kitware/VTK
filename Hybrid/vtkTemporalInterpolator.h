@@ -28,6 +28,15 @@
 // missing datasets for certain T values and you simply wish to smooth
 // over the missing steps but otherwise use the original data.
 
+// .SECTION Thanks
+// Ken Martin (Kitware) and John Bidiscombe of 
+// CSCS - Swiss National Supercomputing Centre
+// for creating and contributing this class.
+// For related material, please refer to : 
+// John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
+// "Time Dependent Processing in a Parallel Pipeline Architecture", 
+// IEEE Visualization 2007. 
+
 #ifndef __vtkTemporalInterpolator_h
 #define __vtkTemporalInterpolator_h
 
