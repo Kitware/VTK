@@ -29,7 +29,7 @@
 #include "vtkstd/vector"
 #include "vtkstd/set"
 
-vtkCxxRevisionMacro(vtkSelectionSource, "1.24");
+vtkCxxRevisionMacro(vtkSelectionSource, "1.25");
 vtkStandardNewMacro(vtkSelectionSource);
 
 class vtkSelectionSourceInternals
@@ -310,6 +310,10 @@ int vtkSelectionSource::RequestData(
     oProperties->Set(vtkSelection::FIELD_TYPE(),
       this->FieldType);
 
+    vtkStringArray* selectionList = vtkStringArray::New();
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();
+
     // Number of selected items common to all pieces
     vtkIdType numCommonElems = 0;
     if (!this->Internal->StringIDs.empty())
@@ -320,37 +324,35 @@ int vtkSelectionSource::RequestData(
         numCommonElems == 0)
       {
       vtkDebugMacro("No selection for piece: " << piece);
-      return 1;
       }
-    
-    // idx == 0 is the list for all pieces
-    // idx == piece+1 is the list for the current piece
-    size_t pids[2] = {0, piece+1};
-    for(int i=0; i<2; i++)
+    else
       {
-      size_t idx = pids[i];
-      if (idx >= this->Internal->StringIDs.size())
+      // idx == 0 is the list for all pieces
+      // idx == piece+1 is the list for the current piece
+      size_t pids[2] = {0, piece+1};
+      for(int i=0; i<2; i++)
         {
-        continue;
-        }
-      
-      vtkSelectionSourceInternals::StringIDSetType& selSet =
-        this->Internal->StringIDs[idx];
-      
-      if (selSet.size() > 0)
-        {
-        // Create the selection list
-        vtkStringArray* selectionList = vtkStringArray::New();
-        selectionList->SetNumberOfTuples(selSet.size());
-        // iterate over ids and insert to the selection list
-        vtkSelectionSourceInternals::StringIDSetType::iterator iter =
-          selSet.begin();
-        for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+        size_t idx = pids[i];
+        if (idx >= this->Internal->StringIDs.size())
           {
-          selectionList->SetValue(idx2, *iter);
+          continue;
           }
-        output->SetSelectionList(selectionList);
-        selectionList->Delete();
+        
+        vtkSelectionSourceInternals::StringIDSetType& selSet =
+          this->Internal->StringIDs[idx];
+        
+        if (selSet.size() > 0)
+          {
+          // Create the selection list
+          selectionList->SetNumberOfTuples(selSet.size());
+          // iterate over ids and insert to the selection list
+          vtkSelectionSourceInternals::StringIDSetType::iterator iter =
+            selSet.begin();
+          for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+            {
+            selectionList->SetValue(idx2, *iter);
+            } 
+          }
         }
       }
     }
@@ -367,6 +369,10 @@ int vtkSelectionSource::RequestData(
     oProperties->Set(vtkSelection::FIELD_TYPE(),
       this->FieldType);
 
+    vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
+    output->SetSelectionList(selectionList);
+    selectionList->Delete();
+
     // Number of selected items common to all pieces
     vtkIdType numCommonElems = 0;
     if (!this->Internal->IDs.empty())
@@ -377,37 +383,35 @@ int vtkSelectionSource::RequestData(
         numCommonElems == 0)
       {
       vtkDebugMacro("No selection for piece: " << piece);
-      return 1;
       }
-    
-    // idx == 0 is the list for all pieces
-    // idx == piece+1 is the list for the current piece
-    size_t pids[2] = {0, piece+1};
-    for(int i=0; i<2; i++)
+    else
       {
-      size_t idx = pids[i];
-      if (idx >= this->Internal->IDs.size())
+      // idx == 0 is the list for all pieces
+      // idx == piece+1 is the list for the current piece
+      size_t pids[2] = {0, piece+1};
+      for(int i=0; i<2; i++)
         {
-        continue;
-        }
-      
-      vtkSelectionSourceInternals::IDSetType& selSet =
-        this->Internal->IDs[idx];
-      
-      if (selSet.size() > 0)
-        {
-        // Create the selection list
-        vtkIdTypeArray* selectionList = vtkIdTypeArray::New();
-        selectionList->SetNumberOfTuples(selSet.size());
-        // iterate over ids and insert to the selection list
-        vtkSelectionSourceInternals::IDSetType::iterator iter =
-          selSet.begin();
-        for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+        size_t idx = pids[i];
+        if (idx >= this->Internal->IDs.size())
           {
-          selectionList->SetValue(idx2, *iter);
+          continue;
           }
-        output->SetSelectionList(selectionList);
-        selectionList->Delete();
+        
+        vtkSelectionSourceInternals::IDSetType& selSet =
+          this->Internal->IDs[idx];
+        
+        if (selSet.size() > 0)
+          {
+          // Create the selection list
+          selectionList->SetNumberOfTuples(selSet.size());
+          // iterate over ids and insert to the selection list
+          vtkSelectionSourceInternals::IDSetType::iterator iter =
+            selSet.begin();
+          for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+            {
+            selectionList->SetValue(idx2, *iter);
+            }  
+          }
         }
       }
     }
