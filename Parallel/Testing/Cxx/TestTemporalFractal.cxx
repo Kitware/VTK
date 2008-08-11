@@ -50,7 +50,7 @@ int TestTemporalFractal(int argc, char *argv[])
   vtkSmartPointer<vtkTemporalShiftScale> tempss = 
     vtkSmartPointer<vtkTemporalShiftScale>::New();
   tempss->SetScale(0.1);
-  tempss->SetShift(-0.5);
+  tempss->SetPostShift(-0.5);
   tempss->SetInputConnection(fractal->GetOutputPort());
 
   // interpolate if needed
