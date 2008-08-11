@@ -27,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.41");
+vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.41.2.1");
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -147,6 +147,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
     }
 
   this->NewScalars = vtkIdTypeArray::New();
+  this->NewScalars->SetName("RegionId");
   this->NewScalars->SetNumberOfTuples(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
@@ -265,11 +266,6 @@ int vtkPolyDataConnectivityFilter::RequestData(
   // everything that has been visited.
   //
   //Pass through point data that has been visited
-  pd = input->GetPointData();
-  if ( this->ColorRegions )
-    {
-    outputPD->CopyScalarsOff();
-    }
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
 
