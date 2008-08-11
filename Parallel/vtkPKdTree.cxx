@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.34");
+vtkCxxRevisionMacro(vtkPKdTree, "1.35");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -3250,7 +3250,7 @@ int vtkPKdTree::FindNextLocalArrayIndex(const char *n,
 int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
 {
   int first = 1;
-  double tmp[2];
+  double tmp[2] = {0, 0};
   int start = 0;
 
   while (1)
@@ -3288,7 +3288,7 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
 }
 int vtkPKdTree::GetCellArrayGlobalRange(const char *n, float range[2])
 {
-  double tmp[2];
+  double tmp[2] = {0, 0 };
 
   int fail = this->GetCellArrayGlobalRange(n, tmp);
 
@@ -3341,7 +3341,7 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, double range[2])
 }
 int vtkPKdTree::GetPointArrayGlobalRange(const char *n, float range[2])
 {
-  double tmp[2];
+  double tmp[2] = {0, 0};
 
   int fail = this->GetPointArrayGlobalRange(n, tmp);
 
