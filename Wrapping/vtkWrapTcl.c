@@ -1146,8 +1146,14 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    }\n");
     }
 
-  fprintf(fp,"\n  if ((argc >= 2)&&(!strstr(interp->result,\"Object named:\")))\n    {\n");
-  fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_AppendResult(interp,temps2,NULL);\n    }\n");
+  // i.e. If this is vtkObjectBase (or whatever the top of the class hierarchy will be)
+  // then report the error
+  if (data->NumberOfSuperClasses == 0)
+    {
+    fprintf(fp,"\n  if (argc >= 2)\n    {\n");
+    fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_SetResult(interp,temps2,TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
+    }
+
   fprintf(fp,"    }\n");
   fprintf(fp,"  catch (vtkstd::exception &e)\n");
   fprintf(fp,"    {\n");
