@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number */
-/* wglext.h last updated 2007/02/09 */
+/* wglext.h last updated 2008/08/10 */
 /* Current version at http://www.opengl.org/registry/ */
-#define WGL_WGLEXT_VERSION 9
+#define WGL_WGLEXT_VERSION 10
 
 #ifndef WGL_ARB_buffer_region
 #define WGL_FRONT_COLOR_BUFFER_BIT_ARB 0x00000001
@@ -171,6 +171,16 @@ extern "C" {
 
 #ifndef WGL_ARB_pixel_format_float
 #define WGL_TYPE_RGBA_FLOAT_ARB        0x21A0
+#endif
+
+#ifndef WGL_ARB_create_context
+#define WGL_CONTEXT_DEBUG_BIT_ARB      0x0001
+#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
+#define WGL_CONTEXT_MAJOR_VERSION_ARB  0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB  0x2092
+#define WGL_CONTEXT_LAYER_PLANE_ARB    0x2093
+#define WGL_CONTEXT_FLAGS_ARB          0x2094
+#define ERROR_INVALID_VERSION_ARB      0x2095
 #endif
 
 #ifndef WGL_EXT_make_current_read
@@ -328,6 +338,29 @@ extern "C" {
 #define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
 #endif
 
+#ifndef WGL_NV_present_video
+#define WGL_NUM_VIDEO_SLOTS_NV         0x20F0
+#endif
+
+#ifndef WGL_NV_video_out
+#define WGL_BIND_TO_VIDEO_RGB_NV       0x20C0
+#define WGL_BIND_TO_VIDEO_RGBA_NV      0x20C1
+#define WGL_BIND_TO_VIDEO_RGB_AND_DEPTH_NV 0x20C2
+#define WGL_VIDEO_OUT_COLOR_NV         0x20C3
+#define WGL_VIDEO_OUT_ALPHA_NV         0x20C4
+#define WGL_VIDEO_OUT_DEPTH_NV         0x20C5
+#define WGL_VIDEO_OUT_COLOR_AND_ALPHA_NV 0x20C6
+#define WGL_VIDEO_OUT_COLOR_AND_DEPTH_NV 0x20C7
+#define WGL_VIDEO_OUT_FRAME            0x20C8
+#define WGL_VIDEO_OUT_FIELD_1          0x20C9
+#define WGL_VIDEO_OUT_FIELD_2          0x20CA
+#define WGL_VIDEO_OUT_STACKED_FIELDS_1_2 0x20CB
+#define WGL_VIDEO_OUT_STACKED_FIELDS_2_1 0x20CC
+#endif
+
+#ifndef WGL_NV_swap_group
+#endif
+
 
 /*************************************************************/
 
@@ -336,6 +369,12 @@ DECLARE_HANDLE(HPBUFFERARB);
 #endif
 #ifndef WGL_EXT_pbuffer
 DECLARE_HANDLE(HPBUFFEREXT);
+#endif
+#ifndef WGL_NV_present_video
+DECLARE_HANDLE(HVIDEOOUTPUTDEVICENV);
+#endif
+#ifndef WGL_NV_video_out
+DECLARE_HANDLE(HPVIDEODEV);
 #endif
 
 #ifndef WGL_ARB_buffer_region
@@ -416,6 +455,14 @@ typedef BOOL (WINAPI * PFNWGLSETPBUFFERATTRIBARBPROC) (HPBUFFERARB hPbuffer, con
 
 #ifndef WGL_ARB_pixel_format_float
 #define WGL_ARB_pixel_format_float 1
+#endif
+
+#ifndef WGL_ARB_create_context
+#define WGL_ARB_create_context 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern HGLRC WINAPI wglCreateContextAttribsARB (HDC, HGLRC, const int *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int *attribList);
 #endif
 
 #ifndef WGL_EXT_display_color_table
@@ -638,6 +685,18 @@ typedef BOOL (WINAPI * PFNWGLQUERYFRAMETRACKINGI3DPROC) (DWORD *pFrameCount, DWO
 
 #ifndef WGL_EXT_framebuffer_sRGB
 #define WGL_EXT_framebuffer_sRGB 1
+#endif
+
+#ifndef WGL_NV_present_video
+#define WGL_NV_present_video 1
+#endif
+
+#ifndef WGL_NV_video_out
+#define WGL_NV_video_out 1
+#endif
+
+#ifndef WGL_NV_swap_group
+#define WGL_NV_swap_group 1
 #endif
 
 
