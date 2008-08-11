@@ -60,12 +60,12 @@ public:
       }
   };
   typedef vtkstd::set< UserDefinedValue > UserDefinedValues;
-  UserDefinedValues Mapping;
+  UserDefinedValues UserDefinedValuePool;
   void AddUserDefinedValue(const char *name, const char *value)
     {
     if( name && *name && value && *value )
       {
-      Mapping.insert( UserDefinedValues::value_type(name, value) );
+      UserDefinedValuePool.insert( UserDefinedValues::value_type(name, value) );
       }
     // else raise a warning ?
     }
@@ -74,7 +74,7 @@ public:
     if( name && *name )
       {
       UserDefinedValue key(name);
-      UserDefinedValues::const_iterator it = Mapping.find( key );
+      UserDefinedValues::const_iterator it = UserDefinedValuePool.find( key );
       assert( strcmp(it->Name.c_str(), name) == 0 );
       return it->Value.c_str();
       }
@@ -82,13 +82,13 @@ public:
     }
   unsigned int GetNumberOfUserDefinedValues() const
     {
-    return static_cast<unsigned int>(Mapping.size());
+    return static_cast<unsigned int>(UserDefinedValuePool.size());
     }
   const char *GetUserDefinedNameByIndex(unsigned int idx)
     {
-    if( idx < Mapping.size() )
+    if( idx < UserDefinedValuePool.size() )
       {
-      UserDefinedValues::const_iterator it = Mapping.begin();
+      UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
         {
         it++;
@@ -100,9 +100,9 @@ public:
     }
   const char *GetUserDefinedValueByIndex(unsigned int idx)
     {
-    if( idx < Mapping.size() )
+    if( idx < UserDefinedValuePool.size() )
       {
-      UserDefinedValues::const_iterator it = Mapping.begin();
+      UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
         {
         it++;
@@ -112,13 +112,17 @@ public:
       }
     return NULL;
     }
+  void RemoveAllUserDefinedValues()
+    {
+      UserDefinedValuePool.clear();
+    }
 
   typedef vtkstd::vector<WindowLevelPreset> WindowLevelPresetPoolType;
   typedef vtkstd::vector<WindowLevelPreset>::iterator WindowLevelPresetPoolIterator;
 
   WindowLevelPresetPoolType WindowLevelPresetPool;
 
-// It is also useful to have a mapping from DICOM UID to slice id, for application like VolView
+  // It is also useful to have a mapping from DICOM UID to slice id, for application like VolView
   typedef vtkstd::map< unsigned int, vtkstd::string> SliceUIDType;
   typedef vtkstd::vector< SliceUIDType > VolumeSliceUIDType;
   VolumeSliceUIDType UID;
@@ -201,9 +205,9 @@ public:
       os << indent << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << endl;
       }
     os << endl;
-    os << indent << "User Defined Values: (" << Mapping.size() << ")\n";
-    UserDefinedValues::const_iterator it2 = Mapping.begin();
-    for(; it2 != Mapping.end(); ++it2)
+    os << indent << "User Defined Values: (" << UserDefinedValuePool.size() << ")\n";
+    UserDefinedValues::const_iterator it2 = UserDefinedValuePool.begin();
+    for(; it2 != UserDefinedValuePool.end(); ++it2)
       {
       os << indent << it2->Name << " -> " << it2->Value << "\n";
       }
@@ -225,7 +229,7 @@ public:
   void DeepCopy(vtkMedicalImagePropertiesInternals *p)
     {
     WindowLevelPresetPool = p->WindowLevelPresetPool;
-    Mapping = p->Mapping;
+    UserDefinedValuePool = p->UserDefinedValuePool;
     UID = p->UID;
     Orientation = p->Orientation;
     }
@@ -279,13 +283,13 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
 //----------------------------------------------------------------------------
 vtkMedicalImageProperties::~vtkMedicalImageProperties()
 {
+  this->Clear();
+
   if (this->Internals)
     {
     delete this->Internals;
     this->Internals = NULL;
     }
-
-  this->Clear();
 }
 
 //----------------------------------------------------------------------------
@@ -316,6 +320,12 @@ const char *vtkMedicalImageProperties::GetUserDefinedValueByIndex(unsigned int i
 const char *vtkMedicalImageProperties::GetUserDefinedNameByIndex(unsigned int idx)
 {
   return this->Internals->GetUserDefinedNameByIndex(idx);
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageProperties::RemoveAllUserDefinedValues()
+{
+  this->Internals->RemoveAllUserDefinedValues();
 }
 
 //----------------------------------------------------------------------------
@@ -354,6 +364,10 @@ void vtkMedicalImageProperties::Clear()
   this->SetXRayTubeCurrent(NULL);
 
   this->RemoveAllWindowLevelPresets();
+  this->RemoveAllUserDefinedValues();
+
+  this->Internals->Orientation.clear();
+  this->Internals->UID.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -399,7 +413,7 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
   this->SetXRayTubeCurrent(p->GetXRayTubeCurrent());
   this->SetDirectionCosine(p->GetDirectionCosine());
 
-  this->Internals->DeepCopy( p->Internals );
+  this->Internals->DeepCopy(p->Internals);
 }
 
 //----------------------------------------------------------------------------

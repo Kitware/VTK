@@ -293,27 +293,28 @@ public:
   vtkSetStringMacro(Exposure);
   vtkGetStringMacro(Exposure);
 
-  // Interface to allow insertion of user define values, for instance in DICOM one would want to 
+  // Description:
+  // Get the direction cosine (default to 1,0,0,0,1,0)
+  vtkSetVector6Macro(DirectionCosine,double);
+  vtkGetVector6Macro(DirectionCosine,double);
+
+  // Interface to allow insertion of user define values, for instance in DICOM
+  // one would want to 
   // store the Protocol Name (0018,1030), in this case one would do:
   // AddUserDefinedValue( "Protocol Name", "T1W/SE/1024" );
-  void AddUserDefinedValue(const char *name, const char *value);
-  // Get a particular user value
-  const char *GetUserDefinedValue(const char *name);
-  // Get the number of user defined values
-  unsigned int GetNumberOfUserDefinedValues();
-  // Get a name/value by index
-  const char *GetUserDefinedNameByIndex(unsigned int idx);
-  const char *GetUserDefinedValueByIndex(unsigned int idx);
-
-  // Description:
-  // Copy the contents of p to this instance.
-  virtual void DeepCopy(vtkMedicalImageProperties *p);
+  virtual void AddUserDefinedValue(const char *name, const char *value);
+  virtual const char *GetUserDefinedValue(const char *name);
+  virtual unsigned int GetNumberOfUserDefinedValues();
+  virtual const char *GetUserDefinedNameByIndex(unsigned int idx);
+  virtual const char *GetUserDefinedValueByIndex(unsigned int idx);
+  virtual void RemoveAllUserDefinedValues();
 
   // Description:
   // Add/Remove/Query the window/level presets that may have been associated
   // to a medical image. Window is also known as 'width', level is also known
   // as 'center'. The same window/level pair can not be added twice.
-  // As a convenience, a comment (aka Explanation) can be associated to a preset.
+  // As a convenience, a comment (aka Explanation) can be associated to
+  // a preset.
   // For ex: DICOM Window Center (0028,1050) = 00045\000470
   //         DICOM Window Width  (0028,1051) = 0106\03412
   //         DICOM Window Center Width Explanation (0028,1055) = WINDOW1\WINDOW2
@@ -352,9 +353,8 @@ public:
   static const char *GetStringFromOrientationType(unsigned int type);
 
   // Description:
-  // Get the direction cosine (default to 1,0,0,0,1,0)
-  vtkSetVector6Macro(DirectionCosine,double);
-  vtkGetVector6Macro(DirectionCosine,double);
+  // Copy the contents of p to this instance.
+  virtual void DeepCopy(vtkMedicalImageProperties *p);
 
 protected:
   vtkMedicalImageProperties();
