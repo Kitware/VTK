@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.80");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.81");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1858,8 +1858,8 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
   else
     sprintf(pattern, "%%0%dd", numWildcards);
   sprintf(numStr, pattern, num);
-  numStrLen = strlen(numStr);
-  len = strlen(filename);
+  numStrLen = static_cast<int>(strlen(numStr));
+  len = static_cast<int>(strlen(filename));
   cnt = 0;
   for (i = 0 ; i < len ; i++)
     {

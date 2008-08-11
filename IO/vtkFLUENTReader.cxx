@@ -58,7 +58,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkFLUENTReader, "1.21");
+vtkCxxRevisionMacro(vtkFLUENTReader, "1.22");
 vtkStandardNewMacro(vtkFLUENTReader);
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
@@ -4245,7 +4245,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
 
     vtksys_ios::stringstream tokenizer(variables);
 
-    size_t iterator = 0;
+    int iterator = 0;
 
     while ( !tokenizer.eof() )
       {
