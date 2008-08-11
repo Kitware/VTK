@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.5");
+vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.6");
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
 //----------------------------------------------------------------------------
@@ -48,6 +48,7 @@ void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PreShift: " << this->PreShift << endl;
   os << indent << "PostShift: " << this->PostShift << endl;
   os << indent << "Periodic: " << this->Periodic << endl;
+  os << indent << "PeriodicEndCorrection: " << this->PeriodicEndCorrection << endl;
   os << indent << "MaximumNumberOfPeriods: " << this->MaximumNumberOfPeriods << endl;
 }
 //----------------------------------------------------------------------------
