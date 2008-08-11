@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.35");
+vtkCxxRevisionMacro(vtkPKdTree, "1.36");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -3135,7 +3135,10 @@ int vtkPKdTree::AssignRegionsContiguous()
 
   int floorLogP, ceilLogP;
 
-  for (floorLogP = 0; (nProcesses >> floorLogP) > 0; floorLogP++);
+  for (floorLogP = 0; (nProcesses >> floorLogP) > 0; floorLogP++)
+    {
+    // empty loop.
+    }
   floorLogP--;
 
   int P = 1 << floorLogP;

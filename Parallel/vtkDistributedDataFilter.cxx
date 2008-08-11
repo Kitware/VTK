@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.49")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.50")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -1113,7 +1113,10 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
     {
     if (numTotalCells < nprocs)
       {
-      for (proc = 0; nodeType[proc] != Producer; proc++);
+      for (proc = 0; nodeType[proc] != Producer; proc++)
+        {
+        // empty loop.
+        }
       if (proc == me)
         {
         // Have one process give out its cells to consumers.
