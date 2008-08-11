@@ -39,7 +39,7 @@ static const char *quote_string(const char *comment, int maxlen)
       {
       free(result);
       }
-    result = (char *)malloc(maxlen);
+    result = (char *)malloc(maxlen+1);
     oldmaxlen = maxlen;
     }
 
@@ -51,6 +51,7 @@ static const char *quote_string(const char *comment, int maxlen)
   j = 0;
 
   n = (int)strlen(comment);
+
   for (i = 0; i < n; i++)
     {
     if (comment[i] == '\"')
@@ -88,13 +89,15 @@ static const char *quote_string(const char *comment, int maxlen)
       sprintf(&result[j],"\\%3.3o",comment[i]);
       j += 4;
       }
+
     if (j >= maxlen - 21)
-      {      
+      {
       sprintf(&result[j]," ...\\n [Truncated]\\n");
       j += (int)strlen(" ...\\n [Truncated]\\n");
       break;
       }
     }
+
   result[j] = '\0';
 
   return result;
@@ -108,7 +111,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     fprintf(fp,"    vtkTclVoidFuncArg *temp%i = new vtkTclVoidFuncArg;\n",i);
     return;
     }
-  
+
   /* ignore void */
   if (((aType % 0x10) == 0x2)&&(!((aType % 0x1000)/0x100)))
     {
