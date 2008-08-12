@@ -44,10 +44,17 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
   vtkIdType SourceId;
   int numPts;
-  vtkIdType ptArray[0]; // variable length array.  MUST be last
+  vtkIdType ptArray[3]; // actually a variable length array with 
+                        // at least 3 points.  MUST be last
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.65");
+static size_t sizeofFastQuad(int numPts)
+{
+  // account for size of ptArray
+  return sizeof(vtkFastGeomQuad) + (numPts-3)*sizeof(vtkIdType);
+}
+
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.66");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1652,7 +1659,7 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(int numberOfCells)
   this->NextQuadIndex = 0;
 
   // size the chunks based on the size of a quadrilateral
-  int quadSize = sizeof(vtkFastGeomQuad) + 4*sizeof(vtkIdType);
+  int quadSize = sizeofFastQuad(4);
 
   // Lets keep the chunk size relatively small.
   if (numberOfCells < 100)
@@ -1699,7 +1706,7 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
     }
  
   // see if there's room for this one 
-  vtkIdType polySize = sizeof(vtkFastGeomQuad) + numPts*sizeof(vtkIdType);
+  vtkIdType polySize = sizeofFastQuad(numPts);
   if(this->NextQuadIndex + polySize > this->FastGeomQuadArrayLength)
     {
     ++(this->NextArrayIndex);
