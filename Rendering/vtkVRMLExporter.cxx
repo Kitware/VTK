@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.83");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.84");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -243,19 +243,16 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkDataArray *normals = NULL;
   vtkDataArray *tcoords = NULL;
   int i, i1, i2;
-  vtkProperty *prop;
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
-  double tempf2;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
   double *p;
   unsigned char *c;
   vtkTransform *trans;
-  int totalValues;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
@@ -511,6 +508,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
   pm->Delete();
 }
+
 void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
                                        vtkPolyData* polyData,
                                        vtkPointData* pntData,
@@ -653,19 +651,20 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     }
   fprintf(fileP,"            }\n"); // close appearance
 }
+
 void vtkVRMLExporter::WriteShapeEnd( FILE *fileP )
 {
   fprintf(fileP,"        }\n"); // close the  Shape
 }
+
 void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
                                      vtkDataArray *tcoords, 
                                      vtkUnsignedCharArray *colors, FILE *fp)
 {
-
   double *p;
   int i;
   unsigned char *c;
-  
+
   // write out the points
   fprintf(fp,"            coord DEF VTKcoordinates Coordinate {\n");
   fprintf(fp,"              point [\n");
@@ -721,7 +720,6 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
     }
 }
 
-
 void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -734,6 +732,6 @@ void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "FileName: (null)\n";
     }
+
   os << indent << "Speed: " << this->Speed << "\n";
 }
-
