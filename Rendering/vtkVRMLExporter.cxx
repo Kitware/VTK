@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.82");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.83");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -140,7 +140,9 @@ void vtkVRMLExporter::WriteData()
           tempd[3], tempd[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
-  fprintf(fp,"    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", this->Speed);
+  fprintf(fp,
+    "    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", 
+          this->Speed);
   if (ren->GetLights()->GetNumberOfItems() == 0)
     {
     fprintf(fp,"      headlight TRUE}\n\n");
@@ -149,7 +151,8 @@ void vtkVRMLExporter::WriteData()
     {
     fprintf(fp,"      headlight FALSE}\n\n");
     }
-  fprintf(fp,"    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
+  fprintf(fp,
+    "    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
   fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
           ren->GetAmbient()[1], ren->GetAmbient()[2]);
   
@@ -174,7 +177,6 @@ void vtkVRMLExporter::WriteData()
       this->WriteAnActor(aPart, fp);
       }
     }
-
   if (!this->FilePointer)
     {
     fclose(fp);
@@ -254,13 +256,16 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   unsigned char *c;
   vtkTransform *trans;
   int totalValues;
-  
+
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
     return;
     }
-
+  if (anActor->GetVisibility() == 0)
+    {
+    return;
+    }
   // first stuff out the transform
   trans = vtkTransform::New();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
@@ -320,142 +325,10 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   tcoords = pntData->GetTCoords();
   colors  = pm->MapScalars(1.0);
   
-  fprintf(fp,"        Shape {\n");
-  
-  // write out the material properties to the mat file
-  fprintf(fp,"          appearance Appearance {\n");
-  fprintf(fp,"            material Material {\n");
-  prop = anActor->GetProperty();
-  fprintf(fp,"              ambientIntensity %g\n", prop->GetAmbient());
-  // if we don't have colors and we have only lines & points
-  // use emissive to color them
-  if (!(normals || colors || pd->GetNumberOfPolys() || 
-        pd->GetNumberOfStrips()))
-    {
-    tempf2 = prop->GetAmbient();
-    tempd = prop->GetAmbientColor();
-    fprintf(fp,"              emissiveColor %g %g %g\n",
-            tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
-    }
-  tempf2 = prop->GetDiffuse();
-  tempd = prop->GetDiffuseColor();
-  fprintf(fp,"              diffuseColor %g %g %g\n",
-          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
-  tempf2 = prop->GetSpecular();
-  tempd = prop->GetSpecularColor();
-  fprintf(fp,"              specularColor %g %g %g\n",
-          tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
-  fprintf(fp,"              shininess %g\n",prop->GetSpecularPower()/128.0);
-  fprintf(fp,"              transparency %g\n",1.0 - prop->GetOpacity());
-  fprintf(fp,"              }\n"); // close matrial
-
-  // is there a texture map
-  if (anActor->GetTexture())
-    {
-    vtkTexture *aTexture = anActor->GetTexture();
-    int *size, xsize, ysize, bpp;
-    vtkDataArray *scalars;
-    vtkDataArray *mappedScalars;
-    unsigned char *txtrData;
-    
-    // make sure it is updated and then get some info
-    if (aTexture->GetInput() == NULL)
-      {
-      vtkErrorMacro(<< "texture has no input!\n");
-      return;
-      }
-    aTexture->GetInput()->Update();
-    size = aTexture->GetInput()->GetDimensions();
-    scalars = aTexture->GetInput()->GetPointData()->GetScalars();
-
-    // make sure scalars are non null
-    if (!scalars) 
-      {
-      vtkErrorMacro(<< "No scalar values found for texture input!\n");
-      return;
-      }
-
-    // make sure using unsigned char data of color scalars type
-    if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
-      {
-      mappedScalars = aTexture->GetMappedScalars ();
-      }
-    else
-      {
-      mappedScalars = scalars;
-      }
-
-    // we only support 2d texture maps right now
-    // so one of the three sizes must be 1, but it 
-    // could be any of them, so lets find it
-    if (size[0] == 1)
-      {
-      xsize = size[1]; ysize = size[2];
-      }
-    else
-      {
-      xsize = size[0];
-      if (size[1] == 1)
-        {
-        ysize = size[2];
-        }
-      else
-        {
-        ysize = size[1];
-        if (size[2] != 1)
-          {
-          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-          return;
-          }
-        }
-      }
-
-    fprintf(fp,"            texture PixelTexture {\n");
-    bpp = mappedScalars->GetNumberOfComponents();
-    fprintf(fp,"              image %i %i %i\n", xsize, ysize, bpp);
-    txtrData = static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
-    totalValues = xsize*ysize;
-    for (i = 0; i < totalValues; i++)
-      {
-      fprintf(fp,"0x%.2x",*txtrData);
-      txtrData++;
-      if (bpp > 1) 
-        {
-        fprintf(fp,"%.2x",*txtrData);
-        txtrData++;
-        }
-      if (bpp > 2) 
-        {
-        fprintf(fp,"%.2x",*txtrData);
-        txtrData++;
-        }
-      if (bpp > 3) 
-        {
-        fprintf(fp,"%.2x",*txtrData);
-        txtrData++;
-        }
-      if (i%8 == 0)
-        {
-        fprintf(fp,"\n");
-        }
-      else
-        {
-        fprintf(fp," ");
-        }
-      }
-    if (!(aTexture->GetRepeat()))
-      {
-      fprintf(fp,"              repeatS FALSE\n");
-      fprintf(fp,"              repeatT FALSE\n");
-      }
-    fprintf(fp,"              }\n"); // close texture
-    }
-  fprintf(fp,"            }\n"); // close appearance
-
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
     {
+    WriteShapeBegin(anActor,fp, pd, pntData, colors);
     fprintf(fp,"          geometry IndexedFaceSet {\n");
     // two sided lighting ? for now assume it is on
     fprintf(fp,"            solid FALSE\n");
@@ -496,11 +369,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
     fprintf(fp,"            ]\n");
     fprintf(fp,"          }\n");
+    WriteShapeEnd(fp);
     }
 
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
     {
+    WriteShapeBegin(anActor,fp, pd, pntData, colors);
     fprintf(fp,"          geometry IndexedFaceSet {\n");
     if (!pointDataWritten)
       {
@@ -547,11 +422,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
     fprintf(fp,"            ]\n");
     fprintf(fp,"          }\n");
+    WriteShapeEnd(fp);
     }
   
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
     {
+    WriteShapeBegin(anActor,fp, pd,  pntData, colors);
     fprintf(fp,"          geometry IndexedLineSet {\n");
     if (!pointDataWritten)
       {
@@ -582,11 +459,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
     fprintf(fp,"            ]\n");
     fprintf(fp,"          }\n");
+    WriteShapeEnd(fp);
     }
 
   // write out verts if any
   if (pd->GetNumberOfVerts() > 0)
     {
+    WriteShapeBegin(anActor,fp, pd, pntData, colors);
     fprintf(fp,"          geometry PointSet {\n");
     cells = pd->GetVerts();
     fprintf(fp,"            coord Coordinate {");
@@ -603,27 +482,26 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     fprintf(fp,"              ]\n");
     fprintf(fp,"            }\n");
     if (colors)
+      {
+      fprintf(fp,"            color Color {");
+      fprintf(fp,"              color [");
+      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
         {
-        fprintf(fp,"            color Color {");
-        fprintf(fp,"              color [");
-        for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+        fprintf(fp,"              ");
+        for (i = 0; i < npts; i++)
           {
-          fprintf(fp,"              ");
-          for (i = 0; i < npts; i++)
-            {
-            c = colors->GetPointer(4*indx[i]);
-            fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
+          c = colors->GetPointer(4*indx[i]);
+          fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
                      c[2]/255.0);
-            }
           }
-        fprintf(fp,"              ]\n");
-        fprintf(fp,"            }\n");
         }
-  
+      fprintf(fp,"              ]\n");
+      fprintf(fp,"            }\n");
+      }
     fprintf(fp,"          }\n");
+    WriteShapeEnd(fp);
     }
 
-  fprintf(fp,"        }\n"); // close the  Shape
   fprintf(fp,"      ]\n"); // close the original transforms children
   fprintf(fp,"    }\n"); // close the original transform
   
@@ -633,11 +511,157 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
   pm->Delete();
 }
-
+void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
+                                       vtkPolyData* polyData,
+                                       vtkPointData* pntData,
+                                       vtkUnsignedCharArray* color)
+{
+  double *tempd;
+  double tempf2;
+        
+  fprintf(fileP,"        Shape {\n");
+  vtkProperty* props = 0;
+  // write out the material properties to the mat file
+  fprintf(fileP,"          appearance Appearance {\n");
+  fprintf(fileP,"            material Material {\n");
+  props = actor->GetProperty();
+  fprintf(fileP,"              ambientIntensity %g\n", props->GetAmbient());
+  // if we don't have colors and we have only lines & points
+  // use emissive to color them
+  if (!(pntData->GetNormals() || color || polyData->GetNumberOfPolys() || 
+                  polyData->GetNumberOfStrips()))
+    {
+    tempf2 = props->GetAmbient();
+    tempd = props->GetAmbientColor();
+    fprintf(fileP,"              emissiveColor %g %g %g\n",
+    tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
+    }
+  tempf2 = props->GetDiffuse();
+  tempd = props->GetDiffuseColor();
+  fprintf(fileP,"              diffuseColor %g %g %g\n",
+  tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
+  tempf2 = props->GetSpecular();
+  tempd = props->GetSpecularColor();
+  fprintf(fileP,"              specularColor %g %g %g\n",
+  tempd[0]*tempf2, tempd[1]*tempf2, tempd[2]*tempf2);
+  fprintf(fileP,"              shininess %g\n",props->GetSpecularPower()/128.0);
+  fprintf(fileP,"              transparency %g\n",1.0-props->GetOpacity());
+  fprintf(fileP,"              }\n"); // close matrial
+        
+  // is there a texture map
+  if (actor->GetTexture())
+    {
+    vtkTexture *aTexture = actor->GetTexture();
+    int *size, xsize, ysize, bpp;
+    vtkDataArray *scalars;
+    vtkDataArray *mappedScalars;
+    unsigned char *txtrData;
+                
+    // make sure it is updated and then get some info
+    if (aTexture->GetInput() == NULL)
+      {
+      vtkErrorMacro(<< "texture has no input!\n");
+      return;
+      }
+    aTexture->GetInput()->Update();
+    size = aTexture->GetInput()->GetDimensions();
+    scalars = aTexture->GetInput()->GetPointData()->GetScalars();
+                
+    // make sure scalars are non null
+    if (!scalars) 
+      {
+      vtkErrorMacro(<< "No scalar values found for texture input!\n");
+      return;
+      }
+                
+    // make sure using unsigned char data of color scalars type
+    if (aTexture->GetMapColorScalarsThroughLookupTable () ||
+        (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+      {
+      mappedScalars = aTexture->GetMappedScalars ();
+      }
+    else
+      {
+      mappedScalars = scalars;
+      }
+                
+    // we only support 2d texture maps right now
+    // so one of the three sizes must be 1, but it 
+    // could be any of them, so lets find it
+    if (size[0] == 1)
+      {
+      xsize = size[1]; ysize = size[2];
+      }
+    else
+      {
+      xsize = size[0];
+      if (size[1] == 1)
+        {
+        ysize = size[2];
+        }
+      else
+        {
+        ysize = size[1];
+        if (size[2] != 1)
+          {
+          vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+          return;
+          }
+        }
+      }
+                
+    fprintf(fileP,"            texture PixelTexture {\n");
+    bpp = mappedScalars->GetNumberOfComponents();
+    fprintf(fileP,"              image %i %i %i\n", xsize, ysize, bpp);
+    txtrData = 
+    static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
+    int totalValues = xsize*ysize;
+    for (int i = 0; i < totalValues; i++)
+      {
+      fprintf(fileP,"0x%.2x",*txtrData);
+      txtrData++;
+      if (bpp > 1) 
+        {
+        fprintf(fileP,"%.2x",*txtrData);
+        txtrData++;
+        }
+      if (bpp > 2) 
+        {
+        fprintf(fileP,"%.2x",*txtrData);
+        txtrData++;
+        }
+      if (bpp > 3) 
+        {
+        fprintf(fileP,"%.2x",*txtrData);
+        txtrData++;
+        }
+      if (i%8 == 0)
+        {
+        fprintf(fileP,"\n");
+        }
+      else
+        {
+        fprintf(fileP," ");
+        }
+      }
+    if (!(aTexture->GetRepeat()))
+      {
+      fprintf(fileP,"              repeatS FALSE\n");
+      fprintf(fileP,"              repeatT FALSE\n");
+      }
+    fprintf(fileP,"              }\n"); // close texture
+    }
+  fprintf(fileP,"            }\n"); // close appearance
+}
+void vtkVRMLExporter::WriteShapeEnd( FILE *fileP )
+{
+  fprintf(fileP,"        }\n"); // close the  Shape
+}
 void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
                                      vtkDataArray *tcoords, 
                                      vtkUnsignedCharArray *colors, FILE *fp)
 {
+
   double *p;
   int i;
   unsigned char *c;
