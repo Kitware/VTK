@@ -46,8 +46,8 @@ public:
   // space where the widget should be placed.
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation() {};
-  virtual void StartWidgetInteraction(double*) = 0;
-  virtual void WidgetInteraction(double*) = 0;
+  virtual void StartWidgetInteraction(double eventPos[2]) = 0;
+  virtual void WidgetInteraction(double eventPos[2]) = 0;
 //  virtual void Highlight(int);
 
 //BTX
