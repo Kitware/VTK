@@ -40,7 +40,7 @@
 #include "vtkInteractorObserver.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.9.2.1");
+vtkCxxRevisionMacro(vtkImplicitPlaneRepresentation, "1.9.2.2");
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -425,7 +425,7 @@ void vtkImplicitPlaneRepresentation::WidgetInteraction(double e[2])
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double* vtkNotUsed(e[2]))
+void vtkImplicitPlaneRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
 {
   this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
 }
