@@ -73,12 +73,16 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
 
+  // Description:
+  // Get/Set the orientation.
+  void SetOrientation(int orient);
+  int GetOrientation();
+
 protected:
   vtkScalarBarRepresentation();
   ~vtkScalarBarRepresentation();
 
   vtkScalarBarActor *ScalarBarActor;
-
 private:
   vtkScalarBarRepresentation(const vtkScalarBarRepresentation &); // Not implemented
   void operator=(const vtkScalarBarRepresentation &);   // Not implemented
