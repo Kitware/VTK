@@ -52,6 +52,7 @@ def get_vtk_array_type(numpy_array_type):
     _np_vtk = {numpy.character:vtkConstants.VTK_UNSIGNED_CHAR,
                 numpy.uint8:vtkConstants.VTK_UNSIGNED_CHAR,
                 numpy.uint16:vtkConstants.VTK_UNSIGNED_SHORT,
+                numpy.uint32:vtkConstants.VTK_UNSIGNED_INT,
                 ULONG_TYPE_CODE:vtkConstants.VTK_UNSIGNED_LONG,
                 numpy.int8:vtkConstants.VTK_CHAR,
                 numpy.int16:vtkConstants.VTK_SHORT,
