@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.8.32.1");
+vtkCxxRevisionMacro(vtkBalloonRepresentation, "1.8.32.2");
 vtkStandardNewMacro(vtkBalloonRepresentation);
 
 vtkCxxSetObjectMacro(vtkBalloonRepresentation, TextProperty, vtkTextProperty);
@@ -171,7 +171,7 @@ void vtkBalloonRepresentation::StartWidgetInteraction(double e[2])
 
 
 //----------------------------------------------------------------------
-void vtkBalloonRepresentation::EndWidgetInteraction(double* vtkNotUsed(e[2]))
+void vtkBalloonRepresentation::EndWidgetInteraction(double vtkNotUsed(e)[2])
 {
   this->VisibilityOff();
 }
