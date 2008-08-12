@@ -43,11 +43,11 @@ struct vtkFastGeomQuadStruct
 {
   struct vtkFastGeomQuadStruct *Next;
   vtkIdType SourceId;
-  unsigned int numPts;
+  int numPts;
   vtkIdType ptArray[0]; // variable length array.  MUST be last
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.64");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.65");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1305,7 +1305,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   while ( (q = this->GetNextVisibleQuadFromHash()) )
     {
     // handle all polys
-    for (unsigned int i = 0; i < q->numPts; i++)
+    for (i = 0; i < q->numPts; i++)
       {
       q->ptArray[i] = this->GetOutputPointId(q->ptArray[i], input, newPts, outputPD);
       }
@@ -1540,13 +1540,13 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
 //        the cellId of the polygon
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
-                                                  unsigned int numPts, vtkIdType sourceId)
+                                                  int numPts, vtkIdType sourceId)
 {
   vtkFastGeomQuad *quad, **end;
 
   // find the index to the smallest id
   vtkIdType offset = 0;
-  for(unsigned int i=1; i<numPts; i++)
+  for(int i=1; i<numPts; i++)
     {
     if(ids[i] < ids[offset])
       {
@@ -1556,7 +1556,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
 
   // copy ids into ordered array with smallest id first
   vtkIdType* tab = new vtkIdType[numPts];
-  for(unsigned int i=0; i<numPts; i++)
+  for(int i=0; i<numPts; i++)
     {
     tab[i] = ids[(offset+i)%numPts];
     }
@@ -1576,7 +1576,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
         {
         // if the first two points match loop through forwards
         // checking all points
-        for (unsigned int i = 2; i < numPts; i++)
+        for (int i = 2; i < numPts; i++)
           {
           if ( tab[i] != quad->ptArray[i])
             {
@@ -1589,7 +1589,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
         {
         // the first two points match with the opposite sense.
         // loop though comparing the correct sense
-        for (unsigned int i = 2; i < numPts; i++)
+        for (int i = 2; i < numPts; i++)
           {
           if ( tab[numPts - i] != quad->ptArray[i])
             {
@@ -1623,7 +1623,7 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
   // mark the structure as a polygon
   quad->Next = NULL;
   quad->SourceId = sourceId;
-  for (unsigned int i = 0; i < numPts; i++)
+  for (int i = 0; i < numPts; i++)
     {
       quad->ptArray[i] = tab[i];
     }
@@ -1690,7 +1690,7 @@ void vtkDataSetSurfaceFilter::DeleteAllFastGeomQuads()
 }
 
 //----------------------------------------------------------------------------
-vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(unsigned int numPts)
+vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
 {
   if (this->FastGeomQuadArrayLength == 0)
     {

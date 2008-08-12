@@ -104,7 +104,7 @@ protected:
                         vtkIdType sourceId);
   void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                        vtkIdType sourceId);
-  void InsertPolygonInHash(vtkIdType* ids, unsigned int numpts,
+  void InsertPolygonInHash(vtkIdType* ids, int numpts,
                            vtkIdType sourceId);
   void InitQuadHashTraversal();
   vtkFastGeomQuad *GetNextVisibleQuadFromHash();
@@ -122,7 +122,7 @@ protected:
   
   // Better memory allocation for faces (hash)
   void InitFastGeomQuadAllocation(int numberOfCells);
-  vtkFastGeomQuad* NewFastGeomQuad(unsigned int numPts);
+  vtkFastGeomQuad* NewFastGeomQuad(int numPts);
   void DeleteAllFastGeomQuads();
   // -----
   int FastGeomQuadArrayLength;
