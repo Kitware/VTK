@@ -118,6 +118,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       cowHair
       cowHair2
       createBFont
+      cursor2D
       cursor3D
       cutLoop
       cylMap
