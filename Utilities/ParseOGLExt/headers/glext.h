@@ -480,7 +480,7 @@ extern "C" {
 #endif
 
 #ifndef GL_VERSION_3_0
-#define GL_COMPARE_REF_TO_TEXTURE         GL_COMPARE_R_TO_TEXTURE_ARB
+#define GL_COMPARE_REF_TO_TEXTURE         GL_COMPARE_R_TO_TEXTURE
 #define GL_CLIP_DISTANCE0                 GL_CLIP_PLANE0
 #define GL_CLIP_DISTANCE1                 GL_CLIP_PLANE1
 #define GL_CLIP_DISTANCE2                 GL_CLIP_PLANE2
