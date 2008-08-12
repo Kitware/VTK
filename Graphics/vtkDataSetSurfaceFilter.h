@@ -104,14 +104,8 @@ protected:
                         vtkIdType sourceId);
   void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                        vtkIdType sourceId);
-  void InsertPentaInHash(vtkIdType a, vtkIdType b,
-                       vtkIdType c, vtkIdType d,
-                       vtkIdType e, 
-                       vtkIdType sourceId);
-  void InsertHexInHash(vtkIdType a, vtkIdType b,
-                       vtkIdType c, vtkIdType d,
-                       vtkIdType e, vtkIdType f,
-                       vtkIdType sourceId);
+  void InsertPolygonInHash(vtkIdType* ids, unsigned int numpts,
+                           vtkIdType sourceId);
   void InitQuadHashTraversal();
   vtkFastGeomQuad *GetNextVisibleQuadFromHash();
 
@@ -128,12 +122,12 @@ protected:
   
   // Better memory allocation for faces (hash)
   void InitFastGeomQuadAllocation(int numberOfCells);
-  vtkFastGeomQuad* NewFastGeomQuad();
+  vtkFastGeomQuad* NewFastGeomQuad(unsigned int numPts);
   void DeleteAllFastGeomQuads();
   // -----
   int FastGeomQuadArrayLength;
   int NumberOfFastGeomQuadArrays;
-  vtkFastGeomQuad** FastGeomQuadArrays;
+  unsigned char** FastGeomQuadArrays;  // store this data as an array of bytes
   // These indexes allow us to find the next available face.
   int NextArrayIndex;
   int NextQuadIndex;

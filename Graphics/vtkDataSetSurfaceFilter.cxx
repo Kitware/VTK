@@ -41,17 +41,13 @@
 // Helper structure for hashing faces.
 struct vtkFastGeomQuadStruct
 {
-  vtkIdType p0;
-  vtkIdType p1;
-  vtkIdType p2;
-  vtkIdType p3;
-  vtkIdType p4;
-  vtkIdType p5;
-  vtkIdType SourceId;
   struct vtkFastGeomQuadStruct *Next;
+  vtkIdType SourceId;
+  unsigned int numPts;
+  vtkIdType ptArray[0]; // variable length array.  MUST be last
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.63");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.64");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1108,8 +1104,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       this->InsertQuadInHash (ids[2], ids[3], ids[8], ids[7], cellId);
       this->InsertQuadInHash (ids[3], ids[4], ids[9], ids[8], cellId);
       this->InsertQuadInHash (ids[4], ids[0], ids[5], ids[9], cellId);
-      this->InsertPentaInHash(ids[0], ids[1], ids[2], ids[3], ids[4], cellId);
-      this->InsertPentaInHash(ids[5], ids[6], ids[7], ids[8], ids[9], cellId);
+      this->InsertPolygonInHash(ids, 5, cellId);
+      this->InsertPolygonInHash(&ids[5], 5, cellId);
       }
     else if (cellType == VTK_HEXAGONAL_PRISM)
       {
@@ -1120,8 +1116,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       this->InsertQuadInHash(ids[3], ids[4], ids[10], ids[9], cellId);
       this->InsertQuadInHash(ids[4], ids[5], ids[11], ids[10], cellId);
       this->InsertQuadInHash(ids[5], ids[0], ids[6], ids[11], cellId);
-      this->InsertHexInHash (ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], cellId);
-      this->InsertHexInHash (ids[6], ids[7], ids[8], ids[9], ids[10], ids[11], cellId);
+      this->InsertPolygonInHash (ids, 6, cellId);
+      this->InsertPolygonInHash (&ids[6], 6, cellId);
       }
     else if (cellType == VTK_PIXEL || cellType == VTK_QUAD ||
              cellType == VTK_TRIANGLE || cellType == VTK_POLYGON ||
@@ -1162,8 +1158,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
               }
             else
               {
-              vtkWarningMacro(<< "I cannot deal with faces with " << numFacePts
-                              << " points.");
+              this->InsertPolygonInHash(face->PointIds->GetPointer(0),
+                                        face->PointIds->GetNumberOfIds(),
+                                        cellId);
               }
             } // for all cell faces
           } // if 3D
@@ -1307,55 +1304,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   this->InitQuadHashTraversal();
   while ( (q = this->GetNextVisibleQuadFromHash()) )
     {
-    // If Tri or Quad:
-    if( q->p4 == -1 && q->p5 == -1)
+    // handle all polys
+    for (unsigned int i = 0; i < q->numPts; i++)
       {
-      if ( q->p0 == q->p3)
-        {
-        outPts[0] = this->GetOutputPointId(q->p0, input, newPts, outputPD);
-        outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
-        outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
-        newPolys->InsertNextCell(3, outPts);
-        this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
-        outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
-        }
-      else
-        {
-        outPts[0] = this->GetOutputPointId(q->p0, input, newPts, outputPD);
-        outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
-        outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
-        outPts[3] = this->GetOutputPointId(q->p3, input, newPts, outputPD);
-        newPolys->InsertNextCell(4, outPts);
-        this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
-        outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
-        }
+      q->ptArray[i] = this->GetOutputPointId(q->ptArray[i], input, newPts, outputPD);
       }
-    else // Penta or Hex
-      {
-      if( q->p4 != -1 && q->p5 == -1)
-        {
-        outPts[0] = this->GetOutputPointId(q->p0, input, newPts, outputPD);
-        outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
-        outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
-        outPts[3] = this->GetOutputPointId(q->p3, input, newPts, outputPD);
-        outPts[4] = this->GetOutputPointId(q->p4, input, newPts, outputPD);
-        newPolys->InsertNextCell(5, outPts);
-        this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
-        outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
-        }
-      else
-        {
-        outPts[0] = this->GetOutputPointId(q->p0, input, newPts, outputPD);
-        outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
-        outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
-        outPts[3] = this->GetOutputPointId(q->p3, input, newPts, outputPD);
-        outPts[4] = this->GetOutputPointId(q->p4, input, newPts, outputPD);
-        outPts[5] = this->GetOutputPointId(q->p5, input, newPts, outputPD);
-        newPolys->InsertNextCell(6, outPts);
-        this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
-        outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
-        }
-      }
+    newPolys->InsertNextCell(q->numPts, q->ptArray);
+    this->RecordOrigCellId(this->NumberOfNewCells, q->SourceId);
+    outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
     }
 
   if (this->PassThroughCellIds)
@@ -1497,10 +1453,10 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
     end = &(quad->Next);
     // a has to match in this bin.
     // c should be independant of point order.
-    if (c == quad->p2)
+    if (quad->numPts == 4 && c == quad->ptArray[2])
       { 
       // Check boh orders for b and d.
-      if ((b == quad->p1 && d == quad->p3) || (b == quad->p3 && d == quad->p1))
+      if ((b == quad->ptArray[1] && d == quad->ptArray[3]) || (b == quad->ptArray[3] && d == quad->ptArray[1]))
         {
         // We have a match.
         quad->SourceId = -1;
@@ -1512,15 +1468,13 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
     }
   
   // Create a new quad and add it to the hash.
-  quad = this->NewFastGeomQuad();
+  quad = this->NewFastGeomQuad(4);
   quad->Next = NULL;
   quad->SourceId = sourceId;
-  quad->p0 = a;
-  quad->p1 = b;
-  quad->p2 = c;
-  quad->p3 = d;
-  quad->p4 = -1;
-  quad->p5 = -1;
+  quad->ptArray[0] = a;
+  quad->ptArray[1] = b;
+  quad->ptArray[2] = c;
+  quad->ptArray[3] = d;
   *end = quad;
 }
 
@@ -1556,9 +1510,9 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     {
     end = &(quad->Next);
     // a has to match in this bin.
-    if (quad->p0 == quad->p3)
+    if (quad->numPts == 3)
       { 
-      if ((b == quad->p1 && c == quad->p2) || (b == quad->p2 && c == quad->p1))
+      if ((b == quad->ptArray[1] && c == quad->ptArray[2]) || (b == quad->ptArray[2] && c == quad->ptArray[1]))
         {
         // We have a match.
         quad->SourceId = -1;
@@ -1570,141 +1524,112 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     }
   
   // Create a new quad and add it to the hash.
-  quad = this->NewFastGeomQuad();
+  quad = this->NewFastGeomQuad(3);
   quad->Next = NULL;
   quad->SourceId = sourceId;
-  quad->p0 = a;
-  quad->p1 = b;
-  quad->p2 = c;
-  quad->p3 = a;
-  quad->p4 = -1;
-  quad->p5 = -1;
+  quad->ptArray[0] = a;
+  quad->ptArray[1] = b;
+  quad->ptArray[2] = c;
   *end = quad;
 }
 
+// Insert a polygon into the hash.  
+// Input: an array of vertex ids
+//        the start index of the polygon in the array
+//        the end index of the polygon in the array
+//        the cellId of the polygon
 //----------------------------------------------------------------------------
-void vtkDataSetSurfaceFilter::InsertPentaInHash(vtkIdType a, vtkIdType b,
-                                                vtkIdType c, vtkIdType d,
-                                                vtkIdType e, vtkIdType sourceId)
+void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
+                                                  unsigned int numPts, vtkIdType sourceId)
 {
-  int idxmin = 0;
-  vtkIdType min = a;
   vtkFastGeomQuad *quad, **end;
 
-  // Copy in an array
-  vtkIdType tab[5] = {a, b, c, d, e};
-  
-  // Reorder to get smallest id in a.
-  for(int i=0;i<5;i++)
+  // find the index to the smallest id
+  vtkIdType offset = 0;
+  for(unsigned int i=1; i<numPts; i++)
     {
-    if( tab[i] < min )
+    if(ids[i] < ids[offset])
       {
-      min = tab[i];
-      idxmin = i;
+      offset = i;
       }
     }
-  a = tab[idxmin];
-  b = tab[(idxmin+1)%5];
-  c = tab[(idxmin+2)%5];
-  d = tab[(idxmin+3)%5];
-  e = tab[(idxmin+4)%5];
 
+  // copy ids into ordered array with smallest id first
+  vtkIdType* tab = new vtkIdType[numPts];
+  for(unsigned int i=0; i<numPts; i++)
+    {
+    tab[i] = ids[(offset+i)%numPts];
+    }
+  
   // Look for existing hex in the hash;
-  end = this->QuadHash + a;
+  end = this->QuadHash + tab[0];
   quad = *end;
   while (quad)
     {
     end = &(quad->Next);
     // a has to match in this bin.
-    if (quad->p5 == -1)
-      { 
-      if ((b == quad->p1 && c == quad->p2 && d == quad->p3 && e == quad->p4) 
-       || (b == quad->p4 && c == quad->p3 && d == quad->p2 && e == quad->p1))
-        {
-        // We have a match.
-        quad->SourceId = -1;
-        // That is all we need to do. Hide any tri shared by two or more cells.
-        return;
-        }
-      }
-    quad = *end;
-    }
-  
-  // Create a new quad and add it to the hash.
-  quad = this->NewFastGeomQuad();
-  quad->Next = NULL;
-  quad->SourceId = sourceId;
-  quad->p0 = a;
-  quad->p1 = b;
-  quad->p2 = c;
-  quad->p3 = d;
-  quad->p4 = e;
-  quad->p5 = -1;
-  *end = quad;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataSetSurfaceFilter::InsertHexInHash(vtkIdType a, vtkIdType b,
-                                              vtkIdType c, vtkIdType d,
-                                              vtkIdType e, vtkIdType f,
-                                              vtkIdType sourceId)
-{
-  int idxmin = 0;
-  vtkIdType min = a;
-  vtkFastGeomQuad *quad, **end;
-
-  // Copy in an array
-  vtkIdType tab[6] = {a, b, c, d, e, f};
-  
-  // Reorder to get smallest id in a.
-  for(int i=0;i<6;i++)
-    {
-    if( tab[i] < min )
+    // first just check the polygon size.
+    bool match = true;
+    if (numPts == quad->numPts)
       {
-      min = tab[i];
-      idxmin = i;
+      if ( tab[1] == quad->ptArray[1])
+        {
+        // if the first two points match loop through forwards
+        // checking all points
+        for (unsigned int i = 2; i < numPts; i++)
+          {
+          if ( tab[i] != quad->ptArray[i])
+            {
+            match = false;
+            break;
+            }
+          }
+        }
+      else if (tab[numPts-1] == quad->ptArray[1])
+        {
+        // the first two points match with the opposite sense.
+        // loop though comparing the correct sense
+        for (unsigned int i = 2; i < numPts; i++)
+          {
+          if ( tab[numPts - i] != quad->ptArray[i])
+            {
+            match = false;
+            break;
+            }
+          }
+        }
+      else
+        {
+        match = false;
+        }
       }
-    }
-  a = tab[idxmin];
-  b = tab[(idxmin+1)%6];
-  c = tab[(idxmin+2)%6];
-  d = tab[(idxmin+3)%6];
-  e = tab[(idxmin+4)%6];
-  f = tab[(idxmin+5)%6];
+    else
+      {
+      match = false;
+      }
 
-  // Look for existing hex in the hash;
-  end = this->QuadHash + a;
-  quad = *end;
-  while (quad)
-    {
-    end = &(quad->Next);
-    // a has to match in this bin.
-    // d should be independant of point order.
-    if (d == quad->p3)
-      { 
-      if ((b == quad->p1 && c == quad->p2 && e == quad->p4 && f == quad->p5) 
-       || (b == quad->p5 && c == quad->p4 && e == quad->p2 && f == quad->p1))
+      if (match)
         {
         // We have a match.
         quad->SourceId = -1;
         // That is all we need to do. Hide any tri shared by two or more cells.
         return;
         }
-      }
     quad = *end;
     }
   
   // Create a new quad and add it to the hash.
-  quad = this->NewFastGeomQuad();
+  quad = this->NewFastGeomQuad(numPts);
+  // mark the structure as a polygon
   quad->Next = NULL;
   quad->SourceId = sourceId;
-  quad->p0 = a;
-  quad->p1 = b;
-  quad->p2 = c;
-  quad->p3 = d;
-  quad->p4 = e;
-  quad->p5 = f;
+  for (unsigned int i = 0; i < numPts; i++)
+    {
+      quad->ptArray[i] = tab[i];
+    }
   *end = quad;
+
+  delete [] tab;
 }
 
 //----------------------------------------------------------------------------
@@ -1714,11 +1639,11 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(int numberOfCells)
 
   this->DeleteAllFastGeomQuads();
   // Allocate 100 pointers to arrays.
-  // This should be plenty (unless we have riangle strips) ...
+  // This should be plenty (unless we have triangle strips) ...
   this->NumberOfFastGeomQuadArrays = 100;
-  this->FastGeomQuadArrays = new vtkFastGeomQuad*[100];
+  this->FastGeomQuadArrays = new unsigned char*[this->NumberOfFastGeomQuadArrays];
   // Initalize all to NULL;
-  for (idx = 0; idx < 100; ++idx)
+  for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
     {
     this->FastGeomQuadArrays[idx] = NULL;
     }
@@ -1726,14 +1651,17 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(int numberOfCells)
   this->NextArrayIndex = 0;
   this->NextQuadIndex = 0;
 
+  // size the chunks based on the size of a quadrilateral
+  int quadSize = sizeof(vtkFastGeomQuad) + 4*sizeof(vtkIdType);
+
   // Lets keep the chunk size relatively small.
   if (numberOfCells < 100)
     {
-    this->FastGeomQuadArrayLength = 50;
+    this->FastGeomQuadArrayLength = 50 * quadSize;
     }
   else
     {
-    this->FastGeomQuadArrayLength = numberOfCells / 2;
+    this->FastGeomQuadArrayLength = (numberOfCells / 2) * quadSize;
     }
 }
 
@@ -1762,21 +1690,29 @@ void vtkDataSetSurfaceFilter::DeleteAllFastGeomQuads()
 }
 
 //----------------------------------------------------------------------------
-vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad()
+vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(unsigned int numPts)
 {
   if (this->FastGeomQuadArrayLength == 0)
     {
     vtkErrorMacro("Face hash allocation has not been initialized.");
     return NULL;
     }
-
+ 
+  // see if there's room for this one 
+  vtkIdType polySize = sizeof(vtkFastGeomQuad) + numPts*sizeof(vtkIdType);
+  if(this->NextQuadIndex + polySize > this->FastGeomQuadArrayLength)
+    {
+    ++(this->NextArrayIndex);
+    this->NextQuadIndex = 0;
+    }
+  
   // Although this should not happen often, check first.
   if (this->NextArrayIndex >= this->NumberOfFastGeomQuadArrays)
     {
     int idx, num;
-    vtkFastGeomQuad** newArrays;
-    num = this->FastGeomQuadArrayLength * 2;
-    newArrays = new vtkFastGeomQuad*[num];
+    unsigned char** newArrays;
+    num = this->NumberOfFastGeomQuadArrays * 2;
+    newArrays = new unsigned char*[num];
     for (idx = 0; idx < num; ++idx)
       {
       newArrays[idx] = NULL;
@@ -1787,27 +1723,21 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad()
       }
     delete [] this->FastGeomQuadArrays;
     this->FastGeomQuadArrays = newArrays;
-    this->FastGeomQuadArrayLength = num;
+    this->NumberOfFastGeomQuadArrays = num;
     }
 
   // Next: allocate a new array if necessary.
   if (this->FastGeomQuadArrays[this->NextArrayIndex] == NULL)
     {
-    // We are allocating a whole bunch at a time to avoid 
-    // allocation of many small pieces of memory.
     this->FastGeomQuadArrays[this->NextArrayIndex] 
-      = new vtkFastGeomQuad[this->FastGeomQuadArrayLength];
+      = new unsigned char[this->FastGeomQuadArrayLength];
     }
+  
+  vtkFastGeomQuad* q = (vtkFastGeomQuad*)
+    (this->FastGeomQuadArrays[this->NextArrayIndex] + this->NextQuadIndex);
+  q->numPts = numPts;
 
-  vtkFastGeomQuad* q = (this->FastGeomQuadArrays[this->NextArrayIndex]) + this->NextQuadIndex;
-
-  // Move to the next quad.
-  ++(this->NextQuadIndex);
-  if (this->NextQuadIndex >= this->FastGeomQuadArrayLength)
-    {
-    ++(this->NextArrayIndex);
-    this->NextQuadIndex = 0;
-    }
+  this->NextQuadIndex += polySize;
 
   return q;
 }
