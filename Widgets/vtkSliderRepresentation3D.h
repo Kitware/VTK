@@ -115,8 +115,8 @@ public:
   // Methods to interface with the vtkSliderWidget.
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double*);
-  virtual void WidgetInteraction(double*);
+  virtual void StartWidgetInteraction(double eventPos[2]);
+  virtual void WidgetInteraction(double newEventPos[2]);
   virtual void Highlight(int);
 
   // Decsription:
