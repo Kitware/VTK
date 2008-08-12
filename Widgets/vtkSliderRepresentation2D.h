@@ -109,13 +109,13 @@ public:
   // where the widget should be placed.
   virtual void PlaceWidget(double bounds[6]);
   virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double*);
-  virtual void WidgetInteraction(double*);
+  virtual void StartWidgetInteraction(double eventPos[2]);
+  virtual void WidgetInteraction(double newEventPos[2]);
   virtual void Highlight(int);
 
   // Decsription:
   // Methods supporting the rendering process.
-  virtual void GetActors(vtkPropCollection*);
+  virtual void GetActors2D(vtkPropCollection*);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
