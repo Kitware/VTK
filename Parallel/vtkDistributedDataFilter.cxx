@@ -60,7 +60,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.50")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.51")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -484,7 +484,7 @@ int vtkDistributedDataFilter::RequestData(
             }
           }
         }
-      for (int kk=0; kk < numProcs; kk++)
+      for (int kk=1; kk < numProcs; kk++)
         {
         this->Controller->Send(&leafTypes[0], numLeaves, kk, 1020203);
         }
