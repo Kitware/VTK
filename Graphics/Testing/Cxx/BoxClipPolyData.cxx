@@ -113,8 +113,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer1);
   renderer1->AddActor(actor1);
   renderer1->SetBackground(0.0, 0.5, 0.5);
-  renderer1->SetViewport((double)num/numPolySets, 0.75,
-                         (double)(num+1)/numPolySets, 1.0);
+  renderer1->SetViewport(static_cast<double>(num)/numPolySets, 0.75,
+                         static_cast<double>(num+1)/numPolySets, 1.0);
   renwin->AddRenderer(renderer1);
 
   // Set up test of normal box with generation of clipped output.
@@ -150,8 +150,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer2->AddActor(actor2_1);
   renderer2->AddActor(actor2_2);
   renderer2->SetBackground(0.0, 0.5, 0.5);
-  renderer2->SetViewport((double)num/numPolySets, 0.5,
-                         (double)(num+1)/numPolySets, 0.75);
+  renderer2->SetViewport(static_cast<double>(num)/numPolySets, 0.5,
+                         static_cast<double>(num+1)/numPolySets, 0.75);
   renwin->AddRenderer(renderer2);
 
   // Set up test of an oriented box.
@@ -178,8 +178,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer3);
   renderer3->AddActor(actor3);
   renderer3->SetBackground(0.0, 0.5, 0.5);
-  renderer3->SetViewport((double)num/numPolySets, 0.25,
-                         (double)(num+1)/numPolySets, 0.5);
+  renderer3->SetViewport(static_cast<double>(num)/numPolySets, 0.25,
+                         static_cast<double>(num+1)/numPolySets, 0.5);
   renwin->AddRenderer(renderer3);
 
   // Set up test of an oriented box with generation of clipped output.
@@ -218,8 +218,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer4->AddActor(actor4_1);
   renderer4->AddActor(actor4_2);
   renderer4->SetBackground(0.0, 0.5, 0.5);
-  renderer4->SetViewport((double)num/numPolySets, 0.0,
-                         (double)(num+1)/numPolySets, 0.25);
+  renderer4->SetViewport(static_cast<double>(num)/numPolySets, 0.0,
+                         static_cast<double>(num+1)/numPolySets, 0.25);
   renwin->AddRenderer(renderer4);
 }
 

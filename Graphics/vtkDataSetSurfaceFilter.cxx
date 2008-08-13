@@ -50,10 +50,10 @@ struct vtkFastGeomQuadStruct
 static int sizeofFastQuad(int numPts)
 {
   // account for size of ptArray
-  return (int)(sizeof(vtkFastGeomQuad) + (numPts-4)*sizeof(vtkIdType));
+  return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.67");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.68");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1739,7 +1739,7 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
       = new unsigned char[this->FastGeomQuadArrayLength];
     }
   
-  vtkFastGeomQuad* q = (vtkFastGeomQuad*)
+  vtkFastGeomQuad* q = reinterpret_cast<vtkFastGeomQuad*>
     (this->FastGeomQuadArrays[this->NextArrayIndex] + this->NextQuadIndex);
   q->numPts = numPts;
 

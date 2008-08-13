@@ -173,8 +173,10 @@ static void AddToRenderWindow(vtkRenderWindow *renwin,
                               int x = 0, int y = 0)
 {
   VTK_CREATE(vtkRenderer, renderer);
-  renderer->SetViewport((double)x/NumImagesX, (double)y/NumImagesY,
-                        (double)(x+1)/NumImagesX, (double)(y+1)/NumImagesY);
+  renderer->SetViewport(static_cast<double>(x)/NumImagesX,
+                        static_cast<double>(y)/NumImagesY,
+                        static_cast<double>(x+1)/NumImagesX,
+                        static_cast<double>(y+1)/NumImagesY);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface1);
   surface1->SetInputConnection(boxclip->GetOutputPort(0));

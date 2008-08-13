@@ -180,11 +180,11 @@ static void PlaceRenderer(vtkRenderer *renderer, int boxnum, int tetnum,
                           int boxtype)
 {
   renderer->SetViewport(tetnum/24.0 + 0.5*(boxtype%2),
-                        1.0 - (  (double)boxnum/NUM_CLIP_BOXES
-                               + (double)(boxtype/2 + 1)/(2*NUM_CLIP_BOXES) ),
+                        1.0 - (  static_cast<double>(boxnum)/NUM_CLIP_BOXES
+                               + static_cast<double>(boxtype/2 + 1)/(2*NUM_CLIP_BOXES) ),
                         (tetnum + 1)/24.0 + 0.5*(boxtype%2),
-                        1.0 - (  (double)boxnum/NUM_CLIP_BOXES
-                               + (double)(boxtype/2)/(2*NUM_CLIP_BOXES) ));
+                        1.0 - (  static_cast<double>(boxnum)/NUM_CLIP_BOXES
+                               + static_cast<double>(boxtype/2)/(2*NUM_CLIP_BOXES) ));
 }
 
 static void TestBox(vtkRenderWindow *renwin, int boxnum,
