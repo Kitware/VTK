@@ -33,7 +33,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.81");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.82");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1220,7 +1220,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
   vtkDataArray *times;
   float newTime;
   vtkIdList *numStepsList, *filenameNumbers;
-  //int fileNum;
+  int fileNum;
   int validTime, filenameNum;
   char* fileName, *fileName2;
   
@@ -1250,7 +1250,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
     
     timeStep = 0;
     timeStepInFile = 1;
-    //fileNum = 1;
+    fileNum = 0;
     validTime = 1;
     fileName = new char[strlen(this->VariableFileNames[i]) + 10];
     strcpy(fileName, this->VariableFileNames[i]);
@@ -1306,13 +1306,14 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
           {
           numSteps = numStepsList->GetId(0);
           timeStepInFile -= numSteps;
-          for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+          fileNum = 1;
+          for (j = 1; j < numStepsList->GetNumberOfIds(); j++)
             {
-            numSteps += numStepsList->GetId(i);
+            numSteps += numStepsList->GetId(j);
             if (timeStep > numSteps)
               {
-              //fileNum++;
-              timeStepInFile -= numStepsList->GetId(i);
+              fileNum++;
+              timeStepInFile -= numStepsList->GetId(j);
               }
             }
           }
@@ -1324,7 +1325,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
             {
             filenameNumbers = this->FileSetFileNameNumbers->
               GetItem(collectionNum);
-            filenameNum = filenameNumbers->GetId(timeStep-1);
+            filenameNum = filenameNumbers->GetId(fileNum);
             this->ReplaceWildcards(fileName, filenameNum);
             }
           }
@@ -1392,7 +1393,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
       }
     timeStep = 0;
     timeStepInFile = 1;
-    //fileNum = 1;
+    fileNum = 0;
     validTime = 1;
     fileName = new char[strlen(this->ComplexVariableFileNames[2*i]) + 10];
     strcpy(fileName, this->ComplexVariableFileNames[2*i]);
@@ -1449,13 +1450,14 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
           {
           numSteps = numStepsList->GetId(0);
           timeStepInFile -= numSteps;
-          for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+          fileNum = 1;
+          for (j = 1; j < numStepsList->GetNumberOfIds(); j++)
             {
-            numSteps += numStepsList->GetId(i);
+            numSteps += numStepsList->GetId(j);
             if (timeStep > numSteps)
               {
-              //fileNum++;
-              timeStepInFile -= numStepsList->GetId(i);
+              fileNum++;
+              timeStepInFile -= numStepsList->GetId(j);
               }
             }
           }
