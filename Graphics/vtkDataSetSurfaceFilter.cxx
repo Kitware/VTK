@@ -44,17 +44,16 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
   vtkIdType SourceId;
   int numPts;
-  vtkIdType ptArray[3]; // actually a variable length array with 
-                        // at least 3 points.  MUST be last
+  vtkIdType ptArray[4]; // actually a variable length array.  MUST be last
 };
 
-static size_t sizeofFastQuad(int numPts)
+static int sizeofFastQuad(int numPts)
 {
   // account for size of ptArray
-  return sizeof(vtkFastGeomQuad) + (numPts-3)*sizeof(vtkIdType);
+  return (int)(sizeof(vtkFastGeomQuad) + (numPts-4)*sizeof(vtkIdType));
 }
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.66");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.67");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1706,7 +1705,7 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
     }
  
   // see if there's room for this one 
-  vtkIdType polySize = sizeofFastQuad(numPts);
+  int polySize = sizeofFastQuad(numPts);
   if(this->NextQuadIndex + polySize > this->FastGeomQuadArrayLength)
     {
     ++(this->NextArrayIndex);
