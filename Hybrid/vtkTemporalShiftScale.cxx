@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.6");
+vtkCxxRevisionMacro(vtkTemporalShiftScale, "1.7");
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
 //----------------------------------------------------------------------------
@@ -107,8 +107,7 @@ int vtkTemporalShiftScale::RequestInformation (
       }
     if (this->Periodic)
       {
-        numOutTimes = PeriodicN*this->MaximumNumberOfPeriods;
-        numOutTimes = PeriodicN*this->MaximumNumberOfPeriods;
+        numOutTimes = static_cast<int>(this->PeriodicN*this->MaximumNumberOfPeriods);
       }
     outTimes = new double [numOutTimes];
     int i;
