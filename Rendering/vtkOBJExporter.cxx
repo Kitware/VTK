@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.58");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.58.2.1");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -141,9 +141,12 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     {
     return;
     }
-
   // write out the material properties to the mat file
   prop = anActor->GetProperty();
+  if (anActor->GetVisibility() == 0)
+    {
+    return;
+    }
   fprintf(fpMtl,"newmtl mtl%i\n",idStart);
   tempd = prop->GetAmbientColor();
   fprintf(fpMtl,"Ka %g %g %g\n",tempd[0], tempd[1], tempd[2]);
@@ -152,8 +155,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   tempd = prop->GetSpecularColor();
   fprintf(fpMtl,"Ks %g %g %g\n",tempd[0], tempd[1], tempd[2]);
   fprintf(fpMtl,"Ns %g\n",prop->GetSpecularPower());
-  fprintf(fpMtl,"Tf %g %g %g\n",1.0 - prop->GetOpacity(),
-          1.0 - prop->GetOpacity(),1.0 - prop->GetOpacity());
+  fprintf(fpMtl,"Tr %g ", prop->GetOpacity());
   fprintf(fpMtl,"illum 3\n\n");
 
   // get the mappers input and matrix
