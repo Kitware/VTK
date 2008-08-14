@@ -23,7 +23,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.3");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.4");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -51,9 +51,9 @@ bool vtkAbstractCellLocator::StoreCellBounds()
   vtkIdType numCells = this->DataSet->GetNumberOfCells();
   this->CellBounds = new double [numCells][6];
   for (vtkIdType j=0; j<numCells; j++) 
-  { 
+    { 
     this->DataSet->GetCellBounds(j, CellBounds[j]);
-  }
+    }
   return true;
 }
 //----------------------------------------------------------------------------
