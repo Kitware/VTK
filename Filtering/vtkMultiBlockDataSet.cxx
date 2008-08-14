@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMultiBlockDataSet);
-vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.9");
+vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.10");
 //----------------------------------------------------------------------------
 vtkMultiBlockDataSet::vtkMultiBlockDataSet()
 {
@@ -68,7 +68,8 @@ vtkDataObject* vtkMultiBlockDataSet::GetBlock(unsigned int blockno)
 void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
 {
   if (block && block->IsA("vtkCompositeDataSet") && 
-    !block->IsA("vtkMultiBlockDataSet") && !block->IsA("vtkMultiPieceDataSet"))
+    !block->IsA("vtkMultiBlockDataSet") && !block->IsA("vtkMultiPieceDataSet") &&
+    !block->IsA("vtkTemporalDataSet"))
     {
     vtkErrorMacro(<< block->GetClassName() << " cannot be added as a block.");
     return;
