@@ -96,6 +96,11 @@ public:
   virtual void Start();
 
   // Description:
+  // Update the Size data member and set the associated RenderWindow's
+  // size.
+  virtual void UpdateSize(int,int);
+
+  // Description:
   // Specify the Xt widget to use for interaction. This method is
   // one of a couple steps that are required for setting up a
   // vtkRenderWindowInteractor as a widget inside of another user 
@@ -187,14 +192,10 @@ protected:
 
   vtkCallbackCommand* BreakXtLoopCallback;
   static void BreakXtLoop(vtkObject*, unsigned long, void*, void*);
+
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif
-
-
-
-
-
