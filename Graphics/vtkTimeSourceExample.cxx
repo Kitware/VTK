@@ -28,7 +28,7 @@
 #include "vtkIdTypeArray.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkTimeSourceExample, "1.5");
+vtkCxxRevisionMacro(vtkTimeSourceExample, "1.6");
 vtkStandardNewMacro(vtkTimeSourceExample);
 
 #ifndef M_PI
@@ -232,6 +232,13 @@ int vtkTimeSourceExample::RequestInformation(
   ext[4] = 0;
   ext[5] = 1;
   info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext ,6);
+  
+  // This is a temporary hack to get around a pipeline problem.
+  // The executive (vtkStreamingDemandDrivenPipeline) expects 
+  // MAXIMUM_NUMBER_OF_PIECES() to be set when the output is a 
+  // vtkTemporalDataSet which happens if a consumer requests multiple
+  // time steps.
+  info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   return 1;
 }
