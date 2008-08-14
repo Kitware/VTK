@@ -151,7 +151,7 @@ public:
     double x[3], double closestPoint[3],
     vtkIdType &cellId, int &subId, double& dist2)
   {
-    return Superclass::
+    Superclass::
       FindClosestPoint(x, closestPoint, cellId, subId, dist2);
   }
   
@@ -162,7 +162,7 @@ public:
     vtkGenericCell *cell, vtkIdType &cellId, 
     int &subId, double& dist2)
   {
-    return Superclass::
+    Superclass::
       FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
   }
 

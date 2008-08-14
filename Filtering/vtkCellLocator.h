@@ -114,21 +114,10 @@ public:
     double x[3], double closestPoint[3],
     vtkIdType &cellId, int &subId, double& dist2)
   {
-    return Superclass::
+    Superclass::
       FindClosestPoint(x, closestPoint, cellId, subId, dist2);
   }
   
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3], vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cellId, subId, dist2);
-  }
- 
   // Description:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
@@ -144,6 +133,17 @@ public:
     vtkGenericCell *cell, vtkIdType &cellId, 
     int &subId, double& dist2);
 
+  // Description:
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double x[3], double radius,
+    double closestPoint[3], vtkIdType &cellId,
+    int &subId, double& dist2)
+  {
+    return Superclass::FindClosestPointWithinRadius
+      (x, radius, closestPoint, cellId, subId, dist2);
+  }
+ 
   // Description:
   // reimplemented from vtkAbstractCellLocator to support bad compilers
   virtual vtkIdType FindClosestPointWithinRadius(
