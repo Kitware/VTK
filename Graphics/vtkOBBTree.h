@@ -85,31 +85,36 @@ public:
   static vtkOBBTree *New();
 
 //BTX
+/*
+  if the borland compiler is ever removed, we can use these declarations
+  instead of reimplementaing the calls in this subclass
   using vtkAbstractCellLocator::IntersectWithLine;
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;
+*/
 //ETX
 
   // Description:
-  // Compute an OBB from the list of points given. Return the corner point
-  // and the three axes defining the orientation of the OBB. Also return
-  // a sorted list of relative "sizes" of axes for comparison purposes.
-  void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
-                  double mid[3], double min[3], double size[3]);
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual int IntersectWithLine(
+    double a0[3], double a1[3], double tol,
+    double& t, double x[3], double pcoords[3],
+    int &subId) 
+  {
+    return Superclass::
+      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId);
+  }
 
   // Description:
-  // Compute an OBB for the input dataset using the cells in the data.
-  // Return the corner point and the three axes defining the orientation
-  // of the OBB. Also return a sorted list of relative "sizes" of axes for
-  // comparison purposes.
-  void ComputeOBB(vtkDataSet *input, double corner[3], double max[3],
-                  double mid[3], double min[3], double size[3]);
-
-  // Description:
-  // Determine whether a point is inside or outside the data used to build
-  // this OBB tree.  The data must be a closed surface vtkPolyData data set.
-  // The return value is +1 if outside, -1 if inside, and 0 if undecided.
-  int InsideOrOutside(const double point[3]);
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual int IntersectWithLine(
+    double a0[3], double a1[3], double tol,
+    double& t, double x[3], double pcoords[3],
+    int &subId, vtkIdType &cellId)
+  {
+    return Superclass::
+      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId, cellId);
+  }
 
   // Description:
   // Take the passed line segment and intersect it with the data set.
@@ -131,6 +136,90 @@ public:
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+
+  // Description:
+  // Return the closest point and the cell which is closest to the point x.
+  // The closest point is somewhere on a cell, it need not be one of the
+  // vertices of the cell.  This version takes in a vtkGenericCell
+  // to avoid allocating and deallocating the cell.  This is much faster than
+  // the version which does not take a *cell, especially when this function is
+  // called many times in a row such as by a for loop, where the allocation and
+  // deallocation can be done only once outside the for loop.  If a cell is
+  // found, "cell" contains the points and ptIds for the cell "cellId" upon
+  // exit.
+  virtual void FindClosestPoint(
+    double x[3], double closestPoint[3],
+    vtkIdType &cellId, int &subId, double& dist2)
+  {
+    return Superclass::
+      FindClosestPoint(x, closestPoint, cellId, subId, dist2);
+  }
+  
+  // Description:
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual void FindClosestPoint(
+    double x[3], double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId, 
+    int &subId, double& dist2)
+  {
+    return Superclass::
+      FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
+  }
+
+  // Description:
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double x[3], double radius,
+    double closestPoint[3], vtkIdType &cellId,
+    int &subId, double& dist2)
+  {
+    return Superclass::FindClosestPointWithinRadius
+      (x, radius, closestPoint, cellId, subId, dist2);
+  }
+ 
+  // Description:
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double x[3], double radius,
+    double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId,
+    int &subId, double& dist2)
+  {
+    return Superclass::FindClosestPointWithinRadius
+      (x, radius, closestPoint, cell, cellId, subId, dist2);
+  }
+
+  // Description:
+  // reimplemented from vtkAbstractCellLocator to support bad compilers
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double x[3], double radius, double closestPoint[3],
+    vtkGenericCell *cell, vtkIdType &cellId,
+    int &subId, double& dist2, int &inside)
+  {
+    return Superclass::FindClosestPointWithinRadius
+      (x, radius, closestPoint, cell, cellId, subId, dist2, inside);
+  }
+  
+  // Description:
+  // Compute an OBB from the list of points given. Return the corner point
+  // and the three axes defining the orientation of the OBB. Also return
+  // a sorted list of relative "sizes" of axes for comparison purposes.
+  void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
+                  double mid[3], double min[3], double size[3]);
+
+  // Description:
+  // Compute an OBB for the input dataset using the cells in the data.
+  // Return the corner point and the three axes defining the orientation
+  // of the OBB. Also return a sorted list of relative "sizes" of axes for
+  // comparison purposes.
+  void ComputeOBB(vtkDataSet *input, double corner[3], double max[3],
+                  double mid[3], double min[3], double size[3]);
+
+  // Description:
+  // Determine whether a point is inside or outside the data used to build
+  // this OBB tree.  The data must be a closed surface vtkPolyData data set.
+  // The return value is +1 if outside, -1 if inside, and 0 if undecided.
+  int InsideOrOutside(const double point[3]);
 
   //BTX
 
