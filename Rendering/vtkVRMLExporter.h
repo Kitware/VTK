@@ -32,6 +32,8 @@ class vtkActor;
 class vtkPoints;
 class vtkDataArray;
 class vtkUnsignedCharArray;
+class vtkPolyData;
+class vtkPointData;
 
 class VTK_RENDERING_EXPORT vtkVRMLExporter : public vtkExporter
 {
@@ -65,6 +67,10 @@ protected:
   void WritePointData(vtkPoints *points, vtkDataArray *normals, 
                       vtkDataArray *tcoords, vtkUnsignedCharArray *colors, 
                       FILE *fp);
+  void WriteShapeBegin(vtkActor* actor, FILE *fileP,
+                       vtkPolyData *polyData,vtkPointData *pntData,
+                       vtkUnsignedCharArray *color);
+  void WriteShapeEnd( FILE *fileP );
   char *FileName;
   FILE *FilePointer;
   double Speed;
