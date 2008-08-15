@@ -20,10 +20,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoImageNode.h"
 #include "vtkJPEGWriter.h"
+#include "vtkTexture.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.3");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.4");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -31,6 +32,7 @@ vtkStandardNewMacro(vtkGeoImageNode);
 vtkGeoImageNode::vtkGeoImageNode() 
 {
   this->Image = vtkSmartPointer<vtkImageData>::New();
+  this->Texture = vtkSmartPointer<vtkTexture>::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -54,6 +56,18 @@ void vtkGeoImageNode::SetImage(vtkImageData* image)
 vtkImageData* vtkGeoImageNode::GetImage()
 {
   return this->Image;
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoImageNode::SetTexture(vtkTexture* texture)
+{
+  this->Texture = texture;
+}
+
+//-----------------------------------------------------------------------------
+vtkTexture* vtkGeoImageNode::GetTexture()
+{
+  return this->Texture;
 }
 
 //-----------------------------------------------------------------------------

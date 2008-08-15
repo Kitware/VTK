@@ -30,6 +30,7 @@
 #include "vtkImageData.h" // for SP
 
 class vtkPolyData;
+class vtkTexture;
 
 class VTK_GEOVIS_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
 {
@@ -48,6 +49,11 @@ public:
   // Get the image tile.
   vtkImageData* GetImage();
   void SetImage(vtkImageData* image);
+
+  // Description:
+  // Get the image tile.
+  vtkTexture* GetTexture();
+  void SetTexture(vtkTexture* texture);
 
   // Description:
   // This crops the image as small as possible while still covering the 
@@ -70,6 +76,7 @@ protected:
 
 //BTX
   vtkSmartPointer<vtkImageData> Image;
+  vtkSmartPointer<vtkTexture> Texture;
 //ETX
 
 private:

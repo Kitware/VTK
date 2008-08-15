@@ -67,6 +67,23 @@ public:
   vtkGetVector3Macro(CornerNormal10,double);
   vtkGetVector3Macro(CornerNormal11,double);
 
+  // Description:
+  // For 2D projections, store the bounds of the node in projected space
+  // to quickly determine if a node is offscreen.
+  vtkGetVector4Macro(ProjectionBounds,double);
+  vtkSetVector4Macro(ProjectionBounds,double);
+
+  // Description:
+  // For 2D projections, store the granularity of the graticule in this node.
+  vtkGetMacro(GraticuleLevel,int);
+  vtkSetMacro(GraticuleLevel,int);
+
+  // Description:
+  // For 2D projections, store the maximum deviation of line segment centers
+  // from the actual projection value.
+  vtkGetMacro(Error,double);
+  vtkSetMacro(Error,double);
+
 protected:
   vtkGeoTerrainNode();
   ~vtkGeoTerrainNode();
@@ -85,6 +102,10 @@ protected:
   double CornerNormal01[3];
   double CornerNormal10[3];
   double CornerNormal11[3];
+
+  double ProjectionBounds[4];
+  int GraticuleLevel;
+  double Error;
 
 private:
   vtkGeoTerrainNode(const vtkGeoTerrainNode&);  // Not implemented.

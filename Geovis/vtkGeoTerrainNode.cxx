@@ -26,7 +26,7 @@
 #include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.2");
+vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.3");
 vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
@@ -44,6 +44,12 @@ vtkGeoTerrainNode::vtkGeoTerrainNode()
     this->CornerNormal10[idx] = 0.0;
     this->CornerNormal11[idx] = 0.0;
     }
+  this->ProjectionBounds[0] = 0.0;
+  this->ProjectionBounds[1] = 0.0;
+  this->ProjectionBounds[2] = 0.0;
+  this->ProjectionBounds[3] = 0.0;
+  this->GraticuleLevel = 0;
+  this->Error = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -79,7 +85,13 @@ void vtkGeoTerrainNode::PrintSelf(ostream& os, vtkIndent indent)
     << this->CornerNormal11[0] << ", " 
     << this->CornerNormal11[1] << ", "
     << this->CornerNormal11[2] << "\n";
-
+  os << indent << "ProjectionBounds: " 
+    << this->ProjectionBounds[0] << ", " 
+    << this->ProjectionBounds[1] << ", "
+    << this->ProjectionBounds[2] << ", "
+    << this->ProjectionBounds[3] << "\n";
+  os << indent << "GraticuleLevel: " << this->GraticuleLevel << endl;
+  os << indent << "Error: " << this->Error << endl;
 }
 
 //-----------------------------------------------------------------------------
