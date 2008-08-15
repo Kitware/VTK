@@ -32,7 +32,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.32");
+vtkCxxRevisionMacro(vtkImageData, "1.33");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1580,6 +1580,9 @@ void vtkImageData::AllocateScalars()
   // allocate enough memory
   scalars->SetNumberOfTuples(imageSize);
 
+  // Assign some default name. Filters generally override this to something more
+  // sensible.
+  scalars->SetName("vtkScalars");
   this->PointData->SetScalars(scalars);
   scalars->Delete();
 }
