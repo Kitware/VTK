@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.15");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.16");
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -399,10 +399,18 @@ void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
     this->SetNumberOfChildren(numChildren);
     for (unsigned int cc=0; cc < numChildren; cc++)
       {
-      this->SetChild(cc, from->GetChild(cc));
+      vtkDataObject* child = from->GetChild(cc);
+      if (child)
+        {
+        vtkDataObject* clone = child->NewInstance();
+        clone->ShallowCopy(child);
+        this->SetChild(cc, clone);
+        clone->Delete();
+        }
       if (from->HasChildMetaData(cc))
         {
-        this->SetChildMetaData(cc, from->GetChildMetaData(cc));
+        vtkInformation* toInfo = this->GetChildMetaData(cc);
+        toInfo->Copy(from->GetChildMetaData(cc), /*deep=*/0);
         }
       }
     }
