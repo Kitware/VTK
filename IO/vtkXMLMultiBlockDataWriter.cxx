@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
-vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLMultiBlockDataWriter, "1.3");
 //----------------------------------------------------------------------------
 vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter()
 {
@@ -63,13 +63,13 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
     iter->GoToNextItem(), index++)
     {
-    vtkXMLDataElement* tag = vtkXMLDataElement::New();
-
     vtkDataObject* curDO = iter->GetCurrentDataObject();
     if (curDO->IsA("vtkCompositeDataSet"))
     // if node is a supported composite dataset
     // note in structure file and recurse.
       {
+      vtkXMLDataElement* tag = vtkXMLDataElement::New();
+
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
         tag->SetName("Piece");
@@ -84,6 +84,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         = vtkCompositeDataSet::SafeDownCast(curDO);
       if (!this->WriteComposite(curCD, tag, writerIdx))
         {
+        tag->Delete();
         return 0;
         }
       parent->AddNestedElement(tag);
