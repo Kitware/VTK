@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBand2D, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBand2D, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleRubberBand2D);
 
 //--------------------------------------------------------------------------
@@ -190,21 +190,21 @@ void vtkInteractorStyleRubberBand2D::OnMouseMove()
     this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
     this->EndPosition[1] = this->Interactor->GetEventPosition()[1];  
     int *size = this->Interactor->GetRenderWindow()->GetSize();  
-    if (this->EndPosition[0] > ((unsigned int)size[0]-1))
+    if (this->EndPosition[0] > (size[0]-1))
       {
       this->EndPosition[0] = size[0]-1;
       }
-    if ((int)this->EndPosition[0] < 0)
+    if (this->EndPosition[0] < 0)
       {
       this->EndPosition[0] = 0;
       }
-    if (this->EndPosition[1] > ((unsigned int)size[1]-1))
+    if (this->EndPosition[1] > (size[1]-1))
       {
       this->EndPosition[1] = size[1]-1;
       }
-    if ((int)this->EndPosition[0] < 0)
+    if (this->EndPosition[1] < 0)
       {
-      this->EndPosition[0] = 0;
+      this->EndPosition[1] = 0;
       }
     this->InvokeEvent(vtkCommand::InteractionEvent);
     this->RedrawRubberBand();

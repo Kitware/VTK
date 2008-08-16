@@ -91,10 +91,10 @@ protected:
   void RedrawRubberBand();
   
   // The end position of the selection
-  unsigned int StartPosition[2];
+  int StartPosition[2];
   
   // The start position of the selection
-  unsigned int EndPosition[2];
+  int EndPosition[2];
   
   // The pixel array for the rubber band
   vtkUnsignedCharArray* PixelArray;
