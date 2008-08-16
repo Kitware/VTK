@@ -23,7 +23,7 @@
 #include "vtkAssemblyPath.h"
 #include "vtkAreaPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.9");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandPick, "1.10");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 
 #define VTKISRBP_ORIENT 0
@@ -141,7 +141,7 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];  
   int *size = this->Interactor->GetRenderWindow()->GetSize();  
-  if (this->EndPosition[0] > (size[0]-1))
+  if ((unsigned int)this->EndPosition[0] > (size[0]-1))
     {
     this->EndPosition[0] = size[0]-1;
     }
@@ -149,7 +149,7 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
     {
     this->EndPosition[0] = 0;
     }
-  if (this->EndPosition[1] > (size[1]-1))
+  if ((unsigned int)this->EndPosition[1] > (size[1]-1))
     {
     this->EndPosition[1] = size[1]-1;
     }
