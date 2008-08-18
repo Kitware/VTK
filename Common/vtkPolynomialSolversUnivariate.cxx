@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.4");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.5");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -57,16 +57,17 @@ ostream& vtkPolynomialSolversUnivariate::PrintPolynomial( ostream& os, double* P
   os << "\n";
   os << "The polynomial has degree " << degP << "\n";
 
-  if(degP < 0) 
-  {
+  if ( degP < 0 )
+    {
     os << "0\n";
     return os;
-  }
-  if(degP == 0)
-  {
+    }
+
+  if ( degP == 0 )
+    {
     os << P[0] << "\n";
     return os;
-  }
+    }
 
   unsigned int degPm1 = degP - 1;
   for ( unsigned int i = 0; i < degPm1; ++ i )
@@ -145,7 +146,8 @@ inline bool AreEqual( double x, double y, double rTol )
 
 //----------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
-int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R, double rtol )
+static int polynomialEucliDiv(
+  double* A, int m, double* B, int n, double* Q, double* R, double rtol )
 {
   // Note: for execution speed, no sanity checks are performed on A and B. 
   // You must know what you are doing.
@@ -224,7 +226,8 @@ int polynomialEucliDiv( double* A, int m, double* B, int n, double* Q, double* R
 //----------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 // Does not store Q and stores -R instead of R
-static int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, double* mR, double rtol )
+static int polynomialEucliDivOppositeR(
+  double* A, int m, double* B, int n, double* mR, double rtol )
 {
   // Note: for execution speed, no sanity checks are performed on A and B. 
   // You must know what you are doing.
@@ -295,16 +298,47 @@ static int polynomialEucliDivOppositeR( double* A, int m, double* B, int n, doub
   return r;
 }
 
+inline double vtkNormalizePolyCoeff( double d, double* div = 0 )
+{
+  const static double high = 18446744073709551616.; // 2**64
+  //const static double high = pow(2., 64);
+  if ( fabs( d ) < 1e300 && d == d )
+    {
+    while ( fabs( d ) > 1e30 )
+      {
+      d /= high;
+      if ( div )
+        {
+        *div /= high;
+        }
+      }
+    }
+  if ( fabs( d ) > 1e-300 && d == d )
+    {
+    while(fabs( d ) < 1e-30)
+      {
+      d *= high;
+      if ( div )
+        {
+        *div *= high;
+        }
+      }
+    }
+  return d;
+}
+
 //----------------------------------------------------------------------------
 // Polynomial Euclidean division of A (deg m) by B (deg n).
 // Does not store Q and stores -R instead of R. This premultiplies Ai by mul and
-// then divides mR by div. mR MUST have at least the size of m, because it is
+// then divides mR by div. mR MUST have at least the size of m+1, because it is
 // used as temporary storage besides as the return value.
 // This shouldn't be too  much slower than the version without mul and div. It
 // has to copy mul*Ai into mR at the beginning. So it has m+1 extra
 // multiplications and assignments. When it assigns final values into mR it
 // divides by div. So it has deg(mR) extra divisions.
-static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* B, int n, double div, double* mR, double rtol )
+static int polynomialEucliDivOppositeR(
+  double mul, double* Ai, int m, double* B, int n, double div, double* mR,
+  double rtol )
 {
   // Note: for execution speed, no sanity checks are performed on A and B. 
   // You must know what you are doing.
@@ -319,7 +353,7 @@ static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* 
     mR[i] = mul*Ai[i];
     }
 
-  // Remember that mMn >= 0 implies m-n >= 0 implies m  >= n + 1 and so
+  // Remember that mMn >= 0 implies m-n >= 0 implies m  >= n and so
   // m + 1 > n.
   if ( mMn < 0 )
     {
@@ -331,7 +365,7 @@ static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* 
     return -1;
     }
 
-  div = 1/div;
+  div = 1 / div;
   int nj;
   double iB0 = 1. / B[0];
   double* Q = new double[mMn + 1];
@@ -363,11 +397,12 @@ static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* 
       // Now we have m + 1 > n implies n - i < m - i + 1. Thus since i is
       // decreasing (hence m - i + 1 increasing) we will never use n - i again,
       // so we can safely write over it.
-      mR[n - i] = (sum - mR[m - i + 1])*div;
+      mR[n - i] = ( sum - mR[m - i + 1] ) * div;
       // We want the non-zero term with the largest index. So we only write to r
       // once.
       if ( r == 0 )
         {
+        mR[n-i] = vtkNormalizePolyCoeff( mR[n - i], &div );
         r = i - 1;
         }
       }
@@ -399,26 +434,31 @@ static int polynomialEucliDivOppositeR( double mul,  double* Ai, int m, double* 
 // using Horner's algorithm.
 inline double evaluateHorner( double* P, int d, double x )
 {
+  if ( d == -1 )
+    {
+    return 0.;
+    }
   double val = P[0];
   for ( int i = 1; i <= d; ++ i )
     {
-    val = val*x + P[i];
+    val = val * x + P[i];
     }
 
   return val;
 }
 
-int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val, int* fsign = 0 )
+int vtkGetSignChanges(
+  double* P, int* degP, int* offsets, int count, double val, int* fsign = 0 )
 {
   int oldVal = 0;
   double v;
   int changes = 0;
 
-  for(int i = 0; i < count; i++)
+  for ( int i = 0; i < count; ++ i )
     {
-    v = evaluateHorner(P+offsets[i], degP[i], val);
+    v = evaluateHorner( P + offsets[i], degP[i], val );
 
-    if( fsign && i == 0 )
+    if ( fsign && i == 0 )
       {
       if ( IsZero( v ) )
         {
@@ -433,6 +473,7 @@ int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val,
         *fsign = -1;
         }
       }
+
     if ( v == 0 ) 
       {
       continue;
@@ -441,18 +482,18 @@ int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val,
     if ( v * oldVal < 0 )
       {
       ++ changes;
-      oldVal = 0 - oldVal;
+      oldVal = -oldVal;
       }
 
     if ( oldVal == 0 )
       {
-      if ( v < 0 ) oldVal = -1;
-      else oldVal = 1;
+      oldVal = ( v < 0 ? -1 : 1 );
       }
     }
 
   return changes;
 }
+
 
 // ----------------------------------------------------------
 // Gets the Habicht sequence. SSS and degrees and ofsets are expected to be
@@ -461,8 +502,10 @@ int vtkGetSignChanges(double* P, int* degP, int* offsets, int count, double val,
 //
 // This algorithm is modified from 
 // BPR, Algorithms in Real Algebraic Geometry, page 318
-int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* offsets, double rtol)
+int vtkGetHabichtSequence(
+  double* P, int d, double * SSS, int* degrees, int* offsets, double rtol )
 {
+  //const static double high = pow(2.,256);
   degrees[0] = d;
   offsets[0] = 0;
 
@@ -478,17 +521,10 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
   for ( int m = 0; m < d; ++ m )
     {
     SSS[m] = P[m];
-    SSS[m + offset] = static_cast<double>( d - m ) * P[m];
+    SSS[m + offset] = static_cast<double>( d - m ) * SSS[m];
     }
   SSS[d] = P[d];
-  if ( P[0] > 0. )
-    {
-    t[0] = s[0] = 1.;
-    }
-  else
-    {
-    t[0] = s[0] = -1.;
-    }
+  t[0] = s[0] = ( P[0] > 0. ? 1. : -1. );
   t[1] = s[1] = SSS[offset];
 
   int j = 0;
@@ -499,60 +535,52 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
   int degree = d - 1;
   int jp1 = 1;
   int ip1 = 0;
-  while ( degree > 0 )
+  while ( degree > 0  && j < d - 1 )
     {
     k = deg - degree;
     if ( k == jp1 )
       {
-      // Make sure our coeffs aren't going to be too large with a quick
-      // divisions.
-      if( fabs(t[jp1]) > 1e50 )
-        {
-        t[jp1] /= 1e35;
-        }
       s[jp1] = t[jp1];
-      degrees[k+1] = polynomialEucliDivOppositeR( s[jp1]*s[jp1], SSS + offsets[ip1], degrees[ip1], 
-        SSS + offset, degree, s[j]*t[ip1], SSS + offsets[k] + degree+1, rtol );
-      offsets[k+1] = offset + 2*degree - degrees[k+1];
+
+      degrees[k+1] = polynomialEucliDivOppositeR(
+        s[jp1] * s[jp1], SSS + offsets[ip1], degrees[ip1], SSS + offset,
+        degree, s[j] * t[ip1], SSS + offsets[k] + degree + 1, rtol );
+      offsets[k+1] = offset + 2 * degree - degrees[k + 1];
       }
     else
       {
       s[jp1] = 0;
-      for(int delta = 1; delta < k-j; delta++)
+      for( int delta = 1; delta < k - j; ++ delta )
         {
-        t[jp1+delta] = (t[jp1]*t[j+delta])/s[j];
+        t[jp1 + delta] = ( t[jp1] * t[j + delta]) / s[j];
+        t[jp1 + delta] = vtkNormalizePolyCoeff( t[jp1 + delta] );
         if ( delta % 2 )
           {
-          t[jp1+delta] *= -1;
+          t[jp1 + delta] *= -1;
           }
-        }
-      // Make sure our coeffs aren't going to be too large with a quick
-      // divisions.
-      if( fabs(t[k]) > 1e50 )
-        {
-        t[k] /= 1e35;
         }
       s[k] = t[k];
 
-      offsets[k] = offsets[jp1] + degrees[jp1]+1;
+      offsets[k] = offsets[jp1] + degrees[jp1] + 1;
       degrees[k] = degrees[jp1];
       for ( int dg = 0; dg <= degree; ++ dg )
         {
         SSS[offsets[k] + dg] = ( s[k] * SSS[offset + dg] ) / t[jp1];
         }
 
-      for(int l = j+2; l < k; l++)
+      for ( int l = j+2; l < k; ++ l )
         {
         degrees[l] = -1;
         offsets[l] = offsets[k];
         s[l] = 0;
         }
 
-      degrees[k+1] = polynomialEucliDivOppositeR(t[jp1]*s[k], SSS+offsets[ip1], degrees[ip1], 
-        SSS+offset, degree, s[j]*t[ip1], SSS+offsets[k]+degrees[k]+1, rtol);
-      offsets[k+1] = offsets[k] + 2*degrees[k] - degrees[k+1];
+      degrees[k + 1] = polynomialEucliDivOppositeR(
+        t[jp1] * s[k], SSS + offsets[ip1], degrees[ip1], SSS + offset,
+        degree, s[j] * t[ip1], SSS + offsets[k] + degrees[k] + 1, rtol );
+      offsets[k + 1] = offsets[k] + 2 * degrees[k] - degrees[k + 1];
       }
-    t[k+1] = SSS[offsets[k+1]];
+    t[k + 1] = SSS[offsets[k + 1]];
     i = j;
     ip1 = jp1;
     j = k;
@@ -564,17 +592,17 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
   delete [] s;
   delete [] t;
 
-  if (degree == 0)
+  if ( degree == 0 )
     {
-    return jp1+1;
+    return jp1 + 1;
     }
   else
     {
-    while(degrees[jp1] < 0)
+    while ( degrees[jp1] < 0 )
       {
-      jp1--;
+      -- jp1;
       }
-    return jp1+1;
+    return jp1 + 1;
     }
 }
 
@@ -582,13 +610,15 @@ int vtkGetHabichtSequence(double* P, int d, double * SSS, int* degrees, int* off
 // Gets the sturm sequence. SSS and degrees and offsets are expected to 
 // be large enough and the number of non-zero items
 // is returned. P is expected to have degree at least 1.
-int vtkGetSturmSequence(double * P, int d, double * SSS, int* degrees, int* offsets, double rtol )
+int vtkGetSturmSequence(
+  double* P, int d, double* SSS, int* degrees, int* offsets, double rtol )
 {
   degrees[0] = d;
   offsets[0] = 0;
 
-  int dp1 = d+1;
-  degrees[1] = d - 1;
+  int dp1 = d + 1;
+  int dm1 = d - 1;
+  degrees[1] = dm1;
   offsets[1] = dp1;
   int offset = dp1;
 
@@ -597,43 +627,49 @@ int vtkGetSturmSequence(double * P, int d, double * SSS, int* degrees, int* offs
   int nSSS = 1;
 
   // Set the first two elements SSS = {P, P'}.
-  for(int k=0; k < d; k++)
+  for ( int k = 0; k < d; ++ k )
     {
     SSS[k] = P[k];
-    SSS[k + offset] = static_cast<double>(d-k)*P[k];
+    SSS[k + offset] = static_cast<double>( d - k ) * P[k];
     }
   SSS[d] = P[d];
 
-  int degree = d-1;
-  while(degrees[nSSS] > 0)
+  int degree = dm1;
+  while ( degrees[nSSS] > 0 )
     {
     nSSS++;
-    degrees[nSSS] = polynomialEucliDivOppositeR(SSS + offsets[nSSS - 2], degrees[nSSS - 2],
+    degrees[nSSS] = polynomialEucliDivOppositeR(
+      SSS + offsets[nSSS - 2], degrees[nSSS - 2],
       SSS + offset, degree, SSS + offset + degree + 1, rtol );
 
-    offsets[nSSS] = offset + 2*degree - degrees[nSSS];
+    offsets[nSSS] = offset + 2 * degree - degrees[nSSS];
 
     offset = offsets[nSSS];
     degree = degrees[nSSS];
-
     }
     
 
   // If the last element is zero then we ignore it.
-  if(degrees[nSSS] < 0)
+  if ( degrees[nSSS] < 0 )
     {
     return nSSS;
     }
+
   // Otherwise we include it in our count, because it 
   // is a constant. (We are returning the number of
   // nonzero items, so 1 plus the index of the last).
   return nSSS + 1;
 }
 
-extern "C"
+extern "C" {
+
+int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 {
-int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b);
+  return ( *( (const double*) a ) ) < ( *( (const double*) b ) ) ? -1 : 1; 
 }
+
+} // extern "C"
+
 
 // ------------------------------------------------------------
 // upperBnds is expected to be large enough.
@@ -648,66 +684,79 @@ int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b);
 // divideGCD == 0 -> never divide
 // divideGCD == 1 -> use logic
 // divideGCD == 2 -> divide as long as non-constant (ignore the logic).
-int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBnds, double tol, 
-  int intervalType, int divideGCD, int method)
+//
+// It probably would have been better to originally have had the tolerance be a
+// relative tolerance rather than an absolute tolerance.
+int vtkHabichtOrSturmBisectionSolve(
+  double* P, int d, double* a, double* upperBnds, double tol, 
+  int intervalType, int divideGCD, int method )
 {
-  // 0. Stupidity checks
+  // Pretend to be one solver or the other (for error reporting)
   static const char title1[] = "vtkPolynomialSolversUnivariate::SturmBisectionSolve";
   static const char title2[] = "vtkPolynomialSolversUnivariate::HabichtBisectionSolve";
-  const char* title;
-  if ( method == 0 )
-    {
-    title = title1;
-    }
-  else
-    {
-    title = title2;
-    }
+  const char* title = ( method == 0 ? title1 : title2 );
 
+  // 0. Stupidity checks
   if ( tol <= 0 )
     {
-    vtkGenericWarningMacro(<< title <<": Tolerance must be positive");
+    vtkGenericWarningMacro(<< title << ": Tolerance must be positive" );
     return -1;
     }
 
   if ( IsZero( P[0] ) )
     {
-    vtkGenericWarningMacro(<< title <<": Zero leading coefficient");
+    vtkGenericWarningMacro(<< title << ": Zero leading coefficient" );
     return -1;
     }
 
   if ( d < 1 )
     {
-    vtkGenericWarningMacro(<< title <<": Degree < 1");
+    vtkGenericWarningMacro(<< title << ": Degree (" << d << ") < 1" );
     return -1;
     }
 
   if ( a[1] < a[0] + tol )
     {
-    vtkGenericWarningMacro(<< title <<": Erroneous interval endpoints and/or tolerance");
+    vtkGenericWarningMacro(<< title << ": Erroneous interval endpoints and/or tolerance" );
     return -1;
     }
 
   // Check for 0 as a root and reduce the degree if so.
   bool zeroroot = false;
-  if(P[d] == 0)
+  if ( IsZero(  P[d] ) )
     {
     zeroroot = true;
-    while(P[d] == 0)
-      d--;
+    while ( IsZero( P[d] ) )
+      {
+      -- d;
+      }
     }
 
-  double bounds[] = { a[0], a[1] };
+  // Take care of constant polynomials and polynomials of the form a*x^d.
+  if ( d == 0 )
+    {
+    if ( zeroroot )
+      {
+      upperBnds[0] = 0.;
+      return 1;
+      }
+    else
+      {
+      return 0;
+      }
+    }
+
   // Create one large array to hold all the 
   // polynomials.
   //
-  // These need to be a tiny bit larger for the Habicht Sequence which goes a
-  // little bit beyond what the Sturm does.
-  // TODO: Make sure these bounds are good enough!
-  double* SSS = new double[( d + 1 ) * ( d + 2 ) / 2 + 2];
-  int* degrees = new int[d + 2 + 1];
-  int* offsets = new int[d + 3 + 1];
-  
+  // We need two extra spaces because the habicht division uses R to temporarily
+  // hold mul*A. So there must be at least size(A) space when dividing, which can be
+  // 2 floats larger than R.
+  double* SSS = new double[( ( d + 1 ) * ( d + 2 ) ) / 2 + 2];
+  int* degrees = new int[d + 1];
+  int* offsets = new int[d + 1];
+
+  double bounds[] = { a[0], a[1] };
   int nSSS;
 
   if ( method == 0 )
@@ -723,46 +772,62 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
   // We could possibly then find the degenerate roots.
   // Maybe we could more or less remove the degenerate roots.
   // Lets do some testwork to see.
-  if( degrees[nSSS-1] > 0 && divideGCD == 1 )
+  if ( degrees[nSSS-1] > 0 && divideGCD == 1 )
     {
-    double* R = new double[d+1];
-    double* Q = new double[d+1];
+    double* R = new double[d + 1];
+    double* Q = new double[d + 1];
 
     // Get the quotient and call this function again using the
     // quotient.
-    int deg = polynomialEucliDiv(SSS, d, SSS+offsets[nSSS-1], degrees[nSSS-1], Q, R, 
-      vtkPolynomialSolversUnivariate::GetDivisionTolerance());
-    deg = d-degrees[nSSS - 1];
+    int deg = polynomialEucliDiv(
+      SSS, d, SSS + offsets[nSSS - 1], degrees[nSSS - 1], Q, R, 
+      vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
+    deg = d - degrees[nSSS - 1];
 
 
-    delete [] SSS;
-    delete [] degrees;
-    delete [] offsets;
     delete [] R;
-      
-    int rval = vtkHabichtOrSturmBisectionSolve(Q, deg, a, upperBnds, tol, intervalType, 0, method);
-    delete [] Q;
-    if(zeroroot)
+    // The Habicht sequence will occasionally get infinite coeffs and cause
+    // weird things to happen with the sequence. In that case Q[0] == 0, thus if
+    // Q[0] is zero we don't actually use the division that we got.
+    if ( ! IsZero( Q[0] ) )
       {
-      upperBnds[rval] = 0;
-      return rval+1;
+      delete [] SSS;
+      delete [] degrees;
+      delete [] offsets;
+      
+      int rval = vtkHabichtOrSturmBisectionSolve( Q, deg, a, upperBnds, tol, intervalType, 0, method );
+      delete [] Q;
+      if ( zeroroot )
+        {
+        upperBnds[rval] = 0;
+        return rval + 1;
+        }
+      return rval;
       }
-    return rval;
+    else
+      {
+      delete Q;
+      }
     }
 
   // Move away from zeros on the edges. We can also slightly speed up 
   // computation by keeping the fact that these are roots and
   // continuing on.
-  
-  double perturbation = .5*tol/ static_cast<double>(d);
+ 
+  // If perturbation is too small compared to the bounds then we won't move when
+  // we perturb.
+  double perturbation =
+    fmax(
+      fmax( fabs( bounds[0] ) * 1e-12, fabs( bounds[1] ) * 1e-12 ),
+      .5 * tol / static_cast<double>( d ) );
 
-  int varSgn[] = {0,0};
-  varSgn[0] = vtkGetSignChanges(SSS, degrees, offsets, nSSS, bounds[0]);
-  varSgn[1] = vtkGetSignChanges(SSS, degrees, offsets, nSSS, bounds[1]);
+  int varSgn[] = { 0, 0 };
+  varSgn[0] = vtkGetSignChanges( SSS, degrees, offsets, nSSS, bounds[0] );
+  varSgn[1] = vtkGetSignChanges( SSS, degrees, offsets, nSSS, bounds[1] );
   
-  for(int k=0; k<=1; k++)
+  for ( int k = 0; k <= 1; ++ k )
     {
-    if(IsZero(evaluateHorner(SSS, d, bounds[k])))
+    if ( IsZero(evaluateHorner( SSS, d, bounds[k] ) ) )
       {
       int leftVarSgn = varSgn[k];
       int rightVarSgn = varSgn[k];
@@ -777,17 +842,20 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
       //
       // JUST AS WITH THE BISECTING, NEED TO MAKE SURE WE DON'T HAVE AN
       // INFINITE LOOP.
-      while(IsZero(evaluateHorner(SSS, d, leftx)) || IsZero(evaluateHorner(SSS, d, rightx)) || leftVarSgn <= rightVarSgn ||
-            ((leftVarSgn == varSgn[k] || rightVarSgn == varSgn[k]) && leftVarSgn - rightVarSgn != 1))
+      while (
+        IsZero( evaluateHorner( SSS, d, leftx ) ) ||
+        IsZero( evaluateHorner( SSS, d, rightx ) ) ||
+        leftVarSgn <= rightVarSgn ||
+        ( ( leftVarSgn == varSgn[k] || rightVarSgn == varSgn[k] ) && leftVarSgn - rightVarSgn != 1 ) )
         {
         leftx -= perturbation;
         rightx += perturbation;
-        leftVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, leftx);
-        rightVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, rightx);
+        leftVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, leftx );
+        rightVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, rightx );
         }
 
       // Move properly according to what kind of sequence we are searching.
-      if((!(intervalType & 2) && k==1) || ((intervalType & 1) && k==0))
+      if ( ( ! ( intervalType & 2 ) && k==1 ) || ( ( intervalType & 1 ) && k == 0 ) )
         {
         bounds[k] = leftx;
         varSgn[k] = leftVarSgn;
@@ -808,46 +876,42 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
     delete [] SSS;
     delete [] degrees;
     delete [] offsets;
-    if(zeroroot)
+    if ( zeroroot )
       return 1;
     return 0;
     }
 
   // 2. Root bracketing
 
-  // Initialize the bounds for the
-  // root intervals. The interval
-  // ]lowerBnds[i], upperBnds[i][ 
-  // contains the i+1 root. We will
-  // see if we can completely 
-  // separate the roots. Of course
-  // the interval ]bounds[0], bounds[1][
-  // contains all the roots. Afterwards if
-  // some intervals are the same all but
+  // Initialize the bounds for the root intervals. The interval
+  // ]lowerBnds[i], upperBnds[i][ contains the i+1 root. We will
+  // see if we can completely separate the roots. Of course
+  // the interval ]bounds[0], bounds[1][ contains all the roots.
+  // Afterwards if some intervals are the same all but
   // one will be removed.
   int i;
   double* lowerBnds = new double[nRoots];
   
-  for(i = 0; i < nRoots; i++)
+  for ( i = 0; i < nRoots; ++ i )
     {
     upperBnds[i] = bounds[1];
     lowerBnds[i] = bounds[0];
     }
 
-
   int leftVarSgn, rightVarSgn, tempSgn;
   double leftx, rightx;
   bool hitroot;
-  int nloc = nRoots-1;
+  int nloc = nRoots - 1;
   while ( nloc >= 1)
     {
     // Only one root according to Sturm or the interval is 
     // small enough to consider the same root.
-    if(upperBnds[nloc]-lowerBnds[nloc] <= tol 
-        || ((nloc < 1 || (upperBnds[nloc-1] < lowerBnds[nloc] - tol) )
-        && ((nloc >= nRoots-1) || (upperBnds[nloc]) < lowerBnds[nloc+1]-tol)))
+    if (
+      upperBnds[nloc] - lowerBnds[nloc] <= tol ||
+      ( ( nloc < 1 || ( upperBnds[nloc-1] < lowerBnds[nloc] - tol ) )
+        && ( ( nloc >= nRoots - 1 ) || ( upperBnds[nloc] ) < lowerBnds[nloc + 1] - tol ) ) )
       {
-      nloc--;
+      -- nloc;
       continue;
       }
 
@@ -859,11 +923,17 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
 
     // root we may as well bracket it within tol so that we don't have to
     // worry about it later.
-    leftx = (upperBnds[nloc]+lowerBnds[nloc])/2;
+    leftx = ( upperBnds[nloc] + lowerBnds[nloc] ) / 2;
+    // If we are going nowhere then quit.
+    if ( leftx >= upperBnds[nloc] || leftx <= lowerBnds[nloc] )
+      {
+      nloc--;
+      continue;
+      }
     rightx = leftx;
     hitroot = false;
     
-    leftVarSgn = rightVarSgn = tempSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, rightx);
+    leftVarSgn = rightVarSgn = tempSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, rightx );
 
     // Move away if we have a root, just like we did with the initial endpoints.
     // Maybe could write a function to do this, but it may be slower.
@@ -899,91 +969,101 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
     //    a. sign[mid] > sign[0]
     //    b. sign[mid] < sign[1].
     // 3. Does no take too long.
-    if(IsZero(evaluateHorner(SSS, d, leftx)))
+    //
+    // This method is better because the "perturbation" is always relative to
+    // the endpoints. Unlike the other method, because the perturbation
+    // variable is relative to the larger endpoing.
+    if (
+      IsZero( leftx ) ||
+      IsZero( evaluateHorner( SSS, d, leftx ) ) ||
+      ( tempSgn > varSgn[0] ) ||
+      ( tempSgn < nloc ) )
       {
       int step = 2;
       int pos = 1;
       double p2 = 4.;
-      double mid = upperBnds[nloc]/p2 + (p2-pos)*lowerBnds[nloc]/p2;
+      double mid = upperBnds[nloc] / p2 + ( p2 - pos ) * lowerBnds[nloc] / p2;
       bool found = false;
-      leftVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, lowerBnds[nloc]); 
-      rightVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, upperBnds[nloc]);
-      tempSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, mid);
-      while(
+      leftVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, lowerBnds[nloc] ); 
+      rightVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, upperBnds[nloc] );
+      tempSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, mid );
+      while (
         // 3.
         step < 10 && 
         // 2a.
-        ((tempSgn > leftVarSgn)  ||
+        ( (tempSgn > leftVarSgn )  ||
         // 2b. 
-        (tempSgn < rightVarSgn) ||
+          ( tempSgn < rightVarSgn) ||
         // 1
-        IsZero(evaluateHorner(SSS, d, mid))))
+          IsZero( evaluateHorner( SSS, d, mid ) ) ||
+          IsZero( mid ) ) )
         {
         pos += 2;
-        if(pos > p2)
+        if ( pos > p2 )
           {
           pos = 1;
-          step++;
+          ++ step;
           p2 *= 2.;
           }
-        mid = pos*upperBnds[nloc]/p2 + (p2-pos)*lowerBnds[nloc]/p2;
-        tempSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, mid);
+        mid = pos * upperBnds[nloc] / p2 + (p2 - pos) * lowerBnds[nloc] / p2;
+        tempSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, mid );
         }
 
-      if(step < 10)
+      if ( step < 10 )
         {
         found = true;
         leftx = rightx = mid;
         leftVarSgn = rightVarSgn = tempSgn;
         // Set the new information for the current.
-        if(varSgn[0] - leftVarSgn <= nloc)
+        if ( varSgn[0] - leftVarSgn <= nloc )
           lowerBnds[nloc] = leftx;
-        if(varSgn[0] - rightVarSgn > nloc)
+        if ( varSgn[0] - rightVarSgn > nloc )
           upperBnds[nloc] = rightx;
-
         }
 
-      hitroot = !found;
+      hitroot = ! found;
       // Make sure all our measures change around the root. This is another place where
       // the perturbation may be too small and cause slowness. This could
       // theoretically cause an infinite loop. (It has!).
-      while(!found && (
+      while ( !found && (
         // 1
-        IsZero(evaluateHorner(SSS, d, leftx)) || IsZero(evaluateHorner(SSS, d, rightx))
+        IsZero( evaluateHorner( SSS, d, leftx )) || IsZero( evaluateHorner( SSS, d, rightx ) )
         // 2 and 3c.
         || leftVarSgn <= rightVarSgn
         // 3a and 3b
-        || leftVarSgn > varSgn[0] || rightVarSgn < varSgn[1]))
+        || leftVarSgn > varSgn[0] || rightVarSgn < varSgn[1] ) )
         {
         leftx -= perturbation;
         rightx += perturbation;
         // Take care of 4.
-        if (rightx - leftx > 2*tol)
+        if ( rightx - leftx > 2 * tol )
           break;
-        leftVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, leftx);
-        rightVarSgn = vtkGetSignChanges(SSS, degrees, offsets, nSSS, rightx);
+        leftVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, leftx );
+        rightVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, rightx );
         }
       // Now we must take care of our possible blunders.
-        if(rightx - leftx > 2*tol)
+        if ( rightx - leftx > 2 * tol )
           {
           // If leftx <= upperBnds[nloc-1] then we have to gracefully
           // clean up the mess.
           // For now assume we moved well enough...
-          if(leftVarSgn > varSgn[0])
+          if ( leftVarSgn > varSgn[0] )
             leftVarSgn = varSgn[0];
 
-          if(rightVarSgn < varSgn[1])
+          if ( rightVarSgn < varSgn[1] )
             rightVarSgn = varSgn[1];
 
-          if(rightVarSgn > varSgn[0])
-            rightVarSgn = varSgn[0]-nloc+1;
+          if ( rightVarSgn > varSgn[0] )
+            rightVarSgn = varSgn[0] - nloc + 1;
 
-          if(leftVarSgn < varSgn[1])
-            leftVarSgn = varSgn[0]-nloc;
+          if ( leftVarSgn < varSgn[1] )
+            leftVarSgn = varSgn[0] - nloc;
+
           rightx += tol;
           leftx -= tol;
           }
-        if(hitroot)
+
+        if ( hitroot )
           {
           lowerBnds[nloc] = mid;
           upperBnds[nloc] = mid;
@@ -992,52 +1072,60 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
     else
       {
       // Set the new information for the current.
-      if(varSgn[0] - leftVarSgn <= nloc)
+      if ( varSgn[0] - leftVarSgn <= nloc )
         lowerBnds[nloc] = leftx;
-      if(varSgn[0] - rightVarSgn > nloc)
+      if ( varSgn[0] - rightVarSgn > nloc )
         upperBnds[nloc] = rightx;
       }
 
     // We have isolated the rightVarSgn to the leftVarSgn roots.
-    if(rightx != leftx)
+    if ( rightx != leftx )
       {
-      for(i = varSgn[0] - leftVarSgn; i<= varSgn[0]-rightVarSgn-1; i++)
+      for ( i = varSgn[0] - leftVarSgn; i <= varSgn[0] - rightVarSgn - 1; ++ i )
         {
-        if(i > 0 && lowerBnds[i-1] < leftx) lowerBnds[i] = leftx;
-        if(upperBnds[i] > rightx) upperBnds[i] = rightx;
+        if ( i > 0 && lowerBnds[i - 1] < leftx )
+          {
+          lowerBnds[i] = leftx;
+          }
+        if ( upperBnds[i] > rightx )
+          {
+          upperBnds[i] = rightx;
+          }
         }
       }
 
     // Set the new lower bounds for the intervals to the right of the new and the left of the current.
     // We have to do the check because we can get crazy information with some points.
-    for(i=varSgn[0]-rightVarSgn; i>=0 && i< nRoots; i++)
-      if(lowerBnds[i] < rightx && upperBnds[i] > rightx) lowerBnds[i] = rightx;
+    for ( i = varSgn[0] - rightVarSgn; i >=0 && i < nRoots; ++ i )
+      if ( lowerBnds[i] < rightx && upperBnds[i] > rightx)
+        lowerBnds[i] = rightx;
 
     // We have to do the check because we can get crazy information with some points.
     // Set the new upper bounds for the intervals to the left of the new interval.
-    for(i=0; i < varSgn[0]-leftVarSgn && varSgn[0] - leftVarSgn <= nloc; i++)
-      if(upperBnds[i] > leftx && lowerBnds[i] < leftx) upperBnds[i] = leftx;
+    for ( i = 0; i < varSgn[0] - leftVarSgn && varSgn[0] - leftVarSgn <= nloc; ++ i )
+      if ( upperBnds[i] > leftx && lowerBnds[i] < leftx )
+        upperBnds[i] = leftx;
 
-
-    if(leftVarSgn-rightVarSgn==1 || hitroot) nloc--;
+    if ( leftVarSgn - rightVarSgn == 1 || hitroot )
+      -- nloc;
     }
 
   int nIntervals = nRoots;
   bool* bisection = new bool[nRoots];
 
   // 3. Root polishing (if needed)
-  for(nloc = 0; nloc < nRoots; nloc++)
+  for ( nloc = 0; nloc < nRoots; ++ nloc )
     {
-    if(upperBnds[nloc] - lowerBnds[nloc] < tol) 
+    if ( upperBnds[nloc] - lowerBnds[nloc] < tol )
       {
       continue;
       }
 
-    double zv = evaluateHorner(P, d, upperBnds[nloc]);
+    double zv = evaluateHorner( P, d, upperBnds[nloc] );
+    double lv = evaluateHorner( P, d, lowerBnds[nloc] );
     // These are for the possibility that we get sign change differences when
     // using the sequence.
     int ls, zs;
-    double lv = evaluateHorner(P, d, lowerBnds[nloc]);
     double z;
 
     // Neither of the next two conditions should ever be met, but when using
@@ -1048,18 +1136,18 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
       continue;
       }
 
-    if( IsZero( lv ) )
+    if ( IsZero( lv ) )
       {
       upperBnds[nloc] = lowerBnds[nloc];
       continue;
       }
 
-    int us = (zv > 0)?1:-1;
-    ls = (lv > 0)?1:-1;
+    int us = ( zv > 0 ) ? 1 : -1;
+    ls = ( lv > 0 ) ? 1 : -1;
 
     bool bisect = false;
     // Check to see if we should use the sequence, which is MUCH slower.
-    if ( us*ls > 0 )
+    if ( us * ls > 0 )
       {
       int zc;
       while ( upperBnds[nloc] - lowerBnds[nloc] > tol )
@@ -1081,7 +1169,7 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
           }
 
         // Decide which side it goes on.
-        if((varSgn[0] - zc)  == nloc + 1) 
+        if ( ( varSgn[0] - zc )  == nloc + 1 ) 
           {
           us = zs;
           upperBnds[nloc] = z;
@@ -1094,17 +1182,22 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
 
         // Maybe we are *now* close enough to use bisection. In which case DO THAT!
         // One extra multiplication is worth it.
-        if( us*ls < 0 )
+        if( us * ls < 0 )
           {
           bisect = true;
+          // Quit this loop so that we can use bisection.
+          break;
           }
-        }
+
+        } // While ub[nloc] - lb[nloc] > tol
+
       bisection[nloc] = false;
-      if(bisect == false)
+      if ( bisect == false )
         {
+        // Move on to next interval.
         continue;
         }
-      }
+      } // If ub and lb have the same sign.
     else
       {
       bisect = true;
@@ -1124,6 +1217,12 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
           break;
           }
         zv = evaluateHorner( P, d, z );
+        if ( IsZero( zv ) )
+          {
+          upperBnds[nloc] = lowerBnds[nloc] = z;
+          break;
+          }
+
         if ( zv * tempu > 0 )
           {
           tempu = zv;
@@ -1133,18 +1232,13 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
           lowerBnds[nloc] = z;
         }
       bisection[nloc] = true;
-      }
-    // Otherwise use a sequence. This is of course MUCH slower.
-    else
-      {
-      // FIXME
-      }
-    }
+      } // While ub[nloc] - lb[nloc] > tol
+    } // If we can bisect
 
   // Though theoretically this shouldn't happen, sometimes the roots are out of 
   // order. Lets sort them just in case, because it does happen sometimes.
-  qsort(upperBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots);
-  qsort(lowerBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots);
+  qsort( upperBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
+  qsort( lowerBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
 
   // Remove duplicate roots.
   for ( int j = 1; j < nIntervals; ++ j )
@@ -1179,7 +1273,7 @@ int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double *upperBn
       {
       upperBnds[i-1] = upperBnds[i];
       }
-    } 
+    }
 
   if ( zeroroot )
     {
@@ -1250,38 +1344,38 @@ int vtkPolynomialSolversUnivariate::SturmBisectionSolve(
 // Furthermore assume that dP is large enough.
 // Stores
 // {f,f',f^(2)/2!,f^(3)/3!,...,f^(p)/p!}.
-void vtkGetDerivativeSequence(double* dP, int p)
+void vtkGetDerivativeSequence( double* dP, int p )
 {
   int offsetA = 0;
   int offsetB = p+1;
 
-  for(int i = 1; i <= p; i++)
+  for ( int i = 1; i <= p; ++ i )
     {
-    for(int j = 0; j <= p-i; j++)
-      dP[offsetB + j] = static_cast<double>(p-i-j+1)*dP[offsetA + j]/i;
+    for ( int j = 0; j <= p - i; ++ j )
+      dP[offsetB + j] = static_cast<double>( p - i - j + 1 ) * dP[offsetA + j] / i;
 
     offsetA = offsetB;
-    offsetB += p-i+1;
+    offsetB += p - i + 1;
     }
 }
 
-int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val)
+int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val )
 {
   int oldVal = 0;
   double v;
   int changes = 0;
   int offset = 0;
 
-  for(int i = 0; i <= count; i++)
+  for ( int i = 0; i <= count; ++ i )
     {
-    v = evaluateHorner(dP + offset, count-i, val);
+    v = evaluateHorner( dP + offset, count - i, val );
 
-    if(v*oldVal < 0)
+    if ( v * oldVal < 0 )
       {
-      changes++;
-      oldVal = 0-oldVal;
+      ++ changes;
+      oldVal = -oldVal;
       }
-    if(oldVal == 0)
+    if ( oldVal == 0 )
       {
       if( v < 0 )
         {
@@ -1292,43 +1386,44 @@ int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val)
         oldVal = 1;
         }
       }
-    offset += count-i+1;
+    offset += count - i + 1;
     }
 
   return changes;
 }
 
-int vtkPolynomialSolversUnivariate::FilterRoots(double* P, int d, double *upperBnds, int rootcount, double diameter)
+int vtkPolynomialSolversUnivariate::FilterRoots(
+  double* P, int d, double* upperBnds, int rootcount, double diameter )
 { 
   // Sort the roots.
-  qsort(upperBnds, rootcount, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots);
+  qsort( upperBnds, rootcount, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
 
   // Remove duplicates.
-  for(int j = 1; j < rootcount; j++)
+  for ( int j = 1; j < rootcount; ++ j )
     {
-    if( upperBnds[j] < upperBnds[j-1]+2e-3)
+    if ( upperBnds[j] < upperBnds[j - 1] + diameter )
       {
-      for(int k = j+1; k < rootcount; k++)
+      for ( int k = j + 1; k < rootcount; ++ k )
         {
-        upperBnds[k-1] = upperBnds[k];
+        upperBnds[k - 1] = upperBnds[k];
         }
-      j--;
-      rootcount--;
+      -- j;
+      -- rootcount;
       continue;
       }
     }
 
-  if( rootcount == 0 )
+  if ( rootcount == 0 )
     {
     return 0;
     }
 
   // Ignore 0 as a root.
-  for ( int i = d; i >= 0; i-- )
+  for ( int i = d; i >= 0; -- i )
     {
-    if( IsZero(P[i]) )
+    if ( IsZero( P[i] ) )
       {
-      d--;
+      -- d;
       }
     else
       {
@@ -1493,13 +1588,6 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
   delete [] div1;
   delete [] div2;
   return nr;
-}
-
-extern "C" {
-  int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b)
-  {
-    return (*((const double*)a)) < (*((const double*)b)) ? -1 : 1; 
-  }
 }
 
 //----------------------------------------------------------------------------

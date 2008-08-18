@@ -57,26 +57,37 @@ public:
   static ostream& PrintPolynomial( ostream& os, double* P, int degP );
 
   // Description:
-  // Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial 
-  //   P[0] X^d + ... + P[d-1] X + P[d] 
-  // in ]\a a[0] ; \a a[1]] using Sturm's theorem ( polynomial 
-  // coefficients are REAL ) and returns the count \a nr. All roots are bracketed
+  // Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial
+  // \f[
+  //   P[0] X^d + ... + P[d-1] X + P[d]
+  // \f]
+  // in ]\a a[0] ; \a a[1]] using the Habicht sequence (polynomial 
+  // coefficients are REAL) and returns the count \a nr. All roots are bracketed
   // in the \nr first ]\a upperBnds[i] - \a tol ; \a upperBnds[i]] intervals.
   // Returns -1 if anything went wrong (such as: polynomial does not have
   // degree \a d, the interval provided by the other is absurd, etc.).
   //
-  // intervalType specifies the search interval as follows:
+  // \a intervalType specifies the search interval as follows:
   // 0 = 00 = ]a,b[
   // 1 = 10 = [a,b[
   // 2 = 01 = ]a,b]
   // 3 = 11 = [a,b]
   // This defaults to 0.
   //
-  // The last non-zero item in the Sturm sequence is the gcd of P and P'. The
+  // The last non-zero item in the Habicht sequence is the gcd of P and P'. The
   // parameter divideGCD specifies whether the program should attempt to divide
   // by the gcd and run again. It works better with polynomials known to have
   // high multiplicities. When divideGCD != 0 then it attempts to divide by the
   // GCD, if applicable. This defaults to 0.
+  //
+  // Compared to the Sturm solver the Habicht solver is slower,
+  // although both are O(d^2). The Habicht solver has the added benefit
+  // that it has a built in mechanism to keep the leading coefficients of the
+  // result from polynomial division bounded above and below in absolute value.
+  // This will tend to keep the coefficients of the polynomials in the sequence
+  // from zeroing out prematurely or becoming infinite.
+  //
+  // Constructing the Habicht sequence is O(d^2) in both time and space.
   //
   // Warning: it is the user's responsibility to make sure the \a upperBnds 
   // array is large enough to contain the maximal number of expected roots.
@@ -113,6 +124,8 @@ public:
   // by the gcd and run again. It works better with polynomials known to have
   // high multiplicities. When divideGCD != 0 then it attempts to divide by the
   // GCD, if applicable. This defaults to 0.
+  //
+  // Constructing the Sturm sequence is O(d^2) in both time and space.
   //
   // Warning: it is the user's responsibility to make sure the \a upperBnds 
   // array is large enough to contain the maximal number of expected roots.
@@ -134,7 +147,8 @@ public:
   // If the number of sign changes of the derivative sequence at a root at
   // upperBnds[i] == that at upperBnds[i]  - diameter then the i^th value is 
   // removed from upperBnds. It returns the new number of roots.
-  static int FilterRoots(double* P, int d, double *upperBnds, int rootcount, double diameter);
+  static int FilterRoots(
+    double* P, int d, double *upperBnds, int rootcount, double diameter );
 
   // Description:
   // Seeks all REAL roots of the \a d -th degree polynomial 
