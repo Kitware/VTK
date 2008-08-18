@@ -35,7 +35,11 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.5");
+#if defined(__BORLANDC__)
+#  define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
+#endif
+
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.6");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
