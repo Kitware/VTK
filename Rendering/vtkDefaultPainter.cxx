@@ -28,7 +28,7 @@
 #include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.9");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.10");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
@@ -148,17 +148,6 @@ void vtkDefaultPainter::BuildPainterChain()
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
     }
-  
-  painter = this->GetCoincidentTopologyResolutionPainter();
-  if (painter)
-    {
-    if (prevPainter)
-      {
-      prevPainter->SetDelegatePainter(painter);
-      }
-    prevPainter = painter;
-    headPainter = (headPainter)? headPainter : painter;
-    }  
 
   painter = this->GetLightingPainter();
   if (painter)
@@ -170,8 +159,19 @@ void vtkDefaultPainter::BuildPainterChain()
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
     }
-  
+
   painter = this->GetRepresentationPainter();
+  if (painter)
+    {
+    if (prevPainter)
+      {
+      prevPainter->SetDelegatePainter(painter);
+      }
+    prevPainter = painter;
+    headPainter = (headPainter)? headPainter : painter;
+    }
+  
+  painter = this->GetCoincidentTopologyResolutionPainter();
   if (painter)
     {
     if (prevPainter)
