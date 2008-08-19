@@ -35,11 +35,11 @@
 # endif
 #endif
 
-#if defined(__BORLANDC__)
-#  define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+# define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
 #endif
 
-vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.6");
+vtkCxxRevisionMacro(vtkPolynomialSolversUnivariate, "1.7");
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt( static_cast<double>( 3. ) );
@@ -304,7 +304,7 @@ static int polynomialEucliDivOppositeR(
 
 inline double vtkNormalizePolyCoeff( double d, double* div = 0 )
 {
-  const static double high = 18446744073709551616.; // 2**64
+  static const double high = 18446744073709551616.; // 2**64
   //const static double high = pow(2., 64);
   if ( fabs( d ) < 1e300 && d == d )
     {
