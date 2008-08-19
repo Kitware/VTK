@@ -17,6 +17,24 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
+#ifdef VTK_VARIANT_IMPL
+/*
+All code in this source file is conditionally compiled to work-around
+a build problem on the SGI with MIPSpro 7.4.4.  The prelinker loads
+vtkVariant.cxx while looking for the template definition of
+vtkVariant::ToNumeric<> declared in the vtkVariant.h header.  It wants
+the definition in order to instantiate it in vtkCharArray.o or some
+other object to which the instantiation has been assigned.  For some
+reason providing the explicit instantiation in vtkVariant.o is not
+enough to prevent the prelinker from assigning the instantiation to
+another object.  When vtkVariant.cxx is included in the translation
+unit by the prelinker, it causes additional instantiations of other
+templates, like vtkVariantStringToNumeric.  This sends the prelinker
+into an infinite loop of instantiation requests.  By placing all the
+code in this preprocessing condition, we hide it from the prelinker.
+The CMakeLists.txt file defines the macro to compile this code when
+really building the vtkVariant.o object.
+*/
 #include "vtkVariant.h"
 
 #include "vtkStdString.h"
@@ -906,4 +924,5 @@ bool vtkVariant::IsEqual(const vtkVariant& other) const
 #if !defined(VTK_VARIANT_TO_NUMERIC_CXX_INCLUDED)
 # define VTK_VARIANT_TO_NUMERIC_CXX_INCLUDED
 # include "vtkVariantToNumeric.cxx"
+#endif
 #endif

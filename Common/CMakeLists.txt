@@ -315,6 +315,10 @@ SET_SOURCE_FILES_PROPERTIES(
   WRAP_EXCLUDE
 )
 
+# Activate code in "vtkVariant.cxx".  See the comment in the source.
+SET_SOURCE_FILES_PROPERTIES(vtkVariant.cxx PROPERTIES
+  COMPILE_FLAGS -DVTK_VARIANT_IMPL)
+
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS vtkTclUtil.cxx)
