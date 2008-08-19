@@ -77,7 +77,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStdString.h"
 
-vtkCxxRevisionMacro(vtkCosmoReader, "1.8");
+vtkCxxRevisionMacro(vtkCosmoReader, "1.8.2.1");
 vtkStandardNewMacro(vtkCosmoReader);
 
 namespace
@@ -112,7 +112,7 @@ vtkCosmoReader::vtkCosmoReader()
   this->FileStream             = NULL;
   this->ByteOrder              = FILE_LITTLE_ENDIAN;
   this->Stride                 = 1;
-  this->BoxSize                = 90.141;
+  this->BoxSize                = 0;
   this->PositionRange[0]       = 0;
   this->PositionRange[1]       = -1;
   this->NumberOfNodes          = 0;
