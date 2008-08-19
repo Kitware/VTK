@@ -183,6 +183,14 @@ vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
 
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET_SOURCE_FILES_PROPERTIES(
+   vtkPolynomialSolversUnivariate.cxx
+   PROPERTIES
+   COMPILE_FLAGS -O0
+   )
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
 IF(VTK_TYPE_USE_LONG_LONG)
   SET(Kit_SRCS ${Kit_SRCS}
     vtkLongLongArray.cxx

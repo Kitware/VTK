@@ -385,7 +385,7 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
     9.475854336e-007};
   double twinroots[] = {.2,.39,.4};
 
-  stat |= vtkTestPolynomials(twin01, 12, rootInt, roots, tolSturm, divtol, 4, twinroots, 3, 1e-5,
+  stat |= vtkTestPolynomials(twin01, 12, rootInt, roots, tolSturm, divtol, 3, twinroots, 3, 1e-5,
     "(x-.39)^4*(x-.4)^4*(x-.2)^4", true, 1);
 
   stat |= vtkTestPolynomials(twin01, 12, rootInt, roots, tolSturm, divtol, 3, twinroots, 3, 1e-5,
