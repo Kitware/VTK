@@ -28,6 +28,8 @@
 
 #include "vtkXRenderWindowInteractor.h"
 
+class vtkXRenderWindowTclInteractorInternals;
+
 class VTK_RENDERING_EXPORT vtkXRenderWindowTclInteractor : public vtkXRenderWindowInteractor
 {
 public:
@@ -35,11 +37,34 @@ public:
   vtkTypeRevisionMacro(vtkXRenderWindowTclInteractor,vtkXRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Initializes a Tcl/Tk specific event handler.
+  virtual void Initialize();
+
+  // Description:
+  // Enable/Disable interactions.  By default interactors are enabled when
+  // initialized.  Initialize() must be called prior to enabling/disabling
+  // interaction. These methods are used when a window/widget is being
+  // shared by multiple renderers and interactors.  This allows a "modal"
+  // display where one interactor is active when its data is to be displayed
+  // and all other interactors associated with the widget are disabled
+  // when their data is not displayed.
+  virtual void Enable();
+  virtual void Disable();
+
 protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();
 
+  // Description: 
+  // Tcl/Tk specific internal timer methods. See the superclass for detailed
+  // documentation.
+  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+  virtual int InternalDestroyTimer(int platformTimerId);
+
 private:
+  vtkXRenderWindowTclInteractorInternals* Internal;
+
   vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&);  // Not implemented.
   void operator=(const vtkXRenderWindowTclInteractor&);  // Not implemented.
 };
