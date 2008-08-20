@@ -19,9 +19,8 @@
 // Sets up a default pipeline of painters to mimick the behaiour of 
 // old vtkPolyDataMapper. The chain is as follows:
 // input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
-// vtkDisplayListPainter --> vtkCompositePainter -->
-// vtkCoincidentTopologyResolutionPainter -->
-// vtkLightingPainter --> vtkRepresentationPainter --> 
+// vtkRepresentationPainter --> vtkCoincidentTopologyResolutionPainter -->
+// vtkDisplayListPainter --> vtkLightingPainter --> vtkCompositePainter -->
 // <Delegate of vtkDefaultPainter>.
 // Typically, the delegate of the default painter be one that is capable of r
 // rendering graphics primitives or a vtkChooserPainter which can select appropriate
@@ -128,11 +127,11 @@ protected:
 
   vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkClipPlanesPainter* ClipPlanesPainter;
-  vtkDisplayListPainter* DisplayListPainter;
-  vtkCompositePainter* CompositePainter;
-  vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
-  vtkLightingPainter* LightingPainter;
   vtkRepresentationPainter* RepresentationPainter;
+  vtkCoincidentTopologyResolutionPainter* CoincidentTopologyResolutionPainter;
+  vtkDisplayListPainter* DisplayListPainter;
+  vtkLightingPainter* LightingPainter;
+  vtkCompositePainter* CompositePainter;
   vtkTimeStamp ChainBuildTime;
 
   vtkPainter* DefaultPainterDelegate;

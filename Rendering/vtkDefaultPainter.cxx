@@ -28,7 +28,7 @@
 #include "vtkScalarsToColorsPainter.h"
 
 vtkStandardNewMacro(vtkDefaultPainter);
-vtkCxxRevisionMacro(vtkDefaultPainter, "1.10");
+vtkCxxRevisionMacro(vtkDefaultPainter, "1.11");
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
   vtkScalarsToColorsPainter);
@@ -46,11 +46,11 @@ vtkDefaultPainter::vtkDefaultPainter()
 {
   this->ScalarsToColorsPainter = 0;
   this->ClipPlanesPainter = 0;
-  this->DisplayListPainter = 0;
-  this->CompositePainter = 0;
-  this->CoincidentTopologyResolutionPainter = 0;
-  this->LightingPainter = 0;
   this->RepresentationPainter = 0;
+  this->CoincidentTopologyResolutionPainter = 0;
+  this->DisplayListPainter = 0;
+  this->LightingPainter = 0;
+  this->CompositePainter = 0;
   this->DefaultPainterDelegate = 0;
 
   vtkScalarsToColorsPainter* scp = vtkScalarsToColorsPainter::New();
@@ -61,26 +61,26 @@ vtkDefaultPainter::vtkDefaultPainter()
   this->SetClipPlanesPainter(cp);
   cp->Delete();
 
-  vtkDisplayListPainter* dlp = vtkDisplayListPainter::New();
-  this->SetDisplayListPainter(dlp);
-  dlp->Delete();
-
-  vtkCompositePainter* cpp = vtkCompositePainter::New();
-  this->SetCompositePainter(cpp);
-  cpp->Delete();
+  vtkRepresentationPainter* vp = vtkRepresentationPainter::New();
+  this->SetRepresentationPainter(vp);
+  vp->Delete();
 
   vtkCoincidentTopologyResolutionPainter* ctrp =
     vtkCoincidentTopologyResolutionPainter::New();
   this->SetCoincidentTopologyResolutionPainter(ctrp);
   ctrp->Delete();
 
+  vtkDisplayListPainter* dlp = vtkDisplayListPainter::New();
+  this->SetDisplayListPainter(dlp);
+  dlp->Delete();
+
   vtkLightingPainter* lp = vtkLightingPainter::New();
   this->SetLightingPainter(lp);
   lp->Delete();
 
-  vtkRepresentationPainter* vp = vtkRepresentationPainter::New();
-  this->SetRepresentationPainter(vp);
-  vp->Delete();
+  vtkCompositePainter* cpp = vtkCompositePainter::New();
+  this->SetCompositePainter(cpp);
+  cpp->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -88,11 +88,11 @@ vtkDefaultPainter::~vtkDefaultPainter()
 {
   this->SetScalarsToColorsPainter(0);
   this->SetClipPlanesPainter(0);
-  this->SetDisplayListPainter(0);
-  this->SetCompositePainter(0);
-  this->SetCoincidentTopologyResolutionPainter(0);
-  this->SetLightingPainter(0);
   this->SetRepresentationPainter(0);
+  this->SetCoincidentTopologyResolutionPainter(0);
+  this->SetDisplayListPainter(0);
+  this->SetLightingPainter(0);
+  this->SetCompositePainter(0);
   this->SetDefaultPainterDelegate(0);
 }
 
@@ -125,7 +125,40 @@ void vtkDefaultPainter::BuildPainterChain()
     headPainter = (headPainter)? headPainter : painter;
     }
 
+  painter = this->GetRepresentationPainter();
+  if (painter)
+    {
+    if (prevPainter)
+      {
+      prevPainter->SetDelegatePainter(painter);
+      }
+    prevPainter = painter;
+    headPainter = (headPainter)? headPainter : painter;
+    }
+  
+  painter = this->GetCoincidentTopologyResolutionPainter();
+  if (painter)
+    {
+    if (prevPainter)
+      {
+      prevPainter->SetDelegatePainter(painter);
+      }
+    prevPainter = painter;
+    headPainter = (headPainter)? headPainter : painter;
+    }  
+
   painter = this->GetDisplayListPainter();
+  if (painter)
+    {
+    if (prevPainter)
+      {
+      prevPainter->SetDelegatePainter(painter);
+      }
+    prevPainter = painter;
+    headPainter = (headPainter)? headPainter : painter;
+    }
+
+  painter = this->GetLightingPainter();
   if (painter)
     {
     if (prevPainter)
@@ -148,39 +181,6 @@ void vtkDefaultPainter::BuildPainterChain()
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
     }
-
-  painter = this->GetLightingPainter();
-  if (painter)
-    {
-    if (prevPainter)
-      {
-      prevPainter->SetDelegatePainter(painter);
-      }
-    prevPainter = painter;
-    headPainter = (headPainter)? headPainter : painter;
-    }
-
-  painter = this->GetRepresentationPainter();
-  if (painter)
-    {
-    if (prevPainter)
-      {
-      prevPainter->SetDelegatePainter(painter);
-      }
-    prevPainter = painter;
-    headPainter = (headPainter)? headPainter : painter;
-    }
-  
-  painter = this->GetCoincidentTopologyResolutionPainter();
-  if (painter)
-    {
-    if (prevPainter)
-      {
-      prevPainter->SetDelegatePainter(painter);
-      }
-    prevPainter = painter;
-    headPainter = (headPainter)? headPainter : painter;
-    }  
 
   // this will set in internal delegate painter.
   this->Superclass::SetDelegatePainter(headPainter);
@@ -302,24 +302,12 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-
-   os << indent << "DisplayListPainter: " ;
-  if (this->DisplayListPainter)
+  
+  os << indent << "RepresentationPainter: " ;
+  if (this->RepresentationPainter)
     {
-    os << endl;
-    this->DisplayListPainter->PrintSelf(
-      os, indent.GetNextIndent());
-    }
-  else
-    {
-    os << "(none)" << endl;
-    }
-
-  os << indent << "CompositePainter: ";
-  if (this->CompositePainter)
-    {
-    os << endl;
-    this->CompositePainter->PrintSelf(os, indent.GetNextIndent());
+    os << endl ;
+    this->RepresentationPainter->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
@@ -337,6 +325,18 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
+
+   os << indent << "DisplayListPainter: " ;
+  if (this->DisplayListPainter)
+    {
+    os << endl;
+    this->DisplayListPainter->PrintSelf(
+      os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
  
   os << indent << "LightingPainter: " ;
   if (this->LightingPainter)
@@ -348,12 +348,12 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
-  os << indent << "RepresentationPainter: " ;
-  if (this->RepresentationPainter)
+
+  os << indent << "CompositePainter: ";
+  if (this->CompositePainter)
     {
-    os << endl ;
-    this->RepresentationPainter->PrintSelf(os, indent.GetNextIndent());
+    os << endl;
+    this->CompositePainter->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
