@@ -42,6 +42,11 @@ public:
   virtual void Initialize();
 
   // Description:
+  // Overridden only to eliminate the "virtual function hidden" warning.
+  // Implementation delegates directly to the Superclass.
+  virtual void Initialize(XtAppContext app);
+
+  // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
   // initialized.  Initialize() must be called prior to enabling/disabling
   // interaction. These methods are used when a window/widget is being
@@ -51,6 +56,12 @@ public:
   // when their data is not displayed.
   virtual void Enable();
   virtual void Disable();
+
+  // Description:
+  // This will start a Tcl/Tk event loop that only returns when the user
+  // presses the 'q' or 'e' key or when some other event observer calls
+  // our ExitCallback method.
+  virtual void Start();
 
 protected:
   vtkXRenderWindowTclInteractor();

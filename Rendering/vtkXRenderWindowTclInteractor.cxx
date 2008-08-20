@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXRenderWindowTclInteractor.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkXOpenGLRenderWindow.h"
@@ -23,7 +24,7 @@
 #include <vtkTk.h>
 
 //-------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.55");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.56");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 
@@ -220,6 +221,13 @@ void vtkXRenderWindowTclInteractor::Initialize()
 
 
 //-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::Initialize(XtAppContext app)
+{
+  this->Superclass::Initialize(app);
+}
+
+
+//-------------------------------------------------------------------------
 void vtkXRenderWindowTclInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
@@ -269,8 +277,38 @@ void vtkXRenderWindowTclInteractor::Disable()
 
 
 //-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::Start()
+{
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
+    {
+    this->InvokeEvent(vtkCommand::StartEvent, NULL);
+    return;
+    }
+
+  if (!this->Initialized)
+    {
+    this->Initialize();
+    }
+  if (!this->Initialized)
+    {
+    return;
+    }
+
+  unsigned long ExitTag = this->AddObserver(vtkCommand::ExitEvent, this->BreakXtLoopCallback);
+  this->BreakLoopFlag = 0;
+  do
+    {
+    Tk_DoOneEvent(0);
+    }
+  while (this->BreakLoopFlag == 0);
+  this->RemoveObserver(ExitTag);
+}
+
+
+//-------------------------------------------------------------------------
 int vtkXRenderWindowTclInteractor::InternalCreateTimer(int timerId,
-                                                       int timerType,
+                                                       int vtkNotUsed(timerType),
                                                        unsigned long duration)
 {
   duration = (duration > 0 ? duration : this->TimerDuration);
