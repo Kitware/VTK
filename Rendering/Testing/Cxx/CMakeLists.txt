@@ -17,6 +17,7 @@ IF(VTK_USE_DISPLAY)
   SET(RenderingTestsWithArguments
     ${RenderingTestsWithArguments}
     LoadOpenGLExtension.cxx
+    SurfacePlusEdges.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
     TestGradientBackground.cxx
