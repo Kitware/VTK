@@ -38,7 +38,7 @@
 #include "vtkView.h"
 
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.3");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.4");
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
 
 //-----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
   this->SelectableOff();
 
   this->Threader = vtkSmartPointer<vtkMultiThreader>::New();
-  this->TreeLock = NULL;
+  this->TreeLock = 0;
 }
 
 //-----------------------------------------------------------------------------
