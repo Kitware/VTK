@@ -8,6 +8,14 @@ CHECK_TYPE_SIZE("long long" VTK_SIZEOF_LONG_LONG)
 CHECK_TYPE_SIZE("__int64"   VTK_SIZEOF___INT64)
 
 IF(VTK_SIZEOF___INT64)
+  # In CMake 2.6 and above the type __int64 may have been found only
+  # due to inclusion of a system header.  Further try-compiles using
+  # the type should include the header too.
+  SET(_HAVE_DEFS)
+  FOREACH(def HAVE_SYS_TYPES_H HAVE_STDINT_H HAVE_STDDEF_H)
+    LIST(APPEND _HAVE_DEFS -D${def})
+  ENDFOREACH(def)
+
   IF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
     MESSAGE(STATUS "Checking whether long and __int64 are the same type")
     TRY_COMPILE(VTK_TYPE_SAME_LONG_AND___INT64
@@ -16,6 +24,7 @@ IF(VTK_SIZEOF___INT64)
       COMPILE_DEFINITIONS
       -DVTK_TEST_COMPARE_TYPE_1=long
       -DVTK_TEST_COMPARE_TYPE_2=__int64
+      ${_HAVE_DEFS}
       OUTPUT_VARIABLE OUTPUT)
     IF(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- yes")
@@ -42,6 +51,7 @@ IF(VTK_SIZEOF___INT64)
         COMPILE_DEFINITIONS
         -DVTK_TEST_COMPARE_TYPE_1=TYPE_LONG_LONG
         -DVTK_TEST_COMPARE_TYPE_2=__int64
+        ${_HAVE_DEFS}
         OUTPUT_VARIABLE OUTPUT)
       IF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- yes")
@@ -72,6 +82,7 @@ IF(VTK_SIZEOF___INT64)
           COMPILE_DEFINITIONS
           -DVTK_TEST_CONVERT_TYPE_FROM=TYPE_UNSIGNED___INT64
           -DVTK_TEST_CONVERT_TYPE_TO=double
+          ${_HAVE_DEFS}
           OUTPUT_VARIABLE OUTPUT)
         IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- yes")
