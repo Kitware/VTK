@@ -102,7 +102,6 @@ vtkLogLookupTable.cxx
 vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkMath.cxx
-vtkPolynomialSolversUnivariate.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
@@ -139,6 +138,7 @@ vtkPlane.cxx
 vtkPlaneCollection.cxx
 vtkPlanes.cxx
 vtkPoints.cxx
+vtkPolynomialSolversUnivariate.cxx
 vtkPriorityQueue.cxx
 vtkProp.cxx
 vtkPropCollection.cxx
