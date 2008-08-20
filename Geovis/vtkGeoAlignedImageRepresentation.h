@@ -38,10 +38,19 @@
 
 #include "vtkSmartPointer.h" // for SP
 #include "vtkAssembly.h" // for SP
-#include "vtkGeoAlignedImage.h" // for SP
+#include "vtkGeoAlignedImageSource.h" // for SP
+#include "vtkGeoImageNode.h" // for SP
+#include "vtkGeoTerrain.h" // for SP
+#include "vtkMultiThreader.h" // for SP
+
+#include <vtkstd/vector> // vector
+#include <vtkstd/stack> // stack
 
 class vtkRenderer;
 class vtkGeoCamera;
+class vtkGeoTerrain;
+class vtkAssembly;
+class vtkGeoPatch;
 
 class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
 {
@@ -65,12 +74,6 @@ public:
   void SetTerrain(vtkGeoTerrain *terrain) 
     { this->Terrain = terrain;}
   vtkGeoTerrain* GetTerrain() { return this->Terrain;}
-  
-  // Description:
-  // This cache supplies the background images to use as texture maps.
-  void SetImage(vtkGeoAlignedImage *image)
-    { this->Image = image;}
-  vtkGeoAlignedImage* GetImage() { return this->Image;}
 
   // Decription:
   // Adds the representation to the view.  This is called from
@@ -89,6 +92,25 @@ public:
   // may crash on exit.
   void ExitCleanup();
 
+  void SetSource(vtkGeoAlignedImageSource* source);
+  
+  // Description:
+  // Returns the best image we have for a specific terrain node.
+  vtkGeoImageNode* GetBestImageNode(vtkGeoTerrainNode* newTerrainNode);
+
+  // Description:
+  // This is public so that the multi threader can call this method.
+  void ThreadStart();
+
+  // Description:
+  // This builds the image from the latest request using the image patches
+  // currently available.  It returns true if the model changes.
+  bool UpdateImage(vtkGeoTerrain* terrain);
+
+  // Description:
+  // Add the actors that render the terrain image pairs to the assembly.
+  void UpdateAssembly(vtkAssembly* assembly);
+
 protected:
   vtkGeoAlignedImageRepresentation();
   ~vtkGeoAlignedImageRepresentation();
@@ -96,8 +118,52 @@ protected:
 //BTX
   vtkSmartPointer<vtkAssembly> Actor;
   vtkSmartPointer<vtkGeoTerrain> Terrain;
-  vtkSmartPointer<vtkGeoAlignedImage> Image;
+  vtkSmartPointer<vtkGeoAlignedImageSource> Source;
+  vtkSmartPointer<vtkGeoImageNode> WesternHemisphere;
+  vtkSmartPointer<vtkGeoImageNode> EasternHemisphere;
 //ETX
+
+  // Description:
+  // This stops the thread used to make the request.
+  void RequestTerminate();
+
+  // Description:
+  // Non blocking call.  Returns true if the lock was obtained.
+  // If the lock was obtained, then you need to release the lock.
+  bool GetReadLock();
+  void ReleaseReadLock();
+
+  // Description:
+  // This is used by the background thread.
+  // It blocks to get write access to the tree.
+  void GetWriteLock();
+  void ReleaseWriteLock();
+
+  // Returns 0 if index is out of range.
+  vtkGeoPatch* GetPatch(int idx);
+
+  vtkGeoPatch* GetNewPatchFromHeap();
+  void ReturnPatchToHeap(vtkGeoPatch* patch);
+  void DeletePatches();
+
+//BTX
+  vtkSmartPointer<vtkMultiThreader> Threader;
+
+  // Socket would be better ...
+  vtkSmartPointer<vtkMutexLock> WaitForRequestMutex1;
+  vtkSmartPointer<vtkMutexLock> WaitForRequestMutex2;
+  vtkSmartPointer<vtkMutexLock> WaitForRequestMutex3;
+  // The TreeMutex is used to block the background request thread.
+  // The TreeLock variable is used to control the main thread.
+  vtkSmartPointer<vtkMutexLock> TreeMutex;
+
+  vtkstd::vector<vtkGeoPatch* > Patches;
+  vtkstd::stack<vtkGeoPatch* > PatchHeap;
+//ETX
+
+  unsigned char TreeLock;
+
+  int ThreadId;
 
 private:
   vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&);  // Not implemented.

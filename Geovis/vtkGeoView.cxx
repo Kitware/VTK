@@ -21,9 +21,7 @@
 #include "vtkGeoView.h"
 
 #include "vtkActor.h"
-#include "vtkGeoAlignedImage.h"
 #include "vtkGeoAlignedImageSource.h"
-#include "vtkGeoAlignedImageCache.h"
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoCamera.h"
 #include "vtkGeoGraphRepresentation.h"
@@ -41,7 +39,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
 
-vtkCxxRevisionMacro(vtkGeoView, "1.3");
+vtkCxxRevisionMacro(vtkGeoView, "1.4");
 vtkStandardNewMacro(vtkGeoView);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
@@ -182,19 +180,14 @@ void vtkGeoView::PrepareForRendering()
 vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(const char* filename)
 {
   VTK_CREATE(vtkGeoTerrain, terrain);
-  VTK_CREATE(vtkGeoAlignedImage, image);
   VTK_CREATE(vtkGeoAlignedImageSource, imageSource);
   
   imageSource->LoadAnImage(filename);
   
-  VTK_CREATE(vtkGeoAlignedImageCache, imageCache);
-  imageCache->SetSource(imageSource);
-  image->SetCache(imageCache);
-  
   VTK_CREATE(vtkGeoAlignedImageRepresentation, rep);
-  rep->SetImage(image);
+  rep->SetSource(imageSource);
   rep->SetTerrain(terrain);
-  rep->Update(0);
+  rep->Update(NULL);
   
   this->AddRepresentation(rep);
   

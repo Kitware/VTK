@@ -9,8 +9,6 @@ SET( Kit_SRCS
   vtkCompassRepresentation.cxx
   vtkCompassWidget.cxx
   vtkGeoAdaptiveArcs.cxx
-  vtkGeoAlignedImage.cxx
-  vtkGeoAlignedImageCache.cxx
   vtkGeoAlignedImageRepresentation.cxx
   vtkGeoAlignedImageSource.cxx
   vtkGeoArcs.cxx
