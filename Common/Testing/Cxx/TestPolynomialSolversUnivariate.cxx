@@ -235,8 +235,9 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
                 tolSturm, divtol+5, limit-2, 
                 JT62RTS, 5, 1.000000e-05, "25*10^9*(x-1/10)*(x-1001/1000)*(x-998/1000)*(x-100002/100000)*(x-99999/100000)", false, 3, 0);
 
+#if !defined(_MSC_VER) || ( defined(_MSC_VER) && (_MSC_VER != 1310) )
   // Testing (x-1/10)*(x-1001/1000)*(x-998/1000)*(x-100002/100000)*(x-99999/100000)
-  // This only works with the Habicht Sequence.
+  // This only works with the Habicht Sequence, and not on MSVC 7.1
   double JT[] = {
     JT62[0]/JT62[0], JT62[1]/JT62[0], JT62[2]/JT62[0],
     JT62[3]/JT62[0], JT62[4]/JT62[0], JT62[5]/JT62[0]
@@ -244,6 +245,7 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
   stat |= vtkTestPolynomials(JT, 5, rootInt, roots,
                 tolSturm, divtol+5, limit-2, 
                 JT62RTS, 5, 1.000000e-05, "(x-1/10)*(x-1001/1000)*(x-998/1000)*(x-100002/100000)*(x-99999/100000)", false, 2, 0);
+#endif
 
 
   // Testing (x+1)^5
