@@ -13,7 +13,9 @@ IF(VTK_SIZEOF___INT64)
   # the type should include the header too.
   SET(_HAVE_DEFS)
   FOREACH(def HAVE_SYS_TYPES_H HAVE_STDINT_H HAVE_STDDEF_H)
-    LIST(APPEND _HAVE_DEFS -D${def})
+    IF(${def})
+      LIST(APPEND _HAVE_DEFS -D${def})
+    ENDIF(${def})
   ENDFOREACH(def)
 
   IF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
