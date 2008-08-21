@@ -12,25 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkActor.h"
-#include "vtkActorCollection.h"
-#include "vtkObjectFactory.h"
-#include "vtkOldStyleCallbackCommand.h"
-#include "vtkPoints.h"
-#include "vtkXOpenGLRenderWindow.h"
 #include "vtkXRenderWindowTclInteractor.h"
-#include <X11/Shell.h>
-#include <X11/X.h>
-#include <X11/keysym.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
+#include "vtkCallbackCommand.h"
+#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkXOpenGLRenderWindow.h"
+
+#include <vtksys/stl/map>
+
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.53");
+//-------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.53.14.1");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
+
+//-------------------------------------------------------------------------
 // steal the first three elements of the TkMainInfo stuct
 // we don't care about the rest of the elements.
 struct TkMainInfo
@@ -46,18 +44,107 @@ extern TkMainInfo *tkMainWindowList;
 extern "C" {TkMainInfo *TkGetMainInfoList();}
 #endif
 
-// returns 1 if done
-static int vtkTclEventProc(XtPointer clientData,XEvent *event)
+
+//-------------------------------------------------------------------------
+class vtkXTclTimer
+{
+public:
+  vtkXTclTimer()
+    {
+    this->Interactor = 0;
+    this->ID = 0;
+    this->TimerToken = 0;
+    }
+
+  vtkRenderWindowInteractor *Interactor;
+  int ID;
+  Tcl_TimerToken TimerToken;
+};
+
+
+//-------------------------------------------------------------------------
+void vtkXTclTimerProc(ClientData clientData)
+{
+  vtkXTclTimer* timer = static_cast<vtkXTclTimer*>(clientData);
+
+  vtkXRenderWindowTclInteractor* me =
+    static_cast<vtkXRenderWindowTclInteractor*>(timer->Interactor);
+
+  int platformTimerId = timer->ID;
+  int timerId = me->GetVTKTimerId(platformTimerId);
+
+  if (me->GetEnabled())
+    {
+    me->InvokeEvent(vtkCommand::TimerEvent, &timerId);
+    }
+
+  if (!me->IsOneShotTimer(timerId))
+    {
+    me->ResetTimer(timerId);
+    }
+}
+
+
+//-------------------------------------------------------------------------
+// Map between the Tcl native timer token to our own int id.  Note this
+// is separate from the TimerMap in the vtkRenderWindowInteractor
+// superclass.  This is used to avoid passing 64-bit values back
+// through the "int" return type of InternalCreateTimer.
+class vtkXRenderWindowTclInteractorInternals
+{
+public:
+  vtkXTclTimer* CreateTimer(vtkRenderWindowInteractor* iren,
+    int timerId, unsigned long duration)
+    {
+    vtkXTclTimer* timer = &this->Timers[timerId];
+
+    timer->Interactor = iren;
+    timer->ID = timerId;
+    timer->TimerToken = Tcl_CreateTimerHandler(duration, vtkXTclTimerProc,
+      (ClientData) timer);
+
+    return timer;
+    }
+
+  int DestroyTimer(int timerId)
+    {
+    int destroyed = 0;
+
+    vtkXTclTimer* timer = &this->Timers[timerId];
+
+    if (0 != timer->ID)
+      {
+      Tcl_DeleteTimerHandler(timer->TimerToken);
+
+      timer->Interactor = 0;
+      timer->ID = 0;
+      timer->TimerToken = 0;
+
+      destroyed = 1;
+      }
+
+    this->Timers.erase(timerId);
+
+    return destroyed;
+    }
+
+private:
+  vtkstd::map<int, vtkXTclTimer> Timers;
+};
+
+
+//-------------------------------------------------------------------------
+static int vtkTclEventProc(XtPointer clientData, XEvent *event)
 {
   Boolean ctd;
   vtkXOpenGLRenderWindow *rw;
-      
+
   rw = (vtkXOpenGLRenderWindow *)
     (((vtkXRenderWindowTclInteractor *)clientData)->GetRenderWindow());
-  
+
   if (rw->GetWindowId() == (reinterpret_cast<XAnyEvent *>(event))->window)
     {
-    vtkXRenderWindowTclInteractorCallback((Widget)NULL,clientData, event, &ctd);
+    vtkXRenderWindowInteractorCallback((Widget)NULL, clientData, event, &ctd);
     ctd = 0;
     }
   else
@@ -68,27 +155,15 @@ static int vtkTclEventProc(XtPointer clientData,XEvent *event)
   return !ctd;
 }
 
-extern "C"
-{
-  void vtkXTclTimerProc(ClientData clientData)
-  {
-    XtIntervalId id;
-    
-    vtkXRenderWindowTclInteractorTimer((XtPointer)clientData,&id);
-  }
-}
 
-
-
-// Construct object so that light follows camera motion.
+//-------------------------------------------------------------------------
 vtkXRenderWindowTclInteractor::vtkXRenderWindowTclInteractor()
 {
-  this->App = 0;
-  this->top = 0;
-  this->TopLevelShell = NULL;
-  this->BreakLoopFlag = 0;
+  this->Internal = new vtkXRenderWindowTclInteractorInternals;
 }
 
+
+//-------------------------------------------------------------------------
 vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
 {
   if (this->Initialized)
@@ -96,124 +171,63 @@ vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
     Tk_DeleteGenericHandler((Tk_GenericProc *)vtkTclEventProc,
                             (ClientData)this);
     }
-}
 
-void  vtkXRenderWindowTclInteractor::SetWidget(Widget foo)
-{
-  this->top = foo;
-} 
-
-// This method will store the top level shell widget for the interactor.
-// This method and the method invocation sequence applies for:
-//     1 vtkRenderWindow-Interactor pair in a nested widget heirarchy
-//     multiple vtkRenderWindow-Interactor pairs in the same top level shell
-// It is not needed for
-//     1 vtkRenderWindow-Interactor pair as the direct child of a top level shell
-//     multiple vtkRenderWindow-Interactor pairs, each in its own top level shell
-//
-// The method, along with EnterNotify event, changes the keyboard focus among
-// the widgets/vtkRenderWindow(s) so the Interactor(s) can receive the proper
-// keyboard events. The following calls need to be made:
-//     vtkRenderWindow's display ID need to be set to the top level shell's
-//           display ID.
-//     vtkXRenderWindowTclInteractor's Widget has to be set to the vtkRenderWindow's
-//           container widget
-//     vtkXRenderWindowTclInteractor's TopLevel has to be set to the top level
-//           shell widget
-// note that the procedure for setting up render window in a widget needs to
-// be followed.  See vtkRenderWindowInteractor's SetWidget method.
-//
-// If multiple vtkRenderWindow-Interactor pairs in SEPARATE windows are desired,
-// do not set the display ID (Interactor will create them as needed.  Alternatively,
-// create and set distinct DisplayID for each vtkRenderWindow. Using the same
-// display ID without setting the parent widgets will cause the display to be
-// reinitialized every time an interactor is initialized), do not set the
-// widgets (so the render windows would be in their own windows), and do
-// not set TopLevelShell (each has its own top level shell already)
-void vtkXRenderWindowTclInteractor::SetTopLevelShell(Widget topLevel)
-{
-  this->TopLevelShell = topLevel;
+  delete this->Internal;
+  this->Internal = 0;
 }
 
 
-static void vtkBreakTclLoop(void *iren)
+//-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::Initialize()
 {
-  ((vtkXRenderWindowTclInteractor*)iren)->SetBreakLoopFlag(1);
-}
-
-void  vtkXRenderWindowTclInteractor::Start()
-{
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
+  if (this->Initialized)
     {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
     return;
     }
 
-  vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-  cbc->Callback = vtkBreakTclLoop;
-  cbc->ClientData = this;
-  unsigned long ExitTag = this->AddObserver(vtkCommand::ExitEvent,cbc, 0.5);
-  cbc->Delete();
-  
-  this->BreakLoopFlag = 0;
-  while(this->BreakLoopFlag == 0)
+  // make sure we have a RenderWindow
+  if (!this->RenderWindow)
     {
-    Tk_DoOneEvent(0);
-    }
-  this->RemoveObserver(ExitTag);
-}
-
-// Initializes the event handlers
-void vtkXRenderWindowTclInteractor::Initialize(XtAppContext app)
-{
-  this->App = app;
-
-  this->Initialize();
-}
-
-// Begin processing keyboard strokes.
-void vtkXRenderWindowTclInteractor::Initialize()
-{
-  vtkXOpenGLRenderWindow *ren;
-  int *size;
-
-  // make sure we have a RenderWindow and camera
-  if ( ! this->RenderWindow)
-    {
-    vtkErrorMacro(<<"No renderer defined!");
+    vtkErrorMacro(<<"No RenderWindow defined!");
     return;
     }
 
   this->Initialized = 1;
-  ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
 
-  // use the same display as tcl/tk
+  vtkXOpenGLRenderWindow* ren =
+    static_cast<vtkXOpenGLRenderWindow *>(this->RenderWindow);
+
+  // Use the same display as tcl/tk:
+  //
 #if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
   ren->SetDisplayId(Tk_Display(tkMainWindowList->winPtr));
 #else
   ren->SetDisplayId(Tk_Display(TkGetMainInfoList()->winPtr));
 #endif
+
   this->DisplayId = ren->GetDisplayId();
-  
-  // get the info we need from the RenderingWindow
-  size    = ren->GetSize();
-  
-  size = ren->GetSize();
+
+  // Create a Tcl/Tk event handler:
+  //
+  Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc, (ClientData)this);
+
   ren->Start();
   this->WindowId = ren->GetWindowId();
-  size = ren->GetSize();
-
+  int* size = ren->GetSize();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-
   this->Enable();
-
-  // Set the event handler
-  Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc,(ClientData)this);
 }
 
 
+//-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::Initialize(XtAppContext app)
+{
+  this->Superclass::Initialize(app);
+}
+
+
+//-------------------------------------------------------------------------
 void vtkXRenderWindowTclInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
@@ -240,6 +254,8 @@ void vtkXRenderWindowTclInteractor::Enable()
   this->Modified();
 }
 
+
+//-------------------------------------------------------------------------
 void vtkXRenderWindowTclInteractor::Disable()
 {
   if (!this->Enabled)
@@ -260,396 +276,56 @@ void vtkXRenderWindowTclInteractor::Disable()
 }
 
 
-void vtkXRenderWindowTclInteractor::PrintSelf(ostream& os, vtkIndent indent)
+//-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::Start()
 {
-  this->Superclass::PrintSelf(os,indent);
-  if (this->App)
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
     {
-    os << indent << "App: " << this->App << "\n";
-    }
-  else
-    {
-    os << indent << "App: (none)\n";
-    }
-  os << indent << "Break Loop Flag: " 
-     << (this->BreakLoopFlag ? "On\n" : "Off\n");
-}
-
-
-void  vtkXRenderWindowTclInteractor::UpdateSize(int x,int y)
-{
-  // if the size changed send this on to the RenderWindow
-  if ((x != this->Size[0])||(y != this->Size[1]))
-    {
-    this->Size[0] = x;
-    this->Size[1] = y;
-    this->RenderWindow->SetSize(x,y);
+    this->InvokeEvent(vtkCommand::StartEvent, NULL);
+    return;
     }
 
-} 
-
-
-void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
-                                        XtPointer client_data, 
-                                        XEvent *event, 
-                                        Boolean *vtkNotUsed(ctd))
-{
-  vtkXRenderWindowTclInteractor *me;
-  
-  me = (vtkXRenderWindowTclInteractor *)client_data;
-  int xp, yp;
-  
-  switch (event->type) 
+  if (!this->Initialized)
     {
-    case Expose:
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, 
-                                    me->WindowId,
-                                    Expose, 
-                                    &result))
-        {
-        // just getting the expose configure event
-        event = &result;
-        }
-      int width = (reinterpret_cast<XConfigureEvent *>(event))->width;
-      int height = (reinterpret_cast<XConfigureEvent *>(event))->height;
-      me->SetEventSize(width, height);
-      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
-      yp = me->Size[1] - xp - 1;
-      me->SetEventPosition(xp, yp);
-      // only render if we are currently accepting events
-      if (me->Enabled)
-        {
-        me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
-        me->Render();
-        }
-      }
-      break;
- 
-    case MapNotify:
-      {
-      // only render if we are currently accepting events
-      if (me->Enabled && me->GetRenderWindow()->GetNeverRendered())
-        {
-        me->Render();
-        }
-      }
-      break;
-
-    case ConfigureNotify: 
-      {
-      XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, 
-                                    me->WindowId,
-                                    ConfigureNotify, 
-                                    &result))
-        {
-        // just getting the last configure event
-        event = &result;
-        }
-      int width = (reinterpret_cast<XConfigureEvent *>(event))->width;
-      int height = (reinterpret_cast<XConfigureEvent *>(event))->height;
-      if (width != me->Size[0] || height != me->Size[1])
-        {
-        me->UpdateSize(width, height);
-        xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-        yp = (reinterpret_cast<XButtonEvent*>(event))->y;
-        me->SetEventPosition(xp, me->Size[1] - yp - 1);
-        // only render if we are currently accepting events
-        if (me->Enabled)
-          {
-          me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
-          me->Render();
-          }
-        }
-      }
-      break;
-      
-    case ButtonPress: 
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      int ctrl = 
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
-      int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
-      int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
-      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = (reinterpret_cast<XButtonEvent*>(event))->y;
-      me->SetEventInformationFlipY(xp, 
-                                   yp,
-                                   ctrl, 
-                                   shift);
-      me->SetAltKey(alt);
-      switch ((reinterpret_cast<XButtonEvent *>(event))->button)
-        {
-        case Button1: 
-          me->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
-          break;
-        case Button2: 
-          me->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
-          break;
-        case Button3: 
-          me->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
-          break;
-        case Button4: 
-          me->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
-          break;
-        case Button5: 
-          me->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
-          break;
-        }
-      }
-      break;
-      
-    case ButtonRelease: 
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      int ctrl = 
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
-      int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
-      int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
-      xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = (reinterpret_cast<XButtonEvent*>(event))->y; 
-      
-      // check for double click
-      static int MousePressTime = 0;
-      int repeat = 0;
-      // 400 ms threshold by default is probably good to start
-      if((reinterpret_cast<XButtonEvent*>(event)->time - MousePressTime) < 400)
-        {
-        MousePressTime -= 2000;  // no double click next time
-        repeat = 1;
-        }
-      else
-        {
-          MousePressTime = reinterpret_cast<XButtonEvent*>(event)->time;
-        }
-      
-      me->SetEventInformationFlipY(xp, 
-                                   yp,
-                                   ctrl, 
-                                   shift,
-                                   0,
-                                   repeat);
-      me->SetAltKey(alt);
-      switch ((reinterpret_cast<XButtonEvent *>(event))->button)
-        {
-        case Button1: 
-          me->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
-          break;
-        case Button2: 
-          me->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
-          break;
-        case Button3: 
-          me->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
-          break;
-        }
-      }
-      break;
-
-    case EnterNotify:
-      {
-      // Force the keyboard focus to be this render window
-      if (me->TopLevelShell != NULL)
-        {
-        XtSetKeyboardFocus(me->TopLevelShell, me->top);
-        } 
-      if (me->Enabled) 
-        {
-        XEnterWindowEvent *e = reinterpret_cast<XEnterWindowEvent *>(event);
-        me->SetEventInformationFlipY(e->x, 
-                                     e->y,
-                                     (e->state & ControlMask) != 0, 
-                                     (e->state & ShiftMask) != 0);
-        me->SetAltKey(
-          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
-        me->InvokeEvent(vtkCommand::EnterEvent, NULL);
-        }
-      }
-      break;
-
-    case LeaveNotify:
-      {
-      if (me->Enabled)
-        {
-        XLeaveWindowEvent *e = reinterpret_cast<XLeaveWindowEvent *>(event);
-        me->SetEventInformationFlipY(e->x, 
-                                     e->y,
-                                     (e->state & ControlMask) != 0, 
-                                     (e->state & ShiftMask) != 0); 
-        me->SetAltKey(
-          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
-        me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
-        }
-      }
-      break;
-
-    case KeyPress:
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      int ctrl = 
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
-      int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
-      int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
-      KeySym ks;
-      static char buffer[20];
-      buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
-      xp = (reinterpret_cast<XKeyEvent*>(event))->x;
-      yp = (reinterpret_cast<XKeyEvent*>(event))->y;
-      me->SetEventInformationFlipY(xp, 
-                                   yp,
-                                   ctrl, 
-                                   shift, 
-                                   buffer[0], 
-                                   1, 
-                                   XKeysymToString(ks));
-      me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-      me->InvokeEvent(vtkCommand::CharEvent, NULL);
-      }
-      break;      
-      
-    case KeyRelease:
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      int ctrl = 
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
-      int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
-      int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
-      KeySym ks;
-      static char buffer[20];
-      buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
-      xp = (reinterpret_cast<XKeyEvent *>(event))->x;
-      yp = (reinterpret_cast<XKeyEvent *>(event))->y;
-      me->SetEventInformationFlipY(xp, 
-                                   yp,
-                                   ctrl, 
-                                   shift, 
-                                   buffer[0], 
-                                   1, 
-                                   XKeysymToString(ks));
-      me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-      }
-      break;      
-
-    case MotionNotify: 
-      {
-      if (!me->Enabled) 
-        {
-        return;
-        }
-      int ctrl = 
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
-      int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
-      int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
-      xp = (reinterpret_cast<XMotionEvent*>(event))->x;
-      yp = (reinterpret_cast<XMotionEvent*>(event))->y;
-      me->SetEventInformationFlipY(xp, 
-                                   yp,
-                                   ctrl, 
-                                   shift);
-      me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-      }
-      break;
-
-    case ClientMessage:
-      {
-      if( static_cast<Atom>(event->xclient.data.l[0]) == me->KillAtom )
-        {
-        me->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        }
-      }
-      break;
+    this->Initialize();
     }
-}
-
-void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
-                                        XtIntervalId *vtkNotUsed(id))
-{
-  vtkXRenderWindowTclInteractor *me;
-  me = (vtkXRenderWindowTclInteractor *)client_data;
-  Window root,child;
-  int root_x,root_y;
-  int x,y;
-  unsigned int keys;
-
-  // get the pointer position
-  XQueryPointer(me->DisplayId,
-                me->WindowId,
-                &root,
-                &child,
-                &root_x,
-                &root_y,
-                &x,
-                &y,
-                &keys);
-  if (!me->Enabled) 
+  if (!this->Initialized)
     {
     return;
     }
-  me->SetEventInformationFlipY(x, 
-                               y,
-                               0, 
-                               0);
-  me->InvokeEvent(vtkCommand::TimerEvent, NULL);
+
+  unsigned long ExitTag = this->AddObserver(vtkCommand::ExitEvent, this->BreakXtLoopCallback);
+  this->BreakLoopFlag = 0;
+  do
+    {
+    Tk_DoOneEvent(0);
+    }
+  while (this->BreakLoopFlag == 0);
+  this->RemoveObserver(ExitTag);
 }
 
-int vtkXRenderWindowTclInteractor::CreateTimer(int vtkNotUsed(timertype)) 
+
+//-------------------------------------------------------------------------
+int vtkXRenderWindowTclInteractor::InternalCreateTimer(int timerId,
+                                                       int vtkNotUsed(timerType),
+                                                       unsigned long duration)
 {
-  Tk_CreateTimerHandler(this->TimerDuration,vtkXTclTimerProc,(ClientData)this);
-  return 1;
+  duration = (duration > 0 ? duration : this->TimerDuration);
+  vtkXTclTimer* timer = this->Internal->CreateTimer(this, timerId, duration);
+  return timer->ID;
 }
 
-int vtkXRenderWindowTclInteractor::DestroyTimer(void) 
+
+//-------------------------------------------------------------------------
+int vtkXRenderWindowTclInteractor::InternalDestroyTimer(int platformTimerId) 
 {
-  // timers automatically expire in X windows
-  return 1;
+  return this->Internal->DestroyTimer(platformTimerId);
 }
 
-void vtkXRenderWindowTclInteractor::TerminateApp(void) 
-{
-#if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
-  Tcl_Interp* interp = tkMainWindowList->interp;
-#else
-  Tcl_Interp* interp = TkGetMainInfoList()->interp;
-#endif
 
-#if TCL_MAJOR_VERSION == 8 && TCL_MINOR_VERSION <= 2
-  char es[12];
-  strcpy(es,"exit");
-  Tcl_GlobalEval(interp, es);
-#else
-  Tcl_EvalEx(interp, "exit", -1, TCL_EVAL_GLOBAL);
-#endif
+//-------------------------------------------------------------------------
+void vtkXRenderWindowTclInteractor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
