@@ -102,7 +102,6 @@ vtkLogLookupTable.cxx
 vtkLongArray.cxx
 vtkLookupTable.cxx
 vtkMath.cxx
-vtkPolynomialSolvers.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx
 vtkMatrixToLinearTransform.cxx
@@ -139,6 +138,7 @@ vtkPlane.cxx
 vtkPlaneCollection.cxx
 vtkPlanes.cxx
 vtkPoints.cxx
+vtkPolynomialSolversUnivariate.cxx
 vtkPriorityQueue.cxx
 vtkProp.cxx
 vtkPropCollection.cxx
@@ -182,6 +182,14 @@ vtkWindow.cxx
 vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
+
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET_SOURCE_FILES_PROPERTIES(
+   vtkPolynomialSolversUnivariate.cxx
+   PROPERTIES
+   COMPILE_FLAGS -O0
+   )
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(VTK_TYPE_USE_LONG_LONG)
   SET(Kit_SRCS ${Kit_SRCS}
