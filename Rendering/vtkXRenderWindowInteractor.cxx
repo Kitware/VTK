@@ -29,7 +29,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.134.2.1");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.134.2.2");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -43,6 +43,7 @@ public:
     {
     this->TimerIdCount = 1;
     }
+
   int CreateLocalId(XtIntervalId xid)
     {
     int id = this->TimerIdCount++;
@@ -50,10 +51,12 @@ public:
     this->XToLocal[xid] = id;
     return id;
     }
+
   int GetLocalId(XtIntervalId xid)
     {
     return this->XToLocal[xid];
     }
+
   XtIntervalId DestroyLocalId(int id)
     {
     XtIntervalId xid = this->LocalToX[id];
@@ -61,6 +64,7 @@ public:
     this->XToLocal.erase(xid);
     return xid;
     }
+
 private:
   int TimerIdCount;
   vtkstd::map<int, XtIntervalId> LocalToX;
@@ -110,7 +114,6 @@ XrmOptionDescRec Desc[] =
 
 
 //-------------------------------------------------------------------------
-// Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->Internal = new vtkXRenderWindowInteractorInternals;
@@ -129,11 +132,14 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
   this->Disable();
+
   if(this->OwnTop)
     {
     XtDestroyWidget(this->Top);
     }
+
   this->BreakXtLoopCallback->Delete();
+
   if (vtkXRenderWindowInteractor::App)
     {
     if(vtkXRenderWindowInteractor::NumAppInitialized == 1)
@@ -146,6 +152,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
       }
     vtkXRenderWindowInteractor::NumAppInitialized--;
     }
+
   delete this->Internal;
 }
 
@@ -255,21 +262,21 @@ void vtkXRenderWindowInteractor::Start()
     {
     this->Initialize();
     }
-  if (! this->Initialized )
+  if (!this->Initialized)
     {
     return;
     }
-  
-  this->AddObserver(vtkCommand::ExitEvent, this->BreakXtLoopCallback);
+
+  unsigned long ExitTag = this->AddObserver(vtkCommand::ExitEvent, this->BreakXtLoopCallback);
   this->BreakLoopFlag = 0;
   do 
     {
     XEvent event;
     XtAppNextEvent(vtkXRenderWindowInteractor::App, &event);
     XtDispatchEvent(&event);
-    } 
+    }
   while (this->BreakLoopFlag == 0);
-  this->RemoveObserver(this->BreakXtLoopCallback);
+  this->RemoveObserver(ExitTag);
 }
 
 //-------------------------------------------------------------------------
@@ -290,7 +297,7 @@ void vtkXRenderWindowInteractor::Initialize()
 {
   if (this->Initialized)
     {
-      return;
+    return;
     }
 
   vtkXOpenGLRenderWindow *ren;
@@ -301,7 +308,7 @@ void vtkXRenderWindowInteractor::Initialize()
   int *position;
   int argc = 0;
 
-  
+
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
     {
@@ -382,7 +389,7 @@ void vtkXRenderWindowInteractor::Initialize()
   else
     {
     XWindowAttributes attribs;
-    
+
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
     ren->SetWindowId(XtWindow(this->Top));
@@ -414,6 +421,11 @@ void vtkXRenderWindowInteractor::Enable()
     return;
     }
 
+  if (!this->Top)
+    {
+    vtkErrorMacro(<< "Calling Enable too early, before Top is set...");
+    }
+
   // Add the event handler to the system.
   // If we change the types of events processed by this handler, then
   // we need to change the Disable() routine to match.  In order for Disable()
@@ -421,16 +433,16 @@ void vtkXRenderWindowInteractor::Enable()
   // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
   // PERFECTLY
   XtAddEventHandler(this->Top,
-                    KeyPressMask | KeyReleaseMask | 
+                    KeyPressMask | KeyReleaseMask |
                     ButtonPressMask | ButtonReleaseMask |
-                    ExposureMask | StructureNotifyMask | 
-                    EnterWindowMask | LeaveWindowMask | 
+                    ExposureMask | StructureNotifyMask |
+                    EnterWindowMask | LeaveWindowMask |
                     PointerMotionHintMask | PointerMotionMask,
                     True,  // True means we also observe ClientMessage
                     vtkXRenderWindowInteractorCallback,
                     static_cast<XtPointer>(this));
 
-   // Setup for capturing the window deletion
+  // Setup for capturing the window deletion
   this->KillAtom = XInternAtom(this->DisplayId,"WM_DELETE_WINDOW",False);
   XSetWMProtocols(this->DisplayId,this->WindowId,&this->KillAtom,1);
 
@@ -446,7 +458,9 @@ void vtkXRenderWindowInteractor::Disable()
     {
     return;
     }
-  
+
+  this->Enabled = 0;
+
   // Remove the event handler to the system.
   // If we change the types of events processed by this handler, then
   // we need to change the Disable() routine to match.  In order for Disable()
@@ -458,15 +472,17 @@ void vtkXRenderWindowInteractor::Disable()
   // keep track of the window size (we will not render if we are disabled,
   // we simply track the window size changes for a possible Enable()).
   // Expose events are disabled.
-  XtRemoveEventHandler(this->Top,
-                    KeyPressMask | KeyReleaseMask | ButtonPressMask | 
-                    ExposureMask | ButtonReleaseMask |
-                    EnterWindowMask | LeaveWindowMask | 
-                    PointerMotionHintMask | PointerMotionMask,
-                       True,vtkXRenderWindowInteractorCallback,
-                       static_cast<XtPointer>(this));
+  if (this->Top)
+    {
+    XtRemoveEventHandler(this->Top,
+                        KeyPressMask | KeyReleaseMask | ButtonPressMask | 
+                        ExposureMask | ButtonReleaseMask |
+                        EnterWindowMask | LeaveWindowMask | 
+                        PointerMotionHintMask | PointerMotionMask,
+                        True,vtkXRenderWindowInteractorCallback,
+                        static_cast<XtPointer>(this));
+    }
 
-  this->Enabled = 0;
   this->Modified();
 }
 
@@ -474,6 +490,7 @@ void vtkXRenderWindowInteractor::Disable()
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
   if (vtkXRenderWindowInteractor::App)
     {
     os << indent << "App: " << this->App << "\n";
@@ -482,22 +499,23 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "App: (none)\n";
     }
+
   os << indent << "BreakLoopFlag: " 
      << (this->BreakLoopFlag ? "On\n" : "Off\n");
 }
 
-//void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
-//{
-//  // if the size changed send this on to the RenderWindow
-//  if ((x != this->Size[0])||(y != this->Size[1]))
-//    {
-//    this->Size[0] = x;
-//    this->Size[1] = y;
-//    this->RenderWindow->SetSize(x,y);
-//    }
-//
-//}
- 
+//-------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
+{
+  // if the size changed send this on to the RenderWindow
+  if ((x != this->Size[0])||(y != this->Size[1]))
+    {
+    this->Size[0] = x;
+    this->Size[1] = y;
+    this->RenderWindow->SetSize(x,y);
+    }
+}
+
 //-------------------------------------------------------------------------
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
                                      XtIntervalId *id)
@@ -505,14 +523,15 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   vtkXRenderWindowInteractor *me = 
     static_cast<vtkXRenderWindowInteractor*>(client_data);
   XtIntervalId xid = *id;
-  int platformTimerId = me->Internal->GetLocalId(xid);
 
+  int platformTimerId = me->Internal->GetLocalId(xid);
   int timerId = me->GetVTKTimerId(platformTimerId);
-  if (me->Enabled) 
+
+  if (me->GetEnabled())
     {
     me->InvokeEvent(vtkCommand::TimerEvent,&timerId);
     }
-  
+
   if ( ! me->IsOneShotTimer(timerId) )
     {
     me->ResetTimer(timerId);
@@ -527,10 +546,12 @@ int vtkXRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
 {
   duration = (duration > 0 ? duration : this->TimerDuration);
   XtIntervalId xid =
-    this->AddTimeOut(vtkXRenderWindowInteractor::App, duration,
+    this->AddTimeOut(vtkXRenderWindowInteractor::App,
+                     duration,
                      vtkXRenderWindowInteractorTimer,
                      static_cast<XtPointer>(this));
-  return this->Internal->CreateLocalId(xid);
+  int platformTimerId = this->Internal->CreateLocalId(xid);
+  return platformTimerId;
 }
 
 //-------------------------------------------------------------------------
@@ -550,15 +571,15 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
   int xp, yp;
 
   me = static_cast<vtkXRenderWindowInteractor *>(client_data);
-  
+
   switch (event->type) 
     {
     case Expose:
       {
       if (!me->Enabled) 
-       {
-       return;
-       }
+        {
+        return;
+        }
       XEvent result;
       while (XCheckTypedWindowEvent(me->DisplayId, 
                                     me->WindowId,
@@ -572,7 +593,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->SetEventSize(exposeEvent->width, exposeEvent->height);
       xp = exposeEvent->x;
       yp = exposeEvent->y;
-      yp = me->Size[1] - xp - 1;
+      yp = me->Size[1] - yp - 1;
       me->SetEventPosition(xp, yp);
       // only render if we are currently accepting events
       if (me->Enabled)
@@ -596,8 +617,10 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
     case ConfigureNotify: 
       {
       XEvent result;
-      while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
-                                    ConfigureNotify, &result))
+      while (XCheckTypedWindowEvent(me->DisplayId,
+                                    me->WindowId,
+                                    ConfigureNotify,
+                                    &result))
         {
         // just getting the last configure event
         event = &result;
@@ -646,7 +669,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         }
       else
         {
-          MousePressTime = reinterpret_cast<XButtonEvent*>(event)->time;
+        MousePressTime = reinterpret_cast<XButtonEvent*>(event)->time;
         }
 
       me->SetEventInformationFlipY(xp, 
@@ -885,4 +908,3 @@ void vtkXRenderWindowInteractor::Callback(Widget w,
 {
   vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
 }
-
