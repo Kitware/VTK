@@ -17,7 +17,7 @@
 #include "vtkContourRepresentation.h"
 #include "vtkIntArray.h"
 
-vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.5");
+vtkCxxRevisionMacro(vtkContourLineInterpolator, "1.6");
 
 //----------------------------------------------------------------------
 vtkContourLineInterpolator::vtkContourLineInterpolator()
@@ -42,40 +42,45 @@ void vtkContourLineInterpolator::GetSpan( int nodeIndex,
                                           vtkIntArray *nodeIndices,
                                           vtkContourRepresentation *rep)
 {
-  int index[2] = { nodeIndex - 1, nodeIndex };
+  int start = nodeIndex - 1;
+  int end   = nodeIndex;
+  int index[2];
 
   // Clear the array
   nodeIndices->Reset();
   nodeIndices->Squeeze();
   nodeIndices->SetNumberOfComponents(2);
 
-  if ( rep->GetClosedLoop() )
+  for ( int i = 0; i < 3; i++ )
     {
-    ++index[0];
-    ++index[1];
-    if ( index[0] < 0 )
-      {
-      index[0] += rep->GetNumberOfNodes();
-      }
-    if ( index[1] < 0 )
-      {
-      index[1] += rep->GetNumberOfNodes();
-      }
-    if ( index[0] >= rep->GetNumberOfNodes() )
-      {
-      index[0] -= rep->GetNumberOfNodes();
-      }
-    if ( index[1] >= rep->GetNumberOfNodes() )
-      {
-      index[1] -= rep->GetNumberOfNodes();
-      }
-    }
+    index[0] = start++;
+    index[1] = end++;
 
-  if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
-       index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
-    {
-    // Sanity check
-    nodeIndices->InsertNextTupleValue(index);
+    if ( rep->GetClosedLoop() )
+      {
+      if ( index[0] < 0 )
+        {
+        index[0] += rep->GetNumberOfNodes();
+        }
+      if ( index[1] < 0 )
+        {
+        index[1] += rep->GetNumberOfNodes();
+        }
+      if ( index[0] >= rep->GetNumberOfNodes() )
+        {
+        index[0] -= rep->GetNumberOfNodes();
+        }
+      if ( index[1] >= rep->GetNumberOfNodes() )
+        {
+        index[1] -= rep->GetNumberOfNodes();
+        }
+      }
+
+    if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
+         index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
+      {
+      nodeIndices->InsertNextTupleValue( index );
+      }
     }
 }
 
