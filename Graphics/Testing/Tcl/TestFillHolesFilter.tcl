@@ -66,13 +66,11 @@ vtkActor actor
 ren1 AddActor actor
 ren1 SetBackground 1 1 1
 renWin SetSize 300 300
-renWin Initialize
 
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
+iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
