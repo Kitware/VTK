@@ -56,8 +56,8 @@
 #include "vtkWidgetRepresentation.h"
 #include <vtkstd/vector> // Required for vector
 
-class vtkPointPlacer;
 class vtkContourLineInterpolator;
+class vtkPointPlacer;
 class vtkPolyData;
 
 //----------------------------------------------------------------------
@@ -324,8 +324,13 @@ public:
   // Description:
   // Get the points in this contour as a vtkPolyData. 
   //BTX
-  virtual vtkPolyData * GetContourRepresentationAsPolyData() = 0;
+  virtual vtkPolyData* GetContourRepresentationAsPolyData() = 0;
   //ETX
+
+  // Description:
+  // Get the nodes and not the intermediate points in this 
+  // contour as a vtkPolyData.
+  void GetNodePolyData( vtkPolyData* poly );
 
 protected:
   vtkContourRepresentation();

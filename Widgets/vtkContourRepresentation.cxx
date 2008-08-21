@@ -13,26 +13,27 @@
 
 =========================================================================*/
 #include "vtkContourRepresentation.h"
-#include "vtkHandleRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkBox.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMath.h"
-#include "vtkPointPlacer.h"
-#include "vtkContourLineInterpolator.h"
-#include "vtkLine.h"
 #include "vtkCamera.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
+#include "vtkContourLineInterpolator.h"
+#include "vtkCoordinate.h"
+#include "vtkHandleRepresentation.h"
 #include "vtkIntArray.h"
+#include "vtkInteractorObserver.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointPlacer.h"
+#include "vtkPolyData.h"
+#include "vtkRenderer.h"
 
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkContourRepresentation, "1.24");
+vtkCxxRevisionMacro(vtkContourRepresentation, "1.25");
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -110,6 +111,58 @@ void vtkContourRepresentation::AddNodeAtPositionInternal( double worldPos[3],
   
   this->UpdateLines( static_cast<int>(this->Internal->Nodes.size())-1);
   this->NeedToRender = 1;
+}
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation::GetNodePolyData( vtkPolyData* poly )
+{
+  poly->Initialize();
+  int count = this->GetNumberOfNodes();
+
+  if ( count == 0 ) 
+    {
+    return;
+    }
+
+  vtkPoints *points = vtkPoints::New();
+  vtkCellArray *lines = vtkCellArray::New();
+  
+  points->SetNumberOfPoints( count );
+  vtkIdType numLines = count;
+  
+  if ( this->ClosedLoop )
+    {
+    numLines++;
+    }
+
+  vtkIdType *lineIndices = new vtkIdType[numLines];
+
+  int i;
+  vtkIdType index = 0;
+  double pos[3];
+
+  for ( i = 0; i < this->GetNumberOfNodes(); ++i )
+    {
+    // Add the node
+    this->GetNthNodeWorldPosition( i, pos );
+    points->InsertPoint( index, pos );
+    lineIndices[index] = index;
+    index++;      
+    }
+    
+  if ( this->ClosedLoop )
+    {
+    lineIndices[index] = 0;
+    }
+    
+  lines->InsertNextCell( numLines, lineIndices );
+  delete [] lineIndices;
+ 
+  poly->SetPoints( points );
+  poly->SetLines( lines );
+  
+  points->Delete();
+  lines->Delete();
 }
 
 //----------------------------------------------------------------------
