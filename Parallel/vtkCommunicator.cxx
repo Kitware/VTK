@@ -45,7 +45,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.51");
+vtkCxxRevisionMacro(vtkCommunicator, "1.52");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -981,7 +981,7 @@ int vtkCommunicator::Broadcast(vtkDataArray *data, int srcProcessId)
       vtkErrorMacro("Broadcast data types do not match!");
       return 0;
       }
-    name = new char[nameLength];
+    name = (nameLength > 0) ? new char[nameLength] : NULL;
     data->SetNumberOfComponents(numComponents);
     data->SetNumberOfTuples(numTuples);
     }
