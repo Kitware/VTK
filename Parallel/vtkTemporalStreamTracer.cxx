@@ -18,7 +18,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -29,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIntArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkCharArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -45,12 +45,17 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTemporalDataSet.h"
 #include "vtkOutputWindow.h"
 #include "vtkAbstractParticleWriter.h"
-
 #include "vtkToolkits.h" // For VTK_USE_MPI 
 
-#undef JB_H5PART_PARTICLE_OUTPUT
+#ifdef WIN32
+  #undef JB_H5PART_PARTICLE_OUTPUT
+#else
+//  #define JB_H5PART_PARTICLE_OUTPUT
+#endif
+
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-  #include "vtkH5PartWriter.h"
+// #include "vtkH5PartWriter.h"
+  #include "vtkXMLParticleWriter.h"
 #endif
 
 #ifdef VTK_USE_MPI
@@ -63,13 +68,34 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.25");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.26");
+//----------------------------------------------------------------------------
+#define JB_DEBUG__
+#if defined JB_DEBUG__
+  #ifdef WIN32
+      #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
+  #else
+  #endif
+
+    #undef vtkDebugMacro
+    #define vtkDebugMacro(a)  \
+    { \
+      vtkOStreamWrapper::EndlType endl; \
+      vtkOStreamWrapper::UseEndl(endl); \
+      vtkOStrStreamWrapper vtkmsg; \
+      vtkmsg << "P(" << this->UpdatePiece << "): " a << "\n"; \
+      OUTPUTTEXT(vtkmsg.str()); \
+      vtkmsg.rdbuf()->freeze(0); \
+    }
+
+  #undef vtkErrorMacro
+  #define vtkErrorMacro(a) vtkDebugMacro(a)  
+
+#endif
+//---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalStreamTracer);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkTemporalStreamTracer, ParticleWriter, vtkAbstractParticleWriter);
-//---------------------------------------------------------------------------
-// @Todo - use MPI to ensure Ids are really unique across processors
-vtkIdType vtkTemporalStreamTracer::UniqueIdCounter = 0;
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 {
@@ -78,24 +104,27 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->ActualTimeStep              = 0;
   this->NumberOfInputTimeSteps      = 0;
   this->ForceReinjectionEveryNSteps = 1;
-  this->ReinjectionCounter          = 0;
   this->ReinjectionFlag             = 0;
+  this->ReinjectionCounter          = 0;
   this->UpdatePiece                 = 0;
   this->UpdateNumPieces             = 0;
-  this->EnableSource1               = 1;
-  this->EnableSource2               = 1;
-  this->AllFixedGeometry            = 0;
-  this->NoFixedGeometry             = 1;
+  this->AllFixedGeometry            = 1;
+  this->StaticMesh                  = 1;
+  this->StaticSeeds                 = 1;
   this->ComputeVorticity            = 1;
   this->IgnorePipelineTime          = 0;
   this->ParticleWriter              = NULL;
   this->ParticleFileName            = NULL;
   this->EnableParticleWriting       = false;
+  this->UniqueIdCounter             = 0;
+  this->UniqueIdCounterMPI          = 0;
+  this->InterpolationCount          = 0;
   //
-  this->MaxCellSize           = 0;
   this->NumberOfParticles     = 0;
   this->TimeStepResolution    = 1.0;
-  this->EarliestTime          = -1E6;
+  this->TerminationTime       = 0.0;
+  this->TerminationTimeUnit   = TERMINATION_STEP_UNIT;
+  this->EarliestTime          =-1E6;
   // we are not actually using these for now
   this->MaximumPropagation.Unit         = TIME_UNIT;
   this->MaximumPropagation.Interval     = 1.0;
@@ -106,17 +135,25 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->InitialIntegrationStep.Unit     = TIME_UNIT;
   this->InitialIntegrationStep.Interval = 0.5;
   //
-  this->SetNumberOfInputPorts(3);
+  this->Interpolator = vtkSmartPointer<vtkTemporalInterpolatedVelocityField>::New();
+  //
+  this->SetNumberOfInputPorts(2);
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-//  vtkDebugMacro(<<"Setting vtkH5PartWriter");
-//  vtkH5PartWriter *writer = vtkH5PartWriter::New();
-//  vtkDebugMacro(<<"Setting vtkXMLParticleWriter");
-//  vtkXMLParticleWriter *writer = vtkXMLParticleWriter::New();
-//  this->SetParticleWriter(writer);
-//  writer->Delete();
+#ifdef WIN32
+  vtkDebugMacro(<<"Setting vtkH5PartWriter");
+  vtkH5PartWriter *writer = vtkH5PartWriter::New();
+#else
+  vtkDebugMacro(<<"Setting vtkXMLParticleWriter");
+  vtkXMLParticleWriter *writer = vtkXMLParticleWriter::New();
 #endif
+  this->SetParticleWriter(writer);
+  writer->Delete();
+#endif
+
+  this->SetIntegratorType(RUNGE_KUTTA4);
 }
 //---------------------------------------------------------------------------
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
@@ -134,39 +171,30 @@ int vtkTemporalStreamTracer::FillInputPortInformation(
   int port, 
   vtkInformation* info)
 {
-  // port 0 must be temporal data, but port 1 can be any dataset
+  // port 0 must be a temporal collection of any type
+  // the executive should put a temporal collection in when
+  // we request multiple time steps.
   if (port==0) {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTemporalDataSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+    info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+//    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
   else if (port==1) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-  }
-  else if (port==2) {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+//    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
   return 1;
 }
 //----------------------------------------------------------------------------
-void vtkTemporalStreamTracer::SetSource2Connection(vtkAlgorithmOutput* algOutput)
+void vtkTemporalStreamTracer::AddSourceConnection(vtkAlgorithmOutput* input)
 {
-  this->SetInputConnection(2, algOutput);
+  this->AddInputConnection(1, input);
 }
 //----------------------------------------------------------------------------
-void vtkTemporalStreamTracer::SetSource2(vtkDataSet *source)
+void vtkTemporalStreamTracer::RemoveAllSources()
 {
-  this->SetInput(2, source);
-}
-//----------------------------------------------------------------------------
-vtkDataSet *vtkTemporalStreamTracer::GetSource2()
-{
-  if (this->GetNumberOfInputConnections(2) < 1)
-    {
-    return 0;
-    }
-  return vtkDataSet::SafeDownCast(
-    this->GetExecutive()->GetInputData(2, 0));
+  this->SetInputConnection(1, 0);
 }
 //----------------------------------------------------------------------------
 int vtkTemporalStreamTracer::ProcessRequest(
@@ -235,7 +263,7 @@ int vtkTemporalStreamTracer::RequestInformation(
                &this->OutputTimeValues[0],
                static_cast<int>(this->OutputTimeValues.size()));
 
-  return 1;
+return 1;
 }
 //----------------------------------------------------------------------------
 class WithinTolerance: public vtkstd::binary_function<double, double, bool>
@@ -253,8 +281,8 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation  *inInfo = inputVector[0]->GetInformationObject(0);
 
   //
   // The output has requested a time value, what times must we ask from our input
@@ -267,7 +295,11 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     // ideally we want the output information to be requesting a time step,
     // but since it isn't we must use the SetTimeStep value as a Time request
     //
-    requestedTimeValue = this->OutputTimeValues[this->TimeStep];
+    if (this->TimeStep<this->OutputTimeValues.size()) {
+      requestedTimeValue = this->OutputTimeValues[this->TimeStep];
+    } else {
+      requestedTimeValue = this->OutputTimeValues.back();
+    }
     this->ActualTimeStep = this->TimeStep;
 
     vtkDebugMacro(<< "SetTimeStep       : requestedTimeValue " 
@@ -296,13 +328,16 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
 
   if (this->ActualTimeStep<this->OutputTimeValues.size()) 
     {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), 
-      &this->InputTimeValues[this->ActualTimeStep], 2);
-    // our timestep T is timestep T+1 in the source
-    // so output inputTimeSteps[T], inputTimeSteps[T+1]
-    vtkDebugMacro(<< "requested 2 time values : " 
-      << this->InputTimeValues[this->ActualTimeStep] << " "  
-      << this->InputTimeValues[this->ActualTimeStep+1]);
+    for (int i=0; i<numInputs; i++) {
+      vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);
+      // our output timestep T is timestep T+1 in the source
+      // so output inputTimeSteps[T], inputTimeSteps[T+1]
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), 
+        &this->InputTimeValues[this->ActualTimeStep], 2);
+      vtkDebugMacro(<< "requested 2 time values : " 
+        << this->InputTimeValues[this->ActualTimeStep] << " "  
+        << this->InputTimeValues[this->ActualTimeStep+1]);
+      }
     }
   else
   {
@@ -315,14 +350,16 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
 //---------------------------------------------------------------------------
 int vtkTemporalStreamTracer::InitializeInterpolator()
 {
+  if (!this->InputDataT[0] || !this->InputDataT[1]) {
+    return 0;  
+  }
   //
   // When Multiblock arrays are processed, some may be empty
   // if the first is empty, we won't find the correct vector name
   // so scan until we get one
   //
-  vtkCompositeDataIterator* I = this->InputDataT[0]->NewIterator();
-  vtkSmartPointer<vtkCompositeDataIterator> iterP(I);
-  I->Delete();
+  vtkSmartPointer<vtkCompositeDataIterator> iterP;
+  iterP.TakeReference(this->InputDataT[0]->NewIterator());
   iterP->GoToFirstItem();
   char *vecname = NULL;
   while (!iterP->IsDoneWithTraversal())
@@ -332,6 +369,7 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
     if (vectors)
       {
       vecname = vectors->GetName();
+      break;
       }
     iterP->GoToNextItem();
     }
@@ -345,122 +383,131 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
   this->Interpolator->SelectVectors(vecname);
  
   this->AllFixedGeometry = 1;
-  this->NoFixedGeometry  = 1;
 
-  int numInputs[2] = {0, 0};
+  int numValidInputBlocks[2] = {0, 0};
+  int numTotalInputBlocks[2] = {0, 0};
   this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
-  for (int i=0; i<2; i++) {
-    this->CachedBounds[i].clear();
-    this->GeometryFixed[i].clear();
-    vtkCompositeDataIterator* iter = this->InputDataT[i]->NewIterator();
-    vtkSmartPointer<vtkCompositeDataIterator> anotherIterP(iter);
-    iter->Delete();  
+  for (int T=0; T<2; T++) {
+    this->CachedBounds[T].clear();
+    int index = 0;
+    // iterate over all blocks of input and cache the bounds information
+    // and determine fixed/dynamic mesh status.
 
-    // Add all the inputs ( except source, of course ) which
-    // have the appropriate vectors and compute the maximum
-    // Cell size.
+    vtkSmartPointer<vtkCompositeDataIterator> anotherIterP;
+    anotherIterP.TakeReference(this->InputDataT[T]->NewIterator());
     anotherIterP->GoToFirstItem();
     while (!anotherIterP->IsDoneWithTraversal())
       {
+      numTotalInputBlocks[T]++;
       vtkDataSet* inp = vtkDataSet::SafeDownCast(anotherIterP->GetCurrentDataObject());
       if (inp)
         {
-        if (!inp->GetPointData()->GetVectors(vecname))
+        if (inp->GetNumberOfCells()==0)
           {
-          vtkDebugMacro(
-            "One of the input blocks does not contain a velocity vector.");
+          vtkDebugMacro("Skipping an empty dataset");
+          }
+        else if (!inp->GetPointData()->GetVectors(vecname) && inp->GetNumberOfPoints()>0)
+          {
+          vtkDebugMacro("One of the input datasets has no velocity vector.");
           }
         else 
           {
-          int cellSize = inp->GetMaxCellSize();
-          if ( cellSize > this->MaxCellSize )
-            {
-            this->MaxCellSize = cellSize;
-            }
-          this->Interpolator->AddDataSetAtTime(i, this->CurrentTimeSteps[i], inp);
-          if (!this->DataReferenceT[i]) {
-            this->DataReferenceT[i] = inp;
-          }
-
+          // vtkDebugMacro("pass " << i << " Found dataset with " << inp->GetNumberOfCells() << " cells");
           //
-          // store the bounding boxes of each dataset for faster points testing
+          // store the bounding boxes of each local dataset for faster 'point-in-dataset' testing
           //
           bounds bbox;
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
-          this->CachedBounds[i].push_back(bbox);
-          if (inp->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-            {
-            this->GeometryFixed[i].push_back(1);
-            this->NoFixedGeometry = 0;
-            }
-          else {
-            this->GeometryFixed[i].push_back(0);
-            this->AllFixedGeometry = 0;
-            }
+          this->CachedBounds[T].push_back(bbox);
+          bool static_dataset = this->StaticMesh || inp->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED());
+          this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
+          // add the dataset to the interpolator
+          this->Interpolator->SetDataSetAtTime(index++, T, this->CurrentTimeSteps[T], inp, static_dataset);
+          if (!this->DataReferenceT[T]) {
+            this->DataReferenceT[T] = inp;
+          }
           //
-          numInputs[i]++;
+          numValidInputBlocks[T]++;
           }
         }
       anotherIterP->GoToNextItem();
       }
   }
-  if (numInputs[0]==0 || numInputs[1]==0)
+  if (numValidInputBlocks[0]==0 || numValidInputBlocks[1]==0)
     {
-    vtkDebugMacro("Not enough inputs have been found. Can not execute." << numInputs[0] << " " << numInputs[1]);
+    vtkDebugMacro("Not enough inputs have been found. Can not execute." << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
     }
-  if (numInputs[0] != numInputs[1])
+  if (numValidInputBlocks[0] != numValidInputBlocks[1])
     {
-    vtkDebugMacro("The number of datasets is different between time steps " << numInputs[0] << " " << numInputs[1]);
+    vtkDebugMacro("The number of datasets is different between time steps " << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
     }
+  //
+  vtkDebugMacro("Number of Valid input blocks is " << numValidInputBlocks[0] << " from " << numTotalInputBlocks[0]);
+  vtkDebugMacro("AllFixedGeometry " << this->AllFixedGeometry);
+
+  // force optimizations if StaticMesh is set.
+  if (this->StaticMesh) {
+    vtkDebugMacro("Static Mesh optimizations Forced ON");
+    this->AllFixedGeometry = 1;
+  }
+
+  //
   return VTK_OK;
 }
 //---------------------------------------------------------------------------
-int vtkTemporalStreamTracer::SetupInputs(vtkInformation* inInfo, 
-                                 vtkInformation* vtkNotUsed(outInfo))
+int vtkTemporalStreamTracer::AddTemporalInput(vtkTemporalDataSet *td)
 {
-  this->InputData = NULL;
-  vtkTemporalDataSet *td = vtkTemporalDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (!td)
-    {
-    vtkDebugMacro(<<"Not a temporal data input " << 
-      inInfo->Get(vtkDataObject::DATA_OBJECT())->GetClassName());
-    return 0;
-    }
   if (td->GetNumberOfTimeSteps()<2)
-    {
-    vtkDebugMacro(<<"Input didn't have 2 timesteps/groups");
-    return 1;
-    }
-
+  {
+    vtkErrorMacro(<<"Temporal dataset did not have 2 time steps");
+    return 0;
+  }
   vtkDataObject *input[2];
   input[0] = td->GetTimeStep(0);
   input[1] = td->GetTimeStep(1);
   for (int i=0; i<2; i++) 
     {
-    vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(input[i]);
-    vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input[i]);
-    if (hdInput) 
+    // if not set, create a multiblock dataset to hold all input blocks
+    if (!this->InputDataT[i]) 
+    {
+      this->InputDataT[i] = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+    }
+    // if simple dataset, add to our list, otherwise, add blocks
+    vtkDataSet           *dsInput = vtkDataSet::SafeDownCast(input[i]);
+    vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(input[i]);
+    if (dsInput)
       {
-      this->InputDataT[i] = hdInput;
-      this->InputDataT[i]->Register(this);
-      }
-    else if (dsInput)
-      {
-      vtkDataSet* copy = dsInput->NewInstance();
+      vtkSmartPointer<vtkDataSet> copy;
+      copy.TakeReference(dsInput->NewInstance());
       copy->ShallowCopy(dsInput);
-      vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
-      this->InputDataT[i] = mb;
-      mb->SetNumberOfBlocks(1);
-      mb->SetBlock(0, copy);
-      copy->Delete();
+      this->InputDataT[i]->SetBlock(this->InputDataT[i]->GetNumberOfBlocks(), copy);
+      }
+    else if (mbInput) 
+      {
+      vtkSmartPointer<vtkCompositeDataIterator> iter;
+      iter.TakeReference(mbInput->NewIterator());
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+        {
+        vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if (ds) 
+          {
+          vtkSmartPointer<vtkDataSet> copy;
+          copy.TakeReference(ds->NewInstance());
+          copy->ShallowCopy(ds);
+          if (ds->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
+            {
+            copy->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
+            }
+          this->InputDataT[i]->SetBlock(this->InputDataT[i]->GetNumberOfBlocks(), copy);
+          }
+        }
       }
     else
       {
-      vtkErrorMacro("This filter cannot handle input of type: "
+      vtkDebugMacro("This filter cannot handle inputs of type: "
                     << (input[i]?input[i]->GetClassName():"(none)"));
       return 0;
       }
@@ -480,130 +527,172 @@ bool vtkTemporalStreamTracer::InsideBounds(double point[])
   return false;
 }
 //---------------------------------------------------------------------------
-void vtkTemporalStreamTracer::InjectSeeds(
-  vtkDataSet *source, int sourceID, int injectionID, 
-  ParticleList *inputlist,
-  ParticleList &candidates, 
-  ParticleList *outofdomain)
+void vtkTemporalStreamTracer::TestParticles(
+  ParticleVector &candidates, ParticleVector &passed, int &count)
 {
-  int numSeedsNew = 0, successful = 0;
-  int valid = static_cast<int>(candidates.size());
-  int outofdom = outofdomain ? static_cast<int>(outofdomain->size()) : 0;
-  if (source) {
-    numSeedsNew = source->GetNumberOfPoints();
-  } 
-  else if (inputlist) {
-    numSeedsNew = static_cast<int>(inputlist->size());
-  }
-  if (numSeedsNew==0) return;
-  //
-  candidates.resize(valid + numSeedsNew);
-  if (outofdomain) outofdomain->resize(outofdom + numSeedsNew);
-  //
-  // Test to see if they are inside our zone, add them to candidates
-  //
-  double *pos;
-  for (int i=0; i<numSeedsNew; i++) {
-    if (source) pos = source->GetPoint(i);
-    else pos = &((*inputlist)[i].CurrentPosition.x[0]);
-    //
-    int ID;
-    if (!this->InsideBounds(pos)) ID=ID_OUTSIDE_ALL;
-    else {
-      // if the point is valid, then this will set the cache ids and datasets
-      ID = this->Interpolator->TestPoint(pos);
-    }
-    //
-    if (ID!=ID_INSIDE_ALL) {
-      if (outofdomain) {
-        ParticleInformation &info = (*outofdomain)[outofdom];
-        if (source) {
-          info.Counter          = 0;
-          info.Index            = 0;
-          info.Wrap             = 0;
-          info.CachedDataSet[0] = 0;
-          info.CachedDataSet[1] = 0;
-          info.CachedCellId[0]  =-1;
-          info.CachedCellId[1]  =-1;
-          info.SourceID         = sourceID;
-          info.InjectedPointId  = injectionID + i;
-          info.UniqueParticleId = vtkTemporalStreamTracer::UniqueIdCounter++;
-          info.rotation         = 0.0;
-          info.angularVel       = 0.0;
-          info.time             = 0.0;
-          memcpy(&(info.CurrentPosition.x[0]), pos, sizeof(Position));
-          // if it was injected, then set the time
-          info.CurrentPosition.x[3] = this->CurrentTimeSteps[0];
-        }
-        else {
-          memcpy(&info, &((*inputlist)[i]), sizeof(ParticleInformation));
-          info.Counter          = 0;
-          info.Index            = 0;
-          info.Wrap             = 0;
-          info.CachedDataSet[0] = 0;
-          info.CachedDataSet[1] = 0;
-          info.CachedCellId[0]  =-1;
-          info.CachedCellId[1]  =-1;
-        }
+  int i = 0, div = (candidates.size()/10)>0 ? candidates.size()/10 : 1;
+  count = 0;
+  for (ParticleIterator it=candidates.begin(); it!=candidates.end(); ++it, ++i) {
+    ParticleInformation &info = (*it);
+    double *pos = &info.CurrentPosition.x[0];
+    // if outside bounds, reject instantly
+    if (this->InsideBounds(pos)) {
+      if (info.UniqueParticleId==602) {
+        vtkDebugMacro(<< "TestParticles got 602");
       }
-      outofdom++;
-    }
-    else {
-      ParticleInformation &info = candidates[valid];
-      // get the cached ids and datasets from earlier TestPoint call
-      if (source) {
-        this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSet);
-        info.Counter          = 0;
-        info.Index            = 0;
-        info.Wrap             = 0;
-        info.SourceID         = sourceID;
-        info.InjectedPointId  = injectionID + i;
-        info.UniqueParticleId = vtkTemporalStreamTracer::UniqueIdCounter++;
-        info.rotation         = 0.0;
-        info.angularVel       = 0.0;
-        info.time             = 0.0;
-        memcpy(&(info.CurrentPosition.x[0]), pos, sizeof(Position));
-        // if it was injected, then set the time
-        info.CurrentPosition.x[3] = this->CurrentTimeSteps[0];
+      // since this is first test, avoid bad cache tests
+      this->Interpolator->ClearCache();
+      info.LocationState = this->Interpolator->TestPoint(pos);
+      if (info.LocationState==ID_OUTSIDE_ALL /*|| location==ID_OUTSIDE_T0*/) {
+        // can't really use this particle.
+        vtkDebugMacro(<< "TestParticles rejected particle");
       }
       else {
-        memcpy(&info, &(*inputlist)[i], sizeof(ParticleInformation));
-        this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSet);
-        info.Counter          = 0;
-        info.Index            = 0;
-        info.Wrap             = 0;
+        // get the cached ids and datasets from the TestPoint call
+        this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
+        passed.push_back(info);
+        count++;
       }
-      valid++;
-      successful++;
+    }
+    if (i%div==0) {
+//      vtkDebugMacro(<< "TestParticles " << i);
     }
   }
-  candidates.resize(valid);
-  if (outofdomain) outofdomain->resize(outofdom);
-  vtkDebugMacro(<< "Tested " << numSeedsNew << " Good " << successful << " Total " << valid);
+}
+//---------------------------------------------------------------------------
+void vtkTemporalStreamTracer::AssignSeedsToProcessors(
+  vtkDataSet *source, int sourceID, int ptId, 
+  ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
+{
+  ParticleVector candidates;
+  //
+  // take points from the source object and create a particle list
+  //
+  int numSeeds = source->GetNumberOfPoints();
+  int numTested = numSeeds;
+  candidates.resize(numSeeds);
+  //
+  for (int i=0; i<numSeeds; i++) {
+    ParticleInformation &info = candidates[i];
+    memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double)*3);
+    info.CurrentPosition.x[3] = this->CurrentTimeSteps[0];
+    info.LocationState        = 0;
+    info.CachedCellId[0]      =-1;
+    info.CachedCellId[1]      =-1;
+    info.CachedDataSetId[0]   = 0;
+    info.CachedDataSetId[1]   = 0;
+    info.SourceID             = sourceID;
+    info.InjectedPointId      = i+ptId;
+    info.InjectedStepId       = this->ReinjectionCounter;
+    info.TimeStepAge          = 0;
+    info.UniqueParticleId     =-1;
+    info.rotation             = 0.0;
+    info.angularVel           = 0.0;
+    info.time                 = 0.0;
+    info.age                  = 0.0;
+    info.speed                = 0.0;
+    info.ErrorCode            = 0;
+  } 
+  //
+  // Gather all Seeds to all processors for classification
+  //
+#ifdef VTK_USE_MPI
+  // TODO : can we just use the same array here for send and receive
+  ParticleVector allCandidates; 
+  if (this->UpdateNumPieces>1) {
+    // Gather all seed particles to all processes
+    this->TransmitReceiveParticles(candidates, allCandidates, false);
+    numTested = allCandidates.size();
+    vtkDebugMacro(<< "Local Particles " << numSeeds << " TransmitReceive Total " << numTested);
+    // Test to see which ones belong to us
+    this->TestParticles(allCandidates, LocalSeedPoints, LocalAssignedCount);
+  } 
+  else {
+    numTested = candidates.size();
+    this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
+  }
+  int TotalAssigned = 0; 
+  this->Controller->Reduce(&LocalAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
+#else 
+  numTested = candidates.size();
+  this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
+  int TotalAssigned = LocalAssignedCount; 
+#endif
+  // Assign unique identifiers taking into account uneven distribution 
+  // across processes and seeds which were rejected
+  this->AssignUniqueIds(LocalSeedPoints);
+  //
+  vtkDebugMacro(<< "Tested " << numTested << " LocallyAssigned " << LocalAssignedCount);
+  if (this->UpdatePiece==0) {
+    vtkDebugMacro(<< "Total Assigned to all processes " << TotalAssigned);
+  }
+}
+//---------------------------------------------------------------------------
+void vtkTemporalStreamTracer::AssignUniqueIds(
+  vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
+{
+  vtkIdType ParticleCountOffset = 0;
+  vtkIdType numParticles = LocalSeedPoints.size();
+  if (this->UpdateNumPieces>1) {
+#ifdef VTK_USE_MPI
+    vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
+      this->Controller->GetCommunicator()); 
+    if (com == 0) {
+      vtkErrorMacro("MPICommunicator needed for this operation.");
+      return;
+    }
+    // everyone starts with the master index
+    com->Broadcast(&this->UniqueIdCounter, 1, 0);
+//    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
+    // setup arrays used by the AllGather call.
+    vtkstd::vector<vtkIdType> recvNumParticles(this->UpdateNumPieces, 0);
+    // Broadcast and receive count to/from all other processes.
+    com->AllGather(&numParticles, &recvNumParticles[0], 1);
+    // Each process is allocating a certain number.
+    // start our indices from sum[0,this->UpdatePiece](numparticles)
+    for (int i=0; i<this->UpdatePiece; ++i) {
+      ParticleCountOffset += recvNumParticles[i];
+    }
+    for (vtkIdType i=0; i<numParticles; i++) {
+      LocalSeedPoints[i].UniqueParticleId = 
+        this->UniqueIdCounter + ParticleCountOffset + i;
+    }
+    for (int i=0; i<this->UpdateNumPieces; ++i) {
+      this->UniqueIdCounter += recvNumParticles[i];
+    }
+#endif
+  }
+  else {
+    for (vtkIdType i=0; i<numParticles; i++) {
+      LocalSeedPoints[i].UniqueParticleId = 
+        this->UniqueIdCounter + ParticleCountOffset + i;
+    }
+    this->UniqueIdCounter += numParticles;
+  }
 }
 //---------------------------------------------------------------------------
 #ifdef VTK_USE_MPI
 void vtkTemporalStreamTracer::TransmitReceiveParticles(
-  ParticleList &outofdomain, ParticleList &received, bool removeself)
+  ParticleVector &sending, ParticleVector &received, bool removeself)
 {
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
     this->Controller->GetCommunicator()); 
   if (com == 0) {
-    vtkErrorMacro("MPICommunicator neededfor this operation.");
+    vtkErrorMacro("MPICommunicator needed for this operation.");
     return;
   }
   // 
   // We must allocate buffers for all processor particles
   // 
-  vtkIdType OurParticles = outofdomain.size();
-  int TotalParticles = 0;
+  vtkIdType OurParticles = sending.size();
+  vtkIdType TotalParticles = 0;
   // setup arrays used by the AllGatherV call.
   vtkstd::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);
   vtkstd::vector<vtkIdType> recvOffsets(this->UpdateNumPieces, 0);
   // Broadcast and receive size to/from all other processes.
   com->AllGather(&OurParticles, &recvLengths[0], 1);
   // Compute the displacements.
-  const int TypeSize = sizeof(ParticleInformation);
+  const vtkIdType TypeSize = sizeof(ParticleInformation);
   for (int i=0; i<this->UpdateNumPieces; ++i)
   {
     //  << i << ": " << recvLengths[i] << "   ";
@@ -616,7 +705,7 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
   received.resize(TotalParticles);
   if (TotalParticles==0) return;
   // Gather the data from all procs.
-  char *sendbuf = (char*) ((outofdomain.size()>0) ? &(outofdomain[0]) : NULL);
+  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : NULL);
   char *recvbuf = (char*) (&(received[0]));
   com->AllGatherV(sendbuf, recvbuf, 
     OurParticles*TypeSize, &recvLengths[0], &recvOffsets[0]);
@@ -629,27 +718,28 @@ void vtkTemporalStreamTracer::TransmitReceiveParticles(
       first + recvLengths[this->UpdatePiece]/TypeSize;
     received.erase(first, last);
   }
+  if (received.size()>0) {
+    TotalParticles=TotalParticles; // brkpnt 
+  }
 }
 #else // VTK_USE_MPI
 void vtkTemporalStreamTracer::TransmitReceiveParticles(
-  ParticleList &, ParticleList &, bool )
+  ParticleVector &, ParticleVector &, bool )
 {
 }
 #endif // VTK_USE_MPI
 //---------------------------------------------------------------------------
-void vtkTemporalStreamTracer::UpdateSeeds(ParticleList &candidates)
+void vtkTemporalStreamTracer::UpdateParticleList(ParticleVector &candidates)
 {
   int numSeedsNew = static_cast<int>(candidates.size());
   // 
   for (int i=0; i<numSeedsNew; i++) {
     // allocate a new particle on the list and get a reference to it
-    ParticleInformation Info;
-    this->ParticleHistories.push_back(Info);
-    ParticleInformation &info = ParticleHistories.back();
-    //
-    memcpy(&info, &candidates[i], sizeof(ParticleInformation));
+    this->ParticleHistories.push_back(candidates[i]);
   }
   this->NumberOfParticles = static_cast<int>(ParticleHistories.size());
+
+  vtkDebugMacro(<< "UpdateParticleList completed with " << this->NumberOfParticles << " particles");
 }
 //---------------------------------------------------------------------------
 int vtkTemporalStreamTracer::RequestData(
@@ -657,40 +747,85 @@ int vtkTemporalStreamTracer::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-#ifdef VTK_USE_MPI
-  this->Controller->Barrier();
-#endif
-
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  //
+  // Parallel/Piece information
+  //
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
   this->UpdatePiece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   this->UpdateNumPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  if (!this->SetupInputs(inInfo, outInfo))
+  //
+  // Inputs information
+  //
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
+  
+  // inherited from streamtracer, make sure it is null
+  this->InputData = NULL;
+
+  // how many temporal inputs were we given, 
+  // from each - add to our list of blocks
+  this->InputDataT[0] = NULL;
+  this->InputDataT[1] = NULL;
+  for (int idx=0; idx<numInputs; ++idx)
     {
-    vtkDebugMacro(<<"SetupInputs failed");
-    return 0;
+    vtkDataObject      *input = 0;
+    vtkTemporalDataSet    *td = 0;
+    vtkInformation    *inInfo = inputVector[0]->GetInformationObject(idx);
+    if (inInfo)
+      {
+      input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+      td    = vtkTemporalDataSet::SafeDownCast(input);
+      if (td && this->AddTemporalInput(td)) {
+        {
+        //
+        // Get the timestep information for this instant
+        //
+        vtkInformation *doInfo = td->GetInformation();
+        vtkstd::vector<double> timesteps;
+        if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
+        {
+          int NumberOfDataTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
+          if (NumberOfDataTimeSteps<2) {
+            vtkErrorMacro(<<"Not enough time steps in input data");
+            return 1;
+          }
+          timesteps.resize(NumberOfDataTimeSteps);
+          doInfo->Get(vtkDataObject::DATA_TIME_STEPS(), &timesteps[0]);
+        }
+        else {
+          vtkErrorMacro(<<"No time step info");
+          return 1;
+        }
+        this->CurrentTimeSteps[0] = timesteps[0]*this->TimeStepResolution;
+        this->CurrentTimeSteps[1] = timesteps[1]*this->TimeStepResolution;
+        }
+      }
+      else 
+        {
+        vtkDebugMacro(<<"AddTemporalDataSet failed : Input dataset was not temporal or had insufficient timesteps");
+        return 1;
+        }
+      }
     }
 
-  vtkDataSet *source1 = NULL;
-  vtkDataSet *source2 = NULL;
-  // To get around problems when running in parallel, we only
-  // accept source objects from process zero for now: @ToDO
-  vtkInformation *sourceInfo1 = inputVector[1]->GetInformationObject(0);
-  if (sourceInfo1 && this->EnableSource1) 
-    {
-    source1 = vtkDataSet::SafeDownCast(
-      sourceInfo1->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  //
+  // How many Seed point sources are connected?
+  // Copy the sources into a vector for later use
+  //
 
-  vtkInformation *sourceInfo2 = inputVector[2]->GetInformationObject(0);
-  if (sourceInfo2 && this->EnableSource2) 
+  int numSources = inputVector[1]->GetNumberOfInformationObjects();
+  vtkstd::vector<vtkDataSet*> SeedSources;
+  for (int idx=0; idx<numSources; ++idx)
     {
-    source2 = vtkDataSet::SafeDownCast(
-      sourceInfo2->Get(vtkDataObject::DATA_OBJECT()));
+    vtkDataObject     *dobj   = 0;
+    vtkInformation    *inInfo = inputVector[1]->GetInformationObject(idx);
+    if (inInfo)
+      {
+      dobj   = inInfo->Get(vtkDataObject::DATA_OBJECT());
+      SeedSources.push_back(vtkDataSet::SafeDownCast(dobj));
+      }
     }
 
   if (this->IntegrationDirection != FORWARD) 
@@ -706,45 +841,22 @@ int vtkTemporalStreamTracer::RequestData(
   }
 
   //
-  // Get the timestep information for this instant
+  // Add the datasets to an interpolator object
   //
-  vtkTemporalDataSet* td = vtkTemporalDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkInformation *doInfo = td->GetInformation();
-  vtkstd::vector<double> timesteps;
-  if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
-  {
-    int NumberOfDataTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
-    if (NumberOfDataTimeSteps<2) {
-      vtkErrorMacro(<<"Not enough time steps in input data");
-      return 1;
-    }
-    timesteps.resize(NumberOfDataTimeSteps);
-    doInfo->Get(vtkDataObject::DATA_TIME_STEPS(), &timesteps[0]);
-  }
-  else {
-    return 0;
-  }
-  this->CurrentTimeSteps[0] = timesteps[0];//*this->TimeStepResolution;
-  this->CurrentTimeSteps[1] = timesteps[1];//*this->TimeStepResolution;
-
-  //
-  // Make sure the input datasets are OK and copy the actual datasets into
-  // the velocity field interpolator objects. Watch out, because the
-  // input datasets (almost certainly) change every time step, 
-  // we have to reset everything to avoid bad cache tests inside the Interpolators
-  // @ToDo, add possibility of fixed geometry caching some interesting stuff
-  //
-  this->Interpolator = vtkSmartPointer<vtkTemporalInterpolatedVelocityField>::New();
   if (this->InitializeInterpolator() != VTK_OK)
   {
-    if (this->InputDataT[0]) this->InputDataT[0]->UnRegister(this);
-    if (this->InputDataT[1]) this->InputDataT[1]->UnRegister(this);
+    if (this->InputDataT[0]) this->InputDataT[0] = NULL;
+    if (this->InputDataT[1]) this->InputDataT[1] = NULL;
+    vtkErrorMacro(<<"InitializeInterpolator failed");
     return 1;
   }
 
-  // if we know that all datasets have the DATA_GEOMETRY_UNMODIFIED
-  // key set, then make the most of caching in the interpolator
-  this->Interpolator->SetGeometryFixed(this->AllFixedGeometry);
+  //
+  // Setup some variables
+  //
+  vtkSmartPointer<vtkInitialValueProblemSolver> integrator;
+  integrator.TakeReference(this->GetIntegrator()->NewInstance());
+  integrator->SetFunctionSet(this->Interpolator);
 
   //
   // Make sure the Particle Positions are initialized with Seed particles
@@ -761,21 +873,23 @@ int vtkTemporalStreamTracer::RequestData(
   // with a clean slate
   //
   if (this->ActualTimeStep==0) {
+    this->LocalSeeds.clear();
     this->ParticleHistories.clear();
-    this->EarliestTime    = -1E6;
-    this->ReinjectionFlag = 1;
-    this->UniqueIdCounter = 0;
+    this->EarliestTime       =-1E6;
+    this->ReinjectionFlag    = 1;
+    this->ReinjectionCounter = 0;
+    this->UniqueIdCounter    = 0;
+    this->UniqueIdCounterMPI = 0;
   }
   else if (this->CurrentTimeSteps[0]<this->EarliestTime) {
     //
     // We don't want to go back in time, so just reuse whatever we have
     //
-//    this->GenerateOutputLines(output);
     vtkDebugMacro("skipping particle tracking because we have seen this timestep before");
     outInfo->Set(vtkDataObject::DATA_TIME_STEPS(), 
-      &this->InputTimeValues[this->ActualTimeStep], 1);
-    if (this->InputDataT[0]) this->InputDataT[0]->UnRegister(this);
-    if (this->InputDataT[1]) this->InputDataT[1]->UnRegister(this);
+      &this->OutputTimeValues[this->ActualTimeStep], 1);
+    if (this->InputDataT[0]) this->InputDataT[0] = NULL;
+    if (this->InputDataT[1]) this->InputDataT[1] = NULL;
     return 1;
   }
   this->EarliestTime = (this->CurrentTimeSteps[0]>this->EarliestTime)
@@ -783,59 +897,54 @@ int vtkTemporalStreamTracer::RequestData(
   //
   //
   //
-  if ((source1 && source1->GetMTime()>this->ParticleInjectionTime) || 
-      (source2 && source2->GetMTime()>this->ParticleInjectionTime)) 
+  for (unsigned int i=0; i<SeedSources.size(); i++) 
   {
-//    this->ReinjectionFlag = 1;
-  }
-  //
-  // Lists for seed particles
-  //
-  ParticleList candidates;
-  ParticleList outofdomain;
-  ParticleList received;
-  //
-  if (this->ReinjectionFlag) {
-    int injectionId = source1 ? source1->GetNumberOfPoints() : 0;
-    if (source1 /*&& this->UpdatePiece==0*/) 
-      this->InjectSeeds(source1, 1,           0, NULL, candidates, &outofdomain);
-    if (source2 /*&& this->UpdatePiece==0*/) 
-      this->InjectSeeds(source2, 2, injectionId, NULL, candidates, &outofdomain);
-    this->ParticleInjectionTime.Modified();
-    //
-    // Any injected particles have been classified as "in" or "out", so now
-    // send the "out" ones to other processes and collect any they might have sent to us.
-    //
-    if (this->UpdateNumPieces>1) {
-      this->TransmitReceiveParticles(outofdomain, received, true);
-      // don't want the ones that we sent away
-      outofdomain.clear();
-      // classify all the ones we received
-      this->InjectSeeds(NULL, 0, 0, &received, candidates, NULL);
-      // free up unwanted memory
-      received.clear();
+    if (SeedSources[i]->GetMTime()>this->ParticleInjectionTime)
+    {
+  //    this->ReinjectionFlag = 1;
     }
-    // Now update our main list with the ones we are keeping
-    this->UpdateSeeds(candidates);
-    // free up unwanted memory
-    candidates.clear();
   }
 
   //
-  // Setup some variables
+  // Lists for seed particles
   //
-  vtkSmartPointer<vtkInitialValueProblemSolver> integrator = this->GetIntegrator()->NewInstance();
-  integrator->SetFunctionSet(this->Interpolator);
-  integrator->Delete();
+  ParticleVector candidates;
+  ParticleVector received;
+  //
+
+  if (this->ReinjectionFlag) {
+    int seedPointId=0;
+    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0) {
+      for (unsigned int i=0; i<SeedSources.size(); i++) {
+        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+      }
+    }
+    else {
+      // wipe the list and reclassify for each injection
+      this->LocalSeeds.clear();
+      for (unsigned int i=0; i<SeedSources.size(); i++) {
+        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+      }
+    }
+    this->ParticleInjectionTime.Modified();
+
+    // Now update our main list with the ones we are keeping
+    vtkDebugMacro(<< "Reinjection about to update candidates (" << this->LocalSeeds.size() << " particles)");
+    this->UpdateParticleList(this->LocalSeeds);
+    this->ReinjectionCounter += 1;
+  }
 
   //
   // setup all our output arrays
   //
+  vtkDebugMacro(<< "About to allocate point arrays ");
   vtkPolyData *output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->ParticleTime        = vtkSmartPointer<vtkFloatArray>::New();
+  this->ParticleAge         = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleIds         = vtkSmartPointer<vtkIntArray>::New();
-  this->ParticleSourceIds   = vtkSmartPointer<vtkIntArray>::New();
+  this->ParticleSourceIds   = vtkSmartPointer<vtkCharArray>::New();
   this->InjectedPointIds    = vtkSmartPointer<vtkIntArray>::New();
+  this->InjectedStepIds     = vtkSmartPointer<vtkIntArray>::New();
+  this->ErrorCode           = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleVorticity   = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleRotation    = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleAngularVel  = vtkSmartPointer<vtkFloatArray>::New();
@@ -843,17 +952,17 @@ int vtkTemporalStreamTracer::RequestData(
   this->ParticleCells       = vtkSmartPointer<vtkCellArray>::New();
   this->OutputCoordinates   = vtkSmartPointer<vtkPoints>::New();
   this->OutputPointData     = output->GetPointData();
-  this->OutputPointDataT1   = vtkSmartPointer<vtkPointData>::New();
-  this->OutputPointDataT2   = vtkSmartPointer<vtkPointData>::New();
   this->OutputPointData->Initialize();
-  this->OutputPointDataT1->InterpolateAllocate(this->DataReferenceT[0]->GetPointData());
-  this->OutputPointDataT2->InterpolateAllocate(this->DataReferenceT[1]->GetPointData());
+  this->InterpolationCount  = 0;
+  vtkDebugMacro(<< "About to Interpolate allocate space");
   this->OutputPointData->InterpolateAllocate(this->DataReferenceT[1]->GetPointData());
   //
-  this->ParticleTime->SetName("ParticleTime");
+  this->ParticleAge->SetName("ParticleAge");
   this->ParticleIds->SetName("ParticleId");
-  this->ParticleSourceIds->SetName("SourceId");
+  this->ParticleSourceIds->SetName("ParticleSourceId");
   this->InjectedPointIds->SetName("InjectedPointId");
+  this->InjectedStepIds->SetName("InjectionStepId");
+  this->ErrorCode->SetName("ErrorCode");
 
   if (this->ComputeVorticity)
     {
@@ -866,11 +975,12 @@ int vtkTemporalStreamTracer::RequestData(
 
   output->SetPoints(this->OutputCoordinates);
   output->SetVerts(this->ParticleCells);
+  vtkDebugMacro(<< "Finished allocating point arrays ");
 
   //
   // Perform 2 passes
-  // Pass 0 : Particles created by a source in this process 
-  // or received from a source in another process are integrated.
+  // Pass 0 : Integration of particles created by a source in this process 
+  // or received at start from a source in another process.
   //
   // Pass 1 : Particles that were sent in mid integration from another process
   // are added in and their integration continued here. In actual fact, the process
@@ -878,58 +988,96 @@ int vtkTemporalStreamTracer::RequestData(
   // a particle stepping inside and out again through a single domain 
   // in one time step are small (hopefully!)
 
+  vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
-  int Number = static_cast<int>(this->ParticleHistories.size());
-  ParticleIterator it_first=this->ParticleHistories.begin();
-  ParticleIterator  it_last=this->ParticleHistories.end();
-  for (int pass=0; pass<2; pass++) {
-    vtkDebugMacro(<<"Beginning Pass " << pass << " with " << Number << " Particles");
-    // Traverse the list - but keep the next iterator handy because if a particle
-    // passes out of the domain, the iterator will be deleted.
-    for (ParticleIterator it=it_first; it!=it_last;)
+
+  int Number = this->ParticleHistories.size();
+  ParticleListIterator  it_first = this->ParticleHistories.begin();
+  ParticleListIterator  it_last  = this->ParticleHistories.end();
+  ParticleListIterator  it_next;
+#define PASSES 2
+  for (int pass=0; pass<PASSES; pass++) {
+    vtkDebugMacro(<<"Begin Pass " << pass << " with " << Number << " Particles");
+    for (ParticleListIterator it=it_first; it!=it_last;)
     {
-      ParticleIterator next = it;
-      next++;
+      // Keep the 'next' iterator handy because if a particle is terminated 
+      // or leaves the domain, the 'current' iterator will be deleted.
+      it_next = it;
+      it_next++;
       //
-      if (pass==1) {
-        vtkDebugMacro(<<"In Pass " << pass << " with Particle " << it->UniqueParticleId);
+      // Shall we terminate this particle
+      //
+      double interval = (this->CurrentTimeSteps[1]-this->CurrentTimeSteps[0]);
+      bool terminated = false;
+      if (this->TerminationTime>0) 
+      {
+        if (this->TerminationTimeUnit == TERMINATION_TIME_UNIT &&
+          (it->age+interval)>this->TerminationTime) {
+          terminated = true;
+        }
+        else if (this->TerminationTimeUnit == TERMINATION_STEP_UNIT &&
+          (it->TimeStepAge+1)>this->TerminationTime) {
+          terminated = true;
+        }
       }
-      this->IntegrateParticle(it, this->CurrentTimeSteps[0], 
-        this->CurrentTimeSteps[1], integrator);
+      if (terminated) {
+        this->ParticleHistories.erase(it);
+      }
+      else {
+        this->IntegrateParticle(it, this->CurrentTimeSteps[0], this->CurrentTimeSteps[1], integrator);
+      }
       //
       if (this->GetAbortExecute()) {
         break;
       }
-      it = next;
+      it = it_next;
     }
-    // particles will have been deleted so now mark the new iterator positions
-    // ready for the second pass after new particles are added    
-    if (Number>0) {
+    // Particles might have been deleted during the first pass as they move 
+    // out of domain or age. Before adding any new particles that are sent 
+    // to us, we must know the starting point ready for the second pass
+    bool list_valid = (this->ParticleHistories.size()>0);
+    if (list_valid) {
+      // point to one before the end
       it_first = --this->ParticleHistories.end();
     }
     // Send and receive any particles which exited/entered the domain
-    if (this->UpdateNumPieces>1 && pass==0) {
+    if (this->UpdateNumPieces>1 && pass<(PASSES-1)) {
       // the Particle lists will grow if any are received
       // so we must be very careful with our iterators
-      vtkDebugMacro(<<"Pass 0 about to Transmit receive");
+      vtkDebugMacro(<<"End of Pass " << pass << " with " 
+        << this->ParticleHistories.size() << " " 
+        << " about to Transmit/Receive " << this->MPISendList.size());
       this->TransmitReceiveParticles(this->MPISendList, received, true);
       // don't want the ones that we sent away
       this->MPISendList.clear();
+      int assigned;
       // classify all the ones we received
-      this->InjectSeeds(NULL, 0, 0, &received, candidates, NULL);
-      received.clear();
+      if (received.size()>0) {
+        this->TestParticles(received, candidates, assigned);
+        vtkDebugMacro(<<"received " << received.size() << " : assigned locally " << assigned);
+        received.clear();
+      }
       // Now update our main list with the ones we are keeping
-      this->UpdateSeeds(candidates);
-      it_last = this->ParticleHistories.end();
-      if (Number>0) it_first++;
-      else it_first = this->ParticleHistories.begin();
+      this->UpdateParticleList(candidates);
       // free up unwanted memory
       Number = static_cast<int>(candidates.size());
       candidates.clear();
     }
+    it_last = this->ParticleHistories.end();
+    if (list_valid) {
+      // increment to point to first new entry
+      it_first++;
+    }
+    else {
+      it_first = this->ParticleHistories.begin();
+    }
   }
   if (this->MPISendList.size()>0) {
-    vtkDebugMacro(<<"MPISendList not empty " << this->MPISendList.size());
+    // If a particle went out of domain on the second pass, it should be sent
+    // can it really pass right through a domain in one step?
+    // what about grazing the edge of rotating zone?
+    vtkDebugMacro(<< "MPISendList not empty " << this->MPISendList.size());
+    this->MPISendList.clear();
   }
 
   //
@@ -940,19 +1088,31 @@ int vtkTemporalStreamTracer::RequestData(
   this->OutputPointData->AddArray(this->ParticleIds);
   this->OutputPointData->AddArray(this->ParticleSourceIds);
   this->OutputPointData->AddArray(this->InjectedPointIds);
-  this->OutputPointData->AddArray(this->ParticleTime);
+  this->OutputPointData->AddArray(this->InjectedStepIds);
+  this->OutputPointData->AddArray(this->ErrorCode);
+  this->OutputPointData->AddArray(this->ParticleAge);
   if (this->ComputeVorticity)
     {
     this->OutputPointData->AddArray(this->ParticleVorticity);
     this->OutputPointData->AddArray(this->ParticleRotation);
     this->OutputPointData->AddArray(this->ParticleAngularVel);
     }
+
+  if (this->InterpolationCount!=this->OutputCoordinates->GetNumberOfPoints()) {
+    vtkErrorMacro(<< "Mismatch in point array/data counts");
+  }
   //
   outInfo->Set(vtkDataObject::DATA_TIME_STEPS(), 
-    &this->InputTimeValues[this->ActualTimeStep], 1);
+    &this->OutputTimeValues[this->ActualTimeStep], 1);
+
+  // save some locator building, by re-using them as time progresses
+  this->Interpolator->AdvanceOneTimeStep();
+
   //
-  if (this->InputDataT[0]) this->InputDataT[0]->UnRegister(this);
-  if (this->InputDataT[1]) this->InputDataT[1]->UnRegister(this);
+  // Let go of inputs 
+  //
+  if (this->InputDataT[0]) this->InputDataT[0] = NULL;;
+  if (this->InputDataT[1]) this->InputDataT[1] = NULL;;
 
   //
   // Write Particles out if necessary
@@ -960,12 +1120,9 @@ int vtkTemporalStreamTracer::RequestData(
   // NB. We don't want our writer to trigger any updates, 
   // so shallow copy the output
   if (this->ParticleWriter && this->EnableParticleWriting) {
-    vtkDebugMacro(<< "Waiting to write particle data for step " << this->ActualTimeStep);
-    #ifdef VTK_USE_MPI
-//      this->Controller->Barrier();
-    #endif
     vtkSmartPointer<vtkPolyData> polys = vtkSmartPointer<vtkPolyData>::New();
     polys->ShallowCopy(output);
+    int N = polys->GetNumberOfPoints();
     this->ParticleWriter->SetFileName(this->ParticleFileName);
     this->ParticleWriter->SetTimeStep(this->ActualTimeStep);
     this->ParticleWriter->SetTimeValue(this->CurrentTimeSteps[1]);
@@ -973,86 +1130,32 @@ int vtkTemporalStreamTracer::RequestData(
     this->ParticleWriter->Write();
     this->ParticleWriter->CloseFile();
     this->ParticleWriter->SetInput(NULL);
+#ifdef VTK_USE_MPI
+    this->Controller->Barrier();
+#endif
+    vtkDebugMacro(<< "Written " << N);
   }
+//  this->Interpolator->ShowCacheResults();
+//  vtkErrorMacro(<<"RequestData done");  
   return 1;
 }
 //---------------------------------------------------------------------------
-void vtkTemporalStreamTracer::GenerateOutputLines(vtkPolyData *vtkNotUsed(output))
-{
-/*
-  vtkDebugMacro(<<"GenerateOutputLines");
-  //
-  // Now create this->GenericCell array for POLY_LINE representation
-  //
-  // init our local variables for the cell array generation
-  this->ParticleCells     = vtkSmartPointer<vtkCellArray>::New();
-  this->OutputCoordinates = vtkSmartPointer<vtkPoints>::New();
-  this->ParticleIds = vtkSmartPointer<vtkFloatArray>::New();
-  this->ParticleSourceIds = vtkSmartPointer<vtkFloatArray>::New();
-  this->InjectedPointIds = vtkSmartPointer<vtkFloatArray>::New();
-  this->ParticleIds->SetName("ParticleId");
-  this->ParticleSourceIds->SetName("SourceId");
-  this->InjectedPointIds->SetName("InjectedPointId");
-  vtkIdType tempId; // only need 1 now we have removed trails
-  vtkIdType Np = this->ParticleHistories.size();
-  vtkIdType *cells = this->ParticleCells->WritePointer(Np, Np*2);
-  //
-  vtkIdType index = 0;
-  for (ParticleIterator 
-    it=this->ParticleHistories.begin();
-    it!=this->ParticleHistories.end(); ++it, ++index)
-  {
-    ParticleInformation &info = (*it);
-    // create Point Id's 
-    double *coord = &info.CurrentPosition.x[0];
-    tempId = this->OutputCoordinates->InsertNextPoint(coord);
-    ParticleIds->InsertNextTuple1(info.UniqueParticleId);
-    ParticleSourceIds->InsertNextTuple1(info.SourceID);
-    InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
-    cells[index*2]   = 1;
-    cells[index*2+1] = tempId;
-  }
-
-//  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
-//  for (int i=0; i<this->MysteryCoordinates.size(); i++) {
-//    vtkIdType pointId = this->ParticleCoordinates->InsertNextPoint(&this->MysteryCoordinates[i].x[0]);
-//    verts->InsertNextCell(1, &pointId);
-//  }
-
-  output->Modified();
-  output->GetCellData()->Initialize();
-  output->GetPointData()->Initialize();
-  // Add point data scalars here
-  output->GetPointData()->AddArray(ParticleIds);
-  output->GetPointData()->AddArray(ParticleSourceIds);
-  output->GetPointData()->AddArray(InjectedPointIds);
-  //
-  output->SetPoints(this->OutputCoordinates);
-//  if (this->MaxTrackLength>1) {
-//    output->SetLines(this->ParticleCells);
-//  }
-//  else {
-    output->SetVerts(this->ParticleCells);
-//  }
-
-*/
-}
-//---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::IntegrateParticle(
-  ParticleIterator &it, 
-  double currenttime, double terminationtime,
+  ParticleListIterator &it, 
+  double currenttime, double targettime,
   vtkInitialValueProblemSolver* integrator)
 {
-  double epsilon = (terminationtime-currenttime)/100.0;
+  double epsilon = (targettime-currenttime)/100.0;
   double velocity[3], point1[4], point2[4] = {0.0, 0.0, 0.0, 0.0};
   double minStep=0, maxStep=0;
-  double stepWanted, stepTaken;
+  double stepWanted, stepTaken=0.0;
+  substeps = 0;
   
   ParticleInformation &info = (*it);
   // Get the Initial point {x,y,z,t}
   memcpy(point1, &info.CurrentPosition, sizeof(Position));
 
-  if (point1[3]<(currenttime-epsilon) || point1[3]>(terminationtime+epsilon)) {
+  if (point1[3]<(currenttime-epsilon) || point1[3]>(targettime+epsilon)) {
     vtkDebugMacro(<< "Bad particle time : expected (" 
       << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] 
       << ") got " << point1[3]);
@@ -1060,35 +1163,18 @@ void vtkTemporalStreamTracer::IntegrateParticle(
 
   IntervalInformation delT;
   delT.Unit     = TIME_UNIT;
-  delT.Interval = (terminationtime-currenttime)*this->InitialIntegrationStep.Interval;
+  delT.Interval = (targettime-currenttime)*this->InitialIntegrationStep.Interval;
   epsilon = delT.Interval*1E-3;
 
   //
   // begin interpolation between available time values, if the particle has 
   // a cached cell ID and dataset - try to use it, 
-  // if AllFixedGeometry is true, caching has already been turned on
-  // if NoFixedGeometry is true, caching is already turned off
-  // if some geometry is fixed, we must test the cached information
-  // to see if we can cache between these time steps
   //
-  int fixedgeometry = this->AllFixedGeometry;
-  if (!this->NoFixedGeometry)
-  {
-    if (this->GeometryFixed[0][info.CachedDataSet[0]] &&
-        this->GeometryFixed[1][info.CachedDataSet[1]]) 
-    {
-      this->Interpolator->SetGeometryFixed(1);
-    }
-    else 
-    {
-      this->Interpolator->SetGeometryFixed(0);
-      fixedgeometry = 0;
-    }
-  }
-  this->Interpolator->SetCachedCellIds(info.CachedCellId, info.CachedDataSet);
+  this->Interpolator->SetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
 
-  bool ok = true;
-  while (point1[3] < (terminationtime-epsilon)) {
+  bool particle_good = true;
+  info.ErrorCode = 0;
+  while (point1[3] < (targettime-epsilon)) {
     //
     // Here beginneth the real work
     //
@@ -1097,13 +1183,13 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     // If, with the next step, propagation will be larger than
     // max, reduce it so that it is (approximately) equal to max.
     stepWanted = delT.Interval;
-    if ( (point1[3] + stepWanted) > terminationtime )
+    if ( (point1[3] + stepWanted) > targettime )
       {
-      stepWanted = terminationtime - point1[3];
+      stepWanted = targettime - point1[3];
       maxStep = stepWanted;
       }
     this->LastUsedTimeStep = stepWanted;
-          
+
     // Calculate the next step using the integrator provided.
     // If the next point is out of bounds, send it to another process
     if (integrator->ComputeNextStep(
@@ -1111,19 +1197,32 @@ void vtkTemporalStreamTracer::IntegrateParticle(
           stepTaken, minStep, maxStep, 
           this->MaximumError, error) != 0)
     {
-      vtkDebugMacro(<< "INTEGRATE_FAILED   : Sending Particle " << info.UniqueParticleId << " Time " << point1[3]);
-      this->DoParticleSendTasks(info, point1, this->LastUsedTimeStep);
-      this->ParticleHistories.erase(it);
-      ok = false;
-      break;
+      // if the particle is sent, remove it from the list
+      info.ErrorCode = 1;
+      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedTimeStep)) {
+        this->ParticleHistories.erase(it);
+        particle_good = false;
+        break;
+      } 
+      else 
+      {
+        // particle was not sent, retry saved it, so copy info back
+        substeps++;
+        memcpy(point1, &info.CurrentPosition, sizeof(Position));  
+      }
     }
+    else // success, increment position/time
+    {
+      substeps++;
 
-    // increment the particle time
-    point2[3] = point1[3] + stepTaken;
+      // increment the particle time
+      point2[3] = point1[3] + stepTaken;
+      info.age += stepTaken;
 
-    // Point is valid. Insert it.
-    memcpy(&info.CurrentPosition, point2, sizeof(Position));
-    memcpy(point1, point2, sizeof(Position));
+      // Point is valid. Insert it.
+      memcpy(&info.CurrentPosition, point2, sizeof(Position));
+      memcpy(point1, point2, sizeof(Position));
+    }
 
     // If the solver is adaptive and the next time step (delT.Interval)
     // that the solver wants to use is smaller than minStep or larger 
@@ -1135,18 +1234,33 @@ void vtkTemporalStreamTracer::IntegrateParticle(
         // code removed. Put it back when this is stable
       }
   }
-
-  if (ok) {
+  if (particle_good) {
     // The integration succeeded, but check the computed final position 
     // is actually inside the domain (the intermediate steps taken inside 
     // the integrator were ok, but the final step may just pass out)
-    if (!this->Interpolator->FunctionValues(&info.CurrentPosition.x[0], velocity) )
+    // if it moves out, we can't interpolate scalars, so we must send it away
+    info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
+    if (info.LocationState==ID_OUTSIDE_ALL)
     {
-      vtkDebugMacro(<< "INTEGRATE_OVERSHOT : Sending Particle " 
-        << info.UniqueParticleId << " Time " << info.CurrentPosition.x[3]);
-      this->AddParticleToMPISendList(info);
+      info.ErrorCode = 2;
+      // if the particle is sent, remove it from the list
+      if (this->SendParticleToAnotherProcess(info, point1, this->LastUsedTimeStep)) {
+        this->ParticleHistories.erase(it);
+        particle_good = false;
+      }
+    }
+  }
+
+  //
+  // Has this particle stagnated
+  //
+  if (particle_good) {
+    this->Interpolator->GetLastGoodVelocity(velocity);
+    info.speed = vtkMath::Norm(velocity);
+    if (it->speed <= this->TerminalSpeed)
+    {
       this->ParticleHistories.erase(it);
-      ok = false;
+      particle_good = false;
     }
   }
 
@@ -1156,56 +1270,41 @@ void vtkTemporalStreamTracer::IntegrateParticle(
   // Create any new scalars and interpolate existing ones
   // Cache cell ids and datasets
   //
-  if (ok) {
+  if (particle_good) {
     //
-    // Get the last Cell Ids and dataset indices
+    // store the last Cell Ids and dataset indices for next time particle is updated
     //
-    this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSet);
-    if (fixedgeometry) {
-      // and now advance forward one time step
-      info.CachedCellId[0]  = info.CachedCellId[1];
-      info.CachedDataSet[0] = info.CachedDataSet[1];
-    }
+    this->Interpolator->GetCachedCellIds(info.CachedCellId, info.CachedDataSetId);
+    //
+    info.TimeStepAge += 1;
     //
     // Now generate the output geometry and scalars
     //
-    // Note that this is slightly overkill. In principle we always integrate
-    // the particle until it reaches Time2 - so we don't need to do any 
-    // interpolation of the scalars between T1 and T2, just fetch the values
-    // of the spatially interpolated scalars from T2.
-    // We'll leave this here for now as it is instructive to see if it 
-    // works properly
-    //
-    vtkDebugMacro(<< "Adding Particle to output : " << info.UniqueParticleId
-      << " Time " << info.CurrentPosition.x[3]);
-
-    // insert the coordinate
     double    *coord = &info.CurrentPosition.x[0];
     vtkIdType tempId = this->OutputCoordinates->InsertNextPoint(coord);
     // create the cell
     this->ParticleCells->InsertNextCell(1, &tempId);
     // set the easy scalars for this particle
-    this->ParticleIds->InsertNextTuple1(info.UniqueParticleId);
-    this->ParticleSourceIds->InsertNextTuple1(info.SourceID);
-    this->InjectedPointIds->InsertNextTuple1(info.InjectedPointId);
-    this->ParticleTime->InsertNextTuple1(info.CurrentPosition.x[3]);
+    this->ParticleIds->InsertNextValue(info.UniqueParticleId);
+    this->ParticleSourceIds->InsertNextValue(info.SourceID);
+    this->InjectedPointIds->InsertNextValue(info.InjectedPointId);
+    this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
+    this->ErrorCode->InsertNextValue(info.ErrorCode);
+    this->ParticleAge->InsertNextValue(info.age);
     //
     // Interpolate all existing point attributes
+    // In principle we always integrate the particle until it reaches Time2 
+    // - so we don't need to do any interpolation of the scalars 
+    // between T0 and T1, just fetch the values
+    // of the spatially interpolated scalars from T1.
     //
-    this->Interpolator->InterpolatePointAtT(
-      1, this->OutputPointData, tempId);
-/*
-    bool ok = this->Interpolator->InterpolatePoint(
-      this->OutputPointDataT1, this->OutputPointDataT2, tempId);
-    if (ok) {
-      this->OutputPointData->InterpolateTime(
-        this->OutputPointDataT1, this->OutputPointDataT2, 
-        tempId, this->Interpolator->GetCurrentWeight());
+    if (info.LocationState==ID_OUTSIDE_T1) {
+      this->Interpolator->InterpolatePoint(0, this->OutputPointData, tempId);
     }
     else {
-      vtkDebugMacro(<<"Point interpolation failed");
+      this->Interpolator->InterpolatePoint(1, this->OutputPointData, tempId);
     }
-*/
+    this->InterpolationCount++;
     //
     // Compute vorticity 
     //
@@ -1213,16 +1312,22 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     {
       vtkGenericCell *cell;
       double pcoords[3], vorticity[3], weights[256];
-      double rotation, omega, speed = vtkMath::Norm(velocity);
-      this->Interpolator->GetVorticityData(
-        1, pcoords, weights, cell, this->cellVectors
-      );
+      double rotation, omega;
+      // have to use T0 if particle is out at T1, otherwise use T1
+      if (info.LocationState==ID_OUTSIDE_T1) {
+        this->Interpolator->GetVorticityData(
+          0, pcoords, weights, cell, this->cellVectors);
+      }
+      else {
+        this->Interpolator->GetVorticityData(
+          1, pcoords, weights, cell, this->cellVectors);
+      }
       vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vorticity);
       this->ParticleVorticity->InsertNextTuple(vorticity);
       // local rotation = vorticity . unit tangent ( i.e. velocity/speed )
-      if (speed != 0.0) {
+      if (info.speed != 0.0) {
         omega = vtkMath::Dot(vorticity, velocity);
-        omega /= speed;
+        omega /= info.speed;
         omega *= this->RotationScale;
       }
       else {
@@ -1250,29 +1355,58 @@ void vtkTemporalStreamTracer::IntegrateParticle(
   }
 }
 //---------------------------------------------------------------------------
-bool vtkTemporalStreamTracer::DoParticleSendTasks(ParticleInformation &info, double point1[4], double velocity[3], double delT)
+bool vtkTemporalStreamTracer::RetryWithPush(ParticleInformation &info, double velocity[3], double delT)
 {
-  // Get the most approximate theoretical next point
-  for (int v=0; v<3; v++) info.CurrentPosition.x[v] = point1[v] + velocity[v]*delT;
-  info.CurrentPosition.x[3] = point1[3] + delT;
-  //
-//  vtkDebugMacro(<< "DoParticleSendTasks : Sending Particle " << "XXX" << " Time " << point2[3]);
-  this->AddParticleToMPISendList(info);
-  return 1;
-
+  // try adding a one increment push to the particle to get over a rotating/moving boundary
+  for (int v=0; v<3; v++) info.CurrentPosition.x[v] += velocity[v]*delT;
+  info.CurrentPosition.x[3] += delT;
+  info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
+  if (info.LocationState!=ID_OUTSIDE_ALL) {
+    // a push helped the particle get back into a dataset, 
+    info.age += delT;
+    info.ErrorCode = 6;
+   return 1;
+  }
+  return 0;
 }
 //---------------------------------------------------------------------------
-bool vtkTemporalStreamTracer::DoParticleSendTasks(ParticleInformation &info, double point1[4], double delT)
+bool vtkTemporalStreamTracer::SendParticleToAnotherProcess(ParticleInformation &info, double point1[4], double delT)
 {
+//  return 1;
   double velocity[3];
-  if ( !this->Interpolator->FunctionValues(point1, velocity) ) {
-    vtkDebugMacro(<< "FunctionValues(point1, velocity) : OUT_OF_DOMAIN " << info.UniqueParticleId << '\n');
+  this->Interpolator->ClearCache();
+  if (info.UniqueParticleId==3) {
+    vtkDebugMacro(<< "3 is about to be sent");
+  }
+  info.LocationState = this->Interpolator->TestPoint(point1);
+  if (info.LocationState==ID_OUTSIDE_ALL) {
+    // something is wrong, the particle has left the building completely
+    // we can't get the last good velocity as it won't be valid
+    // send the particle 'as is' and hope it lands in another process
+    if (substeps>0) {
+      this->Interpolator->GetLastGoodVelocity(velocity);
+    } else {
+      velocity[0] = velocity[1] = velocity[2] = 0.0;
+    }
+    info.ErrorCode = 3;
+  }
+  else if (info.LocationState==ID_OUTSIDE_T0) {
+    // the particle left the volume but can be tested at T2, so use the velocity at T2
     this->Interpolator->GetLastGoodVelocity(velocity);
-    return this->DoParticleSendTasks(info, point1, velocity, delT);
+    info.ErrorCode = 4;
+  }
+  else if (info.LocationState==ID_OUTSIDE_T1) {
+    // the particle left the volume but can be tested at T1, so use the velocity at T1
+    this->Interpolator->GetLastGoodVelocity(velocity);
+    info.ErrorCode = 5;
   }
   else {
-    return this->DoParticleSendTasks(info, point1, velocity, delT);
+    // The test returned INSIDE_ALL, so test failed near start of integration,
+    this->Interpolator->GetLastGoodVelocity(velocity);
   }
+  if (this->RetryWithPush(info, velocity, delT)) return 0;
+  this->AddParticleToMPISendList(info);
+  return 1;
 }
 //---------------------------------------------------------------------------
 void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
@@ -1284,8 +1418,6 @@ void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ParticleWriter: " << this->ParticleWriter << endl;
   os << indent << "ParticleFileName: " << 
     (this->ParticleFileName ? this->ParticleFileName : "None") << endl;
-  os << indent << "EnableSource1: " << this->EnableSource1 << endl;
-  os << indent << "EnableSource2: " << this->EnableSource2 << endl;
   os << indent << "TimeStep: " << this->TimeStep << endl;
   os << indent << "ForceReinjectionEveryNSteps: "
      << this->ForceReinjectionEveryNSteps << endl;
@@ -1324,9 +1456,10 @@ void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation &info
       << info.CurrentPosition.x[3]);
   }
 #ifdef VTK_USE_MPI
-  int size = this->MPISendList.size();
-  this->MPISendList.resize(size+1);
-  memcpy(&(this->MPISendList[size]), &info, sizeof(ParticleInformation));
+  if (this->MPISendList.capacity()<(this->MPISendList.size()+1)) {
+    this->MPISendList.reserve(static_cast<int>(this->MPISendList.size()*1.5));
+  }
+  this->MPISendList.push_back(info);
 #endif
 }
 //---------------------------------------------------------------------------
@@ -1338,7 +1471,7 @@ void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation &info
     double intersection[4];
     if (this->ComputeDomainExitLocation(point1, point2, intersection, this->GenericCell))
     {
-      vtkDebugMacro(<< "DoParticleSendTasks : Sending Particle " << particleId << " Time " << intersection[3]);
+      vtkDebugMacro(<< "SendParticleToAnotherProcess : Sending Particle " << particleId << " Time " << intersection[3]);
       this->AddParticleToMPISendList(intersection, velocity);
       vtkIdType nextPoint = ParticleCoordinates->InsertNextPoint(point2);
       this->ParticleHistories[particleId].push_back(nextPoint);

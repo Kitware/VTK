@@ -15,41 +15,51 @@
 // .NAME vtkTemporalInterpolatedVelocityField - A helper class for 
 // interpolating between times during particle tracing
 // .SECTION Description
-// vtkTemporalInterpolatedVelocityField is a temporal version of 
-// vtk vtkInterpolatedVelocityField. I maintains two copies of 
-// vtkInterpolatedVelocityField internally and uses them to obtain velocity
-// values at time T1 and T2. 
+// vtkTemporalInterpolatedVelocityField is a general purpose
+// helper for the temporal particle tracing code (vtkTemporalStreamTracer)
+//
+// It maintains two copies of vtkCachingInterpolatedVelocityField internally 
+// and uses them to obtain velocity values at time T0 and T1. 
+//
 // In fact the class does quite a bit more than this because when the geometry
-// of the datasets is the same at T1 and T2, we can re-use cached cell Ids and 
+// of the datasets is the same at T0 and T1, we can re-use cached cell Ids and 
 // weights used in the cell interpolation routines.
 // Additionally, the same weights can be used when interpolating (point) scalar 
-// values and computing vorticity etc, so the class acts as a general purpose
-// helper for the temporal particle tracing code (vtkTemporalStreamTracer)
+// values and computing vorticity etc.
+//
 // .SECTION Caveats
-// vtkTemporalInterpolatedVelocityField is not thread safe. 
+// vtkTemporalInterpolatedVelocityField is probably not thread safe. 
 // A new instance should be created by each thread.
 //
+// Datasets are added in lists. The list for T1 must be idential to that for T0
+// in structure/topology and dataset order, and any datasets marked as static, 
+// must remain so for all T - changing a dataset from static to dynamic 
+// between time steps will result in undefined behaviour (=crash probably)
+//
 // .SECTION See Also
-// vtkFunctionSet vtkStreamer 
-// vtkInterpolatedVelocityField vtkTemporalStreamTracer
+// 
+// vtkCachingInterpolatedVelocityField vtkTemporalStreamTracer
 
 #ifndef __vtkTemporalInterpolatedVelocityField_h
 #define __vtkTemporalInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
+#include "vtkSmartPointer.h" // because it is good
+//BTX
+#include <vtkstd/vector> // Because they are good
+//ETX
 
 #define ID_INSIDE_ALL  00
 #define ID_OUTSIDE_ALL 01
-#define ID_OUTSIDE_T1  02
-#define ID_OUTSIDE_T2  03
+#define ID_OUTSIDE_T0  02
+#define ID_OUTSIDE_T1  03
 
 class vtkDataSet;
 class vtkDataArray;
 class vtkPointData;
 class vtkGenericCell;
 class vtkDoubleArray;
-class vtkInterpolatedVelocityField;
-class vtkTInterpolatedVelocityFieldDataSetsType;
+class vtkCachingInterpolatedVelocityField;
 
 class VTK_PARALLEL_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
 {
@@ -66,6 +76,7 @@ public:
   // Evaluate the velocity field, f, at (x, y, z, t).
   // For now, t is ignored.
   virtual int FunctionValues(double* x, double* u);
+  int FunctionValuesAtT(int T, double* x, double* u);
 
   // Description:
   // If you want to work with an arbitrary vector array, then set its name 
@@ -78,21 +89,10 @@ public:
   // In order to use this class, two sets of data must be supplied, 
   // corresponding to times T1 and T2. Data is added via
   // this function.
-  void AddDataSetAtTime(int N, double T, vtkDataSet* dataset);
+  void SetDataSetAtTime(int I, int N, double T, vtkDataSet* dataset, bool staticdataset);
 
   // Description:
-  // Allow the algorithm using us to turn on/off caching
-  // of CellIds between datasets. If true, then calculations
-  // on the second set of data (T2) use the weights from T1
-  // without any error checking. Use with caution.
-  // We don't use a SetGetMacro to avoid calling Modified()
-  void SetGeometryFixed(int g) 
-  { this->GeometryFixed = g; }
-  int GetGeometryFixed() 
-  { return this->GeometryFixed; }
-
-  // Description:
-  // Between iterations of the PArticle TRacer, Id's of the Cell
+  // Between iterations of the Particle Tracer, Id's of the Cell
   // are stored and then at the start of the next particle the
   // Ids are set to 'pre-fill' the cache.
   bool GetCachedCellIds(vtkIdType id[2], int ds[2]);
@@ -107,6 +107,7 @@ public:
   // A utility function which evaluates the point at T1, T2 to see 
   // if it is inside the data at both times or only one.
   int TestPoint(double* x);
+  int QuickTestPoint(double* x);
 
   // Description:
   // If an interpolation was successful, we can retrieve the last computed
@@ -117,20 +118,26 @@ public:
   // Get the most recent weight between 0->1 from T1->T2
   vtkGetMacro(CurrentWeight,double);
   
-  bool InterpolatePoint(
-    vtkPointData *outPD1, vtkPointData *outPD2, vtkIdType outIndex);
-  bool InterpolatePointAtT(
-    int T, vtkPointData *outPD, vtkIdType outIndex);
+  bool InterpolatePoint(vtkPointData *outPD1, 
+    vtkPointData *outPD2, vtkIdType outIndex);
+
+  bool InterpolatePoint(int T, vtkPointData *outPD1, vtkIdType outIndex);
 
   bool GetVorticityData(
     int T, double pcoords[3], double *weights, 
     vtkGenericCell *&cell, vtkDoubleArray *cellVectors);
 
+  void ShowCacheResults();
+  //BTX
+  inline 
+  //ETX
+  bool isStatic(int datasetIndex);
+
+  void AdvanceOneTimeStep();
+
 protected:
   vtkTemporalInterpolatedVelocityField();
   ~vtkTemporalInterpolatedVelocityField();
-
-  vtkInterpolatedVelocityField *ivf[2];
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char *v);
@@ -147,14 +154,11 @@ protected:
   double OneMinusWeight;
   // A scaling factor used when calculating the CurrentWeight { 1.0/(T2-T1) }
   double ScaleCoeff;
-  // If the two timesteps have the same geometry, then this flag is set and
-  // weights can be re-used between them.
-  int    GeometryFixed;
-  //BTX
-  // Datasets per time step
-  vtkTInterpolatedVelocityFieldDataSetsType* DataSets[2];
-  //ETX
-
+//BTX
+  vtkSmartPointer<vtkCachingInterpolatedVelocityField> ivf[2];
+  // we want to keep track of static datasets so we can optimize caching
+  vtkstd::vector<bool> StaticDataSets;
+//ETX
 private:
   // Hide this since we need multiple time steps and are using a different
   // function prototype

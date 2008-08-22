@@ -16,6 +16,7 @@ ENDIF(VTK_HAS_EXODUS)
 
 SET ( Kit_SRCS
 vtkBranchExtentTranslator.cxx
+vtkCachingInterpolatedVelocityField.cxx
 vtkCollectGraph.cxx
 vtkCollectPolyData.cxx
 vtkCollectTable.cxx

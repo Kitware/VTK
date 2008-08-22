@@ -28,13 +28,13 @@
 #include "vtkStreamTracer.h"
 
 //BTX
-#include <vtkstd/vector> // I'll remove these soon.
-#include <vtkstd/list> // I'll remove these soon.
+#include <vtkstd/vector> // Because they are good
+#include <vtkstd/list>   // Because they are good
 //ETX
 
 class vtkMultiProcessController;
 
-class vtkCompositeDataSet;
+class vtkMultiBlockDataSet;
 class vtkDataArray;
 class vtkDoubleArray;
 class vtkGenericCell;
@@ -45,7 +45,9 @@ class vtkCellArray;
 class vtkDoubleArray;
 class vtkFloatArray;
 class vtkIntArray;
+class vtkCharArray;
 class vtkAbstractParticleWriter;
+class vtkTemporalDataSet;
 
 //BTX
 namespace vtkTemporalStreamTracerNamespace
@@ -53,31 +55,31 @@ namespace vtkTemporalStreamTracerNamespace
   typedef struct { double x[4]; } Position;
   typedef struct {
     // These are used during iteration
-    int           Counter;
-    int           Index;
-    bool          Wrap;
     Position      CurrentPosition;
-    int           CachedDataSet[2];
+    int           CachedDataSetId[2];
     vtkIdType     CachedCellId[2];
+    int           LocationState;
     // These are computed scalars we might display
     int           SourceID;
-    int           InjectedPointId;      
-    float         UniqueParticleId;
+    int           TimeStepAge;
+    int           InjectedPointId; 
+    int           InjectedStepId;
+    int           UniqueParticleId;
+    // These are useful to track for debugging etc
+    int           ErrorCode;
+    float         age;
     // these are needed across time steps to compute vorticity
     float         rotation;
     float         angularVel;
     float         time;
+    float         speed;
   } ParticleInformation;
 
-  typedef vtkstd::vector<ParticleInformation>  ParticleList;
+  typedef vtkstd::vector<ParticleInformation>  ParticleVector;
+  typedef ParticleVector::iterator             ParticleIterator;
   typedef vtkstd::list<ParticleInformation>    ParticleDataList;
-  typedef ParticleDataList::iterator           ParticleIterator;
-
-  class vtkTemporalStreamTracerInternals {
-  public:
-  };
+  typedef ParticleDataList::iterator           ParticleListIterator;
 };
-
 //ETX
 
 class VTK_PARALLEL_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
@@ -125,38 +127,53 @@ public:
     vtkSetMacro(ForceReinjectionEveryNSteps,int);
     vtkGetMacro(ForceReinjectionEveryNSteps,int);
 
-    // Description:
-    // Specify an alternative Geometry object as the source of particles
-    // This method exists so that in the ParaView GUI we can either
-    // select a widget as source, or by using this input, a dataset generated
-    // during the session.
-    // Old style. Do not use.
-    void SetSource2(vtkDataSet *source);
-    vtkDataSet *GetSource2();
+//BTX
+  enum Units
+  {
+    TERMINATION_TIME_UNIT,
+    TERMINATION_STEP_UNIT,
+  };
+//ETX
 
     // Description:
-    // Specify an alternative Geometry object as the source of particles
-    // This method exists so that in the ParaView GUI we can either
-    // select a widget as source, or by using this input, a dataset generated
-    // during the session.
-    // New Style. Do use.
-    void SetSource2Connection(vtkAlgorithmOutput* algOutput);
+    // Setting TerminationTime to a positive value will cause particles
+    // to terminate when the time is reached. Use a vlue of zero to
+    // diable termination. The units of time should be consistent with the 
+    // primary time variable.
+    vtkSetMacro(TerminationTime,double);
+    vtkGetMacro(TerminationTime,double);
 
     // Description:
-    // The Particle tracers accept seed points from multiple sources. When
-    // EnableSourceX is On, the seeds from that source are injected at each
-    // reinjection time. Particles from each source are tagged with an
-    // identifier that allows them to be processed separately after the
-    // animation/simulation has completed. The EnableSourceX methods are now
-    // obsolete as the particle tracer accepts multiple inputs on both the
-    // data and seedpoint ports. The methods are slated to be removed with
-    // the next minor release of VTK.
-    vtkSetMacro(EnableSource1,int);
-    vtkGetMacro(EnableSource1,int);
-    vtkBooleanMacro(EnableSource1,int);
-    vtkSetMacro(EnableSource2,int);
-    vtkGetMacro(EnableSource2,int);
-    vtkBooleanMacro(EnableSource2,int);
+    // The units of TerminationTime may be actual 'Time' units as described
+    // by the data, or just TimeSteps of iteration.
+    vtkSetMacro(TerminationTimeUnit,int);
+    vtkGetMacro(TerminationTimeUnit,int);
+    void SetTerminationTimeUnitToTimeUnit()
+    {this->SetTerminationTimeUnit(TERMINATION_TIME_UNIT);};
+    void SetTerminationTimeUnitToStepUnit()
+    {this->SetTerminationTimeUnit(TERMINATION_STEP_UNIT);};
+
+    // Description:
+    // if StaticSeeds is set and the mesh is static, 
+    // then every time particles are injected we can re-use the same 
+    // injection information. We classify particles according to
+    // processor just once before start.
+    // If StaticSeeds is set and a moving seed source is specified
+    // the motion will be ignored and results will not be as expected.
+    vtkSetMacro(StaticSeeds,int);
+    vtkGetMacro(StaticSeeds,int);
+    vtkBooleanMacro(StaticSeeds,int);
+
+    // Description:
+    // if StaticMesh is set, many optimizations for cell caching
+    // can be assumed. if StaticMesh is not set, the algorithm
+    // will attempt to find out if optimizations can be used, but
+    // setting it to true will force all optimizations.
+    // Do not Set StaticMesh to true if a dynamic mesh is being used
+    // as this will invalidate all results.
+    vtkSetMacro(StaticMesh,int);
+    vtkGetMacro(StaticMesh,int);
+    vtkBooleanMacro(StaticMesh,int);
 
     // Description:
     // Set/Get the controller used when sending particles between processes
@@ -186,6 +203,11 @@ public:
     vtkSetMacro(EnableParticleWriting,int);
     vtkGetMacro(EnableParticleWriting,int);
     vtkBooleanMacro(EnableParticleWriting,int);
+    
+    // Description:
+    // Provide support for multiple see sources
+    void AddSourceConnection(vtkAlgorithmOutput* input);
+    void RemoveAllSources();
 
   protected:
 
@@ -226,127 +248,191 @@ public:
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector);
 
-
+    //
+    // Initialization of input (vector-field) geometry
+    // 
     int InitializeInterpolator();
-    int SetupInputs(vtkInformation* inInfo, vtkInformation* outInfo);
+    int AddTemporalInput(vtkTemporalDataSet *td);
 
 //
 //BTX
 //
-    // Description : Tests points to see if they are inside this region
-    // Pass in either a source object or an input list, one
-    // parameter should be valid, the other NULL
-    void InjectSeeds(vtkDataSet *source, int sourceID, int injectionID, 
-      vtkTemporalStreamTracerNamespace::ParticleList *inputlist,
-      vtkTemporalStreamTracerNamespace::ParticleList &candidates, vtkTemporalStreamTracerNamespace::ParticleList *outofdomain);
 
-    void UpdateSeeds(vtkTemporalStreamTracerNamespace::ParticleList &candidates);
+    // Description : Test the list of particles to see if they are
+    // inside our data. Add good ones to passed list and set count to the 
+    // number that passed
+    void TestParticles(
+      vtkTemporalStreamTracerNamespace::ParticleVector &candidates, 
+      vtkTemporalStreamTracerNamespace::ParticleVector &passed,
+      int &count);
 
+    // Description : Before starting the particle trace, classify
+    // all the injection/seed points according to which processor 
+    // they belong to. This saves us retesting at every injection time
+    // providing 1) The volumes are static, 2) the seed points are static
+    // If either are non static, then this step is skipped.
+    void AssignSeedsToProcessors(
+      vtkDataSet *source, int sourceID, int ptId, 
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints, 
+      int &LocalAssignedCount);
+
+    // Description : once seeds have been assigned to a process, we 
+    // give each one a uniqu ID. We need to use MPI to find out
+    // who is using which numbers.
+    void AssignUniqueIds(
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints);
+
+    // Description : copy list of particles from a vector used for testing particles
+    // and sending between processors, into a list, which is used as the master
+    // list on this processor
+    void UpdateParticleList(
+      vtkTemporalStreamTracerNamespace::ParticleVector &candidates);
+
+    // Description : Perform a GatherV operation on a vector of particles
+    // this is used during classification of seed points and also between iterations
+    // of the main loop as particles leave each processor domain
     void TransmitReceiveParticles(
-      vtkTemporalStreamTracerNamespace::ParticleList &outofdomain, vtkTemporalStreamTracerNamespace::ParticleList &received, bool removeself);
+      vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain, 
+      vtkTemporalStreamTracerNamespace::ParticleVector &received, 
+      bool removeself);
 
+    // Description : The main loop performing Runge-Kutta integration of a single
+    // particle between the two times supplied.
     void IntegrateParticle(
-      vtkTemporalStreamTracerNamespace::ParticleIterator &it, 
+      vtkTemporalStreamTracerNamespace::ParticleListIterator &it, 
       double currenttime, double terminationtime,
       vtkInitialValueProblemSolver* integrator);
 
-    void GenerateOutputLines(vtkPolyData *output);
-    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleInformation &info, double point1[4], double velocity[3], double delT);
-    bool DoParticleSendTasks(vtkTemporalStreamTracerNamespace::ParticleInformation &info, double point1[4], double delT);
+    // Description : When particle leave the domain, they must be collected
+    // and sent to the other processors for possible continuation.
+    // These routines manage the collection and sending after each main iteration.
+    // RetryWithPush adds a small pusj to aparticle along it's current velocity 
+    // vector, this helps get over cracks in dynamic/rotating meshes
+    bool RetryWithPush(
+      vtkTemporalStreamTracerNamespace::ParticleInformation &info, 
+      double velocity[3], double delT);
+
+    // if the particle is added to send list, then returns value is 1, 
+    // if it is kept on this process after a retry return value is 0
+    bool SendParticleToAnotherProcess(
+      vtkTemporalStreamTracerNamespace::ParticleInformation &info, 
+      double point1[4], double delT);
+
+    void AddParticleToMPISendList(
+      vtkTemporalStreamTracerNamespace::ParticleInformation &info);
+
+    // Description : This is an old routine kept for possible future use.
+    // In dnamic meshes, particles might leave the domain and need to be extrapolated across
+    // a gap between the meshes before they re-renter another domain
+    // dodgy rotating meshes need special care....
     bool ComputeDomainExitLocation(
       double pos[4], double p2[4], double intersection[4],
       vtkGenericCell *cell);
-    void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleInformation &info);
+
 //
 //ETX
 //
 
-    // Mostly useful for debugging parallel operation
+    // Track which process we are
     int           UpdatePiece;
     int           UpdateNumPieces;
 
-    // Turn on/off sources
-    int           EnableSource1;      
-    int           EnableSource2;
-
     // Important for Caching of Cells/Ids/Weights etc
     int           AllFixedGeometry;
-    int           NoFixedGeometry;
+    int           StaticMesh;
+    int           StaticSeeds;
 
-    // internal data variables
-    int           MaxCellSize;
-
-    // Support pipeline time 
+    // Support 'pipeline' time or manual SetTimeStep
     unsigned int  TimeStep;
     unsigned int  ActualTimeStep;
+    int           IgnorePipelineTime;
     unsigned int  NumberOfInputTimeSteps;
 //BTX
     vtkstd::vector<double>  InputTimeValues;
     vtkstd::vector<double>  OutputTimeValues;
 //ETX
 
+    // more time management
     double        EarliestTime;
     double        CurrentTimeSteps[2];
     double        TimeStepResolution;
+
+    // Particle termination after time
+    double        TerminationTime;
+    int           TerminationTimeUnit;
+
+    // Particle injection+Reinjection
     int           ForceReinjectionEveryNSteps;
     bool          ReinjectionFlag;  
     int           ReinjectionCounter;
-    int           IgnorePipelineTime;
-    //
+    vtkTimeStamp  ParticleInjectionTime;
+
+    // Particle writing to disk
     vtkAbstractParticleWriter *ParticleWriter;
     char                      *ParticleFileName; 
     int                        EnableParticleWriting;
-    //
-    vtkTimeStamp  ParticleInjectionTime;
-    vtkTimeStamp  SeedInjectionTime;
 
 //BTX
+    // The main lists which are held during operation- between time step updates
     unsigned int                                        NumberOfParticles;
     vtkTemporalStreamTracerNamespace::ParticleDataList  ParticleHistories;
+    vtkTemporalStreamTracerNamespace::ParticleVector    LocalSeeds;
 //ETX
 
 //BTX
-    vtkSmartPointer<vtkPoints>        OutputCoordinates;
-    vtkSmartPointer<vtkCellArray>     ParticleCells;
     //
     // Scalar arrays that are generated as each particle is updated
     //
+    vtkSmartPointer<vtkFloatArray>    ParticleAge;
     vtkSmartPointer<vtkIntArray>      ParticleIds;
-    vtkSmartPointer<vtkIntArray>      ParticleSourceIds;
+    vtkSmartPointer<vtkCharArray>     ParticleSourceIds;
     vtkSmartPointer<vtkIntArray>      InjectedPointIds;
-    vtkSmartPointer<vtkDoubleArray>   cellVectors;
-    vtkSmartPointer<vtkFloatArray>    ParticleTime;
+    vtkSmartPointer<vtkIntArray>      InjectedStepIds;
+    vtkSmartPointer<vtkIntArray>      ErrorCode;
     vtkSmartPointer<vtkFloatArray>    ParticleVorticity;
     vtkSmartPointer<vtkFloatArray>    ParticleRotation;
     vtkSmartPointer<vtkFloatArray>    ParticleAngularVel;
+    vtkSmartPointer<vtkDoubleArray>   cellVectors;
     vtkSmartPointer<vtkPointData>     OutputPointData;
-    vtkSmartPointer<vtkPointData>     OutputPointDataT1;
-    vtkSmartPointer<vtkPointData>     OutputPointDataT2;
-    //
-    vtkTemporalStreamTracerNamespace::ParticleList MPISendList;
-    //
-    vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
-    vtkCompositeDataSet                                   *InputDataT[2];
-    vtkDataSet                                            *DataReferenceT[2];
+    int                               InterpolationCount;
 
-    // info about each dataset we will use repeatedly
+    // The output geometry
+    vtkSmartPointer<vtkCellArray>     ParticleCells;
+    vtkSmartPointer<vtkPoints>        OutputCoordinates;
+
+    // List used for transmitting between processors during parallel operation
+    vtkTemporalStreamTracerNamespace::ParticleVector MPISendList;
+
+    // The velocity interpolator
+    vtkSmartPointer<vtkTemporalInterpolatedVelocityField>  Interpolator;
+
+    // The input datasets which are stored by time step 0 and 1
+    vtkSmartPointer<vtkMultiBlockDataSet> InputDataT[2];
+    vtkSmartPointer<vtkDataSet>           DataReferenceT[2];
+
+    // Cache bounds info for each dataset we will use repeatedly
     typedef struct {
       double b[6];
     } bounds;
     vtkstd::vector<bounds> CachedBounds[2];
-    vtkstd::vector<bool>   GeometryFixed[2];
 
+    // utility funtion we use to test if a point is inside any of our local datasets
     bool InsideBounds(double point[]);
 
-    //
 //ETX
 
+  // MPI controller needed when running in parallel
   vtkMultiProcessController* Controller;
-  static vtkIdType UniqueIdCounter;
+
+  // global Id counter used to give particles a stamp
+  vtkIdType UniqueIdCounter;
+  vtkIdType UniqueIdCounterMPI;
+  // for debugging only;
+  int substeps;
 
 private:
   // Description:
-  // Hide this because we require a new interpolator type
+  // Hide this because we require a new interpolator type 
   void SetInterpolatorPrototype(vtkInterpolatedVelocityField*) {};
 
 private:
