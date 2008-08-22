@@ -59,6 +59,9 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
+                          vtkInformationVector*);
 
   void ThreadedRequestData(vtkInformation*,
                            vtkInformationVector**,

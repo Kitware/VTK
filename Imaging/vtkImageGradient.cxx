@@ -23,8 +23,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.56");
+vtkCxxRevisionMacro(vtkImageGradient, "1.57");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -33,6 +34,10 @@ vtkImageGradient::vtkImageGradient()
 {
   this->HandleBoundaries = 1;
   this->Dimensionality = 2;
+  
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);  
 }
 
 //----------------------------------------------------------------------------
@@ -232,12 +237,36 @@ void vtkImageGradientExecute(vtkImageGradient *self,
     }
 }
 
+int vtkImageGradient::RequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  if (!this->Superclass::RequestData(request, inputVector, outputVector))
+    {
+    return 0;
+    }
+  vtkImageData* output = vtkImageData::GetData(outputVector);
+  vtkDataArray* outArray = output->GetPointData()->GetScalars();
+  vtksys_ios::ostringstream newname;
+  newname << (outArray->GetName()?outArray->GetName():"")
+    << "Gradient";
+  outArray->SetName(newname.str().c_str());
+  // Why not pass the original array?
+  if (this->GetInputArrayToProcess(0, inputVector))
+    {
+    output->GetPointData()->AddArray(
+        this->GetInputArrayToProcess(0, inputVector));
+    }
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  This method does handle
 // boundary conditions.
 void vtkImageGradient::ThreadedRequestData(vtkInformation*,
-                                           vtkInformationVector**,
+                                           vtkInformationVector** inputVector,
                                            vtkInformationVector*,
                                            vtkImageData*** inData,
                                            vtkImageData** outData,
@@ -256,9 +285,16 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
     return;
     }
 
+  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
+  if (!inputArray)
+    {
+    vtkErrorMacro("No input array was found. Cannot execute");
+    return;
+    }
+
   // Gradient makes sense only with one input component.  This is not
   // a Jacobian filter.
-  if(input->GetNumberOfScalarComponents() != 1)
+  if(inputArray->GetNumberOfComponents() != 1)
     {
     vtkErrorMacro(
       "Execute: input has more than one component. "
@@ -269,11 +305,10 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
     return;
     }
 
-  // Dispatch computation for the input scalar type.
-  void* inPtr = input->GetScalarPointer();
+  void* inPtr = inputArray->GetVoidPointer(0);
   double* outPtr = static_cast<double *>(
     output->GetScalarPointerForExtent(outExt));
-  switch(input->GetScalarType())
+  switch(inputArray->GetDataType())
     {
     vtkTemplateMacro(
       vtkImageGradientExecute(this, input, static_cast<VTK_TT*>(inPtr),

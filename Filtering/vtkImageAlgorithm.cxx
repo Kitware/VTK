@@ -23,7 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.30");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.31");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -250,7 +250,14 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
     {
     output->GetPointData()->CopyAllOn();
     output->GetCellData()->CopyAllOn();
-    output->GetPointData()->CopyScalarsOff();
+    if (inArray->GetName())
+      {
+      output->GetPointData()->CopyFieldOff(inArray->GetName());
+      }
+    else if (inArray == input->GetPointData()->GetScalars())
+      {
+      output->GetPointData()->CopyScalarsOff();
+      }
 
     // If the extents are the same, then pass the attribute data for
     // efficiency.
@@ -264,7 +271,16 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
         {
         outArray->SetName(inArray->GetName());
         }
+      // Cache the scalars otherwise it may get overwritten
+      // during CopyAttributes()
+      outArray->Register(this);
+      output->GetPointData()->SetScalars(0);
       output->CopyAttributes(input);
+      // Restore the scalars
+      int idx = output->GetPointData()->AddArray(outArray);
+      output->GetPointData()->SetActiveAttribute(idx, 
+          vtkDataSetAttributes::SCALARS);
+      outArray->UnRegister(this);
       }
     else
       {// Copy
@@ -274,24 +290,23 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
         {
         // Copy the point data.
         // CopyAllocate frees all arrays.
-        // Keep the old scalar array (not being copied).
-        // This is a hack, but avoids reallocation ...
-        vtkDataArray *tmp = NULL;
-        if ( ! output->GetPointData()->GetCopyScalars() )
+        // Cache the scalars otherwise it may get overwritten
+        // during CopyAllocate()
+        vtkDataArray *tmp = output->GetPointData()->GetScalars();
+        // set the name of the output to match the input name
+        if (inArray)
           {
-          tmp = output->GetPointData()->GetScalars();
-          // set the name of the output to match the input name
-          if (inArray)
-            {
-            tmp->SetName(inArray->GetName());
-            }
+          tmp->SetName(inArray->GetName());
           }
+        tmp->Register(this);
+        output->GetPointData()->SetScalars(0);
         output->GetPointData()->CopyAllocate(input->GetPointData(), 
                                              output->GetNumberOfPoints());
-        if (tmp)
-          { // Restore the array.
-          output->GetPointData()->SetScalars(tmp);
-          }
+        // Restore the scalars
+        int idx = output->GetPointData()->AddArray(tmp);
+        output->GetPointData()->SetActiveAttribute(vtkDataSetAttributes::SCALARS,
+            idx);
+        tmp->UnRegister(this);
         // Now Copy The point data, but only if output is a subextent of the
         // input.
         if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
