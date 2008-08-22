@@ -21,11 +21,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCachingInterpolatedVelocityField.h"
-#include "vtkModifiedBSPTree.h"
+#include "vtkAbstractCellLocator.h"
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.5");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.6");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
