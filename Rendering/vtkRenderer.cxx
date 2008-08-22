@@ -36,10 +36,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
+#include "vtkRendererDelegate.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.240");
+vtkCxxRevisionMacro(vtkRenderer, "1.241");
 
 vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
+vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -117,6 +119,8 @@ vtkRenderer::vtkRenderer()
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
+
+  this->Delegate=0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -174,6 +178,12 @@ vtkRenderer *vtkRenderer::New()
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
+  if(this->Delegate!=0 && this->Delegate->GetUsed())
+    {
+      this->Delegate->Render(this);
+      return;
+    }
+
   double   t1, t2;
   int      i;
   vtkProp  *aProp;
@@ -1322,6 +1332,16 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   
   // I don't want to print this since it is used just internally
   // os << indent << this->NumberOfPropsRendered;
+  
+  os << indent << "Delegate:";
+  if(this->Delegate!=0)
+    {
+      os << "exists" << endl;
+    }
+  else
+    {
+      os << "null" << endl;
+    }
 }
 
 int vtkRenderer::VisibleActorCount()

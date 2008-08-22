@@ -114,6 +114,7 @@ SET( Kit_SRCS
   vtkRenderedAreaPicker.cxx
   vtkRendererCollection.cxx
   vtkRenderer.cxx
+  vtkRendererDelegate.cxx
   vtkRendererSource.cxx
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
@@ -212,6 +213,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkPolyDataPainter
   vtkPrimitivePainter
   vtkProp3D
+  vtkRendererDelegate
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderProgram

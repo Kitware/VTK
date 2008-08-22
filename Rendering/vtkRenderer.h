@@ -46,6 +46,7 @@ class vtkLight;
 class vtkPainter;
 class vtkIdentColoredPainter;
 class vtkVisibleCellSelector;
+class vtkRendererDelegate;
 
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
@@ -426,6 +427,14 @@ public:
   // Initial value is false.
   vtkGetMacro(LastRenderingUsedDepthPeeling,int);
   
+  // Description:
+  // Set/Get a custom Render call. Allows to hook a Render call from an
+  // external project.It will be used in place of vtkRenderer::Render() if it
+  // is not NULL and its Used ivar is set to true.
+  // Initial value is NULL.
+  void SetDelegate(vtkRendererDelegate *d);
+  vtkGetObjectMacro(Delegate,vtkRendererDelegate);
+
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -575,6 +584,7 @@ protected:
   // VISIBLE CELL SELECTION ----------------------------------------
   //BTX  
   friend class vtkVisibleCellSelector;
+  friend class vtkRendererDelegate;
 
   //Description:
   // Call to put the Renderer into a mode in which it will color visible 
@@ -621,7 +631,9 @@ protected:
   // End Ivars for visible cell selecting.
 
   //---------------------------------------------------------------
-  
+
+  vtkRendererDelegate *Delegate;
+
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.
