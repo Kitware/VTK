@@ -124,14 +124,14 @@ private slots:
   void updateHighlights();
 
 private:
-  void layoutHighlights();
-  void addSeriesDomain(int series, int *seriesGroup);
-  void updateItemMap(int seriesGroup);
-  void createTable(int seriesGroup);
-  void normalizeTable(int seriesGroup);
-  void calculateXDomain(int seriesGroup);
-  void calculateYDomain(int seriesGroup);
-  int findClosestIndex(const QPolygonF &polygon, const QPointF &point) const;
+  virtual void layoutHighlights();
+  virtual void addSeriesDomain(int series, int *seriesGroup);
+  virtual void updateItemMap(int seriesGroup);
+  virtual void createTable(int seriesGroup);
+  virtual void normalizeTable(int seriesGroup);
+  virtual void calculateXDomain(int seriesGroup);
+  virtual void calculateYDomain(int seriesGroup);
+  virtual int findClosestIndex(const QPolygonF &polygon, const QPointF &point) const;
 
 private:
   vtkQtStackedChartInternal *Internal; ///< Stores the series.
