@@ -128,9 +128,6 @@ public:
     vtkGenericCell *&cell, vtkDoubleArray *cellVectors);
 
   void ShowCacheResults();
-  //BTX
-  inline 
-  //ETX
   bool IsStatic(int datasetIndex);
 
   void AdvanceOneTimeStep();
