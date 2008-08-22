@@ -68,9 +68,9 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.26");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.27");
 //----------------------------------------------------------------------------
-#define JB_DEBUG__
+//#define JB_DEBUG__
 #if defined JB_DEBUG__
   #ifdef WIN32
       #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
