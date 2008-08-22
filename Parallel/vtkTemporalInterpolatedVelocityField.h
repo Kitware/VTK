@@ -131,7 +131,7 @@ public:
   //BTX
   inline 
   //ETX
-  bool isStatic(int datasetIndex);
+  bool IsStatic(int datasetIndex);
 
   void AdvanceOneTimeStep();
 

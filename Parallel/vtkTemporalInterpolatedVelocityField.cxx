@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.6");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.7");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
@@ -57,11 +57,11 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double
   }
   // when the datasets for the second time set are added, set the static flag
   if (N==1) {
-    bool isStatic = staticdataset && this->ivf[0]->CacheList[I].StaticDataSet;
+    bool is_static = staticdataset && this->ivf[0]->CacheList[I].StaticDataSet;
     if ((unsigned int)I>=this->StaticDataSets.size()) {
-      this->StaticDataSets.resize(I+1,isStatic);
+      this->StaticDataSets.resize(I+1,is_static);
     } 
-    if (isStatic) {
+    if (is_static) {
       this->ivf[N]->SetDataSet(I, dataset, staticdataset, this->ivf[0]->CacheList[I].BSPTree);
     }
     else {
@@ -70,7 +70,7 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double
   }
 }
 //---------------------------------------------------------------------------
-inline bool vtkTemporalInterpolatedVelocityField::isStatic(int datasetIndex)
+inline bool vtkTemporalInterpolatedVelocityField::IsStatic(int datasetIndex)
 {
   return this->StaticDataSets[datasetIndex];
 }
@@ -113,7 +113,7 @@ bool vtkTemporalInterpolatedVelocityField::GetCachedCellIds(vtkIdType id[2], int
 void vtkTemporalInterpolatedVelocityField::AdvanceOneTimeStep()
 {
   for (unsigned int i=0; i<this->ivf[0]->CacheList.size(); i++) {
-    if (this->isStatic(i)) {
+    if (this->IsStatic(i)) {
       this->ivf[0]->ClearLastCellInfo();
       this->ivf[1]->ClearLastCellInfo();
     }
@@ -148,7 +148,7 @@ int vtkTemporalInterpolatedVelocityField::TestPoint(double* x)
   //
   if (this->ivf[0]->FunctionValues(x, vals1)) {
     // if we are inside at T0 and static, we must be inside at T1
-    if (this->isStatic(this->ivf[0]->LastCacheIndex)) {
+    if (this->IsStatic(this->ivf[0]->LastCacheIndex)) {
       // compute using weights from dataset 0 and vectors from dataset 1
       this->ivf[1]->SetLastCellInfo(this->ivf[0]->LastCellId, this->ivf[0]->LastCacheIndex);
       this->ivf[0]->FastCompute(this->ivf[1]->Cache, vals2);
@@ -174,7 +174,7 @@ int vtkTemporalInterpolatedVelocityField::TestPoint(double* x)
   // Outside at T0, either abort or use T1
   else {
     // if we are outside at T0 and static, we must be outside at T1
-    if (this->isStatic(this->ivf[0]->LastCacheIndex)) {
+    if (this->IsStatic(this->ivf[0]->LastCacheIndex)) {
       return ID_OUTSIDE_ALL;
     }
     // we are dynamic, so test T1
@@ -196,7 +196,7 @@ int vtkTemporalInterpolatedVelocityField::QuickTestPoint(double* x)
   // if outside, return 0
   if (!this->ivf[0]->InsideTest(x)) return 0;
   // if inside and static dataset hit, skip next test
-  if (!this->isStatic(this->ivf[0]->LastCacheIndex)) {
+  if (!this->IsStatic(this->ivf[0]->LastCacheIndex)) {
     if (!this->ivf[1]->InsideTest(x)) return 0;
   }
   return 1;
@@ -223,7 +223,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValuesAtT(int T, double* x, do
     for (int i=0; i<this->NumFuncs; i++) {
       this->LastGoodVelocity[i] = u[i] = vals1[i];
     }
-    if (this->isStatic(this->ivf[0]->LastCacheIndex)) {
+    if (this->IsStatic(this->ivf[0]->LastCacheIndex)) {
       this->ivf[1]->SetLastCellInfo(this->ivf[0]->LastCellId, this->ivf[0]->LastCacheIndex);
     }
   }
@@ -235,7 +235,7 @@ int vtkTemporalInterpolatedVelocityField::FunctionValuesAtT(int T, double* x, do
     for (int i=0; i<this->NumFuncs; i++) {
       this->LastGoodVelocity[i] = u[i] = vals2[i];
     }
-    if (this->isStatic(this->ivf[1]->LastCacheIndex)) {
+    if (this->IsStatic(this->ivf[1]->LastCacheIndex)) {
       this->ivf[0]->SetLastCellInfo(this->ivf[1]->LastCellId, this->ivf[1]->LastCacheIndex);
     }
   }
@@ -255,7 +255,7 @@ bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   int T, vtkPointData *outPD1, vtkIdType outIndex)
 {
   // force use of correct weights/etc if static as only T0 are valid
-  if (T==1 && this->isStatic(this->ivf[T]->LastCacheIndex)) T=0;
+  if (T==1 && this->IsStatic(this->ivf[T]->LastCacheIndex)) T=0;
   //
   return this->ivf[T]->InterpolatePoint(outPD1, outIndex);
 }
@@ -265,7 +265,7 @@ bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
   vtkGenericCell *&cell, vtkDoubleArray *cellVectors)
 {
   // force use of correct weights/etc if static as only T0 are valid
-  if (T==1 && this->isStatic(this->ivf[T]->LastCacheIndex)) T=0;
+  if (T==1 && this->IsStatic(this->ivf[T]->LastCacheIndex)) T=0;
   //
   if (this->ivf[T]->GetLastWeights(weights) &&
       this->ivf[T]->GetLastLocalCoordinates(pcoords) &&
