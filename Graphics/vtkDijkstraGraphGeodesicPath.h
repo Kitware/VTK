@@ -41,6 +41,7 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkIdList;
 class vtkFloatArray;
+class vtkUnsignedCharArray;
 
 class VTK_GRAPHICS_EXPORT vtkDijkstraGraphGeodesicPath :
                            public vtkGraphGeodesicPath
@@ -89,7 +90,7 @@ protected:
                           vtkInformationVector *);
 
   // Build a graph description of the mesh
-  void BuildAdjacency(vtkPolyData *pd);
+  virtual void BuildAdjacency( vtkDataSet *inData );
 
   void DeleteAdjacency();
 
@@ -98,9 +99,9 @@ protected:
   // The cost going from vertex u to v
   // TODO: should be implemented as a user supplied
   // callback function
-  double CalculateEdgeCost(vtkPolyData *pd, vtkIdType u, vtkIdType v);
+  virtual double CalculateEdgeCost( vtkDataSet *inData, vtkIdType u, vtkIdType v);
 
-  void Initialize();
+  void Initialize( vtkDataSet *inData );
 
   void Reset();
 
@@ -119,13 +120,13 @@ protected:
   void InitSingleSource(int startv);
   
   // Calculate shortest path from vertex startv to vertex endv
-  void ShortestPath(int startv, int endv);
+  void ShortestPath( vtkDataSet *inData, int startv, int endv);
   
   // Relax edge u,v with weight w
   void Relax(int u, int v, double w);
 
   // Backtrace the shortest path
-  void TraceShortestPath(vtkPolyData *inPd, vtkPolyData *outPd,
+  void TraceShortestPath( vtkDataSet* inData, vtkPolyData* inPoly,
                vtkIdType startv, vtkIdType endv);
   
   // the number of vertices
@@ -138,12 +139,14 @@ protected:
   vtkIntArray *pre;
   
   // f is the set of vertices wich has not a shortest path yet but has a path
-  // ie. the front set (f(v) == 1 means that vertex v is in f)
-  vtkIntArray *f;
+  // ie. the front set (f(v) == 1 means that vertex v is in f).
+  // f is a boolean (1/0) array.
+  vtkUnsignedCharArray *f;
   
   // s is the set of vertices with already determined shortest path
-  // s(v) == 1 means that vertex v is in s
-  vtkIntArray *s;
+  // s(v) == 1 means that vertex v is in s.
+  // s is a boolean (1/0) array.
+  vtkUnsignedCharArray *s;
   
   // the priority que (a binary heap) with vertex indices
   vtkIntArray *Heap;
