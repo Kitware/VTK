@@ -61,7 +61,7 @@ vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
 vtkDicer.cxx
 vtkDijkstraGraphGeodesicPath.cxx
-#vtkDijkstraImageGeodesicPath.cxx
+vtkDijkstraImageGeodesicPath.cxx
 vtkDiscreteMarchingCubes.cxx
 vtkDiskSource.cxx
 vtkEdgePoints.cxx
