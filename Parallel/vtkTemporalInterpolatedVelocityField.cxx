@@ -25,7 +25,7 @@
 
 #include <vtkstd/vector>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.7");
+vtkCxxRevisionMacro(vtkTemporalInterpolatedVelocityField, "1.8");
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 vtkTemporalInterpolatedVelocityField::vtkTemporalInterpolatedVelocityField()
@@ -70,7 +70,7 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double
   }
 }
 //---------------------------------------------------------------------------
-inline bool vtkTemporalInterpolatedVelocityField::IsStatic(int datasetIndex)
+bool vtkTemporalInterpolatedVelocityField::IsStatic(int datasetIndex)
 {
   return this->StaticDataSets[datasetIndex];
 }
