@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.1");
+vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.2");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -239,4 +239,5 @@ void vtkDijkstraImageGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Off\n";
     }
+  os << indent << "CostImage: " << this->GetCostImage();
 }
