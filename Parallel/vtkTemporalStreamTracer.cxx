@@ -50,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifdef WIN32
   #undef JB_H5PART_PARTICLE_OUTPUT
 #else
-//  #define JB_H5PART_PARTICLE_OUTPUT
+  #define JB_H5PART_PARTICLE_OUTPUT
 #endif
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.27");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.28");
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
@@ -1423,6 +1423,10 @@ void vtkTemporalStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
      << this->ForceReinjectionEveryNSteps << endl;
   os << indent << "EnableParticleWriting: " << this->EnableParticleWriting << endl;
   os << indent << "IgnorePipelineTime: " << this->IgnorePipelineTime << endl;
+  os << indent << "StaticMesh: " << this->StaticMesh << endl;
+  os << indent << "TerminationTime: " << this->TerminationTime << endl;
+  os << indent << "TerminationTimeUnit: " << this->TerminationTimeUnit << endl;
+  os << indent << "StaticSeeds: " << this->StaticSeeds << endl;
 }
 //---------------------------------------------------------------------------
 bool vtkTemporalStreamTracer::ComputeDomainExitLocation(
