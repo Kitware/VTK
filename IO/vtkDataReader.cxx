@@ -61,7 +61,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.155");
+vtkCxxRevisionMacro(vtkDataReader, "1.156");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -182,55 +182,52 @@ vtkDataReader::~vtkDataReader()
 }
 
 void vtkDataReader::SetInputString(const char *in)
-{ 
+{
+  int len = 0;
   if (in != NULL)
     {
-    this->SetInputString(in, static_cast<int>(strlen(in)));
+    len = static_cast<int>(strlen(in));
     }
-  else
-    {
-    if (this->InputString)
-      {
-      delete [] this->InputString; 
-      }
-    this->InputString = NULL;
-    }
+  this->SetInputString(in, len);
 }
 
 void vtkDataReader::SetBinaryInputString(const char *in, int len)
 {
-    this->SetInputString(in,len);
+  this->SetInputString(in, len);
 }
 
 void vtkDataReader::SetInputString(const char *in, int len)
-{ 
+{
   if (this->Debug)
     {
-    vtkDebugMacro(<< "setting InputString to " << in );
+    vtkDebugMacro(<< "SetInputString len: " << len
+      << " in: " << (in ? in : "(null)"));
     }
 
   if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
     {
     return;
     }
-  
+
   if (this->InputString)
     {
-    delete [] this->InputString; 
+    delete [] this->InputString;
     }
-  if (in) 
-    { 
-    this->InputString = new char[len]; 
-    memcpy(this->InputString,in,len); 
+
+  if (in && len>0)
+    {
+    this->InputString = new char[len];
+    memcpy(this->InputString,in,len);
     this->InputStringLength = len;
-    } 
-   else 
-    { 
-    this->InputString = NULL; 
+    }
+   else
+    {
+    this->InputString = NULL;
     this->InputStringLength = 0;
-    } 
-  this->Modified(); 
-} 
+    }
+
+  this->Modified();
+}
 
 // Internal function to read in a line up to 256 characters.
 // Returns zero if there was an error.
