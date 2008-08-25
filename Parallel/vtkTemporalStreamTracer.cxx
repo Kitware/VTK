@@ -50,7 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifdef WIN32
   #undef JB_H5PART_PARTICLE_OUTPUT
 #else
-  #define JB_H5PART_PARTICLE_OUTPUT
+//  #define JB_H5PART_PARTICLE_OUTPUT
 #endif
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.28");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.29");
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
