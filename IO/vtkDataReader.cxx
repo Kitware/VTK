@@ -61,7 +61,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.156");
+vtkCxxRevisionMacro(vtkDataReader, "1.157");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -216,8 +216,13 @@ void vtkDataReader::SetInputString(const char *in, int len)
 
   if (in && len>0)
     {
-    this->InputString = new char[len];
+    // Add a NULL terminator so that GetInputString
+    // callers (from wrapped languages) get a valid
+    // C string in *ALL* cases...
+    //
+    this->InputString = new char[len+1];
     memcpy(this->InputString,in,len);
+    this->InputString[len] = 0;
     this->InputStringLength = len;
     }
    else
