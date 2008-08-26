@@ -35,7 +35,7 @@
  #define Custom_TreeType vtkModifiedBSPTree
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCachingInterpolatedVelocityField, "1.2");
+vtkCxxRevisionMacro(vtkCachingInterpolatedVelocityField, "1.3");
 vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
@@ -390,16 +390,33 @@ int vtkCachingInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[
 void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Weights: " << &this->Weights[0] << endl;
+
+  if (Weights.size()>0)
+    {
+    os << indent << "Weights: " << &this->Weights[0] << endl;
+    }
+  else
+    {
+    os << indent << "Weights: (none)" << endl;
+    }
+
   os << indent << "Cell Cache hit: " << this->CellCacheHit << endl;
   os << indent << "DataSet Cache hit: " << this->DataSetCacheHit << endl;
   os << indent << "Cache miss: " << this->CacheMiss << endl;
   os << indent << "VectorsSelection: " 
      << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
-  os << indent << "Cache->DataSet : "
-     << this->Cache->DataSet << endl;
+
+  if (this->Cache)
+    {
+    os << indent << "Cache->DataSet : "
+        << this->Cache->DataSet << endl;
+    }
+  else
+    {
+    os << indent << "Cache->DataSet : (none)" << endl;
+    }
+
   os << indent << "LastCacheIndex : "
      << this->LastCacheIndex << endl;
-
 }
 //---------------------------------------------------------------------------
