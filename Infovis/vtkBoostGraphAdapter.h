@@ -28,6 +28,7 @@
 #ifndef __vtkBoostGraphAdapter_h
 #define __vtkBoostGraphAdapter_h
 
+#include "vtkAbstractArray.h"
 #include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkDataObject.h"
@@ -40,6 +41,7 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkTree.h"
 #include "vtkUndirectedGraph.h"
+#include "vtkVariant.h"
 #include <stddef.h> // for ptrdiff_t
 
 namespace boost {
@@ -83,6 +85,28 @@ namespace boost {
   vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
   vtkPropertyMapMacro(vtkDoubleArray, double)
   vtkPropertyMapMacro(vtkFloatArray, float)
+
+  // vtkAbstractArray as a property map of vtkVariants
+  template<>
+  struct property_traits<vtkAbstractArray*>
+  {
+    typedef vtkVariant value_type;
+    typedef vtkVariant reference;
+    typedef vtkIdType  key_type;
+    typedef read_write_property_map_tag category;
+  };
+
+  inline vtkVariant 
+  get(vtkAbstractArray * const& arr, vtkIdType key)
+  {
+    return arr->GetVariantValue(key);
+  }                     
+
+  inline void
+  put(vtkAbstractArray *arr, vtkIdType key, const vtkVariant& value)
+  {
+    arr->InsertVariantValue(key, value);
+  }
 }
 
 #include <vtksys/stl/utility>

@@ -37,6 +37,7 @@
 //ETX
 
 #include "vtkPBGLDistributedGraphHelper.h"
+#include "vtkVariantBoostSerialization.h"
 
 namespace boost {
 

@@ -23,7 +23,6 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
@@ -33,7 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.2");
+vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.3");
 vtkStandardNewMacro(vtkPBGLCollapseGraph);
 
 vtkPBGLCollapseGraph::vtkPBGLCollapseGraph()
@@ -52,7 +51,7 @@ void vtkPBGLCollapseGraph::PrintSelf(ostream& os, vtkIndent indent)
 template<class MutableGraph>
 int vtkPBGLCollapseGraphRequestData(
   vtkPBGLCollapseGraph* self,
-  vtkIntArray* input_arr,
+  vtkAbstractArray* input_arr,
   vtkInformation*,
   vtkInformationVector** input_vec,
   vtkInformationVector* output_vec)
@@ -75,7 +74,7 @@ int vtkPBGLCollapseGraphRequestData(
     }
 
   // Distributed distance map
-  typedef vtkDistributedVertexPropertyMapType<vtkIntArray>::type
+  typedef vtkDistributedVertexPropertyMapType<vtkAbstractArray>::type
     DistributedLabelMap;
 
   // Distributed distance recorder
@@ -125,7 +124,8 @@ int vtkPBGLCollapseGraphRequestData(
       }
     }
 #else
-  vtkIntArray *pedigrees = vtkIntArray::New();
+  vtkAbstractArray *pedigrees 
+    = vtkAbstractArray::CreateArray(input_arr->GetDataType());
   pedigrees->SetName(input_arr->GetName());
   builder->GetVertexData()->AddArray(pedigrees);
   builder->GetVertexData()->SetPedigreeIds(pedigrees);
@@ -147,9 +147,9 @@ int vtkPBGLCollapseGraphRequestData(
   while (edges->HasNext())
     {
     vtkEdgeType e = edges->Next();
-    int source_val = get(distrib_input_arr, e.Source);
-    int target_val = get(distrib_input_arr, e.Target);
-    builder->LazyAddEdge(vtkVariant(source_val), vtkVariant(target_val));
+    vtkVariant source_val = get(distrib_input_arr, e.Source);
+    vtkVariant target_val = get(distrib_input_arr, e.Target);
+    builder->LazyAddEdge(source_val, target_val);
     }
   output_helper->Synchronize();
 
@@ -170,18 +170,12 @@ int vtkPBGLCollapseGraph::RequestData(
 {
   vtkGraph* input = vtkGraph::GetData(input_vec[0]);
   vtkAbstractArray* input_arr = this->GetInputAbstractArrayToProcess(0, input_vec);
-  if (!vtkIntArray::SafeDownCast(input_arr))
-    {
-    vtkErrorMacro("Input array must be a vtkIntArray.");
-    return 0;
-    }
-  vtkIntArray* int_arr = vtkIntArray::SafeDownCast(input_arr);
   if (vtkDirectedGraph::SafeDownCast(input))
     {
     return vtkPBGLCollapseGraphRequestData<vtkMutableDirectedGraph>(
-      this, int_arr, info, input_vec, output_vec);
+      this, input_arr, info, input_vec, output_vec);
     }
   return vtkPBGLCollapseGraphRequestData<vtkMutableUndirectedGraph>(
-    this, int_arr, info, input_vec, output_vec);
+    this, input_arr, info, input_vec, output_vec);
 }
 
