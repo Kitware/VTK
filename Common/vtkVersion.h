@@ -16,11 +16,12 @@
 // .SECTION Description
 // Holds methods for defining/determining the current vtk version
 // (major, minor, build).
-
+//
 // .SECTION Caveats
 // This file will change frequently to update the VTKSourceVersion which
 // timestamps a particular source release.
-
+//
+// Updated for cvs tag VTK-5-2-0-rc2
 
 #ifndef __vtkVersion_h
 #define __vtkVersion_h
@@ -28,7 +29,7 @@
 
 #include "vtkObject.h"
 
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.3093 $, $Date: 2008-04-21 01:00:15 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.3093.2.1 $, $Date: 2008-08-26 14:01:20 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
