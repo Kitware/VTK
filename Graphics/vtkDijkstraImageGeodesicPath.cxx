@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.4");
+vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.5");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -190,7 +190,9 @@ double vtkDijkstraImageGeodesicPath::CalculateEdgeCost(
     vtkMath::Normalize( p10 );
     vtkMath::Normalize( p21 );
     
-    cost += this->CurvatureWeight*( fabs( vtkMath::Dot( p10, p21 ) - 1.0 ) );
+    // the range of dot product of two unit vectors is [-1, 1] so normalize
+    // the maximum curvature from 2 to 1
+    cost += this->CurvatureWeight*( 0.5*fabs( vtkMath::Dot( p10, p21 ) - 1.0 ) );
     }  
 
   return cost;
