@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.11");
+vtkCxxRevisionMacro(vtkPolyData, "1.12");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -2041,31 +2041,100 @@ void  vtkPolyData::RemoveDeletedCells()
   vtkCellData *newCellData;
   newCellData = vtkCellData::New();
   newCellData->CopyAllocate(this->CellData, this->GetNumberOfCells());
-  vtkCellArray *newPolys;
+  vtkCellTypes *newCells = vtkCellTypes::New();
+  newCells->Allocate(this->GetNumberOfCells(), 2*this->GetNumberOfCells());
   vtkIdType inCellId=0, outCellId=0;
   vtkIdType npts=0;
   vtkIdType *pts=0;
+  vtkIdType c = 0;
 
-  if (this->Polys)
+  if (this->Verts)
     {
-    newPolys = vtkCellArray::New();
-    newPolys->Allocate(this->Polys->GetSize());
-    vtkIdType c = 0;
-    for (this->Polys->InitTraversal(); this->Polys->GetNextCell(npts, pts); c++)
+    vtkCellArray* newVerts = vtkCellArray::New();
+    newVerts->Allocate(this->Verts->GetSize());
+    for (this->Verts->InitTraversal(); this->Verts->GetNextCell(npts, pts); c++)
       {
-        if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
+      if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
         { // Keep the cell.
-        newPolys->InsertNextCell(npts, pts);
+        newVerts->InsertNextCell(npts, pts);
         newCellData->CopyData(this->CellData, inCellId, outCellId);
+        newCells->InsertNextCell(this->Cells->GetCellType(c), 
+                                 this->Verts->GetInsertLocation(npts));
         ++outCellId;
         } // Keep this cell.
       ++inCellId;
       } // for all cells
-   this->SetPolys(newPolys);
-   newPolys->Delete();
-   newPolys = NULL;
-   }
+    this->SetVerts(newVerts);
+    newVerts->Delete();
+    }
+
+  if (this->Lines)
+    {
+    vtkCellArray* newLines = vtkCellArray::New();
+    newLines->Allocate(this->Lines->GetSize());
+    for (this->Lines->InitTraversal(); this->Lines->GetNextCell(npts, pts); c++)
+      {
+      if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
+        { // Keep the cell.
+        newLines->InsertNextCell(npts, pts);
+        newCellData->CopyData(this->CellData, inCellId, outCellId);
+        newCells->InsertNextCell(this->Cells->GetCellType(c), 
+                                 this->Lines->GetInsertLocation(npts));
+        ++outCellId;
+        } // Keep this cell.
+      ++inCellId;
+      } // for all cells
+    this->SetLines(newLines);
+    newLines->Delete();
+    }
+  
+  if (this->Polys)
+    {
+    vtkCellArray *newPolys;
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(this->Polys->GetSize());
+    for (this->Polys->InitTraversal(); this->Polys->GetNextCell(npts, pts); c++)
+      {
+      if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
+        { // Keep the cell.
+        newPolys->InsertNextCell(npts, pts);
+        newCellData->CopyData(this->CellData, inCellId, outCellId);
+        newCells->InsertNextCell(this->Cells->GetCellType(c), 
+                                 this->Polys->GetInsertLocation(npts));
+        ++outCellId;
+        } // Keep this cell.
+      ++inCellId;
+      } // for all cells
+    this->SetPolys(newPolys);
+    newPolys->Delete();
+    }
+  
+  if (this->Strips)
+    {
+    vtkCellArray* newStrips = vtkCellArray::New();
+    newStrips->Allocate(this->Strips->GetSize());
+    for (this->Strips->InitTraversal(); this->Strips->GetNextCell(npts, pts); c++)
+      {
+      if (this->Cells->GetCellType(c)!=VTK_EMPTY_CELL)
+        { // Keep the cell.
+        newStrips->InsertNextCell(npts, pts);
+        newCellData->CopyData(this->CellData, inCellId, outCellId);
+        newCells->InsertNextCell(this->Cells->GetCellType(c), 
+                                 this->Strips->GetInsertLocation(npts));
+        ++outCellId;
+        } // Keep this cell.
+      ++inCellId;
+      } // for all cells
+    this->SetStrips(newStrips);
+    newStrips->Delete();
+    }
+
+  
   // Save the results.
+  this->Cells->UnRegister(this);
+  this->Cells = newCells;
+  this->Cells->Register(this);
+  newCells->Delete();
   this->CellData->ShallowCopy(newCellData);
   newCellData->Delete();
 }
