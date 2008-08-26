@@ -92,15 +92,39 @@ public:
   // Description:
   // Process group used by this helper
   boost::graph::distributed::mpi_process_group process_group;
+
+private:
+  vtkPBGLDistributedGraphHelperInternals()
+    : process_group(GetRootProcessGroup()) { }
+
+  // Retrieve the root process group.
+  static boost::graph::distributed::mpi_process_group&
+  GetRootProcessGroup()
+  {
+    if (!root_process_group)
+      {
+      root_process_group = new boost::graph::distributed::mpi_process_group();
+      }
+    return *root_process_group;
+  }
+
+  // Description:
+  // The "root" process group, to which all of the process groups in
+  // VTK's distributed graphs will eventually attach.
+  static boost::graph::distributed::mpi_process_group *root_process_group;
 };
 
+// Definition
+boost::graph::distributed::mpi_process_group *
+vtkPBGLDistributedGraphHelperInternals::root_process_group;
+
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.4");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.5");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.4");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.5");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
