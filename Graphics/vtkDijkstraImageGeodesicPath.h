@@ -35,11 +35,11 @@
 // have low cost value.  Costs in moving from a vertex v to a vertex u
 // are calculated using a weighted additive sheme:
 // cost = Iw*f(I) + Ew*f(u,v) + Cw*f(t,u,v)
-// where Iw is the weight associated with f(I): the image cost,
-// Ew is the weight associated with f(u,v): the distance between vertices u and v, 
-// and Cw is the weight associated with f(t,u,v): the curvature calculated from
-// the vertex t which precedes vertex u, and vertices u and v.  All weights
-// range from 0 to 1.
+// where Iw is the weight associated with f(I): the normalized image cost,
+// Ew is the weight associated with f(u,v): the normalized distance between 
+// vertices u and v, and Cw is the weight associated with f(t,u,v): 
+// the normalized curvature calculated from the vertex t which precedes 
+// vertex u, and vertices u and v.  All weights range from 0 to 1.
 //
 // .SECTION Thanks
 // The class was contributed by Dean Inglis.
