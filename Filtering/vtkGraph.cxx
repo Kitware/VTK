@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.28");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.29");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.28");
+vtkCxxRevisionMacro(vtkGraph, "1.29");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1153,28 +1153,14 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
 
   if (propertyArr)      // Add vertex properties
     {
+    vtkIdType index = this->Internals->Adjacency.size() - 1;
     vtkDataSetAttributes *vertexData = this->GetVertexData();
     int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
     assert(numProps == vertexData->GetNumberOfArrays());
     for (int iprop=0; iprop<numProps; iprop++)
       {
       vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
-      if (vtkDataArray::SafeDownCast(arr))
-        {
-        vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
-        }
-      else if (vtkStringArray::SafeDownCast(arr))
-        {
-        vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
-        }
-      else if (vtkVariantArray::SafeDownCast(arr))
-        {
-        vtkVariantArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetValue(iprop));
-        }
-      else
-        {
-        vtkErrorMacro("Unsupported array type");
-        }
+      arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
       }
     }
   
@@ -1254,7 +1240,7 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
   if (this->DistributedHelper)
     {
     this->DistributedHelper->AddEdgeInternal(u, v, directed, 
-                                                        propertyArr, edge);
+                                             propertyArr, edge);
     return;
     }
 
@@ -1265,6 +1251,7 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
     }
 
   vtkIdType edgeId = this->Internals->NumberOfEdges;
+  vtkIdType edgeIndex = edgeId;
   this->Internals->NumberOfEdges++;
   this->Internals->Adjacency[u].OutEdges.push_back(vtkOutEdgeType(v, edgeId));
   if (directed)
@@ -1297,22 +1284,7 @@ void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed,
     for (int iprop=0; iprop<numProps; iprop++)
       {
       vtkAbstractArray* array = edgeData->GetAbstractArray(iprop);
-      if (vtkDataArray::SafeDownCast(array))
-        {
-        vtkDataArray::SafeDownCast(array)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
-        }
-      else if (vtkStringArray::SafeDownCast(array))
-        {
-        vtkStringArray::SafeDownCast(array)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
-        }
-      else if (vtkVariantArray::SafeDownCast(array))
-        {
-        vtkVariantArray::SafeDownCast(array)->InsertNextValue(propertyArr->GetValue(iprop));
-        }
-      else
-        {
-        vtkErrorMacro("Unsupported array type");
-        }
+      array->InsertVariantValue(edgeIndex, propertyArr->GetValue(iprop));
       }
     }
 }

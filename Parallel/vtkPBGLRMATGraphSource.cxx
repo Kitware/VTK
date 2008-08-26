@@ -47,7 +47,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>
 
-vtkCxxRevisionMacro(vtkPBGLRMATGraphSource, "1.2");
+vtkCxxRevisionMacro(vtkPBGLRMATGraphSource, "1.3");
 vtkStandardNewMacro(vtkPBGLRMATGraphSource);
 
 // ----------------------------------------------------------------------
@@ -233,7 +233,7 @@ vtkPBGLRMATGraphSource::RequestData(
     ++myNumberOfEdges;
     }
 
-  vtkIdType numLevels = (vtkIdType) log2(this->NumberOfVertices);
+  vtkIdType numLevels = (vtkIdType) log2(this->NumberOfVertices) + 1;
   double AB = this->A + this->B;
   double CNorm = this->C / (this->C + this->D);
   double ANorm = this->A / (this->A + this->B);
@@ -333,12 +333,11 @@ vtkPBGLRMATGraphSource::RequestData(
     // global vertex numbers back to .  TODO: Actually do it :)
 
     // Figure out how many edges come before us in the graph.
+    vtkIdType numEdge = output->GetNumberOfEdges();
     boost::mpi::communicator world;
     vtkIdType myStartEdge 
-      = boost::mpi::scan(world, output->GetNumberOfEdges(), 
-                         vtkstd::plus<vtkIdType>());
+      = boost::mpi::scan(world, numEdge, vtkstd::plus<vtkIdType>()) - numEdge;
 
-    vtkIdType numEdge = output->GetNumberOfEdges();
     vtkSmartPointer<vtkIdTypeArray> edgeIds =
       vtkSmartPointer<vtkIdTypeArray>::New();
     edgeIds->SetName(this->EdgePedigreeIdArrayName);

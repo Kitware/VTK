@@ -138,6 +138,7 @@ IF (VTK_USE_PARALLEL_BGL)
   SET ( Kit_SRCS
     ${Kit_SRCS}
     vtkPBGLBreadthFirstSearch.cxx
+    vtkPBGLCollectGraph.cxx
     vtkPBGLConnectedComponents.cxx
     vtkPBGLDistributedGraphHelper.cxx
     vtkPBGLGraphSQLReader.cxx
