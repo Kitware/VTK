@@ -51,7 +51,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.1");
+vtkCxxRevisionMacro(vtkPBGLCollectGraph, "1.2");
 vtkStandardNewMacro(vtkPBGLCollectGraph);
 
 // Constructor/Destructor
@@ -509,19 +509,8 @@ void vtkPBGLCollectGraph::CopyStructureOfDataSetAttributes
     {
     // Build an array of the appropriate type.
     vtkAbstractArray *fromArray = inAttrs->GetAbstractArray(arrayIndex);
-    vtkAbstractArray *toArray = 0;
-    if (vtkStringArray::SafeDownCast (fromArray))
-      {
-      toArray = vtkStringArray::New();
-      }
-    else if (vtkVariantArray::SafeDownCast (fromArray))
-      {
-      toArray = vtkVariantArray::New();
-      }
-    else
-      {
-      toArray = vtkAbstractArray::CreateArray(fromArray->GetDataType());
-      }
+    vtkAbstractArray *toArray 
+      = vtkAbstractArray::CreateArray(fromArray->GetDataType());
 
     // Allocate the array and set its name.
     toArray->SetNumberOfComponents(fromArray->GetNumberOfComponents());
