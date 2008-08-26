@@ -35,7 +35,7 @@
  #define Custom_TreeType vtkModifiedBSPTree
 #endif
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCachingInterpolatedVelocityField, "1.1");
+vtkCxxRevisionMacro(vtkCachingInterpolatedVelocityField, "1.2");
 vtkStandardNewMacro(vtkCachingInterpolatedVelocityField);
 //---------------------------------------------------------------------------
 const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
@@ -124,11 +124,12 @@ vtkCachingInterpolatedVelocityField::~vtkCachingInterpolatedVelocityField()
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::SetDataSet(int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator *locator)
 {
-  int N = vtkstd::max(I+1, static_cast<int>(this->CacheList.size()));
+#define max(x,y) ((x>y) ? (x) : (y))
+  int N = max(I+1, static_cast<int>(this->CacheList.size()));
   this->CacheList.resize(N);
   this->CacheList[I].SetDataSet(dataset, this->VectorsSelection, staticdataset, locator);
   //
-  int maxsize = vtkstd::max(static_cast<int>(this->Weights.size()), dataset->GetMaxCellSize());
+  int maxsize = max(static_cast<int>(this->Weights.size()), dataset->GetMaxCellSize());
   this->Weights.assign(maxsize, 0.0);
 }
 //---------------------------------------------------------------------------
