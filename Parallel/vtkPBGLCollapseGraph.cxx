@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.1");
+vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.2");
 vtkStandardNewMacro(vtkPBGLCollapseGraph);
 
 vtkPBGLCollapseGraph::vtkPBGLCollapseGraph()
@@ -91,6 +91,16 @@ int vtkPBGLCollapseGraphRequestData(
   builder->SetDistributedGraphHelper(output_helper);
 
   // Prepare vertex and edge data
+#if 0
+  // FIXME (DPG): There's a problem with this approach to copying
+  // properties, because the number of vertices in the resulting graph
+  // may differ greatly from the number of vertices in the incoming
+  // graph, and the distribution may also be completely different. So
+  // we can't really safely allocate GetNumberOfComponents elements in
+  // the arrays in the output graph, because a given processor may, in
+  // some cases, end up with more vertices than it started with. So,
+  // see the #else block for a small hack that only deals with
+  // pedigree IDs.
   vtkDataSetAttributes* in_data[2];
   in_data[0] = input->GetVertexData();
   in_data[1] = input->GetEdgeData();
@@ -114,12 +124,18 @@ int vtkPBGLCollapseGraphRequestData(
         }
       }
     }
+#else
+  vtkIntArray *pedigrees = vtkIntArray::New();
+  pedigrees->SetName(input_arr->GetName());
+  builder->GetVertexData()->AddArray(pedigrees);
+  builder->GetVertexData()->SetPedigreeIds(pedigrees);
+#endif
 
   // Iterate through input graph, adding a vertex for every new value
   // TODO: Handle vertex properties?
   for (vtkIdType v = 0; v < input->GetNumberOfVertices(); ++v)
     {
-    builder->AddVertex(input_arr->GetVariantValue(v));
+    builder->LazyAddVertex(input_arr->GetVariantValue(v));
     }
   output_helper->Synchronize();
 
