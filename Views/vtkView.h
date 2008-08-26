@@ -41,7 +41,6 @@
 #include "vtkObject.h"
 
 class vtkAlgorithmOutput;
-class vtkCollection;
 class vtkCommand;
 class vtkDataObject;
 class vtkDataRepresentation;
@@ -62,6 +61,22 @@ public:
   void AddRepresentation(vtkDataRepresentation* rep);
   
   // Description:
+  // Adds an i'th representation to the view.
+  void AddRepresentation(int index, vtkDataRepresentation* rep);
+
+  // Description:
+  // Set the representation to the view.
+  void SetRepresentation(vtkDataRepresentation* rep);
+ 
+  // Description:
+  // Set the i'th representation to the view.
+  void SetRepresentation(int i, vtkDataRepresentation* rep); 
+
+  // Description:
+  // Set the j'th representation in the i'th Ports column to the view.
+  void SetRepresentation(int i, int j, vtkDataRepresentation* rep);
+
+  // Description:
   // Convenience method which creates a simple representation with the 
   // connection and adds it to the view.
   // Returns the representation internally created.
@@ -72,11 +87,78 @@ public:
 
   // Description:
   // Convenience method which creates a simple representation with the 
+  // connection and adds it to the view.
+  // Returns the representation internally created.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* AddRepresentationFromInputConnection(int i, vtkAlgorithmOutput* conn);
+
+  // Description:
+  // Convenience method which sets the representation with the 
+  // connection and adds it to the view.
+  // Returns the representation internally created.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInputConnection(vtkAlgorithmOutput* conn);
+
+  // Description:
+  // Convenience method which sets the i'th representation with the 
+  // connection and adds it to the view.
+  // Returns the representation internally created.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInputConnection(int i, vtkAlgorithmOutput* conn);
+
+  // Description:
+  // Convenience method which sets the i,j'th representation with the 
+  // connection and adds it to the view.
+  // Returns the representation internally created.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInputConnection(int i, int j, vtkAlgorithmOutput* conn);
+
+  // Description:
+  // Convenience method which creates a simple representation with the 
   // specified input and adds it to the view.
   // NOTE: The returned representation pointer is not reference-counted, 
   // so you MUST call Register() on the representation if you want to 
   // keep a reference to it.
   vtkDataRepresentation* AddRepresentationFromInput(vtkDataObject* input);
+
+  // Description:
+  // Convenience method which creates a simple representation with the 
+  // specified input and adds it to the view.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* AddRepresentationFromInput(int i, vtkDataObject* input);
+  // Description:
+  // Convenience method which sets the representation to the 
+  // specified input and adds it to the view.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInput(vtkDataObject* input);
+
+  // Description:
+  // Convenience method which sets the i'th representation with the 
+  // specified input and adds it to the view.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInput(int i, vtkDataObject* input);
+
+  // Description:
+  // Convenience method which sets the i,j 'th representation with the 
+  // specified input and adds it to the view.
+  // NOTE: The returned representation pointer is not reference-counted, 
+  // so you MUST call Register() on the representation if you want to 
+  // keep a reference to it.
+  vtkDataRepresentation* SetRepresentationFromInput(int i, int j, vtkDataObject* input);
 
   // Description:
   // Removes the representation from the view.
@@ -88,16 +170,40 @@ public:
   
   // Description:
   // Removes all representations from the view.
-  void RemoveAllRepresentations();
+  void RemoveAllRepresentations(); 
 
   // Description:
-  // The number of representations in this view.
+  // Removes all representations from the Ports column i.
+  void RemoveAllRepresentations(int i);
+  
+  // Description:
+  // Returns the number of representations on Ports column 0 in this view.
   int GetNumberOfRepresentations();
 
   // Description:
+  // The number of representations from the Ports column i.
+  int GetNumberOfRepresentations(int i);
+  
+  // Description:
   // The representation at a specified index.
   vtkDataRepresentation* GetRepresentation(int index = 0);
+
+  // Description:
+  // The representation at a specified index.
+  vtkDataRepresentation* GetRepresentation(int i, int j);
   
+  // Description:
+  // Check to see if a representation is present in the view.
+  bool IsItemPresent(vtkDataRepresentation* rep);
+
+  // Description:
+  // Check to see if a representation is present in the i'th Ports column.
+  bool IsItemPresent(int i, vtkDataRepresentation* rep);
+
+  // Description:
+  // Remove a representation from the Ports lists.
+  void RemoveItem(vtkDataRepresentation* rep);
+
   // Description:
   // Update the view.
   virtual void Update() { }
@@ -206,8 +312,6 @@ protected:
     vtkAlgorithmOutput* vtkNotUsed(conn),
     vtkAlgorithmOutput* vtkNotUsed(selectionConn)) { }
   
-  vtkCollection* Representations;
-
   // Description:
   // The selection type created by the view.
   int SelectionType;
@@ -216,9 +320,21 @@ protected:
   // If a VALUES selection, the array names used in the selection.
   vtkStringArray* SelectionArrayNames;
 
+  // Description:
+  // If the Ports is not large enough to accomodate the port indicated,
+  // then resize Ports.  If Ports sizing is adequate, do nothing.
+  void SizePort(int i, int j);
+
+  // Description:
+  // Check to see if the port specified exists given current Ports sizes.  
+  bool CheckPort(int i, int j);
+  
 private:
   vtkView(const vtkView&);  // Not implemented.
   void operator=(const vtkView&);  // Not implemented.
+
+  class vtkImplementation;
+  vtkImplementation* Implementation;
 
   class Command;
   friend class Command;
