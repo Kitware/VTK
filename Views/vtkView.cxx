@@ -75,7 +75,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.7");
+vtkCxxRevisionMacro(vtkView, "1.8");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -285,11 +285,9 @@ void vtkView::AddRepresentation(int i, vtkDataRepresentation* rep)
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
         this->AddInputConnection(rep->GetInputConnection(), rep->GetSelectionConnection());
 
-        VTK_CREATE(vtkDataRepresentation, new_rep);
-        
         int port_length = this->Implementation->Ports[i].size();
         this->SizePort( i, port_length );
-        this->Implementation->Ports[i][port_length] = new_rep;
+        this->Implementation->Ports[i][port_length] = rep;
       }
     }
   }
