@@ -29084,6 +29084,7 @@ VTK_SQLITE_PRIVATE char *vtk_sqlite3BtreeIntegrityCheck(
 
   nRef = vtk_sqlite3PagerRefcount(pBt->pPager);
   if( lockBtreeWithRetry(p)!=VTK_SQLITE_OK ){
+    *pnErr=1;
     return vtk_sqliteStrDup("Unable to acquire a read lock on the database");
   }
   sCheck.pBt = pBt;
