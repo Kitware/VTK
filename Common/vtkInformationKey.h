@@ -74,8 +74,9 @@ public:
   // Duplicate (new instance created) the entry associated with this key from
   // one information object to another (new instances of any contained
   // vtkInformation and vtkInformationVector objects are created).  
-  virtual void DeepCopy(vtkInformation *vtkNotUsed(from), 
-    vtkInformation *vtkNotUsed(to)) {}
+  // Default implementation simply calls ShallowCopy().
+  virtual void DeepCopy(vtkInformation *from, vtkInformation *to)
+    { this->ShallowCopy(from, to); }
 
   // Description:
   // Remove this key from the given information object.
