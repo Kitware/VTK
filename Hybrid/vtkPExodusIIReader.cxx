@@ -89,7 +89,7 @@ static const int objAttribTypes[] = {
 static const int numObjAttribTypes = sizeof(objAttribTypes)/sizeof(objAttribTypes[0]);
 
 
-vtkCxxRevisionMacro(vtkPExodusIIReader, "1.24");
+vtkCxxRevisionMacro(vtkPExodusIIReader, "1.25");
 vtkStandardNewMacro(vtkPExodusIIReader);
 
 class vtkPExodusIIReaderUpdateProgress : public vtkCommand
@@ -338,7 +338,7 @@ int vtkPExodusIIReader::RequestInformation(
   // override the output time keys with the actual range that ALL readers can read.
   // If files are still being written to, some files might be on different timesteps
   // than others.
-  if ( this->LastCommonTimeStep >= 0 )
+  if ( (this->LastCommonTimeStep >= 0) && !this->GetHasModeShapes() )
     {
     double* times = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     int numTimes = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
