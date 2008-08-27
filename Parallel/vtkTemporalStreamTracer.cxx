@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 using namespace vtkTemporalStreamTracerNamespace;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.29");
+vtkCxxRevisionMacro(vtkTemporalStreamTracer, "1.30");
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
@@ -530,7 +530,12 @@ bool vtkTemporalStreamTracer::InsideBounds(double point[])
 void vtkTemporalStreamTracer::TestParticles(
   ParticleVector &candidates, ParticleVector &passed, int &count)
 {
-  int i = 0, div = (candidates.size()/10)>0 ? candidates.size()/10 : 1;
+  int i = 0;
+  int div = static_cast<int>(candidates.size()/10);
+  if(div==0)
+    {
+      div=1;
+    }
   count = 0;
   for (ParticleIterator it=candidates.begin(); it!=candidates.end(); ++it, ++i) {
     ParticleInformation &info = (*it);
@@ -614,7 +619,7 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   int TotalAssigned = 0; 
   this->Controller->Reduce(&LocalAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
 #else 
-  numTested = candidates.size();
+  numTested = static_cast<int>(candidates.size());
   this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   int TotalAssigned = LocalAssignedCount; 
 #endif
@@ -991,7 +996,7 @@ int vtkTemporalStreamTracer::RequestData(
   vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
 
-  int Number = this->ParticleHistories.size();
+  int Number = static_cast<int>(this->ParticleHistories.size());
   ParticleListIterator  it_first = this->ParticleHistories.begin();
   ParticleListIterator  it_last  = this->ParticleHistories.end();
   ParticleListIterator  it_next;

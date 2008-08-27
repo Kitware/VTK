@@ -75,7 +75,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.8");
+vtkCxxRevisionMacro(vtkView, "1.9");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -148,14 +148,14 @@ bool vtkView::IsItemPresent(int i, vtkDataRepresentation* rep)
 //----------------------------------------------------------------------------
 void vtkView::SizePort(int i, int j)
 {
-  if( this->Implementation->Ports.size() < (unsigned int)(i+1) )
+  if( this->Implementation->Ports.size() < static_cast<size_t>(i+1) )
   {
     this->Implementation->Ports.resize(i+1);
   }
   
-  if( this->Implementation->Ports[i].size() < (unsigned int)(j+1) )
+  if( this->Implementation->Ports[i].size() < static_cast<size_t>(j+1) )
   {
-    int old_size = this->Implementation->Ports[i].size();
+    int old_size = static_cast<int>(this->Implementation->Ports[i].size());
     this->Implementation->Ports[i].resize(j+1);
     for( int k = old_size; k < j+1; k++ )
     {
@@ -167,12 +167,12 @@ void vtkView::SizePort(int i, int j)
 //----------------------------------------------------------------------------
 bool vtkView::CheckPort(int i, int j )
 {
-  if( this->Implementation->Ports.size() < (unsigned int)(i+1) )
+  if( this->Implementation->Ports.size() < static_cast<size_t>(i+1) )
   {
     return false;
   }
   
-  if( this->Implementation->Ports[i].size() < (unsigned int)(j+1) )
+  if( this->Implementation->Ports[i].size() < static_cast<size_t>(j+1) )
   {
     return false;
   }
@@ -285,7 +285,8 @@ void vtkView::AddRepresentation(int i, vtkDataRepresentation* rep)
         rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
         this->AddInputConnection(rep->GetInputConnection(), rep->GetSelectionConnection());
 
-        int port_length = this->Implementation->Ports[i].size();
+        int port_length=
+          static_cast<int>(this->Implementation->Ports[i].size());
         this->SizePort( i, port_length );
         this->Implementation->Ports[i][port_length] = rep;
       }
@@ -433,7 +434,7 @@ int vtkView::GetNumberOfRepresentations()
   int counter = 0;
   if( this->CheckPort(0,0) )
   {
-    counter = this->Implementation->Ports[0].size();
+    counter = static_cast<int>(this->Implementation->Ports[0].size());
   }
   return counter;
 }
@@ -441,9 +442,9 @@ int vtkView::GetNumberOfRepresentations()
 //----------------------------------------------------------------------------
 int vtkView::GetNumberOfRepresentations(int i)
 {
-  if( this->Implementation->Ports.size() > (unsigned int)i )
+  if( this->Implementation->Ports.size() > static_cast<size_t>(i) )
   {
-    return this->Implementation->Ports[i].size();
+    return static_cast<int>(this->Implementation->Ports[i].size());
   }
   return 0;
 }
