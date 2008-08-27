@@ -33,7 +33,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.12");
+vtkCxxRevisionMacro(vtkPolyData, "1.13");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -2041,8 +2041,6 @@ void  vtkPolyData::RemoveDeletedCells()
   vtkCellData *newCellData;
   newCellData = vtkCellData::New();
   newCellData->CopyAllocate(this->CellData, this->GetNumberOfCells());
-  vtkCellTypes *newCells = vtkCellTypes::New();
-  newCells->Allocate(this->GetNumberOfCells(), 2*this->GetNumberOfCells());
   vtkIdType inCellId=0, outCellId=0;
   vtkIdType npts=0;
   vtkIdType *pts=0;
@@ -2058,8 +2056,6 @@ void  vtkPolyData::RemoveDeletedCells()
         { // Keep the cell.
         newVerts->InsertNextCell(npts, pts);
         newCellData->CopyData(this->CellData, inCellId, outCellId);
-        newCells->InsertNextCell(this->Cells->GetCellType(c), 
-                                 this->Verts->GetInsertLocation(npts));
         ++outCellId;
         } // Keep this cell.
       ++inCellId;
@@ -2078,8 +2074,6 @@ void  vtkPolyData::RemoveDeletedCells()
         { // Keep the cell.
         newLines->InsertNextCell(npts, pts);
         newCellData->CopyData(this->CellData, inCellId, outCellId);
-        newCells->InsertNextCell(this->Cells->GetCellType(c), 
-                                 this->Lines->GetInsertLocation(npts));
         ++outCellId;
         } // Keep this cell.
       ++inCellId;
@@ -2099,8 +2093,6 @@ void  vtkPolyData::RemoveDeletedCells()
         { // Keep the cell.
         newPolys->InsertNextCell(npts, pts);
         newCellData->CopyData(this->CellData, inCellId, outCellId);
-        newCells->InsertNextCell(this->Cells->GetCellType(c), 
-                                 this->Polys->GetInsertLocation(npts));
         ++outCellId;
         } // Keep this cell.
       ++inCellId;
@@ -2119,8 +2111,6 @@ void  vtkPolyData::RemoveDeletedCells()
         { // Keep the cell.
         newStrips->InsertNextCell(npts, pts);
         newCellData->CopyData(this->CellData, inCellId, outCellId);
-        newCells->InsertNextCell(this->Cells->GetCellType(c), 
-                                 this->Strips->GetInsertLocation(npts));
         ++outCellId;
         } // Keep this cell.
       ++inCellId;
@@ -2131,10 +2121,10 @@ void  vtkPolyData::RemoveDeletedCells()
 
   
   // Save the results.
-  this->Cells->UnRegister(this);
-  this->Cells = newCells;
-  this->Cells->Register(this);
-  newCells->Delete();
+  if(inCellId != outCellId)
+    { // we have deleted cells so need to update this->Cells
+    this->BuildCells();
+    }
   this->CellData->ShallowCopy(newCellData);
   newCellData->Delete();
 }
