@@ -363,7 +363,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.68");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.69");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -2795,6 +2795,13 @@ vtkExodusIIReaderPrivate::BlockInfoType* vtkExodusIIReaderPrivate::GetBlockFromF
 //-----------------------------------------------------------------------------
 vtkIdType vtkExodusIIReaderPrivate::GetSqueezePointId( BlockSetInfoType* bsinfop, int i )
 {
+  if (i<0)
+    {
+    vtkGenericWarningMacro("Invalid point id: " << i 
+      << ". Data file may be incorrect.");
+    i = 0;
+    }
+
   vtkIdType x;
   vtkstd::map<vtkIdType,vtkIdType>::iterator it = bsinfop->PointMap.find( i );
   if ( it == bsinfop->PointMap.end() )
@@ -5245,7 +5252,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.68");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.69");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
