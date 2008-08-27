@@ -53,7 +53,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.19");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.20");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
@@ -826,6 +826,7 @@ int vtkConvertSelection::Convert(
       {
       vtkSmartPointer<vtkSelection> child = vtkSmartPointer<vtkSelection>::New();
       child->SetContentType(vtkSelection::PEDIGREEIDS);
+      child->SetFieldType(input->GetFieldType());
       child->SetSelectionList(it->second);
       output->AddChild(child);
       }
