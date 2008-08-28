@@ -54,7 +54,7 @@ public:
 
     // Constructor/Destructor
     SimpleView(QWidget* parent = 0);
-    ~SimpleView();
+    ~SimpleView() {};
 
 public slots:
 
