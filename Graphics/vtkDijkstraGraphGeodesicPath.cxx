@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.10");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.11");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath,RepelVertices,vtkPoints);
 
@@ -37,7 +37,6 @@ vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
 {
   this->IdList = vtkIdList::New();
   this->Internals = new vtkDijkstraGraphInternals;
-  this->HeapSize = 0;
   this->StopWhenEndReached = 0;
   this->UseScalarWeights = 0;
   this->NumberOfVertices = 0;
@@ -112,12 +111,11 @@ void vtkDijkstraGraphGeodesicPath::Initialize( vtkDataSet *inData )
     this->Internals->Predecessors.resize( this->NumberOfVertices );
     this->Internals->OpenVertices.resize( this->NumberOfVertices );
     this->Internals->ClosedVertices.resize( this->NumberOfVertices );
-    this->Internals->HeapIndices.resize( this->NumberOfVertices );
     this->Internals->Adjacency.resize( this->NumberOfVertices );
     this->Internals->BlockedVertices.resize( this->NumberOfVertices );
 
     // The heap has elements from 1 to n
-    this->Internals->Heap.resize( this->NumberOfVertices + 1 );
+    this->Internals->InitializeHeap( this->NumberOfVertices );
     }
 
   this->Reset();
@@ -142,7 +140,7 @@ void vtkDijkstraGraphGeodesicPath::Reset()
     }
 
   this->IdList->Reset();
-  this->HeapSize = 0;
+  this->Internals->ResetHeap();
 }
 
 //----------------------------------------------------------------------------
@@ -288,7 +286,7 @@ void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const doubl
     this->Internals->CumulativeWeights[v] = du;
     this->Internals->Predecessors[v] = u;
     
-    this->HeapDecreaseKey(v);
+    this->Internals->HeapDecreaseKey(v);
     }
 }
 
@@ -316,11 +314,11 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
 
   this->Internals->CumulativeWeights[startv] = 0;
   
-  this->HeapInsert(startv);
+  this->Internals->HeapInsert(startv);
   this->Internals->OpenVertices[startv] = true;
   
   bool stop = false;
-  while ((u = this->HeapExtractMin()) >= 0 && !stop)
+  while ((u = this->Internals->HeapExtractMin()) >= 0 && !stop)
     {
     // u is now in s since the shortest path to u is determined
     this->Internals->ClosedVertices[u] = true;
@@ -365,130 +363,11 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
 
           // Set Predecessor of v to be u
           this->Internals->Predecessors[v] = u;
-
-          this->HeapInsert(v);
+          this->Internals->HeapInsert(v);
           }
         }
       }
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Heapify(const int& i)
-{
-  // left node
-  unsigned int l = i * 2;
-  
-  // right node
-  unsigned int r = i * 2 + 1;
-  
-  int smallest = -1;
-  
-  // The value of element v is CumulativeWeights(v)
-  // the heap stores the vertex numbers
-  if ( l <= this->HeapSize && 
-      ( this->Internals->CumulativeWeights[ this->Internals->Heap[l] ] < 
-        this->Internals->CumulativeWeights[ this->Internals->Heap[i] ] ) )
-    {
-    smallest = l;
-    }
-  else
-    {
-    smallest = i;
-    }
-  
-  if ( r <= this->HeapSize && 
-      ( this->Internals->CumulativeWeights[ this->Internals->Heap[ r ] ] < 
-        this->Internals->CumulativeWeights[ this->Internals->Heap[ smallest ] ] ) )
-    {
-    smallest = r;
-    }
-  
-  if ( smallest != i )
-    {
-    int t = this->Internals->Heap[i];
-    
-    this->Internals->Heap[ i ] = this->Internals->Heap[ smallest ];
-    
-    // where is Heap(i)
-    this->Internals->HeapIndices[ this->Internals->Heap[i] ] = i;
-    
-    // Heap and HeapIndices are kinda inverses
-    this->Internals->Heap[ smallest ] = t;
-    this->Internals->HeapIndices[ t ] = smallest;
-    
-    this->Heapify( smallest );
-    }
-}
-
-//----------------------------------------------------------------------------
-// Insert vertex v. Weight is given in CumulativeWeights(v)
-// Heap has indices 1..n
-void vtkDijkstraGraphGeodesicPath::HeapInsert(const int& v)
-{
-  if ( this->HeapSize >= (this->Internals->Heap.size() - 1) )
-    {
-    return;
-    }
-  
-  this->HeapSize++;
-  int i = this->HeapSize;
-  
-  while ( i > 1 && 
-          this->Internals->CumulativeWeights[ this->Internals->Heap[i/2] ] > 
-          this->Internals->CumulativeWeights[v] )
-    {
-    this->Internals->Heap[ i ] = this->Internals->Heap[i/2];
-    this->Internals->HeapIndices[ this->Internals->Heap[i] ] = i;
-    i /= 2;
-    }
-   // Heap and HeapIndices are kinda inverses
-  this->Internals->Heap[ i ] = v;
-  this->Internals->HeapIndices[ v ] = i;
-}
-
-//----------------------------------------------------------------------------
-int vtkDijkstraGraphGeodesicPath::HeapExtractMin()
-{
-  if ( this->HeapSize == 0 )
-    {
-    return -1;
-    }
-  
-  int minv = this->Internals->Heap[ 1 ];
-  this->Internals->HeapIndices[ minv ] = -1;
-  
-  this->Internals->Heap[ 1 ] = this->Internals->Heap[ this->HeapSize ];
-  this->Internals->HeapIndices[ this->Internals->Heap[1] ]= 1;
-  
-  this->HeapSize--;
-  this->Heapify( 1 );
-  
-  return minv;
-}
-
-//----------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::HeapDecreaseKey(const int& v)
-{
-  // where in Heap is vertex v
-  int i = this->Internals->HeapIndices[ v ];
-  if ( i < 1 || i > static_cast<int>(this->HeapSize) )
-    {
-    return;
-    }
-  
-  while ( i > 1 &&
-          this->Internals->CumulativeWeights[ this->Internals->Heap[ i/2 ] ] >
-          this->Internals->CumulativeWeights[ v ] )
-    {
-    this->Internals->Heap[ i ] = this->Internals->Heap[i/2];
-    this->Internals->HeapIndices[ this->Internals->Heap[i] ] = i;
-    i /= 2;
-    }
-  
-  // Heap and HeapIndices are kinda inverses
-  this->Internals->Heap[ i ] = v;
-  this->Internals->HeapIndices[ v ] = i;
 }
 
 //----------------------------------------------------------------------------
@@ -523,5 +402,7 @@ void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Off\n";
     }
+  os << indent << "RepelVertices: " << this->RepelVertices << endl;
+  os << indent << "IdList: " << this->IdList << endl;
   os << indent << "Number of vertices in input data: " << this->NumberOfVertices << endl;
 }
