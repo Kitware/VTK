@@ -51,7 +51,7 @@ int main(int, char*[])
   tree->CheckedShallowCopy(graph);
   
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  view->AddRepresentationFromInput(tree);
+  view->SetRepresentationFromInput(tree);
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   theme->Delete();

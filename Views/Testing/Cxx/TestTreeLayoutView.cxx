@@ -987,7 +987,7 @@ int TestTreeLayoutView(int argc, char* argv[])
   view->SetAngle(360);
   view->SetLogSpacingValue(1.0);
   view->SetupRenderWindow(win);
-  view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
+  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
   view->GetRepresentation()->SetSelectionLink(link);
   view->Update();
   updater->AddView(view);
@@ -1034,7 +1034,7 @@ int TestTreeLayoutView(int argc, char* argv[])
     view2->SetLabelArrayName("name");
     view2->SetHoverArrayName("name");
     view2->SetupRenderWindow(win2);
-    view2->AddRepresentationFromInputConnection(reader->GetOutputPort());
+    view2->SetRepresentationFromInputConnection(reader->GetOutputPort());
     view2->GetRepresentation()->SetSelectionLink(link);
     view2->Update();
     updater->AddView(view2);
@@ -1047,7 +1047,7 @@ int TestTreeLayoutView(int argc, char* argv[])
     view4->SetVertexLabelArrayName("name");
     view4->VertexLabelVisibilityOn();
     view4->SetupRenderWindow(win4);
-    view4->AddRepresentationFromInputConnection(reader->GetOutputPort());
+    view4->SetRepresentationFromInputConnection(reader->GetOutputPort());
     view4->GetRepresentation()->SetSelectionLink(link);
     view4->Update();
     updater->AddView(view4);

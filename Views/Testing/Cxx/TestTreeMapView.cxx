@@ -1169,7 +1169,7 @@ int TestTreeMapView(int argc, char* argv[])
   view->SetHoverArrayName("name");
   view->SetLayoutStrategyToSquarify();
   view->SetupRenderWindow(win);
-  view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
+  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
   
   // record events
   VTK_CREATE(vtkInteractorEventRecorder, recorder);

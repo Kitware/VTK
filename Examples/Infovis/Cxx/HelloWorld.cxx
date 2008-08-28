@@ -26,7 +26,7 @@ int main(int, char*[])
   vtkRandomGraphSource* source = vtkRandomGraphSource::New();
   
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  view->AddRepresentationFromInputConnection(
+  view->SetRepresentationFromInputConnection(
     source->GetOutputPort());
   
   vtkRenderWindow* window = vtkRenderWindow::New();

@@ -75,7 +75,7 @@ public:
 };
   
 
-vtkCxxRevisionMacro(vtkView, "1.9");
+vtkCxxRevisionMacro(vtkView, "1.10");
 vtkStandardNewMacro(vtkView);
 vtkCxxSetObjectMacro(vtkView, SelectionArrayNames, vtkStringArray);
 //----------------------------------------------------------------------------
@@ -214,9 +214,6 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorith
 {
   vtkDataRepresentation* rep = vtkDataRepresentation::New();
   rep->SetInputConnection(conn);
-
-//NOTE TO JS: Need to remove this next call after testing new functionality.  (I'm leaving it here to preserve current functionality during testing, but this is not correct for the function call being made...)
-  this->RemoveAllRepresentations();
 
   this->AddRepresentation(rep);
   rep->Delete();

@@ -83,7 +83,7 @@ int main(int, char*[])
   
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep =
-    view->AddRepresentationFromInput(tree);  
+    view->SetRepresentationFromInput(tree);  
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   view->SetVertexColorArrayName("VertexDegree");
@@ -95,7 +95,7 @@ int main(int, char*[])
 
   vtkTreeLayoutView* view2 = vtkTreeLayoutView::New();
   vtkDataRepresentation* rep2 =
-    view2->AddRepresentationFromInput(tree);
+    view2->SetRepresentationFromInput(tree);
   view2->SetLabelArrayName("Label");
   view2->SetLabelVisibility(true);
   vtkRenderWindow* window2 = vtkRenderWindow::New();

@@ -1125,7 +1125,7 @@ int TestGraphLayoutView(int argc, char* argv[])
   view->SetEdgeLabelArrayName("edge label");
   view->EdgeLabelVisibilityOn();
   view->SetupRenderWindow(win);
-  view->AddRepresentationFromInputConnection(numeric->GetOutputPort());
+  view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
 
   view->GetRenderer()->ResetCamera();
   view->Update();
