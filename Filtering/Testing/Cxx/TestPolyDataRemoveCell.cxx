@@ -77,6 +77,7 @@ int TestPolyDataRemoveCell(int , char *[])
     cellTypes->SetValue(i, poly->GetCellType(i));
     }
   poly->GetCellData()->AddArray(cellTypes);
+  cellTypes->Delete();
 
   vtkIdTypeArray* cellPoints = vtkIdTypeArray::New();
   const char cpName[] = "cell points";
