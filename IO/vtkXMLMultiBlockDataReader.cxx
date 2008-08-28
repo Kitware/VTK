@@ -23,7 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLMultiBlockDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLMultiBlockDataReader, "1.6");
 vtkStandardNewMacro(vtkXMLMultiBlockDataReader);
 
 //----------------------------------------------------------------------------
@@ -185,6 +185,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       mblock->SetBlock(index, childDS);
+      childDS->Delete();
       }
     else
       {
