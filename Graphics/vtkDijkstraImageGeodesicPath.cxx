@@ -27,7 +27,7 @@
 
 #include "vtkDijkstraGraphInternals.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.6");
+vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.7");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -45,8 +45,9 @@ vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath()
 }
 
 //----------------------------------------------------------------------------
-void vtkDijkstraImageGeodesicPath::SetCostImage( vtkImageData *image )
+void vtkDijkstraImageGeodesicPath::SetInput( vtkDataObject *input )
 {
+  vtkImageData* image = vtkImageData::SafeDownCast( input );
   if ( !image )
     {
     return;
@@ -72,11 +73,11 @@ void vtkDijkstraImageGeodesicPath::SetCostImage( vtkImageData *image )
 
   double* spacing = image->GetSpacing();
   this->PixelSize = sqrt(spacing[u[0]]*spacing[u[0]] + spacing[u[1]]*spacing[u[1]]);
-  this->SetInput( image );
+  this->Superclass::SetInput( image );
 }
 
 //----------------------------------------------------------------------------
-vtkImageData* vtkDijkstraImageGeodesicPath::GetCostImage()
+vtkImageData* vtkDijkstraImageGeodesicPath::GetInputAsImageData()
 {
   if ( this->GetNumberOfInputConnections( 0 ) < 1 )
     {
@@ -258,5 +259,4 @@ void vtkDijkstraImageGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageWeight: " << this->ImageWeight << endl;
   os << indent << "EdgeLengthWeight: " << this->EdgeLengthWeight << endl;
   os << indent << "CurvatureWeight: " << this->CurvatureWeight << endl;
-  os << indent << "CostImage: " << this->GetCostImage() << endl;
 }

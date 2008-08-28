@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.3");
+vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.4");
 vtkStandardNewMacro(vtkDijkstraImageContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -57,7 +57,7 @@ void vtkDijkstraImageContourLineInterpolator::SetCostImage( vtkImageData *arg )
   this->CostImage = arg;
   if ( this->CostImage )
     {
-    this->DijkstraImageGeodesicPath->SetCostImage( this->CostImage );
+    this->DijkstraImageGeodesicPath->SetInput( this->CostImage );
     }
 }
 
@@ -82,7 +82,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
       {
       return 1;
       }
-    this->DijkstraImageGeodesicPath->SetCostImage( this->CostImage );
+    this->DijkstraImageGeodesicPath->SetInput( this->CostImage );
     }
 
   double p1[3], p2[3];
