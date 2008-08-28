@@ -49,7 +49,7 @@ public:
   vtkstd::vector<int> HeapIndices;
 
   // Adjacency representation.
-  vtkstd::vector<vtkstd::map<int,double>> Adjacency;
+  vtkstd::vector< vtkstd::map< int,double > > Adjacency;
 
   // Path repelling by assigning high costs to flagged vertices.
   vtkstd::vector<bool> BlockedVertices;
