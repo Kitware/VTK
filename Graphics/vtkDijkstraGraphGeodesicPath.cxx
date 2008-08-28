@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.9");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.10");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath,RepelVertices,vtkPoints);
 
@@ -127,16 +127,19 @@ void vtkDijkstraGraphGeodesicPath::Initialize( vtkDataSet *inData )
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Reset()
 {
-  vtkstd::fill( this->Internals->CumulativeWeights.begin(), 
+  vtkstd::fill( this->Internals->CumulativeWeights.begin(),
     this->Internals->CumulativeWeights.end(), -1.0 );
-  vtkstd::fill( this->Internals->Predecessors.begin(), 
+  vtkstd::fill( this->Internals->Predecessors.begin(),
     this->Internals->Predecessors.end(), -1 );
-  vtkstd::fill( this->Internals->OpenVertices.begin(), 
+  vtkstd::fill( this->Internals->OpenVertices.begin(),
     this->Internals->OpenVertices.end(), false );
-  vtkstd::fill( this->Internals->ClosedVertices.begin(), 
+  vtkstd::fill( this->Internals->ClosedVertices.begin(),
     this->Internals->ClosedVertices.end(), false );
-  vtkstd::fill( this->Internals->BlockedVertices.begin(), 
-    this->Internals->BlockedVertices.end(), false );
+  if( this->RepelPathFromVertices )
+    {
+    vtkstd::fill( this->Internals->BlockedVertices.begin(),
+      this->Internals->BlockedVertices.end(), false );
+    }
 
   this->IdList->Reset();
   this->HeapSize = 0;
@@ -277,7 +280,7 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
 }
 
 //----------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Relax(int u, int v, double w)
+void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const double& w)
 {
   double du = this->Internals->CumulativeWeights[u] + w;
   if (this->Internals->CumulativeWeights[v] > du)
@@ -371,7 +374,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
 }
 
 //----------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Heapify(int i)
+void vtkDijkstraGraphGeodesicPath::Heapify(const int& i)
 {
   // left node
   unsigned int l = i * 2;
@@ -421,7 +424,7 @@ void vtkDijkstraGraphGeodesicPath::Heapify(int i)
 //----------------------------------------------------------------------------
 // Insert vertex v. Weight is given in CumulativeWeights(v)
 // Heap has indices 1..n
-void vtkDijkstraGraphGeodesicPath::HeapInsert(int v)
+void vtkDijkstraGraphGeodesicPath::HeapInsert(const int& v)
 {
   if ( this->HeapSize >= (this->Internals->Heap.size() - 1) )
     {
@@ -432,7 +435,8 @@ void vtkDijkstraGraphGeodesicPath::HeapInsert(int v)
   int i = this->HeapSize;
   
   while ( i > 1 && 
-         ( this->Internals->CumulativeWeights[ this->Internals->Heap[i/2] ] > this->Internals->CumulativeWeights[v] ) )
+          this->Internals->CumulativeWeights[ this->Internals->Heap[i/2] ] > 
+          this->Internals->CumulativeWeights[v] )
     {
     this->Internals->Heap[ i ] = this->Internals->Heap[i/2];
     this->Internals->HeapIndices[ this->Internals->Heap[i] ] = i;
@@ -464,7 +468,7 @@ int vtkDijkstraGraphGeodesicPath::HeapExtractMin()
 }
 
 //----------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::HeapDecreaseKey(int v)
+void vtkDijkstraGraphGeodesicPath::HeapDecreaseKey(const int& v)
 {
   // where in Heap is vertex v
   int i = this->Internals->HeapIndices[ v ];
@@ -473,8 +477,9 @@ void vtkDijkstraGraphGeodesicPath::HeapDecreaseKey(int v)
     return;
     }
   
-  while ( i > 1 && 
-          this->Internals->CumulativeWeights[ this->Internals->Heap[ i/2 ] ] > this->Internals->CumulativeWeights[ v ] )
+  while ( i > 1 &&
+          this->Internals->CumulativeWeights[ this->Internals->Heap[ i/2 ] ] >
+          this->Internals->CumulativeWeights[ v ] )
     {
     this->Internals->Heap[ i ] = this->Internals->Heap[i/2];
     this->Internals->HeapIndices[ this->Internals->Heap[i] ] = i;
