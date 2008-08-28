@@ -110,20 +110,6 @@ protected:
 
   void Reset();
 
-  unsigned int HeapSize;
-
-  // Structure the heap.
-  void Heapify(const int& i);
-  
-  // insert vertex v in heap. Weight is in Internals->CumulativeWeights(v).
-  void HeapInsert(const int& v);
-  
-  // Extract vertex with min Internals->CumulativeWeights(v).
-  int HeapExtractMin();
-  
-  // Update heap when key Internals->CumulativeWeights(v) has been decreased.
-  void HeapDecreaseKey(const int& v);
-
   // Calculate shortest path from vertex startv to vertex endv.
   virtual void ShortestPath( vtkDataSet *inData, int startv, int endv );
   
