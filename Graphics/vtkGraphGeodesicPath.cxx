@@ -19,11 +19,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkGraphGeodesicPath, "1.2");
+vtkCxxRevisionMacro(vtkGraphGeodesicPath, "1.3");
 
 //-----------------------------------------------------------------------------
 vtkGraphGeodesicPath::vtkGraphGeodesicPath()
 {
+  this->StartVertex = 0;
+  this->EndVertex   = 0;
 }
 
 //-----------------------------------------------------------------------------
