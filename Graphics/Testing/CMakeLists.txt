@@ -14,6 +14,7 @@ IF(PYTHON_EXECUTABLE)
     "${VTK_SOURCE_DIR}/Graphics"
     VTK_GRAPHICS_EXPORT
     vtkButterflySubdivisionFilter.h
+    vtkDijkstraGraphInternals.h
     vtkLinearSubdivisionFilter.h
     vtkLoopSubdivisionFilter.h
     vtkOutlineFilter.h
