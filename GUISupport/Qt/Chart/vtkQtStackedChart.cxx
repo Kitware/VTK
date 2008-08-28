@@ -365,7 +365,7 @@ void vtkQtStackedChart::layoutChart(const QRectF &area)
               center, bounds.bottom());
           QColor color = options->getBrush().color();
           gradient.setColorAt(0.0, color);
-          gradient.setColorAt(1.0, color.darker());
+          gradient.setColorAt(1.0, color.dark());
           polygon->setBrush(QBrush(gradient));
           }
         }
@@ -973,7 +973,7 @@ void vtkQtStackedChart::layoutHighlights()
               center, bounds.bottom());
           QColor color = options->getBrush().color();
           gradient.setColorAt(0.0, color);
-          gradient.setColorAt(1.0, color.darker());
+          gradient.setColorAt(1.0, color.dark());
           (*iter)->Polygon->setBrush(QBrush(gradient));
           }
         else
