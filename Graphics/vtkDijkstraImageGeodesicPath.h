@@ -72,12 +72,12 @@ public:
   vtkImageData* GetCostImage();
 
   // Description:
-  // Image cost weight.  
+  // Image cost weight.
   vtkSetClampMacro( ImageWeight, double, 0.0, 1.0 );
   vtkGetMacro( ImageWeight, double );
 
   // Description:
-  // Edge length cost weight.  
+  // Edge length cost weight.
   vtkSetClampMacro( EdgeLengthWeight, double, 0.0, 1.0 );
   vtkGetMacro( EdgeLengthWeight, double );
 
@@ -97,10 +97,9 @@ protected:
   // Build a graph description of the mesh
   virtual void BuildAdjacency( vtkDataSet *inData );
 
-  // The cost going from vertex u to v
-  // TODO: should be implemented as a user supplied
-  // callback function
-  virtual double CalculateEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v);
+  // Override parent class methods.
+  virtual double CalculateStaticEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v);
+  virtual double CalculateDynamicEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v);
 
   double PixelSize;
   double ImageWeight;

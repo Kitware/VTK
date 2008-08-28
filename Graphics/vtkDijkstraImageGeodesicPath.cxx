@@ -25,7 +25,9 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.5");
+#include "vtkDijkstraGraphInternals.h"
+
+vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.6");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -35,8 +37,6 @@ vtkDijkstraImageGeodesicPath::vtkDijkstraImageGeodesicPath()
   this->ImageWeight = 1.0;
   this->EdgeLengthWeight = 0.0;
   this->CurvatureWeight = 0.0;
-
-  this->SetNumberOfInputPorts( 2 );
 }
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath()
 //----------------------------------------------------------------------------
 void vtkDijkstraImageGeodesicPath::SetCostImage( vtkImageData *image )
 {
-  if ( !image ) 
+  if ( !image )
     {
     return;
     }
@@ -72,18 +72,18 @@ void vtkDijkstraImageGeodesicPath::SetCostImage( vtkImageData *image )
 
   double* spacing = image->GetSpacing();
   this->PixelSize = sqrt(spacing[u[0]]*spacing[u[0]] + spacing[u[1]]*spacing[u[1]]);
-  this->SetInput( 1, image );
+  this->SetInput( image );
 }
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkDijkstraImageGeodesicPath::GetCostImage()
 {
-  if ( this->GetNumberOfInputConnections( 1 ) < 1 )
+  if ( this->GetNumberOfInputConnections( 0 ) < 1 )
     {
     return NULL;
     }
   return vtkImageData::SafeDownCast(
-    this->GetExecutive()->GetInputData( 1, 0 ));
+    this->GetExecutive()->GetInputData( 0, 0 ));
 }
 
 //----------------------------------------------------------------------------
@@ -92,12 +92,7 @@ int vtkDijkstraImageGeodesicPath::FillInputPortInformation( int port,
 {
   if ( port == 0 )
     {
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData" );
-    return 1;
-    }
-  else if ( port == 1 )
-    {
-    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData" );    
+    info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData" );
     return 1;
     }
 
@@ -108,29 +103,21 @@ int vtkDijkstraImageGeodesicPath::FillInputPortInformation( int port,
 int vtkDijkstraImageGeodesicPath::RequestData( vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector ) 
 {
-  vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
-  vtkPolyData* poly = 
-    vtkPolyData::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
-  
-  if ( !poly ) 
-    {
-    return 0;
-    }
+  vtkInformation* costInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo  = outputVector->GetInformationObject(0);
 
-  vtkInformation* costInfo = inputVector[1]->GetInformationObject(0);
   vtkImageData* image = 
     vtkImageData::SafeDownCast( costInfo->Get(vtkDataObject::DATA_OBJECT()) );    
   
-  if ( !image ) 
+  if ( !image )
     {
     return 0;
     }
 
-  vtkInformation* outInfo  = outputVector->GetInformationObject(0);
   vtkPolyData* output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if ( !output ) 
+  if ( !output )
     {
     return 0;
     }
@@ -151,9 +138,7 @@ int vtkDijkstraImageGeodesicPath::RequestData( vtkInformation* vtkNotUsed( reque
 }
 
 //----------------------------------------------------------------------------
-// The edge cost function should be implemented as a callback function to
-// allow more advanced weighting
-double vtkDijkstraImageGeodesicPath::CalculateEdgeCost(
+double vtkDijkstraImageGeodesicPath::CalculateStaticEdgeCost(
      vtkDataSet *inData, vtkIdType u, vtkIdType v)
 {
   vtkImageData *image = vtkImageData::SafeDownCast(inData);
@@ -175,25 +160,44 @@ double vtkDijkstraImageGeodesicPath::CalculateEdgeCost(
 
   if ( this->EdgeLengthWeight != 0.0 )
     {
-    cost += this->EdgeLengthWeight*( sqrt( vtkMath::Distance2BetweenPoints( p1, p2 ) )/this->PixelSize );
+    cost += this->EdgeLengthWeight*( sqrt( 
+      vtkMath::Distance2BetweenPoints( p1, p2 ) )/this->PixelSize );
     }
+
+  return cost;
+}
+
+//----------------------------------------------------------------------------
+double vtkDijkstraImageGeodesicPath::CalculateDynamicEdgeCost(
+     vtkDataSet *inData, vtkIdType u, vtkIdType v)
+{
+  double cost = 0.0;
 
   if ( this->CurvatureWeight != 0.0 )
     {
-    int t = this->pre->GetValue( u );
-    double p0[3];
-    image->GetPoint( t, p0 );
-   
-    double p10[3] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
-    double p21[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+    int t = this->Internals->Predecessors[u];
+    if( t != -1 )
+      {
+      vtkImageData *image = vtkImageData::SafeDownCast(inData);
 
-    vtkMath::Normalize( p10 );
-    vtkMath::Normalize( p21 );
+      double p0[3];
+      image->GetPoint( t, p0 );
+      double p1[3];
+      image->GetPoint( u, p1 );
+      double p2[3];
+      image->GetPoint( v, p2 );
+   
+      double p10[3] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
+      double p21[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+
+      vtkMath::Normalize( p10 );
+      vtkMath::Normalize( p21 );
     
-    // the range of dot product of two unit vectors is [-1, 1] so normalize
-    // the maximum curvature from 2 to 1
-    cost += this->CurvatureWeight*( 0.5*fabs( vtkMath::Dot( p10, p21 ) - 1.0 ) );
-    }  
+      // the range of dot product of two unit vectors is [-1, 1] so normalize
+      // the maximum curvature from 2 to 1
+      cost = this->CurvatureWeight*( 0.5*fabs( vtkMath::Dot( p10, p21 ) - 1.0 ) );
+      }
+    }
 
   return cost;
 }
@@ -204,60 +208,44 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
 {
   vtkImageData *image = vtkImageData::SafeDownCast(inData);
 
-  int i;
-  
-  int npoints = image->GetNumberOfPoints();
   int ncells = image->GetNumberOfCells();
-  
-  this->DeleteAdjacency();
-  
-  this->Adjacency = new vtkIdList*[npoints];
-
-  // Remember size, so it can be deleted again
-  this->AdjacencyGraphSize = npoints;
-
-  for ( i = 0; i < npoints; ++i )
-    {
-    this->Adjacency[i] = vtkIdList::New();
-    }
 
   // optimized for cell type VTK_PIXEL
   //
   vtkIdList *ptIds = vtkIdList::New();
+  vtkstd::pair<vtkstd::map<int,double>::iterator,bool> ret;
 
-  for ( i = 0; i < ncells; ++i )
+  vtkIdType uId[6] = {0,1,2,3,0,1};
+  vtkIdType vId[6] = {1,2,3,0,2,3};
+  float cost;
+  vtkIdType u, v;
+
+  for ( int i = 0; i < ncells; ++i )
     {    
     image->GetCellPoints ( i, ptIds );
 
-    // around the cell adjancency
-    vtkIdType u = ptIds->GetId( 0 );
-    vtkIdType v = ptIds->GetId( 3 );
-
-    this->Adjacency[u]->InsertUniqueId( v );
-    this->Adjacency[v]->InsertUniqueId( u );
-    for ( int j = 0; j < 3; ++j )
+    for( int j = 0; j < 6; ++j )
       {
-      vtkIdType u1 = ptIds->GetId( j );
-      vtkIdType v1 = ptIds->GetId( j+1 );
-      this->Adjacency[u1]->InsertUniqueId( v1 );
-      this->Adjacency[v1]->InsertUniqueId( u1 );
-      }    
+      u = ptIds->GetId( vId[j] );
+      v = ptIds->GetId( uId[j] );
 
-    // diagonal adjacency
-    u = ptIds->GetId( 0 );
-    v = ptIds->GetId( 2 );
-
-    this->Adjacency[u]->InsertUniqueId( v );
-    this->Adjacency[v]->InsertUniqueId( u );
-
-    u = ptIds->GetId( 1 );
-    v = ptIds->GetId( 3 );
-
-    this->Adjacency[u]->InsertUniqueId( v );
-    this->Adjacency[v]->InsertUniqueId( u );
+      cost = this->CalculateStaticEdgeCost( image, u, v );
+      ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( v, cost ) );
+      if ( !ret.second )
+        {
+        this->Internals->Adjacency[u][v] = cost;
+        }
+      
+      cost = this->CalculateStaticEdgeCost( image, v, u );
+      ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( u, cost ) );
+      if ( !ret.second )
+        {
+        this->Internals->Adjacency[v][u] = cost;
+        }
+      }
     }
 
-  ptIds->Delete();  
+  ptIds->Delete();
 
   this->AdjacencyBuildTime.Modified();
 }
@@ -267,8 +255,8 @@ void vtkDijkstraImageGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "ImageWeight: " << this->ImageWeight;
-  os << indent << "EdgeLengthWeight: " << this->EdgeLengthWeight;
-  os << indent << "CurvatureWeight: " << this->CurvatureWeight;
-  os << indent << "CostImage: " << this->GetCostImage();
+  os << indent << "ImageWeight: " << this->ImageWeight << endl;
+  os << indent << "EdgeLengthWeight: " << this->EdgeLengthWeight << endl;
+  os << indent << "CurvatureWeight: " << this->CurvatureWeight << endl;
+  os << indent << "CostImage: " << this->GetCostImage() << endl;
 }

@@ -37,11 +37,8 @@
 
 #include "vtkGraphGeodesicPath.h"
 
-class vtkDoubleArray;
-class vtkIntArray;
+class vtkDijkstraGraphInternals;
 class vtkIdList;
-class vtkFloatArray;
-class vtkUnsignedCharArray;
 
 class VTK_GRAPHICS_EXPORT vtkDijkstraGraphGeodesicPath :
                            public vtkGraphGeodesicPath
@@ -61,10 +58,6 @@ public:
   // The vertex ids (of the input polydata) on the shortest path
   vtkGetObjectMacro(IdList, vtkIdList);
   
-  // Description:
-  // Get the summed weight for all vertices
-  vtkGetObjectMacro(d, vtkFloatArray);
-  
   // Description: 
   // Stop when the end vertex is reached 
   // or calculate shortest path to all vertices
@@ -79,6 +72,17 @@ public:
   vtkBooleanMacro(UseScalarWeights, int);
 
   // Description:
+  // Use the input point to repel the path by assigning high costs.
+  vtkSetMacro(RepelPathFromVertices, int);
+  vtkGetMacro(RepelPathFromVertices, int);
+  vtkBooleanMacro(RepelPathFromVertices, int);
+
+  // Description:
+  // Specify vtkPoints to use to repel the path from.
+  virtual void SetRepelVertices(vtkPoints*);
+  vtkGetObjectMacro(RepelVertices, vtkPoints);
+
+  // Description:
   // TODO: Get the total geodesic length.
   virtual double GetGeodesicLength() { return 0.0; }
 
@@ -89,86 +93,61 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, 
                           vtkInformationVector *);
 
-  // Build a graph description of the mesh
+  // Build a graph description of the input.
   virtual void BuildAdjacency( vtkDataSet *inData );
-
-  void DeleteAdjacency();
 
   vtkTimeStamp AdjacencyBuildTime;
   
-  // The cost going from vertex u to v
-  // TODO: should be implemented as a user supplied
-  // callback function
-  virtual double CalculateEdgeCost( vtkDataSet *inData, vtkIdType u, vtkIdType v);
+  // The fixed cost going from vertex u to v.
+  virtual double CalculateStaticEdgeCost( vtkDataSet *inData, vtkIdType u, vtkIdType v);
+
+  // The cost going from vertex u to v that may depend on one or more vertices
+  //that precede u.
+  virtual double CalculateDynamicEdgeCost( vtkDataSet *, vtkIdType , vtkIdType )
+  { return 0.0; }
 
   void Initialize( vtkDataSet *inData );
 
   void Reset();
 
-  // structure the heap
+  unsigned int HeapSize;
+
+  // Structure the heap.
   void Heapify(int i);
   
-  // insert vertex v in heap. Weight is in d(v)
+  // insert vertex v in heap. Weight is in Internals->CumulativeWeights(v).
   void HeapInsert(int v);
   
-  // extract vertex with min d(v)
+  // Extract vertex with min Internals->CumulativeWeights(v).
   int HeapExtractMin();
   
-  // Update heap when key d(v) has been decreased
+  // Update heap when key Internals->CumulativeWeights(v) has been decreased.
   void HeapDecreaseKey(int v);
+
+  // Calculate shortest path from vertex startv to vertex endv.
+  virtual void ShortestPath( vtkDataSet *inData, int startv, int endv );
   
-  void InitSingleSource(int startv);
-  
-  // Calculate shortest path from vertex startv to vertex endv
-  void ShortestPath( vtkDataSet *inData, int startv, int endv);
-  
-  // Relax edge u,v with weight w
+  // Relax edge u,v with weight w.
   void Relax(int u, int v, double w);
 
   // Backtrace the shortest path
-  void TraceShortestPath( vtkDataSet* inData, vtkPolyData* inPoly,
+  void TraceShortestPath( vtkDataSet* inData, vtkPolyData* outPoly,
                vtkIdType startv, vtkIdType endv);
   
-  // the number of vertices
+  // The number of vertices.
   int NumberOfVertices;
   
-  // d(v) current summed weight for path to vertex v
-  vtkFloatArray *d;
-  
-  // pre(v) predecessor of v
-  vtkIntArray *pre;
-  
-  // f is the set of vertices wich has not a shortest path yet but has a path
-  // ie. the front set (f(v) == 1 means that vertex v is in f).
-  // f is a boolean (1/0) array.
-  vtkUnsignedCharArray *f;
-  
-  // s is the set of vertices with already determined shortest path
-  // s(v) == 1 means that vertex v is in s.
-  // s is a boolean (1/0) array.
-  vtkUnsignedCharArray *s;
-  
-  // the priority que (a binary heap) with vertex indices
-  vtkIntArray *Heap;
-  
-  // The real number of elements in H != H.size()
-  int HeapSize;
-  
-  // p(v) the position of v in H (p and H are kind of inverses)
-  vtkIntArray *p;
-  
-  // The vertex ids on the shortest path
+  // The vertex ids on the shortest path.
   vtkIdList *IdList;
   
-  // Adjacency representation
-  vtkIdList **Adjacency;
+  //Internalized STL containers.
+  vtkDijkstraGraphInternals *Internals;
   
   int StopWhenEndReached;
-  
   int UseScalarWeights;
+  int RepelPathFromVertices;
 
-  // Used to remember the size of the graph. If the filter is re-used.
-  int AdjacencyGraphSize;
+  vtkPoints* RepelVertices;
 
 private:
   vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&);  // Not implemented.

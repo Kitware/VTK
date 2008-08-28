@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.2");
+vtkCxxRevisionMacro(vtkDijkstraImageContourLineInterpolator,"1.3");
 vtkStandardNewMacro(vtkDijkstraImageContourLineInterpolator);
 
 //----------------------------------------------------------------------
@@ -59,7 +59,7 @@ void vtkDijkstraImageContourLineInterpolator::SetCostImage( vtkImageData *arg )
     {
     this->DijkstraImageGeodesicPath->SetCostImage( this->CostImage );
     }
-}    
+}
 
 //----------------------------------------------------------------------
 int vtkDijkstraImageContourLineInterpolator::InterpolateLine( 
@@ -75,14 +75,14 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
     }
 
   // if the user didn't set the image, try to get it from the actor
-  if ( !this->CostImage ) 
+  if ( !this->CostImage )
     {
     vtkImageActor* actor = placer->GetImageActor();
     if ( !actor || !(this->CostImage = actor->GetInput()) )
       {
       return 1;
-      }    
-    this->DijkstraImageGeodesicPath->SetCostImage( this->CostImage );  
+      }
+    this->DijkstraImageGeodesicPath->SetCostImage( this->CostImage );
     }
 
   double p1[3], p2[3];
@@ -98,13 +98,28 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
     return 0;
     }
 
-  // In some implementations, a vtkPolyData is not necessary for the
-  // interpolator, but is still required for the filter.
-  if ( !this->DijkstraImageGeodesicPath->GetInput() )
+  int nnodes = rep->GetNumberOfNodes();
+
+  if ( this->DijkstraImageGeodesicPath->GetRepelPathFromVertices() && nnodes > 2 )
     {
-    vtkPolyData* dummy = vtkPolyData::New();
-    this->DijkstraImageGeodesicPath->SetInput(dummy);
-    dummy->Delete();
+    vtkPoints* verts = vtkPoints::New();
+    double pt[3];
+    for( int i = 0; i < nnodes; ++i )
+      {
+      if( i == idx1 ) continue;
+
+      for( int j = 0; j < rep->GetNumberOfIntermediatePoints( i ); ++j )
+        {
+          rep->GetIntermediatePointWorldPosition( i, j, pt );
+          verts->InsertNextPoint( pt );
+        }
+      }
+    this->DijkstraImageGeodesicPath->SetRepelVertices( verts );
+    verts->Delete();
+    }
+  else
+    {
+    this->DijkstraImageGeodesicPath->SetRepelVertices( NULL );
     }
 
   this->DijkstraImageGeodesicPath->SetStartVertex( endVertId );
