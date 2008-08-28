@@ -39,9 +39,29 @@ SimpleView::SimpleView(QWidget* parent)
 {
   // QT/VTK interact
   ren = vtkRenderer::New();
+  source = NULL;
+  mapper = NULL;
+  actor = NULL;
   vtkWidget->GetRenderWindow()->AddRenderer(ren);
 
-};
+}
+
+SimpleView::~SimpleView()
+{
+  ren->Delete();
+  if( mapper )
+    {
+    mapper->Delete();
+    }
+  if( actor )
+    {
+    actor->Delete();
+    }
+  if( source )
+    {
+    source->Delete();
+    }
+}
    
 // Action to be taken upon file open 
 void SimpleView::fileOpen()
