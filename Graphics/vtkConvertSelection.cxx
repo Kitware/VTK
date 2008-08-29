@@ -43,6 +43,7 @@
 #include "vtkVariantArray.h"
 
 #include <vtkstd/algorithm>
+#include <vtkstd/iterator>
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
@@ -51,7 +52,7 @@
 
 vtkCxxSetObjectMacro(vtkConvertSelection, ArrayNames, vtkStringArray);
 
-vtkCxxRevisionMacro(vtkConvertSelection, "1.13");
+vtkCxxRevisionMacro(vtkConvertSelection, "1.13.2.1");
 vtkStandardNewMacro(vtkConvertSelection);
 //----------------------------------------------------------------------------
 vtkConvertSelection::vtkConvertSelection()
