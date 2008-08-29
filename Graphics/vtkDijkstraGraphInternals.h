@@ -48,20 +48,18 @@ public:
   // OpenVertices is the set of vertices wich has not a shortest path yet but has a path.
   // OpenVertices(v) == 1 means that vertex v is in OpenVertices.
   // OpenVertices is a boolean (1/0) array.
-  vtkstd::vector<bool> OpenVertices;
+  vtkstd::vector<unsigned char> OpenVertices;
   
   // ClosedVertices is the set of vertices with already determined shortest path
   // ClosedVertices(v) == 1 means that vertex v is in ClosedVertices.
   // ClosedVertices is a boolean (1/0) array.
-  vtkstd::vector<bool> ClosedVertices;
-  
-
+  vtkstd::vector<unsigned char> ClosedVertices;
 
   // Adjacency representation.
   vtkstd::vector< vtkstd::map< int,double > > Adjacency;
 
   // Path repelling by assigning high costs to flagged vertices.
-  vtkstd::vector<bool> BlockedVertices;
+  vtkstd::vector<unsigned char> BlockedVertices;
 
 
   void Heapify(const int& i)
