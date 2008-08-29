@@ -24,6 +24,7 @@
 #define __vtkXMLCompositeDataWriter_h
 
 #include "vtkXMLWriter.h"
+#include "vtkStdString.h" // needed for vtkStdString.
 
 class vtkCallbackCommand;
 class vtkCompositeDataSet;
@@ -75,6 +76,9 @@ protected:
   // the files written by this new reader.
   virtual int GetDataSetMajorVersion() { return 1; }
   virtual int GetDataSetMinorVersion() { return 0; }
+
+  // Create a filename for the given index.
+  vtkStdString CreatePieceFileName(int index);
   
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -92,6 +96,8 @@ protected:
 
   vtkInformation* InputInformation;
 
+  // Description:
+  // Determine the data types for each of the leaf nodes.
   virtual void FillDataTypes(vtkCompositeDataSet*);
 
   unsigned int GetNumberOfDataTypes();
@@ -106,7 +112,10 @@ protected:
   const char* GetFilePrefix();
   const char* GetFilePath();
 
+  // Description:
   // Write the collection file if it is requested.
+  // This is overridden in parallel writers to comminitate the hierarchy to the
+  // root which then write the meta file.
   int WriteMetaFileIfRequested();
   
   // Make a directory.

@@ -48,14 +48,31 @@ protected:
   vtkXMLPMultiBlockDataWriter();
   ~vtkXMLPMultiBlockDataWriter();
 
-  
+  // Description:
+  // Determine the data types for each of the leaf nodes.
+  // In parallel, all satellites send the datatypes it has at all the leaf nodes
+  // to the root. The root uses this information to identify leaf nodes
+  // that are non-null on more than 1 processes. Such a node is a conflicting
+  // node and writer writes out an XML meta-file with a multipiece inserted at
+  // locations for such conflicting nodes.
   virtual void FillDataTypes(vtkCompositeDataSet*);
+
+  // Description:
+  // Overridden to do some extra workn the root node to handle the case where a
+  // leaf node in the multiblock hierarchy is non-null on more than 1 processes.
+  // In that case, we insert a MultiPiece node at that location with the
+  // non-null leaves as its children.
+  int WriteNonCompositeData(vtkDataObject* dObj, vtkXMLDataElement* datasetXML,
+    int &writerIdx);
 
   vtkMultiProcessController* Controller;
 
 private:
   vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&); // Not implemented.
   void operator=(const vtkXMLPMultiBlockDataWriter&); // Not implemented.
+
+  class vtkInternal;
+  vtkInternal* Internal;
 //ETX
 };
 

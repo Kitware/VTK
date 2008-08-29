@@ -53,7 +53,7 @@
 #include <vtkstd/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLCompositeDataWriter, "1.3");
 
 class vtkXMLCompositeDataWriterInternals
 {
@@ -62,7 +62,6 @@ public:
   vtkstd::string FilePath;
   vtkstd::string FilePrefix;
   vtkSmartPointer<vtkXMLDataElement> Root;
-  vtkstd::string CreatePieceFileName(int index);
   vtkstd::vector<int> DataTypes;
 };
 
@@ -147,9 +146,18 @@ void vtkXMLCompositeDataWriter::SetWriteMetaFile(int flag)
 //----------------------------------------------------------------------------
 int vtkXMLCompositeDataWriter::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 
+    this->NumberOfPieces);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->Piece);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
+    this->GhostLevel);
   return 1;
 }
 
@@ -225,7 +233,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
     for (int j = 0; j < writerIdx; j++)
       {
       vtkstd::string full = this->Internal->FilePath;
-      full += this->Internal->CreatePieceFileName(j);
+      full += this->CreatePieceFileName(j);
       vtksys::SystemTools::RemoveFile(full.c_str());
       }
     this->RemoveADirectory(subdir.c_str());
@@ -234,8 +242,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
     return 0;
     }
 
-  // Write the collection file if requested.
-  if(writeCollection)
+  if (writeCollection)
     {
     this->SetProgressRange(progressRange, this->GetNumberOfInputConnections(0),
                            this->GetNumberOfInputConnections(0)
@@ -280,10 +287,13 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(vtkDataObject* dObj,
     }
 
   // Set the file name.
-  vtkstd::string fname = this->Internal->CreatePieceFileName(myWriterIndex);
+  vtkstd::string fname = this->CreatePieceFileName(myWriterIndex);
 
-  // Create the entry for the collection file.
-  datasetXML->SetAttribute("file", fname.c_str());
+  if (datasetXML)
+    {
+    // Create the entry for the collection file.
+    datasetXML->SetAttribute("file", fname.c_str());
+    }
 
   // FIXME
   // this->SetProgressRange(progressRange, myWriterIndex,
@@ -340,9 +350,12 @@ int vtkXMLCompositeDataWriter::WriteMetaFileIfRequested()
     writeCollection = 1;
     }
   
-  if(writeCollection)
+  if (writeCollection)
     {
-    if(!this->Superclass::WriteInternal()) { return 0; }
+    if (!this->Superclass::WriteInternal()) 
+      { 
+      return 0; 
+      }
     }
   return 1;
 }
@@ -623,14 +636,24 @@ void vtkXMLCompositeDataWriter::ProgressCallback(vtkAlgorithm* w)
 }
 
 //----------------------------------------------------------------------------
-vtkstd::string vtkXMLCompositeDataWriterInternals::CreatePieceFileName(int index)
+vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
+  int index)
 {
   vtkstd::string fname;
   vtksys_ios::ostringstream fn_with_warning_C4701;
   fn_with_warning_C4701
-    << this->FilePrefix.c_str() << "/"
-    << this->FilePrefix.c_str() << "_" << index << "."
-    << this->Writers[index]->GetDefaultFileExtension();
+    << this->Internal->FilePrefix.c_str() << "/"
+    << this->Internal->FilePrefix.c_str();
+
+  if (this->NumberOfPieces > 1)
+    {
+    // put the piece number into the filename, which helps in uniquifying the
+    // name.
+    fn_with_warning_C4701 << "_" << this->Piece;
+    }
+
+  fn_with_warning_C4701 << "_" << index << "."
+    << this->Internal->Writers[index]->GetDefaultFileExtension();
   fname = fn_with_warning_C4701.str();
   return fname;
 }
