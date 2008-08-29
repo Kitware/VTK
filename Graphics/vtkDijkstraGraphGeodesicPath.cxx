@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.11");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.12");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath,RepelVertices,vtkPoints);
 
@@ -103,20 +103,17 @@ int vtkDijkstraGraphGeodesicPath::RequestData(
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Initialize( vtkDataSet *inData )
 {
-  if( this->NumberOfVertices != inData->GetNumberOfPoints() )
-    {
-    this->NumberOfVertices = inData->GetNumberOfPoints();
+  this->NumberOfVertices = inData->GetNumberOfPoints();
 
-    this->Internals->CumulativeWeights.resize( this->NumberOfVertices );
-    this->Internals->Predecessors.resize( this->NumberOfVertices );
-    this->Internals->OpenVertices.resize( this->NumberOfVertices );
-    this->Internals->ClosedVertices.resize( this->NumberOfVertices );
-    this->Internals->Adjacency.resize( this->NumberOfVertices );
-    this->Internals->BlockedVertices.resize( this->NumberOfVertices );
+  this->Internals->CumulativeWeights.resize( this->NumberOfVertices );
+  this->Internals->Predecessors.resize( this->NumberOfVertices );
+  this->Internals->OpenVertices.resize( this->NumberOfVertices );
+  this->Internals->ClosedVertices.resize( this->NumberOfVertices );
+  this->Internals->Adjacency.resize( this->NumberOfVertices );
+  this->Internals->BlockedVertices.resize( this->NumberOfVertices );
 
-    // The heap has elements from 1 to n
-    this->Internals->InitializeHeap( this->NumberOfVertices );
-    }
+  // The heap has elements from 1 to n
+  this->Internals->InitializeHeap( this->NumberOfVertices );
 
   this->Reset();
   this->BuildAdjacency( inData );
