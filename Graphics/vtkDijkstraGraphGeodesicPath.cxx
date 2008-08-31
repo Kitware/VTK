@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 
 
-vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.12");
+vtkCxxRevisionMacro(vtkDijkstraGraphGeodesicPath, "1.13");
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath,RepelVertices,vtkPoints);
 
@@ -109,6 +109,7 @@ void vtkDijkstraGraphGeodesicPath::Initialize( vtkDataSet *inData )
   this->Internals->Predecessors.resize( this->NumberOfVertices );
   this->Internals->OpenVertices.resize( this->NumberOfVertices );
   this->Internals->ClosedVertices.resize( this->NumberOfVertices );
+  this->Internals->Adjacency.clear( );
   this->Internals->Adjacency.resize( this->NumberOfVertices );
   this->Internals->BlockedVertices.resize( this->NumberOfVertices );
 
@@ -175,8 +176,6 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet *inData)
   vtkPolyData *pd = vtkPolyData::SafeDownCast( inData );
   int ncells = pd->GetNumberOfCells();
 
-  vtkstd::pair<vtkstd::map<int,double>::iterator,bool> ret;
-
   for ( int i = 0; i < ncells; i++)
     {
     // Possible types
@@ -193,40 +192,25 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet *inData)
       vtkIdType *pts;
       vtkIdType npts;
       pd->GetCellPoints(i, npts, pts);
-      
-      vtkIdType u = pts[0];
-      vtkIdType v = pts[npts-1];
-      
-      double cost = this->CalculateStaticEdgeCost( inData, u, v );
-      ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( v, cost ) );
-      if ( !ret.second )
-        {
-        this->Internals->Adjacency[u][v] = cost;
-        }
+      double cost;
 
-      cost = this->CalculateStaticEdgeCost( inData, v, u );
-      ret = this->Internals->Adjacency[v].insert( vtkstd::pair<int,double>( u, cost ) );
-      if ( !ret.second )
+      for (int j = 0; j < npts; ++j)
         {
-        this->Internals->Adjacency[v][u] = cost;
-        }
+        vtkIdType u = pts[j];
+        vtkIdType v = pts[(( j + 1 ) % npts)];
 
-      for (int j = 0; j < npts-1; j++)
-        {
-        u = pts[j];
-        v = pts[j+1];
-        cost = this->CalculateStaticEdgeCost( inData, u, v );
-        ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( v, cost ) );
-        if ( !ret.second )
+        vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
+        if ( mu.find(v) == mu.end() )
           {
-          this->Internals->Adjacency[u][v] = cost;
+          cost = this->CalculateStaticEdgeCost( inData, u, v );
+          mu.insert( vtkstd::pair<int,double>( v, cost ) );
           }
 
-        cost = this->CalculateStaticEdgeCost( inData, v, u );
-        ret = this->Internals->Adjacency[v].insert( vtkstd::pair<int,double>( u, cost ) );
-        if ( !ret.second )
+        vtkstd::map<int,double>& mv = this->Internals->Adjacency[v];
+        if ( mv.find(u) == mv.end() )
           {
-          this->Internals->Adjacency[v][u] = cost;
+          cost = this->CalculateStaticEdgeCost( inData, v, u );
+          mv.insert( vtkstd::pair<int,double>( u, cost ) );
           }
         }
       }
@@ -317,9 +301,9 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
   bool stop = false;
   while ((u = this->Internals->HeapExtractMin()) >= 0 && !stop)
     {
-    // u is now in s since the shortest path to u is determined
+    // u is now in ClosedVertices since the shortest path to u is determined
     this->Internals->ClosedVertices[u] = true;
-    // remove u from the front set
+    // remove u from OpenVertices
     this->Internals->OpenVertices[u] = false;
     
     if (u == endv && this->StopWhenEndReached)
@@ -334,10 +318,12 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
       {
       v = (*it).first;
       
-      // s is the set of vertices with determined shortest path...do not use them again
+      // ClosedVertices is the set of vertices with determined shortest path...
+      // do not use them again
       if ( !this->Internals->ClosedVertices[v] )
         {
-        // Only relax edges where the end is not in s and edge is in the front set
+        // Only relax edges where the end is not in ClosedVertices 
+        // and edge is in OpenVertices
         double w; 
         if ( this->Internals->BlockedVertices[v] )
         {
@@ -352,7 +338,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
           {
           this->Relax(u, v, w);
           }
-        // add edge v to front set
+        // add edge v to OpenVertices
         else
           {
           this->Internals->OpenVertices[v] = true;
