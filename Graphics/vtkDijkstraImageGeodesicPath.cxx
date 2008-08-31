@@ -27,7 +27,7 @@
 
 #include "vtkDijkstraGraphInternals.h"
 
-vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.7");
+vtkCxxRevisionMacro(vtkDijkstraImageGeodesicPath, "1.8");
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
 //----------------------------------------------------------------------------
@@ -37,11 +37,37 @@ vtkDijkstraImageGeodesicPath::vtkDijkstraImageGeodesicPath()
   this->ImageWeight = 1.0;
   this->EdgeLengthWeight = 0.0;
   this->CurvatureWeight = 0.0;
+  this->RebuildStaticCosts = false;
 }
 
 //----------------------------------------------------------------------------
 vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath()
 {
+}
+
+
+//----------------------------------------------------------------------------
+void vtkDijkstraImageGeodesicPath::SetImageWeight( double w )
+{
+  w = w < 0.0 ? 0.0 : ( w > 1.0 ? 1.0 : w);
+  if(w != this->ImageWeight)
+    {
+    this->ImageWeight = w;
+    this->RebuildStaticCosts = true;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDijkstraImageGeodesicPath::SetEdgeLengthWeight( double w)
+{
+  w = w < 0.0 ? 0.0 : ( w > 1.0 ? 1.0 : w);
+  if(w != this->EdgeLengthWeight)
+    {
+    this->EdgeLengthWeight = w;
+    this->RebuildStaticCosts = true;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -129,6 +155,11 @@ int vtkDijkstraImageGeodesicPath::RequestData( vtkInformation* vtkNotUsed( reque
     }
   else
     {
+    // if the filter's static cost weights change, then update them
+    if ( this->RebuildStaticCosts  )
+    { 
+       this->UpdateStaticCosts( image );
+    }
     this->Reset();
     }
 
@@ -214,12 +245,9 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
   // optimized for cell type VTK_PIXEL
   //
   vtkIdList *ptIds = vtkIdList::New();
-  vtkstd::pair<vtkstd::map<int,double>::iterator,bool> ret;
-
   vtkIdType uId[6] = {0,1,2,3,0,1};
   vtkIdType vId[6] = {1,2,3,0,2,3};
-  float cost;
-  vtkIdType u, v;
+  double cost;
 
   for ( int i = 0; i < ncells; ++i )
     {    
@@ -227,28 +255,46 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
 
     for( int j = 0; j < 6; ++j )
       {
-      u = ptIds->GetId( vId[j] );
-      v = ptIds->GetId( uId[j] );
+      vtkIdType u = ptIds->GetId( vId[j] );
+      vtkIdType v = ptIds->GetId( uId[j] );
 
-      cost = this->CalculateStaticEdgeCost( image, u, v );
-      ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( v, cost ) );
-      if ( !ret.second )
+      // before insert and calc, check if key map u has key v
+      vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
+      if ( mu.find(v) == mu.end() )
         {
-        this->Internals->Adjacency[u][v] = cost;
+        cost = this->CalculateStaticEdgeCost( image, u, v );
+        mu.insert( vtkstd::pair<int,double>( v, cost ) );
         }
-      
-      cost = this->CalculateStaticEdgeCost( image, v, u );
-      ret = this->Internals->Adjacency[u].insert( vtkstd::pair<int,double>( u, cost ) );
-      if ( !ret.second )
+
+      vtkstd::map<int,double>& mv = this->Internals->Adjacency[v];
+      if ( mv.find(u) == mv.end() )
         {
-        this->Internals->Adjacency[v][u] = cost;
+        cost = this->CalculateStaticEdgeCost( image, v, u );
+        mv.insert( vtkstd::pair<int,double>( u, cost ) );
         }
       }
     }
 
   ptIds->Delete();
 
+  this->RebuildStaticCosts = false;
   this->AdjacencyBuildTime.Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkDijkstraImageGeodesicPath::UpdateStaticCosts(vtkImageData *image)
+{
+  for( int u = 0; u < static_cast<int>(this->Internals->Adjacency.size()); ++u )
+    {
+    vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
+    vtkstd::map<int,double>::iterator it = mu.begin();
+    for( ; it != mu.end(); ++it )
+      {
+      int v = (*it).first;
+      (*it).second = this->CalculateStaticEdgeCost( image, u, v );
+      }
+    }
+  this->RebuildStaticCosts = false;
 }
 
 //----------------------------------------------------------------------------

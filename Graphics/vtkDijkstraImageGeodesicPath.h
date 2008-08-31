@@ -73,12 +73,12 @@ public:
 
   // Description:
   // Image cost weight.
-  vtkSetClampMacro( ImageWeight, double, 0.0, 1.0 );
+  void SetImageWeight( double );
   vtkGetMacro( ImageWeight, double );
 
   // Description:
   // Edge length cost weight.
-  vtkSetClampMacro( EdgeLengthWeight, double, 0.0, 1.0 );
+  void SetEdgeLengthWeight( double );
   vtkGetMacro( EdgeLengthWeight, double );
 
   // Description:
@@ -94,8 +94,11 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, 
                           vtkInformationVector *);
 
-  // Build a graph description of the mesh
+  // Build a graph description of the image
   virtual void BuildAdjacency( vtkDataSet *inData );
+  
+  // Update static costs without rebuilding adjacencyh when static weights change
+  void UpdateStaticCosts( vtkImageData *image );
 
   // Override parent class methods.
   virtual double CalculateStaticEdgeCost( vtkDataSet *inData , vtkIdType u, vtkIdType v);
@@ -105,6 +108,7 @@ protected:
   double ImageWeight;
   double EdgeLengthWeight;
   double CurvatureWeight;
+  bool RebuildStaticCosts;
 
 private:
   vtkDijkstraImageGeodesicPath(const vtkDijkstraImageGeodesicPath&);  // Not implemented.
