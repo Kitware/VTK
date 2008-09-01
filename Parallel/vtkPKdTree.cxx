@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.38");
+vtkCxxRevisionMacro(vtkPKdTree, "1.39");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -314,11 +314,23 @@ double *vtkPKdTree::VolumeBounds()
       }
     }
 
-  this->SubGroup->ReduceMin(localMin, globalMin, 3, 0);
-  this->SubGroup->Broadcast(globalMin, 3, 0);
+  // trick to reduce the number of global communications for getting both
+  // min and max
+  double localReduce[6], globalReduce[6];
+  for(i=0;i<3;i++)
+    {
+    localReduce[i] = localMin[i];
+    localReduce[i+3] = -localMax[i];
+    }
+  this->SubGroup->ReduceMin(localReduce, globalReduce, 6, 0);
+  this->SubGroup->Broadcast(globalReduce, 6, 0);
 
-  this->SubGroup->ReduceMax(localMax, globalMax, 3, 0);
-  this->SubGroup->Broadcast(globalMax, 3, 0);
+  for(i=0;i<3;i++)
+    {
+    localMin[i] = localReduce[i];
+    localMax[i] = -localReduce[i+3];
+    }
+
 
   MinMaxToBounds(volBounds, globalMin, globalMax);
 
