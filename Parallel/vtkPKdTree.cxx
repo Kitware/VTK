@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.37");
+vtkCxxRevisionMacro(vtkPKdTree, "1.38");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -296,6 +296,7 @@ double *vtkPKdTree::VolumeBounds()
   if (number_of_datasets == 0)
     {
     VTKERROR("NumberOfDatasets = 0, cannot determine volume bounds.");
+    delete []volBounds;
     return NULL;
     }
 
@@ -333,6 +334,7 @@ double *vtkPKdTree::VolumeBounds()
   if ((aLittle /= 100.0) <= 0.0)
     {
      VTKERROR("VolumeBounds - degenerate volume");
+     delete []volBounds;
      return NULL;
     }
 
