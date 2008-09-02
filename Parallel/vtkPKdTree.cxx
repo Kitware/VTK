@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.39");
+vtkCxxRevisionMacro(vtkPKdTree, "1.40");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -290,7 +290,9 @@ double *vtkPKdTree::VolumeBounds()
   // Get the spatial bounds of the whole volume
   
   double *volBounds = new double [6];
-  double localMin[3], localMax[3], globalMin[3], globalMax[3];
+  double localMin[3], localMax[3],
+         globalMin[3] = {0, 0, 0},
+         globalMax[3] = {0, 0, 0};
 
   int number_of_datasets = this->GetNumberOfDataSets();
   if (number_of_datasets == 0)
