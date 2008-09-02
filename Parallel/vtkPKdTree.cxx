@@ -78,7 +78,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.41");
+vtkCxxRevisionMacro(vtkPKdTree, "1.42");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -327,8 +327,8 @@ double *vtkPKdTree::VolumeBounds()
 
   for(i=0;i<3;i++)
     {
-    localMin[i] = localReduce[i];
-    localMax[i] = -localReduce[i+3];
+    globalMin[i] = globalReduce[i];
+    globalMax[i] = -globalReduce[i+3];
     }
 
 
