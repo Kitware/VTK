@@ -20,12 +20,14 @@
 #include "vtkRowQuery.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQuery, "1.3");
+vtkCxxRevisionMacro(vtkRowQuery, "1.4");
 
 vtkRowQuery::vtkRowQuery()
 {
+  this->CaseSensitiveFieldNames = false;
 }
 
 vtkRowQuery::~vtkRowQuery()
@@ -39,14 +41,36 @@ void vtkRowQuery::PrintSelf(ostream &os, vtkIndent indent)
 
 int vtkRowQuery::GetFieldIndex(char* name)
 {
+  vtkStdString lcSearchName(name);
+  vtkstd::transform(lcSearchName.begin(),
+                    lcSearchName.end(),
+                    lcSearchName.begin(),
+                    (int(*)(int))tolower);
+
   int index;
   bool found = false;
   for (index = 0; index < this->GetNumberOfFields(); index++)
     {
-    if (!strcmp(name, this->GetFieldName(index)))
+    if (this->CaseSensitiveFieldNames)
       {
-      found = true;
-      break;
+      if (!strcmp(name, this->GetFieldName(index)))
+        {
+        found = true;
+        break;
+        }
+      }
+    else
+      {
+      vtkStdString fieldName(this->GetFieldName(index));
+      vtkstd::transform(fieldName.begin(),
+                        fieldName.end(),
+                        fieldName.begin(),
+                        (int(*)(int))tolower);
+      if (lcSearchName == fieldName)
+        {
+        found = true;
+        break;
+        }
       }
     }
   if (found)

@@ -114,10 +114,21 @@ public:
   // Get the last error text from the query
   virtual const char* GetLastErrorText() = 0;
 
+  // Description:
+  // Many databases do not preserve case in field names.  This can
+  // cause GetFieldIndex to fail if you search for a field named
+  // someFieldName when the database actually stores it as
+  // SOMEFIELDNAME.  This ivar controls whether GetFieldIndex()
+  // expects field names to be case-sensitive.  The default is OFF,
+  // i.e. case is not preserved.
+  vtkSetMacro(CaseSensitiveFieldNames, bool);
+  vtkGetMacro(CaseSensitiveFieldNames, bool);
+  vtkBooleanMacro(CaseSensitiveFieldNames, bool);
+
 protected:
   vtkRowQuery();
   ~vtkRowQuery();
-
+  bool CaseSensitiveFieldNames;
 private:
   vtkRowQuery(const vtkRowQuery &); // Not implemented.
   void operator=(const vtkRowQuery &); // Not implemented.
