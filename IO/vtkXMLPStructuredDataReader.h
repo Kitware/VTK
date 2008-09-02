@@ -28,7 +28,7 @@
 
 class vtkExtentSplitter;
 class vtkExtentTranslator;
-class vtkTableExtentTranslator;
+//class vtkTableExtentTranslator;
 class vtkXMLStructuredDataReader;
 
 class VTK_IO_EXPORT vtkXMLPStructuredDataReader : public vtkXMLPDataReader
@@ -76,7 +76,7 @@ protected:
                      vtkDataArray* inArray, vtkDataArray* outArray);
   int ComputePieceSubExtents();
   
-  vtkTableExtentTranslator* ExtentTranslator;
+  //vtkTableExtentTranslator* ExtentTranslator;
   vtkExtentSplitter* ExtentSplitter;
   
   // The extent to be updated in the output.

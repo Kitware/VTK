@@ -20,18 +20,18 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTableExtentTranslator.h"
+//#include "vtkTableExtentTranslator.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.26");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.27");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
 {
-  this->ExtentTranslator = vtkTableExtentTranslator::New();
+  //this->ExtentTranslator = vtkTableExtentTranslator::New();
   this->ExtentSplitter = vtkExtentSplitter::New();
   this->PieceExtents = 0;
 }
@@ -41,7 +41,7 @@ vtkXMLPStructuredDataReader::~vtkXMLPStructuredDataReader()
 {
   if(this->NumberOfPieces) { this->DestroyPieces(); }
   this->ExtentSplitter->Delete();
-  this->ExtentTranslator->Delete();
+  //this->ExtentTranslator->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -53,7 +53,8 @@ void vtkXMLPStructuredDataReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkExtentTranslator* vtkXMLPStructuredDataReader::GetExtentTranslator()
 {
-  return this->ExtentTranslator;
+  return 0;
+  //return this->ExtentTranslator;
 }
 
 //----------------------------------------------------------------------------
@@ -175,9 +176,11 @@ int vtkXMLPStructuredDataReader::RequestInformation(vtkInformation *request,
 
   // Tell the output to use the table extent translator to provide the
   // correct piece breakdown for the file layout.
+  /*
   outputVector->GetInformationObject(0)->Set(
       vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
       this->ExtentTranslator);
+   */
   
   return this->Superclass::RequestInformation(
       request, inputVector, outputVector);
@@ -242,8 +245,8 @@ void vtkXMLPStructuredDataReader::SetupOutputData()
 void vtkXMLPStructuredDataReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
-  this->ExtentTranslator->SetNumberOfPiecesInTable(this->NumberOfPieces);
-  this->ExtentTranslator->SetMaximumGhostLevel(this->GhostLevel);
+  //this->ExtentTranslator->SetNumberOfPiecesInTable(this->NumberOfPieces);
+  //this->ExtentTranslator->SetMaximumGhostLevel(this->GhostLevel);
   this->PieceExtents = new int[6*this->NumberOfPieces];
   int i;
   for(i=0;i < this->NumberOfPieces;++i)
@@ -278,9 +281,9 @@ int vtkXMLPStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     }
   
   // Set this table entry in the extent translator.
-  this->ExtentTranslator->SetExtentForPiece(this->Piece, pieceExtent);
-  this->ExtentTranslator->SetPieceAvailable(this->Piece,
-                                            this->CanReadPiece(this->Piece));
+  //this->ExtentTranslator->SetExtentForPiece(this->Piece, pieceExtent);
+  //this->ExtentTranslator->SetPieceAvailable(this->Piece,
+  //                                          this->CanReadPiece(this->Piece));
   
   return 1;
 }
@@ -425,7 +428,7 @@ int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
   int i;
   for(i=0;i < this->NumberOfPieces;++i)
     {
-    if(this->CanReadPiece(i))
+    //if(this->CanReadPiece(i))
       {
       // Add the exact extent provided by the piece to the splitter.
       int extent[6];
