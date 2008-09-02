@@ -36,6 +36,7 @@
 #define __vtkProbeFilter_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
 
 class vtkIdTypeArray;
 class vtkCharArray;
@@ -83,6 +84,7 @@ public:
   // Set to "vtkValidPointMask" by default.
   vtkSetStringMacro(ValidPointMaskArrayName)
   vtkGetStringMacro(ValidPointMaskArrayName)
+
 //BTX 
 protected:
   vtkProbeFilter();
@@ -102,20 +104,28 @@ protected:
   void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
 
   // Description:
+  // Build the field lists. This is required before calling
+  // InitializeForProbing().
+  void BuildFieldList(vtkDataSet* source);
+
+  // Description:
   // Initializes output and various arrays which keep track for probing status.
-  void InitializeForProbing(vtkDataSet *input, vtkDataSet *source, 
-    vtkDataSet *output);
+  void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
 
   // Description:
   // Probe only those points that are marked as not-probed by the MaskPoints
   // array.
-  void ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source, 
+  // srcIdx is the index in the PointList for the given source. 
+  void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source, 
     vtkDataSet *output);
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
   vtkCharArray* MaskPoints;
   int NumberOfValidPoints;
+
+  vtkDataSetAttributes::FieldList* CellList;
+  vtkDataSetAttributes::FieldList* PointList;
 private:
   vtkProbeFilter(const vtkProbeFilter&);  // Not implemented.
   void operator=(const vtkProbeFilter&);  // Not implemented.

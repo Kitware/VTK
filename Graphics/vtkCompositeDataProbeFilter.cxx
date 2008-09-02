@@ -14,17 +14,19 @@
 =========================================================================*/
 #include "vtkCompositeDataProbeFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositeDataProbeFilter);
-vtkCxxRevisionMacro(vtkCompositeDataProbeFilter, "1.1");
+vtkCxxRevisionMacro(vtkCompositeDataProbeFilter, "1.2");
 //----------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 {
@@ -95,12 +97,17 @@ int vtkCompositeDataProbeFilter::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-  bool initialized = false;
+  if (!this->BuildFieldList(sourceComposite))
+    {
+    return 0;
+    }
+
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(sourceComposite->NewIterator());
   iter->VisitOnlyLeavesOn();
   // We do reverse traversal, so that for hierarchical datasets, we traverse the
   // higher resolution blocks first.
+  int idx=0;
   for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
     sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
@@ -109,14 +116,88 @@ int vtkCompositeDataProbeFilter::RequestData(
       vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
       return 0;
       }
-    if (!initialized)
+
+    if (sourceDS->GetNumberOfPoints() == 0)
       {
-      initialized = true;
-      this->InitializeForProbing(input, sourceDS, output);
+      continue;
       }
-    this->ProbeEmptyPoints(input, sourceDS, output);
+
+    if (idx==0)
+      {
+      this->InitializeForProbing(input, output);
+      }
+    this->ProbeEmptyPoints(input, idx, sourceDS, output);
+    idx++;
     }
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
+{
+  delete this->PointList;
+  delete this->CellList;
+  this->PointList = 0;
+  this->CellList = 0;
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(source->NewIterator());
+  iter->VisitOnlyLeavesOn();
+
+  int numDatasets = 0;
+  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
+    {
+    vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (!sourceDS)
+      {
+      vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
+      return 0;
+      }
+    if (sourceDS->GetNumberOfPoints() == 0)
+      {
+      continue;
+      }
+    numDatasets++;
+    }
+
+  this->PointList = new vtkDataSetAttributes::FieldList(numDatasets);
+  this->CellList = new vtkDataSetAttributes::FieldList(numDatasets);
+
+  bool initializedPD = false;
+  bool initializedCD = false;
+  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
+    {
+    vtkDataSet* sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (sourceDS->GetNumberOfPoints() == 0)
+      {
+      continue;
+      }
+    if (!initializedPD)
+      {
+      this->PointList->InitializeFieldList(sourceDS->GetPointData());
+      initializedPD = true;
+      }
+    else
+      {
+      this->PointList->IntersectFieldList(sourceDS->GetPointData());
+      }
+
+    if (sourceDS->GetNumberOfCells() > 0)
+      {
+      if (!initializedCD)
+        {
+        this->CellList->InitializeFieldList(sourceDS->GetCellData());
+        initializedCD = true;
+        }
+      else
+        {
+        this->CellList->IntersectFieldList(sourceDS->GetCellData());
+        }
+      }
+    }
   return 1;
 }
 

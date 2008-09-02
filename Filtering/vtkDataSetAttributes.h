@@ -543,9 +543,29 @@ public:
                 vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
                 vtkIdType toId);
 
+  // Description:
+  // A special form of InterpolateAllocate() to be used with FieldLists. Use it 
+  // when you are interpolating data from a set of vtkDataSetAttributes.
+  // \c Warning: This does not copy the Information object associated with
+  // each data array. This behavior may change in the future.
+  void InterpolateAllocate(vtkDataSetAttributes::FieldList& list, vtkIdType sze=0, 
+                    vtkIdType ext=1000);
+
+  // Description:
+  // Interpolate data set attributes from other data set attributes
+  // given cell or point ids and associated interpolation weights.
+  // Make sure that special form of InterpolateAllocate() that accepts
+  // FieldList has been used. 
+  void InterpolatePoint(
+    vtkDataSetAttributes::FieldList& list,
+    vtkDataSetAttributes *fromPd,
+    int idx, vtkIdType toId, 
+    vtkIdList *ids, double *weights);
+
   friend class vtkDataSetAttributes::FieldList;
 //ETX
 
+//BTX
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
@@ -556,6 +576,11 @@ protected:
                             vtkIdType ext=1000,
                             int shallowCopyArrays=0);
 
+  void InternalCopyAllocate(
+    vtkDataSetAttributes::FieldList& list,
+    int ctype,
+    vtkIdType sze, vtkIdType ext);
+
   // Description:
   // Initialize all of the object's data to NULL
   virtual void InitializeFields();
@@ -563,9 +588,7 @@ protected:
   int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
   int CopyAttributeFlags[ALLCOPY][NUM_ATTRIBUTES]; //copy flag for attribute data
 
-//BTX
   vtkFieldData::BasicIterator RequiredArrays;
-//ETX
 
   int* TargetIndices;
 
@@ -580,7 +603,6 @@ private:
   int SetAttribute(vtkAbstractArray* da, int attributeType);
   static int CheckNumberOfComponents(vtkAbstractArray* da, int attributeType);
 
-//BTX
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
 
 private:

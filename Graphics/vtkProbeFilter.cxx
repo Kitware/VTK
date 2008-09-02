@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.93");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.94");
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
@@ -47,6 +47,9 @@ vtkProbeFilter::vtkProbeFilter()
   this->SetValidPointMaskArrayName("vtkValidPointMask");
   this->CellArrays = new vtkVectorOfArrays();
   this->NumberOfValidPoints = 0;
+
+  this->PointList = 0;
+  this->CellList = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -58,6 +61,9 @@ vtkProbeFilter::~vtkProbeFilter()
   this->ValidPoints = NULL;
   this->SetValidPointMaskArrayName(0);
   delete this->CellArrays;
+
+  delete this->PointList;
+  delete this->CellList;
 }
 
 //----------------------------------------------------------------------------
@@ -112,12 +118,31 @@ int vtkProbeFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
+void vtkProbeFilter::BuildFieldList(vtkDataSet* source)
+{
+  delete this->PointList;
+  delete this->CellList;
+
+  this->PointList = new vtkDataSetAttributes::FieldList(1);
+  this->PointList->InitializeFieldList(source->GetPointData());
+
+  this->CellList = new vtkDataSetAttributes::FieldList(1);
+  this->CellList->InitializeFieldList(source->GetCellData());
+}
+
+//----------------------------------------------------------------------------
 // * input -- dataset probed with
 // * source -- dataset probed into
 // * output - output.
-void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* source,
+void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   vtkDataSet* output)
 {
+  if (!this->PointList || !this->CellList)
+    {
+    vtkErrorMacro("BuildFieldList() must be called before calling this method.");
+    return;
+    }
+
   vtkIdType numPts = input->GetNumberOfPoints();
 
   // Initialize valid points/mask points arrays.
@@ -131,39 +156,29 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* source,
   // First, copy the input to the output as a starting point
   output->CopyStructure(input);
 
-  vtkPointData *inPD, *outPD;
-  vtkCellData* inCD;
-
-  inPD = source->GetPointData();
-  outPD = output->GetPointData();
-  inCD = source->GetCellData();
+  vtkPointData* outPD = output->GetPointData();
 
   // Allocate storage for output PointData
   // All input PD is passed to output as PD. Those arrays in input CD that are
   // not present in output PD will be passed as output PD.
   outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD, numPts, numPts);
+  outPD->InterpolateAllocate((*this->PointList), numPts, numPts);
+
+  vtkCellData* tempCellData = vtkCellData::New();
+  tempCellData->InterpolateAllocate( (*this->CellList), numPts, numPts);
 
   this->CellArrays->clear();
-  int numCellArrays = inCD->GetNumberOfArrays();
+  int numCellArrays = tempCellData->GetNumberOfArrays();
   for (int cc=0; cc < numCellArrays; cc++)
     {
-    vtkDataArray* inArray = inCD->GetArray(cc);
+    vtkDataArray* inArray = tempCellData->GetArray(cc);
     if (inArray && inArray->GetName() && !outPD->GetArray(inArray->GetName()))
       {
-      vtkDataArray* newArray = inArray->NewInstance();
-      newArray->SetName(inArray->GetName());
-      newArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
-      newArray->Allocate(numPts);
-      outPD->AddArray(newArray);
-      this->CellArrays->push_back(newArray);
-      newArray->Delete();
-      }
-    else
-      {
-      this->CellArrays->push_back(0);
+      outPD->AddArray(inArray);
+      this->CellArrays->push_back(inArray);
       }
     }
+  tempCellData->Delete();
 
   outPD->AddArray(this->MaskPoints);
 
@@ -186,13 +201,15 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input, vtkDataSet* source,
 void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
                            vtkDataSet *output)
 {
-  this->InitializeForProbing(input, source, output);
-  this->ProbeEmptyPoints(input, source, output);
+  this->BuildFieldList(source);
+  this->InitializeForProbing(input, output);
+  this->ProbeEmptyPoints(input, 0, source, output);
 }
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source,
-                                      vtkDataSet *output)
+void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, 
+  int srcIdx,
+  vtkDataSet *source, vtkDataSet *output)
 {
   vtkIdType ptId, numPts;
   double x[3], tol2;
@@ -207,7 +224,6 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source,
 
   pd = source->GetPointData();
   cd = source->GetCellData();
-  int numCellArrays = cd->GetNumberOfArrays();
 
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
@@ -265,15 +281,18 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, vtkDataSet *source,
     if (cell)
       {
       // Interpolate the point data
-      outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
+      outPD->InterpolatePoint((*this->PointList), pd, srcIdx, ptId,
+        cell->PointIds, weights);
       this->ValidPoints->InsertNextValue(ptId);
       this->NumberOfValidPoints++;
-      for (int i=0; i<numCellArrays; i++)
+      vtkVectorOfArrays::iterator iter;
+      for (iter = this->CellArrays->begin(); iter != this->CellArrays->end();
+        ++iter)
         {
-        vtkDataArray* inArray = cd->GetArray(i);
-        if ((*this->CellArrays)[i])
+        vtkDataArray* inArray = cd->GetArray((*iter)->GetName());
+        if (inArray)
           {
-          outPD->CopyTuple(inArray, (*this->CellArrays)[i], cellId, ptId);
+          outPD->CopyTuple(inArray, *iter, cellId, ptId);
           }
         }
       maskArray[ptId] = static_cast<char>(1);

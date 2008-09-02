@@ -25,6 +25,7 @@
 
 #include "vtkProbeFilter.h"
 
+class vtkCompositeDataSet;
 class VTK_GRAPHICS_EXPORT vtkCompositeDataProbeFilter : public vtkProbeFilter
 {
 public:
@@ -41,6 +42,10 @@ protected:
   // Change input information to accept composite datasets as the input which
   // is probed into.
   virtual int FillInputPortInformation(int port, vtkInformation* info);
+
+  // Description:
+  // Builds the field list using the composite dataset source.
+  int BuildFieldList(vtkCompositeDataSet* source);
 
   // Description:
   // Handle composite input.

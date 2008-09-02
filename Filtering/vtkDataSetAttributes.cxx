@@ -30,7 +30,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.26");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.27");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -1448,8 +1448,26 @@ void vtkDataSetAttributes::RemoveArray(const char *name)
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list, 
-                                        vtkIdType sze, vtkIdType ext)
+void vtkDataSetAttributes::CopyAllocate(
+  vtkDataSetAttributes::FieldList& list,
+  vtkIdType sze, vtkIdType ext)
+{
+  this->InternalCopyAllocate(list, COPYTUPLE, sze, ext);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::InterpolateAllocate(
+  vtkDataSetAttributes::FieldList& list, vtkIdType sze,
+  vtkIdType ext)
+{
+  this->InternalCopyAllocate(list, INTERPOLATE, sze, ext);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::InternalCopyAllocate(
+  vtkDataSetAttributes::FieldList& list,
+  int ctype,
+  vtkIdType sze, vtkIdType ext)
 {
   vtkAbstractArray* newAA=0;
   vtkDataArray* newDA=0;
@@ -1481,7 +1499,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
       if ( i < NUM_ATTRIBUTES )
         {
         // since attributes can only be DataArray, newDA must be non-null.
-        if ( this->CopyAttributeFlags[COPYTUPLE][i] && newDA)
+        if ( this->CopyAttributeFlags[ctype][i] && newDA)
           {
           list.FieldIndices[i] = this->AddArray(newDA);
           this->SetActiveAttribute(list.FieldIndices[i], i);
@@ -1529,6 +1547,30 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list,
       toDA = this->GetAbstractArray(list.FieldIndices[i]);
       fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
       this->CopyTuple(fromDA, toDA, fromId, toId);
+      }
+    }
+}
+
+//--------------------------------------------------------------------------
+// Interpolate data from points and interpolation weights. Make sure that the 
+// method InterpolateAllocate() has been invoked before using this method.
+void vtkDataSetAttributes::InterpolatePoint(
+  vtkDataSetAttributes::FieldList& list,
+  vtkDataSetAttributes *fromPd, 
+  int idx,
+  vtkIdType toId, vtkIdList *ptIds, 
+  double *weights)
+{
+  vtkAbstractArray *fromArray;
+  vtkAbstractArray *toArray;
+
+  for (int i=0; i < list.NumberOfFields; i++)
+    {
+    if ( list.FieldIndices[i] >= 0 )
+      {
+      toArray = this->GetAbstractArray(list.FieldIndices[i]);
+      fromArray = fromPd->GetAbstractArray(list.DSAIndices[idx][i]);
+      toArray->InterpolateTuple(toId, ptIds, fromArray, weights);
       }
     }
 }
