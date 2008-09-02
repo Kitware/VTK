@@ -21,9 +21,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
+#include "vtksys/stl/algorithm"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQuery, "1.4");
+vtkCxxRevisionMacro(vtkRowQuery, "1.5");
 
 vtkRowQuery::vtkRowQuery()
 {
