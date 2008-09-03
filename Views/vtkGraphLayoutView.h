@@ -344,6 +344,12 @@ protected:
   vtkEdgeLayoutStrategy* EdgeLayoutStrategy;
   
   // Description:
+  // Used to store the preferred edge layout strategy
+  // when the graph layout has been been set to PassThrough
+  // so that we can change it back when needed.
+  vtkEdgeLayoutStrategy* EdgeLayoutPreference;
+
+  // Description:
   // Used to store the icon array name
   vtkGetStringMacro(IconArrayNameInternal);
   vtkSetStringMacro(IconArrayNameInternal);

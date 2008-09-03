@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.36");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.37");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -157,6 +157,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ColorEdgesOff();
   this->SetLayoutStrategyToFast2D();
   this->SetEdgeLayoutStrategyToArcParallel();
+  this->EdgeLayoutPreference = this->ArcParallelStrategy;
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -466,6 +467,18 @@ void vtkGraphLayoutView::UpdateLayout()
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetLayoutStrategy(vtkGraphLayoutStrategy *s)
 {
+  // Set the edge layout to pass through if the graph layout is.
+  if(vtkPassThroughLayoutStrategy::SafeDownCast(s))
+    {
+    this->EdgeLayoutPreference = this->EdgeLayoutStrategy;
+    this->SetEdgeLayoutStrategy("passthrough");
+    }
+  else if(this->EdgeLayoutStrategy != this->EdgeLayoutPreference)
+    {
+    // Otherwise, set it to whatever our preferred strategy is
+    this->SetEdgeLayoutStrategy(this->EdgeLayoutPreference);
+    }
+
   this->LayoutStrategy = s;
   this->GraphLayout->SetLayoutStrategy(this->LayoutStrategy);
 }
@@ -537,6 +550,19 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
     vtkErrorMacro("Unknown strategy " << name << " (" << str << ").");
     return;
     }
+
+  // Set the edge layout to pass through if the graph layout is.
+  if(vtkPassThroughLayoutStrategy::SafeDownCast(this->LayoutStrategy))
+    {
+    this->EdgeLayoutPreference = this->EdgeLayoutStrategy;
+    this->SetEdgeLayoutStrategy("passthrough");
+    }
+  else if(this->EdgeLayoutStrategy != this->EdgeLayoutPreference)
+    {
+    // Otherwise, set it to whatever our preferred strategy is
+    this->SetEdgeLayoutStrategy(this->EdgeLayoutPreference);
+    }
+
   this->GraphLayout->SetLayoutStrategy(this->LayoutStrategy);
   this->SetLayoutStrategyNameInternal(name);
 }
@@ -544,6 +570,14 @@ void vtkGraphLayoutView::SetLayoutStrategy(const char* name)
 //----------------------------------------------------------------------------
 void vtkGraphLayoutView::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s)
 {
+  // If our graph layout strategy is PassThrough, just store this edge
+  // layout strategy for later
+  if(vtkPassThroughLayoutStrategy::SafeDownCast(this->LayoutStrategy))
+    {
+    this->EdgeLayoutPreference = s;
+    return;
+    }
+
   this->EdgeLayoutStrategy = s;
   this->EdgeLayout->SetLayoutStrategy(this->EdgeLayoutStrategy);
 }
@@ -587,6 +621,16 @@ void vtkGraphLayoutView::SetEdgeLayoutStrategy(const char* name)
     vtkErrorMacro("Unknown strategy " << name << " (" << str << ").");
     return;
     }
+
+  // If our graph layout strategy is PassThrough, just store this edge
+  // layout strategy for later
+  if(vtkPassThroughLayoutStrategy::SafeDownCast(this->LayoutStrategy))
+    {
+    this->EdgeLayoutPreference = this->EdgeLayoutStrategy;
+    this->EdgeLayoutStrategy = this->PassThroughEdgeStrategy;
+    return;
+    }
+
   this->EdgeLayout->SetLayoutStrategy(this->EdgeLayoutStrategy);
   this->SetEdgeLayoutStrategyNameInternal(name);
 }
