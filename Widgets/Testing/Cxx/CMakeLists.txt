@@ -32,6 +32,7 @@ IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
     ImagePlaneWidget.cxx
+    TestDijkstraImageGeodesicPath.cxx
     TestImageActorContourWidget.cxx
 #    TestConstrainedHandleWidget.cxx
     TestSurfaceConstrainedHandleWidget.cxx
@@ -61,6 +62,7 @@ IF(NOT VTK_USE_DISPLAY)
     BoxWidget2.cxx
     ImagePlaneWidget.cxx
     TestContourWidget2.cxx
+    TestDijkstraImageGeodesicPath.cxx
     TestImageTracerWidget.cxx
     TestImplicitPlaneWidget.cxx
     TestLineWidget.cxx
