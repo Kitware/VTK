@@ -21,6 +21,7 @@
 
 #include "vtkDisplayListPainter.h"
 
+class vtkPolyData;
 class VTK_RENDERING_EXPORT vtkOpenGLDisplayListPainter : public vtkDisplayListPainter
 {
 public:
@@ -41,7 +42,17 @@ protected:
   unsigned int DisplayListId;
   vtkTimeStamp BuildTime;
 
+  unsigned int PDDisplayLists[4];
+  vtkTimeStamp PDBuildTimes[4];
+
+  // Release data-object DL
   void ReleaseList();
+
+  // Release a polydata DL
+  void ReleaseList(int i);
+
+  // Release all polydata DLs
+  void ReleasePolyDataLists();
 
   // Description:
   // If not using ImmediateModeRendering, this will build a display list,
@@ -49,6 +60,12 @@ protected:
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
                               unsigned long typeflags,
                               bool forceCompileOnly);
+
+  // Description:
+  // RenderInternal for polydata. It builds separate display lists for
+  // lines/verts/polys/tstrips
+  void RenderInternal(vtkPolyData* input, vtkRenderer *renderer,
+    vtkActor *actor, unsigned long typeflags, bool forceCompileOnly);
 
   unsigned long LastUsedTypeFlags;
 private:
