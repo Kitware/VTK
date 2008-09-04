@@ -15,13 +15,15 @@
 // .NAME vtkOpenGLDisplayListPainter - display list painter using OpenGL.
 // .SECTION Description
 // vtkOpenGLDisplayListPainter creates an OpenGL display list for rendering.
+// This painter creates a different display list for every render request with a
+// different set of typeflags. If any of the data or inputs change, then all
+// display lists are discarded.
 
 #ifndef __vtkOpenGLDisplayListPainter_h
 #define __vtkOpenGLDisplayListPainter_h
 
 #include "vtkDisplayListPainter.h"
 
-class vtkPolyData;
 class VTK_RENDERING_EXPORT vtkOpenGLDisplayListPainter : public vtkDisplayListPainter
 {
 public:
@@ -35,24 +37,11 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release. In this case, releases the display lists.
   virtual void ReleaseGraphicsResources(vtkWindow *);
+//BTX
 protected:
   vtkOpenGLDisplayListPainter();
   ~vtkOpenGLDisplayListPainter();
 
-  unsigned int DisplayListId;
-  vtkTimeStamp BuildTime;
-
-  unsigned int PDDisplayLists[4];
-  vtkTimeStamp PDBuildTimes[4];
-
-  // Release data-object DL
-  void ReleaseList();
-
-  // Release a polydata DL
-  void ReleaseList(int i);
-
-  // Release all polydata DLs
-  void ReleasePolyDataLists();
 
   // Description:
   // If not using ImmediateModeRendering, this will build a display list,
@@ -61,16 +50,13 @@ protected:
                               unsigned long typeflags,
                               bool forceCompileOnly);
 
-  // Description:
-  // RenderInternal for polydata. It builds separate display lists for
-  // lines/verts/polys/tstrips
-  void RenderInternal(vtkPolyData* input, vtkRenderer *renderer,
-    vtkActor *actor, unsigned long typeflags, bool forceCompileOnly);
-
-  unsigned long LastUsedTypeFlags;
 private:
   vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&); // Not implemented.
   void operator=(const vtkOpenGLDisplayListPainter&); // Not implemented.
+
+  class vtkInternals;
+  vtkInternals* Internals;
+//ETX
 };
 
 #endif
