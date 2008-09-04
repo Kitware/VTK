@@ -33,84 +33,24 @@
 
 #include <QGraphicsLineItem>
 #include <QList>
+#include <QPainter>
 #include <QPen>
-
-
-class vtkQtChartGridLayerItem : public QGraphicsItem
-{
-public:
-  enum {Type = vtkQtChart_GridLayerItemType};
-
-public:
-  vtkQtChartGridLayerItem(QGraphicsItem *parent=0);
-  virtual ~vtkQtChartGridLayerItem() {}
-
-  virtual int type() const {return vtkQtChartGridLayerItem::Type;}
-
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
-
-  void setPen(const QPen &pen);
-  void removeLines();
-
-  QList<QGraphicsLineItem *> Lines;
-};
-
-
-//-----------------------------------------------------------------------------
-vtkQtChartGridLayerItem::vtkQtChartGridLayerItem(QGraphicsItem *item)
-  : QGraphicsItem(item, item->scene()), Lines()
-{
-}
-
-QRectF vtkQtChartGridLayerItem::boundingRect() const
-{
-  return QRectF(0, 0, 0, 0);
-}
-
-void vtkQtChartGridLayerItem::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
-{
-}
-
-void vtkQtChartGridLayerItem::setPen(const QPen &pen)
-{
-  QList<QGraphicsLineItem *>::Iterator iter = this->Lines.begin();
-  for( ; iter != this->Lines.end(); ++iter)
-    {
-    (*iter)->setPen(pen);
-    }
-}
-
-void vtkQtChartGridLayerItem::removeLines()
-{
-  QList<QGraphicsLineItem *>::Iterator iter = this->Lines.begin();
-  for( ; iter != this->Lines.end(); ++iter)
-    {
-    delete *iter;
-    }
-
-  this->Lines.clear();
-}
 
 
 //-----------------------------------------------------------------------------
 vtkQtChartGridLayer::vtkQtChartGridLayer()
   : vtkQtChartLayer()
 {
-  this->Contents = new vtkQtChartContentsArea(this, this->scene());
+  this->Bounds = new QSizeF(0.0, 0.0);
   for(int i = 0; i < 4; i++)
     {
-    this->Item[i] = new vtkQtChartGridLayerItem(this->Contents);
     this->Axis[i] = 0;
     }
+}
 
-  // Set the z-order for the grid lines.
-  this->Item[vtkQtChartAxis::Top]->setZValue(0);
-  this->Item[vtkQtChartAxis::Right]->setZValue(1);
-  this->Item[vtkQtChartAxis::Bottom]->setZValue(2);
-  this->Item[vtkQtChartAxis::Left]->setZValue(3);
+vtkQtChartGridLayer::~vtkQtChartGridLayer()
+{
+  delete this->Bounds;
 }
 
 void vtkQtChartGridLayer::setChartArea(vtkQtChartArea *area)
@@ -153,117 +93,99 @@ void vtkQtChartGridLayer::setChartArea(vtkQtChartArea *area)
 void vtkQtChartGridLayer::layoutChart(const QRectF &area)
 {
   // Update the position based on the new bounds.
+  this->prepareGeometryChange();
+  *(this->Bounds) = area.size();
   this->setPos(area.topLeft());
-
-  // Set up the grid lines.
-  this->layoutVerticalGrid(this->Item[vtkQtChartAxis::Top],
-      this->Axis[vtkQtChartAxis::Top], area.height());
-  this->layoutVerticalGrid(this->Item[vtkQtChartAxis::Bottom],
-      this->Axis[vtkQtChartAxis::Bottom], area.height());
-  this->layoutHorizontalGrid(this->Item[vtkQtChartAxis::Left],
-      this->Axis[vtkQtChartAxis::Left], area.width());
-  this->layoutHorizontalGrid(this->Item[vtkQtChartAxis::Right],
-      this->Axis[vtkQtChartAxis::Right], area.width());
-}
-
-bool vtkQtChartGridLayer::drawItemFilter(QGraphicsItem *item,
-    QPainter *painter)
-{
-  // If the item is a grid line, clip it to the chart layer bounds.
-  QGraphicsLineItem *line = qgraphicsitem_cast<QGraphicsLineItem *>(item);
-  if(line && this->ChartArea)
-    {
-    QRectF bounds;
-    this->ChartArea->getContentsSpace()->getChartLayerBounds(bounds);
-    painter->setClipRect(bounds, Qt::IntersectClip);
-    }
-
-  return false;
 }
 
 QRectF vtkQtChartGridLayer::boundingRect() const
 {
-  return QRectF(0, 0, 0, 0);
+  return QRectF(QPointF(0.0, 0.0), *this->Bounds);
 }
 
-void vtkQtChartGridLayer::paint(QPainter *,
+void vtkQtChartGridLayer::paint(QPainter *painter,
     const QStyleOptionGraphicsItem *, QWidget *)
 {
+  this->drawAxisGrid(painter, this->Axis[vtkQtChartAxis::Top]);
+  this->drawAxisGrid(painter, this->Axis[vtkQtChartAxis::Right]);
+  this->drawAxisGrid(painter, this->Axis[vtkQtChartAxis::Bottom]);
+  this->drawAxisGrid(painter, this->Axis[vtkQtChartAxis::Left]);
 }
 
-void vtkQtChartGridLayer::setXOffset(float xOffset)
+void vtkQtChartGridLayer::setXOffset(float)
 {
-  this->Item[vtkQtChartAxis::Top]->setPos(-xOffset, 0.0);
-  this->Item[vtkQtChartAxis::Bottom]->setPos(-xOffset, 0.0);
+  this->update();
 }
 
-void vtkQtChartGridLayer::setYOffset(float yOffset)
+void vtkQtChartGridLayer::setYOffset(float)
 {
-  this->Item[vtkQtChartAxis::Left]->setPos(0.0, -yOffset);
-  this->Item[vtkQtChartAxis::Right]->setPos(0.0, -yOffset);
+  this->update();
 }
 
 void vtkQtChartGridLayer::handleGridChange()
 {
-  for(int i = 0; i < 4; i++)
-    {
-    if(this->Axis[i])
-      {
-      vtkQtChartAxisOptions *options = this->Axis[i]->getOptions();
-      this->Item[i]->setVisible(options->isGridVisible());
-      this->Item[i]->setPen(QPen(options->getGridColor()));
-      }
-    }
+  this->update();
 }
 
-void vtkQtChartGridLayer::layoutVerticalGrid(vtkQtChartGridLayerItem *item,
-    vtkQtChartAxis *axis, float height)
+void vtkQtChartGridLayer::drawAxisGrid(QPainter *painter, vtkQtChartAxis *axis)
 {
-  // Clear out the current grid lines.
-  item->removeLines();
-
-  // Add new lines for the axis tick marks.
-  int total = axis->getModel()->getNumberOfLabels();
-  for(int i = 0; i < total; i++)
+  if(axis)
     {
-    // Only add grid lines for visible tick marks.
-    if(!axis->isLabelTickVisible(i))
+    vtkQtChartAxisOptions *options = axis->getOptions();
+    if(options->isGridVisible())
       {
-      continue;
+      painter->setPen(options->getGridColor());
+      vtkQtChartContentsSpace *space = this->ChartArea->getContentsSpace();
+      bool vertical = axis->getLocation() == vtkQtChartAxis::Left ||
+          axis->getLocation() == vtkQtChartAxis::Right;
+      int total = axis->getModel()->getNumberOfLabels();
+      for(int i = 0; i < total; i++)
+        {
+        // Only draw grid lines for visible tick marks.
+        if(!axis->isLabelTickVisible(i))
+          {
+          continue;
+          }
+
+        // Get the grid line location and adjust it for translation.
+        float pixel = axis->getLabelLocation(i);
+        if(vertical)
+          {
+          // Clip the drawing to the viewport.
+          pixel -= space->getYOffset();
+          if(pixel > this->Bounds->height())
+            {
+            continue;
+            }
+          else if(pixel < 0.0)
+            {
+            break;
+            }
+
+          // Draw the grid line.
+          painter->drawLine(QPointF(0.0, pixel),
+              QPointF(this->Bounds->width(), pixel));
+          }
+        else
+          {
+          // Clip the drawing to the viewport.
+          pixel -= space->getXOffset();
+          if(pixel < 0.0)
+            {
+            continue;
+            }
+          else if(pixel > this->Bounds->width())
+            {
+            break;
+            }
+
+          // Draw the grid line.
+          painter->drawLine(QPointF(pixel, 0.0),
+              QPointF(pixel, this->Bounds->height()));
+          }
+        }
       }
-
-    float pixel = axis->getLabelLocation(i);
-    item->Lines.append(new QGraphicsLineItem(
-        pixel, 0, pixel, height, item, item->scene()));
     }
-
-  // Set the grid color for the new lines.
-  item->setPen(QPen(axis->getOptions()->getGridColor()));
-}
-
-void vtkQtChartGridLayer::layoutHorizontalGrid(vtkQtChartGridLayerItem *item,
-    vtkQtChartAxis *axis, float width)
-{
-  // Clear out the current grid lines.
-  item->removeLines();
-
-  // Add new lines for the axis tick marks.
-  int total = axis->getModel()->getNumberOfLabels();
-  for(int i = 0; i < total; i++)
-    {
-    // Only add grid lines for visible tick marks.
-    if(!axis->isLabelTickVisible(i))
-      {
-      continue;
-      }
-
-    float pixel = axis->getLabelLocation(i);
-    item->Lines.append(new QGraphicsLineItem(
-        0, pixel, width, pixel, item, item->scene()));
-    }
-
-  // Set the grid color for the new lines.
-  item->setPen(QPen(axis->getOptions()->getGridColor()));
 }
 
 

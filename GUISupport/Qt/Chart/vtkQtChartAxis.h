@@ -456,9 +456,6 @@ private:
   /// \param contents The axis contents area.
   void generateLogLabels(const QRectF &contents);
 
-  /// Hides labels that are outside the viewport.
-  void clipLabels();
-
 public:
   static const double MinLogValue;  ///< Stores the log scale minimum.
 
@@ -470,8 +467,6 @@ private:
   const vtkQtChartAxis *AtMax;         ///< Stores the axis at the max.
   const vtkQtChartAxis *Across;        ///< Stores the parallel axis.
   const vtkQtChartContentsSpace *Zoom; ///< Stores the contents space.
-  vtkQtChartContentsArea *Contents;    ///< Handles the panning.
-  QGraphicsLineItem *Line;             ///< Draws the axis line.
   AxisLocation Location;               ///< Stores the axis location.
 };
 

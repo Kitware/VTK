@@ -28,8 +28,6 @@
 #include "vtkQtChartLayer.h"
 
 class vtkQtChartAxis;
-class vtkQtChartContentsArea;
-class vtkQtChartGridLayerItem;
 
 
 class VTKQTCHART_EXPORT vtkQtChartGridLayer : public vtkQtChartLayer
@@ -41,13 +39,11 @@ public:
 
 public:
   vtkQtChartGridLayer();
-  virtual ~vtkQtChartGridLayer() {}
+  virtual ~vtkQtChartGridLayer();
 
   virtual void setChartArea(vtkQtChartArea *area);
 
   virtual void layoutChart(const QRectF &area);
-
-  virtual bool drawItemFilter(QGraphicsItem *item, QPainter *painter);
 
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -61,15 +57,11 @@ private slots:
   void handleGridChange();
 
 private:
-  void layoutVerticalGrid(vtkQtChartGridLayerItem *item,
-      vtkQtChartAxis *axis, float height);
-  void layoutHorizontalGrid(vtkQtChartGridLayerItem *item,
-      vtkQtChartAxis *axis, float width);
+  void drawAxisGrid(QPainter *painter, vtkQtChartAxis *axis);
 
 private:
-  vtkQtChartContentsArea *Contents; ///< Handles the panning.
-  vtkQtChartGridLayerItem *Item[4]; ///< Stores the grid lines.
-  vtkQtChartAxis *Axis[4];          ///< Stores the axis objects.
+  vtkQtChartAxis *Axis[4]; ///< Stores the axis objects.
+  QSizeF *Bounds;          ///< Stores the bounds.
 };
 
 #endif

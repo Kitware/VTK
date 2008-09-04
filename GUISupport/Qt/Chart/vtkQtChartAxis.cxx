@@ -29,10 +29,11 @@
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 
-#include <QFontMetrics>
+#include <QFontMetricsF>
 #include <QGraphicsLineItem>
 #include <QGraphicsSimpleTextItem>
 #include <QList>
+#include <QPainter>
 #include <QPen>
 #include <QVariant>
 #include <QtDebug>
@@ -40,39 +41,32 @@
 #include <math.h>
 
 
-class vtkQtChartAxisItem : public QGraphicsItem
+class vtkQtChartAxisItem
 {
 public:
-  enum {Type = vtkQtChart_AxisItemType};
+  vtkQtChartAxisItem();
+  ~vtkQtChartAxisItem() {}
 
-public:
-  vtkQtChartAxisItem(vtkQtChartAxis *axis, QGraphicsItem *parent=0);
-  virtual ~vtkQtChartAxisItem() {}
+  float getLocation() const {return this->Location;}
+  void setLocation(float location) {this->Location = location;}
 
-  virtual int type() const {return vtkQtChartAxisItem::Type;}
+  float getLabelWidth() const {return this->Width;}
+  void setLabelWidth(float width) {this->Width = width;}
 
-  void updateLayout();
-  void showLabel();
-  void hideLabel();
+  bool isLabelVisible() const {return this->LabelVisible;}
+  void setLabelVisible(bool visible) {this->LabelVisible = visible;}
 
   bool isTickVisible() const {return this->TickVisible;}
-  void setTickVisible(bool visible);
-
-  bool isClipped() const {return this->Clipped;}
-  void setClipped(bool clipped);
-
-  virtual QRectF boundingRect() const;
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
+  void setTickVisible(bool visible) {this->TickVisible = visible;}
 
 public:
-  QGraphicsLineItem *Tick;
-  QGraphicsSimpleTextItem *Text;
+  QString Label;
 
 private:
-  vtkQtChartAxis *Axis;
+  float Location;
+  float Width;
+  bool LabelVisible;
   bool TickVisible;
-  bool Clipped;
 };
 
 
@@ -100,7 +94,7 @@ class vtkQtChartAxisInternal
 {
 public:
   vtkQtChartAxisInternal();
-  ~vtkQtChartAxisInternal() {}
+  ~vtkQtChartAxisInternal();
 
   QList<vtkQtChartAxisItem *> Items;
   vtkQtChartAxisScale Scale;
@@ -191,121 +185,13 @@ float mapLinearPixel(float pixelMin, float pixelMax,
 
 
 //-----------------------------------------------------------------------------
-vtkQtChartAxisItem::vtkQtChartAxisItem(vtkQtChartAxis *axis,
-    QGraphicsItem *item)
-  : QGraphicsItem(item, item->scene())
+vtkQtChartAxisItem::vtkQtChartAxisItem()
+  : Label()
 {
-  this->Tick = new QGraphicsLineItem(this, this->scene());
-  this->Text = new QGraphicsSimpleTextItem(this, this->scene());
-  this->Axis = axis;
+  this->Location = 0.0;
+  this->Width = 0.0;
+  this->LabelVisible = true;
   this->TickVisible = true;
-  this->Clipped = false;
-
-  // Set up the color options.
-  this->Tick->setPen(QPen(axis->getOptions()->getAxisColor()));
-  this->Text->setPen(QPen(axis->getOptions()->getLabelColor()));
-}
-
-void vtkQtChartAxisItem::updateLayout()
-{
-  // Move the text to the appropriate location.
-  float space = this->Axis->getTickLength() +
-      this->Axis->getTickLabelSpacing();
-  QSizeF textSize = this->Text->boundingRect().size();
-  if(this->Axis->getLocation() == vtkQtChartAxis::Top)
-    {
-    this->Text->setPos(-(textSize.width() / 2), -(space + textSize.height()));
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Bottom)
-    {
-    this->Text->setPos(-(textSize.width() / 2), space);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Left)
-    {
-    this->Text->setPos(-(space + textSize.width()), -(textSize.height() / 2));
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Right)
-    {
-    this->Text->setPos(space, -(textSize.height() / 2));
-    }
-}
-
-void vtkQtChartAxisItem::showLabel()
-{
-  // Make sure the label is visible.
-  this->Text->setVisible(true);
-
-  // Make sure the line is the right length.
-  float length = this->Axis->getTickLength();
-  if(this->Axis->getLocation() == vtkQtChartAxis::Top)
-    {
-    this->Tick->setLine(0, 0, 0, -length);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Bottom)
-    {
-    this->Tick->setLine(0, 0, 0, length);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Left)
-    {
-    this->Tick->setLine(0, 0, -length, 0);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Right)
-    {
-    this->Tick->setLine(0, 0, length, 0);
-    }
-}
-
-void vtkQtChartAxisItem::hideLabel()
-{
-  // Make sure the label is not visible.
-  this->Text->setVisible(false);
-
-  // Make sure the line is the right length.
-  float length = this->Axis->getSmallTickLength();
-  if(this->Axis->getLocation() == vtkQtChartAxis::Top)
-    {
-    this->Tick->setLine(0, 0, 0, -length);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Bottom)
-    {
-    this->Tick->setLine(0, 0, 0, length);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Left)
-    {
-    this->Tick->setLine(0, 0, -length, 0);
-    }
-  else if(this->Axis->getLocation() == vtkQtChartAxis::Right)
-    {
-    this->Tick->setLine(0, 0, length, 0);
-    }
-}
-
-void vtkQtChartAxisItem::setTickVisible(bool visible)
-{
-  if(this->TickVisible != visible)
-    {
-    this->TickVisible = visible;
-    this->setVisible(this->TickVisible && !this->Clipped);
-    }
-}
-
-void vtkQtChartAxisItem::setClipped(bool clipped)
-{
-  if(this->Clipped != clipped)
-    {
-    this->Clipped = clipped;
-    this->setVisible(this->TickVisible && !this->Clipped);
-    }
-}
-
-QRectF vtkQtChartAxisItem::boundingRect() const
-{
-  return QRectF(0, 0, 0, 0);
-}
-
-void vtkQtChartAxisItem::paint(QPainter *,
-    const QStyleOptionGraphicsItem *, QWidget *)
-{
 }
 
 
@@ -396,6 +282,15 @@ vtkQtChartAxisInternal::vtkQtChartAxisInternal()
   this->PresentationChanged = false;
 }
 
+vtkQtChartAxisInternal::~vtkQtChartAxisInternal()
+{
+  QList<vtkQtChartAxisItem *>::Iterator iter = this->Items.begin();
+  for( ; iter != this->Items.end(); ++iter)
+    {
+    delete *iter;
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 static double MinIntLogPower = -1;
@@ -412,8 +307,6 @@ vtkQtChartAxis::vtkQtChartAxis(vtkQtChartAxis::AxisLocation location,
   this->AtMax = 0;
   this->Across = 0;
   this->Zoom = 0;
-  this->Contents = new vtkQtChartContentsArea(this, this->scene());
-  this->Line = new QGraphicsLineItem(this, this->scene());
   this->Location = location;
 
   // Set up the options object.
@@ -430,7 +323,7 @@ vtkQtChartAxis::vtkQtChartAxis(vtkQtChartAxis::AxisLocation location,
       this, SLOT(handlePresentationChange()));
 
   // Set the font height and tick-label space.
-  QFontMetrics fm(this->Options->getLabelFont());
+  QFontMetricsF fm(this->Options->getLabelFont());
   this->Internal->FontHeight = fm.height();
   if(this->Location == vtkQtChartAxis::Top ||
       this->Location == vtkQtChartAxis::Bottom)
@@ -779,31 +672,30 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
   // Calculate the label width for any new labels.
   int i = 0;
   QVariant value;
+  QFontMetricsF fm(this->Options->getLabelFont());
   bool maxWidthReset = this->Internal->MaxLabelWidth == 0;
   QList<vtkQtChartAxisItem *>::Iterator iter = this->Internal->Items.begin();
   for( ; iter != this->Internal->Items.end(); ++iter, ++i)
     {
     bool newLabel = false;
-    if((*iter)->Text->text().isEmpty() || this->Internal->PresentationChanged)
+    if((*iter)->Label.isEmpty() || this->Internal->PresentationChanged)
       {
       // Get the label value from the model and set the item's text.
       this->Model->getLabel(i, value);
-      (*iter)->Text->setFont(this->Options->getLabelFont());
-      (*iter)->Text->setText(this->Options->formatValue(value));
-      (*iter)->updateLayout();
+      (*iter)->Label = this->Options->formatValue(value);
+      (*iter)->setLabelWidth(fm.width((*iter)->Label));
       newLabel = true;
       }
     else if(this->Internal->FontChanged)
       {
-      (*iter)->Text->setFont(this->Options->getLabelFont());
-      (*iter)->updateLayout();
+      (*iter)->setLabelWidth(fm.width((*iter)->Label));
       }
 
     if(maxWidthReset || newLabel)
       {
       // If the max label width was reset or the label is new, use
       // the label width to find the new max.
-      float labelWidth = (*iter)->Text->boundingRect().width();
+      float labelWidth = (*iter)->getLabelWidth();
       if(labelWidth > this->Internal->MaxLabelWidth)
         {
         this->Internal->MaxLabelWidth = labelWidth;
@@ -889,28 +781,9 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
     }
 
   // Finalize the viewport and contents areas.
+  this->prepareGeometryChange();
   this->Internal->Bounds = bounds.size();
   this->setPos(bounds.topLeft());
-
-  // Update the axis line position and length.
-  if(this->Location == vtkQtChartAxis::Left)
-    {
-    this->Line->setLine(0, 0, 0, bounds.height());
-    this->Line->setPos(bounds.width(), 0);
-    }
-  else if(this->Location == vtkQtChartAxis::Bottom)
-    {
-    this->Line->setLine(0, 0, bounds.width(), 0);
-    }
-  else if(this->Location == vtkQtChartAxis::Right)
-    {
-    this->Line->setLine(0, 0, 0, bounds.height());
-    }
-  else if(this->Location == vtkQtChartAxis::Top)
-    {
-    this->Line->setLine(0, 0, bounds.width(), 0);
-    this->Line->setPos(0, bounds.height());
-    }
 
   // Set up the pixel-value scale. Use the contents size to determine
   // the maximum pixel locations.
@@ -1002,7 +875,6 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
   this->Internal->ScaleChanged = false;
   this->setVisible(this->Options->isVisible() &&
       this->Internal->Items.size() > 0);
-  this->Contents->setVisible(this->Options->areLabelsVisible());
   if(this->Options->isVisible() &&
       (this->Options->areLabelsVisible() || this->Options->isGridVisible()))
     {
@@ -1011,23 +883,7 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
     for(i = 0; iter != this->Internal->Items.end(); ++iter, ++i)
       {
       this->Model->getLabel(i, value);
-      float pixel = this->getPixel(value);
-      if(this->Location == vtkQtChartAxis::Top)
-        {
-        (*iter)->setPos(pixel, this->Internal->Bounds.height());
-        }
-      else if(this->Location == vtkQtChartAxis::Bottom)
-        {
-        (*iter)->setPos(pixel, 0);
-        }
-      else if(this->Location == vtkQtChartAxis::Left)
-        {
-        (*iter)->setPos(this->Internal->Bounds.width(), pixel);
-        }
-      else if(this->Location == vtkQtChartAxis::Right)
-        {
-        (*iter)->setPos(0, pixel);
-        }
+      (*iter)->setLocation(this->getPixel(value));
       }
 
     if(this->Options->areLabelsVisible())
@@ -1075,19 +931,8 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
             }
 
           needed = 4 * count;
-          int pixel2 = 0;
-          if(this->Location == vtkQtChartAxis::Left ||
-              this->Location == vtkQtChartAxis::Right)
-            {
-            pixelRange = (int)this->Internal->Items[0]->pos().y();
-            pixel2 = (int)this->Internal->Items[count]->pos().y();
-            }
-          else
-            {
-            pixelRange = (int)this->Internal->Items[0]->pos().x();
-            pixel2 = (int)this->Internal->Items[count]->pos().x();
-            }
-
+          pixelRange = (int)this->Internal->Items[0]->getLocation();
+          int pixel2 = (int)this->Internal->Items[count]->getLocation();
           if(pixel2 < pixelRange)
             {
             pixelRange = pixelRange - pixel2;
@@ -1117,21 +962,18 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
         if(skip == 1 || skipIndex == 0)
           {
           (*iter)->setTickVisible(true);
-          (*iter)->showLabel();
+          (*iter)->setLabelVisible(true);
           }
         else if(tickSkip == 1 || skipIndex % tickSkip == 0)
           {
           (*iter)->setTickVisible(true);
-          (*iter)->hideLabel();
+          (*iter)->setLabelVisible(false);
           }
         else
           {
           (*iter)->setTickVisible(false);
           }
         }
-
-      // Clip the showing labels to the viewport.
-      this->clipLabels();
       }
     }
 }
@@ -1171,15 +1013,6 @@ void vtkQtChartAxis::adjustAxisLayout()
     if(diff > 0)
       {
       this->Internal->Bounds.setWidth(right - this->pos().x());
-      this->Line->setPos(this->Internal->Bounds.width(), 0);
-
-      // Adjust the position of all the labels.
-      QList<vtkQtChartAxisItem *>::Iterator iter =
-          this->Internal->Items.begin();
-      for( ; iter != this->Internal->Items.end(); ++iter)
-        {
-        (*iter)->setPos(this->Internal->Bounds.width(), (*iter)->pos().y());
-        }
       }
     }
   else if(this->Location == vtkQtChartAxis::Right)
@@ -1312,14 +1145,206 @@ bool vtkQtChartAxis::isLogScaleValid(const QVariant &min, const QVariant &max)
   return available;
 }
 
-void vtkQtChartAxis::paint(QPainter *, const QStyleOptionGraphicsItem *,
+void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
     QWidget *)
 {
+  if(!this->Options->isVisible())
+    {
+    return;
+    }
+
+  // If the model is empty, there's nothing to paint.
+  if(!this->Model || this->Model->getNumberOfLabels() == 0)
+    {
+    return;
+    }
+
+  // Draw the axis line.
+  painter->setPen(this->Options->getAxisColor());
+  if(this->Location == vtkQtChartAxis::Left)
+    {
+    float right = this->Internal->Bounds.width();
+    painter->drawLine(QPointF(right, 0.0),
+        QPointF(right, this->Internal->Bounds.height()));
+    }
+  else if(this->Location == vtkQtChartAxis::Top)
+    {
+    float bottom = this->Internal->Bounds.height();
+    painter->drawLine(QPointF(0.0, bottom),
+        QPointF(this->Internal->Bounds.width(), bottom));
+    }
+  else if(this->Location == vtkQtChartAxis::Right)
+    {
+    painter->drawLine(QPointF(0.0, 0.0),
+        QPointF(0.0, this->Internal->Bounds.height()));
+    }
+  else
+    {
+    painter->drawLine(QPointF(0.0, 0.0),
+        QPointF(this->Internal->Bounds.width(), 0.0));
+    }
+
+  if(!this->Options->areLabelsVisible())
+    {
+    return;
+    }
+
+  // Set up the constant values based on the axis location.
+  float x = 0;
+  float y = 0;
+  float tick = 0;
+  float tickSmall = 0;
+  if(this->Location == vtkQtChartAxis::Left)
+    {
+    x = this->Internal->Bounds.width();
+    tick = x - this->Internal->TickLength;
+    tickSmall = x - this->Internal->SmallTickLength;
+    }
+  else if(this->Location == vtkQtChartAxis::Top)
+    {
+    y = this->Internal->Bounds.height();
+    tick = y - this->Internal->TickLength;
+    tickSmall = y - this->Internal->SmallTickLength;
+    }
+  else if(this->Location == vtkQtChartAxis::Right)
+    {
+    x = 0.0;
+    tick = x + this->Internal->TickLength;
+    tickSmall = x + this->Internal->SmallTickLength;
+    }
+  else
+    {
+    y = 0.0;
+    tick = y + this->Internal->TickLength;
+    tickSmall = y + this->Internal->SmallTickLength;
+    }
+
+  QFontMetricsF fm(this->Options->getLabelFont());
+  float fontAscent = fm.ascent();
+  float halfAscent = fontAscent * 0.4;
+  float fontDescent = fm.descent();
+
+  bool vertical = this->Location == vtkQtChartAxis::Left ||
+      this->Location == vtkQtChartAxis::Right;
+
+  // Draw the axis ticks and labels.
+  painter->setFont(this->Options->getLabelFont());
+  QList<vtkQtChartAxisItem *>::Iterator iter = this->Internal->Items.begin();
+  for( ; iter != this->Internal->Items.end(); ++iter)
+    {
+    if(vertical)
+      {
+      // Transform the contents coordinate to bounds space.
+      y = (*iter)->getLocation();
+      if(this->Zoom)
+        {
+        y -= this->Zoom->getYOffset();
+        }
+
+      // Make sure the label is inside the axis bounds.
+      if(y > this->Internal->Bounds.height() + 0.5)
+        {
+        continue;
+        }
+      else if(y < -0.5)
+        {
+        break;
+        }
+
+      // Draw the tick mark for the label. If the label won't fit,
+      // draw a smaller tick mark.
+      if((*iter)->isTickVisible())
+        {
+        painter->setPen(this->Options->getAxisColor());
+        if((*iter)->isLabelVisible())
+          {
+          painter->drawLine(QPointF(tick, y), QPointF(x, y));
+          painter->setPen(this->Options->getLabelColor());
+          y += halfAscent;
+          if(this->Location == vtkQtChartAxis::Left)
+            {
+            painter->drawText(QPointF(tick - (*iter)->getLabelWidth() -
+                this->Internal->TickLabelSpacing, y), (*iter)->Label);
+            }
+          else
+            {
+            painter->drawText(
+                QPointF(tick + this->Internal->TickLabelSpacing, y),
+                (*iter)->Label);
+            }
+          }
+        else
+          {
+          painter->drawLine(QPointF(tickSmall, y), QPointF(x, y));
+          }
+        }
+      }
+    else
+      {
+      // Transform the contents coordinate to bounds space.
+      x = (*iter)->getLocation();
+      if(this->Zoom)
+        {
+        x -= this->Zoom->getXOffset();
+        }
+
+      // Make sure the label is inside the axis bounds.
+      if(x < -0.5)
+        {
+        continue;
+        }
+      else if(x > this->Internal->Bounds.width() + 0.5)
+        {
+        break;
+        }
+
+      // Draw the tick mark for the label. If the label won't fit,
+      // draw a smaller tick mark.
+      if((*iter)->isTickVisible())
+        {
+        painter->setPen(this->Options->getAxisColor());
+        if((*iter)->isLabelVisible())
+          {
+          painter->drawLine(QPointF(x, tick), QPointF(x, y));
+          painter->setPen(this->Options->getLabelColor());
+          x -= (*iter)->getLabelWidth() * 0.5;
+          if(this->Location == vtkQtChartAxis::Top)
+            {
+            painter->drawText(QPointF(x,
+                tick - this->Internal->TickLabelSpacing - fontDescent),
+                (*iter)->Label);
+            }
+          else
+            {
+            painter->drawText(QPointF(x,
+                tick + this->Internal->TickLabelSpacing + fontAscent),
+                (*iter)->Label);
+            }
+          }
+        else
+          {
+          painter->drawLine(QPointF(x, tickSmall), QPointF(x, y));
+          }
+        }
+      }
+    }
 }
 
 QRectF vtkQtChartAxis::boundingRect() const
 {
-  return QRectF(0, 0, 0, 0);
+  if(this->Location == vtkQtChartAxis::Left ||
+      this->Location == vtkQtChartAxis::Right)
+    {
+    return QRectF(0.0, -this->Internal->FontHeight * 0.5,
+        this->Internal->Bounds.width(), this->Internal->Bounds.height() +
+        this->Internal->FontHeight);
+    }
+  else
+    {
+    return QRectF(-this->Internal->MaxLabelWidth * 0.5, 0.0,
+        this->Internal->Bounds.width() + this->Internal->MaxLabelWidth,
+        this->Internal->Bounds.height());
+    }
 }
 
 QRectF vtkQtChartAxis::getBounds() const
@@ -1341,15 +1366,7 @@ float vtkQtChartAxis::getLabelLocation(int index) const
 {
   if(index >= 0 || index < this->Internal->Items.size())
     {
-    if(this->Location == vtkQtChartAxis::Left ||
-        this->Location == vtkQtChartAxis::Right)
-      {
-      return this->Internal->Items[index]->pos().y();
-      }
-    else
-      {
-      return this->Internal->Items[index]->pos().x();
-      }
+    return this->Internal->Items[index]->getLocation();
     }
 
   return -1;
@@ -1527,8 +1544,7 @@ void vtkQtChartAxis::reset()
     int total = this->Model->getNumberOfLabels();
     for(int i = 0; i < total; i++)
       {
-      this->Internal->Items.append(
-          new vtkQtChartAxisItem(this, this->Contents));
+      this->Internal->Items.append(new vtkQtChartAxisItem());
       }
     }
 
@@ -1541,24 +1557,13 @@ void vtkQtChartAxis::reset()
 
 void vtkQtChartAxis::setOffset(float offset)
 {
-  if(this->Location == vtkQtChartAxis::Top ||
-      this->Location == vtkQtChartAxis::Bottom)
-    {
-    this->Contents->setPos(-offset, 0.0);
-    }
-  else
-    {
-    this->Contents->setPos(0.0, -offset);
-    }
-
-  // Clip the showing labels to the viewport.
-  this->clipLabels();
+  this->update();
 }
 
 void vtkQtChartAxis::handleFontChange()
 {
   // Set the font height and tick-label spacing.
-  QFontMetrics fm(this->Options->getLabelFont());
+  QFontMetricsF fm(this->Options->getLabelFont());
   this->Internal->FontHeight = fm.height();
   if(this->Location == vtkQtChartAxis::Top ||
       this->Location == vtkQtChartAxis::Bottom)
@@ -1591,15 +1596,7 @@ void vtkQtChartAxis::handlePresentationChange()
 
 void vtkQtChartAxis::handleColorChange()
 {
-  QPen axisPen(this->Options->getAxisColor());
-  QPen labelPen(this->Options->getLabelColor());
-  this->Line->setPen(axisPen);
-  QList<vtkQtChartAxisItem *>::Iterator iter = this->Internal->Items.begin();
-  for( ; iter != this->Internal->Items.end(); ++iter)
-    {
-    (*iter)->Tick->setPen(axisPen);
-    (*iter)->Text->setPen(labelPen);
-    }
+  this->update();
 }
 
 void vtkQtChartAxis::handleAxisScaleChange()
@@ -1618,12 +1615,11 @@ void vtkQtChartAxis::insertLabel(int index)
 
   if(index < this->Internal->Items.size())
     {
-    this->Internal->Items.insert(index,
-        new vtkQtChartAxisItem(this, this->Contents));
+    this->Internal->Items.insert(index, new vtkQtChartAxisItem());
     }
   else
     {
-    this->Internal->Items.append(new vtkQtChartAxisItem(this, this->Contents));
+    this->Internal->Items.append(new vtkQtChartAxisItem());
     }
 
   // Request a re-layout.
@@ -1681,7 +1677,7 @@ float vtkQtChartAxis::getLabelWidthGuess(const QVariant &minimum,
 
   // Use a string of '8's to determine the maximum font width
   // in case the font is not fixed-pitch.
-  QFontMetrics fm(this->Options->getLabelFont());
+  QFontMetricsF fm(this->Options->getLabelFont());
   QString label;
   label.fill('8', length1);
   return fm.width(label);
@@ -2139,21 +2135,6 @@ void vtkQtChartAxis::generateLogLabels(const QRectF &contents)
     }
 
   this->Model->finishModifyingData();
-}
-
-void vtkQtChartAxis::clipLabels()
-{
-  // Create the viewport in contents coordinates.
-  QRectF bounds(this->Contents->mapFromParent(0.0, 0.0),
-      this->Internal->Bounds);
-  bounds.adjust(-0.5, -0.5, 0.5, 0.5);
-
-  // Set the visibility of each of the label items.
-  QList<vtkQtChartAxisItem *>::Iterator iter = this->Internal->Items.begin();
-  for( ; iter != this->Internal->Items.end(); ++iter)
-    {
-    (*iter)->setClipped(!bounds.contains((*iter)->pos()));
-    }
 }
 
 
