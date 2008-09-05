@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.37");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.38");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -155,9 +155,10 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
+  this->EdgeLayoutStrategy   = 0;
+  this->EdgeLayoutPreference = this->ArcParallelStrategy;
   this->SetLayoutStrategyToFast2D();
   this->SetEdgeLayoutStrategyToArcParallel();
-  this->EdgeLayoutPreference = this->ArcParallelStrategy;
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
