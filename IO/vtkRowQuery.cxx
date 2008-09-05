@@ -24,7 +24,7 @@
 #include "vtksys/stl/algorithm"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQuery, "1.5");
+vtkCxxRevisionMacro(vtkRowQuery, "1.6");
 
 vtkRowQuery::vtkRowQuery()
 {
@@ -38,6 +38,8 @@ vtkRowQuery::~vtkRowQuery()
 void vtkRowQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "CaseSensitiveFieldNames: " 
+    << this->CaseSensitiveFieldNames << endl;
 }
 
 int vtkRowQuery::GetFieldIndex(char* name)
