@@ -51,7 +51,7 @@ INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
 CREATE_TEST_SOURCELIST(TestSrcs QtChartCxxTests.cxx ${Tests} )
 
 ADD_EXECUTABLE(QtChartCxxTests ${TestSrcs} QTestApp.cxx)
-TARGET_LINK_LIBRARIES(QtChartCxxTests vtkQtChart vtkInfovis)
+TARGET_LINK_LIBRARIES(QtChartCxxTests vtkQtChart vtkCommon)
 
 FOREACH(test ${Tests})
   GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
