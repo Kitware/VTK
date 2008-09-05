@@ -89,23 +89,23 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // an exportor to save it to a file.
   vtkPOVExporter *povexp = vtkPOVExporter::New();
   povexp->SetRenderWindow(renWin);
-  povexp->SetFilePrefix("TestPOVExporter");
+  povexp->SetFileName("TestPOVExporter.pov");
   cout << "Writing file TestPOVExporter.pov..." << endl;
 
   povexp->Write();
-  cout << "Done writing file TestPOVExporter.avi..." << endl;
+  cout << "Done writing file TestPOVExporter.pov..." << endl;
   
   povexp->Delete();
 
   exists =
     static_cast<int>(vtksys::SystemTools::FileExists("TestPOVExporter.pov"));
   length = vtksys::SystemTools::FileLength("TestPOVExporter.pov");
-  cout << "TestPOVExporter.avi file exists: " << exists << endl;
-  cout << "TestPOVExporter.avi file length: " << length << endl;
+  cout << "TestPOVExporter.pov file exists: " << exists << endl;
+  cout << "TestPOVExporter.pov file length: " << length << endl;
   if (!exists)
     {
     err = 1;
-    cerr << "ERROR: 1 - Test failing because TestPOVExporter.avi file doesn't exist..." << endl;
+    cerr << "ERROR: 1 - Test failing because TestPOVExporter.pov file doesn't exist..." << endl;
     }
   else
     {
@@ -115,7 +115,7 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   if (0==length)
     {
     err = 2;
-    cerr << "ERROR: 2 - Test failing because TestPOVExporter.avi file has zero length..." << endl;
+    cerr << "ERROR: 2 - Test failing because TestPOVExporter.pov file has zero length..." << endl;
     }
 
   renWin->Delete();  
