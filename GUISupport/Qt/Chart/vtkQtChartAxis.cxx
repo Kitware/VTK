@@ -1555,7 +1555,7 @@ void vtkQtChartAxis::reset()
     }
 }
 
-void vtkQtChartAxis::setOffset(float offset)
+void vtkQtChartAxis::setOffset(float /*offset*/)
 {
   this->update();
 }
