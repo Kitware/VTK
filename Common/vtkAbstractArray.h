@@ -302,6 +302,7 @@ public:
   // if none already exists.
   vtkInformation* GetInformation();
 
+  //BTX
   // Description:
   // Set/get associated meta-data.
   vtkDataArrayMetaData *GetMetaData()
@@ -309,7 +310,7 @@ public:
     return this->MetaData; 
   }
   void SetMetaData(vtkDataArrayMetaData *amd);
-
+  //ETX
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray(vtkIdType numComp=1);
