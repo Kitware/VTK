@@ -33,8 +33,8 @@ class VTK_COMMON_EXPORT vtkDataArrayMetaData : public vtkObject
     void PrintSelf(ostream &os, vtkIndent indent);
     static vtkDataArrayMetaData *New();
     //
-    virtual int DeepCopy(const vtkDataArrayMetaData *amd){return 0;}
-    virtual int ShallowCopy(const vtkDataArrayMetaData *amd){return 0;}
+    virtual int DeepCopy(const vtkDataArrayMetaData *){return 0;}
+    virtual int ShallowCopy(const vtkDataArrayMetaData *){return 0;}
   protected:
     vtkDataArrayMetaData(){};
     virtual ~vtkDataArrayMetaData(){};
