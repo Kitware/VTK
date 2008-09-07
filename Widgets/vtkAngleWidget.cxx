@@ -417,11 +417,11 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       }
     else if ( self->CurrentHandle == 2 )
       {
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       self->WidgetState = vtkAngleWidget::Manipulate;
       self->Point2Widget->SetEnabled(1);
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       }
     }
   

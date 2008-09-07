@@ -337,11 +337,11 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
     else if ( self->CurrentHandle == 2 )
       {
       self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
       vtkBiDimensionalRepresentation2D::SafeDownCast(self->WidgetRep)->Point3WidgetInteraction(e);
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL); 
       }
     }
   

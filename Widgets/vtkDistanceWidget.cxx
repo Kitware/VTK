@@ -293,12 +293,12 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     {
     self->CurrentHandle = 1;
     self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
-    self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
     self->WidgetState = vtkDistanceWidget::Manipulate;
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
     self->CurrentHandle = -1;
     self->ReleaseFocus();
+    self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
     }
 
   // Maybe we are trying to manipulate the widget handles
