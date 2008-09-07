@@ -25,11 +25,22 @@
 
 #include "vtkObject.h"
 
-class vtkDataArrayMetaData : public vtkObject
+class VTK_COMMON_EXPORT vtkDataArrayMetaData : public vtkObject
 {
   public:
-    virtual int DeepCopy(const vtkDataArrayMetaData *amd)=0;
-    virtual int ShallowCopy(const vtkDataArrayMetaData *amd)=0;
+    //
+    vtkTypeRevisionMacro(vtkDataArrayMetaData,vtkObject);
+    void PrintSelf(ostream &os, vtkIndent indent);
+    static vtkDataArrayMetaData *New();
+    //
+    virtual int DeepCopy(const vtkDataArrayMetaData *amd){return 0;}
+    virtual int ShallowCopy(const vtkDataArrayMetaData *amd){return 0;}
+  protected:
+    vtkDataArrayMetaData(){};
+    virtual ~vtkDataArrayMetaData(){};
+  private:
+    vtkDataArrayMetaData(const vtkDataArrayMetaData&); // Not implemented
+    void operator=(const vtkDataArrayMetaData&); // Not implemented
 };
 
 #endif

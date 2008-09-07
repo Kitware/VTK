@@ -44,6 +44,7 @@ vtkCylindricalTransform.cxx
 vtkDataArray.cxx
 vtkDataArrayCollection.cxx
 vtkDataArrayCollectionIterator.cxx
+vtkDataArrayMetaData.cxx
 vtkDataArraySelection.cxx
 vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
@@ -259,6 +260,7 @@ vtkCallbackCommand
 vtkCommand
 vtkCommonInformationKeyManager
 vtkDataArray
+vtkDataArrayMetaData
 vtkEventForwarderCommand
 vtkFloatingPointExceptions
 vtkFunctionSet
