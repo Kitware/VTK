@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.38");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.39");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -695,10 +695,15 @@ void vtkGraphLayoutView::SetupRenderWindow(vtkRenderWindow* win)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::AddInputConnection(
+void vtkGraphLayoutView::AddInputConnection( int port, int item,
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
-  if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
+  if( port != 0 || item != 0 )
+  {
+    vtkErrorMacro("This view only supports one representation.");
+    return;
+  }
+  else if (this->GraphLayout->GetNumberOfInputConnections(0) == 0)
     {
     this->GraphLayout->SetInputConnection(conn);
     this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
@@ -716,9 +721,14 @@ void vtkGraphLayoutView::AddInputConnection(
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::RemoveInputConnection(
+void vtkGraphLayoutView::RemoveInputConnection( int port, int item,
   vtkAlgorithmOutput* conn, vtkAlgorithmOutput* selectionConn)
 {
+  if( port != 0 || item != 0 )
+    {
+    vtkErrorMacro("This view only supports one representation.");
+    }
+
   if (this->GraphLayout->GetNumberOfInputConnections(0) > 0 &&
       this->GraphLayout->GetInputConnection(0, 0) == conn)
     {
@@ -887,10 +897,10 @@ void vtkGraphLayoutView::PrepareForRendering()
   vtkAlgorithmOutput* conn = rep->GetInputConnection();
   if (this->GraphLayout->GetInputConnection(0, 0) != conn)
     {
-    this->RemoveInputConnection(
+      this->RemoveInputConnection( 0, 0,
       this->GraphLayout->GetInputConnection(0, 0),
       this->ExtractSelectedGraph->GetInputConnection(1, 0));
-    this->AddInputConnection(conn, rep->GetSelectionConnection());
+    this->AddInputConnection(0, 0, conn, rep->GetSelectionConnection());
     }
   
   this->Superclass::PrepareForRendering();

@@ -18,6 +18,7 @@ vtkCommunity2DLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkContingencyStatistics.cxx
 vtkCorrelativeStatistics.cxx
+vtkCosmicTreeLayoutStrategy.cxx
 vtkDataObjectToTable.cxx
 vtkDelimitedTextReader.cxx
 vtkDescriptiveStatistics.cxx

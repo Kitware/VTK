@@ -106,13 +106,13 @@ protected:
   
   // Description:
   // Connects the algorithm output to the internal pipeline.
-  virtual void AddInputConnection(
+  virtual void AddInputConnection( int port, int item,
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
   
   // Description:
   // Disconnects the algorithm output from the internal pipeline.
-  virtual void RemoveInputConnection(
+  virtual void RemoveInputConnection( int port, int item,
     vtkAlgorithmOutput* conn,
     vtkAlgorithmOutput* selectionConn);
   
