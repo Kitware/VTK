@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.14");
+vtkCxxRevisionMacro(vtkClustering2DLayoutStrategy, "1.15");
 vtkStandardNewMacro(vtkClustering2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -268,7 +268,13 @@ void vtkClustering2DLayoutStrategy::Initialize()
     if (weightArray != NULL)
       {
       weight = weightArray->GetTuple1(e.Id);
-      this->EdgeArray[e.Id].weight = weight / maxWeight;
+      float normalized_weight = weight / maxWeight;
+      
+      // Now increase the effect of high weight edges
+      // Note: This is full of magic goodness
+      normalized_weight = pow(normalized_weight, 4);
+      
+      this->EdgeArray[e.Id].weight = normalized_weight;
       }
     else
       {
