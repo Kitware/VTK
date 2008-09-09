@@ -23,7 +23,7 @@
 #undef VTK_COSMIC_DBG
 
 vtkStandardNewMacro(vtkCosmicTreeLayoutStrategy);
-vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.2");
+vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.3");
 
 /// Represent a circle to be placed
 class vtkCosmicTreeEntry
@@ -201,8 +201,6 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
         }
       double cumAngle = 0.;
       double sumAngp = 0.;
-      double olderr;
-      double err;
       // Compute new angles of the enclosing circle subtended by each circle
       // Then compute the error associated with these
       for ( i = 0; i < N; ++ i )
@@ -577,7 +575,6 @@ void vtkCosmicTreeLayoutStrategy::OffsetChildren(
 
   vtkIdType childIdx;
   double nextParent[4];
-  int i;
 
   switch ( mode )
     {
@@ -585,7 +582,7 @@ void vtkCosmicTreeLayoutStrategy::OffsetChildren(
     // We must apply the scale factor.
     // III. Offset this node
     pts->GetPoint( root, nextParent );
-    for ( i = 0; i < 3; ++ i )
+    for ( int i = 0; i < 3; ++ i )
       {
       nextParent[i] = ( nextParent[i] + parent[i] ) * parent[4];
       }
