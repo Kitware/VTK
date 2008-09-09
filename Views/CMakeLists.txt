@@ -9,6 +9,7 @@ SET( Kit_SRCS
 vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
 vtkGraphLayoutView.cxx
+vtkHierarchicalGraphView.cxx
 vtkRenderView.cxx
 vtkSurfaceRepresentation.cxx
 vtkTreeLayoutView.cxx
