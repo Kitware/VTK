@@ -54,46 +54,30 @@ int TestHierarchicalGraphView(int argc, char* argv[])
 
   view->SetVertexColorArrayName("VertexDegree");
   view->SetColorVertices(true);
-//  #view->SetEdgeColorArrayName("weight");
   view->SetColorEdges(true);
   view->SetVertexLabelArrayName("id");
   view->SetVertexLabelVisibility(true);
   view->SetLayoutStrategyToCosmicTree();
   view->SetScalingArrayName("VertexDegree");
+  view->TreeEdgeVisibilityOn();
+  view->SetBundlingStrength(.25);
   
-  VTK_CREATE(vtkHierarchicalGraphView, view2);
-  view2->SetRepresentationFromInputConnection(reader2->GetOutputPort());
-  view2->SetRepresentationFromInputConnection(1, reader1->GetOutputPort());
-
-  view2->SetVertexColorArrayName("VertexDegree");
-  view2->SetColorVertices(true);
-//  #view2->SetEdgeColorArrayName("weight");
-  view2->SetColorEdges(true);
-  view2->SetVertexLabelArrayName("id");
-  view2->SetVertexLabelVisibility(true);
-  
-    //# Apply a theme to the views
+  // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
-  view2->ApplyViewTheme(theme);
   theme->Delete();
  
   VTK_CREATE(vtkRenderWindow, win);
   view->SetupRenderWindow(win);
   
-  VTK_CREATE(vtkRenderWindow, win2);
-  view2->SetupRenderWindow(win2);
-  
   int retVal = vtkRegressionTestImage(win);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
-  {
+    {
     win->GetInteractor()->Initialize();
-    win2->GetInteractor()->Initialize();
-    
     win->GetInteractor()->Start();
 
-   retVal = vtkRegressionTester::PASSED;
- }
+    retVal = vtkRegressionTester::PASSED;
+    }
   
  return 0;
 }

@@ -72,7 +72,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.4");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -668,6 +668,7 @@ void vtkHierarchicalGraphView::SetupRenderWindow(vtkRenderWindow* win)
 {
   this->Superclass::SetupRenderWindow(win);
   win->GetInteractor()->SetInteractorStyle(this->InteractorStyle);
+  this->Renderer->ResetCamera();
 }
 
 //----------------------------------------------------------------------------
