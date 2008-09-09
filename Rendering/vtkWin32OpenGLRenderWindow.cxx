@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.155");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.156");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1408,7 +1408,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
     }
 }
 
-void vtkWin32OpenGLRenderWindow::ResumecreenRendering(void)
+void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
 {
   // release OpenGL graphics resources before switch back to on-screen. 
   this->MakeCurrent();
