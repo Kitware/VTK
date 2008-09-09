@@ -47,6 +47,7 @@ SET( Kit_SRCS
   vtkDynamic2DLabelMapper.cxx
   vtkExporter.cxx
   vtkFollower.cxx
+  vtkFrameBufferObject.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
@@ -97,6 +98,7 @@ SET( Kit_SRCS
   vtkPainterPolyDataMapper.cxx
   vtkParallelCoordinatesActor.cxx
   vtkPicker.cxx
+  vtkPixelBufferObject.cxx
   vtkPointPicker.cxx
   vtkPointsPainter.cxx
   vtkPOVExporter.cxx
@@ -128,6 +130,7 @@ SET( Kit_SRCS
   vtkShader.cxx
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
+  vtkShaderProgram2.cxx
   vtkStandardPolyDataPainter.cxx
   vtkTesting.cxx
   # vtkTextActor2D.cxx
@@ -137,6 +140,7 @@ SET( Kit_SRCS
   vtkTextProperty.cxx
   vtkTexture.cxx
   vtkTexturedActor2D.cxx
+  vtkTextureObject.cxx
   vtkTransformInterpolator.cxx
   vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx
