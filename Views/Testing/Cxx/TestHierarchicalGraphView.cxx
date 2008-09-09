@@ -59,8 +59,6 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   view->SetVertexLabelVisibility(true);
   view->SetLayoutStrategyToCosmicTree();
   view->SetScalingArrayName("VertexDegree");
-  view->TreeEdgeVisibilityOn();
-  view->SetBundlingStrength(.25);
   
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
