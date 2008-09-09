@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.156");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.157");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1405,14 +1405,18 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
       {
       vtkErrorMacro("wglDeleteContext failed in CleanUpOffScreenRendering(), error: " << GetLastError());
       }
+    this->ContextId=0;
     }
 }
 
 void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
 {
   // release OpenGL graphics resources before switch back to on-screen. 
-  this->MakeCurrent();
-  this->CleanUpRenderers();
+  if(this->ContextId!=0)
+    {
+      this->MakeCurrent();
+      this->CleanUpRenderers();
+    }
 
   this->Mapped = this->ScreenMapped;
   this->Size[0] = this->ScreenWindowSize[0];
