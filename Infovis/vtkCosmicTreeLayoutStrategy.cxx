@@ -23,7 +23,7 @@
 #undef VTK_COSMIC_DBG
 
 vtkStandardNewMacro(vtkCosmicTreeLayoutStrategy);
-vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.4");
+vtkCxxRevisionMacro(vtkCosmicTreeLayoutStrategy,"1.5");
 
 /// Represent a circle to be placed
 class vtkCosmicTreeEntry
@@ -188,29 +188,35 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
     // Iterate until we have things close to fully packed or we reach
     // the maximum number of iterations.
     double err = twopi;
-    double olderr = 0;
+    double olderr;
     int iter = 0;
+    int bonk = 0; // number of successive times we are forced to set Re = 2.01*circles[0].Radius
     do
       {
       // Compute a new enclosing radius. Do not allow it to shrink to
       // the point where the largest enclosed circle overlaps the origin.
       Re = circles[0].Radius * ( 1. + 1. / sin( ang[0] / 2. ) );
-      if ( 1.9 * circles[0].Radius > Re )
+      if ( 1.99 * circles[0].Radius > Re )
         {
-        Re = 2.1 * circles[0].Radius;
+        Re = 2.01 * circles[0].Radius;
+        ++ bonk;
+        }
+      else
+        {
+        bonk = 0;
         }
       double cumAngle = 0.;
       double sumAngp = 0.;
       // Compute new angles of the enclosing circle subtended by each circle
       // Then compute the error associated with these
+      olderr = err;
+      err = 0.;
       for ( i = 0; i < N; ++ i )
         {
-        vtkCosmicTreeEntry& circ( circles[i] );
-        err = 0.;
-        circ.Alpha = ang[i] / 2. + cumAngle;
+        vtkCosmicTreeEntry* circ = &circles[i];
+        circ->Alpha = ang[i] / 2. + cumAngle;
         cumAngle += ang[i];
-        sumAngp += ( angp[i] = 2. * asin( circ.Radius / ( Re - circ.Radius ) ) );
-        olderr = err;
+        sumAngp += ( angp[i] = 2. * asin( circ->Radius / ( Re - circ->Radius ) ) );
         double localErr = fabs( angp[i] - ang[i] );
         if ( localErr > err )
           {
@@ -219,12 +225,21 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
         }
       for ( i = 0; i < N; ++ i )
         {
+        if ( angp[i] / sumAngp > 0.5 )
+          {
+          sumAngp -= angp[i];
+          angp[i] = sumAngp;
+          sumAngp *= 2.;
+          }
         ang[i] = angp[i] / sumAngp * twopi;
         }
       ++ iter;
       }
-    while ( olderr > err && err > 1.e-8 && iter < 20 );
-    //while ( err > 1.e-8 && iter < 30 );
+    //while ( olderr > err && err > 1.e-8 && iter < 20 );
+    //while ( ( olderr > err || err > 1.e-8 ) && ( iter < 31 && bonk < 3 ) );
+    //while ( err > 1.e-8 && ( iter < 31 && bonk < 3 ) );
+    while ( fabs( err - olderr ) > 1.e-3 && err > 1.e-8 && ( iter < 31 && bonk < 3 ) );
+    //while ( err > 1.e-8 && iter < 51 );
 
     for ( i = 0; i < N; ++ i )
       {
