@@ -49,6 +49,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   reader2->Update();
   
   VTK_CREATE(vtkHierarchicalGraphView, view);
+  view->PrintSelf(cout,vtkIndent());
   view->SetHierarchyFromInputConnection(reader2->GetOutputPort());
   view->SetGraphFromInputConnection(reader1->GetOutputPort());
 

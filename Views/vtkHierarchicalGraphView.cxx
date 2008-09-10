@@ -72,7 +72,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.6");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -1077,10 +1077,13 @@ void vtkHierarchicalGraphView::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Coordinate: " << endl;
   this->Coordinate->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "HierarchicalGraphLayout: " << endl;
+  os << indent << "GraphLayout: " << endl;
   this->GraphLayout->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "LayoutStrategy: " << endl;
-  this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());
+  if (this->LayoutStrategy)
+    {
+    os << indent << "LayoutStrategy: " << endl;
+    this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());
+    }
   os << indent << "TreeStrategy: " << endl;
   this->TreeStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "CosmicTreeStrategy: " << endl;
@@ -1089,8 +1092,6 @@ void vtkHierarchicalGraphView::PrintSelf(ostream& os, vtkIndent indent)
   this->PassThroughStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "CircularStrategy: " << endl;
   this->CircularStrategy->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "GraphLayout: " << endl;
-  this->GraphLayout->PrintSelf(os, indent.GetNextIndent());
   os << indent << "VertexDegree: " << endl;
   this->VertexDegree->PrintSelf(os, indent.GetNextIndent());
   os << indent << "TreeMapper: " << endl;
