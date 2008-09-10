@@ -72,7 +72,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.5");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -113,6 +113,8 @@ vtkHierarchicalGraphView::vtkHierarchicalGraphView()
   this->SelectedGraphMapper    = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
   
+  vtkGraphLayoutStrategy *nothing = 0;
+  this->SetLayoutStrategy(nothing);
   this->LayoutStrategyNameInternal = 0;
   this->IconArrayNameInternal = 0;
 
