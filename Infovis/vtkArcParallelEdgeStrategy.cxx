@@ -32,7 +32,7 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
-vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.3");
+vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.4");
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
 {
@@ -79,7 +79,14 @@ void vtkArcParallelEdgeStrategy::Layout()
       sqrt(vtkMath::Distance2BetweenPoints(sourcePt, targetPt));
     }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-  avgEdgeLength /= numEdges;
+  if (numEdges > 0)
+    {
+    avgEdgeLength /= numEdges;
+    }
+  else
+    {
+    avgEdgeLength = 1.0;
+    }
   double maxLoopHeight = avgEdgeLength / 10.0;
   double* pts = new double[this->NumberOfSubdivisions*3];
   for (vtkIdType eid = 0; eid < numEdges; ++eid)

@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.39");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.40");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -105,6 +105,9 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SelectedGraphActor     = vtkSmartPointer<vtkActor>::New();
   this->VertexScalarBar        = vtkSmartPointer<vtkScalarBarWidget>::New();
   this->EdgeScalarBar          = vtkSmartPointer<vtkScalarBarWidget>::New();
+  this->EdgeSelectionPoly      = vtkSmartPointer<vtkGraphToPolyData>::New();
+  this->EdgeSelectionMapper    = vtkSmartPointer<vtkPolyDataMapper>::New();
+  this->EdgeSelectionActor     = vtkSmartPointer<vtkActor>::New();
   
   this->LayoutStrategyNameInternal = 0;
   this->EdgeLayoutStrategyNameInternal = 0;
@@ -189,6 +192,12 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   
   this->SelectedGraphMapper->SetInputConnection(this->ExtractSelectedGraph->GetOutputPort());
   this->SelectedGraphActor->SetMapper(this->SelectedGraphMapper);
+
+  // An actor that just draws edges used for edge selection.
+  this->EdgeSelectionPoly->SetInputConnection(this->VertexDegree->GetOutputPort());
+  this->EdgeSelectionMapper->SetInputConnection(this->EdgeSelectionPoly->GetOutputPort());
+  this->EdgeSelectionActor->SetMapper(this->EdgeSelectionMapper);
+  this->EdgeSelectionActor->VisibilityOff();
 
   // Register for progress.
   this->RegisterProgress(this->GraphLayout);
@@ -712,6 +721,7 @@ void vtkGraphLayoutView::AddInputConnection( int port, int item,
     this->Renderer->AddActor(this->SelectedGraphActor);
     this->Renderer->AddActor(this->VertexLabelActor);
     this->Renderer->AddActor(this->EdgeLabelActor);
+    this->Renderer->AddActor(this->EdgeSelectionActor);
     }
   else
     {
@@ -739,6 +749,7 @@ void vtkGraphLayoutView::RemoveInputConnection( int port, int item,
     this->Renderer->RemoveActor(this->SelectedGraphActor);
     this->Renderer->RemoveActor(this->VertexLabelActor);
     this->Renderer->RemoveActor(this->EdgeLabelActor);
+    this->Renderer->RemoveActor(this->EdgeSelectionActor);
     }
 }
 
@@ -810,21 +821,23 @@ void vtkGraphLayoutView::ProcessEvents(
 
     // Convert to the proper selection type.
     this->GraphLayout->Update();
-    vtkDataObject* data = this->GraphLayout->GetOutput();
-    vtkSmartPointer<vtkSelection> selection;
-    selection.TakeReference(vtkConvertSelection::ToSelectionType(
+    vtkGraph* data = vtkGraph::SafeDownCast(this->GraphLayout->GetOutput());
+    vtkSmartPointer<vtkSelection> vertexSelection;
+    vertexSelection.TakeReference(vtkConvertSelection::ToSelectionType(
       kdSelection, data, this->SelectionType, this->SelectionArrayNames));
-    
-    // FIXME: Selection on edges needs to be supported.
-#if 0
-    // If the selection is empty, do a visible cell selection
-    // to attempt to pick up an edge.
-    vtkAbstractArray* list = selection->GetSelectionList();
-    if (list && (list->GetNumberOfTuples() == 0))
+
+    vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
+    selection->SetContentType(vtkSelection::SELECTIONS);
+
+    if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
       {
-      // The edge actor must be opaque for visible cell selector.
-      double opacity = this->EdgeActor->GetProperty()->GetOpacity();
-      this->EdgeActor->GetProperty()->SetOpacity(1);
+      selection->AddChild(vertexSelection);
+      }
+    else
+      {
+      // If we didn't find any vertices, perform edge selection.
+      // The edge actor must be opaque for visible cell selection
+      this->EdgeSelectionActor->VisibilityOn();
       
       unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
       unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
@@ -835,37 +848,39 @@ void vtkGraphLayoutView::ProcessEvents(
       this->VisibleCellSelector->SetProcessorId(0);
       this->VisibleCellSelector->SetRenderPasses(0, 0, 0, 0, 1);
       this->VisibleCellSelector->Select();  
-      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
       this->VisibleCellSelector->GetSelectedIds(ids);
+
+      // Turn off the special edge actor
+      this->EdgeSelectionActor->VisibilityOff();
       
-      // Set the opacity back to the original value.
-      this->EdgeActor->GetProperty()->SetOpacity(opacity);
-      
-      vtkIdTypeArray* selectedIds = vtkIdTypeArray::New();
-      vtkGraph* graph = this->GraphLayout->GetOutput();
+      vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
         {
         vtkIdType edge = ids->GetValue(4*i+3);
-        vtkIdType source = graph->GetSourceVertex(edge);
-        vtkIdType target = graph->GetTargetVertex(edge);
-        selectedIds->InsertNextValue(source);
-        selectedIds->InsertNextValue(target);
+        selectedIds->InsertNextValue(edge);
         if (singleSelectMode)
           {
           break;
           }
         }
       
-      selection->Delete();
-      selection = vtkSelection::New();
-      selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-      selection->SetSelectionList(selectedIds);
-      ids->Delete();
-      selectedIds->Delete();      
+      vtkSmartPointer<vtkSelection> edgeIndexSelection = vtkSmartPointer<vtkSelection>::New();
+      edgeIndexSelection->SetContentType(vtkSelection::INDICES);
+      edgeIndexSelection->SetFieldType(vtkSelection::EDGE);
+      edgeIndexSelection->SetSelectionList(selectedIds);
+
+      // Convert to the proper selection type.
+      vtkSmartPointer<vtkSelection> edgeSelection;
+      edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
+        edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
+
+      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+        {
+        selection->AddChild(edgeSelection);
+        }
       }
-#endif
-    
+
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
       {

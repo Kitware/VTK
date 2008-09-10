@@ -390,6 +390,11 @@ protected:
   vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
   vtkSmartPointer<vtkActor>                        SelectedGraphActor;
   vtkSmartPointer<vtkGraphMapper>                  SelectedGraphMapper;
+
+  // Actor for edge selection
+  vtkSmartPointer<vtkGraphToPolyData>              EdgeSelectionPoly;
+  vtkSmartPointer<vtkPolyDataMapper>               EdgeSelectionMapper;
+  vtkSmartPointer<vtkActor>                        EdgeSelectionActor;
   //ETX
 
 private:

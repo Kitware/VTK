@@ -493,8 +493,6 @@ public:
   // Get/Set the internal edge control points associated with each edge.
   // The size of the pts array is 3*npts, and holds the x,y,z
   // location of each edge control point.
-  // NOTE: Every edge is assumed to start/end at it's endpoint vertex
-  // locations. Only use this structure to store additional edge points.
   void SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts);
   void GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts);
   //ETX

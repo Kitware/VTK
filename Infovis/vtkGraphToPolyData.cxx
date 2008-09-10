@@ -41,7 +41,7 @@
 #include <vtksys/stl/utility>
 #include <vtksys/stl/vector>
 
-vtkCxxRevisionMacro(vtkGraphToPolyData, "1.13");
+vtkCxxRevisionMacro(vtkGraphToPolyData, "1.14");
 vtkStandardNewMacro(vtkGraphToPolyData);
 
 vtkGraphToPolyData::vtkGraphToPolyData()
@@ -96,17 +96,24 @@ int vtkGraphToPolyData::RequestData(
       vtkIdType npts;
       double* pts;
       input->GetEdgePoints(e, npts, pts);
-      vtkIdType source = input->GetSourceVertex(e);
-      vtkIdType target = input->GetTargetVertex(e);
-      cells->InsertNextValue(2 + npts);
-      cells->InsertNextValue(source);
-      for (vtkIdType i = 0; i < npts; ++i, pts += 3)
+      if (npts == 0)
         {
-        noExtraPoints = false;
-        vtkIdType pt = output->GetPoints()->InsertNextPoint(pts);
-        cells->InsertNextValue(pt);
+        vtkIdType source = input->GetSourceVertex(e);
+        vtkIdType target = input->GetTargetVertex(e);
+        cells->InsertNextValue(2);
+        cells->InsertNextValue(source);
+        cells->InsertNextValue(target);
         }
-      cells->InsertNextValue(target);
+      else
+        {
+        cells->InsertNextValue(npts);
+        for (vtkIdType i = 0; i < npts; ++i, pts += 3)
+          {
+          noExtraPoints = false;
+          vtkIdType pt = output->GetPoints()->InsertNextPoint(pts);
+          cells->InsertNextValue(pt);
+          }
+        }
       }
     vtkSmartPointer<vtkCellArray> newLines = 
       vtkSmartPointer<vtkCellArray>::New();
