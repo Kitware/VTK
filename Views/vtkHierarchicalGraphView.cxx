@@ -72,7 +72,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.6");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.7");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -816,93 +816,29 @@ void vtkHierarchicalGraphView::ProcessEvents(
     this->KdTreeSelector->SetSingleSelectionThreshold(dist2);
     this->KdTreeSelector->Update();
     vtkSelection* kdSelection = this->KdTreeSelector->GetOutput();
-    this->VertexDegree->Update();
-    vtkDataObject* data = this->VertexDegree->GetOutput();
+
+    // Convert to the proper selection type.
+    this->GraphLayout->Update();
+    vtkGraph* data = vtkGraph::SafeDownCast(this->GraphLayout->GetOutput());
+    vtkSmartPointer<vtkSelection> vertexSelection;
+    vertexSelection.TakeReference(vtkConvertSelection::ToSelectionType(
+      kdSelection, data, this->SelectionType, this->SelectionArrayNames));
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection->SetContentType(vtkSelection::SELECTIONS);
 
-    // Add the tree vertex selection.
-    // Make sure we only have a single-level tree of selections
-    vtkSelection* treeVertexSel = vtkConvertSelection::ToSelectionType(
-      kdSelection, data, this->SelectionType, this->SelectionArrayNames);
-    if (treeVertexSel->GetContentType() == vtkSelection::SELECTIONS)
+    if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
       {
-      for (unsigned int c = 0; c < treeVertexSel->GetNumberOfChildren(); ++c)
-        {
-        selection->AddChild(treeVertexSel->GetChild(c));
-        }
+      selection->AddChild(vertexSelection);
       }
+      
+    // FIXME: Support edge selection
+#if 0
     else
       {
-      selection->AddChild(treeVertexSel);
-      }
-    treeVertexSel->Delete();
-
-    // Add the graph edge selection.
-    if (kdSelection->GetSelectionList())
-      {
-      // First, convert the tree index selection to a tree pedigree id selection.
-      vtkSmartPointer<vtkSelection> pedIdSelection;
-      pedIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-        kdSelection, data, vtkSelection::PEDIGREEIDS, 0));
-      vtkAbstractArray* selectedVertexPedIds = vtkAbstractArray::SafeDownCast(
-        pedIdSelection->GetSelectionList());
-
-      // Then convert the tree vertex selection to a graph edge selection.
-      vtkAlgorithmOutput* conn = graphRep->GetInputConnection();
-      vtkGraph* g = vtkGraph::SafeDownCast(
-        conn->GetProducer()->GetOutputDataObject(conn->GetIndex()));
-      vtkAbstractArray* vertexPedIds = g->GetVertexData()->GetPedigreeIds();
-      vtkSmartPointer<vtkIdTypeArray> edgeIds =
-        vtkSmartPointer<vtkIdTypeArray>::New();
-      vtkSmartPointer<vtkEdgeListIterator> edges =
-        vtkSmartPointer<vtkEdgeListIterator>::New();
-      g->GetEdges(edges);
-      while (edges->HasNext())
-        {
-        vtkEdgeType e = edges->Next();
-        vtkVariant source = vertexPedIds->GetVariantValue(e.Source);
-        vtkVariant target = vertexPedIds->GetVariantValue(e.Target);
-        if (selectedVertexPedIds->LookupValue(source) >= 0 &&
-            selectedVertexPedIds->LookupValue(target) >= 0)
-          {
-          edgeIds->InsertNextValue(e.Id);
-          }
-        }
-      vtkSmartPointer<vtkSelection> edgeSelection =
-        vtkSmartPointer<vtkSelection>::New();
-      edgeSelection->ShallowCopy(kdSelection);
-      edgeSelection->SetFieldType(vtkSelection::EDGE);
-      edgeSelection->SetSelectionList(edgeIds);
-      vtkSmartPointer<vtkSelection> converted;
-      converted.TakeReference(vtkConvertSelection::ToSelectionType(
-        edgeSelection, g, this->SelectionType, this->SelectionArrayNames));
-
-      // Make sure we only have a single-level tree of selections
-      if (converted->GetContentType() == vtkSelection::SELECTIONS)
-        {
-        for (unsigned int c = 0; c < converted->GetNumberOfChildren(); ++c)
-          {
-          selection->AddChild(converted->GetChild(c));
-          }
-        }
-      else
-        {
-        selection->AddChild(converted);
-        }
-      }
-    
-    // FIXME: Selection on edges needs to be supported.
-#if 0
-    // If the selection is empty, do a visible cell selection
-    // to attempt to pick up an edge.
-    vtkAbstractArray* list = selection->GetSelectionList();
-    if (list && (list->GetNumberOfTuples() == 0))
-      {
-      // The edge actor must be opaque for visible cell selector.
-      double opacity = this->EdgeActor->GetProperty()->GetOpacity();
-      this->EdgeActor->GetProperty()->SetOpacity(1);
+      // If we didn't find any vertices, perform edge selection.
+      // The edge actor must be opaque for visible cell selection
+      this->EdgeSelectionActor->VisibilityOn();
       
       unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
       unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
@@ -913,53 +849,50 @@ void vtkHierarchicalGraphView::ProcessEvents(
       this->VisibleCellSelector->SetProcessorId(0);
       this->VisibleCellSelector->SetRenderPasses(0, 0, 0, 0, 1);
       this->VisibleCellSelector->Select();  
-      vtkIdTypeArray* ids = vtkIdTypeArray::New();
+      vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
       this->VisibleCellSelector->GetSelectedIds(ids);
+
+      // Turn off the special edge actor
+      this->EdgeSelectionActor->VisibilityOff();
       
-      // Set the opacity back to the original value.
-      this->EdgeActor->GetProperty()->SetOpacity(opacity);
-      
-      vtkIdTypeArray* selectedIds = vtkIdTypeArray::New();
-      vtkGraph* graph = this->GraphLayout->GetOutput();
+      vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
         {
         vtkIdType edge = ids->GetValue(4*i+3);
-        vtkIdType source = graph->GetSourceVertex(edge);
-        vtkIdType target = graph->GetTargetVertex(edge);
-        selectedIds->InsertNextValue(source);
-        selectedIds->InsertNextValue(target);
+        selectedIds->InsertNextValue(edge);
         if (singleSelectMode)
           {
           break;
           }
         }
       
-      selection->Delete();
-      selection = vtkSelection::New();
-      selection->GetProperties()->Set(vtkSelection::CONTENT_TYPE(), vtkSelection::INDICES);
-      selection->GetProperties()->Set(vtkSelection::FIELD_TYPE(), vtkSelection::POINT);
-      selection->SetSelectionList(selectedIds);
-      ids->Delete();
-      selectedIds->Delete();      
+      vtkSmartPointer<vtkSelection> edgeIndexSelection = vtkSmartPointer<vtkSelection>::New();
+      edgeIndexSelection->SetContentType(vtkSelection::INDICES);
+      edgeIndexSelection->SetFieldType(vtkSelection::EDGE);
+      edgeIndexSelection->SetSelectionList(selectedIds);
+
+      // Convert to the proper selection type.
+      vtkSmartPointer<vtkSelection> edgeSelection;
+      edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
+        edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
+
+      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+        {
+        selection->AddChild(edgeSelection);
+        }
       }
-#endif
-    
+#endif // FIXME: Support edge selection
+
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
       {
-      vtkSelection* oldSelection = 0;
-      oldSelection = graphRep->GetSelectionLink()->GetSelection();
+      vtkSelection* oldSelection =
+        this->GetRepresentation()->GetSelectionLink()->GetSelection();
       selection->Union(oldSelection);
       }
     
     // Call select on the representation(s)
-    graphRep->Select(this, selection);
-    treeRep->Select(this, selection);
-    }
-  else if(eventId == vtkCommand::SelectionChangedEvent)
-    {
-    this->Update();
-    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    this->GetRepresentation()->Select(this, selection);
     }
   else
     {
