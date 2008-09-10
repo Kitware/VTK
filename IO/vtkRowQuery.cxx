@@ -24,7 +24,9 @@
 #include "vtksys/stl/algorithm"
 #include "vtkVariantArray.h"
 
-vtkCxxRevisionMacro(vtkRowQuery, "1.6");
+#include <ctype.h>
+
+vtkCxxRevisionMacro(vtkRowQuery, "1.7");
 
 vtkRowQuery::vtkRowQuery()
 {
