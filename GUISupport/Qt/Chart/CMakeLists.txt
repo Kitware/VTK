@@ -27,6 +27,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisLayer.cxx
     vtkQtChartAxisModel.cxx
     vtkQtChartAxisOptions.cxx
+    vtkQtChartColorPaletteGenerator.cxx
     vtkQtChartContentsArea.cxx
     vtkQtChartContentsSpace.cxx
     vtkQtChartGridLayer.cxx
@@ -84,6 +85,8 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisLayer.h
     vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.h
+    vtkQtChartColorPaletteGenerator.h
+    vtkQtChartStyleGenerator.h
     vtkQtChartContentsSpace.h
     vtkQtChartGridLayer.h
     vtkQtChartInteractor.h

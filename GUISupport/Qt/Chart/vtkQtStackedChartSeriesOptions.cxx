@@ -37,14 +37,14 @@ vtkQtStackedChartSeriesOptions::vtkQtStackedChartSeriesOptions(
 }
 
 void vtkQtStackedChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
+                                              vtkQtChartStyleGenerator *generator)
 {
   vtkQtChartSeriesOptions::setStyle(style, generator);
   if(generator)
     {
-    QColor color = generator->getSeriesColor(style);
-    this->setBrush(color);
-    this->setPen(color.dark());
+    QBrush brush = generator->getSeriesBrush(style);
+    this->setBrush(brush);
+    this->setPen(QPen(brush.color().dark()));
     }
 }
 

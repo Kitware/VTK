@@ -56,7 +56,7 @@ int TestLineSeries(int argc, char* argv[])
   handler->setMousePressModifiers(Qt::ControlModifier, Qt::ControlModifier);
   handler->setLayer(line);
   selector->addHandler(handler);
-  selector->setSelectionMode("Line Chart - Series");
+  selector->setSelectionMode("Line Chart - Points");
 
   QStandardItemModel * model = new QStandardItemModel(3, 2, line);
   model->setItemPrototype(new QStandardItem());

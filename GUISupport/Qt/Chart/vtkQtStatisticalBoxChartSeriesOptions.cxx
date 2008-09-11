@@ -34,12 +34,12 @@ vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(QOb
 }
 
 void vtkQtStatisticalBoxChartSeriesOptions::setStyle(int style,
-    vtkQtChartStyleGenerator *generator)
+                                                     vtkQtChartStyleGenerator *generator)
 {
   vtkQtChartSeriesOptions::setStyle(style, generator);
   if(generator)
     {
-    this->setBrush(generator->getSeriesColor(style));
+    this->setBrush(generator->getSeriesBrush(style));
     }
 }
 

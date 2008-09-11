@@ -1,3 +1,5 @@
+/* -*- Mode: C++; -*- */
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -18,162 +20,116 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-/// \file vtkQtChartStyleGenerator.h
-/// \date February 15, 2008
+// .NAME vtkQtChartStyleGenerator - Chart style generator that takes QBrush and QPen arguments for full generality
+//
+// .SECTION Description
+//
+// Charts are painted using QPens for the lines (and area borders) and
+// QBrushes for filled areas.  This class holds a single chart style,
+// i.e. a list of pens and a list of brushes.
+//
+// A chart uses the style at render time by asking for the pen and
+// brush for series N.  The style returns the Nth entry in the pen and
+// brush lists.  If N is larger than the list or less than 0 an error
+// will be printed and an empty QPen or QBrush will be returned.
+//
+// .SECTION See Also
+// vtkQtChartStyleGenerator
+// 
 
-#ifndef _pqChartSeriesOptionsGenerator_h
-#define _pqChartSeriesOptionsGenerator_h
-
+#ifndef __vtkQtChartStyleGenerator_h
+#define __vtkQtChartStyleGenerator_h
 
 #include "vtkQtChartExport.h"
 #include <QObject>
-#include <QColor> // Needed for return type.
-#include <QPen>   // Needed for return type.
+#include <QBrush>
+#include <QPen>
 
 class vtkQtChartStyleGeneratorInternal;
 
-
-/// \class vtkQtChartStyleGenerator
-/// \brief
-///   The vtkQtChartStyleGenerator class is used to generate drawing
-///   options for a chart.
 class VTKQTCHART_EXPORT vtkQtChartStyleGenerator : public QObject
 {
+  Q_OBJECT
 public:
-  enum ColorScheme
-    {
-    Spectrum = 0, ///< 7 different hues.
-    Warm,         ///< 6 warm colors (red to yellow).
-    Cool,         ///< 7 cool colors (green to purple).
-    Blues,        ///< 7 different blues.
-    WildFlower,   ///< 7 colors from blue to magenta.
-    Citrus,       ///< 6 colors from green to orange.
-    Custom        ///< User specified color scheme.
-    };
 
-public:
-  /// \brief
-  ///   Creates an options generator instance.
-  /// \param scheme The initial color scheme.
-  /// \param parent The parent object.
-  vtkQtChartStyleGenerator(ColorScheme scheme=Spectrum, QObject *parent=0);
-  virtual ~vtkQtChartStyleGenerator();
+  vtkQtChartStyleGenerator(QObject *parent=0);
+  ~vtkQtChartStyleGenerator();
 
-  /// \brief
-  ///   Gets the number of colors in the color list.
-  /// \return
-  ///   The number of colors in the color list.
-  int getNumberOfColors() const;
+  // Description:
+  // Return the number of brushes (fill styles) in the color list.
+  int getNumberOfBrushes() const;
 
-  /// \brief
-  ///   Gets the number of pen styles in the style list.
-  /// \return
-  ///   The number of pen styles in the style list.
-  int getNumberOfStyles() const;
+  // Description:
+  // Return the number of pens (stroke styles) in the color list.
+  int getNumberOfPens() const;
 
-  /// \brief
-  ///   Gets a color from the color list.
-  ///
-  /// This method provides access to the list of colors. The index
-  /// must be in the color list range in order to return a valid
-  /// color.
-  ///
-  /// \param index The list index for the color.
-  /// \return
-  ///   A color from the color list.
-  /// \sa vtkQtChartStyleGenerator::getSeriesColor(int, QColor &)
-  QColor getColor(int index) const;
+  // Description:
+  // Get a fill style from the list.  The index must be in the range
+  // [0, getNumberOfBrushes()-1].  If it is not, an error message will
+  // be printed and an empty QBrush will be returned.
+  QBrush getBrush(int index) const; 
 
-  /// \brief
-  ///   Gets a pen style from the pen styles list.
-  ///
-  /// This method provides access to the list of styles. If the index
-  /// is out of range, a default style will be returned.
-  ///
-  /// \param index The list index for the style.
-  /// \return
-  ///   The pen style for the given index.
-  /// \sa vtkQtChartStyleGenerator::getSeriesPen(int, QPen &)
-  Qt::PenStyle getPenStyle(int index) const;
+  // Description:
+  // Get a stroke style from the list.  The index must be in the range
+  // [0, getNumberOfPens()-1].  If it is not, an error message will
+  // be printed and an empty QPen will be returned.
+  QPen getPen(int index) const; 
 
-  virtual QColor getSeriesColor(int index) const;
-  virtual QPen getSeriesPen(int indexpen) const;
+  // Description: 
+  // Get a brush/pen for the specified series.  If the index is out of
+  // range it will wrap around to the beginning instead of triggering
+  // an error.
+  QBrush getSeriesBrush(int index) const;
+  QPen getSeriesPen(int index) const;
 
-  /// \brief
-  ///   Gets the current color scheme.
-  /// \return
-  ///   The current color scheme.
-  ColorScheme getColorScheme() const {return this->Scheme;}
+  // Description:
+  // Clear out the list of brushes.
+  void clearBrushes();
 
-  /// \brief
-  ///   Sets the color scheme.
-  ///
-  /// The color scheme will automatically be changed to \c Custom if
-  /// the color or style lists are modified.
-  ///
-  /// \param scheme The new color scheme.
-  void setColorScheme(ColorScheme scheme);
+  // Description:
+  // Add a new brush to the list of fill styles.
+  void addBrush(const QBrush &brush);
 
-  /// Clears the list of colors.
-  void clearColors();
+  // Description:
+  // Insert a new brush into the list of fill styles at the specified
+  // index.  
+  void insertBrush(int index, const QBrush &brush);
 
-  /// \brief
-  ///   Adds a color to the list of colors.
-  /// \param color The new color to add.
-  void addColor(const QColor &color);
+  // Description:
+  // Set the brush at the given index.  This method will do nothing
+  // (except print an error message) if the index is out of range.
+  void setBrush(int index, const QBrush &brush);
 
-  /// \brief
-  ///   Inserts a new color into the list of colors.
-  /// \param index Where to insert the new color.
-  /// \param color The new color to insert.
-  void insertColor(int index, const QColor &color);
+  // Description:
+  // Remove the brush at the given index.  This method will do nothing
+  // (except print an error message) if the index is out of range.
+  void removeBrush(int index);
 
-  /// \brief
-  ///   Sets the color for the given index.
-  ///
-  /// This method does nothing if the index is out of range.
-  ///
-  /// \param index Which color to modify.
-  /// \param color The new color.
-  void setColor(int index, const QColor &color);
+  // Description:
+  // Clear the list of pens (stroke styles).
+  void clearPens();
 
-  /// \brief
-  ///   Removes the color for the given index.
-  /// \param index Which color to remove from the list.
-  void removeColor(int index);
+  // Description:
+  // Add a pen to the list of stroke styles.
+  void addPen(const QPen &pen);
 
-  /// Clears the list of pen styles.
-  void clearPenStyles();
+  // Description:
+  // Insert a new pen into the list of stroke styles at the specified
+  // index.
+  void insertPen(int index, const QPen &pen);
 
-  /// \brief
-  ///   Adds a pen style to the list of pen style.
-  /// \param style The new pen style to add.
-  void addPenStyle(Qt::PenStyle style);
+  // Description:
+  // Sets the pen (stroke style) for the given index.  This method
+  // does nothing except print a warning if the index is out of range.
+  void setPen(int index, const QPen &pen);
 
-  /// \brief
-  ///   Inserts a new pen style into the list of pen style.
-  /// \param index Where to insert the new pen style.
-  /// \param style The new pen style to insert.
-  void insertPenStyle(int index, Qt::PenStyle style);
-
-  /// \brief
-  ///   Sets the pen style for the given index.
-  ///
-  /// This method does nothing if the index is out of range.
-  ///
-  /// \param index Which pen style to modify.
-  /// \param style The new pen style.
-  void setPenStyle(int index, Qt::PenStyle style);
-
-  /// \brief
-  ///   Removes the pen style for the given index.
-  /// \param index Which pen style to remove from the list.
-  void removePenStyle(int index);
+  // Description:
+  // Remove the pen / stroke style for the given index.
+  void removePen(int index);
 
 private:
   /// Stores the list of colors and pen styles.
   vtkQtChartStyleGeneratorInternal *Internal;
-  ColorScheme Scheme; ///< Stores the current color scheme.
 };
 
 #endif

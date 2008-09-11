@@ -30,7 +30,7 @@
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartStyleGenerator.h"
+#include "vtkQtChartColorPaletteGenerator.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
 #include "vtkQtChartArea.h"
@@ -209,7 +209,9 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
   vtkQtChartStyleManager *style = area->getStyleManager();
-  style->getGenerator()->setColorScheme(vtkQtChartStyleGenerator::Blues);
+  vtkQtChartColorPaletteGenerator *gen =
+    new vtkQtChartColorPaletteGenerator(vtkQtChartColorPaletteGenerator::Blues, chart);
+  style->setGenerator(gen);
 
   // Set up the box chart.
   vtkQtStatisticalBoxChart *boxes = new vtkQtStatisticalBoxChart();

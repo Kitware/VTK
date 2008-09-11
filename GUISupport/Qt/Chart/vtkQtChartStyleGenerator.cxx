@@ -23,10 +23,11 @@
 
 #include "vtkQtChartStyleGenerator.h"
 
+#include <QBrush>
 #include <QColor>
 #include <QPen>
 #include <QVector>
-
+#include <QDebug>
 
 class vtkQtChartStyleGeneratorInternal
 {
@@ -34,33 +35,24 @@ public:
   vtkQtChartStyleGeneratorInternal();
   ~vtkQtChartStyleGeneratorInternal() {}
 
-  QVector<QColor> Colors;       ///< Stores the list of colors.
-  QVector<Qt::PenStyle> Styles; ///< Stores the list of pen styles.
+  QVector<QBrush> Brushes; 
+  QVector<QPen> Pens;
 };
 
 
 //----------------------------------------------------------------------------
 vtkQtChartStyleGeneratorInternal::vtkQtChartStyleGeneratorInternal()
-  : Colors(), Styles()
+  : Brushes(), Pens()
 {
 }
 
 
 //----------------------------------------------------------------------------
 vtkQtChartStyleGenerator::vtkQtChartStyleGenerator(
-    vtkQtChartStyleGenerator::ColorScheme scheme, QObject *parentObject)
+    QObject *parentObject)
   : QObject(parentObject)
 {
   this->Internal = new vtkQtChartStyleGeneratorInternal();
-  this->Scheme = vtkQtChartStyleGenerator::Custom;
-
-  // Set the requested color scheme and the default pen styles.
-  this->setColorScheme(scheme);
-  this->Internal->Styles.append(Qt::SolidLine);
-  this->Internal->Styles.append(Qt::DashLine);
-  this->Internal->Styles.append(Qt::DotLine);
-  this->Internal->Styles.append(Qt::DashDotLine);
-  this->Internal->Styles.append(Qt::DashDotDotLine);
 }
 
 vtkQtChartStyleGenerator::~vtkQtChartStyleGenerator()
@@ -68,207 +60,134 @@ vtkQtChartStyleGenerator::~vtkQtChartStyleGenerator()
   delete this->Internal;
 }
 
-int vtkQtChartStyleGenerator::getNumberOfColors() const
+int vtkQtChartStyleGenerator::getNumberOfBrushes() const
 {
-  return this->Internal->Colors.size();
+  return this->Internal->Brushes.size();
 }
 
-int vtkQtChartStyleGenerator::getNumberOfStyles() const
+int vtkQtChartStyleGenerator::getNumberOfPens() const
 {
-  return this->Internal->Styles.size();
+  return this->Internal->Pens.size();
 }
 
-QColor vtkQtChartStyleGenerator::getColor(int index) const
+QBrush vtkQtChartStyleGenerator::getBrush(int index) const
 {
-  if(index >= 0 && index < this->Internal->Colors.size())
+  if(index >= 0 && index < this->Internal->Brushes.size())
     {
-    return this->Internal->Colors[index];
+    return this->Internal->Brushes[index];
     }
-  return QColor();
+  else
+    {
+    qWarning() << "ERROR: Cannot return brush with index "
+               << index << " since only "
+               << this->getNumberOfBrushes() << " are available";
+    return QBrush();
+    }
 }
 
-Qt::PenStyle vtkQtChartStyleGenerator::getPenStyle(int index) const
+QPen vtkQtChartStyleGenerator::getPen(int index) const
 {
-  if(index >= 0 && index < this->Internal->Styles.size())
+  if(index >= 0 && index < this->Internal->Pens.size())
     {
-    return this->Internal->Styles[index];
+    return this->Internal->Pens[index];
     }
-
-  return Qt::SolidLine;
+    {
+    qWarning() << "ERROR: Cannot return pen with index "
+               << index << " since only "
+               << this->getNumberOfPens() << " are available";
+    return QPen();
+    }
 }
 
-QColor vtkQtChartStyleGenerator::getSeriesColor(int index) const
+QBrush vtkQtChartStyleGenerator::getSeriesBrush(int index) const
 {
-  if(this->Internal->Colors.size() > 0)
+  if(this->Internal->Brushes.size() > 0)
     {
-    index = index % this->Internal->Colors.size();
-    return this->Internal->Colors[index];
+    index = index % this->Internal->Brushes.size();
+    return this->Internal->Brushes[index];
     }
-  return QColor();
+  return QBrush();
 }
 
 QPen vtkQtChartStyleGenerator::getSeriesPen(int index) const
 {
-  QPen pen;
-  if(this->Internal->Colors.size() > 0)
+  if(this->Internal->Pens.size() > 0)
     {
-    QColor color;
-    pen.setColor(this->getSeriesColor(index));
-    index /= this->Internal->Colors.size();
+    index = index % this->Internal->Pens.size();
+    return this->Internal->Pens[index];
     }
-
-  if(this->Internal->Styles.size() > 0)
+  else
     {
-    index = index % this->Internal->Styles.size();
-    pen.setStyle(this->Internal->Styles[index]);
-    }
-  return pen;
-}
-
-void vtkQtChartStyleGenerator::setColorScheme(
-    vtkQtChartStyleGenerator::ColorScheme scheme)
-{
-  if(this->Scheme == scheme)
-    {
-    return;
-    }
-
-  // Clear the list of previous colors.
-  this->Internal->Colors.clear();
-
-  // Save the new scheme type and load the new colors.
-  this->Scheme = scheme;
-  if(this->Scheme == vtkQtChartStyleGenerator::Spectrum)
-    {
-    this->Internal->Colors.append(QColor(0, 0, 0));
-    this->Internal->Colors.append(QColor(228, 26, 28));
-    this->Internal->Colors.append(QColor(55, 126, 184));
-    this->Internal->Colors.append(QColor(77, 175, 74));
-    this->Internal->Colors.append(QColor(152, 78, 163));
-    this->Internal->Colors.append(QColor(255, 127, 0));
-    this->Internal->Colors.append(QColor(166, 86, 40));
-    }
-  else if(this->Scheme == vtkQtChartStyleGenerator::Warm)
-    {
-    this->Internal->Colors.append(QColor(121, 23, 23));
-    this->Internal->Colors.append(QColor(181, 1, 1));
-    this->Internal->Colors.append(QColor(239, 71, 25));
-    this->Internal->Colors.append(QColor(249, 131, 36));
-    this->Internal->Colors.append(QColor(255, 180, 0));
-    this->Internal->Colors.append(QColor(255, 229, 6));
-    }
-  else if(this->Scheme == vtkQtChartStyleGenerator::Cool)
-    {
-    this->Internal->Colors.append(QColor(117, 177, 1));
-    this->Internal->Colors.append(QColor(88, 128, 41));
-    this->Internal->Colors.append(QColor(80, 215, 191));
-    this->Internal->Colors.append(QColor(28, 149, 205));
-    this->Internal->Colors.append(QColor(59, 104, 171));
-    this->Internal->Colors.append(QColor(154, 104, 255));
-    this->Internal->Colors.append(QColor(95, 51, 128));
-    }
-  else if(this->Scheme == vtkQtChartStyleGenerator::Blues)
-    {
-    this->Internal->Colors.append(QColor(59, 104, 171));
-    this->Internal->Colors.append(QColor(28, 149, 205));
-    this->Internal->Colors.append(QColor(78, 217, 234));
-    this->Internal->Colors.append(QColor(115, 154, 213));
-    this->Internal->Colors.append(QColor(66, 61, 169));
-    this->Internal->Colors.append(QColor(80, 84, 135));
-    this->Internal->Colors.append(QColor(16, 42, 82));
-    }
-  else if(this->Scheme == vtkQtChartStyleGenerator::WildFlower)
-    {
-    this->Internal->Colors.append(QColor(28, 149, 205));
-    this->Internal->Colors.append(QColor(59, 104, 171));
-    this->Internal->Colors.append(QColor(102, 62, 183));
-    this->Internal->Colors.append(QColor(162, 84, 207));
-    this->Internal->Colors.append(QColor(222, 97, 206));
-    this->Internal->Colors.append(QColor(220, 97, 149));
-    this->Internal->Colors.append(QColor(61, 16, 82));
-    }
-  else if(this->Scheme == vtkQtChartStyleGenerator::Citrus)
-    {
-    this->Internal->Colors.append(QColor(101, 124, 55));
-    this->Internal->Colors.append(QColor(117, 177, 1));
-    this->Internal->Colors.append(QColor(178, 186, 48));
-    this->Internal->Colors.append(QColor(255, 229, 6));
-    this->Internal->Colors.append(QColor(255, 180, 0));
-    this->Internal->Colors.append(QColor(249, 131, 36));
+    return QPen();
     }
 }
 
-void vtkQtChartStyleGenerator::clearColors()
+void vtkQtChartStyleGenerator::clearBrushes()
 {
-  this->Scheme = vtkQtChartStyleGenerator::Custom;
-  this->Internal->Colors.clear();
+  this->Internal->Brushes.clear();
 }
 
-void vtkQtChartStyleGenerator::addColor(const QColor &color)
+void vtkQtChartStyleGenerator::addBrush(const QBrush &color)
 {
-  this->Scheme = vtkQtChartStyleGenerator::Custom;
-  this->Internal->Colors.append(color);
+  this->Internal->Brushes.append(color);
 }
 
-void vtkQtChartStyleGenerator::insertColor(int index, const QColor &color)
+void vtkQtChartStyleGenerator::insertBrush(int index, const QBrush &color)
 {
-  if(index >= 0 && index < this->Internal->Colors.size())
+  if(index >= 0 && index < this->Internal->Brushes.size())
     {
-    this->Scheme = vtkQtChartStyleGenerator::Custom;
-    this->Internal->Colors.insert(index, color);
+    this->Internal->Brushes.insert(index, color);
     }
 }
 
-void vtkQtChartStyleGenerator::setColor(int index, const QColor &color)
+void vtkQtChartStyleGenerator::setBrush(int index, const QBrush &color)
 {
-  if(index >= 0 && index < this->Internal->Colors.size())
+  if(index >= 0 && index < this->Internal->Brushes.size())
     {
-    this->Scheme = vtkQtChartStyleGenerator::Custom;
-    this->Internal->Colors[index] = color;
+    this->Internal->Brushes[index] = color;
     }
 }
 
-void vtkQtChartStyleGenerator::removeColor(int index)
+void vtkQtChartStyleGenerator::removeBrush(int index)
 {
-  if(index >= 0 && index < this->Internal->Colors.size())
+  if(index >= 0 && index < this->Internal->Brushes.size())
     {
-    this->Scheme = vtkQtChartStyleGenerator::Custom;
-    this->Internal->Colors.remove(index);
+    this->Internal->Brushes.remove(index);
     }
 }
 
-void vtkQtChartStyleGenerator::clearPenStyles()
+void vtkQtChartStyleGenerator::clearPens()
 {
-  this->Internal->Styles.clear();
+  this->Internal->Pens.clear();
 }
 
-void vtkQtChartStyleGenerator::addPenStyle(Qt::PenStyle style)
+void vtkQtChartStyleGenerator::addPen(const QPen &style)
 {
-  this->Internal->Styles.append(style);
+  this->Internal->Pens.append(style);
 }
 
-void vtkQtChartStyleGenerator::insertPenStyle(int index,
-    Qt::PenStyle style)
+void vtkQtChartStyleGenerator::insertPen(int index,
+    const QPen &style)
 {
-  if(index >= 0 && index < this->Internal->Styles.size())
+  if(index >= 0 && index < this->Internal->Pens.size())
     {
-    this->Internal->Styles.insert(index, style);
+    this->Internal->Pens.insert(index, style);
     }
 }
 
-void vtkQtChartStyleGenerator::setPenStyle(int index, Qt::PenStyle style)
+void vtkQtChartStyleGenerator::setPen(int index, const QPen &style)
 {
-  if(index >= 0 && index < this->Internal->Styles.size())
+  if(index >= 0 && index < this->Internal->Pens.size())
     {
-    this->Internal->Styles[index] = style;
+    this->Internal->Pens[index] = style;
     }
 }
 
-void vtkQtChartStyleGenerator::removePenStyle(int index)
+void vtkQtChartStyleGenerator::removePen(int index)
 {
-  if(index >= 0 && index < this->Internal->Styles.size())
+  if(index >= 0 && index < this->Internal->Pens.size())
     {
-    this->Internal->Styles.remove(index);
+    this->Internal->Pens.remove(index);
     }
 }
 
