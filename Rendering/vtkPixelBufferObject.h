@@ -170,19 +170,21 @@ public:
   // Description:
   // For wrapping.
   void BindToPackedBuffer()
-    { this->Bind(PACKED); }
+    { this->Bind(PACKED_BUFFER); }
 
   void BindToUnPackedBuffer()
-    { this->Bind(UNPACKED); }
+    { this->Bind(UNPACKED_BUFFER); }
 
   // Description:
   // Inactivate the buffer.
   void UnBind();
  
 //BTX
+  // We can't use just PACKED because this is a cygwin macro defined as
+  // __attribute__((packed))
   enum BufferType{
-    PACKED,
-    UNPACKED
+    PACKED_BUFFER,
+    UNPACKED_BUFFER
   };
 
   // Description:

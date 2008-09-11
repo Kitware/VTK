@@ -30,7 +30,7 @@
 #define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
 
 vtkStandardNewMacro(vtkTextureObject);
-vtkCxxRevisionMacro(vtkTextureObject, "1.1");
+vtkCxxRevisionMacro(vtkTextureObject, "1.2");
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
@@ -591,7 +591,7 @@ bool vtkTextureObject::Create1D(int numComps,
   this->CreateTexture();
   this->Bind();
 
-  pbo->Bind(vtkPixelBufferObject::UNPACKED);
+  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
@@ -671,7 +671,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   this->CreateTexture();
   this->Bind();
 
-  pbo->Bind(vtkPixelBufferObject::UNPACKED);  
+  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);  
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
@@ -753,7 +753,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   this->CreateTexture();
   this->Bind();
 
-  pbo->Bind(vtkPixelBufferObject::UNPACKED);
+  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
@@ -815,7 +815,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
     return 0;
     }
 
-  pbo->Bind(vtkPixelBufferObject::PACKED);
+  pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind();
   glGetTexImage(this->Target, 0, this->Format, this->Type, BUFFER_OFFSET(0));
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");

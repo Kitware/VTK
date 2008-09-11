@@ -29,7 +29,7 @@
 #endif
 
 vtkStandardNewMacro(vtkPixelBufferObject);
-vtkCxxRevisionMacro(vtkPixelBufferObject, "1.1");
+vtkCxxRevisionMacro(vtkPixelBufferObject, "1.2");
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
@@ -112,11 +112,11 @@ void vtkPixelBufferObject::Bind(BufferType type)
     int target = this->BufferTarget;
     switch (type)
       {
-    case PACKED:
+    case vtkPixelBufferObject::PACKED_BUFFER:
       target =  vtkgl::PIXEL_PACK_BUFFER_ARB;
       break;
 
-    case UNPACKED:
+    case vtkPixelBufferObject::UNPACKED_BUFFER:
       target = vtkgl::PIXEL_UNPACK_BUFFER_ARB;
       break;
       }
@@ -375,7 +375,7 @@ bool vtkPixelBufferObject::Upload3D(
 
   this->CreateBuffer();
 
-  this->Bind(PACKED);
+  this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
 
   unsigned int size;
 
@@ -434,7 +434,7 @@ void vtkPixelBufferObject::ReleaseMemory()
 {
   if (this->Context && this->Handle)
     {
-    this->Bind(PACKED);
+    this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     vtkgl::BufferData(this->BufferTarget, 0, NULL, vtkgl::STREAM_DRAW);
     this->Size = 0;
     }
@@ -492,7 +492,7 @@ bool vtkPixelBufferObject::Download3D(
     return false;
     }
 
-  this->Bind(PACKED);
+  this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   void* ioMem = vtkgl::MapBuffer(this->BufferTarget, vtkgl::READ_ONLY);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   switch (type)
