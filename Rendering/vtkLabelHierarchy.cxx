@@ -89,7 +89,7 @@ public:
       }
     bool operator () ( const vtkIdType& a, const vtkIdType& b )
       {
-      return this->Hierarchy->Implementation->ComparePriorities( a, b );
+      return this->Hierarchy->GetImplementation()->ComparePriorities( a, b );
       }
   };
 
@@ -110,9 +110,9 @@ public:
     double TotalArea;
   };
 
-  typedef octree<LabelSet> HierarchyType;
-  typedef octree<LabelSet>::cursor HierarchyCursor;
-  typedef octree<LabelSet>::iterator HierarchyIterator;
+  typedef octree<vtkLabelHierarchy::implementation::LabelSet> HierarchyType;
+  typedef octree<vtkLabelHierarchy::implementation::LabelSet>::cursor HierarchyCursor;
+  typedef octree<vtkLabelHierarchy::implementation::LabelSet>::iterator HierarchyIterator;
 
   // Description:
   // Computes the depth of the generated hierarchy.
@@ -136,8 +136,6 @@ public:
   vtkTimeStamp HierarchyTime;
   int ActualDepth;
   vtkLabelHierarchy* Self;
-
-  friend struct PriorityComparator;
 };
 
 //----------------------------------------------------------------------------
@@ -192,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.2");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.3");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -680,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.2");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.3");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -915,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.2");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.3");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {

@@ -153,6 +153,16 @@ public:
   virtual vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*);
   virtual int GetMaxCellSize();
 
+  //BTX
+  class implementation;
+
+  implementation * GetImplementation() { return this->Implementation; }
+  //ETX
+
+
+
+
+
 protected:
   vtkLabelHierarchy();
   virtual ~vtkLabelHierarchy();
@@ -166,7 +176,6 @@ private:
   vtkDataArray* Priorities;
 
   //BTX
-  class implementation;
   implementation* Implementation;
 
   friend class vtkLabelHierarchyFrustumIterator;
