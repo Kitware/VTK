@@ -28,7 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.42");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.43");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -528,7 +528,7 @@ int vtkSmoothPolyDataFilter::RequestData(
     this->SmoothPoints = new vtkSmoothPoints;
     vtkSmoothPoint *sPtr;
     cellLocator = vtkCellLocator::New();
-    w = new double[input->GetMaxCellSize()];
+    w = new double[source->GetMaxCellSize()];
     
     cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
