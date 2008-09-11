@@ -80,6 +80,11 @@ SET( Kit_SRCS
   vtkInteractorStyleUser.cxx
   vtkIVExporter.cxx
   vtkLabeledDataMapper.cxx
+  vtkLabelHierarchy.cxx
+  vtkLabelHierarchyAlgorithm.cxx
+  vtkLabelHierarchyIterator.cxx
+  vtkLabelPlacer.cxx
+  vtkLabelSizeCalculator.cxx
   vtkLeaderActor2D.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
@@ -100,6 +105,7 @@ SET( Kit_SRCS
   vtkPicker.cxx
   vtkPixelBufferObject.cxx
   vtkPointPicker.cxx
+  vtkPointSetToLabelHierarchy.cxx
   vtkPointsPainter.cxx
   vtkPOVExporter.cxx
   vtkPolyDataMapper2D.cxx
@@ -272,6 +278,7 @@ SET_SOURCE_FILES_PROPERTIES(
   # OK, so it's not abstract, but this stops the instantiator
   # from trying to call vtkRenderingInstantiatorvtkglNew():
   ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
+  vtkLabelHierarchyIterator.cxx
   ABSTRACT
   )
 
