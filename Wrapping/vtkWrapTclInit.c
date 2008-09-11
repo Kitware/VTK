@@ -154,7 +154,7 @@ static void CreateInitFile(const char *libName,
 
   for (i = 0; i < numConcrete; i++)
     {
-    fprintf(fout,"  vtkTclCreateNew(interp,(char *)(\"%s\"), %sNewCommand,\n",
+    fprintf(fout,"  vtkTclCreateNew(interp,const_cast<char *>(\"%s\"), %sNewCommand,\n",
       concrete[i], concrete[i]);
     fprintf(fout,"                  %sCommand);\n",concrete[i]);
     }
