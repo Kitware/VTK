@@ -171,6 +171,7 @@ private:
 
   friend class vtkLabelHierarchyFrustumIterator;
   friend class vtkLabelHierarchyFullSortIterator;
+  friend class implementation;
   //ETX
 };
 
