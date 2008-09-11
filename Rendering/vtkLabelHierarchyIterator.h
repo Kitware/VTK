@@ -40,7 +40,7 @@ public:
   // Description:
   // Initializes the iterator. lastLabels is an array holding the previous
   // list of labels.
-  virtual void Begin( vtkIdTypeArray* lastLabels ) { }
+  virtual void Begin( vtkIdTypeArray * ) { }
 
   // Description:
   // Advance the iterator.
