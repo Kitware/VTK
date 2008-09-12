@@ -257,6 +257,29 @@ IF(VTK_USE_X)
   SET( Kit_SRCS ${Kit_SRCS} vtkXRenderWindowInteractor.cxx)
 ENDIF(VTK_USE_X)
 
+# The set of source files to be encoded.
+SET(glsl_files
+  vtkOpenGLRenderer_PeelingFS
+  )
+
+# Create custom commands to encode each assembly file into a C string
+# literal in a header file.
+
+SET(glsl_h_files)
+FOREACH(file ${glsl_files})
+  SET(src ${VTK_SOURCE_DIR}/Rendering/${file}.glsl)
+  SET(res ${VTK_BINARY_DIR}/Rendering/${file}.cxx)
+  SET(resh ${VTK_BINARY_DIR}/Rendering/${file}.h)
+  SET(glsl_h_files ${glsl_h_files} "${resh}")
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${res} ${resh}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND ${VTK_ENCODESTRING_EXE}
+    ARGS ${res} ${src} ${file} --build-header VTK_RENDERING_EXPORT vtkSystemIncludes.h
+    )
+  SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
+ENDFOREACH(file)
+
 # OpenGL extensions stuff.
 
 # Parse the extensions into vtkgl.h/vtkgl.cxx.
@@ -457,7 +480,7 @@ ELSE (VTK_USE_MANGLED_MESA)
   ENDIF(VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
 ENDIF(VTK_USE_MANGLED_MESA)
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
-SET(Kit_EXTRA_SRCS ${Kit_FT_SRCS})
+SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${Kit_FT_SRCS})
 
 IF(VTK_USE_GL2PS)
   SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${Kit_GL2PS_SRCS})
@@ -599,3 +622,9 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+IF(NOT CMAKE_CROSSCOMPILING)
+  # Add target dependency to ensure the vtkEncodeString is built before
+  # Rendering is.
+  ADD_DEPENDENCIES(vtk${KIT} vtkEncodeString)
+ENDIF(NOT CMAKE_CROSSCOMPILING)
