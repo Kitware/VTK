@@ -22,7 +22,7 @@
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHull, "1.38");
+vtkCxxRevisionMacro(vtkHull, "1.39");
 vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes
@@ -68,7 +68,7 @@ int vtkHull::AddPlane( double A, double B, double C )
 
   // Normalize the direction,
   // and make sure the vector has a length.
-  norm = sqrt( (double) A*A + B*B + C*C );
+  norm = sqrt( A*A + B*B + C*C );
   if ( norm == 0.0 )
     {
     vtkErrorMacro( << "Zero length vector not allowed for plane normal!" );
@@ -177,7 +177,7 @@ void vtkHull::SetPlane( int i, double A, double B, double C )
 
   // Set plane that has index i. Normalize the direction,
   // and make sure the vector has a length.
-  norm = sqrt( (double) A*A + B*B + C*C );
+  norm = sqrt( A*A + B*B + C*C );
   if ( norm == 0.0 )
     {
     vtkErrorMacro( << "Zero length vector not allowed for plane normal!" );
@@ -366,7 +366,7 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
     return;
     }
 
-  numTriangles = (int)(8*pow( 4.0, (double)level ));
+  numTriangles = static_cast<int>(8.0*pow(4.0,static_cast<double>(level)));
 
   // Create room for the triangles and points
   // We will also need to keep track of which points are
@@ -422,24 +422,24 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
       C = triangles[i*3 + 2];
 
       // Add the middle triangle in place of the one we just processed
-      triangles[i*3 + 0] = (int)(midindex[0]);
-      triangles[i*3 + 1] = (int)(midindex[1]);
-      triangles[i*3 + 2] = (int)(midindex[2]);
+      triangles[i*3 + 0] = static_cast<int>(midindex[0]);
+      triangles[i*3 + 1] = static_cast<int>(midindex[1]);
+      triangles[i*3 + 2] = static_cast<int>(midindex[2]);
 
       // Now add the 3 outer triangles at the end of the triangle list
-      triangles[triCount*3 + 0] = (int)(midindex[0]);
+      triangles[triCount*3 + 0] = static_cast<int>(midindex[0]);
       triangles[triCount*3 + 1] = B;
-      triangles[triCount*3 + 2] = (int)(midindex[1]);
+      triangles[triCount*3 + 2] = static_cast<int>(midindex[1]);
       triCount++;
 
-      triangles[triCount*3 + 0] = (int)(midindex[1]);
+      triangles[triCount*3 + 0] = static_cast<int>(midindex[1]);
       triangles[triCount*3 + 1] = C;
-      triangles[triCount*3 + 2] = (int)(midindex[2]);
+      triangles[triCount*3 + 2] = static_cast<int>(midindex[2]);
       triCount++;
 
-      triangles[triCount*3 + 0] = (int)(midindex[2]);
+      triangles[triCount*3 + 0] = static_cast<int>(midindex[2]);
       triangles[triCount*3 + 1] = A;
-      triangles[triCount*3 + 2] = (int)(midindex[0]);
+      triangles[triCount*3 + 2] = static_cast<int>(midindex[0]);
       triCount++;
       }
     }
@@ -451,9 +451,9 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
     validPoint[i] = 1;
     for ( j = 0; j < i; j++ )
       {
-      if ( fabs((double)(points[i*3 + 0] - points[j*3 + 0])) < 0.001 &&
-           fabs((double)(points[i*3 + 1] - points[j*3 + 1])) < 0.001 &&
-           fabs((double)(points[i*3 + 2] - points[j*3 + 2])) < 0.001 )
+      if ( fabs(points[i*3 + 0] - points[j*3 + 0]) < 0.001 &&
+           fabs(points[i*3 + 1] - points[j*3 + 1]) < 0.001 &&
+           fabs(points[i*3 + 2] - points[j*3 + 2]) < 0.001 )
         {
         validPoint[i] = 0;
         break;
@@ -756,7 +756,7 @@ void vtkHull::CreateInitialPolygon( double *verts, int i, double *bounds)
     v1[0] * this->Planes[i*4 + 1] -
     v1[1] * this->Planes[i*4 + 0];
 
-  norm = sqrt( (double) (v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]) );
+  norm = sqrt(v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]);
   v2[0] /= norm;
   v2[1] /= norm;
   v2[2] /= norm;

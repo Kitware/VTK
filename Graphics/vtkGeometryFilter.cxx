@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.107");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.108");
 vtkStandardNewMacro(vtkGeometryFilter);
 vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkPointLocator)
 
@@ -147,7 +147,8 @@ int vtkGeometryFilter::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  unsigned char  updateLevel =
+                     static_cast<unsigned char>(output->GetUpdateGhostLevel());
   unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)
@@ -180,7 +181,7 @@ int vtkGeometryFilter::RequestData(
     }
   else
     {
-    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+      cellGhostLevels=static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
   
   cellIds = vtkIdList::New();
@@ -270,7 +271,7 @@ int vtkGeometryFilter::RequestData(
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((double)cellId/numCells);
+      this->UpdateProgress(static_cast<double>(cellId)/numCells);
       abort = this->GetAbortExecute();
       }
 
@@ -444,7 +445,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
                                         vtkPolyData *output,
                                         vtkInformation *outInfo)
 {
-  vtkPolyData *input= (vtkPolyData *)dataSetInput;
+  vtkPolyData *input=static_cast<vtkPolyData *>(dataSetInput);
   vtkIdType cellId;
   int i;
   int allVisible;
@@ -460,7 +461,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
   int visible, type;
   double x[3];
   // ghost cell stuff
-  unsigned char updateLevel = (unsigned char)
+  unsigned char updateLevel =static_cast<unsigned char>
     (outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   unsigned char *cellGhostLevels = 0;
@@ -479,7 +480,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
     }
   else
     {
-    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+      cellGhostLevels=static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
   
   if ( (!this->CellClipping) && (!this->PointClipping) &&
@@ -517,7 +518,7 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((double)cellId/numCells);
+      this->UpdateProgress(static_cast<double>(cellId)/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.
@@ -578,7 +579,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                                                 vtkPolyData *output,
                                                 vtkInformation *outInfo)
 {
-  vtkUnstructuredGrid *input= (vtkUnstructuredGrid *)dataSetInput;
+  vtkUnstructuredGrid *input=static_cast<vtkUnstructuredGrid *>(dataSetInput);
   vtkCellArray *connectivity = input->GetCells();
   if (connectivity == NULL)
     {
@@ -603,7 +604,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   double x[3];
   int pixelConvert[4];
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)
+  unsigned char  updateLevel = static_cast<unsigned char>
     (outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   unsigned char  *cellGhostLevels = 0;
@@ -627,7 +628,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     }
   else
     {
-    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    cellGhostLevels=static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
 
   // Check input
@@ -712,7 +713,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((double)cellId/numCells);
+      this->UpdateProgress(static_cast<double>(cellId)/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.
@@ -1056,7 +1057,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
 {
   vtkIdType cellId, newCellId;
   int i;
-  vtkStructuredGrid *input=(vtkStructuredGrid *)dataSetInput;
+  vtkStructuredGrid *input=static_cast<vtkStructuredGrid *>(dataSetInput);
   vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
@@ -1074,7 +1075,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   vtkCellData *outputCD = output->GetCellData();
   vtkCellArray *cells;
   // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)
+  unsigned char  updateLevel =static_cast<unsigned char>
     (outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   unsigned char  *cellGhostLevels = 0;
@@ -1098,7 +1099,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
     }
   else
     {
-    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    cellGhostLevels =static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
   
   if ( (!this->CellClipping) && (!this->PointClipping) && 
@@ -1168,7 +1169,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((double)cellId/numCells);
+      this->UpdateProgress(static_cast<double>(cellId)/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.

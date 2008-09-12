@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.60");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.61");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -491,7 +491,7 @@ int vtkHyperStreamline::RequestData(
     dir = this->Streamers[ptId].Direction;
     cell = input->GetCell(sPtr->CellId);
     cell->EvaluateLocation(sPtr->SubId, sPtr->P, xNext, w);
-    step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
+    step = this->IntegrationStepLength * sqrt(cell->GetLength2());
     inTensors->GetTuples(cell->PointIds, cellTensors);
     if ( inScalars ) {inScalars->GetTuples(cell->PointIds, cellScalars);}
 
@@ -563,7 +563,7 @@ int vtkHyperStreamline::RequestData(
           cell = input->GetCell(sNext->CellId);
           inTensors->GetTuples(cell->PointIds, cellTensors);
           if (inScalars){inScalars->GetTuples(cell->PointIds, cellScalars);}
-          step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
+          step = this->IntegrationStepLength * sqrt(cell->GetLength2());
           }
         }
 
@@ -599,7 +599,7 @@ int vtkHyperStreamline::RequestData(
             sNext->S += cellScalars->GetTuple(i)[0] * w[i];
             }
           }
-        d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->X,sNext->X));
+        d = sqrt(vtkMath::Distance2BetweenPoints(sPtr->X,sNext->X));
         sNext->D = sPtr->D + d;
         }
 
@@ -722,8 +722,8 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
           {
           for (j=0; j<3; j++) 
             {
-            normal[j] = w[ix]*r1[j]*cos((double)k*theta) + 
-                        w[iy]*r2[j]*sin((double)k*theta);
+            normal[j] = w[ix]*r1[j]*cos(k*theta) + 
+                        w[iy]*r2[j]*sin(k*theta);
             xT[j] = x[j] + sFactor * normal[j];
             }
           id = newPts->InsertNextPoint(xT);

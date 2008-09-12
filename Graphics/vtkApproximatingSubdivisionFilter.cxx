@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.31");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.32");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -78,7 +78,8 @@ int vtkApproximatingSubdivisionFilter::RequestData(
   int abort=0;
   for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
     {
-    this->UpdateProgress((double)(level+1)/this->NumberOfSubdivisions);
+    this->UpdateProgress(static_cast<double>(level+1)/
+                                                  this->NumberOfSubdivisions);
     abort = this->GetAbortExecute();
 
     // Generate topology  for the input dataset
@@ -133,7 +134,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
     vtkDataArray* temp = cd->GetArray("vtkGhostLevels");
     if (temp)
       {
-      ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+      ghostLevels = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
       }
     }
   int updateGhostLevel = output->GetUpdateGhostLevel();
@@ -189,7 +190,7 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
       }
     }
     // found the edge, return the stored value
-    return (int) edgeData->GetComponent(currentCellId,edgeId);
+  return static_cast<int>(edgeData->GetComponent(currentCellId,edgeId));
 }
 
 vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
@@ -242,29 +243,29 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
 
     id = 0;
     newCellPts[id++] = pts[0];
-    newCellPts[id++] = (int) edgePts[1];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id++] = static_cast<int>(edgePts[1]);
+    newCellPts[id++] = static_cast<int>(edgePts[0]);
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
-    newCellPts[id++] = (int) edgePts[1];
+    newCellPts[id++] = static_cast<int>(edgePts[1]);
     newCellPts[id++] = pts[1];
-    newCellPts[id++] = (int) edgePts[2];
+    newCellPts[id++] = static_cast<int>(edgePts[2]);
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
-    newCellPts[id++] = (int) edgePts[2];
+    newCellPts[id++] = static_cast<int>(edgePts[2]);
     newCellPts[id++] = pts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id++] = static_cast<int>(edgePts[0]);
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
-    newCellPts[id++] = (int) edgePts[1];
-    newCellPts[id++] = (int) edgePts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id++] = static_cast<int>(edgePts[1]);
+    newCellPts[id++] = static_cast<int>(edgePts[2]);
+    newCellPts[id++] = static_cast<int>(edgePts[0]);
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
     }

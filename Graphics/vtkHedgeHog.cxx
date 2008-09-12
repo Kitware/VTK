@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.45");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.46");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -93,7 +93,7 @@ int vtkHedgeHog::RequestData(
     {
     if ( ! (ptId % 10000) ) //abort/progress
       {
-      this->UpdateProgress ((double)ptId/numPts);
+        this->UpdateProgress(static_cast<double>(ptId)/numPts);
       if (this->GetAbortExecute())
         {
         break;

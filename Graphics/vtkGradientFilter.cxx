@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.4");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.5");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
@@ -226,8 +226,8 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
       {
       vtkTemplateMacro(vtkGradientFilterDoComputePointGradients(
                                        input,
-                                       (VTK_TT *)scalars->GetVoidPointer(0),
-                                       (VTK_TT *)gradients->GetVoidPointer(0)));
+                                       static_cast<VTK_TT *>(scalars->GetVoidPointer(0)),
+                                       static_cast<VTK_TT *>(gradients->GetVoidPointer(0))));
       }
 
     output->GetPointData()->AddArray(gradients);
@@ -253,8 +253,8 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
       {
       vtkTemplateMacro(vtkGradientFilterDoComputeCellGradients(
                                      input,
-                                     (VTK_TT *)pointScalars->GetVoidPointer(0),
-                                     (VTK_TT *)gradients->GetVoidPointer(0)));
+                                     static_cast<VTK_TT *>(pointScalars->GetVoidPointer(0)),
+                                     static_cast<VTK_TT *>(gradients->GetVoidPointer(0))));
       }
 
     output->GetCellData()->AddArray(gradients);

@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.8");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.9");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -108,8 +108,8 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
   vtkCellArray *newPolys;
   long estimatedSize;
   
-  estimatedSize = (int) pow ((double) 
-      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
+  estimatedSize = static_cast<int>(pow(static_cast<double>(
+                 (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75));
   if (estimatedSize < 1024)
     {
     estimatedSize = 1024;
@@ -195,7 +195,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
   if (i < inExt[1])
@@ -205,7 +205,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
 
@@ -217,7 +217,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
   if (j < inExt[3])
@@ -227,7 +227,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
 
@@ -239,7 +239,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
   if (k < inExt[5])
@@ -249,7 +249,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
-    s[count] = (double)(*s2) - (double)(*sc);
+    s[count] = static_cast<double>(*s2) - static_cast<double>(*sc);
     ++count;
     }
 
@@ -553,7 +553,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
               // if the edge has not been set yet then it is a new point
               if (*isect2Ptr == -1)
                 {
-                t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
+                t = (value - static_cast<double>(*s0)) / (static_cast<double>(*s1) - static_cast<double>(*s0));
                 x[0] = p0[0] + t*(p1[0] - p0[0]);
                 x[1] = p0[1] + t*(p1[1] - p0[1]);
                 x[2] = p0[2] + t*(p1[2] - p0[2]);
@@ -597,7 +597,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
               // if the edge has not been set yet then it is a new point
               if (*(isect2Ptr + 1) == -1)
                 {
-                t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
+                t = (value - static_cast<double>(*s0)) / (static_cast<double>(*s2) - static_cast<double>(*s0));
                 x[0] = p0[0] + t*(p2[0] - p0[0]);
                 x[1] = p0[1] + t*(p2[1] - p0[1]);
                 x[2] = p0[2] + t*(p2[2] - p0[2]);
@@ -641,7 +641,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 }
               if (*(isect2Ptr + 2) == -1)
                 {
-                t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
+                t = (value - static_cast<double>(*s0)) / (static_cast<double>(*s3) - static_cast<double>(*s0));
                 x[0] = p0[0] + t*(p3[0] - p0[0]);
                 x[1] = p0[1] + t*(p3[1] - p0[1]);
                 x[2] = p0[2] + t*(p3[2] - p0[2]);
@@ -743,7 +743,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   switch(input->GetPoints()->GetData()->GetDataType())
     {
     vtkTemplateMacro(
-      ContourGrid(self, exExt, scalars, input, output, (VTK_TT*)0, inScalars));
+                     ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars));
     }
 }
 
@@ -788,7 +788,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     switch (inScalars->GetDataType())
       {
       vtkTemplateMacro(
-        ContourGrid(this, exExt, (VTK_TT *)scalars, input, output, inScalars));
+                       ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars));
       }//switch
     }
   else //multiple components - have to convert
