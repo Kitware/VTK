@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.2");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.3");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -193,7 +193,7 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->AnchorTransform->SetCoordinateSystemToWorld();
   this->MaximumLabelFraction = 0.05; // Take up no more than 5% of screen real estate with labels.
   this->Buckets = 0;
-  this->PositionsAsNormals = 0;
+  this->PositionsAsNormals = false;
   this->IteratorType = vtkLabelHierarchy::FULL_SORT;
 
   this->LastRendererSize[0] = 0;

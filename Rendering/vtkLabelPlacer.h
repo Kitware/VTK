@@ -102,9 +102,9 @@ public:
   // Use label anchor point coordinates as normal vectors and eliminate those
   // pointing away from the camera. Valid only when points are on a sphere
   // centered at the origin (such as a 3D geographic view). Off by default.
-  vtkGetMacro(PositionsAsNormals,int);
-  vtkSetMacro(PositionsAsNormals,int);
-  vtkBooleanMacro(PositionsAsNormals,int);
+  vtkGetMacro(PositionsAsNormals,bool);
+  vtkSetMacro(PositionsAsNormals,bool);
+  vtkBooleanMacro(PositionsAsNormals,bool);
 
   // Description:
   // In the second output, output the geometry of the traversed octree nodes.
@@ -131,7 +131,7 @@ protected:
   vtkCoordinate* AnchorTransform;
   int Gravity;
   double MaximumLabelFraction;
-  int PositionsAsNormals;
+  bool PositionsAsNormals;
   bool OutputTraversedBounds;
 
   int LastRendererSize[2];
