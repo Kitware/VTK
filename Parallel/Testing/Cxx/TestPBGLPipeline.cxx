@@ -23,17 +23,21 @@
 #include "vtkActor.h"
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDirectedGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkForceDirectedLayoutStrategy.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkGraph.h"
 #include "vtkGraphLayout.h"
+#include "vtkGraphLayoutView.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkInformation.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPBGLCollapseGraph.h"
+#include "vtkPBGLCollapseParallelEdges.h"
 #include "vtkPBGLCollectGraph.h"
+#include "vtkPBGLConnectedComponents.h"
 #include "vtkPBGLDistributedGraphHelper.h"
 #include "vtkPBGLGraphSQLReader.h"
 #include "vtkPolyDataMapper.h"
@@ -44,12 +48,15 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSQLQuery.h"
 #include "vtkSQLiteDatabase.h"
+#include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringToCategory.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkVertexListIterator.h"
+#include "vtkViewTheme.h"
 
 #include <vtksys/ios/sstream>
 #include <boost/graph/distributed/mpi_process_group.hpp>
@@ -90,108 +97,222 @@ int main(int argc, char** argv)
   MPI_Init(&argc, &argv);
 
   bool DoReplicate = false;
+  vtkStdString url;
+  vtkStdString password;
+  vtkStdString vertexTable = "vertices";
+  vtkStdString edgeTable = "edges";
+  vtkStdString vertexId = "id";
+  vtkStdString source = "source";
+  vtkStdString target = "target";
+  vtkStdString collapseField = "color";
+  bool debugWait = false;
   for (int i = 1; i < argc; ++ i)
     {
     if (vtkStdString(argv[i]) == "-replicate")
       {
       DoReplicate = true;
       }
+    else if (vtkStdString(argv[i]) == "-debug")
+      {
+      debugWait = true;
+      }
+    else if (vtkStdString(argv[i]) == "-db")
+      {
+      ++i;
+      url = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-password")
+      {
+      ++i;
+      password = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-vertextable")
+      {
+      ++i;
+      vertexTable = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-edgetable")
+      {
+      ++i;
+      edgeTable = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-id")
+      {
+      ++i;
+      vertexId = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-source")
+      {
+      ++i;
+      source = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-target")
+      {
+      ++i;
+      target = vtkStdString(argv[i]);
+      }
+    else if (vtkStdString(argv[i]) == "-collapse")
+      {
+      ++i;
+      collapseField = vtkStdString(argv[i]);
+      }
     }
 
-  vtksys_ios::ostringstream oss;
-  // Make a database containing a cycle.
-  int vertices = 11;
-  vtkSmartPointer<vtkSQLiteDatabase> db =
-    vtkSmartPointer<vtkSQLiteDatabase>::New();
-  db->SetDatabaseFileName(":memory:");
-  bool ok = db->Open("");
-  if (!ok)
+  while (debugWait) ;
+
+  vtkSmartPointer<vtkSQLDatabase> db;
+  if (url.length() > 0)
     {
-    cerr << "Could not open database!" << endl;
-    cerr << db->GetLastErrorText() << endl;
-    return 1;
+    db.TakeReference(vtkSQLDatabase::CreateFromURL(url));
+    if (!db.GetPointer())
+      {
+      cerr << "Could not create database instance for URL." << endl;
+      MPI_Finalize();
+      return 1;
+      }
+    if (!db->Open(password))
+      {
+      cerr << "Could not open database." << endl;
+      MPI_Finalize();
+      return 1;
+      }
     }
-  vtkSmartPointer<vtkSQLQuery> query;
-  query.TakeReference(db->GetQueryInstance());
-  query->SetQuery("create table vertices (id INTEGER, name VARCHAR(10), color INTEGER)");
-  query->Execute();
-  for (int i = 0; i < vertices; ++i)
+  else
     {
-    oss.str("");
-    oss << "insert into vertices values(" << i << ","
-      << vtkVariant(i).ToString() << "," << i % 2 << ")" << endl;
-    query->SetQuery(oss.str().c_str());
+    // Create an in-memory database containing a cycle graph.
+    vtksys_ios::ostringstream oss;
+    int vertices = 10000;
+    db = vtkSmartPointer<vtkSQLiteDatabase>::New();
+    vtkSQLiteDatabase::SafeDownCast(db)->SetDatabaseFileName(":memory:");
+    bool ok = db->Open("");
+    if (!ok)
+      {
+      cerr << "Could not open database!" << endl;
+      cerr << db->GetLastErrorText() << endl;
+      MPI_Finalize();
+      return 1;
+      }
+    vtkSmartPointer<vtkSQLQuery> query;
+    query.TakeReference(db->GetQueryInstance());
+    query->SetQuery("create table vertices (id INTEGER, name VARCHAR(10), color INTEGER)");
     query->Execute();
-    }
-  query->SetQuery("create table edges (source INTEGER, target INTEGER, name VARCHAR(10))");
-  query->Execute();
-  for (int i = 0; i < vertices; ++i)
-    {
-    oss.str("");
-    oss << "insert into edges values(" << i << ", "
-      << (i+1)%vertices << ", "
-      << vtkVariant(i).ToString() << ")" << endl;
-    query->SetQuery(oss.str().c_str());
+    for (int i = 0; i < vertices; ++i)
+      {
+      oss.str("");
+      oss << "insert into vertices values(" << i << ","
+        << vtkVariant(i).ToString() << "," << i % 2 << ")" << endl;
+      query->SetQuery(oss.str().c_str());
+      query->Execute();
+      }
+    query->SetQuery("create table edges (source INTEGER, target INTEGER, name VARCHAR(10))");
     query->Execute();
+    for (int i = 0; i < vertices; ++i)
+      {
+      oss.str("");
+      oss << "insert into edges values(" << i << ", "
+        << (i+1)%vertices << ", "
+        << vtkVariant(i).ToString() << ")" << endl;
+      query->SetQuery(oss.str().c_str());
+      query->Execute();
+      }
     }
 
   // Create the reader
   vtkSmartPointer<vtkPBGLGraphSQLReader> reader =
     vtkSmartPointer<vtkPBGLGraphSQLReader>::New();
   reader->SetDatabase(db);
-  reader->SetVertexTable("vertices");
-  reader->SetEdgeTable("edges");
-  reader->SetVertexIdField("id");
-  reader->SetSourceField("source");
-  reader->SetTargetField("target");
+  reader->SetVertexTable(vertexTable);
+  reader->SetEdgeTable(edgeTable);
+  reader->SetVertexIdField(vertexId);
+  reader->SetSourceField(source);
+  reader->SetTargetField(target);
 
-  // Create the collapse filter
+#if 0
+
+  // Create the connected components filter
+  vtkSmartPointer<vtkPBGLConnectedComponents> conn =
+    vtkSmartPointer<vtkPBGLConnectedComponents>::New();
+  conn->SetInputConnection(category->GetOutputPort());
+  conn->SetComponentArrayName("component");
+#endif
+
+  // Create the collapse vertices filter
   vtkSmartPointer<vtkPBGLCollapseGraph> collapse =
     vtkSmartPointer<vtkPBGLCollapseGraph>::New();
-  collapse->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "color");
+  collapse->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, collapseField);
   collapse->SetInputConnection(reader->GetOutputPort());
 
-  // Setup the parallel executive
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(collapse->GetExecutive());
-  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
-    vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
-  int total = num_processes(helper->GetProcessGroup());
-  int rank = process_id(helper->GetProcessGroup());
-  collapse->UpdateInformation();
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
+  // Create the collapse parallel edges filter
+  vtkSmartPointer<vtkPBGLCollapseParallelEdges> collapseParallel =
+    vtkSmartPointer<vtkPBGLCollapseParallelEdges>::New();
+  collapseParallel->SetInputConnection(collapse->GetOutputPort());
 
   // Setup the filter to collect the graph onto rank 0
   // Set up the graph collector
   VTK_CREATE(vtkPBGLCollectGraph, collect);
-  collect->SetInputConnection(0, collapse->GetOutputPort());
-  collect->SetReplicateGraph(DoReplicate);
+  collect->SetInputConnection(0, collapseParallel->GetOutputPort());
+  collect->SetReplicateGraph(false);
+  //collect->CopyEdgeDataOff();
+  //collect->CopyVertexDataOff();
 
-  // Layout the graph
-  VTK_CREATE(vtkGraphLayout, layout);
-  layout->SetInputConnection(collect->GetOutputPort());
-  VTK_CREATE(vtkForceDirectedLayoutStrategy, force);
-  layout->SetLayoutStrategy(force);
+  // Setup the parallel executive
+  vtkAlgorithm* lastFilter = collect;
+  vtkStreamingDemandDrivenPipeline* exec =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(lastFilter->GetExecutive());
+  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
+    vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
+  int total = num_processes(helper->GetProcessGroup());
+  int rank = process_id(helper->GetProcessGroup());
+  lastFilter->UpdateInformation();
+  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
+  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
+  lastFilter->Update();
+  vtkSmartPointer<vtkDirectedGraph> output = vtkSmartPointer<vtkDirectedGraph>::New();
+  output->ShallowCopy(lastFilter->GetOutputDataObject(0));
 
-  // Display the output
-  VTK_CREATE(vtkRenderer, ren);
-  RenderGraph(layout, ren, 1, 1, 1, 0.01, 2.0f);
-  
-  VTK_CREATE(vtkRenderWindowInteractor, iren);
-  VTK_CREATE(vtkRenderWindow, win);
-  win->AddRenderer(ren);
-  win->SetInteractor(iren);
+  // Create the string to category filter
+  vtkSmartPointer<vtkStringToCategory> category =
+    vtkSmartPointer<vtkStringToCategory>::New();
+  category->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, collapseField);
+  category->SetCategoryArrayName("category");
+  //category->SetInput(output);
+  category->SetInputConnection(reader->GetOutputPort());
 
-  win->Render();
-
-  int retVal = vtkRegressionTestImage(win);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTester::PASSED;
+  if (rank == 0)
     {
-    win->Render();
-    iren->Start();
-    retVal = vtkRegressionTester::PASSED;
+    // Display the output
+    VTK_CREATE(vtkGraphLayoutView, view);
+    VTK_CREATE(vtkRenderWindow, win);
+    view->SetupRenderWindow(win);
+    view->AddRepresentationFromInputConnection(category->GetOutputPort());
+    //view->SetVertexLabelArrayName("email");
+    //view->VertexLabelVisibilityOn();
+    view->SetVertexColorArrayName("category");
+    //view->SetVertexColorArrayName(collapseField);
+    view->ColorVerticesOn();
+    //view->SetEdgeLabelArrayName("weight");
+    //view->EdgeLabelVisibilityOn();
+    //view->SetEdgeColorArrayName("weight");
+    //view->ColorEdgesOn();
+    view->SetEdgeLayoutStrategyToPassThrough();
+    view->SetLayoutStrategyToFast2D();
+    //view->SetLayoutStrategyToSimple2D();
+    view->GetRenderer()->ResetCamera();
+    vtkSmartPointer<vtkViewTheme> theme;
+    theme.TakeReference(vtkViewTheme::CreateMellowTheme());
+    //theme->SetCellOpacity(0.02);
+    view->ApplyViewTheme(theme);
+    view->Update();
+
+    int retVal = vtkRegressionTestImage(win);
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      win->GetInteractor()->Start();
+      retVal = vtkRegressionTester::PASSED;
+      }
     }
+
   MPI_Finalize();
   return !retVal;
 }

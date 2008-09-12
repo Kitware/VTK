@@ -139,6 +139,7 @@ IF (VTK_USE_PARALLEL_BGL)
     ${Kit_SRCS}
     vtkPBGLBreadthFirstSearch.cxx
     vtkPBGLCollapseGraph.cxx
+    vtkPBGLCollapseParallelEdges.cxx
     vtkPBGLCollectGraph.cxx
     vtkPBGLConnectedComponents.cxx
     vtkPBGLDistributedGraphHelper.cxx

@@ -30,9 +30,12 @@
 #include "vtkPBGLGraphAdapter.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
+#include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
-vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.3");
+vtkCxxRevisionMacro(vtkPBGLCollapseGraph, "1.4");
 vtkStandardNewMacro(vtkPBGLCollapseGraph);
 
 vtkPBGLCollapseGraph::vtkPBGLCollapseGraph()
@@ -56,6 +59,9 @@ int vtkPBGLCollapseGraphRequestData(
   vtkInformationVector** input_vec,
   vtkInformationVector* output_vec)
 {
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  timer->StartTimer();
+
   vtkGraph* input = vtkGraph::GetData(input_vec[0]);
   vtkGraph* output = vtkGraph::GetData(output_vec);
 
@@ -73,13 +79,11 @@ int vtkPBGLCollapseGraphRequestData(
     return 0;
     }
 
-  // Distributed distance map
+  // Distributed input array
   typedef vtkDistributedVertexPropertyMapType<vtkAbstractArray>::type
     DistributedLabelMap;
-
-  // Distributed distance recorder
   DistributedLabelMap distrib_input_arr
-    = MakeDistributedVertexPropertyMap(input, input_arr);
+    = MakeDistributedVertexPropertyMap(input, vtkAbstractArray::SafeDownCast(input_arr));
 
   // Create directed or undirected graph
   MutableGraph* builder = MutableGraph::New();
@@ -88,68 +92,80 @@ int vtkPBGLCollapseGraphRequestData(
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> output_helper =
     vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   builder->SetDistributedGraphHelper(output_helper);
+  int input_rank = process_id(input_helper->GetProcessGroup());
+  int rank = process_id(output_helper->GetProcessGroup());
 
-  // Prepare vertex and edge data
-#if 0
+  // Prepare edge data.
   // FIXME (DPG): There's a problem with this approach to copying
   // properties, because the number of vertices in the resulting graph
   // may differ greatly from the number of vertices in the incoming
   // graph, and the distribution may also be completely different. So
   // we can't really safely allocate GetNumberOfComponents elements in
   // the arrays in the output graph, because a given processor may, in
-  // some cases, end up with more vertices than it started with. So,
-  // see the #else block for a small hack that only deals with
-  // pedigree IDs.
-  vtkDataSetAttributes* in_data[2];
-  in_data[0] = input->GetVertexData();
-  in_data[1] = input->GetEdgeData();
-  vtkDataSetAttributes* out_data[2];
-  out_data[0] = builder->GetVertexData();
-  out_data[1] = builder->GetEdgeData();
-  for (int d = 0; d < 2; ++d)
+  // some cases, end up with more edges than it started with.
+#if 0
+  vtkDataSetAttributes* in_edata = input->GetEdgeData();
+  vtkDataSetAttributes* out_edata = builder->GetEdgeData();
+  for (int a = 0; a < in_edata->GetNumberOfArrays(); ++a)
     {
-    for (int a = 0; a < in_data[d]->GetNumberOfArrays(); ++a)
-      {
-      vtkAbstractArray* in_arr = in_data[d]->GetAbstractArray(a);
-      vtkSmartPointer<vtkAbstractArray> arr;
-      arr.TakeReference(vtkAbstractArray::CreateArray(in_arr->GetDataType()));
-      arr->SetName(in_arr->GetName());
-      arr->SetNumberOfComponents(in_arr->GetNumberOfComponents());
-      out_data[d]->AddArray(arr);
-      // The output pedigree ids will be the field used to determine collapsed nodes
-      if (in_arr == input_arr)
-        {
-        out_data[d]->SetPedigreeIds(arr);
-        }
-      }
+    vtkAbstractArray* in_arr = in_edata->GetAbstractArray(a);
+    vtkSmartPointer<vtkAbstractArray> arr;
+    arr.TakeReference(vtkAbstractArray::CreateArray(in_arr->GetDataType()));
+    arr->SetName(in_arr->GetName());
+    arr->SetNumberOfComponents(in_arr->GetNumberOfComponents());
+    out_edata->AddArray(arr);
     }
-#else
+#endif
+
+  // Prepare vertex data.
   vtkAbstractArray *pedigrees 
     = vtkAbstractArray::CreateArray(input_arr->GetDataType());
   pedigrees->SetName(input_arr->GetName());
   builder->GetVertexData()->AddArray(pedigrees);
   builder->GetVertexData()->SetPedigreeIds(pedigrees);
-#endif
 
   // Iterate through input graph, adding a vertex for every new value
   // TODO: Handle vertex properties?
-  for (vtkIdType v = 0; v < input->GetNumberOfVertices(); ++v)
+  // For now, do not copy any vertex data since there seems to be a bug there
+  vtkSmartPointer<vtkVertexListIterator> verts = vtkSmartPointer<vtkVertexListIterator>::New();
+  input->GetVertices(verts);
+  while (verts->HasNext())
     {
-    builder->LazyAddVertex(input_arr->GetVariantValue(v));
+    vtkIdType v = verts->Next();
+    vtkIdType ind = input_helper->GetVertexIndex(v);
+    vtkVariant val = input_arr->GetVariantValue(ind);
+    if (val.ToString().length() > 0)
+      {
+      builder->LazyAddVertex(input_arr->GetVariantValue(v));
+      //builder->AddVertex(input_arr->GetVariantValue(v));
+      }
     }
   output_helper->Synchronize();
+  cerr << "input number of vertices " << input->GetNumberOfVertices() << endl;
+  cerr << "builder number of vertices " << builder->GetNumberOfVertices() << endl;
 
+  cerr << "adding edges" << endl;
   // Iterate through input edges, adding new edges
-  // For now, do not copy any vertex data since there seems to be a bug there
-  vtkSmartPointer<vtkEdgeListIterator> edges 
+  vtkSmartPointer<vtkEdgeListIterator> edges
     = vtkSmartPointer<vtkEdgeListIterator>::New();
+  //vtkSmartPointer<vtkVariantArray> edata
+  //  = vtkSmartPointer<vtkVariantArray>::New();
+  //vtkSmartPointer<vtkTable> in_etable
+  //  = vtkSmartPointer<vtkTable>::New();
+  //in_etable->SetRowData(in_edata);
   input->GetEdges(edges);
   while (edges->HasNext())
     {
     vtkEdgeType e = edges->Next();
+    //vtkIdType eid = input_helper->GetEdgeIndex(e.Id);
+    //in_etable->GetRow(eid, edata);
     vtkVariant source_val = get(distrib_input_arr, e.Source);
     vtkVariant target_val = get(distrib_input_arr, e.Target);
-    builder->LazyAddEdge(source_val, target_val);
+    if (source_val.ToString().length() > 0 && target_val.ToString().length() > 0)
+      {
+      builder->LazyAddEdge(source_val, target_val);
+      //builder->LazyAddEdge(source_val, target_val, edata);
+      }
     }
   output_helper->Synchronize();
 
@@ -159,6 +175,9 @@ int vtkPBGLCollapseGraphRequestData(
     vtkErrorWithObjectMacro(self, "Could not copy to output.");
     return 0;
     }
+
+  timer->StopTimer();
+  cerr << "vtkPBGLCollapseGraph: " << timer->GetElapsedTime() << endl;
 
   return 1;
 }

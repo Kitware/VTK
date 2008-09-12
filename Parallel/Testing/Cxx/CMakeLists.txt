@@ -165,7 +165,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
       ADD_EXECUTABLE(TestPBGLPipeline TestPBGLPipeline.cxx)
       TARGET_LINK_LIBRARIES(TestPBGLPipeline
-        vtkParallel vtkInfovis ${Boost_LIBRARIES})
+        vtkParallel vtkViews ${Boost_LIBRARIES})
       
       ADD_TEST(TestPBGLPipeline
         ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}

@@ -30,11 +30,12 @@
 #include "vtkSQLDatabase.h"
 #include "vtkSQLQuery.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.3");
+vtkCxxRevisionMacro(vtkPBGLGraphSQLReader, "1.4");
 vtkStandardNewMacro(vtkPBGLGraphSQLReader);
 
 vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
@@ -42,7 +43,7 @@ vtkIdType IdentityDistribution(const vtkVariant& id, void* user_data)
   vtkIdType* data = (vtkIdType*)user_data;
   vtkIdType min, size;
   int num_procs = static_cast<int>(data[0]);
-  int val = id.ToInt();
+  int val = id.ToInt() - 1;
   for (vtkIdType i = 0; i < num_procs; ++i)
     {
     vtkPBGLGraphSQLReader::GetRange(i, num_procs, data[1], min, size);
@@ -106,6 +107,8 @@ int vtkPBGLGraphSQLReaderRequestData(
   vtkInformationVector**,
   vtkInformationVector* output_vec)
 {
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  timer->StartTimer();
   // Check for valid inputs
   if (!self->GetDatabase())
     {
@@ -214,7 +217,7 @@ int vtkPBGLGraphSQLReaderRequestData(
     vtkSmartPointer<vtkVariantArray>::New();
   while (vertex_query->NextRow(row))
     {
-    builder->AddVertex(row);
+    builder->LazyAddVertex(row);
     }
   helper->Synchronize();
 
@@ -247,7 +250,7 @@ int vtkPBGLGraphSQLReaderRequestData(
     {
     vtkVariant source = edge_query->DataValue(source_id);
     vtkVariant target = edge_query->DataValue(target_id);
-    builder->AddEdge(source, target, row);
+    builder->LazyAddEdge(source, target, row);
     }
   helper->Synchronize();
 
@@ -257,6 +260,9 @@ int vtkPBGLGraphSQLReaderRequestData(
     vtkGenericWarningMacro("Could not copy to output.");
     return 0;
     }
+
+  timer->StopTimer();
+  cerr << "vtkPBGLGraphSQLReader: " << timer->GetElapsedTime() << endl;
 
   return 1;
 }
