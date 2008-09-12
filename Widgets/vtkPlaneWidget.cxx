@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.2");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.2.32.1");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -158,10 +158,15 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   
   this->CurrentHandle = NULL;
 
+  this->LastPickValid = 0;
+  this->HandleSizeFactor = 1.25;
+  this->SetHandleSize( 0.05 );
+  
   // Set up the initial properties
   this->CreateDefaultProperties();
   
   this->SelectRepresentation();
+
 }
 
 vtkPlaneWidget::~vtkPlaneWidget()
@@ -1346,7 +1351,20 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
 
 void vtkPlaneWidget::SizeHandles()
 {
-  double radius = this->vtk3DWidget::SizeHandles(1.25);
+  double radius = this->vtk3DWidget::SizeHandles(this->HandleSizeFactor);
+  
+  if (this->ValidPick && !this->LastPickValid)
+    {
+    // Adjust factor to preserve old radius.
+    double oldradius = this->HandleGeometry[0]->GetRadius();
+    if (oldradius != 0 && radius != 0)
+      {
+      this->HandleSizeFactor = oldradius / radius;
+      radius = oldradius;
+      }
+    }
+
+  this->LastPickValid = this->ValidPick;
   
   for(int i=0; i<4; i++)
     {
@@ -1358,6 +1376,7 @@ void vtkPlaneWidget::SizeHandles()
   this->ConeSource->SetRadius(radius);
   this->ConeSource2->SetHeight(2.0*radius);
   this->ConeSource2->SetRadius(radius);
+  
 }
 
 
