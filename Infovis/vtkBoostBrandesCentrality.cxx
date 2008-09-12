@@ -40,7 +40,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.5");
+vtkCxxRevisionMacro(vtkBoostBrandesCentrality, "1.6");
 vtkStandardNewMacro(vtkBoostBrandesCentrality);
 
 // Constructor/Destructor
@@ -74,24 +74,38 @@ int vtkBoostBrandesCentrality::RequestData(
   output->ShallowCopy(input);
 
   // Compute betweenness centrality
-  vtkFloatArray* cMap = vtkFloatArray::New();
-  cMap->SetName("centrality");
+  
+  // Property map for vertices
+  vtkFloatArray* vertexCMap = vtkFloatArray::New();
+  vertexCMap->SetName("centrality");
   identity_property_map imap;
+  
+  // Property map for edges   
+  vtkFloatArray* edgeCMap = vtkFloatArray::New();
+  edgeCMap->SetName("centrality");
+  vtkGraphEdgePropertyMapHelper<vtkFloatArray*> helper(edgeCMap);
+
+
   
   // Is the graph directed or undirected
   if (vtkDirectedGraph::SafeDownCast(output))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
-    brandes_betweenness_centrality(g, centrality_map(cMap).vertex_index_map(imap));
+    brandes_betweenness_centrality(g,
+           centrality_map(vertexCMap).edge_centrality_map(helper).vertex_index_map(imap));
     }
   else
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
-    brandes_betweenness_centrality(g, centrality_map(cMap).vertex_index_map(imap));
+    brandes_betweenness_centrality(g,
+           centrality_map(vertexCMap).edge_centrality_map(helper).vertex_index_map(imap));
     }
     
-  output->GetVertexData()->AddArray(cMap);
-  cMap->Delete();
+  // Add the arrays to the output and dereference  
+  output->GetVertexData()->AddArray(vertexCMap);
+  vertexCMap->Delete();
+  output->GetEdgeData()->AddArray(edgeCMap);
+  edgeCMap->Delete();
 
   return 1;
 }
