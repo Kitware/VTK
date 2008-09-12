@@ -138,7 +138,8 @@ public:
   virtual int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) = 0;
 
   // Description:
-  // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate
+  // Given a point x[3] return inside(=1), outside(=0) cell, or (-1) 
+  // computational problem encountered; evaluate
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared of point x[3] to cell (in particular, the sub-cell
   // indicated), closest point on cell to x[3] (unless closestPoint is null,
