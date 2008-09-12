@@ -342,6 +342,9 @@ protected:
   void CreateDefaultProperties();
   
   void GeneratePlane();
+
+  int    LastPickValid;
+  double HandleSizeFactor;
   
 private:
   vtkPlaneWidget(const vtkPlaneWidget&);  //Not implemented
