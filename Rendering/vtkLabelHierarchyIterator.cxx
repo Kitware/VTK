@@ -34,7 +34,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro( vtkLabelHierarchyIterator, "1.1" );
+vtkCxxRevisionMacro( vtkLabelHierarchyIterator, "1.2" );
 vtkCxxSetObjectMacro( vtkLabelHierarchyIterator, Hierarchy, vtkLabelHierarchy );
 
 vtkLabelHierarchyIterator::vtkLabelHierarchyIterator()
@@ -48,6 +48,12 @@ vtkLabelHierarchyIterator::~vtkLabelHierarchyIterator()
     {
     this->Hierarchy->Delete();
     }
+}
+
+void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
+{
+  this->Superclass::PrintSelf( os, indent );
+  os << indent << "Hierarchy: " << this->Hierarchy << "\n";
 }
 
 void vtkLabelHierarchyIterator::GetPoint( double x[3] )

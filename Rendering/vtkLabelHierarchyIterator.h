@@ -36,6 +36,7 @@ class VTK_RENDERING_EXPORT vtkLabelHierarchyIterator : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkLabelHierarchyIterator,vtkObject);
+  virtual void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
   // Initializes the iterator. lastLabels is an array holding the previous
@@ -79,6 +80,10 @@ protected:
   // The hierarchy being traversed by this iterator.
   virtual void SetHierarchy( vtkLabelHierarchy* h );
   vtkLabelHierarchy* Hierarchy;
+
+private:
+  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
+  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
 };
 
 #endif // __vtkLabelHierarchyIterator_h
