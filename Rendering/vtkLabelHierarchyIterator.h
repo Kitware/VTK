@@ -82,8 +82,8 @@ protected:
   vtkLabelHierarchy* Hierarchy;
 
 private:
-  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
+  vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ); // Not implemented.
+  void operator = ( const vtkLabelHierarchyIterator& ); // Not implemented.
 };
 
 #endif // __vtkLabelHierarchyIterator_h
