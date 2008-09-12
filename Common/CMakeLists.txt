@@ -89,6 +89,7 @@ vtkInformationIterator.cxx
 vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
+vtkInformationObjectBaseVectorKey.cxx
 vtkInformationRequestKey.cxx
 vtkInformationStringKey.cxx
 vtkInformationStringVectorKey.cxx
@@ -278,6 +279,7 @@ vtkInformationIntegerVectorKey
 vtkInformationKey
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
+vtkInformationObjectBaseVectorKey
 vtkInformationRequestKey
 vtkInformationStringKey
 vtkInformationStringVectorKey
