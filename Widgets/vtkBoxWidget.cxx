@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.2");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.3");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -419,7 +419,8 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkBoxWidget::PositionHandles()
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
   double *p2 = pts + 3*2;
@@ -492,7 +493,7 @@ int vtkBoxWidget::HighlightHandle(vtkProp *prop)
     this->CurrentHandle->SetProperty(this->HandleProperty);
     }
 
-  this->CurrentHandle = (vtkActor *)prop;
+  this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
     {
@@ -917,7 +918,8 @@ void vtkBoxWidget::GetDirection(const double Nx[3],const double Ny[3], const dou
 }
 void vtkBoxWidget::MovePlusXFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+        static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*9;
 
@@ -934,7 +936,8 @@ void vtkBoxWidget::MovePlusXFace(double *p1, double *p2)
 
 void vtkBoxWidget::MoveMinusXFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*8;
 
@@ -952,7 +955,8 @@ void vtkBoxWidget::MoveMinusXFace(double *p1, double *p2)
 
 void vtkBoxWidget::MovePlusYFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*11;
 
@@ -970,7 +974,8 @@ void vtkBoxWidget::MovePlusYFace(double *p1, double *p2)
 
 void vtkBoxWidget::MoveMinusYFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*10;
 
@@ -988,7 +993,8 @@ void vtkBoxWidget::MoveMinusYFace(double *p1, double *p2)
 
 void vtkBoxWidget::MovePlusZFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*13;
 
@@ -1006,7 +1012,8 @@ void vtkBoxWidget::MovePlusZFace(double *p1, double *p2)
 
 void vtkBoxWidget::MoveMinusZFace(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*12;
 
@@ -1025,7 +1032,8 @@ void vtkBoxWidget::MoveMinusZFace(double *p1, double *p2)
 // Loop through all points and translate them
 void vtkBoxWidget::Translate(double *p1, double *p2)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double v[3];
 
   v[0] = p2[0] - p1[0];
@@ -1045,9 +1053,10 @@ void vtkBoxWidget::Translate(double *p1, double *p2)
 void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2), 
                          int vtkNotUsed(X), int Y)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *center 
-    = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+    = static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double sf;
 
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
@@ -1071,7 +1080,8 @@ void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
 
 void vtkBoxWidget::ComputeNormals()
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *px = pts + 3*1;
   double *py = pts + 3*3;
@@ -1129,8 +1139,10 @@ void vtkBoxWidget::GetPlanes(vtkPlanes *planes)
 
 void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
-  double *center = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
+  double *center =
+      static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(3*14);
   double v[3]; //vector of motion
   double axis[3]; //axis of rotation
   double theta; //rotation angle
@@ -1148,7 +1160,7 @@ void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
     }
   int *size = this->CurrentRenderer->GetSize();
   double l2 = (X-this->Interactor->GetLastEventPosition()[0])*(X-this->Interactor->GetLastEventPosition()[0]) + (Y-this->Interactor->GetLastEventPosition()[1])*(Y-this->Interactor->GetLastEventPosition()[1]);
-  theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
+  theta = 360.0 * sqrt(l2/(size[0]*size[0]+size[1]*size[1]));
 
   //Manipulate the transform to reflect the rotation
   this->Transform->Identity();
@@ -1232,7 +1244,8 @@ void vtkBoxWidget::PlaceWidget(double bds[6])
 
 void vtkBoxWidget::GetTransform(vtkTransform *t)
 {
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double *p0 = pts;
   double *p1 = pts + 3*1;
   double *p3 = pts + 3*3;
@@ -1308,7 +1321,8 @@ void vtkBoxWidget::SetTransform(vtkTransform* t)
     return;
     }
 
-  double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
+  double *pts =
+         static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double xIn[3];
   // make sure the transform is up-to-date before using it
   t->Update();

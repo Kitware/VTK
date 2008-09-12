@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.4");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.5");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -464,7 +464,7 @@ int vtkImageTracerWidget::HighlightHandle(vtkProp* prop)
     this->Interactor->Render();
     }
 
-  this->CurrentHandle = (vtkActor *)prop;
+  this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
     {
@@ -609,7 +609,7 @@ void vtkImageTracerWidget::OnLeftButtonDown()
     }
 
   this->CurrentPicker = this->PropPicker;  //collect the pick position from the prop picker
-  this->CurrentHandleIndex = this->HighlightHandle((vtkProp*)this->Handle[0]);
+  this->CurrentHandleIndex = this->HighlightHandle(this->Handle[0]);
 
   if ( this->CurrentHandleIndex == -1 )    //this should never happen
     {
@@ -698,7 +698,7 @@ void vtkImageTracerWidget::OnMiddleButtonDown()
     }
 
   this->CurrentPicker = this->PropPicker;         // highlight the last handle
-  this->CurrentHandleIndex = this->HighlightHandle((vtkProp*)this->Handle[this->NumberOfHandles - 1]);
+  this->CurrentHandleIndex = this->HighlightHandle(this->Handle[this->NumberOfHandles - 1]);
 
   if ( this->CurrentHandleIndex == -1 )  // sanity check: this should never happen
     {
@@ -834,7 +834,7 @@ void vtkImageTracerWidget::OnRightButtonDown()
         }
       else if ( this->State == vtkImageTracerWidget::Inserting )
         {
-        if ( (vtkActor*)path->GetFirstNode()->GetViewProp() == this->LineActor )
+          if ( static_cast<vtkActor*>(path->GetFirstNode()->GetViewProp()) == this->LineActor )
           {
           this->HighlightLine(1);
           }

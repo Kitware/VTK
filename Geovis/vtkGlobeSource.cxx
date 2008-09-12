@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.2");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.3");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -185,18 +185,18 @@ int vtkGlobeSource::RequestData(
 
   // Check data, determine increments, and convert to radians
   deltaLongitude = (this->EndLongitude - this->StartLongitude)  
-                 / (double)(this->LongitudeResolution-1);
+                 / static_cast<double>(this->LongitudeResolution-1);
 
   deltaLatitude = (this->EndLatitude - this->StartLatitude) 
-                 / (double)(this->LatitudeResolution-1);
+                 / static_cast<double>(this->LatitudeResolution-1);
   
   // Create points and point data.
   for (j=0; j<this->LatitudeResolution; j++)
     {
-    phi = this->StartLatitude + (double)(j)*deltaLatitude;
+    phi = this->StartLatitude + j*deltaLatitude;
     for (i=0; i < this->LongitudeResolution; i++)
       {
-      theta = this->StartLongitude + (double)(i)*deltaLongitude;
+      theta = this->StartLongitude + i*deltaLongitude;
       this->AddPoint(theta, phi, this->Radius, 
                      newPoints, newNormals,
                      newLongitudeArray, newLatitudeArray);
@@ -208,7 +208,7 @@ int vtkGlobeSource::RequestData(
   // Create the extra points for the curtains.
   for (i=0; i < this->LongitudeResolution; i++)
     {
-    theta = this->StartLongitude + (double)(i)*deltaLongitude;
+    theta = this->StartLongitude + i*deltaLongitude;
     phi = this->StartLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
@@ -216,7 +216,7 @@ int vtkGlobeSource::RequestData(
     }
   for (i=0; i < this->LongitudeResolution; i++)
     {
-    theta = this->StartLongitude + (double)(i)*deltaLongitude;
+    theta = this->StartLongitude + i*deltaLongitude;
     phi = this->EndLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
@@ -225,7 +225,7 @@ int vtkGlobeSource::RequestData(
   for (j=0; j < this->LatitudeResolution; j++)
     {
     theta = this->StartLongitude;
-    phi = this->StartLatitude + (double)(j)*deltaLatitude;
+    phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray);
@@ -233,7 +233,7 @@ int vtkGlobeSource::RequestData(
   for (j=0; j < this->LatitudeResolution; j++)
     {
     theta = this->EndLongitude;
-    phi = this->StartLatitude + (double)(j)*deltaLatitude;
+    phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
                    newLongitudeArray, newLatitudeArray);    

@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.2");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.3");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -85,7 +85,7 @@ vtkSplineWidget::vtkSplineWidget()
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
-    u[0] = (double)i / (double)(this->NumberOfHandles - 1.0);
+    u[0] = i/(this->NumberOfHandles - 1.0);
     x = (1.0 - u[0])*x0 + u[0]*x1;
     y = (1.0 - u[0])*y0 + u[0]*y1;
     z = (1.0 - u[0])*z0 + u[0]*z1;
@@ -550,7 +550,7 @@ int vtkSplineWidget::HighlightHandle(vtkProp *prop)
     this->CurrentHandle->SetProperty(this->HandleProperty);
     }
 
-  this->CurrentHandle = (vtkActor *)prop;
+  this->CurrentHandle = static_cast<vtkActor *>(prop);
 
   if ( this->CurrentHandle )
     {
@@ -1121,7 +1121,7 @@ void vtkSplineWidget::PlaceWidget(double bds[6])
     double u;
     for ( i = 0; i < this->NumberOfHandles; ++i )
       {
-      u = (double)i / (double)(this->NumberOfHandles - 1.0);
+      u = i/(this->NumberOfHandles - 1.0);
       x = (1.0 - u)*x0 + u*x1;
       y = (1.0 - u)*y0 + u*y1;
       z = (1.0 - u)*z0 + u*z1;
@@ -1196,7 +1196,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
     this->Handle[i]->SetProperty(this->HandleProperty);
-    u[0] = (double)i / (double)(this->NumberOfHandles - 1.0);
+    u[0] = i/(this->NumberOfHandles - 1.0);
     this->ParametricSpline->Evaluate(u, pt, NULL);
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
@@ -1348,7 +1348,7 @@ void vtkSplineWidget::InsertHandleOnLine(double* pos)
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
   newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
 
-  int istart = vtkMath::Floor(subid*(this->NumberOfHandles + this->Closed - 1.0)/((double)this->Resolution));
+  int istart = vtkMath::Floor(subid*(this->NumberOfHandles + this->Closed - 1.0)/static_cast<double>(this->Resolution));
   int istop = istart + 1;
   int count = 0;
   int i;
