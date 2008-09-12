@@ -60,7 +60,7 @@
 // so it would be nice to put this in a common file.
 static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
 
-vtkCxxRevisionMacro(vtkDataReader, "1.153.2.1");
+vtkCxxRevisionMacro(vtkDataReader, "1.153.2.2");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -3032,7 +3032,7 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
     cc ++;
     }
   strncpy(resname, str.str().c_str(), reslen+1);
-  resname[reslen+1] = 0;
+  resname[reslen] = 0;
   return static_cast<int>(reslen);
 }
 
