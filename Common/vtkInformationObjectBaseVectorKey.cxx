@@ -32,7 +32,7 @@ private:
 
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseVectorKey::vtkInformationObjectBaseVectorKey(
@@ -232,7 +232,7 @@ vtkObjectBase *vtkInformationObjectBaseVectorKey::Get(
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 
   if (base==NULL
-      || idx>=(int)base->GetVector().size())
+      || idx>=static_cast<int>(base->GetVector().size()))
     {
     vtkErrorWithObjectMacro(info,
       "Information does not contain " << idx

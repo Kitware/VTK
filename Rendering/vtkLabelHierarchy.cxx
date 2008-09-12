@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.5");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.6");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -469,7 +469,7 @@ void vtkLabelHierarchyFrustumIterator::Next()
           bool tooClose = true; // a large octree node too close to the camera should be ignored.
           while ( tooClose )
             {
-            R = sqrt( (double) R2 );
+              R = sqrt(static_cast<double>(R2));
             if ( R >= sz / lvlMax * vaMin * 0 )
               {
               tooClose = false;
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.5");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.6");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.5");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.6");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1077,7 +1077,7 @@ void vtkLabelHierarchy::GetDiscreteNodeCoordinatesFromWorldPoint( int ijk[3], do
       delta = ( pt[i] - rootCenter[i] ) * m / 2. / sz + ( m / 2 - 0.5 );
     else
       delta = ( pt[i] - rootCenter[i] ) * m / 2. / sz;
-    ijk[i] = (int) delta;
+    ijk[i] = static_cast<int>(delta);
     }
 }
 
@@ -1205,8 +1205,8 @@ static int compute_number_to_promote( int t, int L, int d, int max )
 {
   int tdl = 1 << ( d * L ); // 2^(dL)
   int tdm = ( 1 << d ) - 1; // 2^d - 1
-  double n = ((double) t) * ( tdl - 1. ) / tdl / (double) tdm;
-  int nr = (int) floor( n ); // truncate...
+  double n = static_cast<double>(t)*(tdl-1.)/tdl/static_cast<double>(tdm);
+  int nr = static_cast<int>(floor( n )); // truncate...
   double rem = n - nr;
   if ( rem > 0. )
     {

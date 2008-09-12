@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.1");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.2");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -463,7 +463,7 @@ int vtkLabelPlacer::RequestData(
   cam->GetFrustumPlanes( aspect, frustumPlanes );
   double* planeHither = frustumPlanes + 4 * 4;
   double* planeYon = frustumPlanes + 5 * 4;
-  unsigned long allowableLabelArea = (unsigned long)
+  unsigned long allowableLabelArea = static_cast<unsigned long>
     ( ( ( kdbounds[1] - kdbounds[0] ) * ( kdbounds[3] - kdbounds[2] ) ) * this->MaximumLabelFraction );
   unsigned long renderedLabelArea = 0;
   unsigned long iteratedLabelArea = 0;

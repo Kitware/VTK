@@ -28,7 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.43");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.44");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -214,8 +214,8 @@ int vtkSmoothPolyDataFilter::RequestData(
     }
 
   CosFeatureAngle = 
-    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+    cos(vtkMath::DegreesToRadians() * this->FeatureAngle);
+  CosEdgeAngle = cos(vtkMath::DegreesToRadians() * this->EdgeAngle);
 
   vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells 
                << " cells with:\n"
@@ -719,7 +719,7 @@ void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
   if ( this->GetSource() )
     {
-    os << indent << "Source: " << (void *)this->GetSource() << "\n";
+      os << indent << "Source: " << static_cast<void *>(this->GetSource()) << "\n";
     }
   else
     {
