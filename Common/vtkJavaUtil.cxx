@@ -46,7 +46,7 @@ JNIEXPORT jlong vtkJavaGetId(JNIEnv *env,jobject obj)
 
 JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj)
 {
-  return (void*)(size_t)vtkJavaGetId(env, obj);
+  return obj ? (void*)(size_t)vtkJavaGetId(env, obj) : 0;
 }
 
 JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
