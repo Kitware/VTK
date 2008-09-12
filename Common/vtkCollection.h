@@ -58,6 +58,11 @@ public:
   void AddItem(vtkObject *);
 
   // Description:
+  // Insert item into the list after the i'th item. Does not prevent duplicate entries.
+  // If i < 0 the item is placed at the top of the list.
+  void InsertItem(int i, vtkObject *);
+
+  // Description:
   // Replace the i'th item in the collection with a
   void ReplaceItem(int i, vtkObject *);
 
@@ -67,7 +72,7 @@ public:
   // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
   // be shortened if a valid index is given!  If this->Current is equal to the
   // element being removed, have it point to then next element in the list.
-  void RemoveItem(int i);  
+  void RemoveItem(int i);
 
   // Description:
   // Remove an object from the list. Removes the first object found, not
