@@ -17,6 +17,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
+
 //============================================================================
 class vtkInformationObjectBaseVectorValue: public vtkObjectBase
 {
@@ -32,7 +33,7 @@ private:
 
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseVectorKey::vtkInformationObjectBaseVectorKey(
@@ -135,7 +136,7 @@ void vtkInformationObjectBaseVectorKey::Set(
   // Get the vector associated with this key, resize if this
   // set would run off the end.
   vtkInformationObjectBaseVectorValue* base=this->GetObjectBaseVector(info);
-  int n=base->GetVector().size();
+  int n=static_cast<int>(base->GetVector().size());
   if (i>=n)
     {
     base->GetVector().resize(i+1);
@@ -155,7 +156,7 @@ void vtkInformationObjectBaseVectorKey::SetRange(
   // Get the vector associated with this key, resize if this
   // set would run off the end.
   vtkInformationObjectBaseVectorValue* base=this->GetObjectBaseVector(info);
-  int m=base->GetVector().size();
+  int m=static_cast<int>(base->GetVector().size());
   int reqsz=to+n;
   if (reqsz>m)
     {
@@ -199,7 +200,7 @@ void vtkInformationObjectBaseVectorKey::GetRange(
     return;
     }
 
-  int m=base->GetVector().size();
+  int m=static_cast<int>(base->GetVector().size());
   // check source start.
   if (from>=m)
     {
@@ -249,7 +250,7 @@ int vtkInformationObjectBaseVectorKey::Size(vtkInformation* info)
   vtkInformationObjectBaseVectorValue* base =
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 
-  return (base==NULL ? 0 : base->GetVector().size());
+  return (base==NULL ? 0 : static_cast<int>(base->GetVector().size()));
 }
 
 //----------------------------------------------------------------------------
@@ -286,7 +287,7 @@ void vtkInformationObjectBaseVectorKey::ShallowCopy(
     return;
     }
 
-  int sourceSize=sourceBase->GetVector().size();
+  int sourceSize=static_cast<int>(sourceBase->GetVector().size());
   vtkInformationObjectBaseVectorValue* destBase=this->GetObjectBaseVector(dest);
 
   destBase->GetVector().resize(sourceSize);
@@ -303,7 +304,7 @@ void vtkInformationObjectBaseVectorKey::Print(ostream& os, vtkInformation* info)
   // Print each valid item.
   if (base!=NULL)
     {
-    int n=base->GetVector().size();
+    int n=static_cast<int>(base->GetVector().size());
     if (n>0)
       {
       vtkObjectBase *itemBase=base->GetVector()[0];

@@ -17,9 +17,8 @@
 // vtkInformationObjectBaseVectorKey is used to represent keys for double
 // vector values in vtkInformation.h. NOTE the interface in this key differs
 // from that in other similar keys because of our internal use of smart
-// pointers. The other option would have been to implement my own resize
-// clear, and set that support ref counting. This class needs re-work!
- 
+// pointers.
+
 #ifndef __vtkInformationObjectBaseVectorKey_h
 #define __vtkInformationObjectBaseVectorKey_h
 
