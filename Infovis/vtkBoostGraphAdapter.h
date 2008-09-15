@@ -32,6 +32,7 @@
 #include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
 #include "vtkDataObject.h"
+#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -85,6 +86,28 @@ namespace boost {
   vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
   vtkPropertyMapMacro(vtkDoubleArray, double)
   vtkPropertyMapMacro(vtkFloatArray, float)
+  
+  // vtkDataArray
+  template<>
+  struct property_traits<vtkDataArray*>
+  {
+    typedef double value_type;
+    typedef double reference;
+    typedef vtkIdType  key_type;
+    typedef read_write_property_map_tag category;
+  };
+
+  inline double 
+  get(vtkDataArray * const& arr, vtkIdType key)
+  {
+    return arr->GetTuple1(key);
+  }                     
+
+  inline void
+  put(vtkDataArray *arr, vtkIdType key, const double& value)
+  {
+    arr->SetTuple1(key, value);
+  }
 
   // vtkAbstractArray as a property map of vtkVariants
   template<>
