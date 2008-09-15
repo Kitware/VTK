@@ -171,9 +171,9 @@ public:
   // Description:
   // Retrieve the graph and tree representations.
   virtual vtkDataRepresentation* GetGraphRepresentation()
-    { return this->GetRepresentation(this->GraphRepresentationIndex); }
+    { return this->GetRepresentation(1, 0); }
   virtual vtkDataRepresentation* GetTreeRepresentation()
-    { return this->GetRepresentation(this->TreeRepresentationIndex); }
+    { return this->GetRepresentation(0, 0); }
 
   // Description:
   // The icon sheet to use for textures.

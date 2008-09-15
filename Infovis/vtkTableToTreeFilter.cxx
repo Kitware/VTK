@@ -20,6 +20,7 @@
 
 #include "vtkTableToTreeFilter.h"
 
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMutableDirectedGraph.h"
@@ -35,7 +36,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.5");
+vtkCxxRevisionMacro(vtkTableToTreeFilter, "1.6");
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
@@ -115,6 +116,18 @@ int vtkTableToTreeFilter::RequestData(
 
   // Copy the table data into the tree vertex data
   tree->GetVertexData()->PassData(table->GetRowData());
- 
+
+  // The edge data should at least have a pedigree id array.
+  vtkSmartPointer<vtkIdTypeArray> edgeIds =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  edgeIds->SetName("TableToTree edge");
+  vtkIdType numEdges = tree->GetNumberOfEdges();
+  edgeIds->SetNumberOfTuples(numEdges);
+  for (vtkIdType i = 0; i < numEdges; ++i)
+    {
+    edgeIds->SetValue(i, i);
+    }
+  tree->GetEdgeData()->SetPedigreeIds(edgeIds);
+
   return 1;
 }

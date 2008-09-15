@@ -24,6 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSelection.h"
 #include "vtkTestUtilities.h"
 #include "vtkViewTheme.h"
 #include "vtkXMLTreeReader.h"
@@ -39,11 +40,14 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   char* graphFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                  "Data/Infovis/XML/vtklibrary.xml");
 
+  // We need to put the graph and tree edges in different domains.
   VTK_CREATE(vtkXMLTreeReader, reader1);
   reader1->SetFileName(treeFileName);
+  reader1->SetEdgePedigreeIdArrayName("tree edge");
   
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetFileName(graphFileName);
+  reader2->SetEdgePedigreeIdArrayName("graph edge");
 
   reader1->Update();
   reader2->Update();

@@ -98,6 +98,27 @@ public:
   vtkSetStringMacro(XMLString);
 
   // Description:
+  // The name of the edge pedigree ids. Default is "edge id".
+  vtkGetStringMacro(EdgePedigreeIdArrayName);
+  vtkSetStringMacro(EdgePedigreeIdArrayName);
+
+  // Description:
+  // The name of the vertex pedigree ids. Default is "vertex id".
+  vtkGetStringMacro(VertexPedigreeIdArrayName);
+  vtkSetStringMacro(VertexPedigreeIdArrayName);
+
+  // Description:
+  // Set whether to use an property from the XML file as pedigree ids (off),
+  // or generate a new array with integer values starting at zero (on).
+  // Default is on.
+  vtkSetMacro(GenerateEdgePedigreeIds, bool);
+  vtkGetMacro(GenerateEdgePedigreeIds, bool);
+  vtkBooleanMacro(GenerateEdgePedigreeIds, bool);
+  vtkSetMacro(GenerateVertexPedigreeIds, bool);
+  vtkGetMacro(GenerateVertexPedigreeIds, bool);
+  vtkBooleanMacro(GenerateVertexPedigreeIds, bool);
+
+  // Description:
   // If on, makes bit arrays for each attribute with name .valid.attribute_name
   // for each attribute.  Default is off.
   vtkGetMacro(MaskArrays, bool);
@@ -122,6 +143,10 @@ protected:
   char* XMLString;
   bool ReadCharData;
   bool MaskArrays;
+  char* EdgePedigreeIdArrayName;
+  char* VertexPedigreeIdArrayName;
+  bool GenerateEdgePedigreeIds;
+  bool GenerateVertexPedigreeIds;
 
   int RequestData(
     vtkInformation*, 

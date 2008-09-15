@@ -58,7 +58,7 @@ static vtkVariant vtkGetVariantValue(vtkAbstractArray* arr, vtkIdType i)
 }
 
 
-vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.11");
+vtkCxxRevisionMacro(vtkGraphHierarchicalBundle, "1.12");
 vtkStandardNewMacro(vtkGraphHierarchicalBundle);
 
 vtkGraphHierarchicalBundle::vtkGraphHierarchicalBundle()
@@ -134,27 +134,17 @@ int vtkGraphHierarchicalBundle::RequestData(
     // Check for valid pedigree id arrays.
     vtkAbstractArray* graphIdArray = 
       graph->GetVertexData()->GetPedigreeIds();
-    if (graphIdArray == NULL)
+    if (!graphIdArray)
       {
-      // Check for any id array.
-      graphIdArray = graph->GetVertexData()->GetAbstractArray("id");
-      if (graphIdArray == NULL)
-        {
-        vtkErrorMacro("Graph pedigree id array not found.");
-        return 0;
-        }
+      vtkErrorMacro("Graph pedigree id array not found.");
+      return 0;
       }
     vtkAbstractArray* treeIdArray = 
       tree->GetVertexData()->GetPedigreeIds();
-    if (treeIdArray == NULL)
+    if (!treeIdArray)
       {
-      // Check for any id array.
-      treeIdArray = tree->GetVertexData()->GetAbstractArray("id");
-      if (treeIdArray == NULL)
-        {
-        vtkErrorMacro("Tree pedigree id array not found.");
-        return 0;
-        }
+      vtkErrorMacro("Tree pedigree id array not found.");
+      return 0;
       }
 
     map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;

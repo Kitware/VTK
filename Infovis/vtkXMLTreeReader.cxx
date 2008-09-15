@@ -34,7 +34,7 @@
 #include VTKLIBXML2_HEADER(parser.h)
 #include VTKLIBXML2_HEADER(tree.h)
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.9");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -48,12 +48,20 @@ vtkXMLTreeReader::vtkXMLTreeReader()
   this->SetNumberOfOutputPorts(1);
   this->ReadCharData = 0;
   this->MaskArrays = 0;
+  this->EdgePedigreeIdArrayName = 0;
+  this->SetEdgePedigreeIdArrayName("edge id");
+  this->VertexPedigreeIdArrayName = 0;
+  this->SetVertexPedigreeIdArrayName("vertex id");
+  this->GenerateEdgePedigreeIds = true;
+  this->GenerateVertexPedigreeIds = true;
 }
 
 vtkXMLTreeReader::~vtkXMLTreeReader()
 {
   this->SetFileName(0);
   this->SetXMLString(0);
+  this->SetEdgePedigreeIdArrayName(0);
+  this->SetVertexPedigreeIdArrayName(0);
 }
 
 void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -67,6 +75,14 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->MaskArrays ? "on" : "off") << endl;
   os << indent << "XMLString: " 
      << (this->XMLString ? this->XMLString : "(none)") << endl;
+  os << indent << "EdgePedigreeIdArrayName: "
+     << (this->EdgePedigreeIdArrayName ? this->EdgePedigreeIdArrayName : "(null)") << endl;
+  os << indent << "VertexPedigreeIdArrayName: "
+     << (this->VertexPedigreeIdArrayName ? this->VertexPedigreeIdArrayName : "(null)") << endl;
+  os << indent << "GenerateEdgePedigreeIds: "
+     << (this->GenerateEdgePedigreeIds ? "on" : "off") << endl;
+  os << indent << "GenerateVertexPedigreeIds: "
+     << (this->GenerateVertexPedigreeIds ? "on" : "off") << endl;
 }
 
 void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
@@ -99,10 +115,6 @@ void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
 
     // Append the node tag and character data to the vtkPointData
     nameArr->InsertValue(vertex, reinterpret_cast<const char*>(curNode->name));
-    
-    // Add pedigree ids
-    vtkIdTypeArray *idArr = vtkIdTypeArray::SafeDownCast(data->GetAbstractArray("PedigreeVertexId"));
-    idArr->InsertValue(vertex, vertex);
     
     // Append the element attributes to the vtkPointData
     for (xmlAttr *curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
@@ -199,12 +211,6 @@ int vtkXMLTreeReader::RequestData(
     charArr->Delete();
     }
   
-  // Add pedigree id array
-  vtkIdTypeArray *idArr = vtkIdTypeArray::New();
-  idArr->SetName("PedigreeVertexId");
-  data->AddArray(idArr);
-  idArr->Delete();
-
   // Get the root element node
   xmlNode *rootElement = xmlDocGetRootElement(doc);
   vtkXMLTreeReaderProcessElement(builder, -1, rootElement, this->ReadCharData, this->MaskArrays);
@@ -225,6 +231,62 @@ int vtkXMLTreeReader::RequestData(
     {
     vtkErrorMacro(<<"Structure is not a valid tree!");
     return 0;
+    }
+
+  // Look for or generate vertex pedigree id array.
+  if (this->GenerateVertexPedigreeIds)
+    {
+    // Create vertex pedigree ids
+    vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
+    ids->SetName(this->VertexPedigreeIdArrayName);
+    vtkIdType numVerts = output->GetNumberOfVertices();
+    ids->SetNumberOfTuples(numVerts);
+    for (vtkIdType i = 0; i < numVerts; ++i)
+      {
+      ids->SetValue(i, i);
+      }
+    output->GetVertexData()->SetPedigreeIds(ids);
+    }
+  else
+    {
+    vtkAbstractArray* pedIds = output->GetVertexData()->GetAbstractArray(this->VertexPedigreeIdArrayName);
+    if (pedIds)
+      {
+      output->GetVertexData()->SetPedigreeIds(pedIds);
+      }
+    else
+      {
+      vtkErrorMacro(<< "Vertex pedigree ID array not found.");
+      return 0;
+      }
+    }
+
+  // Look for or generate edge pedigree id array.
+  if (this->GenerateEdgePedigreeIds)
+    {
+    // Create vertex pedigree ids
+    vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
+    ids->SetName(this->EdgePedigreeIdArrayName);
+    vtkIdType numEdges = output->GetNumberOfEdges();
+    ids->SetNumberOfTuples(numEdges);
+    for (vtkIdType i = 0; i < numEdges; ++i)
+      {
+      ids->SetValue(i, i);
+      }
+    output->GetEdgeData()->SetPedigreeIds(ids);
+    }
+  else
+    {
+    vtkAbstractArray* pedIds = output->GetEdgeData()->GetAbstractArray(this->EdgePedigreeIdArrayName);
+    if (pedIds)
+      {
+      output->GetEdgeData()->SetPedigreeIds(pedIds);
+      }
+    else
+      {
+      vtkErrorMacro(<< "Edge pedigree ID array not found.");
+      return 0;
+      }
     }
 
   return 1;

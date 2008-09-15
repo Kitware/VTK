@@ -54,6 +54,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkScalarsToColors.h"
 #include "vtkSelection.h"
 #include "vtkSelectionLink.h"
 #include "vtkSplineFilter.h"
@@ -72,7 +73,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.7");
+vtkCxxRevisionMacro(vtkHierarchicalGraphView, "1.8");
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::vtkHierarchicalGraphView()
@@ -173,8 +174,6 @@ vtkHierarchicalGraphView::vtkHierarchicalGraphView()
   this->LogSpacing = 1.2;
   this->LeafSpacing = .5;
   this->BundlingStrength = .5;
-  this->TreeRepresentationIndex = -1;
-  this->GraphRepresentationIndex = -1;
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -680,23 +679,29 @@ void vtkHierarchicalGraphView::AddInputConnection( int port, int vtkNotUsed(inde
   vtkAlgorithm* alg = conn->GetProducer();
   alg->Update();
 
+  bool haveGraph = false;
+  bool haveTree = false;
+
   //Port 0 is designated as the tree and port 1 is the graph
   if( port == 0 )
     {
     this->TreeAggregation->SetInputConnection(0, conn);
     this->ExtractSelectedTree->SetInputConnection(1, selectionConn);
-    this->TreeRepresentationIndex = this->GetNumberOfRepresentations();
+    haveTree = true;
     }
   else
     {
     this->HBundle->SetInputConnection(0, conn);
     this->ExtractSelectedGraph->SetInputConnection(0, conn);
     this->ExtractSelectedGraph->SetInputConnection(1, selectionConn);
-    this->GraphRepresentationIndex = this->GetNumberOfRepresentations(1);
+    haveGraph = true;
     }
 
+  haveGraph = haveGraph || this->GetGraphRepresentation();
+  haveTree = haveTree || this->GetTreeRepresentation();
+
   // If we have a graph and a tree, we are ready to go.
-  if (this->TreeRepresentationIndex >= 0 && this->GraphRepresentationIndex >= 0)
+  if (haveGraph && haveTree)
     {
     this->Renderer->AddActor(this->TreeActor);
     this->Renderer->AddActor(this->SelectedGraphActor);
@@ -719,7 +724,6 @@ void vtkHierarchicalGraphView::RemoveInputConnection( int port, int vtkNotUsed(i
     {
       this->TreeAggregation->RemoveInputConnection(0, conn);
       this->ExtractSelectedTree->RemoveInputConnection(1, selectionConn);
-      this->TreeRepresentationIndex = -1;
     }
   }
   else if( port == 1 )
@@ -730,7 +734,6 @@ void vtkHierarchicalGraphView::RemoveInputConnection( int port, int vtkNotUsed(i
       this->HBundle->RemoveInputConnection(0, conn);
       this->ExtractSelectedGraph->RemoveInputConnection(0, conn);
       this->ExtractSelectedGraph->RemoveInputConnection(1, selectionConn);
-      this->GraphRepresentationIndex = -1;
     }
   }
   
@@ -817,12 +820,11 @@ void vtkHierarchicalGraphView::ProcessEvents(
     this->KdTreeSelector->Update();
     vtkSelection* kdSelection = this->KdTreeSelector->GetOutput();
 
-    // Convert to the proper selection type.
+    // Convert to the proper selection type. Must be pedigree ids for this view.
     this->GraphLayout->Update();
-    vtkGraph* data = vtkGraph::SafeDownCast(this->GraphLayout->GetOutput());
     vtkSmartPointer<vtkSelection> vertexSelection;
     vertexSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-      kdSelection, data, this->SelectionType, this->SelectionArrayNames));
+      kdSelection, this->GraphLayout->GetOutput(), vtkSelection::PEDIGREEIDS));
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     selection->SetContentType(vtkSelection::SELECTIONS);
@@ -831,14 +833,17 @@ void vtkHierarchicalGraphView::ProcessEvents(
       {
       selection->AddChild(vertexSelection);
       }
-      
-    // FIXME: Support edge selection
-#if 0
     else
       {
       // If we didn't find any vertices, perform edge selection.
-      // The edge actor must be opaque for visible cell selection
-      this->EdgeSelectionActor->VisibilityOn();
+      // The edge actor must be opaque for visible cell selection.
+      int scalarVis = this->GraphEdgeMapper->GetScalarVisibility();
+      this->GraphEdgeMapper->ScalarVisibilityOff();
+      vtkScalarsToColors* lookup = this->GraphEdgeMapper->GetLookupTable();
+      lookup->Register(0);
+      this->GraphEdgeMapper->SetLookupTable(0);
+      double opacity = this->GraphEdgeActor->GetProperty()->GetOpacity();
+      this->GraphEdgeActor->GetProperty()->SetOpacity(1.0);
       
       unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
       unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
@@ -852,8 +857,11 @@ void vtkHierarchicalGraphView::ProcessEvents(
       vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
       this->VisibleCellSelector->GetSelectedIds(ids);
 
-      // Turn off the special edge actor
-      this->EdgeSelectionActor->VisibilityOff();
+      // Set the speciale dge actor back to normal.
+      this->GraphEdgeMapper->SetScalarVisibility(scalarVis);
+      this->GraphEdgeMapper->SetLookupTable(lookup);
+      lookup->Delete();
+      this->GraphEdgeActor->GetProperty()->SetOpacity(opacity);
       
       vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
       for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
@@ -866,22 +874,26 @@ void vtkHierarchicalGraphView::ProcessEvents(
           }
         }
       
-      vtkSmartPointer<vtkSelection> edgeIndexSelection = vtkSmartPointer<vtkSelection>::New();
-      edgeIndexSelection->SetContentType(vtkSelection::INDICES);
-      edgeIndexSelection->SetFieldType(vtkSelection::EDGE);
-      edgeIndexSelection->SetSelectionList(selectedIds);
+      // Start with polydata cell selection of lines.
+      vtkSmartPointer<vtkSelection> cellIndexSelection = vtkSmartPointer<vtkSelection>::New();
+      cellIndexSelection->SetContentType(vtkSelection::INDICES);
+      cellIndexSelection->SetFieldType(vtkSelection::CELL);
+      cellIndexSelection->SetSelectionList(selectedIds);
 
-      // Convert to the proper selection type.
+      // Convert to pedigree ids.
+      this->HBundle->Update();
       vtkSmartPointer<vtkSelection> edgeSelection;
       edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
-        edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
+        cellIndexSelection, this->HBundle->GetOutput(), vtkSelection::PEDIGREEIDS));
+
+      // Make it an edge selection.
+      edgeSelection->SetFieldType(vtkSelection::EDGE);
 
       if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
         {
         selection->AddChild(edgeSelection);
         }
       }
-#endif // FIXME: Support edge selection
 
     // If this is a union selection, append the selection
     if (rect[4] == vtkInteractorStyleRubberBand2D::SELECT_UNION)
@@ -892,7 +904,13 @@ void vtkHierarchicalGraphView::ProcessEvents(
       }
     
     // Call select on the representation(s)
-    this->GetRepresentation()->Select(this, selection);
+    for (int i = 0; i < 2; ++i)
+      {
+      for (int j = 0; j < this->GetNumberOfRepresentations(i); ++j)
+        {
+        this->GetRepresentation(i, j)->Select(this, selection);
+        }
+      }
     }
   else
     {
@@ -903,7 +921,7 @@ void vtkHierarchicalGraphView::ProcessEvents(
 //----------------------------------------------------------------------------
 void vtkHierarchicalGraphView::PrepareForRendering()
 {
-  if (this->TreeRepresentationIndex < 0 || this->GraphRepresentationIndex < 0)
+  if (!this->GetTreeRepresentation() || !this->GetGraphRepresentation())
     {
     return;
     }
@@ -1046,7 +1064,7 @@ void vtkHierarchicalGraphView::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SelectedGraphHBundle: " << endl;
   this->SelectedGraphHBundle->PrintSelf(os, indent.GetNextIndent());
     
-  if (this->GraphRepresentationIndex > 0 && this->TreeRepresentationIndex > 0)
+  if (this->GetGraphRepresentation() && this->GetTreeRepresentation())
     {
     os << indent << "VertexLabelActor: " << endl;
     this->VertexLabelActor->PrintSelf(os, indent.GetNextIndent());

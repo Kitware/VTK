@@ -82,6 +82,17 @@ CompareSignedUnsignedLessThan(const vtkVariant &SignedVariant,
 // ----------------------------------------------------------------------
 
 inline bool
+CompareUnsignedSignedLessThan(const vtkVariant &UnsignedVariant,
+                              const vtkVariant &SignedVariant)
+{
+  vtkTypeInt64 B = SignedVariant.ToTypeInt64();
+  return ((B > 0) && 
+          (UnsignedVariant.ToTypeUInt64() < static_cast<vtkTypeUInt64>(B)));
+}
+
+// ----------------------------------------------------------------------
+
+inline bool
 CompareSignedLessThan(const vtkVariant &A,
                       const vtkVariant &B)
 {
@@ -208,7 +219,7 @@ vtkVariant::operator<(const vtkVariant &other) const
       }
     else
       {
-      return !CompareSignedUnsignedLessThan(other, *this);
+      return CompareUnsignedSignedLessThan(*this, other);
       }
     }
   else if (thisSigned)
