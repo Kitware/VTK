@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.3");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.4");
 vtkStandardNewMacro(vtkGeoTerrain);
 #if _WIN32
 #include "windows.h"
@@ -49,8 +49,8 @@ inline void vtkSleep(double duration)
   Sleep((int)(1000*duration));
 #elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
   struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = (int)duration;
-  sleep_time.tv_nsec = (int)(1000000000*(duration-sleep_time.tv_sec));
+  sleep_time.tv_sec = static_cast<int>(duration);
+  sleep_time.tv_nsec = static_cast<int>(1000000000*(duration-sleep_time.tv_sec));
   nanosleep(&sleep_time,&dummy);
 #endif
 }
@@ -62,8 +62,8 @@ VTK_THREAD_RETURN_TYPE vtkGeoTerrainThreadStart( void *arg )
 //   int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   
   vtkGeoTerrain* self;
-  self = (vtkGeoTerrain*)
-    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  self = static_cast<vtkGeoTerrain *>
+    (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
 
  self->ThreadStart();
   return VTK_THREAD_RETURN_VALUE;
