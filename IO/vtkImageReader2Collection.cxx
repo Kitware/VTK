@@ -17,12 +17,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageReader2.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Collection, "1.7");
+vtkCxxRevisionMacro(vtkImageReader2Collection, "1.8");
 vtkStandardNewMacro(vtkImageReader2Collection);
 
 void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
 {
-  this->vtkCollection::AddItem((vtkObject *)f);
+  this->vtkCollection::AddItem(f);
 }
 
 vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 

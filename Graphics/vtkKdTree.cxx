@@ -48,7 +48,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.21");
+vtkCxxRevisionMacro(vtkKdTree, "1.22");
 
 // Timing data ---------------------------------------------
 
@@ -573,9 +573,9 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
     for (int j=0; j<totalCells; j++)
       {
       this->ComputeCellCenter(set->GetCell(j), dcenter, weights);
-      cptr[0] = (float)dcenter[0];
-      cptr[1] = (float)dcenter[1];
-      cptr[2] = (float)dcenter[2];
+      cptr[0] = static_cast<float>(dcenter[0]);
+      cptr[1] = static_cast<float>(dcenter[1]);
+      cptr[2] = static_cast<float>(dcenter[2]);
       cptr += 3;
       if (j%1000 == 0)
         {
@@ -595,9 +595,9 @@ float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
       for (int j=0; j<nCells; j++)
         {
         this->ComputeCellCenter(iset->GetCell(j), dcenter, weights);
-        cptr[0] = (float)dcenter[0];
-        cptr[1] = (float)dcenter[1];
-        cptr[2] = (float)dcenter[2];
+        cptr[0] = static_cast<float>(dcenter[0]);
+        cptr[1] = static_cast<float>(dcenter[1]);
+        cptr[2] = static_cast<float>(dcenter[2]);
         cptr += 3;
         if (j%1000 == 0)
           {
@@ -620,9 +620,9 @@ void vtkKdTree::ComputeCellCenter(vtkDataSet *set, int cellId, float *center)
 
   this->ComputeCellCenter(set, cellId, dcenter);
 
-  center[0] = (float)dcenter[0];
-  center[1] = (float)dcenter[1];
-  center[2] = (float)dcenter[2];
+  center[0] = static_cast<float>(dcenter[0]);
+  center[1] = static_cast<float>(dcenter[1]);
+  center[2] = static_cast<float>(dcenter[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -823,15 +823,15 @@ void vtkKdTree::BuildLocator()
   
     vtkKdNode *kd = this->Top = vtkKdNode::New();
   
-    kd->SetBounds((double)volBounds[0], (double)volBounds[1], 
-                  (double)volBounds[2], (double)volBounds[3], 
-                  (double)volBounds[4], (double)volBounds[5]);
+    kd->SetBounds(volBounds[0], volBounds[1], 
+                  volBounds[2], volBounds[3], 
+                  volBounds[4], volBounds[5]);
   
     kd->SetNumberOfPoints(nCells);
   
-    kd->SetDataBounds((double)volBounds[0], (double)volBounds[1],
-                  (double)volBounds[2], (double)volBounds[3],
-                  (double)volBounds[4], (double)volBounds[5]); 
+    kd->SetDataBounds(volBounds[0], volBounds[1],
+                      volBounds[2], volBounds[3],
+                      volBounds[4], volBounds[5]); 
   
     TIMER("Build tree");
   
@@ -1390,7 +1390,8 @@ int vtkKdTree::Select(int dim, float *c1, int *ids, int nvals, double &coord)
 
   float leftMax = vtkKdTree::FindMaxLeftHalf(dim, c1, mid);
 
-  coord = ((double)c1[midValIndex] + (double)leftMax) / 2.0;
+  coord=(static_cast<double>(c1[midValIndex])
+         +static_cast<double>(leftMax))/2.0;
 
   return mid;
 }
@@ -1437,11 +1438,11 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 
       N = R - L + 1;
       I = K - L + 1;
-      Z = static_cast<float>(log((float)N));
+      Z = static_cast<float>(log(static_cast<float>(N)));
       S = static_cast<int>(.5 * exp(2*Z/3));
-      SD = static_cast<int>(.5 * sqrt(Z*S*((float)(N-S)/N)) * sign(I - N/2));
-      LL = max(L, K - static_cast<int>(I*((float)S/N)) + SD);
-      RR = min(R, K + static_cast<int>((N-I) * ((float)S/N)) + SD);
+      SD = static_cast<int>(.5 * sqrt(Z*S*static_cast<float>(N-S)/N) * sign(I - N/2));
+      LL = max(L, K - static_cast<int>(I*static_cast<float>(S)/N) + SD);
+      RR = min(R, K + static_cast<int>((N-I)*static_cast<float>(S)/N) + SD);
       _Select(dim, X, ids, LL, RR, K);
       }
 
@@ -1705,7 +1706,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
   for (i=0; i<3; i++)
     {
     diff[i] = bounds[2*i+1] - bounds[2*i];
-    this->MaxWidth = (float)
+    this->MaxWidth = static_cast<float>
       ((diff[i] > this->MaxWidth) ? diff[i] : this->MaxWidth);
     }
 
@@ -1731,15 +1732,15 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
    
   vtkKdNode *kd = this->Top = vtkKdNode::New();
 
-  kd->SetBounds((double)bounds[0], (double)bounds[1], 
-                (double)bounds[2], (double)bounds[3], 
-                (double)bounds[4], (double)bounds[5]);
+  kd->SetBounds(bounds[0], bounds[1], 
+                bounds[2], bounds[3], 
+                bounds[4], bounds[5]);
 
   kd->SetNumberOfPoints(totalNumPoints);
 
-  kd->SetDataBounds((double)bounds[0], (double)bounds[1],
-                (double)bounds[2], (double)bounds[3],
-                (double)bounds[4], (double)bounds[5]); 
+  kd->SetDataBounds(bounds[0], bounds[1],
+                    bounds[2], bounds[3],
+                    bounds[4], bounds[5]); 
 
 
   this->LocatorIds = new int [totalNumPoints];
@@ -1778,9 +1779,9 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
         {
         double *pt = ptArrays[i]->GetPoint(ii);
         
-        points[ptId++] = (float)pt[0]; 
-        points[ptId++] = (float)pt[1];
-        points[ptId++] = (float)pt[2];
+        points[ptId++] = static_cast<float>(pt[0]);
+        points[ptId++] = static_cast<float>(pt[1]);
+        points[ptId++] = static_cast<float>(pt[2]);
         }
       }
     }
@@ -2096,15 +2097,15 @@ vtkIdType vtkKdTree::FindPoint(double x, double y, double z)
 
   float *point = this->LocatorPoints + (idx * 3);
 
-  float fx = (float)x;
-  float fy = (float)y;
-  float fz = (float)z;
+  float fx = static_cast<float>(x);
+  float fy = static_cast<float>(y);
+  float fz = static_cast<float>(z);
 
   for (int i=0; i < this->RegionList[regionId]->GetNumberOfPoints(); i++)
     {
     if ( (point[0] == fx) && (point[1] == fy) && (point[2] == fz))
       {
-      ptId = (vtkIdType)this->LocatorIds[idx + i];       
+      ptId = static_cast<vtkIdType>(this->LocatorIds[idx + i]);
       break;
       } 
 
@@ -2194,9 +2195,9 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
     originalPoint[0] = x; originalPoint[1] = y; originalPoint[2] = z;
 
     float *closePoint = this->LocatorPoints + (closeId * 3);
-    otherPoint[0] = (double)closePoint[0];
-    otherPoint[1] = (double)closePoint[1];
-    otherPoint[2] = (double)closePoint[2];
+    otherPoint[0] = static_cast<double>(closePoint[0]);
+    otherPoint[1] = static_cast<double>(closePoint[1]);
+    otherPoint[2] = static_cast<double>(closePoint[2]);
 
     minDistance2 = 
         vtkMath::Distance2BetweenPoints(originalPoint, otherPoint);
@@ -2238,7 +2239,7 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
     minDistance2 = newDistance2;
     }
 
-  vtkIdType closePointId = (vtkIdType)this->LocatorIds[closeId];
+  vtkIdType closePointId = static_cast<vtkIdType>(this->LocatorIds[closeId]);
 
   dist2 = minDistance2;
 
@@ -2261,7 +2262,7 @@ vtkIdType vtkKdTree::FindClosestPointInRegion(int regionId,
 
   if (localId >= 0)
     {
-    originalId = (vtkIdType)this->LocatorIds[localId];
+    originalId = static_cast<vtkIdType>(this->LocatorIds[localId]);
     }
 
   return originalId;
@@ -2281,15 +2282,15 @@ int vtkKdTree::_FindClosestPointInRegion(int regionId,
 
   for (int i=0; i < this->RegionList[regionId]->GetNumberOfPoints(); i++)
     {
-    double dx = (x - (double)candidate[0]) * (x - (double)candidate[0]);
+    double dx = (x - candidate[0]) * (x - candidate[0]);
 
     if (dx < minDistance2)
       {
-      double dxy = dx + ((y - (double)candidate[1]) * (y - (double)candidate[1]));
+      double dxy = dx + ((y - candidate[1]) * (y - candidate[1]));
 
       if (dxy < minDistance2)
         {
-        double dxyz = dxy + ((z - (double)candidate[2]) * (z - (double)candidate[2]));
+        double dxyz = dxy + ((z - candidate[2]) * (z - candidate[2]));
 
         if (dxyz < minDistance2)
           {
@@ -2515,9 +2516,9 @@ void vtkKdTree::SetInputDataInfo(int i, int dims[3], double origin[3],
                                  double spacing[3])
 {
   int idx = 9*i;
-  this->LastInputDataInfo[idx++] = (double)dims[0];
-  this->LastInputDataInfo[idx++] = (double)dims[1];
-  this->LastInputDataInfo[idx++] = (double)dims[2];
+  this->LastInputDataInfo[idx++] = static_cast<double>(dims[0]);
+  this->LastInputDataInfo[idx++] = static_cast<double>(dims[1]);
+  this->LastInputDataInfo[idx++] = static_cast<double>(dims[2]);
   this->LastInputDataInfo[idx++] = origin[0];
   this->LastInputDataInfo[idx++] = origin[1];
   this->LastInputDataInfo[idx++] = origin[2];
@@ -2533,9 +2534,9 @@ int vtkKdTree::CheckInputDataInfo(int i, int dims[3], double origin[3],
   int sameValues = 1;
   int idx = 9*i; 
 
-  if ((dims[0] != (int)this->LastInputDataInfo[idx]) ||
-      (dims[1] != (int)this->LastInputDataInfo[idx+1]) ||
-      (dims[2] != (int)this->LastInputDataInfo[idx+2]) ||
+  if ((dims[0] != static_cast<int>(this->LastInputDataInfo[idx])) ||
+      (dims[1] != static_cast<int>(this->LastInputDataInfo[idx+1])) ||
+      (dims[2] != static_cast<int>(this->LastInputDataInfo[idx+2])) ||
       (origin[0] != this->LastInputDataInfo[idx+3]) ||
       (origin[1] != this->LastInputDataInfo[idx+4]) ||
       (origin[2] != this->LastInputDataInfo[idx+5]) ||
@@ -3182,7 +3183,7 @@ int vtkKdTree::FoundId(vtkIntArray *idArray, int id)
 //----------------------------------------------------------------------------
 int vtkKdTree::findRegion(vtkKdNode *node, float x, float y, float z)
 {
-  return vtkKdTree::findRegion(node, (double)x, (double)y, (double)z);
+  return vtkKdTree::findRegion(node,static_cast<double>(x),static_cast<double>(y),static_cast<double>(z));
 }
 
 //----------------------------------------------------------------------------
@@ -3215,7 +3216,7 @@ int vtkKdTree::findRegion(vtkKdNode *node, double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists()
 {
-  this->CreateCellLists((int *)NULL, 0);
+  this->CreateCellLists(static_cast<int *>(NULL), 0);
   return;
 }
 
@@ -3970,7 +3971,7 @@ int vtkKdTree::ViewOrderRegionsInDirection(
       ids.insert(regionIds->GetValue(i));
       }
 
-    if (ids.size() < (unsigned int)this->NumberOfRegions)
+    if (ids.size() < static_cast<unsigned int>(this->NumberOfRegions))
       {
       IdsOfInterest = vtkIntArray::New();
       IdsOfInterest->SetNumberOfValues(ids.size());
@@ -4025,7 +4026,7 @@ int vtkKdTree::ViewOrderRegionsFromPosition(vtkIntArray *regionIds,
       ids.insert(regionIds->GetValue(i));
       }
 
-    if (ids.size() < (unsigned int)this->NumberOfRegions)
+    if (ids.size() < static_cast<unsigned int>(this->NumberOfRegions))
       {
       IdsOfInterest = vtkIntArray::New();
       IdsOfInterest->SetNumberOfValues(ids.size());
@@ -4255,7 +4256,7 @@ void vtkKdTree::OmitNoPartitioning()
 //---------------------------------------------------------------------------
 void vtkKdTree::PrintTiming(ostream& os, vtkIndent )
 {
-  vtkTimerLog::DumpLogWithIndents(&os, (float)0.0);
+  vtkTimerLog::DumpLogWithIndents(&os, 0.0f);
 }
 
 //---------------------------------------------------------------------------
@@ -4270,7 +4271,7 @@ void vtkKdTree::ReportReferences(vtkGarbageCollector *collector)
 void vtkKdTree::UpdateProgress(double amt)
 {
   this->Progress = amt;
-  this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amt);
+  this->InvokeEvent(vtkCommand::ProgressEvent,static_cast<void *>(&amt));
 }
 
 //----------------------------------------------------------------------------

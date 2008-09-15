@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.5");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.6");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6357000.0
@@ -132,7 +132,7 @@ void vtkGeoInteractorStyle::OnMiddleButtonDown()
 
   double x = this->Interactor->GetEventPosition()[0];
   double y = this->Interactor->GetEventPosition()[1];
-  this->FindPokedRenderer((int)x, (int)y);
+  this->FindPokedRenderer(static_cast<int>(x),static_cast<int>(y));
   if (this->CurrentRenderer == NULL)
     {
     return;
@@ -338,8 +338,8 @@ int vtkGeoInteractorStyle::ViewportToWorld(double xMouse,
   vtkMath::Normalize(up);
   double dx, dy;
   int* size = renderer->GetSize();
-  dx = (double)xMouse - (double)(size[0])*0.5;
-  dy = (double)yMouse - (double)(size[1])*0.5;
+  dx = xMouse - size[0]*0.5;
+  dy = yMouse - size[1]*0.5;
 
   double angle = camera->GetViewAngle();
   double tmp = tan(angle*0.5*vtkMath::DegreesToRadians());
@@ -663,8 +663,8 @@ void vtkGeoInteractorStyle::Pan()
   double dyMouse;
     
   // It appears like the y is already flipped here.
-  dxMouse=(double)(rwi->GetEventPosition()[0]-rwi->GetLastEventPosition()[0]);
-  dyMouse=(double)(rwi->GetEventPosition()[1]-rwi->GetLastEventPosition()[1]);
+  dxMouse=static_cast<double>(rwi->GetEventPosition()[0]-rwi->GetLastEventPosition()[0]);
+  dyMouse=static_cast<double>(rwi->GetEventPosition()[1]-rwi->GetLastEventPosition()[1]);
 
   // use the center of the screen area covered by the earth
   // to determine the amount of lat long adjustment. The end
@@ -714,7 +714,7 @@ void vtkGeoInteractorStyle::Dolly()
   // These computations assume a perfect sphere.
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   int* size = this->CurrentRenderer->GetSize();
-  double factor = 1.0 - ( (double)(dy) / size[1]);
+  double factor = 1.0 - ( static_cast<double>(dy) / size[1]);
   
   this->Dolly(factor);
 }
@@ -751,7 +751,7 @@ void vtkGeoInteractorStyleRenderCallback(vtkObject *caller,
 {
   caller = caller;
   vtkGeoInteractorStyle *self 
-    = (vtkGeoInteractorStyle *)clientData;
+    = static_cast<vtkGeoInteractorStyle *>(clientData);
 
   self->RedrawRectangle();
 }
@@ -904,7 +904,7 @@ void vtkGeoInteractorStyle::EnableRubberBandRedraw()
       
   cbc= vtkCallbackCommand::New();
   cbc->SetCallback(vtkGeoInteractorStyleRenderCallback);
-  cbc->SetClientData((void*)this);
+  cbc->SetClientData(this);
   // Renderer will delete the cbc when the observer is removed.
   this->RenderCallbackTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
   cbc->Delete();

@@ -38,7 +38,7 @@
 #include "vtkView.h"
 
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.4");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.5");
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
 
 //-----------------------------------------------------------------------------
@@ -48,8 +48,8 @@ VTK_THREAD_RETURN_TYPE vtkGeoAlignedImageRepresentationThreadStart( void *arg )
 //  int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   
   vtkGeoAlignedImageRepresentation* self;
-  self = (vtkGeoAlignedImageRepresentation*)
-    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
+  self = static_cast<vtkGeoAlignedImageRepresentation *>
+    (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
 
  self->ThreadStart();
   return VTK_THREAD_RETURN_VALUE;
@@ -477,7 +477,7 @@ vtkGeoImageNode* vtkGeoAlignedImageRepresentation::GetBestImageNode(
 // node.  It returns true if the model changes.
 vtkGeoPatch* vtkGeoAlignedImageRepresentation::GetPatch(int idx)
 {
-  if (idx >= 0 && idx < (int)(this->Patches.size()))
+  if (idx >= 0 && idx < static_cast<int>(this->Patches.size()))
     {
     return this->Patches[idx];
     }

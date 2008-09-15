@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.29");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.30");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -55,7 +55,7 @@ vtkDataSetCollection *vtkInterpolateDataSetAttributes::GetInputList()
 
   for (i = 0; i < this->GetNumberOfInputConnections(0); i++)
     {
-    this->InputList->AddItem((vtkDataSet *)this->GetExecutive()->GetInputData(0, i));
+      this->InputList->AddItem(static_cast<vtkDataSet *>(this->GetExecutive()->GetInputData(0, i)));
     }
   return this->InputList;
 }
@@ -93,20 +93,20 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
   // Check input and determine between which data sets the interpolation 
   // is to occur.
-  if ( this->T > (double)numInputs )
+  if ( this->T > static_cast<double>(numInputs) )
     {
     vtkErrorMacro(<<"Bad interpolation parameter");
     return 1;
     }
 
-  lowDS = (int) this->T;
+  lowDS = static_cast<int>(this->T);
   if ( lowDS >= (numInputs-1) )
     {
     lowDS = numInputs - 2;
     }
 
   highDS = lowDS + 1;
-  t = this->T - (double)lowDS;
+  t = this->T - static_cast<double>(lowDS);
   if (t > 1.0)
     {
     t =1.0;
@@ -196,7 +196,7 @@ int vtkInterpolateDataSetAttributes::RequestData(
     {
     if ( ! (i % 10000) ) 
       {
-      this->UpdateProgress ((double)i/numPts * 0.50);
+      this->UpdateProgress(static_cast<double>(i)/numPts * 0.50);
       if (this->GetAbortExecute())
         {
         break;
@@ -211,7 +211,7 @@ int vtkInterpolateDataSetAttributes::RequestData(
     {
     if ( ! (i % 10000) ) 
       {
-      this->UpdateProgress (0.5 + (double)i/numCells * 0.50);
+      this->UpdateProgress (0.5 + static_cast<double>(i)/numCells * 0.50);
       if (this->GetAbortExecute())
         {
         break;

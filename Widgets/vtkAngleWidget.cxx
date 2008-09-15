@@ -394,7 +394,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
     e[1] = static_cast<double>(Y);
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->StartWidgetInteraction(e);
     self->CurrentHandle = 0;
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->Ray1VisibilityOn();
     self->Point1Widget->SetEnabled(1);
     self->CurrentHandle++;
@@ -403,7 +403,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   // If defining we are placing the second or third point
   else if ( self->WidgetState == vtkAngleWidget::Define )
     {
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     if ( self->CurrentHandle == 1 )
       {
       double e[2];

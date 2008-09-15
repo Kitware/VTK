@@ -285,14 +285,14 @@ void vtkDistanceWidget::AddPointAction(vtkAbstractWidget *w)
     e[1] = static_cast<double>(Y);
     reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->StartWidgetInteraction(e);
     self->CurrentHandle = 0;
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     }
 
   // Placing the second point is easy
   else if ( self->WidgetState == vtkDistanceWidget::Define )
     {
     self->CurrentHandle = 1;
-    self->InvokeEvent(vtkCommand::PlacePointEvent,(void*)&(self->CurrentHandle));
+    self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
     self->WidgetState = vtkDistanceWidget::Manipulate;
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
