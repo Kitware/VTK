@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.3");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.4");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -241,6 +241,7 @@ void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "MaximumLabelFraction: " << this->MaximumLabelFraction << "\n";
   os << indent << "PositionsAsNormals: " << ( this->PositionsAsNormals ? "ON" : "OFF" ) << "\n";
   os << indent << "IteratorType: " << this->IteratorType << "\n";
+  os << indent << "OutputTraversedBounds: " << (this->OutputTraversedBounds ? "ON" : "OFF" ) << "\n";
 }
 
 /**\brief Set the default label gravity.
