@@ -105,7 +105,7 @@ octree_iterator<_T,_R,_P,_O,_OP,_d>::~octree_iterator()
   *
   */
 template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-typename _O::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_incr()
+typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_incr()
 {
   if ( ! this->_M_octree )
     {
@@ -169,7 +169,7 @@ typename _O::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_incr
   *
   */
 template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-typename _O::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_decr()
+typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_decr()
 {
   if ( ! this->_M_octree )
     {
