@@ -235,7 +235,7 @@ public:
   // Default is "Tree".
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToTree()          { this->SetLayoutStrategy("Tree"); }
-  void SetLayoutStrategyToCosmicTree()     { this->SetLayoutStrategy("CosmicTree"); }
+  void SetLayoutStrategyToCosmicTree()    { this->SetLayoutStrategy("CosmicTree"); }
   const char* GetLayoutStrategyName()     { return this->GetLayoutStrategyNameInternal(); }
 
   // Description:
