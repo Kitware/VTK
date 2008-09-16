@@ -37,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.1");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.2");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -174,17 +174,18 @@ int vtkPointSetToLabelHierarchy::RequestData(
     vtkAbstractArray* curStringOrIndex =
       this->GetInputAbstractArrayToProcess( 3*i+2, inputVector );
 
-    // We need an indicator of whether the third input array
-    // is a label or index array. Currently, we will look for an
-    // array name of "IconIndex".
-    bool labels = true;
-    if ( !strcmp( curStringOrIndex->GetName(), "IconIndex" ) )
-      {
-      labels = false;
-      }
-
     if ( curPts && curPriorities && curSize )
       {
+
+      // We need an indicator of whether the third input array
+      // is a label or index array. Currently, we will look for an
+      // array name of "IconIndex".
+      bool labels = true;
+      if ( !strcmp( curStringOrIndex->GetName(), "IconIndex" ) )
+        {
+        labels = false;
+        }
+
       vtkstd::vector<double> sz;
       int nc = curSize->GetNumberOfComponents();
       sz.resize( nc > 4 ? nc : 4 );
