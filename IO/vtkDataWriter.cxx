@@ -35,6 +35,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTypeTraits.h"
+#include "vtkSignedCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -43,7 +44,7 @@
 #include <vtksys/ios/sstream>
 
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.135");
+vtkCxxRevisionMacro(vtkDataWriter, "1.136");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1064,6 +1065,19 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       {
       sprintf (str, format, "char"); *fp << str; 
       char *s=static_cast<vtkCharArray *>(data)->GetPointer(0);
+#if VTK_TYPE_CHAR_IS_SIGNED
+      vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
+#else
+      vtkWriteDataArray(fp, s, this->FileType, "%hhu ", num, numComp);
+#endif
+      }
+    break;
+
+    case VTK_SIGNED_CHAR:
+      {
+      sprintf (str, format, "signed_char"); *fp << str; 
+      signed char *s=
+        static_cast<vtkSignedCharArray *>(data)->GetPointer(0);
       vtkWriteDataArray(fp, s, this->FileType, "%hhd ", num, numComp);
       }
     break;
