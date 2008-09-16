@@ -78,9 +78,14 @@ public:
   virtual void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
   virtual void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   virtual void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
+  virtual void SetDataScalarTypeToUnsignedInt(){this->SetDataScalarType(VTK_UNSIGNED_INT);}
   virtual void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
   virtual void SetDataScalarTypeToUnsignedShort()
     {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
+  virtual void SetDataScalarTypeToChar()
+    {this->SetDataScalarType(VTK_CHAR);}
+  virtual void SetDataScalarTypeToSignedChar()
+    {this->SetDataScalarType(VTK_SIGNED_CHAR);}
   virtual void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
 
