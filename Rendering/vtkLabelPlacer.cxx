@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.5");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.6");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -140,9 +140,9 @@ public:
       {
       for ( int ty = ty0; ty <= ty1; ++ ty )
         {
-        ScreenTile tile( this->Tiles[tx][ty] );
+        vtkstd::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
-        if ( ! tile.IsSpotOpen( opacity, r ) ) 
+        if ( ! (*trow)[ty].IsSpotOpen( opacity, r ) ) 
           return false;
         }
       }

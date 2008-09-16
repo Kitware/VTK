@@ -46,7 +46,9 @@ public:
   bool& immediate_family() { return this->_M_immediate_family; }
 
   virtual self_iterator& operator = ( const iterator& it );
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
   virtual self_iterator& operator = ( const const_iterator& it );
+#endif
 
   self_iterator& operator ++ ()      { this->_M_current_node = check_incr(); return *this; }
   self_iterator  operator ++ ( int ) { self_iterator tmp = *this; this->_M_current_node = check_incr(); return tmp; }

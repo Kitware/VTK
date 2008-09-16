@@ -259,9 +259,10 @@ octree_path<_T,_R,_P,_O,_OP,_d>& octree_cursor<_T,_R,_P,_O,_OP,_d>::operator = (
 /**\brief Assignment operator (for copying paths of immutable nodes).
   *
   */
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
 template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
 octree_path<_T,_R,_P,_O,_OP,_d>& octree_cursor<_T,_R,_P,_O,_OP,_d>::operator = ( const const_path& it )
 {
   return this->octree_path<_T,_R,_P,_O,_OP,_d>::operator=( it );
 }
-
+#endif

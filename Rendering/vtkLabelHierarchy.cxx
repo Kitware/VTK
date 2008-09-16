@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.6");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.7");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.6");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.7");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.6");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.7");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1302,7 +1302,14 @@ void vtkLabelHierarchy::implementation::FillHierarchyRoot( LabelSet& anchors )
       ++ endRootAnchors;
       }
     }
-  this->Hierarchy->root()->value().insert( anchors.begin(), endRootAnchors );
+  #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
+    this->Hierarchy->root()->value().insert( anchors.begin(), endRootAnchors );
+  #else
+    for ( LabelSet::iterator it = anchors.begin(); it != endRootAnchors; ++ it )
+      {
+      this->Hierarchy->root()->value().insert( it );
+      }
+  #endif
   anchors.erase( anchors.begin(), endRootAnchors );
 }
 

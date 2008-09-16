@@ -283,6 +283,7 @@ octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>:
 /**\brief Assignment operator (for copying iterators of immutable nodes).
   *
   */
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
 template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
 octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator = ( const const_iterator& it )
 {
@@ -291,6 +292,7 @@ octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>:
   this->_M_only_leaf_nodes = it._M_only_leaf_nodes;
   return *this;
 }
+#endif
 
 /**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
   *    self_iterator& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator ++ ()

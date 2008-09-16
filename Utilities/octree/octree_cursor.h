@@ -49,7 +49,9 @@ public:
   bool visit( const vtkstd::vector<int>& path );
 
   virtual self_path& operator = ( const path& it );
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
   virtual self_path& operator = ( const const_path& it );
+#endif
 };
 
 #endif // __octree_cursor
