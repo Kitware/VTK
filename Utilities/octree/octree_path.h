@@ -37,13 +37,19 @@ public:
   int level() const { return this->_M_parents.size(); }
 
   self_path& operator = ( const path& it );
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
   self_path& operator = ( const const_path& src );
+#endif
 
   bool operator == ( const path& it ) { return _M_octree == it._M_octree && _M_current_node == it._M_current_node; }
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
   bool operator == ( const const_path& it ) { return _M_octree == it._M_octree && _M_current_node == it._M_current_node; }
+#endif
 
   bool operator != ( const path& it ) { return _M_octree != it._M_octree || _M_current_node != it._M_current_node; }
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
   bool operator != ( const const_path& it ) { return _M_octree != it._M_octree || _M_current_node != it._M_current_node; }
+#endif
 };
 
 #endif // __octree_path

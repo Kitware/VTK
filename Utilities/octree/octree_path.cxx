@@ -147,6 +147,7 @@ octree_path<_T,_R,_P,_O,_OP,_d>& octree_path<_T,_R,_P,_O,_OP,_d>::operator = ( c
 /**\brief Assignment operator (for copying paths of immutable nodes).
   *
   */
+#if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
 template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
 octree_path<_T,_R,_P,_O,_OP,_d>& octree_path<_T,_R,_P,_O,_OP,_d>::operator = ( const const_path& src )
 {
@@ -156,6 +157,7 @@ octree_path<_T,_R,_P,_O,_OP,_d>& octree_path<_T,_R,_P,_O,_OP,_d>::operator = ( c
   this->_M_current_node = src._M_current_node;
   return *this;
 }
+#endif
 
 /**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
   *    bool octree_path<_T,_R,_P,_O,_OP,_d>::operator == ( const path& it )
