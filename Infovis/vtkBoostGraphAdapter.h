@@ -822,6 +822,41 @@ namespace boost {
   {
     return key;
   }
+  
+  //===========================================================================
+  // Helper for vtkGraph property maps
+  // Automatically multiplies the property value by some value (default 1)
+  template<typename PMap>
+  class vtkGraphPropertyMapMultiplier
+  {
+  public:
+    vtkGraphPropertyMapMultiplier(PMap m, float multi=1) : pmap(m),multiplier(multi){}
+    PMap pmap;
+    float multiplier;
+    typedef typename property_traits<PMap>::value_type value_type;
+    typedef typename property_traits<PMap>::reference reference;
+    typedef typename property_traits<PMap>::key_type key_type;
+    typedef typename property_traits<PMap>::category category;
+  };
+
+  template<typename PMap>
+  inline typename property_traits<PMap>::reference
+  get(
+    vtkGraphPropertyMapMultiplier<PMap> multi,
+    const typename property_traits<PMap>::key_type key)
+  {
+    return multi.multiplier * get(multi.pmap, key);
+  } 
+
+  template<typename PMap>
+  inline void
+  put(
+    vtkGraphPropertyMapMultiplier<PMap> multi,
+    const typename property_traits<PMap>::key_type key,
+    const typename property_traits<PMap>::value_type & value)
+  {
+    put(multi.pmap, key, value);
+  }
 
   // Allow algorithms to automatically extract vtkGraphIndexMap from a
   // VTK graph
