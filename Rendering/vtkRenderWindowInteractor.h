@@ -99,6 +99,13 @@ public:
   vtkGetMacro(Enabled, int);
 
   // Description:
+  // Enable/Disable whether vtkRenderWindowInteractor::Render() calls
+  // this->RenderWindow->Render().
+  vtkBooleanMacro(EnableRender, bool);
+  vtkSetMacro(EnableRender, bool);
+  vtkGetMacro(EnableRender, bool);
+
+  // Description:
   // Set/Get the rendering window being controlled by this object.
   void SetRenderWindow(vtkRenderWindow *aren);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
@@ -417,6 +424,7 @@ protected:
 
   int    Initialized;
   int    Enabled;
+  bool   EnableRender;
   int    Style;
   int    LightFollowCamera;
   int    ActorMode;

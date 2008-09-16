@@ -27,7 +27,7 @@
 #include "vtkObserverMediator.h"
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.120");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.121");
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
 // to the platform-specific representation for timer ids.
@@ -72,6 +72,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->LightFollowCamera = 1;
   this->Initialized = 0;
   this->Enabled = 0;
+  this->EnableRender = true;
   this->DesiredUpdateRate = 15;
   // default limit is 3 hours per frame
   this->StillUpdateRate = 0.0001;
@@ -152,7 +153,7 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 //----------------------------------------------------------------------
 void vtkRenderWindowInteractor::Render()
 {
-  if (this->RenderWindow && this->Enabled)
+  if (this->RenderWindow && this->Enabled && this->EnableRender)
     {
     this->RenderWindow->Render();
     }
@@ -595,6 +596,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "StillUpdateRate: " << this->StillUpdateRate << "\n";
   os << indent << "Initialized: " << this->Initialized << "\n";
   os << indent << "Enabled: " << this->Enabled << "\n";
+  os << indent << "EnableRender: " << this->EnableRender << "\n";
   os << indent << "EventPosition: " << "( " << this->EventPosition[0] <<
     ", " << this->EventPosition[1] << " )\n";
   os << indent << "LastEventPosition: " << "( " << this->LastEventPosition[0] 
