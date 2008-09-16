@@ -82,6 +82,8 @@ IF(VTK_USE_BOOST)
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
+    vtkBoostKruskalMinimumSpanningTree.cxx
+    vtkBoostPrimMinimumSpanningTree.cxx
     vtkBoostSplitTableField.cxx
   )
 ENDIF(VTK_USE_BOOST)
