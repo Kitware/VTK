@@ -96,6 +96,11 @@ public:
   int Intersects(const vtkBoundingBox &bbox) const;
 
   // Description:
+  // Returns 1 if the min and max points of bbox are contained 
+  // within the bounds of this box, else returns 0.
+  int Contains(const vtkBoundingBox &bbox) const;
+
+  // Description:
   // Get the bounds of the box (defined by vtk style)
   void GetBounds(double bounds[6]) const;
   void GetBounds(double &xMin, double &xMax,
