@@ -74,7 +74,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(MPIController
-        ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
         ${CXX_TEST_PATH}/TestMPIController
         ${VTK_MPI_POSTFLAGS}
         )
@@ -89,7 +90,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     # Since the functionality and more is tested by the MPIController test,
     # I vote we just get rid of it altogether.
     ADD_TEST(GenericCommunicator-image 
-      ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}  ${VTK_MPI_NUMPROC_FLAG} 2 
+      ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
       ${CXX_TEST_PATH}/GenericCommunicator
       ${VTK_MPI_POSTFLAGS})
 
@@ -105,23 +106,20 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       TARGET_LINK_LIBRARIES(TestPBGLGraphSQLReader vtkParallel ${Boost_LIBRARIES})
 
       ADD_TEST(PBGLRandomGraph
-        ${VTK_MPIRUN_EXE} 
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${CXX_TEST_PATH}/PBGLRandomGraph
         ${VTK_MPI_POSTFLAGS})
 
       ADD_TEST(PBGLNamedVertexGraph
-        ${VTK_MPIRUN_EXE} 
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS} 
         ${CXX_TEST_PATH}/PBGLNamedVertexGraph
         ${VTK_MPI_POSTFLAGS})
 
       ADD_TEST(TestPBGLGraphSQLReader
-        ${VTK_MPIRUN_EXE}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${CXX_TEST_PATH}/TestPBGLGraphSQLReader
         ${VTK_MPI_POSTFLAGS})
 
@@ -130,9 +128,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         vtkParallel ${Boost_LIBRARIES})
 
       ADD_TEST(TestPRandomGraphSource
-        ${VTK_MPIRUN_EXE}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${CXX_TEST_PATH}/TestPRandomGraphSource
         ${VTK_MPI_POSTFLAGS})
 
@@ -141,9 +138,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         vtkParallel ${Boost_LIBRARIES})
       
       ADD_TEST(TestPRMATGraphSource
-        ${VTK_MPIRUN_EXE}
-        ${VTK_MPI_PREFLAGS}
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS} 
         ${CXX_TEST_PATH}/TestPRMATGraphSource
         ${VTK_MPI_POSTFLAGS})
 
@@ -152,9 +148,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         vtkParallel ${Boost_LIBRARIES})
       
       ADD_TEST(TestPBGLCollapseGraph
-        ${VTK_MPIRUN_EXE}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${CXX_TEST_PATH}/TestPBGLCollapseGraph
         ${VTK_MPI_POSTFLAGS})
 
@@ -163,9 +158,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         vtkParallel ${Boost_LIBRARIES})
       
       ADD_TEST(TestPBGLCollectGraph
-        ${VTK_MPIRUN_EXE}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${CXX_TEST_PATH}/TestPBGLCollectGraph
         ${VTK_MPI_POSTFLAGS})
 
@@ -174,9 +168,8 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
         vtkParallel vtkViews ${Boost_LIBRARIES})
       
       ADD_TEST(TestPBGLPipeline
-        ${VTK_MPIRUN_EXE}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS} 
-        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${CXX_TEST_PATH}/TestPBGLPipeline
         ${VTK_MPI_POSTFLAGS})
     ENDIF (VTK_USE_PARALLEL_BGL)
@@ -189,54 +182,42 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       IF (VTK_MPIRUN_EXE)
         IF(VTK_MPI_MAX_NUMPROCS GREATER 1)
           ADD_TEST(ParallelIso-image 
-            ${VTK_MPIRUN_EXE}  
-            ${VTK_MPI_PREFLAGS} 
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
             ${CXX_TEST_PATH}/ParallelIsoTest
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/ParallelIso.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TestPStream-image 
-            ${VTK_MPIRUN_EXE} 
-            ${VTK_MPI_PREFLAGS} 
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
             ${CXX_TEST_PATH}/TestPStream
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TestPStream.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(DistributedData-image
-            ${VTK_MPIRUN_EXE} 
-            ${VTK_MPI_PREFLAGS}
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/DistributedData
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedData.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitImageData-image
-            ${VTK_MPIRUN_EXE} 
-            ${VTK_MPI_PREFLAGS}
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitImageData
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitImageData.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitRectilinearGrid-image
-            ${VTK_MPIRUN_EXE} 
-            ${VTK_MPI_PREFLAGS}
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitRectilinearGrid
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/TransmitRectilinearGrid.cxx.png
             ${VTK_MPI_POSTFLAGS})
           ADD_TEST(TransmitStructuredGrid-image
-            ${VTK_MPIRUN_EXE}
-            ${VTK_MPI_PREFLAGS}
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TransmitStructuredGrid
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Tempor2ary
@@ -251,9 +232,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ELSE (VTK_DATA_ROOT)
         IF (VTK_MPIRUN_EXE)
           ADD_TEST(TestCommunicator 
-            ${VTK_MPIRUN_EXE} 
-            ${VTK_MPI_PREFLAGS} 
-            ${VTK_MPI_NUMPROC_FLAG} 2 
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
             ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPIRUN_EXE)
     ENDIF (VTK_DATA_ROOT)
