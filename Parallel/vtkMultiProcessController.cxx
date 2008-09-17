@@ -53,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.30");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.31");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.30");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.31");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -332,6 +332,24 @@ unsigned long vtkMultiProcessController::AddRMI(vtkRMIFunctionType f,
 }
 
 //----------------------------------------------------------------------------
+void vtkMultiProcessController::TriggerRMIOnAllChildren(
+  void *arg, int argLength, int rmiTag)
+{
+  int myid = this->GetLocalProcessId();
+  int childid = 2 * myid + 1; 
+  int numProcs = this->GetNumberOfProcesses();
+  if (numProcs > childid)
+    {
+    this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
+    }
+  childid++;
+  if (numProcs > childid)
+    {
+    this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkMultiProcessController::TriggerRMI(int remoteProcessId, 
                                            void *arg, int argLength,
                                            int rmiTag)
@@ -343,14 +361,14 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
     return;
     }
 
-  this->TriggerRMIInternal(remoteProcessId, arg, argLength, rmiTag);
+  this->TriggerRMIInternal(remoteProcessId, arg, argLength, rmiTag, false);
 }
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId, 
-    void* arg, int argLength, int rmiTag)
+    void* arg, int argLength, int rmiTag, bool propagate)
 {
-  int triggerMessage[3];
+  int triggerMessage[4];
   triggerMessage[0] = rmiTag;
   triggerMessage[1] = argLength;
   
@@ -358,8 +376,11 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
   triggerMessage[2] = this->GetLocalProcessId();
+  
+  // Pass the propagate flag.
+  triggerMessage[3] = propagate? 1 : 0;
 
-  this->RMICommunicator->Send(triggerMessage, 3, remoteProcessId, RMI_TAG);
+  this->RMICommunicator->Send(triggerMessage, 4, remoteProcessId, RMI_TAG);
   if (argLength > 0)
     {
     this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
@@ -394,13 +415,13 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
-  int triggerMessage[3];
+  int triggerMessage[4];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
   
   do 
     {
-    if (!this->RMICommunicator->Receive(triggerMessage, 3, ANY_SOURCE, RMI_TAG))
+    if (!this->RMICommunicator->Receive(triggerMessage, 4, ANY_SOURCE, RMI_TAG))
       {
       if (reportErrors)
         {
@@ -422,6 +443,10 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
         error = RMI_ARG_ERROR;
         break;
         }
+      }
+    if (triggerMessage[3] == 1)//propagate==true
+      {
+      this->TriggerRMIOnAllChildren(arg, triggerMessage[1], triggerMessage[0]);
       }
     this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1], 
       triggerMessage[0]);

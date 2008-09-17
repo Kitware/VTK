@@ -196,7 +196,7 @@ protected:
   // modify the behaviour eg. MPIController provides ability to use Ssend
   // instead of Send.
   virtual void TriggerRMIInternal(int remoteProcessId, 
-    void* arg, int argLength, int rmiTag);
+    void* arg, int argLength, int rmiTag, bool propagate);
 
   // MPI communicator created when Initialize() called.
   // This is a copy of MPI_COMM_WORLD but uses a new

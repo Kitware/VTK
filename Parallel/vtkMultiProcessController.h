@@ -205,6 +205,24 @@ public:
     { this->TriggerRMI(remoteProcessId, NULL, 0, tag); }
 
   // Description:
+  // This is a convenicence method to trigger an RMI call on all the "children"
+  // of the current node. The children of the current node can be determined by
+  // drawing a binary tree starting at node 0 and then assigned nodes ids
+  // incrementally in a breadth-first fashion from left to right. This is
+  // designed to be used when trigger an RMI call on all satellites from the
+  // root node.
+  void TriggerRMIOnAllChildren(void *arg, int argLength, int tag);
+  void TriggerRMIOnAllChildren(const char *arg, int tag) 
+    { 
+    this->TriggerRMIOnAllChildren(
+      (void*)arg, static_cast<int>(strlen(arg))+1, tag);
+    }
+  void TriggerRMIOnAllChildren(int tag)
+    { 
+    this->TriggerRMIOnAllChildren(NULL, 0, tag);
+    }
+
+  // Description:
   // Calling this method gives control to the controller to start
   // processing RMIs. Possible return values are:
   // RMI_NO_ERROR,
@@ -847,7 +865,7 @@ protected:
   // modify the behaviour eg. MPIController provides ability to use SSend
   // instead of Send.
   virtual void TriggerRMIInternal(int remoteProcessId, 
-    void* arg, int argLength, int rmiTag);
+    void* arg, int argLength, int rmiTag, bool propagate);
   
   vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;

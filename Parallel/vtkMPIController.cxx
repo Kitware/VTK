@@ -70,9 +70,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.26");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.27");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.26");
+vtkCxxRevisionMacro(vtkMPIController, "1.27");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
 
 //----------------------------------------------------------------------------
 void vtkMPIController::TriggerRMIInternal(int remoteProcessId, 
-    void* arg, int argLength, int rmiTag)
+    void* arg, int argLength, int rmiTag, bool propagate)
 {
   vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(
     this->RMICommunicator);
@@ -124,7 +124,7 @@ void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     }
 
   this->Superclass::TriggerRMIInternal(remoteProcessId,
-    arg, argLength, rmiTag);
+    arg, argLength, rmiTag, propagate);
 
   if (vtkMPIController::UseSsendForRMI == 1 && use_ssend == 0)
     {
