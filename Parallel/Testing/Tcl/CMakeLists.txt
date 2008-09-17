@@ -79,7 +79,7 @@ IF (VTK_DATA_ROOT)
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   IF(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
     ADD_TEST(TestPProbe-image 
-      ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}  ${PVTK_EXECUTABLE}
+      ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}  ${PVTK_EXECUTABLE}
              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
              ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
              -D ${VTK_DATA_ROOT}
