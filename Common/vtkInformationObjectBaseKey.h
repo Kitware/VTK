@@ -41,7 +41,6 @@ public:
   // information object.
   void Set(vtkInformation* info, vtkObjectBase*);
   vtkObjectBase* Get(vtkInformation* info);
-  int Has(vtkInformation* info);
 
   // Description:
   // Copy the entry associated with this key from one information

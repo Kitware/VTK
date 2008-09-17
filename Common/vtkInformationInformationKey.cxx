@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationInformationKey, "1.6");
+vtkCxxRevisionMacro(vtkInformationInformationKey, "1.7");
 
 //----------------------------------------------------------------------------
 vtkInformationInformationKey::vtkInformationInformationKey(const char* name, const char* location):
@@ -47,12 +47,6 @@ void vtkInformationInformationKey::Set(vtkInformation* info,
 vtkInformation* vtkInformationInformationKey::Get(vtkInformation* info)
 {
   return static_cast<vtkInformation *>(this->GetAsObjectBase(info));
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationInformationKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

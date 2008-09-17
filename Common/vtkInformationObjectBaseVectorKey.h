@@ -94,12 +94,6 @@ public:
   // vtkObjectBase **Get(vtkInformation* info);
 
   // Description:
-  // Answers: 
-  // Is this key instance associated with any data that is 
-  // contained in info?
-  int Has(vtkInformation* info);
-
-  // Description:
   // Copy the entry associated with this key from one information
   // object to another.  If there is no entry in the first information
   // object for this key, the value is removed from the second.

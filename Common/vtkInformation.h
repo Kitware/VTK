@@ -104,6 +104,14 @@ public:
   VTK_COMMON_EXPORT void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
 
   // Description:
+  // Check whether the given key appears in this information object.
+  VTK_COMMON_EXPORT int Has(vtkInformationKey* key);
+
+  // Description:
+  // Remove the given key and its data from this information object.
+  VTK_COMMON_EXPORT void Remove(vtkInformationKey* key);
+
+  // Description:
   // Get/Set a request-valued entry.
   VTK_COMMON_EXPORT void Set(vtkInformationRequestKey* key);
   VTK_COMMON_EXPORT void Remove(vtkInformationRequestKey* key);

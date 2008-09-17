@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -159,12 +159,6 @@ int vtkInformationIntegerVectorKey::Length(vtkInformation* info)
     static_cast<vtkInformationIntegerVectorValue *>
     (this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Value.size()):0;
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationIntegerVectorKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

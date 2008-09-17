@@ -44,7 +44,6 @@ public:
   vtkInformationKey*  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, vtkInformationKey** value);
   int Length(vtkInformation* info);
-  int Has(vtkInformation* info);
 
   // Description:
   // Copy the entry associated with this key from one information

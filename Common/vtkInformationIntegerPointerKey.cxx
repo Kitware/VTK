@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerPointerKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationIntegerPointerKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerPointerKey
@@ -112,12 +112,6 @@ int vtkInformationIntegerPointerKey::Length(vtkInformation* info)
     static_cast<vtkInformationIntegerPointerValue *>
     (this->GetAsObjectBase(info));
   return v->Length;
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationIntegerPointerKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

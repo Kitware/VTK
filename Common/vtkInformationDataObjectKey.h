@@ -42,7 +42,6 @@ public:
   void Set(vtkInformation* info, vtkDataObject*);
   vtkDataObject* Get(vtkInformation* info);
   //ETX
-  int Has(vtkInformation* info);
 
   // Description:
   // Copy the entry associated with this key from one information

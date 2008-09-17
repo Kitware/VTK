@@ -39,7 +39,7 @@
 
 #include "vtkInformationInternals.h"
 
-vtkCxxRevisionMacro(vtkInformation, "1.27");
+vtkCxxRevisionMacro(vtkInformation, "1.28");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -422,17 +422,31 @@ void vtkInformation::CopyEntries(vtkInformation* from,
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationKey* key)
+{
+  // Use the virtual interface in case this is a special-cased key.
+  return key->Has(this)?1:0;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationKey* key)
+{
+  // Use the virtual interface in case this is a special-cased key.
+  key->Remove(this);
+}
+
 void vtkInformation::Set(vtkInformationRequestKey* key)
 {
   key->Set(this);
 }
 void vtkInformation::Remove(vtkInformationRequestKey* key)
 {
-  key->Remove(this);
+  key->vtkInformationRequestKey::Remove(this);
 }
 int vtkInformation::Has(vtkInformationRequestKey* key)
 {
-  return key->Has(this);
+  return key->vtkInformationRequestKey::Has(this);
 }
 
 //----------------------------------------------------------------------------
@@ -443,7 +457,7 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
     }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##Key* key)               \
     {                                                                       \
-    key->Remove(this);                                                      \
+    key->vtkInformation##name##Key::Remove(this);                           \
     }                                                                       \
   type vtkInformation::Get(vtkInformation##name##Key* key)                  \
     {                                                                       \
@@ -451,7 +465,7 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
     }                                                                       \
   int vtkInformation::Has(vtkInformation##name##Key* key)                   \
     {                                                                       \
-    return key->Has(this);                                                  \
+    return key->vtkInformation##name##Key::Has(this);                       \
     }
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(IdType, vtkIdType);
 VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
@@ -495,11 +509,11 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
     }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##VectorKey* key)         \
     {                                                                       \
-    key->Remove(this);                                                      \
+    key->vtkInformation##name##VectorKey::Remove(this);                     \
     }                                                                       \
   int vtkInformation::Has(vtkInformation##name##VectorKey* key)             \
     {                                                                       \
-    return key->Has(this);                                                  \
+    return key->vtkInformation##name##VectorKey::Has(this);                 \
     }
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
@@ -526,11 +540,11 @@ int vtkInformation::Length(vtkInformationStringVectorKey* key)
   }
 void vtkInformation::Remove(vtkInformationStringVectorKey* key)
   {
-  key->Remove(this);
+  key->vtkInformationStringVectorKey::Remove(this);
   }
 int vtkInformation::Has(vtkInformationStringVectorKey* key)
   {
-  return key->Has(this);
+  return key->vtkInformationStringVectorKey::Has(this);
   }
 
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
@@ -585,11 +599,11 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
     }                                                                       \
   void vtkInformation::Remove(vtkInformation##name##PointerKey* key)         \
     {                                                                       \
-    key->Remove(this);                                                      \
+    key->vtkInformation##name##PointerKey::Remove(this);                    \
     }                                                                       \
   int vtkInformation::Has(vtkInformation##name##PointerKey* key)             \
     {                                                                       \
-    return key->Has(this);                                                  \
+    return key->vtkInformation##name##PointerKey::Has(this);                \
     }
 VTK_INFORMATION_DEFINE_POINTER_PROPERTY(Integer, int);
 #undef VTK_INFORMATION_DEFINE_POINTER_PROPERTY

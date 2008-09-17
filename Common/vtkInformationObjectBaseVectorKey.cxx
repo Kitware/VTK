@@ -33,7 +33,7 @@ private:
 
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationObjectBaseVectorKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseVectorKey::vtkInformationObjectBaseVectorKey(
@@ -265,12 +265,6 @@ void vtkInformationObjectBaseVectorKey::Clear(vtkInformation* info)
 {
   vtkInformationObjectBaseVectorValue* base=this->GetObjectBaseVector(info);
   base->GetVector().clear();
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationObjectBaseVectorKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

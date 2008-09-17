@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey
@@ -60,12 +60,6 @@ void vtkInformationObjectBaseKey::Set(vtkInformation* info,
 vtkObjectBase* vtkInformationObjectBaseKey::Get(vtkInformation* info)
 {
   return this->GetAsObjectBase(info);
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationObjectBaseKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

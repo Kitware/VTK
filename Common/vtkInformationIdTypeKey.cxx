@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationIdTypeKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationIdTypeKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location):
@@ -79,12 +79,6 @@ vtkIdType vtkInformationIdTypeKey::Get(vtkInformation* info)
     static_cast<vtkInformationIdTypeValue *>
     (this->GetAsObjectBase(info));
   return v?v->Value:0;
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationIdTypeKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

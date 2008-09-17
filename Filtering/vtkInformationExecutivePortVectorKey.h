@@ -46,7 +46,6 @@ public:
   int* GetPorts(vtkInformation* info);
   void Get(vtkInformation* info, vtkExecutive** executives, int* ports);
   int Length(vtkInformation* info);
-  int Has(vtkInformation* info);
 
   // Description:
   // Copy the entry associated with this key from one information

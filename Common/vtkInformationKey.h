@@ -79,6 +79,10 @@ public:
     { this->ShallowCopy(from, to); }
 
   // Description:
+  // Check whether this key appears in the given information object.
+  virtual int Has(vtkInformation* info);
+
+  // Description:
   // Remove this key from the given information object.
   virtual void Remove(vtkInformation* info);
 

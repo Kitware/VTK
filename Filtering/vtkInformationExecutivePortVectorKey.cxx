@@ -26,7 +26,7 @@
 // make garbage collecting easier but results in a weak reference.
 #define VTK_USE_SINGLE_REF 1
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.10");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.11");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -225,12 +225,6 @@ int vtkInformationExecutivePortVectorKey::Length(vtkInformation* info)
     static_cast<vtkInformationExecutivePortVectorValue *>
     (this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Executives.size()):0;
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationExecutivePortVectorKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

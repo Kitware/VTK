@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location):
@@ -80,12 +80,6 @@ unsigned long vtkInformationUnsignedLongKey::Get(vtkInformation* info)
     static_cast<vtkInformationUnsignedLongValue *>
     (this->GetAsObjectBase(info));
   return v?v->Value:0;
-}
-
-//----------------------------------------------------------------------------
-int vtkInformationUnsignedLongKey::Has(vtkInformation* info)
-{
-  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

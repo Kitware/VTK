@@ -17,7 +17,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationKey, "1.6");
 
 class vtkInformationKeyToInformationFriendship
 {
@@ -92,6 +92,12 @@ void vtkInformationKey::SetAsObjectBase(vtkInformation* info,
 vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
 {
   return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationKey::Has(vtkInformation* info)
+{
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
