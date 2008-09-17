@@ -7,19 +7,19 @@
   *
   * A path is like an iterator without the capability to perform linear traversal.
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d = 3 >
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ = 3 >
 class octree_path
 {
 public:
-  typedef _O octree_type;
-  typedef _OP octree_pointer;
-  typedef typename _O::allocator_type octree_allocator_type;
-  typedef typename _O::octree_node_reference octree_node_reference;
-  typedef typename _O::octree_node_pointer octree_node_pointer;
+  typedef O_ octree_type;
+  typedef OP_ octree_pointer;
+  typedef typename O_::allocator_type octree_allocator_type;
+  typedef typename O_::octree_node_reference octree_node_reference;
+  typedef typename O_::octree_node_pointer octree_node_pointer;
 
-  typedef octree_path< _T, _T&, _T*, _O, _O*, _d > path;
-  typedef octree_path< _T, const _T&, const _T*, _O, const _O*, _d > const_path;
-  typedef octree_path< _T, _R, _P, _O, _OP, _d > self_path;
+  typedef octree_path< T_, T_&, T_*, O_, O_*, d_ > path;
+  typedef octree_path< T_, const T_&, const T_*, O_, const O_*, d_ > const_path;
+  typedef octree_path< T_, R_, P_, O_, OP_, d_ > self_path;
 
   octree_pointer _M_octree;                    // The octree we are iterating over
   vtkstd::vector<octree_node_pointer> _M_parents; // List of parent nodes

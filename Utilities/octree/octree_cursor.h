@@ -14,23 +14,23 @@
   * A cursor contains no storage beyond its base class, octree_path, so you may assign to a
   * cursor from any descendant of octree_path including octree_iterator.
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d = 3 >
-class octree_cursor : public octree_path<_T,_R,_P,_O,_OP,_d>
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ = 3 >
+class octree_cursor : public octree_path<T_,R_,P_,O_,OP_,d_>
 {
 public:
-  typedef _O octree_type;
-  typedef _OP octree_pointer;
-  typedef typename _O::allocator_type octree_allocator_type;
-  typedef typename _O::octree_node_reference octree_node_reference;
-  typedef typename _O::octree_node_pointer octree_node_pointer;
+  typedef O_ octree_type;
+  typedef OP_ octree_pointer;
+  typedef typename O_::allocator_type octree_allocator_type;
+  typedef typename O_::octree_node_reference octree_node_reference;
+  typedef typename O_::octree_node_pointer octree_node_pointer;
 
-  typedef octree_path< _T, _T&, _T*, _O, _O*, _d > path;
-  typedef octree_path< _T, const _T&, const _T*, _O, const _O*, _d > const_path;
-  typedef octree_path< _T, _R, _P, _O, _OP, _d > self_path;
+  typedef octree_path< T_, T_&, T_*, O_, O_*, d_ > path;
+  typedef octree_path< T_, const T_&, const T_*, O_, const O_*, d_ > const_path;
+  typedef octree_path< T_, R_, P_, O_, OP_, d_ > self_path;
 
-  typedef octree_cursor< _T, _T&, _T*, _O, _O*, _d > cursor;
-  typedef octree_cursor< _T, const _T&, const _T*, _O, const _O*, _d > const_cursor;
-  typedef octree_cursor< _T, _R, _P, _O, _OP, _d > self_cursor;
+  typedef octree_cursor< T_, T_&, T_*, O_, O_*, d_ > cursor;
+  typedef octree_cursor< T_, const T_&, const T_*, O_, const O_*, d_ > const_cursor;
+  typedef octree_cursor< T_, R_, P_, O_, OP_, d_ > self_cursor;
 
   octree_cursor();
   octree_cursor( octree_pointer otree );

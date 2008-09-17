@@ -1,82 +1,82 @@
 // Included from octree
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef _T octree<_T,_d,_A>::value_type
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef T_ octree<T_,d_,A_>::value_type
   *\brief Shorthand for the application-specific datatype.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef _T* octree<_T,_d,_A>::pointer
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef T_* octree<T_,d_,A_>::pointer
   *\brief Shorthand for a pointer to application-specific data.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef _T& octree<_T,_d,_A>::reference
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef T_& octree<T_,d_,A_>::reference
   *\brief Shorthand for a reference to application-specific data.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef const _T* octree<_T,_d,_A>::const_pointer
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef const T_* octree<T_,d_,A_>::const_pointer
   *\brief Shorthand for a pointer to immutable application-specific data.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef const _T& octree<_T,_d,_A>::const_reference
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef const T_& octree<T_,d_,A_>::const_reference
   *\brief Shorthand for a reference to immutable application-specific data.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree<_T,_d,_A> octree<_T,_d,_A>::_self_type
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree<T_,d_,A_> octree<T_,d_,A_>::_self_type
   *\brief Shorthand for the datatype of this class.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef _self_type* octree<_T,_d,_A>::_self_pointer
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef _self_type* octree<T_,d_,A_>::_self_pointer
   *\brief Shorthand for a pointer to an object of this class.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_node<_T,_d,_A>* octree<_T,_d,_A>::octree_node_pointer
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_node<T_,d_,A_>* octree<T_,d_,A_>::octree_node_pointer
   *\brief Shorthand for a pointer to a node contained by the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_node<_T,_d,_A>& octree<_T,_d,_A>::octree_node_reference
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_node<T_,d_,A_>& octree<T_,d_,A_>::octree_node_reference
   *\brief Shorthand for a reference to a node contained by the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef const octree_node<_T,_d,_A>* octree<_T,_d,_A>::const_octree_node_pointer
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef const octree_node<T_,d_,A_>* octree<T_,d_,A_>::const_octree_node_pointer
   *\brief Shorthand for a pointer to an immutable node contained by the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef const octree_node<_T,_d,_A>& octree<_T,_d,_A>::const_octree_node_reference
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef const octree_node<T_,d_,A_>& octree<T_,d_,A_>::const_octree_node_reference
   *\brief Shorthand for a reference to an immutable node contained by the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef _A octree<_T,_d,_A>::allocator_type
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef A_ octree<T_,d_,A_>::allocator_type
   *\brief Shorthand for an allocator to be used by this class.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_iterator< _T, _T&, _T*, _self_type, _self_pointer, _d > octree<_T,_d,_A>::iterator
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_iterator< T_, T_&, T_*, _self_type, _self_pointer, d_ > octree<T_,d_,A_>::iterator
   *\brief Shorthand for an iterator that traverses the nodes contained in the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_iterator< _T, const _T&, const _T*, _self_type, _self_pointer, _d > octree<_T,_d,_A>::const_iterator
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_iterator< T_, const T_&, const T_*, _self_type, _self_pointer, d_ > octree<T_,d_,A_>::const_iterator
   *\brief Shorthand for an iterator that traverses the nodes contained in the octree in a read-only manner.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_cursor< _T, _T&, _T*, _self_type, _self_pointer, _d > octree<_T,_d,_A>::cursor
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_cursor< T_, T_&, T_*, _self_type, _self_pointer, d_ > octree<T_,d_,A_>::cursor
   *\brief Shorthand for a cursor that traverses the nodes contained in the octree.
   */
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     typedef octree_cursor< _T, const _T&, const _T*, _self_type, _self_pointer, _d > octree<_T,_d,_A>::const_cursor
+/**\var template< typename T_, int d_, typename A_ > \
+  *     typedef octree_cursor< T_, const T_&, const T_*, _self_type, _self_pointer, d_ > octree<T_,d_,A_>::const_cursor
   *\brief Shorthand for a cursor that traverses the nodes contained in the octree in a read-only manner.
   */
 
@@ -92,10 +92,10 @@
   * @param[in] center An array of coordinates specifying the center of the octree
   * @param[in] length The length (size) of each side of the octree
   */
-template< typename _T, int _d, typename _A >
-octree<_T,_d,_A>::octree( const double* center, double length )
+template< typename T_, int d_, typename A_ >
+octree<T_,d_,A_>::octree( const double* center, double length )
 {
-  this->_M_root = new octree_node<_T,_d,_A>( this, center, length );
+  this->_M_root = new octree_node<T_,d_,A_>( this, center, length );
 }
 
 /**\brief Octree constructor.
@@ -112,24 +112,24 @@ octree<_T,_d,_A>::octree( const double* center, double length )
   * @param[in] length The length (size) of each side of the octree
   * @param[in] value  Application-specific data to store at the root node
   */
-template< typename _T, int _d, typename _A >
-octree<_T,_d,_A>::octree( const double* center, double length, const value_type& value )
+template< typename T_, int d_, typename A_ >
+octree<T_,d_,A_>::octree( const double* center, double length, const value_type& value )
 {
-  this->_M_root = new octree_node<_T,_d,_A>( this, center, length, value );
+  this->_M_root = new octree_node<T_,d_,A_>( this, center, length, value );
 }
 
 /**\brief Octree destructor.
   *
   * Deletes the octree nodes and any application-specific data stored with them.
   */
-template< typename _T, int _d, typename _A >
-octree<_T,_d,_A>::~octree()
+template< typename T_, int d_, typename A_ >
+octree<T_,d_,A_>::~octree()
 {
   delete this->_M_root;
 }
 
-/**\fn template< typename _T, int _d, typename _A > \
-  *    octree_node_pointer octree<_T,_d,_A>::root()
+/**\fn template< typename T_, int d_, typename A_ > \
+  *    octree_node_pointer octree<T_,d_,A_>::root()
   *\brief Returns the root (top-level) node of the octree.
   */
 
@@ -141,8 +141,8 @@ octree<_T,_d,_A>::~octree()
   *
   *\warning This is not a fast routine; it traverses the entire tree to count nodes.
   */
-template< typename _T, int _d, typename _A >
-size_t octree<_T,_d,_A>::size( bool only_leaves )
+template< typename T_, int d_, typename A_ >
+size_t octree<T_,d_,A_>::size( bool only_leaves )
 {
   size_t number = 0;
   iterator it;
@@ -151,8 +151,8 @@ size_t octree<_T,_d,_A>::size( bool only_leaves )
   return number;
 }
 
-/**\var template< typename _T, int _d, typename _A > \
-  *     octree_node_pointer octree<_T,_d,_A>::_M_root
+/**\var template< typename T_, int d_, typename A_ > \
+  *     octree_node_pointer octree<T_,d_,A_>::_M_root
   *\brief The root (top-level) node of the octree.
   */
 

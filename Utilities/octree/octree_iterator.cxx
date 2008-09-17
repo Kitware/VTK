@@ -1,55 +1,55 @@
 // Included by octree.h
 
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef _O octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_type;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef O_ octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_type;
   * \brief Shorthand for an octree over which this class can iterate.
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef _OP octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_pointer;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef OP_ octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_pointer;
   * \brief Shorthand for a pointer to an octree over which this class can iterate.
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef typename _O::allocator_type octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_allocator_type;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef typename O_::allocator_type octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_allocator_type;
   * \brief Shorthand for the allocator used by the octrees over which this class iterates.
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef typename _O::octree_node_reference octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_reference;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef typename O_::octree_node_reference octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_reference;
   * \brief Shorthand for a reference to a node in the octree.
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef typename _O::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef typename O_::octree_node_pointer octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer;
   * \brief Shorthand for a pointer to a node in the octree.
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef vtkstd::bidirectional_iterator_tag octree_iterator<_T,_R,_P,_O,_OP,_d>::iterator_category;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef vtkstd::bidirectional_iterator_tag octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator_category;
   * \brief A tag used by the STL to determine what algorithms may be applied to the octree container. 
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef octree_iterator< _T, _T&, _T*, _O, _O*, _d > octree_iterator<_T,_R,_P,_O,_OP,_d>::iterator;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef octree_iterator< T_, T_&, T_*, O_, O_*, d_ > octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator;
   * \brief Shorthand for a non-const octree iterator (regardless of whether the current iterator is const or not).
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef octree_iterator< _T, const _T&, const _T*, _O, const _O*, _d > octree_iterator<_T,_R,_P,_O,_OP,_d>::const_iterator;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef octree_iterator< T_, const T_&, const T_*, O_, const O_*, d_ > octree_iterator<T_,R_,P_,O_,OP_,d_>::const_iterator;
   * \brief Shorthand for a const octree iterator (regardless of whether the current iterator is const or not).
   */
-/**\typedef template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *         typedef octree_iterator< _T, _R, _P, _O, _OP, _d > octree_iterator<_T,_R,_P,_O,_OP,_d>::self_iterator;
+/**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *         typedef octree_iterator< T_, R_, P_, O_, OP_, d_ > octree_iterator<T_,R_,P_,O_,OP_,d_>::self_iterator;
   * \brief Shorthand for an iterator of the same type as the current iterator (be it const or not).
   */
 
-/**\var template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *     bool octree_iterator<_T,_R,_P,_O,_OP,_d>::_M_immediate_family
+/**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::_M_immediate_family
   *\brief Iterate over all the subnodes or just the direct children?
   */
-/**\var template<typename _T,typename _R,typename _P,typename _O,typename _OP,int _d> \
-  *     bool octree_iterator<_T,_R,_P,_O,_OP,_d>::_M_only_leaf_nodes
+/**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
+  *     bool octree_iterator<T_,R_,P_,O_,OP_,d_>::_M_only_leaf_nodes
   *\brief Should the iterator visit all nodes or only leaf nodes?
   */
 
 /**\brief Default constructor.
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator()
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator()
 {
   this->_M_only_leaf_nodes = true;
   this->_M_immediate_family = false;
@@ -58,9 +58,9 @@ octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator()
 /**\brief Constructor for use by octree_type's begin() and end() methods.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator( octree_pointer otree, octree_node_pointer onode, bool only_leaves )
-  : octree_path<_T,_R,_P,_O,_OP,_d>( otree )
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( octree_pointer otree, octree_node_pointer onode, bool only_leaves )
+  : octree_path<T_,R_,P_,O_,OP_,d_>( otree )
 {
   // WARNING: This method assumes onode is either the root node of the tree or the "tail" of the sequence.
   // In order to be completely general, this method would have to search the entire octree for onode and
@@ -82,8 +82,8 @@ octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator( octree_pointer otree, octr
 /**\brief A copy constructor.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator( const const_iterator& it )
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_iterator( const const_iterator& it )
 {
   this->_M_octree = it._M_octree;
   this->_M_immediate_family = it._M_immediate_family;
@@ -96,16 +96,16 @@ octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_iterator( const const_iterator& it )
 /**\brief Destructor.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator<_T,_R,_P,_O,_OP,_d>::~octree_iterator()
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator<T_,R_,P_,O_,OP_,d_>::~octree_iterator()
 {
 }
 
 /**\brief Utility routine used to advance the iterator if possible.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_incr()
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterator<T_,R_,P_,O_,OP_,d_>::check_incr()
 {
   if ( ! this->_M_octree )
     {
@@ -128,7 +128,7 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
       child = this->_M_indices.back() + 1;
       this->_M_parents.pop_back();
       this->_M_indices.pop_back();
-      if ( child >= (1<<_d) )
+      if ( child >= (1<<d_) )
         {
         this->_M_current_node = 0; // move to the end, but don't clear out parents/indices
         return 0;
@@ -146,7 +146,7 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
       child = this->_M_indices.back() + 1;
       this->_M_parents.pop_back();
       this->_M_indices.pop_back();
-      if ( child < (1<<_d) )
+      if ( child < (1<<d_) )
         {
         break;
         }
@@ -168,8 +168,8 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
 /**\brief Utility routine used to back up the iterator if possible.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterator<_T,_R,_P,_O,_OP,_d>::check_decr()
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterator<T_,R_,P_,O_,OP_,d_>::check_decr()
 {
   if ( ! this->_M_octree )
     {
@@ -181,7 +181,7 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
     this->_M_current_node = this->_M_octree->root();
     while ( this->_M_current_node && this->_M_current_node->_M_children )
       {
-      int child = (1<<_d) - 1;
+      int child = (1<<d_) - 1;
       this->_M_indices.push_back( child );
       this->_M_parents.push_back( this->_M_current_node );
       this->_M_current_node = this->_M_current_node->_M_children + child;
@@ -195,7 +195,7 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
     //this->_M_current_node = 0; // go back to "end" after reporting the beginning node.
     return tmp;
     }
-  int child = (1<<_d) - 1;
+  int child = (1<<d_) - 1;
   // Uptown. (Climb upwards to the first non-traversed node)
   while ( 1 )
     {
@@ -244,7 +244,7 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
     this->_M_parents.push_back( this->_M_current_node );
     this->_M_indices.push_back( child );
     this->_M_current_node = this->_M_current_node->_M_children + child;
-    child = (1<<_d) - 1;
+    child = (1<<d_) - 1;
     }
   return this->_M_current_node;
 }
@@ -252,29 +252,29 @@ typename octree_iterator<_T,_R,_P,_O,_OP,_d>::octree_node_pointer octree_iterato
 /**\brief Force the iterator to traverse only siblings and not children or parent nodes.
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-void octree_iterator<_T,_R,_P,_O,_OP,_d>::immediate_family( bool val )
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+void octree_iterator<T_,R_,P_,O_,OP_,d_>::immediate_family( bool val )
 {
   this->_M_immediate_family = val;
 }
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    bool octree_iterator<_T,_R,_P,_O,_OP,_d>::immediate_family() const
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    bool octree_iterator<T_,R_,P_,O_,OP_,d_>::immediate_family() const
   *\brief Return whether the iterator is set to traverse the entire tree or just the siblings of the current node.
   */
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    bool& octree_iterator<_T,_R,_P,_O,_OP,_d>::immediate_family()
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    bool& octree_iterator<T_,R_,P_,O_,OP_,d_>::immediate_family()
   *\brief Return whether the iterator is set to traverse the entire tree or just the siblings of the current node.
   */
 
 /**\brief Assignment operator (for copying iterators of mutable nodes).
   *
   */
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator = ( const iterator& it )
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator< T_, R_, P_, O_, OP_, d_ >& octree_iterator<T_,R_,P_,O_,OP_,d_>::operator = ( const iterator& it )
 {
-  this->octree_path<_T,_R,_P,_O,_OP,_d>::operator=( it );
+  this->octree_path<T_,R_,P_,O_,OP_,d_>::operator=( it );
   this->_M_immediate_family = it._M_immediate_family;
   this->_M_only_leaf_nodes = it._M_only_leaf_nodes;
   return *this;
@@ -284,33 +284,33 @@ octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>:
   *
   */
 #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )
-template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d >
-octree_iterator< _T, _R, _P, _O, _OP, _d >& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator = ( const const_iterator& it )
+template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
+octree_iterator< T_, R_, P_, O_, OP_, d_ >& octree_iterator<T_,R_,P_,O_,OP_,d_>::operator = ( const const_iterator& it )
 {
-  this->octree_path<_T,_R,_P,_O,_OP,_d>::operator=( it );
+  this->octree_path<T_,R_,P_,O_,OP_,d_>::operator=( it );
   this->_M_immediate_family = it._M_immediate_family;
   this->_M_only_leaf_nodes = it._M_only_leaf_nodes;
   return *this;
 }
 #endif
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    self_iterator& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator ++ ()
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    self_iterator& octree_iterator<T_,R_,P_,O_,OP_,d_>::operator ++ ()
   *\brief Move to the next node in the octree that satisfies the traversal criteria.
   */
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    self_iterator  octree_iterator<_T,_R,_P,_O,_OP,_d>::operator ++ ( int )
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    self_iterator  octree_iterator<T_,R_,P_,O_,OP_,d_>::operator ++ ( int )
   *\brief Move to the next node in the octree that satisfies the traversal criteria.
   */
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    self_iterator& octree_iterator<_T,_R,_P,_O,_OP,_d>::operator -- ()
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    self_iterator& octree_iterator<T_,R_,P_,O_,OP_,d_>::operator -- ()
   *\brief Move to the previous node in the octree that satisfied the traversal criteria.
   */
 
-/**\fn template< typename _T, typename _R, typename _P, typename _O, typename _OP, int _d > \
-  *    self_iterator  octree_iterator<_T,_R,_P,_O,_OP,_d>::operator -- ( int )
+/**\fn template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ > \
+  *    self_iterator  octree_iterator<T_,R_,P_,O_,OP_,d_>::operator -- ( int )
   *\brief Move to the previous node in the octree that satisfied the traversal criteria.
   */
 

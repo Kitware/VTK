@@ -6,33 +6,33 @@
 /**\brief An n-dimensional octree. Perhaps it should be named a tttntree (two-to-the n tree)?
   *
   */
-template< typename _T, int _d = 3, typename _A = vtkstd::allocator<_T> >
+template< typename T_, int d_ = 3, typename A_ = vtkstd::allocator<T_> >
 class octree
 {
 public:
-  typedef _T value_type;
-  typedef _T* pointer;
-  typedef _T& reference;
+  typedef T_ value_type;
+  typedef T_* pointer;
+  typedef T_& reference;
 
-  typedef const _T* const_pointer;
-  typedef const _T& const_reference;
+  typedef const T_* const_pointer;
+  typedef const T_& const_reference;
 
-  typedef octree<_T,_d,_A> _self_type;
+  typedef octree<T_,d_,A_> _self_type;
   typedef _self_type* _self_pointer;
 
-  typedef octree_node<_T,_d,_A>* octree_node_pointer;
-  typedef octree_node<_T,_d,_A>& octree_node_reference;
-  typedef const octree_node<_T,_d,_A>* const_octree_node_pointer;
-  typedef const octree_node<_T,_d,_A>& const_octree_node_reference;
+  typedef octree_node<T_,d_,A_>* octree_node_pointer;
+  typedef octree_node<T_,d_,A_>& octree_node_reference;
+  typedef const octree_node<T_,d_,A_>* const_octree_node_pointer;
+  typedef const octree_node<T_,d_,A_>& const_octree_node_reference;
 
-  typedef _A allocator_type;
+  typedef A_ allocator_type;
 
   // Ugly. But neccessary according to young me. Old me says so.
-  typedef octree_iterator< _T, _T&, _T*, _self_type, _self_pointer, _d > iterator;
-  typedef octree_iterator< _T, const _T&, const _T*, _self_type, _self_pointer, _d > const_iterator;
+  typedef octree_iterator< T_, T_&, T_*, _self_type, _self_pointer, d_ > iterator;
+  typedef octree_iterator< T_, const T_&, const T_*, _self_type, _self_pointer, d_ > const_iterator;
 
-  typedef octree_cursor< _T, _T&, _T*, _self_type, _self_pointer, _d > cursor;
-  typedef octree_cursor< _T, const _T&, const _T*, _self_type, _self_pointer, _d > const_cursor;
+  typedef octree_cursor< T_, T_&, T_*, _self_type, _self_pointer, d_ > cursor;
+  typedef octree_cursor< T_, const T_&, const T_*, _self_type, _self_pointer, d_ > const_cursor;
 
   octree( const double* center, double size );
   octree( const double* center, double size, const value_type& root_node_value );
