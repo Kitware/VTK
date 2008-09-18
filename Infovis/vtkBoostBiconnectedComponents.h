@@ -50,7 +50,7 @@ public:
   
   // Description:
   // Set the output array name. If no output array name is
-  // set then the name 'VertexDegree' is used.
+  // set then the name "biconnected component" is used.
   vtkSetStringMacro(OutputArrayName);
 
 protected:
