@@ -18,7 +18,7 @@ degree_filter.SetInputConnection(source.GetOutputPort())
 mstTreeSelection = vtkBoostKruskalMinimumSpanningTree()
 mstTreeSelection.SetInputConnection(degree_filter.GetOutputPort())
 mstTreeSelection.SetEdgeWeightArrayName("edge weight")
-
+mstTreeSelection.NegateEdgeWeightsOn()
 
 
 # Take selection and extract a graph
@@ -59,7 +59,7 @@ view.TreeEdgeVisibilityOn()
 
 # Set up the theme
 theme = vtkViewTheme.CreateMellowTheme()
-# theme.SetCellColor(.2,.2,.6)
+theme.SetCellColor(.2,.2,.6)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 

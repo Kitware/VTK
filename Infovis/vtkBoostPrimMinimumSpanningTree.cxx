@@ -44,7 +44,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.1");
+vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.2");
 vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -55,6 +55,8 @@ vtkBoostPrimMinimumSpanningTree::vtkBoostPrimMinimumSpanningTree()
   this->ArrayName = 0;
   this->SetArrayName("Not Set");
   this->ArrayNameSet = false;
+  this->NegateEdgeWeights = false;
+  this->EdgeWeightMultiplier = 1;
   this->OriginValue = 0;
   this->CreateGraphVertexIdArray = false;
 }
@@ -87,6 +89,17 @@ void vtkBoostPrimMinimumSpanningTree::SetOriginVertex(
   this->SetArrayName(arrayName);
   this->ArrayNameSet = true;
   this->OriginValue = value;
+  this->Modified();
+}
+
+void vtkBoostPrimMinimumSpanningTree::SetNegateEdgeWeights(bool value)
+{
+  this->NegateEdgeWeights = value;
+  if (this->NegateEdgeWeights)
+    this->EdgeWeightMultiplier = -1.0;
+  else
+    this->EdgeWeightMultiplier = 1.0;
+    
   this->Modified();
 }
 
@@ -160,7 +173,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   if (!this->EdgeWeightArrayName)
     {
     vtkErrorMacro("Edge-weight array name is required");
-    return 1;
+    return 0;
     }
   vtkDataArray* edgeWeightArray = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
     
@@ -169,18 +182,23 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     {
     vtkErrorMacro("Could not find edge-weight array named " 
                   << this->EdgeWeightArrayName);
-    return 1;
+    return 0;
     }
 
   // Create the mutable graph to build the tree
   vtkSmartPointer<vtkMutableDirectedGraph> temp = 
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
+    
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
   temp->GetVertexData()->CopyAllocate(input->GetVertexData());
   temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
     
-  vtkGraphEdgePropertyMapHelper<vtkDataArray*> weight_helper(edgeWeightArray);
+  // Send the property map through both the multiplier and the
+  // helper (for edge_descriptor indexing)
+  typedef vtkGraphPropertyMapMultiplier<vtkDataArray*> mapMulti;
+  mapMulti multi(edgeWeightArray,this->EdgeWeightMultiplier);
+  vtkGraphEdgePropertyMapHelper<mapMulti> weight_helper(multi);
 
     // Create a predecessor map 
   vector_property_map<vtkIdType> pred_map;
@@ -244,7 +262,7 @@ int vtkBoostPrimMinimumSpanningTree::FillInputPortInformation(
 void vtkBoostPrimMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
+  os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
   
   os << indent << "ArrayName: " 
      << (this->ArrayName ? this->ArrayName : "(none)") << endl;
@@ -252,7 +270,12 @@ void vtkBoostPrimMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
   
   os << indent << "ArrayNameSet: " 
-     << (this->ArrayNameSet ? "true" : "false") << endl;   
+     << (this->ArrayNameSet ? "true" : "false") << endl; 
+      
+  os << indent << "NegateEdgeWeights: " 
+     << (this->NegateEdgeWeights ? "true" : "false") << endl;   
+     
+  os << indent << "EdgeWeightMultiplier: " << this->EdgeWeightMultiplier << endl;
 
   os << indent << "CreateGraphVertexIdArray: " 
      << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;   

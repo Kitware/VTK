@@ -57,6 +57,16 @@ public:
   // the set of minimum spanning tree edges "MINIMUM_SPANNING_TREE_EDGES". No
   // other options are defined.
   vtkSetStringMacro(OutputSelectionType);
+  
+  // Description:
+  // Whether to negate the edge weights. By negating the edge
+  // weights this algorithm will give you the 'maximal' spanning
+  // tree (i.e. the algorithm will try to create a spanning tree
+  // with the highest weighted edges). Defaulted to Off.
+  // FIXME: put a real definition in...
+  void SetNegateEdgeWeights(bool value);
+  vtkGetMacro(NegateEdgeWeights, bool);
+  vtkBooleanMacro(NegateEdgeWeights, bool);
 
 protected:
   vtkBoostKruskalMinimumSpanningTree();
@@ -76,6 +86,8 @@ protected:
 private:
   char* EdgeWeightArrayName;
   char* OutputSelectionType;
+  bool NegateEdgeWeights;
+  float EdgeWeightMultiplier;
   
   vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
   void operator=(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.

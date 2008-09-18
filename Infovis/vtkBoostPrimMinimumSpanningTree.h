@@ -75,6 +75,17 @@ public:
   vtkSetMacro(CreateGraphVertexIdArray, bool);
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
+  
+  
+  // Description:
+  // Whether to negate the edge weights. By negating the edge
+  // weights this algorithm will give you the 'maximal' spanning
+  // tree (i.e. the algorithm will try to create a spanning tree
+  // with the highest weighted edges). Defaulted to Off.
+  // FIXME: put a real definition in...
+  void SetNegateEdgeWeights(bool value);
+  vtkGetMacro(NegateEdgeWeights, bool);
+  vtkBooleanMacro(NegateEdgeWeights, bool);
 
 protected:
   vtkBoostPrimMinimumSpanningTree();
@@ -95,6 +106,8 @@ private:
   bool CreateGraphVertexIdArray;
   bool ArrayNameSet;
   char* ArrayName;
+  bool NegateEdgeWeights;
+  float EdgeWeightMultiplier;
   
   // Description:
   // Using the convenience function internally
