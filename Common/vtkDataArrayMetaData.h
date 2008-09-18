@@ -12,35 +12,34 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//
+
+#ifndef vtkDataArrayMetaData_h
+#define vtkDataArrayMetaData_h
+
+#include "vtkObject.h"
+
 // .NAME vtkArrayMetaData - abstract class for data associated with vtkDataArray
 //
 // .SECTION Description
 //
 // vtkArrayMetaData is an abstract class for meta data pertaining
 // to data array objects.
-//
-#ifndef vtkDataArrayMetaData_h
-#define vtkDataArrayMetaData_h
-
-#include "vtkObject.h"
-
 class VTK_COMMON_EXPORT vtkDataArrayMetaData : public vtkObject
 {
-  public:
-    //
-    vtkTypeRevisionMacro(vtkDataArrayMetaData,vtkObject);
-    void PrintSelf(ostream &os, vtkIndent indent);
-    static vtkDataArrayMetaData *New();
-    //
-    virtual int DeepCopy(const vtkDataArrayMetaData *){return 0;}
-    virtual int ShallowCopy(const vtkDataArrayMetaData *){return 0;}
-  protected:
-    vtkDataArrayMetaData(){};
-    virtual ~vtkDataArrayMetaData(){};
-  private:
-    vtkDataArrayMetaData(const vtkDataArrayMetaData&); // Not implemented
-    void operator=(const vtkDataArrayMetaData&); // Not implemented
+public:
+  //
+  vtkTypeRevisionMacro(vtkDataArrayMetaData,vtkObject);
+  void PrintSelf(ostream &os, vtkIndent indent);
+  static vtkDataArrayMetaData *New();
+  //
+  virtual int DeepCopy(const vtkDataArrayMetaData *){return 0;}
+  virtual int ShallowCopy(const vtkDataArrayMetaData *){return 0;}
+protected:
+  vtkDataArrayMetaData(){};
+  virtual ~vtkDataArrayMetaData(){};
+private:
+  vtkDataArrayMetaData(const vtkDataArrayMetaData&); // Not implemented
+  void operator=(const vtkDataArrayMetaData&); // Not implemented
 };
 
 #endif
