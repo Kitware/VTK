@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.71");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.72");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -39,6 +39,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->IsServer = 0;
   this->LogStream = 0;
   this->LogFile = 0;
+  this->TagMessageLength = 0;
 
   this->ReportErrors = 1;
 }
@@ -202,13 +203,16 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
       break;
     }
   // Special case for logging.
-  if (type == VTK_CHAR) typeName = "char";
+  if (type == VTK_CHAR)
+    {
+    typeName = "char";
+    }
 
   const char *byteData = reinterpret_cast<const char *>(data);
   int maxSend = VTK_INT_MAX/typeSize;
   // If sending an array longer than the maximum number that can be held
   // in an integer, break up the array into pieces.
-  while (length > maxSend)
+  while (length >= maxSend)
     {
     if (!this->SendTagged(byteData, typeSize, maxSend, tag, typeName))
       {
@@ -221,11 +225,21 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
 }
 
 //-----------------------------------------------------------------------------
+inline vtkIdType vtkSocketCommunicatorMin(vtkIdType a, vtkIdType b)
+{
+  return (a < b)? a : b;
+}
+
+//-----------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
                                             int type, int remoteProcessId,
                                             int tag)
 {
-  if(this->CheckForErrorInternal(remoteProcessId)) { return 0; }
+  this->Count = 0;
+  if (this->CheckForErrorInternal(remoteProcessId))
+    {
+    return 0;
+    }
 
 #ifdef VTK_USE_64BIT_IDS
   // Special case for type ids.  If the remote does not have 64 bit ids, we
@@ -255,27 +269,38 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
       break;
     }
   // Special case for logging.
-  if (type == VTK_CHAR) typeName = "char";
+  if (type == VTK_CHAR)
+    {
+    typeName = "char";
+    }
 
   char *byteData = reinterpret_cast<char *>(data);
   int maxReceive = VTK_INT_MAX/typeSize;
   // If receiving an array longer than the maximum number that can be held
   // in an integer, break up the array into pieces.
-  while (length > maxReceive)
+  int ret = 0;
+  while (this->ReceiveTagged(byteData, typeSize,
+      vtkSocketCommunicatorMin(maxReceive, length), tag, typeName))
     {
-    if (!this->ReceiveTagged(byteData, typeSize, maxReceive, tag, typeName))
+    this->Count += this->TagMessageLength;
+    byteData += this->TagMessageLength * typeSize;
+    length -= this->TagMessageLength;
+    if (this->TagMessageLength < maxReceive)
       {
-      return 0;
+      // words_received in this packet is exactly equal to maxReceive, then it
+      // means that the sender is sending atleast one more packet for this
+      // message. Otherwise, we have received all the packets for this message 
+      // and we no longer need to iterate.
+      ret = 1;
+      break;
       }
-    byteData += maxReceive*typeSize;
-    length -= maxReceive;
     }
-  int ret = this->ReceiveTagged(byteData, typeSize, length, tag, typeName);
 
   // Some crazy special crud for RMIs that may one day screw someone up in
   // a weird way.  No, I did not write this, but I'm sure there is code that
   // relies on it.
-  if ((tag == vtkMultiProcessController::RMI_TAG) && (type == VTK_INT))
+  // (This is setting the process id for the sender in the message).
+  if (ret && (tag == vtkMultiProcessController::RMI_TAG) && (type == VTK_INT))
     {
     int *idata = reinterpret_cast<int *>(data);
     idata[2] = 1;
@@ -646,6 +671,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
                                          int numWords, int tag,
                                          const char* logName)
 {
+  this->TagMessageLength = 0;
   int success = 0;
   int length = -1;
   while ( !success )
@@ -680,6 +706,9 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       }
     if(recvTag != tag)
       {
+      // There's a tag mismatch, call the error handler. If the error handler
+      // tells us that the mismatch is non-fatal, we keep on receiving,
+      // otherwise we quit with an error.
       char* idata = new char[length + sizeof(recvTag) + sizeof(length)];
       char* ptr = idata;
       memcpy(ptr, (void*)&recvTag, sizeof(recvTag));
@@ -706,21 +735,20 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       success = 1;
       }
     }
-  // Length may not be correct for the first message sent as an 
-  // endian handshake because the SwapBytesInReceivedData flag 
-  // is not initialized at this point.  We could just initialize it
-  // here, but what is the point.
-  if ((wordSize * numWords) != length && 
-      this->SwapBytesInReceivedData != vtkSocketCommunicator::SwapNotSet)
+
+  if ((numWords * wordSize) < length)
     {
     if (this->ReportErrors)
       {
-      vtkErrorMacro("Requested size (" << (wordSize * numWords) 
-                    << ") is different than the size that was sent (" << length << ")");
+      vtkErrorMacro("Message truncated."
+        "Receive buffer size (" << (wordSize * numWords) << ") is less than "
+        "message length (" << length << ")");
       }
     return 0;
     }
-  return this->ReceivePartialTagged(data, wordSize, numWords, tag, logName);
+
+  this->TagMessageLength = length/wordSize;
+  return this->ReceivePartialTagged(data, wordSize, length/wordSize, tag, logName);
 }
 
 //----------------------------------------------------------------------------
@@ -1008,7 +1036,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.71 $";
+  const char revision[] = "$Revision: 1.72 $";
   int version=0;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;

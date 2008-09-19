@@ -185,6 +185,7 @@ public:
   // Uniquely identifies the version of this class.  If the versions match,
   // then the socket communicators should be compatible.
   static int GetVersion();
+//BTX
 protected:
 
   vtkClientSocket* Socket;
@@ -220,7 +221,6 @@ private:
 
   int SelectSocket(int socket, unsigned long msec);
 
-//BTX
   // SwapBytesInReceiveData needs an invalid / not set.
   // This avoids checking length of endian handshake.
   enum ErrorIds {
@@ -228,6 +228,10 @@ private:
     SwapOn,
     SwapNotSet
   };
+
+  // One may be tempted to change this to a vtkIdType, but really an int is
+  // enough since we split messages > VTK_INT_MAX.
+  int TagMessageLength;
 //ETX
 };
 

@@ -307,22 +307,36 @@ public:
   // Description:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
-  int Receive(int* data, vtkIdType length, int remoteProcessId, int tag);
-  int Receive(unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
-  int Receive(unsigned long* data, vtkIdType length, int remoteProcessId, 
+  // to communicate the sending data. In the overrloads that take in a \c
+  // maxlength argument, this length is the maximum length of the message to
+  // receive. If the maxlength is less than the length of the message sent by
+  // the sender, an error will be flagged. Once a message is received, use the
+  // GetCount() method to determine the actual size of the data received.
+  int Receive(int* data, vtkIdType maxlength, int remoteProcessId, int tag);
+  int Receive(unsigned int* data, vtkIdType maxlength, int remoteProcessId, int tag);
+  int Receive(unsigned long* data, vtkIdType maxlength, int remoteProcessId, 
               int tag);
-  int Receive(char* data, vtkIdType length, int remoteProcessId, int tag);
-  int Receive(unsigned char* data, vtkIdType length, int remoteProcessId, int tag);
-  int Receive(float* data, vtkIdType length, int remoteProcessId, int tag);
-  int Receive(double* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(char* data, vtkIdType maxlength, int remoteProcessId, int tag);
+  int Receive(unsigned char* data, vtkIdType maxlength, int remoteProcessId, int tag);
+  int Receive(float* data, vtkIdType maxlength, int remoteProcessId, int tag);
+  int Receive(double* data, vtkIdType maxlength, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
-  int Receive(vtkIdType* data, vtkIdType length, int remoteProcessId, int tag);
+  int Receive(vtkIdType* data, vtkIdType maxlength, int remoteProcessId, int tag);
 #endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
 
   vtkDataObject *ReceiveDataObject(int remoteId, int tag);
+
+  // Description:
+  // Returns the number of words received by the most recent Receive().
+  // Note that this is not the number of bytes received, but the number of items
+  // of the data-type received by the most recent Receive() eg. if
+  // Receive(int*,..) was used, then this returns the number of ints received;
+  // if Receive(double*,..) was used, then this returns the number of doubles
+  // received etc. The return value is valid only after a successful Receive().
+  vtkIdType GetCount();
+
 
   //---------------------- Collective Operations ----------------------
 
@@ -1203,6 +1217,15 @@ inline void vtkMultiProcessController::Barrier()
     {
     this->Communicator->Barrier();
     }
+}
+
+inline vtkIdType vtkMultiProcessController::GetCount()
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->GetCount();
+    }
+  return 0;
 }
 
 #endif

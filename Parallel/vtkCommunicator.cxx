@@ -45,7 +45,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.52");
+vtkCxxRevisionMacro(vtkCommunicator, "1.53");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -108,18 +108,22 @@ vtkCommunicator::vtkCommunicator()
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
   this->MaximumNumberOfProcesses = vtkMultiProcessController::MAX_PROCESSES;
+  this->Count = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkCommunicator::~vtkCommunicator()
 {
 }
 
+//----------------------------------------------------------------------------
 int vtkCommunicator::UseCopy = 0;
 void vtkCommunicator::SetUseCopy(int useCopy)
 {
   vtkCommunicator::UseCopy = useCopy;
 }
 
+//----------------------------------------------------------------------------
 void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -128,6 +132,7 @@ void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumNumberOfProcesses << endl;
   os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
+  os << indent << "Count: " << this->Count << endl;
 }
 
 //----------------------------------------------------------------------------

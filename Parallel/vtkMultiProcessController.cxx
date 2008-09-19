@@ -53,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.31");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.32");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.31");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.32");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -368,7 +368,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
 void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId, 
     void* arg, int argLength, int rmiTag, bool propagate)
 {
-  int triggerMessage[4];
+  int triggerMessage[128];
   triggerMessage[0] = rmiTag;
   triggerMessage[1] = argLength;
   
@@ -380,12 +380,28 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
   // Pass the propagate flag.
   triggerMessage[3] = propagate? 1 : 0;
 
-  this->RMICommunicator->Send(triggerMessage, 4, remoteProcessId, RMI_TAG);
-  if (argLength > 0)
+  // If the message is small, we will try to get the message sent over using a
+  // single Send(), rather than two. This helps speed up communication
+  // significantly, since sending multiple small messages is generally slower
+  // than sending a single large message.
+  if (argLength >= 0 && static_cast<unsigned int>(argLength) < sizeof(int)*(128-4))
     {
-    this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
-                                 RMI_ARG_TAG);
-    } 
+    if (argLength > 0)
+      {
+      memcpy(&triggerMessage[4], arg, argLength);
+      }
+    int num_ints = 4 + ceil(argLength/static_cast<double>(sizeof(int)));
+    this->RMICommunicator->Send(triggerMessage, num_ints, remoteProcessId, RMI_TAG);
+    }
+  else
+    {
+    this->RMICommunicator->Send(triggerMessage, 4, remoteProcessId, RMI_TAG);
+    if (argLength > 0)
+      {
+      this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
+        RMI_ARG_TAG);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -415,13 +431,14 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
-  int triggerMessage[4];
+  int triggerMessage[128];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
   
   do 
     {
-    if (!this->RMICommunicator->Receive(triggerMessage, 4, ANY_SOURCE, RMI_TAG))
+    if (!this->RMICommunicator->Receive(triggerMessage, 128, ANY_SOURCE, RMI_TAG) ||
+      this->RMICommunicator->GetCount() < 4)
       {
       if (reportErrors)
         {
@@ -430,18 +447,40 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       error = RMI_TAG_ERROR;
       break;
       }
+
     if (triggerMessage[1] > 0)
       {
       arg = new unsigned char[triggerMessage[1]];
-      if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
-          triggerMessage[2], RMI_ARG_TAG))
+      // If the message length is small enough, the TriggerRMIInternal() call
+      // packs the message data inline. So depending on the message length we
+      // use the inline data or make a second receive to fetch the data.
+      if (static_cast<unsigned int>(triggerMessage[1]) < sizeof(int)*(128-4))
         {
-        if (reportErrors)
+        int num_ints = 4 + ceil(triggerMessage[1]/static_cast<double>(sizeof(int)));
+        if (this->RMICommunicator->GetCount() != num_ints)
           {
-          vtkErrorMacro("Could not receive RMI argument.");
+          if (reportErrors)
+            {
+            vtkErrorMacro("Could not receive the RMI argument in its entirety.");
+            }
+          error= RMI_ARG_ERROR;
+          break;
           }
-        error = RMI_ARG_ERROR;
-        break;
+        memcpy(arg, &triggerMessage[4], triggerMessage[1]);
+        }
+      else
+        {
+        if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
+            triggerMessage[2], RMI_ARG_TAG) ||
+          this->RMICommunicator->GetCount() != triggerMessage[1])
+          {
+          if (reportErrors)
+            {
+            vtkErrorMacro("Could not receive RMI argument.");
+            }
+          error = RMI_ARG_ERROR;
+          break;
+          }
         }
       }
     if (triggerMessage[3] == 1)//propagate==true
