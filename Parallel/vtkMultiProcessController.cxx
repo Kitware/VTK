@@ -53,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.32");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.33");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.32");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.33");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -390,7 +390,7 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
       {
       memcpy(&triggerMessage[4], arg, argLength);
       }
-    int num_ints = 4 + ceil(argLength/static_cast<double>(sizeof(int)));
+    int num_ints = 4 + static_cast<int>(ceil(argLength/static_cast<double>(sizeof(int))));
     this->RMICommunicator->Send(triggerMessage, num_ints, remoteProcessId, RMI_TAG);
     }
   else
@@ -483,7 +483,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
           }
         }
       }
-    if (triggerMessage[3] == 1)//propagate==true
+    if (triggerMessage[3] == 1 && this->GetNumberOfProcesses() > 3)//propagate==true
       {
       this->TriggerRMIOnAllChildren(arg, triggerMessage[1], triggerMessage[0]);
       }
