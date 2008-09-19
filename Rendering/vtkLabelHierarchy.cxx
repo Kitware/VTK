@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.8");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.9");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -634,10 +634,6 @@ public:
   virtual vtkIdType GetLabelId();
   void BoxNode();
 
-protected:
-  vtkLabelHierarchyFullSortIterator();
-  virtual ~vtkLabelHierarchyFullSortIterator();
-
   // Give internal class access to this protected type.
   typedef vtkLabelHierarchy::implementation::HierarchyType::octree_node_pointer NodePointer;
 
@@ -663,6 +659,10 @@ protected:
       }
   };
 
+protected:
+  vtkLabelHierarchyFullSortIterator();
+  virtual ~vtkLabelHierarchyFullSortIterator();
+
   vtkstd::set<vtkHierarchyNode, vtkHierarchyNodeSorter> NodeSet;
   vtkstd::set<vtkHierarchyNode, vtkHierarchyNodeSorter>::iterator NodeIterator;
 
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.8");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.9");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.8");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.9");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
