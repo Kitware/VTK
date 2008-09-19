@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.9");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.10");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.9");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.10");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -713,7 +713,7 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
   int numNodes = 0;
   int numLeaf = 0;
   int totalLeafDepth = 0;
-  int numLabels = 0;
+  size_t numLabels = 0;
   int maxLabels = 10000;
   while (!s.empty())
     {
@@ -722,7 +722,7 @@ void vtkLabelHierarchyFullSortIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPl
 
     this->NodeSet.insert(node);
     numLabels += node.Node->value().size();
-    if ( numLabels > maxLabels )
+    if ( numLabels > static_cast<size_t>(maxLabels) )
       {
       break;
       }
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.9");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.10");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1201,7 +1201,7 @@ void vtkLabelHierarchy::implementation::BinAnchorsToLevel( int level )
     }
 }
 
-static int compute_number_to_promote( int t, int L, int d, int max )
+static size_t compute_number_to_promote( int t, size_t L, int d, size_t max )
 {
   int tdl = 1 << ( d * L ); // 2^(dL)
   int tdm = ( 1 << d ) - 1; // 2^d - 1
@@ -1229,7 +1229,7 @@ void vtkLabelHierarchy::implementation::PromoteAnchors()
     {
     vtkDebugWithObjectMacro( this->Self, "o " << it.level() << "(" << it->value().size() << ")" );
     cursor = it;
-    int promotionCount = compute_number_to_promote( this->Self->TargetLabelCount, cursor.level(), 3, cursor->value().size() );
+    size_t promotionCount = compute_number_to_promote( this->Self->TargetLabelCount, cursor.level(), 3, cursor->value().size() );
     LabelSet::iterator cit = cursor->value().begin();
     LabelSet::iterator eit;
     // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all* nodes above.
