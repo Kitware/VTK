@@ -3,15 +3,15 @@
 
 #include <cfloat>
 #include <stdexcept>
-#include <vector>
+#include <vtkstd/vector>
 
-#ifdef __APPLE__
+//#ifdef __APPLE__
 /* What software-bundling DRMoron at Apple thought this was OK?!?!! */
-#undef A_
-#undef P_
-#undef R_
-#undef T_
-#endif // __APPLE__
+//#undef A_
+//#undef P_
+//#undef R_
+//#undef T_
+//#endif // __APPLE__
 
 #if defined(_MSC_VER)
 /* What bit-brained bug generating embrace-and-extinguisher thought of this?!??!! */

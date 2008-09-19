@@ -1,7 +1,7 @@
 #ifndef __octree_node
 #define __octree_node
 
-#include <iterator>
+#include <vtkstd/iterator>
 
 template< typename T_, int d_, typename A_ > class octree;
 

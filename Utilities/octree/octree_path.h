@@ -34,7 +34,7 @@ public:
   octree_node_reference operator * () const { return *_M_current_node; }
   octree_node_pointer operator -> () const { return &(operator*()); }
 
-  int level() const { return this->_M_parents.size(); }
+  size_t level() const { return this->_M_parents.size(); }
 
   self_path& operator = ( const path& it );
 #if ! ( defined(_MSC_VER) && (_MSC_VER < 1300) )

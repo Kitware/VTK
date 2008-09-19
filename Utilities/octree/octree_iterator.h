@@ -3,7 +3,7 @@
 
 // Included by octree
 
-#include <iterator>
+#include <vtkstd/iterator>
 
 /**\brief An octree iterator.
   *
