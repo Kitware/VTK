@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.10");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.11");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.10");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.11");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.10");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.11");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {
@@ -1206,7 +1206,7 @@ static size_t compute_number_to_promote( int t, size_t L, int d, size_t max )
   int tdl = 1 << ( d * L ); // 2^(dL)
   int tdm = ( 1 << d ) - 1; // 2^d - 1
   double n = static_cast<double>(t)*(tdl-1.)/tdl/static_cast<double>(tdm);
-  int nr = static_cast<int>(floor( n )); // truncate...
+  size_t nr = static_cast<size_t>(floor( n )); // truncate...
   double rem = n - nr;
   if ( rem > 0. )
     {
@@ -1234,7 +1234,7 @@ void vtkLabelHierarchy::implementation::PromoteAnchors()
     LabelSet::iterator eit;
     // Step 1a. Remove all the label anchors from the leaf that we're going to promote to *all* nodes above.
     //          This is o(TargetLabelCount/(2^d - 1)), which is O(1)
-    for ( int i = 0; i < promotionCount; ++i )
+    for ( size_t i = 0; i < promotionCount; ++i )
       {
       promotionList.push_back( *cit );
       vtkDebugWithObjectMacro( this->Self, "Promoting " << *cit << " ( " << cursor->value().key_comp().Hierarchy->GetPriorities()->GetTuple1( *cit ) << ")" );
