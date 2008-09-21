@@ -53,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.33");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.34");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.33");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.34");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -456,7 +456,8 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       // use the inline data or make a second receive to fetch the data.
       if (static_cast<unsigned int>(triggerMessage[1]) < sizeof(int)*(128-4))
         {
-        int num_ints = 4 + ceil(triggerMessage[1]/static_cast<double>(sizeof(int)));
+        int num_ints = 4 + static_cast<int>(
+            ceil(triggerMessage[1]/static_cast<double>(sizeof(int))));
         if (this->RMICommunicator->GetCount() != num_ints)
           {
           if (reportErrors)
