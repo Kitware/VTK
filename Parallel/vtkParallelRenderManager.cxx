@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.71");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.72");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -495,12 +495,8 @@ void vtkParallelRenderManager::StopServices()
     return;
     }
 
-  int numProcs = this->Controller->GetNumberOfProcesses();
-  for (int id = 0; id < numProcs; id++)
-    {
-    if (id == this->RootProcessId) continue;
-    this->Controller->TriggerRMI(id,vtkMultiProcessController::BREAK_RMI_TAG);
-    }
+  this->Controller->TriggerRMIOnAllChildren(
+    vtkMultiProcessController::BREAK_RMI_TAG);
 }
 
 //----------------------------------------------------------------------------
@@ -550,9 +546,6 @@ void vtkParallelRenderManager::StartRender()
       this->RenderWindow->GetDesiredUpdateRate());
     }
 
-  int id;
-  int numProcs = this->Controller->GetNumberOfProcesses();
-
   // Make adjustments for window size.
   int *tilesize;
   if (this->ForceRenderWindowSize)
@@ -594,26 +587,21 @@ void vtkParallelRenderManager::StartRender()
   winInfoDouble.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
   this->RenderWindow->GetTileScale(winInfoInt.TileScale);
   this->RenderWindow->GetTileViewport(winInfoDouble.TileViewport);
-  for (id = 0; id < numProcs; id++)
+
+  if (this->RenderEventPropagation)
     {
-    if (id == this->RootProcessId)
-      {
-      continue;
-      }
-    if (this->RenderEventPropagation)
-      {
-      this->Controller->TriggerRMI(id, NULL, 0,
-                   vtkParallelRenderManager::RENDER_RMI_TAG);
-      }
-    this->Controller->Send((int *)(&winInfoInt), 
-                           vtkParallelRenderManager::WIN_INFO_INT_SIZE, 
-                           id,
-                           vtkParallelRenderManager::WIN_INFO_INT_TAG);
-    this->Controller->Send((double *)(&winInfoDouble), 
-                           vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
-                           id, 
-                           vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG);
+    this->Controller->TriggerRMIOnAllChildren(
+      vtkParallelRenderManager::RENDER_RMI_TAG);
     }
+
+  this->Controller->Broadcast((int *)(&winInfoInt),
+    vtkParallelRenderManager::WIN_INFO_INT_SIZE,
+    this->Controller->GetLocalProcessId());
+
+  this->Controller->Broadcast(
+    (double *)(&winInfoDouble), 
+    vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
+    this->Controller->GetLocalProcessId());
 
   this->SendWindowInformation();
 
@@ -666,21 +654,12 @@ void vtkParallelRenderManager::StartRender()
     vtkLightCollection *lc = ren->GetLights();
     renInfoInt.NumberOfLights = lc->GetNumberOfItems();
 
-    for (id = 0; id < numProcs; id++)
-      {
-      if (id == this->RootProcessId)
-        {
-        continue;
-        }
-      this->Controller->Send((int *)(&renInfoInt), 
-                             vtkParallelRenderManager::REN_INFO_INT_SIZE, 
-                             id,
-                             vtkParallelRenderManager::REN_INFO_INT_TAG);
-      this->Controller->Send((double *)(&renInfoDouble), 
-                             vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
-                             id, 
-                             vtkParallelRenderManager::REN_INFO_DOUBLE_TAG);
-      }
+    this->Controller->Broadcast((int *)(&renInfoInt),
+      vtkParallelRenderManager::REN_INFO_INT_SIZE,
+      this->Controller->GetLocalProcessId());
+    this->Controller->Broadcast((double *)(&renInfoDouble), 
+      vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
+      this->Controller->GetLocalProcessId());
 
     vtkLight *light;
     vtkCollectionSimpleIterator lsit;
@@ -690,14 +669,9 @@ void vtkParallelRenderManager::StartRender()
       light->GetPosition(lightInfoDouble.Position);
       light->GetFocalPoint(lightInfoDouble.FocalPoint);
       
-      for (id = 0; id < numProcs; id++)
-        {
-        if (id == this->RootProcessId) continue;
-        this->Controller->Send((double *)(&lightInfoDouble),
-                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
-                               id,
-                               vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
-        }
+      this->Controller->Broadcast((double *)(&lightInfoDouble),
+        vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
+        this->Controller->GetLocalProcessId());
       }
     this->SendRendererInformation(ren);
     }
@@ -847,18 +821,11 @@ void vtkParallelRenderManager::ResetCameraClippingRange(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
+void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI(int renderId)
 {
   vtkDebugMacro("ComputeVisiblePropBoundsRMI");
   int i;
 
-  // Get proper renderer.
-  int renderId = -1;
-  if (!this->Controller->Receive(&renderId, 1, this->RootProcessId,
-                                 vtkParallelRenderManager::REN_ID_TAG))
-    {
-    return;
-    }
   vtkRendererCollection *rens = this->GetRenderers();
   vtkRenderer *ren = NULL;
   vtkCollectionSimpleIterator rsit;
@@ -895,7 +862,7 @@ void vtkParallelRenderManager::LocalComputeVisiblePropBounds(vtkRenderer *ren,
 void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
                                                         double bounds[6])
 {
-  vtkDebugMacro("ComputeVisiblePropBounds");
+  cout << "ComputeVisiblePropBounds" << endl;
 
   if (!this->ParallelRendering)
     {
@@ -935,17 +902,8 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
     //Invoke RMI's on servers to perform their own ComputeVisiblePropBounds.
     int numProcs = this->Controller->GetNumberOfProcesses();
     int id;
-    for (id = 0; id < numProcs; id++)
-      {
-      if (id == this->RootProcessId)
-        {
-        continue;
-        }
-      this->Controller->TriggerRMI(
-        id, vtkParallelRenderManager::COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
-      this->Controller->Send(&renderId, 1, id,
-                             vtkParallelRenderManager::REN_ID_TAG);
-      }
+    this->Controller->TriggerRMIOnAllChildren(&renderId, sizeof(int),
+      vtkParallelRenderManager::COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
     
     //Now that all the RMI's have been invoked, we can safely query our
     //local bounds even if an Update requires a parallel operation.
@@ -1871,10 +1829,15 @@ static void RenderRMI(void *arg, void *, int, int)
   self->RenderRMI();
 }
 
-static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
+static void ComputeVisiblePropBoundsRMI(void *arg, 
+  void *remoteArg, 
+  int remoteArgLength, int)
 {
+  assert(remoteArgLength == sizeof(int));
+  int *iarg = reinterpret_cast<int*>(arg);
+
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)arg;
-  self->ComputeVisiblePropBoundsRMI();
+  self->ComputeVisiblePropBoundsRMI(*iarg);
 }
 
 
@@ -1914,18 +1877,18 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
-  if (!this->Controller->Receive((int *)(&winInfoInt), 
-                                 vtkParallelRenderManager::WIN_INFO_INT_SIZE,
-                                 this->RootProcessId,
-                                 vtkParallelRenderManager::WIN_INFO_INT_TAG))
+  if (!this->Controller->Broadcast(
+      (int *)(&winInfoInt), 
+      vtkParallelRenderManager::WIN_INFO_INT_SIZE,
+      this->RootProcessId))
     {
     return;
     }
   
-  if (!this->Controller->Receive((double *)(&winInfoDouble),
-                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
-                                 this->RootProcessId,
-                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG))
+  if (!this->Controller->Broadcast(
+      (double *)(&winInfoDouble),
+      vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
+      this->RootProcessId))
     {
     return;
     }
@@ -1959,18 +1922,15 @@ void vtkParallelRenderManager::SatelliteStartRender()
   rens->InitTraversal(rsit);
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
-    if (!this->Controller->Receive((int *)(&renInfoInt), 
+    if (!this->Controller->Broadcast((int *)(&renInfoInt),
                                    vtkParallelRenderManager::REN_INFO_INT_SIZE,
-                                   this->RootProcessId,
-                                   vtkParallelRenderManager::REN_INFO_INT_TAG))
+                                   this->RootProcessId))
       {
       continue;
       }
-    if (!this->Controller->Receive(
-                                 (double *)(&renInfoDouble),
+    if (!this->Controller->Broadcast((double *)(&renInfoDouble),
                                  vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE,
-                                 this->RootProcessId,
-                                 vtkParallelRenderManager::REN_INFO_DOUBLE_TAG))
+                                 this->RootProcessId))
       {
       continue;
       }
@@ -2024,10 +1984,9 @@ void vtkParallelRenderManager::SatelliteStartRender()
           light->Delete();
           }
 
-        this->Controller->Receive((double *)(&lightInfoDouble),
-                                  vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
-                                  this->RootProcessId,
-                                  vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
+        this->Controller->Broadcast((double *)(&lightInfoDouble),
+          vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
+          this->RootProcessId);
         light->SetLightType((int)(lightInfoDouble.Type));
         light->SetPosition(lightInfoDouble.Position);
         light->SetFocalPoint(lightInfoDouble.FocalPoint);

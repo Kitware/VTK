@@ -124,7 +124,7 @@ public:
   virtual void RenderRMI();
   virtual void ResetCamera(vtkRenderer *ren);
   virtual void ResetCameraClippingRange(vtkRenderer *ren);
-  virtual void ComputeVisiblePropBoundsRMI();
+  virtual void ComputeVisiblePropBoundsRMI(int renderId);
 
   virtual void InitializeRMIs();
 

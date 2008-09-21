@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.72");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.73");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -963,12 +963,13 @@ void vtkSocketCommunicator::Barrier()
 }
 
 //-----------------------------------------------------------------------------
-int vtkSocketCommunicator::BroadcastVoidArray(void *, vtkIdType, int,
-                                              int)
+int vtkSocketCommunicator::BroadcastVoidArray(
+  void *data, vtkIdType length, int type, int root)
 {
-  vtkErrorMacro("Collective operations not supported on sockets.");
-  return 0;
+  return this->Superclass::BroadcastVoidArray(data, length, type, root);
 }
+
+//-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GatherVoidArray(const void *, void *,
                                            vtkIdType, int, int)
 {
@@ -1036,7 +1037,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.72 $";
+  const char revision[] = "$Revision: 1.73 $";
   int version=0;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;
