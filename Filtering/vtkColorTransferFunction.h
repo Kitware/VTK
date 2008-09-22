@@ -33,6 +33,7 @@
 #include "vtkScalarsToColors.h"
 
 class vtkColorTransferFunctionInternals;
+class vtkSimpleCriticalSection;
 
 #define VTK_CTF_RGB           0
 #define VTK_CTF_HSV           1
@@ -228,6 +229,9 @@ protected:
   // Moves point from oldX to newX. It removed the point from oldX. If any point
   // existed at newX, it will also be removed.
   void MovePoint(double oldX, double newX);
+
+  vtkSimpleCriticalSection *BuildTableMutex;
+
 private:
   vtkColorTransferFunction(const vtkColorTransferFunction&);  // Not implemented.
   void operator=(const vtkColorTransferFunction&);  // Not implemented.
