@@ -40,7 +40,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkLabelPlacer);
-vtkCxxRevisionMacro(vtkLabelPlacer,"1.6");
+vtkCxxRevisionMacro(vtkLabelPlacer,"1.7");
 vtkCxxSetObjectMacro(vtkLabelPlacer,AnchorTransform,vtkCoordinate);
 
 class vtkLabelPlacer::Internal
@@ -528,11 +528,12 @@ int vtkLabelPlacer::RequestData(
     inIter->GetSize( sz );
     if ( sz[0] < 0 ) sz[0] = -sz[0];
     if ( sz[1] < 0 ) sz[1] = -sz[1];
+    // !!!! Commented out a few lines here as sz[2] && sz[3] never are initialized
     // Move anchor so no "space" characters are included in the layout.
-    dispx[0] -= static_cast<int>( sz[2] );
+    //dispx[0] -= static_cast<int>( sz[2] );
     // By default, the anchor will be at the text baseline. Adjust if user has selected otherwise.
-    if ( ( gravity & VerticalBitMask ) != VerticalBaselineBit )
-      dispx[1] -= static_cast<int>( sz[3] );
+    //if ( ( gravity & VerticalBitMask ) != VerticalBaselineBit )
+      //dispx[1] -= static_cast<int>( sz[3] );
     // Without this check things get *really* slow (at least with naive bucket placement tests)
     // FIXME: Don't count area clipped off by viewport when culling above is fixed.
     double t1, t2;

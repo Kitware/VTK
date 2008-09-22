@@ -22,6 +22,7 @@ IF(VTK_USE_DISPLAY)
     TestFBO.cxx
     TestGradientBackground.cxx
     TestInteractorTimers.cxx
+    TestLabelPlacer.cxx
     TestLODActor.cxx
     TestManyActors.cxx
     TestOrderedTriangulator.cxx
