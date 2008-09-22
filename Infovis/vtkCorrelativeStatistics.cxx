@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.27");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.28");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -322,9 +322,9 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
 
         double varX = inMeta->GetValue( i, 4 ).ToDouble();
         double varY = inMeta->GetValue( i, 5 ).ToDouble();
-        double covr = inMeta->GetValue( i, 6 ).ToDouble();
+        double cov  = inMeta->GetValue( i, 6 ).ToDouble();
         
-        double d = varX * varY - covr * covr;
+        double d = varX * varY - cov * cov;
         if ( d <= 0. )
           {
           vtkWarningMacro( "Incorrect parameters for column pair ("
@@ -337,8 +337,6 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
         
         double nominalX = inMeta->GetValue( i, 2 ).ToDouble();
         double nominalY = inMeta->GetValue( i, 3 ).ToDouble();
-        double eFac = -.5 / d;
-        covr *= 2.;
         
         if ( c2 == it->first )
           {
@@ -348,15 +346,15 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
           }
 
         // Add a column to outData
-        vtkDoubleArray* pXY = vtkDoubleArray::New();
-        vtksys_ios::ostringstream pXYName;
-        pXYName
-          << "p(" << ( colX.size() ? colX.c_str() : "X" )
-          << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")/p_max";
-        pXY->SetName( pXYName.str().c_str() );
-        pXY->SetNumberOfTuples( nRowD );
-        outData->AddColumn( pXY );
-        pXY->Delete();
+        vtkDoubleArray* dXY = vtkDoubleArray::New();
+        vtksys_ios::ostringstream dXYName;
+        dXYName
+          << "d2_Mahalanobis(" << ( colX.size() ? colX.c_str() : "X" )
+          << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
+        dXY->SetName( dXYName.str().c_str() );
+        dXY->SetNumberOfTuples( nRowD );
+        outData->AddColumn( dXY );
+        dXY->Delete();
 
         double x, y;
         for ( vtkIdType r = 0; r < nRowD; ++ r )
@@ -364,8 +362,7 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
           x = inData->GetValueByName( r, colX ).ToDouble() - nominalX;
           y = inData->GetValueByName( r, colY ).ToDouble() - nominalY;
           
-          outData->SetValueByName( r, pXYName.str().c_str(), 
-                                  exp( eFac * ( varY * x * x - covr * x * y + varX * y * y ) ) );
+          outData->SetValueByName( r, dXYName.str().c_str(), ( varY * x * x - 2. * cov * x * y + varX * y * y ) / d );
           }
 
         break;
