@@ -26,7 +26,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkSocketCommunicator);
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.73");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.74");
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -300,10 +300,11 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
   // a weird way.  No, I did not write this, but I'm sure there is code that
   // relies on it.
   // (This is setting the process id for the sender in the message).
-  if (ret && (tag == vtkMultiProcessController::RMI_TAG) && (type == VTK_INT))
+  if (ret && (tag == vtkMultiProcessController::RMI_TAG))
     {
     int *idata = reinterpret_cast<int *>(data);
     idata[2] = 1;
+    vtkByteSwap::SwapLE(&idata[2]);
     }
 
   return ret;
@@ -1037,7 +1038,7 @@ int vtkSocketCommunicator::AllReduceVoidArray(const void *, void *,
 //-----------------------------------------------------------------------------
 int vtkSocketCommunicator::GetVersion()
 {
-  const char revision[] = "$Revision: 1.73 $";
+  const char revision[] = "$Revision: 1.74 $";
   int version=0;
   sscanf(revision, "$Revision: 1.%d", &version);
   return version;
