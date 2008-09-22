@@ -14,7 +14,12 @@
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
+
+#include "vtkByteSwap.h"
+#include "vtkCollection.h"
 #include "vtkDummyController.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 #include "vtkProcessGroup.h"
 #include "vtkSubCommunicator.h"
 #include "vtkToolkits.h"
@@ -22,10 +27,6 @@
 #ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
 #endif
-
-#include "vtkCollection.h"
-#include "vtkObjectFactory.h"
-#include "vtkOutputWindow.h"
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -53,10 +54,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.34");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.35");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.34");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.35");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -380,6 +381,9 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
   // Pass the propagate flag.
   triggerMessage[3] = propagate? 1 : 0;
 
+  // We send the header in Little Endian order.
+  vtkByteSwap::SwapLERange(triggerMessage, 4);
+
   // If the message is small, we will try to get the message sent over using a
   // single Send(), rather than two. This helps speed up communication
   // significantly, since sending multiple small messages is generally slower
@@ -390,12 +394,15 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
       {
       memcpy(&triggerMessage[4], arg, argLength);
       }
-    int num_ints = 4 + static_cast<int>(ceil(argLength/static_cast<double>(sizeof(int))));
-    this->RMICommunicator->Send(triggerMessage, num_ints, remoteProcessId, RMI_TAG);
+    int num_bytes = static_cast<int>(4*sizeof(int)) + argLength;
+    this->RMICommunicator->Send(reinterpret_cast<unsigned char*>(triggerMessage),
+      num_bytes, remoteProcessId, RMI_TAG);
     }
   else
     {
-    this->RMICommunicator->Send(triggerMessage, 4, remoteProcessId, RMI_TAG);
+    this->RMICommunicator->Send(
+      reinterpret_cast<unsigned char*>(triggerMessage), 
+      static_cast<int>(4*sizeof(int)), remoteProcessId, RMI_TAG);
     if (argLength > 0)
       {
       this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
@@ -437,8 +444,10 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
   
   do 
     {
-    if (!this->RMICommunicator->Receive(triggerMessage, 128, ANY_SOURCE, RMI_TAG) ||
-      this->RMICommunicator->GetCount() < 4)
+    if (!this->RMICommunicator->Receive(
+        reinterpret_cast<unsigned char*>(triggerMessage), 
+        static_cast<vtkIdType>(128*sizeof(int)), ANY_SOURCE, RMI_TAG) ||
+      this->RMICommunicator->GetCount() < static_cast<int>(4*sizeof(int)))
       {
       if (reportErrors)
         {
@@ -447,6 +456,11 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       error = RMI_TAG_ERROR;
       break;
       }
+#ifdef VTK_WORDS_BIGENDIAN
+    // Header is sent in little-endian form. We need to convert it to  big
+    // endian.
+    vtkByteSwap::SwapLERange(triggerMessage, 4);
+#endif
 
     if (triggerMessage[1] > 0)
       {
@@ -456,9 +470,8 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       // use the inline data or make a second receive to fetch the data.
       if (static_cast<unsigned int>(triggerMessage[1]) < sizeof(int)*(128-4))
         {
-        int num_ints = 4 + static_cast<int>(
-            ceil(triggerMessage[1]/static_cast<double>(sizeof(int))));
-        if (this->RMICommunicator->GetCount() != num_ints)
+        int num_bytes = static_cast<int>(4 *sizeof(int)) + triggerMessage[1];
+        if (this->RMICommunicator->GetCount() != num_bytes)
           {
           if (reportErrors)
             {
