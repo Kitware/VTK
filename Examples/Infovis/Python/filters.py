@@ -2,19 +2,13 @@ from vtk import *
 
 source = vtkRandomGraphSource()
 source.SetIncludeEdgeWeights(True)
-source.Update()
-print source.GetOutput()
-
-bfs = vtkBoostBreadthFirstSearch()
-bfs.AddInputConnection(source.GetOutputPort())
-bfs.SetOriginVertex(0)
 
 degree = vtkVertexDegree()
-degree.AddInputConnection(bfs.GetOutputPort())
+degree.AddInputConnection(source.GetOutputPort())
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(degree.GetOutputPort())
-view.SetVertexLabelArrayName("BFS")
+view.SetVertexLabelArrayName("VertexDegree")
 view.SetVertexLabelVisibility(True)
 view.SetVertexColorArrayName("VertexDegree")
 view.SetColorVertices(True)
@@ -32,5 +26,7 @@ theme.FastDelete()
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
+view.GetRenderer().ResetCamera()
+
 window.GetInteractor().Start()
 
