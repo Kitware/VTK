@@ -2,6 +2,8 @@ from vtk import *
 
 source = vtkRandomGraphSource()
 source.SetIncludeEdgeWeights(True)
+source.Update()
+print source.GetOutput()
 
 bfs = vtkBoostBreadthFirstSearch()
 bfs.AddInputConnection(source.GetOutputPort())
@@ -16,15 +18,14 @@ view.SetVertexLabelArrayName("BFS")
 view.SetVertexLabelVisibility(True)
 view.SetVertexColorArrayName("VertexDegree")
 view.SetColorVertices(True)
-view.SetEdgeLabelArrayName("edge_weights")
+view.SetEdgeLabelArrayName("edge weight")
 view.SetEdgeLabelVisibility(True)
-view.SetEdgeColorArrayName("edge_weights")
+view.SetEdgeColorArrayName("edge weight")
 view.SetColorEdges(True)
+view.SetLayoutStrategyToSimple2D()
 
 theme = vtkViewTheme.CreateMellowTheme()
-theme.SetCellHueRange(0.7, 0.7)
-theme.SetCellSaturationRange(0, 1)
-theme.SetCellOpacity(1)
+theme.SetLineWidth(4)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 
