@@ -20,6 +20,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCommand.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkGeoMath.h"
@@ -36,7 +37,7 @@
 #include <vtksys/stl/vector>
 #include <vtksys/stl/map>
 
-vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.2");
+vtkCxxRevisionMacro(vtkGeoEdgeStrategy, "1.3");
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
 vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
@@ -170,7 +171,15 @@ void vtkGeoEdgeStrategy::Layout()
         }
       }
     this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
+
+    if (eid % 1000 == 0)
+      {
+      double progress = eid / static_cast<double>(numEdges);
+      this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
+      }
     }
+  double progress = 1.0;
+  this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   delete [] pts;
 }
 
