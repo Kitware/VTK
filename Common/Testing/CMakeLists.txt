@@ -16,6 +16,16 @@ IF(PYTHON_EXECUTABLE)
     vtkAbstractIterator.h
     vtkAbstractList.h
     vtkAbstractMap.h
+    vtkArray.h
+    vtkArrayCoordinateIterator.h
+    vtkArrayCoordinates.h
+    vtkArrayExtents.h
+    vtkArrayInterpolate.h
+    vtkArrayPrint.h
+    vtkArrayRange.h
+    vtkArraySlices.h
+    vtkArraySlice.h
+    vtkArrayWeights.h
     vtkArrayIteratorIncludes.h
     vtkArrayIteratorTemplate.h
     vtkArrayMap.h
@@ -31,6 +41,7 @@ IF(PYTHON_EXECUTABLE)
     vtkDataArrayTemplate.h
     vtkDebugLeaks.h
     vtkDebugLeaksManager.h
+    vtkDenseArray.h
     vtkDynamicLoader.h
     vtkEventForwarderCommand.h
     vtkErrorCode.h
@@ -69,6 +80,7 @@ IF(PYTHON_EXECUTABLE)
     vtkSetGet.h
     vtkSmartPointer.h
     vtkSmartPointerBase.h
+    vtkSparseArray.h
     vtkStdString.h
     vtkStructuredData.h
     vtkSystemIncludes.h
@@ -77,7 +89,9 @@ IF(PYTHON_EXECUTABLE)
     vtkTimeStamp.h
     vtkTransformCollection.h
     vtkType.h
+    vtkTypeTemplate.h
     vtkTypeTraits.h
+    vtkTypedArray.h
     vtkVariantBoostSerialization.h
     vtkVariantInlineOperators.h
     vtkVector.h

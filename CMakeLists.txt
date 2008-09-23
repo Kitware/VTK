@@ -252,6 +252,8 @@ VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating
 
 VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON "VTK_USE_VIEWS" OFF)
 
+OPTION(VTK_USE_N_WAY_ARRAYS "Add support for arbitrary-dimension sparse and dense arrays." OFF)
+
 # Determine Shading Support
 VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
                      "VTK_USE_RENDERING" OFF)
