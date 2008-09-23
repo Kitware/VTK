@@ -19,6 +19,7 @@
 #include "vtkArcParallelEdgeStrategy.h"
 
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
 #include "vtkDirectedGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
@@ -32,7 +33,7 @@
 #include <vtksys/stl/map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
-vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.4");
+vtkCxxRevisionMacro(vtkArcParallelEdgeStrategy, "1.5");
 
 vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
 {
@@ -258,7 +259,14 @@ void vtkArcParallelEdgeStrategy::Layout()
         }
       }
     this->Graph->SetEdgePoints(e.Id, this->NumberOfSubdivisions, pts);
+    if (eid % 1000 == 0)
+      {
+      double progress = eid / static_cast<double>(numEdges);
+      this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
+      }
     }
+  double progress = 1.0;
+  this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   delete [] pts;
 }
 
