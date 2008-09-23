@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.73");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.74");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1834,6 +1834,7 @@ static void ComputeVisiblePropBoundsRMI(void *arg,
   int remoteArgLength, int)
 {
   assert(remoteArgLength == sizeof(int));
+  (void)remoteArgLength;
   int *iarg = reinterpret_cast<int*>(remoteArg);
 
   vtkParallelRenderManager *self = (vtkParallelRenderManager *)arg;
