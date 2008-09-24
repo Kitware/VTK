@@ -132,6 +132,12 @@ public:
 protected:
   vtkGeoGraphRepresentation();
   ~vtkGeoGraphRepresentation();
+
+  // Decription:
+  // Store the name of the LabelText array so we dont update if 
+  // we are already using the same array.
+  vtkSetStringMacro(LabelArrayName);
+  vtkGetStringMacro(LabelArrayName);
   
   // Decription:
   // Adds the representation to the view.  This is called from
@@ -153,9 +159,6 @@ protected:
   // Description:
   // Internal pipeline objects.
   vtkSmartPointer<vtkGeoAssignCoordinates>    AssignCoordinates;
-  vtkSmartPointer<vtkMaskPoints>              LabelMaskPoints;
-  vtkSmartPointer<vtkSelectVisiblePoints>     LabelSelectVisiblePoints;
-  vtkSmartPointer<vtkTransformPolyDataFilter> LabelTransform;
   vtkSmartPointer<vtkLabelSizeCalculator>     LabelSize;
   vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
   vtkSmartPointer<vtkLabelPlacer>             LabelPlacer;
@@ -176,6 +179,8 @@ protected:
   vtkSmartPointer<vtkGraphMapper>             SelectionMapper;
   vtkSmartPointer<vtkActor>                   SelectionActor;
   //ETX
+
+  char* LabelArrayName;
 
 private:
   vtkGeoGraphRepresentation(const vtkGeoGraphRepresentation&);  // Not implemented.
