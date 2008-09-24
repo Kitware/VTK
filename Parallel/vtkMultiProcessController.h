@@ -36,13 +36,14 @@
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
 
+class vtkCollection;
+class vtkDataObject;
 class vtkDataSet;
 class vtkImageData;
-class vtkCollection;
-class vtkOutputWindow;
-class vtkDataObject;
-class vtkProcessGroup;
 class vtkMultiProcessController;
+class vtkMultiProcessStream;
+class vtkOutputWindow;
+class vtkProcessGroup;
 
 //BTX
 // The type of function that gets called when new processes are initiated.
@@ -304,6 +305,16 @@ public:
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
 
+//BTX
+  // Description:
+  // Send a stream to another process. vtkMultiProcessStream makes it possible
+  // to send data with arbitrary length and different base types to the other 
+  // process(es). Instead of making several Send() requests for each type of
+  // arguments, it's generally more efficient to push the arguments into the
+  // stream and the send the stream over.
+  int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
+//ETX
+
   // Description:
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
@@ -325,7 +336,11 @@ public:
 #endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
-
+//BTX
+  // Description:
+  // Receive a stream from the other processes.
+  int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
+//ETX
   vtkDataObject *ReceiveDataObject(int remoteId, int tag);
 
   // Description:
@@ -373,6 +388,11 @@ public:
   int Broadcast(vtkDataArray *data, int srcProcessId) {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
+//BTX
+  int Broadcast(vtkMultiProcessStream& stream, int srcProcessId) {
+    return this->Communicator->Broadcast(stream, srcProcessId);
+  }
+//ETX
 
   // Description:
   // Gather collects arrays in the process with id \c destProcessId.  Each
@@ -1062,6 +1082,16 @@ inline int vtkMultiProcessController::Send(const vtkIdType* data,
 }
 #endif
 
+inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
+  int remoteId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Send(stream, remoteId, tag);
+    }
+  return 0;
+}
+
 inline int vtkMultiProcessController::Receive(vtkDataObject* data, 
                                               int remoteProcessId, int tag)
 {
@@ -1210,6 +1240,17 @@ inline int vtkMultiProcessController::Receive(vtkIdType* data,
     }
 }
 #endif
+
+
+inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream,
+  int remoteId, int tag)
+{
+  if (this->Communicator)
+    {
+    return this->Communicator->Receive(stream, remoteId, tag);
+    }
+  return 0;
+}
 
 inline void vtkMultiProcessController::Barrier()
 {

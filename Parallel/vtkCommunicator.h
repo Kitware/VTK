@@ -30,6 +30,7 @@
 #define __vtkCommunicator_h
 
 #include "vtkObject.h"
+#include "vtkSmartPointer.h"
 
 class vtkBoundingBox;
 class vtkCharArray;
@@ -38,6 +39,7 @@ class vtkDataObject;
 class vtkDataSet;
 class vtkImageData;
 class vtkMultiBlockDataSet;
+class vtkMultiProcessStream;
 class vtkTemporalDataSet;
 
 class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
@@ -164,6 +166,9 @@ public:
     return this->SendVoidArray(data, length, VTK_ID_TYPE, remoteHandle, tag);
   }
 #endif
+//BTX
+  int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
+//ETX
 
 
   // Description:
@@ -223,6 +228,9 @@ public:
     return this->ReceiveVoidArray(data, maxlength, VTK_ID_TYPE, remoteHandle, tag);
   }
 #endif
+//BTX
+  int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
+//ETX
 
   // Description:
   // Returns the number of words received by the most recent Receive().
@@ -269,6 +277,9 @@ public:
 #endif
   int Broadcast(vtkDataObject *data, int srcProcessId);
   int Broadcast(vtkDataArray *data, int srcProcessId);
+//BTX
+  int Broadcast(vtkMultiProcessStream& stream, int srcProcessId);
+//ETX
 
   // Description:
   // Gather collects arrays in the process with id \c destProcessId.  Each
@@ -317,7 +328,7 @@ public:
 #endif
   int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int destProcessId);
-
+  
   // Description:
   // GatherV is the vector variant of Gather.  It extends the functionality of
   // Gather by allowing a varying count of data from each process.

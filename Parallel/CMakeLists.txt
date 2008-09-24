@@ -37,6 +37,7 @@ vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
+vtkMultiProcessStream.cxx
 vtkParallelFactory.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
@@ -95,8 +96,14 @@ ENDIF(VTK_HAS_EXODUS)
 SET_SOURCE_FILES_PROPERTIES(
 vtkCommunicator 
 vtkMultiProcessController
+vtkMultiProcessStream
 vtkPStreamTracer
 ABSTRACT
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+vtkMultiProcessStream
+WRAP_EXCLUDE
 )
 
 IF(VTK_USE_RENDERING)

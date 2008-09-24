@@ -33,7 +33,6 @@
 vtkInstantiatorNewMacro(vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
-
 // Helper class to contain the RMI information.  
 // A subclass of vtkObject so that I can keep them in a collection.
 class VTK_PARALLEL_EXPORT vtkMultiProcessControllerRMI : public vtkObject
@@ -54,10 +53,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.35");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.36");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.35");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.36");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -553,7 +552,6 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
       }     
     }
 }
-
 
 //============================================================================
 // The intent is to give access to a processes controller from a static method.
