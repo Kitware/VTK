@@ -119,9 +119,9 @@
 // vtkGraph instances can be distributed across multiple machines, to
 // allow the construction and manipulation of graphs larger than a
 // single machine could handle. A distributed graph will typically be
-// distributed across many different nodes within a cluster, using
-// some like the Message Passing Interface (MPI) to allow those
-// cluster nodes to communicate. 
+// distributed across many different nodes within a cluster, using the
+// Message Passing Interface (MPI) to allow those cluster nodes to
+// communicate.
 //
 // An empty vtkGraph can be made into a distributed graph by attaching
 // an instance of a vtkDistributedGraphHelper via the
@@ -185,7 +185,10 @@
 // function by calling
 // vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution.  Once a
 // distributed graph has pedigree IDs, the no-argument AddVertex()
-// method can no longer be used.
+// method can no longer be used. Additionally, once a vertex has a
+// pedigree ID, that pedigree ID should not be changed unless the user
+// can guarantee that the vertex distribution will still map that
+// vertex to the same processor where it already resides.
 
 // .SECTION See Also
 // vtkDirectedGraph vtkUndirectedGraph vtkMutableDirectedGraph 
