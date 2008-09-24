@@ -237,23 +237,6 @@ public:
   ///   The value formatted as a string.
   QString formatValue(const QVariant &value) const;
 
-  /// \brief
-  ///   Creates a lighter color from the given color.
-  ///
-  /// The \c QColor::light method does not work for black. This
-  /// function uses a 3D equation in rgb space to compute the
-  /// lighter color, which works for all colors including black.
-  /// the factor determines how light the new color will be. The
-  /// factor is used to find the point between the current color
-  /// and white.
-  ///
-  /// \param color The starting color.
-  /// \param factor A percentage (0.0 to 1.0) of the distance from
-  ///   the given color to white.
-  /// \return
-  ///   The new lighter color.
-  static QColor lighter(const QColor color, float factor=0.7);
-
 signals:
   /// Emitted when the axis or label visibility changes.
   void visibilityChanged();

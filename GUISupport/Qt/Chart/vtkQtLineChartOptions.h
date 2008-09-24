@@ -30,6 +30,9 @@
 class vtkQtChartHelpFormatter;
 
 
+/// \class vtkQtLineChartOptions
+/// \brief
+///   The vtkQtLineChartOptions class stores the line chart options.
 class VTKQTCHART_EXPORT vtkQtLineChartOptions : public QObject
 {
   Q_OBJECT
@@ -55,6 +58,11 @@ public:
   /// \return
   ///   A pointer to the chart help text formatter.
   vtkQtChartHelpFormatter *getHelpFormat() {return this->Help;}
+
+  /// \brief
+  ///   Gets the chart help text formatter.
+  /// \return
+  ///   A pointer to the chart help text formatter.
   const vtkQtChartHelpFormatter *getHelpFormat() const {return this->Help;}
 
   /// \brief

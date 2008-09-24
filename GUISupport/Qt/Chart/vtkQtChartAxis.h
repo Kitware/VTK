@@ -39,6 +39,9 @@ class QGraphicsLineItem;
 class QVariant;
 
 
+/// \class vtkQtChartAxis
+/// \brief
+///   The vtkQtChartAxis class is used to display a cartesian axis.
 class VTKQTCHART_EXPORT vtkQtChartAxis : public QObject, public QGraphicsItem
 {
   Q_OBJECT
@@ -302,15 +305,6 @@ public:
   bool isLogScaleAvailable() const;
 
   /// \brief
-  ///   Gets whether or not logarithmic scale can be used for the
-  ///   given range.
-  /// \param min The range minimum.
-  /// \param max The range maximum.
-  /// \return
-  ///   True if logarithmic scale can be used for the given range.
-  static bool isLogScaleValid(const QVariant &min, const QVariant &max);
-
-  /// \brief
   ///   Paints the chart axis using the given painter.
   /// \param painter The painter to use.
   /// \param option The area to paint and the level of detail.
@@ -381,6 +375,15 @@ public:
   ///   The pixel location for zero.
   float getZeroPixel() const;
   //@}
+
+  /// \brief
+  ///   Gets whether or not logarithmic scale can be used for the
+  ///   given range.
+  /// \param min The range minimum.
+  /// \param max The range maximum.
+  /// \return
+  ///   True if logarithmic scale can be used for the given range.
+  static bool isLogScaleValid(const QVariant &min, const QVariant &max);
 
 signals:
   /// Emitted when the axis needs to be layed out again.

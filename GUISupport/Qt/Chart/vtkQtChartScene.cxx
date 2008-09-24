@@ -24,6 +24,7 @@
 #include "vtkQtChartScene.h"
 
 #include "vtkQtChartLayer.h"
+#include "vtkQtChartMouseBox.h"
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -32,6 +33,7 @@
 vtkQtChartScene::vtkQtChartScene(QObject *parentObject)
   : QGraphicsScene(parentObject)
 {
+  this->Box = 0;
 }
 
 void vtkQtChartScene::drawItems(QPainter *painter, int numItems,
@@ -65,6 +67,17 @@ void vtkQtChartScene::drawItems(QPainter *painter, int numItems,
       }
 
     painter->restore();
+    }
+}
+
+void vtkQtChartScene::drawForeground(QPainter *painter, const QRectF &)
+{
+  // Draw the mouse box on to of the scene.
+  if(this->Box && this->Box->isVisible())
+    {
+    painter->setPen(QPen(Qt::black, 1.0, Qt::DashLine));
+    painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->drawRect(this->Box->getRectangle());
     }
 }
 

@@ -31,18 +31,33 @@ class vtkQtChartSeriesModelRange;
 class QAbstractItemModel;
 class QModelIndex;
 
-/// a model class that combines the series of multiple 
-/// QAbstractItemModels
-class VTKQTCHART_EXPORT vtkQtChartTableSeriesModel : 
+
+/// \class vtkQtChartTableSeriesModel
+/// \brief
+///   The vtkQtChartTableSeriesModel class is a chart series model
+///   proxy for a QAbstractItemModel table.
+class VTKQTCHART_EXPORT vtkQtChartTableSeriesModel :
   public vtkQtChartSeriesModel
 {
   Q_OBJECT
 
 public:
-  vtkQtChartTableSeriesModel(QAbstractItemModel* model, QObject *parent=0);
+  /// \brief
+  ///   Creates a table series model.
+  /// \param model The item model to display.
+  /// \param parent The parent object.
+  vtkQtChartTableSeriesModel(QAbstractItemModel *model, QObject *parent=0);
   virtual ~vtkQtChartTableSeriesModel() {}
 
+  /// \brief
+  ///   Gets whether or not columns are series.
+  /// \return
+  ///   True if columns are series.
   bool getColumnsAsSeries() const;
+
+  /// \brief
+  ///   Sets whether or not columns are series.
+  /// \param columnsAsSeries True if columns are series.
   void setColumnsAsSeries(bool columnsAsSeries);
 
   /// \name vtkQtChartSeriesModel Methods
@@ -55,19 +70,66 @@ public:
   //@}
 
 protected slots:
-  void rowsAboutToBeInserted(const QModelIndex& idx, int, int);
-  void rowsInserted(const QModelIndex& idx, int, int);
-  void columnsAboutToBeInserted(const QModelIndex& idx, int, int);
-  void columnsInserted(const QModelIndex& idx, int, int);
-  void rowsAboutToBeRemoved(const QModelIndex& idx, int, int);
-  void rowsRemoved(const QModelIndex& idx, int, int);
-  void columnsAboutToBeRemoved(const QModelIndex& idx, int, int);
-  void columnsRemoved(const QModelIndex& idx, int, int);
-  
+  /// \brief
+  ///   Called when the item model is about to insert rows.
+  /// \param index The parent model index.
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
+  void rowsAboutToBeInserted(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model has inserted rows.
+  /// \param index The parent model index.
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
+  void rowsInserted(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model is about to insert columns.
+  /// \param index The parent model index.
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
+  void columnsAboutToBeInserted(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model has inserted columns.
+  /// \param index The parent model index.
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
+  void columnsInserted(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model is about to remove rows.
+  /// \param index The parent model index.
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
+  void rowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model has removed rows.
+  /// \param index The parent model index.
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
+  void rowsRemoved(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model is about to remove columns.
+  /// \param index The parent model index.
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
+  void columnsAboutToBeRemoved(const QModelIndex &index, int first, int last);
+
+  /// \brief
+  ///   Called when the item model has removed columns.
+  /// \param index The parent model index.
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
+  void columnsRemoved(const QModelIndex &index, int first, int last);
+
 protected:
-  QAbstractItemModel *Model;
-  vtkQtChartSeriesModelRange *Range;
-  bool ColumnsAsSeries;
+  QAbstractItemModel *Model;         ///< Stores the item model.
+  vtkQtChartSeriesModelRange *Range; ///< Stores the series ranges.
+  bool ColumnsAsSeries;              ///< True if columns are series.
 };
 
 #endif

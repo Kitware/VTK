@@ -26,7 +26,12 @@
 
 
 #include "vtkQtChartExport.h"
-#include <QGraphicsRectItem>
+#include <QObject>
+
+class QGraphicsView;
+class QPoint;
+class QPointF;
+class QRectF;
 
 
 /*!
@@ -46,7 +51,7 @@
  *  \code
  *  void SomeClass::mousePressEvent(QMouseEvent *e)
  *  {
- *    this->mouseBox->setPos(e->pos());
+ *    this->mouseBox->setStartingPosition(e->pos());
  *    this->mouseBox->setVisible(true);
  *  }
  *  \endcode
@@ -58,7 +63,7 @@
  *  \code
  *  void SomeClass::mouseMoveEvent(QMouseEvent *e)
  *  {
- *    this->mouseBox->adjustRectangle(this->mouseBox->mapFromScene(e->pos()));
+ *    this->mouseBox->adjustRectangle(e->pos());
  *  }
  *  \endcode
  * 
@@ -68,21 +73,47 @@
  *  \code
  *  void SomeClass::mouseReleaseEvent(QMouseEvent *e)
  *  {
- *    this->mouseBox->adjustRectangle(this->mouseBox->mapFromScene(e->pos()));
+ *    this->mouseBox->adjustRectangle(e->pos());
  *    ...
  *    this->mouseBox->setVisible(false);
  *  }
  *  \endcode
  */
-class VTKQTCHART_EXPORT vtkQtChartMouseBox : public QGraphicsRectItem
+class VTKQTCHART_EXPORT vtkQtChartMouseBox : public QObject
 {
+  Q_OBJECT
+
 public:
+  vtkQtChartMouseBox(QGraphicsView *view);
+  ~vtkQtChartMouseBox();
+
   /// \brief
-  ///   Creates a mouse box item.
-  /// \param parent The parent item.
-  /// \param scene The graphics scene to add the item to.
-  vtkQtChartMouseBox(QGraphicsItem *parent=0, QGraphicsScene *scene=0);
-  virtual ~vtkQtChartMouseBox() {}
+  ///   Gets whether or not the mouse box is visible.
+  /// \return
+  ///   True if the mouse box should be painted.
+  bool isVisible() const {return this->Showing;}
+
+  /// \brief
+  ///   Sets whether or not the mouse box is visible.
+  /// \param visible True if the mouse box should be painted.
+  void setVisible(bool visible);
+
+  /// \brief
+  ///   Gets the mouse box starting position.
+  /// \return
+  ///   A reference to the mouse box starting position.
+  const QPointF &getStartingPosition() const;
+
+  /// \brief
+  ///   Sets the mouse box starting position.
+  ///
+  /// The starting position should be set before calling
+  /// \c adjustRectangle. The starting position and adjustment
+  /// positions should be in view coordinates.
+  ///
+  /// \param start The original mouse press location in view coordinates.
+  /// \sa vtkQtChartMouseBox::adjustRectangle(const QPointF &)
+  void setStartingPosition(const QPoint &start);
 
   /// \brief
   ///   Adjusts the boundary of the mouse box.
@@ -91,11 +122,26 @@ public:
   /// down location and the current mouse location. This method
   /// is used to adjust the box based on the current mouse location.
   ///
-  /// \param current The current position of the mouse in item coordinates.
-  void adjustRectangle(const QPointF &current);
+  /// \param current The current position of the mouse in view coordinates.
+  void adjustRectangle(const QPoint &current);
 
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-      QWidget *widget=0);
+  /// \brief
+  ///   Gets the current mouse box.
+  /// \return
+  ///   A reference to the mouse box.
+  const QRectF &getRectangle() const;
+
+signals:
+  // \brief
+  //   Emitted when the mouse box changes.
+  // \param area The area to repaint in scene coordinates.
+  void updateNeeded(const QRectF &area);
+
+private:
+  QGraphicsView *View; ///< Stores the graphics view.
+  QPointF *Last;       ///< Stores the mouse down location.
+  QRectF *Box;         ///< Stores the mouse box.
+  bool Showing;        ///< True if the mouse box should be painted.
 };
 
 #endif

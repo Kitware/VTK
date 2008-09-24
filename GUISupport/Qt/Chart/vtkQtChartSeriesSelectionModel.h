@@ -31,11 +31,18 @@ class vtkQtChartSeriesModel;
 class vtkQtChartSeriesSelection;
 
 
+/// \class vtkQtChartSeriesSelectionModel
+/// \brief
+///   The vtkQtChartSeriesSelectionModel class ties a series selection
+///   to a series model.
 class VTKQTCHART_EXPORT vtkQtChartSeriesSelectionModel : public QObject
 {
   Q_OBJECT
 
 public:
+  /// \brief
+  ///   Creates a series selection model.
+  /// \param parent The parent object.
   vtkQtChartSeriesSelectionModel(QObject *parent=0);
   virtual ~vtkQtChartSeriesSelectionModel();
 
@@ -151,15 +158,56 @@ signals:
 public slots:
   /// \name Model Modification Handlers
   //@{
+  /// \brief
+  ///   Begins the model reset process.
+  ///
+  /// The selection model is cleared. The selection changed signal
+  /// is emitted when the model finishes resetting.
   void beginModelReset();
+
+  /// Ends the model reset process.
   void endModelReset();
+
+  /// \brief
+  ///   Begins the series insertion process.
+  ///
+  /// The indexes for the series in the selection model are updated
+  /// to reflect the changes. The selection changed signal is emitted
+  /// when the insertion is completed.
+  ///
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
   void beginInsertSeries(int first, int last);
+
+  /// \brief
+  ///   Ends the series insertion process.
+  /// \param first The first index of the insertion range.
+  /// \param last The last index of the insertion range.
   void endInsertSeries(int first, int last);
+
+  /// \brief
+  ///   Begins the series removal process.
+  ///
+  /// Any reference to the removed range is deleted from the selection
+  /// model. The selection indexes are updated to reflect the change.
+  /// The selection changed signal is emitted when the removal is
+  /// completed.
+  ///
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
   void beginRemoveSeries(int first, int last);
+
+  /// \brief
+  ///   Ends the series removal process.
+  /// \param first The first index of the removal range.
+  /// \param last The last index of the removal range.
   void endRemoveSeries(int first, int last);
   //@}
 
 private:
+  /// \brief
+  ///   Trims the selection to ranges valid for the model.
+  /// \param list The selection to limit.
   void limitSelection(vtkQtChartSeriesSelection &list);
 
 private:

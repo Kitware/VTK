@@ -187,6 +187,29 @@ bool vtkQtChartSeriesSelection::xorSeries(const vtkQtChartIndexRange &series)
   return this->xorSeries(list);
 }
 
+void vtkQtChartSeriesSelection::limitSeries(int minimum, int maximum)
+{
+  if(this->Points.isEmpty())
+    {
+    this->limitRanges(this->Series, minimum, maximum);
+    }
+  else
+    {
+    QList<vtkQtChartSeriesSelectionItem>::Iterator iter = this->Points.begin();
+    while(iter != this->Points.end())
+      {
+      if(iter->Series < minimum || iter->Series > maximum)
+        {
+        iter = this->Points.erase(iter);
+        }
+      else
+        {
+        ++iter;
+        }
+      }
+    }
+}
+
 const QList<vtkQtChartSeriesSelectionItem> &
 vtkQtChartSeriesSelection::getPoints() const
 {
@@ -395,29 +418,6 @@ bool vtkQtChartSeriesSelection::xorPoints(
     }
 
   return false;
-}
-
-void vtkQtChartSeriesSelection::limitSeries(int minimum, int maximum)
-{
-  if(this->Points.isEmpty())
-    {
-    this->limitRanges(this->Series, minimum, maximum);
-    }
-  else
-    {
-    QList<vtkQtChartSeriesSelectionItem>::Iterator iter = this->Points.begin();
-    while(iter != this->Points.end())
-      {
-      if(iter->Series < minimum || iter->Series > maximum)
-        {
-        iter = this->Points.erase(iter);
-        }
-      else
-        {
-        ++iter;
-        }
-      }
-    }
 }
 
 QList<int> vtkQtChartSeriesSelection::getPointSeries() const

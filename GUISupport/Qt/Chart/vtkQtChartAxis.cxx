@@ -1123,28 +1123,6 @@ bool vtkQtChartAxis::isLogScaleAvailable() const
   return this->Internal->Scale.LogAvailable;
 }
 
-bool vtkQtChartAxis::isLogScaleValid(const QVariant &min, const QVariant &max)
-{
-  bool available = false;
-  if(max.type() == QVariant::Int)
-    {
-    int intMin = min.toInt();
-    int intMax = max.toInt();
-    available = intMin > 0 && intMax > 0;
-    if(!available)
-      {
-      available = (intMin == 0 && intMin < intMax) ||
-          (intMax == 0 && intMax < intMin);
-      }
-    }
-  else if(max.type() == QVariant::Double)
-    {
-    available = min.toDouble() > 0 && max.toDouble() > 0;
-    }
-
-  return available;
-}
-
 void vtkQtChartAxis::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
     QWidget *)
 {
@@ -1525,6 +1503,28 @@ float vtkQtChartAxis::getZeroPixel() const
     }
 
   return this->Internal->Scale.PixelMin;
+}
+
+bool vtkQtChartAxis::isLogScaleValid(const QVariant &min, const QVariant &max)
+{
+  bool available = false;
+  if(max.type() == QVariant::Int)
+    {
+    int intMin = min.toInt();
+    int intMax = max.toInt();
+    available = intMin > 0 && intMax > 0;
+    if(!available)
+      {
+      available = (intMin == 0 && intMin < intMax) ||
+          (intMax == 0 && intMax < intMin);
+      }
+    }
+  else if(max.type() == QVariant::Double)
+    {
+    available = min.toDouble() > 0 && max.toDouble() > 0;
+    }
+
+  return available;
 }
 
 void vtkQtChartAxis::reset()

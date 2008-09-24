@@ -28,6 +28,7 @@
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
@@ -932,7 +933,7 @@ void vtkQtStackedChart::handleSeriesBrushChange(const QBrush &brush)
       {
       if(item->IsHighlighted)
         {
-        QColor color = vtkQtChartAxisOptions::lighter(brush.color());
+        QColor color = vtkQtChartColors::lighter(brush.color());
         item->Polygon->setBrush(color);
         }
       else
@@ -1011,7 +1012,7 @@ void vtkQtStackedChart::layoutHighlights()
             if(item->Polygon)
               {
               item->IsHighlighted = true;
-              QColor color = vtkQtChartAxisOptions::lighter(
+              QColor color = vtkQtChartColors::lighter(
                   options->getBrush().color());
               item->Polygon->setBrush(color);
               }
@@ -1073,7 +1074,7 @@ void vtkQtStackedChart::layoutHighlights()
             this->Internal->Highlights.append(polygon);
             polygon->setZValue(item->Polygon->zValue() + 0.5);
             polygon->setPen(options->getPen());
-            QColor color = vtkQtChartAxisOptions::lighter(
+            QColor color = vtkQtChartColors::lighter(
                 options->getBrush().color());
             polygon->setBrush(color);
             }

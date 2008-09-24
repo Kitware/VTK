@@ -30,6 +30,10 @@ class vtkQtChartAxisDomain;
 class vtkQtChartSeriesDomainInternal;
 
 
+/// \class vtkQtChartSeriesDomain
+/// \brief
+///   The vtkQtChartSeriesDomain class is used to associate the two
+///   domains for a series.
 class VTKQTCHART_EXPORT vtkQtChartSeriesDomain
 {
 public:
@@ -37,16 +41,34 @@ public:
   vtkQtChartSeriesDomain(const vtkQtChartSeriesDomain &other);
   ~vtkQtChartSeriesDomain();
 
+  /// \brief
+  ///   Gets the x-axis domain for the series.
+  /// \return
+  ///   A reference to the x-axis domain.
   const vtkQtChartAxisDomain &getXDomain() const;
+
+  /// \brief
+  ///   Gets the x-axis domain for the series.
+  /// \return
+  ///   A reference to the x-axis domain.
   vtkQtChartAxisDomain &getXDomain();
 
+  /// \brief
+  ///   Gets the y-axis domain for the series.
+  /// \return
+  ///   A reference to the y-axis domain.
   const vtkQtChartAxisDomain &getYDomain() const;
+
+  /// \brief
+  ///   Gets the y-axis domain for the series.
+  /// \return
+  ///   A reference to the y-axis domain.
   vtkQtChartAxisDomain &getYDomain();
 
   vtkQtChartSeriesDomain &operator=(const vtkQtChartSeriesDomain &other);
 
 private:
-  vtkQtChartSeriesDomainInternal *Internal;
+  vtkQtChartSeriesDomainInternal *Internal; ///< Stores the domains.
 };
 
 #endif

@@ -34,12 +34,12 @@ vtkQtBarChartSeriesOptions::vtkQtBarChartSeriesOptions(QObject *parentObject)
 }
 
 void vtkQtBarChartSeriesOptions::setStyle(int style,
-                                          vtkQtChartStyleGenerator *generator)
+    vtkQtChartStyleGenerator *generator)
 {
   vtkQtChartSeriesOptions::setStyle(style, generator);
   if(generator)
     {
-    this->setBrush(generator->getBrush(style));
+    this->setBrush(generator->getSeriesBrush(style));
     }
 }
 

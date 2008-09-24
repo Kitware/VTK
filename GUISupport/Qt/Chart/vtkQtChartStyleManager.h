@@ -81,9 +81,12 @@ public:
   void releaseStyle(int index);
 
 private:
+  /// Stores the default style generator.
   vtkQtChartStyleGenerator *DefaultGenerator;
+
+  /// Stores the current style generator.
   vtkQtChartStyleGenerator *Generator;
-  QList<int> Ids;
+  QList<int> Ids; ///< Stores the list of available indexes.
 };
 
 #endif

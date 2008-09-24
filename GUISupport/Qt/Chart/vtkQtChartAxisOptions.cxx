@@ -23,8 +23,8 @@
 
 #include "vtkQtChartAxisOptions.h"
 
+#include "vtkQtChartColors.h"
 #include <QVariant>
-#include <math.h>
 
 
 vtkQtChartAxisOptions::vtkQtChartAxisOptions(QObject *parentObject)
@@ -149,7 +149,7 @@ QColor vtkQtChartAxisOptions::getGridColor() const
 {
   if(this->GridType == vtkQtChartAxisOptions::Lighter)
     {
-    return vtkQtChartAxisOptions::lighter(this->AxisColor);
+    return vtkQtChartColors::lighter(this->AxisColor);
     }
 
   return this->GridColor;
@@ -265,37 +265,6 @@ QString vtkQtChartAxisOptions::formatValue(const QVariant &value) const
     }
 
   return result;
-}
-
-QColor vtkQtChartAxisOptions::lighter(const QColor color, float factor)
-{
-  if(factor <= 0.0)
-    {
-    return color;
-    }
-  else if(factor >= 1.0)
-    {
-    return Qt::white;
-    }
-
-  // Find the distance between the current color and white.
-  float r = color.red();
-  float g = color.green();
-  float b = color.blue();
-  float d = sqrt(((255.0 - r) * (255.0 - r)) + ((255.0 - g) * (255.0 - g)) +
-      ((255.0 - b) * (255.0 - b)));
-  float f = factor * d;
-  float s = d - f;
-
-  // For a point on a line distance f from p1 and distance s
-  // from p2, the equation is:
-  // px = (fx2 + sx1)/(f + s)
-  // py = (fy2 + sy1)/(f + s)
-  // px = (fz2 + sz1)/(f + s)
-  r = ((f * 255.0) + (s * r))/(d);
-  g = ((f * 255.0) + (s * g))/(d);
-  b = ((f * 255.0) + (s * b))/(d);
-  return QColor((int)r, (int)g, (int)b);
 }
 
 

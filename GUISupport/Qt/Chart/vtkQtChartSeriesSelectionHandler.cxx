@@ -196,11 +196,10 @@ bool vtkQtChartSeriesSelectionHandler::mousePressEvent(const QString &mode,
   if(this->Layer && (mode == this->Internal->SeriesMode ||
       mode == this->Internal->PointMode))
     {
-    // Convert the mouse position to scene coordinates. Use the point
-    // to find the selection.
+    // Get the mouse position to scene coordinates. Use the point to
+    // find the selection.
     vtkQtChartSeriesSelection selection;
-    QList<QGraphicsView *> list = this->MouseBox->scene()->views();
-    QPointF point = list[0]->mapToScene(e->pos());
+    QPointF point = this->MouseBox->getStartingPosition();
     Qt::KeyboardModifiers modifiers = e->modifiers();
     if(mode == this->Internal->SeriesMode)
       {
@@ -286,16 +285,11 @@ void vtkQtChartSeriesSelectionHandler::mouseMoveEvent(const QString &mode,
   if(this->Layer && this->MouseBox && (mode == this->Internal->SeriesMode ||
       mode == this->Internal->PointMode))
     {
-    // Get the current mouse position in mouse box space. The chart
-    // scene should only be in one view.
-    QList<QGraphicsView *> list = this->MouseBox->scene()->views();
-    QPointF point = list[0]->mapToScene(e->pos());
-
-    this->MouseBox->adjustRectangle(this->MouseBox->mapFromScene(point));
+    // Adjust the mouse box with the current position.
+    this->MouseBox->adjustRectangle(e->pos());
 
     // Get the mouse box rectangle in scene coordinates.
-    QRectF area = this->MouseBox->rect();
-    area.translate(this->MouseBox->pos());
+    QRectF area = this->MouseBox->getRectangle();
 
     // Use the area to find the selection.
     vtkQtChartSeriesSelection selection;

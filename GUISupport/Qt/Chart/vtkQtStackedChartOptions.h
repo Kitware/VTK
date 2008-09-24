@@ -31,6 +31,10 @@
 class vtkQtChartHelpFormatter;
 
 
+/// \class vtkQtStackedChartOptions
+/// \brief
+///   The vtkQtStackedChartOptions class stores the stacked chart
+///   options.
 class VTKQTCHART_EXPORT vtkQtStackedChartOptions : public QObject
 {
   Q_OBJECT
@@ -48,13 +52,13 @@ public:
   virtual ~vtkQtStackedChartOptions();
 
   /// \brief
-  ///   Gets the pair of axes used by the bar chart.
+  ///   Gets the pair of axes used by the stacked chart.
   /// \return
   ///   The pair of axes used by the bar chart.
   vtkQtChartLayer::AxesCorner getAxesCorner() const {return this->Axes;}
 
   /// \brief
-  ///   Sets the pair of axes used by the bar chart.
+  ///   Sets the pair of axes used by the stacked chart.
   /// \param axes The new chart axes.
   void setAxesCorner(vtkQtChartLayer::AxesCorner axes);
 
@@ -89,6 +93,11 @@ public:
   /// \return
   ///   A pointer to the chart help text formatter.
   vtkQtChartHelpFormatter *getHelpFormat() {return this->Help;}
+
+  /// \brief
+  ///   Gets the chart help text formatter.
+  /// \return
+  ///   A pointer to the chart help text formatter.
   const vtkQtChartHelpFormatter *getHelpFormat() const {return this->Help;}
 
   /// \brief
@@ -99,7 +108,7 @@ public:
   vtkQtStackedChartOptions &operator=(const vtkQtStackedChartOptions &other);
 
 signals:
-  /// Emitted when the bar chart axes change.
+  /// Emitted when the stacked chart axes change.
   void axesCornerChanged();
 
   /// Emitted when the sumation normalization changes.

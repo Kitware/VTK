@@ -36,6 +36,10 @@ class vtkQtChartArea;
 class QPainter;
 
 
+/// \class vtkQtChartLayer
+/// \brief
+///   The vtkQtChartLayer class is the base class for all chart
+///   drawing layers.
 class VTKQTCHART_EXPORT vtkQtChartLayer : public QObject, public QGraphicsItem
 {
   Q_OBJECT
@@ -57,7 +61,20 @@ public:
 
   virtual int type() const {return vtkQtChartLayer::Type;}
 
+  /// \brief
+  ///   Gets the chart area containing this layer.
+  /// \return
+  ///   A pointer to the chart area.
   vtkQtChartArea *getChartArea() const {return this->ChartArea;}
+
+  /// \brief
+  ///   Sets the chart area that contains this layer.
+  ///
+  /// The chart area will call this method when the layer is added to
+  /// it. The layer can overload this method to perform any setup it
+  /// needs to.
+  ///
+  /// \param area The new chart area.
   virtual void setChartArea(vtkQtChartArea *area) {this->ChartArea = area;}
 
   /// \brief
@@ -123,7 +140,7 @@ signals:
   void rangeChanged();
 
 protected:
-  vtkQtChartArea *ChartArea;
+  vtkQtChartArea *ChartArea; ///< Stores the containing chart area.
 };
 
 #endif

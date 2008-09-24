@@ -11,69 +11,132 @@ IF(NOT QT4_FOUND)
   MESSAGE(SEND_ERROR "Qt ${QT_MIN_VERSION} or greater not found.  Please check the QT_QMAKE_EXECUTABLE variable.")
 ELSE(NOT QT4_FOUND)
 
+  SET(QT_USE_QTOPENGL 1)
   INCLUDE(${QT_USE_FILE})
 
   INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
   SET(vtkQtChart_SOURCES
     vtkQtBarChart.cxx
+    vtkQtBarChart.h
     vtkQtBarChartOptions.cxx
+    vtkQtBarChartOptions.h
     vtkQtBarChartSeriesOptions.cxx
+    vtkQtBarChartSeriesOptions.h
     vtkQtChartArea.cxx
+    vtkQtChartArea.h
     vtkQtChartAxis.cxx
+    vtkQtChartAxis.h
     vtkQtChartAxisCornerDomain.cxx
+    vtkQtChartAxisCornerDomain.h
     vtkQtChartAxisDomain.cxx
+    vtkQtChartAxisDomain.h
     vtkQtChartAxisDomainPriority.cxx
+    vtkQtChartAxisDomainPriority.h
     vtkQtChartAxisLayer.cxx
+    vtkQtChartAxisLayer.h
     vtkQtChartAxisModel.cxx
+    vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.cxx
-    vtkQtChartColorPaletteGenerator.cxx
+    vtkQtChartAxisOptions.h
+    vtkQtChartColors.cxx
+    vtkQtChartColors.h
+    vtkQtChartColorStyleGenerator.cxx
+    vtkQtChartColorStyleGenerator.h
     vtkQtChartContentsArea.cxx
+    vtkQtChartContentsArea.h
     vtkQtChartContentsSpace.cxx
+    vtkQtChartContentsSpace.h
     vtkQtChartGridLayer.cxx
+    vtkQtChartGridLayer.h
     vtkQtChartHelpFormatter.cxx
+    vtkQtChartHelpFormatter.h
     vtkQtChartInteractor.cxx
+    vtkQtChartInteractor.h
     vtkQtChartInteractorSetup.cxx
+    vtkQtChartInteractorSetup.h
     vtkQtChartLayer.cxx
+    vtkQtChartLayer.h
     vtkQtChartLayerDomain.cxx
+    vtkQtChartLayerDomain.h
     vtkQtChartLegend.cxx
+    vtkQtChartLegend.h
     vtkQtChartLegendModel.cxx
+    vtkQtChartLegendModel.h
     vtkQtChartMouseBox.cxx
+    vtkQtChartMouseBox.h
     vtkQtChartMouseFunction.cxx
+    vtkQtChartMouseFunction.h
     vtkQtChartMousePan.cxx
+    vtkQtChartMousePan.h
     vtkQtChartMouseSelection.cxx
+    vtkQtChartMouseSelection.h
     vtkQtChartMouseSelectionHandler.cxx
+    vtkQtChartMouseSelectionHandler.h
     vtkQtChartMouseZoom.cxx
+    vtkQtChartMouseZoom.h
+    vtkQtChartPenBrushGenerator.cxx
+    vtkQtChartPenBrushGenerator.h
     vtkQtChartPointLocator.cxx
+    vtkQtChartPointLocator.h
     vtkQtChartScene.cxx
+    vtkQtChartScene.h
     vtkQtChartSeriesDomain.cxx
+    vtkQtChartSeriesDomain.h
     vtkQtChartSeriesDomainGroup.cxx
+    vtkQtChartSeriesDomainGroup.h
     vtkQtChartSeriesLayer.cxx
+    vtkQtChartSeriesLayer.h
     vtkQtChartSeriesModel.cxx
+    vtkQtChartSeriesModel.h
     vtkQtChartSeriesModelCollection.cxx
+    vtkQtChartSeriesModelCollection.h
     vtkQtChartSeriesModelRange.cxx
+    vtkQtChartSeriesModelRange.h
     vtkQtChartSeriesOptions.cxx
+    vtkQtChartSeriesOptions.h
     vtkQtChartSeriesSelection.cxx
+    vtkQtChartSeriesSelection.h
     vtkQtChartSeriesSelectionHandler.cxx
+    vtkQtChartSeriesSelectionHandler.h
     vtkQtChartSeriesSelectionModel.cxx
+    vtkQtChartSeriesSelectionModel.h
     vtkQtChartStyleGenerator.cxx
+    vtkQtChartStyleGenerator.h
     vtkQtChartStyleManager.cxx
+    vtkQtChartStyleManager.h
     vtkQtChartTableSeriesModel.cxx
+    vtkQtChartTableSeriesModel.h
     vtkQtChartTitle.cxx
+    vtkQtChartTitle.h
     vtkQtChartWidget.cxx
+    vtkQtChartWidget.h
     vtkQtChartZoomHistory.cxx
+    vtkQtChartZoomHistory.h
     vtkQtLineChart.cxx
+    vtkQtLineChart.h
     vtkQtLineChartOptions.cxx
+    vtkQtLineChartOptions.h
     vtkQtLineChartSeriesOptions.cxx
+    vtkQtLineChartSeriesOptions.h
     vtkQtPointMarker.cxx
+    vtkQtPointMarker.h
     vtkQtPolylineItem.cxx
+    vtkQtPolylineItem.h
     vtkQtSimplePointLocator.cxx
+    vtkQtSimplePointLocator.h
     vtkQtStackedChart.cxx
+    vtkQtStackedChart.h
     vtkQtStackedChartOptions.cxx
+    vtkQtStackedChartOptions.h
     vtkQtStackedChartSeriesOptions.cxx
+    vtkQtStackedChartSeriesOptions.h
     vtkQtStatisticalBoxChart.cxx
+    vtkQtStatisticalBoxChart.h
     vtkQtStatisticalBoxChartOptions.cxx
+    vtkQtStatisticalBoxChartOptions.h
     vtkQtStatisticalBoxChartSeriesOptions.cxx
+    vtkQtStatisticalBoxChartSeriesOptions.h
   )
   
   SET(vtkQtChart_MOCHEADERS
@@ -85,7 +148,7 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartAxisLayer.h
     vtkQtChartAxisModel.h
     vtkQtChartAxisOptions.h
-    vtkQtChartColorPaletteGenerator.h
+    vtkQtChartColorStyleGenerator.h
     vtkQtChartStyleGenerator.h
     vtkQtChartContentsSpace.h
     vtkQtChartGridLayer.h
@@ -93,8 +156,10 @@ ELSE(NOT QT4_FOUND)
     vtkQtChartLayer.h
     vtkQtChartLegend.h
     vtkQtChartLegendModel.h
+    vtkQtChartMouseBox.h
     vtkQtChartMouseFunction.h
     vtkQtChartMouseSelection.h
+    vtkQtChartPenBrushGenerator.h
     vtkQtChartSeriesLayer.h
     vtkQtChartSeriesModel.h
     vtkQtChartSeriesModelCollection.h
@@ -135,7 +200,6 @@ SET_DIRECTORY_PROPERTIES(PROPERTIES INCLUDE_DIRECTORIES "${include_dirs_tmp}")
 
   ADD_LIBRARY(vtkQtChart
     ${vtkQtChart_SOURCES}
-    ${vtkQtChart_MOCHEADERS}
     ${vtkQtChart_HEADERS}
     ${vtkQtChart_MOC_SOURCES}
   )

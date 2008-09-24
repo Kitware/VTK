@@ -86,10 +86,23 @@ public:
   ///   The list of selection modes.
   const QStringList &getModeList() const;
 
+  /// \brief
+  ///   Adds a selection handler to the list.
+  ///
+  /// The selection mode list is rebuilt when a new handler is added.
+  ///
+  /// \param handler The new selection handler.
   void addHandler(vtkQtChartMouseSelectionHandler *handler);
 
+  /// \brief
+  ///   Inserts a selection handler into the list.
+  /// \param index Where to insert the handler.
+  /// \param handler The new selection handler.
   void insertHandler(int index, vtkQtChartMouseSelectionHandler *handler);
 
+  /// \brief
+  ///   Removes the given selection handler from the list.
+  /// \param handler The selection handler to remove.
   void removeHandler(vtkQtChartMouseSelectionHandler *handler);
   //@}
 

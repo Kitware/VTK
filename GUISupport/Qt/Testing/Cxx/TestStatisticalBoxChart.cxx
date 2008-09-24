@@ -25,7 +25,7 @@
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartColorPaletteGenerator.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
 #include "vtkQtChartArea.h"
@@ -43,9 +43,17 @@ int TestStatisticalBoxChart(int argc, char* argv[])
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
   vtkQtChartStyleManager *style = area->getStyleManager();
-    vtkQtChartColorPaletteGenerator *generator = 
-    new vtkQtChartColorPaletteGenerator(vtkQtChartColorPaletteGenerator::Blues, chart);
-  style->setGenerator(generator);
+  vtkQtChartColorStyleGenerator *generator =
+      qobject_cast<vtkQtChartColorStyleGenerator *>(style->getGenerator());
+  if(generator)
+    {
+    generator->getColors()->setColorScheme(vtkQtChartColors::Blues);
+    }
+  else
+    {
+    style->setGenerator(
+        new vtkQtChartColorStyleGenerator(chart, vtkQtChartColors::Blues));
+    }
 
   // Set up the box chart.
   vtkQtStatisticalBoxChart *boxes = new vtkQtStatisticalBoxChart();

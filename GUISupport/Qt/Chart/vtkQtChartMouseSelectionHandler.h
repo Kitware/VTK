@@ -34,9 +34,16 @@ class QString;
 class QStringList;
 
 
+/// \class vtkQtChartMouseSelectionHandler
+/// \brief
+///   The vtkQtChartMouseSelectionHandler class is the base class for
+///   all selection handlers.
 class VTKQTCHART_EXPORT vtkQtChartMouseSelectionHandler : public QObject
 {
 public:
+  /// \brief
+  ///   Creates a mouse selection handler.
+  /// \param parent The parent object.
   vtkQtChartMouseSelectionHandler(QObject *parent=0);
   virtual ~vtkQtChartMouseSelectionHandler() {}
 
@@ -51,18 +58,69 @@ public:
   /// \param box The chart mouse box object to use.
   virtual void setMouseBox(vtkQtChartMouseBox *box) {this->MouseBox = box;}
 
+  /// \brief
+  ///   Gets the number of mouse modes.
+  /// \return
+  ///   The number of mouse modes.
   virtual int getNumberOfModes() const=0;
+
+  /// \brief
+  ///   Gets the list of mouse mode names.
+  /// \param list Used to return the list of modes.
   virtual void getModeList(QStringList &list) const=0;
 
+  /// \brief
+  ///   Handles the mouse press event.
+  /// \param mode The current mouse mode.
+  /// \param e The mouse event.
+  /// \param contents The chart contents space object.
+  /// \return
+  ///   True if the event was handled.
   virtual bool mousePressEvent(const QString &mode, QMouseEvent *e,
       vtkQtChartContentsSpace *contents)=0;
+
+  /// \brief
+  ///   Gets whether or not mouse move is available for the given mode.
+  /// \param mode The mouse mode name.
+  /// \return
+  ///   True if mouse move is available for the given mode.
   virtual bool isMouseMoveAvailable(const QString &mode) const=0;
+
+  /// \brief
+  ///   Starts a mouse move for the given mode.
+  /// \param mode The mouse mode to start.
   virtual void startMouseMove(const QString &mode)=0;
+
+  /// \brief
+  ///   Handles the mouse move event.
+  /// \param mode The current mouse mode.
+  /// \param e The mouse event.
+  /// \param contents The chart contents space object.
   virtual void mouseMoveEvent(const QString &mode, QMouseEvent *e,
       vtkQtChartContentsSpace *contents)=0;
+
+  /// \brief
+  ///   Finishes a mouse move for the given mode.
+  /// \param mode The mouse mode to finish.
   virtual void finishMouseMove(const QString &mode)=0;
+
+  /// \brief
+  ///   Handles the mouse release event.
+  /// \param mode The current mouse mode.
+  /// \param e The mouse event.
+  /// \param contents The chart contents space object.
+  /// \return
+  ///   True if the event was handled.
   virtual bool mouseReleaseEvent(const QString &mode, QMouseEvent *e,
       vtkQtChartContentsSpace *contents)=0;
+
+  /// \brief
+  ///   Handles the mouse double click event.
+  /// \param mode The current mouse mode.
+  /// \param e The mouse event.
+  /// \param contents The chart contents space object.
+  /// \return
+  ///   True if the event was handled.
   virtual bool mouseDoubleClickEvent(const QString &mode, QMouseEvent *e,
       vtkQtChartContentsSpace *contents)=0;
 

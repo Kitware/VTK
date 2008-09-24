@@ -24,7 +24,7 @@
 #include "vtkQtChartStyleManager.h"
 
 #include "vtkQtChartStyleGenerator.h"
-#include "vtkQtChartColorPaletteGenerator.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include <QList>
 
 
@@ -32,8 +32,8 @@
 vtkQtChartStyleManager::vtkQtChartStyleManager(QObject *parentObject)
   : QObject(parentObject), Ids()
 {
-  this->DefaultGenerator = new
-    vtkQtChartColorPaletteGenerator(vtkQtChartColorPaletteGenerator::Spectrum, this);
+  this->DefaultGenerator = new vtkQtChartColorStyleGenerator(this,
+      vtkQtChartColors::Spectrum);
   this->Generator = this->DefaultGenerator;
 }
 

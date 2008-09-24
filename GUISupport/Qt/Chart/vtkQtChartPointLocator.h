@@ -33,16 +33,35 @@ class QPolygonF;
 class QRectF;
 
 
+/// \class vtkQtChartPointLocator
+/// \brief
+///   The vtkQtChartPointLocator class is the base class for the
+///   chart point locators.
 class VTKQTCHART_EXPORT vtkQtChartPointLocator : public QObject
 {
 public:
+  /// \brief
+  ///   Creates a chart point locator.
+  /// \param parent The parent object.
   vtkQtChartPointLocator(QObject *parent=0);
   virtual ~vtkQtChartPointLocator() {}
 
+  /// \brief
+  ///   Creates a chart point locator.
+  /// \param parent The parent object.
+  /// \return
+  ///   A pointer to the new chart point locator.
   virtual vtkQtChartPointLocator *getNewInstance(QObject *parent=0) const = 0;
 
+  /// \brief
+  ///   Sets the points the locator should use.
+  /// \param points The points the locator should use.
   virtual void setPoints(const QPolygonF &points) = 0;
 
+  /// \brief
+  ///   Finds the points in the given rectangle.
+  /// \param area The area to search.
+  /// \param points Used to return the selected points.
   virtual void findPointsIn(const QRectF &area,
       vtkQtChartIndexRangeList &points) = 0;
 };

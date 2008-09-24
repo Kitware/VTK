@@ -28,6 +28,7 @@
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
@@ -1011,7 +1012,7 @@ void vtkQtLineChart::layoutHighlights()
             item = this->Internal->Series[i];
             options = this->getLineSeriesOptions(i);
             QPen linePen = options->getPen();
-            linePen.setColor(vtkQtChartAxisOptions::lighter(linePen.color()));
+            linePen.setColor(vtkQtChartColors::lighter(linePen.color()));
             item->Polyline->setPen(linePen);
             item->Points->setPen(linePen);
 
@@ -1062,7 +1063,7 @@ void vtkQtLineChart::layoutHighlights()
           this->Internal->LightPoints.append(lightPoints);
           lightPoints->setZValue(item->zValue() + 0.25);
           QPen linePen = options->getPen();
-          linePen.setColor(vtkQtChartAxisOptions::lighter(linePen.color()));
+          linePen.setColor(vtkQtChartColors::lighter(linePen.color()));
           lightPoints->setPen(linePen);
           lightPoints->setBrush(item->Points->brush());
           lightPoints->setPoints(selectedPoints);

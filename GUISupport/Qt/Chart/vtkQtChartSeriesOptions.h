@@ -32,36 +32,91 @@ class QBrush;
 class QPen;
 
 
+/// \class vtkQtChartSeriesOptions
+/// \brief
+///   The vtkQtChartSeriesOptions class stores the common series
+///   drawing options.
 class VTKQTCHART_EXPORT vtkQtChartSeriesOptions : public QObject
 {
   Q_OBJECT
 
 public:
+  /// \brief
+  ///   Creates a series options object.
+  /// \param parent The parent object.
   vtkQtChartSeriesOptions(QObject *parent=0);
   virtual ~vtkQtChartSeriesOptions();
 
+  /// \brief
+  ///   Gets the style generator index for the series.
+  /// \return
+  ///   The style generator index for the series.
   int getStyle() const {return this->Style;}
+
+  /// \brief
+  ///   Sets the style generator index for the series.
+  ///
+  /// This method only sets the style index. It can be overridden to
+  /// use the generator to set other series options.
+  ///
+  /// \param style The style index for the generator.
+  /// \param generator The style generator to use.
   virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
 
+  /// \brief
+  ///   Gets whether or not the series should be visible.
+  /// \return
+  ///   True if the series should be visible.
   bool isVisible() const {return this->Visible;}
+
+  /// \brief
+  ///   Sets whether or not the series should be visible.
+  /// \param visible True if the series should be visible.
   void setVisible(bool visible);
 
+  /// \brief
+  ///   Gets the series pen.
+  /// \return
+  ///   A reference to the series pen.
   const QPen &getPen() const;
+
+  /// \brief
+  ///   Sets the series pen.
+  /// \param pen The new series pen.
   void setPen(const QPen &pen);
 
+  /// \brief
+  ///   Gets the series brush.
+  /// \return
+  ///   A reference to the series brush.
   const QBrush &getBrush() const;
+
+  /// \brief
+  ///   Sets the series brush.
+  /// \param brush The new series brush.
   void setBrush(const QBrush &brush);
 
 signals:
+  /// \brief
+  ///   Emitted when the series visibility option has changed.
+  /// \param visible True if the series should be displayed.
   void visibilityChanged(bool visible);
+
+  /// \brief
+  ///   Emitted when the series pen option has changed.
+  /// \param pen The new series pen.
   void penChanged(const QPen &pen);
+
+  /// \brief
+  ///   Emitted when the series brush option has changed.
+  /// \param brush The new series brush.
   void brushChanged(const QBrush &brush);
 
 private:
-  QPen *Pen;
-  QBrush *Brush;
-  int Style;
-  bool Visible;
+  QPen *Pen;     ///< Stores the series pen.
+  QBrush *Brush; ///< Stores the series brush.
+  int Style;     ///< Stores the style generator index.
+  bool Visible;  ///< True if the series should be displayed.
 };
 
 #endif

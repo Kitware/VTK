@@ -30,20 +30,47 @@
 class QStringList;
 
 
+/// \class vtkQtChartHelpFormatter
+/// \brief
+///   The vtkQtChartHelpFormatter class is used to generate help text
+///   from a format string.
 class VTKQTCHART_EXPORT vtkQtChartHelpFormatter
 {
 public:
   vtkQtChartHelpFormatter();
+
+  /// \brief
+  ///   Creates a help formatter instance.
+  /// \param format The help string format.
   vtkQtChartHelpFormatter(const QString &format);
   ~vtkQtChartHelpFormatter() {}
 
+  /// \brief
+  ///   Gets the help string format.
+  /// \return
+  ///   A reference to the help string format.
   const QString &getFormat() const {return this->Format;}
+
+  /// \brief
+  ///   Sets the help string format.
+  /// \param format The help string format.
   void setFormat(const QString &format) {this->Format = format;}
 
+  /// \brief
+  ///   Creates a help string for the given parameters.
+  ///
+  /// The series name replaces all instances of %s in the format
+  /// string. The data list replaces %1, %2, ... %n in the format
+  /// string. the list will only replace numbers up to its length.
+  ///
+  /// \param series The series name.
+  /// \param data The list of data arguments.
+  /// \return
+  ///   The formatted help string.
   QString getHelpText(const QString &series, const QStringList &data) const;
 
 private:
-  QString Format;
+  QString Format; ///< Stores the help format.
 };
 
 #endif

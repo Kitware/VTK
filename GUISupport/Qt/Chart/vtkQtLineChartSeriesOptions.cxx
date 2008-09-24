@@ -44,12 +44,12 @@ vtkQtLineChartSeriesOptions::~vtkQtLineChartSeriesOptions()
 }
 
 void vtkQtLineChartSeriesOptions::setStyle(int style,
-                                           vtkQtChartStyleGenerator *generator)
+    vtkQtChartStyleGenerator *generator)
 {
   vtkQtChartSeriesOptions::setStyle(style, generator);
   if(generator)
     {
-    this->setPen(generator->getPen(style));
+    this->setPen(generator->getSeriesPen(style));
     }
 }
 

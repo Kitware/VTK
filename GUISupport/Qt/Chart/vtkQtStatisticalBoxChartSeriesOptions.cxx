@@ -27,14 +27,15 @@
 #include <QBrush>
 
 
-vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(QObject *parentObject)
+vtkQtStatisticalBoxChartSeriesOptions::vtkQtStatisticalBoxChartSeriesOptions(
+    QObject *parentObject)
   : vtkQtChartSeriesOptions(parentObject)
 {
   this->setBrush(Qt::red);
 }
 
 void vtkQtStatisticalBoxChartSeriesOptions::setStyle(int style,
-                                                     vtkQtChartStyleGenerator *generator)
+    vtkQtChartStyleGenerator *generator)
 {
   vtkQtChartSeriesOptions::setStyle(style, generator);
   if(generator)

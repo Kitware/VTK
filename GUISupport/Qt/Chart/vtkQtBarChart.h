@@ -70,6 +70,11 @@ public:
   /// \param options The new bar chart drawing options.
   void setOptions(const vtkQtBarChartOptions &options);
 
+  /// \brief
+  ///   Gets the bar chart series options.
+  /// \param series The series index.
+  /// \return
+  ///   A pointer to the bar chart series options.
   vtkQtBarChartSeriesOptions *getBarSeriesOptions(int series) const;
   //@}
 
@@ -108,27 +113,95 @@ public:
   //@}
 
 public slots:
+  /// \brief
+  ///   Refreshes the bar chart data from the model.
+  ///
+  /// The currently displayed data is cleaned up. If a model is set,
+  /// it is used to populate the bar chart.
   void reset();
 
 protected:
+  /// \brief
+  ///   Creates a new bar chart series options object.
+  /// \param parent The parent object.
+  /// \return
+  ///   A pointer to the new bar chart series options object.
   virtual vtkQtChartSeriesOptions *createOptions(QObject *parent);
+
+  /// \brief
+  ///   Sets up the series options defaults.
+  /// \param options The new series options object.
   virtual void setupOptions(vtkQtChartSeriesOptions *options);
 
 private slots:
+  /// \brief
+  ///   Prepares the bar chart for a series insertion.
+  /// \param first The first series index to be added.
+  /// \param last The last series index to be added.
   void prepareSeriesInsert(int first, int last);
+
+  /// \brief
+  ///   Inserts bar chart series at the given indexes.
+  /// \param first The first series index to be added.
+  /// \param last The last series index to be added.
   void insertSeries(int first, int last);
+
+  /// \brief
+  ///   Removes the specified series from the chart.
+  /// \param first The first series index to be removed.
+  /// \param last The last series index to be removed.
   void startSeriesRemoval(int first, int last);
+
+  /// \brief
+  ///   Finishes the domain changes after removing the series.
+  /// \param first The first series index to be removed.
+  /// \param last The last series index to be removed.
   void finishSeriesRemoval(int first, int last);
+
+  /// Requests a chart layout when the axis corner option changes.
   void handleAxesCornerChange();
+
+  /// Changes the bar outline style.
   void handleOutlineChange();
+
+  /// \brief
+  ///   Changes the series visibility.
+  ///
+  /// The signal sender is used to determine which series has changed.
+  ///
+  /// \param visible True if the series should be shown.
   void handleSeriesVisibilityChange(bool visible);
+
+  /// \brief
+  ///   Changes the series pen.
+  /// \param pen The new series pen.
   void handleSeriesPenChange(const QPen &pen);
+
+  /// \brief
+  ///   Changes the series brush.
+  /// \param brush The new series brush.
   void handleSeriesBrushChange(const QBrush &brush);
+
+  /// \brief
+  ///   Called to layout the highlights.
+  ///
+  /// The layout request is ignored if the model is being changed.
   void updateHighlights();
 
 private:
+  /// Called to layout the highlights.
   void layoutHighlights();
+
+  /// \brief
+  ///   Adds the domain for the given series to the current domain.
+  /// \param series The series index.
+  /// \return
+  ///   True if the domain was modified.
   bool addSeriesDomain(int series);
+
+  /// \brief
+  ///   Calculates the domain for the given series group.
+  /// \param seriesGroup The series group index.
   void calculateDomain(int seriesGroup);
 
 private:

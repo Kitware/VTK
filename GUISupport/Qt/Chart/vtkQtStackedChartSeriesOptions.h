@@ -28,15 +28,31 @@
 #include "vtkQtChartSeriesOptions.h"
 
 
+/// \class vtkQtStackedChartSeriesOptions
+/// \brief
+///   The vtkQtStackedChartSeriesOptions class stores the options for
+///   a stacked chart series.
 class VTKQTCHART_EXPORT vtkQtStackedChartSeriesOptions :
   public vtkQtChartSeriesOptions
 {
   Q_OBJECT
 
 public:
+  /// \brief
+  ///   Creates a stacked chart series options object.
+  /// \param parent The parent object.
   vtkQtStackedChartSeriesOptions(QObject *parent=0);
   virtual ~vtkQtStackedChartSeriesOptions() {}
 
+  /// \brief
+  ///   Sets the style generator index for the series.
+  ///
+  /// This method uses the style generator to assign the initial
+  /// brush and pen for the series. The pen is based on the brush
+  /// color.
+  ///
+  /// \param style The style index for the generator.
+  /// \param generator The style generator to use.
   virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
 };
 

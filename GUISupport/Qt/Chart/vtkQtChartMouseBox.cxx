@@ -24,57 +24,86 @@
 #include "vtkQtChartMouseBox.h"
 
 #include <QBrush>
+#include <QGraphicsView>
 #include <QPainter>
 #include <QPen>
 
 
-vtkQtChartMouseBox::vtkQtChartMouseBox(QGraphicsItem *item,
-    QGraphicsScene *graphicsScene)
-  : QGraphicsRectItem(item, graphicsScene)
+vtkQtChartMouseBox::vtkQtChartMouseBox(QGraphicsView *view)
+  : QObject(view)
 {
-  this->setPen(QPen(Qt::black, 1.0, Qt::DashLine));
+  this->View = view;
+  this->Last = new QPointF();
+  this->Box = new QRectF();
+  this->Showing = false;
 }
 
-void vtkQtChartMouseBox::adjustRectangle(const QPointF &current)
+vtkQtChartMouseBox::~vtkQtChartMouseBox()
 {
-  // Determine the new area. The origin should be kept as one of the
-  // corners.
-  QRectF box;
-  if(current.x() < 0.0)
+  delete this->Last;
+  delete this->Box;
+}
+
+void vtkQtChartMouseBox::setVisible(bool visible)
+{
+  if(this->Showing != visible)
     {
-    if(current.y() < 0.0)
+    this->Showing = visible;
+    emit this->updateNeeded(*this->Box);
+    }
+}
+
+const QPointF &vtkQtChartMouseBox::getStartingPosition() const
+{
+  return *this->Last;
+}
+
+void vtkQtChartMouseBox::setStartingPosition(const QPoint &start)
+{
+  *this->Last = this->View->mapToScene(start);
+}
+
+void vtkQtChartMouseBox::adjustRectangle(const QPoint &current)
+{
+  // Map the point to scene coordinates.
+  QPointF point = this->View->mapToScene(current);
+
+  // Determine the new area. The mouse down point should be kept as
+  // one of the corners.
+  QRectF old = *this->Box;
+  if(point.x() < this->Last->x())
+    {
+    if(point.y() < this->Last->y())
       {
-      box.setTopLeft(current);
-      box.setBottomRight(QPointF(0.0, 0.0));
+      this->Box->setTopLeft(point);
+      this->Box->setBottomRight(*this->Last);
       }
     else
       {
-      box.setBottomLeft(current);
-      box.setTopRight(QPointF(0.0, 0.0));
+      this->Box->setBottomLeft(point);
+      this->Box->setTopRight(*this->Last);
       }
     }
   else
     {
-    if(current.y() < 0.0)
+    if(point.y() < this->Last->y())
       {
-      box.setTopRight(current);
-      box.setBottomLeft(QPointF(0.0, 0.0));
+      this->Box->setTopRight(point);
+      this->Box->setBottomLeft(*this->Last);
       }
     else
       {
-      box.setBottomRight(current);
-      box.setTopLeft(QPointF(0.0, 0.0));
+      this->Box->setBottomRight(point);
+      this->Box->setTopLeft(*this->Last);
       }
     }
 
-  this->setRect(box);
+  emit this->updateNeeded(this->Box->unite(old));
 }
 
-void vtkQtChartMouseBox::paint(QPainter *painter,
-    const QStyleOptionGraphicsItem *option, QWidget *widget)
+const QRectF &vtkQtChartMouseBox::getRectangle() const
 {
-  painter->setRenderHint(QPainter::Antialiasing, false);
-  QGraphicsRectItem::paint(painter, option, widget);
+  return *this->Box;
 }
 
 

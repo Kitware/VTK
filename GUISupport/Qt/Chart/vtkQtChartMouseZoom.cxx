@@ -274,12 +274,7 @@ bool vtkQtChartMouseZoomBox::mouseMoveEvent(QMouseEvent *e,
 
   if(this->isMouseOwner())
     {
-    // Get the current mouse position in mouse box space. The chart
-    // scene should only be in one view.
-    QList<QGraphicsView *> list = this->MouseBox->scene()->views();
-    QPointF point = list[0]->mapToScene(e->pos());
-
-    this->MouseBox->adjustRectangle(this->MouseBox->mapFromScene(point));
+    this->MouseBox->adjustRectangle(e->pos());
     }
 
   return true;
@@ -290,16 +285,12 @@ bool vtkQtChartMouseZoomBox::mouseReleaseEvent(QMouseEvent *e,
 {
   if(this->isMouseOwner())
     {
-    // Adjust the mouse box before using it. The chart scene should
-    // only be in one view.
-    QList<QGraphicsView *> list = this->MouseBox->scene()->views();
-    QPointF point = list[0]->mapToScene(e->pos());
-    this->MouseBox->adjustRectangle(this->MouseBox->mapFromScene(point));
+    // Adjust the mouse box before using it.
+    this->MouseBox->adjustRectangle(e->pos());
     this->MouseBox->setVisible(false);
 
     // Get the mouse box rectangle in scene coordinates.
-    QRectF area = this->MouseBox->rect();
-    area.translate(this->MouseBox->pos());
+    QRectF area = this->MouseBox->getRectangle();
 
     // Make sure the area and contents are valid.
     QRectF bounds;

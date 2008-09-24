@@ -28,15 +28,26 @@
 #include "vtkQtChartSeriesOptions.h"
 
 
+/// \class vtkQtBarChartSeriesOptions
+/// \brief
+///   The vtkQtBarChartSeriesOptions class stores the drawing options
+///   for a bar chart series.
 class VTKQTCHART_EXPORT vtkQtBarChartSeriesOptions :
   public vtkQtChartSeriesOptions
 {
   Q_OBJECT
 
 public:
+  /// \brief
+  ///   Creates a bar chart series options object.
+  /// \param parent The parent object.
   vtkQtBarChartSeriesOptions(QObject *parent=0);
   virtual ~vtkQtBarChartSeriesOptions() {}
 
+  /// \brief
+  ///   Sets the series brush using the style generator.
+  /// \param style The style index for the generator.
+  /// \param generator The style generator to use.
   virtual void setStyle(int style, vtkQtChartStyleGenerator *generator);
 };
 

@@ -28,6 +28,10 @@
 #include "vtkQtChartPointLocator.h"
 
 
+/// \class vtkQtSimplePointLocator
+/// \brief
+///   The vtkQtSimplePointLocator class locates points by searching
+///   the point list sequentially
 class VTKQTCHART_EXPORT vtkQtSimplePointLocator : public vtkQtChartPointLocator
 {
 public:
@@ -38,11 +42,19 @@ public:
 
   virtual void setPoints(const QPolygonF &points);
 
+  /// \brief
+  ///   Finds the points in the given rectangle.
+  ///
+  /// The points are located by searching the list of points
+  /// sequentially.
+  ///
+  /// \param area The area to search.
+  /// \param points Used to return the selected points.
   virtual void findPointsIn(const QRectF &area,
       vtkQtChartIndexRangeList &points);
 
 private:
-  QPolygonF *Points;
+  QPolygonF *Points; ///< Stores the list of points.
 };
 
 #endif

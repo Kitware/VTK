@@ -36,6 +36,7 @@
 #include "vtkQtChartAxisDomain.h"
 #include "vtkQtChartAxisLayer.h"
 #include "vtkQtChartAxisOptions.h"
+#include "vtkQtChartColors.h"
 #include "vtkQtChartContentsArea.h"
 #include "vtkQtChartContentsSpace.h"
 #include "vtkQtChartHelpFormatter.h"
@@ -815,7 +816,7 @@ void vtkQtBarChart::handleSeriesBrushChange(const QBrush &brush)
   int series = this->getSeriesOptionsIndex(options);
   if(series >= 0 && series < this->Internal->Series.size())
     {
-    QColor color = vtkQtChartAxisOptions::lighter(brush.color());
+    QColor color = vtkQtChartColors::lighter(brush.color());
     vtkQtBarChartItem *item = this->Internal->Series[series];
     QList<QGraphicsRectItem *>::Iterator iter = item->Bars.begin();
     for(int i = 0; iter != item->Bars.end(); ++iter, ++i)
@@ -890,7 +891,7 @@ void vtkQtBarChart::layoutHighlights()
             options = this->getBarSeriesOptions(i);
             item = this->Internal->Series[i];
             item->IsHighlighted = true;
-            QColor color = vtkQtChartAxisOptions::lighter(
+            QColor color = vtkQtChartColors::lighter(
                 options->getBrush().color());
             QList<QGraphicsRectItem *>::Iterator kter = item->Bars.begin();
             for( ; kter != item->Bars.end(); ++kter)
@@ -909,7 +910,7 @@ void vtkQtBarChart::layoutHighlights()
           {
           options = this->getBarSeriesOptions(jter->Series);
           item = this->Internal->Series[jter->Series];
-          QColor color = vtkQtChartAxisOptions::lighter(
+          QColor color = vtkQtChartColors::lighter(
               options->getBrush().color());
           vtkQtChartIndexRangeList::ConstIterator kter = jter->Points.begin();
           for( ; kter != jter->Points.end(); ++kter)

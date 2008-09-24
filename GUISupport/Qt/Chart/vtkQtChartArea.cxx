@@ -42,6 +42,14 @@
 #include <QMouseEvent>
 #include <QToolTip>
 
+// Include OpenGL support if possible
+#include <qglobal.h>
+#if (QT_EDITION & QT_MODULE_OPENGL)
+
+#include <QtOpenGL/QGLWidget>
+
+#endif
+
 
 class vtkQtChartAreaInternal
 {
@@ -96,7 +104,16 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
   this->Internal->Contents->setObjectName("StyleManager");
 
   // Set up the graphics scene.
-  this->setScene(new vtkQtChartScene(this));
+  vtkQtChartScene *chartScene = new vtkQtChartScene(this);
+  this->setScene(chartScene);
+
+#if (QT_EDITION & QT_MODULE_OPENGL)
+  // Use the OpenGL widget if possible
+  if(QGLFormat::hasOpenGL())
+    {
+    this->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+    }
+#endif
 
   // Set up the axis and grid layers.
   this->Internal->AxisLayer = new vtkQtChartAxisLayer();
@@ -108,9 +125,10 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
   this->Internal->AxisLayer->cancelChartRangeChange();
 
   // Set up the mouse box.
-  this->Internal->MouseBox = new vtkQtChartMouseBox(0, this->scene());
-  this->Internal->MouseBox->setZValue(this->Internal->Layers.size());
-  this->Internal->MouseBox->setVisible(false);
+  this->Internal->MouseBox = new vtkQtChartMouseBox(this);
+  chartScene->setMouseBox(this->Internal->MouseBox);
+  this->connect(this->Internal->MouseBox, SIGNAL(updateNeeded(const QRectF &)),
+      chartScene, SLOT(update(const QRectF &)));
 
   // Hide the scrollbars and the frame.
   this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -135,6 +153,7 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
 
 vtkQtChartArea::~vtkQtChartArea()
 {
+  delete this->Internal->MouseBox;
   delete this->Internal;
 }
 
@@ -181,12 +200,6 @@ void vtkQtChartArea::insertLayer(int index, vtkQtChartLayer *chart)
       }
     }
 
-  // Make sure the mous box is on top.
-  if(this->Internal->MouseBox)
-    {
-    this->Internal->MouseBox->setZValue(this->Internal->Layers.size());
-    }
-
   // Listen for the chart update signals.
   this->connect(chart, SIGNAL(layoutNeeded()), this, SLOT(updateLayout()));
   this->connect(chart, SIGNAL(rangeChanged()),
@@ -217,11 +230,6 @@ void vtkQtChartArea::removeLayer(vtkQtChartLayer *chart)
   for(int i = index; i < this->Internal->Layers.size(); i++)
     {
     this->Internal->Layers[i]->setZValue(i);
-    }
-
-  if(this->Internal->MouseBox)
-    {
-    this->Internal->MouseBox->setZValue(this->Internal->Layers.size());
     }
 
   this->disconnect(chart, 0, this, 0);
@@ -439,7 +447,7 @@ void vtkQtChartArea::keyPressEvent(QKeyEvent *e)
 void vtkQtChartArea::mousePressEvent(QMouseEvent *e)
 {
   // Set the mouse box position in scene coordinates.
-  this->Internal->MouseBox->setPos(this->mapToScene(e->pos()));
+  this->Internal->MouseBox->setStartingPosition(e->pos());
 
   // If the mouse button is the right button, delay the context menu.
   if(e->button() == Qt::RightButton)

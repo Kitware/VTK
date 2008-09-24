@@ -98,15 +98,31 @@ public:
   ///   A pointer to the chart series selection model.
   vtkQtChartSeriesSelectionModel *getSelectionModel() const;
 
+  /// \brief
+  ///   Gets the list of series at a given position.
+  /// \param point The position in scene coordinates.
+  /// \param selection Used to return the list of series.
   virtual void getSeriesAt(const QPointF &point,
       vtkQtChartSeriesSelection &selection) const;
 
+  /// \brief
+  ///   Gets the list of points at a given position.
+  /// \param point The position in scene coordinates.
+  /// \param selection Used to return the list of points.
   virtual void getPointsAt(const QPointF &point,
       vtkQtChartSeriesSelection &selection) const;
 
+  /// \brief
+  ///   Gets the list of series in a given area.
+  /// \param area The rectangle in scene coordinates.
+  /// \param selection Used to return the list of series.
   virtual void getSeriesIn(const QRectF &area,
       vtkQtChartSeriesSelection &selection) const;
 
+  /// \brief
+  ///   Gets the list of points in a given area.
+  /// \param area The rectangle in scene coordinates.
+  /// \param selection Used to return the list of points.
   virtual void getPointsIn(const QRectF &area,
       vtkQtChartSeriesSelection &selection) const;
 

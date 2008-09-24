@@ -89,7 +89,14 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES 
                               OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
+  # Reduce the number of dirs that get included on moc command line
+  # since it causes issues on Windows 2000.
+  GET_DIRECTORY_PROPERTY(include_dirs_tmp INCLUDE_DIRECTORIES)
+  SET_DIRECTORY_PROPERTIES(PROPERTIES INCLUDE_DIRECTORIES "${MOC_INCLUDE_DIRS}")
+
   QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
+
+  SET_DIRECTORY_PROPERTIES(PROPERTIES INCLUDE_DIRECTORIES "${include_dirs_tmp}")
 
   SET(QT_LIBS "${QT_LIBRARIES}")
   

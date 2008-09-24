@@ -30,6 +30,10 @@
 class vtkQtChartAxis;
 
 
+/// \class vtkQtChartGridLayer
+/// \brief
+///   The vtkQtChartGridLayer class is used to dislpay the chart
+///   background grid.
 class VTKQTCHART_EXPORT vtkQtChartGridLayer : public vtkQtChartLayer
 {
   Q_OBJECT
@@ -50,13 +54,25 @@ public:
       QWidget *widget=0);
 
 public slots:
+  /// \brief
+  ///   Sets the x-axis pan offset.
+  /// \param xOffset The new x-axis pan offset.
   void setXOffset(float xOffset);
+
+  /// \brief
+  ///   Sets the y-axis pan offset.
+  /// \param yOffset The new y-axis pan offset.
   void setYOffset(float yOffset);
 
 private slots:
+  /// Updates the grid when the options change.
   void handleGridChange();
 
 private:
+  /// \brief
+  ///   Draws the grid for the given axis.
+  /// \param painter The painter to use.
+  /// \param axis The axis to draw.
   void drawAxisGrid(QPainter *painter, vtkQtChartAxis *axis);
 
 private:
