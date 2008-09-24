@@ -270,13 +270,15 @@ int main(int argc, char** argv)
   vtkSmartPointer<vtkDirectedGraph> output = vtkSmartPointer<vtkDirectedGraph>::New();
   output->ShallowCopy(lastFilter->GetOutputDataObject(0));
 
+#if 0
   // Create the string to category filter
   vtkSmartPointer<vtkStringToCategory> category =
     vtkSmartPointer<vtkStringToCategory>::New();
   category->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, collapseField);
   category->SetCategoryArrayName("category");
-  //category->SetInput(output);
-  category->SetInputConnection(reader->GetOutputPort());
+  category->SetInput(output);
+  //category->SetInputConnection(reader->GetOutputPort());
+#endif
 
   int retVal = vtkRegressionTester::PASSED;
   if (rank == 0)
@@ -285,11 +287,12 @@ int main(int argc, char** argv)
     VTK_CREATE(vtkGraphLayoutView, view);
     VTK_CREATE(vtkRenderWindow, win);
     view->SetupRenderWindow(win);
-    view->AddRepresentationFromInputConnection(category->GetOutputPort());
+    //view->AddRepresentationFromInputConnection(category->GetOutputPort());
+    view->AddRepresentationFromInput(output);
     //view->SetVertexLabelArrayName("email");
     //view->VertexLabelVisibilityOn();
-    view->SetVertexColorArrayName("category");
-    //view->SetVertexColorArrayName(collapseField);
+    //view->SetVertexColorArrayName("category");
+    view->SetVertexColorArrayName(collapseField);
     view->ColorVerticesOn();
     //view->SetEdgeLabelArrayName("weight");
     //view->EdgeLabelVisibilityOn();
