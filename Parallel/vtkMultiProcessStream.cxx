@@ -241,9 +241,14 @@ void vtkMultiProcessStream::GetRawData(vtkstd::vector<unsigned char>& data) cons
 {
   data.clear();
   data.push_back(this->Endianness);
-  data.insert(data.end(),
-    this->Internals->Data.begin(),
-    this->Internals->Data.end());
+  data.resize(1 + this->Internals->Data.size());
+  vtkInternals::DataType::iterator iter;
+  int cc=1;
+  for (iter = this->Internals->Data.begin();
+    iter != this->Internals->Data.end(); ++iter, ++cc)
+    {
+    data[cc] = (*iter);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -251,10 +256,14 @@ void vtkMultiProcessStream::SetRawData(const vtkstd::vector<unsigned char>& data
 {
   this->Internals->Data.clear();
   unsigned char endianness = data.front();
-  this->Internals->Data.insert(
-    this->Internals->Data.end(),
-    (++data.begin()),
-    data.end());
+  vtkstd::vector<unsigned char>::const_iterator iter = data.begin();
+  iter++;
+  this->Internals->Data.resize(data.size()-1);
+  int cc=0;
+  for (;iter != data.end(); iter++, cc++)
+    {
+    this->Internals->Data[cc] = *iter;
+    }
   if (this->Endianness != endianness)
     {
     this->Internals->SwapBytes();
