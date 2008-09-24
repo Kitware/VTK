@@ -46,7 +46,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.54");
+vtkCxxRevisionMacro(vtkCommunicator, "1.55");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -1517,8 +1517,6 @@ int vtkCommunicator::Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
       }
     return 1;
     }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------
