@@ -336,6 +336,10 @@ signals:
   void historyNextAvailabilityChanged(bool available);
 
 private:
+  /// Adds the current zoom viewport to the history.
+  void addHistory();
+
+private:
   /// Keeps track of mouse position and history.
   vtkQtChartContentsSpaceInternal *Internal;
   float OffsetX;     ///< Stores the x offset.

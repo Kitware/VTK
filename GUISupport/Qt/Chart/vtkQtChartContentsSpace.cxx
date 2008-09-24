@@ -192,23 +192,20 @@ void vtkQtChartContentsSpace::zoomToFactor(float xFactor, float yFactor)
     this->ZoomFactorY = yFactor;
     if(this->Width != 0 || this->Height != 0)
       {
-      if(!this->Internal->InHistory && !this->Internal->InInteraction)
-        {
-        // Add the new zoom location to the zoom history.
-        this->Internal->History.addHistory(this->OffsetX, this->OffsetY,
-            this->ZoomFactorX, this->ZoomFactorY);
-        emit this->historyPreviousAvailabilityChanged(
-            this->Internal->History.isPreviousAvailable());
-        emit this->historyNextAvailabilityChanged(
-            this->Internal->History.isNextAvailable());
-        }
-
       this->MaximumX = (this->Width * this->ZoomFactorX) - this->Width;
       this->MaximumY = (this->Height * this->ZoomFactorY) - this->Height;
 
       // Make sure the offsets fit in the new space.
+      bool interact = this->Internal->InInteraction;
+      this->Internal->InInteraction = true;
       this->setXOffset(this->OffsetX);
       this->setYOffset(this->OffsetY);
+      this->Internal->InInteraction = interact;
+
+      if(!this->Internal->InHistory && !this->Internal->InInteraction)
+        {
+        this->addHistory();
+        }
 
       emit this->maximumChanged(this->MaximumX, this->MaximumY);
       }
@@ -303,14 +300,11 @@ void vtkQtChartContentsSpace::finishInteraction()
     const vtkQtChartZoomViewport *current =
         this->Internal->History.getCurrent();
     if(!current || (current->getXZoom() != this->ZoomFactorX ||
-        current->getYZoom() != this->ZoomFactorY))
+        current->getYZoom() != this->ZoomFactorY ||
+        current->getXPosition() != this->OffsetX ||
+        current->getYPosition() != this->OffsetY))
       {
-      this->Internal->History.addHistory(this->OffsetX, this->OffsetY,
-          this->ZoomFactorX, this->ZoomFactorY);
-      emit this->historyPreviousAvailabilityChanged(
-          this->Internal->History.isPreviousAvailable());
-      emit this->historyNextAvailabilityChanged(
-          this->Internal->History.isNextAvailable());
+      this->addHistory();
       }
     }
 }
@@ -339,9 +333,9 @@ void vtkQtChartContentsSpace::setXOffset(float offset)
   if(this->OffsetX != offset)
     {
     this->OffsetX = offset;
-    if(!this->Internal->InHistory)
+    if(!this->Internal->InHistory && !this->Internal->InInteraction)
       {
-      this->Internal->History.updatePosition(this->OffsetX, this->OffsetY);
+      this->addHistory();
       }
       
     emit this->xOffsetChanged(this->OffsetX);
@@ -362,9 +356,9 @@ void vtkQtChartContentsSpace::setYOffset(float offset)
   if(this->OffsetY != offset)
     {
     this->OffsetY = offset;
-    if(!this->Internal->InHistory)
+    if(!this->Internal->InHistory && !this->Internal->InInteraction)
       {
-      this->Internal->History.updatePosition(this->OffsetX, this->OffsetY);
+      this->addHistory();
       }
       
     emit this->yOffsetChanged(this->OffsetY);
@@ -490,6 +484,17 @@ float vtkQtChartContentsSpace::getPanStep()
 void vtkQtChartContentsSpace::setPanStep(float step)
 {
   vtkQtChartContentsSpace::PanStep = step;
+}
+
+void vtkQtChartContentsSpace::addHistory()
+{
+  // Add the new zoom location to the zoom history.
+  this->Internal->History.addHistory(this->OffsetX, this->OffsetY,
+      this->ZoomFactorX, this->ZoomFactorY);
+  emit this->historyPreviousAvailabilityChanged(
+      this->Internal->History.isPreviousAvailable());
+  emit this->historyNextAvailabilityChanged(
+      this->Internal->History.isNextAvailable());
 }
 
 

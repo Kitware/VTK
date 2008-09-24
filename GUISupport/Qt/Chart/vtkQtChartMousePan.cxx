@@ -93,6 +93,11 @@ bool vtkQtChartMousePan::mouseMoveEvent(QMouseEvent *e,
     {
     if(this->Internal->LastSet)
       {
+      if(!contents->isInInteraction())
+        {
+        contents->startInteraction();
+        }
+
       QPoint pos = e->globalPos();
       float xDelta = this->Internal->Last.x() - pos.x();
       float yDelta = this->Internal->Last.y() - pos.y();
@@ -111,10 +116,11 @@ bool vtkQtChartMousePan::mouseMoveEvent(QMouseEvent *e,
 }
 
 bool vtkQtChartMousePan::mouseReleaseEvent(QMouseEvent *,
-    vtkQtChartContentsSpace *)
+    vtkQtChartContentsSpace *contents)
 {
   if(this->isMouseOwner())
     {
+    contents->finishInteraction();
     emit this->interactionFinished(this);
     }
 

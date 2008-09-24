@@ -189,6 +189,12 @@ bool vtkQtChartMouseZoom::wheelEvent(QWheelEvent *e,
     newYZoom += factorChange;
     }
 
+  bool interact = contents->isInInteraction();
+  if(!interact)
+    {
+    contents->startInteraction();
+    }
+
   // Set the new zoom factor(s).
   contents->zoomToFactor(newXZoom, newYZoom);
   newXZoom = contents->getXZoomFactor();
@@ -210,6 +216,11 @@ bool vtkQtChartMouseZoom::wheelEvent(QWheelEvent *e,
 
   y -= point.y();
   contents->setYOffset(y);
+
+  if(!interact)
+    {
+    contents->finishInteraction();
+    }
 
   return true;
 }
