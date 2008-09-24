@@ -110,9 +110,9 @@
 // "There".
 //
 // To configure the vtkGraph with a pedigree ID mapping, create a
-// vtkVariantArray that will store the pedigree IDs and set that array
-// as the pedigree ID array for the vertices via
-// GetVertexData()->SetPedigreeIds().
+// vtkDataArray that will store the pedigree IDs and set that array as
+// the pedigree ID array for the vertices via
+// GetVertexData()->SetPedigreeIds(). 
 //
 // .SECTION Distributed graphs
 //
@@ -183,8 +183,10 @@
 // give a random (and, hopefully, even) distribution of the
 // vertices. However, one can provide a different vertex distribution
 // function by calling
-// vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution.
-//
+// vtkDistributedGraphHelper::SetVertexPedigreeIdDistribution.  Once a
+// distributed graph has pedigree IDs, the no-argument AddVertex()
+// method can no longer be used.
+
 // .SECTION See Also
 // vtkDirectedGraph vtkUndirectedGraph vtkMutableDirectedGraph 
 // vtkMutableUndirectedGraph vtkTree vtkDistributedGraphHelper

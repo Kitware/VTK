@@ -62,6 +62,13 @@ public:
   vtkIdType LastRemoteEdgeSource;
   vtkIdType LastRemoteEdgeTarget;
 
+  // Whether we have used pedigree IDs to refer to the vertices of the
+  // graph, e.g., to add edges or vertices. In a distributed graph,
+  // the pedigree-id interface is mutually exclusive with the
+  // no-argument AddVertex() function in vtkMutableUndirectedGraph and
+  // vtkMutableDirectedGraph.
+  bool UsingPedigreeIds;
+
 protected:
   vtkGraphInternals();
   ~vtkGraphInternals();
