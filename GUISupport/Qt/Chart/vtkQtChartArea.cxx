@@ -46,7 +46,7 @@
 #include <qglobal.h>
 #if (QT_EDITION & QT_MODULE_OPENGL)
 
-#include <QtOpenGL/QGLWidget>
+#include <QGLWidget>
 
 #endif
 
