@@ -30,7 +30,6 @@
 #define __vtkCommunicator_h
 
 #include "vtkObject.h"
-#include "vtkSmartPointer.h"
 
 class vtkBoundingBox;
 class vtkCharArray;

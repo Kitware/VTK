@@ -15,5 +15,6 @@ IF(PYTHON_EXECUTABLE)
     vtkBlockDistribution.h
     vtkMPI.h
     vtkPBGLGraphAdapter.h
+    vtkMultiProcessStream.h 
     )
 ENDIF(PYTHON_EXECUTABLE)
