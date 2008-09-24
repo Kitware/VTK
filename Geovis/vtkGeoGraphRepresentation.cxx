@@ -40,14 +40,14 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLabeledDataMapper.h"
-//#include "vtkLabelPlacer.h"
-//#include "vtkLabelSizeCalculator.h"
+#include "vtkLabelPlacer.h"
+#include "vtkLabelSizeCalculator.h"
 #include "vtkLookupTable.h"
 #include "vtkMaskPoints.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-//#include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPointSetToLabelHierarchy.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderView.h"
@@ -61,7 +61,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.9");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.10");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -72,12 +72,12 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->GraphMapper               = vtkSmartPointer<vtkGraphMapper>::New();
   this->GraphActor                = vtkSmartPointer<vtkActor>::New();
   this->GraphToPolyData           = vtkSmartPointer<vtkGraphToPolyData>::New();
-  //this->LabelSize                 = vtkSmartPointer<vtkLabelSizeCalculator>::New();
-  //this->LabelHierarchy            = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
-  //this->LabelPlacer               = vtkSmartPointer<vtkLabelPlacer>::New();
-  this->LabelMaskPoints           = vtkSmartPointer<vtkMaskPoints>::New();
-  this->LabelSelectVisiblePoints  = vtkSmartPointer<vtkSelectVisiblePoints>::New();
-  this->LabelTransform            = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  this->LabelSize                 = vtkSmartPointer<vtkLabelSizeCalculator>::New();
+  this->LabelHierarchy            = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
+  this->LabelPlacer               = vtkSmartPointer<vtkLabelPlacer>::New();
+  //this->LabelMaskPoints           = vtkSmartPointer<vtkMaskPoints>::New();
+  //this->LabelSelectVisiblePoints  = vtkSmartPointer<vtkSelectVisiblePoints>::New();
+  //this->LabelTransform            = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   this->LabelMapper               = vtkSmartPointer<vtkLabeledDataMapper>::New();
   this->LabelActor                = vtkSmartPointer<vtkActor2D>::New();
   this->EdgeCenters                   = vtkSmartPointer<vtkEdgeCenters>::New();
@@ -99,15 +99,15 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->SelectionMapper->SetInputConnection(this->ExtractSelection->GetOutputPort());
   this->SelectionActor->SetMapper(this->SelectionMapper);
 
-  //this->LabelSize->SetInputConnection(this->AssignCoordinates->GetOutputPort());
-  //this->LabelHierarchy->SetInputConnection(this->LabelSize->GetOutputPort());
-  //this->LabelPlacer->SetInputConnection(this->LabelHierarchy->GetOutputPort());
-  //this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort());
-  this->GraphToPolyData->SetInputConnection(this->AssignCoordinates->GetOutputPort());
-  this->LabelMaskPoints->SetInputConnection(this->GraphToPolyData->GetOutputPort());
-  this->LabelTransform->SetInputConnection(this->LabelMaskPoints->GetOutputPort());
-  this->LabelSelectVisiblePoints->SetInputConnection(this->LabelTransform->GetOutputPort());
-  this->LabelMapper->SetInputConnection(this->LabelSelectVisiblePoints->GetOutputPort());
+  this->LabelSize->SetInputConnection(this->AssignCoordinates->GetOutputPort());
+  this->LabelHierarchy->SetInputConnection(this->LabelSize->GetOutputPort());
+  this->LabelPlacer->SetInputConnection(this->LabelHierarchy->GetOutputPort());
+  this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort());
+  ///this->GraphToPolyData->SetInputConnection(this->AssignCoordinates->GetOutputPort());
+  ///this->LabelMaskPoints->SetInputConnection(this->GraphToPolyData->GetOutputPort());
+  ///this->LabelTransform->SetInputConnection(this->LabelMaskPoints->GetOutputPort());
+  ///this->LabelSelectVisiblePoints->SetInputConnection(this->LabelTransform->GetOutputPort());
+  ///this->LabelMapper->SetInputConnection(this->LabelSelectVisiblePoints->GetOutputPort());
   this->LabelActor->SetMapper(this->LabelMapper);
 
   this->EdgeCenters->SetInputConnection(this->EdgeLayout->GetOutputPort());
@@ -127,22 +127,22 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   tp->SetBold(1);
   tp->SetShadow(1);
   tp->SetLineOffset(-10);
-  //this->LabelHierarchy->SetMaximumDepth(3);
-  //this->LabelHierarchy->
-  //  SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Priority");
-  //this->LabelHierarchy->
-  //  SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "LabelSize");
-  //this->LabelHierarchy->
-  //  SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Label");
+  this->LabelHierarchy->SetMaximumDepth(3);
+  this->LabelHierarchy->
+    SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Priority");
+  this->LabelHierarchy->
+    SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "LabelSize");
+  this->LabelHierarchy->
+    SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "Label");
   // Turn off labels on the other side of the world
   //this->LabelSize->SetFontProperty(tp);
   //this->LabelPlacer->NormalHackOn();
   //this->LabelMapper->SetFieldDataName("LabelText");
-  this->LabelMaskPoints->RandomModeOn();
-  this->LabelMaskPoints->SetMaximumNumberOfPoints(75);
-  this->LabelMaskPoints->SetOnRatio(1);
-  vtkSmartPointer<vtkTransform> vertTrans = vtkSmartPointer<vtkTransform>::New();
-  this->LabelTransform->SetTransform(vertTrans);
+  //this->LabelMaskPoints->RandomModeOn();
+  //this->LabelMaskPoints->SetMaximumNumberOfPoints(75);
+  //this->LabelMaskPoints->SetOnRatio(1);
+  //vtkSmartPointer<vtkTransform> vertTrans = vtkSmartPointer<vtkTransform>::New();
+  //this->LabelTransform->SetTransform(vertTrans);
   this->LabelMapper->SetLabelModeToLabelFieldData();
   this->LabelMapper->SetLabelTextProperty(tp);
   this->LabelActor->PickableOff();
@@ -189,12 +189,12 @@ void vtkGeoGraphRepresentation::SetInputConnection(vtkAlgorithmOutput* conn)
 void vtkGeoGraphRepresentation::SetVertexLabelArrayName(const char* name)
 {
   // Currently use the same array for priorities and labels.
-  //this->LabelSize->
-  //  SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-  //this->LabelHierarchy->
-  //  SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-  //this->LabelHierarchy->
-  //  SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->LabelSize->
+    SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->LabelHierarchy->
+    SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  this->LabelHierarchy->
+    SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   this->LabelMapper->SetFieldDataName(name);
 }
 
@@ -395,12 +395,12 @@ bool vtkGeoGraphRepresentation::AddToView(vtkView* view)
 
   // Register progress.
   view->RegisterProgress(AssignCoordinates);
-  //view->RegisterProgress(LabelSize);
-  //view->RegisterProgress(LabelHierarchy);
-  //view->RegisterProgress(LabelPlacer);
-  view->RegisterProgress(LabelMaskPoints);
-  view->RegisterProgress(LabelSelectVisiblePoints);
-  view->RegisterProgress(LabelTransform);
+  view->RegisterProgress(LabelSize);
+  view->RegisterProgress(LabelHierarchy);
+  view->RegisterProgress(LabelPlacer);
+  //view->RegisterProgress(LabelMaskPoints);
+  //view->RegisterProgress(LabelSelectVisiblePoints);
+  //view->RegisterProgress(LabelTransform);
   view->RegisterProgress(LabelMapper);
   view->RegisterProgress(EdgeLayout);
   view->RegisterProgress(GraphMapper);
@@ -429,12 +429,12 @@ bool vtkGeoGraphRepresentation::RemoveFromView(vtkView* view)
 
   // UnRegister Progress
   view->UnRegisterProgress(AssignCoordinates);
-  //view->UnRegisterProgress(LabelSize);
-  //view->UnRegisterProgress(LabelHierarchy);
-  //view->UnRegisterProgress(LabelPlacer);
-  view->UnRegisterProgress(LabelMaskPoints);
-  view->UnRegisterProgress(LabelSelectVisiblePoints);
-  view->UnRegisterProgress(LabelTransform);
+  view->UnRegisterProgress(LabelSize);
+  view->UnRegisterProgress(LabelHierarchy);
+  view->UnRegisterProgress(LabelPlacer);
+  //view->UnRegisterProgress(LabelMaskPoints);
+  //view->UnRegisterProgress(LabelSelectVisiblePoints);
+  //view->UnRegisterProgress(LabelTransform);
   view->UnRegisterProgress(LabelMapper);
   view->UnRegisterProgress(EdgeLayout);
   view->UnRegisterProgress(GraphMapper);
