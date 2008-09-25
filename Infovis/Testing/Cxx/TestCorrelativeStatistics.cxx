@@ -119,7 +119,7 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkStdString columnPairs[] = { "Metric 0", "Metric 1", "Metric 1", "Metric 0", "Metric 2", "Metric 1" };
   double centers[] = { 49.2188, 49.5 };
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
-  double threshold = exp( -2. );
+  double threshold = 4.;
 
   vtkStringArray* stdStringCol = vtkStringArray::New();
   stdStringCol->SetName( "Column X" );
@@ -251,7 +251,7 @@ int TestCorrelativeStatistics( int, char *[] )
          << covariance[2]
          << ", "
          << covariance[1]
-         << "], relPDF < "
+         << "], d2_Mahalanobis > "
          << threshold
          << "\n";
     }
@@ -272,7 +272,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    if ( outputData->GetValue( r, tableIdx[2] ).ToDouble() < threshold )
+    if ( outputData->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
       {
       ++ nOutliers;
 
