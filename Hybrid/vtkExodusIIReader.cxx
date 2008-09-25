@@ -176,6 +176,17 @@ static int conn_types[] = {
   vtkExodusIIReader::NODE_SET_CONN
 };
 
+static const char* conn_types_names[] = {
+  "Element Blocks",
+  "Face Blocks",
+  "Edge Blocks",
+  "Element Sets",
+  "Side Sets",
+  "Face Sets",
+  "Edge Sets",
+  "Node Sets"
+};
+
 static int num_conn_types = (int)(sizeof(conn_types)/sizeof(conn_types[0]));
 
 // Given a conn_type index, what is its matching obj_type index?
@@ -363,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.69");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.70");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -4512,24 +4523,35 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
     mbds = vtkMultiBlockDataSet::New();
     mbds->SetNumberOfBlocks( numObj );
     output->SetBlock( conntypidx, mbds );
+    output->GetMetaData(conntypidx)->Set(vtkCompositeDataSet::NAME(),
+      conn_types_names[conntypidx]);
     mbds->FastDelete();
     //cout << "++ Block: " << mbds << " ObjectType: " << otyp << "\n";
     int obj;
     int sortIdx;
     for ( sortIdx = 0; sortIdx < numObj; ++sortIdx )
       {
+      const char* object_name = this->GetObjectName(otyp, sortIdx);
+
       // Preserve the "sorted" order when concatenating
       obj = this->SortedObjectIndices[otyp][sortIdx]; 
       BlockSetInfoType* bsinfop = static_cast<BlockSetInfoType*>( this->GetObjectInfo( otypidx, obj ) );
       //cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
       if ( ! bsinfop->Status )
         {
-        //cout << "\n";
         mbds->SetBlock( sortIdx, 0 );
+        if (object_name)
+          {
+          mbds->GetMetaData(sortIdx)->Set(vtkCompositeDataSet::NAME(), object_name);
+          }
         continue;
         }
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
       mbds->SetBlock( sortIdx, ug );
+      if (object_name)
+        {
+        mbds->GetMetaData(sortIdx)->Set(vtkCompositeDataSet::NAME(), object_name);
+        }
       ug->FastDelete();
       //cout << " Grid: " << ug << "\n";
 
@@ -5252,7 +5274,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.69");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.70");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
