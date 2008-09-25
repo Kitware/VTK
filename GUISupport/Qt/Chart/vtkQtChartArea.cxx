@@ -44,7 +44,7 @@
 
 // Include OpenGL support if possible
 #include <qglobal.h>
-#if (QT_EDITION & QT_MODULE_OPENGL)
+#if defined(VTK_USE_QVTK_QTOPENGL) && (QT_EDITION & QT_MODULE_OPENGL)
 
 #include <QGLWidget>
 
@@ -107,7 +107,7 @@ vtkQtChartArea::vtkQtChartArea(QWidget *widgetParent)
   vtkQtChartScene *chartScene = new vtkQtChartScene(this);
   this->setScene(chartScene);
 
-#if (QT_EDITION & QT_MODULE_OPENGL)
+#if defined(VTK_USE_QVTK_QTOPENGL) && (QT_EDITION & QT_MODULE_OPENGL)
   // Use the OpenGL widget if possible
   if(QGLFormat::hasOpenGL())
     {
