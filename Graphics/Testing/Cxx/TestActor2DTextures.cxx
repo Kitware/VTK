@@ -42,6 +42,7 @@ int TestActor2DTextures( int argc, char *argv[])
   vtkPNGReader * imageReader = vtkPNGReader::New();
 
   imageReader->SetFileName(fname);
+  delete[] fname;
   imageReader->Update();
 
   imageReader->GetOutput()->GetDimensions(imageDims);
@@ -50,7 +51,7 @@ int TestActor2DTextures( int argc, char *argv[])
   vtkPoints * points = vtkPoints::New();
   vtkDoubleArray * pointData = vtkDoubleArray::New();
   pointData->SetNumberOfComponents(3);
-  points->SetData((vtkDataArray *)pointData);
+  points->SetData(pointData);
   pointSet->SetPoints(points);
 
   vtkIntArray * iconIndex = vtkIntArray::New();
