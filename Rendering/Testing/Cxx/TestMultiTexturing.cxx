@@ -57,6 +57,9 @@ int TestMultiTexturing(int argc, char *argv[])
   imageReaderRed->SetFileName(fname1);
   imageReaderBlue->SetFileName(fname2);
   imageReaderGreen->SetFileName(fname3);
+  delete[] fname1;
+  delete[] fname2;
+  delete[] fname3;
   imageReaderRed->Update();
   imageReaderBlue->Update();
   imageReaderGreen->Update();
