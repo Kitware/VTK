@@ -80,7 +80,8 @@ CreateBoxStencilData(double d1, double d2 )
   vtkImageData *image = vtkImageData::New();
   image->SetSpacing( 1.0, 1.0, 1.0  );
   image->SetOrigin(  0.0, 0.0, 0.0 );
-  image->SetExtent( (int)d1-2, (int)d2+2, (int)d1-2, (int)d2+2, 0, 0 );
+  image->SetExtent(static_cast<int>(d1)-2,static_cast<int>(d2)+2,
+                   static_cast<int>(d1)-2,static_cast<int>(d2)+2, 0, 0 );
   image->SetScalarTypeToUnsignedChar();
   image->AllocateScalars();
 
@@ -118,8 +119,8 @@ static void GetStencilDataAsImageData(
   // Fill image with zeroes
   for (int y=extent1[2]; y <= extent1[3]; y++)
     {
-    unsigned char *ptr = (unsigned char *)(image->GetScalarPointer(
-                              extent1[0], y, extent1[4] ));
+    unsigned char *ptr=static_cast<unsigned char *>(
+      image->GetScalarPointer(extent1[0], y, extent1[4] ));
     for (int x=extent1[0]; x <= extent1[1]; x++)
       {
       *ptr = 0;  ++ptr;
@@ -144,15 +145,15 @@ static void GetStencilDataAsImageData(
       // sanity check
       if (r1 <= r2 )
         {
-        unsigned char *beginExtent =
-          (unsigned char *)(image->GetScalarPointer( r1, y, extent1[4] ));
-        unsigned char *endExtent   =
-          (unsigned char *)(image->GetScalarPointer( r2, y, extent1[4] ));
+        unsigned char *beginExtent =static_cast<unsigned char *>(
+          image->GetScalarPointer( r1, y, extent1[4] ));
+        unsigned char *endExtent   =static_cast<unsigned char *>(
+          image->GetScalarPointer( r2, y, extent1[4] ));
         while (beginExtent <= endExtent)
           {
-          *beginExtent     = (unsigned char)(255);
-          *(beginExtent+1) = (unsigned char)(255);
-          *(beginExtent+2) = (unsigned char)(255);
+          *beginExtent     = static_cast<unsigned char>(255);
+          *(beginExtent+1) = static_cast<unsigned char>(255);
+          *(beginExtent+2) = static_cast<unsigned char>(255);
           beginExtent += increments[0];
           }
         }

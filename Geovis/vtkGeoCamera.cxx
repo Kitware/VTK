@@ -29,7 +29,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.2");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.3");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -269,8 +269,8 @@ void vtkGeoCamera::InitializeNodeAnalysis(int rendererSize[2])
 {
   this->Aspect[1] = tan(this->VTKCamera->GetViewAngle() 
                           * vtkMath::DegreesToRadians() * 0.5);
-  this->Aspect[0] = this->Aspect[1] * (double)(rendererSize[0]) 
-                       / (double)(rendererSize[1]);
+  this->Aspect[0] = this->Aspect[1] * rendererSize[0]
+                       / static_cast<double>(rendererSize[1]);
 
   this->VTKCamera->GetViewPlaneNormal(this->ForwardNormal);
   this->ForwardNormal[0] = - this->ForwardNormal[0];

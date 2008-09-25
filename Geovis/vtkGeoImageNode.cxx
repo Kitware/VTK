@@ -24,7 +24,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoImageNode, "1.4");
+vtkCxxRevisionMacro(vtkGeoImageNode, "1.5");
 vtkStandardNewMacro(vtkGeoImageNode);
 
 
@@ -121,16 +121,16 @@ void vtkGeoImageNode::CropImageForTile(
   image->GetExtent(wholeExt);
   double origin[2];
   double spacing[2];
-  spacing[0] = (imageLonLatExt[1]-imageLonLatExt[0])/(double)(ext[1]-ext[0]+1);
-  spacing[1] = (imageLonLatExt[3]-imageLonLatExt[2])/(double)(ext[3]-ext[2]+1);
-  origin[0] = imageLonLatExt[0] - (double)(ext[0])*spacing[0];
-  origin[1] = imageLonLatExt[2] - (double)(ext[2])*spacing[1];
+  spacing[0] = (imageLonLatExt[1]-imageLonLatExt[0])/(ext[1]-ext[0]+1);
+  spacing[1] = (imageLonLatExt[3]-imageLonLatExt[2])/(ext[3]-ext[2]+1);
+  origin[0] = imageLonLatExt[0] - ext[0]*spacing[0];
+  origin[1] = imageLonLatExt[2] - ext[2]*spacing[1];
   
   // Compute the minimum extent that covers the terrain patch.
-  ext[0] = (int)(floor((this->LongitudeRange[0]-origin[0])/spacing[0]));
-  ext[1] = (int)(ceil((this->LongitudeRange[1]-origin[0])/spacing[0]));
-  ext[2] = (int)(floor((this->LatitudeRange[0]-origin[1])/spacing[1]));
-  ext[3] = (int)(ceil((this->LatitudeRange[1]-origin[1])/spacing[1]));
+  ext[0] = static_cast<int>(floor((this->LongitudeRange[0]-origin[0])/spacing[0]));
+  ext[1] = static_cast<int>(ceil((this->LongitudeRange[1]-origin[0])/spacing[0]));
+  ext[2] = static_cast<int>(floor((this->LatitudeRange[0]-origin[1])/spacing[1]));
+  ext[3] = static_cast<int>(ceil((this->LatitudeRange[1]-origin[1])/spacing[1]));
   
   int dims[2];
   dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
@@ -165,10 +165,10 @@ void vtkGeoImageNode::CropImageForTile(
   this->Image->Crop();
   
   // Now set the longitude and latitude range based on the actual image size.
-  this->LongitudeRange[0] = origin[0] + ((double)(ext[0])*spacing[0]);
-  this->LongitudeRange[1] = origin[0] + ((double)(ext[1]+1)*spacing[0]);
-  this->LatitudeRange[0] = origin[1] + ((double)(ext[2])*spacing[1]);
-  this->LatitudeRange[1] = origin[1] + ((double)(ext[3]+1)*spacing[1]);
+  this->LongitudeRange[0] = origin[0] + ext[0]*spacing[0];
+  this->LongitudeRange[1] = origin[0] + (ext[1]+1)*spacing[0];
+  this->LatitudeRange[0] = origin[1] + ext[2]*spacing[1];
+  this->LatitudeRange[1] = origin[1] + (ext[3]+1)*spacing[1];
   
   // Save out the image to verify we are processing properly
   if (prefix)

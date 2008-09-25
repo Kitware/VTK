@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.4");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.5");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 
 
@@ -261,10 +261,10 @@ void vtkGeoAlignedImageSource::AddImageToTree(
   int dims[3];
   image->GetDimensions(dims);
   // Compute the dimensions of the tile for this node.
-  dims[0] = (int)((double)(dims[0])
+  dims[0] = static_cast<int>(dims[0]
                     * (longitudeRange[1]-longitudeRange[0])
                     / (imageLonLatExt[1]-imageLonLatExt[0]));
-  dims[1] = (int)((double)(dims[1])
+  dims[1] = static_cast<int>(dims[1]
                     * (latitudeRange[1]-latitudeRange[0])
                     / (imageLonLatExt[3]-imageLonLatExt[2]));
   if (dims[0] < 300 && dims[1] < 300)

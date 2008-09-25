@@ -803,9 +803,9 @@ public:
     { m_Viewer =  viewer; }
   virtual void Execute(vtkObject *caller, unsigned long , void* )
     {
-    vtkSliderWidget *slider = (vtkSliderWidget *)caller;
-    vtkSliderRepresentation *sliderRepres = (vtkSliderRepresentation *)slider->GetRepresentation();      
-    int pos = (int)sliderRepres->GetValue();
+      vtkSliderWidget *slider = static_cast<vtkSliderWidget *>(caller);
+      vtkSliderRepresentation *sliderRepres = static_cast<vtkSliderRepresentation *>(slider->GetRepresentation());
+      int pos = static_cast<int>(sliderRepres->GetValue());
 
     m_Viewer->SetSlice(pos);
     }
@@ -858,7 +858,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   int max = ImageViewer->GetSliceMax();
   SliderRepres->SetMinimumValue(min);
   SliderRepres->SetMaximumValue(max);
-  SliderRepres->SetValue((int)((min + max) / 2));
+  SliderRepres->SetValue(static_cast<int>((min + max) / 2));
   SliderRepres->SetTitleText("Slice");
   SliderRepres->GetPoint1Coordinate()->SetCoordinateSystemToNormalizedDisplay();
   SliderRepres->GetPoint1Coordinate()->SetValue(0.3, 0.05);
@@ -884,7 +884,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   SliderCb->SetImageViewer(ImageViewer);
   SliderWidget->AddObserver(vtkCommand::InteractionEvent, SliderCb);  
 
-  ImageViewer->SetSlice((int)SliderRepres->GetValue());
+  ImageViewer->SetSlice(static_cast<int>(SliderRepres->GetValue()));
 
   vtkContourWidget *ContourWidget = vtkContourWidget::New();
 
