@@ -44,7 +44,7 @@
 
 using namespace boost;
 
-vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.2");
+vtkCxxRevisionMacro(vtkBoostPrimMinimumSpanningTree, "1.3");
 vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 
 // Constructor/Destructor
@@ -144,7 +144,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  vtkErrorMacro("The Prim minimal spanning tree filter is still under developement...  Use at your own risk.");
+  vtkErrorMacro("The Prim minimal spanning tree filter is still under development...  Use at your own risk.");
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -200,36 +200,30 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   mapMulti multi(edgeWeightArray,this->EdgeWeightMultiplier);
   vtkGraphEdgePropertyMapHelper<mapMulti> weight_helper(multi);
 
-    // Create a predecessor map 
-  vector_property_map<vtkIdType> pred_map;
-  // Create graph to tree id map array
-  vtkIdTypeArray* graphToTreeIdMap = vtkIdTypeArray::New();
+  // Create a predecessorMap
+  vtkIdTypeArray* predecessorMap = vtkIdTypeArray::New();
 
   // Run the algorithm
   if (vtkDirectedGraph::SafeDownCast(input))
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(input);
-//prim_minimum_spanning_tree(g, pred_map, weight_map(weight_helper));
-    prim_minimum_spanning_tree(g, graphToTreeIdMap, weight_map(weight_helper));
+    prim_minimum_spanning_tree(g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex) );
     }
   else
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
-//    prim_minimum_spanning_tree(g, pred_map, weight_map(weight_helper));
-    prim_minimum_spanning_tree(g, graphToTreeIdMap, weight_map(weight_helper));
+    prim_minimum_spanning_tree(g, predecessorMap, weight_map(weight_helper).root_vertex(this->OriginVertexIndex) );
     }
 
 //FIXME
-    //Need to construct the tree from the pred_map... 
+    //Need to construct the tree from the predecessorMap... 
 
 //FIXME
-   // If the user wants it, store the mapping back to graph vertices
+   // If the user wants it, store the predecessor mapping back to graph vertices
   if (this->CreateGraphVertexIdArray)
     {
-//    treeToGraphIdMap->SetName("GraphVertexId");
-//    temp->GetVertexData()->AddArray(treeToGraphIdMap);
-      graphToTreeIdMap->SetName("GraphVertexId");
-      temp->GetVertexData()->AddArray(graphToTreeIdMap);
+      predecessorMap->SetName("predecessorMap");
+      temp->GetVertexData()->AddArray(predecessorMap);
     }
 
     // Copy the builder graph structure into the output tree
@@ -241,7 +235,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     return 0;
     }
 
-  graphToTreeIdMap->Delete();
+  predecessorMap->Delete();
 
   return 1;
 }
