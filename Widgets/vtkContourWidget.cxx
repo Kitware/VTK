@@ -27,7 +27,7 @@
 #include "vtkWidgetEvent.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkContourWidget, "1.24");
+vtkCxxRevisionMacro(vtkContourWidget, "1.25");
 vtkStandardNewMacro(vtkContourWidget);
 
 //----------------------------------------------------------------------
@@ -249,10 +249,10 @@ void vtkContourWidget::DeleteAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   vtkContourRepresentation *rep = 
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
-  
+
   if ( self->WidgetState == vtkContourWidget::Define )
     {
     if (rep->DeleteLastNode())
@@ -267,16 +267,20 @@ void vtkContourWidget::DeleteAction(vtkAbstractWidget *w)
     rep->ActivateNode( X, Y );
     if ( rep->DeleteActiveNode() )
       {
-      self->InvokeEvent(vtkCommand::InteractionEvent,NULL);      
+      self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
       }
     rep->ActivateNode( X, Y );
-    if ( rep->GetNumberOfNodes() < 3 )
+    int nnode = rep->GetNumberOfNodes();
+    if ( nnode < 3 )
       {
       rep->ClosedLoopOff();
-      self->WidgetState = vtkContourWidget::Define;
+      if( nnode < 2 )
+        {
+        self->WidgetState = vtkContourWidget::Define;
+        }
       }
     }
-  
+
   if ( rep->GetNeedToRender() )
     {
     self->Render();
