@@ -30,7 +30,7 @@ class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
-class vtkPolyData;
+class vtkDataSet;
 class vtkScalarsToColors;
 
 class VTK_RENDERING_EXPORT vtkScalarsToColorsPainter : public vtkPainter
@@ -101,6 +101,23 @@ public:
   // Set the light-model color mode. 
   static vtkInformationIntegerKey* SCALAR_MATERIAL_MODE();
 
+  // Description:
+  // For alpha blending, we sometime premultiply the colors
+  // with alpha and change the alpha blending function.
+  // This call returns whether we are premultiplying or using
+  // the default blending function.
+  // Currently this checks if the actor has a texture, if not
+  // it returns true. 
+  // TODO: It is possible to make this decision
+  // dependent on key passed down from a painter upstream
+  // that makes a more informed decision for alpha blending
+  // depending on extensions available, for example.
+  virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
+
+  // Description:
+  // Subclasses need to override this to return the output of the pipeline.
+  virtual vtkDataObject *GetOutput();
+
 //BTX
 protected:
   vtkScalarsToColorsPainter();
@@ -114,8 +131,8 @@ protected:
   // Create texture coordinates for the output assuming a texture for the
   // lookuptable has already been created correctly.
   // this->LookupTable is the lookuptable used.
-  void MapScalarsToTexture(vtkPolyData* output,
-    vtkDataArray* scalars, vtkPolyData* input);
+  void MapScalarsToTexture(vtkDataSet* output,
+    vtkDataArray* scalars, vtkDataSet* input);
 
   // Description:
   // Called just before RenderInternal(). We build the Color array here.
@@ -125,9 +142,9 @@ protected:
   // Generates the colors, if needed. 
   // If multiply_with_alpha is set, the colors are multiplied with 
   // alpha.
-  virtual void MapScalars(vtkPolyData* output,
+  virtual void MapScalars(vtkDataSet* output,
     double alpha, int multiply_with_alpha,
-    vtkPolyData* input);
+    vtkDataSet* input);
 
   // Description:
   // Called before RenderInternal() if the Information has been changed
@@ -135,25 +152,8 @@ protected:
   virtual void ProcessInformation(vtkInformation*);
 
   // Description:
-  // Subclasses need to override this to return the output of the pipeline.
-  virtual vtkDataObject *GetOutput();
-
-  // Description:
   // Take part in garbage collection.
   virtual void ReportReferences(vtkGarbageCollector *collector);
-
-  // Description:
-  // For alpha blending, we sometime premultiply the colors
-  // with alpha and change the alpha blending function.
-  // This call returns whether we are premultiplying or using
-  // the default blending function.
-  // Currently this checks if the actor has a texture, if not
-  // it returns true. 
-  // TODO: It is possible to make this decision
-  // dependent on key passed down from a painter upstream
-  // that makes a more informed decision for alpha blending
-  // depending on extensions available, for example.
-  virtual int GetPremultiplyColorsWithAlpha(vtkActor* actor);
 
   // Description:
   // Returns if we can use texture maps for scalar coloring. Note this doesn't 
