@@ -193,6 +193,7 @@ vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx
 vtkRotationFilter.cxx
 vtkRuledSurfaceFilter.cxx
+vtkSectorSource.cxx
 vtkSelectEnclosedPoints.cxx
 vtkSelectionLink.cxx
 vtkSelectionSource.cxx
