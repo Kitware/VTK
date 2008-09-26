@@ -65,33 +65,24 @@
 #ifndef __vtkExodusIIWriter_h
 #define __vtkExodusIIWriter_h
 
-
 #include "vtkWriter.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <vtkstd/map> // For the map
+#include <vtkstd/vector> // For vector
+#include <vtkstd/map> // For map
 
-class vtkUnstructuredGrid;
-class vtkFloatArray;
-class vtkDoubleArray;
-class vtkDataArray;
-class vtkUnsignedCharArray;
-class vtkIntArray;
-class vtkIdTypeArray;
 class vtkModelMetadata;
+class vtkDoubleArray;
+class vtkIntArray;
+class vtkUnstructuredGrid;
 
 class VTK_PARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
 {
 public:
-  static vtkExodusIIWriter *New();
-  vtkTypeRevisionMacro(vtkExodusIIWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Specify input which will be written out to the Exodus II file.
-
-  void SetInput(vtkUnstructuredGrid *ug);
-  vtkUnstructuredGrid *GetInput();
-
+  static vtkExodusIIWriter *New ();
+  vtkTypeRevisionMacro (vtkExodusIIWriter, vtkWriter);
+  void PrintSelf (ostream& os, vtkIndent indent);
+ 
   // Description:
   // Specify the vtkModelMetadata object which contains the Exodus file
   // model information (metadata) absent in the vtkUnstructuredGrid.  If you 
@@ -101,20 +92,8 @@ public:
   // object to it's output.  If this has happened, the ExodusIIWriter will
   // find it and use it.
 
-  virtual void SetModelMetadata(vtkModelMetadata*);
+  void SetModelMetadata (vtkModelMetadata*);
   vtkGetObjectMacro(ModelMetadata, vtkModelMetadata);
-
-  // Description:
-  // By default, ModelMetadata is NULL until the Write() method is called,
-  // at which point the vtkExodusIIWriter will create a default metadata
-  // object. If you would like to obtain the metadata and modify it, rather
-  // than creating it yourself, you may call this function. If the
-  // metadata already exists (because it has been set by a call to SetModelMetadata
-  // or because it has been packed into the FieldData of the input mesh),
-  // that metadata will be returned. Otherwise, the vtkExodusIIWriter will
-  // create metadata using the input mesh as needed, set the metadata to
-  // that object, and return it.
-  vtkModelMetadata* GetOrCreateModelMetadata();
 
   // Description:
   //   Name for the output file.  If writing in parallel, the number
@@ -124,11 +103,11 @@ public:
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-
+  
   // Description:
   //   If StoreDoubles is ON, the floating point fields in the Exodus file
   //   will be double precision fields.  The default is determined by the
-  //   input vtkUnstructuredGrid.  If the field data appears to be doubles,
+  //   max precision of the input.  If the field data appears to be doubles,
   //   then StoreDoubles will be ON, otherwise StoreDoubles will be OFF.
 
   vtkSetMacro(StoreDoubles, int);
@@ -141,19 +120,7 @@ public:
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
 
-  // Description:
-  //   Exodus files group cells into blocks.  There are no blocks in a
-  //   vtkUnstructuredGrid, but you may have stored block IDs in a
-  //   cell array.  If so provide that name here.  If you don't provide
-  //   it, we'll look for an array named "BlockId", and we'll assume
-  //   it's a vtkIntArray.  If we find no block ID array, and this is not
-  //   a multi-process application, we will create
-  //   one Exodus block for every cell type found in the vtkUnstructuredGrid.
-
-  vtkSetStringMacro(BlockIdArrayName);
-  vtkGetStringMacro(BlockIdArrayName);
-
-  // Description:
+   // Description:
   //   By default, the integer array containing the global Block Ids of the
   //   cells is not included when the new Exodus II file is written out.  If
   //   you do want to include this array, set WriteOutBlockIdArray to ON.
@@ -188,214 +155,169 @@ public:
   vtkGetMacro(WriteAllTimeSteps, int);
   vtkBooleanMacro(WriteAllTimeSteps, int);
 
-
-  // Description:
-  //   Provide a list of all blockIds that appear in the file.  If
-  //   this is a distributed file, and there is no vtkModelMetadata,
-  //   we need all block Ids that appear in any of the files.
-  //
-  //   We make a copy of your array of IDs.
-
-  void SetAllBlockIds(int numEntries, int *blockIds);
-
-  // Description:
-  //   The writer will set the ErrorStatus to a non-zero value
-  //   each time a serious error occurs.  Usually this would be
-  //   a problem with memory allocation, invalid values in the
-  //   input file's metadata, or an inability to write the output
-  //   file.
-
-  vtkSetMacro(ErrorStatus, int);
-  vtkGetMacro(ErrorStatus, int);
+  vtkSetStringMacro(BlockIdArrayName);
+  vtkGetStringMacro(BlockIdArrayName);
 
 protected:
+  vtkExodusIIWriter ();
+  ~vtkExodusIIWriter ();
 
-  vtkExodusIIWriter();
-  ~vtkExodusIIWriter();
+  vtkModelMetadata* ModelMetadata;
 
-  virtual int ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector);
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
-  virtual int RequestInformation( vtkInformation *request,
-                                  vtkInformationVector **inputVector, 
-                                  vtkInformationVector *outputVector);
+  char *BlockIdArrayName;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-
-  void WriteData();     
-
-  vtkExodusIIWriter(const vtkExodusIIWriter&); // Not implemented
-  void operator=(const vtkExodusIIWriter&); // Not implemented
-
-  vtkSetStringMacro(MyFileName);
-  vtkGetStringMacro(MyFileName);
-
-  // Description:
-  //   Get/Set the rank of the writer in a set of parallel processes
-  //   so that it may determine which piece of the dataset it is
-  //   responsible for writing.
-  vtkSetMacro(MyRank, int);
-  vtkGetMacro(MyRank, int);
-
-  void StringUppercase(const char* str, char* upperstr);
-
-private:
-  static char *StrDupWithNew(const char *s);
-
-  void RemoveGhostCells();
-
-  void SetPassDoubles();
-
-  int CheckParameters();
-  int CreateExodusModel();
-  int CreateBlockIdInformationFromCellTypes(vtkModelMetadata *em);
-  int CreateBlockIdInformation(vtkModelMetadata *em);
-
-  static char **FlattenOutVariableNames(int narrays, int nScalarArrays, 
-                                  char **nms, int *numComponents);
-  static void CreateNamesForScalarArrays(const char *root, char **nms, 
-                                         int numComponents);
-  static char *GetCellTypeName(int t);
-  static int FindCellType(int blockId, int *blockIdList, unsigned char *cellTypeList, 
-                 int nCells);
-
-  int CreateNewExodusFile();
-  int OpenExodusFile();
-  void CloseExodusFile();
-
-  void InitializeVariableArrayNames();
-  void ClearVariableArrayNames();
-  void SetNewNodeVariableNames(vtkDataArray *da, char **nm);
-  void SetNewElementVariableNames(vtkDataArray *da, char **nm);
-
-  void InitializeBlockLists();
-  void ClearBlockLists();
-  int WriteBlockVariables();
-//BTX
-  vtkstd::map<int, int> *BuildBlockElementSearchStructure(int block);
-//ETX
-
-  int WriteInitializationParameters();
-  int WriteQARecords();
-  int WriteInformationRecords();
-  int WritePoints();
-  int WriteCoordinateNames();
-  int WriteGlobalPointIds();
-  int WriteGlobalElementIds();
-  int WriteBlockInformation();
-  int WriteVariableArrayNames();
-  int WriteNodeSetInformation();
-  int WriteSideSetInformation();
-  int WriteProperties();
-
-  int WriteNextTimeStep();
-  float *ExtractComponentF(vtkDataArray *da, int comp, int *idx);
-  double *ExtractComponentD(vtkDataArray *da, int comp, int *idx);
-
-  vtkModelMetadata *ModelMetadata;
-
-  int PassDoubles; // If set, we have to pass doubles to exodus library.
-                   // If not set, we have to pass floats.
-  int StoreDoubles;// If set, Exodus library will store doubles.
-                   // If not set, Exodus library will store floats.
+  char *FileName;
   int fid;
-
-  char *FileName;    // base file name
-  char *MyFileName;  // base plus number of processes and my rank  
-
-  // The block IDs, the time step values, and the current time step index
-  // may be provided if there is not vtkModelMetadata object.  The time
-  // step may also be provided if only a subset (like every other one)
-  // of the time steps are being written out.
-
-  int *InputBlockIds;
-  int InputBlockIdsLength;
-
-  // List of the global element ID of each cell in input
-
-  vtkIdType *GlobalElementIdList;
-//BTX
-  vtkstd::map<vtkIdType, vtkIdType> *LocalElementIdMap;
-//ETX
-  vtkIdType GetElementLocalId(vtkIdType i);
-  int WriteOutGlobalElementIdArray;
-
-  // List of the global node ID of each cell in input
-
-  vtkIdType *GlobalNodeIdList;
-//BTX
-  vtkstd::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
-//ETX
-  vtkIdType GetNodeLocalId(vtkIdType i);
-  int WriteOutGlobalNodeIdArray;
-
-  // Exodus II element blocks
-
-  char *BlockIdArrayName;    // List of block ID of each cell in input
-  int *BlockIdList;
-  int WriteOutBlockIdArray;
-
-  int NumberOfElementBlocks;
-  int *BlockIds;             // list of every block ID in dataset
-//BTX
-  vtkstd::map<int, int> *LocalBlockIndexMap; // block ID -> block index
-//ETX
-  int GetBlockLocalIndex(int i);
-  int *BlockElementStart;
-  int *ElementIndex;
-
-  char **BlockElementType;
-  int *NumberOfElementsPerBlock;
-  int *NumberOfNodesPerElementInBlock;
-  int *NumberOfAttributesPerElementInBlock;
-  float **BlockElementAttributesF;
-  double **BlockElementAttributesD;
-  int **BlockElementConnectivity;
-
-  // By BlockId, and within block ID by element variable, with variables
-  // appearing in the same order in which they appear in OutputElementArrayNames
-
-  int *BlockElementVariableTruthTable;
-  int AllVariablesDefinedInAllBlocks;
-
-  int BlockVariableTruthValue(int blockIdx, int varIdx);
-
-  // Element variable arrays
-
-  int NumberOfScalarElementArrays;
-  char **InputElementArrayNames;    // input names (including vectors)
-  char **OutputElementArrayNames;         // output names (all scalars)
-  int *InputElementArrayComponent;
-
-  // Point variable arrays
-
-  int NumberOfScalarNodeArrays;
-  char **InputNodeArrayNames;
-  char **OutputNodeArrayNames;
-  int *InputNodeArrayComponent;
-
-  // Global application information
 
   int NumberOfProcesses;
   int MyRank;
 
-  // The input less ghost cells
+  int PassDoubles;
 
-  vtkUnstructuredGrid *MyInput;
-
-  // we don't use this variable - it's for ParaView
-
+  int StoreDoubles;
   int GhostLevel;
-
-  int ErrorStatus;
-
-  int CurrentTimeIndex;
-  int NumberOfTimeSteps;
+  int WriteOutBlockIdArray;
+  int WriteOutGlobalNodeIdArray;
+  int WriteOutGlobalElementIdArray;
   int WriteAllTimeSteps;
-  vtkDoubleArray *TimeValues;
+  int NumberOfTimeSteps;
+
+  vtkDoubleArray* TimeValues;
+  int CurrentTimeIndex;
+  int FileTimeOffset;
+
+//BTX 
+  vtkDataObject *OriginalInput;
+  vtkstd::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
+  vtkstd::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
+
+  vtkstd::vector< vtkIntArray* > BlockIdList;
+
+  struct Block
+  {
+    Block () : ElementStartIndex (-1), OutputIndex(-1) { }
+    char *Name;
+    int NumElements;
+    int ElementStartIndex;
+    int NodesPerElements;
+    size_t GridIndex;
+    // vtkstd::vector<int> CellIndex;
+    int OutputIndex;
+    int NumAttributes;
+    float *BlockAttributes; // Owned by metamodel or null.  Don't delete.
+  };
+  vtkstd::map<int, Block> BlockInfoMap;
+  int NumCells, NumPoints, MaxId;
+
+  vtkstd::vector<vtkIdType*> GlobalElementIdList;
+  vtkstd::vector<vtkIdType*> GlobalNodeIdList;
+//ETX
+  int AtLeastOneGlobalElementIdList;
+  int AtLeastOneGlobalNodeIdList;
+
+//BTX
+  struct VariableInfo
+  {
+    int NumComponents;
+    int InIndex;
+    int ScalarOutOffset;
+    vtkstd::vector<vtkstd::string> OutNames;
+  };
+  vtkstd::map<vtkstd::string, VariableInfo> BlockVariableMap;
+  vtkstd::map<vtkstd::string, VariableInfo> NodeVariableMap;
+  int NumberOfScalarElementArrays;
+  int NumberOfScalarNodeArrays;
+//ETX
+  
+//BTX
+  vtkstd::vector< vtkstd::vector<int> > CellToElementOffset;
+//ETX
+  // By BlockId, and within block ID by element variable, with variables
+  // appearing in the same order in which they appear in OutputElementArrayNames
+  
+  int *BlockElementVariableTruthTable;
+  int AllVariablesDefinedInAllBlocks;
+
+  int BlockVariableTruthValue(int blockIdx, int varIdx);
+  
+//BTX
+  char *StrDupWithNew (const char *s);
+  void StringUppercase (vtkstd::string& str);
+//ETX
+
+  int ProcessRequest (vtkInformation* request,
+                      vtkInformationVector** inputVector,
+                      vtkInformationVector* outputVector);
+
+  int RequestInformation (vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
+
+  int FillInputPortInformation (int port, vtkInformation* info);
+
+  int RequestData (vtkInformation* request,
+                   vtkInformationVector** inputVector,
+                   vtkInformationVector* outputVector);
+
+  void WriteData ();
+  
+  int FlattenHierarchy (vtkDataObject* input, bool& changed);
+
+  int CreateNewExodusFile ();
+  void CloseExodusFile ();
+
+  int IsDouble ();
+  void RemoveGhostCells ();
+  int CheckParameters ();
+  int CheckInputArrays ();
+  int ConstructBlockInfoMap ();
+  int ConstructVariableInfoMaps ();
+  int ParseMetadata ();
+  int CreateDefaultMetadata ();
+  char *GetCellTypeName (int t);
+  
+  int CreateBlockIdMetadata(vtkModelMetadata *em);
+  int CreateBlockVariableMetadata (vtkModelMetadata* em);
+  
+//BTX
+  char **FlattenOutVariableNames (
+            int nScalarArrays, 
+            const vtkstd::map<vtkstd::string, VariableInfo>& variableMap);
+  vtkstd::string CreateNameForScalarArray (const char *root,
+                                           int component,
+                                           int numComponents);
+
+  vtkstd::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
+  vtkstd::map<vtkIdType, vtkIdType> *LocalElementIdMap;
+//ETX
+  vtkIdType GetNodeLocalId(vtkIdType id);
+  vtkIdType GetElementLocalId(vtkIdType id);
+
+  int WriteInitializationParameters ();
+  int WriteQARecords ();
+  int WriteInformationRecords ();
+  int WritePoints ();
+  int WriteCoordinateNames ();
+  int WriteGlobalPointIds ();
+  int WriteBlockInformation ();
+  int WriteGlobalElementIds ();
+  int WriteVariableArrayNames ();
+  int WriteNodeSetInformation ();
+  int WriteSideSetInformation ();
+  int WriteProperties ();
+  int WriteNextTimeStep ();
+
+//BTX
+  template<typename T> T *ExtractCellData (const char *name, int comp);
+  template<typename T> int WriteCellData (int timestep);
+  template<typename T> T *ExtractPointData (const char *name, int comp);
+  template<typename T> int WritePointData (int timestep);
+//ETX
+
+
+private:
+  vtkExodusIIWriter (const vtkExodusIIWriter&); // Not Implemented
+  void operator= (const vtkExodusIIWriter&); // Not Implemented
 };
 
 #endif

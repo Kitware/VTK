@@ -10,8 +10,9 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     # add tests that require data
     SET(MyTests ${MyTests}
       PrmMagnify.cxx
-      #TestExodusTime.cxx
+      TestExodusTime.cxx
       TestTemporalFractal.cxx
+      TestMultiBlockExodusWrite.cxx
       )
   ENDIF (VTK_DATA_ROOT)    
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
