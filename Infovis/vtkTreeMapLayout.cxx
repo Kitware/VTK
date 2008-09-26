@@ -33,7 +33,7 @@
 #include "vtkTree.h"
 #include "vtkTreeMapLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeMapLayout, "1.8");
+vtkCxxRevisionMacro(vtkTreeMapLayout, "1.9");
 vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
@@ -61,12 +61,12 @@ int vtkTreeMapLayout::RequestData(
 {
   if (this->LayoutStrategy == NULL)
     {
-    vtkErrorMacro(<< "Layout strategy must me non-null.");
+    vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
     }
   if (this->RectanglesFieldName == NULL)
     {
-    vtkErrorMacro(<< "Rectangles field name must me non-null.");
+    vtkErrorMacro(<< "Rectangles field name must be non-null.");
     return 0;
     }
   // get the info objects

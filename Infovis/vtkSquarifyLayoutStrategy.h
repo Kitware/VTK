@@ -20,7 +20,7 @@
 // .NAME vtkSquarifyLayoutStrategy - uses the squarify tree map layout algorithm
 //
 // .SECTION Description
-// vtkSquarigyLayoutStrategy partitions the space for child vertices into regions
+// vtkSquarifyLayoutStrategy partitions the space for child vertices into regions
 // that use all avaliable space and are as close to squares as possible.
 // The algorithm also takes into account the relative vertex size.
 //
