@@ -37,7 +37,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.7");
+vtkCxxRevisionMacro(vtkOpenGLScalarsToColorsPainter, "1.7.2.1");
 #endif
 //-----------------------------------------------------------------------------
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
@@ -142,12 +142,15 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       {
       lmcolorMode = GL_DIFFUSE;
       } 
-    glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
-    glEnable( GL_COLOR_MATERIAL );
 
     if (this->ColorTextureMap)
       {
       this->InternalColorTexture->Load(renderer);
+      }
+    else
+      {
+      glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
+      glEnable( GL_COLOR_MATERIAL );
       }
     }
 
