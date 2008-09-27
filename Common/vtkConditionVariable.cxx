@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.8");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.9");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -88,7 +88,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
   return 0;
 }
 
-int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
+int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 {
   // Avoid race conditions.
   EnterCriticalSection( &cv->WaitingThreadCountLock );
@@ -98,7 +98,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
   // This call atomically releases the mutex and waits on the
   // semaphore until <pthread_cond_signal> or <pthread_cond_broadcast>
   // are called by another thread.
-  SignalObjectAndWait( *external_mutex, cv->Semaphore, INFINITE, FALSE );
+  SignalObjectAndWait( *externalMutex, cv->Semaphore, INFINITE, FALSE );
 
   // Reacquire lock to avoid race conditions.
   EnterCriticalSection( &cv->WaitingThreadCountLock );
@@ -116,14 +116,14 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
   if ( last_waiter )
     {
     // This call atomically signals the <DoneWaiting> event and waits until
-    // it can acquire the <external_mutex>.  This is required to ensure fairness. 
-    SignalObjectAndWait( cv->DoneWaiting, *external_mutex, INFINITE, FALSE );
+    // it can acquire the <externalMutex>.  This is required to ensure fairness. 
+    SignalObjectAndWait( cv->DoneWaiting, *externalMutex, INFINITE, FALSE );
     }
   else
     {
     // Always regain the external mutex since that's the guarantee we
     // give to our callers. 
-    WaitForSingleObject( *external_mutex, INFINITE );
+    WaitForSingleObject( *externalMutex, INFINITE );
     }
   return 0;
 }
@@ -203,7 +203,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
   return 0;
 }
 
-int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
+int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 {
   // Avoid race conditions.
   EnterCriticalSection( &cv->WaitingThreadCountLock );
@@ -212,10 +212,10 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
   ++ cv->WaitingThreadCount;
 
   // Store current generation in our activation record.
-  int tmp_notify = cv->NotifyCount;
+  int tmpNotify = cv->NotifyCount;
 
   LeaveCriticalSection( &cv->WaitingThreadCountLock );
-  ReleaseMutex( external_mutex );
+  ReleaseMutex( externalMutex );
 
   while ( 1 )
     {
@@ -228,14 +228,14 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
     // that haven't been released from this wait yet.
     int waitDone =
       ( cv->ReleaseCount > 0 ) &&
-      ( cv->wait_generation_count_ != tmp_notify );
+      ( cv->WaitingThreadCount != tmpNotify );
     LeaveCriticalSection (&cv->WaitingThreadCountLock);
 
     if ( waitDone )
       break;
     }
 
-  WaitForSingleObject( external_mutex, INFINITE );
+  WaitForSingleObject( externalMutex, INFINITE );
   EnterCriticalSection( &cv->WaitingThreadCountLock );
   -- cv->WaitingThreadCount;
   -- cv->ReleaseCount;
