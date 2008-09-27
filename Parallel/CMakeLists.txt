@@ -87,11 +87,11 @@ IF(VTK_USE_RENDERING)
     )
 ENDIF(VTK_USE_RENDERING)
 
-#IF(VTK_HAS_EXODUS)
-#  SET(Kit_SRCS ${Kit_SRCS}
-#    vtkExodusIIWriter.cxx
-#    )
-#ENDIF(VTK_HAS_EXODUS)
+IF(VTK_HAS_EXODUS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkExodusIIWriter.cxx
+    )
+ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkCommunicator 
