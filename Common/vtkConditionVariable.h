@@ -42,6 +42,7 @@ typedef pthread_cond_t vtkConditionType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
+#if 0
 typedef struct
 {
   // Number of threads waiting on condition.
@@ -62,7 +63,30 @@ typedef struct
 } pthread_cond_t;
 
 typedef pthread_cond_t vtkConditionType;
-#endif
+#  else // 0
+typedef struct
+{
+  // Number of threads waiting on condition.
+  int WaitingThreadCount;
+
+  // Lock for WaitingThreadCount
+  CRITICAL_SECTION WaitingThreadCountLock;
+
+  // Number of threads to release when pthread_cond_broadcast()
+  // or pthread_cond_signal() is called. 
+  int ReleaseCount;
+
+  // Used to prevent one thread from decrementing ReleaseCount all
+  // by itself instead of letting others respond.
+  int NotifyCount;
+
+  // A manual-reset event that's used to block and release waiting threads. 
+  vtkWindowsHANDLE Event;
+} pthread_cond_t;
+
+typedef pthread_cond_t vtkConditionType;
+#  endif // 0
+#endif // VTK_USE_WIN32_THREADS
 
 #ifndef VTK_USE_PTHREADS
 #ifndef VTK_HP_PTHREADS

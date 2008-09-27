@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.5");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.6");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -68,6 +68,7 @@ int pthread_cond_wait( vtkConditionType* cv, vtkMutexType* lock )
 #ifdef VTK_USE_WIN32_THREADS
 typedef int pthread_condattr_t;
 
+#  if 0
 int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
 {
   cv->WaitingThreadCount = 0;
@@ -185,6 +186,101 @@ int pthread_cond_destroy( pthread_cond_t* cv )
     }
   return 0;
 }
+#  else // 0
+int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
+{
+  cv->WaitingThreadCount = 0;
+  cv->NotifyCount = 0;
+  cv->ReleaseCount = 0;
+
+  // Create a manual-reset event.
+  cv->Event = CreateEvent(
+    NULL,   // no security
+    TRUE,   // manual-reset
+    FALSE,  // non-signaled initially
+    NULL ); // unnamed
+
+  return 0;
+}
+
+int pthread_cond_wait( pthread_cond_t* cv, pthread_mutex_t* external_mutex )
+{
+  // Avoid race conditions.
+  EnterCriticalSection( &cv->WaitingThreadCountLock );
+
+  // Increment count of waiters.
+  ++ cv->WaitingThreadCount;
+
+  // Store current generation in our activation record.
+  int tmp_notify = cv->NotifyCount;
+
+  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( external_mutex );
+
+  while ( 1 )
+    {
+    // Wait until the event is signaled.
+    WaitForSingleObject( cv->Event, INFINITE );
+
+    EnterCriticalSection( &cv->WaitingThreadCountLock );
+    // Exit the loop when cv->Event is signaled and
+    // there are still waiting threads from this NotifyCount
+    // that haven't been released from this wait yet.
+    int wait_done =
+      ( cv->ReleaseCount > 0 ) &&
+      ( cv->wait_generation_count_ != tmp_notify );
+    LeaveCriticalSection (&cv->WaitingThreadCountLock);
+
+    if (wait_done)
+      break;
+    }
+
+  EnterCriticalSection( external_mutex );
+  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  -- cv->WaitingThreadCount;
+  -- cv->ReleaseCount;
+  int lastWaiter = ( cv->ReleaseCount == 0 );
+  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+
+  // If we're the last waiter to be notified, reset the manual event.
+  if ( lastWaiter )
+    ResetEvent( cv->Event );
+}
+
+int pthread_cond_signal( pthread_cond_t* cv )
+{
+  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  if ( cv->WaitingThreadCount > cv->ReleaseCount )
+    {
+    SetEvent( cv->Event ); // Signal the manual-reset event.
+    ++ cv->ReleaseCount;
+    ++ cv->NotifyCount;
+    }
+  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+}
+
+int pthread_cond_broadcast( pthread_cond_t* cv )
+{
+  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  if ( cv->WaitingThreadCount > 0 )
+    {
+    SetEvent( cv->Event );
+    // Release all the threads in this generation.
+    cv->ReleaseCount = cv->WaitingThreadCount;
+    ++ cv->NotifyCount;
+    }
+  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+}
+
+int pthread_cond_destroy( pthread_cond_t* cv )
+{
+  if ( cv->WaitingThreadCount > 0 )
+    {
+    return EBUSY;
+    }
+  return 0;
+}
+#  endif // 0
 #endif // VTK_USE_WIN32_THREADS
 
 vtkSimpleConditionVariable::vtkSimpleConditionVariable()
