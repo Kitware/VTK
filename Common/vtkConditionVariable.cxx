@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.3");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.4");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -72,7 +72,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
 {
   cv->WaitingThreadCount = 0;
   cv->WasBroadcast = 0;
-  cv->Semaphore = CreatedSemaphore(
+  cv->Semaphore = CreateSemaphore(
     NULL,       // no security
     0,          // initially 0
     0x7fffffff, // max count
