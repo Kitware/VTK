@@ -56,12 +56,12 @@ const vtkArrayExtents vtkArrayExtents::Uniform(vtkIdType n, vtkIdType m)
   return result;
 }
 
-const vtkIdType vtkArrayExtents::GetDimensions() const
+vtkIdType vtkArrayExtents::GetDimensions() const
 {
   return this->Storage.size();
 }
 
-const vtkIdType vtkArrayExtents::GetSize() const
+vtkIdType vtkArrayExtents::GetSize() const
 {
   return vtkstd::accumulate(this->Storage.begin(), this->Storage.end(), 1, vtkstd::multiplies<vtkIdType>());
 }
@@ -81,12 +81,12 @@ const vtkIdType& vtkArrayExtents::operator[](vtkIdType i) const
   return this->Storage[i];
 }
 
-const bool vtkArrayExtents::operator==(const vtkArrayExtents& rhs) const
+bool vtkArrayExtents::operator==(const vtkArrayExtents& rhs) const
 {
   return this->Storage == rhs.Storage;
 }
 
-const bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
+bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
 {
   return !(*this == rhs);
 }

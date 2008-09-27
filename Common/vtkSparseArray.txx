@@ -84,7 +84,7 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
     }
 
   // Do a naive linear-search for the time-being ... 
-  for(vtkIdType row = 0; row != this->Values.size(); ++row)
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
       {
@@ -115,7 +115,7 @@ void vtkSparseArray<T>::SetValue(const vtkArrayCoordinates& coordinates, const T
     }
 
   // Do a naive linear-search for the time-being ... 
-  for(vtkIdType row = 0; row != this->Values.size(); ++row)
+  for(vtkIdType row = 0; row != static_cast<vtkIdType>(this->Values.size()); ++row)
     {
     for(vtkIdType column = 0; column != this->GetDimensions(); ++column)
       {

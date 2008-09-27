@@ -61,12 +61,12 @@ public:
 
   // Description:
   // Return the current number of dimensions.
-  const vtkIdType GetDimensions() const;
+  vtkIdType GetDimensions() const;
   
   // Description:
   // Return the number of values that *could* be stored using the
   // current extents.
-  const vtkIdType GetSize() const;
+  vtkIdType GetSize() const;
 
   // Description:
   // Set the current number of dimensions.  Note that this method
@@ -84,11 +84,11 @@ public:
   
   // Description:
   // Equality comparison
-  const bool operator==(const vtkArrayExtents& rhs) const;
+  bool operator==(const vtkArrayExtents& rhs) const;
   
   // Description:
   // Inequality comparison
-  const bool operator!=(const vtkArrayExtents& rhs) const;
+  bool operator!=(const vtkArrayExtents& rhs) const;
 
   VTK_COMMON_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs);
   

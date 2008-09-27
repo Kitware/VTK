@@ -46,7 +46,7 @@ vtkArrayCoordinates::vtkArrayCoordinates(vtkIdType i, vtkIdType j, vtkIdType k) 
   this->Storage[2] = k;
 }
 
-const vtkIdType vtkArrayCoordinates::GetDimensions() const
+vtkIdType vtkArrayCoordinates::GetDimensions() const
 {
   return this->Storage.size();
 }

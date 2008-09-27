@@ -87,7 +87,7 @@ private:
   void InternalResize(const vtkArrayExtents& extents);
   void InternalSetDimensionLabel(vtkIdType i, const vtkStdString& label);
   vtkStdString InternalGetDimensionLabel(vtkIdType i);
-  const vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
+  vtkIdType MapCoordinates(const vtkArrayCoordinates& coordinates);
 
   typedef vtkDenseArray<T> ThisT;
 

@@ -184,10 +184,10 @@ vtkStdString vtkDenseArray<T>::InternalGetDimensionLabel(vtkIdType i)
 }
 
 template<typename T>
-const vtkIdType vtkDenseArray<T>::MapCoordinates(const vtkArrayCoordinates& coordinates)
+vtkIdType vtkDenseArray<T>::MapCoordinates(const vtkArrayCoordinates& coordinates)
 {
   vtkIdType index = 0;
-  for(vtkIdType i = 0; i != this->Strides.size(); ++i)
+  for(vtkIdType i = 0; i != static_cast<vtkIdType>(this->Strides.size()); ++i)
     index += (coordinates[i] * this->Strides[i]);
   return index;
 }

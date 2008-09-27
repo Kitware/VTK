@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Return the number of dimensions contained in the coordinates.
-  const vtkIdType GetDimensions() const;
+  vtkIdType GetDimensions() const;
 
   // Description:
   // Set the number of dimensions.  Resets each coordinate to zero.
