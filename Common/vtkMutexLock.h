@@ -69,6 +69,7 @@ public:
   void Unlock( void );
 
 protected:
+  friend class vtkSimpleConditionVariable;
   vtkMutexType   MutexLock;
 };
 
@@ -91,6 +92,10 @@ public:
   void Unlock( void );
 
 protected:
+  //BTX
+  friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
+  //ETX
+
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {};
 private:
