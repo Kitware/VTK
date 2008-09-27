@@ -90,6 +90,7 @@ vtkInformationIterator.cxx
 vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
+vtkInformationObjectBaseVectorKey.cxx
 vtkInformationRequestKey.cxx
 vtkInformationStringKey.cxx
 vtkInformationStringVectorKey.cxx
@@ -279,6 +280,7 @@ vtkInformationIntegerVectorKey
 vtkInformationKey
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
+vtkInformationObjectBaseVectorKey
 vtkInformationRequestKey
 vtkInformationStringKey
 vtkInformationStringVectorKey
@@ -329,6 +331,38 @@ SET_SOURCE_FILES_PROPERTIES(
 # Activate code in "vtkVariant.cxx".  See the comment in the source.
 SET_SOURCE_FILES_PROPERTIES(vtkVariant.cxx PROPERTIES
   COMPILE_FLAGS -DVTK_VARIANT_IMPL)
+
+
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkArray.cxx
+    vtkArrayExtents.cxx
+    vtkArrayCoordinates.cxx
+    vtkArrayCoordinateIterator.cxx
+    vtkArrayRange.cxx
+    vtkArraySlice.cxx
+    vtkArraySlices.cxx
+    vtkArrayWeights.cxx
+    )
+
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkArray.cxx
+    ABSTRACT
+    )
+
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkArrayExtents.cxx
+    vtkArrayCoordinates.cxx
+    vtkArrayRange.cxx
+    vtkArraySlice.cxx
+    vtkArraySlices.cxx
+    vtkArrayWeights.cxx
+    WRAP_EXCLUDE
+    )
+
+ENDIF(VTK_USE_N_WAY_ARRAYS)
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
