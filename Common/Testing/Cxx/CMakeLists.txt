@@ -65,3 +65,27 @@ IF(CYGWIN)
   ADD_TEST(SystemInformation-cygcheck
     "${CMAKE_CURRENT_SOURCE_DIR}/SystemInformation-cygcheck.sh")
 ENDIF(CYGWIN)
+
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  CREATE_TEST_SOURCELIST(ArrayTests ArrayCxxTests.cxx
+    ArrayAPI.cxx
+    ArrayAPIConvenience.cxx
+    ArrayAPIDense.cxx
+    ArrayAPISparse.cxx
+    ArrayInterpolationDense.cxx
+    )
+
+  ADD_EXECUTABLE(ArrayCxxTests ${ArrayTests})
+  TARGET_LINK_LIBRARIES(ArrayCxxTests vtkCommon)
+
+  SET(ArrayTestsToRun ${ArrayTests})
+  REMOVE(ArrayTestsToRun ArrayCxxTests.cxx)
+
+  FOREACH(test ${ArrayTestsToRun})
+    GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+    ADD_TEST(Array-${TName} ${CXX_TEST_PATH}/ArrayCxxTests ${TName})
+  ENDFOREACH(test)
+
+ENDIF(VTK_USE_N_WAY_ARRAYS)
+
