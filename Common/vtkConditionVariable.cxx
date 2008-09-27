@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.6");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.7");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -203,7 +203,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
   return 0;
 }
 
-int pthread_cond_wait( pthread_cond_t* cv, pthread_mutex_t* external_mutex )
+int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
 {
   // Avoid race conditions.
   EnterCriticalSection( &cv->WaitingThreadCountLock );
@@ -226,12 +226,12 @@ int pthread_cond_wait( pthread_cond_t* cv, pthread_mutex_t* external_mutex )
     // Exit the loop when cv->Event is signaled and
     // there are still waiting threads from this NotifyCount
     // that haven't been released from this wait yet.
-    int wait_done =
+    int waitDone =
       ( cv->ReleaseCount > 0 ) &&
       ( cv->wait_generation_count_ != tmp_notify );
     LeaveCriticalSection (&cv->WaitingThreadCountLock);
 
-    if (wait_done)
+    if ( waitDone )
       break;
     }
 
@@ -245,6 +245,8 @@ int pthread_cond_wait( pthread_cond_t* cv, pthread_mutex_t* external_mutex )
   // If we're the last waiter to be notified, reset the manual event.
   if ( lastWaiter )
     ResetEvent( cv->Event );
+
+  return 0;
 }
 
 int pthread_cond_signal( pthread_cond_t* cv )
@@ -257,6 +259,7 @@ int pthread_cond_signal( pthread_cond_t* cv )
     ++ cv->NotifyCount;
     }
   LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  return 0;
 }
 
 int pthread_cond_broadcast( pthread_cond_t* cv )
@@ -270,6 +273,7 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
     ++ cv->NotifyCount;
     }
   LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  return 0;
 }
 
 int pthread_cond_destroy( pthread_cond_t* cv )
