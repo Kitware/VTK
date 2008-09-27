@@ -39,17 +39,17 @@ vtkArrayRange::vtkArrayRange(vtkIdType begin, vtkIdType end) :
 {
 }
 
-const vtkIdType vtkArrayRange::GetBegin() const
+vtkIdType vtkArrayRange::GetBegin() const
 {
   return this->Begin;
 }
 
-const vtkIdType vtkArrayRange::GetEnd() const
+vtkIdType vtkArrayRange::GetEnd() const
 {
   return this->End;
 }
 
-const vtkIdType vtkArrayRange::GetExtent() const
+vtkIdType vtkArrayRange::GetExtent() const
 {
   return this->End - this->Begin;
 }

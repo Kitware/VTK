@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Returns the number of slices stored in this collection.
-  const vtkIdType GetCount() const;
+  vtkIdType GetCount() const;
   
   // Description:
   // Sets the number of slices stored in this collection.  Note: all

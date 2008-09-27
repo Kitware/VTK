@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Returns the number of dimensions in this slice.
-  const vtkIdType GetDimensions() const;
+  vtkIdType GetDimensions() const;
   
   // Description:
   // Returns the extents of this slice - i.e: the size of the range along each dimension.

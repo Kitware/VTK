@@ -55,7 +55,7 @@ vtkArraySlices::vtkArraySlices(const vtkArraySlice& i, const vtkArraySlice& j, c
   this->Storage[3] = l;
 }
 
-const vtkIdType vtkArraySlices::GetCount() const
+vtkIdType vtkArraySlices::GetCount() const
 {
   return this->Storage.size();
 }

@@ -48,15 +48,15 @@ public:
 
   // Description:
   // Returns the beginning of the range
-  const vtkIdType GetBegin() const;
+  vtkIdType GetBegin() const;
   
   // Description:
   // Returns one-past-the-end of the range
-  const vtkIdType GetEnd() const;
+  vtkIdType GetEnd() const;
 
   // Description:
   // Returns the extent of the range (the distance End - Begin).
-  const vtkIdType GetExtent() const;
+  vtkIdType GetExtent() const;
 
   // Description:
   // Serialization  

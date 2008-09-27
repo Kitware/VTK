@@ -46,7 +46,7 @@ vtkArraySlice::vtkArraySlice(const vtkArrayRange& i, const vtkArrayRange& j, con
   this->Storage[2] = k;
 }
 
-const vtkIdType vtkArraySlice::GetDimensions() const
+vtkIdType vtkArraySlice::GetDimensions() const
 {
   return this->Storage.size();
 }
@@ -94,7 +94,7 @@ const vtkArrayRange& vtkArraySlice::operator[](vtkIdType i) const
 
 ostream& operator<<(ostream& stream, const vtkArraySlice& rhs)
 {
-  for(vtkIdType i = 0; i != rhs.Storage.size(); ++i)
+  for(vtkIdType i = 0; i != static_cast<vtkIdType>(rhs.Storage.size()); ++i)
     {
     if(i)
       stream << " ";
