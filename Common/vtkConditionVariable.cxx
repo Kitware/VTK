@@ -1,14 +1,11 @@
 #include "vtkConditionVariable.h"
 
 #include "vtkObjectFactory.h"
-#ifdef VTK_USE_WIN32_THREADS
-# include "vtkWindows.h"
-#endif
 
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.2");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.3");
 
 #ifndef EPERM
 #  define EPERM 1
