@@ -27,7 +27,9 @@
 #ifndef __vtkConditionVariable_h
 #define __vtkConditionVariable_h
 
-#include "vtkMutexLock.h"
+#include "vtkObject.h"
+
+#include "vtkMutexLock.h" // Need for friend access to vtkSimpleMutexLock
 
 //BTX
 #if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
