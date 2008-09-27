@@ -44,24 +44,19 @@ typedef struct
 {
   // Number of threads waiting on condition.
   int WaitingThreadCount;
-  //int waiters_count_;
 
   // Lock for WaitingThreadCount
   CRITICAL_SECTION WaitingThreadCountLock;
-  //CRITICAL_SECTION waiters_count_lock_;
 
   // Semaphore to block threads waiting for the condition to change.
-  HANDLE Semaphore;
-  //HANDLE sema_;
+  vtkWindowsHANDLE Semaphore;
 
   // An event used to wake up thread(s) waiting on the semaphore
   // when pthread_cond_signal or pthread_cond_broadcast is called.
-  HANDLE DoneWaiting;
-  //HANDLE waiters_done_;
+  vtkWindowsHANDLE DoneWaiting;
 
   // Was pthread_cond_broadcast called?
   size_t WasBroadcast;
-  //size_t was_broadcast_;
 } pthread_cond_t;
 
 typedef pthread_cond_t vtkConditionType;
