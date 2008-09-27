@@ -12,7 +12,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
       PrmMagnify.cxx
       #TestExodusTime.cxx
       TestTemporalFractal.cxx
-      TestMultiBlockExodusWrite.cxx
+      #TestMultiBlockExodusWrite.cxx
       )
   ENDIF (VTK_DATA_ROOT)    
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
