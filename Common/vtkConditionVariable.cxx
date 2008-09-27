@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.7");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.8");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -215,7 +215,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
   int tmp_notify = cv->NotifyCount;
 
   LeaveCriticalSection( &cv->WaitingThreadCountLock );
-  LeaveCriticalSection( external_mutex );
+  ReleaseMutex( external_mutex );
 
   while ( 1 )
     {
@@ -235,7 +235,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* external_mutex )
       break;
     }
 
-  EnterCriticalSection( external_mutex );
+  WaitForSingleObject( external_mutex, INFINITE );
   EnterCriticalSection( &cv->WaitingThreadCountLock );
   -- cv->WaitingThreadCount;
   -- cv->ReleaseCount;
