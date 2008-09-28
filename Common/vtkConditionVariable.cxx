@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.10");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.11");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -78,7 +78,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
     0,          // initially 0
     0x7fffffff, // max count
     NULL );     // unnamed 
-  InitializeCriticalSection( &cv->WaitingThreadCountLock );
+  InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
   cv->DoneWaiting = CreateEvent(
     NULL,   // no security
     FALSE,  // auto-reset
@@ -91,9 +91,9 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
 int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 {
   // Avoid race conditions.
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   ++ cv->WaitingThreadCount;
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // This call atomically releases the mutex and waits on the
   // semaphore until <pthread_cond_signal> or <pthread_cond_broadcast>
@@ -101,7 +101,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
   SignalObjectAndWait( *externalMutex, cv->Semaphore, INFINITE, FALSE );
 
   // Reacquire lock to avoid race conditions.
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // We're no longer waiting...
   -- cv->WaitingThreadCount;
@@ -109,7 +109,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
   // Check to see if we're the last waiter after <pthread_cond_broadcast>.
   int last_waiter = cv->WasBroadcast && cv->WaitingThreadCount == 0;
 
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // If we're the last waiter thread during this particular broadcast
   // then let all the other threads proceed.
@@ -130,9 +130,9 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 
 int pthread_cond_signal( pthread_cond_t* cv )
 {
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   int have_waiters = cv->WaitingThreadCount > 0;
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // If there aren't any waiters, then this is a no-op.  
   if ( have_waiters )
@@ -146,7 +146,7 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
 {
   // This is needed to ensure that <WaitingThreadCount> and <WasBroadcast> are
   // consistent relative to each other.
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   int have_waiters = 0;
 
   if ( cv->WaitingThreadCount > 0 )
@@ -162,17 +162,17 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
     {
     // Wake up all the waiters atomically.
     ReleaseSemaphore( cv->Semaphore, cv->WaitingThreadCount, 0 );
-    LeaveCriticalSection( &cv->WaitingThreadCountLock );
+    LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
     // Wait for all the awakened threads to acquire the counting semaphore. 
     WaitForSingleObject( cv->DoneWaiting, INFINITE );
-    // This assignment is okay, even without the <WaitingThreadCountLock> held 
+    // This assignment is okay, even without the <WaitingThreadCountCritSec> held 
     // because no other waiter threads can wake up to access it.
     cv->WasBroadcast = 0;
     }
   else
     {
-    LeaveCriticalSection( &cv->WaitingThreadCountLock );
+    LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
     }
 
   return 0;
@@ -180,6 +180,9 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
 
 int pthread_cond_destroy( pthread_cond_t* cv )
 {
+  DeleteCriticalSection( &cv->WaitingThreadCountCritSec );
+  CloseHandle( cv->Semaphore );
+  CloseHandle( cv->Event );
   if ( cv->WaitingThreadCount > 0 && ! cv->DoneWaiting )
     {
     return EBUSY;
@@ -195,7 +198,6 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
     }
 
   cv->WaitingThreadCount = 0;
-  cv->WaitingThreadCountLock = CreateMutex( NULL, FALSE, NULL );
   cv->NotifyCount = 0;
   cv->ReleaseCount = 0;
 
@@ -206,13 +208,15 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
     FALSE,  // non-signaled initially
     NULL ); // unnamed
 
+  InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
+
   return 0;
 }
 
 int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 {
   // Avoid race conditions.
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // Increment count of waiters.
   ++ cv->WaitingThreadCount;
@@ -220,7 +224,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
   // Store the notification we should respond to.
   int tmpNotify = cv->NotifyCount;
 
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
   ReleaseMutex( externalMutex );
 
   while ( 1 )
@@ -228,25 +232,25 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
     // Wait until the event is signaled.
     WaitForSingleObject( cv->Event, INFINITE );
 
-    EnterCriticalSection( &cv->WaitingThreadCountLock );
+    EnterCriticalSection( &cv->WaitingThreadCountCritSec );
     // Exit the loop when cv->Event is signaled and
     // there are still waiting threads from this NotifyCount
     // that haven't been released from this wait yet.
     int waitDone =
       ( cv->ReleaseCount > 0 ) &&
       ( cv->WaitingThreadCount != tmpNotify );
-    LeaveCriticalSection( &cv->WaitingThreadCountLock );
+    LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
     if ( waitDone )
       break;
     }
 
   WaitForSingleObject( externalMutex, INFINITE );
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   -- cv->WaitingThreadCount;
   -- cv->ReleaseCount;
   int lastWaiter = ( cv->ReleaseCount == 0 );
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
   // If we're the last waiter to be notified, reset the manual event.
   if ( lastWaiter )
@@ -257,20 +261,20 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
 
 int pthread_cond_signal( pthread_cond_t* cv )
 {
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   if ( cv->WaitingThreadCount > cv->ReleaseCount )
     {
     SetEvent( cv->Event ); // Signal the manual-reset event.
     ++ cv->ReleaseCount;
     ++ cv->NotifyCount;
     }
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
   return 0;
 }
 
 int pthread_cond_broadcast( pthread_cond_t* cv )
 {
-  EnterCriticalSection( &cv->WaitingThreadCountLock );
+  EnterCriticalSection( &cv->WaitingThreadCountCritSec );
   if ( cv->WaitingThreadCount > 0 )
     {
     SetEvent( cv->Event );
@@ -278,7 +282,7 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
     cv->ReleaseCount = cv->WaitingThreadCount;
     ++ cv->NotifyCount;
     }
-  LeaveCriticalSection( &cv->WaitingThreadCountLock );
+  LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
   return 0;
 }
 
@@ -288,8 +292,8 @@ int pthread_cond_destroy( pthread_cond_t* cv )
     {
     return EBUSY;
     }
-  CloseHandle( cv->WaitingThreadCountLock );
   CloseHandle( cv->Event );
+  DeleteCriticalSection( &cv->WaitingThreadCountCritSec );
   return 0;
 }
 #  endif // 0

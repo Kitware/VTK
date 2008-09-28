@@ -49,7 +49,7 @@ typedef struct
   int WaitingThreadCount;
 
   // Lock for WaitingThreadCount
-  CRITICAL_SECTION WaitingThreadCountLock;
+  CRITICAL_SECTION WaitingThreadCountCritSec;
 
   // Semaphore to block threads waiting for the condition to change.
   vtkWindowsHANDLE Semaphore;
@@ -70,7 +70,7 @@ typedef struct
   int WaitingThreadCount;
 
   // Lock for WaitingThreadCount
-  CRITICAL_SECTION WaitingThreadCountLock;
+  CRITICAL_SECTION WaitingThreadCountCritSec;
 
   // Number of threads to release when pthread_cond_broadcast()
   // or pthread_cond_signal() is called. 
