@@ -103,6 +103,10 @@ int TestConditionVariable( int, char*[] )
   cout << "Done with threader.\n";
   cout.flush();
 
+  vtkIndent indent;
+  indent = indent.GetNextIndent();
+  data.Condition->PrintSelf( cout, indent );
+
   data.Lock->Delete();
   data.Condition->Delete();
   threader->Delete();

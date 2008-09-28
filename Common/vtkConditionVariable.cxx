@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.9");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.10");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -189,7 +189,13 @@ int pthread_cond_destroy( pthread_cond_t* cv )
 #  else // 0
 int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
 {
+  if ( ! cv )
+    {
+    return EINVAL;
+    }
+
   cv->WaitingThreadCount = 0;
+  cv->WaitingThreadCountLock = CreateMutex( NULL, FALSE, NULL );
   cv->NotifyCount = 0;
   cv->ReleaseCount = 0;
 
@@ -211,7 +217,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
   // Increment count of waiters.
   ++ cv->WaitingThreadCount;
 
-  // Store current generation in our activation record.
+  // Store the notification we should respond to.
   int tmpNotify = cv->NotifyCount;
 
   LeaveCriticalSection( &cv->WaitingThreadCountLock );
@@ -229,7 +235,7 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
     int waitDone =
       ( cv->ReleaseCount > 0 ) &&
       ( cv->WaitingThreadCount != tmpNotify );
-    LeaveCriticalSection (&cv->WaitingThreadCountLock);
+    LeaveCriticalSection( &cv->WaitingThreadCountLock );
 
     if ( waitDone )
       break;
@@ -282,6 +288,8 @@ int pthread_cond_destroy( pthread_cond_t* cv )
     {
     return EBUSY;
     }
+  CloseHandle( cv->WaitingThreadCountLock );
+  CloseHandle( cv->Event );
   return 0;
 }
 #  endif // 0
@@ -345,6 +353,18 @@ void vtkSimpleConditionVariable::Wait( vtkSimpleMutexLock& lock )
 
 void vtkConditionVariable::PrintSelf( ostream& os, vtkIndent indent )
 {
+  this->Superclass::PrintSelf( os, indent );
   os << indent << "SimpleConditionVariable: " << &this->SimpleConditionVariable << "\n";
+  os << indent << "ThreadingModel: "
+#ifdef VTK_USE_PTHREADS
+    << "pthreads "
+#endif
+#ifdef VTK_HP_PTHREADS
+    << "HP pthreads "
+#endif
+#ifdef VTK_USE_WIN32_THREADS
+    << "win32 threads "
+#endif
+    << "\n";
 }
 
