@@ -61,6 +61,8 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       while ( td->Done <= 0 )
         {
         td->Lock->Lock();
+        cout << " Thread " << ( threadId + 1 ) << " waiting.\n";
+        cout.flush();
         td->Condition->Wait( td->Lock );
         cout << " Thread " << ( threadId + 1 ) << " responded.\n";
         cout.flush();
