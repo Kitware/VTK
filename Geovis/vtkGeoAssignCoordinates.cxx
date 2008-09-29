@@ -20,6 +20,7 @@
 
 #include "vtkGeoAssignCoordinates.h"
 
+#include "vtkAbstractTransform.h"
 #include "vtkGeoMath.h"
 #include "vtkGlobeSource.h"
 #include "vtkGraph.h"
@@ -32,7 +33,8 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkGeoAssignCoordinates, "1.1");
+vtkCxxSetObjectMacro(vtkGeoAssignCoordinates, Transform, vtkAbstractTransform);
+vtkCxxRevisionMacro(vtkGeoAssignCoordinates, "1.2");
 vtkStandardNewMacro(vtkGeoAssignCoordinates);
 
 vtkGeoAssignCoordinates::vtkGeoAssignCoordinates()
@@ -40,12 +42,17 @@ vtkGeoAssignCoordinates::vtkGeoAssignCoordinates()
   this->LongitudeArrayName = 0;
   this->LatitudeArrayName = 0;
   this->CoordinatesInArrays = true;
+  this->Transform = 0;
 
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
 }
 
 vtkGeoAssignCoordinates::~vtkGeoAssignCoordinates()
 {
+  if (this->Transform)
+    {
+    this->Transform->Delete();
+    }
 }
 
 
@@ -65,7 +72,7 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
   vtkPointSet *psInput = vtkPointSet::SafeDownCast(input);
   vtkPointSet *psOutput = vtkPointSet::SafeDownCast(output);
-  
+
   // Do a shallow copy of the input to the output
   // and then create new points on the output
   output->ShallowCopy(input);
@@ -90,13 +97,13 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     numPoints = psInput->GetNumberOfPoints();
     }
   newPoints->Delete();
-    
+
   // If there are no points in the input, we're done!
-  if (numPoints == 0) 
+  if (numPoints == 0)
     {
     return 1;
     }
-  
+
   vtkDataArray* latitudeArray = 0;
   vtkDataArray* longitudeArray = 0;
   if (this->CoordinatesInArrays)
@@ -107,39 +114,39 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
       vtkErrorMacro("No latitude array defined.");
       return 0;
       }
-    
+
     // I need a longitude array
     if (!this->LongitudeArrayName || strlen(this->LongitudeArrayName) == 0)
       {  // If on, uses LatitudeArrayName and LongitudeArrayName to
       // move values in data arrays into the points of the data set.
       // Turn off if the lattitude and longitude are already in
       // the points.
-  
+
       vtkErrorMacro("No longitude array defined.");
       return 0;
       }
-    
+
     // Okay now check for arrays
     latitudeArray = pd->GetArray(this->LatitudeArrayName);
-    
-    // Does the latitude array exist at all?  
+
+    // Does the latitude array exist at all?
     if (this->CoordinatesInArrays && latitudeArray == NULL)
       {
       vtkErrorMacro("Could not find array named " << this->LatitudeArrayName);
       return 0;
       }
-      
+
     // Longitude coordinate array
     longitudeArray = pd->GetArray(this->LongitudeArrayName);
-  
-    // Does the array exist at all?  
+
+    // Does the array exist at all?
     if (this->CoordinatesInArrays && longitudeArray == NULL)
       {
       vtkErrorMacro("Could not find array named " << this->LongitudeArrayName);
       return 0;
       }
     }
-    
+
   // Convert the points to global coordinates
   for (int i = 0; i < numPoints; i++)
     {
@@ -156,14 +163,28 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
       theta = a[0];
       phi = a[1];
       }
-    
+
+    // Clamp to lat/long bounds
+    theta = (theta >  180.0) ?  180.0 : theta;
+    theta = (theta < -180.0) ? -180.0 : theta;
+    phi = (phi >  90.0) ?  90.0 : phi;
+    phi = (phi < -90.0) ? -90.0 : phi;
+
     double x[3];
-    vtkGlobeSource::ComputeGlobePoint(theta, phi, this->GlobeRadius, x);
+    if (this->Transform)
+      {
+      double in[] = {theta, phi, 0.0};
+      this->Transform->TransformPoint(in, x);
+      }
+    else
+      {
+      vtkGlobeSource::ComputeGlobePoint(theta, phi, this->GlobeRadius, x);
+      }
     newPoints->SetPoint(i, x[0], x[1], x[2]);
     }
-    
+
   return 1;
-} 
+}
 
 int vtkGeoAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
@@ -171,16 +192,21 @@ int vtkGeoAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkI
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-  return 1;  
+  return 1;
 }
 
 void vtkGeoAssignCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "LatitudeArrayName: " 
+  os << indent << "LatitudeArrayName: "
      << (this->LatitudeArrayName ? this->LatitudeArrayName : "(none)") << endl;
-  os << indent << "LongitudeArrayName: " 
-     << (this->LongitudeArrayName ? this->LongitudeArrayName : "(none)") << endl;     
+  os << indent << "LongitudeArrayName: "
+     << (this->LongitudeArrayName ? this->LongitudeArrayName : "(none)") << endl;
   os << indent << "GlobeRadius: " << this->GlobeRadius << endl;
   os << indent << "CoordinatesInArrays: " << (this->CoordinatesInArrays ? "on" : "off") << endl;
+  os << indent << "Transform: " << (this->Transform ? "" : "(none)") << endl;
+  if (this->Transform)
+    {
+    this->Transform->PrintSelf(os, indent.GetNextIndent());
+    }
 }

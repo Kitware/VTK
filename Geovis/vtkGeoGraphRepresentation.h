@@ -36,6 +36,7 @@ class vtkAlgorithmOutput;
 class vtkDataObject;
 class vtkEdgeCenters;
 class vtkEdgeLayout;
+class vtkEdgeLayoutStrategy;
 class vtkExtractSelectedGraph;
 class vtkGeoAssignCoordinates;
 class vtkGeoEdgeStrategy;
@@ -49,6 +50,7 @@ class vtkMaskPoints;
 class vtkPolyDataMapper;
 class vtkSelection;
 class vtkSelectVisiblePoints;
+class vtkAbstractTransform;
 class vtkTransformPolyDataFilter;
 class vtkView;
 class vtkViewTheme;
@@ -59,11 +61,11 @@ public:
   static vtkGeoGraphRepresentation *New();
   vtkTypeRevisionMacro(vtkGeoGraphRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Sets the input pipeGraph connection to this representation.
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
-  
+
   // Description:
   // The array to use for vertex labeling.  Default is "label".
   virtual void SetVertexLabelArrayName(const char* name);
@@ -75,86 +77,118 @@ public:
   virtual bool GetVertexLabelVisibility();
   virtual void VertexLabelVisibilityOn() { this->SetVertexLabelVisibility(true); }
   virtual void VertexLabelVisibilityOff() { this->SetVertexLabelVisibility(false); }
-  
+
   // Description:
   // Sets the explode factor for the geo arcs.
   virtual void SetExplodeFactor(double factor);
   virtual double GetExplodeFactor();
-  
+
   // Description:
   // The number of subdivisions per arc.
   virtual void SetNumberOfSubdivisions(int num);
   virtual int GetNumberOfSubdivisions();
-  
+
   // Description:
   // The point array holding the latitude.
   virtual void SetLatitudeArrayName(const char* name);
   virtual const char* GetLatitudeArrayName();
-  
+
   // Description:
   // The point array holding the longitude.
   virtual void SetLongitudeArrayName(const char* name);
   virtual const char* GetLongitudeArrayName();
 
+  // Description:
+  // The size of the vertex labels in pixels.
   void SetVertexLabelFontSize(int size);
   int GetVertexLabelFontSize();
 
+  // Description:
+  // Whether to color vertices using a data array.
   void SetColorVertices(bool b);
   bool GetColorVertices();
   vtkBooleanMacro(ColorVertices, bool);
 
+  // Description:
+  // The data array to use to color vertices.
   void SetVertexColorArrayName(const char* name);
   const char* GetVertexColorArrayName();
 
+  // Description:
+  // Whether to show edge labels.
   void SetEdgeLabelVisibility(bool b);
   bool GetEdgeLabelVisibility();
   vtkBooleanMacro(EdgeLabelVisibility, bool);
 
+  // Description:
+  // The data array to use for labelling edges.
   void SetEdgeLabelArrayName(const char* name);
   const char* GetEdgeLabelArrayName();
 
+  // Description:
+  // The edge layout strategy to use.
+  // The default is vtkGeoEdgeStrategy.
+  virtual void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* strategy);
+  virtual vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
+  virtual void SetEdgeLayoutStrategyToGeo();
+  virtual void SetEdgeLayoutStrategyToArcParallel();
+
+  // Description:
+  // The size of edge labels in pixels.
   void SetEdgeLabelFontSize(int size);
   int GetEdgeLabelFontSize();
 
+  // Description:
+  // Whether to color edges using a data array.
   void SetColorEdges(bool b);
   bool GetColorEdges();
   vtkBooleanMacro(ColorEdges, bool);
 
+  // Description:
+  // The data array to use for coloring edges.
   void SetEdgeColorArrayName(const char* name);
   const char* GetEdgeColorArrayName();
 
+  // Description:
+  // The transform used in vtkGeoAssignCoordinates to transform
+  // the vertex locations from lat/long to world coordinates.
+  void SetTransform(vtkAbstractTransform* trans);
+  vtkAbstractTransform* GetTransform();
+
+  // Description:
+  // Apply a theme to this view.
   void ApplyViewTheme(vtkViewTheme* theme);
 
   // Description:
   // Called by the view when the renderer is about to render.
   virtual void PrepareForRendering();
-  
+
 protected:
   vtkGeoGraphRepresentation();
   ~vtkGeoGraphRepresentation();
 
   // Decription:
-  // Store the name of the LabelText array so we dont update if 
+  // Store the name of the LabelText array so we dont update if
   // we are already using the same array.
   vtkSetStringMacro(LabelArrayName);
   vtkGetStringMacro(LabelArrayName);
-  
+
   // Decription:
   // Adds the representation to the view.  This is called from
   // vtkView::AddRepresentation().
   virtual bool AddToView(vtkView* view);
-  
+
   // Decription:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().
   virtual bool RemoveFromView(vtkView* view);
-  
+
   // Description:
   // Convert the selection to a type appropriate for sharing with other
   // representations through vtkSelectionLink.
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
-  
+
   //BTX
   // Description:
   // Internal pipeline objects.
@@ -165,7 +199,6 @@ protected:
   vtkSmartPointer<vtkLabeledDataMapper>       LabelMapper;
   vtkSmartPointer<vtkActor2D>                 LabelActor;
   vtkSmartPointer<vtkEdgeLayout>              EdgeLayout;
-  vtkSmartPointer<vtkGeoEdgeStrategy>         GeoEdgeStrategy;
   vtkSmartPointer<vtkGraphMapper>             GraphMapper;
   vtkSmartPointer<vtkActor>                   GraphActor;
   vtkSmartPointer<vtkGraphToPolyData>         GraphToPolyData;

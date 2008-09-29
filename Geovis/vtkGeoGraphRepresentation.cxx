@@ -19,9 +19,11 @@
 
 #include "vtkGeoGraphRepresentation.h"
 
+#include "vtkAbstractTransform.h"
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkArcParallelEdgeStrategy.h"
 #include "vtkCamera.h"
 #include "vtkCellCenters.h"
 #include "vtkCommand.h"
@@ -61,14 +63,13 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.11");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.12");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
 {
   this->AssignCoordinates         = vtkSmartPointer<vtkGeoAssignCoordinates>::New();
   this->EdgeLayout                = vtkSmartPointer<vtkEdgeLayout>::New();
-  this->GeoEdgeStrategy           = vtkSmartPointer<vtkGeoEdgeStrategy>::New();
   this->GraphMapper               = vtkSmartPointer<vtkGraphMapper>::New();
   this->GraphActor                = vtkSmartPointer<vtkActor>::New();
   this->GraphToPolyData           = vtkSmartPointer<vtkGraphToPolyData>::New();
@@ -133,7 +134,7 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelMapper->SetLabelTextProperty(tp);
   this->LabelActor->PickableOff();
   this->LabelActor->VisibilityOff();
-  this->EdgeLayout->SetLayoutStrategy(this->GeoEdgeStrategy);
+  this->SetEdgeLayoutStrategyToGeo();
   this->AssignCoordinates->SetLatitudeArrayName("latitude");
   this->AssignCoordinates->SetLongitudeArrayName("longitude");
   this->EdgeLabelMaskPoints->RandomModeOn();
@@ -215,25 +216,47 @@ bool vtkGeoGraphRepresentation::GetVertexLabelVisibility()
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation::SetExplodeFactor(double factor)
 {
-  this->GeoEdgeStrategy->SetExplodeFactor(factor);
+  vtkGeoEdgeStrategy* geo = vtkGeoEdgeStrategy::SafeDownCast(
+    this->GetEdgeLayoutStrategy());
+  if (geo)
+    {
+    geo->SetExplodeFactor(factor);
+    }
 }
 
 //----------------------------------------------------------------------------
 double vtkGeoGraphRepresentation::GetExplodeFactor()
 {
-  return this->GeoEdgeStrategy->GetExplodeFactor();
+  vtkGeoEdgeStrategy* geo = vtkGeoEdgeStrategy::SafeDownCast(
+    this->GetEdgeLayoutStrategy());
+  if (geo)
+    {
+    return geo->GetExplodeFactor();
+    }
+  return 0.0;
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation::SetNumberOfSubdivisions(int num)
 {
-  this->GeoEdgeStrategy->SetNumberOfSubdivisions(num);
+  vtkGeoEdgeStrategy* geo = vtkGeoEdgeStrategy::SafeDownCast(
+    this->GetEdgeLayoutStrategy());
+  if (geo)
+    {
+    geo->SetNumberOfSubdivisions(num);
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkGeoGraphRepresentation::GetNumberOfSubdivisions()
 {
-  return this->GeoEdgeStrategy->GetNumberOfSubdivisions();
+  vtkGeoEdgeStrategy* geo = vtkGeoEdgeStrategy::SafeDownCast(
+    this->GetEdgeLayoutStrategy());
+  if (geo)
+    {
+    return geo->GetNumberOfSubdivisions();
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -358,6 +381,40 @@ const char* vtkGeoGraphRepresentation::GetEdgeColorArrayName()
 }
 
 //----------------------------------------------------------------------------
+void vtkGeoGraphRepresentation::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* strategy)
+{
+  this->EdgeLayout->SetLayoutStrategy(strategy);
+}
+
+//----------------------------------------------------------------------------
+vtkEdgeLayoutStrategy* vtkGeoGraphRepresentation::GetEdgeLayoutStrategy()
+{
+  return this->EdgeLayout->GetLayoutStrategy();
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoGraphRepresentation::SetEdgeLayoutStrategyToGeo()
+{
+  if (!vtkGeoEdgeStrategy::SafeDownCast(this->GetEdgeLayoutStrategy()))
+    {
+    vtkSmartPointer<vtkGeoEdgeStrategy> s =
+      vtkSmartPointer<vtkGeoEdgeStrategy>::New();
+    this->SetEdgeLayoutStrategy(s);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoGraphRepresentation::SetEdgeLayoutStrategyToArcParallel()
+{
+  if (!vtkArcParallelEdgeStrategy::SafeDownCast(this->GetEdgeLayoutStrategy()))
+    {
+    vtkSmartPointer<vtkArcParallelEdgeStrategy> s =
+      vtkSmartPointer<vtkArcParallelEdgeStrategy>::New();
+    this->SetEdgeLayoutStrategy(s);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->GraphMapper->ApplyViewTheme(theme);
@@ -440,6 +497,18 @@ bool vtkGeoGraphRepresentation::RemoveFromView(vtkView* view)
 //----------------------------------------------------------------------------
 void vtkGeoGraphRepresentation::PrepareForRendering()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoGraphRepresentation::SetTransform(vtkAbstractTransform* trans)
+{
+  this->AssignCoordinates->SetTransform(trans);
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractTransform* vtkGeoGraphRepresentation::GetTransform()
+{
+  return this->AssignCoordinates->GetTransform();
 }
 
 //----------------------------------------------------------------------------
@@ -535,8 +604,6 @@ void vtkGeoGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->AssignCoordinates->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeLayout:" << endl;
   this->EdgeLayout->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "GeoEdgeStrategy:" << endl;
-  this->GeoEdgeStrategy->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GraphMapper:" << endl;
   this->GraphMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "GraphToPolyData:" << endl;

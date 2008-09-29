@@ -42,7 +42,7 @@ int TestGeoAssignCoordinates(int argc, char *argv[])
   longitude->SetName("longitude");
   for (vtkIdType i = -90; i <= 90; i += 10)
     {
-    for (vtkIdType j = 0; j < 360; j += 20)
+    for (vtkIdType j = -180; j < 180; j += 20)
       {
       g->AddVertex();
       latitude->InsertNextValue(i);
