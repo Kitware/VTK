@@ -67,7 +67,7 @@ vtkQtChartColorStyleGenerator::~vtkQtChartColorStyleGenerator()
 
 QBrush vtkQtChartColorStyleGenerator::getSeriesBrush(int index) const
 {
-  if(index >= 0)
+  if(index >= 0 && this->Colors->getNumberOfColors()>0)
     {
     index = index % this->Colors->getNumberOfColors();
     return QBrush(this->Colors->getColor(index));
