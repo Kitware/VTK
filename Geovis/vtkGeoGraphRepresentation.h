@@ -214,6 +214,7 @@ protected:
   //ETX
 
   char* LabelArrayName;
+  bool In3DGeoView;
 
 private:
   vtkGeoGraphRepresentation(const vtkGeoGraphRepresentation&);  // Not implemented.

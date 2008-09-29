@@ -37,6 +37,7 @@
 #include "vtkExtractSelection.h"
 #include "vtkGeoAssignCoordinates.h"
 #include "vtkGeoEdgeStrategy.h"
+#include "vtkGeoView.h"
 #include "vtkGraphMapper.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkIdTypeArray.h"
@@ -63,7 +64,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.12");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.13");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -161,6 +162,9 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
 
   this->LabelArrayName = new char[10];
   strcpy(this->LabelArrayName,"LabelText");
+
+  // Variable to keep track of whether we are in a 3D geo view.
+  this->In3DGeoView = false;
 }
 
 //----------------------------------------------------------------------------
@@ -438,6 +442,10 @@ bool vtkGeoGraphRepresentation::AddToView(vtkView* view)
     vtkErrorMacro("Can only add to a subclass of vtkRenderView.");
     return false;
     }
+  if (vtkGeoView::SafeDownCast(view))
+    {
+    this->In3DGeoView = true;
+    }
   this->EdgeLabelSelectVisiblePoints->SetRenderer(rv->GetRenderer());
   this->LabelPlacer->SetRenderer(rv->GetRenderer());
   rv->GetRenderer()->AddActor(this->SelectionActor);
@@ -551,7 +559,7 @@ vtkSelection* vtkGeoGraphRepresentation::ConvertSelection(
         continue;
         }
       graph->GetPoint(vertex, pt);
-      if (vtkMath::Dot(pos, pt) > 0.0)
+      if (!this->In3DGeoView || vtkMath::Dot(pos, pt) > 0.0)
         {
         facingIds->InsertNextValue(graphPedIds->LookupValue(v));
         }
