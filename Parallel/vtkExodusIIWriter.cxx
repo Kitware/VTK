@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.24");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.25");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -2494,7 +2494,8 @@ double vtkExodusIIWriterGetComponent (iterT* it, vtkIdType ind)
 
 //----------------------------------------------------------------------------
 template<typename T>
-T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp)
+T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp, 
+                T* vtkNotUsed(typeval))
 {
   /// TODO Need to understand where idx went... what?!
   T *val = new T [this->NumCells];
@@ -2549,7 +2550,8 @@ T *vtkExodusIIWriter::ExtractCellData (const char *name, int comp)
 
 //----------------------------------------------------------------------------
 template<typename T>
-T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp)
+T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp, 
+                T* vtkNotUsed (typeval))
 {
   T *val = new T[this->NumPoints];
   int index = 0;
@@ -2587,7 +2589,7 @@ T *vtkExodusIIWriter::ExtractPointData (const char *name, int comp)
 
 //----------------------------------------------------------------------------
 template<typename T>
-int vtkExodusIIWriter::WriteCellData (int timestep)
+int vtkExodusIIWriter::WriteCellData (int timestep, T* typeval)
 {
   vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->BlockVariableMap.begin ();
@@ -2599,7 +2601,7 @@ int vtkExodusIIWriter::WriteCellData (int timestep)
 
     for (int component = 0; component < numComp; component ++)
       {
-      T *vars = this->ExtractCellData<T>(nameIn, component);
+      T *vars = this->ExtractCellData(nameIn, component, typeval);
       int varOutIndex = varIter->second.ScalarOutOffset + component;
 
       vtkstd::map<int, Block>::const_iterator blockIter;
@@ -2635,7 +2637,7 @@ int vtkExodusIIWriter::WriteCellData (int timestep)
 
 //----------------------------------------------------------------------------
 template<typename T>
-int vtkExodusIIWriter::WritePointData (int timestep)
+int vtkExodusIIWriter::WritePointData (int timestep, T* typeval)
 {
   vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->NodeVariableMap.begin ();
@@ -2646,7 +2648,7 @@ int vtkExodusIIWriter::WritePointData (int timestep)
     int numComp = varIter->second.NumComponents;
     for (int component = 0; component < numComp; component ++)
       {
-      T *vars = this->ExtractPointData<T>(nameIn, component);
+      T *vars = this->ExtractPointData(nameIn, component, typeval);
       int varOutIndex = varIter->second.ScalarOutOffset + component;
       int rc = ex_put_nodal_var(this->fid, 
                       timestep + 1, varOutIndex + 1, this->NumPoints, vars);
@@ -2682,11 +2684,11 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       return 0;
       }
 
-    if (!this->WriteCellData<double> (ts))
+    if (!this->WriteCellData (ts, &dtsv))
       {
       return 0;
       }
-    if (!this->WritePointData<double> (ts))
+    if (!this->WritePointData (ts, &dtsv))
       {
       return 0;
       }
@@ -2700,11 +2702,11 @@ int vtkExodusIIWriter::WriteNextTimeStep()
       return 0;
       }
 
-    if (!this->WriteCellData<float> (ts))
+    if (!this->WriteCellData (ts, &tsv))
       {
       return 0;
       }
-    if (!this->WritePointData<float> (ts))
+    if (!this->WritePointData (ts, &tsv))
       {
       return 0;
       }

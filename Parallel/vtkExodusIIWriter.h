@@ -308,10 +308,10 @@ protected:
   int WriteNextTimeStep ();
 
 //BTX
-  template<typename T> T *ExtractCellData (const char *name, int comp);
-  template<typename T> int WriteCellData (int timestep);
-  template<typename T> T *ExtractPointData (const char *name, int comp);
-  template<typename T> int WritePointData (int timestep);
+  template<typename T> T *ExtractCellData (const char *name, int comp, T* typeval);
+  template<typename T> int WriteCellData (int timestep, T* typeval);
+  template<typename T> T *ExtractPointData (const char *name, int comp, T* typeval);
+  template<typename T> int WritePointData (int timestep, T* typeval);
 //ETX
 
 
