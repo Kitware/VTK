@@ -39,11 +39,13 @@ public:
   vtkTypeRevisionMacro(vtkArrayCoordinateIterator, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+//BTX
   // Description:
   // Sets the array extents to iterate over, and resets the iterator to
   // the beginning of the range of unique coordinates.
   void SetExtents(const vtkArrayExtents&);
-  
+//ETX
+
   // Description:
   // Returns true iff the iterator has not reached the end 
   // of the range off unique coordinates.
