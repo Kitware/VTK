@@ -55,11 +55,12 @@ public:
 public:
   MYSQL_RES *Result;
   MYSQL_ROW CurrentRow;
+  unsigned long *CurrentLengths;
 };
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkMySQLQuery, "1.7");
+vtkCxxRevisionMacro(vtkMySQLQuery, "1.8");
 vtkStandardNewMacro(vtkMySQLQuery);
 
 // ----------------------------------------------------------------------
@@ -303,6 +304,7 @@ vtkMySQLQuery::NextRow()
 
   MYSQL_ROW row = mysql_fetch_row(this->Internals->Result);
   this->Internals->CurrentRow = row;
+  this->Internals->CurrentLengths = mysql_fetch_lengths(this->Internals->Result);
 
   if (!row)
     {
@@ -371,7 +373,12 @@ vtkMySQLQuery::DataValue(vtkIdType column)
     // data when a column value is non-NULL.
     vtkVariant base;
     if ( this->Internals->CurrentRow[column] )
-      base = vtkVariant( this->Internals->CurrentRow[column] );
+      {
+      // Make a string holding the data, including possible embedded null characters.
+      vtkStdString s( this->Internals->CurrentRow[column],
+        static_cast<size_t>(this->Internals->CurrentLengths[column]) );
+      base = vtkVariant( s );
+      }
 
     // It would be a royal pain to try to convert the string to each
     // different value in turn.  Fortunately, there is already code in
