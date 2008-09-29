@@ -1,6 +1,28 @@
 #include "vtkConditionVariable.h"
 #include "vtkMultiThreader.h"
 
+#include <stdlib.h>
+
+// For vtkSleep
+#include "vtkWindows.h"
+#include <ctype.h>
+#include <time.h>
+
+// Cross platform sleep (horked from vtkGeoTerrain.cxx)
+inline void vtkSleep( double duration )
+{
+  duration = duration; // avoid warnings
+  // sleep according to OS preference
+#ifdef _WIN32
+  Sleep( (int)( 1000 * duration ) );
+#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
+  struct timespec sleep_time, dummy;
+  sleep_time.tv_sec = static_cast<int>( duration );
+  sleep_time.tv_nsec = static_cast<int>( 1000000000 * ( duration - sleep_time.tv_sec ) );
+  nanosleep( &sleep_time, &dummy );
+#endif
+}
+
 typedef struct {
   vtkMutexLock* Lock;
   vtkConditionVariable* Condition;
@@ -39,6 +61,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         //sleep( 1 );
         }
 
+      int i = 0;
       do
         {
         td->Lock->Lock();
@@ -47,9 +70,13 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         cout.flush();
         td->Lock->Unlock();
         td->Condition->Broadcast();
-        //sleep( 1 );
+        vtkSleep( 0.2 ); // 0.2 s between broadcasts
         }
-      while ( td->NumberOfWorkers > 0 );
+      while ( td->NumberOfWorkers > 0 && ( i ++ < 1000 ) );
+      if ( i >= 1000 )
+        {
+        exit( 2 );
+        }
       }
     else
       {

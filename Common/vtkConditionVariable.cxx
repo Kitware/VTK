@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.12");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.13");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -239,6 +239,8 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
     int waitDone =
       ( cv->ReleaseCount > 0 ) &&
       ( cv->WaitingThreadCount != tmpNotify );
+    cout << ( waitDone ? "x" : "." );
+    cout.flush();
     LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
     if ( waitDone )
@@ -350,9 +352,9 @@ void vtkSimpleConditionVariable::Broadcast()
   pthread_cond_broadcast( &this->ConditionVariable );
 }
 
-void vtkSimpleConditionVariable::Wait( vtkSimpleMutexLock& lock )
+int vtkSimpleConditionVariable::Wait( vtkSimpleMutexLock& lock )
 {
-  pthread_cond_wait( &this->ConditionVariable, &lock.MutexLock );
+  return pthread_cond_wait( &this->ConditionVariable, &lock.MutexLock );
 }
 
 void vtkConditionVariable::PrintSelf( ostream& os, vtkIndent indent )

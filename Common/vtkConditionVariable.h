@@ -120,7 +120,10 @@ public:
   // Upon entry, the mutex must be locked and the lock held by the calling thread.
   // Upon exit, the mutex will be locked and held by the calling thread.
   // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  void Wait( vtkSimpleMutexLock& mutex );
+  // 
+  // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
+  // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+  int Wait( vtkSimpleMutexLock& mutex );
 
 protected:
   vtkConditionType   ConditionVariable;
@@ -148,7 +151,10 @@ public:
   // Upon entry, the mutex must be locked and the lock held by the calling thread.
   // Upon exit, the mutex will be locked and held by the calling thread.
   // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  void Wait( vtkMutexLock* mutex );
+  // 
+  // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
+  // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
+  int Wait( vtkMutexLock* mutex );
 
 protected:
   vtkConditionVariable() { }
@@ -173,9 +179,9 @@ inline void vtkConditionVariable::Broadcast()
   this->SimpleConditionVariable.Broadcast();
 }
 
-inline void vtkConditionVariable::Wait( vtkMutexLock* lock )
+inline int vtkConditionVariable::Wait( vtkMutexLock* lock )
 {
-  this->SimpleConditionVariable.Wait( lock->SimpleMutexLock );
+  return this->SimpleConditionVariable.Wait( lock->SimpleMutexLock );
 }
 //ETX
 
