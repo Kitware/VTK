@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.88");
+vtkCxxRevisionMacro(vtkCellLocator, "1.89");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -194,6 +194,8 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
     tMax += direction2[i]*direction2[i];
     }
   
+  tMax = sqrt(tMax);
+  
   // create a parametric range around the tolerance
   deltaT = tol/maxLength;
 
@@ -363,7 +365,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
       idx = leafStart + pos[0] - 1 + (pos[1]-1)*this->NumberOfDivisions + 
         (pos[2]-1)*prod;
       }
-    }
+    } // if (vtkBox::IntersectBox(...))
     
   if (bestCellId >= 0)
     {
