@@ -11,21 +11,23 @@
 int TestMultiBlockExodusWrite (int argc, char *argv[])
 {
   char *InputFile;
-  char *OutputFile;
   
   InputFile = 
-    vtkTestUtilities::ExpandDataFileName (argc, argv, "data/edgeFaceElem.exii");
+    vtkTestUtilities::ExpandDataFileName (argc, argv, "Data/edgeFaceElem.exii");
   if (!InputFile)
     {
     return 1;
     }
 
-  OutputFile =  
-    vtkTestUtilities::ExpandDataFileName (argc, argv, "data/testExodus.exii");
-  if (!OutputFile)
+  VTK_CREATE (vtkTesting, testing);
+  for (int i = 0; i < argc; i ++)
     {
-      return 1;
+    testing->AddArgument (argv[i]);
     }
+
+  vtkStdString OutputFile;
+  OutputFile = testing->GetTempDirectory ();
+  OutputFile += "/testExodus.exii";
 
   VTK_CREATE (vtkExodusIIReader, reader);
   if (!reader->CanReadFile (InputFile)) 
@@ -44,7 +46,6 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   writer->Update ();
 
   delete [] InputFile;
-  delete [] OutputFile;
 
   return 0;
 }
