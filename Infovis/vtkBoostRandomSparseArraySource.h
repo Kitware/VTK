@@ -37,10 +37,12 @@ public:
   vtkTypeRevisionMacro(vtkBoostRandomSparseArraySource, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+//BTX
   // Description:
   // Sets the extents (dimensionality and size) of the output array
   void SetExtents(const vtkArrayExtents&);
-  
+//ETX
+
   // Description:
   // Returns the extents (dimensionality and size) of the output array
   vtkArrayExtents GetExtents();
