@@ -54,7 +54,7 @@ int CellLocator( int argc, char *argv[] )
 
   // the cell locator
   vtkCellLocator* locator = vtkCellLocator::New();
-  locator->SetDataSet( (vtkDataSet*)sphere2->GetOutput() );
+  locator->SetDataSet(sphere2->GetOutput());
   locator->CacheCellBoundsOn();
   locator->AutomaticOn();
   locator->BuildLocator();
@@ -62,7 +62,8 @@ int CellLocator( int argc, char *argv[] )
   // init the counter and ray length
   int numIntersected = 0;
   double rayLen = 0.2000001; // = 1 - 0.8 + error tolerance
-  int sub_id, cell_id;
+  int sub_id;
+  vtkIdType cell_id;
   double param_t, intersect[3], paraCoord[3];
   double sourcePnt[3], destinPnt[3], normalVec[3];
   vtkGenericCell *cell = vtkGenericCell::New();
