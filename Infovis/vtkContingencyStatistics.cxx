@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.18");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.19");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -60,15 +60,14 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
                                              vtkTable* outMeta )
 {
-  if ( ! inData->GetNumberOfColumns() )
+  if ( ! this->SampleSize )
     {
-    this->SampleSize = 0;
     return;
     }
 
-  this->SampleSize = inData->GetNumberOfRows();
-  if ( ! this->SampleSize )
+  if ( ! inData->GetNumberOfColumns() )
     {
+    this->SampleSize = 0;
     return;
     }
 
@@ -151,6 +150,11 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
   row->Delete();
 
   return;
+}
+
+// ----------------------------------------------------------------------
+void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
+{
 }
 
 // ----------------------------------------------------------------------

@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.29");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.30");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -64,14 +64,6 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
                                        vtkTable* output )
 {
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
-    {
-    this->SampleSize = 0;
-    return;
-    }
-
-  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
@@ -79,6 +71,13 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 
   if ( ! this->Internals->SelectedColumns.size() )
     {
+    return;
+    }
+
+  vtkIdType nCol = inData->GetNumberOfColumns();
+  if ( ! nCol )
+    {
+    this->SampleSize = 0;
     return;
     }
 
@@ -189,6 +188,11 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     }
 
   return;
+}
+
+// ----------------------------------------------------------------------
+void vtkOrderStatistics::ExecuteDerive( vtkTable* inMeta )
+{
 }
 
 // ----------------------------------------------------------------------

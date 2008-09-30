@@ -59,9 +59,16 @@ protected:
   ~vtkCorrelativeStatistics();
 
   // Description:
-  // Execute the required calculations in the specified execution modes
+  // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta );
+
+  // Description:
+  // Execute the calculations required by the Derive option.
+  virtual void ExecuteDerive( vtkTable* );
+
+  // Description:
+  // Execute the calculations required by the Assess option.
   virtual void ExecuteAssess( vtkTable* inData,
                               vtkTable* inMeta,
                               vtkTable* outData,

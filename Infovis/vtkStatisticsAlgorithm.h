@@ -81,6 +81,14 @@ public:
   vtkGetMacro( Learn, bool );
 
   // Description:
+  // Set the Derive option.
+  vtkSetMacro( Derive, bool );
+
+  // Description:
+  // Get the Derive option.
+  vtkGetMacro( Derive, bool );
+
+  // Description:
   // Set the Validate option.
   vtkSetMacro( Validate, bool );
 
@@ -130,6 +138,7 @@ protected:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable*,
                              vtkTable* ) = 0;
+  virtual void ExecuteDerive( vtkTable* ) = 0;
   virtual void ExecuteAssess( vtkTable*,
                               vtkTable*,
                               vtkTable*,
@@ -137,6 +146,7 @@ protected:
 
   vtkIdType SampleSize;
   bool Learn;
+  bool Derive;
   bool Validate;
   bool Assess;
   char* AssessmentName;

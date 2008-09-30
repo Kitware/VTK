@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.44");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.45");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -78,14 +78,6 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
                                              vtkTable* outMeta )
 {
-  vtkIdType nCol = inData->GetNumberOfColumns();
-  if ( ! nCol )
-    {
-    this->SampleSize = 0;
-    return;
-    }
-
-  this->SampleSize = inData->GetNumberOfRows();
   if ( ! this->SampleSize )
     {
     return;
@@ -93,6 +85,13 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 
   if ( ! this->Internals->SelectedColumns.size() )
     {
+    return;
+    }
+
+  vtkIdType nCol = inData->GetNumberOfColumns();
+  if ( ! nCol )
+    {
+    this->SampleSize = 0;
     return;
     }
 
@@ -115,48 +114,33 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   doubleCol->SetName( "Mean" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Standard Deviation" );
+  doubleCol->SetName( "M2" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Variance" );
+  doubleCol->SetName( "M3" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "g1 Skewness" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "G1 Skewness" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "g2 Kurtosis" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "G2 Kurtosis" );
+  doubleCol->SetName( "M4" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
         it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    vtkStdString col = *it;
-    if ( ! inData->GetColumnByName( col ) )
+    vtkStdString colName = *it;
+    if ( ! inData->GetColumnByName( colName ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "<<colName.c_str()<<". Ignoring it." );
       continue;
       }
 
-    double minVal = inData->GetValueByName( 0, col ).ToDouble();
+    double minVal = inData->GetValueByName( 0, colName ).ToDouble();
     double maxVal = minVal;
     double mean = 0.;
     double mom2 = 0.;
@@ -169,7 +153,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       n = r + 1.;
       inv_n = 1. / n;
 
-      val = inData->GetValueByName( r, col ).ToDouble();
+      val = inData->GetValueByName( r, colName ).ToDouble();
       delta = val - mean;
 
       A = delta * inv_n; 
@@ -190,7 +174,102 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
         }
       }
 
-    double nm1, nm2, variance, skewness, G1, kurtosis, G2;
+    vtkVariantArray* row = vtkVariantArray::New();
+
+    row->SetNumberOfValues( 7 );
+
+    row->SetValue( 0, colName );
+    row->SetValue( 1, minVal );
+    row->SetValue( 2, maxVal );
+    row->SetValue( 3, mean );
+    row->SetValue( 4, mom2 );
+    row->SetValue( 5, mom3 );
+    row->SetValue( 6, mom4 );
+
+    outMeta->InsertNextRow( row );
+
+    row->Delete();
+    }
+
+  return;
+}
+
+// ----------------------------------------------------------------------
+void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
+{
+  vtkIdType nCol = inMeta->GetNumberOfColumns();
+  if ( nCol < 7 )
+    {
+    return;
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    return;
+    }
+
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+
+  if ( ! inMeta->GetColumnByName( "Standard Deviation" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Standard Deviation" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  if ( ! inMeta->GetColumnByName( "Variance" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Variance" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  if ( ! inMeta->GetColumnByName( "g1 Skewness" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "g1 Skewness" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  if ( ! inMeta->GetColumnByName( "G1 Skewness" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "G1 Skewness" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  if ( ! inMeta->GetColumnByName( "g2 Kurtosis" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "g2 Kurtosis" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  if ( ! inMeta->GetColumnByName( "G2 Kurtosis" ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "G2 Kurtosis" );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    }
+
+  for ( int i = 0; i < nRow; ++ i )
+    {
+    vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
+    double minVal = inMeta->GetValueByName( i, "Minimum" ).ToDouble();
+    double maxVal = inMeta->GetValueByName( i, "Maximum" ).ToDouble();
+    double mean = inMeta->GetValueByName( i, "Mean" ).ToDouble();
+    double mom2 = inMeta->GetValueByName( i, "M2" ).ToDouble();
+    double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
+    double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
+
+    double variance, skewness, G1, kurtosis, G2;
     if ( this->SampleSize == 1 || mom2 < 1.e-150 )
       {
       variance = 0.;
@@ -201,9 +280,9 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       }
     else
       {
-      n = this->SampleSize;
-      inv_n = 1. / n;
-      nm1 = n - 1.;
+      double n = this->SampleSize;
+      double inv_n = 1. / n;
+      double nm1 = n - 1.;
 
       variance = mom2 / nm1;
       double var_inv = 1. / variance;
@@ -213,7 +292,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
       if ( n > 2 )
         {
         // G1 skewness estimate
-        nm2 = nm1 - 1.;
+        double nm2 = nm1 - 1.;
         G1 = ( n * n ) / ( nm1 * nm2 ) * skewness;
  
         if ( n > 3 )
@@ -233,23 +312,12 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
         }
       }
 
-    vtkVariantArray* row = vtkVariantArray::New();
-
-    row->SetNumberOfValues( 10 );
-    row->SetValue( 0, col );
-    row->SetValue( 1, minVal );
-    row->SetValue( 2, maxVal );
-    row->SetValue( 3, mean );
-    row->SetValue( 4, sqrt( fabs( variance ) ) );
-    row->SetValue( 5, variance );
-    row->SetValue( 6, skewness );
-    row->SetValue( 7, G1 );
-    row->SetValue( 8, kurtosis );
-    row->SetValue( 9, G2 );
-
-    outMeta->InsertNextRow( row );
-
-    row->Delete();
+    inMeta->SetValueByName( i, "Standard Deviation", sqrt( fabs( variance ) ) );
+    inMeta->SetValueByName( i, "Variance", variance );
+    inMeta->SetValueByName( i, "g1 Skewness", skewness );
+    inMeta->SetValueByName( i, "G1 Skewness", G1 );
+    inMeta->SetValueByName( i, "g2 Kurtosis", kurtosis );
+    inMeta->SetValueByName( i, "G2 Kurtosis", G2 );
     }
 
   return;

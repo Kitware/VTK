@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.14");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.15");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -38,6 +38,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 
   // If not told otherwise, only run Learn option
   this->Learn = true;
+  this->Derive = true;
   this->Validate = false;
   this->Assess = false;
   this->AssessmentName = 0;
@@ -56,6 +57,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "SampleSize: " << this->SampleSize << endl;
   os << indent << "Learn: " << this->Learn << endl;
+  os << indent << "Derive: " << this->Derive << endl;
   os << indent << "Validate: " << this->Validate << endl;
   os << indent << "Assess: " << this->Assess << endl;
   if (this->AssessmentName)
@@ -97,9 +99,10 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   vtkTable* inData = vtkTable::GetData( inputVector[0], 0 );
   if ( ! inData )
     {
-    vtkWarningMacro( "Input port 0 is null. Doing nothing." );
-    return 0;
+    return 1;
     }
+
+  this->SampleSize = inData->GetNumberOfRows();
 
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
@@ -108,33 +111,33 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
 
   outData->ShallowCopy( inData );
 
+  vtkTable* inMeta;
   if ( this->Learn )
     {
     this->ExecuteLearn( inData, outMeta1 );
     }
-
-  if ( this->Assess )
+  else
     {
-    // Extract input meta tables
-    vtkTable* inMeta;
+    // Extract input meta table
+    inMeta = vtkTable::GetData( inputVector[1], 0 );
 
-    if ( this->Learn )
-      {
-      inMeta = outMeta1;
-      }
-    else
-      {
-      inMeta = vtkTable::GetData( inputVector[1], 0 );
-      outMeta1->ShallowCopy( inMeta );
-      }
-      
     if ( ! inMeta )
       {
-      vtkWarningMacro( "Input port 1 is null. Cannot assess data." );
+      vtkWarningMacro( "No model available. Doing nothing." );
       return 1;
       }
 
-    this->ExecuteAssess( inData, inMeta, outData, outMeta2 );
+    outMeta1->ShallowCopy( inMeta );
+    }
+
+  if ( this->Derive )
+    {
+    this->ExecuteDerive( outMeta1 );
+    }
+
+  if ( this->Assess )
+    {
+    this->ExecuteAssess( inData, outMeta1, outData, outMeta2 );
     }
 
   return 1;

@@ -89,6 +89,10 @@ protected:
   virtual void ExecuteLearn( vtkTable* inData,
                              vtkTable* outMeta );
 
+  // Description:
+  // Execute the calculations required by the Derive option.
+  virtual void ExecuteDerive( vtkTable* );
+
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
 
