@@ -23,7 +23,6 @@
 #define __vtkExtractFactoredArray_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
 
 // .NAME vtkExtractFactoredArray - Extracts the Nth array stored in a
 // vtkFactoredArrayData object into a pipeline array data object.

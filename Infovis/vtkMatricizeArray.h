@@ -23,9 +23,6 @@
 #define __vtkMatricizeArray_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
-
-class vtkArrayExtents;
 
 // .NAME vtkMatricizeArray - Convert an array of arbitrary dimensions to a
 // matrix.

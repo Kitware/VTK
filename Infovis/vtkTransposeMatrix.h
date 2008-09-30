@@ -23,9 +23,6 @@
 #define __vtkTransposeMatrix_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
-
-class vtkArrayExtents;
 
 // .NAME vtkTransposeMatrix - Computes the transpose of an input matrix.
 

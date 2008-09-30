@@ -23,7 +23,6 @@
 #define __vtkTableToSparseArray_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkArrayExtents.h"
 
 // .NAME vtkTableToSparseArray - converts a vtkTable into a sparse array.
 //

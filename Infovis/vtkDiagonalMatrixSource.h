@@ -23,7 +23,6 @@
 #define __vtkDiagonalMatrixSource_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkArrayExtents.h"
 
 // .NAME vtkDiagonalMatrixSource - generates a sparse or dense square matrix
 // with user-specified values for the diagonal, superdiagonal, and subdiagonal.

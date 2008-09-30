@@ -23,7 +23,6 @@
 #define __vtkBoostLogWeighting_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
 
 // .NAME vtkBoostLogWeighting - Given an arbitrary-dimension array of doubles,
 // replaces each value with the base-e log of (value + 1)

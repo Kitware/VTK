@@ -30,7 +30,6 @@
 #define __vtkMatrixColumnNorm_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
 
 class VTK_INFOVIS_EXPORT vtkMatrixColumnNorm : public vtkArrayDataAlgorithm
 {

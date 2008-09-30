@@ -23,7 +23,6 @@
 #define __vtkNormalizeMatrixVectors_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkSetGet.h"
 
 // .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
 // a sparse output matrix with each vector normalized to unit length.
