@@ -50,7 +50,8 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       cout.flush();
       td->Lock->Unlock();
 
-      for ( int i = 0; i < 2 * threadCount; ++ i )
+      int i;
+      for ( i = 0; i < 2 * threadCount; ++ i )
         {
         td->Lock->Lock();
         cout << "Signaling (count " << i << ")...";
@@ -61,7 +62,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
         //sleep( 1 );
         }
 
-      int i = 0;
+      i = 0;
       do
         {
         td->Lock->Lock();
@@ -139,5 +140,5 @@ int TestConditionVariable( int, char*[] )
   data.Lock->Delete();
   data.Condition->Delete();
   threader->Delete();
-  return 1; // Always fail so the messages we print will show up on the dashboard.
+  return 0;
 }
