@@ -43,10 +43,12 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   // We need to put the graph and tree edges in different domains.
   VTK_CREATE(vtkXMLTreeReader, reader1);
   reader1->SetFileName(treeFileName);
+  delete[] treeFileName;
   reader1->SetEdgePedigreeIdArrayName("tree edge");
   
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetFileName(graphFileName);
+  delete[] graphFileName;
   reader2->SetEdgePedigreeIdArrayName("graph edge");
 
   reader1->Update();
