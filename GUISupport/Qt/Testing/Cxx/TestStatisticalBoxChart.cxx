@@ -78,24 +78,6 @@ int TestStatisticalBoxChart(int argc, char* argv[])
   // Set up the model for the box chart.
   QStandardItemModel *model = new QStandardItemModel(9, 3, boxes);
   model->setItemPrototype(new QStandardItem());
-  model->setVerticalHeaderItem(0, new QStandardItem());
-  model->setVerticalHeaderItem(1, new QStandardItem());
-  model->setVerticalHeaderItem(2, new QStandardItem());
-  model->setVerticalHeaderItem(3, new QStandardItem());
-  model->setVerticalHeaderItem(4, new QStandardItem());
-  model->setVerticalHeaderItem(5, new QStandardItem());
-  model->setVerticalHeaderItem(6, new QStandardItem());
-  model->setVerticalHeaderItem(7, new QStandardItem());
-  model->setVerticalHeaderItem(8, new QStandardItem());
-  model->verticalHeaderItem(0)->setData(QVariant((int)0), Qt::DisplayRole);
-  model->verticalHeaderItem(1)->setData(QVariant((int)10), Qt::DisplayRole);
-  model->verticalHeaderItem(2)->setData(QVariant((int)20), Qt::DisplayRole);
-  model->verticalHeaderItem(3)->setData(QVariant((int)30), Qt::DisplayRole);
-  model->verticalHeaderItem(4)->setData(QVariant((int)40), Qt::DisplayRole);
-  model->verticalHeaderItem(5)->setData(QVariant((int)50), Qt::DisplayRole);
-  model->verticalHeaderItem(6)->setData(QVariant((int)60), Qt::DisplayRole);
-  model->verticalHeaderItem(7)->setData(QVariant((int)70), Qt::DisplayRole);
-  model->verticalHeaderItem(8)->setData(QVariant((int)80), Qt::DisplayRole);
 
   model->setHorizontalHeaderItem(0, new QStandardItem("series 1"));
   model->setHorizontalHeaderItem(1, new QStandardItem("series 2"));
