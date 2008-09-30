@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.46");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.47");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -209,7 +209,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  vtkDoubleArray* doubleCol;
 
   if ( ! inMeta->GetColumnByName( "Standard Deviation" ) )
     {
@@ -217,6 +217,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "Standard Deviation" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   if ( ! inMeta->GetColumnByName( "Variance" ) )
@@ -225,6 +226,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "Variance" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   if ( ! inMeta->GetColumnByName( "g1 Skewness" ) )
@@ -233,6 +235,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "g1 Skewness" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   if ( ! inMeta->GetColumnByName( "G1 Skewness" ) )
@@ -241,6 +244,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "G1 Skewness" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   if ( ! inMeta->GetColumnByName( "g2 Kurtosis" ) )
@@ -249,6 +253,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "g2 Kurtosis" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   if ( ! inMeta->GetColumnByName( "G2 Kurtosis" ) )
@@ -257,6 +262,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->SetName( "G2 Kurtosis" );
     doubleCol->SetNumberOfTuples( nRow );
     inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
     }
 
   for ( int i = 0; i < nRow; ++ i )
