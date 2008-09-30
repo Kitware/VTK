@@ -800,7 +800,7 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
       {
       // Add space around the min and max.
       space = ((pixelMin - pixelMax + 1.0) * 0.5) /
-          (float)(this->Model->getNumberOfLabels() + 1);
+          (float)(this->Model->getNumberOfLabels());
       pixelMin -= space;
       pixelMax += space;
       }
@@ -823,7 +823,7 @@ void vtkQtChartAxis::layoutAxis(const QRectF &area)
       {
       // Add space around the min and max.
       space = ((pixelMax - pixelMin + 1.0) * 0.5) /
-          (float)(this->Model->getNumberOfLabels() + 1);
+          (float)(this->Model->getNumberOfLabels());
       pixelMin += space;
       pixelMax -= space;
       }
