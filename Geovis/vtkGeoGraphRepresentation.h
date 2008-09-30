@@ -34,6 +34,7 @@ class vtkActor;
 class vtkActor2D;
 class vtkAlgorithmOutput;
 class vtkDataObject;
+class vtkDynamic2DLabelMapper;
 class vtkEdgeCenters;
 class vtkEdgeLayout;
 class vtkEdgeLayoutStrategy;
@@ -197,6 +198,7 @@ protected:
   vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
   vtkSmartPointer<vtkLabelPlacer>             LabelPlacer;
   vtkSmartPointer<vtkLabeledDataMapper>       LabelMapper;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>    DynamicLabelMapper;
   vtkSmartPointer<vtkActor2D>                 LabelActor;
   vtkSmartPointer<vtkEdgeLayout>              EdgeLayout;
   vtkSmartPointer<vtkGraphMapper>             GraphMapper;
