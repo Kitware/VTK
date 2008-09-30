@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrayData.h
+  Module:    vtkExtractFactoredArray.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,49 +19,46 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayData_h
-#define __vtkArrayData_h
+#ifndef __vtkExtractFactoredArray_h
+#define __vtkExtractFactoredArray_h
 
-#include "vtkArray.h"
-#include "vtkDataObject.h"
+#include "vtkArrayDataAlgorithm.h"
+#include "vtkSetGet.h"
 
-class vtkArray;
-class vtkInformation;
-class vtkInformationVector;
-
-// .NAME vtkArrayData - Pipeline data object that acts as a container
-// for a single vtkArray
+// .NAME vtkExtractFactoredArray - Extracts the Nth array stored in a
+// vtkFactoredArrayData object into a pipeline array data object.
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_FILTERING_EXPORT vtkArrayData : public vtkDataObject
+class VTK_INFOVIS_EXPORT vtkExtractFactoredArray : public vtkArrayDataAlgorithm
 {
 public:
-  static vtkArrayData* New();
-  vtkTypeRevisionMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
-
-  static vtkArrayData* GetData(vtkInformation* info);
-  static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
+  static vtkExtractFactoredArray* New();
+  vtkTypeRevisionMacro(vtkExtractFactoredArray, vtkArrayDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Sets the vtkArray instance contained by this object
-  vtkSetObjectMacro(Array, vtkArray);
-  
-  // Description:
-  // Returns the vtkArray instance (if any) contained by this object
-  vtkGetObjectMacro(Array, vtkArray);
+  // Controls which array will be extracted.
+  vtkGetMacro(Index, vtkIdType);
+  vtkSetMacro(Index, vtkIdType);
 
 protected:
-  vtkArrayData();
-  ~vtkArrayData();
+  vtkExtractFactoredArray();
+  ~vtkExtractFactoredArray();
 
-  vtkArray* Array;
+  int FillInputPortInformation(int port, vtkInformation* info);
+
+  int RequestData(
+    vtkInformation*, 
+    vtkInformationVector**, 
+    vtkInformationVector*);
 
 private:
-  vtkArrayData(const vtkArrayData&); // Not implemented
-  void operator=(const vtkArrayData&); // Not implemented
+  vtkExtractFactoredArray(const vtkExtractFactoredArray&); // Not implemented
+  void operator=(const vtkExtractFactoredArray&);   // Not implemented
+
+  vtkIdType Index;
 };
 
 #endif

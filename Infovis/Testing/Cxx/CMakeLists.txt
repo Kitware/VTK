@@ -123,3 +123,51 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+
+
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  CREATE_TEST_SOURCELIST(ArrayTests ArrayCxxTests.cxx
+    ArrayAPIDenseCoordinates.cxx
+    ArrayCosineSimilarity.cxx
+    ArrayDiagonalMatrixSource.cxx
+    ArrayExtractFactoredArray.cxx
+    ArrayMatricizeArray.cxx
+    ArrayMatrixColumnNorm.cxx
+    ArrayNormalizeMatrixVectors.cxx
+    ArrayTableToSparseArray.cxx
+    ArrayTransposeMatrix.cxx
+    )
+
+  ADD_EXECUTABLE(InfovisArrayCxxTests ${ArrayTests})
+  TARGET_LINK_LIBRARIES(InfovisArrayCxxTests vtkInfovis)
+
+  SET(ArrayTestsToRun ${ArrayTests})
+  REMOVE(ArrayTestsToRun ArrayCxxTests.cxx)
+
+  FOREACH(test ${ArrayTestsToRun})
+    GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+    ADD_TEST(Array-${TName} ${CXX_TEST_PATH}/InfovisArrayCxxTests ${TName})
+  ENDFOREACH(test)
+
+  IF(VTK_USE_BOOST)
+
+    CREATE_TEST_SOURCELIST(BoostArrayTests BoostArrayCxxTests.cxx
+      BoostArrayLogWeighting.cxx
+      BoostArrayRandomSparseArraySource.cxx
+      )
+
+    ADD_EXECUTABLE(InfovisBoostArrayCxxTests ${BoostArrayTests})
+    TARGET_LINK_LIBRARIES(InfovisBoostArrayCxxTests vtkInfovis)
+
+    SET(BoostArrayTestsToRun ${BoostArrayTests})
+    REMOVE(BoostArrayTestsToRun BoostArrayCxxTests.cxx)
+
+    FOREACH(test ${BoostArrayTestsToRun})
+      GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+      ADD_TEST(Boost-Array-${TName} ${CXX_TEST_PATH}/InfovisBoostArrayCxxTests ${TName})
+    ENDFOREACH(test)
+
+  ENDIF(VTK_USE_BOOST)
+ENDIF(VTK_USE_N_WAY_ARRAYS)
+

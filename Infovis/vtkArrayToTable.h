@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrayData.h
+  Module:    vtkArrayToTable.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,49 +19,38 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayData_h
-#define __vtkArrayData_h
+#ifndef __vtkArrayToTable_h
+#define __vtkArrayToTable_h
 
-#include "vtkArray.h"
-#include "vtkDataObject.h"
+#include "vtkTableAlgorithm.h"
 
-class vtkArray;
-class vtkInformation;
-class vtkInformationVector;
-
-// .NAME vtkArrayData - Pipeline data object that acts as a container
-// for a single vtkArray
+// .NAME vtkArrayToTable - Converts one- and two-dimensional vtkArrayData
+// objects to vtkTable
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_FILTERING_EXPORT vtkArrayData : public vtkDataObject
+class VTK_INFOVIS_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 {
 public:
-  static vtkArrayData* New();
-  vtkTypeRevisionMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
-
-  static vtkArrayData* GetData(vtkInformation* info);
-  static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
-
-  // Description:
-  // Sets the vtkArray instance contained by this object
-  vtkSetObjectMacro(Array, vtkArray);
-  
-  // Description:
-  // Returns the vtkArray instance (if any) contained by this object
-  vtkGetObjectMacro(Array, vtkArray);
+  static vtkArrayToTable* New();
+  vtkTypeRevisionMacro(vtkArrayToTable, vtkTableAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkArrayData();
-  ~vtkArrayData();
+  vtkArrayToTable();
+  ~vtkArrayToTable();
 
-  vtkArray* Array;
+  int FillInputPortInformation(int, vtkInformation*);
+
+  int RequestData(
+    vtkInformation*, 
+    vtkInformationVector**, 
+    vtkInformationVector*);
 
 private:
-  vtkArrayData(const vtkArrayData&); // Not implemented
-  void operator=(const vtkArrayData&); // Not implemented
+  vtkArrayToTable(const vtkArrayToTable&); // Not implemented
+  void operator=(const vtkArrayToTable&);   // Not implemented
 };
 
 #endif

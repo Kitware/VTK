@@ -75,6 +75,7 @@ vtkXMLTreeReader.cxx
 
 # Add these classes only if using Boost
 IF(VTK_USE_BOOST)
+
   SET(Kit_SRCS
     ${Kit_SRCS}
     vtkBoostBiconnectedComponents.cxx
@@ -86,7 +87,35 @@ IF(VTK_USE_BOOST)
     vtkBoostPrimMinimumSpanningTree.cxx
     vtkBoostSplitTableField.cxx
   )
+
 ENDIF(VTK_USE_BOOST)
+
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkAdjacencyMatrixToEdgeTable.cxx
+    vtkArrayToTable.cxx
+    vtkCosineSimilarity.cxx
+    vtkDiagonalMatrixSource.cxx
+    vtkExtractFactoredArray.cxx
+    vtkMatricizeArray.cxx
+    vtkMatrixColumnNorm.cxx
+    vtkNormalizeMatrixVectors.cxx
+    vtkTableToSparseArray.cxx
+    vtkTransposeMatrix.cxx
+    )
+
+  IF(VTK_USE_BOOST)
+
+    SET(Kit_SRCS
+      ${Kit_SRCS}
+      vtkBoostLogWeighting.cxx
+      vtkBoostRandomSparseArraySource.cxx
+    )
+
+  ENDIF(VTK_USE_BOOST)
+ENDIF(VTK_USE_N_WAY_ARRAYS)
 
 # Add these classes only if vtkTypeUInt64Array exists
 SET(VTK_HAS_UINT64_ARRAY 0)

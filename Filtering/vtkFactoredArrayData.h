@@ -31,6 +31,9 @@ class vtkArray;
 // collection of vtkArray instances.  Used to store the "factored"
 // representation of a larger array.
 
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 class VTK_FILTERING_EXPORT vtkFactoredArrayData : public vtkDataObject
 {
 public:

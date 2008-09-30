@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkArrayData.h
+  Module:    vtkBoostLogWeighting.h
   
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -19,49 +19,37 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayData_h
-#define __vtkArrayData_h
+#ifndef __vtkBoostLogWeighting_h
+#define __vtkBoostLogWeighting_h
 
-#include "vtkArray.h"
-#include "vtkDataObject.h"
+#include "vtkArrayDataAlgorithm.h"
+#include "vtkSetGet.h"
 
-class vtkArray;
-class vtkInformation;
-class vtkInformationVector;
-
-// .NAME vtkArrayData - Pipeline data object that acts as a container
-// for a single vtkArray
+// .NAME vtkBoostLogWeighting - Given an arbitrary-dimension array of doubles,
+// replaces each value with the base-e log of (value + 1)
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-class VTK_FILTERING_EXPORT vtkArrayData : public vtkDataObject
+class VTK_INFOVIS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {
 public:
-  static vtkArrayData* New();
-  vtkTypeRevisionMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
-
-  static vtkArrayData* GetData(vtkInformation* info);
-  static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
-
-  // Description:
-  // Sets the vtkArray instance contained by this object
-  vtkSetObjectMacro(Array, vtkArray);
-  
-  // Description:
-  // Returns the vtkArray instance (if any) contained by this object
-  vtkGetObjectMacro(Array, vtkArray);
+  static vtkBoostLogWeighting* New();
+  vtkTypeRevisionMacro(vtkBoostLogWeighting, vtkArrayDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkArrayData();
-  ~vtkArrayData();
+  vtkBoostLogWeighting();
+  ~vtkBoostLogWeighting();
 
-  vtkArray* Array;
+  int RequestData(
+    vtkInformation*, 
+    vtkInformationVector**, 
+    vtkInformationVector*);
 
 private:
-  vtkArrayData(const vtkArrayData&); // Not implemented
-  void operator=(const vtkArrayData&); // Not implemented
+  vtkBoostLogWeighting(const vtkBoostLogWeighting&); // Not implemented
+  void operator=(const vtkBoostLogWeighting&);   // Not implemented
 };
 
 #endif

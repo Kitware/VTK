@@ -39,6 +39,9 @@
 // signature. For even older filters that don't implement ExecuteData the
 // default implementation calls the even older Execute() signature.
 
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkFactoredArrayDataAlgorithm_h
 #define __vtkFactoredArrayDataAlgorithm_h
 
