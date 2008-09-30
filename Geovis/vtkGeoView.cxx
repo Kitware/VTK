@@ -39,7 +39,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
 
-vtkCxxRevisionMacro(vtkGeoView, "1.4");
+vtkCxxRevisionMacro(vtkGeoView, "1.5");
 vtkStandardNewMacro(vtkGeoView);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
@@ -59,21 +59,21 @@ vtkGeoView::vtkGeoView()
   this->Renderer->AddLight(light);
   light->Delete();
 
-  // Make an actor that is a low resolution earth.  This is simply to hide
-  // geometry on the other side of the earth when picking.  The actor in
-  // vtkGeoAlignedImageRepresentation is not rendered during visible cell
-  // selection because it is a vtkAssembly.
-  this->LowResEarthSource       = vtkGlobeSource::New();
+  // Set the camera
+  vtkGeoCamera* cam = style->GetGeoCamera();
+  this->Renderer->SetActiveCamera(cam->GetVTKCamera());
+
+  // Make an actor that is a low resolution earth.
+  // This is simply to hide geometry on the other side of the earth when picking.
+  // The actor in vtkGeoBackgroundImageRepresentation is not rendered during
+  // visible cell selection because it is a vtkAssembly.
   this->LowResEarthMapper       = vtkPolyDataMapper::New();
   this->LowResEarthActor        = vtkActor::New();
-  this->LowResEarthSource->SetStartLatitude(-90.0);
-  this->LowResEarthSource->SetEndLatitude(90.0);
-  this->LowResEarthSource->SetStartLongitude(-180.0);
-  this->LowResEarthSource->SetEndLongitude(180.0);
-  this->LowResEarthMapper->SetInputConnection(this->LowResEarthSource->GetOutputPort());
+  this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
+  this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
   // Make it slightly smaller than the earth so it is not visible
-  this->LowResEarthActor->SetScale(0.95); 
+  
   
   this->RenderWindow = 0;
 
@@ -105,6 +105,28 @@ vtkGeoView::~vtkGeoView()
     this->RenderWindow->Delete();
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkGeoView::BuildLowResEarth( double origin[3] )
+{
+  if (this->LowResEarthSource)
+    {
+    this->LowResEarthSource->Delete();
+    }
+  this->LowResEarthSource       = vtkGlobeSource::New();
+  this->LowResEarthSource->SetOrigin( origin );
+  // Make it slightly smaller than the earth so it is not visible
+  double radius = this->LowResEarthSource->GetRadius(); 
+  this->LowResEarthSource->SetRadius(0.95*radius);
+  this->LowResEarthSource->SetStartLatitude(-90.0);
+  this->LowResEarthSource->SetEndLatitude(90.0);
+  this->LowResEarthSource->SetStartLongitude(-180.0);
+  this->LowResEarthSource->SetEndLongitude(180.0);
+  this->LowResEarthSource->SetLongitudeResolution(15);
+  this->LowResEarthMapper->SetInputConnection(this->LowResEarthSource->GetOutputPort());
+  //this->LowResEarthActor->VisibilityOff();
+}
+  
 
 //----------------------------------------------------------------------------
 void vtkGeoView::SetupRenderWindow(vtkRenderWindow* win)

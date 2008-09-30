@@ -23,13 +23,14 @@
 #include "vtkGlobeSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainGlobeSource, "1.1");
+vtkCxxRevisionMacro(vtkGeoTerrainGlobeSource, "1.2");
 vtkStandardNewMacro(vtkGeoTerrainGlobeSource);
 
 
 //----------------------------------------------------------------------------
 vtkGeoTerrainGlobeSource::vtkGeoTerrainGlobeSource() 
 {
+  this->Globe = vtkSmartPointer<vtkGlobeSource>::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -47,24 +48,25 @@ void vtkGeoTerrainGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
 void vtkGeoTerrainGlobeSource::GenerateTerrainForNode(vtkGeoTerrainNode* node)
 {
   double* range;
-  vtkSmartPointer<vtkGlobeSource> globe = vtkSmartPointer<vtkGlobeSource>::New();
+
+  this->Globe->SetOrigin(this->Origin);
 
   range = node->GetLongitudeRange();
-  globe->SetStartLongitude(range[0]);
-  globe->SetEndLongitude(range[1]);
+  this->Globe->SetStartLongitude(range[0]);
+  this->Globe->SetEndLongitude(range[1]);
 
   range = node->GetLatitudeRange();
-  globe->SetStartLatitude(range[0]);
-  globe->SetEndLatitude(range[1]);
+  this->Globe->SetStartLatitude(range[0]);
+  this->Globe->SetEndLatitude(range[1]);
 
-  globe->SetLongitudeResolution(16);
-  globe->SetLatitudeResolution(16);
+  this->Globe->SetLongitudeResolution(16);
+  this->Globe->SetLatitudeResolution(16);
   
-  globe->SetCurtainHeight(20000.0);
-  globe->Update();
+  this->Globe->SetCurtainHeight(20000.0);
+  this->Globe->Update();
 
   vtkSmartPointer<vtkPolyData> model = vtkSmartPointer<vtkPolyData>::New();
-  model->ShallowCopy(globe->GetOutput());
+  model->ShallowCopy(this->Globe->GetOutput());
 
   node->SetModel(model);
   node->UpdateBoundingSphere();

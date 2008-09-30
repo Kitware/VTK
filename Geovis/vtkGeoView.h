@@ -57,6 +57,10 @@ public:
   virtual void PrepareForRendering();
   
   // Description:
+  // Rebuild low-res earth source; call after (re)setting origin.
+  void BuildLowResEarth( double origin[3] );
+  
+  // Description:
   // Whether the view locks the heading when panning.
   // Default is off.
   virtual void SetLockHeading(bool lock);

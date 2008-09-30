@@ -43,6 +43,12 @@ public:
   vtkTypeRevisionMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+  // Descrpition:
+  // This world point will be shifted to 0,0,0.
+  // Used to avoid picking bug caused by rendering errors with large offsets.
+  vtkSetVector3Macro(Origin, double);
+
   // Description:
   // Longitude Latitude clamps.
   vtkSetClampMacro(StartLongitude,double,-180.0,180.0);
@@ -118,6 +124,7 @@ protected:
     vtkFloatArray* newLongitudeArray, vtkFloatArray* newLatitudeArray);
 
 
+  double Origin[3];
   double Radius;
   double CurtainHeight;
   int LongitudeResolution;

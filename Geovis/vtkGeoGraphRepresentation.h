@@ -34,7 +34,6 @@ class vtkActor;
 class vtkActor2D;
 class vtkAlgorithmOutput;
 class vtkDataObject;
-class vtkDynamic2DLabelMapper;
 class vtkEdgeCenters;
 class vtkEdgeLayout;
 class vtkEdgeLayoutStrategy;
@@ -62,7 +61,7 @@ public:
   static vtkGeoGraphRepresentation *New();
   vtkTypeRevisionMacro(vtkGeoGraphRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Sets the input pipeGraph connection to this representation.
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
@@ -198,7 +197,6 @@ protected:
   vtkSmartPointer<vtkPointSetToLabelHierarchy> LabelHierarchy;
   vtkSmartPointer<vtkLabelPlacer>             LabelPlacer;
   vtkSmartPointer<vtkLabeledDataMapper>       LabelMapper;
-  vtkSmartPointer<vtkDynamic2DLabelMapper>    DynamicLabelMapper;
   vtkSmartPointer<vtkActor2D>                 LabelActor;
   vtkSmartPointer<vtkEdgeLayout>              EdgeLayout;
   vtkSmartPointer<vtkGraphMapper>             GraphMapper;

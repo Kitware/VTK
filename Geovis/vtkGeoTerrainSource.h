@@ -39,6 +39,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // The poly data is shifted wo this world location is at (0,0,0).
+  // This is a fix for the OpenGL imprecision bug seen during picking.
+  vtkSetVector3Macro(Origin, double);
+  
+  // Description:
   // This is used by the local globe source.  It returns
   // when the request has been satisfied.
   // I think for the remote class, we should have a callback that
@@ -49,6 +54,8 @@ public:
 protected:
   vtkGeoTerrainSource();
   ~vtkGeoTerrainSource();
+
+  double Origin[3];
 
 private:
   vtkGeoTerrainSource(const vtkGeoTerrainSource&);  // Not implemented.

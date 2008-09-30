@@ -85,6 +85,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Get the world position without the origin shift.
+  vtkGetVector3Macro(Position, double);
+
+  // Description:
   // Longitude is in degrees: (-180->180)
   //   Relative to absolute coordinates.
   //  Rotate Longitude  around z axis (earth axis),
@@ -149,6 +153,22 @@ public:
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
   
+  // Description:
+  // This point is shifted to 0,0,0 to avoid openGL issues.
+  void SetOriginLatitude(double oLat);
+  vtkGetMacro(OriginLatitude, double);
+  void SetOriginLongitude(double oLat);
+  vtkGetMacro(OriginLongitude, double);
+
+  // Description:
+  // Get the rectilinear cooridinate location of the origin.
+  // This is used to shift the terrain points.
+  vtkGetVector3Macro(Origin, double);
+  void SetOrigin( double ox, double oy, double oz ) {
+    this->Origin[0] = ox; this->Origin[1] = oy; this->Origin[2] = oz;
+    this->UpdateVTKCamera();
+  }
+  
 protected:
   vtkGeoCamera();
   ~vtkGeoCamera();
@@ -160,6 +180,12 @@ protected:
   vtkSmartPointer<vtkCamera> VTKCamera;
   vtkSmartPointer<vtkTransform> Transform;
 //ETX
+  
+  // This point is shifted to 0,0,0 to avoid openGL issues.
+  double OriginLatitude;
+  double OriginLongitude;
+  double Origin[3];
+  void ComputeRectilinearOrigin();
   
   double Longitude;
   double Latitude;
@@ -180,6 +206,8 @@ protected:
   double RightPlaneNormal[3];
   double DownPlaneNormal[3];
   double UpPlaneNormal[3];
+  
+  double Position[3];
   
 private:
   vtkGeoCamera(const vtkGeoCamera&);  // Not implemented.

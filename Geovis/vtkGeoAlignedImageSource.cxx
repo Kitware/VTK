@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.5");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.6");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 
 

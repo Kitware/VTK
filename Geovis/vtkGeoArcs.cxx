@@ -32,7 +32,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoArcs, "1.2");
+vtkCxxRevisionMacro(vtkGeoArcs, "1.3");
 vtkStandardNewMacro(vtkGeoArcs);
 
 vtkGeoArcs::vtkGeoArcs()

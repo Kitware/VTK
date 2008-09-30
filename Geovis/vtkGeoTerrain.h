@@ -51,6 +51,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // The poly data is shifted wo this world location is at (0,0,0).
+  // This is a fix for the OpenGL imprecision bug seen during picking.
+  void SetOrigin(double x, double y, double z);
+
+  // Description:
   // Build the best terrain for the last request given 
   // patches currently available in the cache.
   // It returns true if the terrain changed at all. 
@@ -90,6 +95,10 @@ public:
   // Description:
   // This is public so that the multi threader can call this method.
   void ThreadStart();
+
+  // Description:
+  // Emtpy the cache and intialize the roots.
+  void Initialize();
   
 protected:
   vtkGeoTerrain();

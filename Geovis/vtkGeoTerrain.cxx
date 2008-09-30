@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.4");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.5");
 vtkStandardNewMacro(vtkGeoTerrain);
 #if _WIN32
 #include "windows.h"
@@ -104,6 +104,15 @@ void vtkGeoTerrain::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+void vtkGeoTerrain::SetOrigin(double x, double y, double z)
+{
+  this->GetTerrainSource()->SetOrigin(x, y, z);
+
+  // We need to get rid of terrain pathces generated so far.
+  this->Initialize(); // from cache
+}
+
+//-----------------------------------------------------------------------------
 void vtkGeoTerrain::StartEdit()
 {
   this->NewNodes.clear();
@@ -153,18 +162,7 @@ void vtkGeoTerrain::SetTerrainSource(vtkGeoTerrainSource* source)
     }
   
   this->TerrainSource = source;
-  this->WesternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
-  this->EasternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
-  this->WesternHemisphere->SetId(0);
-  this->EasternHemisphere->SetId(1);
-
-  // Id is a bitmap representation of the branch trace.
-  this->WesternHemisphere->SetLongitudeRange(-180.0,0.0);
-  this->WesternHemisphere->SetLatitudeRange(-90.0,90.0);
-  source->GenerateTerrainForNode(this->WesternHemisphere);
-  this->EasternHemisphere->SetLongitudeRange(0.0,180.0);
-  this->EasternHemisphere->SetLatitudeRange(-90.0,90.0);
-  source->GenerateTerrainForNode(this->EasternHemisphere);
+  this->Initialize();
 }
 
 
@@ -198,6 +196,28 @@ void vtkGeoTerrain::InitializeTerrain(vtkGeoTerrain* terrain)
   terrain->AddNode(this->WesternHemisphere);
   terrain->AddNode(this->EasternHemisphere);
   terrain->FinishEdit();
+}
+
+void vtkGeoTerrain::Initialize()
+{
+  if (this->TerrainSource == 0)
+    {
+    vtkErrorMacro("Missing terrain source.");
+    return;
+    }
+
+  this->WesternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
+  this->EasternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
+  this->WesternHemisphere->SetId(0);
+  this->EasternHemisphere->SetId(1);
+
+  // Id is a bitmap representation of the branch trace.
+  this->WesternHemisphere->SetLongitudeRange(-180.0,0.0);
+  this->WesternHemisphere->SetLatitudeRange(-90.0,90.0);
+  this->TerrainSource->GenerateTerrainForNode(this->WesternHemisphere);
+  this->EasternHemisphere->SetLongitudeRange(0.0,180.0);
+  this->EasternHemisphere->SetLatitudeRange(-90.0,90.0);
+  this->TerrainSource->GenerateTerrainForNode(this->EasternHemisphere);
 }
 
 //-----------------------------------------------------------------------------
@@ -485,11 +505,11 @@ int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* cam)
   sphereViewSize = cam->GetNodeCoverage(node);
   
   // Arbitrary tresholds
-  if (sphereViewSize > 0.75)
+  if (sphereViewSize > 0.2)
     {
     return 1;
     }
-  if (sphereViewSize < 0.2)
+  if (sphereViewSize < 0.05)
     {
     return -1;
     }

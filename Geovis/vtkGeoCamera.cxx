@@ -29,7 +29,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.3");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.4");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -39,6 +39,10 @@ vtkGeoCamera::vtkGeoCamera()
   this->VTKCamera = vtkSmartPointer<vtkCamera>::New();
   this->Transform = vtkSmartPointer<vtkTransform>::New();
 
+  this->OriginLongitude = 0.0;
+  this->OriginLatitude = 0.0;
+  this->ComputeRectilinearOrigin();
+  
   // Intial state will be looking at earth over the American continent.
   //this->Longitude = -90.0;
   this->Longitude = 0.0;
@@ -49,6 +53,9 @@ vtkGeoCamera::vtkGeoCamera()
   this->LockHeading = true;
   this->UpdateAngleRanges();
   this->UpdateVTKCamera();
+
+  this->Position[0] = this->Position[1] = this->Position[2] = 0.0;
+  this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -68,6 +75,48 @@ void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LockHeading: " << (this->LockHeading ? "on" : "off");
   os << indent << "VTKCamera:" << endl;
   this->VTKCamera->PrintSelf(os, indent.GetNextIndent());
+}
+//-----------------------------------------------------------------------------
+void vtkGeoCamera::SetOriginLatitude(double oLat)
+{
+  if (this->OriginLatitude == oLat)
+    {
+    return;
+    }
+  cerr << "New latitude " << oLat << "\n";
+  this->OriginLatitude = oLat;
+  this->Modified();
+  this->ComputeRectilinearOrigin();
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoCamera::SetOriginLongitude(double oLon)
+{
+  if (this->OriginLongitude == oLon)
+    {
+    return;
+    }
+  cerr << "New longitude " << oLon << "\n";
+  this->OriginLongitude = oLon;
+  this->Modified();
+  this->ComputeRectilinearOrigin();
+}
+
+//-----------------------------------------------------------------------------
+void vtkGeoCamera::ComputeRectilinearOrigin()
+{
+  double tmp = cos(this->OriginLatitude * vtkMath::Pi() / 180.0);
+
+  this->Origin[1] = tmp * cos(this->OriginLongitude * vtkMath::Pi() / 180.0);
+  this->Origin[0] = -tmp * sin(this->OriginLongitude * vtkMath::Pi() / 180.0);
+  
+  this->Origin[2] = sin(this->OriginLatitude * vtkMath::Pi() / 180.0);
+  
+  this->Origin[0] *= VTK_EARTH_RADIUS_METERS;
+  this->Origin[1] *= VTK_EARTH_RADIUS_METERS;
+  this->Origin[2] *= VTK_EARTH_RADIUS_METERS;
+
+  this->UpdateVTKCamera();
 }
 
 
@@ -188,6 +237,12 @@ void vtkGeoCamera::UpdateVTKCamera()
   // Longitude
   this->Transform->RotateZ(this->Longitude);
 
+  // Consider origin.
+  this->Transform->Translate(-this->Origin[0], 
+                             -this->Origin[1], 
+                             -this->Origin[2]);
+  
+  
   double* pt;
   double tmp[3];
   // Find focal point of the camera.
@@ -198,6 +253,10 @@ void vtkGeoCamera::UpdateVTKCamera()
   // Use arbitrary magnitude.
   pt = this->Transform->TransformDoublePoint(0.0, 0.0, -this->Distance);
   this->VTKCamera->SetPosition(pt);
+  // Save the position with out the origin shift so the evaluation works.
+  this->Position[0] = pt[0] + this->Origin[0];
+  this->Position[1] = pt[1] + this->Origin[1];
+  this->Position[2] = pt[2] + this->Origin[2];
 
   if (this->LockHeading)
     {
@@ -316,7 +375,7 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
   double sphereRadius;
   double camPosition[3];
   
-  this->VTKCamera->GetPosition(camPosition);
+  this->GetPosition(camPosition);
   
   // Lets take care of nodes on the opposite side of the earth.
   // I think there should be a better way of figuring this out.

@@ -30,7 +30,6 @@
 #include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
-#include "vtkDynamic2DLabelMapper.h"
 #include "vtkEdgeCenters.h"
 #include "vtkEdgeLayout.h"
 #include "vtkEdgeListIterator.h"
@@ -65,7 +64,7 @@
 #include "vtkViewTheme.h"
 #include "vtkXMLDataSetWriter.h"
 
-vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkGeoGraphRepresentation, "1.15");
 vtkStandardNewMacro(vtkGeoGraphRepresentation);
 //----------------------------------------------------------------------------
 vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
@@ -79,7 +78,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelHierarchy            = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
   this->LabelPlacer               = vtkSmartPointer<vtkLabelPlacer>::New();
   this->LabelMapper               = vtkSmartPointer<vtkLabeledDataMapper>::New();
-  this->DynamicLabelMapper        = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
   this->LabelActor                = vtkSmartPointer<vtkActor2D>::New();
   this->EdgeCenters                   = vtkSmartPointer<vtkEdgeCenters>::New();
   this->EdgeLabelMapper               = vtkSmartPointer<vtkLabeledDataMapper>::New();
@@ -105,8 +103,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelPlacer->SetInputConnection(this->LabelHierarchy->GetOutputPort());
   this->LabelMapper->SetInputConnection(this->LabelPlacer->GetOutputPort());
   this->LabelActor->SetMapper(this->LabelMapper);
-
-  this->DynamicLabelMapper->SetInputConnection(this->AssignCoordinates->GetOutputPort());
 
   this->EdgeCenters->SetInputConnection(this->EdgeLayout->GetOutputPort());
   this->EdgeLabelMaskPoints->SetInputConnection(this->EdgeCenters->GetOutputPort());
@@ -137,9 +133,6 @@ vtkGeoGraphRepresentation::vtkGeoGraphRepresentation()
   this->LabelMapper->SetFieldDataName("LabelText");
   this->LabelMapper->SetLabelModeToLabelFieldData();
   this->LabelMapper->SetLabelTextProperty(tp);
-  this->DynamicLabelMapper->SetFieldDataName("Label");
-  this->DynamicLabelMapper->SetLabelModeToLabelFieldData();
-  this->DynamicLabelMapper->SetLabelTextProperty(tp);
   this->LabelActor->PickableOff();
   this->LabelActor->VisibilityOff();
   this->SetEdgeLayoutStrategyToGeo();
@@ -203,7 +196,6 @@ void vtkGeoGraphRepresentation::SetVertexLabelArrayName(const char* name)
       SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
     this->LabelHierarchy->
       SetInputArrayToProcess(2, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
-    this->DynamicLabelMapper->SetFieldDataName(name);
     }
 }
 
@@ -454,12 +446,6 @@ bool vtkGeoGraphRepresentation::AddToView(vtkView* view)
     {
     this->In3DGeoView = true;
     }
-  else
-    {
-    // Setup 2D view parameters
-    this->LabelActor->SetMapper(this->DynamicLabelMapper);
-    this->SetEdgeLayoutStrategyToArcParallel();
-    }
   this->EdgeLabelSelectVisiblePoints->SetRenderer(rv->GetRenderer());
   this->LabelPlacer->SetRenderer(rv->GetRenderer());
   rv->GetRenderer()->AddActor(this->SelectionActor);
@@ -640,8 +626,6 @@ void vtkGeoGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->LabelPlacer->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LabelMapper:" << endl;
   this->LabelMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "DynamicLabelMapper:" << endl;
-  this->DynamicLabelMapper->PrintSelf(os, indent.GetNextIndent());
   if (this->GetInputConnection())
     {
     os << indent << "GraphActor:" << endl;

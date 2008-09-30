@@ -39,7 +39,7 @@
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.5");
+vtkCxxRevisionMacro(vtkGeoAdaptiveArcs, "1.6");
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 
 //-------------------------------------------------------------------------

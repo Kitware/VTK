@@ -26,7 +26,9 @@
 #define __vtkGeoTerrainGlobeSource_h
 
 #include "vtkGeoTerrainSource.h"
+#include "vtkSmartPointer.h" // For Globe ivar
 
+class vtkGlobeSource;
 class vtkGeoTerrainNode;
 
 class VTK_GEOVIS_EXPORT vtkGeoTerrainGlobeSource : public vtkGeoTerrainSource
@@ -41,6 +43,10 @@ public:
 protected:
   vtkGeoTerrainGlobeSource();
   ~vtkGeoTerrainGlobeSource();
+
+//BTX
+  vtkSmartPointer<vtkGlobeSource> Globe;
+//ETX
 
 private:
   vtkGeoTerrainGlobeSource(const vtkGeoTerrainGlobeSource&);  // Not implemented.
