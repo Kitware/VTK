@@ -305,6 +305,18 @@ SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
 
+IF(VTK_USE_N_WAY_ARRAYS)
+
+  SET(Kit_SRCS
+    ${Kit_SRCS}
+    vtkArrayData.cxx
+    vtkArrayDataAlgorithm.cxx
+    vtkFactoredArrayData.cxx
+    vtkFactoredArrayDataAlgorithm.cxx
+    )
+
+ENDIF(VTK_USE_N_WAY_ARRAYS)
+
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
 INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
