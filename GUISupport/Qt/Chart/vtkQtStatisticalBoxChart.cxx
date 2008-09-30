@@ -116,7 +116,7 @@ vtkQtStatisticalBoxChartInternal::vtkQtStatisticalBoxChartInternal() :
   Series(), Domain(), Groups()
 {
   this->Domain.setHorizontalPreferences(false, false, true);
-  this->Domain.setVerticalPreferences(true, true, false);
+  this->Domain.setVerticalPreferences(true, false, false);
 }
 
 int vtkQtStatisticalBoxChartInternal::getSeries(QGraphicsRectItem *bar) const
@@ -145,7 +145,7 @@ vtkQtStatisticalBoxChart::vtkQtStatisticalBoxChart() :
   // Listen for option changes.
   this->connect(this->Options, SIGNAL(axesCornerChanged()), this,
       SLOT(handleAxesCornerChange()));
-  this->connect(this->Options, SIGNAL(barFractionsChanged()), this,
+  this->connect(this->Options, SIGNAL(boxFractionChanged()), this,
       SIGNAL(layoutNeeded()));
   this->connect(this->Options, SIGNAL(outlineStyleChanged()), this,
       SLOT(handleOutlineChange()));
@@ -199,9 +199,8 @@ void vtkQtStatisticalBoxChart::setOptions(
 {
   // Copy the new options. The chart will collapse the layout signals.
   this->Options->setAxesCorner(options.getAxesCorner());
-  this->Options->setBarGroupFraction(options.getBarGroupFraction());
-  this->Options->setBarWidthFraction(options.getBarWidthFraction());
-  this->Options->setBinOutlineStyle(options.getOutlineStyle());
+  this->Options->setBoxWidthFraction(options.getBoxWidthFraction());
+  this->Options->setOutlineStyle(options.getOutlineStyle());
 }
 
 vtkQtStatisticalBoxChartSeriesOptions *vtkQtStatisticalBoxChart::getBarSeriesOptions(
@@ -217,10 +216,9 @@ void vtkQtStatisticalBoxChart::getLayerDomain(vtkQtChartLayerDomain &domain) con
 
 void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
 {
-
   // Update the position.
   this->setPos(area.topLeft());
-  if (this->Internal->Series.size() == 0)
+  if(this->Internal->Series.size() == 0)
     {
     return;
     }
@@ -240,15 +238,15 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
   QList<QVariant> domain;
   const vtkQtChartSeriesDomain *seriesDomain =
       this->Internal->Domain.getDomain(xAxis->getAxisDomain(),
-          yAxis->getAxisDomain(), &domainIndex);
-  if (seriesDomain)
+      yAxis->getAxisDomain(), &domainIndex);
+  if(seriesDomain)
     {
     domain = seriesDomain->getXDomain().getDomain(isRange);
-    for (; i < domain.size() - 1; i++)
+    for( ; i < domain.size() - 1; i++)
       {
-      float distance = qAbs<float>(xAxis->getPixel(domain[i + 1])
-          - xAxis->getPixel(domain[i]));
-      if (i == 0 || distance < minDistance)
+      float distance = qAbs<float>(xAxis->getPixel(domain[i + 1]) -
+          xAxis->getPixel(domain[i]));
+      if(i == 0 || distance < minDistance)
         {
         minDistance = distance;
         }
@@ -256,34 +254,26 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
     }
 
   // Use the width fractions to determine the actual bar width.
-  minDistance *= this->Options->getBarGroupFraction();
-  float barWidth = minDistance;
+  minDistance *= this->Options->getBoxWidthFraction();
+  float boxWidth = minDistance;
 
   // Get the list of series in the selected domain.
   QList<int> seriesList;
-  if (seriesDomain)
+  if(seriesDomain)
     {
     seriesList = this->Internal->Groups.getGroup(domainIndex);
     }
 
-  if (seriesList.size() > 0)
+  if(boxWidth < 1)
     {
-    barWidth = this->Options->getBarWidthFraction();
-    barWidth = (minDistance * barWidth) / (seriesList.size() - 1 + barWidth);
+    boxWidth = 1;
     }
 
-  if (barWidth < 1)
-    {
-    barWidth = 1;
-    }
-
-  // Position and size the bar series. Skip the series if it is
+  // Position and size the box series. Skip the series if it is
   // invisible or invalid for the domain.
-  float halfDistance = minDistance * 0.5;
-  //  float base = yAxis->getZeroPixel();
+  float halfWidth = boxWidth * 0.5;
   for (i = 0; i < this->Model->getNumberOfSeries(); i++)
     {
-
     vtkQtStatisticalBoxChartItem *series = this->Internal->Series[i];
     series->setVisible(seriesList.contains(i));
     if (!series->isVisible())
@@ -291,96 +281,63 @@ void vtkQtStatisticalBoxChart::layoutChart(const QRectF &area)
       continue;
       }
 
-    float xOffset = ((float)i * (barWidth
-        / this->Options->getBarWidthFraction())) - halfDistance;
-
     if (this->Model->getNumberOfSeriesValues(i) >= 5)
       {
+      float px = xAxis->getPixel(this->Model->getSeriesName(i));
+      float left = px - halfWidth;
+      float right = left + boxWidth;
 
-      QVariant min = this->Model->getSeriesValue(i, 0, 1);
-      QVariant lowerQuartile = this->Model->getSeriesValue(i, 1, 1);
-      QVariant median = this->Model->getSeriesValue(i, 2, 1);
-      QVariant upperQuartile = this->Model->getSeriesValue(i, 3, 1);
-      QVariant max = this->Model->getSeriesValue(i, 4, 1);
+      // Minimum: 0
+      // Lower Quartile: 1
+      // Median: 2
+      // Upper Quartile: 3
+      // Maximum: 4
+      float min = yAxis->getPixel(this->Model->getSeriesValue(i, 0, 1));
+      float lower = yAxis->getPixel(this->Model->getSeriesValue(i, 1, 1));
+      float median = yAxis->getPixel(this->Model->getSeriesValue(i, 2, 1));
+      float upper = yAxis->getPixel(this->Model->getSeriesValue(i, 3, 1));
+      float max = yAxis->getPixel(this->Model->getSeriesValue(i, 4, 1));
 
-      QList<QVariant> outliers;
-      for (int j=5; j<this->Model->getNumberOfSeriesValues(i); j++)
-        {
-        outliers.append(this->Model->getSeriesValue(i, j, 1));
-        }
-
-      float py1 = yAxis->getPixel(lowerQuartile);
-      float py2 = yAxis->getPixel(upperQuartile);
-
-      float px = xAxis->getPixel(this->Model->getSeriesValue(i, 0, 0));
-
-      series->Box->setPos(px + xOffset, py1);
-      series->Box->setRect(0, 0, barWidth, py2-py1);
+      // Set the box size.
+      series->Box->setPos(left, upper);
+      series->Box->setRect(0.0, 0.0, boxWidth, lower - upper);
 
       // Add in median
-      float medX1 = px+xOffset;
-      float medX2 = px+xOffset+barWidth;
-      float medY1 = yAxis->getPixel(median);
-      float medY2 = yAxis->getPixel(median);
-      series->MedianPoint->setLine(medX1, medY1, medX2, medY2);
+      series->MedianPoint->setLine(left, median, right, median);
 
       // Add in lower whisker point
-      float lPtX1 = px+xOffset;
-      float lPtX2 = px+xOffset+barWidth;
-      float lPtY1 = yAxis->getPixel(min);
-      float lPtY2 = yAxis->getPixel(min);
-      series->WhiskerLowPoint->setLine(lPtX1, lPtY1, lPtX2, lPtY2);
+      series->WhiskerLowPoint->setLine(left, min, right, min);
 
       // Add in lower whisker line
-      float lLnX1 = px+xOffset+barWidth/2.0;
-      float lLnX2 = px+xOffset+barWidth/2.0;
-      float lLnY1 = yAxis->getPixel(min);
-      float lLnY2 = yAxis->getPixel(lowerQuartile);
-      series->WhiskerLowLine->setLine(lLnX1, lLnY1, lLnX2, lLnY2);
+      series->WhiskerLowLine->setLine(px, min, px, lower);
 
       // Add in high whisker point
-      float hPtX1 = px+xOffset;
-      float hPtX2 = px+xOffset+barWidth;
-      float hPtY1 = yAxis->getPixel(max);
-      float hPtY2 = yAxis->getPixel(max);
-      series->WhiskerHighPoint->setLine(hPtX1, hPtY1, hPtX2, hPtY2);
+      series->WhiskerHighPoint->setLine(left, max, right, max);
 
       // Add in lower whisker line
-      float hLnX1 = px+xOffset+barWidth/2.0;
-      float hLnX2 = px+xOffset+barWidth/2.0;
-      float hLnY1 = yAxis->getPixel(upperQuartile);
-      float hLnY2 = yAxis->getPixel(max);
-      series->WhiskerHighLine->setLine(hLnX1, hLnY1, hLnX2, hLnY2);
+      series->WhiskerHighLine->setLine(px, upper, px, max);
 
       // Add in outliers
-      for (int j=0; j<outliers.size(); j++)
+      for(int j = 5; j < this->Model->getNumberOfSeriesValues(i); j++)
         {
-        float outlierPy1 = yAxis->getPixel(outliers[j])-5;
-        float outlierPy2 = yAxis->getPixel(outliers[j])+5;
-
-        float outlierPx = xAxis->getPixel(this->Model->getSeriesValue(i, 0, 0))
-            +barWidth/2.0 - 5.0;
-        series->Outliers[j]->setPos(outlierPx + xOffset, outlierPy1);
-        series->Outliers[j]->setRect(0, 0, 10, outlierPy2-outlierPy1);
+        float py = yAxis->getPixel(this->Model->getSeriesValue(i, j, 1));
+        series->Outliers[j - 5]->setPos(px - 5.0, py - 5.0);
+        series->Outliers[j - 5]->setRect(0.0, 0.0, 10.0, 10.0);
         }
-
       }
     else
       {
       }
-
     }
 
   // Layout the highlights.
   this->layoutHighlights();
 }
 
-bool vtkQtStatisticalBoxChart::drawItemFilter(QGraphicsItem *item,
+bool vtkQtStatisticalBoxChart::drawItemFilter(QGraphicsItem *,
     QPainter *painter)
 {
-  // If the item is a series bar, clip it to the chart layer bounds.
-  QGraphicsRectItem *bar = qgraphicsitem_cast<QGraphicsRectItem *>(item);
-  if (bar && this->ChartArea)
+  if (this->ChartArea)
     {
     QRectF bounds;
     this->ChartArea->getContentsSpace()->getChartLayerBounds(bounds);
@@ -466,8 +423,8 @@ void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
   if (seriesOptions)
     {
     // Finish setting up the series options.
-    if (this->Options->getOutlineStyle()
-        == vtkQtStatisticalBoxChartOptions::Darker)
+    if(this->Options->getOutlineStyle() ==
+        vtkQtStatisticalBoxChartOptions::Darker)
       {
       seriesOptions->setPen(seriesOptions->getBrush().color().dark());
       }
@@ -479,7 +436,6 @@ void vtkQtStatisticalBoxChart::setupOptions(vtkQtChartSeriesOptions *options)
     // Listen for series options changes.
     this->connect(seriesOptions, SIGNAL(visibilityChanged(bool)),
         this, SLOT(handleSeriesVisibilityChange(bool)));
-
    }
 }
 
@@ -518,7 +474,7 @@ void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
       series->Box = new QGraphicsRectItem(series, series->scene());
       // Set the drawing options for the series.
       series->Box->setPen(options->getPen());
-      //      series->Box->setBrush(options->getBrush());
+      series->Box->setBrush(options->getBrush());
 
       // Create median point, and whisker points and lines
       series->WhiskerLowPoint = new QGraphicsLineItem(series, series->scene());
@@ -541,6 +497,7 @@ void vtkQtStatisticalBoxChart::insertSeries(int first, int last)
         outlier = new QGraphicsEllipseItem(series, series->scene());
         series->Outliers.append(outlier);
         outlier->setPen(options->getPen());
+        outlier->setBrush(options->getBrush());
         }
 
       // Add the series domains to the chart domains.
@@ -747,28 +704,24 @@ void vtkQtStatisticalBoxChart::updateHighlights()
 
 void vtkQtStatisticalBoxChart::layoutHighlights()
 {
-
 }
 
 bool vtkQtStatisticalBoxChart::addSeriesDomain(int series)
 {
   QList<QVariant> xDomain;
+  xDomain.append(this->Model->getSeriesName(series));
+  vtkQtChartSeriesDomain seriesDomain;
+  seriesDomain.getXDomain().setDomain(xDomain);
+
   QList<QVariant> yDomain = this->Model->getSeriesRange(series, 1);
-  bool yIsList = yDomain.isEmpty();
-  int points = this->Model->getNumberOfSeriesValues(series);
-  for (int j = 0; j < points; j++)
+  if(yDomain.isEmpty())
     {
-    xDomain.append(this->Model->getSeriesValue(series, j, 0));
-    if (yIsList)
+    int points = this->Model->getNumberOfSeriesValues(series);
+    for(int j = 0; j < points; j++)
       {
       yDomain.append(this->Model->getSeriesValue(series, j, 1));
       }
-    }
 
-  vtkQtChartSeriesDomain seriesDomain;
-  seriesDomain.getXDomain().setDomain(xDomain);
-  if (yIsList)
-    {
     seriesDomain.getYDomain().setDomain(yDomain);
     }
   else
@@ -804,21 +757,18 @@ void vtkQtStatisticalBoxChart::calculateDomain(int seriesGroup)
       }
 
     QList<QVariant> xDomain;
+    xDomain.append(this->Model->getSeriesName(*iter));
+    domain->getXDomain().mergeDomain(xDomain);
+
     QList<QVariant> yDomain = this->Model->getSeriesRange(*iter, 1);
-    bool yIsList = yDomain.isEmpty();
-    int points = this->Model->getNumberOfSeriesValues(*iter);
-    for (int j = 0; j < points; j++)
+    if(yDomain.isEmpty())
       {
-      xDomain.append(this->Model->getSeriesValue(*iter, j, 0));
-      if (yIsList)
+      int points = this->Model->getNumberOfSeriesValues(*iter);
+      for (int j = 0; j < points; j++)
         {
         yDomain.append(this->Model->getSeriesValue(*iter, j, 1));
         }
-      }
 
-    domain->getXDomain().mergeDomain(xDomain);
-    if (yIsList)
-      {
       domain->getYDomain().mergeDomain(yDomain);
       }
     else

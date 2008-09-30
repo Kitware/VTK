@@ -28,7 +28,6 @@
 #include <QObject>
 
 #include "vtkQtChartLayer.h" // needed for enum
-#include <QColor>            // needed for static member
 
 
 /// \class vtkQtStatisticalBoxChartOptions
@@ -38,10 +37,8 @@
 ///
 /// The default settings are as follows:
 ///   \li axes: \c BottomLeft
-///   \li box group fraction: 0.7
-///   \li box width fraction: 0.9
+///   \li box width fraction: 0.8
 ///   \li outline style: \c Darker
-///   \li selection background: \c LightBlue
 class VTKQTCHART_EXPORT vtkQtStatisticalBoxChartOptions : public QObject
 {
   Q_OBJECT
@@ -62,7 +59,8 @@ public:
   /// \brief
   ///   Makes a copy of another box chart options instance.
   /// \param other The box chart options to copy.
-  vtkQtStatisticalBoxChartOptions(const vtkQtStatisticalBoxChartOptions &other);
+  vtkQtStatisticalBoxChartOptions(
+      const vtkQtStatisticalBoxChartOptions &other);
   virtual ~vtkQtStatisticalBoxChartOptions() {}
 
   /// \brief
@@ -77,22 +75,6 @@ public:
   void setAxesCorner(vtkQtChartLayer::AxesCorner axes);
 
   /// \brief
-  ///   Gets the box group fraction.
-  ///
-  /// The box group fraction is used to set the spacing between the
-  /// groups of boxs. For a box chart with one series, this also sets
-  /// the width of the boxs.
-  ///
-  /// \return
-  ///   The box group fraction.
-  float getBarGroupFraction() const {return this->GroupFraction;}
-
-  /// \brief
-  ///   Sets the box group fraction.
-  /// \param fraction The new box group fraction.
-  void setBarGroupFraction(float fraction);
-
-  /// \brief
   ///   Gets the box width fraction.
   ///
   /// The box width fraction is used to set the spacing between the
@@ -100,69 +82,49 @@ public:
   ///
   /// \return
   ///   The box width fraction.
-  float getBarWidthFraction() const {return this->BarFraction;}
+  float getBoxWidthFraction() const {return this->BoxFraction;}
 
   /// \brief
-  ///   Sets the bar width fraction.
+  ///   Sets the box width fraction.
   /// \param fraction The new box width fraction.
-  void setBarWidthFraction(float fraction);
+  void setBoxWidthFraction(float fraction);
 
   /// \brief
-  ///   Gets the outline style for the boxs.
+  ///   Gets the outline style for the boxes.
   /// \return
   ///   The current outline style.
   OutlineStyle getOutlineStyle() const {return this->OutlineType;}
 
   /// \brief
-  ///   Sets the outline style for the boxs.
+  ///   Sets the outline style for the boxes.
   ///
   /// The default style is \c Darker.
   ///
   /// \param style The outline style to use.
-  void setBinOutlineStyle(OutlineStyle style);
-
-  /// \brief
-  ///   Gets the highlight background color.
-  /// \return
-  ///   The current highlight background color.
-  const QColor &getHighlightColor() const {return this->Highlight;}
-
-  /// \brief
-  ///   Sets the highlight background color.
-  /// \param color The color for the highlight background.
-  void setHighlightColor(const QColor &color);
+  void setOutlineStyle(OutlineStyle style);
 
   /// \brief
   ///   Makes a copy of another box chart options instance.
   /// \param other The box chart options to copy.
   /// \return
   ///   A reference to the object being assigned.
-  vtkQtStatisticalBoxChartOptions &operator=(const vtkQtStatisticalBoxChartOptions &other);
+  vtkQtStatisticalBoxChartOptions &operator=(
+      const vtkQtStatisticalBoxChartOptions &other);
 
 signals:
   /// Emitted when the box chart axes change.
   void axesCornerChanged();
 
-  /// Emitted when box group or box width fractions change.
-  void barFractionsChanged();
+  /// Emitted when the box width fraction changes.
+  void boxFractionChanged();
 
   /// Emitted when the outline style changes.
   void outlineStyleChanged();
 
-  /// Emitted when the highlight color changes.
-  void highlightChanged();
-
-public:
-  /// Defines the default highlight background.
-  static const QColor LightBlue;
-
 private:
-  /// Stores the highlight background color.
-  QColor Highlight;
   vtkQtChartLayer::AxesCorner AxesCorner; ///< Stores the chart axes.
-  OutlineStyle OutlineType;        ///< Stores the outline style.
-  float GroupFraction;             ///< Stores the box group fraction.
-  float BarFraction;               ///< Stores the box width fraction.
+  OutlineStyle OutlineType;               ///< Stores the outline style.
+  float BoxFraction;                      ///< Stores the box width fraction.
 };
 
 #endif

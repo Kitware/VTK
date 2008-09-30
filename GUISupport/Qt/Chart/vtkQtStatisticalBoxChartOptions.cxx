@@ -24,25 +24,21 @@
 #include "vtkQtStatisticalBoxChartOptions.h"
 
 
-const QColor vtkQtStatisticalBoxChartOptions::LightBlue = QColor(125, 165, 230);
-
 vtkQtStatisticalBoxChartOptions::vtkQtStatisticalBoxChartOptions(QObject *parentObject)
-  : QObject(parentObject), Highlight(vtkQtStatisticalBoxChartOptions::LightBlue)
+  : QObject(parentObject)
 {
   this->AxesCorner = vtkQtChartLayer::BottomLeft;
   this->OutlineType = vtkQtStatisticalBoxChartOptions::Darker;
-  this->GroupFraction = (float)0.7;
-    this->BarFraction = (float)0.8;
-  //  this->BarFraction = (float)0.4;
+  this->BoxFraction = (float)0.8;
+  //this->BoxFraction = (float)0.4;
 }
 
 vtkQtStatisticalBoxChartOptions::vtkQtStatisticalBoxChartOptions(const vtkQtStatisticalBoxChartOptions &other)
-  : QObject(), Highlight(other.Highlight)
+  : QObject()
 {
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
-  this->GroupFraction = other.GroupFraction;
-  this->BarFraction = other.BarFraction;
+  this->BoxFraction = other.BoxFraction;
 }
 
 void vtkQtStatisticalBoxChartOptions::setAxesCorner(vtkQtChartLayer::AxesCorner axes)
@@ -54,25 +50,16 @@ void vtkQtStatisticalBoxChartOptions::setAxesCorner(vtkQtChartLayer::AxesCorner 
     }
 }
 
-void vtkQtStatisticalBoxChartOptions::setBarGroupFraction(float fraction)
+void vtkQtStatisticalBoxChartOptions::setBoxWidthFraction(float fraction)
 {
-  if(this->GroupFraction != fraction)
+  if(this->BoxFraction != fraction)
     {
-    this->GroupFraction = fraction;
-    emit this->barFractionsChanged();
+    this->BoxFraction = fraction;
+    emit this->boxFractionChanged();
     }
 }
 
-void vtkQtStatisticalBoxChartOptions::setBarWidthFraction(float fraction)
-{
-  if(this->BarFraction != fraction)
-    {
-    this->BarFraction = fraction;
-    emit this->barFractionsChanged();
-    }
-}
-
-void vtkQtStatisticalBoxChartOptions::setBinOutlineStyle(
+void vtkQtStatisticalBoxChartOptions::setOutlineStyle(
     vtkQtStatisticalBoxChartOptions::OutlineStyle style)
 {
   if(this->OutlineType != style)
@@ -82,23 +69,12 @@ void vtkQtStatisticalBoxChartOptions::setBinOutlineStyle(
     }
 }
 
-void vtkQtStatisticalBoxChartOptions::setHighlightColor(const QColor &color)
-{
-  if(this->Highlight != color)
-    {
-    this->Highlight = color;
-    emit this->highlightChanged();
-    }
-}
-
 vtkQtStatisticalBoxChartOptions &vtkQtStatisticalBoxChartOptions::operator=(
     const vtkQtStatisticalBoxChartOptions &other)
 {
-  this->Highlight = other.Highlight;
   this->AxesCorner = other.AxesCorner;
   this->OutlineType = other.OutlineType;
-  this->GroupFraction = other.GroupFraction;
-  this->BarFraction = other.BarFraction;
+  this->BoxFraction = other.BoxFraction;
   return *this;
 }
 
