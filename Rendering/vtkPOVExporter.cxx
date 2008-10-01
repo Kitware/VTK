@@ -83,7 +83,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOVExporter, "1.6");
+vtkCxxRevisionMacro(vtkPOVExporter, "1.7");
 vtkStandardNewMacro(vtkPOVExporter);
 
 //Can't use printf("%d", a_vtkIdType) because vtkIdType is not always int.
@@ -144,6 +144,10 @@ vtkPOVExporter::vtkPOVExporter()
 
 vtkPOVExporter::~vtkPOVExporter()
 {
+  if(this->FileName!=0)
+    {
+    delete[] this->FileName;
+    }
   delete this->Internals;
 }
 
