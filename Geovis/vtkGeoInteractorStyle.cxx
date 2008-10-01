@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.7");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.8");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
@@ -325,8 +325,9 @@ int vtkGeoInteractorStyle::ViewportToWorld(double xMouse,
   double right[3];
   double position[3];
   double direction[3];
-  this->GeoCamera->GetPosition(position);
+  //this->GeoCamera->GetPosition(position);
   camera->GetFocalPoint(direction);
+  camera->GetPosition(position);
   // What is the correct behavior?
   double origin[3];
   this->GeoCamera->GetOrigin(origin);
