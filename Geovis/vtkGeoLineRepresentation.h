@@ -29,12 +29,13 @@
 #define __vtkGeoLineRepresentation_h
 
 #include "vtkDataRepresentation.h"
+#include "vtkSmartPointer.h" // For ivars
 
+class vtkAbstractTransform;
 class vtkActor;
 class vtkAlgorithmOutput;
 class vtkDataObject;
 class vtkExtractSelection;
-class vtkGeoAdaptiveArcs;
 class vtkGeoArcs;
 class vtkGeoAssignCoordinates;
 class vtkGeoSampleArcs;
@@ -84,6 +85,12 @@ public:
   virtual void SetCoordinatesInArrays(bool b);
   virtual bool GetCoordinatesInArrays();
   vtkBooleanMacro(CoordinatesInArrays, bool);
+
+  // Description:
+  // The transform to use for transforming lat/long points into
+  // world coordinates. If null, use spherical world model (default).
+  virtual void SetTransform(vtkAbstractTransform* transform);
+  virtual vtkAbstractTransform* GetTransform();
   
 protected:
   vtkGeoLineRepresentation();
@@ -105,24 +112,27 @@ protected:
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection *ConvertSelection(vtkView *view, vtkSelection *selection);
   
+  //BTX
+
   // Description:
   // Internal pipeline objects.
-  vtkGeometryFilter       *GeometryFilter;
-  vtkGeoAssignCoordinates *AssignCoordinates;
-  vtkGeoAdaptiveArcs      *GeoArcs;
-  vtkGeoSampleArcs        *GeoSampleArcs;
-  vtkPolyDataMapper       *Mapper;
-  vtkActor                *Actor;
-  vtkExtractSelection     *ExtractSelection;
-  vtkGeometryFilter       *SelectionGeometryFilter;
-  vtkGeoAssignCoordinates *SelectionAssignCoords;
-  vtkGeoAdaptiveArcs      *SelectionGeoArcs;
-  vtkGeoSampleArcs        *SelectionGeoSampleArcs;
-  vtkPolyDataMapper       *SelectionMapper;
-  vtkActor                *SelectionActor;
-  vtkVertexGlyphFilter    *VertexGlyphFilter;
-  vtkPolyDataMapper       *VertexMapper;
-  vtkActor                *VertexActor;
+  vtkSmartPointer<vtkGeometryFilter>       GeometryFilter;
+  vtkSmartPointer<vtkGeoAssignCoordinates> AssignCoordinates;
+  vtkSmartPointer<vtkGeoSampleArcs>        GeoSampleArcs;
+  vtkSmartPointer<vtkPolyDataMapper>       Mapper;
+  vtkSmartPointer<vtkActor>                Actor;
+  vtkSmartPointer<vtkExtractSelection>     ExtractSelection;
+  vtkSmartPointer<vtkGeometryFilter>       SelectionGeometryFilter;
+  vtkSmartPointer<vtkGeoAssignCoordinates> SelectionAssignCoords;
+  vtkSmartPointer<vtkGeoSampleArcs>        SelectionGeoSampleArcs;
+  vtkSmartPointer<vtkPolyDataMapper>       SelectionMapper;
+  vtkSmartPointer<vtkActor>                SelectionActor;
+  vtkSmartPointer<vtkVertexGlyphFilter>    VertexGlyphFilter;
+  vtkSmartPointer<vtkPolyDataMapper>       VertexMapper;
+  vtkSmartPointer<vtkActor>                VertexActor;
+
+  //ETX
+
   bool                     CoordinatesInArrays;
   
 private:
