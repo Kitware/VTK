@@ -5,7 +5,7 @@
 #include <errno.h>
 
 vtkStandardNewMacro(vtkConditionVariable);
-vtkCxxRevisionMacro(vtkConditionVariable,"1.14");
+vtkCxxRevisionMacro(vtkConditionVariable,"1.15");
 
 #ifndef EPERM
 #  define EPERM 1
@@ -153,7 +153,7 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
     {
     // We are broadcasting, even if there is just one waiter...
     // Record that we are broadcasting, which helps optimize
-    // <pthread_cond_wait> for the non-broadcast case.
+    // pthread_cond_wait for the non-broadcast case.
     cv->WasBroadcast = 1;
     have_waiters = 1;
     }
@@ -233,12 +233,13 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
     WaitForSingleObject( cv->Event, INFINITE );
 
     EnterCriticalSection( &cv->WaitingThreadCountCritSec );
-    // Exit the loop when cv->Event is signaled and
-    // there are still waiting threads from this NotifyCount
-    // that haven't been released from this wait yet.
+    // Exit the loop when cv->Event is signaled, the
+    // release count indicates more threads need to receive
+    // the signal/broadcast, and the signal occurred after
+    // we started waiting.
     int waitDone =
       ( cv->ReleaseCount > 0 ) &&
-      ( cv->WaitingThreadCount != tmpNotify );
+      ( cv->NotifyCount != tmpNotify );
     LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
     if ( waitDone )
