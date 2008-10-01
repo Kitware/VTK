@@ -29,7 +29,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.4");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.5");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -73,7 +73,12 @@ void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Latitude: " << this->Latitude << endl;
   os << indent << "Longitude: " << this->Longitude << endl;
   os << indent << "LockHeading: " << (this->LockHeading ? "on" : "off");
-  os << indent << "VTKCamera:" << endl;
+  os << indent << "Origin: " << this->Origin << endl;
+  os << indent << "OriginLatitude: " << this->OriginLatitude << endl;
+  os << indent << "OriginLongitude: " << this->OriginLongitude << endl;
+  os << indent << "Position: " << this->Position << endl;
+  os << indent << "VTKCamera: " << endl;
+  
   this->VTKCamera->PrintSelf(os, indent.GetNextIndent());
 }
 //-----------------------------------------------------------------------------

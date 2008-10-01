@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.4");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.5");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -376,6 +376,7 @@ void vtkGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Longitude End: " << this->EndLongitude << "\n";
   os << indent << "Latitude End: " << this->EndLatitude << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Origin: " << this->Origin << "\n";
   os << indent 
      << "Quadrilateral Tessellation: " 
      << this->QuadrilateralTessellation << "\n";
