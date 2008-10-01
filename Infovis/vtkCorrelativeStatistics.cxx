@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.30");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.31");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -92,47 +92,17 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
   doubleCol->Delete();
   
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Var(X)" );
+  doubleCol->SetName( "M2 X" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Var(Y)" );
+  doubleCol->SetName( "M2 Y" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Cov(X,Y)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  stringCol = vtkStringArray::New();
-  stringCol->SetName( "Linear Correlation" );
-  outMeta->AddColumn( stringCol );
-  stringCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Slope Y/X" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Intersect Y/X" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Slope X/Y" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Intersect X/Y" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Corr. Coeff." );
+  doubleCol->SetName( "M XY" );
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
@@ -178,6 +148,73 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       momXY += delta * deltaXn;
       }
 
+    vtkVariantArray* row = vtkVariantArray::New();
+
+    row->SetNumberOfValues( 7 );
+    
+    row->SetValue( 0, colX );
+    row->SetValue( 1, colY );
+    row->SetValue( 2, meanX );
+    row->SetValue( 3, meanY );
+    row->SetValue( 4, mom2X );
+    row->SetValue( 5, mom2Y );
+    row->SetValue( 6, momXY );
+
+    outMeta->InsertNextRow( row );
+
+    row->Delete();
+    }
+    
+  return;
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
+{
+  vtkIdType nCol = inMeta->GetNumberOfColumns();
+  if ( nCol < 7 )
+    {
+    return;
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    return;
+    }
+
+  vtkDoubleArray* doubleCol;
+  vtkStdString corrNames[] = { "Slope Y/X", "Intersect Y/X", "Slope X/Y", "Intersect X/Y", "Pearson r" };
+
+  for ( int j = 0; j < 5; ++ j )
+    {
+    if ( ! inMeta->GetColumnByName( corrNames[j] ) )
+      {
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( corrNames[j] );
+      doubleCol->SetNumberOfTuples( nRow );
+      inMeta->AddColumn( doubleCol );
+      doubleCol->Delete();
+      }
+    }
+
+  if ( ! inMeta->GetColumnByName( "Linear Correlation" ) )
+    {  
+    vtkStringArray* stringCol = vtkStringArray::New();
+    stringCol->SetName( "Linear Correlation" );
+    stringCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( stringCol );
+    stringCol->Delete();
+    }
+
+  for ( int i = 0; i < nRow; ++ i )
+    {
+    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
+    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
+    double m2X = inMeta->GetValueByName( i, "M2 X" ).ToDouble();
+    double m2Y = inMeta->GetValueByName( i, "M2 Y" ).ToDouble();
+    double mXY = inMeta->GetValueByName( i, "M XY" ).ToDouble();
+
     double varX, varY, covXY;
     if ( this->SampleSize == 1 )
       {
@@ -189,69 +226,56 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
       {
       double inv_nm1;
       inv_nm1 = 1. / ( this->SampleSize - 1. );
-      varX  = mom2X * inv_nm1;
-      varY  = mom2Y * inv_nm1;
-      covXY = momXY * inv_nm1;
+      varX  = m2X * inv_nm1;
+      varY  = m2Y * inv_nm1;
+      covXY = mXY * inv_nm1;
       }
-
-    vtkVariantArray* row = vtkVariantArray::New();
-
-    row->SetNumberOfValues( 13 );
     
-    row->SetValue( 0, colX );
-    row->SetValue( 1, colY );
-    row->SetValue( 2, meanX );
-    row->SetValue( 3, meanY );
-    row->SetValue( 4, varX );
-    row->SetValue( 5, varY );
-    row->SetValue( 6, covXY );
+    double corrValues[5];
+    vtkStdString corrStatus = "valid";
 
-    double correlations[5];
-    bool validity = true;
-    if ( varX > 0. && varY > 0. )
+    double d = varX * varY - covXY * covXY;
+    if ( d <= 0. )
       {
-      // variable Y on variable X:
-      //   slope
-      correlations[0] = covXY / varX;
-      //   intersect
-      correlations[1] = meanY - correlations[0] * meanX;
-
-      //   variable X on variable Y:
-      //   slope
-      correlations[2] = covXY / varY;
-      //   intersect
-      correlations[3] = meanX - correlations[2] * meanY;
-      
-      // correlation coefficient
-      correlations[4] = covXY / sqrt( varX * varY );
+      vtkWarningMacro( "Incorrect parameters for column pair ("
+                       <<c1.c_str()
+                       <<", "
+                       <<c2.c_str()
+                       <<"): variance/covariance matrix has non-positive determinant." );
+      corrValues[0] = 0.;
+      corrValues[1] = 0.;
+      corrValues[2] = 0.;
+      corrValues[3] = 0.;
+      corrValues[4] = 0.;
+      corrStatus = "invalid";
       }
     else
       {
-      correlations[0] = 0.;
-      correlations[1] = 0.;
-      correlations[2] = 0.;
-      correlations[3] = 0.;
-      correlations[4] = 0.;
-      validity = false;
+      double meanX = inMeta->GetValueByName( i, "Mean X" ).ToDouble();
+      double meanY = inMeta->GetValueByName( i, "Mean Y" ).ToDouble();
+
+      // variable Y on variable X:
+      //   slope
+      corrValues[0] = covXY / varX;
+      //   intersect
+      corrValues[1] = meanY - corrValues[0] * meanX;
+      
+      //   variable X on variable Y:
+      //   slope
+      corrValues[2] = covXY / varY;
+      //   intersect
+      corrValues[3] = meanX - corrValues[2] * meanY;
+      
+      // correlation coefficient
+      corrValues[4] = covXY / sqrt( varX * varY );
       }
 
-    row->SetValue( 7, ( validity ? "valid" : "invalid" ) );
-    for ( int i = 0; i < 5; ++ i )
+    inMeta->SetValueByName( i, "Linear Correlation", corrStatus );
+    for ( int j = 0; j < 5; ++ j )
       {
-      row->SetValue( i + 8, correlations[i] );
+      inMeta->SetValueByName( i, corrNames[j], corrValues[j] );
       }
-
-    outMeta->InsertNextRow( row );
-
-    row->Delete();
     }
-    
-  return;
-}
-
-// ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* vtkNotUsed( inMeta ) )
-{
 }
 
 // ----------------------------------------------------------------------

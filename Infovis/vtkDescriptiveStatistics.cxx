@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.47");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.48");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -322,8 +322,6 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     inMeta->SetValueByName( i, "g2 Kurtosis", kurtosis );
     inMeta->SetValueByName( i, "G2 Kurtosis", G2 );
     }
-
-  return;
 }
 
 // ----------------------------------------------------------------------
