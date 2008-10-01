@@ -32,7 +32,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkFactoredArrayData, "1.1");
+vtkCxxRevisionMacro(vtkFactoredArrayData, "1.2");
 vtkStandardNewMacro(vtkFactoredArrayData);
 
 class vtkFactoredArrayData::implementation
@@ -60,7 +60,13 @@ vtkFactoredArrayData::~vtkFactoredArrayData()
 
 void vtkFactoredArrayData::PrintSelf(ostream &os, vtkIndent indent)
 {
-  Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
+
+  for(vtkIdType i = 0; i != this->Implementation->Arrays.size(); ++i)
+    {
+    os << indent << "Array: " << this->Implementation->Arrays[i] << endl;
+    this->Implementation->Arrays[i]->PrintSelf(os, indent.GetNextIndent());
+    }
 }
 
 vtkFactoredArrayData* vtkFactoredArrayData::GetData(vtkInformation* info)
@@ -75,6 +81,12 @@ vtkFactoredArrayData* vtkFactoredArrayData::GetData(vtkInformationVector* v, int
 
 void vtkFactoredArrayData::AddArray(vtkArray* array)
 {
+  if(!array)
+    {
+    vtkErrorMacro(<< "vtkFactoredArrayData::AddArray() - cannot add NULL array");
+    return;
+    }
+    
   if(vtkstd::count(this->Implementation->Arrays.begin(), this->Implementation->Arrays.end(), array))
     {
     vtkErrorMacro(<< "vtkFactoredArrayData::AddArray() - cannot add array twice");
