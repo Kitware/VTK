@@ -25,8 +25,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkArrayData, "1.2");
+vtkCxxRevisionMacro(vtkArrayData, "1.3");
 vtkStandardNewMacro(vtkArrayData);
+vtkCxxSetObjectMacro(vtkArrayData, Array, vtkArray);
 
 vtkArrayData::vtkArrayData() :
   Array(0)

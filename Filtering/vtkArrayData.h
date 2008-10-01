@@ -47,7 +47,7 @@ public:
 
   // Description:
   // Sets the vtkArray instance contained by this object
-  vtkSetObjectMacro(Array, vtkArray);
+  virtual void SetArray(vtkArray*);
   
   // Description:
   // Returns the vtkArray instance (if any) contained by this object
