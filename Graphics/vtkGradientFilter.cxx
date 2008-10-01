@@ -38,7 +38,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkGradientFilter, "1.5");
+vtkCxxRevisionMacro(vtkGradientFilter, "1.6");
 vtkStandardNewMacro(vtkGradientFilter);
 
 template<class data_type>
@@ -414,7 +414,7 @@ void vtkGradientFilterDoComputeCellGradients(vtkDataSet *structure,
       }
 
     cell->Derivatives(subId, cellCenter, values, 1, derivative);
-
+    delete[] values;
     g[0] = static_cast<data_type>(derivative[0]);
     g[1] = static_cast<data_type>(derivative[1]);
     g[2] = static_cast<data_type>(derivative[2]);
