@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.48");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.49");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -209,60 +209,24 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
+  vtkStdString doubleNames[] = { "Standard Deviation", 
+                                 "Variance",
+                                 "g1 Skewness",
+                                 "G1 Skewness",
+                                 "g2 Kurtosis",
+                                 "G2 Kurtosis" };
+
   vtkDoubleArray* doubleCol;
-
-  if ( ! inMeta->GetColumnByName( "Standard Deviation" ) )
+  for ( int j = 0; j < 6; ++ j )
     {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Standard Deviation" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-
-  if ( ! inMeta->GetColumnByName( "Variance" ) )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "Variance" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-
-  if ( ! inMeta->GetColumnByName( "g1 Skewness" ) )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "g1 Skewness" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-
-  if ( ! inMeta->GetColumnByName( "G1 Skewness" ) )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "G1 Skewness" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-
-  if ( ! inMeta->GetColumnByName( "g2 Kurtosis" ) )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "g2 Kurtosis" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
-    }
-
-  if ( ! inMeta->GetColumnByName( "G2 Kurtosis" ) )
-    {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( "G2 Kurtosis" );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
+    if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
+      {
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( doubleNames[j] );
+      doubleCol->SetNumberOfTuples( nRow );
+      inMeta->AddColumn( doubleCol );
+      doubleCol->Delete();
+      }
     }
 
   for ( int i = 0; i < nRow; ++ i )
@@ -272,14 +236,14 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
-    double variance, skewness, G1, kurtosis, G2;
+    double doubleVals[6]; // std, variance, skewness, G1, kurtosis, G2
     if ( this->SampleSize == 1 || mom2 < 1.e-150 )
       {
-      variance = 0.;
-      skewness = 0.;
-      G1 = 0.;
-      kurtosis = 0.;
-      G2 = 0.;
+      doubleVals[1] = 0.;
+      doubleVals[2] = 0.;
+      doubleVals[3] = 0.;
+      doubleVals[4] = 0.;
+      doubleVals[5] = 0.;
       }
     else
       {
@@ -287,40 +251,38 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
       double inv_n = 1. / n;
       double nm1 = n - 1.;
 
-      variance = mom2 / nm1;
-      double var_inv = 1. / variance;
+      doubleVals[1] = mom2 / nm1;
+      double var_inv = 1. / doubleVals[1];
       double nvar_inv = var_inv * inv_n;
-      skewness = nvar_inv * sqrt( var_inv ) * mom3;
-      kurtosis = nvar_inv * var_inv * mom4 - 3.;
+      doubleVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
+      doubleVals[4] = nvar_inv * var_inv * mom4 - 3.;
       if ( n > 2 )
         {
         // G1 skewness estimate
         double nm2 = nm1 - 1.;
-        G1 = ( n * n ) / ( nm1 * nm2 ) * skewness;
+        doubleVals[3] = ( n * n ) / ( nm1 * nm2 ) * doubleVals[2];
  
         if ( n > 3 )
           { 
           // G2 kurtosis estimate
-          G2 = ( ( n + 1. ) * kurtosis + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
+          doubleVals[5] = ( ( n + 1. ) * doubleVals[4] + 6. ) * nm1 / ( nm2 * ( nm1 - 2. ) );
           }
         else
           {
-          G2 = kurtosis;
+          doubleVals[5] = doubleVals[4];
           }
         }
       else
         {
-        G1 = skewness;
-        G2 = kurtosis;
+        doubleVals[3] = doubleVals[2];
+        doubleVals[5] = doubleVals[4];
         }
       }
 
-    inMeta->SetValueByName( i, "Standard Deviation", sqrt( fabs( variance ) ) );
-    inMeta->SetValueByName( i, "Variance", variance );
-    inMeta->SetValueByName( i, "g1 Skewness", skewness );
-    inMeta->SetValueByName( i, "G1 Skewness", G1 );
-    inMeta->SetValueByName( i, "g2 Kurtosis", kurtosis );
-    inMeta->SetValueByName( i, "G2 Kurtosis", G2 );
+    for ( int j = 0; j < 6; ++ j )
+      {
+      inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
+      }
     }
 }
 
