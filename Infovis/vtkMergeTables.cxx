@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkMergeTables, "1.6");
+vtkCxxRevisionMacro(vtkMergeTables, "1.7");
 vtkStandardNewMacro(vtkMergeTables);
 //---------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
@@ -97,6 +97,10 @@ int vtkMergeTables::RequestData(
     vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
     newCol->DeepCopy(col);
     newCol->SetName(newName);
+    if(newName!=name)
+      {
+      delete[] newName;
+      }
     //vtkWarningMacro("adding column " << newCol->GetName() << " of size " << newCol->GetNumberOfTuples());
     output->AddColumn(newCol);
     newCol->Delete();
@@ -136,6 +140,8 @@ int vtkMergeTables::RequestData(
       toMerge->InsertNextValue(newName1);
       toMerge->InsertNextValue(newName2);
       toMerge->InsertNextValue(name);
+      delete[] newName1;
+      delete[] newName2;
       }
     else
       {
@@ -149,6 +155,10 @@ int vtkMergeTables::RequestData(
         strcat(newName, name);
         }
       newCol->SetName(newName);
+      if(newName!=name)
+        {
+        delete[] newName;
+        }
       }
     tempTable->AddColumn(newCol);
     newCol->Delete();
