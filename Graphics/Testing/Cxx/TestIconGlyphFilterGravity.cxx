@@ -40,6 +40,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPNGReader * imageReader = vtkPNGReader::New();
 
   imageReader->SetFileName(fname);
+  delete[] fname;
   imageReader->Update();
 
   imageReader->GetOutput()->GetDimensions(imageDims);
@@ -48,7 +49,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points = vtkPoints::New();
   vtkDoubleArray * pointData = vtkDoubleArray::New();
   pointData->SetNumberOfComponents(3);
-  points->SetData((vtkDataArray *)pointData);
+  points->SetData(pointData);
   pointSet->SetPoints(points);
 
   vtkIntArray * iconIndex = vtkIntArray::New();
@@ -80,7 +81,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points2 = vtkPoints::New();
   vtkDoubleArray * pointData2 = vtkDoubleArray::New();
   pointData2->SetNumberOfComponents(3);
-  points2->SetData((vtkDataArray *)pointData2);
+  points2->SetData(pointData2);
   pointSet2->SetPoints(points2);
 
   vtkIntArray * iconIndex2 = vtkIntArray::New();
@@ -110,7 +111,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points3 = vtkPoints::New();
   vtkDoubleArray * pointData3 = vtkDoubleArray::New();
   pointData3->SetNumberOfComponents(3);
-  points3->SetData((vtkDataArray *)pointData3);
+  points3->SetData(pointData3);
   pointSet3->SetPoints(points3);
 
   vtkIntArray * iconIndex3 = vtkIntArray::New();
@@ -140,7 +141,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points4 = vtkPoints::New();
   vtkDoubleArray * pointData4 = vtkDoubleArray::New();
   pointData4->SetNumberOfComponents(3);
-  points4->SetData((vtkDataArray *)pointData4);
+  points4->SetData(pointData4);
   pointSet4->SetPoints(points4);
 
   vtkIntArray * iconIndex4 = vtkIntArray::New();
@@ -170,7 +171,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points5 = vtkPoints::New();
   vtkDoubleArray * pointData5 = vtkDoubleArray::New();
   pointData5->SetNumberOfComponents(3);
-  points5->SetData((vtkDataArray *)pointData5);
+  points5->SetData(pointData5);
   pointSet5->SetPoints(points5);
 
   vtkIntArray * iconIndex5 = vtkIntArray::New();
@@ -200,7 +201,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points6 = vtkPoints::New();
   vtkDoubleArray * pointData6 = vtkDoubleArray::New();
   pointData6->SetNumberOfComponents(3);
-  points6->SetData((vtkDataArray *)pointData6);
+  points6->SetData(pointData6);
   pointSet6->SetPoints(points6);
 
   vtkIntArray * iconIndex6 = vtkIntArray::New();
@@ -230,7 +231,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points7 = vtkPoints::New();
   vtkDoubleArray * pointData7 = vtkDoubleArray::New();
   pointData7->SetNumberOfComponents(3);
-  points7->SetData((vtkDataArray *)pointData7);
+  points7->SetData(pointData7);
   pointSet7->SetPoints(points7);
 
   vtkIntArray * iconIndex7 = vtkIntArray::New();
@@ -260,7 +261,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points8 = vtkPoints::New();
   vtkDoubleArray * pointData8 = vtkDoubleArray::New();
   pointData8->SetNumberOfComponents(3);
-  points8->SetData((vtkDataArray *)pointData8);
+  points8->SetData(pointData8);
   pointSet8->SetPoints(points8);
 
   vtkIntArray * iconIndex8 = vtkIntArray::New();
@@ -290,7 +291,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkPoints * points9 = vtkPoints::New();
   vtkDoubleArray * pointData9 = vtkDoubleArray::New();
   pointData9->SetNumberOfComponents(3);
-  points9->SetData((vtkDataArray *)pointData9);
+  points9->SetData(pointData9);
   pointSet9->SetPoints(points9);
 
   vtkIntArray * iconIndex9 = vtkIntArray::New();
