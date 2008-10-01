@@ -172,6 +172,7 @@ int TestTableToGraph(int argc, char* argv[])
   
   VTK_CREATE(vtkDelimitedTextReader, reader);
   reader->SetFileName(file);
+  delete[] file;
   reader->SetHaveHeaders(true);
   
   //VTK_CREATE(vtkBoostSplitTableField, split);
