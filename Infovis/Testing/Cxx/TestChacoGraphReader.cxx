@@ -40,6 +40,7 @@ int TestChacoGraphReader(int argc, char* argv[])
                                                     "Data/Infovis/small.graph");
   VTK_CREATE(vtkChacoGraphReader, reader);
   reader->SetFileName(file);
+  delete[] file;
   reader->Update();
 
   VTK_CREATE(vtkCircularLayoutStrategy, strategy);

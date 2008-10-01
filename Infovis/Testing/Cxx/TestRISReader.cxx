@@ -39,7 +39,8 @@ int TestRISReader(int argc, char* argv[])
 
   vtkSmartPointer<vtkRISReader> reader = vtkSmartPointer<vtkRISReader>::New();
   reader->SetFileName(file);
-
+  delete[] file;
+  
   reader->Update(); 
   vtkTable* const table = reader->GetOutput();
 
