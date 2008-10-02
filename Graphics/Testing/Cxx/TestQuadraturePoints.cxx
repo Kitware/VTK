@@ -12,6 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// This example demonstrates the capabilities of vtkQuadraturePointInterpolator 
+// vtkQuadraturePointsGenerator and the class required to suppport their 
+// addition.
+// 
+// The command line arguments are:
+// -I        => run in interactive mode; unless this is used, the program will
+//              not allow interaction and exit
+// -D <path> => path to the data; the data should be in <path>/Data/
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
@@ -48,7 +56,7 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg);
 // Generate a scalar to threshold by.
 int GenerateThresholdScalar(vtkUnstructuredGrid *usg);
 
-int TestQuadraturePoints(int argc,char **argv)
+int TestQuadraturePoints(int argc,char *argv[])
 {
   vtkTesting *testHelper=vtkTesting::New();
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
@@ -227,7 +235,9 @@ int TestQuadraturePoints(int argc,char **argv)
 
   // Perform the regression test.
   int failFlag=1;
-  if (0)
+  // Perform test.
+  failFlag=vtkTesting::Test(argc, argv, renwin, 5.0);
+  if (failFlag==vtkTesting::DO_INTERACTOR)
     {
     // Not testing, interact with scene.
     vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
@@ -238,20 +248,17 @@ int TestQuadraturePoints(int argc,char **argv)
     }
   else
     {
-    // Perform test.
-    failFlag=vtkTesting::Test(argc, argv, renwin, 5.0);
-    failFlag=failFlag==vtkTesting::PASSED?0:1;
+    // Save a baseline
+    vtkWindowToImageFilter *baselineImage=vtkWindowToImageFilter::New();
+    baselineImage->SetInput(renwin);
+    vtkPNGWriter *baselineWriter=vtkPNGWriter::New();
+    baselineWriter->SetFileName(tempBaseline.c_str());
+    baselineWriter->SetInput(baselineImage->GetOutput());
+    baselineImage->Delete();
+    baselineWriter->Write();
+    baselineWriter->Delete();
     }
-
- // Save a baseline
-  vtkWindowToImageFilter *baselineImage=vtkWindowToImageFilter::New();
-  baselineImage->SetInput(renwin);
-  vtkPNGWriter *baselineWriter=vtkPNGWriter::New();
-  baselineWriter->SetFileName(tempBaseline.c_str());
-  baselineWriter->SetInput(baselineImage->GetOutput());
-  baselineImage->Delete();
-  baselineWriter->Write();
-  baselineWriter->Delete();
+  failFlag=failFlag==vtkTesting::PASSED?0:1;
 
   renwin->Delete();
   testHelper->Delete();
@@ -329,6 +336,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
     double zs=(ppts[2]-zmid)/(zmax-zmid); // move z to -1 to 1
     double fzs=zs*zs*zs;                  // z**3
     double r[2];                          // radial vector
+    r[0]=ppts[0];
     r[1]=ppts[1];
     double modR=sqrt(r[0]*r[0]+r[1]*r[1]);
     r[1]/=modR;                           // scale by z**3 in -1 to 1
