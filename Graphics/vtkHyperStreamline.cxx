@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.61");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.62");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -337,23 +337,24 @@ int vtkHyperStreamline::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd=input->GetPointData();
-  vtkDataArray *inScalars;
-  vtkDataArray *inTensors;
+  vtkPointData *pd = input->GetPointData();
+  vtkDataArray *inScalars = NULL;
+  vtkDataArray *inTensors = NULL;
   double tensor[9];
-  vtkHyperPoint *sNext, *sPtr;
+  vtkHyperPoint *sNext = NULL;
+  vtkHyperPoint *sPtr  = NULL;
   int i, j, k, ptId, subId, iv, ix, iy;
-  vtkCell *cell;
+  vtkCell *cell = NULL;
   double ev[3], xNext[3];
   double d, step, dir, tol2, p[3];
-  double *w;
+  double *w = NULL;
   double dist2;
   double closestPoint[3];
   double *m[3], *v[3];
   double m0[3], m1[3], m2[3];
   double v0[3], v1[3], v2[3];
-  vtkDataArray *cellTensors;
-  vtkDataArray *cellScalars;
+  vtkDataArray *cellTensors = NULL;
+  vtkDataArray *cellScalars = NULL;
   // set up working matrices
   v[0] = v0; v[1] = v1; v[2] = v2; 
   m[0] = m0; m[1] = m1; m[2] = m2; 
@@ -506,7 +507,16 @@ int vtkHyperStreamline::RequestData(
         xNext[i] = sPtr->X[i] + dir * step * sPtr->V[i][iv];
         }
 
-      //compute updated position using updated step
+      // compute updated position using updated step
+      //
+      // one potential bug here to be fixed as cell->EvaluatePosition() may return
+      // 1: xNext inside  the current cell
+      // 0: xNext outside the current cell
+      //-1: numerical error occurs
+      // In case of  0, input->FindCell() needs to be called to justify
+      // subsequent tensor interpolation and Jacob computation.
+      // In case of -1, the while() loop needs to be broken to avoid uncertainties
+      //
       cell->EvaluatePosition(xNext, closestPoint, subId, p, dist2, w);
 
       //interpolate tensor
@@ -538,10 +548,23 @@ int vtkHyperStreamline::RequestData(
         xNext[i] = sPtr->X[i] + 
                    dir * (step/2.0) * (sPtr->V[i][iv] + v[i][iv]);
         }
+
+      // get the safe handle to sPtr in case the vtkHyperPoint array is resized.
+      // A resize operation usually changes the address of the memory block.
+      // This safe handle prevents sPtr from being a broken / wild pointer
+      // that might be indirectly caused through InsertNextHyperPoint()
+      vtkIdType sPtrId = this->Streamers[ptId].GetNumberOfPoints() - 1;
+
+      // now feel free to insert a new vtkHyperPoint
       sNext = this->Streamers[ptId].InsertNextHyperPoint();
 
-      if ( cell->EvaluatePosition(xNext, closestPoint, sNext->SubId, 
-      sNext->P, dist2, w) )
+      // make sure sPtr points to the target in a possibly-resized memory block
+      sPtr  = this->Streamers[ptId].GetHyperPoint(sPtrId); 
+
+      int  evalResult = cell->EvaluatePosition(xNext, closestPoint, sNext->SubId,
+                                               sNext->P, dist2, w);
+
+      if ( evalResult == 1 )
         { //integration still in cell
         for (i=0; i<3; i++)
           {
@@ -551,6 +574,7 @@ int vtkHyperStreamline::RequestData(
         sNext->SubId = sPtr->SubId;
         }
       else
+      if ( evalResult == 0 )
         { //integration has passed out of cell
         sNext->CellId = input->FindCell(xNext, cell, sPtr->CellId, tol2, 
                                         sNext->SubId, sNext->P, w);
@@ -565,6 +589,12 @@ int vtkHyperStreamline::RequestData(
           if (inScalars){inScalars->GetTuples(cell->PointIds, cellScalars);}
           step = this->IntegrationStepLength * sqrt(cell->GetLength2());
           }
+        }
+      else
+        { // evalResult = -1: numerical error occurs, rarely but possibly
+          // All returned values are invalid and should be ignored
+          // and the segment "if ( sNext->CellId >= 0 ) {...}" will be skipped
+        sNext->CellId = -1;
         }
 
       if ( sNext->CellId >= 0 )
@@ -601,6 +631,10 @@ int vtkHyperStreamline::RequestData(
           }
         d = sqrt(vtkMath::Distance2BetweenPoints(sPtr->X,sNext->X));
         sNext->D = sPtr->D + d;
+        }
+      else
+        { // follow-up for evalResult = -1: to enable the next line of code
+        sNext = sPtr;
         }
 
       sPtr = sNext;
