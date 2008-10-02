@@ -264,7 +264,6 @@ vtkCallbackCommand
 vtkCommand
 vtkCommonInformationKeyManager
 vtkDataArray
-vtkDataArrayMetaData
 vtkEventForwarderCommand
 vtkFloatingPointExceptions
 vtkFunctionSet
