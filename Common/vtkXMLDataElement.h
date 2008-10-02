@@ -29,7 +29,7 @@
 
 class vtkXMLDataParser;
 
-class VTK_IO_EXPORT vtkXMLDataElement : public vtkObject
+class VTK_COMMON_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkXMLDataElement,vtkObject);
