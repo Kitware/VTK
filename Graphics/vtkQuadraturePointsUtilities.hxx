@@ -41,6 +41,8 @@ int Interpolate(
         vtkDoubleArray *interpolated,
         vtkIdType *indexes)
 {
+  (void *)V; // fixes compiler warning.
+
   // Walk cells.
   vtkIdType currentIndex=0;
   for (vtkIdType cellId=0; cellId<nCellsUsg; ++cellId)
