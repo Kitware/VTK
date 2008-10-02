@@ -18,6 +18,9 @@
 // This is not designed for reuse, one should create and use new instances for
 // different shaders.
 
+// .SECTION Caveats
+// DON'T PLAY WITH IT YET.
+
 #ifndef __vtkShaderProgram2_h
 #define __vtkShaderProgram2_h
 

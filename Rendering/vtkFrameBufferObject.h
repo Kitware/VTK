@@ -17,6 +17,8 @@
 // .SECTION Description
 // Encapsulates an OpenGL Frame Buffer Object.
 // For use by vtkOpenGLFBORenderWindow, not to be used directly.
+// .SECTION Caveats
+// DON'T PLAY WITH IT YET.
 #ifndef __vtkFrameBufferObject_h
 #define __vtkFrameBufferObject_h
 

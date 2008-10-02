@@ -17,7 +17,8 @@
 // vtkTextureObject represents an OpenGL texture object. It provides API to
 // create textures using data already loaded into pixel buffer objects. It can
 // also be used to create textures without uploading any data.
-
+// .SECTION Caveats
+// DON'T PLAY WITH IT YET.
 #ifndef __vtkTextureObject_h
 #define __vtkTextureObject_h
 

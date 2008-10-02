@@ -22,6 +22,7 @@
 // .SECTION Caveats
 // Since most GPUs don't support double format all double data is converted to
 // float and then uploaded.
+// DON'T PLAY WITH IT YET.
 
 #ifndef __vtkPixelBufferObject_h
 #define __vtkPixelBufferObject_h
