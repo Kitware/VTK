@@ -28,7 +28,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.8");
+vtkCxxRevisionMacro(vtkOpenGLRepresentationPainter, "1.9");
 #endif
 
 //-----------------------------------------------------------------------------
@@ -76,8 +76,20 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     break;
     }
 
+  bool draw_surface_with_edges = 
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+  if (draw_surface_with_edges)
+    {
+    glPolygonOffset(0.7, 1.0);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    }
+
   this->Superclass::RenderInternal(renderer, actor, typeflags,
                                    forceCompileOnly);
+  if (draw_surface_with_edges)
+    {
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    }
   this->TimeToDraw += this->DelegatePainter? 
     this->DelegatePainter->GetTimeToDraw() : 0;
   if (reset_needed)
@@ -86,7 +98,7 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     glPolygonMode(face, GL_FILL);
     }
 
-  if (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE)
+  if (draw_surface_with_edges)
     {
     glPushAttrib(GL_CURRENT_BIT);
     glPushAttrib(GL_LIGHTING_BIT);
