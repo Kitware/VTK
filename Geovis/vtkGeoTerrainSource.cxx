@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTerrainSource.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainSource, "1.3");
+vtkCxxRevisionMacro(vtkGeoTerrainSource, "1.4");
 vtkStandardNewMacro(vtkGeoTerrainSource);
 
 
@@ -39,8 +39,7 @@ vtkGeoTerrainSource::~vtkGeoTerrainSource()
 void vtkGeoTerrainSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Origin: {" << this->Origin[0] <<  ", " this->Origin[1] 
-    << ", " << this->Origin[2] << "}" << endl;
+  os << indent << "Origin: {" << this->Origin[0] << ", " << this->Origin[1] << ", " << this->Origin[2] << "}" << endl;
 }
 
 
