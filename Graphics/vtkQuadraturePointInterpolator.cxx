@@ -38,7 +38,7 @@ using vtksys_ios::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
-vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.3");
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //-----------------------------------------------------------------------------
@@ -85,12 +85,10 @@ int vtkQuadraturePointInterpolator::FillOutputPortInformation(
 
 //-----------------------------------------------------------------------------
 int vtkQuadraturePointInterpolator::RequestData(
-        vtkInformation *req,
+        vtkInformation *,
         vtkInformationVector **input,
         vtkInformationVector *output)
 {
-  (void *)req; // fixes compiler warning.
-
   vtkDataObject *tmpDataObj;
   // Get the inputs
   tmpDataObj

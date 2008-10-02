@@ -98,7 +98,7 @@ double W_QE_42_A[]={
 };
 
 
-vtkCxxRevisionMacro(vtkQuadratureSchemeDictionaryGenerator, "1.2");
+vtkCxxRevisionMacro(vtkQuadratureSchemeDictionaryGenerator, "1.3");
 vtkStandardNewMacro(vtkQuadratureSchemeDictionaryGenerator);
 
 //-----------------------------------------------------------------------------
@@ -143,12 +143,10 @@ int vtkQuadratureSchemeDictionaryGenerator::FillOutputPortInformation(
 
 //-----------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::RequestData(
-        vtkInformation *req,
+        vtkInformation *,
         vtkInformationVector **input,
         vtkInformationVector *output)
 {
-  (void *)req; // fixes compiler warning.
-
   vtkDataObject *tmpDataObj;
   // Get the inputs
   tmpDataObj

@@ -34,15 +34,13 @@ template<class vtk_T, class T>
 int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
-        vtk_T *V,
+        vtk_T *,
         T *pV,
         const int nCompsV,
         vtkQuadratureSchemeDefinition **dict,
         vtkDoubleArray *interpolated,
         vtkIdType *indexes)
 {
-  (void *)V; // fixes compiler warning.
-
   // Walk cells.
   vtkIdType currentIndex=0;
   for (vtkIdType cellId=0; cellId<nCellsUsg; ++cellId)
