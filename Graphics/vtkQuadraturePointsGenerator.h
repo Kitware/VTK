@@ -36,7 +36,7 @@ class vtkUnstructuredGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class vtkQuadraturePointsGenerator : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkQuadraturePointsGenerator : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeRevisionMacro(vtkQuadraturePointsGenerator,vtkDataSetAlgorithm);

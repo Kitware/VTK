@@ -38,7 +38,7 @@ class vtkInformationVector;
 
 // Description:
 
-class vtkQuadraturePointInterpolator : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkQuadraturePointInterpolator : public vtkDataSetAlgorithm
 {
 public:
   static vtkQuadraturePointInterpolator *New();

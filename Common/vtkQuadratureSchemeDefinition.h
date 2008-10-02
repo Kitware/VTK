@@ -38,7 +38,7 @@
 class vtkInformationQuadratureSchemeDefinitionVectorKey;
 class vtkXMLDataElement;
 
-class vtkQuadratureSchemeDefinition : public vtkObject
+class VTK_COMMON_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
 {
 public:
   // vtk stuff
