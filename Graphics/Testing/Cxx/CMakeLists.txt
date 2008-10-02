@@ -37,6 +37,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestHierarchicalBoxPipeline.cxx
       TestIconGlyphFilterGravity.cxx
       TestMultiBlock.cxx
+      TestQuadraturePoints.cxx
       TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx

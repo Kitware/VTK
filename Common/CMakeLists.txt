@@ -45,7 +45,6 @@ vtkCylindricalTransform.cxx
 vtkDataArray.cxx
 vtkDataArrayCollection.cxx
 vtkDataArrayCollectionIterator.cxx
-vtkDataArrayMetaData.cxx
 vtkDataArraySelection.cxx
 vtkDebugLeaks.cxx
 vtkDebugLeaksManager.cxx
@@ -91,6 +90,7 @@ vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
 vtkInformationObjectBaseVectorKey.cxx
+vtkInformationQuadratureSchemeDefinitionVectorKey.cxx
 vtkInformationRequestKey.cxx
 vtkInformationStringKey.cxx
 vtkInformationStringVectorKey.cxx
@@ -146,6 +146,7 @@ vtkPriorityQueue.cxx
 vtkProp.cxx
 vtkPropCollection.cxx
 vtkProperty2D.cxx
+vtkQuadratureSchemeDefinition.cxx
 vtkQuadric.cxx
 vtkReferenceCount.cxx
 vtkRungeKutta2.cxx
@@ -183,6 +184,7 @@ vtkWarpTransform.cxx
 vtkWeakPointerBase.cxx
 vtkWindow.cxx
 vtkWindowLevelLookupTable.cxx
+vtkXMLDataElement.cxx
 vtkXMLFileOutputWindow.cxx
 )
 
@@ -281,6 +283,7 @@ vtkInformationKey
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
 vtkInformationObjectBaseVectorKey
+vtkInformationQuadratureSchemeDefinitionVectorKey
 vtkInformationRequestKey
 vtkInformationStringKey
 vtkInformationStringVectorKey

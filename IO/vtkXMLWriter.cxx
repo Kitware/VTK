@@ -34,6 +34,9 @@
 #define vtkOffsetsManager_DoNotInclude
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
+#include "vtkXMLDataElement.h"
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkQuadratureSchemeDefinition.h"
 
 #include <vtksys/ios/sstream>
 
@@ -208,7 +211,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 //*****************************************************************************
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.73");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.74");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //----------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
@@ -1675,14 +1678,19 @@ int vtkXMLWriter::WriteAsciiData(vtkAbstractArray* a, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::WriteArrayAppended(vtkAbstractArray* a,
-  vtkIndent indent, OffsetsManager &offs, const char* alternateName,
-  int writeNumTuples, int timestep)
+void vtkXMLWriter::WriteArrayAppended(
+        vtkAbstractArray* a,
+        vtkIndent indent,
+        OffsetsManager &offs,
+        const char* alternateName,
+        int writeNumTuples,
+        int timestep)
 {
   ostream& os = *(this->Stream);
-  // Write the header <DataArray:
+  // Write the header <DataArray or <Array:
   this->WriteArrayHeader(a,indent,alternateName, writeNumTuples, timestep);
-
+  int shortFormatTag=1; // close with: />
+  //
   if (vtkDataArray::SafeDownCast(a))
     {
     // write the scalar range of this data array, we reserver space because we
@@ -1698,11 +1706,23 @@ void vtkXMLWriter::WriteArrayAppended(vtkAbstractArray* a,
     offs.GetRangeMinPosition(timestep) = -1;
     offs.GetRangeMaxPosition(timestep) = -1;
     }
-
+  //
   offs.GetPosition(timestep) = this->ReserveAttributeSpace("offset");
-  // Close the header
-  os << "/>\n";
-  this->WriteArrayFooter(os, indent); 
+  // Write information in the recognized keys associated with this array.
+  vtkInformation *info=a->GetInformation();
+  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
+  if (info->Has(key))
+    {
+    // Close the header
+    os << ">" << endl;
+    vtkXMLDataElement *eKey=vtkXMLDataElement::New();
+    key->SaveState(info,eKey);
+    eKey->PrintXML(os,indent.GetNextIndent());
+    eKey->Delete();
+    shortFormatTag=0; // close with </DataArray> or </Array> 
+    }
+  // Close tag.
+  this->WriteArrayFooter(os, indent, a, shortFormatTag);
 }
 
 //----------------------------------------------------------------------------
@@ -1768,8 +1788,30 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::WriteArrayFooter(ostream &os, vtkIndent )
+void vtkXMLWriter::WriteArrayFooter(
+        ostream &os,
+        vtkIndent indent,
+        vtkAbstractArray *a,
+        int shortFormat)
 {
+   // Close the tag: </DataArray>, </Array> or />
+  if (shortFormat)
+    {
+    os << "/>" << endl;
+    }
+  else
+    {
+    vtkDataArray* da = vtkDataArray::SafeDownCast(a);
+    if (da)
+      {
+      os << indent << "</DataArray>\n";
+      }
+    else
+      {
+      os << indent << "</Array>\n";
+      }
+    }
+  // Force write and check for errors.
   os.flush();
   if (os.fail())
     {
@@ -1794,13 +1836,16 @@ void vtkXMLWriter::WriteInlineData(vtkAbstractArray* a, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::WriteArrayInline(vtkAbstractArray* a, vtkIndent indent,
-  const char* alternateName, int writeNumTuples)
+void vtkXMLWriter::WriteArrayInline(
+        vtkAbstractArray* a,
+        vtkIndent indent,
+        const char* alternateName,
+        int writeNumTuples)
 {
   ostream& os = *(this->Stream);
   // Write the header <DataArray or <Array:
   this->WriteArrayHeader(a, indent, alternateName, writeNumTuples, 0);
-
+  // 
   vtkDataArray* da = vtkDataArray::SafeDownCast(a);
   if (da)
     {
@@ -1808,20 +1853,22 @@ void vtkXMLWriter::WriteArrayInline(vtkAbstractArray* a, vtkIndent indent,
     this->WriteScalarAttribute("RangeMin",da->GetRange(-1)[0]);
     this->WriteScalarAttribute("RangeMax",da->GetRange(-1)[1]);
     }
-
   // Close the header
   os << ">\n";
+  // Write recognized information keys associated with this array.
+  vtkInformation *info=a->GetInformation();
+  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
+  if (info->Has(key))
+    {
+    vtkXMLDataElement *eKey=vtkXMLDataElement::New();
+    key->SaveState(info,eKey);
+    eKey->PrintXML(os,indent);
+    eKey->Delete();
+    }
+  // Write the inline data.
   this->WriteInlineData(a, indent.GetNextIndent());
-  // Close the </DataArray> or </Array>
-  if (da)
-    {
-    os << indent << "</DataArray>\n";
-    }
-  else
-    {
-    os << indent << "</Array>\n";
-    }
-  this->WriteArrayFooter(os, indent); 
+  // Close tag.
+  this->WriteArrayFooter(os, indent, a, 0); 
 }
 
 //----------------------------------------------------------------------------

@@ -175,6 +175,9 @@ vtkProgrammableFilter.cxx
 vtkProgrammableGlyphFilter.cxx
 vtkProgrammableSource.cxx
 vtkProjectedTexture.cxx
+vtkQuadraturePointInterpolator.cxx
+vtkQuadraturePointsGenerator.cxx
+vtkQuadratureSchemeDictionaryGenerator.cxx
 vtkQuadricClustering.cxx
 vtkQuadricDecimation.cxx
 vtkQuantizePolyDataPoints.cxx

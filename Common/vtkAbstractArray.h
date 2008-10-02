@@ -49,7 +49,6 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkInformation;
-class vtkDataArrayMetaData;
 
 class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
 {
@@ -302,36 +301,26 @@ public:
   // if none already exists.
   vtkInformation* GetInformation();
 
-  //BTX
-  // Description:
-  // Set/get associated meta-data.
-  vtkDataArrayMetaData *GetMetaData()
-  {
-    return this->MetaData; 
-  }
-  void SetMetaData(vtkDataArrayMetaData *amd);
-  //ETX
-protected:
-  // Construct object with default tuple dimension (number of components) of 1.
-  vtkAbstractArray(vtkIdType numComp=1);
-  ~vtkAbstractArray();
-
   // Description:
   // Set an information object that can be used to annotate the array.
   // This is NULL by default; you are responsible for allocating an information object
   // if none already exists.
   virtual void SetInformation( vtkInformation* );
+  
+protected:
+  // Construct object with default tuple dimension (number of components) of 1.
+  vtkAbstractArray(vtkIdType numComp=1);
+  ~vtkAbstractArray();
 
   vtkIdType Size;         // allocated size of data
   vtkIdType MaxId;        // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
 
   char* Name;
-
+  
   bool RebuildArray;      // whether to rebuild the fast lookup data structure.
 
   vtkInformation* Information;
-  vtkDataArrayMetaData *MetaData;
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

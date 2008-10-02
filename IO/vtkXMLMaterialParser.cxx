@@ -29,6 +29,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 
+#include "vtkXMLUtilities.h"
+
 #include <vtkstd/vector>
 
 
@@ -42,7 +44,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMaterialParser);
-vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.4" );
+vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.5" );
 vtkCxxSetObjectMacro(vtkXMLMaterialParser, Material, vtkXMLMaterial);
 
 //-----------------------------------------------------------------------------
@@ -97,7 +99,7 @@ void vtkXMLMaterialParser::StartElement(const char* name, const char** atts)
   vtkXMLDataElement* element = vtkXMLDataElement::New();
   element->SetName(name);
   element->SetXMLByteIndex(this->GetXMLByteIndex());
-  element->ReadXMLAttributes(atts, VTK_ENCODING_NONE);
+  vtkXMLUtilities::ReadElementFromAttributeArray(element, atts, VTK_ENCODING_NONE);
   const char* id = element->GetAttribute("id");
   if (id)
     {

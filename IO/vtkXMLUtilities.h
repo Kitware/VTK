@@ -94,6 +94,18 @@ public:
   //ETX
 
   // Description:
+  // Sets attributes of an element from an array of encoded attributes.
+  // The 'encoding' parameter will be used to set the internal encoding of the
+  // attributes of the data elements created by those functions (conversion
+  // from the XML stream encoding to that new encoding will be performed
+  // automatically). If set to VTK_ENCODING_NONE, the encoding won't be
+  // changed and will default to the default vtkXMLDataElement encoding.
+  static void ReadElementFromAttributeArray(
+        vtkXMLDataElement *element,
+        const char** atts,
+        int encoding);
+
+  // Description:
   // Find all elements in 'tree' that are similar to 'elem' (using the
   // vtkXMLDataElement::IsEqualTo() predicate). 
   // Return the number of elements found and store those elements in

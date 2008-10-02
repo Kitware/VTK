@@ -22,7 +22,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.36");
+#include <vtksys/ios/sstream>
+
+#include "vtkXMLUtilities.h"
+
+
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.37");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -59,8 +64,10 @@ vtkXMLDataParser::vtkXMLDataParser()
 
   this->AttributesEncoding = VTK_ENCODING_NONE;
 
-  //change default because vtk file formats store this information elsewhere
-  this->IgnoreCharacterData = 1;
+  // Have specialized methods for reading array data both inline or
+  // appended, however typical tags may use the more general CharacterData
+  // methods.
+  this->IgnoreCharacterData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -137,7 +144,8 @@ void vtkXMLDataParser::StartElement(const char* name, const char** atts)
   vtkXMLDataElement* element = vtkXMLDataElement::New();
   element->SetName(name);
   element->SetXMLByteIndex(this->GetXMLByteIndex());
-  element->ReadXMLAttributes(atts, this->AttributesEncoding);
+  vtkXMLUtilities::ReadElementFromAttributeArray(element, atts, this->AttributesEncoding);
+
   const char* id = element->GetAttribute("id");
   if(id)
     {
@@ -158,6 +166,33 @@ void vtkXMLDataParser::StartElement(const char* name, const char** atts)
       this->AppendedDataStream = vtkInputStream::New();
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataParser::SeekInlineDataPosition(vtkXMLDataElement *element)
+{
+  istream* stream = this->GetStream();
+  if(!element->GetInlineDataPosition())
+    {
+    // Scan for the start of the actual inline data.
+    char c=0;
+    stream->clear(stream->rdstate() & ~ios::eofbit);
+    stream->clear(stream->rdstate() & ~ios::failbit);
+    this->SeekG(element->GetXMLByteIndex());
+    while(stream->get(c) && (c != '>'))
+      {
+      ;
+      }
+    while(stream->get(c) && element->IsSpace(c))
+      {
+      ;
+      }
+    unsigned long pos = this->TellG();
+    element->SetInlineDataPosition(pos-1);
+    }
+
+  // Seek to the data position.
+  this->SeekG(element->GetInlineDataPosition());
 }
 
 //----------------------------------------------------------------------------
@@ -850,7 +885,7 @@ vtkXMLDataParser::ReadInlineData(vtkXMLDataElement* element,
                                  int wordType)
 {
   this->DataStream = this->InlineDataStream;
-  element->SeekInlineDataPosition(this);
+  this->SeekInlineDataPosition(element);
   if(isAscii)
     {
     return this->ReadAsciiData(buffer, startWord, numWords, wordType);

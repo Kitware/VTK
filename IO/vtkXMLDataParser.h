@@ -174,6 +174,9 @@ protected:
                                 OffsetType numWords,
                                 int wordSize);
 
+  // Go to the start of the inline data
+  void SeekInlineDataPosition(vtkXMLDataElement *element);
+
   // Ascii data reading methods.
   int ParseAsciiData(int wordType);
   void FreeAsciiBuffer();

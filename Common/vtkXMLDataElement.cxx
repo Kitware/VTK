@@ -20,8 +20,12 @@
 
 #include <ctype.h>
 #include <vtksys/ios/sstream>
+using vtksys_ios::ostringstream;
+using vtksys_ios::istringstream;
+#include <vtkstd/string>
+using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.32");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.1");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -41,10 +45,11 @@ vtkXMLDataElement::vtkXMLDataElement()
   this->NestedElements = new vtkXMLDataElement*[this->NestedElementsSize];
   
   this->InlineDataPosition = 0;
-  this->XMLByteIndex = 0;
-
+  this->XMLByteIndex = 0; 
   this->AttributeEncoding = VTK_ENCODING_UTF_8;
+
   this->CharacterData = 0;
+  this->CharacterDataWidth = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -112,41 +117,6 @@ void vtkXMLDataElement::RemoveAllNestedElements()
     this->NestedElements[i]->UnRegister(this);
     }
   this->NumberOfNestedElements = 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLDataElement::ReadXMLAttributes(const char** atts, int encoding)
-{
-  if(atts)
-    {
-    // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN, 
-    // then keep the internal/default encoding, otherwise encode each
-    // attribute using that new format
-
-    if (encoding != VTK_ENCODING_NONE && encoding != VTK_ENCODING_UNKNOWN)
-      {
-      this->SetAttributeEncoding(encoding);
-      }
-
-    // Process each attributes returned by Expat in UTF-8 encoding, and
-    // convert them to our encoding
-
-    for (int i = 0; atts[i] && atts[i + 1]; i += 2)
-      {
-      if (this->GetAttributeEncoding() == VTK_ENCODING_UTF_8)
-        {
-        this->SetAttribute(atts[i], atts[i + 1]);
-        }
-      else
-        {
-        vtksys_ios::ostringstream str;
-        vtkXMLUtilities::EncodeString(
-          atts[i+1], VTK_ENCODING_UTF_8, str, this->GetAttributeEncoding(), 0);
-        str << ends;
-        this->SetAttribute(atts[i], str.str().c_str());
-        }
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -340,9 +310,59 @@ const char* vtkXMLDataElement::GetAttributeValue(int idx)
   return this->AttributeValues[idx];
 }
 
+
+//-----------------------------------------------------------------------------
+// Limits the width of a stream of character data, 
+// by inserting new lines and indenting properly.
+void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
+{
+  // anything to do?
+  if (this->CharacterData==NULL)
+    {
+    return;
+    }
+  // No special format just dump what we have.
+  if (this->CharacterDataWidth<1)
+    {
+    os << indent << this->CharacterData << endl;
+    }
+  // Treat as space/line delimitted fields limiting 
+  // the number of field per line.
+  else
+    {
+    istringstream issCharacterData(this->CharacterData);
+
+    string characterDataToken;
+    issCharacterData >> characterDataToken;
+    os << indent << characterDataToken;
+
+    int it=0;
+    while (issCharacterData.good())
+      {
+      if ((it%this->CharacterDataWidth)==(this->CharacterDataWidth-1))
+        {
+        os << endl << indent;
+        }
+      else
+        {
+        os << " ";
+        }
+
+      issCharacterData >> characterDataToken;
+      os << characterDataToken;
+
+      ++it;
+      }
+
+    os << endl;
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
 {
+  vtkIndent nextIndent=indent.GetNextIndent();
+
   os << indent << "<" << this->Name;
   int i;
   for(i=0;i < this->NumberOfAttributes;++i)
@@ -350,16 +370,23 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
     os << " " << this->AttributeNames[i]
        << "=\"" << this->AttributeValues[i] << "\"";
     }
-  if(this->NumberOfNestedElements > 0)
+  // Long format tag is needed if either or both 
+  // nested elements or inline data are present.
+  if (this->NumberOfNestedElements>0
+      || this->CharacterData!=NULL)
     {
     os << ">\n";
+    // nested elements
     for(i=0;i < this->NumberOfNestedElements;++i)
       {
-      vtkIndent nextIndent = indent.GetNextIndent();
-      this->NestedElements[i]->PrintXML(os, nextIndent);
+      this->NestedElements[i]->PrintXML(os,nextIndent );
       }
+    // inline data
+    this->PrintCharacterData(os,nextIndent);
+    // close tag
     os << indent << "</" << this->Name << ">\n";
     }
+  // We can get away with short format tag.
   else
     {
     os << "/>\n";
@@ -940,38 +967,6 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 #endif
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::SeekInlineDataPosition(vtkXMLDataParser* parser)
-{
-  if (!parser)
-    {
-    return;
-    }
-
-  istream* stream = parser->GetStream();
-  if(!this->InlineDataPosition)
-    {
-    // Scan for the start of the actual inline data.
-    char c=0;
-    stream->clear(stream->rdstate() & ~ios::eofbit);
-    stream->clear(stream->rdstate() & ~ios::failbit);
-    parser->SeekG(this->GetXMLByteIndex());
-    while(stream->get(c) && (c != '>'))
-      {
-      ;
-      }
-    while(stream->get(c) && this->IsSpace(c))
-      {
-      ;
-      }
-    unsigned long pos = parser->TellG();
-    this->InlineDataPosition = pos-1;
-    }
-
-  // Seek to the data position.
-  parser->SeekG(this->InlineDataPosition);
-}
-
-//----------------------------------------------------------------------------
 int vtkXMLDataElement::IsSpace(char c)
 {
   return isspace(c);
@@ -1038,10 +1033,11 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
   this->SetName(elem->GetName());
   this->SetId(elem->GetId());
   this->SetXMLByteIndex(elem->GetXMLByteIndex());
-  this->SetAttributeEncoding(elem->GetAttributeEncoding());
+  this->SetAttributeEncoding(elem->GetAttributeEncoding());///
   const char *elem_cdata = elem->GetCharacterData();
   this->SetCharacterData(elem_cdata,
     elem_cdata ? static_cast<int>(strlen(elem_cdata)) : 0);
+  this->SetCharacterDataWidth(elem->GetCharacterDataWidth());
 
   // Copy attributes
 
@@ -1078,5 +1074,6 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AttributeEncoding: " << this->AttributeEncoding << "\n";
   os << indent << "CharacterData: " << 
     (this->CharacterData? this->CharacterData : "(null)") << endl;
+  os << indent << "CharacterDataWidth: " << this->CharacterDataWidth << endl;
 }
 

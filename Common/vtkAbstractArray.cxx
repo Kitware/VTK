@@ -14,8 +14,6 @@
 =========================================================================*/
 #include "vtkAbstractArray.h"
 
-#include "vtkDataArrayMetaData.h"
-
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
@@ -46,8 +44,10 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.13");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.14");
 
+//----------------------------------------------------------------------------
+// vtkAbstractArray::SetInformation(vtkInformation *info)
 vtkCxxSetObjectMacro(vtkAbstractArray,Information,vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -59,7 +59,6 @@ vtkAbstractArray::vtkAbstractArray(vtkIdType vtkNotUsed(numComp))
   this->NumberOfComponents = 1;
   this->Name = NULL;
   this->Information = NULL;
-  this->MetaData = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +66,6 @@ vtkAbstractArray::~vtkAbstractArray()
 {
   this->SetName(NULL);
   this->SetInformation(NULL);
-  this->SetMetaData(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -126,24 +124,6 @@ vtkInformation* vtkAbstractArray::GetInformation()
     info->FastDelete();
     }
   return this->Information;
-}
-
-//----------------------------------------------------------------------------
-void vtkAbstractArray::SetMetaData(vtkDataArrayMetaData *amd)
-{
-  if (this->MetaData==amd)
-  {
-    return;
-  }
-  if (this->MetaData!=0)
-  {
-    this->MetaData->UnRegister(0);
-  }
-  this->MetaData=amd;
-  if (this->MetaData!=0)
-  {
-    this->MetaData->Register(0);
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -293,13 +273,8 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   os << indent << "Information: " << this->Information << endl;
-  os << indent << "MetaData: " << this->MetaData << endl;
   if ( this->Information )
     {
     this->Information->PrintSelf( os, indent.GetNextIndent() );
-    }
-  if ( this->MetaData )
-    {
-    this->MetaData->PrintSelf( os, indent.GetNextIndent() );
     }
 }

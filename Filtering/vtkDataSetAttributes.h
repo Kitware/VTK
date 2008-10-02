@@ -650,6 +650,7 @@ public:
     int *FieldIndices; //output data array index 
                        // (first five are named attributes)
     vtkLookupTable **LUT; //luts associated with each array
+    vtkInformation **FieldInformation; // Information map associated with each array
     vtkIdType NumberOfTuples; //a running total of values
     int NumberOfFields; //the number of fields
     

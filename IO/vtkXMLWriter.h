@@ -336,7 +336,7 @@ protected:
   
   void WriteArrayHeader(vtkAbstractArray* a, vtkIndent indent,
     const char* alternateName, int writeNumTuples, int timestep);
-  void WriteArrayFooter(ostream &os, vtkIndent indent);
+  void WriteArrayFooter(ostream &os, vtkIndent indent, vtkAbstractArray *a, int shortFormat);
   void WriteArrayInline(vtkAbstractArray* a, vtkIndent indent,
     const char* alternateName=0, int writeNumTuples=0);
   void WriteInlineData(vtkAbstractArray* a, vtkIndent indent);

@@ -31,7 +31,7 @@
 typedef vtkstd::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
-vtkCxxRevisionMacro(vtkXMLUtilities, "1.9");
+vtkCxxRevisionMacro(vtkXMLUtilities, "1.10");
 
 #define  VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define  VTK_XML_UTILITIES_FACTORED_NAME      "Factored"
@@ -439,6 +439,44 @@ vtkXMLUtilities::ReadElementFromFile(const char *filename, int encoding)
 
   ifstream is(filename);
   return vtkXMLUtilities::ReadElementFromStream(is, encoding);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLUtilities::ReadElementFromAttributeArray(
+        vtkXMLDataElement *element,
+        const char** atts,
+        int encoding)
+{
+  if(atts)
+    {
+    // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN, 
+    // then keep the internal/default encoding, otherwise encode each
+    // attribute using that new format
+
+    if (encoding != VTK_ENCODING_NONE && encoding != VTK_ENCODING_UNKNOWN)
+      {
+      element->SetAttributeEncoding(encoding);
+      }
+
+    // Process each attributes returned by Expat in UTF-8 encoding, and
+    // convert them to our encoding
+
+    for (int i = 0; atts[i] && atts[i + 1]; i += 2)
+      {
+      if (element->GetAttributeEncoding() == VTK_ENCODING_UTF_8)
+        {
+        element->SetAttribute(atts[i], atts[i + 1]);
+        }
+      else
+        {
+        vtksys_ios::ostringstream str;
+        vtkXMLUtilities::EncodeString(
+          atts[i+1], VTK_ENCODING_UTF_8, str, element->GetAttributeEncoding(), 0);
+        str << ends;
+        element->SetAttribute(atts[i], str.str().c_str());
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

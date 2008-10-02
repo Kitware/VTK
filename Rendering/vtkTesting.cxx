@@ -28,53 +28,63 @@
 #include "vtkSmartPointer.h"
 #include "vtkImageClip.h"
 #include "vtkToolkits.h"
+#include "vtkDataSet.h"
+#include "vtkPointSet.h"
+#include "vtkPointData.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.31");
+vtkCxxRevisionMacro(vtkTesting, "1.32");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
+using vtkstd::vector;
+using vtkstd::string;
 
-char* vtkTestingGetArgOrEnvOrDefault(const char* arg, 
-                                     int argc, char* argv[], 
-                                     const char* env, 
-                                     const char *def)
+//-----------------------------------------------------------------------------
+// Find in command tail, failing that find in environment,
+// failing that return a default.
+// Up to caller to delete the string returned.
+string vtkTestingGetArgOrEnvOrDefault(
+          string argName,       // argument idnetifier flag. eg "-D"
+          vector<string> &argv, // command tail
+          string env,           // environment variable name to find
+          string def)           // default to use if "env" is not found.
 {
-  int index = -1;
-  
-  for (int i = 0; i < argc; i++)
+  string argValue;
+
+  // Serach command tail.
+  int argc=static_cast<int>(argv.size());
+  for (int i=0; i<argc; i++)
     {
-    if (strcmp(arg, argv[i]) == 0 && i < argc - 1)
+    if (argName==argv[i] && i<(argc-1))
       {
-      index = i + 1;
+      argValue=argv[i+1];
       }
     }
-
-  char* value;
-
-  if (index != -1) 
+  // If not found search environment.
+  if (argValue.empty()
+      && !(env.empty() || def.empty()))
     {
-    value = new char[strlen(argv[index]) + 1];
-    strcpy(value, argv[index]);
-    }
-  else 
-    {
-    char *foundenv = getenv(env);
+    char *foundenv=getenv(env.c_str());
     if (foundenv)
       {
-      value = new char[strlen(foundenv) + 1];
-      strcpy(value, foundenv);
+      argValue=foundenv;
       }
     else
       {
-      value = new char[strlen(def) + 1];
-      strcpy(value, def);
+      // Not found, fall back to default.
+      argValue=def;
       }
     }
-  
-  return value;
+
+  return argValue;
 } 
 
+//=============================================================================
 vtkTesting::vtkTesting()
 {
   this->FrontBuffer = 0;
@@ -84,12 +94,13 @@ vtkTesting::vtkTesting()
   this->DataRoot = 0;
   this->TempDirectory = 0;
   this->BorderOffset = 0;
-  
+  this->Verbose = 0;
+ 
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
   this->StartWallTime = vtkTimerLog::GetUniversalTime();
-}  
-
+}
+//-----------------------------------------------------------------------------
 vtkTesting::~vtkTesting()
 {
   this->SetRenderWindow(0);
@@ -97,82 +108,60 @@ vtkTesting::~vtkTesting()
   this->SetDataRoot(0);
   this->SetTempDirectory(0);
 }
-
+//-----------------------------------------------------------------------------
 void vtkTesting::AddArgument(const char *arg)
 {
   this->Args.push_back(arg);
 }
+//-----------------------------------------------------------------------------
+void vtkTesting::AddArguments(int argc,const char **argv)
+{
+  for (int i=0; i<argc; ++i)
+    {
+    this->Args.push_back(argv[i]);
+    }
+}
+//-----------------------------------------------------------------------------
+char *vtkTesting::GetArgument(const char *argName)
+{
+  string argValue
+    = vtkTestingGetArgOrEnvOrDefault(argName,this->Args,"","");
 
+  char *cArgValue=new char [argValue.size()+1];
+  strcpy(cArgValue,argValue.c_str());
+
+  return cArgValue;
+}
+//-----------------------------------------------------------------------------
 void vtkTesting::CleanArguments()
 {
   this->Args.erase( this->Args.begin(), this->Args.end() );
 }
-
+//-----------------------------------------------------------------------------
 const char *vtkTesting::GetDataRoot()
 {
-  unsigned int i;
-  char **argv = 0;
-  if (this->Args.size())
-    {
-    argv = new char * [this->Args.size()];
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      argv[i] = strdup(this->Args[i].c_str());
-      }
-    }
-
 #ifdef VTK_DATA_ROOT 
-  char *dr = vtkTestingGetArgOrEnvOrDefault(
-    "-D", static_cast<int>(this->Args.size()), argv, "VTK_DATA_ROOT",
-    VTK_DATA_ROOT);
+  string dr=vtkTestingGetArgOrEnvOrDefault(
+                "-D",this->Args,"VTK_DATA_ROOT",VTK_DATA_ROOT);
 #else
-  char *dr = vtkTestingGetArgOrEnvOrDefault(
-    "-D", static_cast<int>(this->Args.size()), argv, "VTK_DATA_ROOT",
-    "../../../../VTKData");
+  string *dr=vtkTestingGetArgOrEnvOrDefault(
+                "-D",this->Args, "VTK_DATA_ROOT","../../../../VTKData");
 #endif
+  this->SetDataRoot(dr.c_str());
 
-  this->SetDataRoot(dr);
-  delete [] dr;
-  
-  if (argv)
-    {
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      free(argv[i]);
-      }
-    delete [] argv;
-    }
   return this->DataRoot;
 }
-
+//-----------------------------------------------------------------------------
 const char *vtkTesting::GetTempDirectory()
 {
-  unsigned int i;
-  char **argv = 0;
-  if (this->Args.size())
-    {
-    argv = new char * [this->Args.size()];
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      argv[i] = strdup(this->Args[i].c_str());
-      }
-    }
-  char *td = vtkTestingGetArgOrEnvOrDefault(
-      "-T", static_cast<int>(this->Args.size()), argv, "VTK_TEMP_DIR",
-      "../../../Testing/Temporary");
-  this->SetTempDirectory(td);
-  delete [] td;
-  if (argv)
-    {
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      free(argv[i]);
-      }
-    delete [] argv;
-    }
+  string td=vtkTestingGetArgOrEnvOrDefault(
+                "-T",this->Args, "VTK_TEMP_DIR","../../../Testing/Temporary");
+
+  this->SetTempDirectory(td.c_str());
+
   return this->TempDirectory;
 }
-
+//-----------------------------------------------------------------------------
 const char *vtkTesting::GetValidImageFileName()
 {
   this->SetValidImageFileName(0);
@@ -180,25 +169,11 @@ const char *vtkTesting::GetValidImageFileName()
     {
     return this->ValidImageFileName;
     }
-  
-  char **argv = 0;
-  unsigned int i;
-  if (this->Args.size())
-    {
-    argv = new char * [this->Args.size()];
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      argv[i] = strdup(this->Args[i].c_str());
-      }
-    }
-  
-  char * baseline = vtkTestingGetArgOrEnvOrDefault(
-    "-B", static_cast<int>(this->Args.size()), argv,
-    "VTK_BASELINE_ROOT", this->GetDataRoot());
-  vtkstd::string viname = baseline;
-  delete [] baseline;
 
-  for (i = 0; i < (this->Args.size() - 1); ++i)
+  string baseline=vtkTestingGetArgOrEnvOrDefault(
+                "-B", this->Args,"VTK_BASELINE_ROOT", this->GetDataRoot());
+
+  for (size_t i=0; i<(this->Args.size()-1); ++i)
     {
     if ( this->Args[i] == "-V")
       {
@@ -210,29 +185,22 @@ const char *vtkTesting::GetValidImageFileName()
 #endif
         )
         {
-        viname = this->Args[i+1];
+        baseline = this->Args[i+1];
         }
       else
         {
-        viname += "/";
-        viname += this->Args[i+1];
+        baseline += "/";
+        baseline += this->Args[i+1];
         }
       break;
       }
     }
 
-  this->SetValidImageFileName(viname.c_str());
-  if (argv)
-    {
-    for (i = 0; i < this->Args.size(); ++i)
-      {
-      free(argv[i]);
-      }
-    delete [] argv;
-    }
+  this->SetValidImageFileName(baseline.c_str());
+
   return this->ValidImageFileName;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::IsInteractiveModeSpecified()
 {
   unsigned int i;
@@ -245,7 +213,7 @@ int vtkTesting::IsInteractiveModeSpecified()
     }
   return 0;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::IsFlagSpecified(const char *flag)
 {
   unsigned int i;
@@ -258,7 +226,7 @@ int vtkTesting::IsFlagSpecified(const char *flag)
     }
   return 0;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::IsValidImageSpecified()
 {
   unsigned int i;
@@ -271,7 +239,7 @@ int vtkTesting::IsValidImageSpecified()
     }
   return 0;
 }
-
+//-----------------------------------------------------------------------------
 char* vtkTesting::IncrementFileName(const char* fname, int count)
 {
   char counts[256];
@@ -296,7 +264,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
   
   return newFileName;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::LookForFile(const char* newFileName)
 {
   if (!newFileName)
@@ -313,7 +281,7 @@ int vtkTesting::LookForFile(const char* newFileName)
     return 1;
     }
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
 {
   int result = this->RegressionTest(image, thresh, cout);
@@ -327,7 +295,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
 
   return result;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
   int result = this->RegressionTest(thresh, cout);
@@ -341,7 +309,7 @@ int vtkTesting::RegressionTest(double thresh)
 
   return result;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh, ostream &os)
 {
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
@@ -377,7 +345,7 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
   rt_w2if->Delete(); 
   return res;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 {
   // do a get to compute the real value
@@ -700,7 +668,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   delete [] diff_small;
   return FAILED;
 }
-
+//-----------------------------------------------------------------------------
 int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw, 
                      double thresh ) 
 {
@@ -737,7 +705,190 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
   testing->Delete();
   return NOT_RUN;
 }
+//-----------------------------------------------------------------------------
+// Sum the L2 Norm (scaled by the magnitude of the first)
+// point wise over all tuples. Return the number of terms in 
+// the sum.
+template <class T>
+vtkIdType vtkTesting::AccumulateScaledL2Norm(
+        T *pA,           // pointer to first data array
+        T *pB,           // pointer to second data array
+        vtkIdType nTups, // number of tuples
+        int nComps,      // number of comps
+        double &SumModR) // result
+{
+  //
+  SumModR=0.0;
+  for (vtkIdType i=0; i<nTups; ++i)
+    {
+    double modR=0.0;
+    double modA=0.0;
+    for (int q=0; q<nComps; ++q)
+      {
+      double a=pA[q];
+      double b=pB[q];
+      modA+=a*a;
+      double r=b-a;
+      modR+=r*r;
+      }
+    modA=sqrt(modA);
+    modA= modA<1.0 ? 1.0 : modA;
+    SumModR+=sqrt(modR)/modA;
+    pA+=nComps;
+    pB+=nComps;
+    }
+  return nTups;
+}
+//-----------------------------------------------------------------------------
+int vtkTesting::CompareAverageOfL2Norm(
+        vtkDataArray *daA,
+        vtkDataArray *daB,
+        double tol)
+{
+  int typeA=daA->GetDataType();
+  int typeB=daB->GetDataType();
+  if (typeA!=typeB)
+    {
+    vtkWarningMacro("Incompatible data types: "
+                    << typeA << ","
+                    << typeB << ".");
+    return 0;
+    }
+  //
+  vtkIdType nTupsA=daA->GetNumberOfTuples();
+  vtkIdType nTupsB=daB->GetNumberOfTuples();
+  int nCompsA=daA->GetNumberOfComponents();
+  int nCompsB=daB->GetNumberOfComponents();
+  //
+  if ((nTupsA!=nTupsB)
+     || (nCompsA!=nCompsB))
+    {
+    vtkWarningMacro(
+              "Arrays: " << daA->GetName()
+              << " (nC=" << nCompsA 
+              << " nT= "<< nTupsA << ")"
+              << " and " << daB->GetName()
+              << " (nC=" << nCompsB 
+              << " nT= "<< nTupsB << ")"
+              << " do not have the same structure.");
+    return 0;
+    }
 
+  double L2=0.0;
+  vtkIdType N=0;
+  switch (typeA)
+    {
+    case VTK_DOUBLE:
+      {
+      vtkDoubleArray *A=vtkDoubleArray::SafeDownCast(daA);
+      double *pA=A->GetPointer(0);
+      vtkDoubleArray *B=vtkDoubleArray::SafeDownCast(daB);
+      double *pB=B->GetPointer(0);
+      N=this->AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
+      }
+      break;
+    case VTK_FLOAT:
+      {
+      vtkFloatArray *A=vtkFloatArray::SafeDownCast(daA);
+      float *pA=A->GetPointer(0);
+      vtkFloatArray *B=vtkFloatArray::SafeDownCast(daB);
+      float *pB=B->GetPointer(0);
+      N=this->AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
+      }
+      break;
+    default:
+      if (this->Verbose)
+        {
+        cout << "Skipping:" << daA->GetName() << endl;
+        }
+      return true;
+      break;
+    }
+  //
+  if (N<=0)
+  {
+    return 0;
+  }
+  //
+  if (this->Verbose)
+    {
+    cout << "Sum(L2)/N of "
+         << daA->GetName()
+         << " < " << tol 
+         << "? = " << L2
+         << "/" << N
+         << "."  << endl;
+    }
+  //
+  double avgL2=L2/static_cast<double>(N);
+  if (avgL2>tol)
+    {
+    return 0;
+    }
+
+  // Test passed
+  return 1;
+}
+//-----------------------------------------------------------------------------
+int vtkTesting::CompareAverageOfL2Norm(
+        vtkDataSet *dsA,
+        vtkDataSet *dsB,
+        double tol)
+{
+  vtkDataArray *daA=0;
+  vtkDataArray *daB=0;
+  int status=0;
+
+  // Compare points if the dataset derives from
+  // vtkPointSet.
+  vtkPointSet *ptSetA=vtkPointSet::SafeDownCast(dsA);
+  vtkPointSet *ptSetB=vtkPointSet::SafeDownCast(dsB);
+  if (ptSetA!=NULL && ptSetB!=NULL)
+    {
+    if (this->Verbose)
+      {
+      cout << "Comparing points:" << endl;
+      }
+    daA=ptSetA->GetPoints()->GetData();
+    daB=ptSetB->GetPoints()->GetData();
+    //
+    status=CompareAverageOfL2Norm(daA,daB,tol);
+    if (status==0)
+      {
+      return 0;
+      }
+    }
+
+  // Compare point data arrays.
+  if (this->Verbose)
+    {
+    cout << "Comparing data arrays:" << endl;
+    }
+  int nDaA=dsA->GetPointData()->GetNumberOfArrays();
+  int nDaB=dsB->GetPointData()->GetNumberOfArrays();
+  if (nDaA!=nDaB)
+    {
+    vtkWarningMacro("Point data, " << dsA
+              <<  " and " << dsB << " differ in number of arrays"
+              <<  " and cannot be compared.");
+    return 0;
+    }
+  //
+  for (int arrayId=0; arrayId<nDaA; ++arrayId)
+    {
+    daA=dsA->GetPointData()->GetArray(arrayId);
+    daB=dsB->GetPointData()->GetArray(arrayId);
+    //
+    status=CompareAverageOfL2Norm(daA,daB,tol);
+    if (status==0)
+      {
+      return 0;
+      }
+    }
+  // All tests passed.
+  return 1;
+}
+//-----------------------------------------------------------------------------
 void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

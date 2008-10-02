@@ -103,12 +103,12 @@ public:
   void SetVectorAttribute(const char* name, int length, const vtkIdType* value);
   //ETX
 #endif
-  
+
   // Description:
   // Get the attribute with the given name and converted to a word type
   // such as VTK_FLOAT or VTK_UNSIGNED_LONG.
   int GetWordTypeAttribute(const char* name, int& value);
-  
+
   // Description:
   // Get the number of attributes.
   vtkGetMacro(NumberOfAttributes, int);
@@ -132,19 +132,19 @@ public:
   // Set/Get the parent of this element.
   vtkXMLDataElement* GetParent();
   void SetParent(vtkXMLDataElement* parent);
-  
+
   // Description:
   // Get root of the XML tree this element is part of.
   virtual vtkXMLDataElement* GetRoot();
-  
+
   // Description:
   // Get the number of elements nested in this one.
   int GetNumberOfNestedElements();
-  
+
   // Description:
   // Get the element nested in this one at the given index.
   vtkXMLDataElement* GetNestedElement(int index);
-  
+
   // Description:
   // Add nested element
   void AddNestedElement(vtkXMLDataElement* element);
@@ -152,7 +152,7 @@ public:
   // Description:
   // Remove nested element.
   virtual void RemoveNestedElement(vtkXMLDataElement *);
-  
+
   // Description:
   // Remove all nested elements.
   virtual void RemoveAllNestedElements();
@@ -173,16 +173,16 @@ public:
   // Find the first nested element with given name.
   // WARNING: the search is performed on the whole XML tree.
   vtkXMLDataElement* LookupElementWithName(const char* name);
-  
+
   // Description:
   // Lookup the element with the given id, starting at this scope.
   vtkXMLDataElement* LookupElement(const char* id);
-  
+
   // Description:
   // Set/Get the offset from the beginning of the XML document to this element.
   vtkGetMacro(XMLByteIndex, unsigned long);
   vtkSetMacro(XMLByteIndex, unsigned long);
-  
+
   // Description:
   // Check if the instance has the same name, attributes, character data
   // and nested elements contents than the given element (this method is
@@ -211,26 +211,37 @@ public:
   // Description:
   // Prints element tree as XML.
   void PrintXML(ostream& os, vtkIndent indent);
-    
+
+  // Description:
+  // Get/Set the width (in number of fields) that character
+  // data (that between open and closing tags ie. <X> ... </X>)
+  // is printed. If the width is less than one the tag's character
+  // data is printed all on one line. If it is greater than one
+  // the character data is streamed insterting line feeds every
+  // width number of fields. See PrintXML.
+  vtkGetMacro(CharacterDataWidth,int);
+  vtkSetMacro(CharacterDataWidth,int);
+
 protected:
   vtkXMLDataElement();
-  ~vtkXMLDataElement();  
-  
+  ~vtkXMLDataElement();
+
   // The name of the element from the XML file.
   char* Name;
-  
   // The value of the "id" attribute, if any was given.
   char* Id;
-  
-  // The character data between the start and end tags of this element.
+  // Data inside of the tag's open and close. ie <X> character data </X>
   char* CharacterData;
-  
-  // The offset into the XML stream where the element begins.
-  unsigned long XMLByteIndex;
-  
+  int CharacterDataWidth;
+
+  // Get/Set the stream position of the elements inline data.
+  vtkGetMacro(InlineDataPosition,unsigned long);
+  vtkSetMacro(InlineDataPosition,unsigned long);
   // The offset into the XML stream where the inline data begins.
   unsigned long InlineDataPosition;
-  
+  // The offset into the XML stream where the element begins.
+  unsigned long XMLByteIndex;
+
   // The raw property name/value pairs read from the XML attributes.
   char** AttributeNames;
   char** AttributeValues;
@@ -242,19 +253,15 @@ protected:
   int NumberOfNestedElements;
   int NestedElementsSize;
   vtkXMLDataElement** NestedElements;
-  
   // The parent of this element.
   vtkXMLDataElement* Parent;
-  
-  // Method used by vtkXMLFileParser to setup the element.
-  void ReadXMLAttributes(const char** atts, int encoding);  
-  void SeekInlineDataPosition(vtkXMLDataParser* parser);
-  
+
   // Internal utility methods.
   vtkXMLDataElement* LookupElementInScope(const char* id);
   vtkXMLDataElement* LookupElementUpScope(const char* id);
   static int IsSpace(char c);
-  
+  void PrintCharacterData(ostream &os,vtkIndent indent);
+
   //BTX
   friend class vtkXMLDataParser;
   friend class vtkXMLMaterialParser;

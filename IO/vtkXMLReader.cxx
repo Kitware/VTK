@@ -28,12 +28,14 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkQuadratureSchemeDefinition.h"
 
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.54");
+vtkCxxRevisionMacro(vtkXMLReader, "1.55");
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -640,6 +642,40 @@ void vtkXMLReader::SetupOutputData()
   this->CurrentOutput->Initialize();
 }
 
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::CreateInformationKey(
+        vtkXMLDataElement *eInfoKey,
+        vtkInformation *info)
+{
+  // Quick sanity check that, this is an InformationKey
+  // and it is defined correctly.
+  const char *name=eInfoKey->GetAttribute("name");
+  const char *location=eInfoKey->GetAttribute("location");
+  if ((strcmp(eInfoKey->GetName(),"InformationKey")!=0)
+      || (location==NULL)
+      || (name==NULL))
+    {
+    vtkWarningMacro("XML representation of Key: "
+                    "\"InformationKey\" is expected to "
+                    "have \"name\" and \"location\" "
+                    "attributes.");
+    return 0;
+    }
+
+  // Check that it's a recognized type, and restore.
+  if ((strcmp(location, "vtkQuadratureSchemeDefinition")==0)
+      &&(strcmp(name, "DICTIONARY")==0))
+    {
+    vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
+    key->RestoreState(info, eInfoKey);
+    vtkIndent indent;
+    }
+
+  return 1;
+}
+
+
 //----------------------------------------------------------------------------
 vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 {
@@ -647,16 +683,28 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
   if(!da->GetWordTypeAttribute("type", dataType))
     {
     return 0;
-    }  
-  
+    }
+
   vtkAbstractArray* array = vtkAbstractArray::CreateArray(dataType);
-  
+
   array->SetName(da->GetAttribute("Name"));
-  
+
   int components;
   if(da->GetScalarAttribute("NumberOfComponents", components))
     {
     array->SetNumberOfComponents(components);
+    }
+
+  // Scan/load for vtkInformationKey data.
+  int nElements=da->GetNumberOfNestedElements();
+  for (int i=0; i<nElements; ++i)
+    {
+    vtkXMLDataElement *eInfoKeyData=da->GetNestedElement(i);
+    if(strcmp(eInfoKeyData->GetName(), "InformationKey") == 0)
+      {
+      vtkInformation *info=array->GetInformation();
+      this->CreateInformationKey(eInfoKeyData, info);
+      }
     }
 
   return array;

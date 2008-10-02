@@ -31,6 +31,7 @@ class vtkDataSetAttributes;
 class vtkXMLDataElement;
 class vtkXMLDataParser;
 class vtkInformationVector;
+class vtkInformation;
 
 class VTK_IO_EXPORT vtkXMLReader : public vtkAlgorithm
 {
@@ -134,7 +135,11 @@ protected:
   // Create a vtkAbstractArray from its cooresponding XML representation.
   // Does not allocate.
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
-  
+
+  // Create a vtkInformationKey from its coresponding XML representation.
+  // Stores it in the instance of vtkInformationProvided. Does not allocate.
+  int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
+
   // Internal utility methods.
   virtual int OpenVTKFile();
   virtual void CloseVTKFile();

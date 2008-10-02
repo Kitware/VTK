@@ -126,7 +126,6 @@ vtkVolume16Reader.cxx
 vtkVolumeReader.cxx
 vtkWriter.cxx
 vtkXMLCompositeDataReader.cxx
-vtkXMLDataElement.cxx
 vtkXMLDataParser.cxx
 vtkXMLDataReader.cxx
 vtkXMLDataSetWriter.cxx

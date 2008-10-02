@@ -65,6 +65,8 @@
 
 class vtkRenderWindow;
 class vtkImageData;
+class vtkDataArray;
+class vtkDataSet;
 
 class VTK_RENDERING_EXPORT vtkTesting : public vtkObject
 {
@@ -102,6 +104,17 @@ public:
   virtual int RegressionTest(vtkImageData* image, double thresh, ostream& os);
 
   // Description:
+  // Compute the average L2 norm between all point data data arrays 
+  // of types float and double present in the data sets "dsA" and "dsB"
+  // (this includes instances of vtkPoints) Compare the result of 
+  // each L2 comutation to "tol".
+  int CompareAverageOfL2Norm(vtkDataSet *pdA, vtkDataSet *pdB, double tol);
+  // Description:
+  // Compute the average L2 norm between two data arrays "daA" and "daB" 
+  // and compare against "tol".
+  int CompareAverageOfL2Norm(vtkDataArray *daA, vtkDataArray *daB, double tol);
+
+  // Description:
   // Set and get the render window that will be used for regression testing.
   virtual void SetRenderWindow(vtkRenderWindow* rw);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
@@ -121,7 +134,15 @@ public:
   // arguments to be passed in prior to retrieving these values. Just call
   // AddArgument for each argument that was passed into the command line
   void AddArgument(const char *argv);
-  
+  void AddArguments(int argc,const char **argv);
+
+  // Description:
+  // Search for a specific argument by name and return its value 
+  // (assumed to be the next on the command tail). Up to caller
+  // to delete the returned string.
+  char *GetArgument(const char *arg);
+  char *GetArgument(const char *arg, int argc, const char **argv);
+
   // Description
   // This method delete all arguments in vtkTesting, this way you can reuse 
   // it in a loop where you would have multiple testing.
@@ -155,6 +176,11 @@ public:
   vtkSetMacro(BorderOffset, int);
   vtkGetMacro(BorderOffset, int);
 
+  // Description:
+  // Get/Set verbosity level. A level of 0 is quiet.
+  vtkSetMacro(Verbose, int);
+  vtkGetMacro(Verbose, int);
+
 protected:
   vtkTesting();
   ~vtkTesting();
@@ -162,12 +188,27 @@ protected:
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
 
+  //BTX
+  // Description:
+  // Sum the L2 Norm point wise over all tuples. Each term
+  // is scaled by the magnitude of one of the inputs.
+  // Return sum and the number of terms.
+  template <class T>
+  vtkIdType AccumulateScaledL2Norm(
+          T *pA,           // pointer to first data array
+          T *pB,           // pointer to second data array
+          vtkIdType nTups, // number of tuples
+          int nComps,      // number of comps
+          double &SumModR);// result
+  //ETX
+
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;
   double ImageDifference;
   char *TempDirectory;
   int BorderOffset;
+  int Verbose;
   
 //BTX
   vtkstd::vector<vtkstd::string> Args;
