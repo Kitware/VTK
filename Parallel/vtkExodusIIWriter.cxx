@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.25");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.26");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -87,9 +87,14 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
 vtkExodusIIWriter::~vtkExodusIIWriter ()
 {
   this->SetModelMetadata(0); // kill the reference if its there
+
   if (this->FileName)
     {
     delete [] this->FileName;
+    }
+  if (this->BlockIdArrayName)
+    {
+    delete [] this->BlockIdArrayName;
     }
   if (this->TimeValues)
     {
