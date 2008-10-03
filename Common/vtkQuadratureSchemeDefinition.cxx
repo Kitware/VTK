@@ -26,7 +26,7 @@ using vtksys_ios::istringstream;
 using vtkstd::string;
 
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
-vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.1");
+vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.2");
 
 //-----------------------------------------------------------------------------
 vtkInformationKeyMacro(
@@ -373,7 +373,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
       ssShapeWts << " " << this->ShapeFunctionWeights[id];
       }
     string sShapeWts=ssShapeWts.str();
-    eShapeWts->SetCharacterData(sShapeWts.c_str(),sShapeWts.size());
+    eShapeWts->SetCharacterData(sShapeWts.c_str(),static_cast<int>(sShapeWts.size()));
 
     // Write quadrature weights
     ostringstream ssQuadWts;
@@ -385,7 +385,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
       ssQuadWts << " " << this->QuadratureWeights[id];
       }
     string sQuadWts=ssQuadWts.str();
-    eQuadWts->SetCharacterData(sQuadWts.c_str(),sQuadWts.size());
+    eQuadWts->SetCharacterData(sQuadWts.c_str(),static_cast<int>(sQuadWts.size()));
     }
   else
     {

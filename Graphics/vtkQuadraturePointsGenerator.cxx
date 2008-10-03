@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.3");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.4");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ int vtkQuadraturePointsGenerator::GetSourceArrayNameFromAlgorithm(
   if (da!=NULL)
     {
     char *name=da->GetName();
-    int n=strlen(name);
+    int n=static_cast<int>(strlen(name));
     if (this->SourceArrayName!=NULL)
       {
       delete this->SourceArrayName;
