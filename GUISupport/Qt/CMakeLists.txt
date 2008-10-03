@@ -59,13 +59,19 @@ IF(DESIRED_QT_VERSION MATCHES 4)
   # add additional files depending on infovis and/or views
   IF(VTK_USE_VIEWS)
     SET( QVTKLibSrcs ${QVTKLibSrcs}
+      vtkQtChartRepresentation.cxx
+      vtkQtChartView.cxx
       vtkQtItemView.cxx
       vtkQtListView.cxx
+      vtkQtTableDataRepresentation.cxx
+      vtkQtTableMetadataRepresentation.cxx
+      vtkQtTableRepresentation.cxx
       vtkQtTableView.cxx
       vtkQtTreeView.cxx
       ) 
     SET ( QVTKMocHeaders ${QVTKMocHeaders}
       vtkQtItemView.h
+      vtkQtChartRepresentation.h
       )
   ENDIF(VTK_USE_VIEWS)
   
@@ -152,6 +158,7 @@ TARGET_LINK_LIBRARIES( QVTK
 
 # add extra dependencies if necessary
 IF(DESIRED_QT_VERSION MATCHES 4)
+  TARGET_LINK_LIBRARIES( QVTK vtkQtChart )
   IF(VTK_USE_VIEWS)
     TARGET_LINK_LIBRARIES( QVTK vtkViews )
   ENDIF(VTK_USE_VIEWS)
