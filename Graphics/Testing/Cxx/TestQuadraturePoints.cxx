@@ -204,6 +204,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->OrthogonalizeViewUp();
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
+  camera=0;
   // Upper right pane.
   vtkRenderer *ren1=vtkRenderer::New();
   ren1->SetViewport(0.0,0.0,0.5,1.0);
@@ -215,6 +216,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->OrthogonalizeViewUp();
   camera->Azimuth(-55.0);
   camera->Elevation(-10.0);
+  camera=0;
   // Lower right pane.
   vtkRenderer *ren2=vtkRenderer::New();
   ren2->SetViewport(0.5,0.0,1.0,0.5);
@@ -222,7 +224,6 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren2->AddActor(surfaceActor);
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
   ren2->ResetCamera();
-  camera = ren2->GetActiveCamera();
   // Render window
   vtkRenderWindow *renwin=vtkRenderWindow::New();
   renwin->AddRenderer(ren0);

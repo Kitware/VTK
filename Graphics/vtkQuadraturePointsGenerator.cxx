@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.4");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.5");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ int vtkQuadraturePointsGenerator::Generate(
       {
       vtkDoubleArray *X_d=static_cast<vtkDoubleArray *>(X);
       double *pX_d=X_d->GetPointer(0);
-      if (!::Interpolate(usgIn,nCells,X_d,pX_d,3,dict,qPts,0))
+      if (!Interpolate(usgIn,nCells,X_d,pX_d,3,dict,qPts,0))
         {
         vtkWarningMacro("Failed to interpolate cell vertices "
                           "to quadrature points. Aborting.");
@@ -256,7 +256,7 @@ int vtkQuadraturePointsGenerator::Generate(
       {
       vtkFloatArray *X_f=static_cast<vtkFloatArray *>(X);
       float *pX_f=X_f->GetPointer(0);
-      if (!::Interpolate(usgIn,nCells,X_f,pX_f,3,dict,qPts,0))
+      if (!Interpolate(usgIn,nCells,X_f,pX_f,3,dict,qPts,0))
         {
         vtkWarningMacro("Failed to interpolate cell vertices "
                           "to quadrature points. Aborting.");

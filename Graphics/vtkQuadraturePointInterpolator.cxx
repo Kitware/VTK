@@ -38,7 +38,7 @@ using vtksys_ios::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
-vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.3");
+vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.4");
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //-----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ int vtkQuadraturePointInterpolator::RequestData(
 
   // Interpolate the data arrays, but no points. Results
   // are stored in field data arrays.
-  this->Interpolate(usgOut);
+  this->InterpolateFields(usgOut);
 
   return 1;
 }
@@ -125,7 +125,7 @@ void vtkQuadraturePointInterpolator::Clear()
 }
 
 //-----------------------------------------------------------------------------
-int vtkQuadraturePointInterpolator::Interpolate(
+int vtkQuadraturePointInterpolator::InterpolateFields(
         vtkUnstructuredGrid *usgOut)
 {
   // Extract info we need for all cells.
@@ -190,7 +190,7 @@ int vtkQuadraturePointInterpolator::Interpolate(
         {
         vtkDoubleArray *V_d=static_cast<vtkDoubleArray *>(V);
         double *pV_d=V_d->GetPointer(0);
-        if (!::Interpolate(usgOut,nCells,V_d,pV_d,nComps,dict,interpolated,pIndexes))
+        if (!Interpolate(usgOut,nCells,V_d,pV_d,nComps,dict,interpolated,pIndexes))
           {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");
@@ -202,7 +202,7 @@ int vtkQuadraturePointInterpolator::Interpolate(
         {
         vtkFloatArray *V_f=static_cast<vtkFloatArray *>(V);
         float *pV_f=V_f->GetPointer(0);
-        if (!::Interpolate(usgOut,nCells,V_f,pV_f,nComps,dict,interpolated,pIndexes))
+        if (!Interpolate(usgOut,nCells,V_f,pV_f,nComps,dict,interpolated,pIndexes))
           {
           vtkWarningMacro("Failed to interpolate fields "
                           "to quadrature points. Aborting.");

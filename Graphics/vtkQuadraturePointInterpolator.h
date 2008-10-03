@@ -62,7 +62,7 @@ private:
   // fields interpolated to the quadrature points. The type
   // of quadrature used is found in the dictionary stored as
   // meta data in each data array.
-  int Interpolate(vtkUnstructuredGrid *usgOut);
+  int InterpolateFields(vtkUnstructuredGrid *usgOut);
 };
 
 #endif
