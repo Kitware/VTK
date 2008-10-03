@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &); // Not implemented
-  vtkQuadraturePointsGenerator &operator=(const vtkQuadraturePointsGenerator &); // Not implemented
+  void operator=(const vtkQuadraturePointsGenerator &); // Not implemented
   //
   void Clear();
   // Description:
