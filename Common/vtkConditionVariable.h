@@ -38,11 +38,12 @@ typedef pthread_cond_t vtkConditionType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
+#  define _WIN32_WINNT 0x0500 // Minimum windows version supported is Windows 2000.
 #  include "vtkWindows.h" // Needed for win32 CRITICAL_SECTION, HANDLE, etc.
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-#if 0
+#if 1
 typedef struct
 {
   // Number of threads waiting on condition.
