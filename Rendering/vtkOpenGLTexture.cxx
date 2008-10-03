@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.69");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.70");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -520,7 +520,7 @@ static int FindPowerOfTwo(int i)
   return size;
 }
 
-// Creates resampled unsigned char texture map that is a power of two in bith x and y.
+// Creates resampled unsigned char texture map that is a power of two in both x and y.
 unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned char *dptr,
                                                       int bpp)
 {
