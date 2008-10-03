@@ -188,20 +188,6 @@ protected:
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
 
-  //BTX
-  // Description:
-  // Sum the L2 Norm point wise over all tuples. Each term
-  // is scaled by the magnitude of one of the inputs.
-  // Return sum and the number of terms.
-  template <class T>
-  vtkIdType AccumulateScaledL2Norm(
-          T *pA,           // pointer to first data array
-          T *pB,           // pointer to second data array
-          vtkIdType nTups, // number of tuples
-          int nComps,      // number of comps
-          double &SumModR);// result
-  //ETX
-
   int FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;

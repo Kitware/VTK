@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.33");
+vtkCxxRevisionMacro(vtkTesting, "1.34");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 using vtkstd::vector;
@@ -82,7 +82,44 @@ string vtkTestingGetArgOrEnvOrDefault(
     }
 
   return argValue;
-} 
+}
+
+
+//-----------------------------------------------------------------------------
+// Description:
+// Sum the L2 Norm point wise over all tuples. Each term
+// is scaled by the magnitude of one of the inputs.
+// Return sum and the number of terms.
+template <class T>
+vtkIdType AccumulateScaledL2Norm(
+        T *pA,           // pointer to first data array
+        T *pB,           // pointer to second data array
+        vtkIdType nTups, // number of tuples
+        int nComps,      // number of comps
+        double &SumModR) // result
+{
+  //
+  SumModR=0.0;
+  for (vtkIdType i=0; i<nTups; ++i)
+    {
+    double modR=0.0;
+    double modA=0.0;
+    for (int q=0; q<nComps; ++q)
+      {
+      double a=pA[q];
+      double b=pB[q];
+      modA+=a*a;
+      double r=b-a;
+      modR+=r*r;
+      }
+    modA=sqrt(modA);
+    modA= modA<1.0 ? 1.0 : modA;
+    SumModR+=sqrt(modR)/modA;
+    pA+=nComps;
+    pB+=nComps;
+    }
+  return nTups;
+}
 
 //=============================================================================
 vtkTesting::vtkTesting()
@@ -706,40 +743,6 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
   return NOT_RUN;
 }
 //-----------------------------------------------------------------------------
-// Sum the L2 Norm (scaled by the magnitude of the first)
-// point wise over all tuples. Return the number of terms in 
-// the sum.
-template <class T>
-vtkIdType vtkTesting::AccumulateScaledL2Norm(
-        T *pA,           // pointer to first data array
-        T *pB,           // pointer to second data array
-        vtkIdType nTups, // number of tuples
-        int nComps,      // number of comps
-        double &SumModR) // result
-{
-  //
-  SumModR=0.0;
-  for (vtkIdType i=0; i<nTups; ++i)
-    {
-    double modR=0.0;
-    double modA=0.0;
-    for (int q=0; q<nComps; ++q)
-      {
-      double a=pA[q];
-      double b=pB[q];
-      modA+=a*a;
-      double r=b-a;
-      modR+=r*r;
-      }
-    modA=sqrt(modA);
-    modA= modA<1.0 ? 1.0 : modA;
-    SumModR+=sqrt(modR)/modA;
-    pA+=nComps;
-    pB+=nComps;
-    }
-  return nTups;
-}
-//-----------------------------------------------------------------------------
 int vtkTesting::CompareAverageOfL2Norm(
         vtkDataArray *daA,
         vtkDataArray *daB,
@@ -784,7 +787,7 @@ int vtkTesting::CompareAverageOfL2Norm(
       double *pA=A->GetPointer(0);
       vtkDoubleArray *B=vtkDoubleArray::SafeDownCast(daB);
       double *pB=B->GetPointer(0);
-      N=this->AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
+      N=AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
       }
       break;
     case VTK_FLOAT:
@@ -793,7 +796,7 @@ int vtkTesting::CompareAverageOfL2Norm(
       float *pA=A->GetPointer(0);
       vtkFloatArray *B=vtkFloatArray::SafeDownCast(daB);
       float *pB=B->GetPointer(0);
-      N=this->AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
+      N=AccumulateScaledL2Norm(pA,pB,nTupsA,nCompsA,L2);
       }
       break;
     default:
