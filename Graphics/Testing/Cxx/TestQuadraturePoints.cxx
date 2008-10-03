@@ -60,6 +60,11 @@ int TestQuadraturePoints(int argc,char *argv[])
 {
   vtkTesting *testHelper=vtkTesting::New();
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  if (!testHelper->IsFlagSpecified("-D"))
+    {
+    cerr << "Error: -D /path/to/data was not specified.";
+    return 1;
+    }
   string dataRoot=testHelper->GetDataRoot();
   string tempDir=testHelper->GetTempDirectory();
   string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
@@ -164,9 +169,6 @@ int TestQuadraturePoints(int argc,char *argv[])
   ss->Delete();
   glyphs->ScalingOff();
   glyphs->SetColorModeToColorByScalar();
-  // Extract the surface of the warped input, for reference.
-  vtkDataSetSurfaceFilter *surface=vtkDataSetSurfaceFilter::New();
-  surface->SetInput(warper->GetOutput());
   // Map the glyphs.
   vtkPolyDataMapper *pdmQPts=vtkPolyDataMapper::New();
   pdmQPts->SetInput(glyphs->GetOutput());
@@ -177,6 +179,9 @@ int TestQuadraturePoints(int argc,char *argv[])
   vtkActor *outputActor=vtkActor::New();
   outputActor->SetMapper(pdmQPts);
   pdmQPts->Delete();
+  // Extract the surface of the warped input, for reference.
+  vtkDataSetSurfaceFilter *surface=vtkDataSetSurfaceFilter::New();
+  surface->SetInput(warper->GetOutput());
   // Map the warped surface.
   vtkPolyDataMapper *pdmWSurf=vtkPolyDataMapper::New();
   pdmWSurf->SetInput(surface->GetOutput());
@@ -184,11 +189,10 @@ int TestQuadraturePoints(int argc,char *argv[])
   pdmWSurf->ScalarVisibilityOff();
   vtkActor *surfaceActor=vtkActor::New();
   surfaceActor->GetProperty()->SetColor(1.0,1.0,1.0);
-  surfaceActor->GetProperty()->SetOpacity(0.5);
-  surfaceActor->GetProperty()->SetRepresentationToWireframe();
+  surfaceActor->GetProperty()->SetRepresentationToSurface();
   surfaceActor->SetMapper(pdmWSurf);
   pdmWSurf->Delete();
-  // left pane.
+  // Setup left render pane.
   vtkRenderer *ren0=vtkRenderer::New();
   ren0->SetViewport(0.5,0.5,1.0,1.0);
   ren0->AddActor(outputActor);
@@ -205,7 +209,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
   camera=0;
-  // Upper right pane.
+  // Setup upper right pane.
   vtkRenderer *ren1=vtkRenderer::New();
   ren1->SetViewport(0.0,0.0,0.5,1.0);
   ren1->AddActor(outputActor);
@@ -217,13 +221,20 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->Azimuth(-55.0);
   camera->Elevation(-10.0);
   camera=0;
-  // Lower right pane.
+  // Setup lower right pane.
   vtkRenderer *ren2=vtkRenderer::New();
   ren2->SetViewport(0.5,0.0,1.0,0.5);
   ren2->AddActor(outputActor);
-  ren2->AddActor(surfaceActor);
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
+  ren2->AddActor(surfaceActor);
   ren2->ResetCamera();
+  // If interactive mode then we show wireframes for 
+  // reference.
+  if (testHelper->IsInteractiveModeSpecified())
+    {
+    surfaceActor->GetProperty()->SetOpacity(1.0);
+    surfaceActor->GetProperty()->SetRepresentationToWireframe();
+    }
   // Render window
   vtkRenderWindow *renwin=vtkRenderWindow::New();
   renwin->AddRenderer(ren0);
@@ -232,7 +243,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren1->Delete();
   renwin->AddRenderer(ren2);
   ren2->Delete();
-  renwin->SetSize(800, 600);
+  renwin->SetSize(800,600);
 
   // Perform the regression test.
   int failFlag=1;
