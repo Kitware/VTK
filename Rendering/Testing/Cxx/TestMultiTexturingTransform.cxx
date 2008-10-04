@@ -56,8 +56,11 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   vtkPNGReader * imageReaderGreen = vtkPNGReader::New();
 
   imageReaderRed->SetFileName(fname1);
+  delete[] fname1;
   imageReaderBlue->SetFileName(fname2);
+  delete[] fname2;
   imageReaderGreen->SetFileName(fname3);
+  delete[] fname3;
   imageReaderRed->Update();
   imageReaderBlue->Update();
   imageReaderGreen->Update();
