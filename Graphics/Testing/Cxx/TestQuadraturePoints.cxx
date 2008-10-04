@@ -200,12 +200,9 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren0->SetBackground(0.328125, 0.347656, 0.425781);
   ren0->ResetCamera();
   camera = ren0->GetActiveCamera();
-  //camera->OrthogonalizeViewUp();
   camera->Elevation(95.0);
   camera->SetViewUp(0.0,0.0,1.0);
   camera->Azimuth(180.0);
-  //camera->Elevation(-10.0);
-  
   camera=0;
   // Setup upper right pane.
   vtkRenderer *ren1=vtkRenderer::New();
