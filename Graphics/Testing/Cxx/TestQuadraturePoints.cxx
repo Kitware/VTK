@@ -193,33 +193,36 @@ int TestQuadraturePoints(int argc,char *argv[])
   surfaceActor->SetMapper(pdmWSurf);
   pdmWSurf->Delete();
   // Setup left render pane.
+  vtkCamera *camera=0;
   vtkRenderer *ren0=vtkRenderer::New();
-  ren0->SetViewport(0.5,0.5,1.0,1.0);
+  ren0->SetViewport(0.0,0.0,0.5,1.0);
   ren0->AddActor(outputActor);
-  outputActor->Delete();
-  ren0->AddActor(surfaceActor);
-  surfaceActor->Delete();
   ren0->SetBackground(0.328125, 0.347656, 0.425781);
   ren0->ResetCamera();
-  vtkCamera *camera = ren0->GetActiveCamera();
+  camera = ren0->GetActiveCamera();
+  //camera->OrthogonalizeViewUp();
+  camera->Elevation(95.0);
+  camera->SetViewUp(0.0,0.0,1.0);
+  camera->Azimuth(180.0);
+  //camera->Elevation(-10.0);
+  
+  camera=0;
+  // Setup upper right pane.
+  vtkRenderer *ren1=vtkRenderer::New();
+  ren1->SetViewport(0.5,0.5,1.0,1.0);
+  ren1->AddActor(outputActor);
+  outputActor->Delete();
+  ren1->AddActor(surfaceActor);
+  surfaceActor->Delete();
+  ren1->SetBackground(0.328125, 0.347656, 0.425781);
+  ren1->ResetCamera();
+  camera = ren1->GetActiveCamera();
   camera->Elevation(-85.0);
   camera->OrthogonalizeViewUp();
   camera->Elevation(-5.0);
   camera->OrthogonalizeViewUp();
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
-  camera=0;
-  // Setup upper right pane.
-  vtkRenderer *ren1=vtkRenderer::New();
-  ren1->SetViewport(0.0,0.0,0.5,1.0);
-  ren1->AddActor(outputActor);
-  ren1->SetBackground(0.328125, 0.347656, 0.425781);
-  ren1->ResetCamera();
-  camera = ren1->GetActiveCamera();
-  camera->Elevation(-90.0);
-  camera->OrthogonalizeViewUp();
-  camera->Azimuth(-55.0);
-  camera->Elevation(-10.0);
   camera=0;
   // Setup lower right pane.
   vtkRenderer *ren2=vtkRenderer::New();
@@ -228,6 +231,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
   ren2->AddActor(surfaceActor);
   ren2->ResetCamera();
+  camera=0;
   // If interactive mode then we show wireframes for 
   // reference.
   if (testHelper->IsInteractiveModeSpecified())
