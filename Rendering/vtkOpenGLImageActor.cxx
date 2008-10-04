@@ -27,12 +27,8 @@
 #include "vtkOpenGL.h"
 #include "vtkgl.h" // vtkgl namespace
 
-#ifndef GL_MAX_TEXTURE_SIZE
-#define GL_MAX_TEXTURE_SIZE 1024
-#endif
-
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.37");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.38");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -315,7 +311,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     outPtr += outIncZ;
     inPtr += inIncZ;
     }
-  
   return res;
 }
 
@@ -501,9 +496,12 @@ int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
   // the texture is too big
 #ifdef GL_VERSION_1_1
   
+  GLint maxSize;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxSize);
+  
   // Do a quick test to see if we are too large
-  if ( size[0] > GL_MAX_TEXTURE_SIZE ||
-       size[1] > GL_MAX_TEXTURE_SIZE )
+  if ( size[0] > maxSize ||
+       size[1] > maxSize )
     {
     return 0;
     }
@@ -666,7 +664,6 @@ void vtkOpenGLImageActor::Render(vtkRenderer *ren)
 // be fine)
 void vtkOpenGLImageActor::InternalRender(vtkRenderer *ren)
 {
-
   // for picking
   glDepthMask (GL_TRUE);
 
