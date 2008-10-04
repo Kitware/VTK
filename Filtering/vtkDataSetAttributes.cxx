@@ -29,9 +29,8 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.28");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.29");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -619,7 +618,6 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
         newAA = aa->NewInstance();
         newAA->SetNumberOfComponents(aa->GetNumberOfComponents());
         newAA->SetName(aa->GetName());
-        newAA->SetInformation(aa->GetInformation());
         if ( sze > 0 )
           {
           newAA->Allocate(sze*aa->GetNumberOfComponents(),ext);
@@ -1483,7 +1481,6 @@ void vtkDataSetAttributes::InternalCopyAllocate(
       newAA = vtkAbstractArray::CreateArray(list.FieldTypes[i]);
       newAA->SetName(list.Fields[i]);
       newAA->SetNumberOfComponents(list.FieldComponents[i]);
-      newAA->SetInformation(list.FieldInformation[i]);
 
       if ( sze > 0 )
         {
@@ -1595,14 +1592,12 @@ void vtkDataSetAttributes::FieldList::InitializeFieldList(vtkDataSetAttributes* 
   this->FieldComponents = new int [this->NumberOfFields];
   this->FieldIndices = new int [this->NumberOfFields];
   this->LUT = new vtkLookupTable* [this->NumberOfFields];
-  this->FieldInformation = new vtkInformation* [this->NumberOfFields];
   for(i=0; i < this->NumberOfFields; i++)
     {
     this->Fields[i] = 0;
     this->FieldTypes[i] = -1;
     this->FieldComponents[i] = 0;
     this->FieldIndices[i] = -1;
-    this->FieldInformation[i] = 0;
     }
   this->CurrentInput = 0;
   this->NumberOfTuples = 0;
@@ -1705,7 +1700,6 @@ vtkDataSetAttributes::FieldList::FieldList(int numInputs)
   this->FieldIndices = 0;
   this->NumberOfFields = 0;
   this->LUT = 0;
-  this->FieldInformation = 0;
   this->NumberOfDSAIndices = numInputs;
   this->DSAIndices = new int*[numInputs];
   int i;
@@ -1743,36 +1737,16 @@ void vtkDataSetAttributes::FieldList::ClearFields()
       this->DSAIndices[i] = 0;
       }
     }
-  if (this->FieldInformation)
-    {
-    delete [] this->FieldInformation;
-    this->FieldInformation = 0;
-    }
-  if (this->LUT)
-    {
-    delete [] this->LUT;
-    this->LUT = 0;
-    }
-  if (this->Fields)
-    {
-    delete [] this->Fields;
-    this->Fields = 0;
-    }
-  if (this->FieldTypes)
-    {
-    delete [] this->FieldTypes;
-    this->FieldTypes = 0;
-    }
-  if (this->FieldComponents)
-    {
-    delete [] this->FieldComponents;
-    this->FieldComponents = 0;
-    }
-  if (this->FieldIndices)
-    {
-    delete [] this->FieldIndices;
-    this->FieldIndices = 0;
-    }
+  delete [] this->LUT;
+  this->LUT = 0;
+  delete [] this->Fields;
+  this->Fields = 0;
+  delete [] this->FieldTypes;
+  this->FieldTypes = 0;
+  delete [] this->FieldComponents;
+  this->FieldComponents = 0;
+  delete [] this->FieldIndices;
+  this->FieldIndices = 0;
   
   this->NumberOfFields = 0;
   this->CurrentInput = 0;
@@ -1800,7 +1774,6 @@ void vtkDataSetAttributes::FieldList::SetField(int index,
   this->FieldTypes[index] = dataType;
   this->FieldComponents[index] = aa->GetNumberOfComponents();
   this->LUT[index] = lut;
-  this->FieldInformation[index] = aa->GetInformation();
   if (name)
     {
     int len = static_cast<int>(strlen(name));
@@ -1833,7 +1806,6 @@ void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
       delete [] this->Fields[i];
       this->Fields[i] = 0;
       this->FieldIndices[i] = -1;
-      this->FieldInformation[i] = 0;
       return;
       }
     }
