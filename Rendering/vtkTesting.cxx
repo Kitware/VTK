@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.34");
+vtkCxxRevisionMacro(vtkTesting, "1.35");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 using vtkstd::vector;
@@ -902,4 +902,5 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
   os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;
   os << indent << "BorderOffset: " << this->GetBorderOffset() << endl;
+  os << indent << "Verbose: " << this->GetVerbose() << endl; 
 }
