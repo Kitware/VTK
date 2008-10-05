@@ -6,6 +6,9 @@ package require vtkinteraction
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
+# make sure to have the same regression image on all platforms.
+    renWin SetMultiSamples 0
+
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
