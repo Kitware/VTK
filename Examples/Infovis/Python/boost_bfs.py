@@ -18,9 +18,12 @@ view.SetEdgeLabelVisibility(True)
 view.SetEdgeColorArrayName("edge weight")
 view.SetColorEdges(True)
 view.SetLayoutStrategyToSimple2D()
+view.SetVertexLabelFontSize(20)
+
 
 theme = vtkViewTheme.CreateMellowTheme()
 theme.SetLineWidth(4)
+theme.SetCellOpacity(1)
 view.ApplyViewTheme(theme)
 theme.FastDelete()
 

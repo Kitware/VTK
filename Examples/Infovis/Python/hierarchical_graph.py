@@ -38,6 +38,8 @@ treeStrat.SetLogSpacingValue(1)
 forceStrat = vtkSimple2DLayoutStrategy()
 forceStrat.SetEdgeWeightField("edge weight")
 
+dummy = vtkHierarchicalGraphView()
+
 # Create Tree/Graph Layout view
 view = vtkHierarchicalGraphView()
 view.SetHierarchyFromInputConnection(bfsTree.GetOutputPort())
@@ -48,7 +50,7 @@ view.SetVertexLabelArrayName("VertexDegree")
 view.SetVertexLabelVisibility(True)
 view.SetEdgeColorArrayName("edge weight")
 # FIXME: If you uncomment this line the display locks up
-# view.SetColorEdges(True)
+view.SetColorEdges(True)
 view.SetEdgeLabelArrayName("edge weight")
 view.SetEdgeLabelVisibility(True)
 view.TreeEdgeVisibilityOn()
@@ -66,6 +68,6 @@ theme.FastDelete()
 window = vtkRenderWindow()
 window.SetSize(600, 600)
 view.SetupRenderWindow(window)
-view.GetRenderer().ResetCamera()
+# view.GetRenderer().ResetCamera()
 
 window.GetInteractor().Start()
