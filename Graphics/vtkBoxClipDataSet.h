@@ -65,7 +65,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Constructor of the clipping box.
+  // Constructor of the clipping box. The initial box is (0,1,0,1,0,1).
+  // The hexahedral box and the parallel box parameters are set to match this
+  // box.
   static vtkBoxClipDataSet *New();
 
   // Description
@@ -125,6 +127,9 @@ public:
   // Return the mtime also considering the locator.
   unsigned long GetMTime();
 
+  // Description:
+  // Tells if clipping happens with a box parallel with coordinate axis
+  // (0) or with an hexahedral box (1). Initial value is 1.
   vtkGetMacro(Orientation,unsigned int);
   vtkSetMacro(Orientation,unsigned int);
   

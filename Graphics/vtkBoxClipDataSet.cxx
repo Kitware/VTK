@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.22");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.23");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkPointLocator)
@@ -57,6 +57,62 @@ vtkBoxClipDataSet::vtkBoxClipDataSet()
 
   this->Orientation = 1;
 
+  this->PlaneNormal[0][0] = -1.0;
+  this->PlaneNormal[0][1] = 0.0;
+  this->PlaneNormal[0][2] = 0.0;
+
+  this->PlaneNormal[1][0] = 1.0;
+  this->PlaneNormal[1][1] = 0.0;
+  this->PlaneNormal[1][2] = 0.0;
+
+  this->PlaneNormal[2][0] = 0.0;
+  this->PlaneNormal[2][1] = -1.0;
+  this->PlaneNormal[2][2] = 0.0;
+
+  this->PlaneNormal[3][0] = 0.0;
+  this->PlaneNormal[3][1] = 1.0;
+  this->PlaneNormal[3][2] = 0.0;
+
+  this->PlaneNormal[4][0] = 0.0;
+  this->PlaneNormal[4][1] = 0.0;
+  this->PlaneNormal[4][2] = -1.0;
+
+  this->PlaneNormal[5][0] = 0.0;
+  this->PlaneNormal[5][1] = 0.0;
+  this->PlaneNormal[5][2] = 1.0;
+
+  this->PlanePoint[0][0] = 0.0;
+  this->PlanePoint[0][1] = 0.0;
+  this->PlanePoint[0][2] = 0.0;
+
+  this->PlanePoint[1][0] = 1.0;
+  this->PlanePoint[1][1] = 0.0;
+  this->PlanePoint[1][2] = 0.0;
+
+  this->PlanePoint[2][0] = 0.0;
+  this->PlanePoint[2][1] = 0.0;
+  this->PlanePoint[2][2] = 0.0;
+
+  this->PlanePoint[3][0] = 0.0;
+  this->PlanePoint[3][1] = 1.0;
+  this->PlanePoint[3][2] = 0.0;
+
+  this->PlanePoint[4][0] = 0.0;
+  this->PlanePoint[4][1] = 0.0;
+  this->PlanePoint[4][2] = 0.0;
+
+  this->PlanePoint[5][0] = 0.0;
+  this->PlanePoint[5][1] = 0.0;
+  this->PlanePoint[5][2] = 1.0;
+  
+  int i=0;
+  while(i<3)
+    {
+    this->BoundBoxClip[i][0]=0.0;
+    this->BoundBoxClip[i][1]=1.0;
+    ++i;
+    }
+  
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
