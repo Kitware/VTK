@@ -61,6 +61,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
 
   view->SetVertexColorArrayName("VertexDegree");
   view->SetColorVertices(true);
+  view->SetEdgeColorArrayName("tree edge");
   view->SetColorEdges(true);
   view->SetVertexLabelArrayName("id");
   view->SetVertexLabelVisibility(true);
