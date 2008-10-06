@@ -27,7 +27,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.95");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.96");
 vtkStandardNewMacro(vtkProbeFilter);
 
 class vtkProbeFilter::vtkVectorOfArrays : 
@@ -187,7 +187,7 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   // depends on source scalartype not input scalartype
   if (output->IsA("vtkImageData"))
     {
-    vtkImageData *out = (vtkImageData*)output;
+    vtkImageData *out = static_cast<vtkImageData *>(output);
     vtkDataArray *s = outPD->GetScalars();
     if (s)
       {
@@ -271,7 +271,7 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     {
     if ( !(ptId % progressInterval) )
       {
-      this->UpdateProgress((double)ptId/numPts);
+      this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = GetAbortExecute();
       }
 
