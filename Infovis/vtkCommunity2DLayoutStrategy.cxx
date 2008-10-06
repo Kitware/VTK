@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.16");
+vtkCxxRevisionMacro(vtkCommunity2DLayoutStrategy, "1.17");
 vtkStandardNewMacro(vtkCommunity2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -82,6 +82,7 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
   this->EdgeArray = 0;
   this->CommunityArrayName = 0;
   this->SetCommunityArrayName("community");
+  this->CommunityStrength = 1.0;
 }
 
 // ----------------------------------------------------------------------
@@ -432,14 +433,14 @@ void vtkCommunity2DLayoutStrategy::Layout()
         // then increase the weight between them
         if (sourceComm == targetComm)
           {
-          communityWeight = 10;
+          communityWeight = 1 + 10 * this->CommunityStrength;
           }
           
         // If source and target are different
         // then decrease the weight between them
         else 
           {
-          communityWeight = .01;
+          communityWeight = 1.1 - this->CommunityStrength;
           }     
         } // if community
       

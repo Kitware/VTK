@@ -121,6 +121,14 @@ public:
   // Get/Set the community array name
   vtkGetStringMacro(CommunityArrayName);
   vtkSetStringMacro(CommunityArrayName);
+  
+  // Description:
+  // Set the community 'strength'.  The default is '1'
+  // which means vertices in the same community will be
+  // placed close together, values closer to .1 (minimum)
+  // will mean a layout closer to traditional force directed.
+  vtkSetClampMacro(CommunityStrength, float, 0.1, 1.0);
+  vtkGetMacro(CommunityStrength, float);
 
 protected:
   vtkCommunity2DLayoutStrategy();
@@ -158,6 +166,7 @@ private:
   int LayoutComplete;
   float Temp;
   float RestDistance;
+  float CommunityStrength;
   
   // Description:
   // Used to store the community array name
