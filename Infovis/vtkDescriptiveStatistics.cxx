@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.50");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.51");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -230,6 +230,8 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
       }
     }
 
+  double* doubleVals = new double[numDoubles]; // std, variance, skewness, G1, kurtosis, G2
+
   for ( int i = 0; i < nRow; ++ i )
     {
     vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
@@ -237,7 +239,6 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
-    double doubleVals[numDoubles]; // std, variance, skewness, G1, kurtosis, G2
     if ( this->SampleSize == 1 || mom2 < 1.e-150 )
       {
       doubleVals[1] = 0.;
@@ -285,6 +286,8 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
       inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
       }
     }
+
+  delete [] doubleVals;
 }
 
 // ----------------------------------------------------------------------
