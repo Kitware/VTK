@@ -20,8 +20,8 @@
 // .NAME vtkDataObjectToTable - extract field data as a table
 //
 // .SECTION Description
-// This filter cen extrac the field, cell or point data of any data object
-// as a table.
+// This filter is used to extract either the field, cell or point data of 
+// any data object as a table.
 
 #ifndef __vtkDataObjectToTable_h
 #define __vtkDataObjectToTable_h
