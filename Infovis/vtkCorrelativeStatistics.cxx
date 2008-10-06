@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.32");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.33");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -183,6 +183,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
+  int numDoubles = 5;
   vtkStdString doubleNames[] = { "Slope Y/X", 
                                "Intersect Y/X", 
                                "Slope X/Y", 
@@ -190,7 +191,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
                                "Pearson r" };
 
   vtkDoubleArray* doubleCol;
-  for ( int j = 0; j < 5; ++ j )
+  for ( int j = 0; j < numDoubles; ++ j )
     {
     if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
       {
@@ -235,7 +236,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
       covXY = mXY * inv_nm1;
       }
     
-    double doubleVals[5];
+    double doubleVals[numDoubles];
     vtkStdString status = "valid";
 
     double d = varX * varY - covXY * covXY;
@@ -275,7 +276,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
       }
 
     inMeta->SetValueByName( i, "Linear Correlation", status );
-    for ( int j = 0; j < 5; ++ j )
+    for ( int j = 0; j < numDoubles; ++ j )
       {
       inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
       }

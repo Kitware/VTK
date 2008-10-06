@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.49");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.50");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -209,6 +209,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
+  int numDoubles = 6;
   vtkStdString doubleNames[] = { "Standard Deviation", 
                                  "Variance",
                                  "g1 Skewness",
@@ -217,7 +218,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
                                  "G2 Kurtosis" };
 
   vtkDoubleArray* doubleCol;
-  for ( int j = 0; j < 6; ++ j )
+  for ( int j = 0; j < numDoubles; ++ j )
     {
     if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
       {
@@ -236,7 +237,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
     double mom3 = inMeta->GetValueByName( i, "M3" ).ToDouble();
     double mom4 = inMeta->GetValueByName( i, "M4" ).ToDouble();
 
-    double doubleVals[6]; // std, variance, skewness, G1, kurtosis, G2
+    double doubleVals[numDoubles]; // std, variance, skewness, G1, kurtosis, G2
     if ( this->SampleSize == 1 || mom2 < 1.e-150 )
       {
       doubleVals[1] = 0.;
@@ -279,7 +280,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
         }
       }
 
-    for ( int j = 0; j < 6; ++ j )
+    for ( int j = 0; j < numDoubles; ++ j )
       {
       inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
       }
