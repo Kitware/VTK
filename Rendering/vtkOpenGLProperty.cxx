@@ -28,7 +28,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.42");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.43");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -51,6 +51,13 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
     GLint uUseTexture=-1;
     uUseTexture=oRenderer->GetUseTextureUniformVariable();
     vtkgl::Uniform1i(uUseTexture,0);
+    
+    // Even if the texture is not used, initialize the uniform variable
+    // so that, the program in use is in a valid state.
+    // Some OpenGL implementations (ex: ATI) check (which is good) if the same
+    // sample texture unit is not used with different sampler types.
+    GLint uTexture=oRenderer->GetTextureUniformVariable();
+    vtkgl::Uniform1i(uTexture,0); // active texture 0
     }
   glDisable(GL_TEXTURE_2D);
 
