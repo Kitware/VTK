@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.125");
+vtkCxxRevisionMacro(vtkMapper, "1.126");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -323,6 +323,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
       { // Texture color option.
       this->MapScalarsToTexture(scalars, alpha);
+      this->LookupTable->SetRange(orig_range_min, orig_range_max);
       return 0;
       }
     }
@@ -351,6 +352,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
           this->GetInput()->GetMTime() < this->Colors->GetMTime() &&
           this->LookupTable->GetMTime() < this->Colors->GetMTime())
         {
+        this->LookupTable->SetRange(orig_range_min, orig_range_max);
         return this->Colors;
         }
       }

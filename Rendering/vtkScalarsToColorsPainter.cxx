@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.14");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.15");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -571,6 +571,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
       lut->GetMTime() < colors->GetMTime())
       {
       // using old colors.
+      lut->SetRange(orig_range_min, orig_range_max);
       return;
       }
     }

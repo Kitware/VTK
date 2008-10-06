@@ -26,15 +26,17 @@ class TestMapperLUT(Testing.vtkTest):
         pts = vtk.vtkPoints()
         pts.InsertNextPoint((0,0,0))
         sc = vtk.vtkFloatArray()
-        sc.InsertNextValue(1.0)
+        sc.InsertNextValue(10.0)
         p.SetPoints(pts)
         p.GetPointData().SetScalars(sc)
         l = vtk.vtkLookupTable()
         m = vtk.vtkPolyDataMapper()
         m.SetInput(p)
+        m.SetScalarRange(0.0, 10.0)
         m.SetLookupTable(l)
         ret = m.MapScalars(0.5)
         self.assertEqual(l.GetAlpha(), 1.0)
+        self.assertEqual(l.GetRange(), (0.0, 1.0))
 
     def testImagePlaneWidget(self):
         "A more rigorous test using the image plane widget."
