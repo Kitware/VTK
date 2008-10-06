@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.126");
+vtkCxxRevisionMacro(vtkMapper, "1.127");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -254,8 +254,6 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   int cellFlag = 0;
-  double* orig_range;
-  double orig_range_min, orig_range_max;
   
   vtkDataArray *scalars = vtkAbstractMapper::
     GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
@@ -304,9 +302,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     this->LookupTable->Build();
     }
 
-  orig_range = this->LookupTable->GetRange();
-  orig_range_min = orig_range[0];
-  orig_range_max = orig_range[1];
   if ( !this->UseLookupTableScalarRange )
     {
     this->LookupTable->SetRange(this->ScalarRange);
@@ -323,7 +318,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
       { // Texture color option.
       this->MapScalarsToTexture(scalars, alpha);
-      this->LookupTable->SetRange(orig_range_min, orig_range_max);
       return 0;
       }
     }
@@ -352,7 +346,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
           this->GetInput()->GetMTime() < this->Colors->GetMTime() &&
           this->LookupTable->GetMTime() < this->Colors->GetMTime())
         {
-        this->LookupTable->SetRange(orig_range_min, orig_range_max);
         return this->Colors;
         }
       }
@@ -371,7 +364,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
   this->Colors = this->LookupTable->
     MapScalars(scalars, this->ColorMode, this->ArrayComponent);
   this->LookupTable->SetAlpha(orig_alpha);
-  this->LookupTable->SetRange(orig_range_min, orig_range_max);
   // Consistent register and unregisters
   this->Colors->Register(this);
   this->Colors->Delete();

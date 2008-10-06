@@ -3,15 +3,14 @@
 """This test ensures that the mapper does not change the LookupTable
 that may be shared among different mappers.  Specifically, the vtkMapper
 and vtkScalarsToColorsPainter classes use the LookupTable to map scalars
-to colors.  When they do this they set the LookupTable's Alpha and
-Range ivars.  They should do it in a manner that the LUT's original
-values are reset.  If this is not done strange errors show up.  For
-example if you use an ImagePlaneWidget and share its LUT with another
-mapper that has either a different opacity or scalar range then the
-image plane widget will pick up the wrong range and opacity leading to
-subtle errors.  This test ensures that this does not happen by testing
-MapScalars explicitly and also by creating an ImagePlaneWidget.
-"""
+to colors.  When they do this they set the LookupTable's Alpha ivar.
+They should do it in a manner that the LUT's original value is reset.
+If this is not done strange errors show up.  For example if you use an
+ImagePlaneWidget and share its LUT with another mapper that has either a
+different opacity, then the image plane widget will pick up the wrong
+opacity leading to subtle errors.  This test ensures that this does not
+happen by testing MapScalars explicitly and also by creating an
+ImagePlaneWidget.  """
 
 import os
 import os.path
@@ -36,7 +35,6 @@ class TestMapperLUT(Testing.vtkTest):
         m.SetLookupTable(l)
         ret = m.MapScalars(0.5)
         self.assertEqual(l.GetAlpha(), 1.0)
-        self.assertEqual(l.GetRange(), (0.0, 1.0))
 
     def testImagePlaneWidget(self):
         "A more rigorous test using the image plane widget."
@@ -125,6 +123,7 @@ class TestMapperLUT(Testing.vtkTest):
         m.SetInput(p)
         # Share the lookup table of the widgets.
         m.SetLookupTable(planeWidgetX.GetLookupTable())
+        m.UseLookupTableScalarRangeOn()
         dummyActor = vtk.vtkActor()
         dummyActor.SetMapper(m)
         dummyActor.GetProperty().SetOpacity(0.0)

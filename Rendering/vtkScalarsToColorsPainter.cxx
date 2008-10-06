@@ -66,7 +66,7 @@ static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkScalarsToColorsPainter);
-vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.15");
+vtkCxxRevisionMacro(vtkScalarsToColorsPainter, "1.16");
 vtkCxxSetObjectMacro(vtkScalarsToColorsPainter, LookupTable, vtkScalarsToColors);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, USE_LOOKUP_TABLE_SCALAR_RANGE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_RANGE, DoubleVector);
@@ -430,9 +430,6 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
     this->GetLookupTable()->Build();
     }
 
-  double* orig_range = this->LookupTable->GetRange();
-  double orig_range_min = orig_range[0];
-  double orig_range_max = orig_range[1];
   if (!this->UseLookupTableScalarRange)
     {
     this->LookupTable->SetRange(this->ScalarRange);
@@ -477,7 +474,6 @@ void vtkScalarsToColorsPainter::UpdateColorTextureMap(double alpha,
 
     this->ColorTextureMap->GetPointData()->SetScalars(colors);
     this->LookupTable->SetAlpha(orig_alpha);
-    this->LookupTable->SetRange(orig_range_min, orig_range_max);
     colors->Delete();
     tmp->Delete();
     }
@@ -491,8 +487,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
 {
   int cellFlag;
   double orig_alpha;
-  double* orig_range;
-  double orig_range_min, orig_range_max;
   vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
     this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
     this->ArrayName, cellFlag);
@@ -537,9 +531,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     lut->Build();
     }
   
-  orig_range = lut->GetRange();
-  orig_range_min = orig_range[0];
-  orig_range_max = orig_range[1];
   if (!this->UseLookupTableScalarRange)
     {
     lut->SetRange(this->ScalarRange);
@@ -571,7 +562,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
       lut->GetMTime() < colors->GetMTime())
       {
       // using old colors.
-      lut->SetRange(orig_range_min, orig_range_max);
       return;
       }
     }
@@ -582,7 +572,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   lut->SetAlpha(alpha);
   colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
   lut->SetAlpha(orig_alpha);
-  lut->SetRange(orig_range_min, orig_range_max);
   if (multiply_with_alpha)
     {
     // It is possible that the LUT simply returns the scalars as the
