@@ -29,7 +29,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.7");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.8");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -41,7 +41,6 @@ vtkGeoCamera::vtkGeoCamera()
 
   this->OriginLongitude = 0.0;
   this->OriginLatitude = 0.0;
-  this->ComputeRectilinearOrigin();
   
   // Intial state will be looking at earth over the American continent.
   //this->Longitude = -90.0;
@@ -51,6 +50,9 @@ vtkGeoCamera::vtkGeoCamera()
   this->Heading = 0.0;
   this->Tilt = 90.0;
   this->LockHeading = true;
+
+  this->ComputeRectilinearOrigin();
+
   this->UpdateAngleRanges();
   this->UpdateVTKCamera();
 
