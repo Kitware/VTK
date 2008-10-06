@@ -16,6 +16,14 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
             -B ${VTK_DATA_ROOT}/Baseline/Rendering
             -D ${VTK_DATA_ROOT}/Data)
         ENDFOREACH( tfile )
+
+        #############################
+        # This test reuses an image in Widgets.
+        ADD_TEST(TestMapperLUTPython-image ${VTK_PYTHON_EXE}
+            ${VTK_SOURCE_DIR}/Rendering/Testing/Python/TestMapperLUT.py
+            -B ${VTK_DATA_ROOT}/Baseline/Widgets
+            -D ${VTK_DATA_ROOT}/Data)
+
       ENDIF(VTK_USE_TK)
       
       #############################

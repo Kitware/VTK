@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.124");
+vtkCxxRevisionMacro(vtkMapper, "1.125");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -254,6 +254,8 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   int cellFlag = 0;
+  double* orig_range;
+  double orig_range_min, orig_range_max;
   
   vtkDataArray *scalars = vtkAbstractMapper::
     GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
@@ -301,6 +303,10 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
       }
     this->LookupTable->Build();
     }
+
+  orig_range = this->LookupTable->GetRange();
+  orig_range_min = orig_range[0];
+  orig_range_max = orig_range[1];
   if ( !this->UseLookupTableScalarRange )
     {
     this->LookupTable->SetRange(this->ScalarRange);
@@ -358,9 +364,12 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     }
   
   // map scalars
+  double orig_alpha = this->LookupTable->GetAlpha();
   this->LookupTable->SetAlpha(alpha);
   this->Colors = this->LookupTable->
     MapScalars(scalars, this->ColorMode, this->ArrayComponent);
+  this->LookupTable->SetAlpha(orig_alpha);
+  this->LookupTable->SetRange(orig_range_min, orig_range_max);
   // Consistent register and unregisters
   this->Colors->Register(this);
   this->Colors->Delete();
@@ -567,6 +576,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
 {
   double* range = this->LookupTable->GetRange();
+  double orig_alpha = this->LookupTable->GetAlpha();
   
   // Get rid of vertex color array.  Only texture or vertex coloring 
   // can be active at one time.  The existence of the array is the 
@@ -609,6 +619,7 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     this->ColorTextureMap->SetScalarTypeToUnsignedChar();
     this->ColorTextureMap->GetPointData()->SetScalars(
          this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
+    this->LookupTable->SetAlpha(orig_alpha);
     // Do we need to delete the scalars?
     this->ColorTextureMap->GetPointData()->GetScalars()->Delete();
     // Consistent register and unregisters
