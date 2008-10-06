@@ -93,7 +93,7 @@ bool vtkArrayExtents::operator!=(const vtkArrayExtents& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs)
 {
-  for(int i = 0; i != rhs.Storage.size(); ++i)
+  for(unsigned int i = 0; i != rhs.Storage.size(); ++i)
     {
     if(i)
       stream << "x";
