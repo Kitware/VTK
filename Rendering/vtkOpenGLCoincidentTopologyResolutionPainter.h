@@ -42,13 +42,6 @@ protected:
   // has been called.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
                               unsigned long typeflags, bool forceCompileOnly);
-
-  virtual void RenderPolygonOffset(vtkRenderer *renderer, vtkActor *actor,
-                                   unsigned long typeflags,
-                                   bool forceCompileOnly);
-  virtual void RenderShiftZBuffer(vtkRenderer *renderer, vtkActor *actor,
-                                  unsigned long typeflags,
-                                  bool forceCompileOnly);
 private:
   vtkOpenGLCoincidentTopologyResolutionPainter(
     const vtkOpenGLCoincidentTopologyResolutionPainter&); // Not implemented.
