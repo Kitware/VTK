@@ -163,6 +163,10 @@ ELSE(VTK_BINARY_DIR)
       Tutorial/Step6/Cxx
       )
 
+    IF(VTK_USE_N_WAY_ARRAYS)
+      SUBDIRS(Array/Cxx)
+    ENDIF(VTK_USE_N_WAY_ARRAYS)
+
     IF(VTK_USE_PARALLEL)
       SUBDIRS(ParallelProcessing)
     ENDIF(VTK_USE_PARALLEL)
