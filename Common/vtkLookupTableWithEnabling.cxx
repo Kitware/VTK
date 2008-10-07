@@ -19,7 +19,7 @@
 #include "vtkVariant.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTableWithEnabling, "1.1");
+vtkCxxRevisionMacro(vtkLookupTableWithEnabling, "1.2");
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -55,7 +55,106 @@ void vtkLookupTableWithEnabling::DisableColor(
   *rd = static_cast<unsigned char>(rgb[0]);
   *gd = static_cast<unsigned char>(rgb[1]);
   *bd = static_cast<unsigned char>(rgb[2]);
-  }
+}
+
+
+//----------------------------------------------------------------------------
+// There is a little more to this than simply taking the log10 of the
+// two range values: we do conversion of negative ranges to positive
+// ranges, and conversion of zero to a 'very small number'
+void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
+{
+  double rmin = range[0];
+  double rmax = range[1];
+
+  if (rmin == 0)
+    {
+    rmin = 1.0e-6*(rmax - rmin);
+    if (rmax < 0)
+      {
+      rmin = -rmin;
+      }
+    }
+  if (rmax == 0)
+    {
+    rmax = 1.0e-6*(rmin - rmax);
+    if (rmin < 0)
+      {
+      rmax = -rmax;
+      }
+    }
+  if (rmin < 0 && rmax < 0)
+    {
+    logRange[0] = log10(-static_cast<double>(rmin));
+    logRange[1] = log10(-static_cast<double>(rmax));
+    }
+  else if (rmin > 0 && rmax > 0)
+    {
+    logRange[0] = log10(static_cast<double>(rmin));
+    logRange[1] = log10(static_cast<double>(rmax));
+    }
+}
+
+//----------------------------------------------------------------------------
+// Apply log to value, with appropriate constraints.
+inline double vtkApplyLogScale(double v, double range[2], 
+                               double logRange[2])
+{
+  // is the range set for negative numbers?
+  if (range[0] < 0)
+    {
+    if (v < 0)
+      {
+      v = log10(-static_cast<double>(v));
+      }
+    else if (range[0] > range[1])
+      {
+      v = logRange[0];
+      }
+    else
+      {
+      v = logRange[1];
+      }
+    }
+  else
+    {
+    if (v > 0)
+      {
+      v = log10(static_cast<double>(v));
+      }
+    else if (range[0] < range[1])
+      {
+      v = logRange[0];
+      }
+    else
+      {
+      v = logRange[1];
+      }
+    }
+  return v;
+}                 
+
+//----------------------------------------------------------------------------
+// Apply shift/scale to the scalar value v and do table lookup.
+inline unsigned char *vtkLinearLookup(double v,   
+                                      unsigned char *table,
+                                      double maxIndex,
+                                      double shift, double scale)
+{
+  double findx = (v + shift)*scale;
+  if (findx < 0)
+    {
+    findx = 0;
+    }
+  if (findx > maxIndex)
+    {
+    findx = maxIndex;
+    }
+  return &table[4*static_cast<int>(findx)];
+  /* round
+  return &table[4*(int)(findx + 0.5f)];
+  */
+}
 
 //----------------------------------------------------------------------------
 // accelerate the mapping by copying the data in 32-bit chunks instead
@@ -533,104 +632,6 @@ void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input,
       return;
     }
 }  
-
-//----------------------------------------------------------------------------
-// There is a little more to this than simply taking the log10 of the
-// two range values: we do conversion of negative ranges to positive
-// ranges, and conversion of zero to a 'very small number'
-void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
-{
-  double rmin = range[0];
-  double rmax = range[1];
-
-  if (rmin == 0)
-    {
-    rmin = 1.0e-6*(rmax - rmin);
-    if (rmax < 0)
-      {
-      rmin = -rmin;
-      }
-    }
-  if (rmax == 0)
-    {
-    rmax = 1.0e-6*(rmin - rmax);
-    if (rmin < 0)
-      {
-      rmax = -rmax;
-      }
-    }
-  if (rmin < 0 && rmax < 0)
-    {
-    logRange[0] = log10(-static_cast<double>(rmin));
-    logRange[1] = log10(-static_cast<double>(rmax));
-    }
-  else if (rmin > 0 && rmax > 0)
-    {
-    logRange[0] = log10(static_cast<double>(rmin));
-    logRange[1] = log10(static_cast<double>(rmax));
-    }
-}
-
-//----------------------------------------------------------------------------
-// Apply log to value, with appropriate constraints.
-inline double vtkApplyLogScale(double v, double range[2], 
-                               double logRange[2])
-{
-  // is the range set for negative numbers?
-  if (range[0] < 0)
-    {
-    if (v < 0)
-      {
-      v = log10(-static_cast<double>(v));
-      }
-    else if (range[0] > range[1])
-      {
-      v = logRange[0];
-      }
-    else
-      {
-      v = logRange[1];
-      }
-    }
-  else
-    {
-    if (v > 0)
-      {
-      v = log10(static_cast<double>(v));
-      }
-    else if (range[0] < range[1])
-      {
-      v = logRange[0];
-      }
-    else
-      {
-      v = logRange[1];
-      }
-    }
-  return v;
-}                 
-
-//----------------------------------------------------------------------------
-// Apply shift/scale to the scalar value v and do table lookup.
-inline unsigned char *vtkLinearLookup(double v,   
-                                      unsigned char *table,
-                                      double maxIndex,
-                                      double shift, double scale)
-{
-  double findx = (v + shift)*scale;
-  if (findx < 0)
-    {
-    findx = 0;
-    }
-  if (findx > maxIndex)
-    {
-    findx = maxIndex;
-    }
-  return &table[4*static_cast<int>(findx)];
-  /* round
-  return &table[4*(int)(findx + 0.5f)];
-  */
-}
 
 //----------------------------------------------------------------------------
 void vtkLookupTableWithEnabling::PrintSelf(ostream& os, vtkIndent indent)
