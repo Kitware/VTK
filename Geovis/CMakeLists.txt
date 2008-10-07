@@ -14,7 +14,7 @@ SET( Kit_SRCS
   vtkGeoArcs.cxx
   vtkGeoAssignCoordinates.cxx
   vtkGeoCamera.cxx
-  vtkGeoComputeTextureCoordinates.cxx  
+  vtkGeoComputeTextureCoordinates.cxx
   vtkGeoEdgeStrategy.cxx
   vtkGeoGraphRepresentation.cxx
   vtkGeoImageNode.cxx
@@ -22,7 +22,8 @@ SET( Kit_SRCS
   vtkGeoLineRepresentation.cxx
   vtkGeoMath.cxx
   vtkGeoPatch.cxx
-  vtkGeoSampleArcs.cxx  
+  vtkGeoRandomGraphSource.cxx
+  vtkGeoSampleArcs.cxx
   vtkGeoTreeNode.cxx
   vtkGeoTerrain.cxx
   vtkGeoTerrainGlobeSource.cxx
