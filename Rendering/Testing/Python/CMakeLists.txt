@@ -22,7 +22,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ADD_TEST(TestMapperLUTPython-image ${VTK_PYTHON_EXE}
             ${VTK_SOURCE_DIR}/Rendering/Testing/Python/TestMapperLUT.py
             -B ${VTK_DATA_ROOT}/Baseline/Widgets
-            -D ${VTK_DATA_ROOT}/Data)
+            -D ${VTK_DATA_ROOT})
 
       ENDIF(VTK_USE_TK)
       
