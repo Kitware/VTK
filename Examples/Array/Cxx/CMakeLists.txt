@@ -12,3 +12,6 @@ TARGET_LINK_LIBRARIES(ArrayBasics vtkCommon)
 ADD_EXECUTABLE(IdentityMatrix IdentityMatrix.cxx)
 TARGET_LINK_LIBRARIES(IdentityMatrix vtkCommon)
 
+ADD_EXECUTABLE(ArrayIteration ArrayIteration.cxx)
+TARGET_LINK_LIBRARIES(ArrayIteration vtkCommon)
+
