@@ -1092,6 +1092,7 @@ void vtkDataArrayTemplate<T>::UpdateLookup()
     this->Lookup = new vtkDataArrayTemplateLookup<T>();
     this->Lookup->SortedArray = vtkAbstractArray::CreateArray(this->GetDataType());
     this->Lookup->IndexArray = vtkIdList::New();
+    this->Lookup->Rebuild = true;
     }
   if (this->Lookup->Rebuild)
     {
@@ -1172,6 +1173,14 @@ vtkIdType vtkDataArrayTemplate<T>::LookupValue(T value)
     ++cached;
     }
 
+  // The index array can have size zero even when the
+  // sorted array is of size 1, due to vtkDataArrayTemplate::DeepCopy's
+  // refusal to allocate a 0-length array.
+  if (this->Lookup->IndexArray->GetNumberOfIds() == 0)
+    {
+    return -1;
+    }
+
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
   T* ptr = static_cast<T*>(this->Lookup->SortedArray->GetVoidPointer(0));
@@ -1235,6 +1244,14 @@ void vtkDataArrayTemplate<T>::LookupValue(T value, vtkIdList* ids)
     ++cached.first;
     }
   
+  // The index array can have size zero even when the
+  // sorted array is of size 1, due to vtkDataArrayTemplate::DeepCopy's
+  // refusal to allocate a 0-length array.
+  if (this->Lookup->IndexArray->GetNumberOfIds() == 0)
+    {
+    return;
+    }
+    
   // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
