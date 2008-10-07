@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.29");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.30");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.29");
+vtkCxxRevisionMacro(vtkGraph, "1.30");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -553,15 +553,15 @@ vtkIdType vtkGraph::FindVertex(const vtkVariant& pedigreeId)
     if (helper->GetVertexOwnerByPedigreeId(pedigreeId) 
           != myRank)
       {
-      // The vertex is remote; ask the distributed graph helper to
-      // find it.
+      // The vertex is remote; ask the distributed graph helper to find it.
       return helper->FindVertex(pedigreeId);
       }
-    
-    vtkIdType result = pedigrees->LookupValue(pedigreeId);
-    if (result == -1)
-      return -1;
 
+    vtkIdType result = pedigrees->LookupValue(pedigreeId);
+    if (result == -1) 
+      {
+      return -1;
+      }
     return helper->MakeDistributedId(myRank, result);
     }
 
@@ -1144,29 +1144,82 @@ void vtkGraph::DeepCopyEdgePoints(vtkGraph* g)
 void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
                                  vtkIdType *vertex)
 {
-  // TODO: This isn't going to properly deal with remote vertex
-  // addition in the presence of pedigree IDs. We need to look at the
-  // pedigree ID inside propertyArr and use that to route the vertex
-  // addition.
   this->ForceOwnership();
-  this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());
+  
+  vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
+  vtkIdType myRank = -1;
+  if (helper != NULL)
+    myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  
 
-  if (propertyArr)      // Add vertex properties
+  if (propertyArr)      // Add/replace vertex properties if passed in
     {
-    vtkIdType index = this->Internals->Adjacency.size() - 1;
-    vtkDataSetAttributes *vertexData = this->GetVertexData();
-    int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
-    assert(numProps == vertexData->GetNumberOfArrays());
-    for (int iprop=0; iprop<numProps; iprop++)
+    vtkAbstractArray *peds = this->GetVertexData()->GetPedigreeIds();
+    if (peds)
       {
-      vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
-      arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
+      // Extract the pedigreeId from the propArr
+      char *pedIdArrayName = peds->GetName();
+      vtkIdType pedIdx = this->GetVertexData()->SetActiveAttribute(pedIdArrayName, 
+          vtkDataSetAttributes::PEDIGREEIDS);
+      vtkVariant pedigreeId = propertyArr->GetValue(pedIdx);
+      if (helper)
+        {
+        if (helper->GetVertexOwnerByPedigreeId(pedigreeId) != myRank) 
+          {
+          helper->AddVertexInternal(propertyArr, vertex);
+          return;
+          }
+        }
+    
+        vtkIdType existingVertex = this->FindVertex(pedigreeId);
+        if (existingVertex != -1)
+          {
+          // We found this vertex; nothing more to do.  (TODO: update props?)
+          if (vertex)
+            {
+            *vertex = existingVertex;
+            }
+          return ;
+          }
+        
+        this->Internals->Adjacency.push_back(vtkVertexAdjacencyList()); 
+        vtkIdType index = this->Internals->Adjacency.size() - 1;   
+        
+        vtkDataSetAttributes *vertexData = this->GetVertexData();
+        int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+        assert(numProps == vertexData->GetNumberOfArrays());
+        for (int iprop=0; iprop<numProps; iprop++)
+          {
+          vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
+          arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
+          }
+        vtkAbstractArray *peds2 = this->GetVertexData()->GetPedigreeIds();
+        
+      }  // end if (peds)
+    //----------------------------------------------------------------
+    else   // We have propArr, but not pedIds - just add the propArr
+      {
+      this->Internals->Adjacency.push_back(vtkVertexAdjacencyList()); 
+      vtkIdType index = this->Internals->Adjacency.size() - 1;   
+      
+      vtkDataSetAttributes *vertexData = this->GetVertexData();
+      int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+      assert(numProps == vertexData->GetNumberOfArrays());
+      for (int iprop=0; iprop<numProps; iprop++)
+        {
+        vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
+        arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
+        }
       }
+    }
+  else  // No properties, just add a new vertex
+    {
+    this->Internals->Adjacency.push_back(vtkVertexAdjacencyList()); 
     }
   
   if (vertex)
     {
-    if (vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper())
+    if (helper)
       {
       *vertex = helper->MakeDistributedId
                   (this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER()),
@@ -1179,10 +1232,15 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
     }
 }
 
+
 //----------------------------------------------------------------------------
 void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId, 
                                  vtkIdType *vertex)
 {
+  // Add a V, given a pedID:
+  //   1) if a dist'd G and this proc doesn't own V, add it (via helper class) and RETURN.
+  //   2) if V already exists for this pedID, RETURN it.
+  //   3) add the vertex locally and insert its pedID
   vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
   if (helper)
     {
