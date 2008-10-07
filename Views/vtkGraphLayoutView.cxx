@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.40");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.41");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -157,7 +157,11 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->SetVertexColorArrayName("VertexDegree");
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
+  this->SetEnabledEdgesArrayName("weight");
+  this->SetEnabledVerticesArrayName("label");
   this->ColorEdgesOff();
+  this->SetEnableEdgesByArray(false);
+  this->SetEnableVerticesByArray(false);
   this->EdgeLayoutStrategy   = 0;
   this->EdgeLayoutPreference = this->ArcParallelStrategy;
   this->SetLayoutStrategyToFast2D();
@@ -392,6 +396,54 @@ void vtkGraphLayoutView::ColorEdgesOff()
 void vtkGraphLayoutView::SetEdgeScalarBarVisibility(bool vis)
 {
   this->EdgeScalarBar->SetEnabled(vis);
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEnabledEdgesArrayName(const char* name)
+{
+  this->GraphMapper->SetEnabledEdgesArrayName(name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraphLayoutView::GetEnabledEdgesArrayName()
+{
+  return this->GraphMapper->GetEnabledEdgesArrayName();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEnableEdgesByArray(bool vis)
+{
+  this->GraphMapper->SetEnableEdgesByArray(vis);
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphLayoutView::GetEnableEdgesByArray()
+{
+  return this->GraphMapper->GetEnableEdgesByArray();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEnabledVerticesArrayName(const char* name)
+{
+  this->GraphMapper->SetEnabledVerticesArrayName(name);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkGraphLayoutView::GetEnabledVerticesArrayName()
+{
+  return this->GraphMapper->GetEnabledVerticesArrayName();
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphLayoutView::SetEnableVerticesByArray(bool vis)
+{
+  this->GraphMapper->SetEnableVerticesByArray(vis);
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphLayoutView::GetEnableVerticesByArray()
+{
+  return this->GraphMapper->GetEnableVerticesByArray();
 }
 
 //----------------------------------------------------------------------------
@@ -888,7 +940,7 @@ void vtkGraphLayoutView::ProcessEvents(
         this->GetRepresentation()->GetSelectionLink()->GetSelection();
       selection->Union(oldSelection);
       }
-    
+  
     // Call select on the representation(s)
     this->GetRepresentation()->Select(this, selection);
     }

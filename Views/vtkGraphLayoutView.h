@@ -134,6 +134,26 @@ public:
   void ColorEdgesOff();
 
   // Description:
+  // The array to use for coloring edges.
+  void SetEnabledEdgesArrayName(const char* name);
+  const char* GetEnabledEdgesArrayName();
+  
+  // Description:
+  // Whether to color edges.  Default is off.
+  void SetEnableEdgesByArray(bool vis);
+  int GetEnableEdgesByArray();
+
+  // Description:
+  // The array to use for coloring vertices. 
+  void SetEnabledVerticesArrayName(const char* name);
+  const char* GetEnabledVerticesArrayName();
+  
+  // Description:
+  // Whether to color vertices.  Default is off.
+  void SetEnableVerticesByArray(bool vis);
+  int GetEnableVerticesByArray();
+
+  // Description:
   // The array used for scaling (if ScaledGlyphs is ON)
   void SetScalingArrayName(const char* name);
   const char* GetScalingArrayName();

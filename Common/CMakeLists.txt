@@ -104,6 +104,7 @@ vtkLinearTransform.cxx
 vtkLogLookupTable.cxx
 vtkLongArray.cxx
 vtkLookupTable.cxx
+vtkLookupTableWithEnabling.cxx
 vtkMath.cxx
 vtkMatrix4x4.cxx
 vtkMatrixToHomogeneousTransform.cxx

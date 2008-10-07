@@ -34,7 +34,7 @@
 #include "vtkIconGlyphFilter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkLookupTable.h"
+#include "vtkLookupTableWithEnabling.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneSource.h"
@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.30");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.31");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -76,10 +76,12 @@ vtkGraphMapper::vtkGraphMapper()
   this->VertexActor       = vtkSmartPointer<vtkActor>::New();
   this->OutlineActor      = vtkSmartPointer<vtkActor>::New();
   this->IconActor         = vtkSmartPointer<vtkTexturedActor2D>::New();
-  this->VertexLookupTable = vtkLookupTable::New();
-  this->EdgeLookupTable   = vtkLookupTable::New();
+  this->VertexLookupTable = vtkLookupTableWithEnabling::New();
+  this->EdgeLookupTable   = vtkLookupTableWithEnabling::New();
   this->VertexColorArrayNameInternal = 0;
   this->EdgeColorArrayNameInternal = 0;
+  this->EnabledEdgesArrayName = 0;
+  this->EnabledVerticesArrayName = 0;
   this->VertexPointSize = 5;
   this->EdgeLineWidth = 1;
   this->ScaledGlyphs = false;
@@ -135,6 +137,10 @@ vtkGraphMapper::vtkGraphMapper()
   this->ColorVerticesOff();
   this->SetEdgeColorArrayName("weight");
   this->ColorEdgesOff();
+  this->SetEnabledEdgesArrayName("weight");
+  this->SetEnabledVerticesArrayName("VertexDegree");
+  this->EnableEdgesByArray = 0;
+  this->EnableVerticesByArray = 0;
   this->IconVisibilityOff();
 }
 
@@ -147,6 +153,8 @@ vtkGraphMapper::~vtkGraphMapper()
     
   this->SetVertexColorArrayNameInternal(0);
   this->SetEdgeColorArrayNameInternal(0);
+  this->SetEnabledEdgesArrayName(0);
+  this->SetEnabledVerticesArrayName(0);
   this->SetIconArrayNameInternal(0);
   this->VertexLookupTable->Delete();
   this->VertexLookupTable = 0;
@@ -507,6 +515,17 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       }
     }
 
+  arr = 0; 
+  if (this->EnableEdgesByArray && this->EnabledEdgesArrayName)
+    {
+    vtkLookupTableWithEnabling::SafeDownCast(this->EdgeLookupTable)->SetEnabledArray(
+        edgePd->GetCellData()->GetArray(this->GetEnabledEdgesArrayName()));
+    }
+  else
+    {
+    vtkLookupTableWithEnabling::SafeDownCast(this->EdgeLookupTable)->SetEnabledArray(0);
+    }
+
   // Do the same thing for the vertex array.
   arr = 0; 
   if (this->GetColorVertices())
@@ -524,6 +543,17 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       arr->GetRange(range);    
       this->VertexMapper->SetScalarRange(range[0], range[1]);
       }
+    }
+
+  arr = 0; 
+  if (this->EnableVerticesByArray && this->EnabledVerticesArrayName)
+    {
+    vtkLookupTableWithEnabling::SafeDownCast(this->VertexLookupTable)->SetEnabledArray(
+        vertPd->GetPointData()->GetArray(this->GetEnabledVerticesArrayName()));
+    }
+  else
+    {
+    vtkLookupTableWithEnabling::SafeDownCast(this->VertexLookupTable)->SetEnabledArray(0);
     }
 
   if (this->IconActor->GetTexture() && 

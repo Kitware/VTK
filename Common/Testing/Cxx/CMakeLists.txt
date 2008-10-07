@@ -4,6 +4,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherArrays.cxx
   otherTimerLog.cxx
   otherLookupTable.cxx
+  otherLookupTableWithEnabling.cxx
   otherByteSwap.cxx
   otherStringArray.cxx
   TestAmoebaMinimizer.cxx
