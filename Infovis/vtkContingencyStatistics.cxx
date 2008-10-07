@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.21");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.22");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -173,8 +173,9 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->Delete();
     }
 
-  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > varToPair;
-  vtkstd::map<vtkStdString,vtkstd::map<vtkVariant,vtkstd::pair<int,double> > > marginals;
+  typedef vtkstd::map<vtkVariant,vtkstd::pair<int,double> > VariantToStats;
+  vtkstd::map<vtkStdString,VariantToStats> marginals;
+  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -192,18 +193,18 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       vtkVariant x, y;
       int c;
       
-      if ( varToPair.find( c1 ) == varToPair.end() )
+      if ( marginalToPair.find( c1 ) == marginalToPair.end() )
         { 
         // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
-        varToPair[c1].first = c1;
-        varToPair[c1].second = c2;
+        marginalToPair[c1].first = c1;
+        marginalToPair[c1].second = c2;
         }
 
-      if ( varToPair.find( c2 ) == varToPair.end() )
+      if ( marginalToPair.find( c2 ) == marginalToPair.end() )
         { 
         // c2 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
-        varToPair[c2].first = c1;
-        varToPair[c2].second = c2;
+        marginalToPair[c2].first = c1;
+        marginalToPair[c2].second = c2;
         }
 
       x = inMeta->GetValueByName( i, "x" );
@@ -212,13 +213,13 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       
       doubleVal = inv_n * c;
 
-      if ( varToPair[c1].first == c1 && varToPair[c1].second == c2  )
+      if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
         {
         marginals[c1][x].first  += c;
         marginals[c1][x].second += doubleVal;
         }
 
-      if ( varToPair[c2].first == c1 && varToPair[c2].second == c2  )
+      if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
         {
         marginals[c2][y].first  += c;
         marginals[c2][y].second += doubleVal;
@@ -231,13 +232,13 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 6 );
 
-  for ( vtkstd::map<vtkStdString,vtkstd::map<vtkVariant,vtkstd::pair<int,double> > >::iterator sit = marginals.begin();
+  for ( vtkstd::map<vtkStdString,VariantToStats>::iterator sit = marginals.begin();
         sit != marginals.end(); ++ sit )
       {
-      for ( vtkstd::map<vtkVariant,vtkstd::pair<int,double> >::iterator xit = sit->second.begin(); 
+      for ( VariantToStats::iterator xit = sit->second.begin(); 
             xit != sit->second.end(); ++ xit )
         {
-        // Insert marginal cardinialities and probabilities
+        // Insert marginal cardinalities and probabilities
         row->SetValue( 0, sit->first );         // variable name
         row->SetValue( 1, "" );                 // empty entry for the second variable name
         row->SetValue( 2, xit->first );         // variable value
@@ -350,21 +351,30 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
 
     PDF pdfX, pdfY;
     vtkstd::map<vtkVariant,PDF> pdfXY;
-    vtkVariant x, y;
-    double p;
     for ( vtkIdType r = 0; r < nRowP; ++ r )
       {
       vtkStdString c1 = inMeta->GetValueByName( r, "Variable X" ).ToString();
       vtkStdString c2 = inMeta->GetValueByName( r, "Variable Y" ).ToString();
-      if ( c1 == it->first && c2 == it->second )
+      if ( c1 == it->first ) 
         {
-        x = inMeta->GetValueByName( r, "x" );
-        y = inMeta->GetValueByName( r, "y" );
-        p = inMeta->GetValueByName( r, "Probability" ).ToDouble();
-          
-        pdfX[x] += p;
-        pdfY[y] += p;
-        pdfXY[x][y] = p;
+        if ( c2 == it->second )
+          {
+          // (c1,c2) = (colX,colY): populate bivariate pdf for (colX,colY)
+          pdfXY[inMeta->GetValueByName( r, "x" )][inMeta->GetValueByName( r, "y" )] 
+            = inMeta->GetValueByName( r, "Probability" ).ToDouble();
+          }
+        else if ( c2 == "" )
+          {
+          // (c1,c2) = (colX,""): populate marginal pdf for colX
+          pdfX[inMeta->GetValueByName( r, "x" )] 
+            += inMeta->GetValueByName( r, "Probability" ).ToDouble();
+          }
+        }
+      else if ( c1 == it->second && c2 == "" ) 
+        {
+        // (c1,c2) = (colY,""): populate marginal pdf for colY
+        pdfY[inMeta->GetValueByName( r, "x" )] 
+          += inMeta->GetValueByName( r, "Probability" ).ToDouble();
         }
       }
 
@@ -374,6 +384,8 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     double pxy;
     vtkstd::map<vtkVariant,PDF> pdfYcondX;
     vtkstd::map<vtkVariant,PDF> pdfXcondY;
+    vtkVariant x,y;
+
     for ( vtkstd::map<vtkVariant,PDF>::iterator xit = pdfXY.begin();
           xit != pdfXY.end(); ++ xit )
       {
