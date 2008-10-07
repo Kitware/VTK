@@ -37,7 +37,7 @@
 #include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkPointSetToLabelHierarchy);
-vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.2");
+vtkCxxRevisionMacro(vtkPointSetToLabelHierarchy,"1.3");
 
 vtkPointSetToLabelHierarchy::vtkPointSetToLabelHierarchy()
 {
@@ -174,7 +174,7 @@ int vtkPointSetToLabelHierarchy::RequestData(
     vtkAbstractArray* curStringOrIndex =
       this->GetInputAbstractArrayToProcess( 3*i+2, inputVector );
 
-    if ( curPts && curPriorities && curSize )
+    if ( curPts && curSize )
       {
 
       // We need an indicator of whether the third input array
@@ -194,7 +194,14 @@ int vtkPointSetToLabelHierarchy::RequestData(
       for (int p = 0; p < curPts->GetNumberOfPoints(); ++p )
         {
         pts->InsertNextPoint( curPts->GetPoint(p) );
-        priorities->InsertNextValue( curPriorities->GetTuple1( p ) );
+        if ( curPriorities )
+          {
+          priorities->InsertNextValue( curPriorities->GetTuple1( p ) );
+          }
+        else
+          {
+          priorities->InsertNextValue( 1.0 );
+          }
         curSize->GetTuple( p, &sz[0] );
         size->InsertNextTuple( &sz[0] );
         if ( labels )
