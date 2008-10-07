@@ -35,7 +35,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.1");
+vtkCxxRevisionMacro(vtkAdjacencyMatrixToEdgeTable, "1.2");
 vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 // ----------------------------------------------------------------------
@@ -125,7 +125,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
-    typedef vtkstd::map<double, vtkIdType, vtkstd::greater<double> > sorted_values_t;
+    typedef vtkstd::multimap<double, vtkIdType, vtkstd::greater<double> > sorted_values_t;
     sorted_values_t sorted_values;
     for(vtkIdType j = 0; j != input_extents[target_dimension]; ++j)
       {
