@@ -29,6 +29,12 @@
 template<typename T>
 void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
 {
+  if(!array)
+    {
+    vtkGenericWarningMacro(<< "vtkPrintCoordinateFormat() requires a non-NULL array as input.");
+    return;
+    }
+    
   const vtkArrayExtents extents = array->GetExtents();
   const vtkIdType dimensions = array->GetDimensions();
   const vtkIdType non_null_size = array->GetNonNullSize();
@@ -50,6 +56,12 @@ void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
 template<typename T>
 void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix)
 {
+  if(!matrix)
+    {
+    vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a non-NULL array as input.");
+    return;
+    }
+    
   if(matrix->GetDimensions() != 2)
     {
     vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a matrix (2-way array) as input.");
@@ -73,6 +85,12 @@ void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix)
 template<typename T>
 void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector)
 {
+  if(!vector)
+    {
+    vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a non-NULL array as input.");
+    return;
+    }
+    
   if(vector->GetDimensions() != 1)
     {
     vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a vector (1-way array) as input.");
