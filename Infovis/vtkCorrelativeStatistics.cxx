@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.34");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.35");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -238,7 +238,6 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
       covXY = mXY * inv_nm1;
       }
     
-    double doubleVals[numDoubles];
     vtkStdString status = "valid";
 
     double d = varX * varY - covXY * covXY;
