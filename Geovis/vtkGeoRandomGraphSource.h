@@ -56,8 +56,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkGeoRandomGraphSource(const vtkRandomGraphSource&); // Not implemented
-  void operator=(const vtkGeoRandomGraphSource&);   // Not implemented
+  vtkGeoRandomGraphSource(const vtkGeoRandomGraphSource&); // Not implemented
+  void operator=(const vtkGeoRandomGraphSource&); // Not implemented
 };
 
 #endif
