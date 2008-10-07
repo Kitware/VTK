@@ -4,13 +4,17 @@ database = vtkSQLDatabase.CreateFromURL("sqlite://ports_protocols.db")
 database.Open("")
 
 edge_query = database.GetQueryInstance()
-edge_query.SetQuery("select src, dst from tcp")
-
-vertex_query = database.GetQueryInstance()
-vertex_query.SetQuery("select ip, hostname from dnsnames")
+edge_query.SetQuery("select * from tcp")
 
 edge_table = vtkRowQueryToTable()
 edge_table.SetQuery(edge_query)
+
+cs = vtkContingencyStatistics()
+cs.AddInputConnection(edge_table.GetOutputPort())
+contingency_table = cs.GetOuputPort()
+
+vertex_query = database.GetQueryInstance()
+vertex_query.SetQuery("select ip, hostname from dnsnames")
 
 vertex_table = vtkRowQueryToTable()
 vertex_table.SetQuery(vertex_query)
@@ -26,10 +30,17 @@ print graph.GetOutput()
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(graph.GetOutputPort())
+
 view.SetVertexLabelArrayName("hostname")
 view.SetVertexLabelVisibility(True)
 #view.SetVertexColorArrayName("hostname")
 view.SetColorVertices(True)
+
+view.SetEdgeLabelArrayName("protocol")
+view.SetEdgeLabelVisibility(True)
+view.SetEdgeColorArrayName("port")
+view.SetColorEdges(True)
+
 view.SetLayoutStrategyToSimple2D()
 
 theme = vtkViewTheme.CreateMellowTheme()
@@ -38,7 +49,7 @@ theme.SetLineWidth(2)
 view.ApplyViewTheme(theme)
 
 window = vtkRenderWindow()
-window.SetSize(600, 600)
+window.SetSize(1000, 1000)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
 window.GetInteractor().Start()
