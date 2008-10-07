@@ -1,6 +1,9 @@
 from vtk import *
 
-database = vtkSQLDatabase.CreateFromURL("sqlite://SmallEmailTest.db")
+data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+sqlite_file = data_dir + "SmallEmailTest.db"
+
+database = vtkSQLDatabase.CreateFromURL("sqlite://" + sqlite_file)
 database.Open("")
 
 edge_query = database.GetQueryInstance()
