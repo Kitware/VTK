@@ -69,6 +69,18 @@ public:
   vtkGetMacro(SubDiagonal, double);
   vtkSetMacro(SubDiagonal, double);
 
+  // Description:
+  // Controls the output matrix row dimension label.
+  // Default: "rows"
+  vtkGetStringMacro(RowLabel);
+  vtkSetStringMacro(RowLabel);
+
+  // Description:
+  // Controls the output matrix column dimension label.
+  // Default: "columns"
+  vtkGetStringMacro(ColumnLabel);
+  vtkSetStringMacro(ColumnLabel);
+
 protected:
   vtkDiagonalMatrixSource();
   ~vtkDiagonalMatrixSource();
@@ -90,6 +102,8 @@ private:
   double Diagonal;
   double SuperDiagonal;
   double SubDiagonal;
+  char* RowLabel;
+  char* ColumnLabel;
 };
 
 #endif

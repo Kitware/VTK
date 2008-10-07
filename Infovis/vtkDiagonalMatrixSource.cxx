@@ -29,7 +29,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkDiagonalMatrixSource, "1.1");
+vtkCxxRevisionMacro(vtkDiagonalMatrixSource, "1.2");
 vtkStandardNewMacro(vtkDiagonalMatrixSource);
 
 // ----------------------------------------------------------------------
@@ -39,8 +39,13 @@ vtkDiagonalMatrixSource::vtkDiagonalMatrixSource() :
   Extents(3),
   Diagonal(1.0),
   SuperDiagonal(0.0),
-  SubDiagonal(0.0)
+  SubDiagonal(0.0),
+  RowLabel(0),
+  ColumnLabel(0)
 {
+  this->SetRowLabel("rows");
+  this->SetColumnLabel("columns");
+
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -49,6 +54,8 @@ vtkDiagonalMatrixSource::vtkDiagonalMatrixSource() :
 
 vtkDiagonalMatrixSource::~vtkDiagonalMatrixSource()
 {
+  this->SetRowLabel(0);
+  this->SetColumnLabel(0);
 }
 
 // ----------------------------------------------------------------------
@@ -61,6 +68,8 @@ void vtkDiagonalMatrixSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Diagonal: " << this->Diagonal << endl;
   os << indent << "SuperDiagonal: " << this->SuperDiagonal << endl;
   os << indent << "SubDiagonal: " << this->SubDiagonal << endl;
+  os << indent << "RowLabel: " << (this->RowLabel ? this->RowLabel : "") << endl;
+  os << indent << "ColumnLabel: " << (this->ColumnLabel ? this->ColumnLabel : "") << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -101,6 +110,8 @@ vtkArray* vtkDiagonalMatrixSource::GenerateDenseArray()
 {
   vtkDenseArray<double>* const array = vtkDenseArray<double>::New();
   array->Resize(vtkArrayExtents::Uniform(2, this->Extents));
+  array->SetDimensionLabel(0, this->RowLabel);
+  array->SetDimensionLabel(1, this->ColumnLabel);
 
   array->Fill(0.0);
 
@@ -129,6 +140,8 @@ vtkArray* vtkDiagonalMatrixSource::GenerateSparseArray()
 {
   vtkSparseArray<double>* const array = vtkSparseArray<double>::New();
   array->Resize(vtkArrayExtents::Uniform(2, this->Extents));
+  array->SetDimensionLabel(0, this->RowLabel);
+  array->SetDimensionLabel(1, this->ColumnLabel);
 
   if(this->Diagonal != 0.0)
     {
