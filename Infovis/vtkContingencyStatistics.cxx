@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.20");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.21");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -96,14 +96,9 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
-  double n = static_cast<double>( this->SampleSize );
   vtkVariantArray* row = vtkVariantArray::New();
 
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Probability" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-  row->SetNumberOfValues( 6 );
+  row->SetNumberOfValues( 5 );
 
   typedef vtkstd::map<vtkVariant,vtkIdType,vtkVariantLessThan> Distribution;
 
@@ -141,7 +136,6 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
         {
         row->SetValue( 3, dit->first );
         row->SetValue( 4, dit->second );
-        row->SetValue( 5, dit->second / n );
 
         outMeta->InsertNextRow( row );
         }
@@ -153,8 +147,108 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteDerive( vtkTable* vtkNotUsed( inMeta ) )
+void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
 {
+  vtkIdType nCol = inMeta->GetNumberOfColumns();
+  if ( nCol < 5 )
+    {
+    return;
+    }
+
+  vtkIdType nRow = inMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    return;
+    }
+
+  vtkStdString doubleName( "Probability" );
+
+  vtkDoubleArray* doubleCol;
+  if ( ! inMeta->GetColumnByName( doubleName ) )
+    {
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( doubleName );
+    doubleCol->SetNumberOfTuples( nRow );
+    inMeta->AddColumn( doubleCol );
+    doubleCol->Delete();
+    }
+
+  vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > varToPair;
+  vtkstd::map<vtkStdString,vtkstd::map<vtkVariant,vtkstd::pair<int,double> > > marginals;
+
+  for ( int i = 0; i < nRow; ++ i )
+    {
+    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
+    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
+    if ( c1 == "" || c2 == "" )
+      {
+      // Clean up previously defined marginal probabilities
+      inMeta->RemoveRow( i );
+      }
+    else
+      {
+      double doubleVal;
+      double inv_n = 1. / this->SampleSize;
+      vtkVariant x, y;
+      int c;
+      
+      if ( varToPair.find( c1 ) == varToPair.end() )
+        { 
+        // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+        varToPair[c1].first = c1;
+        varToPair[c1].second = c2;
+        }
+
+      if ( varToPair.find( c2 ) == varToPair.end() )
+        { 
+        // c2 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+        varToPair[c2].first = c1;
+        varToPair[c2].second = c2;
+        }
+
+      x = inMeta->GetValueByName( i, "x" );
+      y = inMeta->GetValueByName( i, "y" );
+      c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
+      
+      doubleVal = inv_n * c;
+
+      if ( varToPair[c1].first == c1 && varToPair[c1].second == c2  )
+        {
+        marginals[c1][x].first  += c;
+        marginals[c1][x].second += doubleVal;
+        }
+
+      if ( varToPair[c2].first == c1 && varToPair[c2].second == c2  )
+        {
+        marginals[c2][y].first  += c;
+        marginals[c2][y].second += doubleVal;
+        }
+
+      inMeta->SetValueByName( i, doubleName, doubleVal );
+      }
+    }
+
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 6 );
+
+  for ( vtkstd::map<vtkStdString,vtkstd::map<vtkVariant,vtkstd::pair<int,double> > >::iterator sit = marginals.begin();
+        sit != marginals.end(); ++ sit )
+      {
+      for ( vtkstd::map<vtkVariant,vtkstd::pair<int,double> >::iterator xit = sit->second.begin(); 
+            xit != sit->second.end(); ++ xit )
+        {
+        // Insert marginal cardinialities and probabilities
+        row->SetValue( 0, sit->first );         // variable name
+        row->SetValue( 1, "" );                 // empty entry for the second variable name
+        row->SetValue( 2, xit->first );         // variable value
+        row->SetValue( 3, "" );                 // empty entry for the second variable value
+        row->SetValue( 4, xit->second.first );  // marginal cardinality
+        row->SetValue( 5, xit->second.second ); // marginal probability
+        inMeta->InsertNextRow( row );
+        }
+      }
+
+  row->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -235,7 +329,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 7 );
 
-  typedef vtkstd::map<vtkVariant,double,vtkVariantLessThan> PDF;
+  typedef vtkstd::map<vtkVariant,double> PDF;
 
   for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
         it != this->Internals->ColumnPairs.end(); ++ it )
@@ -255,7 +349,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
       }
 
     PDF pdfX, pdfY;
-    vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXY;
+    vtkstd::map<vtkVariant,PDF> pdfXY;
     vtkVariant x, y;
     double p;
     for ( vtkIdType r = 0; r < nRowP; ++ r )
@@ -278,13 +372,13 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     double HXcondY = 0.;
     double HXY = 0.;
     double pxy;
-    vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfYcondX;
-    vtkstd::map<vtkVariant,PDF,vtkVariantLessThan> pdfXcondY;
-    for ( vtkstd::map<vtkVariant,PDF,vtkVariantLessThan>::iterator xit = pdfXY.begin();
+    vtkstd::map<vtkVariant,PDF> pdfYcondX;
+    vtkstd::map<vtkVariant,PDF> pdfXcondY;
+    for ( vtkstd::map<vtkVariant,PDF>::iterator xit = pdfXY.begin();
           xit != pdfXY.end(); ++ xit )
       {
       x = xit->first;
-      for ( vtkstd::map<vtkVariant,double,vtkVariantLessThan>::iterator yit = xit->second.begin(); 
+      for ( vtkstd::map<vtkVariant,double>::iterator yit = xit->second.begin(); 
             yit != xit->second.end(); ++ yit )
         {
         y = yit->first;

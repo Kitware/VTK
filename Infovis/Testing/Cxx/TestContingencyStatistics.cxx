@@ -106,17 +106,28 @@ int TestContingencyStatistics( int, char *[] )
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
     {
     int c = outputMeta->GetValue( r, 4 ).ToInt();
-    testIntValue += c;
 
     cout << "   ("
-         << outputMeta->GetValue( r, 0 ).ToString()
-         << ", "
-         << outputMeta->GetValue( r, 1 ).ToString()
-         << ") = ("
-         << outputMeta->GetValue( r, 2 ).ToString()
-         << ", "
-         << outputMeta->GetValue( r, 3 ).ToString()
-         << "), "
+         << outputMeta->GetValue( r, 0 ).ToString();
+
+    vtkStdString varY = outputMeta->GetValue( r, 1 ).ToString();
+    if ( varY != "" )
+      {
+      testIntValue += c;
+      cout << ", "
+           << varY;
+      }
+
+    cout << ") = ("
+         << outputMeta->GetValue( r, 2 ).ToString();
+
+    if ( varY != "" )
+      {
+      cout << ", "
+           << outputMeta->GetValue( r, 3 ).ToString();
+      }
+
+    cout << "), "
          << outputMeta->GetColumnName( 4 )
          << "="
          << c
