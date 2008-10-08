@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This tests vtkVisibleCellSelector, vtkExtractSelectedFrustum, 
+// This tests vtkHardwareSelector, vtkExtractSelectedFrustum, 
 // vtkRenderedAreaPicker, and vtkInteractorStyleRubberBandPick.
 // 
 // The command line arguments are:
@@ -30,7 +30,7 @@
 #include "vtkActor.h"
 #include "vtkInteractorStyleRubberBandPick.h"
 #include "vtkCallbackCommand.h"
-#include "vtkVisibleCellSelector.h"
+#include "vtkHardwareSelector.h"
 #include "vtkSelection.h"
 #include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkIdTypeArray.h"
@@ -52,7 +52,7 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
                     unsigned long vtkNotUsed(eventId), 
                     void *, void *)
 {
-  vtkVisibleCellSelector *sel = vtkVisibleCellSelector::New();
+  vtkHardwareSelector *sel = vtkHardwareSelector::New();
   sel->SetRenderer(renderer);
 
   double x0 = renderer->GetPickX1();
@@ -60,12 +60,9 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   double x1 = renderer->GetPickX2();
   double y1 = renderer->GetPickY2();
 
-  sel->SetRenderPasses(0,1,0,1,1);
   sel->SetArea(static_cast<int>(x0),static_cast<int>(y0),static_cast<int>(x1),
                static_cast<int>(y1));
-  sel->Select();
-  vtkSelection *res = vtkSelection::New();
-  sel->GetSelectedIds(res);
+  vtkSelection* res = sel->Select();
 
   /*
   cerr << "x0 " << x0 << " y0 " << y0 << "\t";
@@ -166,7 +163,7 @@ int TestAreaSelections(int argc, char* argv[])
   
   vtkActor* act2 = vtkActor::New();
   act2->SetMapper(map2);
-  act2->PickableOn(); //lets the VisibleCellSelector select in it
+  act2->PickableOn(); //lets the HardwareSelector select in it
   renderer->AddActor(act2);
 
   sMap = vtkDataSetMapper::New();
@@ -178,7 +175,7 @@ int TestAreaSelections(int argc, char* argv[])
   sAct->PickableOff();
   renderer->AddActor(sAct);
 
-  //pass pick events to the VisibleCellSelector
+  //pass pick events to the HardwareSelector
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(EndPick);
   cbc->SetClientData(renderer);

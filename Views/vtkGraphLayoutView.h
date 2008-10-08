@@ -74,7 +74,7 @@ class vtkTexture;
 class vtkVertexDegree;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
-class vtkVisibleCellSelector;
+class vtkHardwareSelector;
 
 
 
@@ -406,7 +406,7 @@ protected:
   
   // Selection objects
   vtkSmartPointer<vtkKdTreeSelector>               KdTreeSelector;
-  vtkSmartPointer<vtkVisibleCellSelector>          VisibleCellSelector;
+  vtkSmartPointer<vtkHardwareSelector>             HardwareSelector;
   vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
   vtkSmartPointer<vtkActor>                        SelectedGraphActor;
   vtkSmartPointer<vtkGraphMapper>                  SelectedGraphMapper;

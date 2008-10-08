@@ -52,8 +52,9 @@ SET( Kit_SRCS
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
   vtkGraphicsFactory.cxx
+  vtkHardwareSelector.cxx
+  vtkHardwareSelectionPolyDataPainter.cxx
   vtkHierarchicalPolyDataMapper.cxx
-  vtkIdentColoredPainter.cxx
   vtkImageActor.cxx
   vtkImageMapper.cxx
   vtkImageViewer2.cxx
@@ -151,7 +152,6 @@ SET( Kit_SRCS
   vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx
   vtkVisibilitySort.cxx
-  vtkVisibleCellSelector.cxx
   vtkVolumeCollection.cxx
   vtkVolume.cxx
   vtkVolumeProperty.cxx
@@ -159,6 +159,14 @@ SET( Kit_SRCS
   vtkWindowToImageFilter.cxx
   vtkWorldPointPicker.cxx
   )
+
+IF (NOT VTK_LEGACY_REMOVE)
+  SET (Kit_Deprecated_SRCS
+    vtkVisibleCellSelector.cxx
+    vtkIdentColoredPainter.cxx)
+
+  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
+ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)

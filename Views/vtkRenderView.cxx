@@ -23,21 +23,21 @@
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
 #include "vtkDoubleArray.h"
-#include "vtkObjectFactory.h"
+#include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInteractorStyleRubberBand3D.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSelection.h"
 #include "vtkViewTheme.h"
-#include "vtkVisibleCellSelector.h"
 
 #include <vtksys/stl/map>
 using vtksys_stl::map;
 
-vtkCxxRevisionMacro(vtkRenderView, "1.8");
+vtkCxxRevisionMacro(vtkRenderView, "1.9");
 vtkStandardNewMacro(vtkRenderView);
 //----------------------------------------------------------------------------
 vtkRenderView::vtkRenderView()
@@ -133,27 +133,14 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
     unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
     unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
 
-    vtkSelection* selection = vtkSelection::New();
+    vtkSelection* selection = 0; 
     if (this->SelectionMode == SURFACE)
       {
       // Do a visible cell selection.
-      vtkVisibleCellSelector* vcs = vtkVisibleCellSelector::New();
+      vtkHardwareSelector* vcs = vtkHardwareSelector::New();
       vcs->SetRenderer(this->Renderer);
       vcs->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-      vcs->SetProcessorId(0);
-      vcs->SetRenderPasses(0, 1, 0, 0, 1);
-      vcs->Select();  
-      
-      vcs->GetSelectedIds(selection);
-      
-      // Add prop pointers to the selection
-      for (unsigned int s = 0; s < selection->GetNumberOfChildren(); s++)
-        {
-        vtkSelection* child = selection->GetChild(s);
-        int propId = child->GetProperties()->Get(vtkSelection::PROP_ID());
-        vtkProp* prop = vcs->GetActorFromId(propId);
-        child->GetProperties()->Set(vtkSelection::PROP(), prop);
-        }
+      selection = vcs->Select();  
       vcs->Delete();
       }
     else
@@ -215,6 +202,7 @@ void vtkRenderView::ProcessEvents(vtkObject* caller, unsigned long eventId,
       frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
         worldP[index*4+2], worldP[index*4+3]);
 
+      selection = vtkSelection::New();
       selection->SetContentType(vtkSelection::FRUSTUM);
       selection->SetFieldType(vtkSelection::CELL);
       selection->SetSelectionList(frustcorners);

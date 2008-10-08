@@ -19,8 +19,9 @@
 #include "vtkProp.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkVisibleCellSelector.h"
+#include "vtkHardwareSelector.h"
 #include "vtkCommand.h"
+#include "vtkDataObject.h"
 
 class vtkScenePickerSelectionRenderCommand : public vtkCommand
 {
@@ -58,7 +59,7 @@ protected:
   bool InteractiveRender;
 };
 
-vtkCxxRevisionMacro(vtkScenePicker, "1.3");
+vtkCxxRevisionMacro(vtkScenePicker, "1.4");
 vtkStandardNewMacro(vtkScenePicker);
 
 //----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ vtkScenePicker::vtkScenePicker()
   this->EnableVertexPicking  = 1;
   this->Renderer             = NULL;
   this->Interactor           = NULL;
-  this->VisibleCellSelector  = vtkVisibleCellSelector::New();
+  this->Selector  = vtkHardwareSelector::New();
   this->NeedToUpdate         = false;
   this->VertId               = -1;
   this->CellId               = -1;
@@ -81,7 +82,7 @@ vtkScenePicker::vtkScenePicker()
 vtkScenePicker::~vtkScenePicker()
 {
   this->SetRenderer(NULL);
-  this->VisibleCellSelector->Delete();
+  this->Selector->Delete();
   this->SelectionRenderCommand->Delete();
 }
 
@@ -120,8 +121,7 @@ void vtkScenePicker::SetRenderer( vtkRenderer * r )
           this->SelectionRenderCommand, 0.01 );
     }
 
-  this->VisibleCellSelector->SetRenderer(this->Renderer);
-  this->FirstTime = true;
+  this->Selector->SetRenderer(this->Renderer);
 }
 
 //----------------------------------------------------------------------------
@@ -154,10 +154,10 @@ void vtkScenePicker::SetInteractor(
 // "select" and "mouse over" and "mouse out" as the mouse moves around the
 // scene (or the mouse is clicked in the case of "select"). I do not want
 // to do a conventional pick for this function because it's too darn slow.
-// The VisibleCellSelector will be used here to pick-render the entire
+// The Selector will be used here to pick-render the entire
 // screen, store on a buffer the colored cells and read back as
 // the mouse moves around the moused pick. This extra render from the
-// VisibleCellSelector will be done only if the camera isn't in motion,
+// Selector will be done only if the camera isn't in motion,
 // otherwise motion would be too frickin slow.
 //
 void vtkScenePicker::PickRender()
@@ -187,14 +187,25 @@ void vtkScenePicker::PickRender(
 {
   this->Renderer->GetRenderWindow()->RemoveObserver( 
       this->SelectionRenderCommand );
-  
-  this->VisibleCellSelector->SetRenderPasses(
-          0,1,0,1,1,this->EnableVertexPicking);
-  this->VisibleCellSelector->SetArea(x0,y0,x1,y1);
-  this->VisibleCellSelector->Select();
+ 
+  if (this->EnableVertexPicking)
+    {
+    this->Selector->SetFieldAssociation(
+      vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    }
+  else
+    {
+    this->Selector->SetFieldAssociation(
+      vtkDataObject::FIELD_ASSOCIATION_CELLS);
+    }
+  cout << "Area: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 << endl;
+  this->Selector->SetArea(x0,y0,x1,y1);
+  if (!this->Selector->CaptureBuffers())
+    {
+    vtkErrorMacro("Failed to capture buffers.");
+    }
   this->NeedToUpdate = true;
-  this->FirstTime    = false;
-
+  this->PickRenderTime.Modified();
   this->Renderer->GetRenderWindow()->AddObserver( 
         vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01 );
 }
@@ -202,6 +213,10 @@ void vtkScenePicker::PickRender(
 //----------------------------------------------------------------------------
 vtkIdType vtkScenePicker::GetCellId( int displayPos[2] )
 {
+  if (this->EnableVertexPicking)
+    {
+    return -1;
+    }
   this->Update( displayPos );
   return this->CellId;
 }
@@ -227,7 +242,7 @@ vtkIdType vtkScenePicker::GetVertexId( int displayPos[2] )
 //----------------------------------------------------------------------------
 void vtkScenePicker::Update( int displayPos[2] )
 {
-  if (this->FirstTime)
+  if (this->PickRenderTime <= this->GetMTime())
     {
     this->PickRender();
     }
@@ -236,10 +251,16 @@ void vtkScenePicker::Update( int displayPos[2] )
       this->LastQueriedDisplayPos[0] != displayPos[0] ||
       this->LastQueriedDisplayPos[1] != displayPos[1])
     {
-    vtkIdType dummy;
-    this->VisibleCellSelector->GetPixelSelection( displayPos,
-      dummy, this->CellId, this->VertId, this->Prop );
-
+    int procid;
+    this->Prop = 0;
+    unsigned int dpos[2] = {0, 0};
+    if (displayPos[0] >= 0 && displayPos[1] >= 0)
+      {
+      dpos[0] = static_cast<unsigned int>(displayPos[0]);
+      dpos[1] = static_cast<unsigned int>(displayPos[1]);
+      this->Selector->GetPixelInformation(dpos,
+        procid, this->CellId, this->Prop);
+      }
     this->LastQueriedDisplayPos[0] = displayPos[0];
     this->LastQueriedDisplayPos[1] = displayPos[1];
     this->NeedToUpdate             = false;

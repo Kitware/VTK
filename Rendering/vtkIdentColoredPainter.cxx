@@ -37,7 +37,7 @@
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.25");
+vtkCxxRevisionMacro(vtkIdentColoredPainter, "1.26");
 vtkStandardNewMacro(vtkIdentColoredPainter);
 
 //-----------------------------------------------------------------------------
@@ -391,7 +391,7 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
           color[1] = 0;
           color[2] = 0;
           device->WriteStencil(cellId);
-          device->MakeVertexEmphasis(0);
+          device->MakeVertexEmphasisWithStencilCheck(0);
           }
         else
           {
@@ -399,7 +399,7 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
           this->GetCurrentColor(color);
           tmode = VTK_POLY_VERTEX;
           device->TestStencil(cellId);
-          device->MakeVertexEmphasis(1);
+          device->MakeVertexEmphasisWithStencilCheck(1);
           }          
         }
       
@@ -440,7 +440,7 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
         if (this->ColorMode == COLORBYVERTEX)
           {
           device->Stencil(0);
-          device->MakeVertexEmphasis(0);
+          device->MakeVertexEmphasisWithStencilCheck(0);
           }
         return;
         }
@@ -449,7 +449,7 @@ void vtkIdentColoredPainter::DrawCells(int mode, vtkCellArray *connectivity,
   if (this->ColorMode == COLORBYVERTEX)
     {
     device->Stencil(0);
-    device->MakeVertexEmphasis(0);
+    device->MakeVertexEmphasisWithStencilCheck(0);
     }
 }
 

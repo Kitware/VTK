@@ -73,7 +73,7 @@ class vtkTreeFieldAggregator;
 class vtkVertexDegree;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
-class vtkVisibleCellSelector;
+class vtkHardwareSelector;
 
 
 class VTK_VIEWS_EXPORT vtkHierarchicalGraphView : public vtkRenderView
@@ -337,7 +337,7 @@ protected:
   // Selection objects
   vtkSmartPointer<vtkSelection>                    EmptySelection;
   vtkSmartPointer<vtkKdTreeSelector>               KdTreeSelector;
-  vtkSmartPointer<vtkVisibleCellSelector>          VisibleCellSelector;
+  vtkSmartPointer<vtkHardwareSelector>             HardwareSelector;
   vtkSmartPointer<vtkExtractSelectedGraph>         ExtractSelectedGraph;
   vtkSmartPointer<vtkGraphHierarchicalBundle>      SelectedGraphHBundle;
   vtkSmartPointer<vtkSplineFilter>                 SelectedGraphSpline;

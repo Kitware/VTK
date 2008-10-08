@@ -115,7 +115,6 @@ public:
     cout << "DisplayPosition : (" << e[0] << "," << e[1] << ")"
          << " Prop: "     << m_ActorDescription[m_Picker->GetViewProp(e)].c_str()
          << " CellId: "   << m_Picker->GetCellId(e) 
-         << " VertexId: " << m_Picker->GetVertexId(e)
          << endl;
     }
   
@@ -158,6 +157,7 @@ int TestScenePicker(int argc, char* argv[])
   command->SetActorDescription( CreateActor2( argc, argv, ren ), "Sphere" );
   iren->AddObserver(vtkCommand::MouseMoveEvent, command);
 
+  picker->EnableVertexPickingOff();
   renWin->Render();
 
   int retVal = EXIT_SUCCESS;
@@ -184,7 +184,7 @@ int TestScenePicker(int argc, char* argv[])
   iren->Initialize();
   
   if (tryit)
-    {  
+    {
     // Check if scene picking works.
     if (command->m_ActorDescription[picker->GetViewProp(e)] != "Head" ||
         picker->GetCellId(e) != 50992)

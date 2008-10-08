@@ -51,13 +51,13 @@
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
-#include "vtkVisibleCellSelector.h"
+#include "vtkHardwareSelector.h"
 
 #include <vtksys/stl/set>
 
 using vtksys_stl::set;
 
-vtkCxxRevisionMacro(vtkTreeLayoutView, "1.12");
+vtkCxxRevisionMacro(vtkTreeLayoutView, "1.13");
 vtkStandardNewMacro(vtkTreeLayoutView);
 //----------------------------------------------------------------------------
 vtkTreeLayoutView::vtkTreeLayoutView()
@@ -77,7 +77,7 @@ vtkTreeLayoutView::vtkTreeLayoutView()
   this->EdgeActor              = vtkActor::New();
   this->LabelMapper            = vtkDynamic2DLabelMapper::New();
   this->LabelActor             = vtkActor2D::New();
-  this->VisibleCellSelector    = vtkVisibleCellSelector::New();
+  this->HardwareSelector       = vtkHardwareSelector::New();
   this->KdTreeSelector         = vtkKdTreeSelector::New();
   this->ExtractSelectedGraph   = vtkExtractSelectedGraph::New();
   this->SelectionToPolyData    = vtkGraphToPolyData::New();
@@ -191,7 +191,7 @@ vtkTreeLayoutView::~vtkTreeLayoutView()
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
   this->KdTreeSelector->Delete();
-  this->VisibleCellSelector->Delete();
+  this->HardwareSelector->Delete();
   this->ExtractSelectedGraph->Delete();
   this->SelectionToPolyData->Delete();
   this->SelectionVertexGlyph->Delete();
@@ -533,15 +533,15 @@ void vtkTreeLayoutView::ProcessEvents(
       unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
       unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
       unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
-      this->VisibleCellSelector->SetRenderer(this->Renderer);
+      this->HardwareSelector->SetRenderer(this->Renderer);
       //cerr << "area=" << screenMinX << "," << screenMaxX << "," << screenMinY << "," << screenMaxY << endl;
-      this->VisibleCellSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-      this->VisibleCellSelector->SetProcessorId(0);
-      this->VisibleCellSelector->SetRenderPasses(0, 0, 0, 0, 1);
-      this->VisibleCellSelector->Select();  
+      this->HardwareSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
+      this->HardwareSelector->SetProcessorId(0);
+      this->HardwareSelector->SetRenderPasses(0, 0, 0, 0, 1);
+      this->HardwareSelector->Select();  
       vtkSmartPointer<vtkIdTypeArray> ids = 
         vtkSmartPointer<vtkIdTypeArray>::New();
-      this->VisibleCellSelector->GetSelectedIds(ids);
+      this->HardwareSelector->GetSelectedIds(ids);
       
       // Set the opacity back to the original value.
       this->EdgeActor->GetProperty()->SetOpacity(opacity);
@@ -730,8 +730,8 @@ void vtkTreeLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->LabelMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "KdTreeSelector: " << endl;
   this->KdTreeSelector->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VisibleCellSelector: " << endl;
-  this->VisibleCellSelector->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "HardwareSelector: " << endl;
+  this->HardwareSelector->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ExtractSelectedGraph: " << endl;
   this->ExtractSelectedGraph->PrintSelf(os, indent.GetNextIndent());
   os << indent << "SelectionToPolyData: " << endl;

@@ -30,12 +30,12 @@
 // .SECTION Caveats
 // - Unlike a vtkHoverWidget, this class is not timer based. The hover widget
 //   picks a scene when the mouse is over an actor for a specified duration.
-// - This class uses a vtkVisibleCellSelector under the hood. Hence, it will
+// - This class uses a vtkHardwareSelector under the hood. Hence, it will
 //   work only for actors that have opaque geomerty and are rendered by a 
 //   vtkPolyDataMapper.
 // 
 // .SECTION See Also
-// vtkHoverWidget vtkVisibleCellSelector
+// vtkHoverWidget vtkHardwareSelector
 
 #ifndef __vtkScenePicker_h
 #define __vtkScenePicker_h
@@ -44,7 +44,7 @@
 
 class vtkRenderer;
 class vtkProp;
-class vtkVisibleCellSelector;
+class vtkHardwareSelector;
 class vtkRenderWindowInteractor;
 class vtkScenePickerSelectionRenderCommand;
 
@@ -101,7 +101,7 @@ protected:
   // Pick render a region of the renderwindow
   void PickRender( int x0, int y0, int x1, int y1 );
 
-  // Internal update method retrieves info from the VisibleCellSelector
+  // Internal update method retrieves info from the Selector
   void Update( int displayPos[2] );
 
   // The RenderWindowInteractor must be set, so that avoid scene picks (which
@@ -110,17 +110,17 @@ protected:
   void SetInteractor( vtkRenderWindowInteractor * );
   
   int                                     EnableVertexPicking;
-  vtkVisibleCellSelector                * VisibleCellSelector;
+  vtkHardwareSelector                   * Selector;
   vtkRenderer                           * Renderer;
   vtkRenderWindowInteractor             * Interactor;
   vtkIdType                               VertId;
   vtkIdType                               CellId;
   vtkProp                               * Prop;
   bool                                    NeedToUpdate;
-  bool                                    FirstTime;
   int                                     LastQueriedDisplayPos[2];
   vtkScenePickerSelectionRenderCommand  * SelectionRenderCommand;
 
+  vtkTimeStamp PickRenderTime;
 private:
   vtkScenePicker(
                  const vtkScenePicker&); // Not implemented.

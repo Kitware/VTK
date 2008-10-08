@@ -241,6 +241,14 @@ public:
   virtual void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
 
   // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Used by vtkHardwareSelector to determine if the prop supports hardware
+  // selection.
+  virtual bool GetSupportsSelection()
+    { return false; }
+
+  // Description:
   // Get the number of consumers
   vtkGetMacro(NumberOfConsumers,int);
   

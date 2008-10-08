@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.23");
+vtkCxxRevisionMacro(vtkOpenGLPainterDeviceAdapter, "1.24");
 vtkStandardNewMacro(vtkOpenGLPainterDeviceAdapter);
 #endif
 //-----------------------------------------------------------------------------
@@ -923,7 +923,7 @@ int vtkOpenGLPainterDeviceAdapter::QueryBlending()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
+void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
 {
   if (mode)
     {
@@ -937,9 +937,23 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
     this->RangeNear = nf[0];
     this->RangeFar = nf[1];
     glDepthRange(0.0, nf[1]*0.98);
-
     glDepthMask(GL_FALSE); //prevent verts from interfering with each other
+    }
+  else
+    {
+    glPointSize(this->PointSize);
+    glDepthRange(this->RangeNear, this->RangeFar);
+    glDepthMask(GL_TRUE);
+    }
+}
 
+#if !defined(VTK_LEGACY_REMOVE)
+//-----------------------------------------------------------------------------
+void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck(int mode)
+{
+  this->MakeVertexEmphasis(mode!=0);
+  if (mode)
+    {
     if (this->MaxStencil == 0)
       {
       //if we don't have the stencil buffer, act as if everything fails
@@ -949,15 +963,14 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(int mode)
     }
   else
     {
-    glPointSize(this->PointSize);
-    glDepthRange(this->RangeNear, this->RangeFar);
-    glDepthMask(GL_TRUE);
     if (this->MaxStencil == 0)
       {
-      glColorMask(1,1,1,1);
+      glColorMask(1, 1, 1, 1);
       }
     }
+
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)

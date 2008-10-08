@@ -45,8 +45,13 @@ class vtkCullerCollection;
 class vtkLight;
 class vtkPainter;
 class vtkIdentColoredPainter;
-class vtkVisibleCellSelector;
+class vtkHardwareSelector;
 class vtkRendererDelegate;
+
+#if !defined(VTK_LEGACY_REMOVE)
+class vtkVisibleCellSelector;
+#endif
+
 
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
@@ -320,6 +325,13 @@ public:
   vtkGetMacro(Layer, int);
 
   // Description:
+  // Normally a renderer is treated as transparent if Layer > 0. To treat a
+  // renderer at Layer 0 as transparent, set this flag to true.
+  vtkSetMacro(PreserveDepthBuffer, int);
+  vtkGetMacro(PreserveDepthBuffer, int);
+  vtkBooleanMacro(PreserveDepthBuffer, int);
+
+  // Description:
   // Returns a boolean indicating if this renderer is transparent.  It is
   // transparent if it is not in the deepest layer of its render window.
   int  Transparent();
@@ -435,6 +447,12 @@ public:
   void SetDelegate(vtkRendererDelegate *d);
   vtkGetObjectMacro(Delegate,vtkRendererDelegate);
 
+  // Description:
+  // Get the current hardware selector. If the Selector is set, it implies the
+  // current render pass is for selection. Mappers/Properties may choose to
+  // behave differently when rendering for hardware selection.
+  vtkGetObjectMacro(Selector, vtkHardwareSelector);
+//BTX
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -490,6 +508,7 @@ protected:
   // Shows what layer this renderer belongs to.  Only of interested when
   // there are layered renderers.
   int                Layer;
+  int                PreserveDepthBuffer;
 
   // Holds the result of ComputeVisiblePropBounds so that it is visible from
   // wrapped languages
@@ -581,10 +600,9 @@ protected:
   // Initial value is false.
   int LastRenderingUsedDepthPeeling;
   
+#if !defined(VTK_LEGACY_REMOVE)
   // VISIBLE CELL SELECTION ----------------------------------------
-  //BTX  
   friend class vtkVisibleCellSelector;
-  friend class vtkRendererDelegate;
 
   //Description:
   // Call to put the Renderer into a mode in which it will color visible 
@@ -593,7 +611,7 @@ protected:
   enum {NOT_SELECTING = 0, COLOR_BY_PROCESSOR, COLOR_BY_ACTOR, 
         COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW,
         COLOR_BY_VERTEX};  
-  //ETX
+
   vtkSetMacro(SelectMode, int);
   vtkSetMacro(SelectConst, unsigned int);
 
@@ -629,14 +647,27 @@ protected:
   unsigned int SelectConst;
   vtkIdentColoredPainter *IdentPainter;
   // End Ivars for visible cell selecting.
+#endif
+
+  // HARDWARE SELECTION ----------------------------------------
+  friend class vtkHardwareSelector;
+
+  // Description:
+  // Called by vtkHardwareSelector when it begins rendering for selection.
+  void SetSelector(vtkHardwareSelector* selector)
+    { this->Selector = selector; this->Modified(); }
+
+  // End Ivars for visible cell selecting.
+  vtkHardwareSelector* Selector;
 
   //---------------------------------------------------------------
-
+  friend class vtkRendererDelegate;
   vtkRendererDelegate *Delegate;
 
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.
+//ETX
 };
 
 inline vtkLightCollection *vtkRenderer::GetLights() {

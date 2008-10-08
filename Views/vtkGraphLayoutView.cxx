@@ -67,11 +67,11 @@
 #include "vtkVertexDegree.h"
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
-#include "vtkVisibleCellSelector.h"
+#include "vtkHardwareSelector.h"
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.41");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.42");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -98,7 +98,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
   this->VertexLabelActor       = vtkSmartPointer<vtkActor2D>::New();
   this->EdgeLabelMapper        = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
   this->EdgeLabelActor         = vtkSmartPointer<vtkActor2D>::New();
-  this->VisibleCellSelector    = vtkSmartPointer<vtkVisibleCellSelector>::New();
+  this->HardwareSelector       = vtkSmartPointer<vtkHardwareSelector>::New();
   this->KdTreeSelector         = vtkSmartPointer<vtkKdTreeSelector>::New();
   this->ExtractSelectedGraph   = vtkSmartPointer<vtkExtractSelectedGraph>::New();
   this->SelectedGraphMapper    = vtkSmartPointer<vtkGraphMapper>::New();
@@ -895,21 +895,26 @@ void vtkGraphLayoutView::ProcessEvents(
       unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
       unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
       unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
-      this->VisibleCellSelector->SetRenderer(this->Renderer);
-      this->VisibleCellSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
-      this->VisibleCellSelector->SetProcessorId(0);
-      this->VisibleCellSelector->SetRenderPasses(0, 0, 0, 0, 1);
-      this->VisibleCellSelector->Select();  
-      vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
-      this->VisibleCellSelector->GetSelectedIds(ids);
+      this->HardwareSelector->SetRenderer(this->Renderer);
+      this->HardwareSelector->SetArea(screenMinX, screenMinY, screenMaxX, screenMaxY);
+      this->HardwareSelector->SetFieldAssociation(
+        vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      vtkSmartPointer<vtkSelection> sel;
+      sel.TakeReference(this->HardwareSelector->Select());
+      vtkSmartPointer<vtkIdTypeArray> ids;
+      if (sel)
+        {
+        sel = sel->GetChild(0);
+        ids = sel? vtkIdTypeArray::SafeDownCast(sel->GetSelectionList()) : 0;
+        }
 
       // Turn off the special edge actor
       this->EdgeSelectionActor->VisibilityOff();
       
       vtkSmartPointer<vtkIdTypeArray> selectedIds = vtkSmartPointer<vtkIdTypeArray>::New();
-      for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
+      for (vtkIdType i = 0; ids && (i < ids->GetNumberOfTuples()); i++)
         {
-        vtkIdType edge = ids->GetValue(4*i+3);
+        vtkIdType edge = ids->GetValue(i);
         selectedIds->InsertNextValue(edge);
         if (singleSelectMode)
           {
@@ -1071,8 +1076,8 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
   this->EdgeLabelMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "KdTreeSelector: " << endl;
   this->KdTreeSelector->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "VisibleCellSelector: " << endl;
-  this->VisibleCellSelector->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "HardwareSelector: " << endl;
+  this->HardwareSelector->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ExtractSelectedGraph: " << endl;
   this->ExtractSelectedGraph->PrintSelf(os, indent.GetNextIndent());
   os << indent << "LayoutStrategyName: "

@@ -13,10 +13,11 @@
 
 =========================================================================*/
 
-// .NAME vtkIdentColoredPainter - A vtkPolyDataPainter that colors each polygon
+// .NAME vtkIdentColoredPainter - DEPRECATED A vtkPolyDataPainter that colors each polygon
 // with a color coded integer.
 //
 // .SECTION Description
+// DEPRECATED. Refer to vtkHardwareSelectionPolyDataPainter instead.
 // This painter will color each polygon in a color that encodes an integer.
 // Doing so allows us to determine what polygon is behind each pixel on the 
 // screen.

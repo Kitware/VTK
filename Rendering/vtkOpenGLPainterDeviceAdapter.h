@@ -128,7 +128,10 @@ public:
   // Turns emphasis of vertices on or off for vertex selection.
   // When emphasized verts are drawn nearer to the camera and are drawn 
   // larger than normal to make selection of them more reliable.
-  virtual void MakeVertexEmphasis(int mode);
+  virtual void MakeVertexEmphasis(bool mode);
+#if !defined(VTK_LEGACY_REMOVE)
+  virtual void MakeVertexEmphasisWithStencilCheck(int mode);
+#endif
 
   // Description:
   // Control use of the stencil buffer (for vertex selection).

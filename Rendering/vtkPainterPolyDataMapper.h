@@ -83,7 +83,19 @@ public:
   // Description:
   // Remove all vertex attributes.
   virtual void RemoveAllVertexAttributeMappings();
-    
+  
+  // Description:
+  // Get/Set the painter used when rendering the selection pass.
+  vtkGetObjectMacro(SelectionPainter, vtkPainter);
+  void SetSelectionPainter(vtkPainter*);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Used by vtkHardwareSelector to determine if the prop supports hardware
+  // selection.
+  virtual bool GetSupportsSelection()
+    { return (this->SelectionPainter != 0); }
 protected:
   vtkPainterPolyDataMapper();
   ~vtkPainterPolyDataMapper();
@@ -100,6 +112,9 @@ protected:
   vtkInformation* PainterInformation;
   vtkTimeStamp PainterUpdateTime;
   vtkPainter* Painter;
+  // Painter used when rendering for hardware selection 
+  // (look at vtkHardwareSelector).
+  vtkPainter* SelectionPainter;
   vtkPainterPolyDataMapperObserver* Observer;
 private:
   vtkPainterPolyDataMapper(const vtkPainterPolyDataMapper&); // Not implemented.

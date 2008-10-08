@@ -13,9 +13,10 @@
 
 =========================================================================*/
 // .NAME vtkVisibleCellSelector - A helper that orchestrates color buffer
-// visible cell selection.
+// visible cell selection. This is deprecated. Refer to vtkHardwareSelector instead.
 //
 // .SECTION Description
+// DEPRECATED: Please refer to vtkHardwareSelector instead.
 // This class can be used to determine what cells are visible within a given
 // rectangle of the RenderWindow. To use it, call in order, SetRenderer(), 
 // SetArea(), SetProcessorId(), SetRenderPasses(), and then Select(). Select 

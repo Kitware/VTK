@@ -48,7 +48,7 @@ public:
   MapOfTextures Textures;
 };
 
-vtkCxxRevisionMacro(vtkProperty, "1.73");
+vtkCxxRevisionMacro(vtkProperty, "1.74");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -850,7 +850,13 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
 {
   // subclass would have renderer the property already.
   // this class, just handles the shading.
-  
+ 
+  if (renderer->GetSelector())
+    {
+    // nothing to do when rendering for hardware selection.
+    return;
+    }
+
   // Render all the textures.
   vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.begin();
@@ -870,6 +876,12 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
 //----------------------------------------------------------------------------
 void vtkProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
 {
+  if (renderer->GetSelector())
+    {
+    // nothing to do when rendering for hardware selection.
+    return;
+    }
+
   if (this->ShaderProgram && this->Shading)
     {
     this->ShaderProgram->PostRender(actor, renderer);

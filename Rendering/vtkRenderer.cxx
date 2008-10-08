@@ -23,7 +23,7 @@
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkGraphicsFactory.h"
-#include "vtkIdentColoredPainter.h"
+#include "vtkHardwareSelector.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
@@ -33,15 +33,18 @@
 #include "vtkPicker.h"
 #include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"
+#include "vtkRendererDelegate.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
-#include "vtkRendererDelegate.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.241");
-
-vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
+vtkCxxRevisionMacro(vtkRenderer, "1.242");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
+
+#if !defined(VTK_LEGACY_REMOVE)
+#include "vtkIdentColoredPainter.h"
+vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
+#endif
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -89,6 +92,7 @@ vtkRenderer::vtkRenderer()
   this->PathArrayCount = 0;
 
   this->Layer                    = 0;
+  this->PreserveDepthBuffer = 0;
 
   this->ComputedVisiblePropBounds[0] = VTK_DOUBLE_MAX;
   this->ComputedVisiblePropBounds[1] = -VTK_DOUBLE_MAX;
@@ -109,17 +113,20 @@ vtkRenderer::vtkRenderer()
   this->Erase = 1;
   this->Draw = 1;
 
+#if !defined(VTK_LEGACY_REMOVE)
   this->SelectMode = vtkRenderer::NOT_SELECTING;
   this->SelectConst = 1;
   this->PropsSelectedFrom = NULL;
   this->PropsSelectedFromCount = 0;
   this->IdentPainter = NULL;
-  
+#endif
+
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
 
+  this->Selector = 0;
   this->Delegate=0;
 }
 
@@ -153,6 +160,7 @@ vtkRenderer::~vtkRenderer()
   this->Cullers->Delete();
   this->Cullers = NULL;
 
+#if !defined(VTK_LEGACY_REMOVE)
   if ( this->PropsSelectedFrom)
     {
     delete [] this->PropsSelectedFrom;
@@ -164,6 +172,7 @@ vtkRenderer::~vtkRenderer()
     this->IdentPainter->Delete();
     this->IdentPainter = NULL;
     }
+#endif
 
 }
 
@@ -549,6 +558,7 @@ int vtkRenderer::UpdateGeometry()
     return 0;
     }
 
+#if !defined(VTK_LEGACY_REMOVE)
   if (this->SelectMode != vtkRenderer::NOT_SELECTING)
     {
     //we are doing a visible polygon selection instead of a normal render
@@ -561,6 +571,20 @@ int vtkRenderer::UpdateGeometry()
                    this->NumberOfPropsRendered << " actors" );
 
     return ret;
+    }
+#endif
+
+  if (this->Selector)
+    {
+    // When selector is present, we are performing a selection,
+    // so do the selection rendering pass instead of the normal passes.
+    // Delegate the rendering of the props to the selector itself.
+    this->NumberOfPropsRendered = this->Selector->Render(this,
+      this->PropArray, this->PropArrayCount);
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
+    this->RenderTime.Modified();
+    vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors" );
+    return this->NumberOfPropsRendered;
     }
 
   // We can render everything because if it was
@@ -591,8 +615,6 @@ int vtkRenderer::UpdateGeometry()
     this->DeviceRenderTranslucentPolygonalGeometry();
     }
   
-  
-    
   // loop through props and give them a chance to 
   // render themselves as volumetric geometry.
   for ( i = 0; i < this->PropArrayCount; i++ )
@@ -1302,6 +1324,8 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
      << (this->AutomaticLightCreation ? "On\n" : "Off\n");
 
   os << indent << "Layer = " << this->Layer << "\n";
+  os << indent << "PreserveDepthBuffer: " <<
+    (this->PreserveDepthBuffer? "On" : "Off") << "\n";
   os << indent << "Interactive = " << (this->Interactive ? "On" : "Off") 
      << "\n";
 
@@ -1715,6 +1739,7 @@ double vtkRenderer::GetTiledAspectRatio()
   return finalAspect;
 }
 
+#if !defined(VTK_LEGACY_REMOVE)
 //----------------------------------------------------------------------------
 int vtkRenderer::UpdateGeometryForSelection()
 {
@@ -1892,3 +1917,4 @@ void vtkRenderer::SwapOutSelectablePainter(
     prop->SetVisibility(orig_visibility);
     }
 }
+#endif

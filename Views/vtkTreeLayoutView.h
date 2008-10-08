@@ -42,7 +42,7 @@ class vtkPolyDataMapper;
 class vtkTreeLayoutStrategy;
 class vtkVertexGlyphFilter;
 class vtkViewTheme;
-class vtkVisibleCellSelector;
+class vtkHardwareSelector;
 
 class VTK_VIEWS_EXPORT vtkTreeLayoutView : public vtkRenderView
 {
@@ -192,7 +192,7 @@ protected:
   
   // Selection objects
   vtkKdTreeSelector*        KdTreeSelector;
-  vtkVisibleCellSelector*   VisibleCellSelector;
+  vtkHardwareSelector*      HardwareSelector;
   vtkExtractSelectedGraph*  ExtractSelectedGraph;
   vtkGraphToPolyData*       SelectionToPolyData;
   vtkVertexGlyphFilter*     SelectionVertexGlyph;
