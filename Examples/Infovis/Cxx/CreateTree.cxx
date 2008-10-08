@@ -21,6 +21,7 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkRandomGraphSource.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"
@@ -62,6 +63,7 @@ int main(int, char*[])
   
   vtkRenderWindow* window = vtkRenderWindow::New();
   view->SetupRenderWindow(window);
+  view->GetRenderer()->ResetCamera();
   window->GetInteractor()->Start();
   
   graph->Delete();
