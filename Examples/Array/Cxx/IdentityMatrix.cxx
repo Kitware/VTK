@@ -23,11 +23,12 @@ int main(int argc, char* argv[])
   
   // Create a sparse identity matrix:
   vtkSparseArray<double>* matrix = vtkSparseArray<double>::New();
-  matrix->Resize(vtkArrayExtents(size, size));
+  matrix->Resize(0, 0); // To set the number of dimensions
   for(int n = 0; n != size; ++n)
     {
     matrix->AddValue(vtkArrayCoordinates(n, n), 1);
     }
+  matrix->ResizeToContents(); // To synchronize the array extents with newly-added values.
   
   cout << "matrix:\n";
   vtkPrintMatrixFormat(cout, matrix);
