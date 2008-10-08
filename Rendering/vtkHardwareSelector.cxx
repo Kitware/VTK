@@ -46,7 +46,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.2");
+vtkCxxRevisionMacro(vtkHardwareSelector, "1.3");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
@@ -176,11 +176,11 @@ bool vtkHardwareSelector::PassRequired(int pass)
     return (this->ProcessID >= 0);
 
   case ID_MID24:
-      return (this->MaxAttributeId >= 0xffffff);
+    return (this->MaxAttributeId >= 0xffffff);
 
   case ID_HIGH16:
-      int upper = (0xffffff & (this->MaxAttributeId >> 24));
-      return (upper > 0);
+    int upper = (0xffffff & (this->MaxAttributeId >> 24));
+    return (upper > 0);
     }
   return true;
 }
@@ -431,13 +431,13 @@ vtkSelection* vtkHardwareSelector::GenerateSelection()
       int mid24 = this->Convert(xx, yy, this->PixBuffer[ID_MID24]);
       int high16 = this->Convert(xx, yy, this->PixBuffer[ID_HIGH16]);
       // id 0 is reserved for nothing present.
-      vtkIdType id = this->GetID(low24, mid24, high16);
-      id -= ID_OFFSET;
-      if (id < 0)
+      vtkIdType elemid = this->GetID(low24, mid24, high16);
+      elemid = (elemid - ID_OFFSET);
+      if (elemid < 0)
         {
         continue;
         }
-      dataMap[processid][actorid].insert(id);
+      dataMap[processid][actorid].insert(elemid);
       pixelCounts[processid][actorid]++;
       }
     }
