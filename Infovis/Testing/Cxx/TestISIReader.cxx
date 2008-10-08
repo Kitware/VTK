@@ -39,7 +39,7 @@ int TestISIReader(int argc, char* argv[])
 
   vtkSmartPointer<vtkISIReader> reader = vtkSmartPointer<vtkISIReader>::New();
   reader->SetFileName(file);
-
+  delete[] file;
   reader->Update(); 
   vtkTable* const table = reader->GetOutput();
 
