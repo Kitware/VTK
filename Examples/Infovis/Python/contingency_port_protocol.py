@@ -1,6 +1,6 @@
 from vtk import *
 
-data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "ports_protocols.db"
 database = vtkSQLDatabase.CreateFromURL("sqlite://" + sqlite_file)
 database.Open("")
@@ -29,9 +29,7 @@ graph.AddLinkVertex("dst", "ip", False)
 graph.AddLinkEdge("src", "dst")
 graph.SetVertexTableConnection(vertex_table.GetOutputPort())
 graph.Update()
-print graph.GetOutput()
 
-print cs.GetOutput()
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(graph.GetOutputPort())
@@ -40,21 +38,18 @@ view.SetVertexLabelArrayName("hostname")
 view.SetVertexLabelVisibility(True)
 view.SetVertexColorArrayName("hostname")
 view.SetColorVertices(True)
-
 view.SetEdgeLabelArrayName("protocol")
 view.SetEdgeLabelVisibility(True)
 view.SetEdgeColorArrayName("p(dport | protocol)")
 view.SetColorEdges(True)
-
 view.SetLayoutStrategyToSimple2D()
 
 theme = vtkViewTheme.CreateMellowTheme()
-theme.SetCellColor(.2,.2,.6)
-theme.SetLineWidth(2)
+theme.SetLineWidth(4)
 view.ApplyViewTheme(theme)
 
 window = vtkRenderWindow()
-window.SetSize(1000, 1000)
+window.SetSize(600, 600)
 view.SetupRenderWindow(window)
 view.GetRenderer().ResetCamera()
 window.GetInteractor().Start()
