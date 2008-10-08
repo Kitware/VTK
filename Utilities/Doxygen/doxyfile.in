@@ -16,7 +16,7 @@ GENERATE_HTMLHELP    = YES
 GENERATE_LATEX       = NO
 GENERATE_MAN         = NO
 GENERATE_RTF         = NO
-GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4.tag"
+GENERATE_TAGFILE     = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.tag"
 
 PDF_HYPERLINKS       = YES
 
@@ -91,7 +91,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestDriver.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestingColors.h"
 
-# TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://www.vtk.org/doc/nightly/html
+# TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
 EXTRACT_ALL          = YES
 EXTRACT_PRIVATE      = NO
