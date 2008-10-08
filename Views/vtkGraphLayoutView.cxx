@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.42");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.43");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -995,12 +995,7 @@ void vtkGraphLayoutView::ApplyViewTheme(vtkViewTheme* theme)
     
   // Pass theme to the graph mapper
   this->GraphMapper->ApplyViewTheme(theme);
-  
-  // Set vertex size and edge size on mapper
-  this->GraphMapper->SetVertexPointSize(theme->GetPointSize());
-  this->GraphMapper->SetEdgeLineWidth(theme->GetLineWidth());
-  
-  
+    
   // Pull selection info from theme, create a new theme, 
   // and pass to the selection graph mapper
   vtkViewTheme *selectTheme = vtkViewTheme::New();
