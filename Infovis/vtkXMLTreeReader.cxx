@@ -34,7 +34,7 @@
 #include VTKLIBXML2_HEADER(parser.h)
 #include VTKLIBXML2_HEADER(tree.h)
 
-vtkCxxRevisionMacro(vtkXMLTreeReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLTreeReader, "1.10");
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char * vtkXMLTreeReader::TagNameField = ".tagname";
@@ -47,6 +47,7 @@ vtkXMLTreeReader::vtkXMLTreeReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->ReadCharData = 0;
+  this->ReadTagName = 1;
   this->MaskArrays = 0;
   this->EdgePedigreeIdArrayName = 0;
   this->SetEdgePedigreeIdArrayName("edge id");
@@ -71,6 +72,8 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "ReadCharData: "
      << (this->ReadCharData ? "on" : "off") << endl;
+  os << indent << "ReadTagName: "
+     << (this->ReadTagName ? "on" : "off") << endl;
   os << indent << "MaskArrays: "
      << (this->MaskArrays ? "on" : "off") << endl;
   os << indent << "XMLString: " 
@@ -114,7 +117,10 @@ void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
       }
 
     // Append the node tag and character data to the vtkPointData
-    nameArr->InsertValue(vertex, reinterpret_cast<const char*>(curNode->name));
+    if (nameArr) // If the reader has ReadTagName = ON then populate this array 
+      {
+      nameArr->InsertValue(vertex, reinterpret_cast<const char*>(curNode->name));
+      }
     
     // Append the element attributes to the vtkPointData
     for (xmlAttr *curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
@@ -198,10 +204,14 @@ int vtkXMLTreeReader::RequestData(
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   vtkDataSetAttributes *data = builder->GetVertexData();
-  vtkStringArray *nameArr = vtkStringArray::New();
-  nameArr->SetName(vtkXMLTreeReader::TagNameField);
-  data->AddArray(nameArr);
-  nameArr->Delete();
+  
+  if (this->ReadTagName)
+    {
+    vtkStringArray *nameArr = vtkStringArray::New();
+    nameArr->SetName(vtkXMLTreeReader::TagNameField);
+    data->AddArray(nameArr);
+    nameArr->Delete();
+    }
 
   if (this->ReadCharData)
     {

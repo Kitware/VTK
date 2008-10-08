@@ -132,6 +132,15 @@ public:
   vtkGetMacro(ReadCharData, bool);
   vtkSetMacro(ReadCharData, bool);
   vtkBooleanMacro(ReadCharData, bool);
+  
+  // Description:
+  // If on, stores the XML tag name data in a field called .tagname
+  // otherwise this field is skipped.
+  // Default is on.
+  vtkGetMacro(ReadTagName, bool);
+  vtkSetMacro(ReadTagName, bool);
+  vtkBooleanMacro(ReadTagName, bool);
+
 
   static const char * TagNameField;
   static const char * CharDataField;
@@ -142,6 +151,7 @@ protected:
   char* FileName;
   char* XMLString;
   bool ReadCharData;
+  bool ReadTagName;
   bool MaskArrays;
   char* EdgePedigreeIdArrayName;
   char* VertexPedigreeIdArrayName;
