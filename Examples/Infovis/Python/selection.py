@@ -78,6 +78,10 @@ view2.GetRepresentation(0).SetSelectionLink(selectionLink)
 view3.GetRepresentation(0).SetSelectionLink(selectionLink)
 selectionLink.SetSelection(sel.GetOutput())
 
+updater = vtkViewUpdater()
+updater.AddView(view)
+updater.AddView(view2)
+updater.AddView(view3)
 
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
