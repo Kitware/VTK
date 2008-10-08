@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.20");
+vtkCxxRevisionMacro(vtkFast2DLayoutStrategy, "1.21");
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
 // This is just a convenient macro for smart pointers
@@ -88,6 +88,10 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
 vtkFast2DLayoutStrategy::~vtkFast2DLayoutStrategy()
 {
   this->SetEdgeWeightField(0);
+  if(this->EdgeArray!=0)
+    {
+    delete[] this->EdgeArray;
+    }
 }
 
 
