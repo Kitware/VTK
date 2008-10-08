@@ -23,3 +23,8 @@ TARGET_LINK_LIBRARIES(CreateTree vtkViews vtkInfovis vtkRendering vtkImaging vtk
 
 ADD_EXECUTABLE(MultiView MultiView.cxx)
 TARGET_LINK_LIBRARIES(MultiView vtkViews vtkInfovis vtkRendering vtkImaging vtkIO)
+
+# Excluding from build for now because there is currently no way to check
+# if VTK_USE_PARALLEL_BGL is on.
+#ADD_EXECUTABLE(ParallelBFS ParallelBFS.cxx)
+#TARGET_LINK_LIBRARIES(ParallelBFS vtkParallel vtkViews)
