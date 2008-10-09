@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.43");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.44");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -879,11 +879,12 @@ void vtkGraphLayoutView::ProcessEvents(
       kdSelection, data, this->SelectionType, this->SelectionArrayNames));
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
-    selection->SetContentType(vtkSelection::SELECTIONS);
+    //selection->SetContentType(vtkSelection::SELECTIONS);
 
     if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
       {
-      selection->AddChild(vertexSelection);
+      selection = vertexSelection;
+      //selection->AddChild(vertexSelection);
       }
     else
       {
@@ -932,10 +933,11 @@ void vtkGraphLayoutView::ProcessEvents(
       edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
         edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
 
-      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
-        {
-        selection->AddChild(edgeSelection);
-        }
+      //if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+        //{
+        selection = edgeSelection;
+        //selection->AddChild(edgeSelection);
+        //}
       }
 
     // If this is a union selection, append the selection
