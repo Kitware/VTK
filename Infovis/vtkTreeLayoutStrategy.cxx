@@ -26,6 +26,7 @@
 #include "vtkBoostBreadthFirstSearchTree.h"
 #endif
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -35,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.9");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.10");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -71,10 +72,20 @@ void vtkTreeLayoutStrategy::Layout()
     vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
 #endif
     }
-  
+
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->SetNumberOfPoints(tree->GetNumberOfVertices());
 
+  vtkDoubleArray *anglesArray = vtkDoubleArray::New();
+  if( this->Radial )
+  {
+    anglesArray->SetName( "subtended_angles" );
+    anglesArray->SetNumberOfComponents(2);
+    anglesArray->SetNumberOfTuples(tree->GetNumberOfVertices());
+    vtkDataSetAttributes *data = tree->GetVertexData();
+    data->AddArray(anglesArray);
+  }
+  
   // Check if the distance array is defined.
   vtkDataArray* distanceArr = NULL;
   if (this->DistanceArrayName != NULL)
@@ -214,6 +225,15 @@ void vtkTreeLayoutStrategy::Layout()
         ang = angleInDegrees * vtkMath::Pi() / 180.0;
 
         curPlace += leafSpacing;
+
+          //add the subtended angles to an array for possible use later...
+        double subtended_angle[2];
+        double total_arc = (curPlace*this->Angle) - (90.+this->Angle/2.) - angleInDegrees;
+        double angle1 = angleInDegrees - (total_arc/2.) + 360.;
+        double angle2 = angleInDegrees + (total_arc/2.) + 360.;
+        subtended_angle[0] = angle1;
+        subtended_angle[1] = angle2;
+        anglesArray->SetTuple( vertex, subtended_angle );
         }
       else
         {
@@ -256,6 +276,18 @@ void vtkTreeLayoutStrategy::Layout()
           {
           ang += vtkMath::Pi();
           }
+
+          //add the subtended angles to an array for possible use later...
+        double subtended_angle[2];
+        double angle1 = vtkMath::RadiansToDegrees()*minAng;
+        double angle2 = vtkMath::RadiansToDegrees()*maxAng;
+        if( angle2 < angle1 )
+        {
+          angle2 += 360.;
+        }
+        subtended_angle[0] = angle1;
+        subtended_angle[1] = angle2;
+        anglesArray->SetTuple( vertex, subtended_angle );        
         }
       x = height * cos(ang);
       y = height * sin(ang);
@@ -325,6 +357,7 @@ void vtkTreeLayoutStrategy::Layout()
   // Clean up.
   iter->Delete();
   newPoints->Delete();
+  anglesArray->Delete();
 } 
 
 void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

@@ -37,6 +37,7 @@ vtkGraphToPolyData.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkInteractorStyleTreeMapHover.cxx
+vtkInteractorStyleTreeRingHover.cxx
 vtkLabeledTreeMapDataMapper.cxx
 vtkMergeColumns.cxx
 vtkMergeTables.cxx
@@ -66,6 +67,13 @@ vtkTreeMapLayout.cxx
 vtkTreeMapLayoutStrategy.cxx
 vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
+vtkTreeRingLayout.cxx
+vtkTreeRingDefaultLayoutStrategy.cxx
+vtkTreeRingExistingLayoutStrategy.cxx
+vtkTreeRingReversedLayoutStrategy.cxx
+vtkTreeRingLayoutStrategy.cxx
+vtkTreeRingToPolyData.cxx
+vtkTreeRingViewer.cxx
 vtkTulipReader.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 vtkVertexDegree.cxx
@@ -148,6 +156,7 @@ vtkEdgeLayoutStrategy.cxx
 vtkGraphLayoutStrategy.cxx
 vtkStatisticsAlgorithm.cxx
 vtkTreeMapLayoutStrategy.cxx
+vtkTreeRingLayoutStrategy.cxx
 vtkUnivariateStatisticsAlgorithm.cxx
 ABSTRACT
 )
