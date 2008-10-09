@@ -221,10 +221,6 @@ public:
   virtual void ExportToVoidPointer(void *out_ptr);
 
   // Description:
-  // Do not call.  Use GetRange.
-  virtual void ComputeRange(int comp);
-
-  // Description:
   // Returns a vtkArrayIteratorTemplate<T>.
   virtual vtkArrayIterator* NewIterator();
   
@@ -272,8 +268,8 @@ protected:
   int SaveUserArray;
   int DeleteMethod;
 
-  void ComputeScalarRange(int comp);
-  void ComputeVectorRange();
+  virtual void ComputeScalarRange(int comp);
+  virtual void ComputeVectorRange();
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.

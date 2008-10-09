@@ -84,7 +84,7 @@ public:
   // sizeof(vtkStdString::value_type), which winds up being
   // sizeof(char).  
   virtual int GetElementComponentSize() = 0;
-  
+
   // Description:
   // Set/Get the dimention (n) of the components. Must be >= 1. Make sure that
   // this is set before allocation.
@@ -121,7 +121,7 @@ public:
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
-  
+
   // Description:
   // Given a list of point ids, return an array of tuples.
   // You must insure that the output array has been previously 
@@ -167,7 +167,7 @@ public:
   virtual void InterpolateTuple(vtkIdType i, 
     vtkIdType id1, vtkAbstractArray* source1, 
     vtkIdType id2, vtkAbstractArray* source2, double t) =0;
-    
+
   // Description:
   // Free any unnecessary memory.
   // Description:
@@ -188,7 +188,7 @@ public:
   // Return the size of the data.
   vtkIdType GetSize() 
   {return this->Size;}
-  
+
   // Description:
   // What is the maximum id currently in the array.
   vtkIdType GetMaxId() 
@@ -219,7 +219,7 @@ public:
   // information returned is valid only after the pipeline has 
   // been updated.
   virtual unsigned long GetActualMemorySize() = 0;
-  
+
   // Description:
   // Set/get array's name
   vtkSetStringMacro(Name); 
@@ -258,7 +258,7 @@ public:
     {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
     }
-  
+
   //BTX
   // Description:
   // Return the indices where a specific value appears.
@@ -273,7 +273,7 @@ public:
   // Insert a value into the array from a variant.
   virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
   //ETX
-  
+
   // Description:
   // Tell the array explicitly that the data has changed.
   // This is only necessary to call when you modify the array contents
@@ -282,13 +282,13 @@ public:
   // the fast lookup will know to rebuild itself.  Otherwise, the lookup
   // functions will give incorrect results.
   virtual void DataChanged() = 0;
-  
+
   // Description:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
   virtual void ClearLookup() = 0;
-  
+
   // TODO: Implement these lookup functions also.
   //virtual void LookupRange(vtkVariant min, vtkVariant max, vtkIdList* ids,
   //  bool includeMin = true, bool includeMax = true) = 0;
@@ -297,17 +297,34 @@ public:
 
   // Description:
   // Get an information object that can be used to annotate the array.
-  // This is NULL by default; you are responsible for allocating an information object
-  // if none already exists.
+  // This will always return an instance of vtkInformation, if one is
+  // not currently associated with the array it will be created.
   vtkInformation* GetInformation();
+  // Description:
+  // Inquire if this array has an instance of vtkInformation 
+  // already associated with it.
+  bool HasInformation(){ return this->Information!=0; }
+  //BTX
+  // Description:
+  // Copy information instance. Arrays use information objects
+  // in a variety of ways. It is important to have flexibility in
+  // this regard because certain keys should not be coppied, while
+  // others must be.
+  // 
+  // NOTE: Subclasses must always call their superclass's CopyInformation
+  // method, so that all classes in the hierarchy get a chance to remove
+  // keys they do not wish to be coppied. The subclass will not need to
+  // explicilty copy the keys as it's handled here.
+  virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
+  //ETX
 
+protected:
   // Description:
   // Set an information object that can be used to annotate the array.
-  // This is NULL by default; you are responsible for allocating an information object
-  // if none already exists.
+  // Use this with caution as array instances depend on persistance of
+  // information keys. See CopyInformation.
   virtual void SetInformation( vtkInformation* );
-  
-protected:
+
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray(vtkIdType numComp=1);
   ~vtkAbstractArray();
@@ -317,7 +334,7 @@ protected:
   int NumberOfComponents; // the number of components per tuple
 
   char* Name;
-  
+
   bool RebuildArray;      // whether to rebuild the fast lookup data structure.
 
   vtkInformation* Information;

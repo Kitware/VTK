@@ -17,8 +17,9 @@
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.8");
+vtkCxxRevisionMacro(vtkFieldData, "1.9");
 vtkStandardNewMacro(vtkFieldData);
 
 //----------------------------------------------------------------------------
@@ -95,6 +96,21 @@ vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
     {
     this->Fields->Register(0);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkFieldData::BasicIterator::PrintSelf(ostream &os, vtkIndent indent)
+{
+  os << indent << "BasicIterator:{";
+  if (this->ListSize>0)
+    {
+    os << this->List[0];
+    for (int i=1; i<this->ListSize; ++i)
+      {
+      os << ", " << this->List[i];
+      }
+    }
+  os << "}" << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -253,12 +269,13 @@ void vtkFieldData::CopyStructure(vtkFieldData* r)
 {
   // Free old fields.
   this->InitializeFields();
-  
+
   // Allocate new fields.
   this->AllocateArrays(r->GetNumberOfArrays());
   this->NumberOfActiveArrays = r->GetNumberOfArrays();
-  
-  // Copy the data arrays without data.
+
+  // Copy the data array's structure (ie nTups,nComps,name, and info)
+  // don't copy their data.
   int i;
   vtkAbstractArray* data;
   for(i=0; i < r->GetNumberOfArrays(); ++i)
@@ -266,6 +283,10 @@ void vtkFieldData::CopyStructure(vtkFieldData* r)
     data = r->Data[i]->NewInstance();
     data->SetNumberOfComponents(r->Data[i]->GetNumberOfComponents());
     data->SetName(r->Data[i]->GetName());
+    if (r->Data[i]->HasInformation())
+      {
+      data->CopyInformation(r->Data[i]->GetInformation(),/*deep=*/1);
+      }
     this->SetArray(i, data);
     data->Delete();
     }
@@ -413,6 +434,10 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
     newData = data->NewInstance(); //instantiate same type of object
     newData->DeepCopy(data);
     newData->SetName(data->GetName());
+    if (data->HasInformation())
+      {
+      newData->CopyInformation(data->GetInformation(),/*deep=*/1);
+      }
     this->AddArray(newData);
     newData->Delete();
     }

@@ -427,6 +427,7 @@ public:
     BasicIterator(const int* list, unsigned int listSize);
     BasicIterator& operator=(const BasicIterator& source);
     virtual ~BasicIterator();
+    void PrintSelf(ostream &os, vtkIndent indent);
 
     int GetListSize() const
       {

@@ -96,6 +96,7 @@ public:
   // object to another.  If there is no entry in the first information
   // object for this key, the value is removed from the second.
   virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  virtual void DeepCopy(vtkInformation* from, vtkInformation* to);
 
   // Description:
   // Print the key's value in an information object to a stream.

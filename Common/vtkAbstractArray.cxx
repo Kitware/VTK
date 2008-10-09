@@ -44,7 +44,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.14");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.15");
 
 //----------------------------------------------------------------------------
 // vtkAbstractArray::SetInformation(vtkInformation *info)
@@ -107,11 +107,23 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2,
 //----------------------------------------------------------------------------
 void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 {
-  if ( da && da->Information && da != this )
+  if (da && da->HasInformation() && da!=this)
     {
-    vtkInformation* info = this->GetInformation(); // may create new instance
-    info->Copy( da->Information, 1 /* deep */ );
+    this->CopyInformation(da->GetInformation(),/*deep=*/1);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkAbstractArray::CopyInformation(vtkInformation *infoFrom, int deep)
+{
+  // Copy all keys. NOTE: subclasses rely on this.
+  vtkInformation *myInfo=this->GetInformation();
+  myInfo->Copy(infoFrom,deep);
+
+  // remove any keys we own that are not to be coppied
+  // here.
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

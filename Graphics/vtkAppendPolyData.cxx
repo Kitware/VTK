@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.103");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.104");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType *pPolys;
   vtkIdType npts = 0;
   vtkIdType ptId, cellId;
-  
+
   vtkDebugMacro(<<"Appending polydata");
 
   // loop over all data sets, checking to see what point data is available.
@@ -180,7 +180,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
   // These are used to determine which fields are available for appending
   vtkDataSetAttributes::FieldList ptList(countPD);
   vtkDataSetAttributes::FieldList cellList(countCD);  
-  
+
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
     {
@@ -204,7 +204,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
           }
         ++countPD;
         } // for a data set that has points
-        
+
       // Although we cannot have cells without points ... let's not nest.
       if (ds->GetNumberOfCells() > 0 )  
         {
@@ -221,7 +221,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
         numLines += ds->GetNumberOfLines();
         numPolys += ds->GetNumberOfPolys();
         numStrips += ds->GetNumberOfStrips();
-        
+
         inCD = ds->GetCellData();
         if ( countCD == 0 )
           {
@@ -262,7 +262,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
         pointtype = ds->GetPoints()->GetData()->GetDataType();
         }
       ttype = ds->GetPoints()->GetData()->GetDataType();
-      
+
       if ( ttype != pointtype )
         {
         AllSame = 0;
@@ -296,45 +296,71 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
 
   // These are created manually for faster execution
   // Uses the properties of the last input
+  vtkDataArray *inDA=0;
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
     {
+    inDA=inPD->GetScalars();
     outputPD->CopyScalarsOff();
-    newPtScalars = inPD->GetScalars()->NewInstance();
-    newPtScalars->SetNumberOfComponents(inPD->GetScalars()->GetNumberOfComponents());
-    newPtScalars->SetName(inPD->GetScalars()->GetName());
+    newPtScalars = inDA->NewInstance();
+    newPtScalars->SetNumberOfComponents(inDA->GetNumberOfComponents());
+    newPtScalars->SetName(inDA->GetName());
     newPtScalars->SetNumberOfTuples(numPts);
+    if (inDA->HasInformation())
+      {
+      newPtScalars->CopyInformation(inDA->GetInformation(),/*deep=*/1);
+      }
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::VECTORS) > -1 )
     {
+    inDA=inPD->GetVectors();
     outputPD->CopyVectorsOff();
-    newPtVectors = inPD->GetVectors()->NewInstance();
-    newPtVectors->SetNumberOfComponents(inPD->GetVectors()->GetNumberOfComponents());
-    newPtVectors->SetName(inPD->GetVectors()->GetName());
+    newPtVectors = inDA->NewInstance();
+    newPtVectors->SetNumberOfComponents(inDA->GetNumberOfComponents());
+    newPtVectors->SetName(inDA->GetName());
     newPtVectors->SetNumberOfTuples(numPts);
+    if (inDA->HasInformation())
+      {
+      newPtVectors->CopyInformation(inDA->GetInformation(),/*deep=*/1);
+      }
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TENSORS) > -1 )
     {
+    inDA=inPD->GetTensors();
     outputPD->CopyTensorsOff();
-    newPtTensors = inPD->GetTensors()->NewInstance();
-    newPtTensors->SetNumberOfComponents(inPD->GetTensors()->GetNumberOfComponents());
-    newPtTensors->SetName(inPD->GetTensors()->GetName());
+    newPtTensors = inDA->NewInstance();
+    newPtTensors->SetNumberOfComponents(inDA->GetNumberOfComponents());
+    newPtTensors->SetName(inDA->GetName());
     newPtTensors->SetNumberOfTuples(numPts);
+    if (inDA->HasInformation())
+      {
+      newPtTensors->CopyInformation(inDA->GetInformation(),/*deep=*/1);
+      }
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::NORMALS) > -1 )
     {
+    inDA=inPD->GetNormals();
     outputPD->CopyNormalsOff();
-    newPtNormals = inPD->GetNormals()->NewInstance();
-    newPtNormals->SetNumberOfComponents(inPD->GetNormals()->GetNumberOfComponents());
-    newPtNormals->SetName(inPD->GetNormals()->GetName());
+    newPtNormals = inDA->NewInstance();
+    newPtNormals->SetNumberOfComponents(inDA->GetNumberOfComponents());
+    newPtNormals->SetName(inDA->GetName());
     newPtNormals->SetNumberOfTuples(numPts);
+    if (inDA->HasInformation())
+      {
+      newPtNormals->CopyInformation(inDA->GetInformation(),/*deep=*/1);
+      }
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TCOORDS) > -1 )
     {
+    inDA=inPD->GetTCoords();
     outputPD->CopyTCoordsOff();
-    newPtTCoords = inPD->GetTCoords()->NewInstance();
-    newPtTCoords->SetNumberOfComponents(inPD->GetTCoords()->GetNumberOfComponents());
-    newPtTCoords->SetName(inPD->GetTCoords()->GetName());
+    newPtTCoords = inDA->NewInstance();
+    newPtTCoords->SetNumberOfComponents(inDA->GetNumberOfComponents());
+    newPtTCoords->SetName(inDA->GetName());
     newPtTCoords->SetNumberOfTuples(numPts);
+    if (inDA->HasInformation())
+      {
+      newPtTCoords->CopyInformation(inDA->GetInformation(),/*deep=*/1);
+      }
     }
 
   // Allocate the point and cell data
@@ -461,10 +487,10 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
           outputCD->CopyData(cellList,inCD,countCD,cellId,outCellId);
           }
         ++countCD;
-        
+
         // copy the cells
         pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
-        
+
         // These other cell arrays could be made efficient like polys ...
         for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
           {
@@ -474,7 +500,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
             newVerts->InsertCellPoint(pts[i]+ptOffset);
             }
           }
-        
+
         for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
           {
           newLines->InsertNextCell(npts);

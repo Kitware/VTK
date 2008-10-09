@@ -42,7 +42,7 @@ private:
 };
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchemeDefinitionVectorKey(
@@ -242,20 +242,55 @@ void vtkInformationQuadratureSchemeDefinitionVectorKey::ShallowCopy(
         vtkInformation* source,
         vtkInformation* dest)
 {
+  // grab the source vector
   vtkInformationQuadratureSchemeDefinitionVectorValue* sourceBase =
     static_cast<vtkInformationQuadratureSchemeDefinitionVectorValue *>(this->GetAsObjectBase(source));
-
+  // grab failed, just set dest to 0
   if (sourceBase==0)
     {
     this->SetAsObjectBase(dest,0);
     return;
     }
-
-  int sourceSize=static_cast<int>(sourceBase->GetVector().size());
+  // Grab the dest vector
   vtkInformationQuadratureSchemeDefinitionVectorValue* destBase=this->GetQuadratureSchemeDefinitionVector(dest);
-
+  // Explicitly size the dest
+  int sourceSize=static_cast<int>(sourceBase->GetVector().size());
   destBase->GetVector().resize(sourceSize);
+  // Vector operator= copy, using smart ptrs we get ref counted.
   destBase->GetVector()=sourceBase->GetVector();
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationQuadratureSchemeDefinitionVectorKey::DeepCopy(
+        vtkInformation* source,
+        vtkInformation* dest)
+{
+  // Grab the source vector.
+  vtkInformationQuadratureSchemeDefinitionVectorValue* sourceBase =
+    static_cast<vtkInformationQuadratureSchemeDefinitionVectorValue *>(this->GetAsObjectBase(source));
+  // Grab failed, set dest to 0 and bail.
+  if (sourceBase==0)
+    {
+    this->SetAsObjectBase(dest,0);
+    return;
+    }
+  // Grab the dest vector.
+  vtkInformationQuadratureSchemeDefinitionVectorValue* destBase=this->GetQuadratureSchemeDefinitionVector(dest);
+  // Explicitly size the dest.
+  int sourceSize=static_cast<int>(sourceBase->GetVector().size());
+  destBase->GetVector().resize(sourceSize);
+  // Deep copy each definition.
+  for (int i=0; i<sourceSize; ++i)
+    {
+    vtkQuadratureSchemeDefinition *srcDef=sourceBase->GetVector()[i];
+    if (srcDef)
+      {
+      vtkQuadratureSchemeDefinition *destDef=vtkQuadratureSchemeDefinition::New();
+      destDef->DeepCopy(srcDef);
+      destBase->GetVector()[i]=destDef;
+      destDef->Delete();
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

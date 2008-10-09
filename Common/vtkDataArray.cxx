@@ -39,7 +39,7 @@ vtkInformationKeyMacro(vtkDataArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
 
-vtkCxxRevisionMacro(vtkDataArray, "1.81");
+vtkCxxRevisionMacro(vtkDataArray, "1.82");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -980,17 +980,43 @@ double vtkDataArray::GetMaxNorm()
 }
 
 //----------------------------------------------------------------------------
+int vtkDataArray::CopyInformation(vtkInformation *infoFrom, int deep)
+{
+  // Copy everything + give base classes a chance to
+  // exclude key's which they don't want coppied.
+  this->Superclass::CopyInformation(infoFrom,deep);
+
+  // remove any keys we own that are not to be coppied
+  // here.
+  vtkInformation *myInfo=this->GetInformation();
+  // Range:
+  if (myInfo->Has( L2_NORM_RANGE() ))
+    {
+    myInfo->Remove( L2_NORM_RANGE() );
+    }
+  if (myInfo->Has( PER_COMPONENT() ))
+    {
+    myInfo->Remove( PER_COMPONENT() );
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkDataArray::ComputeRange(int comp)
 {
-  double s,t;
-  vtkIdType numTuples;
-  vtkInformation* info = this->GetInformation();
+  if ( comp >= this->NumberOfComponents )
+    { // Ignore requests for nonexistent components.
+    return;
+    }
 
+  // If we got component -1 on a vector array, compute vector magnitude.
   if (comp < 0 && this->NumberOfComponents == 1)
     {
     comp = 0;
     }
 
+  vtkInformation* info = this->GetInformation();
   vtkInformationDoubleVectorKey* rkey;
   if ( comp < 0 )
     {
@@ -1003,7 +1029,7 @@ void vtkDataArray::ComputeRange(int comp)
       {
       infoVec = vtkInformationVector::New();
       info->Set( PER_COMPONENT(), infoVec );
-      infoVec->Delete();
+      infoVec->FastDelete();
       }
     else
       {
@@ -1042,27 +1068,27 @@ void vtkDataArray::ComputeRange(int comp)
       }
     }
 
-  // If we got here, we need to compute the range.
-  numTuples=this->GetNumberOfTuples();
   this->Range[0] =  VTK_DOUBLE_MAX;
   this->Range[1] =  VTK_DOUBLE_MIN;
+  if ( comp < 0 )
+    {
+    this->ComputeVectorRange();
+    }
+  else
+    {
+    this->ComputeScalarRange( comp );
+    }
 
+  info->Set( rkey, this->Range, 2 );
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::ComputeScalarRange(int comp)
+{
+  vtkIdType numTuples=this->GetNumberOfTuples();
   for (vtkIdType i=0; i<numTuples; i++)
     {
-    if (comp >= 0)
-      {
-      s = this->GetComponent(i,comp);
-      }
-    else
-      { // Compute range of vector magnitude.
-      s = 0.0;
-      for (int j=0; j < this->NumberOfComponents; ++j)
-        {
-        t = this->GetComponent(i,j);
-        s += t*t;
-        }
-      s = sqrt(s);
-      }
+    double s = this->GetComponent(i,comp);
     if ( s < this->Range[0] )
       {
       this->Range[0] = s;
@@ -1072,8 +1098,31 @@ void vtkDataArray::ComputeRange(int comp)
       this->Range[1] = s;
       }
     }
+}
 
-  info->Set( rkey, this->Range, 2 );
+//-----------------------------------------------------------------------------
+void vtkDataArray::ComputeVectorRange()
+{
+  vtkIdType numTuples=this->GetNumberOfTuples();
+  for (vtkIdType i=0; i<numTuples; i++)
+    {
+    // Compute range of vector magnitude.
+    double s = 0.0;
+    for (int j=0; j < this->NumberOfComponents; ++j)
+      {
+      double t = this->GetComponent(i,j);
+      s += t*t;
+      }
+    s = sqrt(s);
+    if ( s < this->Range[0] )
+      {
+      this->Range[0] = s;
+      }
+    if ( s > this->Range[1] )
+      {
+      this->Range[1] = s;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

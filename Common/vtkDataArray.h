@@ -114,11 +114,10 @@ public:
   // with t=0 located at p1. This method assumes that the three arrays are of 
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+  virtual void InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t);
-  
-  
+
   // Description:
   // Get the data tuple at ith location. Return it as a pointer to an array.
   // Note: this method is not thread-safe, and the pointer is only valid
@@ -273,7 +272,7 @@ public:
   // information returned is valid only after the pipeline has 
   // been updated.
   virtual unsigned long GetActualMemorySize();
-  
+
   // Description:
   // Create default lookup table. Generally used to create one when none
   // is available.
@@ -285,7 +284,7 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:
-  // Return the range of the array values for the given component. 
+  // Return the range of the array values for the given component.
   // Range is copied into the array provided.
   // If comp is equal to -1, it returns the range of the magnitude
   // (if the number of components is equal to 1 it still returns the range of
@@ -300,8 +299,6 @@ public:
     this->ComputeRange(comp);
     return this->Range;
     }
-
-  virtual void ComputeRange(int comp);
   // Description:
   // Return the range of the array values for the 0th component. 
   // Range is copied into the array provided.
@@ -314,7 +311,6 @@ public:
     {
     this->GetRange(range,0);
     }
-
   // Description:
   // These methods return the Min and Max possible range of the native
   // data type. For example if a vtkScalars consists of unsigned char
@@ -366,8 +362,26 @@ public:
   // When GetRange() is called when no tuples are present in the array
   // this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
   static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
-  
+
+  // Description:
+  // Copy information instance. Arrays use information objects
+  // in a variety of ways. It is important to have flexibility in
+  // this regard because certain keys should not be coppied, while
+  // others must be. NOTE: Up to the implmeneter to make sure that
+  // keys not inteneded to be coppied are excluded here.
+  virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
+
 protected:
+  // Description:
+  // Compute the range for a specific component. If comp is set -1
+  // then L2 norm is computed on all components. Call ClearRange
+  // to force a recomputation if it is needed.
+  virtual void ComputeRange(int comp);
+  // Description:
+  // Slow range computation methods. Reimplement.
+  virtual void ComputeScalarRange(int comp);
+  virtual void ComputeVectorRange();
+
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(vtkIdType numComp=1);
   ~vtkDataArray();
