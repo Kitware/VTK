@@ -52,6 +52,10 @@ if __name__ == "__main__":
   (tc_view, tc_win) = setup_view(link, data_dir + "term-concept.csv", "term", "concept", [0.2, 0.0])
   (pd_view, pd_win) = setup_view(link, data_dir + "person-document.csv", "person", "document", [0.75, 0.25])
 
+  updater = vtkViewUpdater()
+  updater.AddView(tc_view)
+  updater.AddView(pd_view)
+
   tc_win.GetInteractor().Initialize()
   tc_win.GetInteractor().Start()
 
