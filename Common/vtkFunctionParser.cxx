@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.42");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.43");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1442,12 +1442,12 @@ int vtkFunctionParser::CheckSyntax()
     if ((functionNumber = this->GetMathFunctionNumber(index)))
       {
       if ((functionNumber == VTK_PARSER_MIN) ||
-          (functionNumber == VTK_PARSER_MAX))
+          (functionNumber == VTK_PARSER_MAX) ||
+          (functionNumber == VTK_PARSER_CROSS))
         {
         expectCommaOnParenthesisCount[parenthesisCount+1] = 1;
         }
-      if ((functionNumber == VTK_PARSER_IF) ||
-          (functionNumber == VTK_PARSER_CROSS))
+      if (functionNumber == VTK_PARSER_IF)
         {
         expectTwoCommasOnParenthesisCount[parenthesisCount+1] = 1;
         }
