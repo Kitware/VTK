@@ -34,7 +34,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.15");
+vtkCxxRevisionMacro(vtkTable, "1.16");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -74,6 +74,69 @@ void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkTable::Dump( int colWidth )
+{
+  vtkStdString lineStr;
+  for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+    {
+    lineStr += "+-";
+
+    for ( int i = 0; i < colWidth; ++ i )
+      {
+      lineStr += "-";
+      }
+    }
+  lineStr += "-+\n";
+
+  cout << lineStr;
+
+  for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+    {
+    cout << "| ";
+    vtkStdString str = this->GetColumnName( c );
+
+    for ( int i = 0; i < colWidth; ++ i )
+      {
+      if ( i < str.length() )
+        {
+        cout << str[i];
+        }
+      else
+        {
+        cout << " ";
+        }
+      }
+    }
+
+  cout << " |\n"
+       << lineStr;
+
+  for ( vtkIdType r = 0; r < this->GetNumberOfRows(); ++ r )
+    {
+    for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+      {
+      cout << "| ";
+      vtkStdString str = this->GetValue( r, c ).ToString();
+
+      for ( int i = 0; i < colWidth; ++ i )
+        {
+        if ( i < str.length() )
+          {
+          cout << str[i];
+          }
+        else
+          {
+          cout << " ";
+          }
+        }
+      }
+    cout << " |\n";
+    }
+
+  cout << lineStr;
+}
+ 
 //----------------------------------------------------------------------------
 void vtkTable::Initialize()
 {

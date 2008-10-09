@@ -62,6 +62,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Dump table contents.
+  void Dump( int colWidth = 16 ); 
+
+  // Description:
   // Return what type of dataset this is.
   int GetDataObjectType() {return VTK_TABLE;}
 
