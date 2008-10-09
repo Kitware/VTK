@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.70");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.71");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -601,6 +601,7 @@ void vtkCarbonRenderWindow::Frame()
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
     {
+    glFinish();
     aglSwapBuffers(this->ContextId);
     vtkDebugMacro(<< " aglSwapBuffers\n");
     }
