@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.41");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.42");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1344,7 +1344,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 
     if (  strchr( this->ScalarVariableNames[i], this->Function[idx] ) != 0  )
       {
-      if (  tmpString = strstr( this->Function, this->ScalarVariableNames[i] )  )
+      if (    (  tmpString = strstr( this->Function, this->ScalarVariableNames[i] )  )    )
         {
         do
           {
@@ -1374,7 +1374,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 
     if (  strchr( this->VectorVariableNames[i], this->Function[idx] ) != 0  )
       {
-      if (  tmpString = strstr( this->Function, this->VectorVariableNames[i] )  )
+      if (    (  tmpString = strstr( this->Function, this->VectorVariableNames[i] )  )    )
         {
         do
           {
