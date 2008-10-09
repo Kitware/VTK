@@ -67,8 +67,8 @@ private:
     vtkIdType nchildren,
     vtkIdType parent,
     vtkIdType begin, 
-    float innerRad, float outerRad, 
-    float startAng, float endAng);
+    float parentInnerRad,
+    float parentStartAng, float parentEndAng);
 
   vtkTreeRingExistingLayoutStrategy(const vtkTreeRingExistingLayoutStrategy&);  // Not implemented.
   void operator=(const vtkTreeRingExistingLayoutStrategy&);  // Not implemented.

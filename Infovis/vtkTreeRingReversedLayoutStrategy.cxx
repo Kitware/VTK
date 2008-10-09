@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkTreeRingReversedLayoutStrategy);
 
 vtkTreeRingReversedLayoutStrategy::vtkTreeRingReversedLayoutStrategy()
@@ -90,13 +90,13 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
 
     // Now layout the children vertices
   this->LayoutChildren(levelTree, coordsArray, sizeArray, levelTree->GetNumberOfChildren(rootId),
-                       rootId, 0, coords[0], coords[1], coords[2], coords[3]);
+                       rootId, 0, coords[0], coords[2], coords[3]);
 }
 
 void vtkTreeRingReversedLayoutStrategy::LayoutChildren(
     vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *sizeArray, 
     vtkIdType nchildren, vtkIdType parent, vtkIdType begin, 
-    float parentInnerRad, float parentOuterRad, float parentStartAng, float parentEndAng)
+    float parentInnerRad, float parentStartAng, float parentEndAng)
 {
   double new_interior_rad = parentInnerRad - this->RingThickness;
   double new_outer_rad = parentInnerRad;
@@ -115,7 +115,7 @@ void vtkTreeRingReversedLayoutStrategy::LayoutChildren(
   float coords[4];
   double current_angle = parentStartAng;
   double available_arc = parentEndAng - parentStartAng;
-  for (vtkIdType i = begin; i < nchildren; i++)
+  for( i = begin; i < nchildren; i++)
   {
     int id = tree->GetChild(parent, i);
     double this_arc = available_arc * 
@@ -138,7 +138,7 @@ void vtkTreeRingReversedLayoutStrategy::LayoutChildren(
     if (numNewChildren > 0)
     {
       this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, id, 0,
-                           coords[0], coords[1], coords[2], coords[3]);
+                           coords[0], coords[2], coords[3]);
     }
   }
 }

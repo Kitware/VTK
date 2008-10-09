@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.2");
 vtkStandardNewMacro(vtkTreeRingExistingLayoutStrategy);
 
 vtkTreeRingExistingLayoutStrategy::vtkTreeRingExistingLayoutStrategy()
@@ -98,13 +98,13 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
 
     // Now layout the children vertices
   this->LayoutChildren(levelTree, coordsArray, sizeArray, anglesArray, levelTree->GetNumberOfChildren(rootId),
-                       rootId, 0, coords[0], coords[1], coords[2], coords[3]);
+                       rootId, 0, coords[0], coords[2], coords[3]);
 }
 
 void vtkTreeRingExistingLayoutStrategy::LayoutChildren(
     vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *sizeArray, vtkDataArray *anglesArray, 
     vtkIdType nchildren, vtkIdType parent, vtkIdType begin, 
-    float parentInnerRad, float parentOuterRad, float parentStartAng, float parentEndAng)
+    float parentInnerRad, float parentStartAng, float parentEndAng)
 {
   double new_interior_rad = parentInnerRad - this->RingThickness;
   double new_outer_rad = parentInnerRad;
@@ -123,7 +123,7 @@ void vtkTreeRingExistingLayoutStrategy::LayoutChildren(
   float coords[4];
   double current_angle = parentStartAng;
   double available_arc = parentEndAng - parentStartAng;
-  for (vtkIdType i = begin; i < nchildren; i++)
+  for( i = begin; i < nchildren; i++)
   {
     int id = tree->GetChild(parent, i);
     double this_arc = available_arc * 
@@ -151,7 +151,7 @@ void vtkTreeRingExistingLayoutStrategy::LayoutChildren(
     if (numNewChildren > 0)
     {
       this->LayoutChildren(tree, coordsArray, sizeArray, anglesArray, numNewChildren, id, 0,
-                           coords[0], coords[1], coords[2], coords[3]);
+                           coords[0], coords[2], coords[3]);
     }
   }
 }
