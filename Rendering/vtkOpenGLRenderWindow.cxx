@@ -30,7 +30,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.99");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.100");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -280,6 +280,16 @@ void vtkOpenGLRenderWindow::OpenGLInit()
   glEnable(GL_NORMALIZE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glAlphaFunc(GL_GREATER,0);
+  
+  // Default OpenGL is 4 bytes but it is only safe with RGBA format.
+  // If format is RGB, row alignment is 4 bytes only if the width is divisible
+  // by 4. Let's do it the safe way: 1-byte alignment.
+  // If an algorithm really need 4 bytes alignment, it should set it itself,
+  // this is the recommended way in "Avoiding 16 Common OpenGL Pitfalls",
+  // section 7:
+  // http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glPixelStorei(GL_PACK_ALIGNMENT,1);
 }
 
 
