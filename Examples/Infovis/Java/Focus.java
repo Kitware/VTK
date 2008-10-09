@@ -35,6 +35,7 @@ public class Focus extends JFrame {
   private vtkBoostBreadthFirstSearch mainBFS = new vtkBoostBreadthFirstSearch();
   private vtkBoostBreadthFirstSearch bfs = new vtkBoostBreadthFirstSearch();
   private vtkExtractSelectedGraph extract = new vtkExtractSelectedGraph();
+  private vtkGraphLayout layout = new vtkGraphLayout();
 
   private vtkGraphLayoutView mainView = new vtkGraphLayoutView();
   private vtkGraphLayoutView focusView = new vtkGraphLayoutView();
@@ -52,7 +53,10 @@ public class Focus extends JFrame {
     this.reader.SetFileName("../../../../VTKData/Data/Infovis/classes.csv");
     this.tableToGraph.SetInputConnection(this.reader.GetOutputPort());
     this.tableToGraph.AddLinkEdge("Field 0", "Field 1");
-    this.mainBFS.SetInputConnection(this.tableToGraph.GetOutputPort());
+    vtkSimple2DLayoutStrategy strategy = new vtkSimple2DLayoutStrategy();
+    this.layout.SetLayoutStrategy(strategy);
+    this.layout.SetInputConnection(this.tableToGraph.GetOutputPort());
+    this.mainBFS.SetInputConnection(this.layout.GetOutputPort());
     this.bfs.SetInputConnection(this.mainBFS.GetOutputPort());
     this.extract.SetInputConnection(0, this.bfs.GetOutputPort());
     vtkSelection select = new vtkSelection();
@@ -64,12 +68,13 @@ public class Focus extends JFrame {
     select.SetSelectionList(this.thresh);
     this.extract.SetInput(1, select);
 
-    this.mainRep.SetInputConnection(this.mainBFS.GetOutputPort());
+    this.mainRep.SetInputConnection(this.bfs.GetOutputPort());
     this.focusRep.SetInputConnection(this.extract.GetOutputPort());
 
     this.mainView.AddRepresentation(this.mainRep);
     this.mainView.SetVertexLabelArrayName("label");
     this.mainView.VertexLabelVisibilityOn();
+    this.mainView.SetLayoutStrategyToPassThrough();
     this.mainView.SetVertexColorArrayName("BFS");
     this.mainView.ColorVerticesOn();
     this.focusView.AddRepresentation(this.focusRep);
