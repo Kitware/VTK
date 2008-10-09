@@ -35,7 +35,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.51");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.52");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -241,6 +241,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
 
     if ( this->SampleSize == 1 || mom2 < 1.e-150 )
       {
+      doubleVals[0] = 0.;
       doubleVals[1] = 0.;
       doubleVals[2] = 0.;
       doubleVals[3] = 0.;
@@ -254,6 +255,8 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
       double nm1 = n - 1.;
 
       doubleVals[1] = mom2 / nm1;
+      doubleVals[0] = sqrt( doubleVals[1] );
+
       double var_inv = 1. / doubleVals[1];
       double nvar_inv = var_inv * inv_n;
       doubleVals[2] = nvar_inv * sqrt( var_inv ) * mom3;
