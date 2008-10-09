@@ -21,18 +21,20 @@
 #include "vtkDiskSource.h"
 #include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
+#include "vtkMath.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkSectorSource, "1.1");
+vtkCxxRevisionMacro(vtkSectorSource, "1.2");
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
 {
   this->InnerRadius = 1.0;
   this->OuterRadius = 2.0;
+  this->ZCoord = 0.0;
   this->StartAngle = 0.0;
   this->EndAngle = 90.0;
   this->RadialResolution = 1;
@@ -85,13 +87,13 @@ int vtkSectorSource::RequestData(
       //set vertex 1, adjust for start angle
       //set vertex 2, adjust for start angle
     double x1[3], x2[3];
-    x1[0] = this->InnerRadius * sin(this->StartAngle);
-    x1[1] = this->InnerRadius * cos(this->StartAngle);
-    x1[2] = 0;
+    x1[0] = this->InnerRadius * cos(vtkMath::DegreesToRadians()*this->StartAngle);
+    x1[1] = this->InnerRadius * sin(vtkMath::DegreesToRadians()*this->StartAngle);
+    x1[2] = this->ZCoord;
     
-    x2[0] = this->OuterRadius * sin(this->StartAngle);
-    x2[1] = this->OuterRadius * cos(this->StartAngle);
-    x2[2] = 0;
+    x2[0] = this->OuterRadius * cos(vtkMath::DegreesToRadians()*this->StartAngle);
+    x2[1] = this->OuterRadius * sin(vtkMath::DegreesToRadians()*this->StartAngle);
+    x2[2] = this->ZCoord;
     
     lineSource->SetPoint1(x1);
     lineSource->SetPoint2(x2);
@@ -100,7 +102,7 @@ int vtkSectorSource::RequestData(
     VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
     rotateFilter->SetResolution( this->CircumferentialResolution );
     rotateFilter->SetInput(lineSource->GetOutput());
-    rotateFilter->SetAngle( this->StartAngle - this->EndAngle );
+    rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
     
     if (output->GetUpdatePiece() == 0 && numPieces > 0)
     {
@@ -121,6 +123,7 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InnerRadius: " << this->InnerRadius << "\n";
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
+  os << indent << "ZCoord: " << this->ZCoord << "\n";
   os << indent << "StartAngle: " << this->StartAngle << "\n";
   os << indent << "EndAngle: " << this->EndAngle << "\n";;
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";

@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSectorSource - create a disk with hole in center
+// .NAME vtkSectorSource - create a sector of a disk
 // .SECTION Description
 // vtkSectorSource creates a sector of a polygonal disk. The 
 // disk has zero height. The user can specify the inner and outer radius
-// of the disk, and the radial and circumferential resolution of the 
-// polygonal representation. 
+// of the disk, the z-coordinate, and the radial and 
+// circumferential resolution of the polygonal representation. 
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
@@ -34,14 +34,19 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify inner radius of hole in disc.
+  // Specify inner radius of the sector.
   vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(InnerRadius,double);
 
   // Description:
-  // Specify outer radius of disc.
+  // Specify outer radius of the sector.
   vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(OuterRadius,double);
+
+  // Description:
+  // Specify the z coordinate of the sector.
+  vtkSetClampMacro(ZCoord,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(ZCoord,double);
 
   // Description:
   // Set the number of points in radius direction.
@@ -60,7 +65,7 @@ public:
 
   // Description:
   // Set the end angle of the sector.
-  vtkSetClampMacro(EndAngle,double,90.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(EndAngle,double,0.0,VTK_DOUBLE_MAX)
   vtkGetMacro(EndAngle,double);
 
 protected:
@@ -70,6 +75,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double InnerRadius;
   double OuterRadius;
+  double ZCoord;
   int RadialResolution;
   int CircumferentialResolution;
   double StartAngle;
