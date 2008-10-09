@@ -176,7 +176,7 @@ int TestOrderStatistics( int, char *[] )
     45., 47., 49., 52., 54.,
     -1., -1., -1., -1., -1.,
   };
-  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition ( "
+  cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
@@ -213,7 +213,7 @@ int TestOrderStatistics( int, char *[] )
     45., 47., 49., 52., 54.,
     -1., -1., -1., -1., -1.,
   };
-  cout << "## Calculated the following 5-points statistics with InverseCDFAveragedSteps quantile definition ( "
+  cout << "## Calculated the following 5-points statistics with InverseCDF quantile definition ( "
        << haruspex->GetSampleSize()
        << " entries per column ):\n";
   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
