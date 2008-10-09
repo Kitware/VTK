@@ -310,6 +310,38 @@ IF ( VTK_USE_MYSQL AND MYSQL_FOUND )
 ENDIF ( VTK_USE_MYSQL AND MYSQL_FOUND )
 
 #-----------------------------------------------------------------------------
+# ODBC
+# Build the ODBC database backend only if ODBC driver manager is available
+#
+OPTION (VTK_USE_ODBC "Build the ODBC database interface" OFF)
+MARK_AS_ADVANCED(VTK_USE_ODBC)
+IF ( VTK_USE_ODBC )
+  FIND_PACKAGE( ODBC REQUIRED )
+  IF ( BUILD_TESTING )
+    SET ( VTK_ODBC_TEST_DSN "" CACHE STRING "A data source name (DSN) for an ODBC database connection to use for testing." )
+  ENDIF ( BUILD_TESTING )
+ENDIF ( VTK_USE_ODBC )
+
+IF ( VTK_USE_ODBC AND ODBC_FOUND )
+  INCLUDE_DIRECTORIES( ${ODBC_INCLUDE_DIRECTORIES} )
+  SET( Kit_SRCS
+    ${Kit_SRCS}
+    vtkODBCDatabase.cxx
+    vtkODBCQuery.cxx
+    )
+  LINK_LIBRARIES( ${ODBC_LIBRARIES} )
+  # Note: Strange things happen on 64-bit machines.  We must compile
+  # ODBC code with -DBUILD_REAL_64_BIT_MODE in order to have the driver
+  # work properly.
+  INCLUDE(CheckTypeSize)
+  CHECK_TYPE_SIZE("unsigned long" CMAKE_SIZEOF_LONG)
+  IF ( "${CMAKE_SIZEOF_LONG}" STREQUAL "8" )
+#    MESSAGE( STATUS "Building ODBC driver with 64-bit flag." )
+    ADD_DEFINITIONS( -DBUILD_REAL_64_BIT_MODE )
+  ENDIF ( "${CMAKE_SIZEOF_LONG}"  STREQUAL "8" )
+ENDIF ( VTK_USE_ODBC AND ODBC_FOUND )
+
+#-----------------------------------------------------------------------------
 # Add these classes only if vtkTypeUInt64Array exists
 SET(VTK_HAS_UINT64_ARRAY 0)
 IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
