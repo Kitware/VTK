@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.40");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.41");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1335,43 +1335,71 @@ void vtkFunctionParser::RemoveSpaces()
 int vtkFunctionParser::OperatorWithinVariable(int idx)
 {
   int i;
-  char *tmpString;
+  char *tmpString = NULL;
   int start, end;
   
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for ( i = 0;  i < this->NumberOfScalarVariables;  i ++ )
     {
-    if (strchr(this->ScalarVariableNames[i], this->Function[idx]) != 0)
+    end = 0;
+
+    if (  strchr( this->ScalarVariableNames[i], this->Function[idx] ) != 0  )
       {
-      tmpString = strstr(this->Function, this->ScalarVariableNames[i]);
-      if (tmpString)
+      if (  tmpString = strstr( this->Function, this->ScalarVariableNames[i] )  )
         {
-        start = static_cast<int>(tmpString - this->Function);
-        end = start + static_cast<int>(strlen(this->ScalarVariableNames[i]));
-        if (start <= idx && end >= idx)
+        do
           {
-          return 1;
-          }
-        }
-      }
-    }
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
-    {
-    if (strchr(this->VectorVariableNames[i], this->Function[idx]) != 0)
-      {
-      tmpString = strstr(this->Function, this->VectorVariableNames[i]);
-      if (tmpString)
-        {
-        start = static_cast<int>(tmpString - this->Function);
-        end = start + static_cast<int>(strlen(this->VectorVariableNames[i]));
-        if (start <= idx && end >= idx)
-          {
-          return 1;
-          }
+          if (tmpString)
+            {
+            start = static_cast<int>(tmpString - this->Function);
+            end   = start + static_cast<int>( strlen(this->ScalarVariableNames[i]) );
+
+            // the variable being investigated does contain an operator (at idx)
+            if ( start <= idx && idx <= end )  return  1;       
+
+            // just in case of one or even more occurrences of the
+            // variable name (being investigated) preceding "idx" in this->Function[]
+            // As suggested by 7islands, a greedy search is used here
+            if ( end <= idx )  // to save strstr()  whenever possible
+            tmpString = strstr( this->Function + end, this->ScalarVariableNames[i] );
+            }
+          else  break;
+          } while ( end <= idx );
         }
       }
     }
   
-  return 0;
+  for ( i = 0;  i < this->NumberOfVectorVariables;  i ++ )
+    {
+    end = 0;
+
+    if (  strchr( this->VectorVariableNames[i], this->Function[idx] ) != 0  )
+      {
+      if (  tmpString = strstr( this->Function, this->VectorVariableNames[i] )  )
+        {
+        do
+          {
+          if (tmpString)
+            {
+            start = static_cast<int>(tmpString - this->Function);
+            end   = start + static_cast<int>( strlen(this->VectorVariableNames[i]) );
+
+            // the variable being investigated does contain an operator (at idx)
+            if ( start <= idx && idx <= end )  return  1;       
+
+            // just in case of one or even more occurrences of the
+            // variable name (being investigated) preceding "idx" in this->Function[]
+            // As suggested by 7islands, a greedy search is used here
+            if ( end <= idx )  // to save strstr()  whenever possible
+            tmpString = strstr( this->Function + end, this->VectorVariableNames[i] );
+            }
+          else  break;
+          } while ( end <= idx );
+        }
+      }
+    }
+
+  tmpString = NULL;
+  return  0;
 }
 
 int vtkFunctionParser::CheckSyntax()
