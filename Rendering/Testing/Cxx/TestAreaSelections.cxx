@@ -71,6 +71,7 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   if (res)
     {
     cerr << "Selection not supported." << endl;
+    return;
     }
 
   /*
