@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.47");
+vtkCxxRevisionMacro(vtkLineSource, "1.48");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)
@@ -85,7 +85,7 @@ int vtkLineSource::RequestData(
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(2*numPts);
-
+  newTCoords->SetName("Texture Coordinates");
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
 //
