@@ -46,7 +46,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkHardwareSelector);
-vtkCxxRevisionMacro(vtkHardwareSelector, "1.3");
+vtkCxxRevisionMacro(vtkHardwareSelector, "1.4");
 vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
@@ -499,5 +499,32 @@ vtkSelection* vtkHardwareSelector::GenerateSelection()
 void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "FieldAssociation: ";
+  switch (this->FieldAssociation)
+    {
+  case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+    os << "FIELD_ASSOCIATION_POINTS" << endl;
+    break;
+  case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+    os << "FIELD_ASSOCIATION_CELLS" << endl; 
+    break;
+  case vtkDataObject::FIELD_ASSOCIATION_VERTICES:
+    os << "FIELD_ASSOCIATION_VERTICES" << endl;
+    break;
+  case vtkDataObject::FIELD_ASSOCIATION_EDGES:
+    os << "FIELD_ASSOCIATION_EDGES" << endl;
+    break;
+  case vtkDataObject::FIELD_ASSOCIATION_ROWS:
+    os << "FIELD_ASSOCIATION_ROWS" << endl;
+    break;
+  default:
+    os << "--unknown--" << endl;
+    }
+  os << indent << "ProcessID: " << this->ProcessID << endl;
+  os << indent << "CurrentPass: " << this->CurrentPass << endl;
+  os << indent << "Area: " << this->Area[0] << ", " << this->Area[1] << ", "
+    << this->Area[2] << ", " << this->Area[3] << endl;
+  os << indent << "Renderer: " << this->Renderer << endl;
+
 }
 

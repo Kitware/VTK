@@ -37,7 +37,7 @@
 #include "vtkStandardPolyDataPainter.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.19")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.20")
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
 {
@@ -429,4 +429,5 @@ void vtkPainterPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "(none)" << endl;
     }
+  os << indent << "SelectionPainter: " << this->SelectionPainter << endl;
 }

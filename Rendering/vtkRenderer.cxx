@@ -38,7 +38,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.242");
+vtkCxxRevisionMacro(vtkRenderer, "1.243");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 
 #if !defined(VTK_LEGACY_REMOVE)
@@ -1366,6 +1366,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << "null" << endl;
     }
+  os << indent << "Selector: " << this->Selector << endl;
 }
 
 int vtkRenderer::VisibleActorCount()
