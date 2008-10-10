@@ -136,12 +136,13 @@ public:
   void AddArgument(const char *argv);
   void AddArguments(int argc,const char **argv);
 
+  //BTX
   // Description:
   // Search for a specific argument by name and return its value 
   // (assumed to be the next on the command tail). Up to caller
   // to delete the returned string.
   char *GetArgument(const char *arg);
-  char *GetArgument(const char *arg, int argc, const char **argv);
+  //ETX 
 
   // Description
   // This method delete all arguments in vtkTesting, this way you can reuse 
