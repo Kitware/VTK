@@ -68,7 +68,7 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
                static_cast<int>(y1));
   vtkSmartPointer<vtkSelection> res;
   res.TakeReference(sel->Select());
-  if (res)
+  if (!res)
     {
     cerr << "Selection not supported." << endl;
     return;
