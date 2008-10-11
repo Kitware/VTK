@@ -63,7 +63,7 @@ private:
   void operator=(const vtkGraphEdgePoints&);  // Not implemented.
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
-vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.31");
+vtkCxxRevisionMacro(vtkGraphEdgePoints, "1.32");
 
 //----------------------------------------------------------------------------
 // class vtkGraph
@@ -72,7 +72,7 @@ vtkCxxSetObjectMacro(vtkGraph, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkGraph, Internals, vtkGraphInternals);
 vtkCxxSetObjectMacro(vtkGraph, EdgePoints, vtkGraphEdgePoints);
 vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
-vtkCxxRevisionMacro(vtkGraph, "1.31");
+vtkCxxRevisionMacro(vtkGraph, "1.32");
 //----------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
@@ -1139,7 +1139,6 @@ void vtkGraph::DeepCopyEdgePoints(vtkGraph* g)
     this->SetEdgePoints(0);
     }
 }
-
 //----------------------------------------------------------------------------
 void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
                                  vtkIdType *vertex)
@@ -1147,52 +1146,59 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
   this->ForceOwnership();
   
   vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
-  vtkIdType myRank = -1;
-  if (helper != NULL)
-    myRank = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  
 
   if (propertyArr)      // Add/replace vertex properties if passed in
     {
     vtkAbstractArray *peds = this->GetVertexData()->GetPedigreeIds();
+    // If the properties include pedigreeIds, we need to see if this
+    // pedigree already exists and, if so, simply update its properties.
     if (peds)
       {
-      // Extract the pedigreeId from the propArr
-      char *pedIdArrayName = peds->GetName();
-      vtkIdType pedIdx = this->GetVertexData()->SetActiveAttribute(pedIdArrayName, 
-          vtkDataSetAttributes::PEDIGREEIDS);
+      // Get the array index associated with pedIds.
+      vtkIdType pedIdx = this->GetVertexData()->SetPedigreeIds(peds);
       vtkVariant pedigreeId = propertyArr->GetValue(pedIdx);
       if (helper)
         {
+        vtkIdType myRank 
+          = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
         if (helper->GetVertexOwnerByPedigreeId(pedigreeId) != myRank) 
           {
           helper->AddVertexInternal(propertyArr, vertex);
           return;
           }
         }
-    
-        vtkIdType existingVertex = this->FindVertex(pedigreeId);
-        if (existingVertex != -1)
+
+      vtkIdType existingVertex = this->FindVertex(pedigreeId);
+      if (existingVertex != -1)
+        {
+        vtkIdType idx = existingVertex;
+        if (helper)
           {
-          // We found this vertex; nothing more to do.  (TODO: update props?)
-          if (vertex)
-            {
-            *vertex = existingVertex;
-            }
-          return ;
+          idx = helper->GetVertexIndex(existingVertex);
           }
-        
-        this->Internals->Adjacency.push_back(vtkVertexAdjacencyList()); 
-        vtkIdType index = this->Internals->Adjacency.size() - 1;   
-        
-        vtkDataSetAttributes *vertexData = this->GetVertexData();
-        int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
-        assert(numProps == vertexData->GetNumberOfArrays());
-        for (int iprop=0; iprop<numProps; iprop++)
+        for (int iprop=0; iprop<propertyArr->GetNumberOfValues(); iprop++)
           {
-          vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
-          arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
+          vtkAbstractArray* arr = this->GetVertexData()->GetAbstractArray(iprop);
+          arr->InsertVariantValue(idx, propertyArr->GetValue(iprop));
           }
+        if (vertex)
+          {
+          *vertex = existingVertex;
+          }
+        return ;
+        }
+      
+      this->Internals->Adjacency.push_back(vtkVertexAdjacencyList());  // Add a new (local) vertex
+      vtkIdType index = this->Internals->Adjacency.size() - 1;   
+      
+      vtkDataSetAttributes *vertexData = this->GetVertexData();
+      int numProps = propertyArr->GetNumberOfValues();
+      assert(numProps == vertexData->GetNumberOfArrays());
+      for (int iprop=0; iprop<numProps; iprop++)
+        {
+        vtkAbstractArray* arr = vertexData->GetAbstractArray(iprop);
+        arr->InsertVariantValue(index, propertyArr->GetValue(iprop));
+        }
       }  // end if (peds)
     //----------------------------------------------------------------
     else   // We have propArr, but not pedIds - just add the propArr
@@ -1201,7 +1207,7 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
       vtkIdType index = this->Internals->Adjacency.size() - 1;   
       
       vtkDataSetAttributes *vertexData = this->GetVertexData();
-      int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
+      int numProps = propertyArr->GetNumberOfValues();
       assert(numProps == vertexData->GetNumberOfArrays());
       for (int iprop=0; iprop<numProps; iprop++)
         {
@@ -1229,16 +1235,14 @@ void vtkGraph::AddVertexInternal(vtkVariantArray *propertyArr,
       }
     }
 }
-
-
 //----------------------------------------------------------------------------
 void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId, 
                                  vtkIdType *vertex)
 {
-  // Add a V, given a pedID:
+  // Add vertex V, given a pedId:
   //   1) if a dist'd G and this proc doesn't own V, add it (via helper class) and RETURN.
-  //   2) if V already exists for this pedID, RETURN it.
-  //   3) add the vertex locally and insert its pedID
+  //   2) if V already exists for this pedId, RETURN it.
+  //   3) add V locally and insert its pedId
   vtkDistributedGraphHelper *helper = this->GetDistributedGraphHelper();
   if (helper)
     {
@@ -1287,7 +1291,6 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
 
   pedigrees->InsertVariantValue(index, pedigreeId);
 }
-
 //----------------------------------------------------------------------------
 void vtkGraph::AddEdgeInternal(vtkIdType u, vtkIdType v, bool directed, 
                                vtkVariantArray *propertyArr, vtkEdgeType *edge)
