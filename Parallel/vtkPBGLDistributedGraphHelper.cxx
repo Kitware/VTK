@@ -56,6 +56,12 @@ public:
   // pedigree ID does not already exist. Returns the ID for that
   // vertex.
   vtkIdType HandleAddVertex(const vtkVariant& pedigreeId);
+  
+  // Description:
+  // Add a vertex with properties, if a vertex with the
+  // pedigree ID (assuming there is one in the properties) does
+  // not already exist.  Returns the ID for that vertex.
+  vtkIdType HandleAddVertexProps(vtkVariantArray *propArray);
 
   // Description:
   // Handle a ADD_DIRECTED_BACK_EDGE_TAG or ADD_UNDIRECTED_BACK_END_TAG 
@@ -119,12 +125,12 @@ boost::graph::distributed::mpi_process_group *
 vtkPBGLDistributedGraphHelperInternals::root_process_group;
 
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelperInternals);
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.5");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelperInternals, "1.6");
 
 //----------------------------------------------------------------------------
 // class vtkPBGLDistributedGraphHelper
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.5");
+vtkCxxRevisionMacro(vtkPBGLDistributedGraphHelper, "1.6");
 vtkStandardNewMacro(vtkPBGLDistributedGraphHelper);
 
 //----------------------------------------------------------------------------
@@ -156,6 +162,70 @@ vtkDistributedGraphHelper *vtkPBGLDistributedGraphHelper::Clone()
 boost::graph::distributed::mpi_process_group vtkPBGLDistributedGraphHelper::GetProcessGroup()
 {
   return this->Internals->process_group.base();
+}
+
+//----------------------------------------------------------------------------
+void vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
+                                                      vtkIdType *vertex)
+{
+  vtkIdType rank 
+    = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkAbstractArray *peds = this->Graph->GetVertexData()->GetPedigreeIds();
+  vtkIdType owner = -1;
+  if (peds != NULL) {
+    vtkIdType pedIdx = this->Graph->GetVertexData()->SetPedigreeIds(peds);
+    vtkVariant pedigreeId = propertyArr->GetValue(pedIdx);
+    owner = this->GetVertexOwnerByPedigreeId(pedigreeId);
+  }
+
+  if ((peds != NULL) && (owner == rank))
+    {
+    // This little dance keeps us from having to make
+    // vtkPBGLDistributedGraphHelper a friend of vtkGraph. It also
+    // makes sure that users don't try to be sneaky about adding
+    // vertices to non-mutable vtkGraphs.
+    if (vtkMutableDirectedGraph *graph 
+          = vtkMutableDirectedGraph::SafeDownCast(this->Graph))
+      {
+        if (vertex)
+          {
+          *vertex = graph->AddVertex(propertyArr);
+          }
+        else
+          {
+          graph->LazyAddVertex(propertyArr);
+          }
+      }
+    else if (vtkMutableUndirectedGraph *graph 
+               = vtkMutableUndirectedGraph::SafeDownCast(this->Graph))
+      {
+        if (vertex)
+          {
+          *vertex = graph->AddVertex(propertyArr);
+          }
+        else
+          {
+          graph->LazyAddVertex(propertyArr);
+          }
+      }
+    else
+      {
+      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
+      }
+    return;
+    }
+
+  if (vertex)
+    {
+    // Request immediate addition of the vertex, with a reply.
+    send_oob_with_reply(this->Internals->process_group, owner, 
+                        ADD_VERTEX_PROPS_WITH_REPLY_TAG, propertyArr, *vertex);
+    }
+  else
+    {
+    // Request addition of the vertex, eventually.
+    send(this->Internals->process_group, owner, ADD_VERTEX_PROPS_NO_REPLY_TAG, propertyArr);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -529,6 +599,14 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_VERTEX_WITH_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddVertex, 
                    this->Internals, _3));
+    this->Internals->process_group.trigger<vtkVariantArray *>
+      (ADD_VERTEX_PROPS_NO_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddVertexProps, 
+                   this->Internals, _3));
+    this->Internals->process_group.trigger_with_reply<vtkVariantArray *>
+      (ADD_VERTEX_PROPS_WITH_REPLY_TAG,
+       boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddVertexProps, 
+                   this->Internals, _3));
     this->Internals->process_group.trigger<vtkEdgeType>
       (ADD_DIRECTED_BACK_EDGE_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddBackEdge, 
@@ -617,6 +695,16 @@ HandleFindEdgeSourceTarget(vtkIdType id)
 {
   vtkstd::pair<vtkIdType, vtkIdType> result;
   this->Helper->FindEdgeSourceAndTarget(id, &result.first, &result.second);
+  return result;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType
+vtkPBGLDistributedGraphHelperInternals::
+HandleAddVertexProps(vtkVariantArray *propArr)
+{
+  vtkIdType result;
+  this->Helper->AddVertexInternal(propArr, &result);
   return result;
 }
 

@@ -93,6 +93,9 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
     // Add a vertex with the given pedigree ID.
     ADD_VERTEX_NO_REPLY_TAG,
     ADD_VERTEX_WITH_REPLY_TAG,
+    // Add a vertex with the given property array.
+    ADD_VERTEX_PROPS_NO_REPLY_TAG,
+    ADD_VERTEX_PROPS_WITH_REPLY_TAG,
     // Add a back edge; the forward edge has already been added.
     ADD_DIRECTED_BACK_EDGE_TAG,
     ADD_UNDIRECTED_BACK_EDGE_TAG,
@@ -116,6 +119,15 @@ class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedG
     ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG
   };
 
+  // Description:
+  // Add a vertex, optionally with properties, to the distributed graph.
+  // If vertex is non-NULL, it will be set
+  // to the newly-added (or found) vertex. Note that if propertyArr is
+  // non-NULL and the vertex data contains pedigree IDs, a vertex will
+  // only be added if there is no vertex with that pedigree ID.
+  void AddVertexInternal(vtkVariantArray *propertyArr, 
+                         vtkIdType *vertex);
+  
   // Description:
   // Add a vertex with the given pedigree ID to the distributed graph. If
   // vertex is non-NULL, it will receive the newly-created vertex.

@@ -128,7 +128,16 @@ class VTK_FILTERING_EXPORT vtkDistributedGraphHelper : public vtkObject
  protected:
   vtkDistributedGraphHelper();
   virtual ~vtkDistributedGraphHelper();
-
+  
+  // Description:
+  // Add a vertex, optionally with properties, to the distributed graph.
+  // If vertex is non-NULL, it will be set
+  // to the newly-added (or found) vertex. Note that if propertyArr is
+  // non-NULL and the vertex data contains pedigree IDs, a vertex will
+  // only be added if there is no vertex with that pedigree ID.
+  virtual void AddVertexInternal(vtkVariantArray *propertyArr, 
+                         vtkIdType *vertex) = 0;
+  
   // Description:
   // Add a vertex with the given pedigreeId to the distributed graph. If
   // vertex is non-NULL, it will receive the newly-created vertex.
