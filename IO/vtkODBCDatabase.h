@@ -136,6 +136,33 @@ public:
   char *GetDatabaseType() { return "ODBC"; };
   vtkStdString GetURL();
 
+  // Description:
+  // Return the SQL string with the syntax to create a column inside a
+  // "CREATE TABLE" SQL statement.
+  // NB2: if a column has type SERIAL in the schema, this will be turned
+  // into INT NOT NULL. Therefore, one should not pass
+  // NOT NULL as an attribute of a column whose type is SERIAL.
+  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                               int tblHandle,
+                                               int colHandle );
+ 
+  // Description:
+  // Return the SQL string with the syntax to create an index inside a
+  // "CREATE TABLE" SQL statement.
+  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                              int tblHandle,
+                                              int idxHandle,
+                                              bool& skipped );
+
+  // Description:
+  // Create a new database, optionally dropping any existing database of the same name.
+  // Returns true when the database is properly created and false on failure.
+  bool CreateDatabase( const char* dbName, bool dropExisting );
+
+  // Description:
+  // Drop a database if it exists.
+  // Returns true on success and false on failure.
+  bool DropDatabase( const char* dbName );
 
 protected:
   vtkODBCDatabase();

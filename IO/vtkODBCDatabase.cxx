@@ -28,6 +28,8 @@
 #endif
 
 
+#include <vtkSQLDatabaseSchema.h>
+
 #include "vtkODBCDatabase.h"
 #include "vtkODBCQuery.h"
 #include "vtkODBCInternals.h"
@@ -47,7 +49,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkODBCDatabase, "1.1");
+vtkCxxRevisionMacro(vtkODBCDatabase, "1.2");
 vtkStandardNewMacro(vtkODBCDatabase);
 
 // ----------------------------------------------------------------------
@@ -674,3 +676,239 @@ vtkODBCDatabase::ParseURL(const char *URL)
 
   return false;
 }
+
+// ----------------------------------------------------------------------
+
+vtkStdString 
+vtkODBCDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                         int tblHandle,
+                                         int colHandle )
+{
+  vtksys_ios::ostringstream queryStr;
+  queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle ) << " ";
+
+  // Figure out column type
+  int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle ); 
+  vtkStdString colTypeStr;
+
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colTypeStr = "INTEGER NOT NULL";
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colTypeStr = "SMALLINT";
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colTypeStr = "INT";
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colTypeStr = "BIGINT";
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colTypeStr = "VARCHAR";
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colTypeStr = "TEXT";
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colTypeStr = "FLOAT";
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colTypeStr = "DOUBLE PRECISION";
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colTypeStr = "BLOB";
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colTypeStr = "TIME";
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colTypeStr = "DATE";
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colTypeStr = "TIMESTAMP";
+      break;
+    }
+
+  if ( colTypeStr.size() )
+    {
+    queryStr << " " << colTypeStr;
+    }
+  else // if ( colTypeStr.size() )
+    {
+    vtkGenericWarningMacro( "Unable to get column specification: unsupported data type " << colType );
+    return vtkStdString();
+    }
+  
+  // Decide whether size is allowed, required, or unused
+  int colSizeType = 0;
+
+  switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
+    {
+    case vtkSQLDatabaseSchema::SERIAL:    
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::SMALLINT:  
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::INTEGER:   
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::BIGINT:    
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::VARCHAR:   
+      colSizeType = -1;
+      break;
+    case vtkSQLDatabaseSchema::TEXT:      
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::REAL:      
+      colSizeType =  0; // Eventually will make DB schemata handle (M,D) sizes
+      break;
+    case vtkSQLDatabaseSchema::DOUBLE:    
+      colSizeType =  0; // Eventually will make DB schemata handle (M,D) sizes
+      break;
+    case vtkSQLDatabaseSchema::BLOB:      
+      colSizeType =  1;
+      break;
+    case vtkSQLDatabaseSchema::TIME:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::DATE:      
+      colSizeType =  0;
+      break;
+    case vtkSQLDatabaseSchema::TIMESTAMP: 
+      colSizeType =  0;
+      break;
+    }
+
+  // Specify size if allowed or required
+  if ( colSizeType )
+    {
+    int colSize = schema->GetColumnSizeFromHandle( tblHandle, colHandle );
+    // IF size is provided but absurd, 
+    // OR, if size is required but not provided OR absurd,
+    // THEN assign the default size.
+    if ( ( colSize < 0 ) || ( colSizeType == -1 && colSize < 1 ) )
+      {
+      colSize = VTK_SQL_DEFAULT_COLUMN_SIZE;
+      }
+    
+    // At this point, we have either a valid size if required, or a possibly null valid size
+    // if not required. Thus, skip sizing in the latter case.
+    if ( colSize > 0 )
+      {
+      queryStr << "(" << colSize << ")";
+      }
+    }
+
+  vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
+  if ( attStr.size() )
+    {
+    queryStr << " " << attStr;
+    }
+
+  return queryStr.str();
+}
+
+// ----------------------------------------------------------------------
+
+vtkStdString 
+vtkODBCDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                        int tblHandle,
+                                        int idxHandle,
+                                        bool& skipped )
+{
+  skipped = false;
+  vtkStdString queryStr = ", ";
+  bool mustUseName = true;
+
+  int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
+  switch ( idxType )
+    {
+    case vtkSQLDatabaseSchema::PRIMARY_KEY:
+      queryStr += "PRIMARY KEY ";
+      mustUseName = false;
+      break;
+    case vtkSQLDatabaseSchema::UNIQUE:
+      queryStr += "UNIQUE ";
+      break;
+    case vtkSQLDatabaseSchema::INDEX:
+      queryStr += "INDEX ";
+      break;
+    default:
+      return vtkStdString();
+    }
+  
+  // No index_name for PRIMARY KEYs
+  if ( mustUseName )
+    {
+    queryStr += schema->GetIndexNameFromHandle( tblHandle, idxHandle );
+    }
+  queryStr += " (";
+        
+  // Loop over all column names of the index
+  int numCnm = schema->GetNumberOfColumnNamesInIndex( tblHandle, idxHandle );
+  if ( numCnm < 0 )
+    {
+    vtkGenericWarningMacro( "Unable to get index specification: index has incorrect number of columns " << numCnm );
+    return vtkStdString();
+    }
+
+  bool firstCnm = true;
+  for ( int cnmHandle = 0; cnmHandle < numCnm; ++ cnmHandle )
+    {
+    if ( firstCnm )
+      {
+      firstCnm = false;
+      }
+    else
+      {
+      queryStr += ",";
+      }
+    queryStr += schema->GetIndexColumnNameFromHandle( tblHandle, idxHandle, cnmHandle );
+    }
+  queryStr += ")";
+
+  return queryStr;
+}
+
+// ----------------------------------------------------------------------
+
+bool
+vtkODBCDatabase::CreateDatabase( const char* dbName, bool dropExisting = false )
+{
+  if ( dropExisting )
+    {
+    this->DropDatabase( dbName );
+    }
+  vtkStdString queryStr;
+  queryStr = "CREATE DATABASE ";
+  queryStr += dbName;
+  vtkSQLQuery* query = this->GetQueryInstance();
+  query->SetQuery( queryStr.c_str() );
+  bool status = query->Execute();
+  query->Delete();
+  // Close and re-open in case we deleted and recreated the current database
+  this->Close();
+  this->Open( this->Password );
+  return status;
+}
+
+// ----------------------------------------------------------------------
+
+bool 
+vtkODBCDatabase::DropDatabase( const char* dbName )
+{
+  vtkStdString queryStr;
+  queryStr = "DROP DATABASE ";
+  queryStr += dbName;
+  vtkSQLQuery* query = this->GetQueryInstance();
+  query->SetQuery( queryStr.c_str() );
+  bool status = query->Execute();
+  query->Delete();
+  return status;
+}
+
