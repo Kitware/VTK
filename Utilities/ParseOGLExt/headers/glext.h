@@ -46,9 +46,9 @@ extern "C" {
 /*************************************************************/
 
 /* Header file version number, required by OpenGL ABI for Linux */
-/* glext.h last updated 2008/08/16 */
+/* glext.h last updated 2008/10/09 */
 /* Current version at http://www.opengl.org/registry/ */
-#define GL_GLEXT_VERSION 42
+#define GL_GLEXT_VERSION 43
 
 #ifndef GL_VERSION_1_2
 #define GL_UNSIGNED_BYTE_3_3_2            0x8032
@@ -4502,10 +4502,10 @@ GLAPI void APIENTRY glTexParameterIiv (GLenum, GLenum, const GLint *);
 GLAPI void APIENTRY glTexParameterIuiv (GLenum, GLenum, const GLuint *);
 GLAPI void APIENTRY glGetTexParameterIiv (GLenum, GLenum, GLint *);
 GLAPI void APIENTRY glGetTexParameterIuiv (GLenum, GLenum, GLuint *);
-GLAPI void APIENTRY glClearBufferiv (GLenum, const GLint *);
-GLAPI void APIENTRY glClearBufferuiv (GLenum, const GLuint *);
-GLAPI void APIENTRY glClearBufferfv (GLenum, const GLfloat *);
-GLAPI void APIENTRY glClearBufferfi (GLenum, GLfloat, GLint);
+GLAPI void APIENTRY glClearBufferiv (GLenum, GLint, const GLint *);
+GLAPI void APIENTRY glClearBufferuiv (GLenum, GLint, const GLuint *);
+GLAPI void APIENTRY glClearBufferfv (GLenum, GLint, const GLfloat *);
+GLAPI void APIENTRY glClearBufferfi (GLenum, GLint, GLfloat, GLint);
 GLAPI const GLubyte * APIENTRY glGetStringi (GLenum, GLuint);
 #endif /* GL_GLEXT_PROTOTYPES */
 typedef void (APIENTRYP PFNGLCOLORMASKIPROC) (GLuint index, GLboolean r, GLboolean g, GLboolean b, GLboolean a);
@@ -4561,10 +4561,10 @@ typedef void (APIENTRYP PFNGLTEXPARAMETERIIVPROC) (GLenum target, GLenum pname, 
 typedef void (APIENTRYP PFNGLTEXPARAMETERIUIVPROC) (GLenum target, GLenum pname, const GLuint *params);
 typedef void (APIENTRYP PFNGLGETTEXPARAMETERIIVPROC) (GLenum target, GLenum pname, GLint *params);
 typedef void (APIENTRYP PFNGLGETTEXPARAMETERIUIVPROC) (GLenum target, GLenum pname, GLuint *params);
-typedef void (APIENTRYP PFNGLCLEARBUFFERIVPROC) (GLenum buffer, const GLint *value);
-typedef void (APIENTRYP PFNGLCLEARBUFFERUIVPROC) (GLenum buffer, const GLuint *value);
-typedef void (APIENTRYP PFNGLCLEARBUFFERFVPROC) (GLenum buffer, const GLfloat *value);
-typedef void (APIENTRYP PFNGLCLEARBUFFERFIPROC) (GLenum buffer, GLfloat depth, GLint stencil);
+typedef void (APIENTRYP PFNGLCLEARBUFFERIVPROC) (GLenum buffer, GLint drawbuffer, const GLint *value);
+typedef void (APIENTRYP PFNGLCLEARBUFFERUIVPROC) (GLenum buffer, GLint drawbuffer, const GLuint *value);
+typedef void (APIENTRYP PFNGLCLEARBUFFERFVPROC) (GLenum buffer, GLint drawbuffer, const GLfloat *value);
+typedef void (APIENTRYP PFNGLCLEARBUFFERFIPROC) (GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil);
 typedef const GLubyte * (APIENTRYP PFNGLGETSTRINGIPROC) (GLenum name, GLuint index);
 #endif
 
