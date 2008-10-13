@@ -14,6 +14,7 @@ vtkBoxLayoutStrategy.cxx
 vtkChacoGraphReader.cxx
 vtkCircularLayoutStrategy.cxx
 vtkClustering2DLayoutStrategy.cxx
+vtkCollapseGraph.cxx
 vtkCommunity2DLayoutStrategy.cxx
 vtkConstrained2DLayoutStrategy.cxx
 vtkContingencyStatistics.cxx
