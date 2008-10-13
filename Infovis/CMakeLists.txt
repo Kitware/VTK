@@ -30,6 +30,7 @@ vtkExtractSelectedGraph.cxx
 vtkFast2DLayoutStrategy.cxx
 vtkFixedWidthTextReader.cxx
 vtkForceDirectedLayoutStrategy.cxx
+vtkGenerateIndexArray.cxx
 vtkGraphHierarchicalBundle.cxx
 vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
