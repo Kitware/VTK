@@ -133,8 +133,8 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     void SetSelection(vtkDataSet *input);
 
   protected:
-     vtkTemporalPathLineFilter(void);
-    ~vtkTemporalPathLineFilter(void);
+     vtkTemporalPathLineFilter();
+    ~vtkTemporalPathLineFilter();
 
     //
     // Make sure the pipeline knows what type we expect as input
