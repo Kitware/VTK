@@ -34,7 +34,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.17");
+vtkCxxRevisionMacro(vtkTable, "1.18");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -91,7 +91,7 @@ void vtkTable::Dump( int colWidth )
 
   cout << lineStr;
 
-  for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+  for ( unsigned int c = 0; c < this->GetNumberOfColumns(); ++ c )
     {
     cout << "| ";
     vtkStdString str = this->GetColumnName( c );
@@ -115,7 +115,7 @@ void vtkTable::Dump( int colWidth )
 
   for ( vtkIdType r = 0; r < this->GetNumberOfRows(); ++ r )
     {
-    for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
+    for ( unsigned int c = 0; c < this->GetNumberOfColumns(); ++ c )
       {
       cout << "| ";
       vtkStdString str = this->GetValue( r, c ).ToString();
