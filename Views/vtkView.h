@@ -229,7 +229,7 @@ public:
   // This should be one of the content type constants defined in
   // vtkSelection.h. Common values are
   // vtkSelection::INDICES
-  // vtkSelection::PEDIGREE_IDS
+  // vtkSelection::PEDIGREEIDS
   // vtkSelection::VALUES
   vtkSetMacro(SelectionType, int);
   vtkGetMacro(SelectionType, int);
