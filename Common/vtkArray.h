@@ -19,6 +19,11 @@
 
 =========================================================================*/
 
+// .NAME vtkArray - Abstract interface for N-dimensional arrays.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkArray_h
 #define __vtkArray_h
 
@@ -27,11 +32,6 @@
 #include "vtkStdString.h"
 
 class vtkArrayCoordinates;
-
-// .NAME vtkArray - Abstract interface for N-dimensional arrays.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_COMMON_EXPORT vtkArray : public vtkObject
 {

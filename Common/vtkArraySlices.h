@@ -19,22 +19,22 @@
 
 =========================================================================*/
 
-#ifndef __vtkArraySlices_h
-#define __vtkArraySlices_h
-
-#include "vtkArraySlice.h"
-#include <vtksys/stl/vector>
-
 // .NAME vtkArraySlices - Stores a collection of vtkArraySlice objects.
-
+//
 // .SECTION Description
 // Provides storage for a collection of vtkArraySlice objects.  Typically this
 // is used by methods that require multiple slices as arguments, such as
 // InterpolateSlices().  Constructors are provided for creating collections
 // with 1, 2, 3, or 4 slices.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArraySlices_h
+#define __vtkArraySlices_h
+
+#include "vtkArraySlice.h"
+#include <vtksys/stl/vector>
 
 class VTK_COMMON_EXPORT vtkArraySlices
 {

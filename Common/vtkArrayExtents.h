@@ -19,22 +19,22 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayExtents_h
-#define __vtkArrayExtents_h
-
-#include "vtkSystemIncludes.h"
-#include <vtksys/stl/vector>
-
 // .NAME vtkArrayExtents - Stores the dimensions and size of an N-way array.
-
+//
 // .SECTION Description
 // Describes the dimensions and size along each dimension of an N-way collection
 // of values. Convenience constructors are provided for working with 1, 2, and
 // 3-way data.  For higher dimensions, use the static Uniform() factory method,
 // or use SetDimensions() and operator[] to assign values.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArrayExtents_h
+#define __vtkArrayExtents_h
+
+#include "vtkSystemIncludes.h"
+#include <vtksys/stl/vector>
 
 class VTK_COMMON_EXPORT vtkArrayExtents
 {

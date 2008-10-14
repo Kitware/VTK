@@ -19,18 +19,18 @@
 
 =========================================================================*/
 
+// .NAME vtkArrayCoordinateIterator - Provides efficient iteration over every
+// unique set of coordinates within an N-way array.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkArrayCoordinateIterator_h
 #define __vtkArrayCoordinateIterator_h
 
 #include "vtkArrayExtents.h"
 #include "vtkArrayCoordinates.h"
 #include "vtkObject.h"
-
-// .NAME vtkArrayCoordinateIterator - Provides efficient iteration over every
-// unique set of coordinates within an N-way array.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_COMMON_EXPORT vtkArrayCoordinateIterator : public vtkObject
 {

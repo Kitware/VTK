@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
+// .NAME vtkArrayRange - Stores a half-open range of coordinates for a
+// single dimension of a vtkArraySlice.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkArrayRange_h
 #define __vtkArrayRange_h
 
 #include "vtkSystemIncludes.h"
-
-// .NAME vtkArrayRange - Stores a half-open range of coordinates for a
-// single dimension of a vtkArraySlice.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_COMMON_EXPORT vtkArrayRange
 {

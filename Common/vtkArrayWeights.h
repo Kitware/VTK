@@ -19,22 +19,22 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayWeights_h
-#define __vtkArrayWeights_h
-
-#include "vtkSystemIncludes.h"
-#include <vtksys/stl/vector>
-
 // .NAME vtkArrayWeights - Stores a collection of weighting factors.
-
+//
 // .SECTION Description
 // Provides storage for a collection of weights to be used when merging /
 // interpolating N-way arrays.  Convenience constructors are provided for
 // working with 1, 2, 3, and 4-way merges.  For arbitrary collections of
 // weights, use SetCount() and operator[] to assign values.
-
+//
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+#ifndef __vtkArrayWeights_h
+#define __vtkArrayWeights_h
+
+#include "vtkSystemIncludes.h"
+#include <vtksys/stl/vector>
 
 class VTK_COMMON_EXPORT vtkArrayWeights
 {

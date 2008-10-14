@@ -19,17 +19,17 @@
 
 =========================================================================*/
 
+// .NAME vtkTypeTemplate - Provides the equivalent of vtkTypeRevisionMacro
+// for use with template classes
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkTypeTemplate_h
 #define __vtkTypeTemplate_h
 
 #include "vtkObjectBase.h"
 #include <typeinfo>
-
-// .NAME vtkTypeTemplate - Provides the equivalent of vtkTypeRevisionMacro
-// for use with template classes
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 template<class ThisT, class BaseT>
 class vtkTypeTemplate :

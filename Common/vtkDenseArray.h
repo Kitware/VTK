@@ -19,6 +19,12 @@
 
 =========================================================================*/
 
+// .NAME vtkDenseArray - vtkArray implementation that stores an N-way
+// array using contiguous storage.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkDenseArray_h
 #define __vtkDenseArray_h
 
@@ -26,12 +32,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
 #include "vtkTypeTemplate.h"
-
-// .NAME vtkDenseArray - vtkArray implementation that stores an N-way
-// array using contiguous storage.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 template<typename T>
 class vtkDenseArray :

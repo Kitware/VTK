@@ -19,21 +19,21 @@
 
 =========================================================================*/
 
+// .NAME vtkArrayCoordinates - Used to store N-way array coordinates.
+//
+// .SECTION Description
+// Provides a collection of coordinates for accessing values in an N-way array.
+// Convenience constructors are provided for working with 1, 2, and 3-way data.
+// For higher dimensions, use SetDimensions() and operator[].
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkArrayCoordinates_h
 #define __vtkArrayCoordinates_h
 
 #include "vtkSystemIncludes.h"
 #include <vtksys/stl/vector>
-
-// .NAME vtkArrayCoordinates - Used to store N-way array coordinates.
-
-// .SECTION Description
-// Provides a collection of coordinates for accessing values in an N-way array.
-// Convenience constructors are provided for working with 1, 2, and 3-way data.
-// For higher dimensions, use SetDimensions() and operator[].
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_COMMON_EXPORT vtkArrayCoordinates
 {

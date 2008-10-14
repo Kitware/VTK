@@ -19,6 +19,12 @@
 
 =========================================================================*/
 
+// .NAME vtkSparseArray - vtkArray implementation that stores an N-way
+// array using sparse storage.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkSparseArray_h
 #define __vtkSparseArray_h
 
@@ -26,12 +32,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypedArray.h"
-
-// .NAME vtkSparseArray - vtkArray implementation that stores an N-way
-// array using sparse storage.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 template<typename T>
 class vtkSparseArray :

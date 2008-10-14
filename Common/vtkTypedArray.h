@@ -19,6 +19,11 @@
 
 =========================================================================*/
 
+// .NAME vtkTypedArray - Provides a type-specific interface to N-way arrays
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkTypedArray_h
 #define __vtkTypedArray_h
 
@@ -26,11 +31,6 @@
 #include "vtkTypeTemplate.h"
 
 class vtkArrayCoordinates;
-
-// .NAME vtkTypedArray - Provides a type-specific interface to N-way arrays
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 template<typename T>
 class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>

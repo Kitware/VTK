@@ -19,6 +19,17 @@
 
 =========================================================================*/
 
+// .NAME vtkArraySlice - Describes a subset of an N-way array.
+//
+// .SECTION Description
+// Describes a subset of an N-way collection of values as a set of half-open
+// ranges along each dimension.  Convenience constructors are provided for
+// specifying 1, 2, and 3-way slices.  For higher dimensions, use the 
+// SetDimensions() method and operator[] to assign values.
+//
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 #ifndef __vtkArraySlice_h
 #define __vtkArraySlice_h
 
@@ -27,17 +38,6 @@
 #include "vtkArrayRange.h"
 
 #include <vtksys/stl/vector>
-
-// .NAME vtkArraySlice - Describes a subset of an N-way array.
-
-// .SECTION Description
-// Describes a subset of an N-way collection of values as a set of half-open
-// ranges along each dimension.  Convenience constructors are provided for
-// specifying 1, 2, and 3-way slices.  For higher dimensions, use the 
-// SetDimensions() method and operator[] to assign values.
-
-// .SECTION Thanks
-// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 class VTK_COMMON_EXPORT vtkArraySlice
 {
