@@ -21,7 +21,8 @@
 //
 // .SECTION Description
 // This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToGraph to
-// provide a data source that can be wrapped and used within ParaView / OverView.
+// provide a convenience class for generating graphs from databases. 
+// Also this class can be easily wrapped and used within ParaView / OverView.
 
 #ifndef __vtkSQLDatabaseGraphSource_h
 #define __vtkSQLDatabaseGraphSource_h

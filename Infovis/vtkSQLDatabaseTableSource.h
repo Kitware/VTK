@@ -21,7 +21,8 @@
 //
 // .SECTION Description
 // This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToTable to
-// provide a data source that can be wrapped and used within ParaView / OverView.
+// provide a convenience class for generating tables from databases. 
+// Also this class can be easily wrapped and used within ParaView / OverView.
 
 #ifndef __vtkSQLDatabaseTableSource_h
 #define __vtkSQLDatabaseTableSource_h
