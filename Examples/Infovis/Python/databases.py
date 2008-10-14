@@ -24,8 +24,7 @@ graph.AddLinkVertex("source", "Name", False)
 graph.AddLinkVertex("target", "Name", False)
 graph.AddLinkEdge("source", "target")
 graph.SetVertexTableConnection(vertex_table.GetOutputPort())
-graph.Update()
-print graph.GetOutput()
+
 
 view = vtkGraphLayoutView()
 view.AddRepresentationFromInputConnection(graph.GetOutputPort())
