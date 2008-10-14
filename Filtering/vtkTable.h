@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Dump table contents.
-  void Dump( int colWidth = 16 ); 
+  void Dump( unsigned int colWidth = 16 ); 
 
   // Description:
   // Return what type of dataset this is.
