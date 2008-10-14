@@ -3,6 +3,7 @@ from vtk import *
 data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "SmallEmailTest.db"
 
+# Construct a graph from database tables (yes very tricky)
 databaseToGraph = vtkSQLDatabaseGraphSource()
 databaseToGraph.SetURL("sqlite://" + sqlite_file)
 databaseToGraph.SetEdgeQuery("select source, target from emails")
