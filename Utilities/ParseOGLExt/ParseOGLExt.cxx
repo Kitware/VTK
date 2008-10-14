@@ -58,7 +58,7 @@ static vtkstd::string ToUpper(vtkstd::string s)
 
 class Extension {
 public:
-  vtkstd::string name;
+  vtkstd::string GetName() const { return this->name; }
   enum {GL, WGL, GLX} type;
 
   Extension() {}
@@ -111,6 +111,9 @@ public:
   }
 
   bool operator<(const Extension &obj) const { return this->name < obj.name; }
+
+protected:
+  vtkstd::string name;
 };
 
 Extension::Extension(char *line)
@@ -157,13 +160,17 @@ static Extension currentExtension;
 
 class Constant {
 public:
-  vtkstd::string name;
-  vtkstd::string value;
+  vtkstd::string GetName() const  { return this->name; }
+  vtkstd::string GetValue() const;
 
   Constant(char *line);
   static bool isConstant(char *line);
 
   bool operator<(const Constant &obj) const { return this->name < obj.name; }
+
+protected:
+  vtkstd::string name;
+  vtkstd::string value;
 };
 
 static vtkstd::map<vtkstd::string, vtkstd::string> EncounteredConstants;
@@ -194,16 +201,21 @@ Constant::Constant(char *line)
     }
 
   this->value = t.GetNextToken();
-  // Sometimes, one constant points to another.  Handle this properly.
-  vtkstd::map<vtkstd::string, vtkstd::string>::iterator found
-    = EncounteredConstants.find(value);
-  if (found != EncounteredConstants.end())
-    {
-    this->value = found->second;
-    }
 
   // Now record this as found.
   EncounteredConstants[fullname] = this->value;
+}
+
+vtkstd::string Constant::GetValue() const
+{
+  // Sometimes, one constant points to another.  Handle this properly.
+  vtkstd::map<vtkstd::string, vtkstd::string>::iterator found
+    = EncounteredConstants.find(this->value);
+  if (found != EncounteredConstants.end())
+    {
+    return found->second;
+    }
+  return this->value;
 }
 
 bool Constant::isConstant(char *line)
@@ -266,17 +278,24 @@ bool Typedef::isTypedef(char *line)
 
 class Function {
 public:
-  vtkstd::string returnType;
-  vtkstd::string entry;
-  vtkstd::string name;
-  vtkstd::string arguments;
-  int extensionType;
+  vtkstd::string GetReturnType() const { return this->returnType; }
+  vtkstd::string GetEntry() const { return this->entry; }
+  vtkstd::string GetName() const { return this->name; }
+  vtkstd::string GetArguments() const { return this->arguments; }
+  int GetExtensionType() const { return this->extensionType; }
 
   Function(char *line);
   static bool isFunction(char *line);
   const char *GetProcType();
 
   bool operator<(const Function &obj) const { return this->name < obj.name; }
+
+protected:
+  vtkstd::string returnType;
+  vtkstd::string entry;
+  vtkstd::string name;
+  vtkstd::string arguments;
+  int extensionType;
 };
 
 Function::Function(char *line) : extensionType(currentExtension.type)
@@ -423,9 +442,9 @@ static void ParseLine(char *line)
     // There are some exceptions to the extensions we support.  This is
     // because someone has placed some funky nonstandard stuff in the
     // header files.
-    if (   (currentExtension.name == "GLX_SGIX_video_source")
-        || (currentExtension.name == "GLX_SGIX_dmbuffer")
-        || (currentExtension.name == "GLX_SGIX_hyperpipe") )
+    if (   (currentExtension.GetName() == "GLX_SGIX_video_source")
+        || (currentExtension.GetName() == "GLX_SGIX_dmbuffer")
+        || (currentExtension.GetName() == "GLX_SGIX_hyperpipe") )
       {
       inExtension = false;
       return;
@@ -434,7 +453,7 @@ static void ParseLine(char *line)
   // Only add extension to list if it is not already in it.
     if (extensionset.find(currentExtension) == extensionset.end())
       {
-      if (currentExtension.name == "GLX_ARB_get_proc_address")
+      if (currentExtension.GetName() == "GLX_ARB_get_proc_address")
         {
         // Special case where GLX_VERSION_1_4 depends on a typedef in
         // GLX_ARB_get_proc_address, so we have to move the latter up.
@@ -467,8 +486,8 @@ static void ParseLine(char *line)
         }
       }
     else if (   Constant::isConstant(line)
-             && (strncmp(currentExtension.name.c_str(), (line+8),
-                         currentExtension.name.length()) != 0) )
+             && (strncmp(currentExtension.GetName().c_str(), (line+8),
+                         currentExtension.GetName().length()) != 0) )
       {
 #ifdef DEBUG_PARSE
       cerr << "Recognized constant: " << line << endl;
@@ -526,7 +545,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
        iextension != extensions.end(); iextension++)
     {
     if (iextension->type != type) continue;
-    hfile << endl << "  //Definitions for " << iextension->name.c_str() << endl;
+    hfile << endl << "  //Definitions for " << iextension->GetName().c_str() << endl;
     vtkstd::map<Extension, vtkstd::list<Constant> >::iterator cExts
       = consts.find(*iextension);
     if (cExts != consts.end())
@@ -541,21 +560,21 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
         // confuses the C++ preprocessor terribly.  Don't write out a
         // definition for an enum with a name/value pair that's
         // already been used.
-        if ( ConstantsAlreadyWritten.find( vtkstd::make_pair( iconst->name, 
-                                                              iconst->value ) )
-             == ConstantsAlreadyWritten.end() )
+        if (ConstantsAlreadyWritten.find(vtkstd::make_pair(iconst->GetName(), 
+                                                           iconst->GetValue()))
+             == ConstantsAlreadyWritten.end())
           {
-          hfile << "  const GLenum " << iconst->name.c_str()
-                << " = static_cast<GLenum>(" << iconst->value.c_str() << ");" << endl;
+          hfile << "  const GLenum " << iconst->GetName().c_str()
+                << " = static_cast<GLenum>(" << iconst->GetValue().c_str() << ");" << endl;
 
-          ConstantsAlreadyWritten.insert( vtkstd::make_pair( iconst->name, 
-                                                             iconst->value ) );
+          ConstantsAlreadyWritten.insert(vtkstd::make_pair(iconst->GetName(), 
+                                                           iconst->GetValue()));
           
           }
         else
           {
-          hfile << "  /* skipping duplicate " << iconst->name.c_str()
-                << " = " << iconst->value.c_str() << " */" << endl;
+          hfile << "  /* skipping duplicate " << iconst->GetName().c_str()
+                << " = " << iconst->GetValue().c_str() << " */" << endl;
           }
         }
       }
@@ -577,7 +596,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
            ifunc != fExts->second.end(); ifunc++)
         {
         hfile << "  extern VTK_RENDERING_EXPORT " << ifunc->GetProcType()
-              << " " << ifunc->name.c_str() << ";" << endl;
+              << " " << ifunc->GetName().c_str() << ";" << endl;
         }
       }
     }
@@ -591,14 +610,14 @@ static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
        fExts != functs.end(); fExts++)
     {
     if (fExts->first.type != type) continue;
-    cxxfile << "//Functions for " << fExts->first.name.c_str() << endl;
+    cxxfile << "//Functions for " << fExts->first.GetName().c_str() << endl;
     for (vtkstd::list<Function>::iterator ifunc = fExts->second.begin();
          ifunc != fExts->second.end(); ifunc++)
       {
       cxxfile << "vtk" << Extension::TypeToString(type) << "::"
               << ifunc->GetProcType()
               << " vtk" << Extension::TypeToString(type) << "::"
-              << ifunc->name.c_str() << " = NULL;" << endl;
+              << ifunc->GetName().c_str() << " = NULL;" << endl;
       }
     }
   Extension::WriteSupportWrapperEnd(cxxfile, type);
@@ -643,8 +662,8 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     for (vtkstd::list<Constant>::iterator c = (*constlist).second.begin();
          c != (*constlist).second.end(); c++)
       {
-      hfile << "#ifdef " << (*c).name.c_str() << endl;
-      hfile << "#undef " << (*c).name.c_str() << endl;
+      hfile << "#ifdef " << (*c).GetName().c_str() << endl;
+      hfile << "#undef " << (*c).GetName().c_str() << endl;
       hfile << "#endif" << endl;
       }
     }
@@ -718,7 +737,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
        iextension != extensions.end(); iextension++)
     {
     iextension->WriteSupportWrapperBegin(cxxfile);
-    cxxfile << "  if (strcmp(name, \"" << iextension->name.c_str()
+    cxxfile << "  if (strcmp(name, \"" << iextension->GetName().c_str()
             << "\") == 0)" << endl
             << "    {" << endl;
     vtkstd::string vtkglclass = "vtk";
@@ -728,17 +747,17 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
          ifunct != functs[*iextension].end(); ifunct++)
       {
       cxxfile << "    " << vtkglclass.c_str() << "::"
-              << ifunct->name.c_str() << " = reinterpret_cast<" << vtkglclass.c_str() << "::"
+              << ifunct->GetName().c_str() << " = reinterpret_cast<" << vtkglclass.c_str() << "::"
               << ifunct->GetProcType()
               << ">(manager->GetProcAddress(\""
               << Extension::TypeToString(iextension->type)
-              << ifunct->name.c_str() << "\"));" << endl;
+              << ifunct->GetName().c_str() << "\"));" << endl;
       }
     cxxfile << "    return 1";
     for (ifunct = functs[*iextension].begin();
          ifunct != functs[*iextension].end(); ifunct++)
       {
-      cxxfile << " && (" << vtkglclass.c_str() << "::" << ifunct->name.c_str()
+      cxxfile << " && (" << vtkglclass.c_str() << "::" << ifunct->GetName().c_str()
               << " != NULL)";
       }
     cxxfile << ";" << endl;
@@ -757,9 +776,9 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   for (iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
-    if (strncmp("GL_VERSION_", iextension->name.c_str(), 11) == 0)
+    if (strncmp("GL_VERSION_", iextension->GetName().c_str(), 11) == 0)
       {
-      cxxfile << iextension->name.c_str() << " ";
+      cxxfile << iextension->GetName().c_str() << " ";
       }
     }
   cxxfile << "\";" << endl
@@ -771,9 +790,9 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   for (iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
-    if (strncmp("GLX_VERSION_", iextension->name.c_str(), 12) == 0)
+    if (strncmp("GLX_VERSION_", iextension->GetName().c_str(), 12) == 0)
       {
-      cxxfile << iextension->name.c_str() << " ";
+      cxxfile << iextension->GetName().c_str() << " ";
       }
     }
   cxxfile << "\";" << endl
