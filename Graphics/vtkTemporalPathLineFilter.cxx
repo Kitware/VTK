@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.1");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.2");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -235,7 +235,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
     double distx = vtkstd::fabs(lastcoord[0]-coord[0]);
     double disty = vtkstd::fabs(lastcoord[1]-coord[1]);
     double distz = vtkstd::fabs(lastcoord[2]-coord[2]);
-    double dist  = vtkstd::sqrt(dist);
+//    double dist  = vtkstd::sqrt(dist);
     //
     if (distx>this->MaxStepDistance[0] ||
         disty>this->MaxStepDistance[1] ||
@@ -263,7 +263,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
 }
 //---------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::RequestData(
-  vtkInformation *information,
+  vtkInformation *vtkNotUsed(information),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -350,8 +350,8 @@ int vtkTemporalPathLineFilter::RequestData(
     vtkDataArray *selectionIds = vtkDataArray::SafeDownCast(selection->GetPointData()->GetArray(this->IdChannelArray));
     if (selectionIds) {
       vtkIdType N  = selectionIds->GetNumberOfTuples();
-      vtkIdType N1 = input->GetNumberOfPoints();
-      vtkIdType N2 = inscalars->GetNumberOfTuples();
+//      vtkIdType N1 = input->GetNumberOfPoints();
+//      vtkIdType N2 = inscalars->GetNumberOfTuples();
       for (vtkIdType i=0; i<N; i++) {
         vtkIdType ID = static_cast<vtkIdType>(selectionIds->GetTuple1(i));
         this->SelectionIds.insert(ID);
@@ -482,5 +482,25 @@ void vtkTemporalPathLineFilter::Flush()
   this->Internals->TimeStepSequence.clear();
   this->FirstTime = 1;
   ParticleTrail::UniqueId = 0;
+}
+//---------------------------------------------------------------------------
+void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "MaskPoints: " 
+    << this->MaskPoints << "\n";
+  os << indent << "MaxTrackLength: " 
+    << this->MaxTrackLength << "\n";
+  os << indent << "UsePointIndexForIds: " 
+    << this->UsePointIndexForIds << "\n";
+  os << indent << "IdChannelArray: " 
+    << (this->IdChannelArray ? this->IdChannelArray : "None") << "\n";
+  os << indent << "ScalarArray: " 
+    << (this->ScalarArray ? this->ScalarArray : "None") << "\n";
+  os << indent << "MaxStepDistance: " 
+    << this->MaxStepDistance << "\n";
+  os << indent << "KeepDeadTrails: " 
+    << this->KeepDeadTrails << "\n";
 }
 //---------------------------------------------------------------------------

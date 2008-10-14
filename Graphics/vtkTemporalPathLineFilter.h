@@ -54,6 +54,7 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     // Standard Type-Macro
     static vtkTemporalPathLineFilter *New();
     vtkTypeRevisionMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
+    void PrintSelf(ostream& os, vtkIndent indent);
 
     // Description:
     // Set the number of particles to track as a ratio of the input
@@ -68,8 +69,8 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     // is displayed. Tracks longer then the Max will disappear
     // and the trace will apppear like a snake of fixed length
     // which progresses as the particle moves
-    vtkSetMacro(MaxTrackLength,int);
-    vtkGetMacro(MaxTrackLength,int);
+    vtkSetMacro(MaxTrackLength,unsigned int);
+    vtkGetMacro(MaxTrackLength,unsigned int);
     
     // Description:
     // True by default. We use the index of the point as the ID.
