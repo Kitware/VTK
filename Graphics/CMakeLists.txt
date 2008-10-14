@@ -228,6 +228,7 @@ vtkSuperquadricSource.cxx
 vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 vtkSynchronizedTemplatesCutter3D.cxx
+vtkTemporalPathLineFilter.cxx
 vtkTemporalStatistics.cxx
 vtkTensorGlyph.cxx
 vtkTessellatorFilter.cxx
