@@ -32,7 +32,7 @@ os.AddColumn("Temp2")
 os.Update()
 
 oStats = os.GetOutput(1)
-oStats.Dump( 14 )
+oStats.Dump( 15 )
 print
 
 print "# Continue with deciles:"
@@ -56,8 +56,8 @@ cStats = cs.GetOutput(1)
 cStats.Dump( 10 )
 print
 
-print "# And report corresponding joint probabilities:"
-# And report corresponding joint probabilities
+print "# And report corresponding deviations (squared Mahalanobis distance):"
+# And report corresponding deviations (squared Mahalanobis distance):"
 cData = cs.GetOutput(0)
 cData.Dump( 14 )
 print
