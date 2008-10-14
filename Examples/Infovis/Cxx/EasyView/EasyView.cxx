@@ -13,16 +13,20 @@
 
 
 #include <vtkDataObjectToTable.h>
+#include <vtkDataRepresentation.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableModelAdapter.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeModelAdapter.h>
 #include <vtkQtTreeView.h>
 #include <vtkRenderer.h>
+#include <vtkSelection.h>
+#include <vtkSelectionLink.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
 #include <vtkTreeLayoutStrategy.h>
 #include <vtkViewTheme.h>
+#include <vtkViewUpdater.h>
 #include <vtkXMLTreeReader.h>
 
 
@@ -85,52 +89,63 @@ void EasyView::slotOpenXMLFile()
     QDir::homePath(),
     "XML Files (*.xml);;All Files (*.*)");
     
-   if (fileName.isNull())
+  if (fileName.isNull())
     {
     cerr << "Could not open file" << endl;
     return;
     }
     
-   // Create XML reader
-   this->XMLReader->SetFileName( fileName.toAscii() );
-   this->XMLReader->ReadTagNameOff();
-   this->XMLReader->Update();
+  // Create XML reader
+  this->XMLReader->SetFileName( fileName.toAscii() );
+  this->XMLReader->ReadTagNameOff();
+  this->XMLReader->Update();
     
-   // Set up some hard coded parameters for the graph view
-   this->GraphView->SetVertexLabelArrayName("id");
-   this->GraphView->VertexLabelVisibilityOn();
-   this->GraphView->SetVertexColorArrayName("VertexDegree"); 
-   this->GraphView->ColorVerticesOn();
-   this->GraphView->SetEdgeColorArrayName("edge id"); 
-   this->GraphView->ColorEdgesOn();
+  // Set up some hard coded parameters for the graph view
+  this->GraphView->SetVertexLabelArrayName("id");
+  this->GraphView->VertexLabelVisibilityOn();
+  this->GraphView->SetVertexColorArrayName("VertexDegree"); 
+  this->GraphView->ColorVerticesOn();
+  this->GraphView->SetEdgeColorArrayName("edge id"); 
+  this->GraphView->ColorEdgesOn();
    
-   // Create a tree layout strategy
-   VTK_CREATE(vtkTreeLayoutStrategy, treeStrat); 
-   treeStrat->RadialOn();
-   treeStrat->SetAngle(360);
-   treeStrat->SetLogSpacingValue(1);
-   this->GraphView->SetLayoutStrategy(treeStrat);
+  // Create a tree layout strategy
+  VTK_CREATE(vtkTreeLayoutStrategy, treeStrat); 
+  treeStrat->RadialOn();
+  treeStrat->SetAngle(360);
+  treeStrat->SetLogSpacingValue(1);
+  this->GraphView->SetLayoutStrategy(treeStrat);
 
   
-   // Set the input to the graph view
-   this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  // Set the input to the graph view
+  this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   
-   // Okay now do an explicit update so that
-   // the user doesn't have to move the mouse 
-   // in the window to see the resulting graph
-   this->GraphView->Update();
-   this->GraphView->GetRenderer()->ResetCamera();
+  // Okay now do an explicit update so that
+  // the user doesn't have to move the mouse 
+  // in the window to see the resulting graph
+  this->GraphView->Update();
+  this->GraphView->GetRenderer()->ResetCamera();
    
-   // Now hand off tree to the tree view
-   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-   this->ui->treeView->expandAll();
+  // Now hand off tree to the tree view
+  this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
+  this->ui->treeView->expandAll();
    
-   // Extract a table and give to table view
-   VTK_CREATE(vtkDataObjectToTable, toTable);
-   toTable->SetInputConnection(this->XMLReader->GetOutputPort());
-   toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
-   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
+  // Extract a table and give to table view
+  VTK_CREATE(vtkDataObjectToTable, toTable);
+  toTable->SetInputConnection(this->XMLReader->GetOutputPort());
+  toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
+  this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
+
+  // Create a selection link and have all the views use it
+  VTK_CREATE(vtkSelectionLink,selectionLink);
+  this->TreeView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->GraphView->GetRepresentation()->SetSelectionLink(selectionLink);
+
+  VTK_CREATE(vtkViewUpdater,updater);
+  updater->AddView(this->TreeView);
+  updater->AddView(this->TableView);
+  updater->AddView(this->GraphView);
 
 }
 
