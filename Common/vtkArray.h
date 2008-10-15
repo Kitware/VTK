@@ -103,12 +103,14 @@ public:
   // Returns the label for the i-th array dimension.
   vtkStdString GetDimensionLabel(vtkIdType i);
 
+  //BTX
   // Description:
   // Returns the coordinates of the n-th value in the array, where n is in the
   // range [0, GetNonNullSize()).  Note that the order in which coordinates are visited
   // is undefined, but is guaranteed to match the order in which values are visited using
   // vtkTypedArray::GetValueN() and vtkTypedArray::SetValueN().
   virtual void GetCoordinatesN(const vtkIdType n, vtkArrayCoordinates& coordinates) = 0;
+  //ETX
 
   // Description:
   // Returns a new array that is a deep copy of this array.
