@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
  
-vtkCxxRevisionMacro(vtkMySQLDatabase, "1.34");
+vtkCxxRevisionMacro(vtkMySQLDatabase, "1.35");
 vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
@@ -149,7 +149,7 @@ bool vtkMySQLDatabase::Open( const char* password )
     mysql_real_connect( &this->Private->NullConnection, 
                         this->GetHostName(),
                         this->GetUser(),
-                        password, 
+                        ( password && strlen( password ) ? password : this->Password ), 
                         this->GetDatabaseName(),
                         this->GetServerPort(),
                         0, 0);
