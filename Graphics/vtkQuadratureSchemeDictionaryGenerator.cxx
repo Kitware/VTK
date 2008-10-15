@@ -98,7 +98,7 @@ double W_QE_42_A[]={
 };
 
 
-vtkCxxRevisionMacro(vtkQuadratureSchemeDictionaryGenerator, "1.3");
+vtkCxxRevisionMacro(vtkQuadratureSchemeDictionaryGenerator, "1.4");
 vtkStandardNewMacro(vtkQuadratureSchemeDictionaryGenerator);
 
 //-----------------------------------------------------------------------------
@@ -160,9 +160,11 @@ int vtkQuadratureSchemeDictionaryGenerator::RequestData(
     = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn->GetPointData()==NULL)
+  if (usgIn==NULL || usgOut==NULL
+     || usgIn->GetNumberOfPoints()==0
+     || usgIn->GetPointData()->GetNumberOfArrays()==0)
     {
-    vtkWarningMacro("No point data in input data. Aborting.");
+    vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
     return 1;
     }
 
