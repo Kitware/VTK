@@ -48,7 +48,7 @@
 #include <time.h>
 #include <ctype.h>
 
-vtkCxxRevisionMacro (vtkExodusIIWriter, "1.27");
+vtkCxxRevisionMacro (vtkExodusIIWriter, "1.28");
 vtkStandardNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -215,6 +215,11 @@ int vtkExodusIIWriter::RequestData (
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
+  if (!this->FileName)
+    {
+    return 1;
+    }
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject (0);
   this->OriginalInput = vtkDataObject::SafeDownCast (
     inInfo->Get(vtkDataObject::DATA_OBJECT ()));
