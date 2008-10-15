@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.17");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.18");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,8 @@ int vtkGlyphSource2D::RequestData(
   vtkUnsignedCharArray *colors = vtkUnsignedCharArray::New();
   colors->SetNumberOfComponents(3);
   colors->Allocate(2,2);
-  
+  colors->SetName("Colors");
+
   this->ConvertColor();
 
   //Special options
