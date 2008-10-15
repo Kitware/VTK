@@ -79,12 +79,11 @@ int main( int argc, char** argv )
   haruspex->AddColumn( "Temp2" );
 
   // -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
-  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDF );
+  haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
   haruspex->SetAssess( false );
   haruspex->Update();
   cout << "\n# Calculated the following 5-point statistics for the selected columns of interest:\n";
   outputTable->Dump();
-  reader->Delete();
 
   // -- Create box plot --
   QApplication app( argc, argv );
@@ -150,6 +149,9 @@ int main( int argc, char** argv )
   // Clean up 
   delete chart;
   haruspex->Delete();
+  reader->Delete();
+  query->Delete();
+  db->Delete();
 
   return result;
 }
