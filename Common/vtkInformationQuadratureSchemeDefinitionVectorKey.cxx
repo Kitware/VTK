@@ -42,7 +42,7 @@ private:
 };
 
 //============================================================================
-vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchemeDefinitionVectorKey(
@@ -88,11 +88,6 @@ void vtkInformationQuadratureSchemeDefinitionVectorKey::Append(
 {
   //
   vtkInformationQuadratureSchemeDefinitionVectorValue* base=this->GetQuadratureSchemeDefinitionVector(info);
-  //
-  if (aValue!=NULL)
-    {
-    aValue->Register(base);
-    }
   //
   base->GetVector().push_back(aValue);
 }
