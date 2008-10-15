@@ -1,3 +1,7 @@
+# Note: If you are looking at this file in response to a warning
+# message about an outdated Boost version, please search for the
+# string BOOST_OLD_VERSION.
+
 SET(KIT Infovis)
 SET(UKIT INFOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL)
@@ -87,7 +91,39 @@ vtkXMLTreeReader.cxx
 )
 
 # Add these classes only if using Boost
+
+# About the BOOST_OLD_VERSION warning:
+# 
+# The Kruskal minimum spanning tree algorithm does not compile
+# correctly with Boost versions earlier than 1.36 on 64-bit platforms.
+# If you're using one of those old versions you have two options:
+#
+#
+# 1.  Download a new version of Boost from http://www.boost.org and
+#     install it wherever you like.  Make sure to change the CMAKE
+#     variable Boost_INCLUDE_DIR to point to the new version.
+#
+# 2.  Continue with your existing version of Boost.  We will still
+#     compile whatever Boost filters we can.  
+#
+# Upgrading to a recent Boost version is the preferred solution.  A
+# future version of ParaView will probably require Boost 1.36 or later.
+
+
 IF(VTK_USE_BOOST)
+  IF( "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}" LESS 1.36)
+    IF( HAVE_CMAKE_SIZEOF_VOID_P AND CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      SET( BOOST_OLD_VERSION TRUE )
+      MESSAGE( "Your system is using an outdated version of Boost ("
+               "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}"
+               ", found in ${Boost_INCLUDE_DIR}).  Some of the graph "
+               "processing filters require version 1.36.0 or later to "
+               "build on 64-bit platforms.  \n\nThe system will still compile "
+               "but those filters will be disabled.  Please see "
+               "ParaView3/VTK/Infovis/CMakeLists.txt "
+               "for more information." )
+    ENDIF( HAVE_CMAKE_SIZEOF_VOID_P AND CMAKE_SIZEOF_VOID_P EQUAL 8 )
+  ENDIF( "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}" LESS 1.36 )
 
   SET(Kit_SRCS
     ${Kit_SRCS}
@@ -96,11 +132,17 @@ IF(VTK_USE_BOOST)
     vtkBoostBreadthFirstSearch.cxx
     vtkBoostBreadthFirstSearchTree.cxx
     vtkBoostConnectedComponents.cxx
-    vtkBoostKruskalMinimumSpanningTree.cxx
     vtkBoostPrimMinimumSpanningTree.cxx
     vtkBoostSplitTableField.cxx
   )
 
+  IF( NOT BOOST_OLD_VERSION )
+    SET( Kit_SRCS
+        ${Kit_SRCS}
+        vtkBoostKruskalMinimumSpanningTree.cxx
+       )
+  ENDIF( NOT BOOST_OLD_VERSION )
+  
 ENDIF(VTK_USE_BOOST)
 
 IF(VTK_USE_N_WAY_ARRAYS)
