@@ -45,7 +45,7 @@ view.SetLayoutStrategyToSimple2D()
 # them out for comparison
 treeStrat = vtkTreeLayoutStrategy();
 treeStrat.RadialOn()
-treeStrat.SetAngle(90)
+treeStrat.SetAngle(120)
 treeStrat.SetLogSpacingValue(1)
 forceStrat = vtkSimple2DLayoutStrategy()
 forceStrat.SetEdgeWeightField("centrality")
@@ -62,6 +62,7 @@ view2.SetEdgeColorArrayName("centrality")
 view2.SetColorEdges(True)
 view2.SetBundlingStrength(.75)
 view2.SetLayoutStrategy(forceStrat)
+#view2.SetLayoutStrategy(treeStrat)
 
 # Make sure all views are using a pedigree id selection
 view.SetSelectionType(2)
