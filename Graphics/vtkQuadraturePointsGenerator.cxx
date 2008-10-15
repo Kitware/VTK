@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.5");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.6");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -105,10 +105,12 @@ int vtkQuadraturePointsGenerator::RequestData(
   vtkPolyData *pdOut
     = vtkPolyData::SafeDownCast(tmpDataObj);
 
-  // Quick sanity check
-  if (usgIn->GetPointData()==NULL)
+  // Quick sanity check.
+  if (usgIn==NULL || pdOut==NULL
+     || usgIn->GetNumberOfPoints()==0
+     || usgIn->GetPointData()->GetNumberOfArrays()==0)
     {
-    vtkWarningMacro("No point data in input data. Aborting.");
+    vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
     return 1;
     }
 
