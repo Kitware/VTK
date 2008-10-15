@@ -34,7 +34,7 @@
 // Standard functions
 //
 
-vtkCxxRevisionMacro(vtkTable, "1.19");
+vtkCxxRevisionMacro(vtkTable, "1.20");
 vtkStandardNewMacro(vtkTable);
 vtkCxxSetObjectMacro(vtkTable, RowData, vtkDataSetAttributes);
 
@@ -76,13 +76,20 @@ void vtkTable::PrintSelf(ostream &os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkTable::Dump( unsigned int colWidth )
+
 {
+  if ( ! this->GetNumberOfColumns() )
+    {
+    cout << "++\n++\n";
+    return;
+    }
+
   vtkStdString lineStr;
   for ( int c = 0; c < this->GetNumberOfColumns(); ++ c )
     {
     lineStr += "+-";
 
-    for ( int i = 0; i < colWidth; ++ i )
+    for ( unsigned int i = 0; i < colWidth; ++ i )
       {
       lineStr += "-";
       }
@@ -103,7 +110,7 @@ void vtkTable::Dump( unsigned int colWidth )
     else
       {
       cout << str;
-      for ( int i = str.length(); i < colWidth; ++ i )
+      for ( unsigned int i = str.length(); i < colWidth; ++ i )
         {
         cout << " ";
         }
@@ -127,7 +134,7 @@ void vtkTable::Dump( unsigned int colWidth )
       else
         {
         cout << str;
-        for ( int i = str.length(); i < colWidth; ++ i )
+        for ( unsigned int i = str.length(); i < colWidth; ++ i )
           {
           cout << " ";
           }
