@@ -130,6 +130,7 @@ int TestAreaSelections(int argc, char* argv[])
   MY_CREATE_NEW(vtkDataSetReader, reader);
   char *cfname=vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SampleStructGrid.vtk");
   reader->SetFileName(cfname);
+  delete [] cfname;
   
   MY_CREATE_NEW(vtkDataSetMapper, map1);
   map1->SetInput(reader->GetOutput());
@@ -191,6 +192,15 @@ int TestAreaSelections(int argc, char* argv[])
   //run the test
 
   renWin->Render();
+  int rgba[4];
+  renWin->GetColorBufferSizes(rgba);
+  if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
+    {
+    cout <<"Color buffer depth must be atleast 8 bit. Currently: " 
+      << rgba[0] << ", " << rgba[1] << ", " << rgba[2] << endl;
+    return 0;
+    }
+
   areaPicker->AreaPick(51,78,82,273,renderer);
   EndPick(NULL, 0, NULL, NULL);
   renWin->Render();
@@ -202,6 +212,5 @@ int TestAreaSelections(int argc, char* argv[])
     }
 
   // Cleanup
-  delete [] cfname;
   return !retVal;
 }
