@@ -52,9 +52,7 @@ vtkRISReader.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
 vtkSQLDatabaseGraphSource.cxx
-vtkSQLDatabaseGraphSource.h
 vtkSQLDatabaseTableSource.cxx
-vtkSQLDatabaseTableSource.h
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
