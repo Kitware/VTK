@@ -53,6 +53,7 @@ protected slots:
 private:
 
   // Methods
+  void SetupSelectionLink();
   
    
   // Members

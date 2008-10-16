@@ -71,6 +71,22 @@ EasyView::EasyView()
 
 };
 
+// Set up the selection between the vtk and qt views
+void EasyView::SetupSelectionLink()
+{
+  // Create a selection link and have all the views use it
+  VTK_CREATE(vtkSelectionLink,selectionLink);
+  this->TreeView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
+  this->GraphView->GetRepresentation()->SetSelectionLink(selectionLink);
+
+  VTK_CREATE(vtkViewUpdater,updater);
+  updater->AddView(this->TreeView);
+  updater->AddView(this->TableView);
+  updater->AddView(this->GraphView);
+
+}
+
 EasyView::~EasyView()
 {
 
