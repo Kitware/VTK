@@ -9,6 +9,7 @@
 #include <vtkTableToGraph.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkViewTheme.h>
 
 int main(int argc, char* argv[])
 {
@@ -32,10 +33,23 @@ int main(int argc, char* argv[])
   graph->AddLinkVertex("columns", "stuff", false);
   graph->AddLinkEdge("rows", "columns");
 
+  vtkSmartPointer<vtkViewTheme> theme;
+  theme.TakeReference(vtkViewTheme::CreateMellowTheme());
+  theme->SetLineWidth(5);
+  theme->SetCellOpacity(0.9);
+  theme->SetCellAlphaRange(0.5,0.5);
+  theme->SetPointSize(10);
+  theme->SetSelectedCellColor(1,0,1);
+  theme->SetSelectedPointColor(1,0,1);
+
   vtkSmartPointer<vtkGraphLayoutView> view = vtkSmartPointer<vtkGraphLayoutView>::New();
   view->AddRepresentationFromInputConnection(graph->GetOutputPort());
   view->EdgeLabelVisibilityOn();
   view->SetEdgeLabelArrayName("value");
+  view->ApplyViewTheme(theme);
+  view->SetVertexLabelFontSize(20);
+  view->SetEdgeLabelFontSize(18);
+  view->VertexLabelVisibilityOn();
 
   vtkSmartPointer<vtkRenderWindow> window = vtkSmartPointer<vtkRenderWindow>::New();
   window->SetSize(600, 600);
