@@ -34,6 +34,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMySQLDatabase.h"
 #endif // VTK_USE_MYSQL
 
+#ifdef VTK_USE_ODBC
+#include "vtkODBCDatabase.h"
+#endif // VTK_USE_ODBC
+
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
@@ -77,7 +81,7 @@ public:
 // Used to clean up the Callbacks 
 static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 
-vtkCxxRevisionMacro(vtkSQLDatabase, "1.47");
+vtkCxxRevisionMacro(vtkSQLDatabase, "1.48");
 // ----------------------------------------------------------------------
 vtkSQLDatabase::vtkSQLDatabase()
 {
@@ -424,6 +428,14 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     db->ParseURL(URL);
     }
 #endif // VTK_USE_MYSQL
+
+#ifdef VTK_USE_ODBC
+  if ( protocol == "odbc" )
+    {
+    db = vtkODBCDatabase::New();
+    db->ParseURL(URL);
+    }
+#endif // VTK_USE_ODBC
 
   // Now try to look at registered callback to try and find someone who can
   // provide us with the required implementation.
