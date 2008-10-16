@@ -69,7 +69,6 @@ int main( int argc, char** argv )
 
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, inputTable );
-  inputTable->Dump( 8 );
 
   vtkTable* outputTable = haruspex->GetOutput( 1 );
 
@@ -82,8 +81,6 @@ int main( int argc, char** argv )
   haruspex->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
   haruspex->SetAssess( false );
   haruspex->Update();
-  cout << "\n# Calculated the following 5-point statistics for the selected columns of interest:\n";
-  outputTable->Dump();
 
   // -- Create box plot --
   QApplication app( argc, argv );
