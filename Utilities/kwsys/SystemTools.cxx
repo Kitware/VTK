@@ -4140,6 +4140,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
 
       if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
         {
+#if (_MSC_VER >= 1300) 
         if (osvi.wProductType == VER_NT_WORKSTATION)
           {
           res += "Microsoft Windows Vista";
@@ -4148,6 +4149,9 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
           {
           res += "Microsoft Windows Server 2008 family";
           }
+#else
+        res += "Microsoft Windows Vista or Windows Server 2003";
+#endif
         }
 
       if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
