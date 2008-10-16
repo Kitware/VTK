@@ -32,6 +32,7 @@ def setup_view(link, file, domain1, domain2, hue_range):
   theme.SetLineWidth(5)
   theme.SetCellOpacity(0.9)
   theme.SetCellAlphaRange(0.5,0.5)
+  theme.SetPointOpacity(0.5)
   theme.SetPointSize(10)
   theme.SetPointHueRange(hue_range[0], hue_range[1])
   theme.SetSelectedCellColor(1,0,1)
