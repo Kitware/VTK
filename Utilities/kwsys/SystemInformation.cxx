@@ -218,7 +218,7 @@ protected:
   unsigned int IsHyperThreadingSupported();
   LongLong GetCyclesDifference(DELAY_FUNC, unsigned int);
 
-  // For Linux
+  // For Linux and Cygwin, /proc/cpuinfo formats are slightly different
   int RetreiveInformationFromCpuInfoFile();
   kwsys_stl::string ExtractValueFromCpuInfoFile(kwsys_stl::string buffer,
                                           const char* word, size_t init=0);
@@ -799,8 +799,6 @@ void SystemInformationImplementation::Delay(unsigned int uiMS)
 
 bool SystemInformationImplementation::DoesCPUSupportCPUID()
 {
-  int CPUIDPresent = 0;
-
 #if USE_ASM_INSTRUCTIONS
   // Use SEH to determine CPUID presence
     __try {
@@ -829,15 +827,15 @@ bool SystemInformationImplementation::DoesCPUSupportCPUID()
   __except(1) 
     {
     // Stop the class from trying to use CPUID again!
-    CPUIDPresent = false;
     return false;
     }
-#else
-   CPUIDPresent = false;
-#endif
 
-  // Return true to indicate support or false to indicate lack.
-  return (CPUIDPresent == 0) ? true : false;
+  // The cpuid instruction succeeded.
+  return true;
+#else
+  // Assume no cpuid instruction.
+  return false;
+#endif
 }
 
 bool SystemInformationImplementation::RetrieveCPUFeatures()
@@ -2160,41 +2158,60 @@ int SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
     fileSize++;
     }
   fclose( fd );
-  
   buffer.resize(fileSize-2);
-
-  // Number of CPUs
+  // Number of logical CPUs (combination of multiple processors, multi-core
+  // and hyperthreading)
   size_t pos = buffer.find("processor\t");
   while(pos != buffer.npos)
     {
     this->NumberOfLogicalCPU++;
-    this->NumberOfPhysicalCPU++;
     pos = buffer.find("processor\t",pos+1);
     }
 
-  // Count the number of physical ids that are the same
-  int currentId = -1;
-  kwsys_stl::string idc = this->ExtractValueFromCpuInfoFile(buffer,"physical id");
-
+#ifdef __linux
+  // Find the largest physical id.
+  int maxId = -1;
+  kwsys_stl::string idc =
+                       this->ExtractValueFromCpuInfoFile(buffer,"physical id");
   while(this->CurrentPositionInFile != buffer.npos)
     {
-    int id = atoi(idc.c_str());
-    if(id == currentId)
+      int id = atoi(idc.c_str());
+      if(id > maxId)
       {
-      this->NumberOfPhysicalCPU--;
+       maxId=id;
       }
-    currentId = id;
-    idc = this->ExtractValueFromCpuInfoFile(buffer,"physical id",this->CurrentPositionInFile+1);
+    idc = this->ExtractValueFromCpuInfoFile(buffer,"physical id",
+                                            this->CurrentPositionInFile+1);
     }
+  // Physical ids returned by Linux don't distinguish cores.
+  // We want to record the total number of cores in this->NumberOfPhysicalCPU
+  // (checking only the first proc)
+  kwsys_stl::string cores =
+                        this->ExtractValueFromCpuInfoFile(buffer,"cpu cores");
+  int numberOfCoresPerCPU=atoi(cores.c_str());
+  this->NumberOfPhysicalCPU=numberOfCoresPerCPU*(maxId+1);
 
-   if(this->NumberOfPhysicalCPU>0)
-     {
-     this->NumberOfLogicalCPU /= this->NumberOfPhysicalCPU;
-     }
+#else // __CYGWIN__
+  // does not have "physical id" entries, neither "cpu cores"
+  // this has to be fixed for hyper-threading.  
+  kwsys_stl::string cpucount =
+    this->ExtractValueFromCpuInfoFile(buffer,"cpu count");
+  this->NumberOfPhysicalCPU=
+    this->NumberOfLogicalCPU = atoi(cpucount.c_str());
+#endif
+  // gotta have one, and if this is 0 then we get a / by 0n 
+  // beter to have a bad answer than a crash
+  if(this->NumberOfPhysicalCPU <= 0)
+    {
+    this->NumberOfPhysicalCPU = 1;
+    }
+  // LogicalProcessorsPerPhysical>1 => hyperthreading.
+  this->Features.ExtendedFeatures.LogicalProcessorsPerPhysical=
+                            this->NumberOfLogicalCPU/this->NumberOfPhysicalCPU;
 
   // CPU speed (checking only the first proc
   kwsys_stl::string CPUSpeed = this->ExtractValueFromCpuInfoFile(buffer,"cpu MHz");
-  this->CPUSpeedInMHz = (float)atof(CPUSpeed.c_str());
+  this->CPUSpeedInMHz = static_cast<float>(atof(CPUSpeed.c_str()));
 
   // Chip family
   this->ChipID.Family = atoi(this->ExtractValueFromCpuInfoFile(buffer,"cpu family").c_str());
@@ -2215,8 +2232,6 @@ int SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
     cacheSize = cacheSize.substr(0,pos);
     }
   this->Features.L1CacheSize = atoi(cacheSize.c_str());
-
-
   return 1;
 }
 
@@ -2230,13 +2245,19 @@ int SystemInformationImplementation::QueryMemory()
 #ifdef __CYGWIN__
   return 0;
 #elif _WIN32
+#if  _MSC_VER < 1300
   MEMORYSTATUS ms;
   GlobalMemoryStatus(&ms);
-
-  unsigned long tv = ms.dwTotalVirtual;
-  unsigned long tp = ms.dwTotalPhys;
-  unsigned long av = ms.dwAvailVirtual;
-  unsigned long ap = ms.dwAvailPhys;
+#define MEM_VAL(value) dw##value
+#else
+  MEMORYSTATUSEX ms;
+  GlobalMemoryStatusEx(&ms);
+#define MEM_VAL(value) ull##value
+#endif
+  unsigned long tv = ms.MEM_VAL(TotalVirtual);
+  unsigned long tp = ms.MEM_VAL(TotalPhys);
+  unsigned long av = ms.MEM_VAL(AvailVirtual);
+  unsigned long ap = ms.MEM_VAL(AvailPhys);
   this->TotalVirtualMemory = tv>>10>>10;
   this->TotalPhysicalMemory = tp>>10>>10;
   this->AvailableVirtualMemory = av>>10>>10;
@@ -2586,13 +2607,13 @@ int SystemInformationImplementation::CPUCount()
       // number of logical processors.
       unsigned int i = 1;
       unsigned char PHY_ID_MASK  = 0xFF;
-      unsigned char PHY_ID_SHIFT = 0;
+      //unsigned char PHY_ID_SHIFT = 0;
 
       while (i < this->NumberOfLogicalCPU)
         {
         i *= 2;
          PHY_ID_MASK  <<= 1;
-        PHY_ID_SHIFT++;
+         // PHY_ID_SHIFT++;
         }
       
       hCurrentProcessHandle = GetCurrentProcess();
@@ -2922,7 +2943,7 @@ bool SystemInformationImplementation::QueryOSInformation()
   OSVERSIONINFOEX osvi;
   BOOL bIsWindows64Bit;
   BOOL bOsVersionInfoEx;
-  char * operatingSystem = new char [256];
+  char operatingSystem[256];
 
   // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
   ZeroMemory (&osvi, sizeof (OSVERSIONINFOEX));
@@ -2959,15 +2980,22 @@ bool SystemInformationImplementation::QueryOSInformation()
         {
         if (osvi.wProductType == VER_NT_WORKSTATION) 
           {
+          if (osvi.dwMajorVersion == 6) 
+            {
+            this->OSRelease = "Vista";
+            }
 // VER_SUITE_PERSONAL may not be defined
 #ifdef VER_SUITE_PERSONAL
-          if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
+          else
             {
-            this->OSRelease += " Personal";
-            }
-          else 
-            {
-            this->OSRelease += " Professional";
+            if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
+              {
+              this->OSRelease += " Personal";
+              }
+            else 
+              {
+              this->OSRelease += " Professional";
+              }
             }
 #endif
           } 
@@ -2994,7 +3022,7 @@ bool SystemInformationImplementation::QueryOSInformation()
             }
           }
 
-        sprintf (operatingSystem, "%s(Build %d)", osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
+        sprintf (operatingSystem, "%s (Build %ld)", osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
         this->OSVersion = operatingSystem; 
         }
       else 
@@ -3043,7 +3071,7 @@ bool SystemInformationImplementation::QueryOSInformation()
       if (osvi.dwMajorVersion <= 4) 
         {
         // NB: NT 4.0 and earlier.
-        sprintf (operatingSystem, "version %d.%d %s (Build %d)",
+        sprintf (operatingSystem, "version %ld.%ld %s (Build %ld)",
                  osvi.dwMajorVersion,
                  osvi.dwMinorVersion,
                  osvi.szCSDVersion,
@@ -3074,7 +3102,7 @@ bool SystemInformationImplementation::QueryOSInformation()
       else 
         { 
         // Windows 2000 and everything else.
-        sprintf (operatingSystem,"%s(Build %d)", osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
+        sprintf (operatingSystem,"%s (Build %ld)", osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
         this->OSVersion = operatingSystem;
         }
       break;
@@ -3117,8 +3145,6 @@ bool SystemInformationImplementation::QueryOSInformation()
       this->OSRelease = "Unknown";
       break;
   }
-  delete [] operatingSystem;
-  operatingSystem = 0;
 
   // Get the hostname
   WORD wVersionRequested;

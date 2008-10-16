@@ -131,7 +131,12 @@ public:
 #define _chdir chdir
 #endif
 
-#if defined(__BEOS__) && !defined(__ZETA__)
+#if defined(__HAIKU__)
+#include <os/kernel/OS.h>
+#include <os/storage/Path.h>
+#endif
+
+#if defined(__BEOS__) && !defined(__ZETA__) && !defined(__HAIKU__)
 #include <be/kernel/OS.h>
 #include <be/storage/Path.h>
 
@@ -493,6 +498,30 @@ void SystemTools::ReplaceString(kwsys_stl::string& source,
   free(orig);
 }
 
+#if defined(KEY_WOW64_32KEY) && defined(KEY_WOW64_64KEY)
+# define KWSYS_ST_KEY_WOW64_32KEY KEY_WOW64_32KEY
+# define KWSYS_ST_KEY_WOW64_64KEY KEY_WOW64_64KEY
+#else
+# define KWSYS_ST_KEY_WOW64_32KEY 0x0200
+# define KWSYS_ST_KEY_WOW64_64KEY 0x0100
+#endif
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+static DWORD SystemToolsMakeRegistryMode(DWORD mode,
+                                         SystemTools::KeyWOW64 view)
+{
+  if(view == SystemTools::KeyWOW64_32)
+    {
+    return mode | KWSYS_ST_KEY_WOW64_32KEY;
+    }
+  else if(view == SystemTools::KeyWOW64_64)
+    {
+    return mode | KWSYS_ST_KEY_WOW64_64KEY;
+    }
+  return mode;
+}
+#endif
+
 // Read a registry value.
 // Example : 
 //      HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\2.1\InstallPath
@@ -501,7 +530,8 @@ void SystemTools::ReplaceString(kwsys_stl::string& source,
 //      =>  will return the data of the "Root" value of the key
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-bool SystemTools::ReadRegistryValue(const char *key, kwsys_stl::string &value)
+bool SystemTools::ReadRegistryValue(const char *key, kwsys_stl::string &value,
+                                    KeyWOW64 view)
 {
   bool valueset = false;
   kwsys_stl::string primary = key;
@@ -549,7 +579,7 @@ bool SystemTools::ReadRegistryValue(const char *key, kwsys_stl::string &value)
   if(RegOpenKeyEx(primaryKey, 
                   second.c_str(), 
                   0, 
-                  KEY_READ, 
+                  SystemToolsMakeRegistryMode(KEY_READ, view),
                   &hKey) != ERROR_SUCCESS)
     {
     return false;
@@ -589,7 +619,8 @@ bool SystemTools::ReadRegistryValue(const char *key, kwsys_stl::string &value)
   return valueset;
 }
 #else
-bool SystemTools::ReadRegistryValue(const char *, kwsys_stl::string &)
+bool SystemTools::ReadRegistryValue(const char *, kwsys_stl::string &,
+                                    KeyWOW64)
 {
   return false;
 }
@@ -604,7 +635,8 @@ bool SystemTools::ReadRegistryValue(const char *, kwsys_stl::string &)
 //      =>  will set the data of the "Root" value of the key
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-bool SystemTools::WriteRegistryValue(const char *key, const char *value)
+bool SystemTools::WriteRegistryValue(const char *key, const char *value,
+                                     KeyWOW64 view)
 {
   kwsys_stl::string primary = key;
   kwsys_stl::string second;
@@ -654,7 +686,7 @@ bool SystemTools::WriteRegistryValue(const char *key, const char *value)
                     0, 
                     "",
                     REG_OPTION_NON_VOLATILE,
-                    KEY_WRITE,
+                    SystemToolsMakeRegistryMode(KEY_WRITE, view),
                     NULL,
                     &hKey,
                     &dwDummy) != ERROR_SUCCESS)
@@ -674,7 +706,7 @@ bool SystemTools::WriteRegistryValue(const char *key, const char *value)
   return false;
 }
 #else
-bool SystemTools::WriteRegistryValue(const char *, const char *)
+bool SystemTools::WriteRegistryValue(const char *, const char *, KeyWOW64)
 {
   return false;
 }
@@ -688,7 +720,7 @@ bool SystemTools::WriteRegistryValue(const char *, const char *)
 //      =>  will delete  the data of the "Root" value of the key
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-bool SystemTools::DeleteRegistryValue(const char *key)
+bool SystemTools::DeleteRegistryValue(const char *key, KeyWOW64 view)
 {
   kwsys_stl::string primary = key;
   kwsys_stl::string second;
@@ -735,7 +767,7 @@ bool SystemTools::DeleteRegistryValue(const char *key)
   if(RegOpenKeyEx(primaryKey, 
                   second.c_str(), 
                   0, 
-                  KEY_WRITE, 
+                  SystemToolsMakeRegistryMode(KEY_WRITE, view),
                   &hKey) != ERROR_SUCCESS)
     {
     return false;
@@ -752,7 +784,7 @@ bool SystemTools::DeleteRegistryValue(const char *key)
   return false;
 }
 #else
-bool SystemTools::DeleteRegistryValue(const char *)
+bool SystemTools::DeleteRegistryValue(const char *, KeyWOW64)
 {
   return false;
 }
@@ -3125,9 +3157,9 @@ void SystemTools::SplitPath(const char* p,
     if(root.size() == 1)
       {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-      if(const char* p = getenv("USERPROFILE"))
+      if(const char* userp = getenv("USERPROFILE"))
         {
-        homedir = p;
+        homedir = userp;
         }
       else
 #endif
@@ -3355,7 +3387,7 @@ kwsys_stl::string SystemTools::GetFilenameExtension(const kwsys_stl::string& fil
 
 /**
  * Return file extension of a full filename (dot included).
- * Warning: this is the shortest extension (for example: .tar.gz)
+ * Warning: this is the shortest extension (for example: .gz of .tar.gz)
  */
 kwsys_stl::string SystemTools::GetFilenameLastExtension(const kwsys_stl::string& filename)
 {
@@ -4150,7 +4182,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
           res += "Microsoft Windows Server 2008 family";
           }
 #else
-        res += "Microsoft Windows Vista or Windows Server 2003";
+        res += "Microsoft Windows Vista or Windows Server 2008";
 #endif
         }
 
@@ -4298,10 +4330,10 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
           }
 
         res += " ";
-        sprintf(buffer, "%d", osvi.dwMajorVersion);
+        sprintf(buffer, "%ld", osvi.dwMajorVersion);
         res += buffer;
         res += ".";
-        sprintf(buffer, "%d", osvi.dwMinorVersion);
+        sprintf(buffer, "%ld", osvi.dwMinorVersion);
         res += buffer;
         }
 
@@ -4323,7 +4355,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
         if (lRet == ERROR_SUCCESS)
           {
           res += " Service Pack 6a (Build ";
-          sprintf(buffer, "%d", osvi.dwBuildNumber & 0xFFFF);
+          sprintf(buffer, "%ld", osvi.dwBuildNumber & 0xFFFF);
           res += buffer;
           res += ")";
           }
@@ -4332,7 +4364,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
           res += " ";
           res += osvi.szCSDVersion;
           res += " (Build ";
-          sprintf(buffer, "%d", osvi.dwBuildNumber & 0xFFFF);
+          sprintf(buffer, "%ld", osvi.dwBuildNumber & 0xFFFF);
           res += buffer;
           res += ")";
           }
@@ -4344,7 +4376,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
         res += " ";
         res += osvi.szCSDVersion;
         res += " (Build ";
-        sprintf(buffer, "%d", osvi.dwBuildNumber & 0xFFFF);
+        sprintf(buffer, "%ld", osvi.dwBuildNumber & 0xFFFF);
         res += buffer;
         res += ")";
         }
