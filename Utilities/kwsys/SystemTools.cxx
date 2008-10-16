@@ -4138,6 +4138,18 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
       
       // Test for the specific product family.
 
+      if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
+        {
+        if (osvi.wProductType == VER_NT_WORKSTATION)
+          {
+          res += "Microsoft Windows Vista";
+          }
+        else
+          {
+          res += "Microsoft Windows Server 2008 family";
+          }
+        }
+
       if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
         {
         res += "Microsoft Windows Server 2003 family";
@@ -4171,13 +4183,16 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
             {
             res += " Workstation 4.0";
             }
-          else if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
+          else if (osvi.dwMajorVersion == 5)
             {
-            res += " Home Edition";
-            }
-          else
-            {
-            res += " Professional";
+            if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
+              {
+              res += " Home Edition";
+              }
+            else
+              {
+              res += " Professional";
+              }
             }
           }
             
@@ -4221,7 +4236,7 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
               }
             }
 
-          else  // Windows NT 4.0 
+          else if (osvi.dwMajorVersion <= 4)  // Windows NT 4.0 
             {
             if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
               {
