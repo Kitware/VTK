@@ -30,7 +30,7 @@
 #include "vtkQtChartInteractorSetup.h"
 #include "vtkQtChartMouseSelection.h"
 #include "vtkQtChartSeriesSelectionHandler.h"
-#include "vtkQtChartColorPaletteGenerator.h"
+#include "vtkQtChartColorStyleGenerator.h"
 #include "vtkQtChartStyleManager.h"
 #include "vtkQtChartTableSeriesModel.h"
 #include "vtkQtChartArea.h"
@@ -44,8 +44,6 @@
 //=============================================================================
 int TestOrderStatisticsBoxChart( int argc, char* argv[] )
 {
-  int testIntValue = 0;
-
   double mingledData[] = 
     {
     46,
@@ -132,7 +130,7 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( -1. );
+    dataset3Arr->InsertNextValue( ceil( .2 * mingledData[ti] + .8 * mingledData[ti + 1] ) + 1. );
     }
 
   vtkTable* datasetTable = vtkTable::New();
@@ -179,39 +177,36 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, datasetTable );
   haruspex->SetInput( 1, paramsTable );
-  vtkTable* outputTable = haruspex->GetOutput();
+  vtkTable* outputTable = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
   paramsTable->Delete();
 
 // -- Select Columns of Interest -- 
-  //haruspex->UseColumnSelection( true );
-  haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
-  haruspex->AddColumn( "Metric 4" ); // Include invalid Metric 4
   for ( int i = 0; i< nMetrics; ++ i )
-    {  // Try to add all valid indices once more
+    {  
     haruspex->AddColumn( columns[i] );
     }
-  haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
 // -- Test Learn Mode for quartiles with InverseCDFAveragedSteps quantile definition -- 
-  haruspex->SetExecutionMode( vtkStatisticsAlgorithm::LearnMode );
   haruspex->Update();
 
-  double valsTest1 [] = { 0.,
-    46., 47., 49., 51.5, 54.,
-    45., 47., 49., 52., 54.,
-    -1., -1., -1., -1., -1.,
-  };
-  
   QTestApp app(argc, argv);
 
   vtkQtChartWidget *chart = new vtkQtChartWidget();
   vtkQtChartArea *area = chart->getChartArea();
   vtkQtChartStyleManager *style = area->getStyleManager();
-  vtkQtChartColorPaletteGenerator *gen =
-    new vtkQtChartColorPaletteGenerator(vtkQtChartColorPaletteGenerator::Blues, chart);
-  style->setGenerator(gen);
+  vtkQtChartColorStyleGenerator *generator =
+      qobject_cast<vtkQtChartColorStyleGenerator *>(style->getGenerator());
+  if(generator)
+    {
+    generator->getColors()->setColorScheme(vtkQtChartColors::Blues);
+    }
+  else
+    {
+    style->setGenerator(
+        new vtkQtChartColorStyleGenerator(chart, vtkQtChartColors::Blues));
+    }
 
   // Set up the box chart.
   vtkQtStatisticalBoxChart *boxes = new vtkQtStatisticalBoxChart();
@@ -234,69 +229,43 @@ int TestOrderStatisticsBoxChart( int argc, char* argv[] )
   xAxis->getOptions()->setGridVisible(false);
 
   // Set up the model for the box chart.
-  //  QStandardItemModel *model = new QStandardItemModel(2, 9, boxes);
-  QStandardItemModel *model = new QStandardItemModel(3, 5, boxes);
+  QStandardItemModel *model = new QStandardItemModel( outputTable->GetNumberOfColumns() - 1, 
+                                                      outputTable->GetNumberOfRows(), 
+                                                      boxes);
   model->setItemPrototype(new QStandardItem());
-  model->setHorizontalHeaderItem(0, new QStandardItem());
-  model->setHorizontalHeaderItem(1, new QStandardItem());
-  model->setHorizontalHeaderItem(2, new QStandardItem());
-  model->setHorizontalHeaderItem(3, new QStandardItem());
-  model->setHorizontalHeaderItem(4, new QStandardItem());
-  model->horizontalHeaderItem(0)->setData(QVariant((int)0), Qt::DisplayRole);
-  model->horizontalHeaderItem(1)->setData(QVariant((int)10), Qt::DisplayRole);
-  model->horizontalHeaderItem(2)->setData(QVariant((int)20), Qt::DisplayRole);
-  model->horizontalHeaderItem(3)->setData(QVariant((int)30), Qt::DisplayRole);
-  model->horizontalHeaderItem(4)->setData(QVariant((int)40), Qt::DisplayRole);
 
-  model->setVerticalHeaderItem(0, new QStandardItem("series 1"));
-  model->setVerticalHeaderItem(1, new QStandardItem("series 2"));
-  model->setVerticalHeaderItem(2, new QStandardItem("series 3"));
-
-  
   for ( vtkIdType r = 0; r < outputTable->GetNumberOfRows(); ++ r )
      {
-     cout << "   "
-          << datasetTable->GetColumnName( outputTable->GetValue( r, 0 ).ToInt() )
-          << ":";
+     cout << outputTable->GetValue( r, 0 ).ToString()
+          << ": ";
+
+     model->setHorizontalHeaderItem( r, new QStandardItem( outputTable->GetValue( r, 0 ).ToString().c_str() ) );
 
      for ( int i = 1; i < outputTable->GetNumberOfColumns(); ++ i )
        {
        double q = outputTable->GetValue( r, i ).ToDouble(); 
-       cout << " q("
+       cout << " "
             << outputTable->GetColumnName( i )
-            << ")="
+            << "="
             << q;
        
-       model->setItem(r, i-1, new QStandardItem());
-       
-       model->item(r, i-1)->setData(q, Qt::DisplayRole);
-       
+       model->setItem( i - 1, r, new QStandardItem() );
+       model->item( i - 1, r )->setData( q, Qt::DisplayRole );
 
-       if ( q != valsTest1[r * 5 + i] )
-         {
-         testIntValue = 1;
-         cout << " !! <> "
-              << valsTest1[r * 5 + i]
-              << " !!";
-         }
        }
      cout << "\n";
-
-     if ( testIntValue )
-       {
-       vtkGenericWarningMacro("Incorrect 5-points statistics");
-       return 1;
-       }
      }
 
   vtkQtChartTableSeriesModel *table = new vtkQtChartTableSeriesModel(model, boxes);
   boxes->setModel(table);
 
   chart->show();
-  app.exec();
 
+  int result =  app.exec();
+
+  // Clean up 
   delete chart;
   haruspex->Delete();
 
-  return 0;
+  return result;
 }
