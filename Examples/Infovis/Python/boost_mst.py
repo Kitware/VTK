@@ -9,7 +9,6 @@ source.AllowParallelEdgesOn()
 source.AllowSelfLoopsOn() 
 source.SetStartWithTree(True)
 
-
 # Connect to the centrality filter.
 centrality = vtkBoostBrandesCentrality ()
 centrality.SetInputConnection(source.GetOutputPort())
@@ -32,7 +31,6 @@ view.SetEdgeColorArrayName("centrality")
 view.SetColorEdges(True)
 view.SetLayoutStrategyToSimple2D()
 
-
 # Make sure the view is using a pedigree id selection
 view.SetSelectionType(2)
 
@@ -41,9 +39,15 @@ view.GetRepresentation(0).GetSelectionLink().SetSelection(mstTreeSelection.GetOu
 
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
-theme.SetLineWidth(4)
+theme.SetLineWidth(5)
+theme.SetCellOpacity(0.99)
+theme.SetCellAlphaRange(0.5,0.5)
+theme.SetPointSize(10)
+theme.SetSelectedCellColor(1,0,1)
+theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
-theme.FastDelete()
+view.SetVertexLabelFontSize(20)
+view.SetEdgeLabelFontSize(18)
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)

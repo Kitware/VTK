@@ -1,4 +1,3 @@
-
 from vtk import *
 
 def setup_view(link, file, domain1, domain2, hue_range):
@@ -20,19 +19,26 @@ def setup_view(link, file, domain1, domain2, hue_range):
   view = vtkGraphLayoutView()
   view.SetSelectionType(2)
   view.SetVertexLabelArrayName("label")
-  view.SetVertexLabelFontSize(15);
+  view.SetVertexLabelFontSize(20);
   view.VertexLabelVisibilityOn()
   view.SetVertexColorArrayName("category")
   view.ColorVerticesOn()
-  t = vtkViewTheme()
-  theme = t.CreateMellowTheme()
-  theme.SetPointHueRange(hue_range[0], hue_range[1])
-  view.ApplyViewTheme(theme)
   rep = view.AddRepresentationFromInputConnection(cat.GetOutputPort())
   rep.SetSelectionLink(link)
   win = vtkRenderWindow()
   win.SetSize(500,500)
   view.SetupRenderWindow(win)
+  theme = vtkViewTheme.CreateMellowTheme()
+  theme.SetLineWidth(5)
+  theme.SetCellOpacity(0.9)
+  theme.SetCellAlphaRange(0.5,0.5)
+  theme.SetPointSize(10)
+  theme.SetPointHueRange(hue_range[0], hue_range[1])
+  theme.SetSelectedCellColor(1,0,1)
+  theme.SetSelectedPointColor(1,0,1)
+  view.SetVertexLabelFontSize(20)
+  view.SetEdgeLabelFontSize(18)
+  view.ApplyViewTheme(theme)
 
   view.Update()
   view.GetRenderer().ResetCamera()
@@ -49,8 +55,12 @@ if __name__ == "__main__":
   link = vtkSelectionLink()
   link.AddDomainMap(dt_reader.GetOutput())
 
-  (tc_view, tc_win) = setup_view(link, data_dir + "term-concept.csv", "term", "concept", [0.2, 0.0])
-  (pd_view, pd_win) = setup_view(link, data_dir + "person-document.csv", "person", "document", [0.75, 0.25])
+  (tc_view, tc_win) = setup_view(
+    link, data_dir + "term-concept.csv",
+    "term", "concept", [0.2, 0.0])
+  (pd_view, pd_win) = setup_view(
+    link, data_dir + "person-document.csv",
+    "person", "document", [0.75, 0.25])
 
   updater = vtkViewUpdater()
   updater.AddView(tc_view)

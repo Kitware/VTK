@@ -1,8 +1,6 @@
-
 from vtk import *
 
 xmlRootDir = "../../../../VTKData/Data/Infovis/XML/"
-
 
 treeReader = vtkXMLTreeReader()
 treeReader.SetFileName(xmlRootDir+"vtklibrary.xml")
@@ -52,10 +50,20 @@ view2.SetBundlingStrength(.7)
 
 # Apply a theme to the views
 theme = vtkViewTheme.CreateMellowTheme()
+theme.SetLineWidth(5)
+theme.SetCellOpacity(0.9)
+theme.SetCellAlphaRange(0.5,0.5)
+theme.SetPointSize(10)
+theme.SetSelectedCellColor(1,0,1)
+theme.SetSelectedPointColor(1,0,1)
 view0.ApplyViewTheme(theme)
+view0.SetFontSizeRange(20, 15, 1)
 view1.ApplyViewTheme(theme)
+view1.SetVertexLabelFontSize(20)
+view1.SetEdgeLabelFontSize(18)
 view2.ApplyViewTheme(theme)
-theme.FastDelete()
+view2.SetVertexLabelFontSize(20)
+view2.SetEdgeLabelFontSize(18)
 
 win0 = vtkRenderWindow()
 win0.SetSize(600,600)
