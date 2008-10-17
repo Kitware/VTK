@@ -152,17 +152,7 @@ void EasyView::slotOpenXMLFile()
   toTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
   this->TableView->SetRepresentationFromInputConnection(toTable->GetOutputPort());
 
-  // Create a selection link and have all the views use it
-  VTK_CREATE(vtkSelectionLink,selectionLink);
-  this->TreeView->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->TableView->GetRepresentation()->SetSelectionLink(selectionLink);
-  this->GraphView->GetRepresentation()->SetSelectionLink(selectionLink);
-
-  VTK_CREATE(vtkViewUpdater,updater);
-  updater->AddView(this->TreeView);
-  updater->AddView(this->TableView);
-  updater->AddView(this->GraphView);
-
+  this->SetupSelectionLink();
 }
 
 void EasyView::slotExit() {
