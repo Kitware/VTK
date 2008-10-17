@@ -33,7 +33,7 @@
 #include <stdexcept>
 #include <cmath>
 //---------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.3");
+vtkCxxRevisionMacro(vtkTemporalPathLineFilter, "1.4");
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------
 //
@@ -232,10 +232,10 @@ void vtkTemporalPathLineFilter::IncrementTrail(
     unsigned int lastindex = (trail->lastpoint-1)%this->MaxTrackLength;
     double *lastcoord = trail->Coords[lastindex].x;
     //
-    double distx = vtkstd::fabs(lastcoord[0]-coord[0]);
-    double disty = vtkstd::fabs(lastcoord[1]-coord[1]);
-    double distz = vtkstd::fabs(lastcoord[2]-coord[2]);
-    dist  = vtkstd::sqrt(dist);
+    double distx = fabs(lastcoord[0]-coord[0]);
+    double disty = fabs(lastcoord[1]-coord[1]);
+    double distz = fabs(lastcoord[2]-coord[2]);
+    dist  = sqrt(dist);
     //
     if (distx>this->MaxStepDistance[0] ||
         disty>this->MaxStepDistance[1] ||
@@ -498,8 +498,10 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
     << (this->IdChannelArray ? this->IdChannelArray : "None") << "\n";
   os << indent << "ScalarArray: " 
     << (this->ScalarArray ? this->ScalarArray : "None") << "\n";
-  os << indent << "MaxStepDistance: " 
-    << this->MaxStepDistance << "\n";
+  os << indent << "MaxStepDistance: {" 
+     << this->MaxStepDistance[0] << ","
+     << this->MaxStepDistance[1] << ","
+     << this->MaxStepDistance[2] << "}\n";
   os << indent << "KeepDeadTrails: " 
     << this->KeepDeadTrails << "\n";
 }
