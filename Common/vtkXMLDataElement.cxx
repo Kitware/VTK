@@ -25,7 +25,7 @@ using vtksys_ios::istringstream;
 #include <vtkstd/string>
 using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.1");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.2");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -356,6 +356,13 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 
     os << endl;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::PrintXML(const char* fname)
+{
+  ofstream of(fname);
+  this->PrintXML(of, vtkIndent());
 }
 
 //----------------------------------------------------------------------------

@@ -211,6 +211,7 @@ public:
   // Description:
   // Prints element tree as XML.
   void PrintXML(ostream& os, vtkIndent indent);
+  void PrintXML(const char* fname);
 
   // Description:
   // Get/Set the width (in number of fields) that character
@@ -221,7 +222,7 @@ public:
   // width number of fields. See PrintXML.
   vtkGetMacro(CharacterDataWidth,int);
   vtkSetMacro(CharacterDataWidth,int);
-
+    
 protected:
   vtkXMLDataElement();
   ~vtkXMLDataElement();
