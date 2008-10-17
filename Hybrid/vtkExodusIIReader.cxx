@@ -374,7 +374,7 @@ void vtkExodusIIReaderPrivate::ArrayInfoType::Reset()
 }
 
 // ------------------------------------------------------- PRIVATE CLASS MEMBERS
-vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.70");
+vtkCxxRevisionMacro(vtkExodusIIReaderPrivate,"1.71");
 vtkStandardNewMacro(vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReaderPrivate, Parser, vtkExodusIIReaderParser);
 
@@ -3689,79 +3689,89 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       this->MapInfo[obj_types[i]].reserve( nids );
       }
 
-    if ( (OBJTYPE_IS_BLOCK(i)) || (OBJTYPE_IS_SET(i)) ) {
+    if ( (OBJTYPE_IS_BLOCK(i)) || (OBJTYPE_IS_SET(i)))
+      {
       VTK_EXO_FUNC( ex_get_var_param( exoid, obj_typestr[i], &num_vars ), "Could not read number of variables." );
 
-      if ( num_vars && num_timesteps > 0 ) {
-        truth_tab = (int*) malloc( num_vars * nids * sizeof(int) );
+      if (num_vars && num_timesteps > 0)
+        {
+        truth_tab = (int*) malloc(num_vars * nids * sizeof(int));
         VTK_EXO_FUNC( ex_get_var_tab( exoid, obj_typestr[i], nids, num_vars, truth_tab ), "Could not read truth table." );
 
-        var_names = (char**) malloc( num_vars * sizeof(char*) );
-        for ( j = 0; j < num_vars; ++j )
-          var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+        var_names = (char**) malloc(num_vars * sizeof(char*));
+        for (j = 0; j < num_vars; ++j)
+          var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char));
 
         VTK_EXO_FUNC( ex_get_var_names( exoid, obj_typestr[i], num_vars, var_names ), "Could not read variable names." );
-        this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
+        this->RemoveBeginningAndTrailingSpaces(num_vars, var_names);
         have_var_names = 1;
+        }
       }
-    }
 
-    if ( ! have_var_names )
+    if ( !have_var_names)
       var_names = 0;
 
-    for ( obj = 0; obj < nids; ++obj ) {
+    for (obj = 0; obj < nids; ++obj)
+      {
 
-      if ( OBJTYPE_IS_BLOCK(i) ) {
+      if ( OBJTYPE_IS_BLOCK(i))
+        {
 
         binfo.Name = obj_names[obj];
         binfo.Id = ids[obj];
         binfo.CachedConnectivity = 0;
         binfo.NextSqueezePoint = 0;
-        if ( obj_types[i] == vtkExodusIIReader::ELEM_BLOCK ) {
+        if (obj_types[i] == vtkExodusIIReader::ELEM_BLOCK)
+          {
           VTK_EXO_FUNC( ex_get_block( exoid, obj_types[i], ids[obj], obj_typenames[obj],
-              &binfo.Size, &binfo.BdsPerEntry[0], &binfo.BdsPerEntry[1], &binfo.BdsPerEntry[2], &binfo.AttributesPerEntry ),
-            "Could not read block params." );
+                  &binfo.Size, &binfo.BdsPerEntry[0], &binfo.BdsPerEntry[1], &binfo.BdsPerEntry[2], &binfo.AttributesPerEntry ),
+              "Could not read block params." );
           binfo.Status = 1; // load element blocks by default
           binfo.TypeName = obj_typenames[obj];
-        } else {
+          }
+        else
+          {
           VTK_EXO_FUNC( ex_get_block( exoid, obj_types[i], ids[obj], obj_typenames[obj],
-              &binfo.Size, &binfo.BdsPerEntry[0], &binfo.BdsPerEntry[1], &binfo.BdsPerEntry[2], &binfo.AttributesPerEntry ),
-            "Could not read block params." );
+                  &binfo.Size, &binfo.BdsPerEntry[0], &binfo.BdsPerEntry[1], &binfo.BdsPerEntry[2], &binfo.AttributesPerEntry ),
+              "Could not read block params." );
           binfo.Status = 0; // don't load edge/face blocks by default
           binfo.TypeName = obj_typenames[obj];
           binfo.BdsPerEntry[1] = binfo.BdsPerEntry[2] = 0;
-        }
+          }
         this->GetInitialObjectStatus(obj_types[i], &binfo);
         //num_entries = binfo.Size;
         binfo.FileOffset = blockEntryFileOffset;
         blockEntryFileOffset += binfo.Size;
-        if ( binfo.Name.length() == 0 )
+        if (binfo.Name.length() == 0)
           {
           SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s Size: %d",
-            ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL", binfo.Size ); 
+              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL", binfo.Size );
           binfo.Name = tmpName;
           }
         binfo.OriginalName = binfo.Name;
-        this->DetermineVtkCellType( binfo );
+        this->DetermineVtkCellType(binfo);
 
-        if ( binfo.AttributesPerEntry ) {
+        if (binfo.AttributesPerEntry)
+          {
           char** attr_names;
-          attr_names = (char**) malloc( binfo.AttributesPerEntry * sizeof(char*) );
-          for ( j = 0; j < binfo.AttributesPerEntry; ++j )
-            attr_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+          attr_names
+              = (char**) malloc(binfo.AttributesPerEntry * sizeof(char*));
+          for (j = 0; j < binfo.AttributesPerEntry; ++j)
+            attr_names[j]
+                = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char));
 
           VTK_EXO_FUNC( ex_get_attr_names( exoid, obj_types[i], ids[obj], attr_names ), "Could not read attributes names." );
 
-          for ( j = 0; j < binfo.AttributesPerEntry; ++j )
+          for (j = 0; j < binfo.AttributesPerEntry; ++j)
             {
-            binfo.AttributeNames.push_back( attr_names[j] );
-            binfo.AttributeStatus.push_back( 0 ); // don't load attributes by default
+            binfo.AttributeNames.push_back(attr_names[j]);
+            binfo.AttributeStatus.push_back( 0); // don't load attributes by default
             }
 
-          for ( j = 0; j < binfo.AttributesPerEntry; ++j )
-            free( attr_names[j] );
-          free( attr_names );
-        }
+          for (j = 0; j < binfo.AttributesPerEntry; ++j)
+            free(attr_names[j]);
+          free(attr_names);
+          }
 
         // Check to see if there is metadata that defines what part, material, 
         //  and assembly(ies) this block belongs to. 
@@ -3841,10 +3851,13 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           //  }
           }
 
-        sortedObjects[binfo.Id] = static_cast<int>(this->BlockInfo[obj_types[i]].size());
-        this->BlockInfo[obj_types[i]].push_back( binfo );
+        sortedObjects[binfo.Id]
+            = static_cast<int>(this->BlockInfo[obj_types[i]].size());
+        this->BlockInfo[obj_types[i]].push_back(binfo);
 
-      } else if ( OBJTYPE_IS_SET(i) ) {
+        }
+      else if ( OBJTYPE_IS_SET(i))
+        {
 
         sinfo.Name = obj_names[obj];
         sinfo.Status = 0;
@@ -3853,51 +3866,54 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         sinfo.NextSqueezePoint = 0;
 
         VTK_EXO_FUNC( ex_get_set_param( exoid, obj_types[i], ids[obj], &sinfo.Size, &sinfo.DistFact ),
-          "Could not read set parameters." );
+            "Could not read set parameters." );
         //num_entries = sinfo.Size;
         sinfo.FileOffset = setEntryFileOffset;
         setEntryFileOffset += sinfo.Size;
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
-        if ( sinfo.Name.length() == 0 )
+        if (sinfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size ); 
+          SNPRINTF( tmpName, 255, "Unnamed set ID: %d Size: %d", ids[obj], sinfo.Size );
           sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
-        this->SetInfo[obj_types[i]].push_back( sinfo );
+        this->SetInfo[obj_types[i]].push_back(sinfo);
 
-      } else { /* object is map */
+        }
+      else
+        { /* object is map */
 
         minfo.Id = ids[obj];
         minfo.Status = obj == 0 ? 1 : 0; // only load the first map by default
-        switch (obj_types[i]) {
-        case vtkExodusIIReader::NODE_MAP:
-          minfo.Size = this->ModelParameters.num_nodes;
-          break;
-        case vtkExodusIIReader::EDGE_MAP:
-          minfo.Size = this->ModelParameters.num_edge;
-          break;
-        case vtkExodusIIReader::FACE_MAP:
-          minfo.Size = this->ModelParameters.num_face;
-          break;
-        case vtkExodusIIReader::ELEM_MAP:
-          minfo.Size = this->ModelParameters.num_elem;
-          break;
-        default:
-          minfo.Size = 0;
-        }
+        switch (obj_types[i])
+          {
+          case vtkExodusIIReader::NODE_MAP:
+            minfo.Size = this->ModelParameters.num_nodes;
+            break;
+          case vtkExodusIIReader::EDGE_MAP:
+            minfo.Size = this->ModelParameters.num_edge;
+            break;
+          case vtkExodusIIReader::FACE_MAP:
+            minfo.Size = this->ModelParameters.num_face;
+            break;
+          case vtkExodusIIReader::ELEM_MAP:
+            minfo.Size = this->ModelParameters.num_elem;
+            break;
+          default:
+            minfo.Size = 0;
+          }
         minfo.Name = obj_names[obj];
-        if ( minfo.Name.length() == 0 )
+        if (minfo.Name.length() == 0)
           { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          SNPRINTF( tmpName, 255, "Unnamed map ID: %d", ids[obj] ); 
+          SNPRINTF( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
           minfo.Name = tmpName;
           }
         sortedObjects[minfo.Id] = (int) this->MapInfo[obj_types[i]].size();
-        this->MapInfo[obj_types[i]].push_back( minfo );
+        this->MapInfo[obj_types[i]].push_back(minfo);
 
-      }
+        }
 
-    } // end of loop over all object ids
+      } // end of loop over all object ids
 
     // Now that we have all objects of that type in the sortedObjects, we can
     // iterate over it to fill in the SortedObjectIndices (the map is a *sorted*
@@ -5274,7 +5290,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 // -------------------------------------------------------- PUBLIC CLASS MEMBERS
 
-vtkCxxRevisionMacro(vtkExodusIIReader,"1.70");
+vtkCxxRevisionMacro(vtkExodusIIReader,"1.71");
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
