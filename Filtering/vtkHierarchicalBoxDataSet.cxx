@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.22");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.23");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -112,6 +112,16 @@ unsigned int vtkHierarchicalBoxDataSet::GetNumberOfDataSets(unsigned int level)
     }
   return 0;
 }
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalBoxDataSet::SetDataSet(
+  unsigned int level, unsigned int id,
+  int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet)
+{
+    vtkAMRBox box(3, LoCorner, HiCorner);
+    this->SetDataSet(level, id, box, dataSet);
+}
+
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::SetDataSet(

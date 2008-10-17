@@ -85,6 +85,11 @@ public:
   virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
     { this->Superclass::SetDataSet(iter, dataObj); }
 
+  // Description:
+  // Set the dataset pointer for a given node. This will resize the number of
+  // levels and the number of datasets in the level to fit level, id requested. 
+  void SetDataSet(unsigned int level, unsigned int id, 
+                  int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet);
 //BTX
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
