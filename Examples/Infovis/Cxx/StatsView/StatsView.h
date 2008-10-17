@@ -57,6 +57,7 @@ private:
   vtkSmartPointer<vtkQtTableView>         TableView1;
   vtkSmartPointer<vtkQtTableView>         TableView2;
   vtkSmartPointer<vtkQtTableView>         TableView3;
+  vtkSmartPointer<vtkQtTableView>         TableView4;
     
   // Designer form
   Ui_StatsView *ui;

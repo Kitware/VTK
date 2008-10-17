@@ -100,7 +100,7 @@
             </property>
            </widget>
           </widget>
-          <widget class="QVTKWidget" native="1" name="vtkGraphViewWidget" >
+          <widget class="QTableView" native="1" name="tableView4" >
            <property name="sizePolicy" >
             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
              <horstretch>1</horstretch>

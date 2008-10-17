@@ -18,9 +18,9 @@
 #include "vtkRowQueryToTable.h"
 
 // Stats includes
-#include "vtkCorrelativeStatistics.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkOrderStatistics.h"
+#include "vtkCorrelativeStatistics.h"
 
 // QT includes
 #include <vtkDataObjectToTable.h>
@@ -52,11 +52,13 @@ StatsView::StatsView()
   this->TableView1 = vtkSmartPointer<vtkQtTableView>::New();
   this->TableView2 = vtkSmartPointer<vtkQtTableView>::New();
   this->TableView3 = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView4 = vtkSmartPointer<vtkQtTableView>::New();
   
   // Set widgets for the tree and table views
   this->TableView1->SetItemView(this->ui->tableView1);
   this->TableView2->SetItemView(this->ui->tableView2);
   this->TableView3->SetItemView(this->ui->tableView3);
+  this->TableView4->SetItemView(this->ui->tableView4);
   
   // Set up action signals and slots
   connect(this->ui->actionOpenSQLiteDB, SIGNAL(triggered()), this, SLOT(slotOpenSQLiteDB()));
@@ -112,7 +114,15 @@ void StatsView::slotOpenSQLiteDB()
   order->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
   order->AddColumn( "Temp1" );
   order->AddColumn( "Temp2" );
+  order->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
   order->Update();
+
+  // Calculate correlative statistics
+  VTK_CREATE(vtkCorrelativeStatistics,correlative);
+  correlative->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
+  correlative->AddColumnPair( "Temp1", "Temp2" );
+  correlative->SetAssess( true );
+  correlative->Update();
 
   // Assign tables to table views
   this->TableView1->SetRepresentationFromInputConnection( this->RowQueryToTable->GetOutputPort() );
@@ -125,7 +135,12 @@ void StatsView::slotOpenSQLiteDB()
   // FIXME: we should not have to make a shallow copy of the ouput
   VTK_CREATE(vtkTable,orderC);
   orderC->ShallowCopy( order->GetOutput( 1 ) );
-  this->TableView3->SetRepresentationFromInputConnection( order->GetOutputPort( 2 ) );
+  this->TableView3->SetRepresentationFromInput( orderC );
+
+  // FIXME: we should not have to make a shallow copy of the ouput
+  VTK_CREATE(vtkTable,correlativeC);
+  correlativeC->ShallowCopy( correlative->GetOutput( 0 ) );
+  this->TableView4->SetRepresentationFromInput( correlativeC );
 
   // Clean up 
   query->Delete();
