@@ -62,19 +62,12 @@ view.GetRepresentation(0).GetSelectionLink().SetSelection(mstTreeSelection.GetOu
 
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
-theme.SetLineWidth(5)
-theme.SetCellOpacity(0.9)
-theme.SetCellAlphaRange(0.5,0.5)
-theme.SetPointOpacity(0.5)
-theme.SetPointSize(10)
+theme.SetLineWidth(4)
+theme.SetPointSize(8)
 theme.SetSelectedCellColor(1,0,1)
 theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
-view.SetVertexLabelFontSize(20)
-view.SetEdgeLabelFontSize(18)
 view2.ApplyViewTheme(theme)
-view2.SetVertexLabelFontSize(20)
-view2.SetEdgeLabelFontSize(18)
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)

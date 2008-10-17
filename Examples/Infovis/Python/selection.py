@@ -16,8 +16,8 @@ centrality.SetInputConnection(source.GetOutputPort())
 forceStrat = vtkSimple2DLayoutStrategy()
 forceStrat.SetInitialTemperature(5)
 
-lowforceStrat = vtkSimple2DLayoutStrategy()
-lowforceStrat.SetInitialTemperature(1)
+# Create circular layout
+fastStrat = vtkFast2DLayoutStrategy()
 
 
 # Create a graph layout view
@@ -40,7 +40,7 @@ view2.SetVertexColorArrayName("vertex id")
 view2.SetColorVertices(True)
 view2.SetEdgeColorArrayName("centrality")
 view2.SetColorEdges(True)
-view2.SetLayoutStrategy(lowforceStrat)
+view2.SetLayoutStrategy(fastStrat)
 
 # Demonstrate value based selection on edges
 sel = vtkSelectionSource()
@@ -86,21 +86,13 @@ updater.AddView(view3)
 # Set the theme on the view
 theme = vtkViewTheme.CreateMellowTheme()
 theme.SetLineWidth(5)
-theme.SetCellOpacity(0.9)
-theme.SetCellAlphaRange(0.5,0.5)
-theme.SetPointOpacity(0.5)
 theme.SetPointSize(10)
+theme.SetCellOpacity(.99)
 theme.SetSelectedCellColor(1,0,1)
 theme.SetSelectedPointColor(1,0,1)
 view.ApplyViewTheme(theme)
-view.SetVertexLabelFontSize(20)
-view.SetEdgeLabelFontSize(18)
 view2.ApplyViewTheme(theme)
-view2.SetVertexLabelFontSize(20)
-view2.SetEdgeLabelFontSize(18)
 view3.ApplyViewTheme(theme)
-view3.SetVertexLabelFontSize(20)
-view3.SetEdgeLabelFontSize(18)
 
 window = vtkRenderWindow()
 window.SetSize(600, 600)

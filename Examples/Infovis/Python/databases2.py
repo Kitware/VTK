@@ -23,7 +23,8 @@ view.SetLayoutStrategyToSimple2D()
 
 theme = vtkViewTheme.CreateMellowTheme()
 theme.SetCellColor(.2,.2,.6)
-theme.SetLineWidth(4)
+theme.SetLineWidth(5)
+theme.SetPointSize(10)
 view.ApplyViewTheme(theme)
 
 window = vtkRenderWindow()

@@ -19,7 +19,6 @@ def setup_view(link, file, domain1, domain2, hue_range):
   view = vtkGraphLayoutView()
   view.SetSelectionType(2)
   view.SetVertexLabelArrayName("label")
-  view.SetVertexLabelFontSize(20);
   view.VertexLabelVisibilityOn()
   view.SetVertexColorArrayName("category")
   view.ColorVerticesOn()
@@ -37,8 +36,6 @@ def setup_view(link, file, domain1, domain2, hue_range):
   theme.SetPointHueRange(hue_range[0], hue_range[1])
   theme.SetSelectedCellColor(1,0,1)
   theme.SetSelectedPointColor(1,0,1)
-  view.SetVertexLabelFontSize(20)
-  view.SetEdgeLabelFontSize(18)
   view.ApplyViewTheme(theme)
 
   view.Update()
