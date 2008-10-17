@@ -109,13 +109,21 @@ void StatsView::slotOpenSQLiteDB()
   descriptive->AddColumn( "Temp2" );
   descriptive->Update();
 
-  // Calculate order statistics
-  VTK_CREATE(vtkOrderStatistics,order);
-  order->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
-  order->AddColumn( "Temp1" );
-  order->AddColumn( "Temp2" );
-  order->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
-  order->Update();
+  // Calculate order statistics -- quartiles
+  VTK_CREATE(vtkOrderStatistics,order1);
+  order1->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
+  order1->AddColumn( "Temp1" );
+  order1->AddColumn( "Temp2" );
+  order1->SetQuantileDefinition( vtkOrderStatistics::InverseCDFAveragedSteps );
+  order1->Update();
+
+  // Calculate order statistics -- deciles
+  VTK_CREATE(vtkOrderStatistics,order2);
+  order2->SetInputConnection( 0, this->RowQueryToTable->GetOutputPort() );
+  order2->AddColumn( "Temp1" );
+  order2->AddColumn( "Temp2" );
+  order2->SetNumberOfIntervals( 10 );
+  order2->Update();
 
   // Calculate correlative statistics
   VTK_CREATE(vtkCorrelativeStatistics,correlative);
@@ -125,17 +133,21 @@ void StatsView::slotOpenSQLiteDB()
   correlative->Update();
 
   // Assign tables to table views
-  this->TableView1->SetRepresentationFromInputConnection( this->RowQueryToTable->GetOutputPort() );
 
   // FIXME: we should not have to make a shallow copy of the ouput
   VTK_CREATE(vtkTable,descriptiveC);
   descriptiveC->ShallowCopy( descriptive->GetOutput( 1 ) );
-  this->TableView2->SetRepresentationFromInput( descriptiveC );
+  this->TableView1->SetRepresentationFromInput( descriptiveC );
 
   // FIXME: we should not have to make a shallow copy of the ouput
-  VTK_CREATE(vtkTable,orderC);
-  orderC->ShallowCopy( order->GetOutput( 1 ) );
-  this->TableView3->SetRepresentationFromInput( orderC );
+  VTK_CREATE(vtkTable,order1C);
+  order1C->ShallowCopy( order1->GetOutput( 1 ) );
+  this->TableView2->SetRepresentationFromInput( order1C );
+
+  // FIXME: we should not have to make a shallow copy of the ouput
+  VTK_CREATE(vtkTable,order2C);
+  order2C->ShallowCopy( order2->GetOutput( 1 ) );
+  this->TableView3->SetRepresentationFromInput( order2C );
 
   // FIXME: we should not have to make a shallow copy of the ouput
   VTK_CREATE(vtkTable,correlativeC);
