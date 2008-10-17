@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkTreeRingExistingLayoutStrategy);
 
 vtkTreeRingExistingLayoutStrategy::vtkTreeRingExistingLayoutStrategy()
@@ -93,13 +93,13 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
   }
 
     //check for a flat tree...
-  double x[3];
+  double leaf_coord[3];
   bool point_set = false;
-  vtkDataArray *leafArray = levelTree->GetVertexData()->GetArray("leaf");
+  vtkIntArray *leafArray = vtkIntArray::SafeDownCast( levelTree->GetVertexData()->GetAbstractArray("leaf") );
   for( i = 0; i < levelTree->GetNumberOfVertices(); i++ )
   {
-    int level = levelArray->GetTuple1(i);
-    int leaf = leafArray->GetTuple1(i);
+    int level = levelArray->GetValue(i);
+    int leaf = leafArray->GetValue(i);
     if( leaf )
     {
       if( level != max_level )
@@ -110,8 +110,8 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
       
       if( point_set == false )
       {
-//        inputTree->GetPoint( i, x );
-        levelTree->GetPoint( i, x );
+//        inputTree->GetPoint( i, leaf_coord );
+        levelTree->GetPoint( i, leaf_coord );
         point_set = true;
       }
     }
@@ -123,7 +123,7 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
     return;
   }
 
-  double r = sqrt( x[0]*x[0] + x[1]*x[1] );
+  double r = sqrt( leaf_coord[0]*leaf_coord[0] + leaf_coord[1]*leaf_coord[1] );
   this->SetInteriorRadius( r );
   
   vtkDataArray *anglesArray = levelTree->GetVertexData()->GetArray("subtended_angles");
@@ -148,10 +148,8 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
                        rootId, coords[0]);
 
   vtkPoints* points = vtkPoints::New();
-//  vtkIdType numVerts = inputTree->GetNumberOfVertices();
-  vtkIdType numVerts = levelTree->GetNumberOfVertices();
-  points->SetNumberOfPoints(numVerts);
-  for( vtkIdType i = 0; i < numVerts; i++ )
+  points->SetNumberOfPoints(levelTree->GetNumberOfVertices());
+  for( i = 0; i < levelTree->GetNumberOfVertices(); i++ )
   {
     if( i == 0 )
     {
@@ -161,10 +159,10 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
     
     double sector_coords[4];
     coordsArray->GetTuple( i, sector_coords );
-    double r = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
+    double rad = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
     double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
-    double x = r*cos(vtkMath::DegreesToRadians()*theta);
-    double y = r*sin(vtkMath::DegreesToRadians()*theta);
+    double x = rad*cos(vtkMath::DegreesToRadians()*theta);
+    double y = rad*sin(vtkMath::DegreesToRadians()*theta);
     double z = 0.;
     points->SetPoint(i, x, y, z);
   }
