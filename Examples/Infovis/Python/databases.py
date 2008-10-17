@@ -33,7 +33,10 @@ view.SetVertexLabelVisibility(True)
 view.SetVertexColorArrayName("Age")
 view.SetColorVertices(True)
 view.SetLayoutStrategyToSimple2D()
-#view.SetLayoutStrategyToCircular()
+
+# Add my new lay strategy
+# myFoo = vtkCircularLayoutStrategy()
+# view.SetLayoutStrategy(myFoo)
 
 theme = vtkViewTheme.CreateMellowTheme()
 theme.SetCellColor(.2,.2,.6)
