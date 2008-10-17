@@ -75,12 +75,10 @@ vtkArray* vtkSparseArray<T>::DeepCopy()
 template<typename T>
 const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
 {
-  static T temp;
-
   if(coordinates.GetDimensions() != this->GetDimensions())
     {
     vtkErrorMacro(<< "Index-array dimension mismatch.");
-    return temp;
+    return this->NullValue;
     }
 
   // Do a naive linear-search for the time-being ... 
@@ -96,7 +94,7 @@ const T& vtkSparseArray<T>::GetValue(const vtkArrayCoordinates& coordinates)
       }
     }
   
-  return temp;
+  return this->NullValue;
 }
 
 template<typename T>
@@ -138,6 +136,18 @@ template<typename T>
 void vtkSparseArray<T>::SetValueN(const vtkIdType n, const T& value)
 {
   this->Values[n] = value;
+}
+
+template<typename T>
+void vtkSparseArray<T>::SetNullValue(const T& value)
+{
+  this->NullValue = value;
+}
+
+template<typename T>
+const T& vtkSparseArray<T>::GetNullValue()
+{
+  return this->NullValue;
 }
 
 template<typename T>
@@ -205,7 +215,8 @@ void vtkSparseArray<T>::AddValue(const vtkArrayCoordinates& coordinates, const T
 }
 
 template<typename T>
-vtkSparseArray<T>::vtkSparseArray()
+vtkSparseArray<T>::vtkSparseArray() :
+  NullValue(T())
 {
 }
 

@@ -75,6 +75,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
     ArrayAPIDense.cxx
     ArrayAPISparse.cxx
     ArrayInterpolationDense.cxx
+    ArrayNullValues.cxx
     )
 
   ADD_EXECUTABLE(ArrayCxxTests ${ArrayTests})

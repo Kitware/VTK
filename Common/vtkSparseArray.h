@@ -59,6 +59,14 @@ public:
   // vtkSparseArray API
 
   // Description:
+  // Set the value that will be returned by GetValue() for NULL areas of the array.
+  void SetNullValue(const T& value);
+
+  // Description:
+  // Returns the value that will be returned by GetValue() for NULL areas of the array.
+  const T& GetNullValue();
+
+  // Description:
   // Remove all non-null elements from the array, leaving the number of dimensions, the
   // extent of each dimension, and the label for each dimension unchanged.
   void Clear();
@@ -131,6 +139,11 @@ private:
   // Description:
   // Stores the value of each non-null element within the array
   vtkstd::vector<T> Values;
+
+  // Description:
+  // Stores the value that will be returned when accessing NULL areas
+  // of the array.
+  T NullValue;
 };
 
 #include "vtkSparseArray.txx"
