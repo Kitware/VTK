@@ -14,6 +14,7 @@ vtkRenderView.cxx
 vtkSurfaceRepresentation.cxx
 vtkTreeLayoutView.cxx
 vtkTreeMapView.cxx
+vtkTreeRingView.cxx
 vtkView.cxx
 )
 
