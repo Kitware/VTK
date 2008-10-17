@@ -22,7 +22,8 @@
 //
 // .SECTION Description
 // vtkTreeRingExistingLayoutStrategy partitions the space for child vertices
-// circular sectors. Sectors are sized based on the relative vertex size.
+// circular sectors. Sectors are sized based on the subtended angles from a
+// previously run radial tree layout.
 //
 // .SECTION Thanks to Jason Shepherd for this implementation.
 
@@ -43,8 +44,8 @@ public:
 
   // Description:
   // The field name associated with the size of the vertex.
-  vtkGetStringMacro(SizeFieldName);
-  vtkSetStringMacro(SizeFieldName);
+//   vtkGetStringMacro(SizeFieldName);
+//   vtkSetStringMacro(SizeFieldName);
 
   // Description:
   // Perform the layout of a tree and place the results as 4-tuples in
@@ -57,18 +58,13 @@ protected:
 
 private:
 
-  char * SizeFieldName;
+//  char * SizeFieldName;
 
-  void LayoutChildren(
-    vtkTree *tree, 
-    vtkDataArray *coordsArray,
-    vtkDataArray *sizeArray,
-    vtkDataArray *anglesArray,
-    vtkIdType nchildren,
-    vtkIdType parent,
-    vtkIdType begin, 
-    float parentInnerRad,
-    float parentStartAng, float parentEndAng);
+  void SetInteriorSubtendedAngles( vtkTree* tree, vtkIdType parent, vtkDataArray *anglesArray, 
+                                   double& min_angle, double& max_angle );
+  
+  void LayoutChildren( vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *anglesArray,
+                       vtkIdType nchildren, vtkIdType parent, float parentInnerRad );
 
   vtkTreeRingExistingLayoutStrategy(const vtkTreeRingExistingLayoutStrategy&);  // Not implemented.
   void operator=(const vtkTreeRingExistingLayoutStrategy&);  // Not implemented.

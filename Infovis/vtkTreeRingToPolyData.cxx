@@ -37,21 +37,19 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.2");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
 {
   this->SectorsFieldName = 0;
   this->SetSectorsFieldName("sectors");
-//   this->LevelsFieldName = 0;
-//   this->LevelDeltaZ = 0.001;
+  this->ShrinkPercentage = 0.0;
 }
 
 vtkTreeRingToPolyData::~vtkTreeRingToPolyData()
 {
   this->SetSectorsFieldName(0);
-//  this->SetLevelsFieldName(0);
 }
 
 int vtkTreeRingToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -75,122 +73,84 @@ int vtkTreeRingToPolyData::RequestData(
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // For each input vertex create 4 points and 1 cell (quad)
+  // For each input vertex create 1 point at the center of the sector
 //   vtkPoints* outputPoints = vtkPoints::New();
-//   outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices()*4);
-//  vtkCellArray* outputCells = vtkCellArray::New();
+//   outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices()-1);
 
-//   // Create an array for the point normals
-//   vtkFloatArray* normals = vtkFloatArray::New();
-//   normals->SetNumberOfComponents(3);
-//   normals->SetNumberOfTuples(inputTree->GetNumberOfVertices()*4);
-//   normals->SetName("normals");
-
-//   vtkDataArray* levelArray = NULL;
-//   if (this->LevelsFieldName)
-//     {
-//     levelArray = inputTree->GetVertexData()->GetArray(this->LevelsFieldName);
-//     }
-  
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->SectorsFieldName);
   VTK_CREATE(vtkAppendPolyData, append);
   
   for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
+  {
+    if(i==0)
     {
-//FIXME-jfsheph - while debugging don't draw the root node
-//      if(i==0)
-//          continue;
-      
+        //don't draw the root node...
+      continue;
+    }
+    
     // Grab coords from the input
     double coords[4];
     coordArray->GetTuple(i,coords);
 
     VTK_CREATE(vtkSectorSource, sector);
-    if(i==0)
-    {
-      sector->SetInnerRadius(0.1);
-      sector->SetOuterRadius(0.2);
-      sector->SetStartAngle(0.);
-      sector->SetEndAngle(270.);
-    }
-    else
-    {
-      sector->SetInnerRadius(coords[0]);
-      sector->SetOuterRadius(coords[1]);
-      sector->SetStartAngle(coords[2]);
-      sector->SetEndAngle(coords[3]);
-    }
+    double radial_length = coords[1] - coords[0];
+    
+      //calculate the amount of change in the arcs based on the shrink 
+      // percentage of the arc_length
+    double conversion = vtkMath::Pi()/180.;
+    double arc_length_new = (conversion*(coords[3] - coords[2])*coords[1]) - this->ShrinkPercentage;
+    double angle_change = ((arc_length_new/coords[1])/conversion);
+    double delta_change_each = 0.5*((coords[3]-coords[2]) - angle_change);
+    
+    sector->SetInnerRadius(coords[0] + (0.5*(radial_length*this->ShrinkPercentage)));
+    sector->SetOuterRadius(coords[1] - (0.5*(radial_length*this->ShrinkPercentage)));
+    sector->SetStartAngle(coords[2] + delta_change_each);
+    sector->SetEndAngle(coords[3] - delta_change_each);
 
-//FIXME-jfsheph
-  int resolution = (int)((coords[3] - coords[2])/1);
-  if( resolution < 1 )
-      resolution = 1;
-  sector->SetCircumferentialResolution(resolution);
-  sector->Update();
+//FIXME-jfsheph - need to determine the desired resolution....
+    int resolution = (int)((coords[3] - coords[2])/1);
+    if( resolution < 1 )
+        resolution = 1;
+    sector->SetCircumferentialResolution(resolution);
+    sector->Update();
     
     VTK_CREATE(vtkStripper, strip);
     strip->SetInput(sector->GetOutput());
     
     append->AddInput(strip->GetOutput());
-//    append->Update();
-    
-//     double z = 0;
-//     if (levelArray)
-//       {
-//       z = this->LevelDeltaZ * levelArray->GetTuple1(i);
-//       }
-//     else
-//       {
-//       z = this->LevelDeltaZ * inputTree->GetLevel(i);
-//       }
 
-//     int index = i*4;
-//     outputPoints->SetPoint(index,   coords[0], coords[2], z);
-//     outputPoints->SetPoint(index+1, coords[1], coords[2], z);
-//     outputPoints->SetPoint(index+2, coords[1], coords[3], z);
-//     outputPoints->SetPoint(index+3, coords[0], coords[3], z);
-//     int index = i*4;
-//     outputPoints->SetPoint(index,   coords[0], coords[2], 0);
-//     outputPoints->SetPoint(index+1, coords[1], coords[2], 0);
-//     outputPoints->SetPoint(index+2, coords[1], coords[3], 0);
-//     outputPoints->SetPoint(index+3, coords[0], coords[3], 0);
-    
-//     // Create an asymetric gradient on the cells
-//     // this gradient helps differentiate same colored
-//     // cells from their neighbors. The asymetric
-//     // nature of the gradient is required.
-//     normals->SetComponent(index,   0, 0);
-//     normals->SetComponent(index,   1, .707);
-//     normals->SetComponent(index,   2, .707);
-    
-//     normals->SetComponent(index+1, 0, 0);
-//     normals->SetComponent(index+1, 1, .866);
-//     normals->SetComponent(index+1, 2, .5);
-
-//     normals->SetComponent(index+2, 0, 0);
-//     normals->SetComponent(index+2, 1, .707);
-//     normals->SetComponent(index+2, 2, .707);
-
-//     normals->SetComponent(index+3, 0, 0);
-//     normals->SetComponent(index+3, 1, 0);
-//     normals->SetComponent(index+3, 2, 1);
-
-
-//     // Create the cell that uses these points
-//     vtkIdType cellConn[] = {index, index+1, index+2, index+3};
-//     outputCells->InsertNextCell(4, cellConn);
-    }
-
+//     double r = (0.5*(coords[1] - coords[0])) + coords[0];
+//     double theta = coords[2] + (0.5*(coords[3]-coords[2]));
+//     double x = r*cos(vtkMath::DegreesToRadians()*theta);
+//     double y = r*sin(vtkMath::DegreesToRadians()*theta);
+//     double z = 0.;
+//     outputPoints->SetPoint(i-1, x, y, z);
+  }
+  
   append->Update();
   outputPoly->ShallowCopy(append->GetOutput());
   
     // Pass the input point data to the output cell data :)
-  //FIXME-jfsheph Need to change this to CopyData to allow for dropping out the root node... (see vtkSNL/Infovis/vtkCollapseGraph for an example)
-  outputPoly->GetCellData()->PassData(inputTree->GetVertexData());
-
+//FIXME-jfsheph Need to change this to CopyData to allow for dropping out the root node...  
+//  outputPoly->GetCellData()->PassData(inputTree->GetVertexData());
+  vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
+  vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
+  output_cell_data->CopyAllocate(input_vertex_data);
+  for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
+  {
+    if( i == 0 )
+    {
+        //No cell data for the root node, so don't copy it...
+      continue;
+    }
+    
+      //copy data from -> to
+    output_cell_data->CopyData(input_vertex_data, i, i-1);
+  }
+  
 //   // Set the output points and cells
-//   outputPoly->SetPoints(outputPoints);
+//  outputPoly->SetPoints(outputPoints);
 //   outputPoly->SetPolys(outputCells);
 
 // //   // Set the point normals
@@ -199,7 +159,7 @@ int vtkTreeRingToPolyData::RequestData(
 
 //   // Clean up.
 // //  normals->Delete();
-//   outputPoints->Delete();
+//  outputPoints->Delete();
 //   outputCells->Delete();
   
   return 1;
@@ -208,7 +168,5 @@ int vtkTreeRingToPolyData::RequestData(
 void vtkTreeRingToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-//  os << indent << "LevelsFieldName: " << (this->LevelsFieldName ? this->LevelsFieldName : "(none)") << endl;
   os << indent << "SectorsFieldName: " << (this->SectorsFieldName ? this->SectorsFieldName : "(none)") << endl;
-//  os << indent << "LevelDeltaZ: " << this->LevelDeltaZ << endl;
 }

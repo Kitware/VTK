@@ -30,8 +30,8 @@
 // vtkGraphLayoutViewer
 //
 // .SECTION Thanks
-// Thanks to Brian Wylie from Sandia National Laboratories for conceptualizing
-// and implementing this class.
+// Thanks to Jason Shepherd from Sandia National Laboratories for 
+// implementing this class.
 
 #ifndef __vtkTreeRingViewer_h
 #define __vtkTreeRingViewer_h
@@ -40,7 +40,6 @@
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 
 class vtkTree;
-//class vtkTreeLevelsFilter;
 class vtkTreeFieldAggregator;
 class vtkTreeRingLayout;
 class vtkTreeRingLayoutStrategy;
@@ -58,6 +57,7 @@ class vtkLookupTable;
 class vtkThreshold;
 //class vtkLabeledDataMapper;
 //class vtkLabeledTreeRingDataMapper;
+class vtkDynamic2DLabelMapper;
 
 class VTK_INFOVIS_EXPORT vtkTreeRingViewer : public vtkObject 
 {
@@ -83,7 +83,6 @@ public:
   // Description:
   // Get the Interactor Style object pointer
   vtkGetObjectMacro(InteractorStyle, vtkInteractorStyleTreeRingHover);
-
 
 //BTX
   enum {
@@ -122,25 +121,13 @@ public:
 //  virtual void SetFontSizeRange(const int maxSize, const int minSize);
 
   // Description:
-  // Set whether the tree map uses a logarithmic scaling of sizes.
+  // Set whether the tree uses a logarithmic scaling of sizes.
   bool GetLogScale();
   void SetLogScale(bool value);
   
   // Description:
   // Highlight the tree item that matches the pedigree id
   void HighLightItem(vtkIdType id);
-
-  // Description:
-  // Get/Set the range of levels to attempt to label.
-  // The level of a vertex is the length of the path to the root
-  // (the root has level 0).
-//   void SetLabelLevelRange(int start, int end);
-//   void GetLabelLevelRange(int range[2]);
-
-  // Description:
-  // Get/Set the level at which treemap labeling is dynamic.
-//   void SetDynamicLabelLevel(int level);
-//   int GetDynamicLabelLevel();
 
   // Description:
   // Get/Set whether the label may be moved by its ancestors.
@@ -155,6 +142,11 @@ public:
 //   void SetLabelClipMode(int mode);
 //   int GetLabelClipMode();
 
+  // Description:
+  // Get/Set the shrinkage percentage for drawing each of the sectors
+  void SetSectorShrinkPercentage( double shrinkFactor );
+  double GetSectorShrinkPercentage();
+  
 protected:
   vtkTreeRingViewer();
   ~vtkTreeRingViewer();
@@ -169,16 +161,15 @@ protected:
   vtkRenderWindow*                          RenderWindow;
   vtkInteractorStyleTreeRingHover*          InteractorStyle;
   //BTX
-//  vtkSmartPointer<vtkTreeLevelsFilter>      TreeLevelsFilter;
   vtkSmartPointer<vtkTreeFieldAggregator>   TreeFieldAggregator;
   vtkSmartPointer<vtkTreeRingLayout>        TreeRingLayout;
   vtkSmartPointer<vtkTreeRingToPolyData>    TreeRingToPolyData;
   vtkSmartPointer<vtkPolyDataMapper>        PolyDataMapper;
   vtkSmartPointer<vtkRenderer>              Renderer;
   vtkSmartPointer<vtkActor>                 Actor;
-//  vtkSmartPointer<vtkActor2D>               LabelActor;
+  vtkSmartPointer<vtkActor2D>               LabelActor;
   vtkSmartPointer<vtkLookupTable>           ColorLUT;
-//  vtkSmartPointer<vtkLabeledTreeRingDataMapper>     LabeledDataMapper;
+  vtkSmartPointer<vtkDynamic2DLabelMapper>  LabelMapper;
   //ETX
   
 private:

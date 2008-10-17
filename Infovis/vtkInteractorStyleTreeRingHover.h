@@ -107,8 +107,6 @@ private:
   vtkPolyData *SelectionData;
   vtkActor *HighlightActor;
   vtkActor *SelectionActor;
-  vtkPoints *HighlightPoints;
-  vtkPoints *SelectionPoints;
   vtkTreeRingLayout* Layout;
   char *LabelField;
   vtkIdType CurrentSelectedId;

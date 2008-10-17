@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -65,63 +65,31 @@ vtkInteractorStyleTreeRingHover::vtkInteractorStyleTreeRingHover()
   this->CurrentSelectedId = -1;
   this->Layout = NULL;
 
-  //Setup up pipelines for highlighting and selecting vertices
-  this->SelectionPoints = vtkPoints::New();
-  this->SelectionPoints->SetNumberOfPoints(5);
-  this->HighlightPoints = vtkPoints::New();
-  this->HighlightPoints->SetNumberOfPoints(5);
-  vtkCellArray *selA = vtkCellArray::New();
-  selA->InsertNextCell(5);
-  vtkCellArray *highA = vtkCellArray::New();
-  highA->InsertNextCell(5);
-  int i;
-  for (i = 0; i < 5; ++i)
-    {
-    selA->InsertCellPoint(i);
-    highA->InsertCellPoint(i);
-    }
-//  vtkPolyData  *selData = vtkPolyData::New();
   this->SelectionData = vtkPolyData::New();
-  this->SelectionData->SetPoints(this->SelectionPoints);
-  this->SelectionData->SetLines(selA);
-//   selData->SetPoints(this->SelectionPoints);
-//   selData->SetLines(selA);
   vtkPolyDataMapper *selMap = vtkPolyDataMapper::New();
-//  this->SelectionMapper = vtkPolyDataMapper::New();
   selMap->SetInput(this->SelectionData);
   this->SelectionActor = vtkActor::New();
   this->SelectionActor->SetMapper(selMap);
   this->SelectionActor->VisibilityOff();
   this->SelectionActor->PickableOff();
-  this->SelectionActor->GetProperty()->SetLineWidth(2.0);
-//   vtkPolyData  *highData = vtkPolyData::New();
-//   highData->SetPoints(this->HighlightPoints);
-//   highData->SetLines(highA); 
+  this->SelectionActor->GetProperty()->SetLineWidth(4.0);
+
   this->HighlightData = vtkPolyData::New();
-  this->HighlightData->SetPoints(this->HighlightPoints);
-  this->HighlightData->SetLines(highA);
   vtkPolyDataMapper *highMap = vtkPolyDataMapper::New();
-//  highMap->SetInput(highData);
   highMap->SetInput(this->HighlightData);
   this->HighlightActor = vtkActor::New();
   this->HighlightActor->SetMapper(highMap);
   this->HighlightActor->VisibilityOff();
   this->HighlightActor->PickableOff();
   this->HighlightActor->GetProperty()->SetColor(0, 0, 0);
-  this->HighlightActor->GetProperty()->SetLineWidth(1.0);
-  selA->Delete();
-//  selData->Delete();
+  this->HighlightActor->GetProperty()->SetLineWidth(2.0);
   selMap->Delete();
-  highA->Delete();
-//  highData->Delete();
   highMap->Delete();
 }
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTreeRingHover::~vtkInteractorStyleTreeRingHover()
 {
-  this->SelectionPoints->Delete();
-  this->HighlightPoints->Delete();
   this->SelectionData->Delete();
   this->HighlightData->Delete();
   this->SelectionActor->Delete();
@@ -136,8 +104,7 @@ vtkInteractorStyleTreeRingHover::~vtkInteractorStyleTreeRingHover()
   this->SetLabelField(0);
 }
 
-void vtkInteractorStyleTreeRingHover::SetInteractor(vtkRenderWindowInteractor
-                                                   *rwi)
+void vtkInteractorStyleTreeRingHover::SetInteractor(vtkRenderWindowInteractor *rwi)
 {
   // See if we already had one
   vtkRenderWindowInteractor *mrwi = this->GetInteractor();
@@ -174,7 +141,6 @@ void vtkInteractorStyleTreeRingHover::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->Layout->PrintSelf(os, indent.GetNextIndent());
     }
-
   os << indent << "LabelField: " << (this->LabelField ? this->LabelField : "(none)") << endl;
 }
 
@@ -235,10 +201,10 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
   float sinfo[4];
   vtkIdType id = this->GetTreeRingIdAtPos(x,y);
   
-  if (id != -1)
-    {
+  if( id != -1 )
+  {
     this->GetBoundingSectorForTreeRingItem(id,sinfo);
-    }
+  }
 
   double loc[2] = {x, y};
   this->Balloon->EndWidgetInteraction(loc);
@@ -247,7 +213,10 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
     {
 
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
-    if (absArray != NULL && id > -1)
+      //find the information for the correct sector,
+      //  unless there isn't a sector or it is the root node
+//    if (absArray != NULL && id > -1 )
+    if (absArray != NULL && id > 0 )
       {
       vtkStdString str;
       if (vtkStringArray::SafeDownCast(absArray))
@@ -277,7 +246,7 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
       sector->SetZCoord(z);
       sector->SetStartAngle(sinfo[2]);
       sector->SetEndAngle(sinfo[3]);
-//FIXME-jfsheph
+//FIXME-jfsheph Are we satisfied with this level of resolution?
       int resolution = (int)((sinfo[3]-sinfo[2])/1);
       if( resolution < 1 )
           resolution = 1;
@@ -292,14 +261,6 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
       append->Update();
       
       this->HighlightData->ShallowCopy(append->GetOutput());
-    
-      this->HighlightPoints->SetPoint(0, binfo[0], binfo[1], z);
-      this->HighlightPoints->SetPoint(1, binfo[2], binfo[3], z);
-      this->HighlightPoints->SetPoint(2, binfo[4], binfo[5], z);
-      this->HighlightPoints->SetPoint(3, binfo[6], binfo[7], z);
-      this->HighlightPoints->SetPoint(4, binfo[0], binfo[1], z);
-
-      this->HighlightPoints->Modified();
       this->HighlightActor->VisibilityOn();
       }
     else
@@ -355,24 +316,7 @@ void vtkInteractorStyleTreeRingHover::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-  
-#if 0
-  vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
-    {
-    return;
-    }
 
-  if (!r->HasViewProp(this->Balloon))
-    {
-    r->AddActor(this->Balloon);
-    this->Balloon->SetRenderer(r);
-    }
-
-  double loc[2] = {x, y};
-  this->Balloon->EndWidgetInteraction(loc);
-#endif
-  
   this->CurrentSelectedId = GetTreeRingIdAtPos(x,y);
 
   // Get the pedigree id of this object and
@@ -403,10 +347,13 @@ void vtkInteractorStyleTreeRingHover::HighLightItem(vtkIdType id)
 
 void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
 {
-    //FIXME-jfsheph Need to generate the edges only...
+    //FIXME-jfsheph Need to generate the edges only rather than extracting them from the sector data...
   float sinfo[4];
 
-  if (this->CurrentSelectedId > -1)
+    //don't worry about selections in non-drawn regions or 
+    // in the root nodes sector region...
+//  if (this->CurrentSelectedId > -1)
+  if (this->CurrentSelectedId > 0)
     {
     this->GetBoundingSectorForTreeRingItem(this->CurrentSelectedId,sinfo);
 
@@ -427,7 +374,7 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
     sector->SetZCoord(z);
     sector->SetStartAngle(sinfo[2]);
     sector->SetEndAngle(sinfo[3]);
-//FIXME-jfsheph
+//FIXME-jfsheph - Are we satisfied with this level of resolution?
     int resolution = (int)((sinfo[3]-sinfo[2])/1);
       if( resolution < 1 )
           resolution = 1;
@@ -442,13 +389,7 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
     append->Update();
 
     this->SelectionData->ShallowCopy(append->GetOutput());
-    
-    this->SelectionPoints->SetPoint(0, binfo[0], binfo[1], z);
-    this->SelectionPoints->SetPoint(1, binfo[2], binfo[3], z);
-    this->SelectionPoints->SetPoint(2, binfo[4], binfo[5], z);
-    this->SelectionPoints->SetPoint(3, binfo[6], binfo[7], z);
-    this->SelectionPoints->SetPoint(4, binfo[0], binfo[1], z);
-    this->SelectionPoints->Modified();
+
     this->SelectionActor->VisibilityOn();
     }
   else

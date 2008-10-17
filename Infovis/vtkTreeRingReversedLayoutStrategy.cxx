@@ -19,15 +19,17 @@
 -------------------------------------------------------------------------*/
 #include "vtkTreeRingReversedLayoutStrategy.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkFloatArray.h"
+#include "vtkDataArray.h"
+#include "vtkIntArray.h"
 #include "vtkTree.h"
 #include "vtkTreeLevelsFilter.h"
 
@@ -35,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkTreeRingReversedLayoutStrategy);
 
 vtkTreeRingReversedLayoutStrategy::vtkTreeRingReversedLayoutStrategy()
@@ -66,15 +68,17 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
       return;
 
   VTK_CREATE(vtkTreeLevelsFilter, levelFilter);
-  levelFilter->SetInput( inputTree );
+  VTK_CREATE(vtkTree, newTree);
+  newTree->ShallowCopy( inputTree );
+  levelFilter->SetInput( newTree );
   levelFilter->Update();
   vtkTree* levelTree = levelFilter->GetOutput();
   
-  vtkDataArray *levelArray = levelTree->GetVertexData()->GetArray("level");
+  vtkIntArray *levelArray = vtkIntArray::SafeDownCast( levelTree->GetVertexData()->GetAbstractArray("level") );
   int max_level = 0;
   for( int i = 0; i < levelTree->GetNumberOfVertices(); i++ )
   {
-    int level = levelArray->GetTuple1(i);
+    int level = levelArray->GetValue(i);
     if( level > max_level )
     {
       max_level = level;
@@ -91,6 +95,29 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
     // Now layout the children vertices
   this->LayoutChildren(levelTree, coordsArray, sizeArray, levelTree->GetNumberOfChildren(rootId),
                        rootId, 0, coords[0], coords[2], coords[3]);
+
+  vtkPoints* points = vtkPoints::New();
+  vtkIdType numVerts = inputTree->GetNumberOfVertices();
+  points->SetNumberOfPoints(numVerts);
+  for( vtkIdType i = 0; i < numVerts; i++ )
+  {
+    if( i == 0 )
+    {
+      points->SetPoint( i, 0, 0, 0 );
+      continue;
+    }
+    
+    double sector_coords[4];
+    coordsArray->GetTuple( i, sector_coords );
+    double r = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
+    double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
+    double x = r*cos(vtkMath::DegreesToRadians()*theta);
+    double y = r*sin(vtkMath::DegreesToRadians()*theta);
+    double z = 0.;
+    points->SetPoint(i, x, y, z);
+  }
+  inputTree->SetPoints(points);
+  points->Delete();
 }
 
 void vtkTreeRingReversedLayoutStrategy::LayoutChildren(

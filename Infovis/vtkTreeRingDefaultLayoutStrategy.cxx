@@ -19,19 +19,20 @@
 -------------------------------------------------------------------------*/
 #include "vtkTreeRingDefaultLayoutStrategy.h"
 
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkMath.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkFloatArray.h>
-#include <vtkDataArray.h>
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkFloatArray.h"
+#include "vtkDataArray.h"
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.3");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -69,6 +70,29 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
     // Now layout the children vertices
   this->LayoutChildren(inputTree, coordsArray, sizeArray, inputTree->GetNumberOfChildren(rootId),
                        rootId, 0, coords[1], coords[2], coords[3]);
+
+  vtkPoints* points = vtkPoints::New();
+  vtkIdType numVerts = inputTree->GetNumberOfVertices();
+  points->SetNumberOfPoints(numVerts);
+  for( vtkIdType i = 0; i < numVerts; i++ )
+  {
+    if( i == 0 )
+    {
+      points->SetPoint( i, 0, 0, 0 );
+      continue;
+    }
+    
+    double sector_coords[4];
+    coordsArray->GetTuple( i, sector_coords );
+    double r = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
+    double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
+    double x = r*cos(vtkMath::DegreesToRadians()*theta);
+    double y = r*sin(vtkMath::DegreesToRadians()*theta);
+    double z = 0.;
+    points->SetPoint(i, x, y, z);
+  }
+  inputTree->SetPoints(points);
+  points->Delete();
 }
 
 void vtkTreeRingDefaultLayoutStrategy::LayoutChildren(

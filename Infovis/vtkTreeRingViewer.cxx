@@ -20,7 +20,7 @@
 #include "vtkTreeRingViewer.h"
 
 #include "vtkActor.h"
-//#include "vtkActor2D.h"
+#include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
@@ -29,7 +29,7 @@
 #include "vtkInformation.h"
 #include "vtkInteractorStyle.h"
 #include "vtkInteractorStyleTreeRingHover.h"
-//#include "vtkLabeledTreeRingDataMapper.h"
+#include "vtkDynamic2DLabelMapper.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -42,7 +42,6 @@
 #include "vtkThreshold.h"
 #include "vtkThresholdPoints.h"
 #include "vtkTreeFieldAggregator.h"
-//#include "vtkTreeLevelsFilter.h"
 #include "vtkTreeRingLayout.h"
 #include "vtkTreeRingLayoutStrategy.h"
 #include "vtkTreeRingDefaultLayoutStrategy.h"
@@ -50,7 +49,7 @@
 #include "vtkTreeRingToPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTreeRingViewer, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingViewer, "1.2");
 vtkStandardNewMacro(vtkTreeRingViewer);
 
 //----------------------------------------------------------------------------
@@ -59,16 +58,15 @@ vtkTreeRingViewer::vtkTreeRingViewer()
   this->Input                 = NULL;
   this->RenderWindow          = NULL;
   this->InteractorStyle       = vtkInteractorStyleTreeRingHover::New();
-//  this->TreeLevelsFilter      = vtkSmartPointer<vtkTreeLevelsFilter>::New();
   this->TreeFieldAggregator   = vtkSmartPointer<vtkTreeFieldAggregator>::New();
-  this->TreeRingLayout         = vtkSmartPointer<vtkTreeRingLayout>::New();
-  this->TreeRingToPolyData     = vtkSmartPointer<vtkTreeRingToPolyData>::New();
+  this->TreeRingLayout        = vtkSmartPointer<vtkTreeRingLayout>::New();
+  this->TreeRingToPolyData    = vtkSmartPointer<vtkTreeRingToPolyData>::New();
   this->PolyDataMapper        = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->Renderer              = vtkSmartPointer<vtkRenderer>::New();
   this->Actor                 = vtkSmartPointer<vtkActor>::New();
-//  this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
   this->ColorLUT              = vtkSmartPointer<vtkLookupTable>::New();
-//  this->LabeledDataMapper     = vtkSmartPointer<vtkLabeledTreeRingDataMapper>::New();
+  this->LabelMapper           = vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
+  this->LabelActor            = vtkSmartPointer<vtkActor2D>::New();
   
   // Set up some the default parameters
   this->SetAggregationFieldName("size");
@@ -78,7 +76,17 @@ vtkTreeRingViewer::vtkTreeRingViewer()
 //   this->LabeledDataMapper->SetLabelModeToLabelFieldData();
 //   this->LabeledDataMapper->SetClipTextMode(0);
 //  this->SetFontSizeRange(24,10);
-  
+  this->LabelMapper->SetLabelModeToLabelFieldData();
+//  this->LabelMapper->SetFieldDataName("name");
+  this->LabelMapper->GetLabelTextProperty()->SetColor(1,1,1);
+  this->LabelMapper->GetLabelTextProperty()->SetJustificationToCentered();
+  this->LabelMapper->GetLabelTextProperty()->SetVerticalJustificationToCentered();
+  this->LabelMapper->GetLabelTextProperty()->SetFontSize(12);
+  this->LabelMapper->GetLabelTextProperty()->SetItalic(0);
+  this->LabelMapper->GetLabelTextProperty()->SetLineOffset(-10);
+  this->LabelMapper->SetPriorityArrayName("leaf_count");
+  this->LabelActor->PickableOff();
+
   // Okay setup the internal pipeline
   this->SetupPipeline();
 }
@@ -112,13 +120,13 @@ char* vtkTreeRingViewer::GetAggregationFieldName()
 
 // void vtkTreeRingViewer::SetFontSizeRange(const int maxSize, const int minSize)
 // {
-//   this->LabeledDataMapper->SetFontSizeRange(maxSize, minSize);
+//   this->LabelMapper->SetFontSizeRange(maxSize, minSize);
 // }
 
 void vtkTreeRingViewer::SetLabelFieldName(const char *field)
 {
   this->InteractorStyle->SetLabelField(field);
-//  this->LabeledDataMapper->SetFieldDataName(field); 
+  this->LabelMapper->SetFieldDataName(field); 
 }
 
 char* vtkTreeRingViewer::GetLabelFieldName()
@@ -150,10 +158,9 @@ void vtkTreeRingViewer::SetInput(vtkTree *tree)
 void vtkTreeRingViewer::InputInitialize()
 {
   // Pipeline setup
-//  this->TreeLevelsFilter->SetInput(this->Input);
   this->TreeFieldAggregator->SetInput(this->Input);
   this->Actor->VisibilityOn();
-//  this->LabelActor->VisibilityOn();
+  this->LabelActor->VisibilityOn();
   
   // Get and set the range of data for this mapper
   double range[2]; 
@@ -203,7 +210,6 @@ void vtkTreeRingViewer::SetupPipeline()
   this->TreeFieldAggregator->SetMinValue(1.0); // Treat a size of 0 to be a size of 1
   this->TreeFieldAggregator->SetLogScale(true);
   this->SetLayoutStrategy("Tree Ring Default Layout");
-//  this->TreeRingToPolyData->SetLevelsFieldName("level");
   this->Renderer->SetBackground(.3,.3,.3);
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
   this->ColorLUT->SetHueRange( 0.667, 0 );
@@ -217,15 +223,9 @@ void vtkTreeRingViewer::SetupPipeline()
   // visibility of the actors off for now.
   // When SetInput() is called by the application
   // the input is set and the actors are turned on
-//  this->TreeLevelsFilter->SetInput(NULL);
   this->TreeFieldAggregator->SetInput(NULL);
   this->Actor->VisibilityOff();
-//  this->LabelActor->VisibilityOff();
-
-    
-//   this->TreeFieldAggregator->SetInputConnection(0, 
-//     this->TreeLevelsFilter->GetOutputPort(0));
-//  this->TreeFieldAggregator->SetInput(this->Input);
+  this->LabelActor->VisibilityOff();
       
   this->TreeRingLayout->SetInputConnection(0, 
     this->TreeFieldAggregator->GetOutputPort(0));
@@ -237,14 +237,12 @@ void vtkTreeRingViewer::SetupPipeline()
   this->PolyDataMapper->SetInputConnection(0, 
                                            this->TreeRingToPolyData->GetOutputPort(0));
 
-//   this->LabeledDataMapper->SetInputConnection(this->TreeRingLayout->
-//                                  GetOutputPort(0)); 
-//   this->LabelActor->SetPickable(false);
-//   this->LabelActor->SetMapper(this->LabeledDataMapper);
+  this->LabelMapper->SetInputConnection(this->TreeRingLayout->GetOutputPort()); 
+  this->LabelActor->SetPickable(false);
+  this->LabelActor->SetMapper(this->LabelMapper);
   this->Actor->SetMapper(this->PolyDataMapper);
   this->Renderer->AddActor(this->Actor);
-//  this->Renderer->AddActor(this->LabelActor);
-
+  this->Renderer->AddActor(this->LabelActor);
 }
 
 void vtkTreeRingViewer::SetColorFieldName(const char *field)
@@ -368,7 +366,6 @@ const char *vtkTreeRingViewer::GetLayoutStrategyName(int strategy)
 // Set up the layout strategy for the treemap
 void vtkTreeRingViewer::SetLayoutStrategy(const char *layoutType)
 {
-
   // Find the enumerated layout type and call the method
   for(int i=0; i<vtkTreeRingViewer::NUMBER_OF_LAYOUTS; i++)
     {
@@ -401,12 +398,6 @@ void vtkTreeRingViewer::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
     }
-
-//   os << indent << "TreeLevelsFilter: " << (this->TreeLevelsFilter ? "" : "(none)") << endl;
-//   if (this->TreeLevelsFilter)
-//     {
-//     this->TreeLevelsFilter->PrintSelf(os,indent.GetNextIndent());
-//     }
   
   os << indent << "TreeFieldAggregator: " << (this->TreeFieldAggregator ? "" : "(none)") << endl;
   if (this->TreeFieldAggregator)
@@ -452,26 +443,6 @@ void vtkTreeRingViewer::PrintSelf(ostream& os, vtkIndent indent)
 
 }
   
-// void vtkTreeRingViewer::SetLabelLevelRange(int start, int end)
-// {
-//   this->LabeledDataMapper->SetLevelRange(start, end);
-// }
-
-// void vtkTreeRingViewer::GetLabelLevelRange(int range[2])
-// {
-//   this->LabeledDataMapper->GetLevelRange(range);
-// }
-
-// void vtkTreeRingViewer::SetDynamicLabelLevel(int level)
-// {
-//   this->LabeledDataMapper->SetDynamicLevel(level);
-// }
-
-// int vtkTreeRingViewer::GetDynamicLabelLevel()
-// {
-//   return this->LabeledDataMapper->GetDynamicLevel();
-// }
-
 // void vtkTreeRingViewer::SetChildLabelMotion(int mode)
 // {
 //   this->LabeledDataMapper->SetChildMotion(mode);
@@ -491,3 +462,15 @@ void vtkTreeRingViewer::PrintSelf(ostream& os, vtkIndent indent)
 // {
 //   return this->LabeledDataMapper->GetClipTextMode();
 // }
+
+void vtkTreeRingViewer::SetSectorShrinkPercentage( double shrinkFactor )
+{
+  this->TreeRingToPolyData->SetShrinkPercentage( shrinkFactor );
+}
+
+double vtkTreeRingViewer::GetSectorShrinkPercentage()
+{
+  return this->TreeRingToPolyData->GetShrinkPercentage();
+}
+
+  

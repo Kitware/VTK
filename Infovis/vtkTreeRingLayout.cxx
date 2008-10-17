@@ -34,7 +34,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayout, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingLayout, "1.2");
 vtkStandardNewMacro(vtkTreeRingLayout);
 
 vtkTreeRingLayout::vtkTreeRingLayout()
@@ -87,13 +87,13 @@ int vtkTreeRingLayout::RequestData(
   vtkFloatArray *coordsArray = vtkFloatArray::New();
   coordsArray->SetName(this->SectorsFieldName);
   coordsArray->SetNumberOfComponents(4);
-  coordsArray->SetNumberOfTuples(inputTree->GetNumberOfVertices());
+  coordsArray->SetNumberOfTuples(outputTree->GetNumberOfVertices());
   vtkDataSetAttributes *data = outputTree->GetVertexData(); 
   data->AddArray(coordsArray);
   coordsArray->Delete();
   
   // Okay now layout the tree :)
-  this->LayoutStrategy->Layout(inputTree, coordsArray);
+  this->LayoutStrategy->Layout(outputTree, coordsArray);
    
   return 1;
 }
