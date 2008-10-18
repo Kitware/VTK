@@ -178,6 +178,10 @@ public:
   void TerminateThread( int thread_id );
 
   // Description:
+  // Determine if a thread is still active
+  int IsThreadActive( int threadID );
+  
+  // Description:
   // Get the thread identifier of the calling thread.
   static vtkMultiThreaderIDType GetCurrentThreadID();
 
