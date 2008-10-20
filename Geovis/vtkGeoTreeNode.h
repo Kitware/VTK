@@ -85,6 +85,17 @@ public:
   // Returns VTK_ERROR if level gets too deep to create children.
   int CreateChildren();
 
+//BTX
+  enum NodeStatus
+    {
+    NONE,
+    PROCESSING
+    };
+
+  NodeStatus GetStatus();
+  void SetStatus(NodeStatus status);
+//ETX
+
 protected:
   vtkGeoTreeNode();
   ~vtkGeoTreeNode();
@@ -97,6 +108,7 @@ protected:
 
 //BTX
   vtkSmartPointer<vtkGeoTreeNode> Children[4];
+  NodeStatus Status;
 //ETX
   vtkGeoTreeNode* Parent;
 

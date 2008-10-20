@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTreeNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTreeNode, "1.2");
+vtkCxxRevisionMacro(vtkGeoTreeNode, "1.3");
 vtkStandardNewMacro(vtkGeoTreeNode);
 
 
@@ -33,6 +33,7 @@ vtkGeoTreeNode::vtkGeoTreeNode()
   this->Id = 0; // make valgrind happy
   this->LatitudeRange[0]  = this->LatitudeRange[1]  = 0.;
   this->LongitudeRange[0] = this->LongitudeRange[1] = 0.;
+  this->Status = NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -198,5 +199,12 @@ int vtkGeoTreeNode::CreateChildren()
   return VTK_OK;
 }
 
+vtkGeoTreeNode::NodeStatus vtkGeoTreeNode::GetStatus()
+{
+  return this->Status;
+}
 
-
+void vtkGeoTreeNode::SetStatus(NodeStatus status)
+{
+  this->Status = status;
+}
