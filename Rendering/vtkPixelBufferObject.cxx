@@ -29,7 +29,7 @@
 #endif
 
 vtkStandardNewMacro(vtkPixelBufferObject);
-vtkCxxRevisionMacro(vtkPixelBufferObject, "1.2");
+vtkCxxRevisionMacro(vtkPixelBufferObject, "1.3");
 //----------------------------------------------------------------------------
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
@@ -442,9 +442,11 @@ void vtkPixelBufferObject::ReleaseMemory()
 
 //----------------------------------------------------------------------------
 template <class TPBO, class TCPU>
-static void vtkDownload3D(TPBO* pboPtr, TCPU* cpuPtr,
-  unsigned int dims[3],
-  int numcomps, vtkIdType increments[3])
+void vtkDownload3D(TPBO *pboPtr,
+                   TCPU *cpuPtr,
+                   unsigned int dims[3],
+                   int numcomps,
+                   vtkIdType increments[3])
 {
   vtkIdType tupleSize = static_cast<vtkIdType>(numcomps + increments[0]);
   for (unsigned int zz=0; zz < dims[2]; zz++)
