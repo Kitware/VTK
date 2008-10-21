@@ -1145,6 +1145,8 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs.cmake
     ${VTK_CMAKE_DIR}/FindPackageHandleStandardArgs2.cmake
     ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
+    ${VTK_CMAKE_DIR}/vtkExportKit.cmake
+    ${VTK_CMAKE_DIR}/vtkKit.cmake.in
     ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
     ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
     ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
