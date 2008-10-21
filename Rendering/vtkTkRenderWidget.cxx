@@ -32,6 +32,14 @@
 
 #include <stdlib.h>
 
+// Silent warning like
+// "dereferencing type-punned pointer will break strict-aliasing rules"
+// it happens because this kind of expression: (long *)&ptr
+// pragma GCC diagnostic is available since gcc>=4.2
+#if defined(__GNUG__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 #define VTK_ALL_EVENTS_MASK \
     KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|      \
     EnterWindowMask|LeaveWindowMask|PointerMotionMask|ExposureMask|     \
@@ -118,7 +126,7 @@ extern "C" {
   int vtkImageDataToTkPhoto_Cmd (ClientData vtkNotUsed(clientData), 
                                  Tcl_Interp *interp, 
                                  int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                  CONST84
 #endif
                                  char **argv)
@@ -351,7 +359,7 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
                          self->TkWin, 
                          vtkTkRenderWidgetConfigSpecs,
                          argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                          const_cast<CONST84 char **>(argv), 
 #else
                          argv, 
@@ -383,7 +391,7 @@ extern "C"
   int vtkTkRenderWidget_Widget(ClientData clientData, 
                                Tcl_Interp *interp,
                                int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                CONST84
 #endif
                                char *argv[]) 
@@ -434,7 +442,7 @@ extern "C"
         {
         /* Execute a configuration change */
         result = vtkTkRenderWidget_Configure(interp, self, argc-2, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                              const_cast<char **>(argv+2), 
 #else
                                              argv+2, 
@@ -480,12 +488,12 @@ extern "C"
   int vtkTkRenderWidget_Cmd(ClientData clientData, 
                             Tcl_Interp *interp, 
                             int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                             CONST84
 #endif
                             char **argv)
   {
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
 #endif
     char *name;
@@ -516,7 +524,7 @@ extern "C"
     Tk_SetClass(tkwin, (char *) "vtkTkRenderWidget");
     
     // Create vtkTkRenderWidget data structure 
-    self = (struct vtkTkRenderWidget *)ckalloc(sizeof(struct vtkTkRenderWidget));
+    self=(struct vtkTkRenderWidget *)ckalloc(sizeof(struct vtkTkRenderWidget));
     self->TkWin = tkwin;
     self->Interp = interp;
     self->Width = 0;
@@ -535,7 +543,7 @@ extern "C"
     if (vtkTkRenderWidget_Configure(interp, 
                                     self, 
                                     argc-2, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                     const_cast<char **>(argv+2), 
 #else
                                     argv+2, 
@@ -894,9 +902,10 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
                                "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
-    strcpy(self->RW, self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->RW = ckalloc(
+      static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1));
+    strcpy(self->RW, Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {
@@ -1070,9 +1079,10 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
           "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
-    strcpy(self->RW, self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->RW = ckalloc(
+      static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1));
+    strcpy(self->RW, Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {
@@ -1242,9 +1252,10 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
           "vtkRenderWindow");
 #endif
-    self->RW = ckalloc(strlen(self->Interp->result) + 1);
-    strcpy(self->RW, self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->RW = ckalloc(
+      static_cast<unsigned int>(strlen(Tcl_GetStringResult(self->Interp)) + 1));
+    strcpy(self->RW, Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {
