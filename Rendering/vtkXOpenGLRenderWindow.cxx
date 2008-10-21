@@ -21,6 +21,7 @@
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkXRenderWindowInteractor.h"
 #include <GL/gl.h>
 #include "GL/glx.h"
 #include "vtkgl.h"
@@ -110,7 +111,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.91.2.1");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.91.2.2");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1188,6 +1189,11 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
     {
     this->Size[0] = width;
     this->Size[1] = height;
+
+    if (this->Interactor)
+      {
+      this->Interactor->SetSize( width, height );
+      }
 
     if(this->OffScreenRendering)
       {
