@@ -38,7 +38,6 @@ ENDFOREACH (test)
 SET(Tests
   TestLineSeries.cxx
   TestBarChart.cxx
-  TestOrderStatisticsBoxChart.cxx
   TestStackedChart.cxx
   TestStatisticalBoxChart.cxx
   PolylineItem.cxx
@@ -46,6 +45,13 @@ SET(Tests
   Test1.cxx
   TestChartWidget.cxx
   )
+IF(VTK_USE_INFOVIS)
+  SET(Tests
+    ${Tests}
+  TestOrderStatisticsBoxChart.cxx
+)
+  
+ENDIF(VTK_USE_INFOVIS)
 
 INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
 
@@ -54,9 +60,14 @@ CREATE_TEST_SOURCELIST(TestSrcs QtChartCxxTests.cxx ${Tests} )
 ADD_EXECUTABLE(QtChartCxxTests ${TestSrcs} QTestApp.cxx)
 TARGET_LINK_LIBRARIES(QtChartCxxTests 
   vtkQtChart 
-  vtkInfovis
   vtkFiltering 
   vtkCommon)
+
+IF(VTK_USE_INFOVIS)
+TARGET_LINK_LIBRARIES(QtChartCxxTests 
+  vtkInfovis
+)
+ENDIF(VTK_USE_INFOVIS)
 
 FOREACH(test ${Tests})
   GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
