@@ -115,47 +115,15 @@ int TestOrderStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  vtkTable* paramsTable = vtkTable::New();
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
-  double centers[] = { 49.5, -1., 49.2188 };
-  double radii[] = { 1.5 * sqrt( 7.54839 ), 0., 1.5 * sqrt( 5.98286 ) };
-
-  vtkStringArray* stdStringCol = vtkStringArray::New();
-  stdStringCol->SetName( "Column" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    stdStringCol->InsertNextValue( columns[i] );
-    }
-  paramsTable->AddColumn( stdStringCol );
-  stdStringCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Nominal" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    doubleCol->InsertNextValue( centers[i] );
-    }
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Deviation" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    doubleCol->InsertNextValue( radii[i] );
-    }
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
 
   vtkOrderStatistics* haruspex = vtkOrderStatistics::New();
   haruspex->SetInput( 0, datasetTable );
-  haruspex->SetInput( 1, paramsTable );
   vtkTable* outputData = haruspex->GetOutput( 0 );
   vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
-  paramsTable->Delete();
 
 // -- Select Columns of Interest -- 
   haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
