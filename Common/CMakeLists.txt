@@ -431,6 +431,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkWeakPointer.h
     vtkWin32Header.h
     vtkWindows.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/Testing/Cxx/vtkTestDriver.h
     )
 
   IF(VTK_WRAP_TCL)
