@@ -81,7 +81,7 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
                          self->TkWin, 
                          vtkTkImageViewerWidgetConfigSpecs,
                          argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                          const_cast<CONST84 char **>(argv), 
 #else
                          argv, 
@@ -113,7 +113,7 @@ extern "C"
   int vtkTkImageViewerWidget_Widget(ClientData clientData, 
                                     Tcl_Interp *interp,
                                     int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                     CONST84
 #endif
                                     char *argv[]) 
@@ -168,7 +168,7 @@ extern "C"
         result = vtkTkImageViewerWidget_Configure(interp, 
                                                   self, 
                                                   argc-2, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                                   const_cast<char **>(argv+2), 
 #else
                                                   argv+2, 
@@ -214,12 +214,12 @@ extern "C"
   int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
                                  Tcl_Interp *interp, 
                                  int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                  CONST84
 #endif
                                  char **argv)
   {
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
     CONST84
 #endif
     char *name;
@@ -271,7 +271,7 @@ extern "C"
     if (vtkTkImageViewerWidget_Configure(interp, 
                                          self, 
                                          argc-2, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
                                          const_cast<char **>(argv+2), 
 #else
                                          argv+2, 
@@ -570,8 +570,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
                                "vtkImageViewer");
 #endif
     ckfree (self->IV);
-    self->IV = strdup(self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->IV = strdup(Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {
@@ -744,8 +744,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
                                "vtkImageViewer");
 #endif
     ckfree (self->IV);
-    self->IV = strdup(self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->IV = strdup(Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {
@@ -870,8 +870,8 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     vtkTclGetObjectFromPointer(self->Interp, self->ImageViewer,
                                "vtkImageViewer");
 #endif
-    self->IV = strdup(self->Interp->result);
-    self->Interp->result[0] = '\0';
+    self->IV = strdup(Tcl_GetStringResult(self->Interp));
+    Tcl_ResetResult(self->Interp);
     }
   else
     {

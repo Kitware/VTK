@@ -23,7 +23,7 @@
 
 extern "C"
 {
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
   typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, CONST84 char *[]);
 #else
   typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, char *[]);
@@ -460,7 +460,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     args[2] = NULL;
     command(static_cast<ClientData>(&foo),i,2,args);
 
-    sprintf(temps,"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s which is of type %s, to type %s.\n", name, name, i->result, result_type);
+    sprintf(temps,"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s which is of type %s, to type %s.\n", name, name, Tcl_GetStringResult(i), result_type);
     Tcl_AppendResult(interp,temps,NULL);
     error = 1;
     Tcl_DeleteInterp(i);
