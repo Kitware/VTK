@@ -41,7 +41,14 @@ class QVTKInteractor;
 #include <vtkConfigure.h>
 class vtkImageData;
 
-#if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
+#if defined(Q_WS_MAC) && defined(QT_MAC_USE_COCOA)
+# define QVTK_USE_COCOA
+#elif defined(Q_WS_MAC)
+# define QVTK_USE_CARBON
+#endif
+
+
+#if defined(QVTK_USE_CARBON) && QT_VERSION >= 0x040000
 #include <Carbon/Carbon.h>    // Event handling for dirty region
 #endif
 
@@ -209,13 +216,13 @@ protected:
   // that VTK chooses
   void x11_setup_window();
 
-#if defined(Q_WS_MAC) && QT_VERSION < 0x040000
+#if defined(QVTK_USE_CARBON) && QT_VERSION < 0x040000
   void macFixRect();
   virtual void setRegionDirty(bool);
   virtual void macWidgetChangedWindow();
 #endif    
 
-#if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
+#if defined(QVTK_USE_CARBON) && QT_VERSION >= 0x040000
   EventHandlerUPP DirtyRegionHandlerUPP;
   EventHandlerRef DirtyRegionHandler;
   static OSStatus DirtyRegionProcessor(EventHandlerCallRef er, EventRef event, void*);
