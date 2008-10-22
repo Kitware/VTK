@@ -39,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.14");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.15");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter,Locator,vtkPointLocator);
@@ -252,7 +252,13 @@ int vtkGenericGeometryFilter::RequestData(
     {
     attribute=attributes->GetAttribute(i);
     attributeType=attribute->GetType();
-    if(attribute->GetCentering()==vtkPointCentered)
+    int centering = attribute->GetCentering();
+    if ( centering != vtkPointCentered && centering != vtkCellCentered )
+      { // skip boundary-centered attributes.
+      continue;
+      }
+
+    if ( centering == vtkPointCentered )
       {
       dsAttributes = outputPD;
       
