@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.36");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.37");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -418,4 +418,11 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
     }
 
   return;
+}
+
+// ----------------------------------------------------------------------
+void vtkCorrelativeStatistics::SelectAssessFunctor( vtkAbstractArray* vtkNotUsed(arr),
+                                                    vtkVariantArray* vtkNotUsed(row),
+                                                    AssessFunctor*& vtkNotUsed(dfunc) )
+{
 }

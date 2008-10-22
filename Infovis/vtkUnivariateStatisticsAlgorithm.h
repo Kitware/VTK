@@ -44,8 +44,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkUnivariateStatisticsAlgorithmPrivate;
 class vtkTable;
-class vtkVariant;
-class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkUnivariateStatisticsAlgorithm : public vtkStatisticsAlgorithm
 {
@@ -77,22 +75,6 @@ public:
                               vtkTable* inMeta,
                               vtkTable* outData,
                               vtkTable* outMeta ); 
-
-//BTX
-  // Description:
-  // A base class for a functor that assesses data.
-  class AssessFunctor {
-  public:
-    virtual vtkVariant operator() ( vtkIdType id ) = 0;
-    virtual ~AssessFunctor() { }
-  };
-
-  // Description:
-  // A pure virtual method to select the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
-                                    vtkVariantArray* row,
-                                    AssessFunctor*& dfunc ) = 0;
-//ETX
 
 protected:
   vtkUnivariateStatisticsAlgorithm();

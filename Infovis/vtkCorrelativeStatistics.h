@@ -74,6 +74,14 @@ protected:
                               vtkTable* outData,
                               vtkTable* outMeta ); 
 
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc );
+//ETX
+
 private:
   vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
   void operator=(const vtkCorrelativeStatistics&);   // Not implemented

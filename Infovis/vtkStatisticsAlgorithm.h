@@ -48,6 +48,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStdString;
 class vtkStringArray;
+class vtkVariant;
+class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
 {
@@ -120,6 +122,20 @@ public:
   // Description:
   // Get the name of a parameter of the Assess option
   vtkStdString SetAssessParameter( vtkIdType id );
+
+  // Description:
+  // A base class for a functor that assesses data.
+  class AssessFunctor {
+  public:
+    virtual vtkVariant operator() ( vtkIdType id ) = 0;
+    virtual ~AssessFunctor() { }
+  };
+
+  // Description:
+  // A pure virtual method to select the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc ) = 0;
 //ETX
 
 protected:

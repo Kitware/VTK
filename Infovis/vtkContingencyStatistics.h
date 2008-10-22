@@ -55,6 +55,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkContingencyStatistics* New();
 
+//BTX  
+  // Description:
+  // Provide the appropriate assessment functor.
+  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+                                    vtkVariantArray* row,
+                                    AssessFunctor*& dfunc );
+//ETX
+
 protected:
   vtkContingencyStatistics();
   ~vtkContingencyStatistics();
