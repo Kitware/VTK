@@ -172,7 +172,6 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
     }
 
-// -- Test Assess Mode -- 
   cout << "## Searching for outliers:\n";
 
   int m0outliers = 0;
@@ -231,6 +230,7 @@ int TestDescriptiveStatistics( int, char *[] )
   haruspex->SetInput( 1, paramsTable );
   haruspex->SetLearn( false );
   haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
+  haruspex->SetAssess( true );
   haruspex->Update();
 
   m1vals = vtkDoubleArray::SafeDownCast(
@@ -258,5 +258,6 @@ int TestDescriptiveStatistics( int, char *[] )
 
   paramsTable->Delete();
   haruspex->Delete();
+
   return testStatus;
 }
