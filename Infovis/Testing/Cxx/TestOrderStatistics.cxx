@@ -134,7 +134,6 @@ int TestOrderStatistics( int, char *[] )
     }
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but retain 4)
 
-// -- Test Learn option for quartiles with InverseCDFAveragedSteps quantile definition -- 
   haruspex->SetLearn( true );
   haruspex->SetAssess( false );
   haruspex->Update();

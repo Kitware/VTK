@@ -115,47 +115,17 @@ int TestDescriptiveStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  vtkTable* paramsTable = vtkTable::New();
   int nMetrics = 3;
   vtkStdString columns[] = { "Metric 1", "Metric 2", "Metric 0" };
   double means[] = { 49.5, -1., 49.2188 };
   double stdevs[] = { sqrt( 7.54839 ), 0., sqrt( 5.98286 ) };
 
-  vtkStringArray* stdStringCol = vtkStringArray::New();
-  stdStringCol->SetName( "Column" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    stdStringCol->InsertNextValue( columns[i] );
-    }
-  paramsTable->AddColumn( stdStringCol );
-  stdStringCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Mean" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    doubleCol->InsertNextValue( means[i] );
-    }
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Standard Deviation" );
-  for ( int i = 0; i < nMetrics; ++ i )
-    {
-    doubleCol->InsertNextValue( stdevs[i] );
-    }
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
   vtkDescriptiveStatistics* haruspex = vtkDescriptiveStatistics::New();
   haruspex->SetInput( 0, datasetTable );
-  haruspex->SetInput( 1, paramsTable );
   vtkTable* outputData = haruspex->GetOutput( 0 );
   vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
-  paramsTable->Delete();
 
 // -- Select Columns of Interest -- 
   haruspex->AddColumn( "Metric 3" ); // Include invalid Metric 3
@@ -166,9 +136,11 @@ int TestDescriptiveStatistics( int, char *[] )
     }
   haruspex->RemoveColumn( "Metric 3" ); // Remove invalid Metric 3 (but keep 4)
 
-// -- Test Learn Mode -- 
+// -- Test Learn and Assess Modes -- 
   haruspex->SetLearn( true );
-  haruspex->SetAssess( false );
+  haruspex->SetDerive( true );
+  haruspex->SetAssess( true );
+  haruspex->SignedDeviationsOff();
   haruspex->Update();
   vtkIdType n = haruspex->GetSampleSize();
 
@@ -185,26 +157,23 @@ int TestDescriptiveStatistics( int, char *[] )
            << outputMeta->GetValue( r, i ).ToString()
            << "  ";
       }
+    
+    if ( fabs ( outputMeta->GetValueByName( r, "Mean" ).ToDouble() - means[r] ) > 1.e6 )
+      {
+      cout << "** Incorrect mean ** ";
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputMeta->GetValueByName( r, "Standard Deviation" ).ToDouble() - stdevs[r] ) > 1.e6 )
+      {
+      cout << "** Incorrect standard deviation **";
+      testStatus = 1;
+      }
     cout << "\n";
     }
 
 // -- Test Assess Mode -- 
-  cout << "## Searching for the following outliers:\n";
-  for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
-    {
-    cout << "   "
-         << columns[i]
-         << ", values that deviate of more than "
-         << stdevs[i]
-         << " from "
-         << means[i]
-         << ".\n";
-    }
-
-  haruspex->SetLearn( false );
-  haruspex->SetAssess( true );
-  haruspex->SignedDeviationsOff();
-  haruspex->Update();
+  cout << "## Searching for outliers:\n";
 
   int m0outliers = 0;
   int m1outliers = 0;
@@ -253,10 +222,17 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
-  paramsTable->SetValueByName( 0, "Standard Deviation", 0. );
-  paramsTable->SetValueByName( 0, "Mean", 50. );
-  haruspex->Modified(); // FIXME: Why is this necessary? The MTime on paramsTable should be sufficient.
+// -- Used modified output 1 as input 1 to test 0-deviation -- 
+  vtkTable* paramsTable = vtkTable::New();
+  paramsTable->ShallowCopy( outputMeta );
+  paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
+  paramsTable->SetValueByName( 1, "Mean", 50. );
+  
+  haruspex->SetInput( 1, paramsTable );
+  haruspex->SetLearn( false );
+  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
   haruspex->Update();
+
   m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
   m1reld = vtkVariantArray::SafeDownCast(
@@ -280,6 +256,7 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 
+  paramsTable->Delete();
   haruspex->Delete();
   return testStatus;
 }
