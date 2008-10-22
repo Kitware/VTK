@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.31");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.32");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -251,18 +251,21 @@ public:
 };
 
 // ----------------------------------------------------------------------
-class AbstractArrayBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
+class TableColumnBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
 {
 public:
-  AbstractArrayBucketingFunctor( vtkAbstractArray* arr, vtkVariantArray* quantiles )
-    {
-    this->Array = arr;
+  vtkTable* Data;
+  vtkVariantArray* Quantiles;
+
+  TableColumnBucketingFunctor( vtkTable* inData, vtkVariantArray* quantiles )
+  {
+    this->Data = inData;
     this->Quantiles = quantiles;
-    }
-  virtual ~AbstractArrayBucketingFunctor() { }
+  }
+  virtual ~TableColumnBucketingFunctor() { }
   virtual vtkVariant operator() ( vtkIdType id )
-    {
-    double x = this->Array->GetVariantValue( id ).ToDouble();
+  {
+    double x = this->Data->GetValue( id, 0 ).ToDouble();
     if ( x < this->Quantiles->GetValue( 0 ).ToDouble() )
       {
       // x is smaller than lower bound
@@ -276,25 +279,13 @@ public:
       ++ q;
       }
     return q; // if x is greater than upper bound, then n + 1 is returned
-    }
-
-  vtkAbstractArray* Array;
-  vtkVariantArray* Quantiles;
+  }
 };
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::SelectAssessFunctor( vtkAbstractArray* arr,
+void vtkOrderStatistics::SelectAssessFunctor( vtkTable* inData,
                                               vtkVariantArray* row,
                                               AssessFunctor*& dfunc )
 {
-  vtkDataArray* darr = vtkDataArray::SafeDownCast( arr );
-  
-  if ( darr )
-    {
-    dfunc = new DataArrayBucketingFunctor( darr, row );
-    }
-  else
-    {
-    dfunc = new AbstractArrayBucketingFunctor( arr, row );
-    }
+  dfunc = new TableColumnBucketingFunctor( inData, row );
 }

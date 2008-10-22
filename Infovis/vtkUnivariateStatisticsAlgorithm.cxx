@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.14");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -91,9 +91,9 @@ void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int 
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
-                                              vtkTable* inMeta,
-                                              vtkTable* outData,
-                                              vtkTable* vtkNotUsed( outMeta ) )
+                                                      vtkTable* inMeta,
+                                                      vtkTable* outData,
+                                                      vtkTable* vtkNotUsed( outMeta ) )
 {
   vtkIdType nColD = inData->GetNumberOfColumns();
   if ( ! nColD )
@@ -165,15 +165,6 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
       continue;
       }
 
-    // Create the outData column
-    vtkVariantArray* assessedValues = vtkVariantArray::New();
-    vtksys_ios::ostringstream assessColName;
-    assessColName << this->AssessmentName
-                  << " of "
-                  << colName;
-    assessedValues->SetName( assessColName.str().c_str() );
-    assessedValues->SetNumberOfTuples( nRowD );
-
     vtkVariantArray* row = vtkVariantArray::New();
     row->SetNumberOfValues( nColP );
     
@@ -192,8 +183,20 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
         }
       }
 
+    // Create the outData column
+    vtkVariantArray* assessedValues = vtkVariantArray::New();
+    vtksys_ios::ostringstream assessColName;
+    assessColName << this->AssessmentName
+                  << " of "
+                  << colName;
+    assessedValues->SetName( assessColName.str().c_str() );
+    assessedValues->SetNumberOfTuples( nRowD );
+
+    // Select assess functor
     AssessFunctor* dfunc;
-    this->SelectAssessFunctor( arr, row, dfunc );
+    vtkTable* colData = vtkTable::New();
+    colData->AddColumn( arr );
+    this->SelectAssessFunctor( colData, row, dfunc );
 
     // Assess each entry of the column
     vtkVariant assess;
@@ -207,6 +210,8 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
 
     // Add the column to the outData
     outData->AddColumn( assessedValues );
+
+    colData->Delete();
     assessedValues->Delete();
     }
 

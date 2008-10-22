@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.24");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.25");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -462,7 +462,7 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::SelectAssessFunctor( vtkAbstractArray* vtkNotUsed(arr),
+void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed(arr),
                                                     vtkVariantArray* vtkNotUsed(row),
                                                     AssessFunctor*& vtkNotUsed(dfunc) )
 {

@@ -44,7 +44,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkUnivariateStatisticsAlgorithm.h"
 
-class vtkDoubleArray;
 class vtkTable;
 class vtkVariantArray;
 
@@ -91,7 +90,7 @@ protected:
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+  virtual void SelectAssessFunctor( vtkTable* inData, 
                                     vtkVariantArray* row,
                                     AssessFunctor*& dfunc );
 //ETX

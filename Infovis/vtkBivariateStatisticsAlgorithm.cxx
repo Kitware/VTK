@@ -27,7 +27,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.2");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -101,4 +101,12 @@ void vtkBivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int s
     }
 
   this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* vtkNotUsed( inData ),
+                                                     vtkTable* vtkNotUsed( inMeta ),
+                                                     vtkTable* vtkNotUsed( outData ),
+                                                     vtkTable* vtkNotUsed( outMeta ) )
+{
 }

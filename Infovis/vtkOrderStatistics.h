@@ -75,7 +75,7 @@ public:
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkAbstractArray* arr, 
+  virtual void SelectAssessFunctor( vtkTable* inData, 
                                     vtkVariantArray* row,
                                     AssessFunctor*& dfunc );
 //ETX

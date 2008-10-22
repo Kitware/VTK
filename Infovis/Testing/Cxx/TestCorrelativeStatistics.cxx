@@ -223,8 +223,6 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->SetAssess( true );
   haruspex->Update();
 
-  paramsTable->Dump();
-
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
   cout << "   Found the following outliers:\n";

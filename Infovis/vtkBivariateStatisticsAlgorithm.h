@@ -70,6 +70,13 @@ public:
   // Method for UI to call to add/remove columns to/from the list
   void SetColumnStatus( const char* namCol, int status );
 
+  // Description:
+  // Execute the calculations required by the Assess option.
+  virtual void ExecuteAssess( vtkTable* inData,
+                              vtkTable* inMeta,
+                              vtkTable* outData,
+                              vtkTable* outMeta ); 
+
 protected:
   vtkBivariateStatisticsAlgorithm();
   ~vtkBivariateStatisticsAlgorithm();
