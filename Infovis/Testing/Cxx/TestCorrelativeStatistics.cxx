@@ -114,63 +114,18 @@ int TestCorrelativeStatistics( int, char *[] )
   datasetTable->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  vtkTable* paramsTable = vtkTable::New();
   int nMetricPairs = 3;
   vtkStdString columnPairs[] = { "Metric 0", "Metric 1", "Metric 1", "Metric 0", "Metric 2", "Metric 1" };
   double centers[] = { 49.2188, 49.5 };
   double covariance[] = { 5.98286, 7.54839, 6.14516 };
   double threshold = 4.;
 
-  vtkStringArray* stdStringCol = vtkStringArray::New();
-  stdStringCol->SetName( "Column X" );
-  stdStringCol->InsertNextValue( "Metric 0" );
-  paramsTable->AddColumn( stdStringCol );
-  stdStringCol->Delete();
-
-  stdStringCol = vtkStringArray::New();
-  stdStringCol->SetName( "Column Y" );
-  stdStringCol->InsertNextValue( "Metric 1" );
-  paramsTable->AddColumn( stdStringCol );
-  stdStringCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Mean X" );
-  doubleCol->InsertNextValue( centers[0] );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Mean Y" );
-  doubleCol->InsertNextValue( centers[1] );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Variance X" );
-  doubleCol->InsertNextValue( covariance[0] );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Variance Y" );
-  doubleCol->InsertNextValue( covariance[1] );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Covariance" );
-  doubleCol->InsertNextValue( covariance[2] );
-  paramsTable->AddColumn( doubleCol );
-  doubleCol->Delete();
-
   vtkCorrelativeStatistics* haruspex = vtkCorrelativeStatistics::New();
   haruspex->SetInput( 0, datasetTable );
-  haruspex->SetInput( 1, paramsTable );
   vtkTable* outputData = haruspex->GetOutput( 0 );
   vtkTable* outputMeta = haruspex->GetOutput( 1 );
 
   datasetTable->Delete();
-  paramsTable->Delete();
 
 // -- Select Column Pairs of Interest ( Learn Mode ) -- 
   haruspex->AddColumnPair( "Metric 0", "Metric 1" ); // A valid pair
@@ -184,6 +139,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
 // -- Test Learn Mode -- 
   haruspex->SetLearn( true );
+  haruspex->SetDerive( true );
   haruspex->SetAssess( false );
   haruspex->Update();
   vtkIdType n = haruspex->GetSampleSize();
@@ -207,18 +163,18 @@ int TestCorrelativeStatistics( int, char *[] )
            << outputMeta->GetValue( r, i ).ToDouble();
       }
 
-    if ( outputMeta->GetValue( r,  7 ).ToString() == vtkStdString( "valid" ) )
+    if ( outputMeta->GetValueByName( r,  "Linear Correlation" ).ToString() == vtkStdString( "valid" ) )
       {
       cout << "\n   Y = "
-           << outputMeta->GetValue( r,  8 ).ToDouble()
+           << outputMeta->GetValueByName( r, "Slope Y/X" ).ToDouble()
            << " * X + "
-           << outputMeta->GetValue( r,  9 ).ToDouble()
+           << outputMeta->GetValueByName( r, "Intersect Y/X" ).ToDouble()
            << ", X = "
-           << outputMeta->GetValue( r, 10 ).ToDouble()
+           << outputMeta->GetValueByName( r, "Slope X/Y" ).ToDouble()
            << " * Y + "
-           << outputMeta->GetValue( r, 11 ).ToDouble()
+           << outputMeta->GetValueByName( r, "Intersect X/Y" ).ToDouble()
            << ", corr. coeff.: "
-           << outputMeta->GetValue( r, 12 ).ToDouble()
+           << outputMeta->GetValueByName( r, "Pearson r" ).ToDouble()
            << "\n";
       }
     else
@@ -232,33 +188,42 @@ int TestCorrelativeStatistics( int, char *[] )
   haruspex->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
 // -- Test Assess Mode -- 
-  cout << "## Searching for outliers with respect to this bivariate distribution:\n";
-  for ( vtkIdType i = 0; i < paramsTable->GetNumberOfRows(); ++ i )
-    {
-    cout << "   (X, Y) = ("
-         << columnPairs[0]
-         << ", "
-         << columnPairs[1]
-         << "), Gaussian, mean=("
-         << centers[0]
-         << ", "
-         << centers[1]
-         << "), cov=["
-         << covariance[0]
-         << ", "
-         << covariance[2]
-         << " ; "
-         << covariance[2]
-         << ", "
-         << covariance[1]
-         << "], d2_Mahalanobis > "
-         << threshold
-         << "\n";
-    }
+  cout << "## Searching for outliers with respect to this bivariate Gaussian distribution:\n"
+       << "   (X, Y) = ("
+       << columnPairs[0]
+       << ", "
+       << columnPairs[1]
+       << "), mean=("
+       << centers[0]
+       << ", "
+       << centers[1]
+       << "), covariance=["
+       << covariance[0]
+       << ", "
+       << covariance[2]
+       << " ; "
+       << covariance[2]
+       << ", "
+       << covariance[1]
+       << "], d2_Mahalanobis > "
+       << threshold
+       << "\n";
 
+  vtkTable* paramsTable = vtkTable::New();
+  paramsTable->ShallowCopy( outputMeta );
+  paramsTable->SetValueByName( 0, "Mean X", centers[0] );
+  paramsTable->SetValueByName( 0, "Mean Y", centers[1] );
+  paramsTable->SetValueByName( 0, "Variance X", covariance[0] );
+  paramsTable->SetValueByName( 0, "Variance Y", covariance[1] );
+  paramsTable->SetValueByName( 0, "Covariance", covariance[2] );
+  
+  haruspex->SetInput( 1, paramsTable );
   haruspex->SetLearn( false );
+  haruspex->SetDerive( false ); // Do not recalculate nor rederive a model
   haruspex->SetAssess( true );
   haruspex->Update();
+
+  paramsTable->Dump();
 
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
@@ -292,6 +257,7 @@ int TestCorrelativeStatistics( int, char *[] )
     testStatus = 1;
     }
 
+  paramsTable->Delete();
   haruspex->Delete();
 
   return testStatus;

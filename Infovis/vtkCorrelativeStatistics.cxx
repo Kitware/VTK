@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.35");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.36");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -183,13 +183,16 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
-  int numDoubles = 5;
-  vtkStdString doubleNames[] = { "Slope Y/X", 
-                               "Intersect Y/X", 
-                               "Slope X/Y", 
-                               "Intersect X/Y", 
-                               "Pearson r" };
-
+  int numDoubles = 8;
+  vtkStdString doubleNames[] = { "Variance X",
+                                 "Variance Y",
+                                 "Covariance",
+                                 "Slope Y/X", 
+                                 "Intersect Y/X", 
+                                 "Slope X/Y", 
+                                 "Intersect X/Y", 
+                                 "Pearson r" };
+  
   vtkDoubleArray* doubleCol;
   for ( int j = 0; j < numDoubles; ++ j )
     {
@@ -212,7 +215,7 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
     stringCol->Delete();
     }
 
-  double* doubleVals = new double[numDoubles]; // slope y/x, int. y/x, slope x/y, int. x/y, r
+  double* doubleVals = new double[numDoubles]; // var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -238,6 +241,10 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
       covXY = mXY * inv_nm1;
       }
     
+    doubleVals[0] = varX;
+    doubleVals[1] = varY;
+    doubleVals[2] = covXY;
+
     vtkStdString status = "valid";
 
     double d = varX * varY - covXY * covXY;
@@ -248,11 +255,11 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
                        <<", "
                        <<c2.c_str()
                        <<"): variance/covariance matrix has non-positive determinant." );
-      doubleVals[0] = 0.;
-      doubleVals[1] = 0.;
-      doubleVals[2] = 0.;
       doubleVals[3] = 0.;
       doubleVals[4] = 0.;
+      doubleVals[5] = 0.;
+      doubleVals[6] = 0.;
+      doubleVals[7] = 0.;
       status = "invalid";
       }
     else
@@ -262,18 +269,18 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
 
       // variable Y on variable X:
       //   slope
-      doubleVals[0] = covXY / varX;
+      doubleVals[3] = covXY / varX;
       //   intersect
-      doubleVals[1] = meanY - doubleVals[0] * meanX;
+      doubleVals[4] = meanY - doubleVals[0] * meanX;
       
       //   variable X on variable Y:
       //   slope
-      doubleVals[2] = covXY / varY;
+      doubleVals[5] = covXY / varY;
       //   intersect
-      doubleVals[3] = meanX - doubleVals[2] * meanY;
+      doubleVals[6] = meanX - doubleVals[2] * meanY;
       
       // correlation coefficient
-      doubleVals[4] = covXY / sqrt( varX * varY );
+      doubleVals[7] = covXY / sqrt( varX * varY );
       }
 
     inMeta->SetValueByName( i, "Linear Correlation", status );
@@ -344,15 +351,15 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
     bool unfound = true;
     for ( int i = 0; i < nRowP; ++ i )
       {
-      vtkStdString c1 = inMeta->GetValue( i, 0 ).ToString();
-      vtkStdString c2 = inMeta->GetValue( i, 1 ).ToString();
+      vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
+      vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
       if ( ( c1 == it->first && c2 == it->second ) ||  ( c2 == it->first && c1 == it->second ) )
         {
         unfound = false;
 
-        double varX = inMeta->GetValue( i, 4 ).ToDouble();
-        double varY = inMeta->GetValue( i, 5 ).ToDouble();
-        double cov  = inMeta->GetValue( i, 6 ).ToDouble();
+        double varX = inMeta->GetValueByName( i, "Variance X" ).ToDouble();
+        double varY = inMeta->GetValueByName( i, "Variance Y" ).ToDouble();
+        double cov  = inMeta->GetValueByName( i, "Covariance" ).ToDouble();
         
         double d = varX * varY - cov * cov;
         if ( d <= 0. )
@@ -365,8 +372,8 @@ void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
           continue;
           }
         
-        double nominalX = inMeta->GetValue( i, 2 ).ToDouble();
-        double nominalY = inMeta->GetValue( i, 3 ).ToDouble();
+        double nominalX = inMeta->GetValueByName( i, "Mean X" ).ToDouble();
+        double nominalY = inMeta->GetValueByName( i, "Mean Y" ).ToDouble();
         
         if ( c2 == it->first )
           {
