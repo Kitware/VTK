@@ -23,8 +23,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -36,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.33");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.34");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -91,43 +89,43 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
   
-  vtkDoubleArray* doubleCol;
+  vtkVariantArray* variantCol;
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
   for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
     {
-    doubleCol = vtkDoubleArray::New();
+    variantCol = vtkVariantArray::New();
     div_t q = div( i << 2, this->NumberOfIntervals );
     
     if ( q.rem )
       {
-      doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+      variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
       }
     else
       {
       switch ( q.quot )
         {
         case 0:
-          doubleCol->SetName( "Minimum" );
+          variantCol->SetName( "Minimum" );
           break;
         case 1:
-          doubleCol->SetName( "First Quartile" );
+          variantCol->SetName( "First Quartile" );
           break;
         case 2:
-          doubleCol->SetName( "Median" );
+          variantCol->SetName( "Median" );
           break;
         case 3:
-          doubleCol->SetName( "Third Quartile" );
+          variantCol->SetName( "Third Quartile" );
           break;
         case 4:
-          doubleCol->SetName( "Maximum" );
+          variantCol->SetName( "Maximum" );
           break;
         default:
-          doubleCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
+          variantCol->SetName( vtkStdString( vtkVariant( i * dq ).ToString() + "-quantile" ).c_str() );
           break;
         }
       }
-    output->AddColumn( doubleCol );
-    doubleCol->Delete();
+    output->AddColumn( variantCol );
+    variantCol->Delete();
     }
 
   for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
@@ -140,10 +138,12 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
 
-    vtkstd::map<double,vtkIdType> distr;
+    bool isNum = inData->GetColumnByName( col )->IsNumeric();
+
+    vtkstd::map<vtkVariant,vtkIdType> distr;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
       {
-      ++ distr[inData->GetValueByName( r, col ).ToDouble()];
+      ++ distr[inData->GetValueByName( r, col )];
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
@@ -160,18 +160,19 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
       quantileThresholds.push_back( j * dh );
       }
     
-    double sum = 0;
+    vtkIdType sum = 0;
     vtkstd::vector<double>::iterator qit = quantileThresholds.begin();
-    for ( vtkstd::map<double,vtkIdType>::iterator mit = distr.begin();
+    for ( vtkstd::map<vtkVariant,vtkIdType>::iterator mit = distr.begin();
           mit != distr.end(); ++ mit  )
       {
       for ( sum += mit->second; qit != quantileThresholds.end() && sum >= *qit; ++ qit )
         {
-        if ( sum == *qit
+        if ( isNum
+             && sum == *qit
              && this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
           {
-          vtkstd::map<double,vtkIdType>::iterator nit = mit;
-          row->SetValue( i ++, ( (++ nit)->first + mit->first ) * .5 );
+          vtkstd::map<vtkVariant,vtkIdType>::iterator nit = mit;
+          row->SetValue( i ++, ( (++ nit)->first.ToDouble() + mit->first.ToDouble() ) * .5 );
           }
         else
           {
@@ -232,8 +233,8 @@ public:
   virtual ~TableColumnBucketingFunctor() { }
   virtual vtkVariant operator() ( vtkIdType id )
   {
-    double x = this->Data->GetValue( id, 0 ).ToDouble();
-    if ( x < this->Quantiles->GetValue( 0 ).ToDouble() )
+    vtkVariant x = this->Data->GetValue( id, 0 );
+    if ( x < this->Quantiles->GetValue( 0 ) )
       {
       // x is smaller than lower bound
       return 0;
@@ -241,7 +242,7 @@ public:
 
     vtkIdType n = this->Quantiles->GetNumberOfValues() + 1;
     vtkIdType q = 1;
-    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
+    while ( q < n && x > this->Quantiles->GetValue( q ) )
       {
       ++ q;
       }

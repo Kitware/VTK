@@ -208,8 +208,8 @@ int TestOrderStatistics( int, char *[] )
   vtkstd::map<int,int> histoMetric[2];
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
-    ++ histoMetric[0][outputData->GetValueByName( r, "Quantile of Metric 0" ).ToInt()];
-    ++ histoMetric[1][outputData->GetValueByName( r, "Quantile of Metric 1" ).ToInt()];
+    ++ histoMetric[0][outputData->GetValueByName( r, "Quantile(Metric 0)" ).ToInt()];
+    ++ histoMetric[1][outputData->GetValueByName( r, "Quantile(Metric 1)" ).ToInt()];
     }
 
   int cpt[] = { 0, 0 };
