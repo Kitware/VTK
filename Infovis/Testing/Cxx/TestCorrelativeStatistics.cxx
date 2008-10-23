@@ -205,7 +205,7 @@ int TestCorrelativeStatistics( int, char *[] )
        << covariance[2]
        << ", "
        << covariance[1]
-       << "], d2_Mahalanobis > "
+       << "], Squared Mahalanobis > "
        << threshold
        << "\n";
 

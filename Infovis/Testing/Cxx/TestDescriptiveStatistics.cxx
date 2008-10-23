@@ -203,9 +203,17 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m0outliers;
-      cout
-        << "   Metric 0: row " << r << " deviation " << dev << " > " << maxdev
-        << " (value: " << m0vals->GetValue( r ) << ")\n";
+      cout << "   " 
+           << m0reld->GetName() 
+           << " row " 
+           << r 
+           << " deviation " 
+           << dev 
+           << " > " 
+           << maxdev
+           << " (value: " 
+           << m0vals->GetValue( r ) 
+           << ")\n";
       }
     }
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
