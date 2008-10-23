@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.14");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.15");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -146,10 +146,9 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
   // specify the model parameters of some requested table column.
   for ( int i = 0; i < nRowP; ++ i )
     {
-    // Is the parameter one that's been requested?
-    vtkStdString colName = inMeta->GetValue( i, 0 ).ToString();
-    vtkstd::set<vtkStdString>::iterator it =
-      this->Internals->SelectedColumns.find( colName );
+    // Is the parameter row one that is requested?
+    vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
+    vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.find( colName );
     if ( it == this->Internals->SelectedColumns.end() )
       { // Have parameter values. But user doesn't want it... skip it.
       continue;
@@ -159,9 +158,9 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     vtkAbstractArray* arr;
     if ( ! ( arr = inData->GetColumnByName( colName ) ) )
       { // User requested it. InMeta table has it. But inData doesn't... whine
-      vtkWarningMacro(
-        "InData table does not have a column "
-        << colName.c_str() << ". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colName.c_str() 
+                       << ". Ignoring it." );
       continue;
       }
 
@@ -187,8 +186,9 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     vtkVariantArray* assessedValues = vtkVariantArray::New();
     vtksys_ios::ostringstream assessColName;
     assessColName << this->AssessmentName
-                  << " of "
-                  << colName;
+                  << "("
+                  << colName
+                  << ")";
     assessedValues->SetName( assessColName.str().c_str() );
     assessedValues->SetNumberOfTuples( nRowD );
 
@@ -208,12 +208,10 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     delete dfunc;
     row->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
 
-    // Add the column to the outData
+    // Add the column to outData
     outData->AddColumn( assessedValues );
 
     colData->Delete();
     assessedValues->Delete();
     }
-
-  return;
 }

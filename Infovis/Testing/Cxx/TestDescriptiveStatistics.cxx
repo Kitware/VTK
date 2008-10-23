@@ -178,13 +178,23 @@ int TestDescriptiveStatistics( int, char *[] )
   int m1outliers = 0;
   cout << "Outliers:\n";
   vtkVariantArray* m0reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation of Metric 0" ) );
+    outputData->GetColumnByName( "Relative Deviation(Metric 0)" ) );
   vtkVariantArray* m1reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
+    outputData->GetColumnByName( "Relative Deviation(Metric 1)" ) );
   vtkDoubleArray* m0vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 0" ) );
   vtkDoubleArray* m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
+
+  if ( ! m0reld || ! m1reld || ! m0vals || ! m1vals )
+    {
+    cout << "Error: "
+         << "Empty output column(s).\n";
+    testStatus = 1;
+
+    return testStatus;
+    }
+
   double dev;
   double maxdev = 1.5;
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
@@ -204,9 +214,17 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m1outliers;
-      cout
-        << "   Metric 1: row " << r << " deviation " << dev << " > " << maxdev
-        << " (value: " << m1vals->GetValue( r ) << ")\n";
+      cout << "   " 
+           << m1reld->GetName() 
+           << " row " 
+           << r 
+           << " deviation " 
+           << dev 
+           << " > " 
+           << maxdev
+           << " (value: " 
+           << m1vals->GetValue( r ) 
+           << ")\n";
       }
     }
   cout
@@ -222,6 +240,8 @@ int TestDescriptiveStatistics( int, char *[] )
     }
 
 // -- Used modified output 1 as input 1 to test 0-deviation -- 
+  cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
+
   vtkTable* paramsTable = vtkTable::New();
   paramsTable->ShallowCopy( outputMeta );
   paramsTable->SetValueByName( 1, "Standard Deviation", 0. );
@@ -236,18 +256,34 @@ int TestDescriptiveStatistics( int, char *[] )
   m1vals = vtkDoubleArray::SafeDownCast(
     outputData->GetColumnByName( "Metric 1" ) );
   m1reld = vtkVariantArray::SafeDownCast(
-    outputData->GetColumnByName( "Relative Deviation of Metric 1" ) );
-  cout << "Re-running with mean 50 and deviation 0 for metric 1:\n";
+    outputData->GetColumnByName( "Relative Deviation(Metric 1)" ) );
+
+  if ( ! m1reld || ! m1vals )
+    {
+    cout << "Error: "
+         << "Empty output column(s).\n";
+    testStatus = 1;
+
+    return testStatus;
+    }
+
   m1outliers = 0;
+
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
     {
     dev = m1reld->GetValue( r ).ToDouble();
     if ( dev )
       {
       ++ m1outliers;
-      cout
-        << "   " << m1reld->GetName() << " row " << r << ": " << dev
-        << " value " << m1vals->GetValue( r ) << "\n";
+      cout << "   " 
+           << m1reld->GetName() 
+           << " row " 
+           << r 
+           << ": " 
+           << dev
+           << " value " 
+           << m1vals->GetValue( r ) 
+           << "\n";
       }
     }
   if ( m1outliers != 28 )
