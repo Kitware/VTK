@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.32");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.33");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -218,40 +218,7 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
 }
 
 // ----------------------------------------------------------------------
-class DataArrayBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
-{
-public:
-  DataArrayBucketingFunctor( vtkDataArray* arr, vtkVariantArray* quantiles )
-    {
-    this->Array = arr;
-    this->Quantiles = quantiles;
-    }
-  virtual ~DataArrayBucketingFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
-    {
-
-    double x = this->Array->GetTuple( id )[0];
-    if ( x < this->Quantiles->GetValue( 0 ).ToDouble() )
-      {
-      // x is smaller than lower bound
-      return 0;
-      }
-
-    vtkIdType n = this->Quantiles->GetNumberOfValues() + 1;
-    vtkIdType q = 1;
-    while ( q < n && x > this->Quantiles->GetValue( q ).ToDouble() )
-      {
-      ++ q;
-      }
-    return q; // if x is greater than upper bound, then n + 1 is returned
-    }
-
-  vtkDataArray* Array;
-  vtkVariantArray* Quantiles;
-};
-
-// ----------------------------------------------------------------------
-class TableColumnBucketingFunctor : public vtkUnivariateStatisticsAlgorithm::AssessFunctor
+class TableColumnBucketingFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
   vtkTable* Data;
