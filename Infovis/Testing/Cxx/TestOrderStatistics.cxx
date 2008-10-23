@@ -7,6 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
+#include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -219,12 +220,16 @@ int TestOrderStatistics( int, char *[] )
     cout << "   "
          << outputData->GetColumnName( i )
          << ":\n";
+
     for ( vtkstd::map<int,int>::iterator it = histoMetric[i].begin(); 
           it != histoMetric[i].end(); ++ it )
       {
       cpt[i] += it->second;
       cout << "    "
-           << it->first << " |-> " << it->second << "\n";
+           << it->first 
+           << " |-> " 
+           << it->second 
+           << "\n";
       }
 
     if ( cpt[i] != outputData->GetNumberOfRows() )
@@ -260,6 +265,82 @@ int TestOrderStatistics( int, char *[] )
            << "  ";
       }
     cout << "\n";
+    }
+
+// -- Test Learn option for quartiles with non-numeric ordinal data --
+
+  char text[] = "An ordinal scale defines a total preorder of objects; the scale values themselves have a total order; names may be used like bad, medium, good; if numbers are used they are only relevant up to strictly monotonically increasing transformations (order isomorphism).";
+  int textLength = 263;
+    
+  vtkCharArray* textArr = vtkCharArray::New();
+  textArr->SetNumberOfComponents( 1 );
+  textArr->SetName( "Text" );
+
+  for ( int i = 0; i < textLength; ++ i )
+    {
+    textArr->InsertNextValue( text[i] );
+    }
+
+  vtkTable* textTable = vtkTable::New();
+  textTable->AddColumn( textArr );
+  textArr->Delete();
+
+  haruspex->SetInput( 0, textTable );
+  textTable->Delete();
+  haruspex->SetQuantileDefinition( 1 ); // InverseCDFAverageSteps to make sure it is not trying to average non-numeric values
+  haruspex->SetNumberOfIntervals( 4 );
+  haruspex->ResetColumns(); // Clear list of columns of interest
+  haruspex->AddColumn( "Text" ); // Add column of interest
+  haruspex->SetAssess( true );
+  haruspex->Update();
+
+  cout << "## Calculated the following 5-points statistics with non-numerical ordinal data (letters) ( "
+       << haruspex->GetSampleSize()
+       << " entries ):\n";
+  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputMeta->GetColumnName( i )
+           << "="
+           << outputMeta->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    cout << "\n";
+    }
+
+  vtkstd::map<int,int> histoText;
+  for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
+    {
+    ++ histoText[outputData->GetValueByName( r, "Quantile(Text)" ).ToInt()];
+    }
+
+  int sum = 0;
+  cout << "## Calculated the following histogram:\n";
+  cout << "   "
+       << outputData->GetColumnName( 0 )
+       << ":\n";
+
+  for ( vtkstd::map<int,int>::iterator it = histoText.begin(); it != histoText.end(); ++ it )
+    {
+    sum += it->second;
+    cout << "    "
+         << it->first 
+         << " |-> " 
+         << it->second 
+         << "\n";
+    }
+  
+  if ( sum != outputData->GetNumberOfRows() )
+    {
+    cout << "Error: "
+         << "Histogram count is "
+         << sum
+         << " != "
+         << outputData->GetNumberOfRows()
+         << ".\n";
+    testStatus = 1;
     }
 
   haruspex->Delete();
