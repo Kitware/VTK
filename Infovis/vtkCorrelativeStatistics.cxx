@@ -37,17 +37,26 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.38");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.39");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
+  this->SetAssessmentName( "Squared Mahalanobis" );
+  this->AssessParameters = vtkStringArray::New();
+  this->AssessParameters->SetNumberOfValues( 5 );
+  this->AssessParameters->SetValue( 0, "Mean X" );
+  this->AssessParameters->SetValue( 1, "Mean Y" );
+  this->AssessParameters->SetValue( 2, "Variance X" );
+  this->AssessParameters->SetValue( 3, "Variance Y" );
+  this->AssessParameters->SetValue( 4, "Covariance" );
 }
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
 {
+  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -294,135 +303,82 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteAssess( vtkTable* inData,
-                                              vtkTable* inMeta,
-                                              vtkTable* outData,
-                                              vtkTable* vtkNotUsed( outMeta ) )
+class TableColumnPairInvalidFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
-    {
-    return;
-    }
+public:
+  TableColumnPairInvalidFunctor() { }
+  virtual ~TableColumnPairInvalidFunctor() { }
+  virtual vtkVariant operator() ( vtkIdType vtkNotUsed(id) )
+  {
+    return -1.;
+  }
+};
 
-  vtkIdType nRowD = inData->GetNumberOfRows();
-  if ( ! nRowD )
-    {
-    return;
-    }
+class TableColumnPairMahlanobisFunctor : public vtkStatisticsAlgorithm::AssessFunctor
+{
+public:
+  vtkTable* Data;
+  double MeanX;
+  double MeanY;
+  double VarX;
+  double VarY;
+  double CovXY;
+  double DInv;
 
-  vtkIdType nColP = inMeta->GetNumberOfColumns();
-  if ( nColP < 7 )
-    {
-    vtkWarningMacro( "Parameter table has " 
-                     << nColP
-                     << " < 7 columns. Doing nothing." );
-    return;
-    }
+  TableColumnPairMahlanobisFunctor( vtkTable* inData,
+                                    double meanX,
+                                    double meanY,
+                                    double varX,
+                                    double varY,
+                                    double covXY,
+                                    double dInv )
+  {
+    this->Data = inData;
+    this->MeanX = meanX;
+    this->MeanY = meanY;
+    this->VarX  = varX;
+    this->VarY  = varY;
+    this->CovXY = covXY;
+    this->DInv  = dInv;
+  }
+  virtual ~TableColumnPairMahlanobisFunctor() { }
+  virtual vtkVariant operator() ( vtkIdType id )
+  {
+    double x = this->Data->GetValue( id, 0 ).ToDouble() - this->MeanX;
+    double y = this->Data->GetValue( id, 1 ).ToDouble() - this->MeanY;
 
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
-    {
-    return;
-    }
-
-  if ( ! this->Internals->ColumnPairs.size() )
-    {
-    return;
-    }
-
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
-        it != this->Internals->ColumnPairs.end(); ++ it )
-    {
-    vtkStdString colX = it->first;
-    if ( ! inData->GetColumnByName( colX ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
-      continue;
-      }
-
-    vtkStdString colY = it->second;
-    if ( ! inData->GetColumnByName( colY ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
-      continue;
-      }
-
-    bool unfound = true;
-    for ( int i = 0; i < nRowP; ++ i )
-      {
-      vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
-      vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
-      if ( ( c1 == it->first && c2 == it->second ) ||  ( c2 == it->first && c1 == it->second ) )
-        {
-        unfound = false;
-
-        double varX = inMeta->GetValueByName( i, "Variance X" ).ToDouble();
-        double varY = inMeta->GetValueByName( i, "Variance Y" ).ToDouble();
-        double cov  = inMeta->GetValueByName( i, "Covariance" ).ToDouble();
-        
-        double d = varX * varY - cov * cov;
-        if ( d <= 0. )
-          {
-          vtkWarningMacro( "Incorrect parameters for column pair ("
-                           <<c1.c_str()
-                           <<", "
-                           <<c2.c_str()
-                           <<"): variance/covariance matrix has non-positive determinant." );
-          continue;
-          }
-        
-        double nominalX = inMeta->GetValueByName( i, "Mean X" ).ToDouble();
-        double nominalY = inMeta->GetValueByName( i, "Mean Y" ).ToDouble();
-        
-        if ( c2 == it->first )
-          {
-          vtkStdString tmp( colX );
-          colX = colY;
-          colY = tmp;
-          }
-
-        // Add a column to outData
-        vtkDoubleArray* dXY = vtkDoubleArray::New();
-        vtksys_ios::ostringstream dXYName;
-        dXYName
-          << "d2_Mahalanobis(" << ( colX.size() ? colX.c_str() : "X" )
-          << ","  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
-        dXY->SetName( dXYName.str().c_str() );
-        dXY->SetNumberOfTuples( nRowD );
-        outData->AddColumn( dXY );
-        dXY->Delete();
-
-        double x, y;
-        for ( vtkIdType r = 0; r < nRowD; ++ r )
-          {
-          x = inData->GetValueByName( r, colX ).ToDouble() - nominalX;
-          y = inData->GetValueByName( r, colY ).ToDouble() - nominalY;
-          
-          outData->SetValueByName( r, dXYName.str().c_str(), ( varY * x * x - 2. * cov * x * y + varX * y * y ) / d );
-          }
-
-        break;
-        }
-      }
-
-    if ( unfound )
-      {
-      vtkWarningMacro( "Parameter table does not have a row for inData table column pair ("
-                       << it->first.c_str()
-                       << ", "
-                       << it->second.c_str()
-                       << "). Ignoring it." );
-      continue;
-      }
-    }
-
-  return;
-}
+    return ( this->VarY * x * x - 2. * this->CovXY * x * y + this->VarX * y * y ) * this->DInv;
+  }
+};
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed(arr),
-                                                    vtkVariantArray* vtkNotUsed(row),
-                                                    AssessFunctor*& vtkNotUsed(dfunc) )
+void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
+                                                    vtkVariantArray* row,
+                                                    AssessFunctor*& dfunc )
 {
+  double meanX = row->GetValue( 0 ).ToDouble();
+  double meanY = row->GetValue( 1 ).ToDouble();
+  double varX  = row->GetValue( 2 ).ToDouble();
+  double varY  = row->GetValue( 3 ).ToDouble();
+  double covXY = row->GetValue( 4 ).ToDouble();
+
+  double d = varX * varY - covXY * covXY;
+  if ( d <= 0. )
+    {
+    vtkWarningMacro( "Incorrect parameters for column pair:"
+                     << " variance/covariance matrix has non-positive determinant"
+                     << " (assessment values will be set to -1)." );
+
+    dfunc = new TableColumnPairInvalidFunctor();
+    }
+  else
+    {
+    dfunc = new TableColumnPairMahlanobisFunctor( inData,
+                                                  meanX,
+                                                  meanY,
+                                                  varX,
+                                                  varY,
+                                                  covXY,
+                                                  1. / d );
+    }
 }

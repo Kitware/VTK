@@ -67,13 +67,6 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteDerive( vtkTable* );
 
-  // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void ExecuteAssess( vtkTable* inData,
-                              vtkTable* inMeta,
-                              vtkTable* outData,
-                              vtkTable* outMeta ); 
-
 //BTX  
   // Description:
   // Provide the appropriate assessment functor.
