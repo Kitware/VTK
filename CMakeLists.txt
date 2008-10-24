@@ -447,8 +447,8 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
-# Configure Dart testing support.
-INCLUDE(Dart)
+# Configure testing support.
+INCLUDE(CTest)
 MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
 IF(BUILD_TESTING)
   ENABLE_TESTING()
