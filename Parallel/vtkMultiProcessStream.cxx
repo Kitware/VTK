@@ -32,10 +32,11 @@ public:
     char_value,
     uchar_value,
     double_value,
-    float_value
+    float_value,
+    string_value
     };
 
-  void Push(unsigned char* data, size_t length)
+  void Push(const unsigned char* data, size_t length)
     {
     for (size_t cc=0; cc < length; cc++)
       {
@@ -183,6 +184,16 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (unsigned char value)
 }
 
 //----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (const vtkstd::string& value)
+{
+  this->Internals->Data.push_back(vtkInternals::string_value);
+  const char* c_value = value.c_str();
+  this->Internals->Push(reinterpret_cast<const unsigned char*>(c_value),
+    strlen(c_value)+1);
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator >> (double &value)
 {
   assert(this->Internals->Data.front() == vtkInternals::double_value);
@@ -233,6 +244,25 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (unsigned char &value)
   assert(this->Internals->Data.front() == vtkInternals::uchar_value);
   this->Internals->Data.pop_front();
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned char));
+  return (*this);
+}
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkstd::string& value)
+{
+  value = "";
+  assert(this->Internals->Data.front() == vtkInternals::string_value);
+  this->Internals->Data.pop_front();
+  while (true)
+    {
+    char c_value;
+    this->Internals->Pop(reinterpret_cast<unsigned char*>(&c_value), sizeof(char));
+    if (c_value == 0x0)
+      {
+      break;
+      }
+    value += c_value;
+    }
   return (*this);
 }
 

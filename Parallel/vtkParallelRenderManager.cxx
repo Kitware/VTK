@@ -60,8 +60,9 @@ static void ResetCameraClippingRange(vtkObject *caller,
 */
 static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
+bool vtkParallelRenderManager::DefaultRenderEventPropagation = true;
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.75");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.76");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -91,7 +92,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->WriteBackImages = 1;
   this->MagnifyImages = 1;
   this->MagnifyImageMethod = vtkParallelRenderManager::NEAREST;
-  this->RenderEventPropagation = 1;
+  this->RenderEventPropagation =
+    vtkParallelRenderManager::DefaultRenderEventPropagation? 1 : 0;
   this->UseCompositing = 1;
 
   this->FullImage = vtkUnsignedCharArray::New();

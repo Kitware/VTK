@@ -158,6 +158,15 @@ public:
   vtkBooleanMacro(RenderEventPropagation, int);
 
   // Description:
+  // Get/Set the default value used for RenderEventPropagation when a new
+  // instance of vtkParallelRenderManager is created.
+  // Set to true by default.
+  static void SetDefaultRenderEventPropagation(bool val)
+    { vtkParallelRenderManager::DefaultRenderEventPropagation = val; }
+  static bool GetDefaultRenderEventPropagation()
+    { return vtkParallelRenderManager::DefaultRenderEventPropagation; }
+
+  // Description:
   // This is used for tiled display rendering.  When data has been
   // duplicated on all processes, then we do not need to compositing.
   // Cameras and renders are still propagated though.
@@ -588,6 +597,7 @@ protected:
   unsigned long BoundsRMIId;
   int UseBackBuffer;
 
+  static bool DefaultRenderEventPropagation;
 
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented

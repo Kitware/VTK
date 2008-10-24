@@ -24,6 +24,7 @@
 
 #include "vtkObject.h"
 #include <vtkstd/vector> // needed for vector.
+#include <vtkstd/string> // needed for string.
 
 class VTK_PARALLEL_EXPORT vtkMultiProcessStream
 {
@@ -41,6 +42,7 @@ public:
   vtkMultiProcessStream& operator << (char value);
   vtkMultiProcessStream& operator << (unsigned int value);
   vtkMultiProcessStream& operator << (unsigned char value);
+  vtkMultiProcessStream& operator << (const vtkstd::string& value);
 
   // Description:
   // Remove-from-stream operators. Removes from the head of the stream.
@@ -50,6 +52,7 @@ public:
   vtkMultiProcessStream& operator >> (char &value);
   vtkMultiProcessStream& operator >> (unsigned int &value);
   vtkMultiProcessStream& operator >> (unsigned char &value);
+  vtkMultiProcessStream& operator >> (vtkstd::string &value);
 
   // Description:
   // Clears everything in the stream.
