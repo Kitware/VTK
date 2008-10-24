@@ -84,6 +84,12 @@ public:
   vtkGetMacro(Error,double);
   vtkSetMacro(Error,double);
 
+  // Description:
+  // For 2D projections, store the maximum deviation of line segment centers
+  // from the actual projection value.
+  vtkGetMacro(Coverage,float);
+  vtkSetMacro(Coverage,float);
+  
 protected:
   vtkGeoTerrainNode();
   ~vtkGeoTerrainNode();
@@ -106,6 +112,7 @@ protected:
   double ProjectionBounds[4];
   int GraticuleLevel;
   double Error;
+  float  Coverage;
 
 private:
   vtkGeoTerrainNode(const vtkGeoTerrainNode&);  // Not implemented.

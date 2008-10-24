@@ -22,7 +22,7 @@
 #include "vtkGeoAlignedImageRepresentation.h"
 
 #include "vtkActor.h"
-#include "vtkAssembly.h"
+#include "vtkPropAssembly.h"
 #include "vtkGeoImageNode.h"
 #include "vtkGeoPatch.h"
 #include "vtkGeoTerrain.h"
@@ -38,7 +38,7 @@
 #include "vtkView.h"
 
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.6");
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.7");
 vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
 
 //-----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ VTK_THREAD_RETURN_TYPE vtkGeoAlignedImageRepresentationThreadStart( void *arg )
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation() 
 {
-  this->Actor = vtkSmartPointer<vtkAssembly>::New();
+  this->Actor = vtkSmartPointer<vtkPropAssembly>::New();
   this->Terrain = NULL;
 
   // Turn off selectability.
@@ -278,11 +278,12 @@ bool vtkGeoAlignedImageRepresentation::UpdateImage(vtkGeoTerrain* terrain)
 // We need a node by node indication that the node has changed and we need to 
 // reuse actors, and models so we do not generate new texture coordinates 
 // unless we have to.
-void vtkGeoAlignedImageRepresentation::UpdateAssembly(vtkAssembly* assembly)
+void vtkGeoAlignedImageRepresentation::UpdateAssembly(vtkPropAssembly* assembly)
 {
   int idx;
   int numPatches;
   vtkGeoPatch* patch;
+  int count = 0;
   
   // I assume this is only called when the update modified the terrain or image.
   assembly->GetParts()->RemoveAllItems();
@@ -290,9 +291,15 @@ void vtkGeoAlignedImageRepresentation::UpdateAssembly(vtkAssembly* assembly)
   for (idx = 0; idx < numPatches; ++idx)
     {
     patch = this->Patches[idx];
-    patch->Update();
-    assembly->AddPart(patch->GetActor());
+    if (patch->GetTerrainNode()->GetCoverage() > 0.0)
+      {
+      patch->Update();
+      assembly->AddPart(patch->GetActor());
+      ++count;
+      }
     }
+  // The more patches, the slower it renders.
+  //cerr << count << "Patches in assembly\n";
 }
 
 //-----------------------------------------------------------------------------

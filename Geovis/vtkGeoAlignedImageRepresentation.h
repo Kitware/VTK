@@ -37,7 +37,7 @@
 #include "vtkDataRepresentation.h"
 
 #include "vtkSmartPointer.h" // for SP
-#include "vtkAssembly.h" // for SP
+#include "vtkPropAssembly.h" // for SP
 #include "vtkGeoAlignedImageSource.h" // for SP
 #include "vtkGeoImageNode.h" // for SP
 #include "vtkGeoTerrain.h" // for SP
@@ -49,7 +49,7 @@
 class vtkRenderer;
 class vtkGeoCamera;
 class vtkGeoTerrain;
-class vtkAssembly;
+class vtkPropAssembly;
 class vtkGeoPatch;
 
 class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
@@ -66,7 +66,7 @@ public:
   
   // Description:
   // This actor contains the actor which will render the earth.
-  vtkAssembly *GetActor() { return this->Actor; }
+  vtkPropAssembly *GetActor() { return this->Actor; }
   
   // Description:
   // This is the terrain that has the polydata models.  It is set by the user
@@ -109,14 +109,14 @@ public:
 
   // Description:
   // Add the actors that render the terrain image pairs to the assembly.
-  void UpdateAssembly(vtkAssembly* assembly);
+  void UpdateAssembly(vtkPropAssembly* assembly);
 
 protected:
   vtkGeoAlignedImageRepresentation();
   ~vtkGeoAlignedImageRepresentation();
 
 //BTX
-  vtkSmartPointer<vtkAssembly> Actor;
+  vtkSmartPointer<vtkPropAssembly> Actor;
   vtkSmartPointer<vtkGeoTerrain> Terrain;
   vtkSmartPointer<vtkGeoAlignedImageSource> Source;
   vtkSmartPointer<vtkGeoImageNode> WesternHemisphere;
