@@ -23,7 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.4");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.5");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -72,9 +72,10 @@ int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int renderedSomething=0;
-
-  fraction = this->AllocatedRenderTime / 
-    static_cast<double>(this->Parts->GetNumberOfItems());
+  double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  fraction = numberOfItems >= 1.0 ? 
+    this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
+    
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -122,9 +123,9 @@ int vtkPropAssembly::RenderVolumetricGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int renderedSomething=0;
-
-  fraction = this->AllocatedRenderTime / 
-    static_cast<double>(this->Parts->GetNumberOfItems());
+  double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  fraction = numberOfItems >= 1.0 ? 
+    this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -150,12 +151,14 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int   renderedSomething=0;
+  double numberOfItems = 0.0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
-  fraction = this->AllocatedRenderTime / 
-    static_cast<double>(this->Parts->GetNumberOfItems());
+  numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  fraction = numberOfItems >= 1.0 ? 
+    this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
   
   // render the Paths
   vtkCollectionSimpleIterator sit;
@@ -181,12 +184,14 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int   renderedSomething=0;
+  double numberOfItems = 0.0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
-  fraction = this->AllocatedRenderTime / 
-    static_cast<double>(this->Parts->GetNumberOfItems());
+  numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  fraction = numberOfItems >= 1.0 ? 
+    this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
   
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
