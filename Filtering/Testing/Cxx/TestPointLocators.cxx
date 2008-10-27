@@ -49,7 +49,6 @@ bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
                               vtkIdList* secondList,
                               vtkPointSet* grid)
 {
-  int foundAll = 1;
   for(vtkIdType uid=0;uid<firstList->GetNumberOfIds();uid++)
     {
     int found = 0;
