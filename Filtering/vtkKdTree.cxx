@@ -45,10 +45,13 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4100 )
 #endif
-#include <vtkstd/set>
 #include <vtkstd/algorithm>
+#include <vtkstd/list>
+#include <vtkstd/map>
+#include <vtkstd/queue>
+#include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.23");
+vtkCxxRevisionMacro(vtkKdTree, "1.1");
 
 // Timing data ---------------------------------------------
 
@@ -94,6 +97,84 @@ static char * makeEntry(const char *s)
   if (this->Timing){ char *s2 = makeEntry(s); this->TimerLog->MarkEndEvent(s2); }
 
 // Timing data ---------------------------------------------
+
+// helper class for ordering the points in vtkKdTree::FindClosestNPoints()
+namespace
+{
+  using namespace vtkstd;
+  class OrderPoints
+  {
+  public:
+    OrderPoints(int N) 
+      {
+        this->NumDesiredPoints = N;
+        this->NumPoints = 0;
+        this->LargestDist2 = VTK_LARGE_FLOAT;
+      }
+
+    void InsertPoint(float dist2, vtkIdType id)
+      {
+        if(dist2 <= this->LargestDist2 || this->NumPoints < this->NumDesiredPoints)
+          {
+          map<float, list<vtkIdType> >::iterator it=this->dist2ToIds.find(dist2);
+          this->NumPoints++;
+          if(it == this->dist2ToIds.end())
+            {
+            list<vtkIdType> idset;
+            idset.push_back(id);
+            this->dist2ToIds[dist2] = idset;
+            }
+          else
+            {
+            it->second.push_back(id);
+            }
+          if(this->NumPoints > this->NumDesiredPoints)
+            {
+            it=this->dist2ToIds.end(); 
+            it--;
+            if((this->NumPoints-it->second.size()) > this->NumDesiredPoints)
+              {
+              this->NumPoints -= it->second.size();
+              map<float, list<vtkIdType> >::iterator it2 = it;
+              it2--;
+              this->LargestDist2 = it2->first;
+              this->dist2ToIds.erase(it);
+              }
+            }
+          }
+      }
+    void GetSortedIds(vtkIdList* ids)
+      {
+        ids->Reset();
+        vtkIdType numIds = (this->NumDesiredPoints < this->NumPoints) 
+          ? this->NumDesiredPoints : this->NumPoints;
+        ids->SetNumberOfIds(numIds);
+        vtkIdType counter = 0;
+        map<float, list<vtkIdType> >::iterator it=this->dist2ToIds.begin();
+        while(counter < numIds && it!=this->dist2ToIds.end())
+          {
+          list<vtkIdType>::iterator lit=it->second.begin();
+          while(counter < numIds && lit!=it->second.end())
+            {
+            ids->InsertId(counter, *lit);
+            counter++;
+            lit++;
+            }
+          it++;
+          }
+      }
+
+    float GetLargestDist2()
+      {
+        return this->LargestDist2;
+      }
+    
+  private:
+    size_t NumDesiredPoints, NumPoints;
+    float LargestDist2;
+    map<float, list<vtkIdType> > dist2ToIds; // map from dist^2 to a list of ids
+  };
+}
 
 vtkStandardNewMacro(vtkKdTree);
 
@@ -1831,12 +1912,6 @@ vtkIdTypeArray *vtkKdTree::BuildMapForDuplicatePoints(float tolerance = 0.0)
 {
   int i;
 
-  if (this->LocatorPoints == NULL)
-    {
-    vtkErrorMacro(<< "vtkKdTree::BuildMapForDuplicatePoints - build locator first");
-    return NULL;
-    }
-
   if ((tolerance < 0.0) || (tolerance >= this->MaxWidth))
     {
     vtkWarningMacro(<< "vtkKdTree::BuildMapForDuplicatePoints - invalid tolerance");
@@ -2247,6 +2322,14 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkKdTree::FindClosestPointWithinRadius(
+  double radius, const double x[3], double& dist2)
+{
+  return this->FindClosestPointInSphere(x[0], x[1], x[2], radius, -1, dist2);
+}
+
+
+//----------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPointInRegion(int regionId, double *x, double &dist2)
 {
   return this->FindClosestPointInRegion(regionId, x[0], x[1], x[2], dist2);
@@ -2254,8 +2337,14 @@ vtkIdType vtkKdTree::FindClosestPointInRegion(int regionId, double *x, double &d
 
 //----------------------------------------------------------------------------
 vtkIdType vtkKdTree::FindClosestPointInRegion(int regionId, 
-                                      double x, double y, double z, double &dist2)
+                                              double x, double y, 
+                                              double z, double &dist2)
 {
+  if (!this->LocatorPoints)
+    {
+    vtkErrorMacro(<< "vtkKdTree::FindClosestPointInRegion - must build locator first");
+    return -1;
+    }
   int localId = this->_FindClosestPointInRegion(regionId, x, y, z, dist2);
 
   vtkIdType originalId = -1;
@@ -2313,10 +2402,16 @@ int vtkKdTree::_FindClosestPointInRegion(int regionId,
 
   return minId;
 }
+
 int vtkKdTree::FindClosestPointInSphere(double x, double y, double z, 
                                         double radius, int skipRegion,
                                         double &dist2)
 {
+  if (!this->LocatorPoints)
+    {
+    vtkErrorMacro(<< "vtkKdTree::FindClosestPointInSphere - must build locator first");
+    return -1;
+    }
   int *regionIds = new int [this->NumberOfRegions];
 
   this->BSPCalculator->ComputeIntersectionsUsingDataBoundsOn();
@@ -2329,6 +2424,7 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
   double minDistance2 = 4 * this->MaxWidth * this->MaxWidth;
   int closeId = -1;
 
+  bool recheck = 0; // used to flag that we should recheck the distance
   for (int reg=0; reg < nRegions; reg++)
     {
     if (regionIds[reg] == skipRegion) 
@@ -2337,15 +2433,20 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
       }
 
     int neighbor = regionIds[reg];
-    double newDistance2;
 
-    int newCloseId = this->_FindClosestPointInRegion(neighbor,
-                                x, y, z, newDistance2);
-
-    if (newDistance2 < minDistance2)
+    // recheck that the bin is closer than the current minimum distance
+    if(!recheck || this->RegionList[neighbor]->GetDistance2ToBoundary(x, y, z, 1) < minDistance2)
       {
-      minDistance2 = newDistance2;
-      closeId = newCloseId;
+      double newDistance2;
+      int newCloseId = this->_FindClosestPointInRegion(neighbor,
+                                                       x, y, z, newDistance2);
+      
+      if (newDistance2 < minDistance2)
+        {
+        minDistance2 = newDistance2;
+        closeId = newCloseId;
+        recheck = 1; // changed the minimum distance so mark to check subsequent bins
+        }
       }
     }
   
@@ -2354,6 +2455,276 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
   dist2 = minDistance2;
   return closeId;
 }
+
+//----------------------------------------------------------------------------
+void vtkKdTree::FindPointsWithinRadius(double R, const double x[3], 
+                                       vtkIdList* result)
+{
+  result->Reset();
+  // don't forget to square the radius
+  this->FindPointsWithinRadius(this->Top, R*R, x, result);
+}
+
+//----------------------------------------------------------------------------
+void vtkKdTree::FindPointsWithinRadius(vtkKdNode* node, double R2, 
+                                       const double x[3], 
+                                       vtkIdList* result)
+
+{
+  if (!this->LocatorPoints)
+    {
+    vtkErrorMacro(<< "vtkKdTree::FindPointsWithinRadius - must build locator first");
+    return;
+    }
+
+  double b[6];
+  node->GetBounds(b);
+
+  double mindist2 = 0; // distance to closest vertex of BB
+  double maxdist2 = 0; // distance to furthest vertex of BB
+  // x-dir
+  if(x[0] < b[0])
+    {
+    mindist2 = (b[0]-x[0])*(b[0]-x[0]);
+    maxdist2 = (b[1]-x[0])*(b[1]-x[0]);
+    }
+  else if(x[0] > b[1])
+    {
+    mindist2 = (b[1]-x[0])*(b[1]-x[0]);
+    maxdist2 = (b[0]-x[0])*(b[0]-x[0]);
+    }
+  else if((b[1]-x[0]) > (x[0]-b[0]))
+    {
+    maxdist2 = (b[1]-x[0])*(b[1]-x[0]);    
+    }
+  else
+    {
+    maxdist2 = (b[0]-x[0])*(b[0]-x[0]);
+    }
+  // y-dir
+  if(x[1] < b[2])
+    {
+    mindist2 += (b[2]-x[1])*(b[2]-x[1]);
+    maxdist2 += (b[3]-x[1])*(b[3]-x[1]);
+    }
+  else if(x[1] > b[3])
+    {
+    mindist2 += (b[3]-x[1])*(b[3]-x[1]);
+    maxdist2 += (b[2]-x[1])*(b[2]-x[1]);
+    }
+  else if((b[3]-x[1]) > (x[1]-b[2]))
+    {
+    maxdist2 += (b[3]-x[1])*(b[3]-x[1]);
+    }
+  else
+    {
+    maxdist2 += (b[2]-x[1])*(b[2]-x[1]);
+    }
+  // z-dir
+  if(x[2] < b[4])
+    {
+    mindist2 += (b[4]-x[2])*(b[4]-x[2]);
+    maxdist2 += (b[5]-x[2])*(b[5]-x[2]);
+    }
+  else if(x[2] > b[5])
+    {
+    mindist2 += (b[5]-x[2])*(b[5]-x[2]);
+    maxdist2 += (b[4]-x[2])*(b[4]-x[2]);
+    }
+  else if((b[5]-x[2]) > (x[2]-b[4]))
+    {
+    maxdist2 += (b[5]-x[2])*(b[5]-x[2]);
+    }
+  else
+    {
+    maxdist2 += (x[2]-b[4])*(x[2]-b[4]);
+    }
+
+  if(mindist2 > R2)
+    {
+    // non-intersecting
+    return;
+    }
+
+  if(maxdist2 <= R2)
+    {
+    // sphere contains BB
+    this->AddAllPointsInRegion(node, result);
+    return;
+    }
+
+  // partial intersection of sphere & BB
+  if (node->GetLeft() == NULL)
+    {
+    int regionID = node->GetID();
+    int regionLoc = this->LocatorRegionLocation[regionID];
+    float* pt = this->LocatorPoints + (regionLoc * 3);
+    vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
+    for (vtkIdType i = 0; i < numPoints; i++)
+      {
+      double dist2 = (pt[0]-x[0])*(pt[0]-x[0])+
+        (pt[1]-x[1])*(pt[1]-x[1])+(pt[2]-x[2])*(pt[2]-x[2]);
+      if(dist2 <= R2)
+        {
+        vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionLoc + i]);
+        result->InsertNextId(ptId);
+        }
+      pt += 3;
+      }
+    }
+  else
+    {
+    this->FindPointsWithinRadius(node->GetLeft(), R2, x, result);
+    this->FindPointsWithinRadius(node->GetRight(), R2, x, result);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkKdTree::FindClosestNPoints(int N, const double x[3],
+                                   vtkIdList* result)
+{
+  using namespace vtkstd;
+  result->Reset();
+  if(N<=0)
+    {
+    return;
+    }
+  if (!this->LocatorPoints)
+    {
+    vtkErrorMacro(<< "vtkKdTree::FindClosestNPoints - must build locator first");
+    return;
+    }
+
+  int numTotalPoints = this->Top->GetNumberOfPoints();
+  if(numTotalPoints < N)
+    {
+    vtkWarningMacro("Number of requested points is greater than total number of points in KdTree");
+    N = numTotalPoints;
+    }
+  result->SetNumberOfIds(N);
+
+  // now we want to go about finding a region that contains at least N points 
+  // but not many more -- hopefully the region contains X as well but we 
+  // can't depend on that
+  vtkKdNode* node = this->Top;
+  vtkKdNode* startingNode = 0;
+  if(!node->ContainsPoint(x[0], x[1], x[2], 0))
+    {
+    // point is not in the region
+    int numPoints = node->GetNumberOfPoints();
+    vtkKdNode* prevNode = node;
+    while(node->GetLeft() && numPoints > N)
+      {
+      prevNode = node;
+      double leftDist2 = node->GetLeft()->GetDistance2ToBoundary(x[0], x[1], x[2], 1);
+      double rightDist2 = node->GetRight()->GetDistance2ToBoundary(x[0], x[1], x[2], 1);
+      if(leftDist2 < rightDist2)
+        {
+        node = node->GetLeft();
+        }
+      else
+        {
+        node = node->GetRight();
+        }
+      numPoints = node->GetNumberOfPoints();
+      }
+    if(numPoints < N)
+      {
+      startingNode = prevNode;
+      }
+    else
+      {
+      startingNode = node;
+      }
+    }
+  else
+    {
+    int numPoints = node->GetNumberOfPoints();
+    vtkKdNode* prevNode = node;
+    while(node->GetLeft() && numPoints > N)
+      {
+      prevNode = node;
+      if(node->GetLeft()->ContainsPoint(x[0], x[1], x[2], 0))
+        {
+        node = node->GetLeft();
+        }
+      else
+        {
+        node = node->GetRight();      
+        }
+      numPoints = node->GetNumberOfPoints();
+      }
+    if(numPoints < N)
+      {
+      startingNode = prevNode;
+      }
+    else
+      {
+      startingNode = node;
+      }
+    }
+
+  // now that we have a starting region, go through its points
+  // and order them
+  int regionId = startingNode->GetID();
+  int numPoints = startingNode->GetNumberOfPoints();
+  int where = this->LocatorRegionLocation[regionId];
+  int *ids = this->LocatorIds + where;
+  float* pt = this->LocatorPoints + (where*3);
+  float xfloat[3] = {x[0], x[1], x[2]};
+  OrderPoints orderedPoints(N);
+  for (int i=0; i<numPoints; i++)
+    {
+    float dist2 = vtkMath::Distance2BetweenPoints(xfloat, pt);
+    orderedPoints.InsertPoint(dist2, ids[i]);
+    pt += 3;
+    }
+
+  // to finish up we have to check other regions for 
+  // closer points
+  float LargestDist2 = orderedPoints.GetLargestDist2();
+  node = this->Top;
+  queue<vtkKdNode*> nodesToBeSearched;
+  nodesToBeSearched.push(node);
+  while(!nodesToBeSearched.empty())
+    {
+    node = nodesToBeSearched.front();
+    nodesToBeSearched.pop();
+    if(node == startingNode)
+      {
+      continue;
+      }
+    vtkKdNode* left = node->GetLeft();
+    if(left)
+      {
+      if(left->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
+        {
+        nodesToBeSearched.push(left);
+        }
+      if(node->GetRight()->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
+        {
+        nodesToBeSearched.push(node->GetRight());
+        }
+      }
+    else if(node->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
+      {
+      regionId = node->GetID();
+      numPoints = node->GetNumberOfPoints();
+      where = this->LocatorRegionLocation[regionId];
+      ids = this->LocatorIds + where;
+      pt = this->LocatorPoints + (where*3);
+      for (int i=0; i<numPoints; i++)
+        {
+        float dist2 = vtkMath::Distance2BetweenPoints(xfloat, pt);
+        orderedPoints.InsertPoint(dist2, ids[i]);
+        pt += 3;
+        }
+      LargestDist2 = orderedPoints.GetLargestDist2();
+      }
+    }
+  orderedPoints.GetSortedIds(result);
+}
+                                   
 
 //----------------------------------------------------------------------------
 vtkIdTypeArray *vtkKdTree::GetPointsInRegion(int regionId)
@@ -4302,12 +4673,11 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
   double b[6];
   node->GetBounds(b);
 
-  bool disjoint = false;
   if (b[0] > area[1] || b[1] < area[0] ||
     b[2] > area[3] || b[3] < area[2] ||
     b[4] > area[5] || b[5] < area[4])
     {
-    disjoint = true;
+    return;
     }
 
   bool contains = false;
@@ -4318,11 +4688,7 @@ void vtkKdTree::FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* 
     contains = true;
     }
 
-  if (disjoint)
-    {
-    return;
-    }
-  else if (contains)
+  if (contains)
     {
     this->AddAllPointsInRegion(node, ids);
     }
@@ -4361,13 +4727,32 @@ void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdTypeArray* ids)
     {
     int regionID = node->GetID();
     int regionLoc = this->LocatorRegionLocation[regionID];
-    float* pt = this->LocatorPoints + (regionLoc * 3);
     vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
     for (vtkIdType i = 0; i < numPoints; i++)
       {
       vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionLoc + i]);
       ids->InsertNextValue(ptId);
-      pt += 3;
+      }
+    }
+  else
+    {
+    this->AddAllPointsInRegion(node->GetLeft(), ids);
+    this->AddAllPointsInRegion(node->GetRight(), ids);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkKdTree::AddAllPointsInRegion(vtkKdNode* node, vtkIdList* ids)
+{
+  if (node->GetLeft() == NULL)
+    {
+    int regionID = node->GetID();
+    int regionLoc = this->LocatorRegionLocation[regionID];
+    vtkIdType numPoints = this->RegionList[regionID]->GetNumberOfPoints();
+    for (vtkIdType i = 0; i < numPoints; i++)
+      {
+      vtkIdType ptId = static_cast<vtkIdType>(this->LocatorIds[regionLoc + i]);
+      ids->InsertNextId(ptId);
       }
     }
   else

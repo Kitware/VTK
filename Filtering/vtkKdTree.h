@@ -68,7 +68,7 @@ class vtkBSPCuts;
 class vtkBSPIntersections;
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkKdTree : public vtkLocator
+class VTK_FILTERING_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeRevisionMacro(vtkKdTree, vtkLocator);
@@ -455,12 +455,35 @@ public:
   vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
 
   // Description:
+  // Given a position x and a radius r, return the id of the point 
+  // closest to the point in that radius.
+  // dist2 returns the squared distance to the point.
+  vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2);
+
+  // Description:
   // Find the Id of the point in the given region which is
   // closest to the given point.  Return the ID of the point,
   // and set the square of the distance of between the points.
   vtkIdType FindClosestPointInRegion(int regionId, double *x, double &dist2);
   vtkIdType FindClosestPointInRegion(int regionId, double x, double y, double z, 
                                      double &dist2);
+
+  // Description:
+  // Find all points within a specified radius R of position x.
+  // The result is not sorted in any specific manner.
+  // These methods are thread safe if BuildLocator() is directly or
+  // indirectly called from a single thread first.
+  void FindPointsWithinRadius(double R, const double x[3], vtkIdList *result);
+
+  // Description:
+  // Find the closest N points to a position. This returns the closest
+  // N points to a position. A faster method could be created that returned
+  // N close points to a position, but necessarily the exact N closest.
+  // The returned points are sorted from closest to farthest.
+  // These methods are thread safe if BuildLocator() is directly or
+  // indirectly called from a single thread first.
+  void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
 
   // Description:
   // Get a list of the original IDs of all points in a region.  You
@@ -654,6 +677,13 @@ protected:
   static void ZeroNumberOfPoints(vtkKdNode *kd);
 
 //BTX
+  // Recursive helper for public FindPointsWithinRadius
+  void FindPointsWithinRadius(vtkKdNode* node, double R2, 
+                              const double x[3], vtkIdList* ids);  
+
+  // Recursive helper for public FindPointsWithinRadius
+  void AddAllPointsInRegion(vtkKdNode* node, vtkIdList* ids);
+
   // Recursive helper for public FindPointsInArea
   void FindPointsInArea(vtkKdNode* node, double* area, vtkIdTypeArray* ids);
 

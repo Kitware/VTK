@@ -18,6 +18,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   quadraticEvaluation.cxx
   TestGenericCell.cxx
   TestHigherOrderCell.cxx
+  TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestTriangle.cxx
   EXTRA_INCLUDE vtkTestDriver.h

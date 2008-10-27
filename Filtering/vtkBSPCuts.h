@@ -37,7 +37,7 @@
 
 class vtkKdNode;
 
-class VTK_GRAPHICS_EXPORT vtkBSPCuts : public vtkObject
+class VTK_FILTERING_EXPORT vtkBSPCuts : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkBSPCuts, vtkObject);

@@ -35,7 +35,7 @@
 class vtkCell;
 class vtkPlanesIntersection;
 
-class VTK_GRAPHICS_EXPORT vtkKdNode : public vtkObject
+class VTK_FILTERING_EXPORT vtkKdNode : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkKdNode, vtkObject);

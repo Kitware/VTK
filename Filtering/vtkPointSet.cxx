@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.7");
+vtkCxxRevisionMacro(vtkPointSet, "1.8");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -243,6 +243,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   do {
     if ( cell || cellIds->GetNumberOfIds() > 0 ) //we have a starting cell
       {
+      vtkIdType prevCellId = cellId;
       for ( walk=0; walk < VTK_MAX_WALK; walk++ )
         {
         if ( cell )
@@ -256,7 +257,15 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
         this->GetCellNeighbors(cellId, ptIds, neighbors);
         if ( neighbors->GetNumberOfIds() > 0 )
           {
-          cellId = neighbors->GetId(0);
+          vtkIdType nextCellId = neighbors->GetId(0);
+          // if the previous cell is the same as the next cell, 
+          // break out of walk loop because we're stuck
+          if(nextCellId == prevCellId)
+            {
+            break;
+            }
+          prevCellId = cellId;
+          cellId = nextCellId;
           if ( gencell )
             {
             cell = NULL;
@@ -271,7 +280,6 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
           {
           break; //outside of data
           }
-
         if ( ( (!cell && 
               gencell->EvaluatePosition(x,closestPoint,subId,pcoords,
                 dist2,weights) == 1 ) ||

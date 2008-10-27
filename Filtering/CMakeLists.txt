@@ -8,6 +8,7 @@ SET(KIT_LIBS vtkCommon)
 SET( Kit_SRCS
 vtkAbstractCellLocator.cxx
 vtkAbstractMapper.cxx
+vtkAbstractPointLocator.cxx
 vtkActor2DCollection.cxx
 vtkActor2D.cxx
 vtkAdjacentVertexIterator.cxx
@@ -17,6 +18,8 @@ vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx
 vtkBiQuadraticQuadraticWedge.cxx
+vtkBSPCuts.cxx
+vtkBSPIntersections.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
@@ -111,6 +114,9 @@ vtkInformation.cxx
 vtkInformationExecutivePortKey.cxx
 vtkInformationExecutivePortVectorKey.cxx
 vtkInterpolatedVelocityField.cxx
+vtkKdNode.cxx
+vtkKdTree.cxx
+vtkKdTreePointLocator.cxx
 vtkKochanekSpline.cxx
 vtkLine.cxx
 vtkLocator.cxx
@@ -127,17 +133,20 @@ vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx
 vtkPassInputTypeAlgorithm.cxx
 vtkPentagonalPrism.cxx
+vtkPeriodicStructuredGrid.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunctionAlgorithm.cxx
 vtkPiecewiseFunction.cxx
 vtkPiecewiseFunctionShiftScale.cxx
 vtkPixel.cxx
+vtkPlanesIntersection.cxx
 vtkPointData.cxx
 vtkPointLocator.cxx
 vtkPointSetAlgorithm.cxx
 vtkPointSet.cxx
 vtkPointSetSource.cxx
 vtkPointSetToPointSetFilter.cxx
+vtkPointsProjectedHull.cxx
 vtkPolyDataAlgorithm.cxx
 vtkPolyDataCollection.cxx
 vtkPolyData.cxx
@@ -218,6 +227,7 @@ vtkWedge.cxx
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
 vtkAbstractMapper
+vtkAbstractPointLocator
 vtkCell
 vtkCell3D
 vtkCompositeDataIterator

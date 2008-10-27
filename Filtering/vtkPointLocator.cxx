@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.3");
+vtkCxxRevisionMacro(vtkPointLocator, "1.4");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
@@ -146,15 +146,6 @@ void vtkPointLocator::FreeSearchStructure()
     }
 }
 
-// Given a position x-y-z, return the id of the point closest to it.
-vtkIdType vtkPointLocator::FindClosestPoint(double x, double y, double z)
-{
-  double xyz[3];
-
-  xyz[0] = x; xyz[1] = y; xyz[2] = z;
-  return this->FindClosestPoint(xyz);
-}
-
 // Given a position x, return the id of the point closest to it.
 vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
 {
@@ -258,16 +249,13 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   return closest;
 }
 
-
-
 vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius, 
                                                         const double x[3],
                                                         double& dist2)
-  {
-  return FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(),
-                                      dist2);
-  }
-
+{
+  return this->FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(),
+                                            dist2);
+}
 
 vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
                                                         const double x[3], 
@@ -713,17 +701,6 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3],
     }
 }
 
-void vtkPointLocator::FindClosestNPoints(int N, double x,
-                                         double y, double z,
-                                         vtkIdList *result)
-{
-  double p[3];
-  p[0] = x;
-  p[1] = y;
-  p[2] = z;
-  this->FindClosestNPoints(N,p,result);
-}
-
 void vtkPointLocator::FindClosestNPoints(int N, const double x[3],
                                          vtkIdList *result)
 {
@@ -851,20 +828,6 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3],
 
   delete [] res;
 }
-
-
-void vtkPointLocator::FindPointsWithinRadius(double R, double x,
-                                             double y, double z,
-                                             vtkIdList *result)
-{
-  double p[3];
-  p[0] = x;
-  p[1] = y;
-  p[2] = z;
-  this->FindPointsWithinRadius(R,p,result);
-}
-
-
 
 void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3],
                                              vtkIdList *result)

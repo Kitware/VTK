@@ -42,11 +42,10 @@
 #include "vtkPlanes.h"
 
 class vtkPoints;
-class vtkRenderer;
 class vtkPointsProjectedHull;
 class vtkCell;
 
-class VTK_GRAPHICS_EXPORT vtkPlanesIntersection : public vtkPlanes
+class VTK_FILTERING_EXPORT vtkPlanesIntersection : public vtkPlanes
 {
   vtkTypeRevisionMacro(vtkPlanesIntersection, vtkPlanes);
 

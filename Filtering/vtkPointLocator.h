@@ -36,14 +36,14 @@
 #ifndef __vtkPointLocator_h
 #define __vtkPointLocator_h
 
-#include "vtkLocator.h"
+#include "vtkAbstractPointLocator.h"
 
 class vtkCellArray;
 class vtkIdList;
 class vtkNeighborPoints;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkPointLocator : public vtkLocator
+class VTK_FILTERING_EXPORT vtkPointLocator : public vtkAbstractPointLocator
 {
 public:
   // Description:
@@ -51,7 +51,7 @@ public:
   // 25 points per bucket.
   static vtkPointLocator *New();
 
-  vtkTypeRevisionMacro(vtkPointLocator,vtkLocator);
+  vtkTypeRevisionMacro(vtkPointLocator,vtkAbstractPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,7 +70,6 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
   virtual vtkIdType FindClosestPoint(const double x[3]);
-  vtkIdType FindClosestPoint(double x, double y, double z);
 
   // Description:
   // Given a position x and a radius r, return the id of the point 
@@ -78,9 +77,9 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first. dist2 returns the squared
   // distance to the point.
-  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
-                                         double& dist2);
-  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], 
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2);
+  virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], 
                                          double inputDataLength, double& dist2);
 
   // Description:
@@ -157,8 +156,6 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
   virtual void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
-  virtual void FindClosestNPoints(int N, double x, double y, double z,
-                                  vtkIdList *result);
 
   // Description:
   // Find the closest points to a position such that each octant of
@@ -178,8 +175,6 @@ public:
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result);
-  virtual void FindPointsWithinRadius(double R, double x, double y, double z, 
-                                      vtkIdList *result);
   
   // Description:
   // Given a position x, return the list of points in the bucket that
@@ -193,10 +188,6 @@ public:
   vtkGetObjectMacro(Points, vtkPoints);
 
   // Description:
-  // Provide an accessor to the bounds.
-  double *GetBounds() { return this->Bounds; };
-
-  // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.
   void Initialize();
@@ -206,7 +197,7 @@ public:
 
 protected:
   vtkPointLocator();
-  ~vtkPointLocator();
+  virtual ~vtkPointLocator();
 
   // place points in appropriate buckets
   void GetBucketNeighbors(vtkNeighborPoints* buckets,
@@ -226,7 +217,6 @@ protected:
   vtkPoints *Points; // Used for merging points
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide
-  double Bounds[6]; // bounds of points
   vtkIdList **HashTable; // lists of point ids in buckets
   vtkIdType NumberOfBuckets; // total size of hash table
   double H[3]; // width of each bucket in x-y-z directions
