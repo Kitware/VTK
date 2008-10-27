@@ -133,7 +133,6 @@ vtkOutEdgeIterator.cxx
 vtkParametricSpline.cxx
 vtkPassInputTypeAlgorithm.cxx
 vtkPentagonalPrism.cxx
-vtkPeriodicStructuredGrid.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunctionAlgorithm.cxx
 vtkPiecewiseFunction.cxx
