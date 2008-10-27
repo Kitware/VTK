@@ -55,8 +55,6 @@ vtkPruneTreeFilter.cxx
 vtkRISReader.cxx
 vtkRandomGraphSource.cxx
 vtkRandomLayoutStrategy.cxx
-vtkSQLDatabaseGraphSource.cxx
-vtkSQLDatabaseTableSource.cxx
 vtkSimple2DLayoutStrategy.cxx
 vtkSliceAndDiceLayoutStrategy.cxx
 vtkSquarifyLayoutStrategy.cxx
@@ -173,23 +171,11 @@ IF(VTK_USE_N_WAY_ARRAYS)
 ENDIF(VTK_USE_N_WAY_ARRAYS)
 
 # Add these classes only if vtkTypeUInt64Array exists
-SET(VTK_HAS_UINT64_ARRAY 0)
-IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  SET(VTK_HAS_UINT64_ARRAY 1)
-ELSE(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  IF(VTK_SIZEOF_LONG MATCHES "^8$")
-    SET(VTK_HAS_UINT64_ARRAY 1)
-  ELSE(VTK_SIZEOF_LONG MATCHES "^8$")
-    IF(VTK_SIZEOF___INT64 MATCHES "^8$")
-      IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-        SET(VTK_HAS_UINT64_ARRAY 1)
-      ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    ENDIF(VTK_SIZEOF___INT64 MATCHES "^8$")
-  ENDIF(VTK_SIZEOF_LONG MATCHES "^8$")
-ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
 IF(VTK_HAS_UINT64_ARRAY)
   SET(Kit_SRCS
     ${Kit_SRCS}
+    vtkSQLDatabaseGraphSource.cxx
+    vtkSQLDatabaseTableSource.cxx
     vtkSQLGraphReader.cxx    # depends on vtkRowQueryToTable, which depends on uint64 array
     vtkStringToTimePoint.cxx
     vtkTimePointToString.cxx
