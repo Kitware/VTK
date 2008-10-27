@@ -20,7 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.1");
+vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.2");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;
@@ -96,7 +96,7 @@ int vtkPointsProjectedHull::GetCCWHull##which(float *pts, int len)\
   int copypts = this->GetCCWHull##which(dpts, len); \
   for (i=0; i<copypts*2; i++)                       \
     {                                               \
-    pts[i] = (float)dpts[i];                        \
+    pts[i] = static_cast<float>(dpts[i]);           \
     }                                               \
   delete [] dpts;                \
   return copypts;                \
@@ -137,18 +137,18 @@ int vtkPointsProjectedHull::RectangleIntersection##which(vtkPoints *R) \
   R->GetBounds(bounds);                                        \
   double hmin, hmax, vmin, vmax;                               \
                                                                \
-  hmin = (double)bounds[(dim*2+2)%6];                          \
-  hmax = (double)bounds[(dim*2+2)%6+1];                        \
-  vmin = (double)bounds[(dim*2+4)%6];                          \
-  vmax = (double)bounds[(dim*2+4)%6 + 1];                      \
+  hmin = bounds[(dim*2+2)%6];                          \
+  hmax = bounds[(dim*2+2)%6+1];                        \
+  vmin = bounds[(dim*2+4)%6];                          \
+  vmax = bounds[(dim*2+4)%6 + 1];                      \
                                                                \
   return RectangleIntersection##which(hmin, hmax, vmin, vmax); \
 }                                                              \
 int vtkPointsProjectedHull::RectangleIntersection##which(float hmin, \
                                  float hmax, float vmin, float vmax) \
 {                                                                    \
-  return RectangleIntersection##which((double)hmin, (double)hmax,    \
-                                     (double)vmin, (double)vmax);    \
+  return RectangleIntersection##which(static_cast<double>(hmin), static_cast<double>(hmax), \
+                                      static_cast<double>(vmin), static_cast<double>(vmax)); \
 }                                                                    \
 int vtkPointsProjectedHull::RectangleIntersection##which(double hmin,\
                          double hmax, double vmin, double vmax)      \
@@ -367,10 +367,10 @@ int i,j;
       y1 = hullPts[2*i+1];
       }
     }
-  this->HullBBox[dir][xmin] = (float)x0;
-  this->HullBBox[dir][xmax] = (float)x1;
-  this->HullBBox[dir][ymin] = (float)y0;
-  this->HullBBox[dir][ymax] = (float)y1;
+  this->HullBBox[dir][xmin] = static_cast<float>(x0);
+  this->HullBBox[dir][xmax] = static_cast<float>(x1);
+  this->HullBBox[dir][ymin] = static_cast<float>(y0);
+  this->HullBBox[dir][ymax] = static_cast<float>(y1);
 
   this->HullSize[dir] = nHullPts;
 

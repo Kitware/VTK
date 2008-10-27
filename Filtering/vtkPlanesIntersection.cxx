@@ -24,7 +24,7 @@
 #include "vtkCell.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlanesIntersection, "1.1");
+vtkCxxRevisionMacro(vtkPlanesIntersection, "1.2");
 vtkStandardNewMacro(vtkPlanesIntersection);
 
 // Experiment shows that we get plane equation values on the
@@ -463,9 +463,9 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
     inside[2] += p1[2];
     }
   
-  inside[0] /= (double)nfaces;
-  inside[1] /= (double)nfaces;
-  inside[2] /= (double)nfaces;
+  inside[0] /= static_cast<double>(nfaces);
+  inside[1] /= static_cast<double>(nfaces);
+  inside[2] /= static_cast<double>(nfaces);
   
   // ensure that all normals are outward pointing
   
@@ -477,9 +477,12 @@ vtkPlanesIntersection *vtkPlanesIntersection::Convert3DCell(vtkCell *cell)
     normals->GetTuple(i, ns);
     origins->GetPoint(i, xs);
     
-    n[0] = (double)ns[0]; x[0] = (double)xs[0];
-    n[1] = (double)ns[1]; x[1] = (double)xs[1];
-    n[2] = (double)ns[2]; x[2] = (double)xs[2];
+    n[0] = ns[0];
+    x[0] = xs[0];
+    n[1] = ns[1];
+    x[1] = xs[1];
+    n[2] = ns[2];
+    x[2] = xs[2];
 
     double outside[3];
 
@@ -788,13 +791,13 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
     {
     if (n[i] < 0)
       {
-      withN[i]     = (double)bounds[i*2];
-      oppositeN[i] = (double)bounds[i*2 + 1];
+      withN[i]     = bounds[i*2];
+      oppositeN[i] = bounds[i*2 + 1];
       } 
     else
       {
-      withN[i]     = (double)bounds[i*2 + 1];
-      oppositeN[i] = (double)bounds[i*2];
+      withN[i]     = bounds[i*2 + 1];
+      oppositeN[i] = bounds[i*2];
       }
     }
   

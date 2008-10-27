@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.1");
+vtkCxxRevisionMacro(vtkKdNode, "1.2");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -136,17 +136,17 @@ void vtkKdNode::SetDataBounds(float *v)
       newbounds[i*2+1] = bounds[i*2+1];
       } 
 
-    newbounds[dim*2] = newbounds[dim*2+1] = (double)v[dim];
+    newbounds[dim*2] = newbounds[dim*2+1] = static_cast<double>(v[dim]);
 
     for (i = dim+3; i< numPoints*3; i+=3)
       {
       if (v[i] < newbounds[dim*2])
         {
-        newbounds[dim*2] = (double)v[i];
+        newbounds[dim*2] = static_cast<double>(v[i]);
         }
       else if (v[i] > newbounds[dim*2+1]) 
         {
-        newbounds[dim*2+1] = (double)v[i];
+        newbounds[dim*2+1] = static_cast<double>(v[i]);
         }
       }
     }
@@ -154,7 +154,7 @@ void vtkKdNode::SetDataBounds(float *v)
     {
     for (i=0; i<3; i++)
       {
-      newbounds[i*2] = newbounds[i*2+1] = (double)v[i];
+      newbounds[i*2] = newbounds[i*2+1] = static_cast<double>(v[i]);
       }
 
     for (x = 3; x< numPoints*3; x+=3)
@@ -164,29 +164,29 @@ void vtkKdNode::SetDataBounds(float *v)
 
       if (v[x] < newbounds[0]) 
         {
-        newbounds[0] = (double)v[x];
+        newbounds[0] = static_cast<double>(v[x]);
         }
       else if (v[x] > newbounds[1]) 
         {
-        newbounds[1] = (double)v[x];
+        newbounds[1] = static_cast<double>(v[x]);
         }
 
       if (v[y] < newbounds[2]) 
         {
-        newbounds[2] = (double)v[y];
+        newbounds[2] = static_cast<double>(v[y]);
         }
       else if (v[y] > newbounds[3]) 
         {
-        newbounds[3] = (double)v[y];
+        newbounds[3] = static_cast<double>(v[y]);
         }
 
       if (v[z] < newbounds[4]) 
         {
-        newbounds[4] = (double)v[z];
+        newbounds[4] = static_cast<double>(v[z]);
         }
       else if (v[z] > newbounds[5]) 
         {
-        newbounds[5] = (double)v[z];
+        newbounds[5] = static_cast<double>(v[z]);
         }
       }
     }
@@ -941,8 +941,9 @@ void vtkKdNode::PrintVerboseNode(int depth)
     } 
 
   cout << "cut next along " << this->Dim << ", left ";
-  cout << (void *)this->Left << ", right ";
-  cout << (void *)this->Right << ", up " << (void *)this->Up << endl;
+  cout << static_cast<void *>(this->Left) << ", right ";
+  cout << static_cast<void *>(this->Right) << ", up "
+       << static_cast<void *>(this->Up) << endl;
 }
 void vtkKdNode::PrintSelf(ostream& os, vtkIndent indent)
 { 
@@ -958,6 +959,8 @@ void vtkKdNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaxID: " << this->MaxID << endl;
   os << indent << "Min: " << Min[0] << " " << Min[1] << " " << Min[2] << endl;
   os << indent << "Max: " << Max[0] << " " << Max[1] << " " << Max[2] << endl;
-  os << indent << "MinVal: " << MinVal[0] << " " << MinVal[1] << " " << MinVal[2] << endl;
-  os << indent << "MaxVal: " << MaxVal[0] << " " << MaxVal[1] << " " << MaxVal[2] << endl;
+  os << indent << "MinVal: " << MinVal[0] << " " << MinVal[1] << " "
+     << MinVal[2] << endl;
+  os << indent << "MaxVal: " << MaxVal[0] << " " << MaxVal[1] << " "
+     << MaxVal[2] << endl;
 }
