@@ -10,6 +10,7 @@ vtkConvertSelectionDomain.cxx
 vtkDataRepresentation.cxx
 vtkGraphLayoutView.cxx
 vtkHierarchicalGraphView.cxx
+vtkHierarchicalTreeRingView.cxx
 vtkRenderView.cxx
 vtkSurfaceRepresentation.cxx
 vtkTreeLayoutView.cxx

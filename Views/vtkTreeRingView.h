@@ -79,11 +79,6 @@ public:
   void SetLayoutStrategy(const char* name);
   void SetLayoutStrategyToDefault();
   void SetLayoutStrategyToReversed();
- 
-//   // Description:
-//   // The sizes of the fonts used for labeling.
-//   void SetFontSizeRange(const int maxSize, const int minSize, const int delta=4);
-//   void GetFontSizeRange(int range[3]);
 
   // Description:
   // Get/Set the shrinkage percentage for drawing each of the sectors

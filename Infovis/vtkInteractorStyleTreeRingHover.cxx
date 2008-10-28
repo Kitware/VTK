@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.2");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.3");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -63,7 +63,6 @@ vtkInteractorStyleTreeRingHover::vtkInteractorStyleTreeRingHover()
   this->Layout = NULL;
   this->LabelField = 0;
   this->CurrentSelectedId = -1;
-  this->Layout = NULL;
 
   this->SelectionData = vtkPolyData::New();
   vtkPolyDataMapper *selMap = vtkPolyDataMapper::New();

@@ -48,7 +48,7 @@
 #include "vtkTreeRingToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkTreeRingView, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingView, "1.2");
 vtkStandardNewMacro(vtkTreeRingView);
 //----------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView()
@@ -70,13 +70,12 @@ vtkTreeRingView::vtkTreeRingView()
   // Replace the interactor style
   vtkInteractorStyleTreeRingHover* style = vtkInteractorStyleTreeRingHover::New();
   this->SetInteractorStyle(style);
+  style->SetLayout(this->TreeRingLayout);
+  style->AddObserver(vtkCommand::UserEvent, this->GetObserver());
   style->Delete();
   
   // Set up view
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
-  style->SetLayout(this->TreeRingLayout);
-//  style->SetTreeRingToPolyData(this->TreeRingToPolyData); 
-  style->AddObserver(vtkCommand::UserEvent, this->GetObserver());
   
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -87,14 +86,9 @@ vtkTreeRingView::vtkTreeRingView()
   this->TreeFieldAggregator->SetLeafVertexUnitSize(false);
   this->TreeFieldAggregator->SetMinValue(1e-10);
   this->TreeFieldAggregator->SetLogScale(false);
-//  this->TreeRingToPolyData->SetLevelsFieldName("level");  
   this->ColorLUT->SetHueRange(0.667, 0);
   this->ColorLUT->Build();
   this->TreeRingMapper->SetLookupTable(ColorLUT);
-//   this->LabelMapper->SetLabelFormat("%s");
-//   this->LabelMapper->SetLabelModeToLabelFieldData();
-//   this->LabelMapper->SetClipTextMode(0);
-//   this->LabelActor->SetPickable(false);
   this->LabelMapper->SetLabelModeToLabelFieldData();
   this->LabelMapper->GetLabelTextProperty()->SetColor(1,1,1);
   this->LabelMapper->GetLabelTextProperty()->SetJustificationToCentered();
@@ -225,18 +219,6 @@ void vtkTreeRingView::SetLayoutStrategy(const char* name)
     }
 }
 
-// //----------------------------------------------------------------------------
-// void vtkTreeRingView::SetFontSizeRange(const int maxSize, const int minSize, const int delta)
-// {
-//   this->LabelMapper->SetFontSizeRange(maxSize, minSize, delta);
-// }
-
-// //----------------------------------------------------------------------------
-// void vtkTreeRingView::GetFontSizeRange(int range[3])
-// {
-//   this->LabelMapper->GetFontSizeRange(range);
-// }
-
 //----------------------------------------------------------------------------
 void vtkTreeRingView::SetupRenderWindow(vtkRenderWindow* win)
 {
@@ -289,9 +271,7 @@ void vtkTreeRingView::RemoveInputConnection( int port, int item,
 
 //----------------------------------------------------------------------------
 void vtkTreeRingView::ProcessEvents(
-  vtkObject* caller, 
-  unsigned long eventId, 
-  void* callData)
+  vtkObject* caller, unsigned long eventId, void* callData)
 {
   if (caller == this->InteractorStyle && eventId == vtkCommand::UserEvent)
     {
@@ -385,31 +365,10 @@ void vtkTreeRingView::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Renderer->SetBackground(theme->GetBackgroundColor());
   
-  //this->VertexActor->GetProperty()->SetColor(theme->GetPointColor());
-  //this->OutlineActor->GetProperty()->SetColor(theme->GetOutlineColor());
-  //this->VertexColorLUT->SetHueRange(theme->GetPointHueRange()); 
-  //this->VertexColorLUT->SetSaturationRange(theme->GetPointSaturationRange()); 
-  //this->VertexColorLUT->SetValueRange(theme->GetPointValueRange()); 
-  //this->VertexColorLUT->SetAlphaRange(theme->GetPointAlphaRange()); 
-  //this->VertexColorLUT->Build();
-
-//  this->LabelMapper->GetLabelTextProperty()->SetColor(theme->GetVertexLabelColor());
-
-  //this->EdgeActor->GetProperty()->SetColor(theme->GetCellColor());
-  //this->EdgeActor->GetProperty()->SetOpacity(theme->GetCellOpacity());
-  //this->EdgeColorLUT->SetHueRange(theme->GetCellHueRange()); 
-  //this->EdgeColorLUT->SetSaturationRange(theme->GetCellSaturationRange()); 
-  //this->EdgeColorLUT->SetValueRange(theme->GetCellValueRange()); 
-  //this->EdgeColorLUT->SetAlphaRange(theme->GetCellAlphaRange()); 
-  //this->EdgeColorLUT->Build();
-
-  //this->SelectionEdgeActor->GetProperty()->SetColor(theme->GetSelectedCellColor());
-  //this->SelectionEdgeActor->GetProperty()->SetOpacity(theme->GetSelectedCellOpacity());
   double color[3];
   theme->GetSelectedPointColor(color);
   vtkInteractorStyleTreeRingHover::SafeDownCast(this->InteractorStyle)->
     SetSelectionLightColor(color[0], color[1], color[2]);
-  //this->SelectionVertexActor->GetProperty()->SetOpacity(theme->GetSelectedPointOpacity());
 }
 
 void vtkTreeRingView::SetSectorShrinkPercentage( double shrinkFactor )

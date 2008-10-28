@@ -32,7 +32,7 @@
 
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.3");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.4");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -56,8 +56,7 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
   vtkDataArray *coordsArray)
 {
   // Get the size array
-  vtkDataArray* sizeArray = 
-      inputTree->GetVertexData()->GetArray(this->SizeFieldName);
+  vtkDataArray* sizeArray = inputTree->GetVertexData()->GetArray(this->SizeFieldName);
   
   if( inputTree->GetNumberOfVertices() == 0 )
       return;

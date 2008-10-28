@@ -60,7 +60,7 @@ private:
 
 //  char * SizeFieldName;
 
-  void SetInteriorSubtendedAngles( vtkTree* tree, vtkIdType parent, vtkDataArray *anglesArray, 
+  void SetInteriorSubtendedAngles( vtkTree* tree, vtkIdType parent, vtkDataArray*& anglesArray, 
                                    double& min_angle, double& max_angle );
   
   void LayoutChildren( vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *anglesArray,

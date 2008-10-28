@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkTreeRingExistingLayoutStrategy);
 
 vtkTreeRingExistingLayoutStrategy::vtkTreeRingExistingLayoutStrategy()
@@ -229,7 +229,7 @@ void vtkTreeRingExistingLayoutStrategy::LayoutChildren(
 }
 
 void vtkTreeRingExistingLayoutStrategy::SetInteriorSubtendedAngles(
-    vtkTree* tree, vtkIdType parent, vtkDataArray *anglesArray, 
+    vtkTree* tree, vtkIdType parent, vtkDataArray*& anglesArray, 
     double& min_angle, double& max_angle)
 {
   int num_children = tree->GetNumberOfChildren(parent);
@@ -246,6 +246,12 @@ void vtkTreeRingExistingLayoutStrategy::SetInteriorSubtendedAngles(
       double child_angles[2];    
       this->SetInteriorSubtendedAngles(tree, id, anglesArray, child_angles[0], child_angles[1]);
       
+      if( child_angles[0] > 360. && child_angles[1] > 360. )
+      {
+        child_angles[0] -= 360.;
+        child_angles[1] -= 360.;
+      }
+
       if( child_angles[0] < current_angles[0] )
       {
         current_angles[0] = child_angles[0];
@@ -256,7 +262,7 @@ void vtkTreeRingExistingLayoutStrategy::SetInteriorSubtendedAngles(
         current_angles[1] = child_angles[1];
       }
     }
-    
+
     anglesArray->SetTuple( parent, current_angles );
   }
 
