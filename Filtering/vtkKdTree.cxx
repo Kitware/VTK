@@ -51,7 +51,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.1");
+vtkCxxRevisionMacro(vtkKdTree, "1.2");
 
 // Timing data ---------------------------------------------
 
@@ -101,7 +101,6 @@ static char * makeEntry(const char *s)
 // helper class for ordering the points in vtkKdTree::FindClosestNPoints()
 namespace
 {
-  using namespace vtkstd;
   class OrderPoints
   {
   public:
@@ -116,11 +115,11 @@ namespace
       {
         if(dist2 <= this->LargestDist2 || this->NumPoints < this->NumDesiredPoints)
           {
-          map<float, list<vtkIdType> >::iterator it=this->dist2ToIds.find(dist2);
+          vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it=this->dist2ToIds.find(dist2);
           this->NumPoints++;
           if(it == this->dist2ToIds.end())
             {
-            list<vtkIdType> idset;
+            vtkstd::list<vtkIdType> idset;
             idset.push_back(id);
             this->dist2ToIds[dist2] = idset;
             }
@@ -135,7 +134,7 @@ namespace
             if((this->NumPoints-it->second.size()) > this->NumDesiredPoints)
               {
               this->NumPoints -= it->second.size();
-              map<float, list<vtkIdType> >::iterator it2 = it;
+              vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it2 = it;
               it2--;
               this->LargestDist2 = it2->first;
               this->dist2ToIds.erase(it);
@@ -150,10 +149,10 @@ namespace
           ? this->NumDesiredPoints : this->NumPoints;
         ids->SetNumberOfIds(numIds);
         vtkIdType counter = 0;
-        map<float, list<vtkIdType> >::iterator it=this->dist2ToIds.begin();
+        vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it=this->dist2ToIds.begin();
         while(counter < numIds && it!=this->dist2ToIds.end())
           {
-          list<vtkIdType>::iterator lit=it->second.begin();
+          vtkstd::list<vtkIdType>::iterator lit=it->second.begin();
           while(counter < numIds && lit!=it->second.end())
             {
             ids->InsertId(counter, *lit);
@@ -172,7 +171,7 @@ namespace
   private:
     size_t NumDesiredPoints, NumPoints;
     float LargestDist2;
-    map<float, list<vtkIdType> > dist2ToIds; // map from dist^2 to a list of ids
+    vtkstd::map<float, vtkstd::list<vtkIdType> > dist2ToIds; // map from dist^2 to a list of ids
   };
 }
 
@@ -2583,7 +2582,6 @@ void vtkKdTree::FindPointsWithinRadius(vtkKdNode* node, double R2,
 void vtkKdTree::FindClosestNPoints(int N, const double x[3],
                                    vtkIdList* result)
 {
-  using namespace vtkstd;
   result->Reset();
   if(N<=0)
     {
@@ -2684,7 +2682,7 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3],
   // closer points
   float LargestDist2 = orderedPoints.GetLargestDist2();
   node = this->Top;
-  queue<vtkKdNode*> nodesToBeSearched;
+  vtkstd::queue<vtkKdNode*> nodesToBeSearched;
   nodesToBeSearched.push(node);
   while(!nodesToBeSearched.empty())
     {
