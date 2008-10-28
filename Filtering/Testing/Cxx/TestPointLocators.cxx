@@ -33,10 +33,16 @@ bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
   float secondDist2 = vtkMath::Distance2BetweenPoints(
     x, grid->GetPoint(id2));
 
-  if(abs(firstDist2-secondDist2)/(abs(firstDist2)+abs(secondDist2)) > 
+  float differenceDist2 = firstDist2 - secondDist2;
+  if(differenceDist2 < 0)
+    {
+    differenceDist2 = -differenceDist2;
+    }
+
+  if(differenceDist2/(firstDist2+secondDist2) > 
      .00001)
     {
-    cerr << "Results from FindClosestNPoints do not match (first dist2="
+    cerr << "Results do not match (first dist2="
          << firstDist2 << " , second dist2=" << secondDist2 << "\n";
     return false;
     }  
