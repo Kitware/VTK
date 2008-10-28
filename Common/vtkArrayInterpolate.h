@@ -28,9 +28,12 @@ class vtkArraySlice;
 class vtkArraySlices;
 class vtkArrayWeights;
 
-// Description
-// Compute the weighted sum of a collection of slices from a source
-// array, and store the results in a slice of a target array.  Note that
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
+// Description:
+// Computes the weighted sum of a collection of slices from a source
+// array, and stores the results in a slice of a target array.  Note that
 // the number of source slices and weights must match, and the extents of
 // each source slice must match the extents of the target slice.
 //

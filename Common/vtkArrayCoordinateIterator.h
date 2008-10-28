@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Returns true iff the iterator has not reached the end 
-  // of the range off unique coordinates.
+  // of the range of unique coordinates.
   bool HasNext();
   
   // Description:

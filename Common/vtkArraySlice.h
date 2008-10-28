@@ -48,32 +48,41 @@ public:
   
   // Description:
   // Create a one-dimensional slice.
-  vtkArraySlice(const vtkArrayRange& i);
+  vtkArraySlice(
+    const vtkArrayRange& i);
   
   // Description:
   // Create a two-dimensional slice.
-  vtkArraySlice(const vtkArrayRange& i, const vtkArrayRange& j);
+  vtkArraySlice(
+    const vtkArrayRange& i,
+    const vtkArrayRange& j);
   
   // Description:
   // Create a three-dimensional slice.
-  vtkArraySlice(const vtkArrayRange& i, const vtkArrayRange& j, const vtkArrayRange& k);
+  vtkArraySlice(
+    const vtkArrayRange& i,
+    const vtkArrayRange& j,
+    const vtkArrayRange& k);
 
   // Description:
   // Returns the number of dimensions in this slice.
   vtkIdType GetDimensions() const;
   
   // Description:
-  // Returns the extents of this slice - i.e: the size of the range along each dimension.
+  // Returns the extents of this slice - i.e: the size of the range
+  // along each dimension.
   const vtkArrayExtents GetExtents() const;
   
   // Description:
-  // Returns coordinates that reference the i-th value stored within this slice.
-  const vtkArrayCoordinates GetCoordinates(vtkIdType i) const;
+  // Returns coordinates that reference the n-th value in the slice, where
+  // n is in the range [0, GetExtents().GetSize()).  Note that the order
+  // in which coordinates are visited is undefined.
+  const vtkArrayCoordinates GetCoordinatesN(vtkIdType n) const;
 
   // Description:
-  // Sets the number of slice dimensions.  Use operator[] to set the range along each
-  // dimension.  Note that the range along each slice dimension will be empty after
-  // calling SetDimensions(), so you must explicitly set them all.
+  // Sets the number of slice dimensions.  Use operator[] to set the range
+  // along each dimension.  Note that the range along each slice dimension will
+  // be empty after calling SetDimensions(), so you must explicitly set them all.
   void SetDimensions(vtkIdType dimensions);
   
   // Description:

@@ -57,20 +57,20 @@ void vtkInterpolate(
     }
     
   // Zero-out the target storage ...
-  const vtkIdType element_begin = 0;
-  const vtkIdType element_end = target_extents.GetSize();
-  for(vtkIdType element = element_begin; element != element_end; ++element)
+  const vtkIdType n_begin = 0;
+  const vtkIdType n_end = target_extents.GetSize();
+  for(vtkIdType n = n_begin; n != n_end; ++n)
     {
-    target_array->SetValue(target_slice.GetCoordinates(element), 0);
+    target_array->SetValue(target_slice.GetCoordinatesN(n), 0);
     }
 
   // Accumulate results ...
-  for(vtkIdType element = element_begin; element != element_end; ++element)
+  for(vtkIdType n = n_begin; n != n_end; ++n)
     {
-    const vtkArrayCoordinates target_coordinates = target_slice.GetCoordinates(element);
+    const vtkArrayCoordinates target_coordinates = target_slice.GetCoordinatesN(n);
     for(int source = 0; source != source_slices.GetCount(); ++source)
       {
-      target_array->SetValue(target_coordinates, target_array->GetValue(target_coordinates) + (source_array->GetValue(source_slices[source].GetCoordinates(element)) * source_weights[source]));
+      target_array->SetValue(target_coordinates, target_array->GetValue(target_coordinates) + (source_array->GetValue(source_slices[source].GetCoordinatesN(n)) * source_weights[source]));
       }
     }
 }

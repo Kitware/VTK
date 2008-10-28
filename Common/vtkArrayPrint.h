@@ -24,6 +24,9 @@
 
 #include "vtkTypedArray.h"
 
+// .SECTION Thanks
+// Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
+
 // Description:
 // Serializes the contents of an array to a stream as a series of coordinates.
 // For 2D arrays of double values, the output is compatible with the MatrixMarket

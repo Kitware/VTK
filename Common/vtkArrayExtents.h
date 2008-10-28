@@ -65,13 +65,15 @@ public:
   
   // Description:
   // Return the number of values that *could* be stored using the
-  // current extents.
+  // current extents.  This is equal to the product of the extents
+  // along each dimension.
   vtkIdType GetSize() const;
 
   // Description:
   // Set the current number of dimensions.  Note that this method
   // resets the extent along each dimension to zero, so you must assign
-  // each dimension's extent explicitly after calling it.
+  // each dimension's extent explicitly using operator[] after calling
+  // SetDimensions().
   void SetDimensions(vtkIdType dimensions);
   
   // Description:
@@ -90,7 +92,8 @@ public:
   // Inequality comparison
   bool operator!=(const vtkArrayExtents& rhs) const;
 
-  VTK_COMMON_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs);
+  VTK_COMMON_EXPORT friend ostream& operator<<(
+    ostream& stream, const vtkArrayExtents& rhs);
   
 private:
   vtkstd::vector<vtkIdType> Storage;

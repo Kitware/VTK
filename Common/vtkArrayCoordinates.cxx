@@ -66,6 +66,16 @@ const vtkIdType& vtkArrayCoordinates::operator[](vtkIdType i) const
   return this->Storage[i];
 }
 
+bool vtkArrayCoordinates::operator==(const vtkArrayCoordinates& rhs) const
+{
+  return this->Storage == rhs.Storage;
+}
+
+bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
+{
+  return !(*this == rhs);
+}
+
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
   for(vtkIdType i = 0; i != rhs.GetDimensions(); ++i)

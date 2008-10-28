@@ -64,8 +64,9 @@ public:
   const vtkIdType GetCount() const;
   
   // Description:
-  // Sets the number of weights stored in this container.  Each
-  // weight will be reset to 0.0 after calling SetCount().
+  // Sets the number of weights stored in this container.  Note that each
+  // weight will be reset to 0.0 after calling SetCount(), use operator[]
+  // to assign the desired value for each weight.
   void SetCount(vtkIdType count);
 
   // Description:

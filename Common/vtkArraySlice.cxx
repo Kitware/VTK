@@ -54,15 +54,15 @@ vtkIdType vtkArraySlice::GetDimensions() const
 const vtkArrayExtents vtkArraySlice::GetExtents() const
 {
   vtkArrayExtents result;
-
   result.SetDimensions(this->GetDimensions());
+
   for(int i = 0; i != this->GetDimensions(); ++i)
     result[i] = this->Storage[i].GetExtent();
 
   return result;
 }
 
-const vtkArrayCoordinates vtkArraySlice::GetCoordinates(vtkIdType value) const
+const vtkArrayCoordinates vtkArraySlice::GetCoordinatesN(vtkIdType n) const
 {
   vtkArrayCoordinates coordinates;
   coordinates.SetDimensions(this->GetDimensions());
@@ -70,7 +70,7 @@ const vtkArrayCoordinates vtkArraySlice::GetCoordinates(vtkIdType value) const
   vtkIdType divisor = 1;
   for(vtkIdType i = this->GetDimensions() - 1; i >= 0; --i)
     {
-    coordinates[i] = ((value / divisor) % this->Storage[i].GetExtent()) + this->Storage[i].GetBegin();
+    coordinates[i] = ((n / divisor) % this->Storage[i].GetExtent()) + this->Storage[i].GetBegin();
     divisor *= this->Storage[i].GetExtent();
     }
 

@@ -60,7 +60,9 @@ public:
   vtkIdType GetDimensions() const;
 
   // Description:
-  // Set the number of dimensions.  Resets each coordinate to zero.
+  // Set the number of dimensions.  Note that this method resets the coordinate
+  // along each dimension to zero, so you must set every coordinate explicitly
+  // using operator[] after calling SetDimensions().
   void SetDimensions(vtkIdType dimensions);
   
   // Description:
@@ -71,7 +73,16 @@ public:
   // Returns the index of the i-th dimension.
   const vtkIdType& operator[](vtkIdType i) const;  
 
-  VTK_COMMON_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs);
+  
+  // Description:
+  // Equality comparison
+  bool operator==(const vtkArrayCoordinates& rhs) const;
+  
+  // Description:
+  // Inequality comparison
+  bool operator!=(const vtkArrayCoordinates& rhs) const;
+  VTK_COMMON_EXPORT friend ostream& operator<<(
+    ostream& stream, const vtkArrayCoordinates& rhs);
   
 private:
   vtkstd::vector<vtkIdType> Storage;
