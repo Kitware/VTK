@@ -38,7 +38,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.243");
+vtkCxxRevisionMacro(vtkRenderer, "1.244");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 
 #if !defined(VTK_LEGACY_REMOVE)
@@ -174,6 +174,10 @@ vtkRenderer::~vtkRenderer()
     }
 #endif
 
+  if(this->Delegate!=0)
+    {
+    this->Delegate->UnRegister(this);
+    }
 }
 
 // return the correct type of Renderer 
