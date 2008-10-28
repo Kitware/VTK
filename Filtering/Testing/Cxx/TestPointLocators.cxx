@@ -12,11 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkIdList.h"
 #include "vtkKdTreePointLocator.h"
 #include "vtkMath.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
-#include "vtkStructuredGrid.cxx"
+#include "vtkStructuredGrid.h"
 
 #include <vtkstd/vector>
 
