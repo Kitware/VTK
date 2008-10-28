@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.6");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.7");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -267,6 +267,8 @@ int vtkQuadraturePointsGenerator::Generate(
       break;
       }
     }
+
+  delete [] dict;
 
   // Add the interpolated quadrature points to the output
   vtkPoints *p=vtkPoints::New();

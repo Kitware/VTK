@@ -38,7 +38,7 @@ using vtksys_ios::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
-vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.5");
+vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.6");
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //-----------------------------------------------------------------------------
@@ -213,6 +213,8 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
         break;
         }
       }
+
+    delete [] dict;
     }
 
   return 1;

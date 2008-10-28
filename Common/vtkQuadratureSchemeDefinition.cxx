@@ -26,7 +26,7 @@ using vtksys_ios::istringstream;
 using vtkstd::string;
 
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
-vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.3");
+vtkCxxRevisionMacro(vtkQuadratureSchemeDefinition, "1.4");
 
 //-----------------------------------------------------------------------------
 vtkInformationKeyMacro(
@@ -387,7 +387,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
     ssQuadWts.setf(ios::floatfield, ios::scientific);
     ssQuadWts.precision(16);
     ssQuadWts << this->QuadratureWeights[0];
-    for (int id=1; id<this->NumberOfNodes; ++id)
+    for (int id=1; id<this->NumberOfQuadraturePoints; ++id)
       {
       ssQuadWts << " " << this->QuadratureWeights[id];
       }
