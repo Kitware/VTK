@@ -51,7 +51,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.2");
+vtkCxxRevisionMacro(vtkKdTree, "1.3");
 
 // Timing data ---------------------------------------------
 
@@ -2416,12 +2416,12 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
   this->BSPCalculator->ComputeIntersectionsUsingDataBoundsOn();
 
   int nRegions = 
-    this->BSPCalculator->IntersectsSphere2(regionIds, this->NumberOfRegions, x, y, z, radius);
+    this->BSPCalculator->IntersectsSphere2(regionIds, this->NumberOfRegions, x, y, z, radius*radius);
 
   this->BSPCalculator->ComputeIntersectionsUsingDataBoundsOff();
 
   double minDistance2 = 4 * this->MaxWidth * this->MaxWidth;
-  int closeId = -1;
+  int localCloseId = -1;
 
   bool recheck = 0; // used to flag that we should recheck the distance
   for (int reg=0; reg < nRegions; reg++)
@@ -2437,13 +2437,13 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
     if(!recheck || this->RegionList[neighbor]->GetDistance2ToBoundary(x, y, z, 1) < minDistance2)
       {
       double newDistance2;
-      int newCloseId = this->_FindClosestPointInRegion(neighbor,
-                                                       x, y, z, newDistance2);
+      int newLocalCloseId = this->_FindClosestPointInRegion(neighbor,
+                                                            x, y, z, newDistance2);
       
       if (newDistance2 < minDistance2)
         {
         minDistance2 = newDistance2;
-        closeId = newCloseId;
+        localCloseId = newLocalCloseId;
         recheck = 1; // changed the minimum distance so mark to check subsequent bins
         }
       }
@@ -2452,7 +2452,12 @@ int vtkKdTree::FindClosestPointInSphere(double x, double y, double z,
   delete [] regionIds;
 
   dist2 = minDistance2;
-  return closeId;
+  vtkIdType originalId = -1;
+  if(localCloseId >= 0)
+    {
+    originalId = static_cast<vtkIdType>(this->LocatorIds[localCloseId]);
+    }
+  return originalId;
 }
 
 //----------------------------------------------------------------------------
@@ -2666,7 +2671,23 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3],
   // and order them
   int regionId = startingNode->GetID();
   int numPoints = startingNode->GetNumberOfPoints();
-  int where = this->LocatorRegionLocation[regionId];
+  int where;
+  if(regionId >= 0)
+    {
+    where = this->LocatorRegionLocation[regionId];
+    }
+  else
+    {
+    vtkKdNode* left = startingNode->GetLeft();
+    vtkKdNode* next = left->GetLeft();
+    while(next)
+      {
+      left = next;
+      next = next->GetLeft();
+      }
+    int leftRegionId = left->GetID();
+    where = this->LocatorRegionLocation[leftRegionId];
+    }
   int *ids = this->LocatorIds + where;
   float* pt = this->LocatorPoints + (where*3);
   float xfloat[3] = {x[0], x[1], x[2]};
@@ -2681,6 +2702,8 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3],
   // to finish up we have to check other regions for 
   // closer points
   float LargestDist2 = orderedPoints.GetLargestDist2();
+  double delta[3] = {0,0,0};
+  double bounds[6];
   node = this->Top;
   vtkstd::queue<vtkKdNode*> nodesToBeSearched;
   nodesToBeSearched.push(node);
@@ -2695,11 +2718,15 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3],
     vtkKdNode* left = node->GetLeft();
     if(left)
       {
-      if(left->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
+      left->GetDataBounds(bounds);
+      if(vtkMath::PointIsWithinBounds(const_cast<double*>(x), bounds, delta) == 1 ||
+         left->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
         {
         nodesToBeSearched.push(left);
         }
-      if(node->GetRight()->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
+      node->GetRight()->GetDataBounds(bounds);
+      if(vtkMath::PointIsWithinBounds(const_cast<double*>(x), bounds, delta) == 1 ||
+         node->GetRight()->GetDistance2ToBoundary(x[0], x[1], x[2], 1) < LargestDist2)
         {
         nodesToBeSearched.push(node->GetRight());
         }

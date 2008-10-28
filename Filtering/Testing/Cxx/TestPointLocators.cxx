@@ -43,7 +43,7 @@ bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
      .00001)
     {
     cerr << "Results do not match (first dist2="
-         << firstDist2 << " , second dist2=" << secondDist2 << "\n";
+         << firstDist2 << " , second dist2=" << secondDist2 << ") ";
     return false;
     }  
   return true;
@@ -147,7 +147,7 @@ int TestPointLocators(int , char *[])
     vtkIdType kdtreePt = kdtree->FindClosestPoint(point);
     if(!ArePointsEquidistant(point, uniformPt, kdtreePt, sgrid))
       {
-      cerr << "Results from FindClosestPoint do not match.\n";
+      cerr << " from FindClosestPoint.\n";
       rval++;
       }
     int N = 1+i*250/numSearchPoints; // test different amounts of points to search for
@@ -155,12 +155,12 @@ int TestPointLocators(int , char *[])
     kdtree->FindClosestNPoints(N, point, kdtreeList);
     if(!ArePointsEquidistant(point, uniformPt, uniformList->GetId(0), sgrid))
       {
-      cerr << "Results comparing FindClosestPoint and first result of FindClosestNPoints do not match for uniform locator.\n";      
+      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for uniform locator.\n";      
       rval++;
       }
     if(!ArePointsEquidistant(point, kdtreePt, kdtreeList->GetId(0), sgrid))
       {
-      cerr << "Results comparing FindClosestPoint and first result of FindClosestNPoints do not match for kdtree locator.\n";
+      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for kdtree locator.\n";
       rval++;
       }
     
@@ -168,7 +168,7 @@ int TestPointLocators(int , char *[])
       {
       if(!ArePointsEquidistant(point, kdtreeList->GetId(j), uniformList->GetId(j), sgrid))
         {
-        cerr << "Point " << j << " is not corrent for ClosestNPoints search.\n";
+        cerr << "for point " << j << " for ClosestNPoints search.\n";
         rval++;
         }
       }
@@ -185,7 +185,15 @@ int TestPointLocators(int , char *[])
     double dist2;
     uniformPt = uniformLocator->FindClosestPointWithinRadius(radius, point, dist2);
     kdtreePt = kdtree->FindClosestPointWithinRadius(radius, point, dist2);
-    if(!ArePointsEquidistant(point, uniformPt, kdtreePt, sgrid))
+    if(uniformPt < 0 || kdtreePt < 0)
+      {
+      if(uniformPt >=0 || kdtreePt >= 0)
+        {
+        cerr << "Inconsistent results for FindClosestPointWithinRadius\n";
+        rval++;
+        }
+      }
+    else if(!ArePointsEquidistant(point, uniformPt, kdtreePt, sgrid))
       {
       cerr << "Incorrect result for FindClosestPointWithinRadius.\n";
       rval++;
