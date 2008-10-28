@@ -37,11 +37,11 @@ int ArrayInterpolationDense(int argc, char* argv[])
   try
     {
     vtkSmartPointer<vtkDenseArray<double> > a = vtkSmartPointer<vtkDenseArray<double> >::New();
-    a->Resize(vtkArrayExtents(4));
-    a->SetValue(vtkArrayCoordinates(0), 0);
-    a->SetValue(vtkArrayCoordinates(1), 1);
-    a->SetValue(vtkArrayCoordinates(2), 2);
-    a->SetValue(vtkArrayCoordinates(3), 3);
+    a->Resize(4);
+    a->SetValue(0, 0);
+    a->SetValue(1, 1);
+    a->SetValue(2, 2);
+    a->SetValue(3, 3);
 
     vtkSmartPointer<vtkDenseArray<double> > b = vtkSmartPointer<vtkDenseArray<double> >::New();
     b->Resize(vtkArrayExtents(2));
@@ -49,19 +49,19 @@ int ArrayInterpolationDense(int argc, char* argv[])
     vtkInterpolate(a.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(0)), vtkArraySlice(vtkArrayRange(1))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(0)), b.GetPointer());
     vtkInterpolate(a.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(2)), vtkArraySlice(vtkArrayRange(3))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(1)), b.GetPointer());
 
-    test_expression(b->GetValue(vtkArrayCoordinates(0)) == 0.5, "expected 0.5");
-    test_expression(b->GetValue(vtkArrayCoordinates(1)) == 2.5, "expected 2.5");
+    test_expression(b->GetValue(0) == 0.5, "expected 0.5");
+    test_expression(b->GetValue(1) == 2.5, "expected 2.5");
 
     vtkSmartPointer<vtkDenseArray<double> > c = vtkSmartPointer<vtkDenseArray<double> >::New();
-    c->Resize(vtkArrayExtents(4, 2));
-    c->SetValue(vtkArrayCoordinates(0, 0), 0);
-    c->SetValue(vtkArrayCoordinates(0, 1), 1);
-    c->SetValue(vtkArrayCoordinates(1, 0), 2);
-    c->SetValue(vtkArrayCoordinates(1, 1), 3);
-    c->SetValue(vtkArrayCoordinates(2, 0), 4);
-    c->SetValue(vtkArrayCoordinates(2, 1), 5);
-    c->SetValue(vtkArrayCoordinates(3, 0), 6);
-    c->SetValue(vtkArrayCoordinates(3, 1), 7);
+    c->Resize(4, 2);
+    c->SetValue(0, 0, 0);
+    c->SetValue(0, 1, 1);
+    c->SetValue(1, 0, 2);
+    c->SetValue(1, 1, 3);
+    c->SetValue(2, 0, 4);
+    c->SetValue(2, 1, 5);
+    c->SetValue(3, 0, 6);
+    c->SetValue(3, 1, 7);
 
     vtkSmartPointer<vtkDenseArray<double> > d = vtkSmartPointer<vtkDenseArray<double> >::New();
     d->Resize(vtkArrayExtents(2, 2));
@@ -69,10 +69,10 @@ int ArrayInterpolationDense(int argc, char* argv[])
     vtkInterpolate(c.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(0), vtkArrayRange(0, 2)), vtkArraySlice(vtkArrayRange(1), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(0), vtkArrayRange(0, 2)), d.GetPointer());
     vtkInterpolate(c.GetPointer(), vtkArraySlices(vtkArraySlice(vtkArrayRange(2), vtkArrayRange(0, 2)), vtkArraySlice(vtkArrayRange(3), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArraySlice(vtkArrayRange(1), vtkArrayRange(0, 2)), d.GetPointer());
 
-    test_expression(d->GetValue(vtkArrayCoordinates(0, 0)) == 1, "expected 1");
-    test_expression(d->GetValue(vtkArrayCoordinates(0, 1)) == 2, "expected 2");
-    test_expression(d->GetValue(vtkArrayCoordinates(1, 0)) == 5, "expected 5");
-    test_expression(d->GetValue(vtkArrayCoordinates(1, 1)) == 6, "expected 6");
+    test_expression(d->GetValue(0, 0) == 1, "expected 1");
+    test_expression(d->GetValue(0, 1) == 2, "expected 2");
+    test_expression(d->GetValue(1, 0) == 5, "expected 5");
+    test_expression(d->GetValue(1, 1) == 6, "expected 6");
 
     return 0;
     }
