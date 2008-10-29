@@ -764,14 +764,21 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char *iso, char *locale)
   int year, month, day;
   if( vtkMedicalImageProperties::GetDateAsFields(iso, year, month, day) )
     {
-    struct tm date;
-    memset(&date,0, sizeof(date));
-    date.tm_mday = day;
-    // month are expressed in the [0-11] range:
-    date.tm_mon = month - 1;
-    // structure is date starting at 1900
-    date.tm_year = year - 1900;
-    my_strftime(locale, 200, "%x", &date);
+    if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31)
+      {
+      *locale = '\0';
+      }
+    else
+      {
+      struct tm date;
+      memset(&date,0, sizeof(date));
+      date.tm_mday = day;
+      // month are expressed in the [0-11] range:
+      date.tm_mon = month - 1;
+      // structure is date starting at 1900
+      date.tm_year = year - 1900;
+      my_strftime(locale, 200, "%x", &date);
+      }
     return 1;
     }
   return 0;
