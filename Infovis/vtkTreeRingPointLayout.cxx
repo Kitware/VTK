@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.3");
 vtkStandardNewMacro(vtkTreeRingPointLayout);
 
 vtkTreeRingPointLayout::vtkTreeRingPointLayout()
@@ -43,6 +43,7 @@ vtkTreeRingPointLayout::vtkTreeRingPointLayout()
   this->SectorsFieldName = 0;
   this->SetSectorsFieldName("sectors");
   this->ExteriorRadius = 1.;
+  this->LogSpacingValue = 1.0;
 }
 
 vtkTreeRingPointLayout::~vtkTreeRingPointLayout()
@@ -98,7 +99,26 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
     }
   }
 
-  double spacing = this->ExteriorRadius / max_level;
+  double spacing = this->LogSpacingValue;
+  
+  // The distance between level L-1 and L is s^L.
+  // Thus, if s < 1 then the distance between levels gets smaller in higher levels,
+  //       if s = 1 the distance remains the same, and
+  //       if s > 1 the distance get larger.
+  // The height (distance from the root) of level L, then, is
+  // s + s^2 + s^3 + ... + s^L, where s is the log spacing value.
+  // The max height (used for normalization) is
+  // s + s^2 + s^3 + ... + s^maxLevel.
+  // The quick formula for computing this is
+  // sum_{i=1}^{n} s^i = (s^(n+1) - 1)/(s - 1) - 1        if s != 1
+  //                   = n                                if s == 1
+  double maxHeight = max_level;
+  double eps = 1e-8;
+  double diff = spacing - 1.0 > 0 ? spacing - 1.0 : 1.0 - spacing;
+  if (diff > eps)
+  {
+    maxHeight = (pow(spacing, max_level+1.0) - 1.0)/(spacing - 1.0) - 1.0;
+  }
   
   vtkPoints* points = vtkPoints::New();
   vtkIdType numVerts = outputTree->GetNumberOfVertices();
@@ -121,11 +141,19 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
     }
     else
     {
-      int current_level = levelArray->GetValue(i);
-      r = spacing*current_level;
+      if (diff <= eps)
+      {
+        r = outputTree->GetLevel(i)/maxHeight;
+      }
+      else
+      {
+        r = ((pow(spacing, outputTree->GetLevel(i)+1.0) - 1.0)/(spacing - 1.0) - 1.0)/maxHeight;
+      } 
+        //scale the spacing value based on the radius of the
+        // circle we have to work with...
+      r *= this->ExteriorRadius;
     }
     
-      //double r = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
     double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
     double x = r*cos(vtkMath::DegreesToRadians()*theta);
     double y = r*sin(vtkMath::DegreesToRadians()*theta);

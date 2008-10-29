@@ -56,12 +56,21 @@ public:
   vtkSetMacro(ExteriorRadius, double);
   vtkGetMacro(ExteriorRadius, double);
 
+  // Description:
+  // The spacing of tree levels. Levels near zero give more space
+  // to levels near the leaves, while levels near one (the default)
+  // create evenly-spaced levels. Levels above one give more space
+  // to levels near the root.
+  vtkSetMacro(LogSpacingValue, double);
+  vtkGetMacro(LogSpacingValue, double);
+
 protected:
   vtkTreeRingPointLayout();
   ~vtkTreeRingPointLayout();
 
   char* SectorsFieldName;
   double ExteriorRadius;
+  double LogSpacingValue;
   
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   

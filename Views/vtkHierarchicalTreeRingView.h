@@ -117,7 +117,11 @@ public:
   // The array to use for coloring vertices.  Default is "color".
   void SetVertexColorArrayName(const char* name);
 //  const char* GetVertexColorArrayName();
-  
+
+    // Description:
+  // Set the log spacing for the interior point layout.
+  void SetInteriorLogSpacingFactor(double spacing);
+
   // Description:
   // The array to use for coloring edges.  Default is "color".
   void SetEdgeColorArrayName(const char* name);
@@ -234,6 +238,7 @@ private:
   // Description:
   // The bundling strength.
   float BundlingStrength;
+  double InteriorLogSpacing;
 
   // Description:
   // The indices of the graph and tree representations.
