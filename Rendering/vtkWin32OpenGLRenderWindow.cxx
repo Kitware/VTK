@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGL.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.154.2.1");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.154.2.2");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -682,8 +682,12 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
     case WM_ERASEBKGND:
       return TRUE;
     case WM_SETCURSOR:
-      this->SetCurrentCursor(this->GetCurrentCursor());
-      return TRUE;
+      if (HTCLIENT == LOWORD(lParam))
+        {
+        this->SetCurrentCursor(this->GetCurrentCursor());
+        return TRUE;
+        }
+      break;
     default:
       this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
       break;
