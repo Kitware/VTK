@@ -28,7 +28,7 @@
 #include "vtkActor2DCollection.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.49");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.50");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 class vtkWTI2DHelperClass
@@ -159,11 +159,11 @@ void vtkWindowToImageFilter::RequestInformation (
   int *size = this->Input->GetSize();
   int wExtent[6];
   wExtent[0]= 0;
-  wExtent[1] = int((this->Viewport[2] - this->Viewport[0])*size[0] + 0.5)*
-    this->Magnification - 1;
+  wExtent[1] = (int(this->Viewport[2] * size[0] + 0.5)-
+    int(this->Viewport[0] * size[0])) * this->Magnification - 1;
   wExtent[2] = 0;
-  wExtent[3] = int((this->Viewport[3] - this->Viewport[1])*size[1] + 0.5)*
-    this->Magnification - 1;
+  wExtent[3] = (int(this->Viewport[3] * size[1] + 0.5)-
+    int(this->Viewport[1] * size[1])) * this->Magnification - 1;
   wExtent[4] = 0;
   wExtent[5] = 0;
 
@@ -249,8 +249,10 @@ void vtkWindowToImageFilter::RequestData(
   winsize[0] = this->Input->GetSize()[0];
   winsize[1] = this->Input->GetSize()[1];
 
-  size[0] = int(winsize[0]*(this->Viewport[2]-this->Viewport[0]) + 0.5);
-  size[1] = int(winsize[1]*(this->Viewport[3]-this->Viewport[1]) + 0.5);
+  size[0] = int(this->Viewport[2]* winsize[0] + 0.5) 
+            - int(this->Viewport[0]* winsize[0]);
+  size[1] = int(this->Viewport[3]* winsize[1] + 0.5) 
+            - int(this->Viewport[1]* winsize[1]);
 
   rowSize = size[0]*out->GetNumberOfScalarComponents();
   outIncrY = size[0]*this->Magnification*out->GetNumberOfScalarComponents();
