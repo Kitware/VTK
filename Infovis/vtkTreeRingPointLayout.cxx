@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.1");
+vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.2");
 vtkStandardNewMacro(vtkTreeRingPointLayout);
 
 vtkTreeRingPointLayout::vtkTreeRingPointLayout()
@@ -98,7 +98,7 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
     }
   }
 
-  double spacing = this->ExteriorRadius / (double)max_level;
+  double spacing = this->ExteriorRadius / max_level;
   
   vtkPoints* points = vtkPoints::New();
   vtkIdType numVerts = outputTree->GetNumberOfVertices();
