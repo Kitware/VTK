@@ -16,7 +16,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContourValues, "1.20");
+vtkCxxRevisionMacro(vtkContourValues, "1.21");
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
@@ -137,21 +137,20 @@ void vtkContourValues::GenerateValues(int numContours, double rangeStart,
 // range. Contour values will include min/max range values.
 void vtkContourValues::GenerateValues(int numContours, double range[2])
 {
-  double val, incr;
   int i;
 
   this->SetNumberOfContours(numContours);
   if (numContours == 1)
     {
-    incr = 0;
+    this->SetValue(0, range[0]);
     }
   else
     {
-    incr = (range[1] - range[0]) / (numContours-1);
-    }
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
+    double ratio=(range[1] - range[0])/(numContours - 1);
+    for (i= 0; i < numContours; ++i)
+      {
+      this->SetValue(i, range[0] + i*ratio);
+      }
     }
 }
 
