@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.5");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -208,6 +208,7 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
 
     if ( ! dfunc )
       {
+      // Functor selection did not work. Do nothing.
       vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
                        << varNameX.c_str()
                        << ","
@@ -215,21 +216,24 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                        << "). Ignoring it." );
       continue;
       }
-
-    // Assess each entry of the column
-    vtkVariantArray* assessResult = vtkVariantArray::New();
-    for ( vtkIdType r = 0; r < nRowD; ++ r )
+    else
       {
-      (*dfunc)( assessResult, r );
-      for ( int v = 0; v < nv; ++ v )
+      // Assess each entry of the column
+      vtkVariantArray* assessResult = vtkVariantArray::New();
+      for ( vtkIdType r = 0; r < nRowD; ++ r )
         {
-        outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+        (*dfunc)( assessResult, r );
+        for ( int v = 0; v < nv; ++ v )
+          {
+          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          }
         }
+
+      assessResult->Delete();
       }
 
     delete dfunc;
     delete [] names;
     varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-    assessResult->Delete();
     }
 }
