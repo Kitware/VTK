@@ -158,7 +158,7 @@ public:
         if (cit->second == uid)
           {
           vol = v;
-          return (int)(cit->first);
+          return static_cast<int>(cit->first);
           }
         ++cit;
         }
@@ -171,7 +171,10 @@ public:
     SliceUIDType::const_iterator cit = UID[vol].begin();
     while (cit != UID[vol].end())
       {
-      if (cit->second == uid) return (int)(cit->first);
+      if (cit->second == uid)
+        {
+        return static_cast<int>(cit->first);
+        }
       ++cit;
       } 
     return -1; // uid not found.
@@ -429,7 +432,7 @@ int vtkMedicalImageProperties::AddWindowLevelPreset(
   preset.Window = w;
   preset.Level = l;
   this->Internals->WindowLevelPresetPool.push_back(preset);
-  return (int)this->Internals->WindowLevelPresetPool.size() - 1;
+  return static_cast<int>(this->Internals->WindowLevelPresetPool.size() - 1);
 }
 
 //----------------------------------------------------------------------------
@@ -654,16 +657,16 @@ int vtkMedicalImageProperties::GetAgeAsFields(const char *age, int &year,
     switch(type)
       {
     case 'Y':
-      year = (int)val;
+      year = static_cast<int>(val);
       break;
     case 'M':
-      month = (int)val;
+      month = static_cast<int>(val);
       break;
     case 'W':
-      week = (int)val;
+      week = static_cast<int>(val);
       break;
     case 'D':
-      day = (int)val;
+      day = static_cast<int>(val);
       break;
     default:
       return 0;
