@@ -16,7 +16,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContourValues, "1.21");
+vtkCxxRevisionMacro(vtkContourValues, "1.22");
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
@@ -146,10 +146,13 @@ void vtkContourValues::GenerateValues(int numContours, double range[2])
     }
   else
     {
-    double ratio=(range[1] - range[0])/(numContours - 1);
     for (i= 0; i < numContours; ++i)
       {
-      this->SetValue(i, range[0] + i*ratio);
+      // no we cannot factorize the ratio
+      // (range[1] - range[0])/(numContours - 1) out of the loop.
+      // we want the whole expression to be evaluated on the FPU.
+      // see bug discussion: http://www.vtk.org/Bug/view.php?id=7887
+      this->SetValue(i, range[0] + i*(range[1] - range[0])/(numContours - 1));
       }
     }
 }
