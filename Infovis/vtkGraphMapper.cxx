@@ -52,7 +52,7 @@
 #include "vtkVertexGlyphFilter.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGraphMapper, "1.32");
+vtkCxxRevisionMacro(vtkGraphMapper, "1.33");
 vtkStandardNewMacro(vtkGraphMapper);
 
 #define VTK_CREATE(type,name) \
@@ -735,6 +735,11 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeLineWidth: " << this->EdgeLineWidth << endl;
   os << indent << "ScaledGlyphs: " << this->ScaledGlyphs << endl;
   os << indent << "ScalingArrayName: " << (this->ScalingArrayName ? "" : "(null)") << endl;
+  os << indent << "EnableEdgesByArray: " << this->EnableEdgesByArray << endl;
+  os << indent << "EnableVerticesByArray: " << this->EnableEdgesByArray << endl;
+  os << indent << "EnabledEdgesArrayName: " << (this->EnabledEdgesArrayName ? "" : "(null)") << endl;
+  os << indent << "EnabledVerticesArrayName: " << (this->EnabledVerticesArrayName ? "" : "(null)") << endl;
+
 }
 
 //----------------------------------------------------------------------------
