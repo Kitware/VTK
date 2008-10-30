@@ -39,7 +39,6 @@
 #include "vtkTreeRingLayout.h"
 #include "vtkWorldPointPicker.h"
 #include "vtkVariant.h"
-
 #include "vtkSectorSource.h"
 #include "vtkExtractEdges.h"
 #include "vtkAppendPolyData.h"
@@ -48,7 +47,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.3");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.4");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -214,8 +213,8 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
       //find the information for the correct sector,
       //  unless there isn't a sector or it is the root node
-//    if (absArray != NULL && id > -1 )
-    if (absArray != NULL && id > 0 )
+//    if (absArray != NULL && id > 0 )  
+    if (absArray != NULL && id > -1 )
       {
       vtkStdString str;
       if (vtkStringArray::SafeDownCast(absArray))
@@ -351,8 +350,8 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
 
     //don't worry about selections in non-drawn regions or 
     // in the root nodes sector region...
-//  if (this->CurrentSelectedId > -1)
-  if (this->CurrentSelectedId > 0)
+//  if (this->CurrentSelectedId > 0)
+  if (this->CurrentSelectedId > -1)
     {
     this->GetBoundingSectorForTreeRingItem(this->CurrentSelectedId,sinfo);
 

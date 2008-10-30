@@ -29,10 +29,9 @@
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
 #include "vtkDataArray.h"
-
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.5");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -75,7 +74,7 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
   points->SetNumberOfPoints(numVerts);
   for( vtkIdType i = 0; i < numVerts; i++ )
   {
-    if( i == 0 )
+    if( i == rootId )
     {
       points->SetPoint( i, 0, 0, 0 );
       continue;

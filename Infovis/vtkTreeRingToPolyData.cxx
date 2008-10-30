@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.3");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.4");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -76,10 +76,12 @@ int vtkTreeRingToPolyData::RequestData(
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->SectorsFieldName);
   VTK_CREATE(vtkAppendPolyData, append);
-  
-  for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
+
+  int i;
+  vtkIdType rootId = inputTree->GetRoot();
+  for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
   {
-    if(i==0)
+    if( i == rootId )
     {
         //don't draw the root node...
       continue;
@@ -121,19 +123,20 @@ int vtkTreeRingToPolyData::RequestData(
   outputPoly->ShallowCopy(append->GetOutput());
   
     // Pass the input point data to the output cell data :)
+  int copy_counter = 0;
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
   output_cell_data->CopyAllocate(input_vertex_data);
-  for (int i = 0; i < inputTree->GetNumberOfVertices(); i++)
+  for( i = 0; i < inputTree->GetNumberOfVertices(); i++)
   {
-    if( i == 0 )
+    if( i == rootId )
     {
         //No cell data for the root node, so don't copy it...
       continue;
     }
-    
+
       //copy data from -> to
-    output_cell_data->CopyData(input_vertex_data, i, i-1);
+    output_cell_data->CopyData(input_vertex_data, i, copy_counter++);
   }
   
   return 1;

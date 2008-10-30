@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingExistingLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkTreeRingExistingLayoutStrategy);
 
 vtkTreeRingExistingLayoutStrategy::vtkTreeRingExistingLayoutStrategy()
@@ -151,7 +151,7 @@ void vtkTreeRingExistingLayoutStrategy::Layout(vtkTree *inputTree,
   points->SetNumberOfPoints(levelTree->GetNumberOfVertices());
   for( i = 0; i < levelTree->GetNumberOfVertices(); i++ )
   {
-    if( i == 0 )
+    if( i == rootId )
     {
       points->SetPoint( i, 0, 0, 0 );
       continue;

@@ -34,7 +34,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayout, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingLayout, "1.3");
 vtkStandardNewMacro(vtkTreeRingLayout);
 
 vtkTreeRingLayout::vtkTreeRingLayout()
@@ -111,7 +111,6 @@ void vtkTreeRingLayout::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkIdType vtkTreeRingLayout::FindVertex(float pnt[2])
 {
-//FIXME-jfsheph Need to test this polar coordinate calculation...
   float polar_location[2];
   polar_location[0] = sqrt((pnt[0]*pnt[0]) + (pnt[1]*pnt[1]));
   polar_location[1] = vtkMath::RadiansToDegrees()*atan2(pnt[1], pnt[0]);
@@ -139,15 +138,16 @@ vtkIdType vtkTreeRingLayout::FindVertex(float pnt[2])
   vtkIdType vertex = otree->GetRoot();
   vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
 
-//FIXME-jfsheph for the reversed layout, checking the root vertex position is not going to work...
   // Now try to find the vertex that contains the point
   boundsInfo->GetTupleValue(vertex, blimits); // Get the extents of the root
   if( ((polar_location[0] > blimits[0]) && (polar_location[0] < blimits[1])) &&
       ((polar_location[1] > blimits[2]) && (polar_location[1] < blimits[3])) )
-    {
-    // Point is at the root vertex.
-    return vertex;
-    }
+  {
+      //Point is at the root vertex.
+      // but we don't want the root to be pickable, so return -1; 
+    return -1;
+//    return vertex;
+  }
   
   // Now traverse the children to try and find 
   // the vertex that contains the point  

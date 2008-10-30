@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.5");
 vtkStandardNewMacro(vtkTreeRingPointLayout);
 
 vtkTreeRingPointLayout::vtkTreeRingPointLayout()
@@ -121,11 +121,12 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
   }
   
   vtkPoints* points = vtkPoints::New();
+  vtkIdType rootId = outputTree->GetRoot();
   vtkIdType numVerts = outputTree->GetNumberOfVertices();
   points->SetNumberOfPoints(numVerts);
   for( vtkIdType i = 0; i < numVerts; i++ )
   {
-    if( i == 0 )
+    if( i == rootId )
     {
       points->SetPoint( i, 0, 0, 0 );
       continue;
