@@ -125,7 +125,7 @@ public:
   vtkSetStringMacro(DataSourceName);
   vtkGetStringMacro(DataSourceName);
 
-  vtkSetMacro(Port, int);
+  vtkSetMacro(ServerPort, int);
   vtkSetStringMacro(HostName);
   vtkSetStringMacro(UserName);
   vtkSetStringMacro(DatabaseName);
@@ -187,7 +187,7 @@ private:
   char *Password;
   char *DataSourceName;
   char *DatabaseName;
-  int Port;
+  int ServerPort;
 
   vtkODBCInternals *Internals; 
 
