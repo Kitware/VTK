@@ -26,7 +26,7 @@
 #include "vtkGeoMath.h"
 #include "vtkGeoTerrainNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.5");
+vtkCxxRevisionMacro(vtkGeoTerrainNode, "1.6");
 vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
@@ -93,6 +93,7 @@ void vtkGeoTerrainNode::PrintSelf(ostream& os, vtkIndent indent)
     << this->ProjectionBounds[3] << "\n";
   os << indent << "GraticuleLevel: " << this->GraticuleLevel << endl;
   os << indent << "Error: " << this->Error << endl;
+  os << indent << "Coverage: " << this->Coverage << endl;
 }
 
 //-----------------------------------------------------------------------------
