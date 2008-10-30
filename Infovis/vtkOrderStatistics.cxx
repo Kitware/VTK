@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.34");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.35");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -138,7 +138,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
       continue;
       }
 
-    bool isNum = inData->GetColumnByName( col )->IsNumeric();
+    int isNum = inData->GetColumnByName( col )->IsNumeric();
 
     vtkstd::map<vtkVariant,vtkIdType> distr;
     for ( vtkIdType r = 0; r < this->SampleSize; ++ r )
