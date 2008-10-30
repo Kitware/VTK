@@ -38,7 +38,7 @@ using vtksys_ios::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 
-vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.6");
+vtkCxxRevisionMacro(vtkQuadraturePointInterpolator, "1.7");
 vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 
 //-----------------------------------------------------------------------------
@@ -103,7 +103,9 @@ int vtkQuadraturePointInterpolator::RequestData(
 
   // Quick sanity check.
   if (usgIn==NULL || usgOut==NULL
+     || usgIn->GetNumberOfCells()==0
      || usgIn->GetNumberOfPoints()==0
+     || usgIn->GetPointData()==NULL
      || usgIn->GetPointData()->GetNumberOfArrays()==0)
     {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");

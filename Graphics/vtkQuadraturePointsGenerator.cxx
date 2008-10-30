@@ -41,7 +41,7 @@ using vtksys_ios::ostringstream;
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.7");
+vtkCxxRevisionMacro(vtkQuadraturePointsGenerator, "1.8");
 vtkStandardNewMacro(vtkQuadraturePointsGenerator);
 
 //-----------------------------------------------------------------------------
@@ -107,7 +107,9 @@ int vtkQuadraturePointsGenerator::RequestData(
 
   // Quick sanity check.
   if (usgIn==NULL || pdOut==NULL
+     || usgIn->GetNumberOfCells()==0
      || usgIn->GetNumberOfPoints()==0
+     || usgIn->GetPointData()==NULL
      || usgIn->GetPointData()->GetNumberOfArrays()==0)
     {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
@@ -131,7 +133,7 @@ int vtkQuadraturePointsGenerator::RequestData(
 void vtkQuadraturePointsGenerator::SetSourceArrayName(const char* _arg)
 {
   if ( this->SourceArrayName == NULL && _arg == NULL) { return;} 
-  if ( this->SourceArrayName && _arg && (!strcmp(this->SourceArrayName,_arg))) { return;} 
+  if ( this->SourceArrayName && _arg && (!strcmp(this->SourceArrayName,_arg))) { return; }
   if (this->SourceArrayName) { delete [] this->SourceArrayName; } 
   if (_arg) 
     {
