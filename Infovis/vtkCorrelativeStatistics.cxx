@@ -37,13 +37,15 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.39");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.40");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
-  this->SetAssessmentName( "Squared Mahalanobis" );
+  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetValue( 0, "Squared Mahalanobis" );
+
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 5 );
   this->AssessParameters->SetValue( 0, "Mean X" );
@@ -121,14 +123,18 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
     vtkStdString colX = it->first;
     if ( ! inData->GetColumnByName( colX ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colX.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
 
     vtkStdString colY = it->second;
     if ( ! inData->GetColumnByName( colY ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colY.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
     
@@ -303,21 +309,11 @@ void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
 }
 
 // ----------------------------------------------------------------------
-class TableColumnPairInvalidFunctor : public vtkStatisticsAlgorithm::AssessFunctor
-{
-public:
-  TableColumnPairInvalidFunctor() { }
-  virtual ~TableColumnPairInvalidFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType vtkNotUsed(id) )
-  {
-    return -1.;
-  }
-};
-
 class TableColumnPairMahlanobisFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
-  vtkTable* Data;
+  vtkDataArray* DataX;
+  vtkDataArray* DataY;
   double MeanX;
   double MeanY;
   double VarX;
@@ -325,7 +321,8 @@ public:
   double CovXY;
   double DInv;
 
-  TableColumnPairMahlanobisFunctor( vtkTable* inData,
+  TableColumnPairMahlanobisFunctor( vtkDataArray* valsX,
+                                    vtkDataArray* valsY,
                                     double meanX,
                                     double meanY,
                                     double varX,
@@ -333,7 +330,8 @@ public:
                                     double covXY,
                                     double dInv )
   {
-    this->Data = inData;
+    this->DataX = valsX;
+    this->DataY = valsY;
     this->MeanX = meanX;
     this->MeanY = meanY;
     this->VarX  = varX;
@@ -342,43 +340,82 @@ public:
     this->DInv  = dInv;
   }
   virtual ~TableColumnPairMahlanobisFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
   {
-    double x = this->Data->GetValue( id, 0 ).ToDouble() - this->MeanX;
-    double y = this->Data->GetValue( id, 1 ).ToDouble() - this->MeanY;
+    double x = this->DataX->GetTuple1( id ) - this->MeanX;
+    double y = this->DataY->GetTuple1( id ) - this->MeanY;
 
-    return ( this->VarY * x * x - 2. * this->CovXY * x * y + this->VarX * y * y ) * this->DInv;
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, ( this->VarY * x * x - 2. * this->CovXY * x * y + this->VarX * y * y ) * this->DInv );
   }
 };
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
-                                                    vtkVariantArray* row,
+                                                    vtkTable* inMeta,
+                                                    vtkStringArray* rowNames,
+                                                    vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
-  double meanX = row->GetValue( 0 ).ToDouble();
-  double meanY = row->GetValue( 1 ).ToDouble();
-  double varX  = row->GetValue( 2 ).ToDouble();
-  double varY  = row->GetValue( 3 ).ToDouble();
-  double covXY = row->GetValue( 4 ).ToDouble();
+  vtkStdString varNameX = rowNames->GetValue( 0 );
+  vtkStdString varNameY = rowNames->GetValue( 1 );
 
-  double d = varX * varY - covXY * covXY;
-  if ( d <= 0. )
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
+  for ( int i = 0; i < nRowP; ++ i )
     {
-    vtkWarningMacro( "Incorrect parameters for column pair:"
-                     << " variance/covariance matrix has non-positive determinant"
-                     << " (assessment values will be set to -1)." );
+    if ( inMeta->GetValueByName( i, "Variable X" ).ToString() == varNameX
+         && inMeta->GetValueByName( i, "Variable Y" ).ToString() == varNameY )
+      { 
+      // Grab the data for the requested variables
+      vtkAbstractArray* arrX = inData->GetColumnByName( varNameX );
+      vtkAbstractArray* arrY = inData->GetColumnByName( varNameY );
+      if ( ! arrX || ! arrY )
+        {
+        dfunc = 0;
+        return;
+        }
+      
+      // For descriptive statistics, types must be convertible to DataArrays (e.g., StringArrays do not fit here).
+      vtkDataArray* valsX = vtkDataArray::SafeDownCast( arrX );
+      vtkDataArray* valsY = vtkDataArray::SafeDownCast( arrY );
+      if ( ! valsX || ! valsY )
+        {
+        dfunc = 0;
+        return;
+        }
 
-    dfunc = new TableColumnPairInvalidFunctor();
+      double meanX = inMeta->GetValueByName( i, columnNames->GetValue( 0 ) ).ToDouble();
+      double meanY = inMeta->GetValueByName( i, columnNames->GetValue( 1 ) ).ToDouble();
+      double varX  = inMeta->GetValueByName( i, columnNames->GetValue( 2 ) ).ToDouble();
+      double varY  = inMeta->GetValueByName( i, columnNames->GetValue( 3 ) ).ToDouble();
+      double covXY = inMeta->GetValueByName( i, columnNames->GetValue( 4 ) ).ToDouble();
+
+      double d = varX * varY - covXY * covXY;
+      if ( d <= 0. )
+        {
+        vtkWarningMacro( "Incorrect parameters for column pair:"
+                         << " variance/covariance matrix has non-positive determinant"
+                         << " (assessment values will be set to -1)." );
+        
+        dfunc = 0;
+        }
+      else
+        {
+        dfunc = new TableColumnPairMahlanobisFunctor( valsX,
+                                                      valsY,
+                                                      meanX,
+                                                      meanY,
+                                                      varX,
+                                                      varY,
+                                                      covXY,
+                                                      1. / d );
+        }
+      
+      return;
+      }
     }
-  else
-    {
-    dfunc = new TableColumnPairMahlanobisFunctor( inData,
-                                                  meanX,
-                                                  meanY,
-                                                  varX,
-                                                  varY,
-                                                  covXY,
-                                                  1. / d );
-    }
+
+  // The pair of variables of interest was not found in the parameter table
+  dfunc = 0;
 }

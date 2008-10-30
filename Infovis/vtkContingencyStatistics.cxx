@@ -37,12 +37,16 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.25");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.26");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
 {
+  this->AssessNames->SetNumberOfValues( 3 );
+  this->AssessNames->SetValue( 0, "P" );
+  this->AssessNames->SetValue( 1, "Py|x" );
+  this->AssessNames->SetValue( 2, "Px|y" );
 }
 
 // ----------------------------------------------------------------------
@@ -108,14 +112,18 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
     vtkStdString colX = it->first;
     if ( ! inData->GetColumnByName( colX ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colX.c_str() 
+                       <<". Ignoring this pair." );
       continue;
       }
 
     vtkStdString colY = it->second;
     if ( ! inData->GetColumnByName( colY ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column " 
+                       << colY.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
 
@@ -338,14 +346,18 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
     vtkStdString colX = it->first;
     if ( ! inData->GetColumnByName( colX ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colX.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colX.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
 
     vtkStdString colY = it->second;
     if ( ! inData->GetColumnByName( colY ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colY.c_str()<<". Ignoring this pair." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colY.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
 
@@ -463,7 +475,9 @@ void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed(arr),
-                                                    vtkVariantArray* vtkNotUsed(row),
+                                                    vtkTable* vtkNotUsed(inMeta),
+                                                    vtkStringArray* vtkNotUsed(rowNames),
+                                                    vtkStringArray* vtkNotUsed(columnNames),
                                                     AssessFunctor*& vtkNotUsed(dfunc) )
 {
 }

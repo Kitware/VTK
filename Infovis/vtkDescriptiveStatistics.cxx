@@ -24,7 +24,6 @@
 #include "vtkUnivariateStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -35,13 +34,15 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.54");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.55");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
-  this->SetAssessmentName( "Relative Deviation" );
+  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetValue( 0, "Relative Deviation" );
+
   this->AssessParameters = vtkStringArray::New();
   this->AssessParameters->SetNumberOfValues( 2 );
   this->AssessParameters->SetValue( 0, "Mean" );
@@ -136,7 +137,9 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     vtkStdString colName = *it;
     if ( ! inData->GetColumnByName( colName ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<colName.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << colName.c_str()
+                       << ". Ignoring it." );
       continue;
       }
 
@@ -297,7 +300,7 @@ void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
 class TableColumnDeviantFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
-  vtkTable* Data;
+  vtkDataArray* Data;
   double Nominal;
   double Deviation;
 };
@@ -307,71 +310,115 @@ public:
 class ZedDeviationDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  ZedDeviationDeviantFunctor( vtkTable* inData, double nominal )
+  ZedDeviationDeviantFunctor( vtkDataArray* vals, 
+                              double nominal )
   {
-    this->Data = inData;
+    this->Data = vals;
     this->Nominal = nominal;
   }
   virtual ~ZedDeviationDeviantFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
   {
-    return ( this->Data->GetValue( id, 0 ).ToDouble() == this->Nominal ) ? 0. : 1.;
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, ( this->Data->GetTuple1( id ) == this->Nominal ) ? 0. : 1. );
   }
 };
 
 class SignedTableColumnDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  SignedTableColumnDeviantFunctor( vtkTable* inData, double nominal, double deviation )
+  SignedTableColumnDeviantFunctor( vtkDataArray* vals, 
+                                   double nominal, 
+                                   double deviation )
   {
-    this->Data = inData;
+    this->Data = vals;
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
   virtual ~SignedTableColumnDeviantFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
   {
-    return ( this->Data->GetValue( id, 0 ).ToDouble() - this->Nominal ) / this->Deviation;
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
   }
 };
 
 class UnsignedTableColumnDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  UnsignedTableColumnDeviantFunctor( vtkTable* inData, double nominal, double deviation )
+  UnsignedTableColumnDeviantFunctor( vtkDataArray* vals, 
+                                     double nominal, 
+                                     double deviation )
   {
-    this->Data = inData;
+    this->Data = vals;
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
   virtual ~UnsignedTableColumnDeviantFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
   {
-    return fabs ( this->Data->GetValue( id, 0 ).ToDouble() - this->Nominal ) / this->Deviation;
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, fabs ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
   }
 };
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* inData,
-                                                    vtkVariantArray* row,
+                                                    vtkTable* inMeta,
+                                                    vtkStringArray* rowNames,
+                                                    vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
-  double nominal   = row->GetValue( 0 ).ToDouble();
-  double deviation = row->GetValue( 1 ).ToDouble();
+  vtkStdString varName = rowNames->GetValue( 0 );
 
-  if ( deviation == 0. )
+  // Loop over parameters table until the requested variable is found
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
+  for ( int i = 0; i < nRowP; ++ i )
     {
-    dfunc = new ZedDeviationDeviantFunctor( inData, nominal );
-    }
-  else
-    {
-    if ( this->GetSignedDeviations() )
+    if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
       {
-      dfunc = new SignedTableColumnDeviantFunctor( inData, nominal, deviation );
-      }
-    else
-      {
-      dfunc = new UnsignedTableColumnDeviantFunctor( inData, nominal, deviation );
+      // Grab the data for the requested variable
+      vtkAbstractArray* arr = inData->GetColumnByName( varName );
+      if ( ! arr )
+        {
+        dfunc = 0;
+        return;
+        }
+      
+      // For descriptive statistics, type must be convertible to DataArray (e.g., StringArrays do not fit here).
+      vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
+      if ( ! vals )
+        {
+        dfunc = 0;
+        return;
+        }
+
+      double nominal   = inMeta->GetValueByName( i, columnNames->GetValue( 0 ) ).ToDouble();
+      double deviation = inMeta->GetValueByName( i, columnNames->GetValue( 1 ) ).ToDouble();
+
+      if ( deviation == 0. )
+        {
+        dfunc = new ZedDeviationDeviantFunctor( vals, nominal );
+        }
+      else
+        {
+        if ( this->GetSignedDeviations() )
+          {
+          dfunc = new SignedTableColumnDeviantFunctor( vals, nominal, deviation );
+          }
+        else
+          {
+          dfunc = new UnsignedTableColumnDeviantFunctor( vals, nominal, deviation );
+          }
+        }
+
+      return;
       }
     }
+
+  // The variable of interest was not found in the parameter table
+  dfunc = 0;
 }

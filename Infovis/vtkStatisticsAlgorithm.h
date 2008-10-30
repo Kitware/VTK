@@ -48,7 +48,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 class vtkStdString;
 class vtkStringArray;
-class vtkVariant;
 class vtkVariantArray;
 
 class VTK_INFOVIS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
@@ -106,14 +105,6 @@ public:
   // Get the Assess option.
   vtkGetMacro( Assess, bool );
 
-  // Description:
-  // Set the assessment name.
-  vtkSetStringMacro( AssessmentName );
-
-  // Description:
-  // Get the assessment name.
-  vtkGetStringMacro( AssessmentName );
-
 //BTX
   // Description:
   // Set the name of a parameter of the Assess option
@@ -127,14 +118,17 @@ public:
   // A base class for a functor that assesses data.
   class AssessFunctor {
   public:
-    virtual vtkVariant operator() ( vtkIdType id ) = 0;
+    virtual void operator() ( vtkVariantArray*,
+                              vtkIdType ) = 0;
     virtual ~AssessFunctor() { }
   };
 
   // Description:
   // A pure virtual method to select the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData, 
-                                    vtkVariantArray* row,
+                                    vtkTable* inMeta,
+                                    vtkStringArray* rowNames,
+                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc ) = 0;
 //ETX
 
@@ -165,8 +159,8 @@ protected:
   bool Derive;
   bool Validate;
   bool Assess;
-  char* AssessmentName;
   vtkStringArray* AssessParameters;
+  vtkStringArray* AssessNames;
 
 private:
   vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented

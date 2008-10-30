@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.15");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.16");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -95,8 +95,7 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                                                       vtkTable* outData,
                                                       vtkTable* vtkNotUsed( outMeta ) )
 {
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
+  if ( ! inData->GetNumberOfColumns() )
     {
     return;
     }
@@ -111,28 +110,18 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
   if ( this->AssessParameters )
     {
     nColP = this->AssessParameters->GetNumberOfValues();
-    if ( inMeta->GetNumberOfColumns() < nColP )
+    if ( inMeta->GetNumberOfColumns() - 1 < nColP )
       {
       vtkWarningMacro( "Parameter table has " 
-                       << inMeta->GetNumberOfColumns()
-                       << " < "
+                       << inMeta->GetNumberOfColumns() - 1
+                       << " parameters < "
                        << nColP
                        << " columns. Doing nothing." );
       return;
       }
     }
-  else
-    {
-    nColP = inMeta->GetNumberOfColumns() - 1;
-    }
 
-  if ( nColP < 1 )
-    {
-    return;
-    }
-
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
+  if ( ! inMeta->GetNumberOfRows() )
     {
     return;
     }
@@ -142,76 +131,73 @@ void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  // Loop over rows of the parameter table looking for columns that
-  // specify the model parameters of some requested table column.
-  for ( int i = 0; i < nRowP; ++ i )
+  // Loop over columns of interest
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
+        it != this->Internals->SelectedColumns.end(); ++ it )
     {
-    // Is the parameter row one that is requested?
-    vtkStdString colName = inMeta->GetValueByName( i, "Variable" ).ToString();
-    vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.find( colName );
-    if ( it == this->Internals->SelectedColumns.end() )
-      { // Have parameter values. But user doesn't want it... skip it.
-      continue;
-      }
-
-    // Does the requested array exist in the input inData?
-    vtkAbstractArray* arr;
-    if ( ! ( arr = inData->GetColumnByName( colName ) ) )
-      { // User requested it. InMeta table has it. But inData doesn't... whine
+    vtkStdString varName = *it;
+    if ( ! inData->GetColumnByName( varName ) )
+      {
       vtkWarningMacro( "InData table does not have a column "
-                       << colName.c_str() 
+                       << varName.c_str()
                        << ". Ignoring it." );
       continue;
       }
 
-    vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( nColP );
-    
-    if ( this->AssessParameters )
-      {
-      for ( vtkIdType j = 0; j < nColP; ++ j )
-        {
-        row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ) ) );
-        }
-      }
-    else
-      {
-      for ( vtkIdType j = 0; j < nColP; ++ j )
-        {
-        row->SetValue( j, inMeta->GetValue( i, j + 1 ) );
-        }
-      }
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( 1 );
+    varNames->SetValue( 0, varName );
 
-    // Create the outData column
-    vtkVariantArray* assessedValues = vtkVariantArray::New();
+    // Create the outData columns
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkVariantArray* assessValues;
     vtksys_ios::ostringstream assessColName;
-    assessColName << this->AssessmentName
-                  << "("
-                  << colName
-                  << ")";
-    assessedValues->SetName( assessColName.str().c_str() );
-    assessedValues->SetNumberOfTuples( nRowD );
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varName
+                    << ")";
+
+      assessValues = vtkVariantArray::New();
+      names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+      assessValues->SetName( names[v] );
+      assessValues->SetNumberOfTuples( nRowD );
+      outData->AddColumn( assessValues );
+      assessValues->Delete();
+      }
 
     // Select assess functor
     AssessFunctor* dfunc;
-    vtkTable* colData = vtkTable::New();
-    colData->AddColumn( arr );
-    this->SelectAssessFunctor( colData, row, dfunc );
+    this->SelectAssessFunctor( inData,
+                               inMeta,
+                               varNames,
+                               this->AssessParameters,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      vtkWarningMacro( "AssessFunctors could not be allocated for column "
+                       << varName.c_str()
+                       << ". Ignoring it." );
+      continue;
+      }
 
     // Assess each entry of the column
-    vtkVariant assess;
+    vtkVariantArray* assessResult = vtkVariantArray::New();
     for ( vtkIdType r = 0; r < nRowD; ++ r )
       {
-      assess = (*dfunc)( r );
-      assessedValues->SetValue( r, assess );
+      (*dfunc)( assessResult, r );
+      for ( int v = 0; v < nv; ++ v )
+        {
+        outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+        }
       }
+
     delete dfunc;
-    row->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-
-    // Add the column to outData
-    outData->AddColumn( assessedValues );
-
-    colData->Delete();
-    assessedValues->Delete();
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    assessResult->Delete();
     }
 }

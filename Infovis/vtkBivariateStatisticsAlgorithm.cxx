@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.3");
+vtkCxxRevisionMacro(vtkBivariateStatisticsAlgorithm, "1.4");
 
 // ----------------------------------------------------------------------
 vtkBivariateStatisticsAlgorithm::vtkBivariateStatisticsAlgorithm()
@@ -112,8 +112,7 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
                                                      vtkTable* outData,
                                                      vtkTable* vtkNotUsed( outMeta ) )
 {
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
+  if ( ! inData->GetNumberOfColumns() )
     {
     return;
     }
@@ -128,28 +127,18 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
   if ( this->AssessParameters )
     {
     nColP = this->AssessParameters->GetNumberOfValues();
-    if ( inMeta->GetNumberOfColumns() < nColP )
+    if ( inMeta->GetNumberOfColumns() - 2 < nColP )
       {
       vtkWarningMacro( "Parameter table has " 
-                       << inMeta->GetNumberOfColumns()
-                       << " < "
+                       << inMeta->GetNumberOfColumns() - 2
+                       << " parameters < "
                        << nColP
                        << " columns. Doing nothing." );
       return;
       }
     }
-  else
-    {
-    nColP = inMeta->GetNumberOfColumns() - 2;
-    }
 
-  if ( nColP < 2 )
-    {
-    return;
-    }
-
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
+  if ( ! inMeta->GetNumberOfRows() )
     {
     return;
     }
@@ -159,91 +148,88 @@ void vtkBivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
     return;
     }
 
-  // Loop over rows of the parameter table looking for columns that
-  // specify the model parameters of some requested pair of table columns.
-  for ( int i = 0; i < nRowP; ++ i )
+
+  // Loop over pairs of columns of interest
+  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
+        it != this->Internals->ColumnPairs.end(); ++ it )
     {
-    // Is the parameter row one that is requested?
-    vtkStdString colNameX = inMeta->GetValueByName( i, "Variable X" ).ToString();
-    vtkStdString colNameY = inMeta->GetValueByName( i, "Variable Y" ).ToString();
-    vtkstd::pair<vtkStdString,vtkStdString> colNamePair( colNameX, colNameY );
-    vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.find( colNamePair );
-    if ( it == this->Internals->ColumnPairs.end() )
-      { // Have parameter values. But user doesn't want it... skip it.
-      continue;
-      }
-
-    // Does the requested array for X exist in the input inData?
-    vtkAbstractArray* arrX;
-    if ( ! ( arrX = inData->GetColumnByName( colNameX ) ) )
-      { // User requested it. InMeta table has it. But inData doesn't... whine
-      vtkWarningMacro( "InData table does not have a column " 
-                       << colNameX.c_str() 
-                       << ". Ignoring it." );
-      continue;
-      }
-
-    // Does the requested array for Y exist in the input inData?
-    vtkAbstractArray* arrY;
-    if ( ! ( arrY = inData->GetColumnByName( colNameY ) ) )
-      { // User requested it. InMeta table has it. But inData doesn't... whine
+    vtkStdString varNameX = it->first;
+    if ( ! inData->GetColumnByName( varNameX ) )
+      {
       vtkWarningMacro( "InData table does not have a column "
-                       << colNameY.c_str() 
-                       << ". Ignoring it." );
+                       << varNameX.c_str()
+                       << ". Ignoring this pair." );
       continue;
       }
 
-    vtkVariantArray* row = vtkVariantArray::New();
-    row->SetNumberOfValues( nColP );
+    vtkStdString varNameY = it->second;
+    if ( ! inData->GetColumnByName( varNameY ) )
+      {
+      vtkWarningMacro( "InData table does not have a column "
+                       << varNameY.c_str()
+                       << ". Ignoring this pair." );
+      continue;
+      }
     
-    if ( this->AssessParameters )
-      {
-      for ( vtkIdType j = 0; j < nColP; ++ j )
-        {
-        row->SetValue( j, inMeta->GetValueByName( i, this->AssessParameters->GetValue( j ) ) );
-        }
-      }
-    else
-      {
-      for ( vtkIdType j = 0; j < nColP; ++ j )
-        {
-        row->SetValue( j, inMeta->GetValue( i, j + 2 ) );
-        }
-      }
+    vtkStringArray* varNames = vtkStringArray::New();
+    varNames->SetNumberOfValues( 2 );
+    varNames->SetValue( 0, varNameX );
+    varNames->SetValue( 1, varNameY );
 
-    // Create the outData column
-    vtkVariantArray* assessedValues = vtkVariantArray::New();
+    // Create the outData columns
+    int nv = this->AssessNames->GetNumberOfValues();
+    vtkVariantArray* assessValues;
     vtksys_ios::ostringstream assessColName;
-    assessColName << this->AssessmentName
-                  << "("
-                  << colNameX
-                  << ","
-                  << colNameY
-                  << ")";
-    assessedValues->SetName( assessColName.str().c_str() );
-    assessedValues->SetNumberOfTuples( nRowD );
+    vtkStdString* names = new vtkStdString[nv];
+    for ( int v = 0; v < nv; ++ v )
+      {
+      assessColName << this->AssessNames->GetValue( v )
+                    << "("
+                    << varNameX
+                    << ","
+                    << varNameY
+                    << ")";
+
+      assessValues = vtkVariantArray::New();
+      names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+      assessValues->SetName( names[v] );
+      assessValues->SetNumberOfTuples( nRowD );
+      outData->AddColumn( assessValues );
+      assessValues->Delete();
+      }
 
     // Select assess functor
     AssessFunctor* dfunc;
-    vtkTable* colData = vtkTable::New();
-    colData->AddColumn( arrX );
-    colData->AddColumn( arrY );
-    this->SelectAssessFunctor( colData, row, dfunc );
+    this->SelectAssessFunctor( inData,
+                               inMeta,
+                               varNames,
+                               this->AssessParameters,
+                               dfunc );
+
+    if ( ! dfunc )
+      {
+      vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
+                       << varNameX.c_str()
+                       << ","
+                       << varNameY.c_str()
+                       << "). Ignoring it." );
+      continue;
+      }
 
     // Assess each entry of the column
-    vtkVariant assess;
+    vtkVariantArray* assessResult = vtkVariantArray::New();
     for ( vtkIdType r = 0; r < nRowD; ++ r )
       {
-      assess = (*dfunc)( r );
-      assessedValues->SetValue( r, assess );
+      (*dfunc)( assessResult, r );
+      for ( int v = 0; v < nv; ++ v )
+        {
+        outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+        }
       }
+
     delete dfunc;
-    row->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
-
-    // Add the column to outData
-    outData->AddColumn( assessedValues );
-
-    colData->Delete();
-    assessedValues->Delete();
+    delete [] names;
+    varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
+    assessResult->Delete();
     }
 }

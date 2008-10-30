@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.35");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.36");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -42,7 +42,9 @@ vtkOrderStatistics::vtkOrderStatistics()
 {
   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
-  this->SetAssessmentName( "Quantile" );
+
+  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetValue( 0, "Quantile" );
 }
 
 // ----------------------------------------------------------------------
@@ -134,7 +136,9 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )
       {
-      vtkWarningMacro( "InData table does not have a column "<<col.c_str()<<". Ignoring it." );
+      vtkWarningMacro( "InData table does not have a column "
+                       << col.c_str()
+                       << ". Ignoring it." );
       continue;
       }
 
@@ -222,38 +226,69 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
 class TableColumnBucketingFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
 public:
-  vtkTable* Data;
+  vtkAbstractArray* Data;
   vtkVariantArray* Quantiles;
 
-  TableColumnBucketingFunctor( vtkTable* inData, vtkVariantArray* quantiles )
+  TableColumnBucketingFunctor( vtkAbstractArray* vals,
+                               vtkVariantArray* quantiles )
   {
-    this->Data = inData;
+    this->Data = vals;
     this->Quantiles = quantiles;
   }
   virtual ~TableColumnBucketingFunctor() { }
-  virtual vtkVariant operator() ( vtkIdType id )
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
   {
-    vtkVariant x = this->Data->GetValue( id, 0 );
-    if ( x < this->Quantiles->GetValue( 0 ) )
+    vtkVariant x = this->Data->GetVariantValue( id );
+    if ( x < this->Quantiles->GetValue( 1 ) ) // Value #0 is the variable name
       {
       // x is smaller than lower bound
-      return 0;
+      result->SetNumberOfValues( 1 );
+      result->SetValue( 0, 0 );
+
+      return;
       }
 
-    vtkIdType n = this->Quantiles->GetNumberOfValues() + 1;
-    vtkIdType q = 1;
+    vtkIdType n = this->Quantiles->GetNumberOfValues() + 2;
+    vtkIdType q = 2;
     while ( q < n && x > this->Quantiles->GetValue( q ) )
       {
       ++ q;
       }
-    return q; // if x is greater than upper bound, then n + 1 is returned
+
+    result->SetNumberOfValues( 1 );
+    result->SetValue( 0, q - 1 ); // -1 offset needed because value #0 in parameter row is the variable name
   }
 };
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::SelectAssessFunctor( vtkTable* inData,
-                                              vtkVariantArray* row,
+                                              vtkTable* inMeta,
+                                              vtkStringArray* rowNames,
+                                              vtkStringArray* vtkNotUsed(columnNames),
                                               AssessFunctor*& dfunc )
 {
-  dfunc = new TableColumnBucketingFunctor( inData, row );
+  vtkStdString varName = rowNames->GetValue( 0 );
+
+  // Loop over parameters table until the requested variable is found
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
+  for ( int i = 0; i < nRowP; ++ i )
+    {
+    if ( inMeta->GetValueByName( i, "Variable" ).ToString() == varName )
+      {
+      // Grab the data for the requested variable
+      vtkAbstractArray* vals = inData->GetColumnByName( varName );
+      if ( ! vals )
+        {
+        dfunc = 0;
+        return;
+        }
+
+      dfunc = new TableColumnBucketingFunctor( vals, inMeta->GetRow( i ) );
+      return;
+      }
+    }
+
+  // The variable of interest was not found in the parameter table
+  dfunc = 0;
 }

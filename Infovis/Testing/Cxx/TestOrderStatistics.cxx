@@ -268,7 +268,6 @@ int TestOrderStatistics( int, char *[] )
     }
 
 // -- Test Learn option for quartiles with non-numeric ordinal data --
-
   char text[] = "An ordinal scale defines a total preorder of objects; the scale values themselves have a total order; names may be used like bad, medium, good; if numbers are used they are only relevant up to strictly monotonically increasing transformations (order isomorphism).";
   int textLength = 263;
     

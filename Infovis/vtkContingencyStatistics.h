@@ -43,9 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkBivariateStatisticsAlgorithm.h"
 
-#include "vtkStdString.h" // Because at least one method returns a vtkStdString
-
-class vtkBivariateStatisticsAlgorithmPrivate;
+class vtkStringArray;
 class vtkTable;
 
 class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkBivariateStatisticsAlgorithm
@@ -59,7 +57,9 @@ public:
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData, 
-                                    vtkVariantArray* row,
+                                    vtkTable* inMeta,
+                                    vtkStringArray* rowNames,
+                                    vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );
 //ETX
 
