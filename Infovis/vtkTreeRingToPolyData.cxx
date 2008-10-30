@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.3");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -72,10 +72,6 @@ int vtkTreeRingToPolyData::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  // For each input vertex create 1 point at the center of the sector
-//   vtkPoints* outputPoints = vtkPoints::New();
-//   outputPoints->SetNumberOfPoints(inputTree->GetNumberOfVertices()-1);
 
   // Now set the point coordinates, normals, and insert the cell
   vtkDataArray *coordArray = inputTree->GetVertexData()->GetArray(this->SectorsFieldName);
@@ -119,21 +115,12 @@ int vtkTreeRingToPolyData::RequestData(
     strip->SetInput(sector->GetOutput());
     
     append->AddInput(strip->GetOutput());
-
-//     double r = (0.5*(coords[1] - coords[0])) + coords[0];
-//     double theta = coords[2] + (0.5*(coords[3]-coords[2]));
-//     double x = r*cos(vtkMath::DegreesToRadians()*theta);
-//     double y = r*sin(vtkMath::DegreesToRadians()*theta);
-//     double z = 0.;
-//     outputPoints->SetPoint(i-1, x, y, z);
   }
   
   append->Update();
   outputPoly->ShallowCopy(append->GetOutput());
   
     // Pass the input point data to the output cell data :)
-//FIXME-jfsheph Need to change this to CopyData to allow for dropping out the root node...  
-//  outputPoly->GetCellData()->PassData(inputTree->GetVertexData());
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();
   output_cell_data->CopyAllocate(input_vertex_data);
@@ -149,19 +136,6 @@ int vtkTreeRingToPolyData::RequestData(
     output_cell_data->CopyData(input_vertex_data, i, i-1);
   }
   
-//   // Set the output points and cells
-//  outputPoly->SetPoints(outputPoints);
-//   outputPoly->SetPolys(outputCells);
-
-// //   // Set the point normals
-// //   outputPoly->GetPointData()->AddArray(normals);
-// //   outputPoly->GetPointData()->SetActiveNormals("normals");
-
-//   // Clean up.
-// //  normals->Delete();
-//  outputPoints->Delete();
-//   outputCells->Delete();
-  
   return 1;
 }
 
@@ -169,4 +143,5 @@ void vtkTreeRingToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "SectorsFieldName: " << (this->SectorsFieldName ? this->SectorsFieldName : "(none)") << endl;
+  os << indent << "ShrinkPercentage: " << this->ShrinkPercentage << endl;
 }

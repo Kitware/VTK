@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.3");
+vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.4");
 vtkStandardNewMacro(vtkTreeRingPointLayout);
 
 vtkTreeRingPointLayout::vtkTreeRingPointLayout()
@@ -170,4 +170,6 @@ void vtkTreeRingPointLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "SectorsFieldName: " << (this->SectorsFieldName ? this->SectorsFieldName : "(none)") << endl;
+  os << indent << "LogSpacingValue: " << this->LogSpacingValue << endl;
+  os << indent << "ExteriorRadius: " << this->ExteriorRadius << endl;
 }
