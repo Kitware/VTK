@@ -34,11 +34,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.52");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.53");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -72,8 +71,6 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
     &vtkClipDataSet::InternalProgressCallbackFunction);
   this->InternalProgressObserver->SetClientData(this);
 
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

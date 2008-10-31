@@ -362,16 +362,6 @@ public:
   // skippable (REQUEST_DATA not needed) and 1.0 meaning important. 
   virtual double ComputePriority();
 
-  // Description:
-  // These are flags that can be set that let the pipeline keep accurate 
-  // meta-information for ComputePriority.
-  static vtkInformationIntegerKey* PRESERVES_DATASET();
-  static vtkInformationIntegerKey* PRESERVES_GEOMETRY();
-  static vtkInformationIntegerKey* PRESERVES_BOUNDS();
-  static vtkInformationIntegerKey* PRESERVES_TOPOLOGY();
-  static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
-  static vtkInformationIntegerKey* PRESERVES_RANGES();
-
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

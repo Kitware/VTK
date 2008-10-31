@@ -157,14 +157,6 @@ public:
   double* GetWholeBoundingBox(int port);
 
   // Description:
-  // Set/Get the piece bounding box of an output port data object.
-  // The piece bounding box is meta data for data sets.  It gets
-  // set by the algorithm during the update extent information pass.
-  int SetPieceBoundingBox(int port, double bb[6]);
-  void GetPieceBoundingBox(int port, double bb[6]);
-  double* GetPieceBoundingBox(int port);
-
-  // Description:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
@@ -233,10 +225,6 @@ public:
   // Description:
   // Key to specify from 0 to 1 the priority of this update extent
   static vtkInformationDoubleKey* PRIORITY();
-
-  // Description:
-  // Used internally to help validate meta information as it flows through pipeline.
-  static vtkInformationIntegerKey* REMOVE_ATTRIBUTE_INFORMATION();
 
   // Description:
   // The following keys are meant to be used by an algorithm that 

@@ -130,11 +130,6 @@ public:
   // vtkDataObjectTypes::NewDataObject() instead.
   static vtkDataObject* NewDataObject(const char* type);
 
-  // Description:
-  // Key to be used for REQUEST_INFORMATION and REQUEST_DATA_OBJECT
-  // passes when you modification time should not be taken into account.
-  static vtkInformationIntegerKey* REQUEST_REGENERATE_INFORMATION();
-
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();

@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.59");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.60");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -46,7 +46,6 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Request);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_REGENERATE_INFORMATION, Integer);
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
@@ -172,8 +171,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
   if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
     {
     // if we are up to date then short circuit
-    if (this->PipelineMTime < this->DataObjectTime.GetMTime()
-      && ! request->Has(REQUEST_REGENERATE_INFORMATION()))      
+    if (this->PipelineMTime < this->DataObjectTime.GetMTime())
       {
       return 1;
       }
@@ -185,8 +183,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
     
     // Make sure our output data type is up-to-date.
     int result = 1;
-    if(this->PipelineMTime > this->DataObjectTime.GetMTime()
-       || request->Has(REQUEST_REGENERATE_INFORMATION()))
+    if(this->PipelineMTime > this->DataObjectTime.GetMTime())
       {
       // Request data type from the algorithm.
       result = this->ExecuteDataObject(request,inInfoVec,outInfoVec);
@@ -215,8 +212,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
   if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
     {
     // if we are up to date then short circuit
-    if (this->PipelineMTime < this->InformationTime.GetMTime()
-        && ! request->Has(REQUEST_REGENERATE_INFORMATION()))      
+    if (this->PipelineMTime < this->InformationTime.GetMTime())
       {
       return 1;
       }
@@ -228,9 +224,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
 
     // Make sure our output information is up-to-date.
     int result = 1;
-    if(this->PipelineMTime > this->InformationTime.GetMTime()
-      || request->Has(REQUEST_REGENERATE_INFORMATION()))
-
+    if(this->PipelineMTime > this->InformationTime.GetMTime())
       {
       // Make sure input types are valid before algorithm does anything.
       if(!this->InputCountIsValid(inInfoVec) || 

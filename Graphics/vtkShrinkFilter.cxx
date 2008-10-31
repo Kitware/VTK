@@ -24,15 +24,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.70");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.71");
 vtkStandardNewMacro(vtkShrinkFilter);
 
 //----------------------------------------------------------------------------
 vtkShrinkFilter::vtkShrinkFilter()
 {
   this->ShrinkFactor = 0.5;
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

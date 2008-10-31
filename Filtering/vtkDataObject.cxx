@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.43");
+vtkCxxRevisionMacro(vtkDataObject, "1.44");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -61,8 +61,6 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, FIELD_RANGE, DoubleVector, 2);
-vtkInformationKeyRestrictedMacro(vtkDataObject, PIECE_FIELD_RANGE, DoubleVector, 2);
-vtkInformationKeyRestrictedMacro(vtkDataObject, PIECE_EXTENT, IntegerVector, 6);
 vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerPointer, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
@@ -401,8 +399,31 @@ void vtkDataObject::CopyInformationToPipeline(vtkInformation *request,
   // Set default pipeline information during a request for information.
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
+    // Copy point and cell data from the input if available.  Otherwise use our
+    // current settings.
+
     if (input)
       {
+      // copy point data.
+      if (input->Has(POINT_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
+        }
+      // copy cell data.
+      if (input && input->Has(CELL_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
+        }
+      // copy vertex data.
+      if (input->Has(VERTEX_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, VERTEX_DATA_VECTOR(), 1);
+        }
+      // copy edge data.
+      if (input && input->Has(EDGE_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, EDGE_DATA_VECTOR(), 1);
+        }
       // copy the actual time
       if (input->Has(DATA_TIME_STEPS()))
         {
