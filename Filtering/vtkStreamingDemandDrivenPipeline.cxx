@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.60");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.61");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
