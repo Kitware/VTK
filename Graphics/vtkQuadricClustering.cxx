@@ -28,7 +28,7 @@
 #include "vtkTriangle.h"
 #include <vtkstd/set> // keep track of inserted triangles
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.83");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.84");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -86,6 +86,9 @@ vtkQuadricClustering::vtkQuadricClustering()
 
   this->InCellCount = this->OutCellCount = 0;
   this->CopyCellData = 0;
+
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

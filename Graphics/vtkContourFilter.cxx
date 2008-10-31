@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.128");
+vtkCxxRevisionMacro(vtkContourFilter, "1.129");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -70,6 +70,9 @@ vtkContourFilter::vtkContourFilter()
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
+
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
+  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 vtkContourFilter::~vtkContourFilter()
@@ -630,7 +633,16 @@ int vtkContourFilter::ProcessRequest(vtkInformation* request,
       {
       return 1;
       }
-    double *range = fInfo->Get(vtkDataObject::FIELD_RANGE());
+    double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
+    if (range)
+      {
+      //cerr << "CF(" << this << ") Found " << range[0] << ".." << range[1] << endl;
+      }
+    else
+      {
+      //cerr << "CF(" << this << ") Missed " << endl;
+      }
+
     int numContours = this->ContourValues->GetNumberOfContours();
     if (range && numContours)
       {
