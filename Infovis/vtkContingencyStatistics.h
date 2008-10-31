@@ -75,13 +75,6 @@ protected:
   // Execute the calculations required by the Derive option.
   virtual void ExecuteDerive( vtkTable* );
 
-  // Description:
-  // Execute the calculations required by the Assess option.
-  virtual void ExecuteAssess( vtkTable* inData,
-                              vtkTable* inMeta,
-                              vtkTable* outData,
-                              vtkTable* outMeta ); 
-
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented
   void operator=(const vtkContingencyStatistics&);   // Not implemented

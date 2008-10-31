@@ -37,7 +37,9 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.26");
+typedef vtkstd::map<vtkVariant,double> PDF;
+
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.27");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -47,11 +49,16 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 0, "P" );
   this->AssessNames->SetValue( 1, "Py|x" );
   this->AssessNames->SetValue( 2, "Px|y" );
+
+  this->AssessParameters = vtkStringArray::New();
+  this->AssessParameters->SetNumberOfValues( 1 );
+  this->AssessParameters->SetValue( 0, "P" );
 }
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::~vtkContingencyStatistics()
 {
+  this->AssessParameters->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -169,7 +176,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
-  vtkStdString doubleName( "Probability" );
+  vtkStdString doubleName( "P" );
 
   vtkDoubleArray* doubleCol;
   if ( ! inMeta->GetColumnByName( doubleName ) )
@@ -261,223 +268,143 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteAssess( vtkTable* inData,
-                                              vtkTable* inMeta,
-                                              vtkTable* outData,
-                                              vtkTable* outMeta )
+class BivariateContingenciesFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  vtkIdType nColD = inData->GetNumberOfColumns();
-  if ( ! nColD )
-    {
-    return;
-    }
+public:
+  vtkAbstractArray* DataX;
+  vtkAbstractArray* DataY;
+  vtkstd::map<vtkVariant,PDF> PdfXY;
+  vtkstd::map<vtkVariant,PDF> PdfYcondX;
+  vtkstd::map<vtkVariant,PDF> PdfXcondY;
 
-  vtkIdType nRowD = inData->GetNumberOfRows();
-  if ( ! nRowD )
-    {
-    return;
-    }
+  BivariateContingenciesFunctor( vtkAbstractArray* valsX,
+                                 vtkAbstractArray* valsY,
+                                 const vtkstd::map<vtkVariant,PDF>& pdfXY,
+                                 const vtkstd::map<vtkVariant,PDF>& pdfYcondX,
+                                 const vtkstd::map<vtkVariant,PDF>& pdfXcondY )
+  {
+    this->DataX = valsX;
+    this->DataY = valsY;
+    this->PdfXY = pdfXY;
+    this->PdfYcondX = pdfYcondX;
+    this->PdfXcondY = pdfXcondY;
+  }
+  virtual ~BivariateContingenciesFunctor() { }
+  virtual void operator() ( vtkVariantArray* result,
+                            vtkIdType id )
+  {
+    vtkVariant x = this->DataX->GetVariantValue( id );
+    vtkVariant y = this->DataY->GetVariantValue( id );
 
-  vtkIdType nColP = inMeta->GetNumberOfColumns();
-  if ( nColP < 3 )
-    {
-    vtkWarningMacro( "Parameter table has " 
-                     << nColP
-                     << " < 3 columns. Doing nothing." );
-    return;
-    }
-
-  vtkIdType nRowP = inMeta->GetNumberOfRows();
-  if ( ! nRowP )
-    {
-    return;
-    }
-
-  if ( ! inMeta->GetColumnByName( "Probability" ) )
-    {
-    vtkWarningMacro( "InData table does not have a column Probability. Doing nothing." );
-    return;
-    }
-  
-  // Add outMeta data columns
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable X" );
-  outMeta->AddColumn( stringCol );
-  stringCol->Delete();
-
-  stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable Y" );
-  outMeta->AddColumn( stringCol );
-  stringCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "H(X)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "H(Y)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "H(X,Y)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "H(Y|X)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "H(X|Y)" );
-  outMeta->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 7 );
-
-  typedef vtkstd::map<vtkVariant,double> PDF;
-
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
-        it != this->Internals->ColumnPairs.end(); ++ it )
-    {
-    vtkStdString colX = it->first;
-    if ( ! inData->GetColumnByName( colX ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "
-                       << colX.c_str()
-                       << ". Ignoring this pair." );
-      continue;
-      }
-
-    vtkStdString colY = it->second;
-    if ( ! inData->GetColumnByName( colY ) )
-      {
-      vtkWarningMacro( "InData table does not have a column "
-                       << colY.c_str()
-                       << ". Ignoring this pair." );
-      continue;
-      }
-
-    PDF pdfX, pdfY;
-    vtkstd::map<vtkVariant,PDF> pdfXY;
-    for ( vtkIdType r = 0; r < nRowP; ++ r )
-      {
-      vtkStdString c1 = inMeta->GetValueByName( r, "Variable X" ).ToString();
-      vtkStdString c2 = inMeta->GetValueByName( r, "Variable Y" ).ToString();
-      if ( c1 == it->first ) 
-        {
-        if ( c2 == it->second )
-          {
-          // (c1,c2) = (colX,colY): populate bivariate pdf for (colX,colY)
-          pdfXY[inMeta->GetValueByName( r, "x" )][inMeta->GetValueByName( r, "y" )] 
-            = inMeta->GetValueByName( r, "Probability" ).ToDouble();
-          }
-        else if ( c2 == "" )
-          {
-          // (c1,c2) = (colX,""): populate marginal pdf for colX
-          pdfX[inMeta->GetValueByName( r, "x" )] 
-            += inMeta->GetValueByName( r, "Probability" ).ToDouble();
-          }
-        }
-      else if ( c1 == it->second && c2 == "" ) 
-        {
-        // (c1,c2) = (colY,""): populate marginal pdf for colY
-        pdfY[inMeta->GetValueByName( r, "x" )] 
-          += inMeta->GetValueByName( r, "Probability" ).ToDouble();
-        }
-      }
-
-    double HYcondX = 0.;
-    double HXcondY = 0.;
-    double HXY = 0.;
-    double pxy;
-    vtkstd::map<vtkVariant,PDF> pdfYcondX;
-    vtkstd::map<vtkVariant,PDF> pdfXcondY;
-    vtkVariant x,y;
-
-    for ( vtkstd::map<vtkVariant,PDF>::iterator xit = pdfXY.begin();
-          xit != pdfXY.end(); ++ xit )
-      {
-      x = xit->first;
-      for ( vtkstd::map<vtkVariant,double>::iterator yit = xit->second.begin(); 
-            yit != xit->second.end(); ++ yit )
-        {
-        y = yit->first;
-        pxy = yit->second;
-        pdfYcondX[x][y] = pxy / pdfX[x];
-        pdfXcondY[x][y] = pxy / pdfY[y];
-
-        HXY -= pxy * log( pxy );
-        HYcondX -= pxy * log( pdfYcondX[x][y] );
-        HXcondY -= pxy * log( pdfXcondY[x][y] );
-        }
-      }
-
-    // Add outData data columns
-    vtkDoubleArray* pXY = vtkDoubleArray::New();
-    vtksys_ios::ostringstream pXYName;
-    pXYName
-      << "p(" << ( colX.size() ? colX.c_str() : "X" )
-      << ", "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
-    pXY->SetName( pXYName.str().c_str() );
-    pXY->SetNumberOfTuples( nRowD );
-    outData->AddColumn( pXY );
-    pXY->Delete();
-    
-    vtkDoubleArray* pYcondX = vtkDoubleArray::New();
-    vtksys_ios::ostringstream pYCondXName;
-    pYCondXName
-      << "p(" << ( colY.size() ? colY.c_str() : "Y" )
-      << " | "  << ( colX.size() ? colX.c_str() : "X" ) << ")";
-    pYcondX->SetName( pYCondXName.str().c_str() );
-    pYcondX->SetNumberOfTuples( nRowD );
-    outData->AddColumn( pYcondX );
-    pYcondX->Delete();
-    
-    vtkDoubleArray* pXcondY = vtkDoubleArray::New();
-    vtksys_ios::ostringstream pXCondYName;
-    pXCondYName
-      << "p(" << ( colX.size() ? colX.c_str() : "X" )
-      << " | "  << ( colY.size() ? colY.c_str() : "Y" ) << ")";
-    pXcondY->SetName( pXCondYName.str().c_str() );
-    pXcondY->SetNumberOfTuples( nRowD );
-    outData->AddColumn( pXcondY );
-    pXcondY->Delete();
-
-    for ( vtkIdType r = 0; r < nRowD; ++ r )
-      {
-      x = inData->GetValueByName( r, colX );
-      y = inData->GetValueByName( r, colY );
-      
-      outData->SetValueByName( r, pXYName.str().c_str(), pdfXY[x][y] );
-      outData->SetValueByName( r, pYCondXName.str().c_str(), pdfYcondX[x][y] );
-      outData->SetValueByName( r, pXCondYName.str().c_str(), pdfXcondY[x][y] );
-      }
-
-    // Insert Meta values
-    row->SetValue( 0, colX );
-    row->SetValue( 1, colY );
-    row->SetValue( 2, HXY - HYcondX );
-    row->SetValue( 3, HXY - HXcondY );
-    row->SetValue( 4, HXY );
-    row->SetValue( 5, HYcondX );
-    row->SetValue( 6, HXcondY );
-    outMeta->InsertNextRow( row );
-    }    
-
-  row->Delete();
-
-  return;
-}
+    result->SetNumberOfValues( 3 );
+    result->SetValue( 0, this->PdfXY[x][y] );
+    result->SetValue( 1, this->PdfYcondX[x][y] );
+    result->SetValue( 2, this->PdfXcondY[x][y] );
+  }
+};
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* vtkNotUsed(arr),
-                                                    vtkTable* vtkNotUsed(inMeta),
-                                                    vtkStringArray* vtkNotUsed(rowNames),
-                                                    vtkStringArray* vtkNotUsed(columnNames),
-                                                    AssessFunctor*& vtkNotUsed(dfunc) )
+void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
+                                                    vtkTable* inMeta,
+                                                    vtkStringArray* rowNames,
+                                                    vtkStringArray* columnNames,
+                                                    AssessFunctor*& dfunc )
 {
+  vtkStdString varNameX = rowNames->GetValue( 0 );
+  vtkStdString varNameY = rowNames->GetValue( 1 );
+
+  // Grab the data for the requested variables
+  vtkAbstractArray* valsX = inData->GetColumnByName( varNameX );
+  vtkAbstractArray* valsY = inData->GetColumnByName( varNameY );
+  if ( ! valsX || ! valsY )
+    {
+    dfunc = 0;
+    return;
+    }
+      
+  // PDFs
+  PDF pdfX, pdfY;
+  vtkstd::map<vtkVariant,PDF> pdfXY;
+
+  // CDFs
+  double sX  = 0.;
+  double sY  = 0.;
+  double sXY = 0.;
+
+  // information entropies
+  double HYcondX = 0.;
+  double HXcondY = 0.;
+  double HXY     = 0.;
+
+  double p;
+  vtkStdString paramName = columnNames->GetValue( 0 );
+  vtkIdType nRowP = inMeta->GetNumberOfRows();
+  for ( int i = 0; i < nRowP; ++ i )
+    {
+    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
+    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
+
+    if ( c1 == varNameX ) 
+      {
+      if ( c2 == varNameY )
+        {
+        // (c1,c2) = (colX,colY): populate bivariate pdf for (colX,colY)
+        p = inMeta->GetValueByName( i, paramName ).ToDouble();
+        pdfXY[inMeta->GetValueByName( i, "x" )][inMeta->GetValueByName( i, "y" )] = p;
+        sXY += p;
+        }
+      else if ( c2 == "" )
+        {
+        // (c1,c2) = (colX,""): populate marginal pdf for colX
+        p = inMeta->GetValueByName( i, paramName ).ToDouble();
+        pdfX[inMeta->GetValueByName( i, "x" )] = p;
+        sX += p;
+        }
+      }
+    else if ( c1 == varNameY && c2 == "" ) 
+      {
+      // (c1,c2) = (colY,""): populate marginal pdf for colY
+      p = inMeta->GetValueByName( i, paramName ).ToDouble();
+      pdfY[inMeta->GetValueByName( i, "x" )] = p;
+      sY += p;
+      }
+    }
+
+  if ( fabs( sX - 1. ) > 1.e-6 || fabs( sY - 1. ) > 1.e-6 || fabs( sXY - 1. ) > 1.e-6 )
+    {
+    vtkWarningMacro( "Incorrect parameters for column pair:"
+                     << " model CDFs do not all sum to 1." );
+    
+    dfunc = 0;
+    return;
+    }
+
+  // Calculate conditional PDFs and information entropies
+  vtkstd::map<vtkVariant,PDF> pdfYcondX;
+  vtkstd::map<vtkVariant,PDF> pdfXcondY;
+  vtkVariant x,y;
+
+  for ( vtkstd::map<vtkVariant,PDF>::iterator xit = pdfXY.begin();
+        xit != pdfXY.end(); ++ xit )
+    {
+    x = xit->first;
+    for ( vtkstd::map<vtkVariant,double>::iterator yit = xit->second.begin(); 
+          yit != xit->second.end(); ++ yit )
+      {
+      y = yit->first;
+      p = yit->second;
+      pdfYcondX[x][y] = p / pdfX[x];
+      pdfXcondY[x][y] = p / pdfY[y];
+      
+      HXY -= p * log( p );
+      HYcondX -= p * log( pdfYcondX[x][y] );
+      HXcondY -= p * log( pdfXcondY[x][y] );
+      }
+    }
+
+  dfunc = new BivariateContingenciesFunctor( valsX,
+                                             valsY,
+                                             pdfXY,
+                                             pdfYcondX,
+                                             pdfXcondY );
 }
