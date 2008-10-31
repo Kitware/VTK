@@ -66,6 +66,14 @@ public:
   virtual void SetInputStatisticsConnection( vtkAlgorithmOutput* );
 
   // Description:
+  // Set the number of variables.
+  vtkSetMacro( NumberOfVariables, vtkIdType );
+
+  // Description:
+  // Get the number of variables.
+  vtkGetMacro( NumberOfVariables, vtkIdType );
+
+  // Description:
   // Set the sample size.
   vtkSetMacro( SampleSize, vtkIdType );
 
@@ -154,6 +162,7 @@ protected:
                               vtkTable*,
                               vtkTable* ) = 0; 
 
+  vtkIdType NumberOfVariables;
   vtkIdType SampleSize;
   bool Learn;
   bool Derive;

@@ -39,7 +39,7 @@
 
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.27");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.28");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -113,8 +113,8 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
 
   typedef vtkstd::map<vtkVariant,vtkIdType,vtkVariantLessThan> Distribution;
 
-  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->ColumnPairs.begin(); 
-        it != this->Internals->ColumnPairs.end(); ++ it )
+  for ( vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> >::iterator it = this->Internals->Selection.begin(); 
+        it != this->Internals->Selection.end(); ++ it )
     {
     vtkStdString colX = it->first;
     if ( ! inData->GetColumnByName( colX ) )

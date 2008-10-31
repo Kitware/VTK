@@ -34,7 +34,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.55");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.56");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -84,7 +84,7 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
-  if ( ! this->Internals->SelectedColumns.size() )
+  if ( ! this->Internals->Selection.size() )
     {
     return;
     }
@@ -131,8 +131,8 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
   outMeta->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
-        it != this->Internals->SelectedColumns.end(); ++ it )
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
+        it != this->Internals->Selection.end(); ++ it )
     {
     vtkStdString colName = *it;
     if ( ! inData->GetColumnByName( colName ) )

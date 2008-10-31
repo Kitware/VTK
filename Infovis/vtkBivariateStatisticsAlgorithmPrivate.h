@@ -45,7 +45,7 @@ public:
     {
     }
   
-  vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> > ColumnPairs;
+  vtkstd::set<vtkstd::pair<vtkStdString,vtkStdString> > Selection;
   vtkstd::set<vtkStdString> BufferedColumns;
 };
 

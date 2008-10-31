@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.36");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.37");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     return;
     }
 
-  if ( ! this->Internals->SelectedColumns.size() )
+  if ( ! this->Internals->Selection.size() )
     {
     return;
     }
@@ -130,8 +130,8 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     variantCol->Delete();
     }
 
-  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->SelectedColumns.begin(); 
-        it != this->Internals->SelectedColumns.end(); ++ it )
+  for ( vtkstd::set<vtkStdString>::iterator it = this->Internals->Selection.begin(); 
+        it != this->Internals->Selection.end(); ++ it )
     {
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )

@@ -53,7 +53,7 @@ public:
     {
     }
   
-  vtkstd::set<vtkStdString> SelectedColumns;
+  vtkstd::set<vtkStdString> Selection;
 };
 
 #endif // __vtkUnivariateStatisticsAlgorithmPrivate_h
