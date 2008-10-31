@@ -598,10 +598,10 @@ void HandleDataReader(FILE *fp, FileInfo *data)
 
 void HandleDataArray(FILE *fp, FileInfo *data)
 {
-  char* type = 0;
-  char* jtype = 0;
-  char* fromtype = 0;
-  char* jfromtype = 0;
+  const char *type = 0;
+  const char *jtype = 0;
+  const char *fromtype = 0;
+  const char *jfromtype = 0;
 
   if (!strcmp("vtkCharArray",data->ClassName) )
     {

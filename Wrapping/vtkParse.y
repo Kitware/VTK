@@ -132,7 +132,7 @@ char *vtkstrdup(const char *in)
   
 #define YYMAXDEPTH 1000
 
-  void checkSigSize(char *arg)
+  void checkSigSize(const char *arg)
     {
     if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
         sigAllocatedLength)
@@ -142,7 +142,7 @@ char *vtkstrdup(const char *in)
       sigAllocatedLength = sigAllocatedLength*2;
       }
     } 
-  void preSig(char *arg)
+  void preSig(const char *arg)
     {
     if (!currentFunction->Signature)
       {
@@ -159,7 +159,7 @@ char *vtkstrdup(const char *in)
       free(tmp);
       }
     }
-  void postSig(char *arg)
+  void postSig(const char *arg)
     {
     if (!currentFunction->Signature)
       {

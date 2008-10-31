@@ -503,7 +503,7 @@ char *get_format_string()
   return result;
 }
 
-static void add_to_sig(char *sig, char *add, int *i)
+static void add_to_sig(char *sig, const char *add, int *i)
 {
   strcpy(&sig[*i],add);
   *i += (int)strlen(add);

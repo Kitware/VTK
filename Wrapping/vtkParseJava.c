@@ -347,7 +347,7 @@ void HandleDataReader(FILE *fp, FileInfo *data)
 
 void HandleDataArray(FILE *fp, FileInfo *data)
 {
-  char* type = 0;
+  const char *type = 0;
 
   if (!strcmp("vtkCharArray",data->ClassName) )
     {
