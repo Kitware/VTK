@@ -22,6 +22,14 @@
 #include <vtksys/stl/map>
 #include <vtksys/stl/utility>
 
+// In Boost 1.34.1, boost/pending/relaxed_heap.hpp does not include <climits>
+// but uses CHAR_BIT. gcc>=4.3 has stricter and cleaner header files
+// and fails with this version of Boost.
+#include <boost/version.hpp>
+#if BOOST_VERSION < 103500
+#include <climits> // defines CHAR_BIT
+#endif
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/depth_first_search.hpp>
