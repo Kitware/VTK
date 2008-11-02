@@ -468,6 +468,8 @@ public:
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationDoubleVectorKey* FIELD_RANGE();
+  static vtkInformationDoubleVectorKey* PIECE_FIELD_RANGE();
+  static vtkInformationIntegerVectorKey* PIECE_EXTENT();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();

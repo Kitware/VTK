@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.44");
+vtkCxxRevisionMacro(vtkDataObject, "1.45");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -61,6 +61,8 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, FIELD_RANGE, DoubleVector, 2);
+vtkInformationKeyRestrictedMacro(vtkDataObject, PIECE_FIELD_RANGE, DoubleVector, 2);
+vtkInformationKeyRestrictedMacro(vtkDataObject, PIECE_EXTENT, IntegerVector, 6);
 vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
 vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerPointer, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
@@ -424,6 +426,7 @@ void vtkDataObject::CopyInformationToPipeline(vtkInformation *request,
         {
         output->CopyEntry(input, EDGE_DATA_VECTOR(), 1);
         }
+
       // copy the actual time
       if (input->Has(DATA_TIME_STEPS()))
         {

@@ -41,7 +41,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.46");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.47");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -54,6 +54,12 @@ vtkInformationKeyMacro(vtkAlgorithm, PORT_REQUIREMENTS_FILLED, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_ARRAYS_TO_PROCESS, InformationVector);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_DATASET, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_GEOMETRY, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_BOUNDS, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_TOPOLOGY, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_ATTRIBUTES, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_RANGES, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = 0;
   
