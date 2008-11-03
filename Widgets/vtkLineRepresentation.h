@@ -266,6 +266,7 @@ protected:
   vtkPolyDataMapper *TextMapper;
   vtkVectorText     *TextInput;  
   double             Distance;
+  bool               AnnotationTextScaleInitialized;
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&);  //Not implemented

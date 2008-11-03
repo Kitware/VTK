@@ -34,7 +34,7 @@
 #include "vtkFollower.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.14");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.15");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -116,7 +116,6 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->TextActor = vtkFollower::New();
   this->TextActor->SetMapper(this->TextMapper);
   this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  
-  this->TextActor->SetScale( .5, .5, .5 );  
   
   // This needs to be initialized before PlaceWidget is called.
   this->InitializedDisplayPosition = 0;
@@ -129,6 +128,7 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->BoundingBox = vtkBox::New();
 
   this->RepresentationState = vtkLineRepresentation::Outside;
+  this->AnnotationTextScaleInitialized = false;
 }
 
 //----------------------------------------------------------------------------
@@ -688,6 +688,14 @@ void vtkLineRepresentation::BuildRepresentation()
       this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );
       }
     
+    if (!this->AnnotationTextScaleInitialized)
+      {
+      // If a font size hasn't been specified by the user, scale the text 
+      // (font size) according to the length of the line widget.
+      this->TextActor->SetScale( 
+          this->Distance/10.0, this->Distance/10.0, this->Distance/10.0 );
+      }
+    
     this->SizeHandles();
     this->BuildTime.Modified();
     }
@@ -844,6 +852,7 @@ unsigned long vtkLineRepresentation::GetMTime()
 void vtkLineRepresentation::SetDistanceAnnotationScale( double scale[3] )
 {
   this->TextActor->SetScale( scale );
+  this->AnnotationTextScaleInitialized = true;
 }
 
 //----------------------------------------------------------------------
