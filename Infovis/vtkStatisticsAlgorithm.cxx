@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.17");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.18");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -39,7 +39,6 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   // If not told otherwise, only run Learn option
   this->Learn = true;
   this->Derive = true;
-  this->Validate = false;
   this->Assess = false;
   this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
@@ -62,7 +61,6 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "SampleSize: " << this->SampleSize << endl;
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Derive: " << this->Derive << endl;
-  os << indent << "Validate: " << this->Validate << endl;
   os << indent << "Assess: " << this->Assess << endl;
   if ( this->AssessParameters )
     {

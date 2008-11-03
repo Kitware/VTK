@@ -20,22 +20,23 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkStatisticsAlgorithm - Base class for statistics algorithms
 //
 // .SECTION Description
-// All statistics algorithms can conceptually be operated in a variety of 
-// execution modes:
-// * Learn: given an input data set, calculate some type of statistics (e.g., 
-//   descriptive, 5-point, correlations, PCA).
+// All statistics algorithms can conceptually be operated with several options:
+// * Learn: given an input data set, calculate a minimal statistical model (e.g., 
+//   sums, raw moments, joint probabilities).
+// * Derive: given an input minimal statistical model, derive the full model 
+//   (e.g., descriptive statistics, quantiles, correlations, conditional
+//    probabilities).
 // * Assess: given an input data set, input statistics, and some form of 
 //   threshold, assess a subset of the data set. 
 // Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
 // * 2 input ports:
 //   * Data (mandatory)
-//   * Statistics (optional) 
-// * 1 output port (called Output):
-//   * When in Learn mode, the output table contains summary statistics of 
-//     the input inData.
-//   * When in Assess mode, the output table is a list of input rows that don't 
-//     fit (or fit) the model to within some amount specified by the filter input 
-//     parameters.
+//   * Input model (optional) 
+// * 3 output port (called Output):
+//   * Data (annotated with assessments when the Assess option is ON).
+//   * Output model (identical to the the input model when Learn option is OFF).
+//   * Meta information about the model and/or the overall fit of the data to the
+//     model; is filled only when the Assess option is ON.
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
@@ -98,14 +99,6 @@ public:
   vtkGetMacro( Derive, bool );
 
   // Description:
-  // Set the Validate option.
-  vtkSetMacro( Validate, bool );
-
-  // Description:
-  // Get the Validate option.
-  vtkGetMacro( Validate, bool );
-
-  // Description:
   // Set the Assess option.
   vtkSetMacro( Assess, bool );
 
@@ -166,7 +159,6 @@ protected:
   vtkIdType SampleSize;
   bool Learn;
   bool Derive;
-  bool Validate;
   bool Assess;
   vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
