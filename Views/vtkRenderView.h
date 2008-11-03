@@ -102,7 +102,7 @@ protected:
   // Description:
   // Allow subclasses to change the interactor style.
   vtkGetObjectMacro(InteractorStyle, vtkInteractorStyle);
-  void SetInteractorStyle(vtkInteractorStyle* style);
+  virtual void SetInteractorStyle(vtkInteractorStyle* style);
   
   vtkRenderer* Renderer;
   vtkInteractorStyle* InteractorStyle;
