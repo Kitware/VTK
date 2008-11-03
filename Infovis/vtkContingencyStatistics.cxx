@@ -37,9 +37,10 @@
 
 #include <vtksys/ios/sstream>
 
+typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.28");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.29");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -188,9 +189,9 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
     doubleCol->Delete();
     }
 
-  typedef vtkstd::map<vtkVariant,vtkstd::pair<int,double> > VariantToStats;
-  vtkstd::map<vtkStdString,VariantToStats> marginals;
   vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
+  vtkstd::map<vtkStdString,Counts> marginalCounts;
+  double inv_n = 1. / this->SampleSize;
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -198,13 +199,11 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
     vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
     if ( c1 == "" || c2 == "" )
       {
-      // Clean up previously defined marginal probabilities
+      // Clean up previously defined marginal probabilities and information entropies
       inMeta->RemoveRow( i );
       }
     else
       {
-      double doubleVal;
-      double inv_n = 1. / this->SampleSize;
       vtkVariant x, y;
       int c;
       
@@ -226,40 +225,36 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       y = inMeta->GetValueByName( i, "y" );
       c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
       
-      doubleVal = inv_n * c;
-
       if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
         {
-        marginals[c1][x].first  += c;
-        marginals[c1][x].second += doubleVal;
+        marginalCounts[c1][x] += c;
         }
 
       if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
         {
-        marginals[c2][y].first  += c;
-        marginals[c2][y].second += doubleVal;
+        marginalCounts[c2][y] += c;
         }
 
-      inMeta->SetValueByName( i, doubleName, doubleVal );
+      inMeta->SetValueByName( i, doubleName, inv_n * c );
       }
     }
 
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 6 );
 
-  for ( vtkstd::map<vtkStdString,VariantToStats>::iterator sit = marginals.begin();
-        sit != marginals.end(); ++ sit )
+  for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+        sit != marginalCounts.end(); ++ sit )
       {
-      for ( VariantToStats::iterator xit = sit->second.begin(); 
+      for ( Counts::iterator xit = sit->second.begin(); 
             xit != sit->second.end(); ++ xit )
         {
         // Insert marginal cardinalities and probabilities
-        row->SetValue( 0, sit->first );         // variable name
-        row->SetValue( 1, "" );                 // empty entry for the second variable name
-        row->SetValue( 2, xit->first );         // variable value
-        row->SetValue( 3, "" );                 // empty entry for the second variable value
-        row->SetValue( 4, xit->second.first );  // marginal cardinality
-        row->SetValue( 5, xit->second.second ); // marginal probability
+        row->SetValue( 0, sit->first );          // variable name
+        row->SetValue( 1, "" );                  // empty entry for the second variable name
+        row->SetValue( 2, xit->first );          // variable value
+        row->SetValue( 3, "" );                  // empty entry for the second variable value
+        row->SetValue( 4, xit->second );         // marginal cardinality
+        row->SetValue( 5, inv_n * xit->second ); // marginal probability
         inMeta->InsertNextRow( row );
         }
       }
