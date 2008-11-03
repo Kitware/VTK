@@ -333,6 +333,7 @@ int TestLineWidget2( int argc, char *argv[] )
   rep->SetPoint2WorldPosition(p);
   rep->PlaceWidget(pl3d->GetOutput()->GetBounds());
   rep->GetPolyData(seeds);
+  rep->DistanceAnnotationVisibilityOn();
   
   vtkLineWidget2 *lineWidget = vtkLineWidget2::New();
   lineWidget->SetInteractor(iren);
@@ -359,7 +360,7 @@ int TestLineWidget2( int argc, char *argv[] )
   //
   iren->Initialize();
   renWin->Render();
-//  recorder->Play();
+  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

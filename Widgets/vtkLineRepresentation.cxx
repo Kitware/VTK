@@ -30,9 +30,11 @@
 #include "vtkLine.h"
 #include "vtkWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkVectorText.h"
+#include "vtkFollower.h"
+#include "vtkPolyDataMapper.h"
 
-
-vtkCxxRevisionMacro(vtkLineRepresentation, "1.13");
+vtkCxxRevisionMacro(vtkLineRepresentation, "1.14");
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation,HandleRepresentation,vtkPointHandleRepresentation3D);
@@ -102,6 +104,20 @@ vtkLineRepresentation::vtkLineRepresentation()
   bounds[5] = 0.5;
   this->PlaceFactor = 1.0; //overload parent's value
 
+  // The distance text annotation
+  this->DistanceAnnotationVisibility = 0;
+  this->Distance = 0.0;
+  this->DistanceAnnotationFormat = new char[8]; 
+  sprintf(this->DistanceAnnotationFormat,"%s","%-#6.3g");  
+  this->TextInput = vtkVectorText::New();
+  this->TextInput->SetText( "0" );
+  this->TextMapper = vtkPolyDataMapper::New();
+  this->TextMapper->SetInput( this->TextInput->GetOutput() );
+  this->TextActor = vtkFollower::New();
+  this->TextActor->SetMapper(this->TextMapper);
+  this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );  
+  this->TextActor->SetScale( .5, .5, .5 );  
+  
   // This needs to be initialized before PlaceWidget is called.
   this->InitializedDisplayPosition = 0;
 
@@ -155,6 +171,21 @@ vtkLineRepresentation::~vtkLineRepresentation()
   this->SelectedLineProperty->Delete();
 
   this->BoundingBox->Delete();
+
+  if (this->DistanceAnnotationFormat) 
+    {
+    delete [] this->DistanceAnnotationFormat;
+    this->DistanceAnnotationFormat = NULL;
+    }
+  this->TextInput->Delete();
+  this->TextMapper->Delete();
+  this->TextActor->Delete();
+}
+
+//----------------------------------------------------------------------
+double vtkLineRepresentation::GetDistance()
+{
+  return this->Distance;
 }
 
 //----------------------------------------------------------------------
@@ -633,15 +664,30 @@ void vtkLineRepresentation::BuildRepresentation()
       this->InitializedDisplayPosition = 1;
       }
 
-    double x[3];
-    this->GetPoint1WorldPosition(x);
-    this->LineSource->SetPoint1(x);
-    this->HandleGeometry[0]->SetCenter(x);
+    double x1[3], x2[3];
+    this->GetPoint1WorldPosition(x1);
+    this->LineSource->SetPoint1(x1);
+    this->HandleGeometry[0]->SetCenter(x1);
 
-    this->GetPoint2WorldPosition(x);
-    this->LineSource->SetPoint2(x);
-    this->HandleGeometry[1]->SetCenter(x);
+    this->GetPoint2WorldPosition(x2);
+    this->LineSource->SetPoint2(x2);
+    this->HandleGeometry[1]->SetCenter(x2);
 
+    this->Distance = sqrt(vtkMath::Distance2BetweenPoints( x1, x2 ));
+
+    // Place the DistanceAnnotation right in between the two points.
+    double x[3] = { (x1[0] + x2[0])/2.0, 
+                    (x1[1] + x2[1])/2.0, 
+                    (x1[2] + x2[2])/2.0 };
+    char string[512];
+    sprintf(string, this->DistanceAnnotationFormat, this->Distance);
+    this->TextInput->SetText( string );
+    this->TextActor->SetPosition( x );
+    if (this->Renderer)
+      {
+      this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );
+      }
+    
     this->SizeHandles();
     this->BuildTime.Modified();
     }
@@ -738,6 +784,7 @@ void vtkLineRepresentation::ReleaseGraphicsResources(vtkWindow *w)
   this->LineActor->ReleaseGraphicsResources(w);
   this->Handle[0]->ReleaseGraphicsResources(w);
   this->Handle[1]->ReleaseGraphicsResources(w);
+  this->TextActor->ReleaseGraphicsResources(w);
 }
 
 //----------------------------------------------------------------------------
@@ -748,6 +795,7 @@ int vtkLineRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   count += this->LineActor->RenderOpaqueGeometry(v);
   count += this->Handle[0]->RenderOpaqueGeometry(v);
   count += this->Handle[1]->RenderOpaqueGeometry(v);
+  count += this->TextActor->RenderOpaqueGeometry(v);
   
   return count;
 }
@@ -760,6 +808,7 @@ int vtkLineRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
   count += this->Handle[0]->RenderTranslucentPolygonalGeometry(v);
   count += this->Handle[1]->RenderTranslucentPolygonalGeometry(v);
+  count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
   
   return count;
 }
@@ -772,6 +821,7 @@ int vtkLineRepresentation::HasTranslucentPolygonalGeometry()
   result |= this->LineActor->HasTranslucentPolygonalGeometry();
   result |= this->Handle[0]->HasTranslucentPolygonalGeometry();
   result |= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  result |= this->TextActor->HasTranslucentPolygonalGeometry();
   
   return result;
 }
@@ -788,6 +838,18 @@ unsigned long vtkLineRepresentation::GetMTime()
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   
   return mTime;
+}
+
+//----------------------------------------------------------------------
+void vtkLineRepresentation::SetDistanceAnnotationScale( double scale[3] )
+{
+  this->TextActor->SetScale( scale );
+}
+
+//----------------------------------------------------------------------
+double * vtkLineRepresentation::GetDistanceAnnotationScale()
+{
+  return this->TextActor->GetScale();
 }
 
 //----------------------------------------------------------------------------
@@ -857,6 +919,26 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->LineHandleRepresentation->PrintSelf(os,indent.GetNextIndent());
   
   os << indent << "Representation State: " << this->RepresentationState << "\n";
+
+  os << indent << "DistanceAnnotationVisibility: ";
+  if ( this->DistanceAnnotationVisibility )
+    {
+    os << this->DistanceAnnotationVisibility << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  
+  os << indent << "DistanceAnnotationFormat: ";
+  if ( this->DistanceAnnotationFormat )
+    {
+    os << this->DistanceAnnotationFormat << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }  
   
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors

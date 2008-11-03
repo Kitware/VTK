@@ -47,7 +47,9 @@ class vtkPolyData;
 class vtkPolyDataAlgorithm;
 class vtkPointHandleRepresentation3D;
 class vtkBox;
-
+class vtkFollower;
+class vtkVectorText;
+class vtkPolyDataMapper;
 
 class VTK_WIDGETS_EXPORT vtkLineRepresentation : public vtkWidgetRepresentation
 {
@@ -176,6 +178,28 @@ public:
   // Overridden to set the rendererer on the internal representations.
   virtual void SetRenderer(vtkRenderer *ren);
 
+  // Description:
+  // Show the distance between the points
+  vtkSetMacro( DistanceAnnotationVisibility, int );
+  vtkGetMacro( DistanceAnnotationVisibility, int );
+  vtkBooleanMacro( DistanceAnnotationVisibility, int );
+
+  // Description:
+  // Specify the format to use for labelling the angle. Note that an empty
+  // string results in no label, or a format string without a "%" character
+  // will not print the angle value.
+  vtkSetStringMacro(DistanceAnnotationFormat);
+  vtkGetStringMacro(DistanceAnnotationFormat);
+  
+  // Description:
+  // Scale text (font size along each dimension).
+  virtual void SetDistanceAnnotationScale( double scale[3] );
+  virtual double * GetDistanceAnnotationScale();
+
+  // Description:
+  // Get the distance between the points.
+  double GetDistance();
+  
 protected:
   vtkLineRepresentation();
   ~vtkLineRepresentation();
@@ -233,6 +257,15 @@ protected:
   // not been assigned, then certain operations do not properly update the display
   // position.
   int InitializedDisplayPosition;
+
+  // Format for the label
+  int DistanceAnnotationVisibility;
+  char *DistanceAnnotationFormat;
+
+  vtkFollower       *TextActor;
+  vtkPolyDataMapper *TextMapper;
+  vtkVectorText     *TextInput;  
+  double             Distance;
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&);  //Not implemented

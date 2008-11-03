@@ -42,7 +42,7 @@ IF (VTK_DATA_ROOT)
 #    TestOrientedGlyphContour.cxx
     TestImageTracerWidget.cxx
     TestLineWidget.cxx
-#    TestLineWidget2.cxx
+    TestLineWidget2.cxx
     TestLogoWidgetAlphaBlending.cxx
     TestLogoWidgetDepthPeeling.cxx
     TestOrthoPlanes.cxx
