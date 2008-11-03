@@ -32,7 +32,7 @@
 // *************************************************************************
 
 vtkStandardNewMacro(vtkCubeAxesActor);
-vtkCxxRevisionMacro(vtkCubeAxesActor, "1.4");
+vtkCxxRevisionMacro(vtkCubeAxesActor, "1.5");
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 
 // *************************************************************************
@@ -849,7 +849,7 @@ void vtkCubeAxesActor::AdjustValues(const double bnds[6])
 
     if (XUnits == NULL || XUnits[0] == '\0')
       {
-      sprintf(xTitle, this->XTitle);
+      sprintf(xTitle,"%s",this->XTitle);
       }
     else
       {
@@ -892,7 +892,7 @@ void vtkCubeAxesActor::AdjustValues(const double bnds[6])
     this->MustAdjustYValue = false;
     if (YUnits == NULL || YUnits[0] == '\0')
       {
-      sprintf(yTitle, this->YTitle);
+      sprintf(yTitle,"%s",this->YTitle);
       }
     else
       {
@@ -937,7 +937,7 @@ void vtkCubeAxesActor::AdjustValues(const double bnds[6])
 
     if (ZUnits == NULL || ZUnits[0] == '\0')
       {
-      sprintf(zTitle, this->ZTitle);
+      sprintf(zTitle,"%s",this->ZTitle);
       }
     else
       {
@@ -1070,7 +1070,7 @@ int vtkCubeAxesActor::Digits(double min, double max )
 {
   double  range = max - min;
   double  pow10   = log10(range);
-  int    ipow10  = (int)floor(pow10);
+  int    ipow10  = static_cast<int>(floor(pow10));
   int    digitsPastDecimal = -ipow10;
 
   if (digitsPastDecimal < 0) 
@@ -1170,7 +1170,7 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
     ipow10 = 0;
     }
 
-  return (int)ipow10;
+  return static_cast<int>(ipow10);
 }
 
 // *************************************************************************
@@ -1766,8 +1766,8 @@ double vtkCubeAxesActor::MaxOf(double a, double b, double c, double d)
 
 inline double vtkCubeAxesActor::FFix(double value)
 {
-  int ivalue = (int)value;
-  return (double) ivalue;
+  int ivalue = static_cast<int>(value);
+  return ivalue;
 }
 
 inline double vtkCubeAxesActor::FSign(double value, double sign)
@@ -1812,8 +1812,8 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4])
   int numTicks;
   double *inRange = axes[0]->GetRange();
 
-  sortedRange[0] = (double)(inRange[0] < inRange[1] ? inRange[0] : inRange[1]);
-  sortedRange[1] = (double)(inRange[0] > inRange[1] ? inRange[0] : inRange[1]);
+  sortedRange[0] = inRange[0] < inRange[1] ? inRange[0] : inRange[1];
+  sortedRange[1] = inRange[0] > inRange[1] ? inRange[0] : inRange[1];
 
   range = sortedRange[1] - sortedRange[0];
 
@@ -1839,7 +1839,7 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[4])
   fnt  = range/fxt;
   fnt  = this->FFix(fnt);
   frac = fnt;
-  numTicks = (frac <= 0.5 ? (int)this->FFix(fnt) : ((int)this->FFix(fnt) + 1));
+  numTicks = frac <= 0.5 ? static_cast<int>(this->FFix(fnt)) : static_cast<int>(this->FFix(fnt) + 1);
 
   div = 1.;
   if (numTicks < 5)
