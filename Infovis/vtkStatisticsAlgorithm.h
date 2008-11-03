@@ -106,6 +106,18 @@ public:
   // Get the Assess option.
   vtkGetMacro( Assess, bool );
 
+  // Description:
+  // Let the user know whether the full statistical model (when available) was
+  // indeed derived from the underlying minimal model.
+  // NB: It may be, or not be, a problem that a full model was not derived. For
+  // instance, when doing parallel calculations, one only wants to derive the full
+  // model after all partial calculations have completed. On the other hand, one
+  // can also directly provide a full model, that was previously calculated or
+  // guessed, and not derive a new one; in this case, IsFullModelDerived() will
+  // always return false, but this does not mean that the full model is invalid 
+  // (nor does it mean that it is valid).
+  virtual int IsFullModelDerived() {return this->FullWasDerived;}
+
 //BTX
   // Description:
   // Set the name of a parameter of the Assess option
@@ -160,6 +172,7 @@ protected:
   bool Learn;
   bool Derive;
   bool Assess;
+  bool FullWasDerived;
   vtkStringArray* AssessParameters;
   vtkStringArray* AssessNames;
 

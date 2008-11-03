@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.18");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.19");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -39,6 +39,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   // If not told otherwise, only run Learn option
   this->Learn = true;
   this->Derive = true;
+  this->FullWasDerived = false;
   this->Assess = false;
   this->AssessNames = vtkStringArray::New();
   this->AssessParameters = 0;
@@ -61,6 +62,7 @@ void vtkStatisticsAlgorithm::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "SampleSize: " << this->SampleSize << endl;
   os << indent << "Learn: " << this->Learn << endl;
   os << indent << "Derive: " << this->Derive << endl;
+  os << indent << "FullWasDerived: " << this->FullWasDerived << endl;
   os << indent << "Assess: " << this->Assess << endl;
   if ( this->AssessParameters )
     {
@@ -117,6 +119,9 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   if ( this->Learn )
     {
     this->ExecuteLearn( inData, outMeta1 );
+
+    // The full model (if available) is no longer in sync
+    this->FullWasDerived = false;
     }
   else
     {
@@ -130,11 +135,17 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
       }
 
     outMeta1->ShallowCopy( inMeta );
+
+    // A full model was not derived so far
+    this->FullWasDerived = false;
     }
 
   if ( this->Derive )
     {
     this->ExecuteDerive( outMeta1 );
+
+    // A full model was derived from the minimal model
+    this->FullWasDerived = true;
     }
 
   if ( this->Assess )
