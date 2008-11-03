@@ -74,6 +74,10 @@ public:
   // Description:
   // Convenience method for obtaining the internal interactor style.
   vtkGeoInteractorStyle* GetGeoInteractorStyle();
+
+  // Description:
+  // Method to change the interactor style.
+  virtual void SetGeoInteractorStyle(vtkGeoInteractorStyle* style);
   
 protected:
   vtkGeoView();
