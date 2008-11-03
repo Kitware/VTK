@@ -49,7 +49,8 @@ protected:
   ~vtkXMLDataReader();  
   
   int SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
-                          vtkInformationVector *infoVector);
+                          vtkInformationVector *infoVector,
+                          int piece, int numPieces);
 
   // Add functionality to methods from superclass.
   virtual void CreateXMLParser();

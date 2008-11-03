@@ -116,9 +116,10 @@ int TestPriorityStreaming(int argc, char *argv[])
       ProcessRequest(UEInfoRequest, inVec, outVec);
 
     // get the priority
-    priority[piece] = 
-      outVec->GetInformationObject(0)->
+    double p =  outVec->GetInformationObject(0)->
       Get(vtkStreamingDemandDrivenPipeline::PRIORITY());
+    //cerr << piece << " " << p << endl;
+    priority[piece] = p;
     }
 
   if (iw->GetNumberOfPieces() != 64 ||
@@ -128,7 +129,7 @@ int TestPriorityStreaming(int argc, char *argv[])
     delete [] priority;
     // Leave file around in case somebody wants to look at it
     // after the failed test...
-    cerr << "Bad results for prioity streaming test\n";
+    cerr << "Bad results for priority streaming test\n";
     return 1;
     }
 
