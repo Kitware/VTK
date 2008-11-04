@@ -13,6 +13,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestIconGlyphFilter.cxx
       TestTreeLayoutView.cxx
       TestTreeMapView.cxx
+      TestTreeRingView.cxx
+      TestHierarchicalTreeRingView.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
