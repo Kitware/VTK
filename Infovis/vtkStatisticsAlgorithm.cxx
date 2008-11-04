@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.21");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.22");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -111,7 +111,7 @@ int vtkStatisticsAlgorithm::RequestData( vtkInformation*,
   // Extract output tables
   vtkTable* outData = vtkTable::GetData( outputVector, 0 );
   vtkTable* outMeta1 = vtkTable::GetData( outputVector, 1 );
-  vtkTable* outMeta2; // Unused for now
+  vtkTable* outMeta2 = 0; // Unused for now
 
   outData->ShallowCopy( inData );
 
