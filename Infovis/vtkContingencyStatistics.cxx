@@ -40,7 +40,7 @@
 typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.31");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.32");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -433,14 +433,32 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
             cdf += pdf[j][x][y];
             }
           }
-        }
-      }
-    }
+        } // if ( x != "" && y != "" )
+      else if ( x == "" && y == "" ) // NB: the former implies the latter if the meta table is well-formed...
+        {
+        // If row contains information entropies, check cardinalities (cf. sanityChecks above)
+        if ( inMeta->GetValueByName( i, "Cardinality" ) != this->SampleSize )
+          {
+          vtkWarningMacro( "Incorrect information entropy for column pair:"
+                           << varNameX.c_str()
+                           << ","
+                           << varNameY.c_str()
+                           << "). Ignoring it." );
+          
+          dfunc = 0;
+          return;
+          }
+        } // else if ( x == "" && y == "" )
+      } // if ( c1 == varNameX && c2 == varNameY )
+    } // for ( int i = 0; i < nRowP; ++ i )
 
   if ( fabs( cdf - 1. ) > 1.e-6 )
     {
-    vtkWarningMacro( "Incorrect parameters for column pair:"
-                     << " model CDF does not sum to 1." );
+    vtkWarningMacro( "Incorrect CDF for column pair:"
+                     << varNameX.c_str()
+                     << ","
+                     << varNameY.c_str()
+                     << "). Ignoring it." );
     
     dfunc = 0;
     return;
