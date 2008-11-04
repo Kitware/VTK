@@ -28,13 +28,13 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.19");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.20");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 {
   this->SetNumberOfInputPorts( 2 );
-  this->SetNumberOfOutputPorts( 3 );
+  this->SetNumberOfOutputPorts( 2 );
 
   // If not told otherwise, only run Learn option
   this->Learn = true;
