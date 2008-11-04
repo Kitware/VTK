@@ -40,7 +40,7 @@
 typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.30");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.31");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -283,7 +283,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
   double* doubleVals = new double[numDoubles]; // P(x,y), P(y|x), P(x|y)
   
   typedef vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,double> > Entropies;
-  Entropies H[numDoubles];  // H(X,Y), H(Y|X), H(X|Y)
+  Entropies *H = new Entropies[numDoubles];  // H(X,Y), H(Y|X), H(X|Y)
   vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,vtkIdType> > sanityChecks;
 
   for ( int i = 0; i < nRow; ++ i )
@@ -338,6 +338,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       }
 
   row->Delete();
+  delete [] H;
   delete [] doubleVals;
 }
 
