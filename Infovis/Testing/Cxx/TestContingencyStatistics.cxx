@@ -107,6 +107,23 @@ int TestContingencyStatistics( int, char *[] )
     {
     int c = outputMeta->GetValue( r, 4 ).ToInt();
 
+    if ( outputMeta->GetValue( r, 2 ).ToString() == "" )
+      {
+      cout << "   Information entropies for ("
+           << outputMeta->GetValue( r, 0 ).ToString()
+           << ", "
+           << outputMeta->GetValue( r, 1 ).ToString()
+           << "): H(X,Y) = "
+           << outputMeta->GetValue( r, 5 ).ToDouble()
+           << ", H(Y|X) = "
+           << outputMeta->GetValue( r, 6 ).ToDouble()
+           << ", H(X|Y) = "
+           << outputMeta->GetValue( r, 7 ).ToDouble()
+           << "\n";
+
+      continue;
+      }
+
     cout << "   ("
          << outputMeta->GetValue( r, 0 ).ToString();
 

@@ -40,7 +40,7 @@
 typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.29");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.30");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -52,8 +52,10 @@ vtkContingencyStatistics::vtkContingencyStatistics()
   this->AssessNames->SetValue( 2, "Px|y" );
 
   this->AssessParameters = vtkStringArray::New();
-  this->AssessParameters->SetNumberOfValues( 1 );
+  this->AssessParameters->SetNumberOfValues( 3 );
   this->AssessParameters->SetValue( 0, "P" );
+  this->AssessParameters->SetValue( 1, "Py|x" );
+  this->AssessParameters->SetValue( 2, "Px|y" );
 }
 
 // ----------------------------------------------------------------------
@@ -169,6 +171,7 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
   if ( nCol < 5 )
     {
     return;
+
     }
 
   vtkIdType nRow = inMeta->GetNumberOfRows();
@@ -177,22 +180,29 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
     return;
     }
 
-  vtkStdString doubleName( "P" );
-
+  int numDoubles = 3;
+  vtkStdString doubleNames[] = { "P",
+                                 "Py|x",
+                                 "Px|y" };
+  
   vtkDoubleArray* doubleCol;
-  if ( ! inMeta->GetColumnByName( doubleName ) )
+  for ( int j = 0; j < numDoubles; ++ j )
     {
-    doubleCol = vtkDoubleArray::New();
-    doubleCol->SetName( doubleName );
-    doubleCol->SetNumberOfTuples( nRow );
-    inMeta->AddColumn( doubleCol );
-    doubleCol->Delete();
+    if ( ! inMeta->GetColumnByName( doubleNames[j] ) )
+      {
+      doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( doubleNames[j] );
+      doubleCol->SetNumberOfTuples( nRow );
+      inMeta->AddColumn( doubleCol );
+      doubleCol->Delete();
+      }
     }
 
+  // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
   vtkstd::map<vtkStdString,vtkstd::pair<vtkStdString,vtkStdString> > marginalToPair;
   vtkstd::map<vtkStdString,Counts> marginalCounts;
   double inv_n = 1. / this->SampleSize;
-
+  vtkVariant x, y;
   for ( int i = 0; i < nRow; ++ i )
     {
     vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
@@ -204,9 +214,6 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       }
     else
       {
-      vtkVariant x, y;
-      int c;
-      
       if ( marginalToPair.find( c1 ) == marginalToPair.end() )
         { 
         // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
@@ -223,24 +230,31 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
 
       x = inMeta->GetValueByName( i, "x" );
       y = inMeta->GetValueByName( i, "y" );
-      c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
+      vtkIdType c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
       
       if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
         {
-        marginalCounts[c1][x] += c;
+        if ( x != "" )
+          {
+          marginalCounts[c1][x] += c;
+          }
         }
 
       if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
         {
-        marginalCounts[c2][y] += c;
+        if ( y != "" )
+          {
+          marginalCounts[c2][y] += c;
+          }
         }
-
-      inMeta->SetValueByName( i, doubleName, inv_n * c );
       }
     }
 
+  // Append marginal probabilities to the model table
+  vtkstd::map<vtkStdString,PDF> marginalPDFs;
   vtkVariantArray* row = vtkVariantArray::New();
-  row->SetNumberOfValues( 6 );
+  row->SetNumberOfValues( 8 );
+  double p;
 
   for ( vtkstd::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit )
@@ -248,18 +262,83 @@ void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
       for ( Counts::iterator xit = sit->second.begin(); 
             xit != sit->second.end(); ++ xit )
         {
+        // Calculate and retain marginal PDF
+        p = inv_n * xit->second;
+        marginalPDFs[sit->first][xit->first] = p;
+
         // Insert marginal cardinalities and probabilities
-        row->SetValue( 0, sit->first );          // variable name
-        row->SetValue( 1, "" );                  // empty entry for the second variable name
-        row->SetValue( 2, xit->first );          // variable value
-        row->SetValue( 3, "" );                  // empty entry for the second variable value
-        row->SetValue( 4, xit->second );         // marginal cardinality
-        row->SetValue( 5, inv_n * xit->second ); // marginal probability
+        row->SetValue( 0, sit->first );    // variable name
+        row->SetValue( 1, "" );            // empty entry for the second variable name
+        row->SetValue( 2, xit->first );    // variable value
+        row->SetValue( 3, "" );            // empty entry for the second variable value
+        row->SetValue( 4, xit->second );   // marginal cardinality
+        row->SetValue( 5, p );             // marginal probability
+        row->SetValue( 6, -1. );           // invalid entry for the first conditional probability
+        row->SetValue( 7, -1. );           // invalid entry for the second conditional probability
+        inMeta->InsertNextRow( row );
+        }
+      }
+
+  // Calculate PDFs and information entropies
+  double* doubleVals = new double[numDoubles]; // P(x,y), P(y|x), P(x|y)
+  
+  typedef vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,double> > Entropies;
+  Entropies H[numDoubles];  // H(X,Y), H(Y|X), H(X|Y)
+  vtkstd::map<vtkStdString,vtkstd::map<vtkStdString,vtkIdType> > sanityChecks;
+
+  for ( int i = 0; i < nRow; ++ i )
+    {
+    vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
+    vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
+    if ( c1 == "" || c2 == "" )
+      {
+      continue;
+      }
+
+    vtkIdType c = inMeta->GetValueByName( i, "Cardinality" ).ToInt();
+    doubleVals[0] = inv_n * c;
+
+    x = inMeta->GetValueByName( i, "x" );
+    y = inMeta->GetValueByName( i, "y" );
+
+    if ( x != "" && y != "" )
+      {
+      sanityChecks[c1][c2] += c;
+
+      doubleVals[1] = doubleVals[0] / marginalPDFs[c1][x];
+      doubleVals[2] = doubleVals[0] / marginalPDFs[c2][y];
+      
+      for ( int j = 0; j < numDoubles; ++ j )
+        {
+        // Update information entropies
+        H[j][c1][c2] -= doubleVals[0] * log( doubleVals[j] );
+
+        // Store conditional probabilities -- but not information entropies
+        inMeta->SetValueByName( i, doubleNames[j], doubleVals[j] );
+        }
+      }
+    }
+
+  // Store information entropies
+  for ( Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++ eit )
+      {
+      for ( vtkstd::map<vtkStdString,double>::iterator xit = eit->second.begin(); 
+            xit != eit->second.end(); ++ xit )
+        {
+        row->SetValue( 0, eit->first );                           // X variable name
+        row->SetValue( 1, xit->first );                           // Y variable name
+        row->SetValue( 2, "" );                                   // empty entry for the X variable value
+        row->SetValue( 3, "" );                                   // empty entry for the Y variable value
+        row->SetValue( 4, sanityChecks[eit->first][xit->first] ); // must be equal to sample size
+        row->SetValue( 5, xit->second );                          // H(X,Y)
+        row->SetValue( 6, H[1][eit->first][xit->first] );         // H(Y|X)
+        row->SetValue( 7, H[2][eit->first][xit->first] );         // H(X|Y)
         inMeta->InsertNextRow( row );
         }
       }
 
   row->Delete();
+  delete [] doubleVals;
 }
 
 // ----------------------------------------------------------------------
@@ -317,89 +396,58 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
     return;
     }
       
+  // Values
+  vtkVariant x, y;
+
   // PDFs
-  PDF pdfX, pdfY;
-  vtkstd::map<vtkVariant,PDF> pdfXY;
+  vtkstd::map<vtkVariant,PDF> pdf[3];
 
-  // CDFs
-  double sX  = 0.;
-  double sY  = 0.;
-  double sXY = 0.;
+  // Joint CDF 
+  double cdf = 0.;
 
-  // information entropies
-  double HYcondX = 0.;
-  double HXcondY = 0.;
-  double HXY     = 0.;
-
-  double p;
-  vtkStdString paramName = columnNames->GetValue( 0 );
   vtkIdType nRowP = inMeta->GetNumberOfRows();
   for ( int i = 0; i < nRowP; ++ i )
     {
     vtkStdString c1 = inMeta->GetValueByName( i, "Variable X" ).ToString();
     vtkStdString c2 = inMeta->GetValueByName( i, "Variable Y" ).ToString();
 
-    if ( c1 == varNameX ) 
+    if ( c1 == "" || c2 == "" )
       {
-      if ( c2 == varNameY )
-        {
-        // (c1,c2) = (colX,colY): populate bivariate pdf for (colX,colY)
-        p = inMeta->GetValueByName( i, paramName ).ToDouble();
-        pdfXY[inMeta->GetValueByName( i, "x" )][inMeta->GetValueByName( i, "y" )] = p;
-        sXY += p;
-        }
-      else if ( c2 == "" )
-        {
-        // (c1,c2) = (colX,""): populate marginal pdf for colX
-        p = inMeta->GetValueByName( i, paramName ).ToDouble();
-        pdfX[inMeta->GetValueByName( i, "x" )] = p;
-        sX += p;
-        }
+      continue;
       }
-    else if ( c1 == varNameY && c2 == "" ) 
+
+    if ( c1 == varNameX && c2 == varNameY )
       {
-      // (c1,c2) = (colY,""): populate marginal pdf for colY
-      p = inMeta->GetValueByName( i, paramName ).ToDouble();
-      pdfY[inMeta->GetValueByName( i, "x" )] = p;
-      sY += p;
+      x = inMeta->GetValueByName( i, "x" );
+      y = inMeta->GetValueByName( i, "y" );
+
+      if ( x != "" && y != "" ) // NB: the latter implies the former if the meta table is well-formed...
+        {
+        for ( int j = 0; j < 3; ++ j )
+          {
+          pdf[j][x][y] = inMeta->GetValueByName( i, columnNames->GetValue( j ) ).ToDouble();
+
+          if ( ! j )
+            {
+            cdf += pdf[j][x][y];
+            }
+          }
+        }
       }
     }
 
-  if ( fabs( sX - 1. ) > 1.e-6 || fabs( sY - 1. ) > 1.e-6 || fabs( sXY - 1. ) > 1.e-6 )
+  if ( fabs( cdf - 1. ) > 1.e-6 )
     {
     vtkWarningMacro( "Incorrect parameters for column pair:"
-                     << " model CDFs do not all sum to 1." );
+                     << " model CDF does not sum to 1." );
     
     dfunc = 0;
     return;
     }
 
-  // Calculate conditional PDFs and information entropies
-  vtkstd::map<vtkVariant,PDF> pdfYcondX;
-  vtkstd::map<vtkVariant,PDF> pdfXcondY;
-  vtkVariant x,y;
-
-  for ( vtkstd::map<vtkVariant,PDF>::iterator xit = pdfXY.begin();
-        xit != pdfXY.end(); ++ xit )
-    {
-    x = xit->first;
-    for ( vtkstd::map<vtkVariant,double>::iterator yit = xit->second.begin(); 
-          yit != xit->second.end(); ++ yit )
-      {
-      y = yit->first;
-      p = yit->second;
-      pdfYcondX[x][y] = p / pdfX[x];
-      pdfXcondY[x][y] = p / pdfY[y];
-      
-      HXY -= p * log( p );
-      HYcondX -= p * log( pdfYcondX[x][y] );
-      HXcondY -= p * log( pdfXcondY[x][y] );
-      }
-    }
-
   dfunc = new BivariateContingenciesFunctor( valsX,
                                              valsY,
-                                             pdfXY,
-                                             pdfYcondX,
-                                             pdfXcondY );
+                                             pdf[0],
+                                             pdf[1],
+                                             pdf[2] );
 }
