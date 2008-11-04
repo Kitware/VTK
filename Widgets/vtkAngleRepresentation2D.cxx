@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.11");
+vtkCxxRevisionMacro(vtkAngleRepresentation2D, "1.12");
 vtkStandardNewMacro(vtkAngleRepresentation2D);
 
 
@@ -157,41 +157,30 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     this->CenterRepresentation->GetDisplayPosition(c);
     this->Point2Representation->GetDisplayPosition(p2);
 
+    double p1w[3], p2w[3], cw[3], p1d[3], p2d[3], cd[3], vector2[3], vector1[3];
+    this->Point1Representation->GetWorldPosition(p1w);
+    this->CenterRepresentation->GetWorldPosition(cw);
+    this->Point2Representation->GetWorldPosition(p2w);
+    this->Point1Representation->GetDisplayPosition(p1d);
+    this->CenterRepresentation->GetDisplayPosition(cd);
+    this->Point2Representation->GetDisplayPosition(p2d);
+    
     // Compute the angle (only if necessary since we don't want
     // fluctuations in angle value as the camera moves, etc.)
     if ( this->GetMTime() > this->BuildTime )
       {
-      if ( p1[0]-c[0] == 0.0 || p2[0]-c[0] == 0.0 )
-         {
-         return;
-         }
-
-      double theta1 = atan2(p1[1]-c[1],p1[0]-c[0]);
-      double theta2 = atan2(p2[1]-c[1],p2[0]-c[0]);
-      if ( (theta1 >= 0.0 && theta1 <= vtkMath::Pi() &&
-            theta2 >= 0.0 && theta2 <= vtkMath::Pi()) ||
-           (theta1 <= 0.0 && theta1 >= -vtkMath::Pi() &&
-            theta2 <= 0.0 && theta2 >= -vtkMath::Pi()) )
-        {
-        ; //do nothin angles are fine
-        }
-      else if ( theta1 >= 0.0 && theta2 <= 0.0 )
-        {
-        if ( (theta1 - theta2) >= vtkMath::Pi() )
-          {
-          theta2 = theta2 + 2.0*vtkMath::Pi();
-          }
-        }
-      else //if ( theta1 <= 0.0 && theta2 >= 0.0 )
-        {
-        if ( (theta2 - theta1) >= vtkMath::Pi() )
-          {
-          theta1 = theta1 + 2.0*vtkMath::Pi();
-          }
-        }
+      vector1[0] = p1w[0] - cw[0];
+      vector1[1] = p1w[1] - cw[1];
+      vector1[2] = p1w[2] - cw[2];
+      vector2[0] = p2w[0] - cw[0];
+      vector2[1] = p2w[1] - cw[1];
+      vector2[2] = p2w[2] - cw[2];
+      vtkMath::Normalize( vector1 );
+      vtkMath::Normalize( vector2 );
+      double angle = acos( vtkMath::Dot( vector1, vector2 ) );
       char string[512];
       sprintf(string, this->LabelFormat,
-        (theta1-theta2)*vtkMath::RadiansToDegrees());
+        angle*vtkMath::RadiansToDegrees());
       this->Arc->SetLabel(string);
       }
 
