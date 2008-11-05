@@ -44,7 +44,7 @@
 
 // ----------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkODBCQuery, "1.1");
+vtkCxxRevisionMacro(vtkODBCQuery, "1.2");
 vtkStandardNewMacro(vtkODBCQuery);
 
 
@@ -231,7 +231,7 @@ vtkODBCQuery::Execute()
     }
 
   status = SQLPrepare(this->Internals->Statement,
-                      (SQLCHAR *)this->Query,
+                      reinterpret_cast<SQLCHAR *>(this->Query),
                       strlen(this->Query));
 
   if (status != SQL_SUCCESS)
@@ -337,7 +337,7 @@ vtkODBCQuery::Execute()
           vtkErrorMacro(<< errbuf.str().c_str());
           }
 
-        this->Internals->ColumnNames->SetValue(i, (const char *)name);
+        this->Internals->ColumnNames->SetValue(i,reinterpret_cast<const char *>(name));
         this->Internals->ColumnIsSigned->SetValue(i, (unsignedFlag == SQL_FALSE));
         this->Internals->ColumnTypes[i] = dataType;
         this->Internals->NullPermitted->SetValue(i, nullable);
@@ -703,7 +703,7 @@ vtkODBCQuery::BeginTransaction()
   SQLUINTEGER ac = SQL_AUTOCOMMIT_OFF;
   SQLRETURN status = SQLSetConnectAttr(db->Internals->Connection, 
                                        SQL_ATTR_AUTOCOMMIT,
-                                       (SQLPOINTER) ac, 
+                                       reinterpret_cast<SQLPOINTER>(ac),
                                        sizeof(ac));
 
   if (status != SQL_SUCCESS)
@@ -745,7 +745,7 @@ vtkODBCQuery::CommitTransaction()
   SQLUINTEGER ac = SQL_AUTOCOMMIT_ON;
   status = SQLSetConnectAttr(db->Internals->Connection,
                              SQL_ATTR_AUTOCOMMIT,
-                             (SQLPOINTER) ac, 
+                             reinterpret_cast<SQLPOINTER>(ac),
                              sizeof(ac));
 
   if (status != SQL_SUCCESS)
@@ -788,7 +788,7 @@ vtkODBCQuery::RollbackTransaction()
   SQLUINTEGER ac = SQL_AUTOCOMMIT_ON;
   status = SQLSetConnectAttr(db->Internals->Connection,
                              SQL_ATTR_AUTOCOMMIT,
-                             (SQLPOINTER) ac, 
+                             reinterpret_cast<SQLPOINTER>(ac),
                              sizeof(ac));
 
   if (status != SQL_SUCCESS)
