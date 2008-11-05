@@ -12,8 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLookupTableWithEnabling - A lookup table that allows for an optional array 
-//  to be provided that specifies which scalars to "enable" and which to "disable".  
+// .NAME vtkLookupTableWithEnabling - A lookup table that allows for an
+// optional array to be provided that specifies which scalars to "enable" and
+// which to "disable".  
 //
 // .SECTION Description
 // vtkLookupTableWithEnabling "disables" or "grays out" output colors
@@ -31,8 +32,7 @@
 
 #include "vtkLookupTable.h"
 
-#include "vtkDataArray.h" // Needed for inline method
-
+class vtkDataArray;
 
 class VTK_COMMON_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
 {
@@ -48,7 +48,7 @@ public:
   // passed to MapScalars(). 
   // Values of 0 in the array indicate the color should be desaturatated. 
   vtkGetObjectMacro(EnabledArray,vtkDataArray);
-  vtkSetObjectMacro(EnabledArray,vtkDataArray);
+  virtual void SetEnabledArray(vtkDataArray *enabledArray);
 
   // Description:
   // Map a set of scalars through the lookup table. 

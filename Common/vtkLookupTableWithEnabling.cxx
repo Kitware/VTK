@@ -19,8 +19,10 @@
 #include "vtkVariant.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkLookupTableWithEnabling, "1.2");
+vtkCxxRevisionMacro(vtkLookupTableWithEnabling, "1.3");
 vtkStandardNewMacro(vtkLookupTableWithEnabling);
+
+vtkCxxSetObjectMacro(vtkLookupTableWithEnabling,EnabledArray,vtkDataArray);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).
