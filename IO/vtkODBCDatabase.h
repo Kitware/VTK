@@ -133,7 +133,11 @@ public:
   vtkSetStringMacro(Password);
 
   bool HasError();
-  char *GetDatabaseType() { return "ODBC"; };
+  
+  // Description:
+  // String representing database type (e.g. "ODBC").
+  vtkGetStringMacro(DatabaseType);
+  
   vtkStdString GetURL();
 
   // Description:
@@ -189,8 +193,14 @@ private:
   char *DatabaseName;
   int ServerPort;
 
-  vtkODBCInternals *Internals; 
-
+  vtkODBCInternals *Internals;
+  
+  // We want this to be private, a user of this class
+  // should not be setting this for any reason
+  vtkSetStringMacro(DatabaseType);
+  
+  char *DatabaseType;
+  
   vtkODBCDatabase(const vtkODBCDatabase &); // Not implemented.
   void operator=(const vtkODBCDatabase &); // Not implemented.
 };

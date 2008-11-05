@@ -15,7 +15,8 @@
 /*----------------------------------------------------------------------------
   Copyright (c) Sandia Corporation
   See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-  ----------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------------
+*/
 
 /* 
  * Microsoft's own version of sqltypes.h relies on some typedefs and
@@ -47,16 +48,14 @@
 #include <sqlext.h>
 
 
-// ----------------------------------------------------------------------
-
-vtkCxxRevisionMacro(vtkODBCDatabase, "1.3");
+// ----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkODBCDatabase, "1.4");
 vtkStandardNewMacro(vtkODBCDatabase);
+// ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------
-
-
-static vtkStdString
-GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code=0)
+static vtkStdString GetErrorMessage(SQLSMALLINT handleType,
+                                    SQLHANDLE handle,
+                                    int *code=0)
 {
   SQLINTEGER sqlNativeCode = 0;
   SQLSMALLINT messageLength = 0;
@@ -102,8 +101,7 @@ GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code=0)
   return vtkStdString(messagebuf.str());
 }
 
-// ----------------------------------------------------------------------
- 
+// ----------------------------------------------------------------------------
 // COLUMN is zero-indexed but ODBC indexes from 1.  Sigh.  Aren't
 // standards fun?
 //
@@ -139,7 +137,7 @@ static vtkStdString odbcGetString(SQLHANDLE statement,
     status = SQLGetData(statement, 
                         column+1,
                         SQL_C_CHAR, 
-                        (SQLPOINTER) buffer,
+                        static_cast<SQLPOINTER>(buffer),
                         columnSize,
                         &lengthIndicator);
     if (status == SQL_SUCCESS || 
@@ -183,8 +181,7 @@ static vtkStdString odbcGetString(SQLHANDLE statement,
   return returnString;
 }
 
-// ----------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 vtkODBCDatabase::vtkODBCDatabase()
 {
   this->Internals = new vtkODBCInternals;
@@ -202,12 +199,16 @@ vtkODBCDatabase::vtkODBCDatabase()
   this->HostName = NULL;
   this->DataSourceName = NULL;
   this->DatabaseName = NULL;
-
+  this->Password = NULL;
+  
   this->ServerPort = -1; // use whatever the driver defaults to
+  
+  // Initialize instance variables
+  this->DatabaseType = 0;
+  this->SetDatabaseType("ODBC");
 }
 
-// ----------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 vtkODBCDatabase::~vtkODBCDatabase()
 {
   if ( this->IsOpen() )
@@ -218,6 +219,7 @@ vtkODBCDatabase::~vtkODBCDatabase()
   this->SetLastErrorText(NULL);
   this->SetUserName(NULL);
   this->SetHostName(NULL);
+  this->SetPassword(NULL);
   this->SetDataSourceName(NULL);
   this->SetDatabaseName(NULL);
   delete this->Internals;
@@ -226,10 +228,8 @@ vtkODBCDatabase::~vtkODBCDatabase()
   this->Record->UnRegister(this);
 }
 
-// ----------------------------------------------------------------------
-
-bool 
-vtkODBCDatabase::IsSupported(int feature)
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::IsSupported(int feature)
 {
   switch (feature)
     {
@@ -267,10 +267,8 @@ vtkODBCDatabase::IsSupported(int feature)
     }
 }
 
-// ----------------------------------------------------------------------
-
-bool 
-vtkODBCDatabase::Open(const char* password)
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::Open(const char *password)
 {
   if  ( ! this->DataSourceName )
     {
@@ -307,7 +305,7 @@ vtkODBCDatabase::Open(const char* password)
     vtkDebugMacro(<<"Successfully allocated environment handle.");
     status = SQLSetEnvAttr(this->Internals->Environment,
                            SQL_ATTR_ODBC_VERSION,
-                           (SQLPOINTER) SQL_OV_ODBC3, 
+                           reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3),
                            SQL_IS_UINTEGER);
     }
 
@@ -393,7 +391,7 @@ vtkODBCDatabase::Open(const char* password)
   SQLTCHAR connectionOut[1024];
   status = SQLDriverConnect(this->Internals->Connection,
                             NULL,
-                            (SQLCHAR *)connectionString.c_str(),
+                            (SQLCHAR *)(connectionString.c_str()),
                             connectionString.size(),
                             connectionOut,
                             1024,
@@ -414,10 +412,8 @@ vtkODBCDatabase::Open(const char* password)
   return true;
 }
 
-// ----------------------------------------------------------------------
-
-void 
-vtkODBCDatabase::Close()
+// ----------------------------------------------------------------------------
+void vtkODBCDatabase::Close()
 {
   if (! this->IsOpen())
     {
@@ -454,36 +450,28 @@ vtkODBCDatabase::Close()
     }
 }
 
-// ----------------------------------------------------------------------
-
-bool 
-vtkODBCDatabase::IsOpen()
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::IsOpen()
 {
   return (this->Internals->Connection != SQL_NULL_HDBC);
 }
 
-// ----------------------------------------------------------------------
-
-vtkSQLQuery* 
-vtkODBCDatabase::GetQueryInstance()
+// ----------------------------------------------------------------------------
+vtkSQLQuery *vtkODBCDatabase::GetQueryInstance()
 {
   vtkODBCQuery *query = vtkODBCQuery::New();
   query->SetDatabase(this);
   return query;
 }
 
-// ----------------------------------------------------------------------
-
-const char* 
-vtkODBCDatabase::GetLastErrorText()
+// ----------------------------------------------------------------------------
+const char*vtkODBCDatabase::GetLastErrorText()
 {
   return this->LastErrorText;
 }
 
-// ----------------------------------------------------------------------
-
-vtkStringArray* 
-vtkODBCDatabase::GetTables()
+// ----------------------------------------------------------------------------
+vtkStringArray *vtkODBCDatabase::GetTables()
 {
   this->Tables->Resize(0);
   if (!this->IsOpen())
@@ -513,7 +501,7 @@ vtkODBCDatabase::GetTables()
     vtkStdString tableType("TABLE,");
       
     status = SQLTables(statement, NULL, 0, NULL, 0, NULL, 0,
-                       (SQLCHAR *)tableType.c_str(), 
+                       (SQLCHAR *)(tableType.c_str()),
                        tableType.size());
       
     if (status != SQL_SUCCESS)
@@ -540,10 +528,8 @@ vtkODBCDatabase::GetTables()
     }
 }
 
-// ----------------------------------------------------------------------
-
-vtkStringArray* 
-vtkODBCDatabase::GetRecord(const char *table)
+// ----------------------------------------------------------------------------
+vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
 {
   this->Record->Reset();
   this->Record->Allocate(20);
@@ -586,7 +572,7 @@ vtkODBCDatabase::GetRecord(const char *table)
                       0,
                       NULL, // schema
                       0,
-                      (SQLCHAR *)table,
+                      (SQLCHAR *)(table),
                       strlen(table), 
                       NULL, // column
                       0);
@@ -621,34 +607,78 @@ vtkODBCDatabase::GetRecord(const char *table)
   return this->Record;
 }
                           
-// ----------------------------------------------------------------------
-                          
-void 
-vtkODBCDatabase::PrintSelf(ostream &os, vtkIndent indent)
+// ----------------------------------------------------------------------------
+void vtkODBCDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  
+  os << indent << "DataSourceName: ";
+  if(this->DataSourceName==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->DataSourceName << endl;
+    }
+  
+  os << indent << "DatabaseName: ";
+  if(this->DatabaseName==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->DatabaseName << endl;
+    }
+  
+  os << indent << "UserName: ";
+  if(this->UserName==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->UserName << endl;
+    }
+  os << indent << "HostName: ";
+  if(this->HostName==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << this->HostName << endl;
+    }
+  os << indent << "Password: ";
+  if(this->Password==0)
+    {
+    os << "(none)" << endl;
+    }
+  else
+    {
+    os << "not displayed for security reason." << endl;
+    }
+  os << indent << "ServerPort: " << this->ServerPort << endl;
+  
+  os << indent << "DatabaseType: " 
+     << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
 }
 
-// ----------------------------------------------------------------------
-
-bool
-vtkODBCDatabase::HasError()
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::HasError()
 {
-  return (this->LastErrorText != NULL);
+  return this->LastErrorText != NULL;
 }
 
-// ----------------------------------------------------------------------
-
-vtkStdString
-vtkODBCDatabase::GetURL()
+// ----------------------------------------------------------------------------
+vtkStdString vtkODBCDatabase::GetURL()
 {
   return vtkStdString("GetURL on ODBC databases is not yet implemented");
 }
 
-// ----------------------------------------------------------------------
-
-bool
-vtkODBCDatabase::ParseURL(const char *URL)
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::ParseURL(const char *URL)
 {
   vtkstd::string protocol;
   vtkstd::string username; 
@@ -677,12 +707,11 @@ vtkODBCDatabase::ParseURL(const char *URL)
   return false;
 }
 
-// ----------------------------------------------------------------------
-
-vtkStdString 
-vtkODBCDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                         int tblHandle,
-                                         int colHandle )
+// ----------------------------------------------------------------------------
+vtkStdString vtkODBCDatabase::GetColumnSpecification(
+  vtkSQLDatabaseSchema* schema,
+  int tblHandle,
+  int colHandle)
 {
   vtksys_ios::ostringstream queryStr;
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle ) << " ";
@@ -813,13 +842,12 @@ vtkODBCDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schema,
   return queryStr.str();
 }
 
-// ----------------------------------------------------------------------
-
-vtkStdString 
-vtkODBCDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                        int tblHandle,
-                                        int idxHandle,
-                                        bool& skipped )
+// ----------------------------------------------------------------------------
+vtkStdString vtkODBCDatabase::GetIndexSpecification(
+  vtkSQLDatabaseSchema* schema,
+  int tblHandle,
+  int idxHandle,
+  bool& skipped)
 {
   skipped = false;
   vtkStdString queryStr = ", ";
@@ -875,10 +903,9 @@ vtkODBCDatabase::GetIndexSpecification( vtkSQLDatabaseSchema* schema,
   return queryStr;
 }
 
-// ----------------------------------------------------------------------
-
-bool
-vtkODBCDatabase::CreateDatabase( const char* dbName, bool dropExisting = false )
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::CreateDatabase(const char *dbName,
+                                     bool dropExisting = false )
 {
   if ( dropExisting )
     {
@@ -897,10 +924,8 @@ vtkODBCDatabase::CreateDatabase( const char* dbName, bool dropExisting = false )
   return status;
 }
 
-// ----------------------------------------------------------------------
-
-bool 
-vtkODBCDatabase::DropDatabase( const char* dbName )
+// ----------------------------------------------------------------------------
+bool vtkODBCDatabase::DropDatabase(const char *dbName)
 {
   vtkStdString queryStr;
   queryStr = "DROP DATABASE ";
@@ -911,4 +936,3 @@ vtkODBCDatabase::DropDatabase( const char* dbName )
   query->Delete();
   return status;
 }
-
