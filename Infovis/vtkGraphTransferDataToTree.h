@@ -37,7 +37,7 @@
 #define __vtkGraphTransferDataToTree_h
 
 #include "vtkTreeAlgorithm.h"
-#include "vtkVariant.h"
+#include "vtkVariant.h" //For vtkVariant method arguments
 
 class VTK_INFOVIS_EXPORT vtkGraphTransferDataToTree : public vtkTreeAlgorithm 
 {
