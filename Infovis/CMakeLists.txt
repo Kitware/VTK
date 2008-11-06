@@ -40,6 +40,7 @@ vtkGraphLayout.cxx
 vtkGraphLayoutStrategy.cxx
 vtkGraphMapper.cxx
 vtkGraphToPolyData.cxx
+vtkGraphTransferDataToTree.cxx
 vtkGroupLeafVertices.cxx
 vtkISIReader.cxx
 vtkInteractorStyleTreeMapHover.cxx
