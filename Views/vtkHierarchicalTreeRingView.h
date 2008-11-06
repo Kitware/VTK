@@ -86,7 +86,11 @@ public:
   // The array to use for vertex labeling.  Default is "label".
   void SetVertexLabelArrayName(const char* name);
   const char* GetVertexLabelArrayName();
-  
+
+  // Description:
+  // The array to use for vertex labeling priority.  Default is "VertexDegree".
+  void SetLabelPriorityArrayName(const char* name);
+
   // Description:
   // The array to use for edge labeling.  Default is "label".
   void SetEdgeLabelArrayName(const char* name);

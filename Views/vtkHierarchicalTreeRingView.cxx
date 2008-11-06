@@ -67,7 +67,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.4");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -304,6 +304,12 @@ void vtkHierarchicalTreeRingView::SetVertexLabelArrayName(const char* name)
 const char* vtkHierarchicalTreeRingView::GetVertexLabelArrayName()
 {
   return this->TreeRingLabelMapper->GetFieldDataName();
+}
+
+//----------------------------------------------------------------------------
+void vtkHierarchicalTreeRingView::SetLabelPriorityArrayName(const char* name)
+{
+  this->TreeRingLabelMapper->SetPriorityArrayName(name);
 }
 
 //----------------------------------------------------------------------------
