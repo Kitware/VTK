@@ -97,7 +97,7 @@ INVERSE(e_inverse); /* ellipsoid */
 }
 FREEUP; if (P) free(P); }
 ENTRY0(omerc)
-  double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma,
+  double con, com, cosph0, D, F, H, L, sinph0, p, J, gammaval,
     gamma0, lamc, lam1, lam2, phi1, phi2, alpha_c;
   int alp, gam, no_off = 0;
 
@@ -105,7 +105,7 @@ ENTRY0(omerc)
   if ((alp = proj_param(P->params, "talpha").i))
     alpha_c = proj_param(P->params, "ralpha").f;
   if ((gam = proj_param(P->params, "tgamma").i))
-    gamma = proj_param(P->params, "rgamma").f;
+    gammaval = proj_param(P->params, "rgamma").f;
   if (alp || gam) {
     lamc  = proj_param(P->params, "rlonc").f;
     no_off = proj_param(P->params, "tno_off").i;
@@ -147,9 +147,9 @@ ENTRY0(omerc)
     if (alp) {
       gamma0 = asin(sin(alpha_c) / D);
       if (!gam)
-        gamma = alpha_c;
+        gammaval = alpha_c;
     } else
-      alpha_c = asin(D*sin(gamma0 = gamma));
+      alpha_c = asin(D*sin(gamma0 = gammaval));
     if ((con = fabs(alpha_c)) <= TOL ||
       fabs(con - PI) <= TOL ||
       fabs(fabs(P->phi0) - HALFPI) <= TOL)
@@ -171,12 +171,12 @@ ENTRY0(omerc)
        J * tan(.5 * P->B * (lam1 - lam2)) / p) / P->B);
     gamma0 = atan(2. * sin(P->B * proj_adjlon(lam1 - P->lam0)) /
        (F - 1. / F));
-    gamma = alpha_c = asin(D * sin(gamma0));
+    gammaval = alpha_c = asin(D * sin(gamma0));
   }
   P->singam = sin(gamma0);
   P->cosgam = cos(gamma0);
-  P->sinrot = sin(gamma);
-  P->cosrot = cos(gamma);
+  P->sinrot = sin(gammaval);
+  P->cosrot = cos(gammaval);
   P->BrA = 1. / (P->ArB = P->A * (P->rB = 1. / P->B));
   P->AB = P->A * P->B;
   if (no_off)
@@ -194,6 +194,16 @@ ENTRY0(omerc)
 ENDENTRY(P)
 /*
 ** Log: proj_omerc.c
+** Revision 1.1  2008-11-07 16:41:15  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

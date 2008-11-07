@@ -30,22 +30,32 @@ LIBPROJ_ID[] = "Id";
 PROJ_HEAD(august, "August Epicycloidal") "\n\tMisc Sph, no inv.";
 #define M 1.333333333333333
 FORWARD(s_forward); /* spheroid */
-  double t, c1, c, x1, x12, y1, y12;
+  double t, c1, c, x1, x12, y1val, y12;
   (void) P; /* avoid warning */
 
   t = tan(.5 * lp.phi);
   c1 = sqrt(1. - t * t);
   c = 1. + c1 * cos(lp.lam *= .5);
   x1 = sin(lp.lam) *  c1 / c;
-  y1 =  t / c;
-  xy.x = M * x1 * (3. + (x12 = x1 * x1) - 3. * (y12 = y1 *  y1));
-  xy.y = M * y1 * (3. + 3. * x12 - y12);
+  y1val =  t / c;
+  xy.x = M * x1 * (3. + (x12 = x1 * x1) - 3. * (y12 = y1val *  y1val));
+  xy.y = M * y1val * (3. + 3. * x12 - y12);
   return (xy);
 }
 FREEUP; if (P) free(P); }
 ENTRY0(august) P->inv = 0; P->fwd = s_forward; P->es = 0.; ENDENTRY(P)
 /*
 ** Log: proj_august.c
+** Revision 1.1  2008-11-07 16:41:13  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

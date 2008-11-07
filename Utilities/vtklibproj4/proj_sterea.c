@@ -40,15 +40,15 @@ PROJ_HEAD(sterea, "Oblique Stereographic Alternative")
 # define MAX_ITER  10
 
 FORWARD(e_forward); /* ellipsoid */
-  double cosc, sinc, cosl, k;
+  double cosc, sinc, coslval, k;
 
   lp = proj_gauss(lp, P->en);
   sinc = sin(lp.phi);
   cosc = cos(lp.phi);
-  cosl = cos(lp.lam);
-  k = P->k0 * P->R2 / (1. + P->sinc0 * sinc + P->cosc0 * cosc * cosl);
+  coslval = cos(lp.lam);
+  k = P->k0 * P->R2 / (1. + P->sinc0 * sinc + P->cosc0 * cosc * coslval);
   xy.x = k * cosc * sin(lp.lam);
-  xy.y = k * (P->cosc0 * sinc - P->sinc0 * cosc * cosl);
+  xy.y = k * (P->cosc0 * sinc - P->sinc0 * cosc * coslval);
   return (xy);
 }
 INVERSE(e_inverse); /* ellipsoid */
@@ -82,6 +82,16 @@ ENTRY0(sterea)
 ENDENTRY(P)
 /*
 ** Log: proj_sterea.c
+** Revision 1.1  2008-11-07 16:41:16  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **
