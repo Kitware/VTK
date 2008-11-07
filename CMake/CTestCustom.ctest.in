@@ -63,6 +63,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"
   "Filtering.vtkImageMultiple(Input|InputOutput)Filter.cxx.*warning.*more strictly aligned type"
   "IO.vtkJPEG(Reader|Writer).cxx.*warning.*more strictly aligned type"
+
+  # This test is made to discover compiler warnings, therefore the emitted
+  # warnings are irrelevant in a dashboard submission
+  "TestCxxFeatures.cxx*warning*type qualifiers ignored on function return type"
   )
 
 IF(APPLE)
