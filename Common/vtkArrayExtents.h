@@ -25,7 +25,7 @@
 // Describes the dimensions and size along each dimension of an N-way collection
 // of values. Convenience constructors are provided for working with 1, 2, and
 // 3-way data.  For higher dimensions, use the static Uniform() factory method,
-// or use SetDimensions() and operator[] to assign values.
+// the Append() method, or use SetDimensions() and operator[] to assign values.
 //
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -58,6 +58,11 @@ public:
   // Description:
   // Create n-dimensional extents with size m along each dimension.
   static const vtkArrayExtents Uniform(vtkIdType n, vtkIdType m);
+
+  // Description:
+  // Grow the number of dimensions by one, specifying the extent
+  // of the new dimension.
+  void Append(vtkIdType extent);
 
   // Description:
   // Return the current number of dimensions.

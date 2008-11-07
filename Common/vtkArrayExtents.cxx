@@ -56,6 +56,11 @@ const vtkArrayExtents vtkArrayExtents::Uniform(vtkIdType n, vtkIdType m)
   return result;
 }
 
+void vtkArrayExtents::Append(vtkIdType extent)
+{
+  this->Storage.push_back(extent);
+}
+
 vtkIdType vtkArrayExtents::GetDimensions() const
 {
   return this->Storage.size();
