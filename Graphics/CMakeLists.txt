@@ -10,6 +10,7 @@ vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
 vtkAppendSelection.cxx
 vtkApproximatingSubdivisionFilter.cxx
+vtkArcSource.cxx
 vtkArrayCalculator.cxx
 vtkArrowSource.cxx
 vtkAssignAttribute.cxx
