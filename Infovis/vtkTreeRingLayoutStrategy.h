@@ -63,12 +63,28 @@ public:
   vtkSetMacro(RingThickness, double);
   vtkGetMacro(RingThickness, double);
 
+  // Description:
+  // Define the start angle for the root node.
+  // NOTE: It is assumed that the root end angle is greater than the 
+  // root start angle and subtends no more than 360 degrees.
+  vtkSetMacro(RootStartAngle, double);
+  vtkGetMacro(RootStartAngle, double);
+
+  // Description:
+  // Define the end angle for the root node.
+  // NOTE: It is assumed that the root end angle is greater than the 
+  // root start angle and subtends no more than 360 degrees.
+  vtkSetMacro(RootEndAngle, double);
+  vtkGetMacro(RootEndAngle, double);
+  
 protected:
   vtkTreeRingLayoutStrategy();
   ~vtkTreeRingLayoutStrategy();
 
   float InteriorRadius;
   float RingThickness;
+  float RootStartAngle;
+  float RootEndAngle;
 
 private:  
   vtkTreeRingLayoutStrategy(const vtkTreeRingLayoutStrategy&);  // Not implemented.

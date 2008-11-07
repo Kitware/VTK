@@ -76,7 +76,6 @@ vtkTreeMapToPolyData.cxx
 vtkTreeMapViewer.cxx
 vtkTreeRingLayout.cxx
 vtkTreeRingDefaultLayoutStrategy.cxx
-vtkTreeRingExistingLayoutStrategy.cxx
 vtkTreeRingPointLayout.cxx
 vtkTreeRingReversedLayoutStrategy.cxx
 vtkTreeRingLayoutStrategy.cxx

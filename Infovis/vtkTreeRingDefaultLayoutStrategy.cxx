@@ -31,7 +31,7 @@
 #include "vtkDataArray.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -62,7 +62,7 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
 
     // Get the root vertex and set it to 0,1,0,1
   vtkIdType rootId = inputTree->GetRoot();
-  float coords[] = {0.,this->InteriorRadius,0.,360.};
+  float coords[] = {0., this->InteriorRadius, this->RootStartAngle, this->RootEndAngle};
   coordsArray->SetTuple(rootId, coords);
   
     // Now layout the children vertices
