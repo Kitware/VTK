@@ -14,6 +14,7 @@ vtkAffineRepresentation2D.cxx
 vtkAffineWidget.cxx
 vtkAngleRepresentation.cxx
 vtkAngleRepresentation2D.cxx
+vtkAngleRepresentation3D.cxx
 vtkAngleWidget.cxx
 vtkBalloonRepresentation.cxx
 vtkBalloonWidget.cxx

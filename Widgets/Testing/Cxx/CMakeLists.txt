@@ -4,7 +4,8 @@ SET(MyTests
   BoxWidget.cxx
   BoxWidget2.cxx
 #  TestAffineWidget.cxx
-#  TestAngleWidget.cxx
+  TestAngleWidget2D.cxx
+  TestAngleWidget3D.cxx
 #  TestBalloonWidget.cxx
 #  TestBorderWidget.cxx
 #  TestCameraWidget.cxx

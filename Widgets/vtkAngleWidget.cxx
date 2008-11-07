@@ -28,7 +28,6 @@
 vtkCxxRevisionMacro(vtkAngleWidget, "1.13");
 vtkStandardNewMacro(vtkAngleWidget);
 
-
 // The angle widget observes the handles.
 // Here we create the command/observer classes to respond to the 
 // slider widgets.
@@ -493,8 +492,12 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
     }
 
-  self->WidgetRep->BuildRepresentation();
-  self->Render();
+  if ( self->WidgetRep->GetNeedToRender() )
+    {
+    self->WidgetRep->BuildRepresentation();
+    self->Render();
+    self->WidgetRep->NeedToRenderOff();
+    }
 }
 
 //-------------------------------------------------------------------------
