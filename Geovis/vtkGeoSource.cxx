@@ -51,8 +51,8 @@ inline void vtkSleep(double duration)
   Sleep((int)(1000*duration));
 #elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
   struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = (int)duration;
-  sleep_time.tv_nsec = (int)(1000000000*(duration-sleep_time.tv_sec));
+  sleep_time.tv_sec = static_cast<int>(duration);
+  sleep_time.tv_nsec = static_cast<int>(1000000000*(duration-sleep_time.tv_sec));
   nanosleep(&sleep_time,&dummy);
 #endif
 }
@@ -60,7 +60,7 @@ inline void vtkSleep(double duration)
 VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 {
   vtkGeoSource* self;
-  self = (vtkGeoSource*)(((vtkMultiThreader::ThreadInfo*)arg)->UserData);
+  self = static_cast<vtkGeoSource *>(static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
   self->WorkerThread();
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -71,7 +71,7 @@ public:
   vtksys_stl::vector<int> ThreadIds;
 };
 
-vtkCxxRevisionMacro(vtkGeoSource, "1.1");
+vtkCxxRevisionMacro(vtkGeoSource, "1.2");
 vtkGeoSource::vtkGeoSource()
 {
   this->InputSet = vtkCollection::New();

@@ -29,7 +29,7 @@
 #include "vtk_libproj4.h"
 
 vtkStandardNewMacro(vtkGeoTransform);
-vtkCxxRevisionMacro(vtkGeoTransform,"1.1");
+vtkCxxRevisionMacro(vtkGeoTransform,"1.2");
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);
 vtkCxxSetObjectMacro(vtkGeoTransform, DestinationProjection, vtkGeoProjection);
 
@@ -109,7 +109,7 @@ void vtkGeoTransform::InternalTransformPoint( const float in[3], float out[3] )
     ind[i] = in[i];
   this->InternalTransformPoint( ind, oud );
   for ( i = 0; i < 3; ++ i )
-    out[i] = (float) oud[i];
+    out[i] = static_cast<float>(oud[i]);
 }
 
 void vtkGeoTransform::InternalTransformPoint( const double in[3], double out[3] )
@@ -132,7 +132,7 @@ void vtkGeoTransform::InternalTransformDerivative( const float in[3], float out[
   this->InternalTransformDerivative( ind, oud, drd );
   for ( i = 0; i < 3; ++ i )
     {
-    out[i] = (float) oud[i];
+    out[i] = static_cast<float>(oud[i]);
     for ( int j = 0; j < 3; ++ j )
       {
       derivative[i][j] = drd[i][j];

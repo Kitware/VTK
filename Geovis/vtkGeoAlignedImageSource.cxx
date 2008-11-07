@@ -33,7 +33,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.7");
+vtkCxxRevisionMacro(vtkGeoAlignedImageSource, "1.8");
 vtkStandardNewMacro(vtkGeoAlignedImageSource);
 vtkCxxSetObjectMacro(vtkGeoAlignedImageSource, Image, vtkImageData);
 
@@ -317,16 +317,16 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
   image->GetExtent(wholeExt);
   double origin[2];
   double spacing[2];
-  spacing[0] = (this->LongitudeRange[1]-this->LongitudeRange[0])/(double)(ext[1]-ext[0]+1);
-  spacing[1] = (this->LatitudeRange[1]-this->LatitudeRange[0])/(double)(ext[3]-ext[2]+1);
-  origin[0] = this->LongitudeRange[0] - (double)(ext[0])*spacing[0];
-  origin[1] = this->LatitudeRange[0] - (double)(ext[2])*spacing[1];
+  spacing[0] = (this->LongitudeRange[1]-this->LongitudeRange[0])/static_cast<double>(ext[1]-ext[0]+1);
+  spacing[1] = (this->LatitudeRange[1]-this->LatitudeRange[0])/static_cast<double>(ext[3]-ext[2]+1);
+  origin[0] = this->LongitudeRange[0] - ext[0]*spacing[0];
+  origin[1] = this->LatitudeRange[0] - ext[2]*spacing[1];
 
   // Compute the minimum extent that covers the terrain patch.
-  ext[0] = (int)(floor((node->GetLongitudeRange()[0]-origin[0])/spacing[0]));
-  ext[1] = (int)(ceil((node->GetLongitudeRange()[1]-origin[0])/spacing[0]));
-  ext[2] = (int)(floor((node->GetLatitudeRange()[0]-origin[1])/spacing[1]));
-  ext[3] = (int)(ceil((node->GetLatitudeRange()[1]-origin[1])/spacing[1]));
+  ext[0] = static_cast<int>(floor((node->GetLongitudeRange()[0]-origin[0])/spacing[0]));
+  ext[1] = static_cast<int>(ceil((node->GetLongitudeRange()[1]-origin[0])/spacing[0]));
+  ext[2] = static_cast<int>(floor((node->GetLatitudeRange()[0]-origin[1])/spacing[1]));
+  ext[3] = static_cast<int>(ceil((node->GetLatitudeRange()[1]-origin[1])/spacing[1]));
 
   int dims[2];
   dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
@@ -360,10 +360,10 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
   // Now set the longitude and latitude range based on the actual image size.
   double lonRange[2];
   double latRange[2];
-  lonRange[0] = origin[0] + ((double)(ext[0])*spacing[0]);
-  lonRange[1] = origin[0] + ((double)(ext[1]+1)*spacing[0]);
-  latRange[0] = origin[1] + ((double)(ext[2])*spacing[1]);
-  latRange[1] = origin[1] + ((double)(ext[3]+1)*spacing[1]);
+  lonRange[0] = origin[0] + ext[0]*spacing[0];
+  lonRange[1] = origin[0] + (ext[1]+1)*spacing[0];
+  latRange[0] = origin[1] + ext[2]*spacing[1];
+  latRange[1] = origin[1] + (ext[3]+1)*spacing[1];
   cropped->SetOrigin(lonRange[0], latRange[0], 0);
   cropped->SetSpacing(lonRange[1], latRange[1], 0);
   //assert(lonRange[1] >= lonRange[0]);
