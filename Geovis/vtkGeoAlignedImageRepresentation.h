@@ -25,6 +25,9 @@
 // for fetching new data. This class keeps the fetched data in a quad-tree
 // structure organized by latitude and longitude.
 
+#ifndef __vtkGeoAlignedImageRepresentation_h
+#define __vtkGeoAlignedImageRepresentation_h
+
 #include "vtkDataRepresentation.h"
 
 class vtkGeoImageNode;
@@ -83,3 +86,4 @@ private:
   void operator=(const vtkGeoAlignedImageRepresentation&); // Not implemented
 };
 
+#endif

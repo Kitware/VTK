@@ -27,6 +27,9 @@
 // will update the set of actors representing the globe given the current
 // camera position.
 
+#ifndef __vtkGeoTerrain_h
+#define __vtkGeoTerrain_h
+
 #include "vtkObject.h"
 
 class vtkAssembly;
@@ -91,3 +94,4 @@ private:
   void operator=(const vtkGeoTerrain&); // Not implemented
 };
 
+#endif
