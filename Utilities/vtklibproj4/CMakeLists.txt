@@ -165,6 +165,9 @@ if ( NOT PROJ_LIST_EXTERNAL )
     ${SUPPORT_SRCS}
     proj_list.c
   )
+
+#------------------------------------------------------------------------------
+# Doesn't work with CMake 2.4
 #  set_source_files_properties(
 #    FILES
 #      proj_list.c
