@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-
 // .NAME vtkGeoCamera - Geo interface to a camera.
-// .SECTION Description I wanted to hide the normal vtkCamera API
+//
+// .SECTION Description
+// I wanted to hide the normal vtkCamera API
 // so I did not make this a subclass.  The camera is a helper object.
 // You can get a pointer to the camera, but it should be treated like
 // a const.
@@ -71,11 +71,10 @@
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
-#include "vtkCamera.h" // for SP
-#include "vtkTransform.h" // for SP
 
+class vtkCamera;
 class vtkGeoTerrainNode;
-
+class vtkTransform;
 
 class VTK_GEOVIS_EXPORT vtkGeoCamera : public vtkObject
 {
@@ -132,7 +131,7 @@ public:
   // Description:
   // This vtk camera is updated to match this geo cameras state.
   // It should be treated as a const and should not be modified.
-  vtkCamera* GetVTKCamera() {return this->VTKCamera;}
+  vtkCamera* GetVTKCamera();
 
   // Description:
   // We precompute some values to speed up update of the terrain.

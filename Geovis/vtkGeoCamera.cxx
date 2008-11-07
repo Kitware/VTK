@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =============================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -29,7 +28,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.8");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.9");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -92,7 +91,6 @@ void vtkGeoCamera::SetOriginLatitude(double oLat)
     {
     return;
     }
-  cerr << "New latitude " << oLat << "\n";
   this->OriginLatitude = oLat;
   this->Modified();
   this->ComputeRectilinearOrigin();
@@ -105,7 +103,6 @@ void vtkGeoCamera::SetOriginLongitude(double oLon)
     {
     return;
     }
-  cerr << "New longitude " << oLon << "\n";
   this->OriginLongitude = oLon;
   this->Modified();
   this->ComputeRectilinearOrigin();
@@ -433,5 +430,11 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
 
   double coverage = (left+right)*(up+down) / (4.0 * forward*forward*this->Aspect[0]*this->Aspect[1]);
   return coverage;
+}
+
+//-----------------------------------------------------------------------------
+vtkCamera* vtkGeoCamera::GetVTKCamera()
+{
+  return this->VTKCamera;
 }
 

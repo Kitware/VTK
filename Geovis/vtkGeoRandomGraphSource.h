@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoRandomGraphSource - a geospatial graph with random edges
+// .NAME vtkGeoRandomGraphSource - A geospatial graph with random edges
 //
 // .SECTION Description
 // Generates a graph with a specified number of vertices, with the density of

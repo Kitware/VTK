@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =============================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -22,6 +21,7 @@
 #include "vtkGeoInteractorStyle.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCompassWidget.h"
 #include "vtkGeoCamera.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkInteractorStyleRubberBand3D.h"
@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.8");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.9");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
@@ -106,12 +106,17 @@ vtkGeoInteractorStyle::~vtkGeoInteractorStyle()
   this->PixelArray->Delete();
 }
 
-
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "LockHeading: " << this->GetLockHeading() << endl;
+}
+
+//-----------------------------------------------------------------------------
+vtkGeoCamera* vtkGeoInteractorStyle::GetGeoCamera()
+{
+  return this->GeoCamera;
 }
 
 //-----------------------------------------------------------------------------

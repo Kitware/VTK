@@ -21,12 +21,15 @@
 #include "vtkGeoView.h"
 
 #include "vtkActor.h"
+#include "vtkAssembly.h"
 #include "vtkGeoAlignedImageSource.h"
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoCamera.h"
+#include "vtkGeoGlobeSource.h"
 #include "vtkGeoGraphRepresentation.h"
 #include "vtkGeoInteractorStyle.h"
 #include "vtkGeoLineRepresentation.h"
+#include "vtkGeoTerrain.h"
 #include "vtkGlobeSource.h"
 #include "vtkLight.h"
 #include "vtkObjectFactory.h"
@@ -37,11 +40,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New();
 
-vtkCxxRevisionMacro(vtkGeoView, "1.7");
+vtkCxxRevisionMacro(vtkGeoView, "1.8");
 vtkStandardNewMacro(vtkGeoView);
+vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
@@ -73,34 +75,26 @@ vtkGeoView::vtkGeoView()
   this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
-  // Make it slightly smaller than the earth so it is not visible
-  
-  
   this->RenderWindow = 0;
+  this->Terrain = 0;
 
   // Perform frustum selection by default
   this->SetSelectionModeToFrustum();
+
+  // Add the assembly to the view.
+  this->Assembly = vtkAssembly::New();
+  this->Renderer->AddActor(this->Assembly);
 }
 
 //----------------------------------------------------------------------------
 vtkGeoView::~vtkGeoView()
 {
-  for (int i = 0; i < this->GetNumberOfRepresentations(); i++)
-    {
-    vtkGeoAlignedImageRepresentation* imageRep = 
-      vtkGeoAlignedImageRepresentation::SafeDownCast(this->GetRepresentation(i));
-    if (imageRep)
-      {
-      imageRep->ExitCleanup();
-      }
-    }
-  
   this->LowResEarthSource->Delete();
   this->LowResEarthMapper->Delete();
   this->LowResEarthActor->Delete();
+  this->Assembly->Delete();
+  this->SetTerrain(0);
 
-  // Important: Delete the render window AFTER calling ExitCleanup on all
-  // image representations.
   if (this->RenderWindow)
     {
     this->RenderWindow->Delete();
@@ -175,45 +169,57 @@ void vtkGeoView::PrepareForRendering()
   vtkGeoCamera* cam = style->GetGeoCamera();
   int* rendererSize = this->Renderer->GetSize();
   cam->InitializeNodeAnalysis(rendererSize);
-  
+
+  vtkSmartPointer<vtkCollection> imageReps =
+    vtkSmartPointer<vtkCollection>::New();
   for (int i = 0; i < this->GetNumberOfRepresentations(); i++)
     {
-    vtkGeoAlignedImageRepresentation* imageRep = 
+    vtkGeoAlignedImageRepresentation* imageRep =
       vtkGeoAlignedImageRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (imageRep)
       {
-      imageRep->Update(cam);
+      imageReps->AddItem(imageRep);
       }
-    vtkGeoLineRepresentation* lineRep = 
+    vtkGeoLineRepresentation* lineRep =
       vtkGeoLineRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (lineRep)
       {
       lineRep->PrepareForRendering();
       }
-    vtkGeoGraphRepresentation* graphRep = 
+    vtkGeoGraphRepresentation* graphRep =
       vtkGeoGraphRepresentation::SafeDownCast(this->GetRepresentation(i));
     if (graphRep)
       {
       graphRep->PrepareForRendering();
       }
     }
+
+  if (this->Terrain)
+    {
+    this->Terrain->AddActors(this->Renderer, this->Assembly, imageReps, cam);
+    }
 }
 
 //----------------------------------------------------------------------------
-vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(const char* filename)
+vtkGeoAlignedImageRepresentation* vtkGeoView::AddDefaultImageRepresentation(vtkImageData* image)
 {
-  VTK_CREATE(vtkGeoTerrain, terrain);
-  VTK_CREATE(vtkGeoAlignedImageSource, imageSource);
-  
-  imageSource->LoadAnImage(filename);
-  
-  VTK_CREATE(vtkGeoAlignedImageRepresentation, rep);
+  // Add default terrain
+  vtkSmartPointer<vtkGeoGlobeSource> terrainSource =
+    vtkSmartPointer<vtkGeoGlobeSource>::New();
+  vtkSmartPointer<vtkGeoTerrain> terrain =
+    vtkSmartPointer<vtkGeoTerrain>::New();
+  terrain->SetSource(terrainSource);
+  this->SetTerrain(terrain);
+
+  // Add image representation
+  vtkSmartPointer<vtkGeoAlignedImageSource> imageSource =
+    vtkSmartPointer<vtkGeoAlignedImageSource>::New();
+  imageSource->SetImage(image);
+  vtkSmartPointer<vtkGeoAlignedImageRepresentation> rep =
+    vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
   rep->SetSource(imageSource);
-  rep->SetTerrain(terrain);
-  rep->Update(NULL);
-  
   this->AddRepresentation(rep);
-  
+
   return rep;
 }
 

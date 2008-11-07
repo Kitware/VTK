@@ -12,109 +12,77 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-
-
-// .NAME vtkGeoAlignedImageSource - 
+// .NAME vtkGeoAlignedImageSource - Splits hi-res image into tiles.
+//
 // .SECTION Description
+// vtkGeoAlignedImageSource uses a high resolution image to generate tiles
+// at multiple resolutions in a hierarchy. It should be used as a source in
+// vtkGeoAlignedImageRepresentation.
 
 // .SECTION See Also
-   
+// vtkGeoAlignedImageRepresentation vtkGeoView vtkGeoView2D
+
 #ifndef __vtkGeoAlignedImageSource_h
 #define __vtkGeoAlignedImageSource_h
 
-#include "vtkObject.h"
-#include "vtkSmartPointer.h" // for SP
-#include "vtkGeoImageNode.h" // for SP
+#include "vtkGeoSource.h"
 
+class vtkGeoImageNode;
 class vtkImageData;
+class vtkMultiBlockDataSet;
 
-class VTK_GEOVIS_EXPORT vtkGeoAlignedImageSource : public vtkObject
+class VTK_GEOVIS_EXPORT vtkGeoAlignedImageSource : public vtkGeoSource
 {
 public:
   static vtkGeoAlignedImageSource *New();
-  vtkTypeRevisionMacro(vtkGeoAlignedImageSource, vtkObject);
+  vtkTypeRevisionMacro(vtkGeoAlignedImageSource, vtkGeoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Load an image from a file with the default extent of the full globe.
-  // If dbLocation is specified, output all tiles to that location.
-  void LoadAnImage(const char* fileName, const char* dbLocation = 0)
-    {
-    double ext[4] = {-180.0, 180.0, -90.0, 90.0};
-    this->LoadAnImage(fileName, ext, dbLocation);
-    }
-  void LoadAnImage(vtkImageData* data, const char* dbLocation = 0)
-    {
-    double ext[4] = {-180.0, 180.0, -90.0, 90.0};
-    this->LoadAnImage(data, ext, dbLocation);
-    }
+  // Fetch the root image.
+  virtual bool FetchRoot(vtkGeoTreeNode* node);
 
   // Description:
-  // Load an image from a file which covers a certain latitute/longitude extent.
-  // longLatExtent has the format {long min, long max, lat min, lat max}.
-  // If dbLocation is specified, output all tiles to that location.
-  void LoadAnImage(
-    const char* fileName,
-    double longLatExtent[4],
-    const char* dbLocation = 0);
-  void LoadAnImage(
-    vtkImageData* data,
-    double longLatExtent[4],
-    const char* dbLocation = 0);
+  // Fetch a child image.
+  virtual bool FetchChild(vtkGeoTreeNode* parent, int index, vtkGeoTreeNode* child);
 
   // Description:
-  // Load tiles from a database of files generated from a LoadAnImage.
-  void LoadTiles(const char* loc, vtkGeoImageNode* n = 0);
-
-  // Temporarily public until we get an API to the source.
-
-  // A tree to save the images converted into to tiles.
-//BTX
-  vtkSmartPointer<vtkGeoImageNode> WesternHemisphere;
-  vtkSmartPointer<vtkGeoImageNode> EasternHemisphere;
-//ETX
+  // The high-resolution image to be used to cover the globe.
+  vtkGetObjectMacro(Image, vtkImageData);
+  virtual void SetImage(vtkImageData* image);
 
   // Description:
-  // Whether this source uses a database of patch files.
-  vtkSetMacro(UseTileDatabase, bool);
-  vtkGetMacro(UseTileDatabase, bool);
-  vtkBooleanMacro(UseTileDatabase, bool);
-
-  // Description:
-  // The location of the tile databse.
-  vtkSetStringMacro(TileDatabaseLocation);
-  vtkGetStringMacro(TileDatabaseLocation);
-  
-  // Description:
-  // The number of levels in the tile database.
-  vtkSetMacro(TileDatabaseDepth, int);
-  vtkGetMacro(TileDatabaseDepth, int);
+  // The range of the input hi-res image.
+  vtkSetVector2Macro(LatitudeRange, double);
+  vtkGetVector2Macro(LatitudeRange, double);
+  vtkSetVector2Macro(LongitudeRange, double);
+  vtkGetVector2Macro(LongitudeRange, double);
 
 protected:
   vtkGeoAlignedImageSource();
   ~vtkGeoAlignedImageSource();
 
-  void AddImageToTree(vtkGeoImageNode* branch,
-    vtkImageData* image, double imageLonLatExt[4], const char* dbLocation);
+  void CropImageForNode(vtkGeoImageNode* node, vtkImageData* image);
+  int PowerOfTwo(int val);
 
-  bool UseTileDatabase;
-  char* TileDatabaseLocation;
-  int TileDatabaseDepth;
+  vtkImageData* Image;
+  vtkMultiBlockDataSet* LevelImages;
+  double LatitudeRange[2];
+  double LongitudeRange[2];
+
+  //BTX
+  class vtkProgressObserver;
+  vtkProgressObserver* ProgressObserver;
+  //ETX
 
 private:
   vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&);  // Not implemented.
   void operator=(const vtkGeoAlignedImageSource&);  // Not implemented.
-
-//BTX
-  class vtkProgressObserver;
-  vtkProgressObserver* ProgressObserver;
-//ETX
 };
 
 #endif

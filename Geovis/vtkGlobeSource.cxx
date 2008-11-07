@@ -22,6 +22,7 @@
 #include "vtkGlobeSource.h"
 
 #include "vtkCellArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -36,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGlobeSource, "1.6");
+vtkCxxRevisionMacro(vtkGlobeSource, "1.7");
 vtkStandardNewMacro(vtkGlobeSource);
 
   // 0=NE, 1=SE, 2=SW, 3=NW
@@ -102,7 +103,8 @@ void vtkGlobeSource::ComputeLatitudeLongitude(
 void vtkGlobeSource::AddPoint(
   double theta, double phi, double radius,
   vtkPoints* newPoints, vtkFloatArray* newNormals,
-  vtkFloatArray* newLongitudeArray, vtkFloatArray* newLatitudeArray)
+  vtkFloatArray* newLongitudeArray, vtkFloatArray* newLatitudeArray,
+  vtkDoubleArray* newLatLongArray)
 {
   double x[3], n[3];
   
@@ -117,6 +119,8 @@ void vtkGlobeSource::AddPoint(
   
   newLongitudeArray->InsertNextValue(theta);
   newLatitudeArray->InsertNextValue(phi);
+  newLatLongArray->InsertNextValue(phi);
+  newLatLongArray->InsertNextValue(theta);
 }
 
 
@@ -148,6 +152,7 @@ int vtkGlobeSource::RequestData(
   vtkPoints *newPoints;
   vtkFloatArray *newLongitudeArray;
   vtkFloatArray *newLatitudeArray;
+  vtkDoubleArray *newLatLongArray;
   vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
   double phi, theta;
@@ -178,6 +183,11 @@ int vtkGlobeSource::RequestData(
   newLatitudeArray->SetNumberOfComponents(1);
   newLatitudeArray->Allocate(numPts);
   newLatitudeArray->SetName("Latitude");
+
+  newLatLongArray = vtkDoubleArray::New();
+  newLatLongArray->SetNumberOfComponents(2);
+  newLatLongArray->Allocate(2*numPts);
+  newLatLongArray->SetName("LatLong");
   
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
@@ -204,7 +214,8 @@ int vtkGlobeSource::RequestData(
       theta = this->StartLongitude + i*deltaLongitude;
       this->AddPoint(theta, phi, this->Radius, 
                      newPoints, newNormals,
-                     newLongitudeArray, newLatitudeArray);
+                     newLongitudeArray, newLatitudeArray,
+                     newLatLongArray);
       }
     this->UpdateProgress(
       0.10 + 0.50*j/static_cast<float>(this->LatitudeResolution));
@@ -217,7 +228,8 @@ int vtkGlobeSource::RequestData(
     phi = this->StartLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
-                   newLongitudeArray, newLatitudeArray);
+                   newLongitudeArray, newLatitudeArray,
+                   newLatLongArray);
     }
   for (i=0; i < this->LongitudeResolution; i++)
     {
@@ -225,7 +237,8 @@ int vtkGlobeSource::RequestData(
     phi = this->EndLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
-                   newLongitudeArray, newLatitudeArray);    
+                   newLongitudeArray, newLatitudeArray,
+                   newLatLongArray);    
     }
   for (j=0; j < this->LatitudeResolution; j++)
     {
@@ -233,7 +246,8 @@ int vtkGlobeSource::RequestData(
     phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
-                   newLongitudeArray, newLatitudeArray);
+                   newLongitudeArray, newLatitudeArray,
+                   newLatLongArray);
     }
   for (j=0; j < this->LatitudeResolution; j++)
     {
@@ -241,7 +255,8 @@ int vtkGlobeSource::RequestData(
     phi = this->StartLatitude + j*deltaLatitude;
     this->AddPoint(theta, phi, this->Radius-this->CurtainHeight, 
                    newPoints, newNormals,
-                   newLongitudeArray, newLatitudeArray);    
+                   newLongitudeArray, newLatitudeArray,
+                   newLatLongArray);    
     }
   
   
@@ -333,6 +348,10 @@ int vtkGlobeSource::RequestData(
   newLatitudeArray->Squeeze();
   output->GetPointData()->AddArray(newLatitudeArray);
   newLatitudeArray->Delete();
+
+  newLatLongArray->Squeeze();
+  output->GetPointData()->AddArray(newLatLongArray);
+  newLatLongArray->Delete();
 
   newPolys->Squeeze();
   output->SetPolys(newPolys);

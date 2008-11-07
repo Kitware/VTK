@@ -1,4 +1,4 @@
-/*=============================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkGeoTerrain.cxx
@@ -11,482 +11,376 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-=============================================================================*/
+=========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkObjectFactory.h"
-#include "vtkGeoCamera.h"
-#include "vtkGeoTerrainGlobeSource.h"
-#include "vtkGeoTerrainNode.h"
-#include "vtkGeoTerrainSource.h"
+
 #include "vtkGeoTerrain.h"
-#include "vtkPolyDataWriter.h"
+
+#include "vtkActor.h"
+#include "vtkAssembly.h"
+#include "vtkBox.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkClipPolyData.h"
+#include "vtkCollection.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractSelectedFrustum.h"
+#include "vtkGeoAlignedImageRepresentation.h"
+#include "vtkGeoCamera.h"
+#include "vtkGeoImageNode.h"
+#include "vtkGeoSource.h"
+#include "vtkGeoTerrainNode.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPainter.h"
+#include "vtkPainterPolyDataMapper.h"
+#include "vtkPlane.h"
+#include "vtkPlanes.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkMutexLock.h"
-
-// For vtkSleep
-#include "vtkWindows.h"
-#include <ctype.h>
-#include <time.h>
-
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.6");
-vtkStandardNewMacro(vtkGeoTerrain);
-#if _WIN32
-#include "windows.h"
-#endif
+#include "vtkPolyDataMapper.h"
+#include "vtkProp3DCollection.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
+#include "vtkTransformFilter.h"
+#include "vtkXMLPolyDataWriter.h"
 
-//-----------------------------------------------------------------------------
-// Cross platform sleep
-inline void vtkSleep(double duration)
+#include <vtksys/stl/stack>
+#include <vtksys/stl/utility>
+
+vtkStandardNewMacro(vtkGeoTerrain);
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.7");
+vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
+//----------------------------------------------------------------------------
+vtkGeoTerrain::vtkGeoTerrain()
 {
-  duration = duration; // avoid warnings
-  // sleep according to OS preference
-#ifdef _WIN32
-  Sleep((int)(1000*duration));
-#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
-  struct timespec sleep_time, dummy;
-  sleep_time.tv_sec = static_cast<int>(duration);
-  sleep_time.tv_nsec = static_cast<int>(1000000000*(duration-sleep_time.tv_sec));
-  nanosleep(&sleep_time,&dummy);
-#endif
-}
-
-//-----------------------------------------------------------------------------
-VTK_THREAD_RETURN_TYPE vtkGeoTerrainThreadStart( void *arg )
-{
-//   int threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-//   int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  
-  vtkGeoTerrain* self;
-  self = static_cast<vtkGeoTerrain *>
-    (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
-
- self->ThreadStart();
-  return VTK_THREAD_RETURN_VALUE;
+  this->GeoSource = 0;
+  this->Root = vtkGeoTerrainNode::New();
 }
 
 //----------------------------------------------------------------------------
-vtkGeoTerrain::vtkGeoTerrain() 
+vtkGeoTerrain::~vtkGeoTerrain()
 {
-  // It is OK to have a default, 
-  // but the use should be able to change the .
-  vtkSmartPointer<vtkGeoTerrainSource> source;
-  source = vtkSmartPointer<vtkGeoTerrainGlobeSource>::New();
-  this->SetTerrainSource(source);
-
-  this->Threader = vtkSmartPointer<vtkMultiThreader>::New();
-  this->WaitForRequestMutex1 = vtkSmartPointer<vtkMutexLock>::New();
-  this->WaitForRequestMutex1->Lock();
-  
-  this->TreeMutex = vtkSmartPointer<vtkMutexLock>::New();
-  this->TreeLock = 0;
-
-  // Spawn a thread to update the tree.
-  this->ThreadId = this->Threader->SpawnThread( vtkGeoTerrainThreadStart, this);
-}
-
-//-----------------------------------------------------------------------------
-vtkGeoTerrain::~vtkGeoTerrain() 
-{
-  this->RequestTerminate();
-  this->Threader->TerminateThread(this->ThreadId);
-  this->ThreadId = -1;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::SetOrigin(double x, double y, double z)
-{
-  this->GetTerrainSource()->SetOrigin(x, y, z);
-
-  // We need to get rid of terrain pathces generated so far.
-  this->Initialize(); // from cache
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::StartEdit()
-{
-  this->NewNodes.clear();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::AddNode(vtkGeoTerrainNode* node)
-{
-  this->NewNodes.push_back(node);
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::FinishEdit()
-{
-  this->Nodes = this->NewNodes;
-  this->NewNodes.clear();
-}
-
-//-----------------------------------------------------------------------------
-int vtkGeoTerrain::GetNumberOfNodes()
-{
-  return static_cast<int>(this->Nodes.size());
-}
-
-//-----------------------------------------------------------------------------
-vtkGeoTerrainNode* vtkGeoTerrain::GetNode(int idx)
-{
-  return this->Nodes[idx];
-}
-
-//-----------------------------------------------------------------------------
-bool vtkGeoTerrain::Update(vtkGeoCamera* camera)
-{
-  bool returnValue = this->Update(this, camera);
-  // I am putting the request second so that it will not block the Update.
-  this->Request(camera);
-  
-  return returnValue;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::SetTerrainSource(vtkGeoTerrainSource* source)
-{
-  if ( !source )
+  this->SetGeoSource(0);
+  if (this->Root)
     {
-    return;
+    this->Root->Delete();
     }
-  
-  this->TerrainSource = source;
-  this->Initialize();
 }
 
-
-//-----------------------------------------------------------------------------
-// This could be done in a separate thread.
-int vtkGeoTerrain::RefineNode(vtkGeoTerrainNode* node)
+//----------------------------------------------------------------------------
+void vtkGeoTerrain::SetSource(vtkGeoSource* source)
 {
-  // Create the four children.
-  if (node->GetChild(0))
-    { // This node is already refined.
-    return VTK_OK;
-    }
-
-  if (node->CreateChildren() == VTK_ERROR)
+  if (this->GeoSource != source)
     {
-    return VTK_ERROR;
+    this->SetGeoSource(source);
+    if (this->GeoSource)
+      {
+      this->Initialize();
+      }
     }
-
-  this->TerrainSource->GenerateTerrainForNode(node->GetChild(0));
-  this->TerrainSource->GenerateTerrainForNode(node->GetChild(1));
-  this->TerrainSource->GenerateTerrainForNode(node->GetChild(2));
-  this->TerrainSource->GenerateTerrainForNode(node->GetChild(3));
-
-  return VTK_OK;
 }
 
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::InitializeTerrain(vtkGeoTerrain* terrain)
-{
-  terrain->StartEdit();
-  terrain->AddNode(this->WesternHemisphere);
-  terrain->AddNode(this->EasternHemisphere);
-  terrain->FinishEdit();
-}
-
+//----------------------------------------------------------------------------
 void vtkGeoTerrain::Initialize()
 {
-  if (this->TerrainSource == 0)
+  if (!this->GeoSource)
     {
-    vtkErrorMacro("Missing terrain source.");
+    vtkErrorMacro(<< "Must set source before initializing.");
     return;
     }
 
-  this->WesternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
-  this->EasternHemisphere = vtkSmartPointer<vtkGeoTerrainNode>::New();
-  this->WesternHemisphere->SetId(0);
-  this->EasternHemisphere->SetId(1);
-
-  // Id is a bitmap representation of the branch trace.
-  this->WesternHemisphere->SetLongitudeRange(-180.0,0.0);
-  this->WesternHemisphere->SetLatitudeRange(-90.0,90.0);
-  this->TerrainSource->GenerateTerrainForNode(this->WesternHemisphere);
-  this->EasternHemisphere->SetLongitudeRange(0.0,180.0);
-  this->EasternHemisphere->SetLatitudeRange(-90.0,90.0);
-  this->TerrainSource->GenerateTerrainForNode(this->EasternHemisphere);
+  // Start by fetching the root.
+  this->GeoSource->FetchRoot(this->Root);
 }
 
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::Request(vtkGeoTerrainNode* node, vtkGeoCamera* cam)
+//----------------------------------------------------------------------------
+void vtkGeoTerrain::AddActors(
+  vtkRenderer* ren,
+  vtkAssembly* assembly,
+  vtkCollection* imageReps,
+  vtkGeoCamera* camera)
 {
-  int evaluation = this->EvaluateNode(node, cam);
-  if (evaluation > 0)
-    { // refine the node.  Add the 4 children.
-    // For simplicity, lets just refine one level per update.
-    if ( node->GetChild(0) == 0)
-      { // Temporarily refine here.  Later we will have asynchronous refinement.
-      this->RefineNode(node);
-      }
-    else
+  // Extract the image representations from the collection.
+  vtkGeoAlignedImageRepresentation* textureTree1 = 0;
+  if (imageReps->GetNumberOfItems() >= 1)
+    {
+    textureTree1 = vtkGeoAlignedImageRepresentation::SafeDownCast(
+      imageReps->GetItemAsObject(0));
+    }
+  vtkGeoAlignedImageRepresentation* textureTree2 = 0;
+  if (imageReps->GetNumberOfItems() >= 2)
+    {
+    textureTree2 = vtkGeoAlignedImageRepresentation::SafeDownCast(
+      imageReps->GetItemAsObject(1));
+    }
+
+  bool wireframe = false;
+  bool colorTiles = true;
+  bool colorByTextureLevel = false;
+
+  int visibleActors = 0;
+
+  vtkProp3DCollection* props = assembly->GetParts();
+  //cerr << "Number of props = " << props->GetNumberOfItems() << endl;
+  //vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  //timer->StartTimer();
+
+  // Remove actors at the beginning of the actor list until there are at most
+  // 100 actors.
+  while (props->GetNumberOfItems() > 100)
+    {
+    assembly->RemovePart(vtkActor::SafeDownCast(props->GetItemAsObject(0)));
+    }
+
+  // First turn off visibility of all actors
+  for (int p = 0; p < props->GetNumberOfItems(); ++p)
+    {
+    vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
+    actor->VisibilityOff();
+    }
+
+  // Use stack rather than recursion
+  vtksys_stl::stack<vtkGeoTerrainNode*> s;
+  s.push(this->Root);
+
+  vtkGeoTerrainNode* child = NULL;
+  vtkCollection* coll = NULL;
+
+  // Setup the frustum extractor for finding
+  // node intersections with the view frustum.
+  double frustumPlanes[24];
+  double aspect = ren->GetTiledAspectRatio();
+  camera->GetVTKCamera()->GetFrustumPlanes( aspect, frustumPlanes );
+  vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
+  frustum->SetFrustumPlanes(frustumPlanes);
+  vtkSmartPointer<vtkExtractSelectedFrustum> extractor =
+    vtkSmartPointer<vtkExtractSelectedFrustum>::New();
+  extractor->SetFrustum(frustum);
+
+  double bounds[4];
+  double llbounds[4];
+  double range[2];
+  while (!s.empty())
+    {
+    vtkGeoTerrainNode* cur = s.top();
+    s.pop();
+    if (cur->GetModel()->GetNumberOfCells() == 0)
       {
-      this->Request(node->GetChild(0), cam);
-      this->Request(node->GetChild(1), cam);
-      this->Request(node->GetChild(2), cam);
-      this->Request(node->GetChild(3), cam);
-      }
-    } 
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::ThreadStart()
-{
-  // Use mutex to avoid a busy loop.  Select on a socket will be better.
-  while (1)
-    {
-    // Stupid gating a thread via mutex guntlet.
-    this->WaitForRequestMutex1->Lock();
-    this->WaitForRequestMutex1->Unlock();
-
-    if (this->Camera == 0)
-      { // terminate
-      return;
+      continue;
       }
 
-    // Variable to manage whoe has access to reading and changing tree.
-    // This thread never keeps this lock for long.
-    // We do not want to block the client.
-    this->GetWriteLock();
-    this->Request(this->WesternHemisphere, this->Camera);
-    this->Request(this->EasternHemisphere, this->Camera);
-    this->ReleaseWriteLock();
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::Request(vtkGeoCamera* camera)
-{
-  if (camera == 0)
-    {
-    return;
-    }
-
-  double t = vtkTimerLog::GetUniversalTime();
-
-  this->TreeMutex->Lock();
-  // If a request is already in progress.  I do not want to block.
-  if (this->TreeLock == 0)
-    { // The request thread is idle.
-    this->Camera = camera;
-    this->WaitForRequestMutex1->Unlock();
-    vtkSleep(0.0001);
-    this->WaitForRequestMutex1->Lock();
-    }
-  this->TreeMutex->Unlock();
-  
-  t = vtkTimerLog::GetUniversalTime() - t;
-  if (t > 0.1)
-    {
-    cerr << "request took : " << t << endl;
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::RequestTerminate()
-{
-  this->Camera = 0;
-  this->WaitForRequestMutex1->Unlock();
-  vtkSleep(0.01);
-  this->WaitForRequestMutex1->Lock();
-}
-
-
-//-----------------------------------------------------------------------------
-bool vtkGeoTerrain::GetReadLock()
-{
-  this->TreeMutex->Lock();
-  if (this->TreeLock)
-    { // The background thread is writeing to the tree..
-    this->TreeMutex->Unlock();
-    return false;
-    }
-    
-  // Keep the mutex lock until we are finished.
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::ReleaseReadLock()
-{
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::GetWriteLock()
-{
-  this->TreeMutex->Lock();
-  this->TreeLock = 1;
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoTerrain::ReleaseWriteLock()
-{
-  this->TreeMutex->Lock();
-  this->TreeLock = 0;
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkGeoTerrain::Update(vtkGeoTerrain* terrain, vtkGeoCamera* camera)
-{
-  vtkGeoTerrainNode* node;
-  bool changedFlag = false;
-  int maxLevel = 0;
-  
-  int hackCount = 0; // Do not change too many tiles at once.
-
-  double t1 = vtkTimerLog::GetUniversalTime();
-  
-  // If we cannot get a lock, we should return immediately and not wait.
-  // Since the cache owns the terrain tree, it is responsible
-  // For managing the access to the tree from multiple threads.
-  if (this->GetReadLock() == false)
-    {
-    return false;
-    }
-  if (terrain->GetNumberOfNodes() == 0 )
-    {
-    // The terrain always covers the entire globe.  If we have no nodes,
-    // then we need to initialize this terrain to have the lowest two
-    // nodes (East and west hemisphere).
-    changedFlag = true;
-    this->InitializeTerrain(terrain);
-    }
-
-  // Start a new list of nodes.
-  terrain->StartEdit();
-  
-  // Create a new list of nodes and copy/refine old list to the new list.
-  // The order of nodes traces a strict depth first search.
-  // This makes merging nodes to a lower resolution simpler.
-  int numInNodes = terrain->GetNumberOfNodes();
-  int evaluation;
-  int outIdx = 0;
-  int inIdx = 0;
-  while (inIdx < numInNodes)
-    {
-    node = terrain->GetNode(inIdx);
-    vtkGeoTerrainNode* parent = node->GetParent();
-    evaluation = this->EvaluateNode(node, camera);
-    
-    // Just a test to even out model changes over multiple renders.
-    //if (hackCount > 20)
-    //  {
-    //  evaluation = 0;
-    //  }
-    
-    if (evaluation < 0)
-      { // Do not merge the children if the parent would want to split;
-      // I am trying to avoid oscilations.
-      if (parent && this->EvaluateNode(parent, camera) > 0)
-        {
-        evaluation = 0;
-        }
-      }
-    // We cannot split if there are no children.
-    if (evaluation > 0 && node->GetChild(0) == 0)
+    // Determine if node is within viewport
+    double bbox[6];
+    cur->GetModel()->GetBounds(bbox);
+    int boundsTest = extractor->OverallBoundsTest(bbox);
+    if (boundsTest == 0)
       {
-      evaluation = 0;
+      // Totally outside, so prune node and subtree
+      continue;
       }
-      
-    if (evaluation > 0)
-      { // refine the node.  Add the 4 children.
-      // For simplicity, lets just refine one level per update.
-      if ( node->GetChild(0) == 0)
-        { // sanity check.  We checked for this above.
-        terrain->AddNode(node);
-        ++outIdx;
-        if (node->GetLevel() > maxLevel) { maxLevel = node->GetLevel();}
-        }
-      else
-        {
-        //newList[outIdx++] = node->GetChild(0);
-        vtkGeoTerrainNode* child;
-        child = node->GetChild(0);
-        terrain->AddNode(child);
-        child = node->GetChild(1);
-        terrain->AddNode(child);
-        child = node->GetChild(2);
-        terrain->AddNode(child);
-        child = node->GetChild(3);
-        terrain->AddNode(child);
-        // Just for debugging.
-        if (child->GetLevel() > maxLevel) { maxLevel = child->GetLevel();}
-        hackCount += 4;
 
-        changedFlag = true;
-        }
-      ++inIdx;
-      }
-    else if (evaluation < 0 && node->GetLevel() > 0 && node->GetWhichChildAreYou() == 0)
-      { // Only merge if the first child wants to.
-      // TODO: Change this to use the "IsDescendantOf" method.
-      unsigned long parentId = parent->GetId();
-      // Now remove all nodes until we get to a node that is not a 
-      // decendant of the parent node.
-      // All decendents will have the first N bits in their Id.
-      unsigned long mask = ((node->GetLevel() * 2) - 1);
-      mask = (1 << mask) - 1;
-      // No need to test heritage of first child.
-      unsigned long tmp = parentId;
-      // This leaves the inIdx point to the next node so
-      // other paths need to increment the inIdx at their end.
-      while ((tmp == parentId) && inIdx < numInNodes)
+    // Determine whether to traverse this node's children
+    int refine = this->EvaluateNode(cur, camera);
+    //cerr << "refine = " << refine << endl;
+
+    child = cur->GetChild(0);
+    if ((!child && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
+      {
+      coll = this->GeoSource->GetRequestedNodes(cur);
+      // Load children
+      if (coll != NULL && coll->GetNumberOfItems() == 4)
         {
-        ++inIdx;
-        // This while structure of this loop makes termination sort of complicated.
-        // We can go right past the end of the list here.
-        if (inIdx < numInNodes)
+        cur->CreateChildren();
+        for (int c = 0; c < 4; ++c)
           {
-          node = terrain->GetNode(inIdx);
-          tmp = node->GetId();
-          tmp = tmp & mask;
+          child = vtkGeoTerrainNode::SafeDownCast(coll->GetItemAsObject(c));
+          cur->SetChild(child, c);
+          }
+        cur->SetStatus(vtkGeoTreeNode::NONE);
+        }
+      else if(cur->GetStatus() == vtkGeoTreeNode::NONE)
+        {
+        cur->SetStatus(vtkGeoTreeNode::PROCESSING);
+        this->GeoSource->RequestChildren(cur);
+        }
+      }
+
+    if (!cur->GetChild(0) || refine != 1)
+      {
+      // Find the best texture for this geometry
+      llbounds[0] = cur->GetLongitudeRange()[0];
+      llbounds[1] = cur->GetLongitudeRange()[1];
+      llbounds[2] = cur->GetLatitudeRange()[0];
+      llbounds[3] = cur->GetLatitudeRange()[1];
+      vtkGeoImageNode* textureNode1 = textureTree1->GetBestImageForBounds(llbounds);
+      if (!textureNode1)
+        {
+        vtkWarningMacro(<< "could not find node for bounds: " << llbounds[0] << "," << llbounds[1] << "," << llbounds[2] << "," << llbounds[3]);
+        }
+      vtkGeoImageNode* textureNode2 = 0;
+      if (textureTree2)
+        {
+        textureNode2 = textureTree2->GetBestImageForBounds(llbounds);
+        }
+
+      // See if we already have an actor for this geometry
+      vtkActor* existingActor = 0;
+      for (int p = 0; p < props->GetNumberOfItems(); ++p)
+        {
+        vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
+        if (actor && actor->GetMapper()->GetInputDataObject(0, 0) == cur->GetModel() &&
+            (!textureNode1 || actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()) &&
+            (!textureNode2 || actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()))
+          {
+          existingActor = actor;
+          existingActor->VisibilityOn();
+          visibleActors++;
+
+          // Move the actor to the end of the list so it is less likely removed.
+          actor->Register(this);
+          assembly->RemovePart(actor);
+          assembly->AddPart(actor);
+          actor->Delete();
+          break;
           }
         }
-      // Just add the parent for all the nodes we skipped.
-      if (parent->GetLevel() > maxLevel) { maxLevel = parent->GetLevel();} // Just for debugging
-      terrain->AddNode(parent);
-      hackCount += 1;
-      ++outIdx;
-      changedFlag = true;
+      if (existingActor)
+        {
+        continue;
+        }
+
+      // Add the data to the view
+      vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+      vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+      mapper->SetInput(cur->GetModel());
+      mapper->ScalarVisibilityOff();
+      actor->SetMapper(mapper);
+      actor->SetPosition(0.0, 0.0, -0.1);
+      visibleActors++;
+
+      if (textureNode1)
+        {
+#if 1
+        // Multi texturing
+        mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
+          "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+        textureNode1->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
+        actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0, textureNode1->GetTexture());
+
+        if (textureNode2)
+          {
+          mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_1,
+            "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+          textureNode2->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
+          actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1, textureNode2->GetTexture());
+          }
+#else
+        // Single texturing
+        cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
+        actor->SetTexture(textureNode1->GetTexture());
+#endif
+
+        if (colorTiles)
+          {
+          int level = cur->GetLevel();
+          if (colorByTextureLevel)
+            {
+            level = textureNode1->GetLevel();
+            }
+          if (level == 0)
+            {
+            actor->GetProperty()->SetColor(1.0, 0.4, 0.4);
+            }
+          else if (level == 1)
+            {
+            actor->GetProperty()->SetColor(1.0, 1.0, 0.4);
+            }
+          else if (level == 2)
+            {
+            actor->GetProperty()->SetColor(0.4, 1.0, 0.4);
+            }
+          else if (level == 3)
+            {
+            actor->GetProperty()->SetColor(0.4, 0.4, 1.0);
+            }
+          else if (level == 4)
+            {
+            actor->GetProperty()->SetColor(1.0, 0.4, 1.0);
+            }
+          }
+        if (wireframe)
+          {
+          actor->GetProperty()->SetRepresentationToWireframe();
+          }
+        assembly->AddPart(actor);
+        }
+      continue;
       }
-    else
-      { // Just pass the node through unchanged.
-      //newList[outIdx++] = node;
-      if (node->GetLevel() > maxLevel) { maxLevel = node->GetLevel();} // Just for debugging
-      terrain->AddNode(node);
-      ++inIdx;
-      }
-    }
-    
-  if (changedFlag)
-    {
-    terrain->FinishEdit();
+    s.push(cur->GetChild(0));
+    s.push(cur->GetChild(1));
+    s.push(cur->GetChild(2));
+    s.push(cur->GetChild(3));
     }
 
-  this->ReleaseReadLock();
+  vtkDebugMacro("Visible Actors: " << visibleActors);
+  //timer->StopTimer();
+  //cerr << "AddActors time: " << timer->GetElapsedTime() << endl;
+}
 
-  t1 = vtkTimerLog::GetUniversalTime() - t1;
-  if (t1 > 0.1)
+//----------------------------------------------------------------------------
+void vtkGeoTerrain::PrintSelf(ostream & os, vtkIndent indent)
+{
+  this->PrintTree(os, indent, this->Root);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
+{
+  if (!this->Root)
     {
-    cerr << "Update took : " << t1 << endl;
+    this->Initialize();
     }
-    
-  return changedFlag;
+  vtksys_stl::stack< vtkSmartPointer<vtkGeoTerrainNode> > s;
+  s.push(this->Root);
+  while (!s.empty())
+    {
+    vtkSmartPointer<vtkGeoTerrainNode> node = s.top();
+    s.pop();
+
+    // Write out file.
+    vtkSmartPointer<vtkPolyData> storedData = vtkSmartPointer<vtkPolyData>::New();
+    storedData->ShallowCopy(node->GetModel());
+    vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    char fn[512];
+    sprintf(fn, "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
+    writer->SetFileName(fn);
+    writer->SetInput(storedData);
+    writer->Write();
+
+    if (node->GetLevel() == depth)
+      {
+      continue;
+      }
+
+    // Recurse over children.
+    for (int i = 0; i < 4; ++i)
+      {
+      vtkSmartPointer<vtkGeoTerrainNode> child =
+        vtkSmartPointer<vtkGeoTerrainNode>::New();
+      if (this->GeoSource->FetchChild(node, i, child))
+        {
+        s.push(child);
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -495,19 +389,15 @@ bool vtkGeoTerrain::Update(vtkGeoTerrain* terrain, vtkGeoCamera* camera)
 int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* cam)
 {
   double sphereViewSize;
-  
+
   if (cam == 0)
     {
     return 0;
     }
-  
+
   // Size of the sphere in view area units (0 -> 1)
   sphereViewSize = cam->GetNodeCoverage(node);
-  
-  // Save the coverage in the node to further filter actors that get into the
-  // assembly.
-  node->SetCoverage(sphereViewSize);
-  
+
   // Arbitrary tresholds
   if (sphereViewSize > 0.2)
     {
@@ -520,3 +410,28 @@ int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* cam)
   // Do not change the node.
   return 0;
 }
+
+//----------------------------------------------------------------------------
+void vtkGeoTerrain::PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* parent)
+{
+  os << indent << "Error: " << parent->GetError() << endl;
+  os << indent << "Level: " << parent->GetLevel() << endl;
+  os << indent << "LatitudeRange: " << parent->GetLatitudeRange()[0]
+    << "," << parent->GetLatitudeRange()[1] << endl;
+  os << indent << "LongitudeRange: " << parent->GetLongitudeRange()[0]
+    << "," << parent->GetLongitudeRange()[1] << endl;
+  os << indent << "ProjectionBounds: " << parent->GetProjectionBounds()[0]
+    << "," << parent->GetProjectionBounds()[1]
+    << "," << parent->GetProjectionBounds()[2]
+    << "," << parent->GetProjectionBounds()[3] << endl;
+  os << indent << "Number of cells: " << parent->GetModel()->GetNumberOfCells() << endl;
+  if (parent->GetChild(0) == 0)
+    {
+    return;
+    }
+  for (int i = 0; i < 4; ++i)
+    {
+    this->PrintTree(os, indent.GetNextIndent(), parent->GetChild(i));
+    }
+}
+

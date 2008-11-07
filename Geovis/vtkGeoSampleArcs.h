@@ -17,11 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoArcs - layout graph edges on a globe as arcs.
+// .NAME vtkGeoSampleArcs - Samples geospatial lines at regular intervals.
 //
 // .SECTION Description
-
-// .SECTION Thanks
+// vtkGeoSampleArcs refines lines in the input polygonal data
+// so that the distance between adjacent points is no more than a threshold
+// distance. Points are interpolated along the surface of the globe.
+// This is useful in order to keep lines such as political boundaries from
+// intersecting the globe and becoming invisible.
 
 #ifndef __vtkGeoSampleArcs_h
 #define __vtkGeoSampleArcs_h

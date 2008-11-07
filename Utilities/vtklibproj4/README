@@ -1,0 +1,75 @@
+Id
+
+This constitutes "release" 3 of libproj4.  This release changes
+the name space to "proj_" prefix of all global identifiers.  Also,
+this release should be 'thread-safe' except for proj_rtodms() which
+is *not* used by any of the library procedures.
+
+This file takes the place of a "configure" system which is
+far too complex for this humble peon to figure out how to use.
+
+Fortunately, the libproj4 system is easy to install and should
+be quite portable across Unix, Linux operating systems.  Typical
+sequence is to:
+
+make libproj4
+make lproj
+make install
+
+But before doing the above please examine the beginning of the
+Makefile and adjust the options at the beginning of the Makefile.  For
+installation the default destination directories are in the home
+directory of the installer.  To make the library and lproj executable
+easily usable by other users modify the directory base set by the
+parameter 'prefix.' You may have to be super user to use some of the
+settings.
+
+        -----  T H R E A D S ----
+
+To make libproj4 threads friendly, use "THEADS=1".  Any program using
+thelibrary will have to reference '-lpthread' library.  If one is
+never interested in thread program comment out the option.
+
+The library procedure proj_rtodms is not threads friendly but it is *not*
+used by any projection routine and is supplied as a supplementary
+procedure.
+
+This is some contention between 'info' documentation and GNU software
+regarding the implementation of the 'strerror_r' function.  Non-GNU
+standards require integer return whereas GNU default implementation
+returns a pointer to a string---not compatible with threads.
+
+                -----  N O T I C E -----
+
+The Mayr projection requires the use of the Gnu Scientific Library
+for the general case usage where the +n= option is employed.  The
+distributed form of the Makefile excludes this option by commenting
+out the line reading "GSL=1".  When the library is compiled in
+this manner trying "+proj=mayr +n=" will cause a failure.  To enable
+the full function of the mayr remove the # from the GSL=1 line before
+compiling the library.  Note: when the library is compiled in this
+manner any program using the library will also have to link with
+the GSL library.
+
+As always, please submit any bugs to the author at:
+
+geraldi.evenden@gmail.com
+
+PS: the release/version of libproj4 is based upon the date that forms
+the name of the distribution file and the name of a null file in this
+directory.  Each program/header file will have its own revision/date
+entry.
+
+Log: README
+Revision 3.2  2008/06/21 17:06:10  gie
+update comments about Makefile
+
+Revision 3.1  2006/01/24 01:44:57  gie
+new release
+
+Revision 1.2  2005/02/04 01:54:13  gie
+added PS
+
+Revision 1.1  2005/02/04 01:47:45  gie
+Initial revision
+

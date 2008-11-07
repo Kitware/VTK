@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-// .NAME vtkGeoArcs - layout graph edges on a globe as arcs.
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+// .NAME vtkGeoArcs - Layout graph edges on a globe as arcs.
 //
 // .SECTION Description
-
-// .SECTION Thanks
+// vtkGeoArcs produces arcs for each line in the input polydata. This is useful
+// for viewing lines on a sphere (e.g. the earth). The arcs may "jump" above
+// the sphere's surface using ExplodeFactor.
 
 #ifndef __vtkGeoArcs_h
 #define __vtkGeoArcs_h
@@ -38,7 +40,6 @@ public:
   // Description:
   // The base radius used to determine the earth's surface.
   // Default is the earth's radius in meters.
-  // TODO: Change this to take in a vtkGeoTerrain to get altitude.
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
   
@@ -61,8 +62,6 @@ protected:
   vtkGeoArcs();
   ~vtkGeoArcs() {}
 
-  // Description:
-  // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   double GlobeRadius;

@@ -8,6 +8,9 @@ IF (VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}
+      TestGeoGraticule.cxx
+      TestGeoProjection.cxx
+      TestGeoView2D.cxx
       TestGeoView.cxx
       )
   ENDIF (VTK_DATA_ROOT)

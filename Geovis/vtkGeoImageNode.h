@@ -17,10 +17,14 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoImageNode - 
-// .SECTION Description Quadtree of images.
-
+// .NAME vtkGeoImageNode - A node in a multi-resolution image tree.
+//
+// .SECTION Description
+// vtkGeoImageNode contains an image tile in a multi-resolution image tree,
+// along with metadata about that image's extents.
+//
 // .SECTION See Also
+// vtkGeoTreeNode vtkGeoTerrainNode
    
 #ifndef __vtkGeoImageNode_h
 #define __vtkGeoImageNode_h

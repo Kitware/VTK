@@ -1,4 +1,4 @@
-/*=============================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkGeoAlignedImageRepresentation.cxx
@@ -11,8 +11,7 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-=============================================================================*/
-
+=========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -21,503 +20,209 @@
 
 #include "vtkGeoAlignedImageRepresentation.h"
 
-#include "vtkActor.h"
-#include "vtkPropAssembly.h"
+#include "vtkCollection.h"
 #include "vtkGeoImageNode.h"
-#include "vtkGeoPatch.h"
-#include "vtkGeoTerrain.h"
-#include "vtkGeoTerrainNode.h"
-#include "vtkMutexLock.h"
+#include "vtkGeoSource.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProp3DCollection.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRenderView.h"
-#include "vtkTimerLog.h"
-#include "vtkView.h"
+#include "vtkSmartPointer.h"
+#include "vtkStdString.h"
+#include "vtkTexture.h"
+#include "vtkTransform.h"
+#include "vtkXMLImageDataReader.h"
+#include "vtkXMLImageDataWriter.h"
 
+#include <vtksys/ios/sstream>
+#include <vtksys/stl/stack>
+#include <vtksys/stl/utility>
 
-vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.7");
-vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
-
-//-----------------------------------------------------------------------------
-VTK_THREAD_RETURN_TYPE vtkGeoAlignedImageRepresentationThreadStart( void *arg )
+vtksys_stl::pair<vtkGeoImageNode*, double>
+vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds)
 {
-//  int threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-//  int threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  
-  vtkGeoAlignedImageRepresentation* self;
-  self = static_cast<vtkGeoAlignedImageRepresentation *>
-    (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
+  double lb[3];
+  double ub[3];
+  p->GetTexture()->GetImageDataInput(0)->GetOrigin(lb);
+  p->GetTexture()->GetImageDataInput(0)->GetSpacing(ub);
+  double bcenter[2] = {(bounds[0] + bounds[1])/2.0, (bounds[2] + bounds[3])/2.0};
+  double ncenter[2] = {(lb[0] + ub[0])/2.0, (lb[1] + ub[1])/2.0};
+  double vec[2] = {bcenter[0] - ncenter[0], bcenter[1] - ncenter[1]};
+  double dist2 = vec[0]*vec[0] + vec[1]*vec[1];
+  if (lb[0] <= bounds[0] &&
+      ub[0] >= bounds[1] &&
+      lb[1] <= bounds[2] &&
+      ub[1] >= bounds[3])
+    {
+    vtksys_stl::pair<vtkGeoImageNode*, double> minDist(0, VTK_DOUBLE_MAX);
 
- self->ThreadStart();
-  return VTK_THREAD_RETURN_VALUE;
+    vtkGeoImageNode* child = p->GetChild(0);
+    vtkCollection* coll = NULL;
+
+    // TODO: This multiplier should be configurable
+    if (child == NULL || p->GetStatus() == vtkGeoTreeNode::PROCESSING)
+      {
+      if ((ub[0] - lb[0]) > 2.0*(bounds[1] - bounds[0]))
+        {
+        // Populate the children
+        coll = source->GetRequestedNodes(p);
+        if (coll && coll->GetNumberOfItems() == 4)
+          {
+          p->CreateChildren();
+          for (int c = 0; c < 4; ++c)
+            {
+            vtkGeoImageNode* node = vtkGeoImageNode::SafeDownCast(coll->GetItemAsObject(c));
+            if (node)
+              {
+              p->GetChild(c)->SetImage(node->GetImage());
+              p->GetChild(c)->SetTexture(node->GetTexture());
+              p->GetChild(c)->SetId(node->GetId());
+              p->GetChild(c)->SetLevel(node->GetLevel());
+              }
+            }
+          p->SetStatus(vtkGeoTreeNode::NONE);
+          }
+        else if(p->GetStatus() == vtkGeoTreeNode::NONE)
+          {
+          p->SetStatus(vtkGeoTreeNode::PROCESSING);
+          source->RequestChildren(p);
+          }
+        }
+      }
+
+    if (p->GetChild(0))
+      {
+      for (int i = 0; i < 4; ++i)
+        {
+        vtksys_stl::pair<vtkGeoImageNode*, double> subsearch =
+          vtkGeoAlignedImageRepresentationFind(source, p->GetChild(i), bounds);
+        if (subsearch.first && subsearch.second < minDist.second)
+          {
+          minDist = subsearch;
+          }
+        }
+      }
+    if (minDist.first)
+      {
+      return minDist;
+      }
+    return vtksys_stl::make_pair(p, dist2);
+    }
+  else
+    {
+    return vtksys_stl::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    }
+}
+
+vtkStandardNewMacro(vtkGeoAlignedImageRepresentation);
+vtkCxxRevisionMacro(vtkGeoAlignedImageRepresentation, "1.8");
+vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
+//----------------------------------------------------------------------------
+vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
+{
+  this->GeoSource = 0;
+  this->Root = vtkGeoImageNode::New();
 }
 
 //----------------------------------------------------------------------------
-vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation() 
+vtkGeoAlignedImageRepresentation::~vtkGeoAlignedImageRepresentation()
 {
-  this->Actor = vtkSmartPointer<vtkPropAssembly>::New();
-  this->Terrain = NULL;
-
-  // Turn off selectability.
-  this->SelectableOff();
-
-  this->Threader = vtkSmartPointer<vtkMultiThreader>::New();
-  this->TreeLock = 0;
+  this->SetGeoSource(0);
+  if (this->Root)
+    {
+    this->Root->Delete();
+    }
 }
 
-//-----------------------------------------------------------------------------
-vtkGeoAlignedImageRepresentation::~vtkGeoAlignedImageRepresentation() 
-{  
-}
-
-//-----------------------------------------------------------------------------
-// This is to clean up actors, mappers, textures and other rendering object
-// before the renderer and render window destruct.  It allows all graphics
-// resources to be released cleanly.  Without this, the application 
-// may crash on exit.
-void vtkGeoAlignedImageRepresentation::ExitCleanup()
+//----------------------------------------------------------------------------
+void vtkGeoAlignedImageRepresentation::SetSource(vtkGeoSource* source)
 {
-  this->Actor->GetParts()->RemoveAllItems();
-  this->DeletePatches();
+  if (this->GeoSource != source)
+    {
+    this->SetGeoSource(source);
+    if (this->GeoSource)
+      {
+      this->Initialize();
+      }
+    }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void vtkGeoAlignedImageRepresentation::Initialize()
+{
+  if (!this->GeoSource)
+    {
+    vtkErrorMacro(<< "You must set the source before initialization.");
+    return;
+    }
+  this->GeoSource->FetchRoot(this->Root);
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
+{
+  if (!this->Root)
+    {
+    this->Initialize();
+    }
+  vtksys_stl::stack< vtkSmartPointer<vtkGeoImageNode> > s;
+  s.push(this->Root);
+  while (!s.empty())
+    {
+    vtkSmartPointer<vtkGeoImageNode> node = s.top();
+    s.pop();
+
+    // Write out file.
+    vtkSmartPointer<vtkImageData> storedImage = vtkSmartPointer<vtkImageData>::New();
+    storedImage->ShallowCopy(node->GetTexture()->GetInput());
+    vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
+    char fn[512];
+    sprintf(fn, "%s/tile_%d_%ld.vti", path, node->GetLevel(), node->GetId());
+    writer->SetFileName(fn);
+    writer->SetInput(storedImage);
+    writer->Write();
+
+    // Recurse over children.
+    for (int i = 0; i < 4; ++i)
+      {
+      vtkSmartPointer<vtkGeoImageNode> child =
+        vtkSmartPointer<vtkGeoImageNode>::New();
+      if (this->GeoSource->FetchChild(node, i, child))
+        {
+        // Skip nodes outside range of the world.
+        if (child->GetLatitudeRange()[1] > -90.0)
+          {
+          s.push(child);
+          }
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkGeoImageNode* vtkGeoAlignedImageRepresentation::GetBestImageForBounds(double bounds[4])
+{
+  vtksys_stl::pair<vtkGeoImageNode*, double> res =
+    vtkGeoAlignedImageRepresentationFind(this->GeoSource, this->Root, bounds);
+  return res.first;
+}
+
+//----------------------------------------------------------------------------
 void vtkGeoAlignedImageRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "Actor: " << this->Actor << endl;
-  os << indent << "Terain: " << this->Terrain << endl;
+  this->PrintTree(os, indent, this->Root);
+}
 
-  vtkGeoPatch *patch;
-  int num, ii;
-  num = static_cast<int>(this->Patches.size());
-  for (ii = 0; ii < num; ++ii)
+//----------------------------------------------------------------------------
+void vtkGeoAlignedImageRepresentation::PrintTree(ostream& os, vtkIndent indent, vtkGeoImageNode* root)
+{
+  os << indent << "Id: " << root->GetId() << endl;
+  os << indent << "LatitudeRange: " << root->GetLatitudeRange()[0] << ", " << root->GetLatitudeRange()[1] << endl;
+  os << indent << "LongitudeRange: " << root->GetLongitudeRange()[0] << ", " << root->GetLongitudeRange()[1] << endl;
+  os << indent << "Level: " << root->GetLevel() << endl;
+  if (root->GetChild(0))
     {
-    patch = this->Patches[ii];
-    vtkGeoTerrainNode* node = patch->GetTerrainNode();
-    if (node)
+    for (int i = 0; i < 4; ++i)
       {
-      os << indent << patch << " level " << node->GetLevel() 
-         << ", id = " << node->GetId() << endl;
-      }
-     else
-      {
-      os << "Missing node\n";
+      this->PrintTree(os, indent.GetNextIndent(), root->GetChild(i));
       }
     }
-  os << "\n\n" << num << endl;
 }
-
-//-----------------------------------------------------------------------------
-// This constructs the best model possible given the data currently available.
-// The request will be a separate non blocking call.
-bool vtkGeoAlignedImageRepresentation::Update(vtkGeoCamera* cam)
-{
-  if (!cam)
-    {
-    return false;
-    }
-  bool changedFlag = 0;
-  // If the terrain does not update, the image can still change to pick
-  // tiles that better match the terrain.
-  if (this->Terrain->Update(cam))
-    {
-    changedFlag = 1;
-    }
-  if (this->UpdateImage(&(*this->Terrain)))
-    {
-    changedFlag = 1;
-    }
-  if (changedFlag)
-    {
-    // Now add the elements to the assembly.
-    this->Actor->GetParts()->RemoveAllItems();
-    this->UpdateAssembly(this->Actor);
-    }
-
-  return changedFlag;
-}
-
-//-----------------------------------------------------------------------------
-// This creates a new list of patches by assigning images to each terrain
-// node.  It returns true if the model changes.
-bool vtkGeoAlignedImageRepresentation::UpdateImage(vtkGeoTerrain* terrain)
-{
-  int numNewNodes;
-  int numOldNodes;
-  int newIdx, oldIdx;
-  vtkGeoPatch* newPatch;
-  vtkGeoPatch* oldPatch = 0;
-  vtkGeoTerrainNode* oldTerrainNode = 0;
-  vtkGeoImageNode*   oldImageNode = 0;
-  
-  vtkGeoTerrainNode* newTerrainNode;
-  vtkGeoImageNode*   newImageNode;
-
-  bool changedFlag = false;
-  
-  // Create a new list of image nodes and copy/refine old list to the new list.
-  vtkstd::vector<vtkGeoPatch* > newPatches;
-  
-  // Loop through the new terrain nodes.
-  numNewNodes = terrain->GetNumberOfNodes();
-  numOldNodes = static_cast<int>(this->Patches.size());
-  oldIdx = 0;
-  newIdx = 0;
-  while (newIdx < numNewNodes)
-    {
-    newTerrainNode = terrain->GetNode(newIdx);
-    oldPatch = this->GetPatch(oldIdx);
-    if (oldPatch == 0)
-      { // This should only happen when we first execute.
-      // Create a new node and find an image for it.
-      changedFlag = true;
-      newPatch = this->GetNewPatchFromHeap();
-      newPatch->SetTerrainNode(newTerrainNode);
-      newImageNode = this->GetBestImageNode(newTerrainNode);
-      newPatch->SetImageNode(newImageNode);
-      newPatches.push_back(newPatch);
-      if (newPatch->GetTerrainNode() == 0) {int* p = 0; *p = 0;}
-      ++newIdx;
-      }
-    else if (oldPatch->GetTerrainNode() == newTerrainNode)
-      { // We could just check to see if the levels are the same.
-      // This would make the three cases more balanced.
-      // Terrain for this node did not change.
-      // Check if the image is the best available.
-      // Reuse  the patch object.
-      newPatch = oldPatch;
-      // Check if we have a better image for this node.
-      oldImageNode = newImageNode = newPatch->GetImageNode();
-      // Image tile level will always be >= to terrain node level.
-      // The image can be larger than the terrain, but not smaller.
-      // If the levels are the same, then we already have the
-      // best image available.
-      if (newImageNode->GetLevel() < newTerrainNode->GetLevel())
-        { // We have a lower res image.  Try for a better image.
-        newImageNode = this->GetBestImageNode(newTerrainNode);
-        }
-      if (newImageNode != oldImageNode)
-        {
-        changedFlag = true;
-        newPatch->SetImageNode(newImageNode);
-        }
-      newPatches.push_back(newPatch);
-      if (newPatch->GetTerrainNode() == 0) {int* p = 0; *p = 0;}
-      // We reused the patch.  No need to return a patch to the heap.
-      // We are done with this nodes, move to the next.
-      ++oldIdx;
-      ++newIdx;
-      }
-    else
-      {
-      changedFlag = true;
-      // The terrain node list has changed.
-      // We have to sync up the two lists again.
-      oldTerrainNode = oldPatch->GetTerrainNode();
-      if (newTerrainNode->GetLevel() > oldTerrainNode->GetLevel())
-        {
-        // The old node has been refined. There are multiple nodes
-        // in the new list which correspond to this one old node.
-        // Forward through all decendants of the old node.
-        while (newIdx < numNewNodes && 
-               (newTerrainNode = terrain->GetNode(newIdx)) &&
-               (newTerrainNode->IsDescendantOf(oldTerrainNode)))
-          {
-          newImageNode = this->GetBestImageNode(newTerrainNode);
-          newPatch = this->GetNewPatchFromHeap();
-          newPatch->SetImageNode(newImageNode);
-          newPatch->SetTerrainNode(newTerrainNode);
-          newPatches.push_back(newPatch);
-          if (newPatch->GetTerrainNode() == 0) {int* p = 0; *p = 0;}
-          ++newIdx;
-          }
-        // Return the old patch to the heap.
-        this->ReturnPatchToHeap(oldPatch);
-        ++oldIdx;
-        }
-      else if (newTerrainNode->GetLevel() < oldTerrainNode->GetLevel())
-        {
-        newImageNode = this->GetBestImageNode(newTerrainNode);
-        newPatch = this->GetNewPatchFromHeap();
-        newPatch->SetImageNode(newImageNode);
-        newPatch->SetTerrainNode(newTerrainNode);
-        newPatches.push_back(newPatch);
-        if (newPatch->GetTerrainNode() == 0) {int* p = 0; *p = 0;}
-        // Nodes have been merged.  Multiple nodes in the old list
-        // correspond to a single node in the new list.
-        // Forward through all decendants of the new node.
-        while (oldIdx < numOldNodes &&
-               (oldPatch = this->GetPatch(oldIdx)) &&
-               (oldTerrainNode = oldPatch->GetTerrainNode()) && 
-               (oldTerrainNode->IsDescendantOf(newTerrainNode)))
-          {
-          // Return the old patch to the heap.
-          this->ReturnPatchToHeap(oldPatch);
-          ++oldIdx;
-          }
-        ++newIdx;
-        }
-      }
-    }
-
-  if (changedFlag)
-    {
-    this->Patches = newPatches;
-    //this->PrintList();
-    }
-    
-  return changedFlag;
-}
-
-//-----------------------------------------------------------------------------
-// Add the actors that render the terrain image pairs to the assembly.
-// We need a node by node indication that the node has changed and we need to 
-// reuse actors, and models so we do not generate new texture coordinates 
-// unless we have to.
-void vtkGeoAlignedImageRepresentation::UpdateAssembly(vtkPropAssembly* assembly)
-{
-  int idx;
-  int numPatches;
-  vtkGeoPatch* patch;
-  int count = 0;
-  
-  // I assume this is only called when the update modified the terrain or image.
-  assembly->GetParts()->RemoveAllItems();
-  numPatches = static_cast<int>(this->Patches.size());
-  for (idx = 0; idx < numPatches; ++idx)
-    {
-    patch = this->Patches[idx];
-    if (patch->GetTerrainNode()->GetCoverage() > 0.0)
-      {
-      patch->Update();
-      assembly->AddPart(patch->GetActor());
-      ++count;
-      }
-    }
-  // The more patches, the slower it renders.
-  //cerr << count << "Patches in assembly\n";
-}
-
-//-----------------------------------------------------------------------------
-vtkGeoPatch* vtkGeoAlignedImageRepresentation::GetNewPatchFromHeap()
-{
-  vtkGeoPatch *patch;
-  if (this->PatchHeap.size() > 0)
-    {
-    patch = this->PatchHeap.top();
-    this->PatchHeap.pop();
-    }
-  else
-    {
-    patch = new vtkGeoPatch;
-    }
-  return patch;
-}
-
-//-----------------------------------------------------------------------------
-// Starting the representation API
-bool vtkGeoAlignedImageRepresentation::AddToView(vtkView* view)
-{
-  vtkRenderView* gv = vtkRenderView::SafeDownCast(view);
-  if (!gv)
-    {
-    return false;
-    }
-  gv->GetRenderer()->AddActor(this->Actor);
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Starting the representation API
-bool vtkGeoAlignedImageRepresentation::RemoveFromView(vtkView* view)
-{
-  vtkRenderView* gv = vtkRenderView::SafeDownCast(view);
-  if (!gv)
-    {
-    return false;
-    }
-  gv->GetRenderer()->RemoveActor(this->Actor);
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::ThreadStart()
-{
-  this->WaitForRequestMutex2->Lock();
-  // Use mutex to avoid a busy loop.  Select on a socket will be better.
-  while (1)
-    {
-    // Stupid gating a thread via mutex guntlet.
-    this->WaitForRequestMutex1->Lock();    // Waits for a long time.
-    this->WaitForRequestMutex1->Unlock();  // We only keep lock two in theis process.
-    this->WaitForRequestMutex2->Unlock();
-    this->WaitForRequestMutex3->Lock();    // Gives other thread a change to lock 1.
-    this->WaitForRequestMutex2->Lock();
-    this->WaitForRequestMutex3->Unlock();
-
-    if (this->Terrain == 0)
-      { // terminate
-      this->WaitForRequestMutex2->Unlock();
-      return;
-      }
-
-    // Variable to manage whoe has access to reading and changing tree.
-    // This thread never keeps this lock for long.
-    // We do not want to block the client.
-    this->GetWriteLock();
-    //this->Request(this->Terrain);
-    //this->Request(this->Terrain);
-    this->ReleaseWriteLock();
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::RequestTerminate()
-{
-  this->Terrain = 0;
-  this->WaitForRequestMutex3->Lock();
-  this->WaitForRequestMutex1->Unlock();
-  this->WaitForRequestMutex2->Lock(); // Force control to other thread
-  this->WaitForRequestMutex1->Lock();
-  this->WaitForRequestMutex2->Unlock();
-  this->WaitForRequestMutex3->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkGeoAlignedImageRepresentation::GetReadLock()
-{
-  this->TreeMutex->Lock();
-  if (this->TreeLock)
-    { // The background thread is writeing to the tree..
-    this->TreeMutex->Unlock();
-    return false;
-    }
-    
-  // Keep the mutex lock until we are finished.
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::ReleaseReadLock()
-{
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::GetWriteLock()
-{
-  this->TreeMutex->Lock();
-  this->TreeLock = 1;
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::ReleaseWriteLock()
-{
-  this->TreeMutex->Lock();
-  this->TreeLock = 0;
-  this->TreeMutex->Unlock();
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::SetSource(vtkGeoAlignedImageSource* source)
-{
-  // For now just grab the whole tree on intialization.
-  // API for requesting tiles comes later.
-  
-  this->WesternHemisphere = source->WesternHemisphere;
-  this->EasternHemisphere = source->EasternHemisphere;
-  this->Source = source;
-}
-
-//-----------------------------------------------------------------------------
-vtkGeoImageNode* vtkGeoAlignedImageRepresentation::GetBestImageNode(
-  vtkGeoTerrainNode* newTerrainNode)
-{
-  unsigned long id = newTerrainNode->GetId();
-  int childIdx;
-  vtkGeoImageNode* imageNode;
-  if (id & 1)
-    {
-    imageNode = this->EasternHemisphere;
-    }
-  else
-    {
-    imageNode = this->WesternHemisphere;
-    }
-  id = id >> 1;
-  
-  while (imageNode->GetChild(0) && 
-         imageNode->GetLevel() < newTerrainNode->GetLevel())
-    {
-    childIdx = id & 3;
-    imageNode = imageNode->GetChild(childIdx);
-    id = id >> 2;
-    }
-
-  if (this->Source->GetUseTileDatabase())
-    {
-    if (!imageNode->GetChild(0) &&
-        imageNode->GetLevel() < newTerrainNode->GetLevel() &&
-        imageNode->GetLevel() < this->Source->GetTileDatabaseDepth())
-      {
-      imageNode->CreateChildren();
-      for (int i = 0; i < 4; ++i)
-        {
-        imageNode->GetChild(i)->LoadAnImage(
-          this->Source->GetTileDatabaseLocation());
-        }
-      childIdx = id & 3;
-      imageNode = imageNode->GetChild(childIdx);
-      }
-    }
-  
-  return imageNode;
-}
-
-//-----------------------------------------------------------------------------
-// This creates a new list of patches by assigning images to each terrain
-// node.  It returns true if the model changes.
-vtkGeoPatch* vtkGeoAlignedImageRepresentation::GetPatch(int idx)
-{
-  if (idx >= 0 && idx < static_cast<int>(this->Patches.size()))
-    {
-    return this->Patches[idx];
-    }
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::ReturnPatchToHeap(vtkGeoPatch* patch)
-{
-  // There should be an initialize method.
-  patch->SetImageNode(0);
-  patch->SetTerrainNode(0);
-  this->PatchHeap.push(patch);
-}
-
-//-----------------------------------------------------------------------------
-void vtkGeoAlignedImageRepresentation::DeletePatches()
-{
-  int num, ii;
-  vtkGeoPatch* patch;
-  
-  while(this->PatchHeap.size() > 0)
-    {
-    patch = this->PatchHeap.top();
-    this->PatchHeap.pop();
-    delete patch;
-    }
-  num = static_cast<int>(this->Patches.size());
-  for (ii = 0; ii < num; ++ii)
-    {
-    patch = this->Patches[ii];
-    delete patch;
-    }
-}
-  
-

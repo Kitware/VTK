@@ -12,29 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-
-
 // .NAME vtkGeoInteractorStyle - Interaction for a globe
+//
 // .SECTION Description
-
+// vtkGeoInteractorStyle contains interaction capabilities for a geographic
+// view including orbit, zoom, and tilt. It also includes a compass widget
+// for changing view parameters.
+//
 // .SECTION See Also
-// vtkInteractorStyleRubberBandZoom vtkInteractorStyleTrackballCamera 
+// vtkCompassWidget vtkInteractorStyle
    
 #ifndef __vtkGeoInteractorStyle_h
 #define __vtkGeoInteractorStyle_h
 
-#include "vtkSmartPointer.h" // for SP
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkGeoCamera.h" // for SP
-#include "vtkCompassWidget.h" // for SP
-#include "vtkCommand.h" // for SP
+#include "vtkSmartPointer.h" // for SP
 
+class vtkCamera;
+class vtkCommand;
+class vtkCompassWidget;
+class vtkGeoCamera;
 class vtkUnsignedCharArray;
 
 class VTK_GEOVIS_EXPORT vtkGeoInteractorStyle : 
@@ -70,7 +72,7 @@ public:
   void StartState(int newstate);
 
   // Used for updating the terrain.
-  vtkGeoCamera* GetGeoCamera() { return this->GeoCamera;}
+  vtkGeoCamera* GetGeoCamera();
 
   // Description:
   // This can be used to set the camera to the standard view of the earth.

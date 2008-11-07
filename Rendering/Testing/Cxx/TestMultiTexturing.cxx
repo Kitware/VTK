@@ -124,10 +124,6 @@ int TestMultiTexturing(int argc, char *argv[])
   textureBlue->SetInputConnection(imageReaderBlue->GetOutputPort());
   textureGreen->SetInputConnection(imageReaderGreen->GetOutputPort());
 
-  textureRed->SetTextureUnit(vtkTexture::VTK_TEXTURE_UNIT_0);
-  textureBlue->SetTextureUnit(vtkTexture::VTK_TEXTURE_UNIT_1);
-  textureGreen->SetTextureUnit(vtkTexture::VTK_TEXTURE_UNIT_2);
-
   // replace the fargments color and then accumulate the textures
   // RGBA values.
   textureRed->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
@@ -137,16 +133,16 @@ int TestMultiTexturing(int argc, char *argv[])
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
   mapper->SetInput(polyData);
   mapper->MapDataArrayToMultiTextureAttribute(
-    vtkTexture::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
   mapper->MapDataArrayToMultiTextureAttribute(
-    vtkTexture::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
   mapper->MapDataArrayToMultiTextureAttribute(
-    vtkTexture::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   vtkActor * actor = vtkActor::New();
-  actor->GetProperty()->SetTexture(vtkTexture::VTK_TEXTURE_UNIT_0,textureRed);
-  actor->GetProperty()->SetTexture(vtkTexture::VTK_TEXTURE_UNIT_1,textureBlue);
-  actor->GetProperty()->SetTexture(vtkTexture::VTK_TEXTURE_UNIT_2,textureGreen);
+  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
+  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
+  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
   actor->SetMapper(mapper);
 
   vtkRenderer * renderer = vtkRenderer::New();

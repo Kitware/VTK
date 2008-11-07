@@ -17,8 +17,11 @@
 #ifndef VTK_IMPLEMENT_MESA_CXX
 # include "vtkOpenGL.h"
 #endif
+
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkTexture.h"
 
 #ifdef VTK_USE_GL2PS
 #include "gl2ps.h"
@@ -28,12 +31,12 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.43");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.44");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
 
-
+//-----------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *anActor,
                              vtkRenderer *ren)
@@ -186,9 +189,74 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 #endif // VTK_USE_GL2PS
     }
 
+  // render any textures.
+  vtkIdType numTextures = this->GetNumberOfTextures();
+  if (numTextures > 0)
+    {
+    this->LoadMultiTexturingExtensions(ren);
+    if (vtkgl::ActiveTexture)
+      {
+      GLint numSupportedTextures;
+      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+      for (vtkIdType i = 0; i < numTextures; i++)
+        {
+        int texture_unit = this->GetTextureUnitAtIndex(i);
+        if (texture_unit >= numSupportedTextures || texture_unit < 0)
+          {
+          vtkErrorMacro("Hardware does not support the number of textures defined.");
+          continue;
+          }
+
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+        this->GetTextureAtIndex(i)->Render(ren);
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      }
+    }
+
   this->Superclass::Render(anActor, ren);
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
+{
+  this->Superclass::PostRender(actor, renderer);
+
+  // render any textures.
+  vtkIdType numTextures = this->GetNumberOfTextures();
+  if (numTextures > 0 && vtkgl::ActiveTexture)
+    {
+    GLint numSupportedTextures;
+    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+    for (vtkIdType i = 0; i < numTextures; i++)
+      {
+      int texture_unit = this->GetTextureUnitAtIndex(i);
+      if (texture_unit >= numSupportedTextures || texture_unit < 0)
+        {
+        vtkErrorMacro("Hardware does not support the number of textures defined.");
+        continue;
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+      // Disable any possible texture.  Wouldn't having a PostRender on
+      // vtkTexture be better?
+      if (this->GetTextureAtIndex(i)->GetTransform())
+        {
+        glMatrixMode(GL_TEXTURE);
+        // Corresponds with glPushMatrix in vtkOpenGLTexture::Load
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        }
+      glDisable(GL_TEXTURE_1D);
+      glDisable(GL_TEXTURE_2D);
+      glDisable(vtkgl::TEXTURE_3D);
+      glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
+      glDisable(vtkgl::TEXTURE_CUBE_MAP);
+      }
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
                              vtkRenderer *vtkNotUsed(ren))
@@ -239,6 +307,67 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
   Info[0] = static_cast<float>(this->SpecularPower);
   glMaterialfv( Face, GL_SHININESS, Info );
 
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLProperty::LoadMultiTexturingExtensions(vtkRenderer* ren)
+{
+  if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
+    {
+    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
+    extensions->SetRenderWindow( ren->GetRenderWindow() );
+
+    // multitexture is a core feature of OpenGL 1.3.
+    // multitexture is an ARB extension of OpenGL 1.2.1
+    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
+    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
+    int supports_ARB_mutlitexture = 
+      extensions->ExtensionSupported("GL_ARB_multitexture");
+    
+    if(supports_GL_1_3)
+      {
+      extensions->LoadExtension("GL_VERSION_1_3");
+      }
+    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
+      {
+      extensions->LoadExtension("GL_VERSION_1_2");
+      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+      }
+    extensions->Delete();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
+{
+  // release any textures.
+  vtkIdType numTextures = this->GetNumberOfTextures();
+  if (win && numTextures > 0 && vtkgl::ActiveTexture)
+    {
+    GLint numSupportedTextures;
+    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+    for (vtkIdType i = 0; i < numTextures; i++)
+      {
+      int texture_unit = this->GetTextureUnitAtIndex(i);
+      if (texture_unit >= numSupportedTextures || texture_unit < 0)
+        {
+        vtkErrorMacro("Hardware does not support the texture unit " << texture_unit << ".");
+        continue;
+        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
+      this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
+      }
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+    }
+  else if (numTextures > 0 && vtkgl::ActiveTexture)
+    {
+    for (vtkIdType i = 0; i < numTextures; i++)
+      {
+      this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
+      }
+    }
+
+  this->Superclass::ReleaseGraphicsResources(win);
 }
 
 //----------------------------------------------------------------------------

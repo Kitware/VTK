@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.57");
+vtkCxxRevisionMacro(vtkTexture, "1.58");
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -46,7 +46,6 @@ vtkTexture::vtkTexture()
 
   this->SetNumberOfOutputPorts(0);
 
-  this->TextureUnit = VTK_TEXTURE_UNIT_0;
   this->BlendingMode = VTK_TEXTURE_BLENDING_MODE_NONE;
 
   // By default select active point scalars.
@@ -198,7 +197,6 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "Subtract\n";
       break;
     }
-  os << indent << "Texture Unit: " << this->TextureUnit;
 }
 
 //----------------------------------------------------------------------------

@@ -29,7 +29,6 @@
 #define __vtkProperty_h
 
 #include "vtkObject.h"
-#include "vtkTexture.h" // used to include texture unit enum.
 
 // shading models
 #define VTK_FLAT    0
@@ -339,6 +338,7 @@ public:
   // must be assigned unique names.
   void SetTexture(int unit, vtkTexture* texture);
   vtkTexture* GetTexture(int unit);
+  void RemoveTexture(int unit);
 
 
   // Description:
@@ -359,6 +359,23 @@ public:
   // property. The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *win);
+
+  // Description:
+  // Used to specify which texture unit a texture will use.
+  // Only relevant when multitexturing.
+//BTX
+  enum VTKTextureUnit
+  {
+    VTK_TEXTURE_UNIT_0 = 0,
+    VTK_TEXTURE_UNIT_1,
+    VTK_TEXTURE_UNIT_2,
+    VTK_TEXTURE_UNIT_3,
+    VTK_TEXTURE_UNIT_4,
+    VTK_TEXTURE_UNIT_5,
+    VTK_TEXTURE_UNIT_6,
+    VTK_TEXTURE_UNIT_7
+  };
+//ETX
 
 protected:
   vtkProperty();
@@ -403,7 +420,6 @@ protected:
   vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
 
 //BTX
-private:
   // These friends are provided only for the time being
   // till we device a graceful way of loading texturing for GLSL.
   friend class vtkGLSLShaderProgram;
@@ -412,8 +428,10 @@ private:
   // Don't use these methods. They will be removed. They are provided only
   // for the time-being.
   vtkTexture* GetTextureAtIndex(int index);
-  int GetTextureIndex(const char* name);
+  int GetTextureUnitAtIndex(int index);
+  int GetTextureUnit(const char* name);
 //ETX
+
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.
   void operator=(const vtkProperty&);  // Not implemented.

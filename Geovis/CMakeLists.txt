@@ -3,7 +3,7 @@ SET(UKIT GEOVIS)
 SET(KIT_TCL_LIBS vtkWidgetsTCL vtkViewsTCL)
 SET(KIT_PYTHON_LIBS vtkWidgetsPythonD vtkViewsPythonD)
 SET(KIT_JAVA_LIBS vtkWidgetsJava vtkViewsJava)
-SET(KIT_LIBS vtkWidgets vtkViews ${VTK_LIBXML2_LIBRARIES})
+SET(KIT_LIBS vtkWidgets vtkViews ${VTK_LIBPROJ4_LIBRARIES})
 
 SET( Kit_SRCS
   vtkCompassRepresentation.cxx
@@ -14,34 +14,38 @@ SET( Kit_SRCS
   vtkGeoArcs.cxx
   vtkGeoAssignCoordinates.cxx
   vtkGeoCamera.cxx
-  vtkGeoComputeTextureCoordinates.cxx
   vtkGeoEdgeStrategy.cxx
+  vtkGeoGlobeSource.cxx
   vtkGeoGraphRepresentation.cxx
+  vtkGeoGraphRepresentation2D.cxx
+  vtkGeoGraticule.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx
   vtkGeoLineRepresentation.cxx
   vtkGeoMath.cxx
-  vtkGeoPatch.cxx
+  vtkGeoProjectionSource.cxx
+  vtkGeoProjection.cxx
   vtkGeoRandomGraphSource.cxx
   vtkGeoSampleArcs.cxx
+  vtkGeoSource.cxx
   vtkGeoTreeNode.cxx
   vtkGeoTerrain.cxx
-  vtkGeoTerrainGlobeSource.cxx
+  vtkGeoTerrain2D.cxx
   vtkGeoTerrainNode.cxx
-  vtkGeoTerrainSource.cxx
+  vtkGeoTransform.cxx
   vtkGeoView.cxx
+  vtkGeoView2D.cxx
   vtkGlobeSource.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkGeoPatch.cxx
+  vtkGeoSource.cxx
   ABSTRACT
 )
 
-SET_SOURCE_FILES_PROPERTIES(
-  vtkGeoPatch.cxx
-  WRAP_EXCLUDE
-)
+#SET_SOURCE_FILES_PROPERTIES(
+#  WRAP_EXCLUDE
+#)
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

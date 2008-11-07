@@ -156,33 +156,10 @@ public:
   //ETX
 
   // Description:
-  // Used to specify which texture unit a texture will use.
-  // Only relevant when multitexturing.
-  //BTX
-  enum VTKTextureUnit
-  {
-    VTK_TEXTURE_UNIT_0 = 0,
-    VTK_TEXTURE_UNIT_1,
-    VTK_TEXTURE_UNIT_2,
-    VTK_TEXTURE_UNIT_3,
-    VTK_TEXTURE_UNIT_4,
-    VTK_TEXTURE_UNIT_5,
-    VTK_TEXTURE_UNIT_6,
-    VTK_TEXTURE_UNIT_7
-  };
-  //ETX
-
-  // Description:
   // Used to specify how the texture will blend its RGB and Alpha values
   // with other textures and the fragment the texture is rendered upon.
   vtkGetMacro(BlendingMode, int);
   vtkSetMacro(BlendingMode, int);
-
-  // Description:
-  // Used to specify which texture unit a texture will use.
-  // Only relevant when multitexturing.
-  vtkGetMacro(TextureUnit, int);
-  vtkSetMacro(TextureUnit, int);
 
 protected:
   vtkTexture();
@@ -196,7 +173,6 @@ protected:
   vtkUnsignedCharArray *MappedScalars;
   vtkTransform  *Transform;
 
-  int TextureUnit;
   int BlendingMode;
   
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable

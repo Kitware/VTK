@@ -111,6 +111,7 @@
 #cmakedefine VTK_USE_SYSTEM_EXPAT
 #cmakedefine VTK_USE_SYSTEM_FREETYPE
 #cmakedefine VTK_USE_SYSTEM_LIBXML2
+#cmakedefine VTK_USE_SYSTEM_LIBPROJ4
 
 /* Whether VTK is using vfw32 and if it supports video capture */
 #cmakedefine VTK_USE_VIDEO_FOR_WINDOWS

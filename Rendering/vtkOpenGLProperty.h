@@ -39,9 +39,27 @@ public:
   // Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
 
+  //BTX
+  // Description:
+  // This method is called after the actor has been rendered.
+  // Don't call this directly. This method cleans up
+  // any shaders allocated.
+  virtual void PostRender(vtkActor*, vtkRenderer*);
+  //ETX
+  
+  // Description:
+  // Release any graphics resources that are being consumed by this
+  // property. The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *win);
+
 protected:
   vtkOpenGLProperty() {};
   ~vtkOpenGLProperty() {};
+
+  // Description:
+  // Load OpenGL extensions for multi texturing.
+  void LoadMultiTexturingExtensions(vtkRenderer* ren);
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
   void operator=(const vtkOpenGLProperty&);  // Not implemented.

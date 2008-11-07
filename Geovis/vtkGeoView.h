@@ -17,9 +17,25 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGeoView - A geoview
+// .NAME vtkGeoView - A 3D geospatial view.
+//
 // .SECTION Description
-// vtkGeoView can contain vtkGeoRepresentations.
+// vtkGeoView is a 3D globe view. The globe may contain a multi-resolution
+// geometry source (vtkGeoTerrain), multiple multi-resolution image sources
+// (vtkGeoAlignedImageRepresentation), as well as other representations such
+// as vtkGeoGraphRepresentation. At a minimum, the view must have a terrain
+// and one image representation. The view uses vtkGeoInteractorStyle to orbit,
+// zoom, and tilt the view, and contains a vtkCompassWidget for manipulating
+// the camera.
+//
+// Each terrain or image representation contains a vtkGeoSource subclass which
+// generates geometry or imagery at multiple resolutions. As the camera 
+// position changes, the terrain and/or image representations may ask its
+// vtkGeoSource to refine the geometry. This refinement is performed on a
+// separate thread, and the data is added to the view when it becomes available.
+//
+// .SECTION See Also
+// vtkGeoTerrain vtkGeoAlignedImageRepresentation vtkGeoSource
 
 #ifndef __vtkGeoView_h
 #define __vtkGeoView_h
@@ -27,9 +43,12 @@
 #include "vtkRenderView.h"
 
 class vtkActor;
+class vtkAssembly;
 class vtkGeoAlignedImageRepresentation;
 class vtkGeoInteractorStyle;
+class vtkGeoTerrain;
 class vtkGlobeSource;
+class vtkImageData;
 class vtkPolyDataMapper;
 class vtkRenderWindow;
 class vtkViewTheme;
@@ -44,7 +63,7 @@ public:
   // Description:
   // Adds an image representation with a simple terrain model using
   // the image in the specified file as the globe terrain.
-  vtkGeoAlignedImageRepresentation* AddDefaultImageRepresentation(const char* filename);
+  vtkGeoAlignedImageRepresentation* AddDefaultImageRepresentation(vtkImageData* image);
   
   // Description:
   // Set up a render window to use this view.
@@ -78,6 +97,11 @@ public:
   // Description:
   // Method to change the interactor style.
   virtual void SetGeoInteractorStyle(vtkGeoInteractorStyle* style);
+
+  // Description:
+  // The terrain (geometry) model for this earth view.
+  virtual void SetTerrain(vtkGeoTerrain* terrain);
+  vtkGetObjectMacro(Terrain, vtkGeoTerrain);
   
 protected:
   vtkGeoView();
@@ -87,6 +111,8 @@ protected:
   vtkGlobeSource*    LowResEarthSource;
   vtkPolyDataMapper* LowResEarthMapper;
   vtkActor*          LowResEarthActor;
+  vtkAssembly*       Assembly;
+  vtkGeoTerrain*     Terrain;
 
 private:
   vtkGeoView(const vtkGeoView&);  // Not implemented.

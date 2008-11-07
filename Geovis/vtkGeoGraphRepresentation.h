@@ -12,17 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-// .NAME vtkGeoGraphRepresentation - Displays a geometric dataset on a globe.
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+// .NAME vtkGeoGraphRepresentation - Displays a graph on a earth view.
 //
 // .SECTION Description
-// vtkGeoGraphRepresentation is used to show a geometric dataset in a geo view.
-// The representation uses a vtkGeometryFilter to convert the dataset to
-// polygonal data (e.g. volumetric data is converted to its external surface).
-// The representation may then be added to a vtkRenderView (normally vtkGeoView).
+// vtkGeoGraphRepresentation is used to show a graph in a 3D geo view.
+// Set the graph input with SetInputConnection(), then add the representation
+// to a vtkGeoView.
+//
+// .SECTION See Also
+// vtkGeoView
 
 #ifndef __vtkGeoGraphRepresentation_h
 #define __vtkGeoGraphRepresentation_h
@@ -63,7 +66,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Sets the input pipeGraph connection to this representation.
+  // Sets the input pipeline connection to this representation.
   virtual void SetInputConnection(vtkAlgorithmOutput* conn);
 
   // Description:

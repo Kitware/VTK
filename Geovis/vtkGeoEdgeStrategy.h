@@ -12,15 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*----------------------------------------------------------------------------
- Copyright (c) Sandia Corporation
- See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
-----------------------------------------------------------------------------*/
-// .NAME vtkGeoEdgeStrategy - layout graph edges on a globe as arcs.
+/*-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------*/
+// .NAME vtkGeoEdgeStrategy - Layout graph edges on a globe as arcs.
 //
 // .SECTION Description
-
-// .SECTION Thanks
+// vtkGeoEdgeStrategy produces arcs for each edge in the input graph.
+// This is useful for viewing lines on a sphere (e.g. the earth).
+// The arcs may "jump" above the sphere's surface using ExplodeFactor.
 
 #ifndef __vtkGeoEdgeStrategy_h
 #define __vtkGeoEdgeStrategy_h
@@ -31,7 +33,6 @@ class VTK_GEOVIS_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
   static vtkGeoEdgeStrategy *New();
-
   vtkTypeRevisionMacro(vtkGeoEdgeStrategy,vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
 

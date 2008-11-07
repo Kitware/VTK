@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.70");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.71");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -54,32 +54,9 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
 //-----------------------------------------------------------------------------
 void vtkOpenGLTexture::Initialize(vtkRenderer * ren)
 {
-  if ( ! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture )
-    {
-    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
-    extensions->SetRenderWindow( ren->GetRenderWindow() );
-
-    // multitexture is a core feature of OpenGL 1.3.
-    // multitexture is an ARB extension of OpenGL 1.2.1
-    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
-    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = 
-      extensions->ExtensionSupported("GL_ARB_multitexture");
-    
-    
-    if(supports_GL_1_3)
-      {
-      extensions->LoadExtension("GL_VERSION_1_3");
-      }
-    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
-      {
-      extensions->LoadExtension("GL_VERSION_1_2");
-      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
-    extensions->Delete();
-    }
 }
 
+//-----------------------------------------------------------------------------
 // Release the graphics resources used by this texture.  
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
@@ -93,10 +70,6 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
       GLuint tempIndex;
       tempIndex = this->Index;
       // NOTE: Sun's OpenGL seems to require disabling of texture before delete
-      if(vtkgl::ActiveTexture)
-        {
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + this->TextureUnit);
-        }
       glDisable(GL_TEXTURE_2D);
       glDeleteTextures(1, &tempIndex);
       }
@@ -112,6 +85,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
@@ -128,11 +102,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // like the graphics context.
   vtkOpenGLRenderWindow* renWin = 
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
-
-  if(vtkgl::ActiveTexture)
-    {
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0 + this->TextureUnit);
-    }
 
   if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE && vtkgl::ActiveTexture)
     {
@@ -471,6 +440,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     
     // insert texture transformation 
     glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
     glLoadIdentity();
     glMultMatrixd(mat2);
     glMatrixMode(GL_MODELVIEW);
@@ -487,11 +457,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     uTexture=oRenderer->GetTextureUniformVariable();
     vtkgl::Uniform1i(uUseTexture,1);
     vtkgl::Uniform1i(uTexture,0); // active texture 0
-    }
-
-  if(vtkgl::ActiveTexture)
-    {
-    vtkgl::ActiveTexture( vtkgl::TEXTURE0 );
     }
 }
 

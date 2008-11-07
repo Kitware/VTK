@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkGeoTreeNode.h"
 
-vtkCxxRevisionMacro(vtkGeoTreeNode, "1.3");
+vtkCxxRevisionMacro(vtkGeoTreeNode, "1.4");
 vtkStandardNewMacro(vtkGeoTreeNode);
 
 
@@ -195,6 +195,11 @@ int vtkGeoTreeNode::CreateChildren()
   this->SetChild(child, 3);
   child->SetParent(this);
   child->Delete();
+  //cerr << "creating child with range "
+  //     << child->GetLongitudeRange()[0] << ","
+  //     << child->GetLongitudeRange()[1] << ","
+  //     << child->GetLatitudeRange()[0] << ","
+  //     << child->GetLatitudeRange()[1] << endl;
 
   return VTK_OK;
 }

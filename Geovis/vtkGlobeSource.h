@@ -121,7 +121,8 @@ protected:
   void AddPoint(
     double theta, double phi, double radius,
     vtkPoints* newPoints, vtkFloatArray* newNormals,
-    vtkFloatArray* newLongitudeArray, vtkFloatArray* newLatitudeArray);
+    vtkFloatArray* newLongitudeArray, vtkFloatArray* newLatitudeArray,
+    vtkDoubleArray* newLatLongArray);
 
 
   double Origin[3];
