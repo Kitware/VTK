@@ -35,7 +35,7 @@
 #endif
 
 #if ( defined(WIN32) || defined(_WIN32) ) && defined(PROJ_SHARED)
-#  if defined(proj4_EXPORTS)
+#  if defined(vtkproj4_EXPORTS)
 #    define PROJ_EXPORT __declspec( dllexport )
 #  else
 #    define PROJ_EXPORT __declspec( dllimport ) 
