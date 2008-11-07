@@ -31,7 +31,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.44");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.45");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -198,9 +198,9 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
       {
       GLint numSupportedTextures;
       glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-      for (vtkIdType i = 0; i < numTextures; i++)
+      for (vtkIdType t = 0; t < numTextures; t++)
         {
-        int texture_unit = this->GetTextureUnitAtIndex(i);
+        int texture_unit = this->GetTextureUnitAtIndex(t);
         if (texture_unit >= numSupportedTextures || texture_unit < 0)
           {
           vtkErrorMacro("Hardware does not support the number of textures defined.");
@@ -208,7 +208,7 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
           }
 
         vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
-        this->GetTextureAtIndex(i)->Render(ren);
+        this->GetTextureAtIndex(t)->Render(ren);
         }
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }

@@ -64,7 +64,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.18");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.19");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -381,7 +381,7 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     }
 }
 //-----------------------------------------------------------------------------
-void vtkGLSLShaderProgram::PostRender(vtkActor* actor, vtkRenderer*)
+void vtkGLSLShaderProgram::PostRender(vtkActor*, vtkRenderer*)
 {
   if (!this->GetGLExtensionsLoaded())
     {

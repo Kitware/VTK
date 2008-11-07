@@ -56,7 +56,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.8");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.9");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
@@ -164,7 +164,7 @@ void vtkGeoTerrain::AddActors(
   vtkSmartPointer<vtkExtractSelectedFrustum> extractor =
     vtkSmartPointer<vtkExtractSelectedFrustum>::New();
   extractor->SetFrustum(frustum);
-  
+
   double llbounds[4];
   while (!s.empty())
     {
