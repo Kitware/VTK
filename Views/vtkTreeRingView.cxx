@@ -48,7 +48,7 @@
 #include "vtkTreeRingToPolyData.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkTreeRingView, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingView, "1.3");
 vtkStandardNewMacro(vtkTreeRingView);
 //----------------------------------------------------------------------------
 vtkTreeRingView::vtkTreeRingView()
@@ -379,6 +379,14 @@ void vtkTreeRingView::SetSectorShrinkPercentage( double shrinkFactor )
 double vtkTreeRingView::GetSectorShrinkPercentage()
 {
   return this->TreeRingToPolyData->GetShrinkPercentage();
+}
+
+void vtkTreeRingView::SetRootAngles( double start, double end )
+{
+  this->TreeRingDefaultLayout->SetRootStartAngle( start );
+  this->TreeRingDefaultLayout->SetRootEndAngle( end );
+  this->TreeRingReversedLayout->SetRootStartAngle( start );
+  this->TreeRingReversedLayout->SetRootEndAngle( end );
 }
 
 //----------------------------------------------------------------------------

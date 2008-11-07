@@ -86,6 +86,10 @@ public:
   double GetSectorShrinkPercentage();
 
   // Description:
+  // Set the root angles for laying out the hierarchy
+  void SetRootAngles( double start, double end );
+
+  // Description:
   // Sets up interactor style.
   virtual void SetupRenderWindow(vtkRenderWindow* win);
   
