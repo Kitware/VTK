@@ -165,12 +165,12 @@ if ( NOT PROJ_LIST_EXTERNAL )
     ${SUPPORT_SRCS}
     proj_list.c
   )
-  set_source_files_properties(
-    FILES
-      proj_list.c
-    PROPERTIES
-      OBJECT_DEPENDS ${libproj4_SOURCE_DIR}/proj_list.h
-  )
+#  set_source_files_properties(
+#    FILES
+#      proj_list.c
+#    PROPERTIES
+#      OBJECT_DEPENDS ${libproj4_SOURCE_DIR}/proj_list.h
+#  )
 endif ( NOT PROJ_LIST_EXTERNAL )
 
 set( LP4_SRCS
