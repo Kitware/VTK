@@ -68,6 +68,9 @@ public:
     vtkCollection* imageReps,
     vtkGeoCamera* camera);
 
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVector3Macro(Origin, double);
+
 protected:
   vtkGeoTerrain();
   ~vtkGeoTerrain();
@@ -88,6 +91,8 @@ protected:
   // Description:
   // Print the tree of terrain nodes.
   void PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* node);
+
+  double Origin[3];
 
 private:
   vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented

@@ -56,13 +56,16 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.9");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.10");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
 {
   this->GeoSource = 0;
   this->Root = vtkGeoTerrainNode::New();
+  this->Origin[0] = 0.0;
+  this->Origin[1] = 0.0;
+  this->Origin[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -261,7 +264,9 @@ void vtkGeoTerrain::AddActors(
       mapper->SetInput(cur->GetModel());
       mapper->ScalarVisibilityOff();
       actor->SetMapper(mapper);
-      actor->SetPosition(0.0, 0.0, -0.1);
+      //actor->SetPosition(0.0, 0.0, -0.1);
+      actor->SetPosition(-this->Origin[0], -this->Origin[1], -this->Origin[2] - 0.1);
+      //actor->SetOrigin(this->Origin);
       visibleActors++;
 
       if (textureNode1)
