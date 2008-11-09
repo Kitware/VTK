@@ -60,6 +60,26 @@ public:
   vtkGetMacro(PromptCompressionOptions, int);
   vtkBooleanMacro(PromptCompressionOptions, int);
 
+  // Description:
+  // Set/Get the compressor FourCC.
+  // A FourCC (literally, four-character code) is a sequence of four bytes
+  // used to uniquely identify data formats. [...] One of the most well-known
+  // uses of FourCCs is to identify the video codec used in AVI files. 
+  // Common identifiers include DIVX, XVID, and H264. 
+  // http://en.wikipedia.org/wiki/FourCC.
+  // Default value is: 
+  //   - msvc
+  // Other examples include:
+  //   - DIB: Full Frames (Uncompressed)
+  //   - LAGS: Lagarith Lossless Codec
+  //   - MJPG: M-JPG, aka Motion JPEG (say, Pegasus Imaging PicVideo M-JPEG)
+  // Links:
+  //   - http://www.fourcc.org/
+  //   - http://www.microsoft.com/whdc/archive/fourcc.mspx
+  //   - http://abcavi.kibi.ru/fourcc.php
+  vtkSetStringMacro(CompressorFourCC);
+  vtkGetStringMacro(CompressorFourCC);
+
 protected:
   vtkAVIWriter();
   ~vtkAVIWriter();
@@ -70,6 +90,7 @@ protected:
   int Time;
   int Quality;
   int PromptCompressionOptions;
+  char *CompressorFourCC;
 
 private:
   vtkAVIWriter(const vtkAVIWriter&); // Not implemented
