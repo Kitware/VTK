@@ -52,6 +52,14 @@ public:
   vtkSetClampMacro(Quality, int, 0, 2);
   vtkGetMacro(Quality, int);
   
+  // Description:
+  // Set/Get if the user should be prompted for compression options, i.e.
+  // pick a compressor, set the compression rate (override Rate), etc.).
+  // Default is OFF (legacy).
+  vtkSetMacro(PromptCompressionOptions, int);
+  vtkGetMacro(PromptCompressionOptions, int);
+  vtkBooleanMacro(PromptCompressionOptions, int);
+
 protected:
   vtkAVIWriter();
   ~vtkAVIWriter();
@@ -60,8 +68,8 @@ protected:
 
   int Rate;
   int Time;
-
   int Quality;
+  int PromptCompressionOptions;
 
 private:
   vtkAVIWriter(const vtkAVIWriter&); // Not implemented
