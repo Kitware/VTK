@@ -48,6 +48,7 @@ class VTK_GEOVIS_EXPORT vtkGeoView2D : public vtkRenderView
 public:
   static vtkGeoView2D *New();
   vtkTypeRevisionMacro(vtkGeoView2D,vtkRenderView);
+  virtual void PrintSelf( ostream& os, vtkIndent indent );
 
   vtkGeoView2D();
   ~vtkGeoView2D();

@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkViewTheme.h"
 
-vtkCxxRevisionMacro(vtkGeoView2D, "1.1");
+vtkCxxRevisionMacro(vtkGeoView2D, "1.2");
 vtkStandardNewMacro(vtkGeoView2D);
 vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
@@ -53,6 +53,13 @@ vtkGeoView2D::~vtkGeoView2D()
     {
     this->Assembly->Delete();
     }
+}
+
+void vtkGeoView2D::PrintSelf( ostream& os, vtkIndent indent )
+{
+  this->Superclass::PrintSelf( os, indent );
+  os << indent << "Assembly: " << this->Assembly << "\n";
+  os << indent << "Surface: " << this->Surface << "\n";
 }
 
 void vtkGeoView2D::ApplyViewTheme(vtkViewTheme* theme)
