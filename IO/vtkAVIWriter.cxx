@@ -42,7 +42,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.8.48.1");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.8.48.2");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -56,6 +56,8 @@ vtkAVIWriter::vtkAVIWriter()
   this->Rate = 15;
   this->Internals->hDIB = NULL;  // handle to DIB, temp handle
   this->PromptCompressionOptions = 0;
+  this->CompressorFourCC = NULL;
+  this->SetCompressorFourCC("msvc");
 }
 
 //---------------------------------------------------------------------------
@@ -66,6 +68,7 @@ vtkAVIWriter::~vtkAVIWriter()
     this->End();
     }
   delete this->Internals;
+  this->SetCompressorFourCC(NULL);
 }
 
 //---------------------------------------------------------------------------
@@ -130,7 +133,12 @@ void vtkAVIWriter::Start()
 
   // need to setup opts
   opts.fccType = 0;
-  opts.fccHandler=mmioFOURCC('m','s','v','c');
+  char fourcc[4] = {' ', ' ', ' ', ' '};
+  if (this->CompressorFourCC)
+    {
+    memcpy(fourcc, this->CompressorFourCC, strlen(this->CompressorFourCC));
+    }
+  opts.fccHandler=mmioFOURCC(fourcc[0], fourcc[1], fourcc[2], fourcc[3]);
   switch (this->GetQuality()) 
     {
     case 0:
@@ -275,5 +283,7 @@ void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "Quality: " << this->Quality << endl;
   os << indent << "PromptCompressionOptions: " << (this->GetPromptCompressionOptions() ? "on":"off") << endl;
+  os << indent << "CompressorFourCC: " 
+     << (this->CompressorFourCC ? this->CompressorFourCC : "(None)") << endl;
 }
 
