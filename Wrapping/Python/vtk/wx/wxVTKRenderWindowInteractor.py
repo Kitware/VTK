@@ -154,27 +154,32 @@ class wxVTKRenderWindowInteractor(baseClass):
             for p in l:
                 p.Show(1)
 
-        # code added by cpbotha to enable stereo correctly where the user
-        # requests this; remember that the glXContext in this case is NOT
-        # allocated by VTK, but by WX, hence all of this.
-        if stereo and baseClass.__name__ == 'GLCanvas':
-            # initialize GLCanvas with correct attriblist for stereo
+        if baseClass.__name__ == 'GLCanvas':
+            # code added by cpbotha to enable stereo and double
+            # buffering correctly where the user requests this; remember
+            # that the glXContext in this case is NOT allocated by VTK,
+            # but by WX, hence all of this.
+
+            # Initialize GLCanvas with correct attriblist
             attribList = [wx.glcanvas.WX_GL_RGBA, 
                           wx.glcanvas.WX_GL_MIN_RED, 1,
                           wx.glcanvas.WX_GL_MIN_GREEN, 1,
                           wx.glcanvas.WX_GL_MIN_BLUE, 1, 
-                          wx.glcanvas.WX_GL_DEPTH_SIZE, 1,
-                          wx.glcanvas.WX_GL_DOUBLEBUFFER,
-                          wx.glcanvas.WX_GL_STEREO]
+                          wx.glcanvas.WX_GL_DEPTH_SIZE, 16,
+                          wx.glcanvas.WX_GL_DOUBLEBUFFER]
+            if stereo: 
+                attribList.append(wx.glcanvas.WX_GL_STEREO)
+
             try:
                 baseClass.__init__(self, parent, ID, position, size, style, 
                                    attribList=attribList)
-                
             except wx.PyAssertionError:
-                # stereo visual couldn't be allocated, so we go back to default
+                # visual couldn't be allocated, so we go back to default
                 baseClass.__init__(self, parent, ID, position, size, style)
-                # and make sure everyone knows about it
-                stereo = 0
+                if stereo:
+                    # and make sure everyone knows that the stereo
+                    # visual wasn't set.
+                    stereo = 0
 
         else:
             baseClass.__init__(self, parent, ID, position, size, style)

@@ -188,7 +188,12 @@ class wxVTKRenderWindow(baseClass):
             p.Show(1)
 
         # initialize the wx.Window
-        baseClass.__init__(self, parent, ID, position, size, style)
+        if baseClass.__name__ == 'GLCanvas':
+            # Set the doublebuffer attribute of the GL canvas.
+            baseClass.__init__(self, parent, ID, position, size, style,
+                               attribList=[wx.glcanvas.WX_GL_DOUBLEBUFFER])
+        else:
+            baseClass.__init__(self, parent, ID, position, size, style)
 
         # create the RenderWindow and initialize it
         self._RenderWindow = vtk.vtkRenderWindow()
