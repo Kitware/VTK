@@ -42,7 +42,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.8");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.8.48.1");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -55,6 +55,7 @@ vtkAVIWriter::vtkAVIWriter()
   this->Quality = 2;
   this->Rate = 15;
   this->Internals->hDIB = NULL;  // handle to DIB, temp handle
+  this->PromptCompressionOptions = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -124,7 +125,7 @@ void vtkAVIWriter::Start()
 
   // do not want to display this dialog
   AVICOMPRESSOPTIONS opts;
-//  AVICOMPRESSOPTIONS FAR * aopts[1] = {&opts};
+  AVICOMPRESSOPTIONS FAR * aopts[1] = {&opts};
   memset(&opts, 0, sizeof(opts));  
 
   // need to setup opts
@@ -146,15 +147,17 @@ void vtkAVIWriter::Start()
   opts.dwBytesPerSecond = 0;
   opts.dwFlags = AVICOMPRESSF_VALID;
 
-//  if (!AVISaveOptions(NULL, 0, 
-//                      1, &this->Internals->Stream, 
-//                      (LPAVICOMPRESSOPTIONS FAR *) &aopts))
-//    {
-//    vtkErrorMacro("Unable to save " << this->FileName);         
-//    return;
-//    }
-  
-  
+  if (this->PromptCompressionOptions)
+    {
+    if (!AVISaveOptions(NULL, 0, 
+                        1, &this->Internals->Stream, 
+                        (LPAVICOMPRESSOPTIONS FAR *) &aopts))
+      {
+      vtkErrorMacro("Unable to save " << this->FileName);         
+      return;
+      }
+    }
+    
   if (AVIMakeCompressedStream(&this->Internals->StreamCompressed, 
                               this->Internals->Stream, 
                               &opts, NULL) != AVIERR_OK)
@@ -271,5 +274,6 @@ void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);  
   os << indent << "Rate: " << this->Rate << endl;
   os << indent << "Quality: " << this->Quality << endl;
+  os << indent << "PromptCompressionOptions: " << (this->GetPromptCompressionOptions() ? "on":"off") << endl;
 }
 
