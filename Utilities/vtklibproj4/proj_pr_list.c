@@ -41,7 +41,7 @@ pr_list(PROJ *P, int not_used) {
   (void)putchar('#');
   for (t = P->params; t; t = t->next)
     if ((!not_used && t->used) || (not_used && !t->used)) {
-      l = strlen(t->param) + 1;
+      l = (int)strlen(t->param) + 1;
       if (n + l > LINE_LEN) {
         (void)fputs("\n#", stdout);
         n = 2;
@@ -75,6 +75,16 @@ proj_pr_list(PROJ *P) {
 }
 /*
 ** Log: proj_pr_list.c
+** Revision 1.1  2008-11-07 16:41:15  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

@@ -43,7 +43,7 @@ proj_strerrno(int err) {
 
     for (i = 0; proj_err_list[i].errnum < 0 &&
           (proj_err_list[i].errnum != err); ++i) ;
-    if ((n = strlen(proj_err_list[i].name)) > MAX_LEN) n = MAX_LEN;
+    if ((n = (int)strlen(proj_err_list[i].name)) > MAX_LEN) n = MAX_LEN;
     strncpy(temp, proj_err_list[i].name, n);
     temp[n] = '\0';
     return temp;
@@ -51,6 +51,16 @@ proj_strerrno(int err) {
 }
 /*
 ** Log: proj_strerrno.c
+** Revision 1.1  2008-11-07 16:41:16  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **
