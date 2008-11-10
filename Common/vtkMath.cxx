@@ -35,7 +35,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkMath, "1.129");
+vtkCxxRevisionMacro(vtkMath, "1.130");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -79,7 +79,8 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 // avoid dll boundary problems
 
 //----------------------------------------------------------------------------
-// Generate random numbers between 0.0 and 1.0.
+// Generate pseudo-random numbers distributed according to the uniform 
+// distribution between 0.0 and 1.0.
 // This is used to provide portability across different systems.
 double vtkMath::Random()
 {

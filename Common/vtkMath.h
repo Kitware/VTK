@@ -442,13 +442,25 @@ public:
   static long GetSeed();
   
   // Description:
-  // Generate random numbers between 0.0 and 1.0.
+  // Generate pseudo-random numbers distributed according to the uniform 
+  // distribution between 0.0 and 1.0.
   // This is used to provide portability across different systems.
   static double Random();  
 
   // Description:
-  // Generate random number between (min,max).
-  static double Random(double min, double max);
+  // Generate  pseudo-random numbers distributed according to the uniform 
+  // distribution between \a min and \a max.
+  static double Random( double min, double max );
+
+  // Description:
+  // Generate pseudo-random numbers distributed according to the standard
+  // normal distribution.
+  static double Gaussian();  
+
+  // Description:
+  // Generate  pseudo-random numbers distributed according to the Gaussian
+  // distribution with mean \a mean and standard deviation \a std.
+  static double Gaussian( double mean, double std );
 
   // Description:
   // Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
@@ -863,9 +875,22 @@ inline double vtkMath::Distance2BetweenPoints(const double x[3],
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Random(double min, double max)
+inline double vtkMath::Random( double min, double max )
 {
-  return (min + vtkMath::Random()*(max-min));
+  return ( min + vtkMath::Random() * ( max - min ) );
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::Gaussian()
+{
+  // Use the Box-Mueller transform
+  return sqrt( -2. * log( vtkMath::Random() ) ) * cos( vtkMath::DoublePi() * vtkMath::Random() );
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::Gaussian( double mean, double std )
+{
+  return mean + std * vtkMath::Gaussian();
 }
 
 //----------------------------------------------------------------------------
