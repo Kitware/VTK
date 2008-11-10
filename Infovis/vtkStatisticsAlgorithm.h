@@ -125,7 +125,7 @@ public:
 
   // Description:
   // Get the name of a parameter of the Assess option
-  vtkStdString SetAssessParameter( vtkIdType id );
+  vtkStdString GetAssessParameter( vtkIdType id );
 
   // Description:
   // A base class for a functor that assesses data.

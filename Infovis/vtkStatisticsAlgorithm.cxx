@@ -28,7 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.22");
+vtkCxxRevisionMacro(vtkStatisticsAlgorithm, "1.23");
 
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
@@ -85,7 +85,7 @@ void vtkStatisticsAlgorithm::SetAssessParameter( vtkIdType id, vtkStdString name
 } 
 
 // ----------------------------------------------------------------------
-vtkStdString vtkStatisticsAlgorithm::SetAssessParameter( vtkIdType id )
+vtkStdString vtkStatisticsAlgorithm::GetAssessParameter( vtkIdType id )
 {
   if ( id >= 0 && id < this->AssessParameters->GetNumberOfValues() )
     {
