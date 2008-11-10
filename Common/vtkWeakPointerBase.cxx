@@ -82,9 +82,12 @@ vtkWeakPointerBase::~vtkWeakPointerBase()
 vtkWeakPointerBase&
 vtkWeakPointerBase::operator=(vtkObject* r)
 {
-  this->RemoveObserver();
-  this->Object = r;
-  this->AddObserver();
+  if(this->Object!=r)
+    {
+    this->RemoveObserver();
+    this->Object = r;
+    this->AddObserver();
+    }
   return *this;
 }
 
@@ -92,9 +95,15 @@ vtkWeakPointerBase::operator=(vtkObject* r)
 vtkWeakPointerBase&
 vtkWeakPointerBase::operator=(const vtkWeakPointerBase& r)
 {
-  this->RemoveObserver();
-  this->Object = r.Object;
-  this->AddObserver();
+  if(this!=&r)
+    {
+    if(this->Object!=r.Object)
+      {
+      this->RemoveObserver();
+      this->Object = r.Object;
+      this->AddObserver();
+      }
+    }
   return *this;
 }
 
