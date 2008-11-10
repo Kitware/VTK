@@ -68,10 +68,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # warnings are irrelevant in a dashboard submission
   "TestCxxFeatures.cxx.*warning.*type qualifiers ignored on function return type"
 
-  # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,
+  # Mask out warnings on Utilities libraries vtkexpat,vtksqlite,vtklibproj4
   "Utilities.vtkexpat.xmlparse.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtksqlite.vtk_sqlite3.c.*warning.*assignment discards qualifiers from pointer target type"
   "Utilities.vtkexodus2.*warning.*assignment discards qualifiers from pointer target type"
+  "Utilities.vtklibproj4.*warning.*defined but not used"
   )
 
 IF(APPLE)
