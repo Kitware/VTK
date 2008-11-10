@@ -1,6 +1,6 @@
 #include "vtkGeoProjection.h"
 
-int TestGeoProjection( int argc, char* argv[] )
+int TestGeoProjection( int, char*[] )
 {
   int np = vtkGeoProjection::GetNumberOfProjections();
   cout << "Supported projections:\n";
