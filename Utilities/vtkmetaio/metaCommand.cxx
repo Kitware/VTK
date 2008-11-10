@@ -18,6 +18,7 @@
 #pragma warning(disable:4702)
 #endif
 
+#include "metaUtils.h"
 #include "metaCommand.h"
 
 #include <stdio.h>
@@ -348,6 +349,35 @@ SetOptionRange(METAIO_STL::string optionName,
           {
           (*itField).rangeMin = rangeMin;
           (*itField).rangeMax = rangeMax;
+          return true;
+          }
+        itField++;
+        }
+      }
+    it++;
+    }
+  return false;
+}
+
+/** Set the range of an option */
+bool MetaCommand::
+SetOptionEnumerations(METAIO_STL::string optionName,
+                      METAIO_STL::string name,
+                      METAIO_STL::string optionEnums)
+                     
+{
+  OptionVector::iterator it = m_OptionVector.begin();
+  while(it != m_OptionVector.end())
+    {
+    if((*it).name == optionName)
+      {
+      METAIO_STL::vector<Field> & fields = (*it).fields;
+      METAIO_STL::vector<Field>::iterator itField = fields.begin();
+      while(itField != fields.end())
+        {
+        if((*itField).name == name)
+          {
+          (*itField).rangeMin = optionEnums;
           return true;
           }
         itField++;
@@ -698,7 +728,22 @@ ListOptions()
                           << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "      Value: " << (*itField).value.c_str() 
                           << METAIO_STREAM::endl;
-      
+      if( (*itField).type == ENUM )
+        {
+        METAIO_STREAM::cout << "      Enum list: " 
+                            << (*itField).rangeMin.c_str()
+                            << METAIO_STREAM::endl;
+        }
+      else
+        {
+        METAIO_STREAM::cout << "      RangeMin: " 
+                            << (*itField).rangeMin.c_str()
+                            << METAIO_STREAM::endl;
+        METAIO_STREAM::cout << "      RangeMax: " 
+                            << (*itField).rangeMax.c_str()
+                            << METAIO_STREAM::endl;
+        }
+        
       if((*itField).externaldata)
         {
         METAIO_STREAM::cout << "      External Data: true" 
@@ -718,6 +763,16 @@ ListOptions()
         {
         METAIO_STREAM::cout << "      Required: false" << METAIO_STREAM::endl;
         }
+
+      if((*itField).userDefined)
+        {
+        METAIO_STREAM::cout << "      User Defined: true" << METAIO_STREAM::endl;
+        }
+      else
+        {
+        METAIO_STREAM::cout << "      User Defined: false" << METAIO_STREAM::endl;
+        }
+
       itField++;
       }
     METAIO_STREAM::cout << METAIO_STREAM::endl;
@@ -839,6 +894,10 @@ void MetaCommand::WriteXMLOptionToCout(METAIO_STL::string optionName,
     {
     optionType = "integer";
     }
+  else if((*itField).type == MetaCommand::ENUM)
+    {
+    optionType = "string-enumeration";
+    }
   else
     {
     optionType = this->TypeToString((*itField).type).c_str();
@@ -890,6 +949,20 @@ void MetaCommand::WriteXMLOptionToCout(METAIO_STL::string optionName,
     {
     METAIO_STREAM::cout << "<channel>output</channel>" << METAIO_STREAM::endl;
     } 
+
+  if((*itField).type == MetaCommand::ENUM)
+    {
+    METAIO_STL::vector< METAIO_STL::string > enumVector;
+    MET_StringToVector< METAIO_STL::string>( (*itField).rangeMin, enumVector );
+    METAIO_STL::vector< METAIO_STL::string >::iterator it;
+    it = enumVector.begin();
+    while(it != enumVector.end() )
+      {
+      METAIO_STREAM::cout << "<element>" << (*it).c_str() << "</element>" 
+                          << METAIO_STREAM::endl;
+      ++it;
+      }
+    }
       
   // Write out the closing tag 
   METAIO_STREAM::cout << "</" << optionType << ">" << METAIO_STREAM::endl;
@@ -920,7 +993,14 @@ void MetaCommand::ListOptionsSlicerXML()
   ParameterGroupVector::const_iterator itGroup = m_ParameterGroup.begin();
   while(itGroup != m_ParameterGroup.end())
     {
-    METAIO_STREAM::cout << " <parameters>" <<  METAIO_STREAM::endl;
+    if( (*itGroup).advanced == true )
+      {
+      METAIO_STREAM::cout << " <parameters advanced=\"true\">" <<  METAIO_STREAM::endl;
+      }
+    else
+      {
+      METAIO_STREAM::cout << " <parameters>" <<  METAIO_STREAM::endl;
+      }
     METAIO_STREAM::cout << "  <label>" << (*itGroup).name <<  "</label>" <<  METAIO_STREAM::endl;
     
     if((*itGroup).description.size() == 0)
@@ -2088,6 +2168,8 @@ METAIO_STL::string MetaCommand::TypeToString(TypeEnumType type)
       return "image";
     case FILE:
       return "file";
+    case ENUM:
+      return "enum";
     default:
       return "not defined";
     }
@@ -2117,6 +2199,22 @@ MetaCommand::TypeEnumType MetaCommand::StringToType(const char* type)
   else if(!strcmp(type,"flag"))
     {
     return FLAG;
+    }
+  else if(!strcmp(type,"bool"))
+    {
+    return BOOL;
+    }
+  else if(!strcmp(type,"image"))
+    {
+    return IMAGE;
+    }
+  else if(!strcmp(type,"enum"))
+    {
+    return ENUM;
+    }
+  else if(!strcmp(type,"file"))
+    {
+    return FILE;
     }
 
   return INT; // by default
@@ -2164,7 +2262,8 @@ bool MetaCommand::SetOptionLabel(METAIO_STL::string optionName,
  *  If the group doesn't exist it is automatically created. */
 bool MetaCommand::SetParameterGroup(METAIO_STL::string optionName,
                                     METAIO_STL::string groupName,
-                                    METAIO_STL::string groupDescription
+                                    METAIO_STL::string groupDescription,
+                                    bool advanced
                                     )
 {
   // Check if the group exists
@@ -2204,6 +2303,7 @@ bool MetaCommand::SetParameterGroup(METAIO_STL::string optionName,
     ParameterGroup pgroup;
     pgroup.name = groupName;
     pgroup.description = groupDescription;
+    pgroup.advanced = advanced;
     pgroup.options.push_back(optionName);
     m_ParameterGroup.push_back(pgroup);
     }

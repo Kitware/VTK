@@ -52,6 +52,9 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iostream>
+//#include <iomanip>
 #include <typeinfo>
 #include <string.h>
 
@@ -170,6 +173,33 @@ void MET_SwapByteIfSystemMSB(void* val, MET_ValueEnumType _type);
 /////////////////////////////////////////////////////////
 METAIO_EXPORT 
 bool MET_StringToWordArray(const char *s, int *n, char ***val);
+
+template <class T>
+void MET_StringToVector( const METAIO_STL::string & s,
+                         METAIO_STL::vector< T > & vec )
+{
+  vec.clear();
+
+  METAIO_STL::string::size_type prevPos = 0;
+  METAIO_STL::string::size_type pos = s.find(",", prevPos);
+  T tVal;
+  while( pos != METAIO_STL::string::npos )
+    {
+    METAIO_STREAM::stringstream ss;
+    METAIO_STL::string tmpString = s.substr( prevPos, (pos-prevPos) );
+    ss << tmpString;
+    ss >> tVal;
+    vec.push_back( tVal );
+
+    prevPos = pos+1;
+    pos = s.find(",", prevPos);
+    }
+  METAIO_STREAM::stringstream ss;
+  METAIO_STL::string tmpString = s.substr( prevPos, (s.size()-prevPos) );
+  ss << tmpString;
+  ss >> tVal;
+  vec.push_back( tVal );
+}
 
 METAIO_EXPORT 
 bool MET_StringToType(const char *_str, MET_ValueEnumType *_type);
@@ -399,7 +429,6 @@ METAIO_STL::string MET_ReadType(METAIO_STREAM::istream & _fp);
 
 METAIO_EXPORT 
 char * MET_ReadSubType(METAIO_STREAM::istream & _fp);
-
 
 #if (METAIO_USE_NAMESPACE)
 };
