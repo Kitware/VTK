@@ -1551,7 +1551,10 @@ ReadStream(int _nDims,
         {
         METAIO_STREAM::cerr << "MetaImage: Read: Cannot open data file"
                             << METAIO_STREAM::endl;
-        m_ReadStream->close();
+        if(m_ReadStream)
+          {
+          m_ReadStream->close();
+          }
         return false;
         }
 
@@ -3106,7 +3109,10 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         {
         METAIO_STREAM::cerr << "MetaImage: ReadROI: Cannot open data file"
                             << METAIO_STREAM::endl;
-        m_ReadStream->close();
+        if(m_ReadStream)
+          {
+          m_ReadStream->close();
+          }
         return false;
         }     
      
