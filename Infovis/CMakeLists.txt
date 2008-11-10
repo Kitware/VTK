@@ -52,7 +52,6 @@ vtkOrderStatistics.cxx
 vtkPassThrough.cxx
 vtkPassThroughEdgeStrategy.cxx
 vtkPassThroughLayoutStrategy.cxx
-vtkPDescriptiveStatistics.cxx
 vtkPruneTreeFilter.cxx
 vtkRISReader.cxx
 vtkRandomGraphSource.cxx
@@ -170,6 +169,14 @@ IF(VTK_USE_N_WAY_ARRAYS)
 
   ENDIF(VTK_USE_BOOST)
 ENDIF(VTK_USE_N_WAY_ARRAYS)
+
+# Add these classes only if PARALLEL is turned ON
+IF(VTK_USE_PARALLEL)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkPDescriptiveStatistics.cxx
+    )
+  SET(KIT_LIBS ${KIT_LIBS} vtkParallel)
+ENDIF(VTK_USE_PARALLEL)
 
 # Add these classes only if vtkTypeUInt64Array exists
 IF(VTK_HAS_UINT64_ARRAY)

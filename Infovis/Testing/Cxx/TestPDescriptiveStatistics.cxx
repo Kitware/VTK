@@ -77,6 +77,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
   // Instantiate a (serial) descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   ds->SetInput( 0, inputData );
+  vtkTable* outputData = ds->GetOutput( 0 );
   vtkTable* outputMeta = ds->GetOutput( 1 );
 
   // Select all columns
@@ -85,10 +86,10 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
     ds->AddColumn( columnNames[c] );
     } // Include invalid Metric 3
 
-  // Test with Learn and Derive options only
+  // Test with Learn, Derive, and Assess options turned on
   ds->SetLearn( true );
   ds->SetDerive( true );
-  ds->SetAssess( false );
+  ds->SetAssess( true );
   ds->Update();
 
   cout << "\n## Proc "
