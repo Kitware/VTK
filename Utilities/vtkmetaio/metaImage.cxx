@@ -2598,8 +2598,10 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
     {
     // if m_CompressedDataSize is not defined we assume the size of the
     // file is the size of the compressed data
+    bool compressedDataDeterminedFromFile = false;
     if(m_CompressedDataSize==0)
       {
+      compressedDataDeterminedFromFile = true;
       _fstream->seekg(0, METAIO_STREAM::ios::end);
       m_CompressedDataSize = _fstream->tellg();
       _fstream->seekg(0, METAIO_STREAM::ios::beg);
@@ -2610,6 +2612,12 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
 
     MET_PerformUncompression(compr, m_CompressedDataSize,
                              (unsigned char *)_data, readSize);
+
+    if (compressedDataDeterminedFromFile)
+      {
+      m_CompressedDataSize = 0;
+      }
+
     delete [] compr;
     }
   else // if not compressed
