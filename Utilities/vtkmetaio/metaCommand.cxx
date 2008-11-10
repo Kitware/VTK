@@ -954,13 +954,13 @@ void MetaCommand::WriteXMLOptionToCout(METAIO_STL::string optionName,
     {
     METAIO_STL::vector< METAIO_STL::string > enumVector;
     MET_StringToVector< METAIO_STL::string>( (*itField).rangeMin, enumVector );
-    METAIO_STL::vector< METAIO_STL::string >::iterator it;
-    it = enumVector.begin();
-    while(it != enumVector.end() )
+    METAIO_STL::vector< METAIO_STL::string >::iterator itenum;
+    itenum = enumVector.begin();
+    while(itenum != enumVector.end() )
       {
-      METAIO_STREAM::cout << "<element>" << (*it).c_str() << "</element>" 
+      METAIO_STREAM::cout << "<element>" << (*itenum).c_str() << "</element>" 
                           << METAIO_STREAM::endl;
-      ++it;
+      ++itenum;
       }
     }
       
