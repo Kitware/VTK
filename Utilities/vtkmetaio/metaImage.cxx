@@ -1895,7 +1895,7 @@ bool MetaImage::WriteROI(int * _indexMin, int * _indexMax,
       // Add zeros to the image if the data is missing. 
       // Maybe this should refer to a function to avoid
       // taking all the memory like we did before.
-      tmpWriteStream->seekp(0,METAIO_STREAM::ios::end);  
+      tmpWriteStream->seekp(0, METAIO_STREAM::ios::end);  
       size_t endfile = tmpWriteStream->tellp();
       
       if(seekpos>endfile)
@@ -2907,8 +2907,10 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
        !strcmp("LOCAL", m_ElementDataFileName) ||
        !strcmp("local", m_ElementDataFileName))
       {
+      int elementSize;
       M_ReadElementsROI(_stream, m_ElementData, quantity,
-                        _indexMin,_indexMax,subSamplingFactor);
+                        _indexMin, _indexMax, subSamplingFactor,
+                        m_Quantity);
       }
     else if(!strncmp("LIST", m_ElementDataFileName,4))
       {
@@ -2979,27 +2981,27 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
             continue;
             }
 
-        // read only one slice           
-        int * indexMin = new int[m_NDims];
-        int * indexMax = new int[m_NDims];
-        quantity = 1;
-        for(int k = 0;k<m_NDims-1;k++)
-          {
-          quantity *= _indexMax[k]-_indexMin[k]+1; 
-          indexMin[k]= _indexMin[k];
-          indexMax[k]= _indexMax[k];
-          }
-        indexMin[m_NDims-1]=0;
-        indexMax[m_NDims-1]=0;
-        
-        M_ReadElementsROI(readStreamTemp,
-                       &(((char *)m_ElementData)[cnt*quantity*
-                                                 elementSize]),
-                       quantity,indexMin,indexMax,
-                       subSamplingFactor,
-                       m_SubQuantity[m_NDims-1]*m_ElementNumberOfChannels*elementSize);               
-                  
-           cnt++;            
+          // read only one slice           
+          int * indexMin = new int[m_NDims];
+          int * indexMax = new int[m_NDims];
+          quantity = 1;
+          for(int k = 0;k<m_NDims-1;k++)
+            {
+            quantity *= _indexMax[k]-_indexMin[k]+1; 
+            indexMin[k]= _indexMin[k];
+            indexMax[k]= _indexMax[k];
+            }
+          indexMin[m_NDims-1]=0;
+          indexMax[m_NDims-1]=0;
+          
+          M_ReadElementsROI(readStreamTemp,
+                             &(((char *)m_ElementData)[cnt*quantity*
+                                                     elementSize]),
+                             quantity, indexMin, indexMax,
+                             subSamplingFactor,
+                             m_SubQuantity[m_NDims-1]*m_ElementNumberOfChannels*elementSize);               
+                    
+          cnt++;            
           readStreamTemp->close();
           }
         }
@@ -3081,7 +3083,7 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         M_ReadElementsROI(readStreamTemp,
                        &(((char *)m_ElementData)[cnt*quantity*
                                                  elementSize]),
-                       quantity,indexMin,indexMax,
+                       quantity, indexMin, indexMax,
                        subSamplingFactor,
                        m_SubQuantity[m_NDims-1]*m_ElementNumberOfChannels*elementSize);               
         cnt++;
@@ -3125,7 +3127,8 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
         }     
      
       M_ReadElementsROI(readStreamTemp, m_ElementData, quantity,
-                        _indexMin,_indexMax,subSamplingFactor);
+                        _indexMin, _indexMax, subSamplingFactor,
+                        m_Quantity);
 
       readStreamTemp->close();
       delete readStreamTemp;
@@ -3185,7 +3188,8 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
       METAIO_STREAM::cout << "MetaImage: M_ReadElementsROI: Skipping header"
                           << METAIO_STREAM::endl;
       }
-    _fstream->seekg(-_totalDataQuantity, METAIO_STREAM::ios::end);
+    METAIO_STL::streamsize headSize = _totalDataQuantity*m_ElementNumberOfChannels*elementSize;
+    _fstream->seekg(-headSize, METAIO_STREAM::ios::end);
     }
 
   unsigned long dataPos = _fstream->tellg();
@@ -3230,7 +3234,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
         {
         // Seek to the right position
         unsigned long seekpos = 0;
-        for(i=0;i<m_NDims;i++)
+        for(i=0; i<m_NDims; i++)
           {
           seekpos += m_SubQuantity[i]*m_ElementNumberOfChannels*elementSize*currentIndex[i];
           }
@@ -3240,7 +3244,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
           unsigned char* subdata = new unsigned char[readLine];
 
           MET_UncompressStream(_fstream, seekpos, subdata,
-                               readLine,m_CompressedDataSize,
+                               readLine, m_CompressedDataSize,
                                m_CompressionTable);
 
           for(METAIO_STL::streamsize p=0; 
@@ -3260,7 +3264,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
           {
           METAIO_STL::streamsize read = MET_UncompressStream(
                                                _fstream, seekpos, data,
-                                               readLine,m_CompressedDataSize,
+                                               readLine, m_CompressedDataSize,
                                                m_CompressionTable);
           data += readLine;
           gc += read;
