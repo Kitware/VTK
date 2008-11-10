@@ -2,7 +2,6 @@
 
 int TestGeoProjection( int argc, char* argv[] )
 {
-  const char* projName = argc > 1 ? argv[1] : "rouss";
   int np = vtkGeoProjection::GetNumberOfProjections();
   cout << "Supported projections:\n";
   for ( int i = 0; i < np; ++ i )
@@ -12,6 +11,7 @@ int TestGeoProjection( int argc, char* argv[] )
     }
   cout << "-------\n";
   vtkGeoProjection* proj = vtkGeoProjection::New();
+  const char* projName = "rouss";
   proj->SetName( projName );
   cout << projName << " is " << proj->GetDescription() << "\n";
   proj->Delete();
