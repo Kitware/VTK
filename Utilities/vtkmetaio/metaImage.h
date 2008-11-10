@@ -298,7 +298,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
                        
     MET_CompressionTableType*  m_CompressionTable;
 
-    int                       m_DimSize[10];
+    int                    m_DimSize[10];
     METAIO_STL::streamsize m_SubQuantity[10];
     METAIO_STL::streamsize m_Quantity;
 
@@ -344,7 +344,8 @@ class METAIO_EXPORT MetaImage : public MetaObject
                             METAIO_STL::streamsize _dataQuantity,
                             int * _indexMin,
                             int* _indexMax,
-                            unsigned int subSamplingFactor=1
+                            unsigned int subSamplingFactor=1,
+                            METAIO_STL::streamsize _totalDataQuantity=0
                             );
 
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
