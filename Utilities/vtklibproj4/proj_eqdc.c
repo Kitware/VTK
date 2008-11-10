@@ -63,7 +63,7 @@ INVERSE(e_inverse); /* sphere & ellipsoid */
   }
   return (lp);
 }
-SPECIAL(fac) {
+SPECIAL(fact) {
   double sinphi, cosphi;
 
   sinphi = sin(lp.phi);
@@ -107,10 +107,20 @@ ENTRY1(eqdc, en)
   }
   P->inv = e_inverse;
   P->fwd = e_forward;
-  P->spc = fac;
+  P->spc = fact;
 ENDENTRY(P)
 /*
 ** Log: proj_eqdc.c
+** Revision 1.1  2008-11-07 16:41:14  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **
