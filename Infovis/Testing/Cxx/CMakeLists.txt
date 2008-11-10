@@ -125,6 +125,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 
+IF (VTK_USE_MPI)
+  ADD_EXECUTABLE(TestPDescriptiveStatistics TestPDescriptiveStatistics.cxx)
+  TARGET_LINK_LIBRARIES(TestPDescriptiveStatistics vtkInfovis vtkParallel)
+ENDIF (VTK_USE_MPI)
+
 IF(VTK_USE_N_WAY_ARRAYS)
 
   CREATE_TEST_SOURCELIST(ArrayTests ArrayCxxTests.cxx

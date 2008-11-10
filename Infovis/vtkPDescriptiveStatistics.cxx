@@ -1,0 +1,162 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkPDescriptiveStatistics.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkToolkits.h"
+
+#include "vtkPDescriptiveStatistics.h"
+
+#include "vtkCommunicator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkMultiProcessController.h"
+#include "vtkTable.h"
+#include "vtkVariant.h"
+
+vtkStandardNewMacro(vtkPDescriptiveStatistics);
+vtkCxxRevisionMacro(vtkPDescriptiveStatistics, "1.1");
+vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessController);
+//-----------------------------------------------------------------------------
+vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
+{
+  this->Controller = 0;
+  this->SetController( vtkMultiProcessController::GetGlobalController() );
+}
+
+//-----------------------------------------------------------------------------
+vtkPDescriptiveStatistics::~vtkPDescriptiveStatistics()
+{
+  this->SetController( 0 );
+}
+
+//-----------------------------------------------------------------------------
+void vtkPDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Controller: " << this->Controller << endl;
+}
+
+// ----------------------------------------------------------------------
+void vtkPDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
+                                              vtkTable* outMeta )
+{
+  // First calculate descriptive statistics on local data set
+  this->Superclass::ExecuteLearn( inData, outMeta );
+
+  vtkIdType nRow = outMeta->GetNumberOfRows();
+  if ( ! nRow )
+    {
+    // No statistics were calculated.
+    return;
+    }
+
+  // Make sure that parallel updates are needed, otherwise leave it at that.
+  int np = this->Controller->GetNumberOfProcesses();
+  if ( np < 2 )
+    {
+    return;
+    }
+
+  // Now get ready for parallel calculations
+  vtkCommunicator* com = this->Controller->GetCommunicator();
+  
+  // (All) gather all sample sizes
+  int n_l = this->SampleSize;
+  int* n_g = new int[np];
+  com->AllGather( &n_l, n_g, 1 ); 
+  
+  // Iterate over all parameter rows
+  for ( int r = 0; r < nRow; ++ r )
+    {
+    // Reduce to global minimum
+    double min_l = outMeta->GetValueByName( r, "Minimum" ).ToDouble();
+    double min_g[1];
+    com->AllReduce( &min_l, 
+                    min_g, 
+                    1, 
+                    vtkCommunicator::MIN_OP );
+    outMeta->SetValueByName( r, "Minimum", min_g[0] );
+
+    // Reduce to global maximum
+    double max_l = outMeta->GetValueByName( r, "Maximum" ).ToDouble();
+    double max_g[1];
+    com->AllReduce( &max_l, 
+                    max_g, 
+                    1, 
+                    vtkCommunicator::MAX_OP );
+    outMeta->SetValueByName( r, "Maximum", max_g[0] );
+
+    // (All) gather all local M statistics
+    double M_l[4];
+    M_l[0] = outMeta->GetValueByName( r, "Mean" ).ToDouble();
+    M_l[1] = outMeta->GetValueByName( r, "M2" ).ToDouble();
+    M_l[2] = outMeta->GetValueByName( r, "M3" ).ToDouble();
+    M_l[3] = outMeta->GetValueByName( r, "M4" ).ToDouble();
+    double* M_g = new double[4 * np];
+    com->AllGather( M_l, M_g, 4 );
+
+    // Aggregate all local quadruples of M statistics into global ones
+    int ns = n_g[0];
+    double mean = M_g[0];
+    double mom2 = M_g[1];
+    double mom3 = M_g[2];
+    double mom4 = M_g[3];
+
+    for ( int i = 1; i < np; ++ i )
+      {
+      int ns_l = n_g[i];
+      ns += ns_l;
+
+      int o = 4 * i;
+      double mean_part = M_g[o];
+      double mom2_part = M_g[o + 1];
+      double mom3_part = M_g[o + 2];
+      double mom4_part = M_g[o + 3];
+      
+      double delta = mean_part - mean;
+      double delta_sur_n = delta / static_cast<double>( ns );
+      double delta_sur_n2 = delta_sur_n * delta_sur_n;
+
+      int ns2 = ns * ns;
+      int ns_l2 = ns_l * ns_l;
+      int prod_ns = ns * ns_l;
+ 
+      mom4 += mom4_part 
+        + prod_ns * ( ns2 - prod_ns + ns_l2 ) * delta * delta_sur_n * delta_sur_n2
+        + 6. * ( ns2 * mom2_part + ns_l2 * mom2 ) * delta_sur_n2
+        + 4. * ( ns * mom3_part - ns_l * mom3 ) * delta_sur_n;
+
+      mom3 += mom3_part 
+        + prod_ns * ( ns - ns_l ) * delta * delta_sur_n2
+        + 3. * ( ns * mom2_part - ns_l * mom2 ) * delta_sur_n;
+
+      mom2 += mom2_part 
+        + prod_ns * delta * delta_sur_n;
+
+      mean += ns_l * delta_sur_n;
+      }
+
+    outMeta->SetValueByName( r, "Mean", mean );
+    outMeta->SetValueByName( r, "M2", mom2 );
+    outMeta->SetValueByName( r, "M3", mom3 );
+    outMeta->SetValueByName( r, "M4", mom4 );
+
+    // Set global statistics
+    this->SampleSize = ns;
+
+    // Clean-up
+    delete [] M_g;
+    }
+  delete [] n_g;
+}
