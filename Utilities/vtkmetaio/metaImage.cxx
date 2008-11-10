@@ -2907,7 +2907,6 @@ bool MetaImage::ReadROIStream(int * _indexMin, int * _indexMax,
        !strcmp("LOCAL", m_ElementDataFileName) ||
        !strcmp("local", m_ElementDataFileName))
       {
-      int elementSize;
       M_ReadElementsROI(_stream, m_ElementData, quantity,
                         _indexMin, _indexMax, subSamplingFactor,
                         m_Quantity);
