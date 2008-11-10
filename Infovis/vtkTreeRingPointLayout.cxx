@@ -35,7 +35,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingPointLayout, "1.6");
 vtkStandardNewMacro(vtkTreeRingPointLayout);
 
 vtkTreeRingPointLayout::vtkTreeRingPointLayout()
@@ -138,7 +138,7 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
     double r;
     if( leafArray->GetValue(i) == 1 )
     {
-      r = sector_coords[0];
+      r = sector_coords[2];
     }
     else
     {
@@ -155,7 +155,7 @@ int vtkTreeRingPointLayout::RequestData( vtkInformation *vtkNotUsed(request),
       r *= this->ExteriorRadius;
     }
     
-    double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
+    double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
     double x = r*cos(vtkMath::DegreesToRadians()*theta);
     double y = r*sin(vtkMath::DegreesToRadians()*theta);
     double z = 0.;

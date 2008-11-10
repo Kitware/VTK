@@ -22,9 +22,9 @@
 //
 // .SECTION Description
 // This algorithm requires that the vtkTreeRingLayout filter has already
-// been applied to the data in order to create the quadruple array (inner
-// radius, outer radius, start angle, end angle) of bounds for each vertex
-// of the tree.
+// been applied to the data in order to create the quadruple array 
+// (start angle, end angle, inner radius, outer radius) of bounds 
+// for each vertex of the tree.
 
 #ifndef __vtkTreeRingToPolyData_h
 #define __vtkTreeRingToPolyData_h
@@ -39,7 +39,8 @@ public:
   vtkTypeRevisionMacro(vtkTreeRingToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // The field containing quadruples of the form (min x, max x, min y, max y)
+  // The field containing quadruples of the form (start angle, end angle, 
+  // inner radius, outer radius)
   // representing the bounds of the rectangles for each vertex.
   // This field may be added to the tree using vtkTreeRingLayout.
   // This array must be set.

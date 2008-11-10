@@ -60,14 +60,9 @@ private:
   char * SizeFieldName;
 
   void LayoutChildren(
-    vtkTree *tree, 
-    vtkDataArray *coordsArray,
-    vtkDataArray *sizeArray,
-    vtkIdType nchildren,
-    vtkIdType parent,
-    vtkIdType begin, 
-    float parentInnerRad,
-    float parentStartAng, float parentEndAng);
+    vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *sizeArray,
+    vtkIdType nchildren, vtkIdType parent, vtkIdType begin, 
+    float parentInnerRad, float parentStartAng, float parentEndAng);
 
   vtkTreeRingReversedLayoutStrategy(const vtkTreeRingReversedLayoutStrategy&);  // Not implemented.
   void operator=(const vtkTreeRingReversedLayoutStrategy&);  // Not implemented.

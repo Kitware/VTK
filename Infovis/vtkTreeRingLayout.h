@@ -23,7 +23,7 @@
 // vtkTreeRingLayout assigns sector regions to each vertex in the tree,
 // creating a tree ring.  The data is added as a data array with four
 // components per tuple representing the location and size of the
-// sector using the format (innerRadius, outerRadius, StartAngle, EndAngle).
+// sector using the format (StartAngle, EndAngle, innerRadius, outerRadius).
 //
 // This algorithm relies on a helper class to perform the actual layout.
 // This helper class is a subclass of vtkTreeRingLayoutStrategy.
@@ -34,7 +34,6 @@
 
 #ifndef __vtkTreeRingLayout_h
 #define __vtkTreeRingLayout_h
-
 
 #include "vtkTreeAlgorithm.h"
 
@@ -51,7 +50,7 @@ public:
   // Description:
   // The field name to use for storing the sector for each vertex.
   // The rectangles are stored in a quadruple float array 
-  // (innerRadius, outerRadius, startAngle, endAngle).
+  // (startAngle, endAngle, innerRadius, outerRadius).
   vtkGetStringMacro(SectorsFieldName);
   vtkSetStringMacro(SectorsFieldName);
 

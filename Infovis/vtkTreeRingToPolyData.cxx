@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.6");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -92,12 +92,12 @@ int vtkTreeRingToPolyData::RequestData(
     coordArray->GetTuple(i,coords);
 
     VTK_CREATE(vtkSectorSource, sector);
-    double radial_length = coords[1] - coords[0];
+    double radial_length = coords[3] - coords[2];
     
       //calculate the amount of change in the arcs based on the shrink 
       // percentage of the arc_length
     double conversion = vtkMath::Pi()/180.;
-    double arc_length = (conversion*(coords[3] - coords[2])*coords[1]);
+    double arc_length = (conversion*(coords[1] - coords[0])*coords[3]);
     double radial_shrink = radial_length*this->ShrinkPercentage;
 //    double arc_length_shrink = ((radial_length*this->ShrinkPercentage) < (arc_length*this->ShrinkPercentage)) ? (radial_length*this->ShrinkPercentage) : (arc_length*this->ShrinkPercentage);
     double arc_length_shrink;
@@ -111,15 +111,15 @@ int vtkTreeRingToPolyData::RequestData(
     }
 
     double arc_length_new = arc_length - arc_length_shrink;
-    double angle_change = ((arc_length_new/coords[1])/conversion);
-    double delta_change_each = 0.5*((coords[3]-coords[2]) - angle_change);
+    double angle_change = ((arc_length_new/coords[3])/conversion);
+    double delta_change_each = 0.5*((coords[1]-coords[0]) - angle_change);
     
-    sector->SetInnerRadius(coords[0] + (0.5*(radial_length*this->ShrinkPercentage)));
-    sector->SetOuterRadius(coords[1] - (0.5*(radial_length*this->ShrinkPercentage)));
-    sector->SetStartAngle(coords[2] + delta_change_each);
-    sector->SetEndAngle(coords[3] - delta_change_each);
+    sector->SetInnerRadius(coords[2] + (0.5*(radial_length*this->ShrinkPercentage)));
+    sector->SetOuterRadius(coords[3] - (0.5*(radial_length*this->ShrinkPercentage)));
+    sector->SetStartAngle(coords[0] + delta_change_each);
+    sector->SetEndAngle(coords[1] - delta_change_each);
 
-    int resolution = (int)((coords[3] - coords[2])/1);
+    int resolution = (int)((coords[1] - coords[0])/1);
     if( resolution < 1 )
         resolution = 1;
     sector->SetCircumferentialResolution(resolution);

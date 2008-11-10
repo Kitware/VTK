@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.6");
 vtkStandardNewMacro(vtkTreeRingReversedLayoutStrategy);
 
 vtkTreeRingReversedLayoutStrategy::vtkTreeRingReversedLayoutStrategy()
@@ -89,12 +89,13 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
   
       // Get the root vertex and set it to 0,1,0,1
   vtkIdType rootId = levelTree->GetRoot();
-  float coords[] = {outer_radius-this->RingThickness, outer_radius, this->RootStartAngle, this->RootEndAngle};
+  float coords[] = {this->RootStartAngle, this->RootEndAngle, outer_radius-this->RingThickness, outer_radius};
   coordsArray->SetTuple(rootId, coords);
 
     // Now layout the children vertices
-  this->LayoutChildren(levelTree, coordsArray, sizeArray, levelTree->GetNumberOfChildren(rootId),
-                       rootId, 0, coords[0], coords[2], coords[3]);
+  this->LayoutChildren(levelTree, coordsArray, sizeArray, 
+                       levelTree->GetNumberOfChildren(rootId),
+                       rootId, 0, coords[2], coords[0], coords[1]);
 
   vtkPoints* points = vtkPoints::New();
   vtkIdType numVerts = inputTree->GetNumberOfVertices();
@@ -109,8 +110,8 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
     
     double sector_coords[4];
     coordsArray->GetTuple( i, sector_coords );
-    double r = (0.5*(sector_coords[1] - sector_coords[0])) + sector_coords[0];
-    double theta = sector_coords[2] + (0.5*(sector_coords[3]-sector_coords[2]));
+    double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
+    double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
     double x = r*cos(vtkMath::DegreesToRadians()*theta);
     double y = r*sin(vtkMath::DegreesToRadians()*theta);
     double z = 0.;
@@ -148,13 +149,13 @@ void vtkTreeRingReversedLayoutStrategy::LayoutChildren(
     double this_arc = available_arc * 
         ( static_cast<float>(sizeArray->GetTuple1(id)) / total_weighted_sum );
 
-    coords[0] = new_interior_rad;
-    coords[1] = new_outer_rad;
-    coords[2] = current_angle;
-    coords[3] = current_angle + this_arc;
+    coords[2] = new_interior_rad;
+    coords[3] = new_outer_rad;
+    coords[0] = current_angle;
+    coords[1] = current_angle + this_arc;
     if( i == nchildren )
     {
-      coords[3] = parentEndAng;
+      coords[1] = parentEndAng;
     }
     
     coordsArray->SetTuple(id, coords);
@@ -165,7 +166,7 @@ void vtkTreeRingReversedLayoutStrategy::LayoutChildren(
     if (numNewChildren > 0)
     {
       this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, id, 0,
-                           coords[0], coords[2], coords[3]);
+                           coords[2], coords[0], coords[1]);
     }
   }
 }

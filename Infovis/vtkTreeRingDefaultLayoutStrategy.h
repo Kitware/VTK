@@ -60,14 +60,9 @@ private:
   char * SizeFieldName;
 
   void LayoutChildren(
-    vtkTree *tree, 
-    vtkDataArray *coordsArray,
-    vtkDataArray *sizeArray,
-    vtkIdType nchildren,
-    vtkIdType parent,
-    vtkIdType begin, 
-    float parentOuterRad, 
-    float parentStartAng, float parentEndAng);
+    vtkTree *tree, vtkDataArray *coordsArray, vtkDataArray *sizeArray,
+    vtkIdType nchildren, vtkIdType parent, vtkIdType begin,  
+    float parentOuterRad, float parentStartAng, float parentEndAng);
 
   vtkTreeRingDefaultLayoutStrategy(const vtkTreeRingDefaultLayoutStrategy&);  // Not implemented.
   void operator=(const vtkTreeRingDefaultLayoutStrategy&);  // Not implemented.

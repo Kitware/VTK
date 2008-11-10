@@ -47,7 +47,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -228,24 +228,24 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
       this->Balloon->SetBalloonText(str);
       double z = 0.02;
 //FIXME-jfsheph Need to generate the edge data directly...
-      float binfo[8];
-      binfo[0] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-      binfo[1] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-      binfo[2] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-      binfo[3] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-      binfo[4] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-      binfo[5] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
-      binfo[6] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-      binfo[7] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
+//       float binfo[8];
+//       binfo[0] = sinfo[2]*cos(vtkMath::DegreesToRadians()*sinfo[0]);
+//       binfo[1] = sinfo[2]*sin(vtkMath::DegreesToRadians()*sinfo[0]);
+//       binfo[2] = sinfo[3]*cos(vtkMath::DegreesToRadians()*sinfo[0]);
+//       binfo[3] = sinfo[3]*sin(vtkMath::DegreesToRadians()*sinfo[0]);
+//       binfo[4] = sinfo[3]*cos(vtkMath::DegreesToRadians()*sinfo[1]);
+//       binfo[5] = sinfo[3]*sin(vtkMath::DegreesToRadians()*sinfo[1]);
+//       binfo[6] = sinfo[2]*cos(vtkMath::DegreesToRadians()*sinfo[1]);
+//       binfo[7] = sinfo[2]*sin(vtkMath::DegreesToRadians()*sinfo[1]);
 
       VTK_CREATE(vtkSectorSource, sector);
-      sector->SetInnerRadius(sinfo[0]);
-      sector->SetOuterRadius(sinfo[1]);
+      sector->SetInnerRadius(sinfo[2]);
+      sector->SetOuterRadius(sinfo[3]);
       sector->SetZCoord(z);
-      sector->SetStartAngle(sinfo[2]);
-      sector->SetEndAngle(sinfo[3]);
+      sector->SetStartAngle(sinfo[0]);
+      sector->SetEndAngle(sinfo[1]);
 //FIXME-jfsheph Are we satisfied with this level of resolution?
-      int resolution = (int)((sinfo[3]-sinfo[2])/1);
+      int resolution = (int)((sinfo[1]-sinfo[0])/1);
       if( resolution < 1 )
           resolution = 1;
       sector->SetCircumferentialResolution(resolution);
@@ -356,24 +356,24 @@ void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
     this->GetBoundingSectorForTreeRingItem(this->CurrentSelectedId,sinfo);
 
     double z = 0.01;
-    float binfo[8];
-    binfo[0] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-    binfo[1] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-    binfo[2] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-    binfo[3] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-    binfo[4] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-    binfo[5] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
-    binfo[6] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-    binfo[7] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
+//     float binfo[8];
+//     binfo[0] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
+//     binfo[1] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
+//     binfo[2] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
+//     binfo[3] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
+//     binfo[4] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
+//     binfo[5] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
+//     binfo[6] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
+//     binfo[7] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
  
     VTK_CREATE(vtkSectorSource, sector);
-    sector->SetInnerRadius(sinfo[0]);
-    sector->SetOuterRadius(sinfo[1]);
+    sector->SetInnerRadius(sinfo[2]);
+    sector->SetOuterRadius(sinfo[3]);
     sector->SetZCoord(z);
-    sector->SetStartAngle(sinfo[2]);
-    sector->SetEndAngle(sinfo[3]);
+    sector->SetStartAngle(sinfo[0]);
+    sector->SetEndAngle(sinfo[1]);
 //FIXME-jfsheph - Are we satisfied with this level of resolution?
-    int resolution = (int)((sinfo[3]-sinfo[2])/1);
+    int resolution = (int)((sinfo[1]-sinfo[0])/1);
       if( resolution < 1 )
           resolution = 1;
       sector->SetCircumferentialResolution(resolution);
