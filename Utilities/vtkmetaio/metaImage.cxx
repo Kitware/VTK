@@ -1264,6 +1264,10 @@ CanRead(const char *_headerName) const
           return false;
           }
         }
+      for(i=0; i<nWrds; i++)
+        {
+        delete [] wrds[i++];
+        }
       delete [] dimSize;
       }
     else
