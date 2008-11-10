@@ -339,15 +339,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
                          void * _data,
                          METAIO_STL::streamsize _dataQuantity);
 
-
     bool  M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, 
                             void * _data,
                             METAIO_STL::streamsize _dataQuantity,
                             int * _indexMin,
                             int* _indexMax,
                             unsigned int subSamplingFactor=1,
-                            METAIO_STL::streamsize _totalDataQuantity=0
-                            );
+                            METAIO_STL::streamsize _totalDataQuantity=0);
 
     bool  M_WriteElements(METAIO_STREAM::ofstream * _fstream,
                           const void * _data,
