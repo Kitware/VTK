@@ -26,7 +26,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkArcSource, "1.1");
+vtkCxxRevisionMacro(vtkArcSource, "1.2");
 vtkStandardNewMacro(vtkArcSource);
 
 // --------------------------------------------------------------------------
@@ -162,5 +162,9 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << this->Point2[0] << ", "
                                << this->Point2[1] << ", "
                                << this->Point2[2] << ")\n";
+
+  os << indent << "Center: (" << this->Center[0] << ", "
+                              << this->Center[1] << ", "
+                              << this->Center[2] << ")\n";
 }
 
