@@ -122,7 +122,7 @@ public:
   void SetVertexColorArrayName(const char* name);
 //  const char* GetVertexColorArrayName();
 
-    // Description:
+  // Description:
   // Set the log spacing for the interior point layout.
   void SetInteriorLogSpacingFactor(double spacing);
 
@@ -134,7 +134,11 @@ public:
   // Description:
   // Set the color to be the spline fraction
   void SetEdgeColorToSplineFraction();
-  
+
+  // Description:
+  // Set the shrink percentage on each of the sectors
+  void SetSectorShrinkFactor(double value);
+
   // Description:
   // Whether to color edges.  Default is off.
   void SetColorEdges(bool vis);
@@ -145,7 +149,11 @@ public:
   // Description:
   // Set the bundling strength.
   void SetBundlingStrength(double strength);
-   
+
+  // Description:
+  // Set the root angles for laying out the hierarchy
+  void SetRootAngles( double start, double end );
+ 
   // Description:
   // Retrieve the graph and tree representations.
   virtual vtkDataRepresentation* GetGraphRepresentation()

@@ -67,7 +67,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.4");
+vtkCxxRevisionMacro(vtkHierarchicalTreeRingView, "1.5");
 vtkStandardNewMacro(vtkHierarchicalTreeRingView);
 //----------------------------------------------------------------------------
 vtkHierarchicalTreeRingView::vtkHierarchicalTreeRingView()
@@ -370,6 +370,12 @@ void vtkHierarchicalTreeRingView::EdgeLabelVisibilityOn()
 void vtkHierarchicalTreeRingView::EdgeLabelVisibilityOff()
 {
   this->EdgeLabelActor->SetVisibility(false);
+}
+
+void vtkHierarchicalTreeRingView::SetRootAngles( double start, double end )
+{
+  this->TreeRingLayoutStrategy->SetRootStartAngle( start );
+  this->TreeRingLayoutStrategy->SetRootEndAngle( end );
 }
 
 //----------------------------------------------------------------------------
@@ -902,4 +908,11 @@ vtkHierarchicalTreeRingView::SetInteriorLogSpacingFactor(double value)
 {
   this->InteriorLogSpacing = value;
   this->TreeRingPointLayout->SetLogSpacingValue(value);
+}
+
+// ----------------------------------------------------------------------
+void
+vtkHierarchicalTreeRingView::SetSectorShrinkFactor(double value)
+{
+  this->TreeRingMapper->SetShrinkPercentage(value);
 }

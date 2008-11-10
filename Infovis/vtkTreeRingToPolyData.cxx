@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingToPolyData, "1.5");
 vtkStandardNewMacro(vtkTreeRingToPolyData);
 
 vtkTreeRingToPolyData::vtkTreeRingToPolyData()
@@ -97,7 +97,20 @@ int vtkTreeRingToPolyData::RequestData(
       //calculate the amount of change in the arcs based on the shrink 
       // percentage of the arc_length
     double conversion = vtkMath::Pi()/180.;
-    double arc_length_new = (conversion*(coords[3] - coords[2])*coords[1]) - this->ShrinkPercentage;
+    double arc_length = (conversion*(coords[3] - coords[2])*coords[1]);
+    double radial_shrink = radial_length*this->ShrinkPercentage;
+//    double arc_length_shrink = ((radial_length*this->ShrinkPercentage) < (arc_length*this->ShrinkPercentage)) ? (radial_length*this->ShrinkPercentage) : (arc_length*this->ShrinkPercentage);
+    double arc_length_shrink;
+    if( radial_shrink > 0.25*arc_length )
+    {
+      arc_length_shrink = 0.25*arc_length;
+    }
+    else
+    {
+      arc_length_shrink = radial_shrink;
+    }
+
+    double arc_length_new = arc_length - arc_length_shrink;
     double angle_change = ((arc_length_new/coords[1])/conversion);
     double delta_change_each = 0.5*((coords[3]-coords[2]) - angle_change);
     
@@ -106,7 +119,6 @@ int vtkTreeRingToPolyData::RequestData(
     sector->SetStartAngle(coords[2] + delta_change_each);
     sector->SetEndAngle(coords[3] - delta_change_each);
 
-//FIXME-jfsheph - need to determine the desired resolution....
     int resolution = (int)((coords[3] - coords[2])/1);
     if( resolution < 1 )
         resolution = 1;
