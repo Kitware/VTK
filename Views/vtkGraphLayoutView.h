@@ -187,7 +187,7 @@ public:
   void SetLayoutStrategyToSimple2D()
     { this->SetLayoutStrategy("Simple 2D"); }
   void SetLayoutStrategyToClustering2D()
-    { this->SetLayoutStrategy("Cluster 2D"); }
+    { this->SetLayoutStrategy("Clustering 2D"); }
   void SetLayoutStrategyToCommunity2D()
     { this->SetLayoutStrategy("Community 2D"); }
   void SetLayoutStrategyToFast2D()
