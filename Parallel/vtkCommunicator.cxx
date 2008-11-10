@@ -46,7 +46,7 @@
 
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.55");
+vtkCxxRevisionMacro(vtkCommunicator, "1.56");
 
 #define EXTENT_HEADER_SIZE      128
 
@@ -174,11 +174,15 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
   this->Send(header, 2, remoteHandle, tag);
   tag = mangledTag;
 
-  int data_type = data->GetDataObjectType();
+  int data_type = data? data->GetDataObjectType() : -1;
   this->Send(&data_type, 1, remoteHandle, tag);
   
   switch(data_type)
     {
+  case -1:
+    // NULL data.
+    return 1;
+
     //error on types we can't send
     case VTK_DATA_OBJECT:
     case VTK_DATA_SET:
@@ -372,6 +376,11 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
 
   int data_type = 0;
   this->Receive(&data_type, 1, remoteHandle, tag); 
+  if (data_type < 0)
+    {
+    // NULL data object.
+    return NULL;
+    }
   //manufacture a data object of the proper type to fill
   vtkDataObject * dObj = vtkDataObjectTypes::NewDataObject(data_type);
   if (dObj != NULL)
@@ -480,14 +489,7 @@ int vtkCommunicator::ReceiveMultiBlockDataSet(
       {
       vtkDataObject* dObj = vtkDataObjectTypes::NewDataObject(dataType);
       returnCode = returnCode && this->Receive(dObj, remoteHandle, tag);
-      if (dObj->IsA("vtkDataSet"))
-        {
-        mbds->SetBlock(cc, vtkDataSet::SafeDownCast(dObj));
-        }
-      else if (dObj->IsA("vtkMultiBlockDataSet"))
-        {
-        mbds->SetBlock(cc, vtkMultiBlockDataSet::SafeDownCast(dObj));
-        }
+      mbds->SetBlock(cc, dObj);
       dObj->Delete();
       }
     }

@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.54");
+vtkCxxRevisionMacro(vtkPoints, "1.55");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -66,6 +66,7 @@ vtkPoints::vtkPoints(int dataType)
   this->SetDataType(dataType);
 
   this->Data->SetNumberOfComponents(3);
+  this->Data->SetName("Points");
 
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
@@ -164,6 +165,7 @@ void vtkPoints::SetDataType(int dataType)
   this->Data->Delete();
   this->Data = vtkDataArray::CreateDataArray(dataType);
   this->Data->SetNumberOfComponents(3);
+  this->Data->SetName("Points");
 }
 
 // Set the data for this object. The tuple dimension must be consistent with

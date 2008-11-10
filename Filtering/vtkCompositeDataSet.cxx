@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.16");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.17");
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
@@ -482,5 +482,19 @@ vtkIdType vtkCompositeDataSet::GetNumberOfPoints()
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Number Of Children: " << this->GetNumberOfChildren() << endl;
+  for (unsigned int cc=0; cc < this->GetNumberOfChildren(); cc++)
+    {
+    vtkDataObject* child = this->GetChild(cc);
+    if (child)
+      {
+      os << indent << "Child " << cc << ": " << child->GetClassName() << endl;
+      child->PrintSelf(os, indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Child " << cc << ": NULL" << endl;
+      }
+    }
 }
 

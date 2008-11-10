@@ -58,11 +58,12 @@ public:
   // Description:
   // Returns the piece at the given index. 
   vtkDataSet* GetPiece(unsigned int pieceno);
+  vtkDataObject* GetPieceAsDataObject(unsigned int pieceno);
 
   // Description:
   // Sets the data object as the given piece. The total number of pieces will 
   // be resized to fit the requested piece no.
-  void SetPiece(unsigned int pieceno, vtkDataSet* piece);
+  void SetPiece(unsigned int pieceno, vtkDataObject* piece);
 
   // Description:
   // Returns true if meta-data is available for a given piece.
