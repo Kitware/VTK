@@ -71,7 +71,7 @@
 
 #include <ctype.h> // for tolower()
 
-vtkCxxRevisionMacro(vtkGraphLayoutView, "1.44");
+vtkCxxRevisionMacro(vtkGraphLayoutView, "1.45");
 vtkStandardNewMacro(vtkGraphLayoutView);
 //----------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -879,14 +879,8 @@ void vtkGraphLayoutView::ProcessEvents(
       kdSelection, data, this->SelectionType, this->SelectionArrayNames));
 
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
-    //selection->SetContentType(vtkSelection::SELECTIONS);
-
-    if (vertexSelection->GetSelectionList()->GetNumberOfTuples() > 0)
-      {
-      selection = vertexSelection;
-      //selection->AddChild(vertexSelection);
-      }
-    else
+    selection = vertexSelection;
+    if (selection->GetSelectionList()->GetNumberOfTuples() == 0)
       {
       // If we didn't find any vertices, perform edge selection.
       // The edge actor must be opaque for visible cell selection
@@ -933,11 +927,10 @@ void vtkGraphLayoutView::ProcessEvents(
       edgeSelection.TakeReference(vtkConvertSelection::ToSelectionType(
         edgeIndexSelection, data, this->SelectionType, this->SelectionArrayNames));
 
-      //if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
-        //{
+      if (edgeSelection->GetSelectionList()->GetNumberOfTuples() > 0)
+        {
         selection = edgeSelection;
-        //selection->AddChild(edgeSelection);
-        //}
+        }
       }
 
     // If this is a union selection, append the selection

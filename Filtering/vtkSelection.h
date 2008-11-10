@@ -282,6 +282,12 @@ public:
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
 
+  // Description:
+  // Output a simple view of the selection tree with selected items.
+  void PrintTree(ostream& os)
+    { this->PrintTree(os, vtkIndent()); }
+  void PrintTree(ostream& os, vtkIndent indent);
+
 //BTX
 protected:
   vtkSelection();

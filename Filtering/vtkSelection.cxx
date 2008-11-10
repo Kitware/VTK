@@ -31,7 +31,7 @@
 #include <vtkstd/map>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkSelection, "1.26");
+vtkCxxRevisionMacro(vtkSelection, "1.27");
 vtkStandardNewMacro(vtkSelection);
 
 vtkInformationKeyMacro(vtkSelection,CONTENT_TYPE,Integer);
@@ -208,6 +208,112 @@ void vtkSelection::RemoveAllChildren()
     }
   this->Internal->Children.clear();
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSelection::PrintTree(ostream& os, vtkIndent indent)
+{
+  os << indent << "ContentType: ";
+  switch (this->GetContentType())
+    {
+    case SELECTIONS:
+      os << "SELECTIONS";
+      break;
+    case GLOBALIDS:
+      os << "GLOBALIDS";
+      break;
+    case PEDIGREEIDS:
+      os << "PEDIGREEIDS";
+      break;
+    case VALUES:
+      os << "VALUES";
+      break;
+    case INDICES:
+      os << "INDICES";
+      break;
+    case FRUSTUM:
+      os << "FRUSTUM";
+      break;
+    case LOCATIONS:
+      os << "LOCATIONS";
+      break;
+    case THRESHOLDS:
+      os << "THRESHOLDS";
+      break;
+    case BLOCKS:
+      os << "BLOCKS";
+      break;
+    default:
+      os << "UNKNOWN";
+      break;
+    }
+  os << endl;
+  os << indent << "FieldType: ";
+  switch (this->GetFieldType())
+    {
+    case CELL:
+      os << "CELL";
+      break;
+    case POINT:
+      os << "POINT";
+      break;
+    case FIELD:
+      os << "FIELD";
+      break;
+    case VERTEX:
+      os << "VERTEX";
+      break;
+    case EDGE:
+      os << "EDGE";
+      break;
+    case ROW:
+      os << "ROW";
+      break;
+    default:
+      os << "UNKNOWN";
+      break;
+    }
+  os << endl;
+  os << indent << "SelectionList: ";
+  vtkAbstractArray* list = this->GetSelectionList();
+  if (list)
+    {
+    int numComps = list->GetNumberOfComponents();
+    vtkIdType numTuples = list->GetNumberOfTuples();
+    for (vtkIdType i = 0; i < numTuples; ++i)
+      {
+      if (i > 0)
+        {
+        os << ", ";
+        }
+      if (numComps > 1)
+        {
+        os << "(";
+        }
+      for (vtkIdType j = 0; j < numComps; ++j)
+        {
+        if (j > 0)
+          {
+          os << ", ";
+          }
+        os << list->GetVariantValue(numComps*i + j).ToString();
+        }
+      if (numComps > 1)
+        {
+        os << ")";
+        }
+      }
+    os << endl;
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  unsigned int numChildren = this->GetNumberOfChildren();
+  for (unsigned int i = 0; i < numChildren; i++)
+    {
+    this->GetChild(i)->PrintTree(os, indent.GetNextIndent());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -470,10 +576,15 @@ void vtkSelection::UnionSelectionList(vtkSelection* other)
           {
           return;
           }
-        // TODO: avoid duplicates.
-        for (vtkIdType j = 0; j < aa2->GetNumberOfTuples(); j++)
+        int numComps = aa2->GetNumberOfComponents();
+        vtkIdType numTuples = aa2->GetNumberOfTuples();
+        for (vtkIdType j = 0; j < numTuples; j++)
           {
-          aa1->InsertNextTuple(j, aa2);
+          // Avoid duplicates on single-component arrays.
+          if (numComps != 1 || aa1->LookupValue(aa2->GetVariantValue(j)) == -1)
+            {
+            aa1->InsertNextTuple(j, aa2);
+            }
           }
         }
       break;
