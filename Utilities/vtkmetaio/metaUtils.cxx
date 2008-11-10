@@ -709,6 +709,13 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
       count = buffer_size - z.avail_out;
       if ( count )
         {
+        // if we don't have enough allocation for the output buffer
+        // when the output is bigger than the input (true for small images)
+        if(j+count>=buffer_size) 
+          {
+          compressedData = (unsigned char *)realloc( compressedData, j+count+1 );
+          }
+        
         memcpy((char*)compressedData+j, (char *)output_buffer, count);
         }
       break;
@@ -718,6 +725,10 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
     count = buffer_size - z.avail_out;
     if ( count )
       {
+      if(j+count>=buffer_size) 
+        {
+        compressedData = (unsigned char *)realloc( compressedData, j+count+1 );
+        }
       memcpy((char*)compressedData+j, (char*)output_buffer, count);
       }
 
@@ -753,18 +764,26 @@ bool MET_PerformUncompression(const unsigned char * sourceCompressed,
   inflateInit(&d_stream);
   d_stream.next_in  = const_cast<unsigned char *>(sourceCompressed);
   d_stream.avail_in = sourceCompressedSize;
-
+  
   for (;;)
     {
     d_stream.next_out = (unsigned char *)uncompressedData;
     d_stream.avail_out = uncompressedDataSize;
     int err = inflate(&d_stream, Z_NO_FLUSH);
-    if((err == Z_STREAM_END))
+        
+    if((err == Z_STREAM_END)
+       || (err == Z_BUF_ERROR) // Sometimes inflate returns this non fatal.
+       )
       {
       break;
       }
+    else if(err < 0)
+      {
+      METAIO_STREAM::cerr << "Uncompress failed" << METAIO_STREAM::endl;
+      break;
+      }  
     }
-
+    
   inflateEnd(&d_stream);
 
   return true;
