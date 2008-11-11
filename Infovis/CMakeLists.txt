@@ -173,6 +173,7 @@ ENDIF(VTK_USE_N_WAY_ARRAYS)
 # Add these classes only if PARALLEL is turned ON
 IF(VTK_USE_PARALLEL)
   SET(Kit_SRCS ${Kit_SRCS}
+    vtkPCorrelativeStatistics.cxx
     vtkPDescriptiveStatistics.cxx
     )
   SET(KIT_LIBS ${KIT_LIBS} vtkParallel)

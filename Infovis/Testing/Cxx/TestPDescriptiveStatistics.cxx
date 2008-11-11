@@ -29,6 +29,8 @@
 
 #include "vtkDescriptiveStatistics.h"
 #include "vtkPDescriptiveStatistics.h"
+#include "vtkCorrelativeStatistics.h"
+#include "vtkPCorrelativeStatistics.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
@@ -99,7 +101,6 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   // Instantiate a (serial) descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   ds->SetInput( 0, inputData );
-  vtkTable* outputMeta = ds->GetOutput( 1 );
 
   // Select all columns
   for ( int c = 0; c < nVariables; ++ c )
@@ -118,14 +119,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
        << " calculated the following statistics ( "
        << ds->GetSampleSize()
        << " entries per column ):\n";
-  for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < ds->GetOutput( 1 )->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputMeta->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < ds->GetOutput( 1 )->GetNumberOfColumns(); ++ i )
       {
-      cout << outputMeta->GetColumnName( i )
+      cout << ds->GetOutput( 1 )->GetColumnName( i )
            << "="
-           << outputMeta->GetValue( r, i ).ToString()
+           << ds->GetOutput( 1 )->GetValue( r, i ).ToString()
            << "  ";
       }
     cout << "\n";
@@ -137,9 +138,8 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   // Instantiate a parallel descriptive statistics engine and set its ports
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
   pds->SetInput( 0, inputData );
-  inputData->Delete();
-  vtkTable* poutputData = pds->GetOutput( 0 );
-  vtkTable* poutputMeta = pds->GetOutput( 1 );
+  vtkTable* outputData = pds->GetOutput( 0 );
+  vtkTable* outputMeta = pds->GetOutput( 1 );
 
   // Select all columns
   for ( int c = 0; c < nVariables; ++ c )
@@ -161,14 +161,14 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     cout << "\n## Calculated the following statistics in parallel ( total sample size: "
          << pds->GetSampleSize()
          << " ):\n";
-    for ( vtkIdType r = 0; r < poutputMeta->GetNumberOfRows(); ++ r )
+    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
       {
       cout << "   ";
-      for ( int c = 0; c < poutputMeta->GetNumberOfColumns(); ++ c )
+      for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
         {
-        cout << poutputMeta->GetColumnName( c )
+        cout << outputMeta->GetColumnName( c )
              << "="
-             << poutputMeta->GetValue( r, c ).ToString()
+             << outputMeta->GetValue( r, c ).ToString()
              << "  ";
         }
       cout << "\n";
@@ -183,9 +183,9 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   
   vtkVariantArray* relDev[2];
   relDev[0] = vtkVariantArray::SafeDownCast(
-    poutputData->GetColumnByName( "Relative Deviation(Standard Normal 0)" ) );
+    outputData->GetColumnByName( "Relative Deviation(Standard Normal 0)" ) );
   relDev[1] = vtkVariantArray::SafeDownCast(
-    poutputData->GetColumnByName( "Relative Deviation(Standard Normal 1)" ) );
+    outputData->GetColumnByName( "Relative Deviation(Standard Normal 1)" ) );
 
   if ( !relDev[0] || ! relDev[1] )
     {
@@ -199,7 +199,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     {
     int outsideStdv_l[] = { 0, 0, 0 };
     double dev;
-    int n = poutputData->GetNumberOfRows();
+    int n = outputData->GetNumberOfRows();
     for ( vtkIdType r = 0; r < n; ++ r )
       {
       dev = relDev[c]->GetValue( r ).ToDouble();
@@ -228,7 +228,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     if ( ! controller->GetLocalProcessId() )
       {
       cout << "   "
-           << poutputData->GetColumnName( nUniform + c )
+           << outputData->GetColumnName( nUniform + c )
            << ":\n";
       for ( int i = 0; i < 3; ++ i )
         {
@@ -243,6 +243,47 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
 
   // Clean up
   pds->Delete();
+
+  // Instantiate a parallel correlative statistics engine and set its ports
+  vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
+  pcs->SetInput( 0, inputData );
+  outputData = pcs->GetOutput( 0 );
+  outputMeta = pcs->GetOutput( 1 );
+
+  // Select column pairs (uniform vs. uniform, normal vs. normal)
+  pcs->AddColumnPair( columnNames[0], columnNames[1] );
+  pcs->AddColumnPair( columnNames[2], columnNames[3] );
+
+  // Test (in parallel) with Learn, Derive, and Assess options turned on
+  pcs->SetLearn( true );
+  pcs->SetDerive( true );
+  pcs->SetAssess( true );
+  pcs->Update();
+
+  controller->Barrier();
+
+  if ( ! controller->GetLocalProcessId() )
+    {
+    cout << "\n## Calculated the following statistics in parallel ( total sample size: "
+         << pcs->GetSampleSize()
+         << " ):\n";
+    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+      {
+      cout << "   ";
+      for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
+        {
+        cout << outputMeta->GetColumnName( c )
+             << "="
+             << outputMeta->GetValue( r, c ).ToString()
+             << "  ";
+        }
+      cout << "\n";
+      }
+    }
+
+  // Clean up
+  pcs->Delete();
+  inputData->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -278,7 +319,7 @@ int main( int argc, char** argv )
   controller->SetSingleMethod( RandomSampleStatistics, 0 );
   controller->SingleMethodExecute();
   
-  // Clean-up and exit
+  // Clean up and exit
   controller->Finalize();
   controller->Delete();
   
