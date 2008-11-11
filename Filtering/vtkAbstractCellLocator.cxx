@@ -23,7 +23,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.5");
+vtkCxxRevisionMacro(vtkAbstractCellLocator, "1.6");
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
@@ -184,7 +184,7 @@ vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 }
 //----------------------------------------------------------------------------
 vtkIdType vtkAbstractCellLocator::FindCell(
-  double x[3], double tol2, vtkGenericCell *vtkNotUsed(GenCell), 
+  double x[3], double tol2, vtkGenericCell *GenCell, 
   double pcoords[3], double *weights)
 {
   vtkIdType returnVal=-1;
@@ -201,7 +201,7 @@ vtkIdType vtkAbstractCellLocator::FindCell(
   if (this->DataSet)
     {
     returnVal = this->DataSet->FindCell(
-      x, NULL, 0, tol2, subId, pcoords, weights);
+      x, NULL, GenCell, 0, tol2, subId, pcoords, weights);
     }
   return returnVal;
 }
