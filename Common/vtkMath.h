@@ -53,15 +53,16 @@ public:
 
   // Description:
   // Useful constants.
-  static float Pi() {return 3.14159265358979f;};
-  static float DegreesToRadians() {return 0.017453292f;};
-  static float RadiansToDegrees() {return 57.2957795131f;};
+  static float Pi() { return 3.14159265358979f; };
+  static float DegreesToRadians() { return 0.017453292f; };
+  static float RadiansToDegrees() { return 57.2957795131f; };
 
   // Description:
   // Useful constants. (double-precision version)
-  static double DoubleDegreesToRadians() {return 0.017453292519943295;};
-  static double DoublePi() {return 3.1415926535897932384626;};
-  static double DoubleRadiansToDegrees() {return 57.29577951308232;};
+  static double DoubleTwoPi() { return  6.283185307179586; };
+  static double DoublePi() { return 3.1415926535897932384626; };
+  static double DoubleDegreesToRadians() { return 0.017453292519943295; };
+  static double DoubleRadiansToDegrees() { return 57.29577951308232; };
 
   // Description:
   // Rounds a float to the nearest integer.
@@ -884,7 +885,9 @@ inline double vtkMath::Random( double min, double max )
 inline double vtkMath::Gaussian()
 {
   // Use the Box-Mueller transform
-  return sqrt( -2. * log( vtkMath::Random() ) ) * cos( vtkMath::DoublePi() * vtkMath::Random() );
+  double x = vtkMath::Random();
+  double y = vtkMath::Random();
+  return sqrt( -2. * log( x ) ) * cos( vtkMath::DoubleTwoPi() * y );
 }
 
 //----------------------------------------------------------------------------
