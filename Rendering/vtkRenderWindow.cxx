@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.157");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.158");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1198,8 +1198,8 @@ void vtkRenderWindow::StereoRenderComplete(void)
       break;
 
     case VTK_STEREO_CHECKERBOARD: {
-      unsigned char *left, *right, *result;
-      unsigned char *sleft, *sright, *sresult;
+      unsigned char *left, *right;
+      unsigned char *sleft, *sright;
       int *size;
 
       // get the size
@@ -1210,7 +1210,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
                                   !this->DoubleBuffer);
     
       // copy right pixels onto the left pixel buffer
-      for(unsigned int y = 0; y < size[1]; y = y + 1) {
+      for(int y = 0; y < size[1]; y = y + 1) {
         // set up the pointers
         // right starts on x = 1 on even scanlines 
         // right starts on x = 0 on odd scanlines
@@ -1224,7 +1224,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
         }
 
         // skip every other pixel
-        for(unsigned int x = (y + 1) % 2; x < size[0]; x = x + 2) {
+        for(int x = (y + 1) % 2; x < size[0]; x = x + 2) {
           *left++ = *right++; 
           *left++ = *right++; 
           *left++ = *right++; 
