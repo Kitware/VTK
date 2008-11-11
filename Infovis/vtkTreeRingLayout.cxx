@@ -34,7 +34,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayout, "1.4");
+vtkCxxRevisionMacro(vtkTreeRingLayout, "1.5");
 vtkStandardNewMacro(vtkTreeRingLayout);
 
 vtkTreeRingLayout::vtkTreeRingLayout()
@@ -107,6 +107,71 @@ void vtkTreeRingLayout::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->LayoutStrategy->PrintSelf(os, indent.GetNextIndent());
     }
+}
+
+vtkIdType vtkTreeRingLayout::FindVertexRectangular(float pnt[2])
+{
+  // Do we have an output?
+  vtkTree* otree = this->GetOutput();
+  if (!otree) 
+    {
+    vtkErrorMacro(<< "Could not get output tree.");
+    return -1;
+    }
+
+  //Get the four tuple array for the points
+  vtkDataArray *array = otree->GetVertexData()->
+    GetArray(this->SectorsFieldName);
+  if (!array)
+    {
+    // vtkErrorMacro(<< "Output Tree does not have box information.");
+    return -1;
+    }
+  
+  float blimits[4];
+  vtkIdType vertex = otree->GetRoot();
+  vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
+
+  // Now try to find the vertex that contains the point
+  boundsInfo->GetTupleValue(vertex, blimits); // Get the extents of the root
+  if( ((pnt[1] > blimits[2]) && (pnt[1] < blimits[3])) &&
+      ((pnt[0] > blimits[0]) && (pnt[0] < blimits[1])) )
+  {
+      //Point is at the root vertex.
+      // but we don't want the root to be pickable, so return -1; 
+//    return -1;
+    return vertex;
+  }
+  
+  // Now traverse the children to try and find 
+  // the vertex that contains the point  
+  vtkIdType child;
+//FIXME-jfsheph Is there a faster way to iterate through the tree?
+  vtkTreeDFSIterator *it = vtkTreeDFSIterator::New();
+  it->SetTree( otree );
+  it->SetStartVertex( vertex );
+
+  while (it->HasNext()) 
+    {
+    child = it->Next();
+    boundsInfo->GetTupleValue(child, blimits); // Get the extents of the child
+    bool beyond_radial_bounds = false;
+    bool beyond_angle_bounds = false;
+    if( (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
+        beyond_radial_bounds = true;
+    if( (pnt[0] < blimits[0]) || (pnt[0] > blimits[1]))
+        beyond_angle_bounds = true;
+    
+    if( beyond_radial_bounds || beyond_angle_bounds )
+    {
+      continue;
+    }
+      // If we are here then the point is contained by the child
+    it->Delete();
+    return child;
+    }
+  it->Delete();
+  return -1;
 }
 
 vtkIdType vtkTreeRingLayout::FindVertex(float pnt[2])

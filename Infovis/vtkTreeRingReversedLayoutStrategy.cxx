@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.6");
+vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.7");
 vtkStandardNewMacro(vtkTreeRingReversedLayoutStrategy);
 
 vtkTreeRingReversedLayoutStrategy::vtkTreeRingReversedLayoutStrategy()
@@ -102,19 +102,30 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
   points->SetNumberOfPoints(numVerts);
   for( vtkIdType i = 0; i < numVerts; i++ )
   {
-    if( i == rootId )
-    {
-      points->SetPoint( i, 0, 0, 0 );
-      continue;
-    }
-    
     double sector_coords[4];
     coordsArray->GetTuple( i, sector_coords );
-    double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
-    double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
-    double x = r*cos(vtkMath::DegreesToRadians()*theta);
-    double y = r*sin(vtkMath::DegreesToRadians()*theta);
-    double z = 0.;
+    double x, y, z;
+    if( this->UseRectangularCoordinates )
+    {
+      x = 0.5*(sector_coords[0] + sector_coords[1]);
+      y = 0.5*(sector_coords[2] + sector_coords[3]);
+      z = 0.;
+    }
+    else
+    {
+      if( i == rootId )
+      {
+        x = y = z = 0.;
+      }
+      else
+      {
+        double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
+        double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
+        x = r*cos(vtkMath::DegreesToRadians()*theta);
+        y = r*sin(vtkMath::DegreesToRadians()*theta);
+        z = 0.;
+      }
+    }
     points->SetPoint(i, x, y, z);
   }
   inputTree->SetPoints(points);

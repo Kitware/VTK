@@ -57,6 +57,12 @@ public:
   // The name of the field to use when displaying text in the hover balloon.
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
+
+  // Description:
+  // Determine whether or not to use rectangular coordinates instead of 
+  // polar coordinates.
+  vtkSetMacro(UseRectangularCoordinates, bool);
+  vtkGetMacro(UseRectangularCoordinates, bool);
   
   // Description:
   // Overridden from vtkInteractorStyleImage to provide the desired
@@ -110,6 +116,7 @@ private:
   vtkTreeRingLayout* Layout;
   char *LabelField;
   vtkIdType CurrentSelectedId;
+  bool UseRectangularCoordinates;
 };
 
 #endif

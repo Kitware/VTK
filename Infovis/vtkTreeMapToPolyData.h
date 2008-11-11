@@ -61,6 +61,11 @@ public:
   vtkGetMacro(LevelDeltaZ, double);
   vtkSetMacro(LevelDeltaZ, double);
 
+  // Description:
+  // The spacing along the z-axis between tree map levels.
+  vtkGetMacro(AddNormals, bool);
+  vtkSetMacro(AddNormals, bool);
+
   int FillInputPortInformation(int port, vtkInformation* info);
 
 protected:
@@ -70,7 +75,8 @@ protected:
   char * LevelsFieldName;
   char * RectanglesFieldName;
   double LevelDeltaZ;
-
+  bool AddNormals;
+  
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkTreeMapToPolyData(const vtkTreeMapToPolyData&);  // Not implemented.

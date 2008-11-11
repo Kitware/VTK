@@ -62,6 +62,11 @@ public:
   // Description:
   // Returns the vertex id that contains pnt (or -1 if no one contains it)
   vtkIdType FindVertex(float pnt[2]);
+
+  // Description:
+  // Returns the vertex id that contains pnt (or -1 if no one
+  // contains it) using rectangular coordinates
+  vtkIdType FindVertexRectangular(float pnt[2]);
   
   // Description:
   // Return the bounding sector information of the 

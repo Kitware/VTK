@@ -47,7 +47,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.5");
+vtkCxxRevisionMacro(vtkInteractorStyleTreeRingHover, "1.6");
 vtkStandardNewMacro(vtkInteractorStyleTreeRingHover);
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeRingHover, Layout, vtkTreeRingLayout);
@@ -62,7 +62,8 @@ vtkInteractorStyleTreeRingHover::vtkInteractorStyleTreeRingHover()
   this->Layout = NULL;
   this->LabelField = 0;
   this->CurrentSelectedId = -1;
-
+  this->UseRectangularCoordinates = false;
+  
   this->SelectionData = vtkPolyData::New();
   vtkPolyDataMapper *selMap = vtkPolyDataMapper::New();
   selMap->SetInput(this->SelectionData);
@@ -140,6 +141,7 @@ void vtkInteractorStyleTreeRingHover::PrintSelf(ostream& os, vtkIndent indent)
     this->Layout->PrintSelf(os, indent.GetNextIndent());
     }
   os << indent << "LabelField: " << (this->LabelField ? this->LabelField : "(none)") << endl;
+  os << indent << "UseRectangularCoordinates: " << this->UseRectangularCoordinates << endl;
 }
 
 vtkIdType vtkInteractorStyleTreeRingHover::GetTreeRingIdAtPos(int x, int y)
@@ -158,14 +160,22 @@ vtkIdType vtkInteractorStyleTreeRingHover::GetTreeRingIdAtPos(int x, int y)
   this->Picker->GetPickPosition(pos);
   
   if (this->Layout != NULL)
-    {
+  {
     float posFloat[3];
     for (int i = 0; i < 3; i++)
-      {
+    {
       posFloat[i] = pos[i];
-      }
-    id = Layout->FindVertex(posFloat);
     }
+    
+    if( this->UseRectangularCoordinates )
+    {
+      id = Layout->FindVertexRectangular(posFloat);
+    }
+    else
+    {
+      id = Layout->FindVertex(posFloat);
+    }
+  }
     
   return id;
 }
@@ -208,14 +218,13 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
   this->Balloon->EndWidgetInteraction(loc);
   
   if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
-    {
-
+  {
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
       //find the information for the correct sector,
       //  unless there isn't a sector or it is the root node
 //    if (absArray != NULL && id > 0 )  
     if (absArray != NULL && id > -1 )
-      {
+    {
       vtkStdString str;
       if (vtkStringArray::SafeDownCast(absArray))
         {
@@ -227,62 +236,72 @@ void vtkInteractorStyleTreeRingHover::OnMouseMove()
         }
       this->Balloon->SetBalloonText(str);
       double z = 0.02;
-//FIXME-jfsheph Need to generate the edge data directly...
-//       float binfo[8];
-//       binfo[0] = sinfo[2]*cos(vtkMath::DegreesToRadians()*sinfo[0]);
-//       binfo[1] = sinfo[2]*sin(vtkMath::DegreesToRadians()*sinfo[0]);
-//       binfo[2] = sinfo[3]*cos(vtkMath::DegreesToRadians()*sinfo[0]);
-//       binfo[3] = sinfo[3]*sin(vtkMath::DegreesToRadians()*sinfo[0]);
-//       binfo[4] = sinfo[3]*cos(vtkMath::DegreesToRadians()*sinfo[1]);
-//       binfo[5] = sinfo[3]*sin(vtkMath::DegreesToRadians()*sinfo[1]);
-//       binfo[6] = sinfo[2]*cos(vtkMath::DegreesToRadians()*sinfo[1]);
-//       binfo[7] = sinfo[2]*sin(vtkMath::DegreesToRadians()*sinfo[1]);
-
-      VTK_CREATE(vtkSectorSource, sector);
-      sector->SetInnerRadius(sinfo[2]);
-      sector->SetOuterRadius(sinfo[3]);
-      sector->SetZCoord(z);
-      sector->SetStartAngle(sinfo[0]);
-      sector->SetEndAngle(sinfo[1]);
-//FIXME-jfsheph Are we satisfied with this level of resolution?
-      int resolution = (int)((sinfo[1]-sinfo[0])/1);
-      if( resolution < 1 )
-          resolution = 1;
-      sector->SetCircumferentialResolution(resolution);
-      sector->Update();
-    
-      VTK_CREATE(vtkExtractEdges, extract);
-      extract->SetInput(sector->GetOutput());
-      
-      VTK_CREATE(vtkAppendPolyData, append);
-      append->AddInput(extract->GetOutput());
-      append->Update();
-      
-      this->HighlightData->ShallowCopy(append->GetOutput());
-      this->HighlightActor->VisibilityOn();
-      }
-    else
+      if( this->UseRectangularCoordinates )
       {
+        VTK_CREATE(vtkPoints, highlightPoints);
+        highlightPoints->SetNumberOfPoints(5);
+
+        VTK_CREATE(vtkCellArray, highA);
+        highA->InsertNextCell(5);
+        for( int i = 0; i < 5; ++i)
+        {
+          highA->InsertCellPoint(i);
+        }
+        highlightPoints->SetPoint(0, sinfo[0], sinfo[2], z);
+        highlightPoints->SetPoint(1, sinfo[1], sinfo[2], z);
+        highlightPoints->SetPoint(2, sinfo[1], sinfo[3], z);
+        highlightPoints->SetPoint(3, sinfo[0], sinfo[3], z);
+        highlightPoints->SetPoint(4, sinfo[0], sinfo[2], z);
+        this->HighlightData->SetPoints(highlightPoints);
+        this->HighlightData->SetLines(highA);
+        this->HighlightActor->VisibilityOn();
+      }
+      else
+      {
+        VTK_CREATE(vtkSectorSource, sector);
+        sector->SetInnerRadius(sinfo[2]);
+        sector->SetOuterRadius(sinfo[3]);
+        sector->SetZCoord(z);
+        sector->SetStartAngle(sinfo[0]);
+        sector->SetEndAngle(sinfo[1]);
+        
+        int resolution = (int)((sinfo[1]-sinfo[0])/1);
+        if( resolution < 1 )
+            resolution = 1;
+        sector->SetCircumferentialResolution(resolution);
+        sector->Update();
+        
+        VTK_CREATE(vtkExtractEdges, extract);
+        extract->SetInput(sector->GetOutput());
+        
+        VTK_CREATE(vtkAppendPolyData, append);
+        append->AddInput(extract->GetOutput());
+        append->Update();
+      
+        this->HighlightData->ShallowCopy(append->GetOutput());
+        this->HighlightActor->VisibilityOn();
+      }  
+    }
+    else
+    {
       this->Balloon->SetBalloonText("");
       HighlightActor->VisibilityOff();
-      }
+    }
 
     this->Balloon->StartWidgetInteraction(loc);
 
     this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
     this->Superclass::OnMouseMove();
     this->GetInteractor()->Render();
-    }
+  }
 }
 
-void vtkInteractorStyleTreeRingHover::SetHighLightColor(double r, 
-                                                       double g, double b)
+void vtkInteractorStyleTreeRingHover::SetHighLightColor(double r, double g, double b)
 {
   this->HighlightActor->GetProperty()->SetColor(r, g, b);
 }
 
-void vtkInteractorStyleTreeRingHover::SetSelectionLightColor(double r, 
-                                                            double g, double b)
+void vtkInteractorStyleTreeRingHover::SetSelectionLightColor(double r, double g, double b)
 {
   this->SelectionActor->GetProperty()->SetColor(r, g, b);
 }
@@ -345,57 +364,69 @@ void vtkInteractorStyleTreeRingHover::HighLightItem(vtkIdType id)
 
 void vtkInteractorStyleTreeRingHover::HighLightCurrentSelectedItem()
 {
-    //FIXME-jfsheph Need to generate the edges only rather than extracting them from the sector data...
   float sinfo[4];
 
     //don't worry about selections in non-drawn regions or 
     // in the root nodes sector region...
 //  if (this->CurrentSelectedId > 0)
   if (this->CurrentSelectedId > -1)
-    {
+  {
     this->GetBoundingSectorForTreeRingItem(this->CurrentSelectedId,sinfo);
 
     double z = 0.01;
-//     float binfo[8];
-//     binfo[0] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-//     binfo[1] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-//     binfo[2] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[2]);
-//     binfo[3] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[2]);
-//     binfo[4] = sinfo[1]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-//     binfo[5] = sinfo[1]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
-//     binfo[6] = sinfo[0]*cos(vtkMath::DegreesToRadians()*sinfo[3]);
-//     binfo[7] = sinfo[0]*sin(vtkMath::DegreesToRadians()*sinfo[3]);
- 
-    VTK_CREATE(vtkSectorSource, sector);
-    sector->SetInnerRadius(sinfo[2]);
-    sector->SetOuterRadius(sinfo[3]);
-    sector->SetZCoord(z);
-    sector->SetStartAngle(sinfo[0]);
-    sector->SetEndAngle(sinfo[1]);
-//FIXME-jfsheph - Are we satisfied with this level of resolution?
-    int resolution = (int)((sinfo[1]-sinfo[0])/1);
+    
+    if( this->UseRectangularCoordinates )
+    {
+      VTK_CREATE(vtkPoints, selectionPoints);
+      selectionPoints->SetNumberOfPoints(5);
+      
+      VTK_CREATE(vtkCellArray, highA);
+      highA->InsertNextCell(5);
+      for( int i = 0; i < 5; ++i)
+      {
+        highA->InsertCellPoint(i);
+      }
+      selectionPoints->SetPoint(0, sinfo[0], sinfo[2], z);
+      selectionPoints->SetPoint(1, sinfo[1], sinfo[2], z);
+      selectionPoints->SetPoint(2, sinfo[1], sinfo[3], z);
+      selectionPoints->SetPoint(3, sinfo[0], sinfo[3], z);
+      selectionPoints->SetPoint(4, sinfo[0], sinfo[2], z);
+      this->SelectionData->SetPoints(selectionPoints);
+      this->SelectionData->SetLines(highA);
+      this->SelectionActor->VisibilityOn();
+    }
+    else
+    {
+      VTK_CREATE(vtkSectorSource, sector);
+      sector->SetInnerRadius(sinfo[2]);
+      sector->SetOuterRadius(sinfo[3]);
+      sector->SetZCoord(z);
+      sector->SetStartAngle(sinfo[0]);
+      sector->SetEndAngle(sinfo[1]);
+      int resolution = (int)((sinfo[1]-sinfo[0])/1);
       if( resolution < 1 )
           resolution = 1;
       sector->SetCircumferentialResolution(resolution);
-    sector->Update();
-    
-    VTK_CREATE(vtkExtractEdges, extract);
-    extract->SetInput(sector->GetOutput());
-    
-    VTK_CREATE(vtkAppendPolyData, append);
-    append->AddInput(extract->GetOutput());
-    append->Update();
-
-    this->SelectionData->ShallowCopy(append->GetOutput());
-
-    this->SelectionActor->VisibilityOn();
-    }
+      sector->Update();
+      
+      VTK_CREATE(vtkExtractEdges, extract);
+      extract->SetInput(sector->GetOutput());
+      
+      VTK_CREATE(vtkAppendPolyData, append);
+      append->AddInput(extract->GetOutput());
+      append->Update();
+      
+      this->SelectionData->ShallowCopy(append->GetOutput());
+      
+      this->SelectionActor->VisibilityOn();
+    }  
+  }
   else
-    {
+  {
     SelectionActor->VisibilityOff();
-    }
+  }
   if (this->GetInteractor())
-    {
+  {
     this->GetInteractor()->Render();
-    }
+  }
 }

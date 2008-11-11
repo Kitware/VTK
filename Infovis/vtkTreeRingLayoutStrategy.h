@@ -77,6 +77,12 @@ public:
   vtkSetMacro(RootEndAngle, double);
   vtkGetMacro(RootEndAngle, double);
   
+  // Description:
+  // Define whether or not rectangular coordinates are being used
+  // (as opposed to polar coordinates).
+  vtkSetMacro(UseRectangularCoordinates, bool);
+  vtkGetMacro(UseRectangularCoordinates, bool);
+  
 protected:
   vtkTreeRingLayoutStrategy();
   ~vtkTreeRingLayoutStrategy();
@@ -85,7 +91,8 @@ protected:
   float RingThickness;
   float RootStartAngle;
   float RootEndAngle;
-
+  bool UseRectangularCoordinates;
+  
 private:  
   vtkTreeRingLayoutStrategy(const vtkTreeRingLayoutStrategy&);  // Not implemented.
   void operator=(const vtkTreeRingLayoutStrategy&);  // Not implemented.

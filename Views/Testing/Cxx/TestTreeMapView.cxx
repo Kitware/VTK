@@ -35,6 +35,8 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+using vtkstd::string;
+
 char TreeMapViewEventLog[] = 
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
@@ -1146,14 +1148,14 @@ char TreeMapViewEventLog[] =
 
 int TestTreeMapView(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/treetest.xml");
+  VTK_CREATE(vtkTesting, testHelper);
+  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  string dataRoot = testHelper->GetDataRoot();
+  string file = dataRoot+"/Data/treetest.xml";
 
   VTK_CREATE(vtkXMLTreeReader, reader);
-  reader->SetFileName(file);
+  reader->SetFileName(file.c_str());
   reader->SetMaskArrays(true);
-
-  delete [] file;
 
   VTK_CREATE(vtkStringToNumeric, numeric);
   numeric->SetInputConnection(reader->GetOutputPort());
@@ -1167,7 +1169,7 @@ int TestTreeMapView(int argc, char* argv[])
   view->SetColorArrayName("level");
   view->SetLabelArrayName("name");
   view->SetHoverArrayName("name");
-  view->SetLayoutStrategyToSquarify();
+//  view->SetLayoutStrategyToSquarify();
   view->SetupRenderWindow(win);
   view->SetRepresentationFromInputConnection(numeric->GetOutputPort());
   

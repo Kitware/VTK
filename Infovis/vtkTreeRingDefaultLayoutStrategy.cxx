@@ -31,7 +31,7 @@
 #include "vtkDataArray.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -60,7 +60,7 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
   if( inputTree->GetNumberOfVertices() == 0 )
       return;
 
-    // Get the root vertex and set it to 0,1,0,1
+    // Get the root vertex and set it
   vtkIdType rootId = inputTree->GetRoot();
   float coords[] = {this->RootStartAngle, this->RootEndAngle, 0., this->InteriorRadius};
   coordsArray->SetTuple(rootId, coords);
@@ -74,19 +74,30 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
   points->SetNumberOfPoints(numVerts);
   for( vtkIdType i = 0; i < numVerts; i++ )
   {
-    if( i == rootId )
-    {
-      points->SetPoint( i, 0, 0, 0 );
-      continue;
-    }
-    
     double sector_coords[4];
     coordsArray->GetTuple( i, sector_coords );
-    double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
-    double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
-    double x = r*cos(vtkMath::DegreesToRadians()*theta);
-    double y = r*sin(vtkMath::DegreesToRadians()*theta);
-    double z = 0.;
+    double x, y, z;
+    if( this->UseRectangularCoordinates )
+    {
+      x = 0.5*(sector_coords[0] + sector_coords[1]);
+      y = 0.5*(sector_coords[2] + sector_coords[3]);
+      z = 0.;
+    }
+    else
+    {
+      if( i == rootId )
+      {
+        x = y = z = 0.;
+      }
+      else
+      {
+        double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
+        double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
+        x = r*cos(vtkMath::DegreesToRadians()*theta);
+        y = r*sin(vtkMath::DegreesToRadians()*theta);
+        z = 0.;
+      }
+    }
     points->SetPoint(i, x, y, z);
   }
   inputTree->SetPoints(points);

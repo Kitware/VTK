@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.7");
+vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.8");
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
@@ -39,6 +39,7 @@ vtkTreeMapToPolyData::vtkTreeMapToPolyData()
   this->SetRectanglesFieldName("rectangles");
   this->LevelsFieldName = 0;
   this->LevelDeltaZ = 0.001;
+  this->AddNormals = true;
 }
 
 vtkTreeMapToPolyData::~vtkTreeMapToPolyData()
@@ -142,9 +143,12 @@ int vtkTreeMapToPolyData::RequestData(
   outputPoly->SetPoints(outputPoints);
   outputPoly->SetPolys(outputCells);
 
-  // Set the point normals
-  outputPoly->GetPointData()->AddArray(normals);
-  outputPoly->GetPointData()->SetActiveNormals("normals");
+  if( this->AddNormals )
+  {
+      // Set the point normals
+    outputPoly->GetPointData()->AddArray(normals);
+    outputPoly->GetPointData()->SetActiveNormals("normals");
+  }
 
   // Clean up.
   normals->Delete();

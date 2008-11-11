@@ -20,7 +20,7 @@
 
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayoutStrategy, "1.2");
+vtkCxxRevisionMacro(vtkTreeRingLayoutStrategy, "1.3");
 
 vtkTreeRingLayoutStrategy::vtkTreeRingLayoutStrategy()
 {
@@ -28,6 +28,7 @@ vtkTreeRingLayoutStrategy::vtkTreeRingLayoutStrategy()
   this->RingThickness = 1.0;
   this->RootStartAngle = 0.;
   this->RootEndAngle = 360.;
+  this->UseRectangularCoordinates = false;
 }
 
 vtkTreeRingLayoutStrategy::~vtkTreeRingLayoutStrategy()
@@ -41,6 +42,7 @@ void vtkTreeRingLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
  os << "RingThickness: " << this->RingThickness << endl;
  os << "RootStartAngle: " << this->RootStartAngle << endl;
  os << "RootEndAngle: " << this->RootEndAngle << endl;
+ os << "UseRectangularCoordinates: " << this->UseRectangularCoordinates << endl;
 }
 
 
