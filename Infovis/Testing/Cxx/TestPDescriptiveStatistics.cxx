@@ -35,11 +35,12 @@
 #include "vtkMPIController.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkVariantArray.h"
 
-double nVals = 10000;
+int nVals = 10000;
 
 // This will be called by all processes
-void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
+void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
 {
   // Get local rank
   int myRank = controller->GetLocalProcessId();
@@ -47,16 +48,20 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
   // Seed random number generator
   vtkMath::RandomSeed( static_cast<int>( time( NULL ) ) * ( myRank + 1 ) );
 
-  // Generate a input table that contains samples of 2 independent uniform random variables over [0, 1]
-  int nMetrics = 2;
-  vtkTable* inputData = vtkTable::New();
-  vtkDoubleArray* doubleArray[2];
-  vtkStdString columnNames[] = { "Uniform 0", 
-                                 "Uniform 1" };
+  // Generate an input table that contains samples of mutually independent random variables over [0, 1]
+  int nUniform = 2;
+  int nNormal  = 2;
+  int nVariables = nUniform + nNormal;
 
+  vtkTable* inputData = vtkTable::New();
+  vtkDoubleArray* doubleArray[4];
+  vtkStdString columnNames[] = { "Standard Uniform 0", 
+                                 "Standard Uniform 1",
+                                 "Standard Normal 0",
+                                 "Standard Normal 1" };
   
-  double s[2] = { 0., 0. };
-  for ( int c = 0; c < nMetrics; ++ c )
+  // Standard uniform samples
+  for ( int c = 0; c < nUniform; ++ c )
     {
     doubleArray[c] = vtkDoubleArray::New();
     doubleArray[c]->SetNumberOfComponents( 1 );
@@ -67,7 +72,24 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
       {
       x = vtkMath::Random();
       doubleArray[c]->InsertNextValue( x );
-      s[c] += x;
+      }
+    
+    inputData->AddColumn( doubleArray[c] );
+    doubleArray[c]->Delete();
+    }
+
+  // Standard normal samples
+  for ( int c = nUniform; c < nVariables; ++ c )
+    {
+    doubleArray[c] = vtkDoubleArray::New();
+    doubleArray[c]->SetNumberOfComponents( 1 );
+    doubleArray[c]->SetName( columnNames[c] );
+
+    double x;
+    for ( int r = 0; r < nVals; ++ r )
+      {
+      x = vtkMath::Gaussian();
+      doubleArray[c]->InsertNextValue( x );
       }
     
     inputData->AddColumn( doubleArray[c] );
@@ -77,16 +99,15 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
   // Instantiate a (serial) descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   ds->SetInput( 0, inputData );
-  vtkTable* outputData = ds->GetOutput( 0 );
   vtkTable* outputMeta = ds->GetOutput( 1 );
 
   // Select all columns
-  for ( int c = 0; c < nMetrics; ++ c )
+  for ( int c = 0; c < nVariables; ++ c )
     {
     ds->AddColumn( columnNames[c] );
     } // Include invalid Metric 3
 
-  // Test with Learn, Derive, and Assess options turned on
+  // Test (serially) with Learn and Derive options only
   ds->SetLearn( true );
   ds->SetDerive( true );
   ds->SetAssess( true );
@@ -117,41 +138,109 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* vtkNotU
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
   pds->SetInput( 0, inputData );
   inputData->Delete();
+  vtkTable* poutputData = pds->GetOutput( 0 );
   vtkTable* poutputMeta = pds->GetOutput( 1 );
 
   // Select all columns
-  for ( int c = 0; c < nMetrics; ++ c )
+  for ( int c = 0; c < nVariables; ++ c )
     {
     pds->AddColumn( columnNames[c] );
-    } // Include invalid Metric 3
+    }
 
-  // Test with Learn and Derive options only
+  // Test (in parallel) with Learn, Derive, and Assess options turned on
   pds->SetLearn( true );
   pds->SetDerive( true );
-  pds->SetAssess( false );
+  pds->SetAssess( true );
+  pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
   controller->Barrier();
 
   if ( ! controller->GetLocalProcessId() )
     {
-    cout << "\n# Calculated the following parallel statistics ( total sample size: "
+    cout << "\n## Calculated the following statistics in parallel ( total sample size: "
          << pds->GetSampleSize()
          << " ):\n";
     for ( vtkIdType r = 0; r < poutputMeta->GetNumberOfRows(); ++ r )
       {
       cout << "   ";
-      for ( int i = 0; i < poutputMeta->GetNumberOfColumns(); ++ i )
+      for ( int c = 0; c < poutputMeta->GetNumberOfColumns(); ++ c )
         {
-        cout << poutputMeta->GetColumnName( i )
+        cout << poutputMeta->GetColumnName( c )
              << "="
-             << poutputMeta->GetValue( r, i ).ToString()
+             << poutputMeta->GetValue( r, c ).ToString()
              << "  ";
         }
       cout << "\n";
       }
     }
   
+  // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
+  if ( ! controller->GetLocalProcessId() )
+    {
+    cout << "\n ## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
+    }
+  
+  vtkVariantArray* relDev[2];
+  relDev[0] = vtkVariantArray::SafeDownCast(
+    poutputData->GetColumnByName( "Relative Deviation(Standard Normal 0)" ) );
+  relDev[1] = vtkVariantArray::SafeDownCast(
+    poutputData->GetColumnByName( "Relative Deviation(Standard Normal 1)" ) );
+
+  if ( !relDev[0] || ! relDev[1] )
+    {
+    cout << "*** Error: "
+         << "Empty output column(s) on process "
+         << controller->GetLocalProcessId()
+         << ".\n";
+    }
+
+  for ( int c = 0; c < nNormal; ++ c )
+    {
+    int outsideStdv_l[] = { 0, 0, 0 };
+    double dev;
+    int n = poutputData->GetNumberOfRows();
+    for ( vtkIdType r = 0; r < n; ++ r )
+      {
+      dev = relDev[c]->GetValue( r ).ToDouble();
+      if ( dev >= 1. )
+        {
+        ++ outsideStdv_l[0];
+        if ( dev >= 2. )
+          {
+          ++ outsideStdv_l[1];
+          if ( dev >= 3. )
+            {
+            ++ outsideStdv_l[2];
+            }
+          }
+        }
+      }
+
+    // Sum all local counters
+    int outsideStdv_g[3];
+    controller->AllReduce( outsideStdv_l, 
+                           outsideStdv_g, 
+                           3, 
+                           vtkCommunicator::SUM_OP );
+
+    // Print out percentages of sample points within 1, 2, and 3 standard deviations of the mean.
+    if ( ! controller->GetLocalProcessId() )
+      {
+      cout << "   "
+           << poutputData->GetColumnName( nUniform + c )
+           << ":\n";
+      for ( int i = 0; i < 3; ++ i )
+        {
+        cout << "      " 
+             << ( 1. - outsideStdv_g[i] / static_cast<double>( pds->GetSampleSize() ) ) * 100.
+             << "\% within "
+             << i + 1
+             << " standard deviation(s) from the mean.\n";
+        }
+      }
+    }
+
   // Clean up
   pds->Delete();
 }
