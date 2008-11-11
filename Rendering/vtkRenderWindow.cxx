@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.156");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.157");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -871,6 +871,10 @@ void vtkRenderWindow::StereoUpdate(void)
         break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
+        break;
+      case VTK_STEREO_CHECKERBOARD:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -887,6 +891,9 @@ void vtkRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 0;
         break;
       }
@@ -907,7 +914,8 @@ void vtkRenderWindow::StereoMidpoint(void)
   if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
       (this->StereoType == VTK_STEREO_INTERLACED) ||
       (this->StereoType == VTK_STEREO_DRESDEN) ||
-      (this->StereoType == VTK_STEREO_ANAGLYPH))
+      (this->StereoType == VTK_STEREO_ANAGLYPH) ||
+      (this->StereoType == VTK_STEREO_CHECKERBOARD))
     {
     int *size;
     // get the size
@@ -1188,6 +1196,53 @@ void vtkRenderWindow::StereoRenderComplete(void)
       delete [] buff;
       }
       break;
+
+    case VTK_STEREO_CHECKERBOARD: {
+      unsigned char *left, *right, *result;
+      unsigned char *sleft, *sright, *sresult;
+      int *size;
+
+      // get the size
+      size = this->GetSize();
+      // get the data
+      sleft = this->StereoBuffer;
+      sright = this->GetPixelData(0, 0, size[0] - 1, size[1] - 1,
+                                  !this->DoubleBuffer);
+    
+      // copy right pixels onto the left pixel buffer
+      for(unsigned int y = 0; y < size[1]; y = y + 1) {
+        // set up the pointers
+        // right starts on x = 1 on even scanlines 
+        // right starts on x = 0 on odd scanlines
+        if(y % 2) {
+          left = sleft + y * 3 * size[0] + 3;
+          right = sright + y * 3 * size[0] + 3;
+        }
+        else {
+          left = sleft + y * 3 * size[0];
+          right = sright + y * 3 * size[0];
+        }
+
+        // skip every other pixel
+        for(unsigned int x = (y + 1) % 2; x < size[0]; x = x + 2) {
+          *left++ = *right++; 
+          *left++ = *right++; 
+          *left++ = *right++; 
+
+          // skip pixel
+          left = left + 3;
+          right = right + 3;
+        }
+      }
+          
+      // cleanup
+      this->ResultFrame = sleft;
+
+      this->StereoBuffer = NULL;
+      delete [] sright;      
+    }
+      break;
+
     }
 }
 
@@ -1254,6 +1309,8 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "DresdenDisplay";
     case VTK_STEREO_ANAGLYPH:
       return "Anaglyph";
+    case VTK_STEREO_CHECKERBOARD:
+      return "Checkerboard";
     default:
       return "";
   }

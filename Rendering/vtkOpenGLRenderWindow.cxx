@@ -30,7 +30,7 @@
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.100");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.101");
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
@@ -179,6 +179,10 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
         break;      
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
+        break;
+      case VTK_STEREO_CHECKERBOARD:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -198,6 +202,9 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 0;
         break;
       }

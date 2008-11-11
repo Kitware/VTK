@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.59");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.60");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -394,6 +394,9 @@ void vtkCocoaRenderWindow::StereoUpdate()
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_CHECKERBOARD:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -413,6 +416,9 @@ void vtkCocoaRenderWindow::StereoUpdate()
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_CHECKERBOARD:
         this->StereoStatus = 0;
         break;
       }
