@@ -28,7 +28,7 @@
 
 class vtkMultiProcessController;
 
-class VTK_EXPORT vtkPDescriptiveStatistics : public vtkDescriptiveStatistics
+class VTK_INFOVIS_EXPORT vtkPDescriptiveStatistics : public vtkDescriptiveStatistics
 {
 public:
   static vtkPDescriptiveStatistics* New();
