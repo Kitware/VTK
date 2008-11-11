@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.8");
+vtkCxxRevisionMacro(vtkTreeMapToPolyData, "1.9");
 vtkStandardNewMacro(vtkTreeMapToPolyData);
 
 vtkTreeMapToPolyData::vtkTreeMapToPolyData()
@@ -164,4 +164,5 @@ void vtkTreeMapToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LevelsFieldName: " << (this->LevelsFieldName ? this->LevelsFieldName : "(none)") << endl;
   os << indent << "RectanglesFieldName: " << (this->RectanglesFieldName ? this->RectanglesFieldName : "(none)") << endl;
   os << indent << "LevelDeltaZ: " << this->LevelDeltaZ << endl;
+  os << indent << "AddNormals: " << this->AddNormals << endl;
 }
