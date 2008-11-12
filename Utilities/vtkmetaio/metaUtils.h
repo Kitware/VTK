@@ -185,7 +185,7 @@ void MET_StringToVector( const METAIO_STL::string & s,
   T tVal;
   while( pos != METAIO_STL::string::npos )
     {
-    METAIO_STREAM::stringstream ss;
+    METAIO_STL::stringstream ss;
     METAIO_STL::string tmpString = s.substr( prevPos, (pos-prevPos) );
     ss << tmpString;
     ss >> tVal;
@@ -194,7 +194,7 @@ void MET_StringToVector( const METAIO_STL::string & s,
     prevPos = pos+1;
     pos = s.find(",", prevPos);
     }
-  METAIO_STREAM::stringstream ss;
+  METAIO_STL::stringstream ss;
   METAIO_STL::string tmpString = s.substr( prevPos, (s.size()-prevPos) );
   ss << tmpString;
   ss >> tVal;
