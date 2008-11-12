@@ -26,17 +26,18 @@
 #ifndef vtkQuadraturePointStatistics_h
 #define vtkQuadraturePointStatistics_h
 
-#include "vtkDataSetAlgorithm.h"
+#include "vtkTableAlgorithm.h"
 
 class vtkInformation;
 class vtkInformationVector;
 class vtkTable;
+class vtkUnstructuredGrid;
 
-class VTK_GRAPHICS_EXPORT vtkQuadraturePointStatistics : public vtkDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkQuadraturePointStatistics : public vtkTableAlgorithm
 {
 public:
   static vtkQuadraturePointStatistics *New();
-  vtkTypeRevisionMacro(vtkQuadraturePointStatistics,vtkDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkQuadraturePointStatistics,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
