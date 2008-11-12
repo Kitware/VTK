@@ -65,6 +65,16 @@ public:
   static double DoubleRadiansToDegrees() { return 57.29577951308232; };
 
   // Description:
+  // Convert degrees into radians
+  float RadiansFromDegrees( float );
+  double RadiansFromDegrees( double );
+
+  // Description:
+  // Convert radians into degrees
+  float DegreesFromRadians( float );
+  double DegreesFromRadians( double );
+
+  // Description:
   // Rounds a float to the nearest integer.
   static int Round(float f) {
     return static_cast<int>(f + (f >= 0 ? 0.5 : -0.5)); }
@@ -745,6 +755,30 @@ private:
   vtkMath(const vtkMath&);  // Not implemented.
   void operator=(const vtkMath&);  // Not implemented.
 };
+
+//----------------------------------------------------------------------------
+inline float vtkMath::RadiansFromDegrees( float x )
+{
+  return x * 0.017453292f;
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::RadiansFromDegrees( double x )
+{
+  return x * 0.017453292519943295;
+}
+
+//----------------------------------------------------------------------------
+inline float vtkMath::DegreesFromRadians( float x )
+{
+  return x * 57.2957795131f;
+}
+
+//----------------------------------------------------------------------------
+inline double vtkMath::DegreesFromRadians( double x )
+{
+  return x * 57.29577951308232;
+}
 
 //----------------------------------------------------------------------------
 inline vtkTypeInt64 vtkMath::Factorial( int N )
