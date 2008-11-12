@@ -34,7 +34,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkTreeRingLayoutStrategy.h"
 
-vtkCxxRevisionMacro(vtkTreeRingLayout, "1.5");
+vtkCxxRevisionMacro(vtkTreeRingLayout, "1.6");
 vtkStandardNewMacro(vtkTreeRingLayout);
 
 vtkTreeRingLayout::vtkTreeRingLayout()
@@ -177,8 +177,8 @@ vtkIdType vtkTreeRingLayout::FindVertexRectangular(float pnt[2])
 vtkIdType vtkTreeRingLayout::FindVertex(float pnt[2])
 {
   float polar_location[2];
-  polar_location[0] = sqrt((pnt[0]*pnt[0]) + (pnt[1]*pnt[1]));
-  polar_location[1] = vtkMath::RadiansToDegrees()*atan2(pnt[1], pnt[0]);
+  polar_location[0] = sqrt( ( pnt[0] * pnt[0] ) + ( pnt[1] * pnt[1] ) );
+  polar_location[1] = vtkMath::DegreesFromRadians( atan2( pnt[1], pnt[0] ) );
   if( polar_location[1] < 0 )
       polar_location[1] += 360.;
 

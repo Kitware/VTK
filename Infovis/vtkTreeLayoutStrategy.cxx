@@ -36,7 +36,7 @@
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 
-vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.11");
+vtkCxxRevisionMacro(vtkTreeLayoutStrategy, "1.12");
 vtkStandardNewMacro(vtkTreeLayoutStrategy);
 
 vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
@@ -279,8 +279,8 @@ void vtkTreeLayoutStrategy::Layout()
 
           //add the subtended angles to an array for possible use later...
         double subtended_angle[2];
-        double angle1 = vtkMath::RadiansToDegrees()*minAng;
-        double angle2 = vtkMath::RadiansToDegrees()*maxAng;
+        double angle1 = vtkMath::DegreesFromRadians( minAng );
+        double angle2 = vtkMath::DegreesFromRadians( maxAng );
 
         subtended_angle[0] = angle1;
         subtended_angle[1] = angle2;
