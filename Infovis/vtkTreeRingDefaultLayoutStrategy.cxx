@@ -31,7 +31,7 @@
 #include "vtkDataArray.h"
 #include "vtkTree.h"
 
-vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.8");
+vtkCxxRevisionMacro(vtkTreeRingDefaultLayoutStrategy, "1.9");
 vtkStandardNewMacro(vtkTreeRingDefaultLayoutStrategy);
 
 vtkTreeRingDefaultLayoutStrategy::vtkTreeRingDefaultLayoutStrategy()
@@ -93,8 +93,8 @@ void vtkTreeRingDefaultLayoutStrategy::Layout(vtkTree *inputTree,
       {
         double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
         double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
-        x = r*cos(vtkMath::DegreesToRadians()*theta);
-        y = r*sin(vtkMath::DegreesToRadians()*theta);
+        x = r * cos( vtkMath::RadiansFromDegrees( theta ) );
+        y = r * sin( vtkMath::RadiansFromDegrees( theta ) );
         z = 0.;
       }
     }

@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.7");
+vtkCxxRevisionMacro(vtkTreeRingReversedLayoutStrategy, "1.8");
 vtkStandardNewMacro(vtkTreeRingReversedLayoutStrategy);
 
 vtkTreeRingReversedLayoutStrategy::vtkTreeRingReversedLayoutStrategy()
@@ -121,8 +121,8 @@ void vtkTreeRingReversedLayoutStrategy::Layout(vtkTree *inputTree,
       {
         double r = (0.5*(sector_coords[3] - sector_coords[2])) + sector_coords[2];
         double theta = sector_coords[0] + (0.5*(sector_coords[1]-sector_coords[0]));
-        x = r*cos(vtkMath::DegreesToRadians()*theta);
-        y = r*sin(vtkMath::DegreesToRadians()*theta);
+        x = r * cos( vtkMath::RadiansFromDegrees( theta ) );
+        y = r * sin( vtkMath::RadiansFromDegrees( theta ) );
         z = 0.;
       }
     }
