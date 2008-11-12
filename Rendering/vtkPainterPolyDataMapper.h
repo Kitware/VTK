@@ -96,6 +96,11 @@ public:
   // selection.
   virtual bool GetSupportsSelection()
     { return (this->SelectionPainter != 0); }
+
+  // Description:
+  // Test if MultiTexturing is supported.
+  virtual bool GetSupportsMultiTexturing(vtkRenderWindow * renWin);
+
 protected:
   vtkPainterPolyDataMapper();
   ~vtkPainterPolyDataMapper();

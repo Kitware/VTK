@@ -28,6 +28,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPrimitivePainter.h"
@@ -35,9 +36,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
 #include "vtkStandardPolyDataPainter.h"
+#include "vtkgl.h"
 
 vtkStandardNewMacro(vtkPainterPolyDataMapper);
-vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.20")
+vtkCxxRevisionMacro(vtkPainterPolyDataMapper, "1.21")
 //-----------------------------------------------------------------------------
 class vtkPainterPolyDataMapperObserver : public vtkCommand
 {
@@ -413,6 +415,27 @@ double* vtkPainterPolyDataMapper::GetBounds()
       }
     return this->Bounds;
     }
+}
+
+bool vtkPainterPolyDataMapper::GetSupportsMultiTexturing(vtkRenderWindow * renWin)
+{ 
+  vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
+  extensions->SetRenderWindow( renWin );
+
+  // multitexture is a core feature of OpenGL 1.3.
+  // multitexture is an ARB extension of OpenGL 1.2.1
+  int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
+  int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
+  int supports_ARB_mutlitexture = 
+  extensions->ExtensionSupported("GL_ARB_multitexture");
+  extensions->Delete();
+
+  if(supports_GL_1_3 || supports_GL_1_2_1 || supports_ARB_mutlitexture)
+    {
+    return true;
+    }
+
+  return false;
 }
 
 //-----------------------------------------------------------------------------

@@ -51,10 +51,6 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Handle loading in extension support
-  virtual void Initialize(vtkRenderer * ren);
-
-  // Description:
   // Converts mode from VTK_* to GL_* and calls glBegin.
   virtual void BeginPrimitive(int mode);
 

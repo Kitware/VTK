@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
 #include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
 #ifdef VTK_USE_GL2PS
@@ -31,7 +32,7 @@
 #include "vtkgl.h" // vtkgl namespace
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.45");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.46");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -348,6 +349,10 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
     glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
     for (vtkIdType i = 0; i < numTextures; i++)
       {
+      if (vtkOpenGLTexture::SafeDownCast(this->GetTextureAtIndex(i))->GetIndex() == 0)
+        {
+        continue;
+        }
       int texture_unit = this->GetTextureUnitAtIndex(i);
       if (texture_unit >= numSupportedTextures || texture_unit < 0)
         {

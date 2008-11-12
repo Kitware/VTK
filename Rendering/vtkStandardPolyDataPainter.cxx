@@ -63,7 +63,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.14");
+vtkCxxRevisionMacro(vtkStandardPolyDataPainter, "1.15");
 vtkStandardNewMacro(vtkStandardPolyDataPainter);
 //-----------------------------------------------------------------------------
 static inline int vtkStandardPolyDataPainterGetTotalCells(vtkPolyData* pd,
@@ -278,7 +278,6 @@ void vtkStandardPolyDataPainter::DrawCells(int mode, vtkCellArray *connectivity,
 
   vtkPainterDeviceAdapter* device = renderer->GetRenderWindow()->
     GetPainterDeviceAdapter();
-  device->Initialize(renderer);
 
   vtkCellData* cellData = pd->GetCellData();
   vtkPointData* pointData = pd->GetPointData();
