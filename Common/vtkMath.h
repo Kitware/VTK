@@ -66,13 +66,13 @@ public:
 
   // Description:
   // Convert degrees into radians
-  float RadiansFromDegrees( float );
-  double RadiansFromDegrees( double );
+  static float RadiansFromDegrees( float );
+  static double RadiansFromDegrees( double );
 
   // Description:
   // Convert radians into degrees
-  float DegreesFromRadians( float );
-  double DegreesFromRadians( double );
+  static float DegreesFromRadians( float );
+  static double DegreesFromRadians( double );
 
   // Description:
   // Rounds a float to the nearest integer.
