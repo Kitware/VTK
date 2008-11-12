@@ -30,7 +30,7 @@
 #include "vtkWindow.h"
 #include "vtkCamera.h"
 
-vtkCxxRevisionMacro(vtkAngleRepresentation3D, "1.1");
+vtkCxxRevisionMacro(vtkAngleRepresentation3D, "1.2");
 vtkStandardNewMacro(vtkAngleRepresentation3D);
 
 
@@ -273,7 +273,7 @@ void vtkAngleRepresentation3D::BuildRepresentation()
 
         vtkPoints *points = this->ArcSource->GetOutput()->GetPoints();
         const int npoints = points->GetNumberOfPoints();
-        points->GetPoint( (int)(npoints / 2), this->TextPosition );
+        points->GetPoint(npoints/2, this->TextPosition );
 
         char string[512];
         sprintf(string, this->LabelFormat,
