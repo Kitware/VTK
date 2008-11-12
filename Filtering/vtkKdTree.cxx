@@ -51,7 +51,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.3");
+vtkCxxRevisionMacro(vtkKdTree, "1.4");
 
 // Timing data ---------------------------------------------
 
@@ -2255,26 +2255,9 @@ vtkIdType vtkKdTree::FindClosestPoint(double x, double y, double z, double &dist
 
     regionId = this->GetRegionContainingPoint(pt[0], pt[1], pt[2]);
 
-    double proxyDistance; 
-
-    // XXX atwilso changed this to compute from x, y, z instead of pt
-    // -- computing from pt still wasn't giving the right results for
-    // far-away points
-
     closeId = this->_FindClosestPointInRegion(regionId,
                                               x, y, z,
-                                              proxyDistance);
-
-    double originalPoint[3], otherPoint[3];
-    originalPoint[0] = x; originalPoint[1] = y; originalPoint[2] = z;
-
-    float *closePoint = this->LocatorPoints + (closeId * 3);
-    otherPoint[0] = static_cast<double>(closePoint[0]);
-    otherPoint[1] = static_cast<double>(closePoint[1]);
-    otherPoint[2] = static_cast<double>(closePoint[2]);
-
-    minDistance2 = 
-        vtkMath::Distance2BetweenPoints(originalPoint, otherPoint);
+                                              minDistance2);
 
     // Check to see if neighboring regions have a closer point
 
