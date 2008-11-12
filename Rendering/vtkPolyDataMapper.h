@@ -106,7 +106,10 @@ public:
 
   // Description:
   // Test if MultiTexturing is supported. By default this is false.
-  virtual bool GetSupportsMultiTexturing(vtkRenderWindow * ren) { ren; return false; }
+  virtual bool GetSupportsMultiTexturing(vtkRenderWindow *vtkNotUsed(ren))
+    {
+      return false;
+    }
 
 protected:  
   vtkPolyDataMapper();
