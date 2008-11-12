@@ -22,11 +22,14 @@
 #include "vtkCamera.h"
 #include "vtkGeoAlignedImageSource.h"
 #include "vtkGeoAlignedImageRepresentation.h"
+#include "vtkGeoFileImageSource.h"
+#include "vtkGeoFileTerrainSource.h"
 #include "vtkGeoProjectionSource.h"
 #include "vtkGeoTerrain2D.h"
 #include "vtkGeoTerrainNode.h"
 #include "vtkGeoView2D.h"
 #include "vtkJPEGReader.h"
+#include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -43,34 +46,58 @@ int TestGeoView2D(int argc, char* argv[])
   int proj = 40;
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
-  //char* fname = vtkTestUtilities::ExpandDataFileName(
-  //  argc, argv, "Data/world.topo.bathy.200407.3x21600x10800.jpg");
-  //char* fname = vtkTestUtilities::ExpandDataFileName(
-  //  argc, argv, "Data/world.topo.bathy.200407.3x10000x5000.jpg");
-  vtkStdString filename = fname;
+  vtkStdString imageFile = fname;
+  vtkStdString imageReadPath = "";
+  vtkStdString imageSavePath = "";
+  vtkStdString terrainReadPath = "";
+  vtkStdString terrainSavePath = "";
   double locationTol = 5.0;
   double textureTol = 1.0;
   for (int a = 1; a < argc; a++)
     {
-    if (!strcmp(argv[a], "-p"))
+    if (!strcmp(argv[a], "-P"))
       {
       ++a;
       proj = atoi(argv[a]);
       continue;
       }
-    if (!strcmp(argv[a], "-f"))
+    if (!strcmp(argv[a], "-IF"))
       {
       ++a;
-      filename = argv[a];
+      imageFile = argv[a];
       continue;
       }
-    if (!strcmp(argv[a], "-lt"))
+    if (!strcmp(argv[a], "-IR"))
+      {
+      ++a;
+      imageReadPath = argv[a];
+      continue;
+      }
+    if (!strcmp(argv[a], "-IS"))
+      {
+      ++a;
+      imageSavePath = argv[a];
+      continue;
+      }
+    if (!strcmp(argv[a], "-TR"))
+      {
+      ++a;
+      terrainReadPath = argv[a];
+      continue;
+      }
+    if (!strcmp(argv[a], "-TS"))
+      {
+      ++a;
+      terrainSavePath = argv[a];
+      continue;
+      }
+    if (!strcmp(argv[a], "-LT"))
       {
       ++a;
       locationTol = atof(argv[a]);
       continue;
       }
-    if (!strcmp(argv[a], "-tt"))
+    if (!strcmp(argv[a], "-TT"))
       {
       ++a;
       textureTol = atof(argv[a]);
@@ -89,10 +116,14 @@ int TestGeoView2D(int argc, char* argv[])
       }
     cerr
       << "\nUsage:\n"
-      << "  -p proj    - Set projection ID proj (default 5)\n"
-      << "  -f path - Set the hi-res image file path\n"
-      << "  -lt tol  - Set geometry tolerance in pixels (default 5.0)\n"
-      << "  -tt tol  - Set texture tolerance in pixels (default 1.0)\n";
+      << "  -P  proj - Projection ID (default 40)\n"
+      << "  -IF file - Image file\n"
+      << "  -IR path - Image database read path\n"
+      << "  -IS path - Image database save path\n"
+      << "  -TR file - Terrain databse read path\n"
+      << "  -TS file - Terrain databse save path\n"
+      << "  -LT tol  - Set geometry tolerance in pixels (default 5.0)\n"
+      << "  -TT tol  - Set texture tolerance in pixels (default 1.0)\n";
     return 0;
     }
 
@@ -101,23 +132,31 @@ int TestGeoView2D(int argc, char* argv[])
   vtkSmartPointer<vtkGeoView2D> view = vtkSmartPointer<vtkGeoView2D>::New();
   view->SetupRenderWindow(win);
 
-  // Create the sources
-  vtkSmartPointer<vtkGeoAlignedImageSource> imageSource =
-    vtkSmartPointer<vtkGeoAlignedImageSource>::New();
-  vtkSmartPointer<vtkJPEGReader> reader = vtkSmartPointer<vtkJPEGReader>::New();
-  reader->SetFileName(filename.c_str());
-  reader->Update();
-  imageSource->SetImage(reader->GetOutput());
-  vtkSmartPointer<vtkGeoAlignedImageRepresentation> rep =
-    vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
-  rep->SetSource(imageSource);
-  view->AddRepresentation(rep);
+  // Create the terrain
+  vtkSmartPointer<vtkGeoTerrain2D> terrain =
+    vtkSmartPointer<vtkGeoTerrain2D>::New();
+  vtkSmartPointer<vtkGeoSource> terrainSource;
+  vtkGeoProjectionSource* projSource = vtkGeoProjectionSource::New();
+  projSource->SetProjection(proj);
+  terrainSource.TakeReference(projSource);
+  terrain->SetSource(terrainSource);
+  view->SetSurface(terrain);
 
-  // Add image representation
-  //char* fname2 = vtkTestUtilities::ExpandDataFileName(
-  //  argc, argv, "Data/NE2_ps_bath_small.jpg");
-  //char* fname2 = vtkTestUtilities::ExpandDataFileName(
-  //    argc, argv, "Data/world.topo.bathy.200407.3x21600x10800.jpg");
+  // Create background image
+  vtkSmartPointer<vtkGeoAlignedImageRepresentation> imageRep =
+    vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
+  vtkSmartPointer<vtkGeoSource> imageSource;
+  vtkGeoAlignedImageSource* alignedSource = vtkGeoAlignedImageSource::New();
+  vtkSmartPointer<vtkJPEGReader> reader =
+    vtkSmartPointer<vtkJPEGReader>::New();
+  reader->SetFileName(imageFile.c_str());
+  reader->Update();
+  alignedSource->SetImage(reader->GetOutput());
+  imageSource.TakeReference(alignedSource);
+  imageRep->SetSource(imageSource);
+  view->AddRepresentation(imageRep);
+
+  // Create second image
   char* fname2 = vtkTestUtilities::ExpandDataFileName(
       argc, argv, "Data/masonry-wide.jpg");
   vtkSmartPointer<vtkJPEGReader> reader2 =
@@ -127,27 +166,52 @@ int TestGeoView2D(int argc, char* argv[])
   vtkSmartPointer<vtkGeoAlignedImageSource> imageSource2 =
     vtkSmartPointer<vtkGeoAlignedImageSource>::New();
   imageSource2->SetImage(reader2->GetOutput());
-  vtkSmartPointer<vtkGeoAlignedImageRepresentation> rep2 =
+  vtkSmartPointer<vtkGeoAlignedImageRepresentation> imageRep2 =
     vtkSmartPointer<vtkGeoAlignedImageRepresentation>::New();
-  rep2->SetSource(imageSource2);
-  view->AddRepresentation(rep2);
+  imageRep2->SetSource(imageSource2);
+  view->AddRepresentation(imageRep2);
 
-  win->SetSize(600, 600);
-  vtkSmartPointer<vtkGeoProjectionSource> grat
-    = vtkSmartPointer<vtkGeoProjectionSource>::New();
-  grat->SetProjection(proj);
-  vtkGeoSource* gratSource = grat;
+  // Serialize databases
+  if (imageSavePath.length() > 0)
+    {
+    imageRep->SaveDatabase(imageSavePath);
+    }
+  if (terrainSavePath.length() > 0)
+    {
+    terrain->SaveDatabase(terrainSavePath, 4);
+    }
+
+  // Reload databases
+  if (terrainReadPath.length() > 0)
+    {
+    vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
+    source->SetPath(terrainReadPath.c_str());
+    terrainSource.TakeReference(source);
+    }
+  terrain->SetSource(terrainSource);
+  if (imageReadPath.length() > 0)
+    {
+    vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
+    source->SetPath(imageReadPath.c_str());
+    imageSource.TakeReference(source);
+    }
+  imageRep->SetSource(imageSource);
 
   // Set up the viewport
-  vtkSmartPointer<vtkGeoTerrainNode> root = vtkSmartPointer<vtkGeoTerrainNode>::New();
-  gratSource->FetchRoot(root);
-  double bounds[4];
-  root->GetProjectionBounds(bounds);
-  view->GetRenderer()->GetActiveCamera()->SetParallelScale((bounds[3] - bounds[2]) / 2.0);
-
-  vtkSmartPointer<vtkGeoTerrain2D> surf = vtkSmartPointer<vtkGeoTerrain2D>::New();
-  surf->SetSource(gratSource);
-  view->SetSurface(surf);
+  win->SetSize(600, 600);
+  vtkSmartPointer<vtkGeoTerrainNode> root =
+    vtkSmartPointer<vtkGeoTerrainNode>::New();
+  terrainSource->FetchRoot(root);
+  double bounds[6];
+  root->GetModel()->GetBounds(bounds);
+  bounds[0] = bounds[0] - (bounds[1] - bounds[0])*0.01;
+  bounds[1] = bounds[1] + (bounds[1] - bounds[0])*0.01;
+  bounds[2] = bounds[2] - (bounds[3] - bounds[2])*0.01;
+  bounds[3] = bounds[3] + (bounds[3] - bounds[2])*0.01;
+  double scalex = (bounds[1] - bounds[0])/2.0;
+  double scaley = (bounds[3] - bounds[2])/2.0;
+  double scale = (scalex > scaley) ? scalex : scaley;
+  view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 
   view->Update();
   int retVal = vtkRegressionTestImage(win);
@@ -157,8 +221,9 @@ int TestGeoView2D(int argc, char* argv[])
     win->GetInteractor()->Start();
     }
 
-  grat->ShutDown();
+  terrainSource->ShutDown();
   imageSource->ShutDown();
+  imageSource2->ShutDown();
 
   delete [] fname;
   delete [] fname2;

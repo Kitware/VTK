@@ -56,7 +56,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.12");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.13");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
@@ -132,9 +132,9 @@ void vtkGeoTerrain::AddActors(
   int visibleActors = 0;
 
   vtkProp3DCollection* props = assembly->GetParts();
-  //cerr << "Number of props = " << props->GetNumberOfItems() << endl;
-  //vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
-  //timer->StartTimer();
+  vtkDebugMacro("Number Of Props: " << props->GetNumberOfItems());
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  timer->StartTimer();
 
   // Remove actors at the beginning of the actor list until there are at most
   // 100 actors.
@@ -190,7 +190,6 @@ void vtkGeoTerrain::AddActors(
 
     // Determine whether to traverse this node's children
     int refine = this->EvaluateNode(cur, camera);
-    //cerr << "refine = " << refine << endl;
 
     child = cur->GetChild(0);
     if ((!child && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
@@ -331,9 +330,9 @@ void vtkGeoTerrain::AddActors(
     s.push(cur->GetChild(3));
     }
 
+  timer->StopTimer();
   vtkDebugMacro("Visible Actors: " << visibleActors);
-  //timer->StopTimer();
-  //cerr << "AddActors time: " << timer->GetElapsedTime() << endl;
+  vtkDebugMacro("AddActors time: " << timer->GetElapsedTime());
 }
 
 //----------------------------------------------------------------------------

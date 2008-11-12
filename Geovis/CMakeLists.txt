@@ -15,6 +15,8 @@ SET( Kit_SRCS
   vtkGeoAssignCoordinates.cxx
   vtkGeoCamera.cxx
   vtkGeoEdgeStrategy.cxx
+  vtkGeoFileImageSource.cxx
+  vtkGeoFileTerrainSource.cxx
   vtkGeoGlobeSource.cxx
   vtkGeoGraphRepresentation.cxx
   vtkGeoGraphRepresentation2D.cxx

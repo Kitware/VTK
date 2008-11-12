@@ -25,7 +25,7 @@
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkGeoGlobeSource);
-vtkCxxRevisionMacro(vtkGeoGlobeSource, "1.1");
+vtkCxxRevisionMacro(vtkGeoGlobeSource, "1.2");
 //----------------------------------------------------------------------------
 vtkGeoGlobeSource::vtkGeoGlobeSource()
 {
@@ -109,38 +109,7 @@ bool vtkGeoGlobeSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode*
     }
 
   int id = 0;
-  if (level == 0)
-    {
-    // Special case: in the first level, the western hemisphere has id 0, and
-    // the eastern hemisphere has id 1. This is to be compatible with the old
-    // tile database format.
-    if (index == 2)
-      {
-      id = 0;
-      }
-    else if (index == 3)
-      {
-      id = 1;
-      }
-    else if (index == 0)
-      {
-      child->SetLatitudeRange(-270, -90);
-      child->SetLongitudeRange(-180, 0);
-      child->SetId(2);
-      return true;
-      }
-    else if (index == 1)
-      {
-      child->SetLatitudeRange(-270, -90);
-      child->SetLongitudeRange(0, 180);
-      child->SetId(3);
-      return true;
-      }
-    }
-  else
-    {
-    id = parent->GetId() | (index << (2*level - 1));
-    }
+  id = parent->GetId() | (index << (2*level - 2));
 
   child->SetId(id);
   vtkSmartPointer<vtkGlobeSource> source =
