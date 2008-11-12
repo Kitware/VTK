@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.60");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.61");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -179,6 +179,21 @@ void vtkCocoaRenderWindow::MakeCurrent()
     [(NSOpenGLContext*)this->GetContextId() makeCurrentContext];
     }
 }
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if this window is the current OpenGL context for the calling thread.
+bool vtkCocoaRenderWindow::IsCurrent()
+{
+  bool result=false;
+  if(this->GetContextId()!=0)
+    {
+    result=static_cast<NSOpenGLContext *>(this->GetContextId())==
+      [NSOpenGLContext currentContext];
+    }
+  return result;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::UpdateContext()

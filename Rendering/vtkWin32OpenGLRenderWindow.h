@@ -157,6 +157,10 @@ public:
   void MakeCurrent();
 
   // Description:
+  // Tells if this window is the current OpenGL context for the calling thread.
+  virtual bool IsCurrent();
+  
+  // Description:
   // Get report of capabilities for the render window
   const char *ReportCapabilities();
 

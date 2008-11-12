@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <math.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.71");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.72");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -385,6 +385,24 @@ void vtkCarbonRenderWindow::MakeCurrent()
       this->ForceMakeCurrent = 0;
       }
     }
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Tells if this window is the current OpenGL context for the calling thread.
+bool vtkCarbonRenderWindow::IsCurrent()
+{
+  bool result;
+  
+  if(this->OffScreenRendering && this->Internal->OffScreenContextId)
+    {
+    result=this->Internal->OffScreenContextId==aglGetCurrentContext();
+    }
+  else
+    {
+    result=this->ContextId==aglGetCurrentContext();
+    }
+  return result;
 }
 
 // --------------------------------------------------------------------------

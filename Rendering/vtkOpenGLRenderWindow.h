@@ -93,6 +93,10 @@ public:
   void MakeCurrent() = 0;
   
   // Description:
+  // Tells if this window is the current OpenGL context for the calling thread.
+  virtual bool IsCurrent()=0;
+  
+  // Description:
   // Register a texture name with this render window.
   void RegisterTextureResource (GLuint id);
 

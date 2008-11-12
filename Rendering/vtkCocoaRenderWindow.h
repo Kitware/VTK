@@ -155,6 +155,10 @@ public:
   virtual void MakeCurrent();
   
   // Description:
+  // Tells if this window is the current OpenGL context for the calling thread.
+  virtual bool IsCurrent();
+  
+  // Description:
   // Update this window's OpenGL context, e.g. when the window is resized.
   void UpdateContext();
 

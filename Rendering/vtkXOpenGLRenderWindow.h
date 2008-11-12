@@ -97,6 +97,10 @@ public:
   void MakeCurrent();
 
   // Description:
+  // Tells if this window is the current OpenGL context for the calling thread.
+  virtual bool IsCurrent();
+  
+  // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking     
   // on the next render.     
