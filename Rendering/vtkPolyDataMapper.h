@@ -27,6 +27,7 @@
 
 class vtkPolyData;
 class vtkRenderer;
+class vtkRenderWindow;
 
 class VTK_RENDERING_EXPORT vtkPolyDataMapper : public vtkMapper 
 {
@@ -102,6 +103,10 @@ public:
   // Description:
   // Remove all vertex attributes.
   virtual void RemoveAllVertexAttributeMappings();
+
+  // Description:
+  // Test if MultiTexturing is supported. By default this is false.
+  virtual bool GetSupportsMultiTexturing(vtkRenderWindow * ren) { ren; return false; }
 
 protected:  
   vtkPolyDataMapper();
