@@ -28,7 +28,7 @@
 
 class vtkMultiProcessController;
 
-class VTK_EXPORT vtkPCorrelativeStatistics : public vtkCorrelativeStatistics
+class VTK_INFOVIS_EXPORT vtkPCorrelativeStatistics : public vtkCorrelativeStatistics
 {
 public:
   static vtkPCorrelativeStatistics* New();
