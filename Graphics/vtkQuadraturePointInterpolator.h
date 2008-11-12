@@ -31,12 +31,9 @@
 
 #include "vtkDataSetAlgorithm.h"
 
-class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkInformation;
 class vtkInformationVector;
-
-// Description:
 
 class VTK_GRAPHICS_EXPORT vtkQuadraturePointInterpolator : public vtkDataSetAlgorithm
 {
