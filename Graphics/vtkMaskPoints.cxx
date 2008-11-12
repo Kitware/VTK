@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.49");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.50");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ int vtkMaskPoints::RequestData(
     {
     double cap;
     
-    if (((double)numPts/this->OnRatio) > this->MaximumNumberOfPoints)
+    if ((static_cast<double>(numPts)/this->OnRatio) > this->MaximumNumberOfPoints)
       {
       cap = 2.0*numPts/this->MaximumNumberOfPoints - 1;
       }
@@ -104,7 +104,7 @@ int vtkMaskPoints::RequestData(
 
     for (ptId = this->Offset; 
     (ptId < numPts) && (id < this->MaximumNumberOfPoints) && !abort;  
-    ptId += (1 + (int)((double)vtkMath::Random()*cap)) )
+         ptId += (1 + static_cast<int>(static_cast<double>(vtkMath::Random())*cap)) )
       {
       input->GetPoint(ptId, x);
       id = newPts->InsertNextPoint(x);

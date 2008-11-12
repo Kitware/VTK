@@ -26,7 +26,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkArcSource, "1.2");
+vtkCxxRevisionMacro(vtkArcSource, "1.3");
 vtkStandardNewMacro(vtkArcSource);
 
 // --------------------------------------------------------------------------
@@ -121,7 +121,7 @@ int vtkArcSource::RequestData(
         this->Center[1] + cosine*radius*v1[1] + sine*radius*perpendicular[1],
         this->Center[2] + cosine*radius*v1[2] + sine*radius*perpendicular[2] };
     
-    tc[0] = ((double)i/this->Resolution);
+    tc[0] = static_cast<double>(i)/this->Resolution;
     newPoints->InsertPoint(i,p);
     newTCoords->InsertTuple(i,tc);
     }

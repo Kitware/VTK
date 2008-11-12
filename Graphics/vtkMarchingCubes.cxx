@@ -37,7 +37,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.4");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.5");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -210,7 +210,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
-    self->UpdateProgress ((double) k / ((double) dims[2] - 1));
+    self->UpdateProgress (k / static_cast<double>(dims[2] - 1));
     if (self->GetAbortExecute())
       {
       break;
@@ -423,7 +423,8 @@ int vtkMarchingCubes::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   // estimate the number of points from the volume dimensions
-  estimatedSize = (int) pow ((double) (dims[0] * dims[1] * dims[2]), .75);
+  estimatedSize = static_cast<int>(
+    pow(static_cast<double>(dims[0]*dims[1]*dims[2]),0.75));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
