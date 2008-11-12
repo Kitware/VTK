@@ -39,8 +39,9 @@ class vtkMPIController;
 class vtkMPIGroup;
 class vtkProcessGroup;
 
-class vtkMPICommunicatorOpaqueRequest;
 class vtkMPICommunicatorOpaqueComm;
+class vtkMPICommunicatorOpaqueRequest;
+class vtkMPICommunicatorReceiveDataInfo;
 
 class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
@@ -203,6 +204,14 @@ public:
   vtkSetClampMacro(UseSsend, int, 0, 1);
   vtkGetMacro(UseSsend, int);
   vtkBooleanMacro(UseSsend, int);
+
+  // Description:
+  // Copies all the attributes of source, deleting previously
+  // stored data. The MPI communicator handle is also copied.
+  // Normally, this should not be needed. It is used during
+  // the construction of a new communicator for copying the
+  // world communicator, keeping the same context.
+  void CopyFrom(vtkMPICommunicator* source);
 protected:
   vtkMPICommunicator();
   ~vtkMPICommunicator();
@@ -230,14 +239,6 @@ protected:
 
   // Description:
   // Copies all the attributes of source, deleting previously
-  // stored data. The MPI communicator handle is also copied.
-  // Normally, this should not be needed. It is used during
-  // the construction of a new communicator for copying the
-  // world communicator, keeping the same context.
-  void CopyFrom(vtkMPICommunicator* source);
-
-  // Description:
-  // Copies all the attributes of source, deleting previously
   // stored data EXCEPT the MPI communicator handle which is
   // duplicated with MPI_Comm_dup(). Therefore, although the
   // processes in the communicator remain the same, a new context
@@ -245,6 +246,14 @@ protected:
   // intefering with each other during message send/receives even
   // if the tags are the same.
   void Duplicate(vtkMPICommunicator* source);
+
+  // Description:
+  // Implementation for receive data.
+  virtual int ReceiveDataInternal(
+    char* data, int length, int sizeoftype, 
+    int remoteProcessId, int tag,
+    vtkMPICommunicatorReceiveDataInfo* info,
+    int useCopy, int& senderId);
 
   vtkMPICommunicatorOpaqueComm* MPIComm;
 

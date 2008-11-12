@@ -30,17 +30,11 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.49");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.50");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
 
-//-----------------------------------------------------------------------------
-class vtkMPICommunicatorOpaqueRequest
-{
-public:
-  MPI_Request Handle;
-};
 
 vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm()
 {
@@ -237,19 +231,12 @@ int vtkMPICommunicatorSendData(const T* data, int length, int sizeoftype,
     }
 }
 //----------------------------------------------------------------------------
-template <class T>
-int vtkMPICommunicatorReceiveData(T* data, int length, int sizeoftype, 
-                                  int remoteProcessId, int tag, 
-                                  MPI_Datatype datatype, MPI_Comm *Handle, 
-                                  int useCopy, int& senderId,
-                                  MPI_Status* status=NULL)
+int vtkMPICommunicator::ReceiveDataInternal(
+  char* data, int length, int sizeoftype,
+  int remoteProcessId, int tag,
+  vtkMPICommunicatorReceiveDataInfo* info,
+  int useCopy, int& senderId)
 {
-  MPI_Status localStatus;
-  if (!status)
-    {
-    status = &localStatus;
-    }
-
   if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
     {
     remoteProcessId = MPI_ANY_SOURCE;
@@ -260,23 +247,24 @@ int vtkMPICommunicatorReceiveData(T* data, int length, int sizeoftype,
   if (useCopy)
     {
     char* tmpData = vtkMPICommunicator::Allocate(length*sizeoftype);
-    retVal = MPI_Recv(tmpData, length, datatype, remoteProcessId, tag, 
-                      *(Handle), status);
+    retVal = MPI_Recv(tmpData, length, info->DataType, remoteProcessId, tag, 
+                      *(info->Handle), &(info->Status));
     memcpy(data, tmpData, length*sizeoftype);
     vtkMPICommunicator::Free(tmpData);
     }
   else
     {
-    retVal = MPI_Recv(data, length, datatype, remoteProcessId, tag, 
-                      *(Handle), status);
+    retVal = MPI_Recv(data, length, info->DataType, remoteProcessId, tag, 
+                      *(info->Handle), &(info->Status));
     }
 
   if (retVal == MPI_SUCCESS)
     {
-    senderId = status->MPI_SOURCE;
+    senderId = info->Status.MPI_SOURCE;
     }
   return retVal;
 }
+
 //----------------------------------------------------------------------------
 template <class T>
 int vtkMPICommunicatorNoBlockSendData(const T* data, int length, 
@@ -760,19 +748,21 @@ int vtkMPICommunicator::ReceiveVoidArray(void *data, vtkIdType maxlength, int ty
   // that when the sending exactly maxReceive length message, it is split into 2
   // packets of sizes maxReceive and 0 repectively).
   int maxReceive = VTK_INT_MAX;
-  MPI_Status status;
+  vtkMPICommunicatorReceiveDataInfo info;
+  info.Handle = this->MPIComm->Handle;
+  info.DataType = mpiType;
   while (CheckForMPIError(
-      vtkMPICommunicatorReceiveData(byteData,
+      this->ReceiveDataInternal(byteData,
         vtkMPICommunicatorMin(maxlength, maxReceive),
         sizeOfType, remoteProcessId,
-        tag, mpiType, this->MPIComm->Handle,
+        tag, &info,
         vtkCommunicator::UseCopy,
-        this->LastSenderId, &status)) != 0)
+        this->LastSenderId)) != 0)
     {
     remoteProcessId = this->LastSenderId;
 
     int words_received=0;
-    if (CheckForMPIError(MPI_Get_count(&status, mpiType, &words_received)) == 0)
+    if (CheckForMPIError(MPI_Get_count(&info.Status, mpiType, &words_received)) == 0)
       {
       // Failed.
       return 0;

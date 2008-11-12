@@ -40,5 +40,24 @@ protected:
   MPI_Comm* Handle;
 };
 
+class VTK_PARALLEL_EXPORT vtkMPICommunicatorReceiveDataInfo
+{
+public:
+  vtkMPICommunicatorReceiveDataInfo()
+    {
+    this->Handle=0;
+    }
+  MPI_Datatype DataType;
+  MPI_Status Status;
+  MPI_Comm* Handle;
+};
+
+//-----------------------------------------------------------------------------
+class vtkMPICommunicatorOpaqueRequest
+{
+public:
+  MPI_Request Handle;
+};
+
 
 #endif // __vtkMPI_h
