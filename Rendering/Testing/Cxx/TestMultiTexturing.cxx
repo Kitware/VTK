@@ -43,6 +43,8 @@
 
 int TestMultiTexturing(int argc, char *argv[])
 {
+
+  
   char* fname1 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/RedCircle.png");
   char* fname2 =
@@ -63,27 +65,6 @@ int TestMultiTexturing(int argc, char *argv[])
   imageReaderRed->Update();
   imageReaderBlue->Update();
   imageReaderGreen->Update();
-
-  /*vtkPolyData * polyData = vtkPolyData::New();
-  vtkPoints * points = vtkPoints::New();
-  points->Allocate(16);
-
-  points->InsertNextPoint(-1.0, -1.0, 0.0);
-  points->InsertNextPoint(1.0, -1.0, 0.0);
-  points->InsertNextPoint(1.0, 1.0, 0.0);
-  points->InsertNextPoint(-1.0, 1.0, 0.0);
-
-  polyData->SetPoints(points);
-
-  vtkCellArray * cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(1, 4));
-  cells->InsertNextCell(4);
-  cells->InsertCellPoint(0);
-  cells->InsertCellPoint(1);
-  cells->InsertCellPoint(2);
-  cells->InsertCellPoint(3);
-
-  polyData->SetPolys(cells);*/
 
   vtkPlaneSource *planeSource = vtkPlaneSource::New();
   planeSource->Update();
@@ -130,27 +111,39 @@ int TestMultiTexturing(int argc, char *argv[])
   textureBlue->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
   textureGreen->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
 
-  vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-
-  vtkActor * actor = vtkActor::New();
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
-  actor->SetMapper(mapper);
-
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
+
+  vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
+  mapper->SetInput(polyData);
+
+  vtkActor * actor = vtkActor::New();
+
+  if(mapper->GetSupportsMultiTexturing(renWin))
+    {
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
+    }
+  else
+    {
+    // no multitexturing just show the green texture.
+    actor->SetTexture(textureGreen);
+    }
+
+  actor->SetMapper(mapper);
+
   renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 0.5, 1.0);
-
+  
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 
@@ -163,8 +156,6 @@ int TestMultiTexturing(int argc, char *argv[])
     iren->Start();
     }
 
-  //points->Delete();
-  //cells->Delete();
   polyData->Delete();
   mapper->Delete();
   actor->Delete();

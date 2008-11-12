@@ -120,23 +120,34 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   textureBlue->SetTransform(transformBlue);
   textureGreen->SetTransform(transformGreen);
 
-  vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-  mapper->MapDataArrayToMultiTextureAttribute(
-    vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-
-  vtkActor * actor = vtkActor::New();
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
-  actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
-  actor->SetMapper(mapper);
-
   vtkRenderer * renderer = vtkRenderer::New();
   vtkRenderWindow * renWin = vtkRenderWindow::New();
+
+  vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
+  mapper->SetInput(polyData);
+  vtkActor * actor = vtkActor::New();
+
+  if(mapper->GetSupportsMultiTexturing(renWin))
+    {
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_0, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_1, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+    mapper->MapDataArrayToMultiTextureAttribute(
+      vtkProperty::VTK_TEXTURE_UNIT_2, "MultTCoords", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0,textureRed);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1,textureBlue);
+    actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_2,textureGreen);
+    }
+  else
+    {
+    // no multitexturing just show the green texture.
+    actor->SetTexture(textureGreen);
+    }
+
+  actor->SetMapper(mapper);
+
   renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 0.5, 1.0);
