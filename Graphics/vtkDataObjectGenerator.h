@@ -17,8 +17,8 @@
 // .SECTION Description
 // vtkDataObjectGenerator parses a string and produces dataobjects from the
 // dataobject template names it sees in the string. For example, if the string
-// contains "ID1" the generator will create a vtkImageData. "UF1", "RD1", 
-// "SD1", "PD1", and "UG1" will produce vtkUniformGrid, vtkRectilinearGrid,
+// contains "ID1" the generator will create a vtkImageData. "UF1", "RG1", 
+// "SG1", "PD1", and "UG1" will produce vtkUniformGrid, vtkRectilinearGrid,
 // vtkStructuredGrid, vtkPolyData and vtkUnstructuredGrid respectively. You 
 // can compose composite datasets from the atomic ones listed above
 // by putting them between "(" and ")" in the string to create groups, and 

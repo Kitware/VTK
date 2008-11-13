@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.10");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.11");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -505,7 +505,15 @@ int vtkDataObjectGenerator::RequestData(vtkInformation *,
 
   vtkDataObject *outData = this->FillOutputDataObjects(this->Structure, -1);
   outStructure->ShallowCopy(outData);
-  outData->Delete();
+  if (outData)
+    {
+    outData->Delete();
+    }
+  else
+    {
+    vtkErrorMacro("Program was invalid.");
+    return VTK_ERROR;
+    }
   
   return VTK_OK;
 }
