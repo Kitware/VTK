@@ -33,7 +33,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoFileTerrainSource);
-vtkCxxRevisionMacro(vtkGeoFileTerrainSource, "1.1");
+vtkCxxRevisionMacro(vtkGeoFileTerrainSource, "1.2");
 //----------------------------------------------------------------------------
 vtkGeoFileTerrainSource::vtkGeoFileTerrainSource()
 {
@@ -130,3 +130,9 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   return true;
 }
 
+//-----------------------------------------------------------------------------
+void vtkGeoFileTerrainSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Path: " << (this->Path ? this->Path : "(none)") << endl;
+}
