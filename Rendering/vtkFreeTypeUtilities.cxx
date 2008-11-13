@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.29");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.30");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -427,14 +427,14 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
          << ", I: " << tprop->GetItalic()
          << ", O: " << tprop->GetOrientation() << ")" << endl;
 #endif    
-    if (tprop->GetOrientation() != 0.0)
+    if ( tprop->GetOrientation() != 0.0 )
       {
       // FreeType documentation says that the transform should not be set
       // but we cache faces also by transform, so that there is a unique
       // (face, orientation) cache entry
 
       FT_Matrix matrix;
-      float angle = vtkMath::DegreesToRadians() * tprop->GetOrientation(); 
+      float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() ); 
       matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
       matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
       matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);

@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.36");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.37");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -270,7 +270,7 @@ void vtkInteractorStyleTrackballCamera::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::Spin()
 {
-  if (this->CurrentRenderer == NULL)
+  if ( this->CurrentRenderer == NULL )
     {
     return;
     }
@@ -280,18 +280,15 @@ void vtkInteractorStyleTrackballCamera::Spin()
   double *center = this->CurrentRenderer->GetCenter();
 
   double newAngle = 
-    atan2(rwi->GetEventPosition()[1] - center[1],
-          rwi->GetEventPosition()[0] - center[0]);
+    vtkMath::DegreesFromRadians( atan2( rwi->GetEventPosition()[1] - center[1],
+                                        rwi->GetEventPosition()[0] - center[0] ) );
 
   double oldAngle = 
-    atan2(rwi->GetLastEventPosition()[1] - center[1],
-          rwi->GetLastEventPosition()[0] - center[0]);
+    vtkMath::DegreesFromRadians( atan2( rwi->GetLastEventPosition()[1] - center[1],
+                                        rwi->GetLastEventPosition()[0] - center[0] ) );
   
-  newAngle *= vtkMath::RadiansToDegrees();
-  oldAngle *= vtkMath::RadiansToDegrees();
-
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  camera->Roll(newAngle - oldAngle);
+  camera->Roll( newAngle - oldAngle );
   camera->OrthogonalizeViewUp();
       
   rwi->Render();

@@ -51,7 +51,7 @@ using vtksys_ios::ofstream;
 # define SNPRINTF snprintf
 #endif
 
-vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.11");
+vtkCxxRevisionMacro(vtkDynamic2DLabelMapper, "1.12");
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -599,16 +599,16 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
   // The current scale is the size on the screen of 1 unit in the xy plane
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-  if (!ren)
+  if ( ! ren )
     {
     vtkErrorMacro("vtkDynamic2DLabelMapper only works in a vtkRenderer or subclass");
     return 1.0;
     }
   vtkCamera* camera = ren->GetActiveCamera();
-  if (camera->GetParallelProjection())
+  if ( camera->GetParallelProjection() )
     {
     // For parallel projection, the scale depends on the parallel scale 
-    double scale = (ren->GetSize()[1] / 2.0) / camera->GetParallelScale();
+    double scale = ( ren->GetSize()[1] / 2.0 ) / camera->GetParallelScale();
     return scale;
     }
   else
@@ -616,7 +616,7 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
     // For perspective projection, the scale depends on the view angle
     double viewAngle = camera->GetViewAngle();
     double distZ = camera->GetPosition()[2] > 0 ? camera->GetPosition()[2] : -camera->GetPosition()[2];
-    double unitAngle = atan2(1.0, distZ)*vtkMath::RadiansToDegrees();
+    double unitAngle = vtkMath::DegreesFromRadians( atan2( 1.0, distZ ) );
     double scale = ren->GetSize()[1] * unitAngle / viewAngle;
     return scale;
     }

@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.33");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -269,21 +269,21 @@ void vtkInteractorStyleJoystickCamera::Spin()
 
   // Spin is based on y value
 
-  double yf = (rwi->GetEventPosition()[1] - center[1]) / center[1];
+  double yf = ( rwi->GetEventPosition()[1] - center[1] ) / center[1];
 
-  if (yf > 1)
+  if ( yf > 1. )
     {
-    yf = 1;
+    yf = 1.;
     }
-  else if (yf < -1)
+  else if ( yf < -1. )
     {
-    yf = -1;
+    yf = -1.;
     }
 
-  double newAngle = asin(yf) * vtkMath::RadiansToDegrees();
+  double newAngle = vtkMath::DegreesFromRadians( asin( yf ) );
 
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
-  camera->Roll(newAngle);
+  camera->Roll( newAngle );
   camera->OrthogonalizeViewUp();
 
   rwi->Render();

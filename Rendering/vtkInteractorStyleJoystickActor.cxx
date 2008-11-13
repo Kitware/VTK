@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.34");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.35");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -265,10 +265,10 @@ void vtkInteractorStyleJoystickActor::Rotate()
     }
   
   double newXAngle = 
-    asin(nxf) * vtkMath::RadiansToDegrees() / this->MotionFactor;
+    vtkMath::DegreesFromRadians( asin( nxf ) ) / this->MotionFactor;
 
   double newYAngle = 
-    asin(nyf) * vtkMath::RadiansToDegrees() / this->MotionFactor;
+    vtkMath::DegreesFromRadians( asin( nyf ) ) / this->MotionFactor;
   
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
@@ -358,7 +358,7 @@ void vtkInteractorStyleJoystickActor::Spin()
     }
 
   double newAngle = 
-    asin(yf) * vtkMath::RadiansToDegrees() / this->MotionFactor;
+    vtkMath::DegreesFromRadians( asin( yf ) ) / this->MotionFactor;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;

@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.36");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.37");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -269,10 +269,10 @@ void vtkInteractorStyleTrackballActor::Rotate()
   if (((nxf * nxf + nyf * nyf) <= 1.0) &&
       ((oxf * oxf + oyf * oyf) <= 1.0))
     {
-    double newXAngle = asin(nxf) * vtkMath::RadiansToDegrees();
-    double newYAngle = asin(nyf) * vtkMath::RadiansToDegrees();
-    double oldXAngle = asin(oxf) * vtkMath::RadiansToDegrees();
-    double oldYAngle = asin(oyf) * vtkMath::RadiansToDegrees();
+    double newXAngle = vtkMath::DegreesFromRadians( asin( nxf ) );
+    double newYAngle = vtkMath::DegreesFromRadians( asin( nyf ) );
+    double oldXAngle = vtkMath::DegreesFromRadians( asin( oxf ) );
+    double oldYAngle = vtkMath::DegreesFromRadians( asin( oyf ) );
     
     double scale[3];
     scale[0] = scale[1] = scale[2] = 1.0;
@@ -315,7 +315,7 @@ void vtkInteractorStyleTrackballActor::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Spin()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
     {
     return;
     }
@@ -334,12 +334,12 @@ void vtkInteractorStyleTrackballActor::Spin()
     {
     // If parallel projection, want to get the view plane normal...
     cam->ComputeViewPlaneNormal();
-    cam->GetViewPlaneNormal(motion_vector);
+    cam->GetViewPlaneNormal( motion_vector );
     }
   else
     {   
     // Perspective projection, get vector from eye to center of actor
-    cam->GetPosition(view_point);
+    cam->GetPosition( view_point );
     motion_vector[0] = view_point[0] - obj_center[0];
     motion_vector[1] = view_point[1] - obj_center[1];
     motion_vector[2] = view_point[2] - obj_center[2];
@@ -352,15 +352,12 @@ void vtkInteractorStyleTrackballActor::Spin()
                               disp_obj_center);
   
   double newAngle = 
-    atan2(rwi->GetEventPosition()[1] - disp_obj_center[1],
-          rwi->GetEventPosition()[0] - disp_obj_center[0]);
+    vtkMath::DegreesFromRadians( atan2( rwi->GetEventPosition()[1] - disp_obj_center[1],
+                                        rwi->GetEventPosition()[0] - disp_obj_center[0] ) );
 
   double oldAngle = 
-    atan2(rwi->GetLastEventPosition()[1] - disp_obj_center[1],
-          rwi->GetLastEventPosition()[0] - disp_obj_center[0]);
-  
-  newAngle *= vtkMath::RadiansToDegrees();
-  oldAngle *= vtkMath::RadiansToDegrees();
+    vtkMath::DegreesFromRadians( atan2( rwi->GetLastEventPosition()[1] - disp_obj_center[1],
+                                        rwi->GetLastEventPosition()[0] - disp_obj_center[0] ) );
   
   double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
@@ -373,16 +370,16 @@ void vtkInteractorStyleTrackballActor::Spin()
   rotate[0][2] = motion_vector[1];
   rotate[0][3] = motion_vector[2];
   
-  this->Prop3DTransform(this->InteractionProp,
-                        obj_center,
-                        1, 
-                        rotate, 
-                        scale);
+  this->Prop3DTransform( this->InteractionProp,
+                         obj_center,
+                         1, 
+                         rotate, 
+                         scale );
   
   delete [] rotate[0];
   delete [] rotate;
   
-  if (this->AutoAdjustCameraClippingRange)
+  if ( this->AutoAdjustCameraClippingRange )
     {
     this->CurrentRenderer->ResetCameraClippingRange();
     }

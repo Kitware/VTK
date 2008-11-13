@@ -190,7 +190,7 @@ protected:
   double BoundsFactor;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.11");
+vtkCxxRevisionMacro(vtkLabelHierarchyFrustumIterator,"1.12");
 vtkStandardNewMacro(vtkLabelHierarchyFrustumIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFrustumIterator, Camera, vtkCamera);
 vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
@@ -350,8 +350,8 @@ void vtkLabelHierarchyFrustumIterator::Next()
     int lvlMax = 1 << this->Level;
     double sz = this->Hierarchy->Implementation->Hierarchy->root()->size() / 2.;
     double eye[3];
-    //double vaMax = atan( vtkMath::Pi()/2. - 0.2 * this->Camera->GetViewAngle() * vtkMath::DoubleDegreesToRadians() );
-    double vaMin = atan( vtkMath::Pi()/2. - 2.0 * this->Camera->GetViewAngle() * vtkMath::DoubleDegreesToRadians() );
+    //double vaMax = atan( vtkMath::Pi()/2. - 0.2 * vtkMath::RadiansFromDegrees(t his->Camera->GetViewAngle() ) );
+    double vaMin = atan( vtkMath::Pi()/2. - 2.0 * vtkMath::RadiansFromDegrees( this->Camera->GetViewAngle() ) );
     this->Camera->GetPosition( eye );
     while ( ! gotNode )
       {
@@ -678,7 +678,7 @@ protected:
   int NodesTraversed;
 };
 
-vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.11");
+vtkCxxRevisionMacro(vtkLabelHierarchyFullSortIterator,"1.12");
 vtkStandardNewMacro(vtkLabelHierarchyFullSortIterator);
 vtkCxxSetObjectMacro(vtkLabelHierarchyFullSortIterator, Camera, vtkCamera);
 void vtkLabelHierarchyFullSortIterator::Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
@@ -913,7 +913,7 @@ vtkLabelHierarchyFullSortIterator::~vtkLabelHierarchyFullSortIterator()
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxRevisionMacro(vtkLabelHierarchy,"1.11");
+vtkCxxRevisionMacro(vtkLabelHierarchy,"1.12");
 vtkCxxSetObjectMacro(vtkLabelHierarchy,Priorities,vtkDataArray);
 vtkLabelHierarchy::vtkLabelHierarchy()
 {

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.116");
+vtkCxxRevisionMacro(vtkCamera, "1.117");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -687,14 +687,14 @@ void vtkCamera::SetWindowCenter(double x, double y)
 //----------------------------------------------------------------------------
 void vtkCamera::SetObliqueAngles(double alpha, double beta)
 {
-  alpha *= vtkMath::DoubleDegreesToRadians();
-  beta *= vtkMath::DoubleDegreesToRadians();
+  alpha = vtkMath::RadiansFromDegrees( alpha );
+  beta = vtkMath::RadiansFromDegrees( beta );
 
-  double cotbeta = cos(beta) / sin(beta);
-  double dxdz = cos(alpha) * cotbeta;
-  double dydz = sin(alpha) * cotbeta;
+  double cotbeta = cos( beta ) / sin( beta );
+  double dxdz = cos( alpha ) * cotbeta;
+  double dydz = sin( alpha ) * cotbeta;
 
-  this->SetViewShear(dxdz, dydz, 1.0);
+  this->SetViewShear( dxdz, dydz, 1.0 );
 }
 
 //----------------------------------------------------------------------------
@@ -735,78 +735,78 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
   this->PerspectiveTransform->Identity();
 
   // apply user defined transform last if there is one
-  if (this->UserTransform)
+  if ( this->UserTransform )
     {
-    this->PerspectiveTransform->Concatenate(this->UserTransform->GetMatrix());
+    this->PerspectiveTransform->Concatenate( this->UserTransform->GetMatrix() );
     }
 
   // adjust Z-buffer range
-  this->PerspectiveTransform->AdjustZBuffer(-1, +1, nearz, farz);
+  this->PerspectiveTransform->AdjustZBuffer( -1, +1, nearz, farz );
 
-  if (this->ParallelProjection)
+  if ( this->ParallelProjection)
     {
     // set up a rectangular parallelipiped
 
-    double width = this->ParallelScale*aspect;
+    double width = this->ParallelScale * aspect;
     double height = this->ParallelScale;
 
-    double xmin = (this->WindowCenter[0]-1.0)*width;
-    double xmax = (this->WindowCenter[0]+1.0)*width;
-    double ymin = (this->WindowCenter[1]-1.0)*height;
-    double ymax = (this->WindowCenter[1]+1.0)*height;
+    double xmin = ( this->WindowCenter[0] - 1.0 ) * width;
+    double xmax = ( this->WindowCenter[0] + 1.0 ) * width;
+    double ymin = ( this->WindowCenter[1] - 1.0 ) * height;
+    double ymax = ( this->WindowCenter[1] + 1.0 ) * height;
 
-    this->PerspectiveTransform->Ortho(xmin,xmax,ymin,ymax,
-                                      this->ClippingRange[0],
-                                      this->ClippingRange[1]);
+    this->PerspectiveTransform->Ortho( xmin, xmax, ymin, ymax,
+                                       this->ClippingRange[0],
+                                       this->ClippingRange[1] );
     }
   else
     {
     // set up a perspective frustum
 
-    double tmp = tan(this->ViewAngle*vtkMath::DoubleDegreesToRadians()/2);
+    double tmp = tan( vtkMath::RadiansFromDegrees( this->ViewAngle ) / 2. );
     double width;
     double height;
-    if (this->UseHorizontalViewAngle)
+    if ( this->UseHorizontalViewAngle )
       {
-      width = this->ClippingRange[0]*tmp;
-      height = this->ClippingRange[0]*tmp/aspect;
+      width = this->ClippingRange[0] * tmp;
+      height = this->ClippingRange[0] * tmp / aspect;
       }
     else
       {
-      width = this->ClippingRange[0]*tmp*aspect;
-      height = this->ClippingRange[0]*tmp;
+      width = this->ClippingRange[0] * tmp * aspect;
+      height = this->ClippingRange[0] * tmp;
       }
 
-    double xmin = (this->WindowCenter[0]-1.0)*width;
-    double xmax = (this->WindowCenter[0]+1.0)*width;
-    double ymin = (this->WindowCenter[1]-1.0)*height;
-    double ymax = (this->WindowCenter[1]+1.0)*height;
+    double xmin = ( this->WindowCenter[0] - 1.0 ) * width;
+    double xmax = ( this->WindowCenter[0] + 1.0 ) * width;
+    double ymin = ( this->WindowCenter[1] - 1.0 ) * height;
+    double ymax = ( this->WindowCenter[1] + 1.0 ) * height;
 
-    this->PerspectiveTransform->Frustum(xmin, xmax, ymin, ymax,
-                                        this->ClippingRange[0],
-                                        this->ClippingRange[1]);
+    this->PerspectiveTransform->Frustum( xmin, xmax, ymin, ymax,
+                                         this->ClippingRange[0],
+                                         this->ClippingRange[1] );
     }
 
-  if (this->Stereo)
+  if ( this->Stereo )
     {
     // set up a shear for stereo views
-    if (this->LeftEye)
+    if ( this->LeftEye )
       {
-      this->PerspectiveTransform->Stereo(-this->EyeAngle/2,
-                                         this->Distance);
+      this->PerspectiveTransform->Stereo( -this->EyeAngle/2,
+                                          this->Distance );
       }
     else
       {
-      this->PerspectiveTransform->Stereo(+this->EyeAngle/2,
-                                         this->Distance);
+      this->PerspectiveTransform->Stereo( +this->EyeAngle/2,
+                                          this->Distance );
       }
     }
 
-  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0)
+  if ( this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0 )
     {
-    this->PerspectiveTransform->Shear(this->ViewShear[0],
-                                      this->ViewShear[1],
-                                      this->ViewShear[2]*this->Distance);
+    this->PerspectiveTransform->Shear( this->ViewShear[0],
+                                       this->ViewShear[1],
+                                       this->ViewShear[2] * this->Distance );
     }
 
 }

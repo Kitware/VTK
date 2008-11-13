@@ -32,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.47");
+vtkCxxRevisionMacro(vtkTextActor, "1.48");
 vtkStandardNewMacro(vtkTextActor);
 vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
@@ -573,23 +573,23 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 {
   int dims[3];
   this->RectanglePoints->Reset();
-  if (this->ImageData)
+  if ( this->ImageData )
     {
     int p2dims[3];
-    this->ImageData->GetDimensions(p2dims);
+    this->ImageData->GetDimensions( p2dims );
     int text_bbox[4];
-    this->FreeTypeUtilities->GetBoundingBox(this->ScaledTextProperty, 
-                                            this->Input, text_bbox);
-    dims[0] = (text_bbox[1] - text_bbox[0] + 1);
-    dims[1] = (text_bbox[3] - text_bbox[2] + 1);
+    this->FreeTypeUtilities->GetBoundingBox( this->ScaledTextProperty, 
+                                             this->Input, text_bbox );
+    dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
+    dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
 
     // compuet TCoords
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
-      (this->Rectangle->GetPointData()->GetTCoords());
-    tc->InsertComponent(1,1, static_cast<double>(dims[1])/p2dims[1]);
-    tc->InsertComponent(2,0, static_cast<double>(dims[0])/p2dims[0]);  
-    tc->InsertComponent(2,1, static_cast<double>(dims[1])/p2dims[1]);
-    tc->InsertComponent(3,0, static_cast<double>(dims[0])/p2dims[0]);  
+      ( this->Rectangle->GetPointData()->GetTCoords() );
+    tc->InsertComponent( 1,1, static_cast<double>( dims[1] ) / p2dims[1] );
+    tc->InsertComponent( 2,0, static_cast<double>( dims[0] ) / p2dims[0] );  
+    tc->InsertComponent( 2,1, static_cast<double>( dims[1] ) / p2dims[1] );
+    tc->InsertComponent( 3,0, static_cast<double>( dims[0] ) / p2dims[0] );  
     }
   else
     {
@@ -599,9 +599,9 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
   // I could do this with a transform, but it is simple enough
   // to rotate the four corners in 2D ...
-  double radians = this->Orientation * vtkMath::DegreesToRadians();
-  double c = cos(radians);      
-  double s = sin(radians);
+  double radians = vtkMath::RadiansFromDegrees( this->Orientation );
+  double c = cos( radians );      
+  double s = sin( radians );
   double xo, yo;
   double x, y;
   double maxWidth, maxHeight;
@@ -609,61 +609,61 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   maxWidth = maxHeight = 0;
   // When TextScaleMode is PROP, we justify text based on the rectangle
   // formed by Position & Position2 coordinates
-  if((this->TextScaleMode == TEXT_SCALE_MODE_PROP) || this->UseBorderAlign)
+  if( ( this->TextScaleMode == TEXT_SCALE_MODE_PROP ) || this->UseBorderAlign )
     {
     double position1[3], position2[3];
-    this->PositionCoordinate->GetValue(position1);
-    this->Position2Coordinate->GetValue(position2);
-    this->SpecifiedToDisplay(position1, viewport,
-                             this->PositionCoordinate->GetCoordinateSystem());
-    this->SpecifiedToDisplay(position2, viewport,
-                             this->Position2Coordinate->GetCoordinateSystem());
+    this->PositionCoordinate->GetValue( position1 );
+    this->Position2Coordinate->GetValue( position2 );
+    this->SpecifiedToDisplay( position1, viewport,
+                              this->PositionCoordinate->GetCoordinateSystem() );
+    this->SpecifiedToDisplay( position2, viewport,
+                              this->Position2Coordinate->GetCoordinateSystem() );
     maxWidth = position2[0] - position1[0];
     maxHeight = position2[1] - position1[1];
     // I could get rid of "GetAlignmentPoint" and use justification directly.
-    switch(this->GetAlignmentPoint())
+    switch( this->GetAlignmentPoint() )
       {
       case 0:
         break;
       case 1:
-        xo = (maxWidth - dims[0]) * 0.5;
+        xo = ( maxWidth - dims[0] ) * 0.5;
         break;
       case 2:
-        xo = (maxWidth - dims[0]);
+        xo = ( maxWidth - dims[0] );
         break;
       case 3:
-        yo = (maxHeight - dims[1]) * 0.5;
+        yo = ( maxHeight - dims[1] ) * 0.5;
         break;
       case 4:
-        xo = (maxWidth - dims[0]) * 0.5;
-        yo = (maxHeight - dims[1]) * 0.5;
+        xo = ( maxWidth - dims[0] ) * 0.5;
+        yo = ( maxHeight - dims[1] ) * 0.5;
         break;
       case 5:
-        xo = (maxWidth - dims[0]);
-        yo = (maxHeight - dims[1]) * 0.5;
+        xo = ( maxWidth - dims[0] );
+        yo = ( maxHeight - dims[1] ) * 0.5;
         break;
       case 6:
-        yo = (maxHeight - dims[1]);
+        yo = ( maxHeight - dims[1] );
         break;
       case 7:
-        xo = (maxWidth - dims[0]) * 0.5;
-        yo = (maxHeight - dims[1]);
+        xo = ( maxWidth - dims[0] ) * 0.5;
+        yo = ( maxHeight - dims[1] );
         break;
       case 8:
-        xo = (maxWidth - dims[0]);
-        yo = (maxHeight - dims[1]);
+        xo = ( maxWidth - dims[0] );
+        yo = ( maxHeight - dims[1] );
         break;
       default:
-        vtkErrorMacro(<< "Bad alignment point value.");
+        vtkErrorMacro( << "Bad alignment point value." );
       }
     //handle line offset.  make sure we stay within the bounds defined by
     //position1 & position2
     double offset = this->TextProperty->GetLineOffset();
-    if( (yo + offset + dims[1]) > maxHeight)
+    if( ( yo + offset + dims[1] ) > maxHeight )
       {
       yo = maxHeight - dims[1];
       }
-    else if( (yo + offset ) < 0)
+    else if( ( yo + offset ) < 0 )
       {
       yo = 0;
       } 
@@ -675,7 +675,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
   else
     {
     // I could get rid of "GetAlignmentPoint" and use justification directly.
-    switch (this->GetAlignmentPoint())
+    switch ( this->GetAlignmentPoint() )
       {
       case 0:
         break;
@@ -708,7 +708,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
         xo = -dims[0];
         break;
       default:
-        vtkErrorMacro(<< "Bad alignment point value.");
+        vtkErrorMacro( << "Bad alignment point value." );
       }
     // handle line offset
     yo += this->TextProperty->GetLineOffset();
@@ -716,16 +716,16 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
   x = xo;
   y = yo;      
-  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
   x = xo;
   y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
   x = xo + dims[0];
   y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
   x = xo + dims[0];
   y = yo;
-  this->RectanglePoints->InsertNextPoint(c*x-s*y,s*x+c*y,0.0);
+  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
 }
 
 

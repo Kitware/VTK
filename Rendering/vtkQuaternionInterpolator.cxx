@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.7");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.8");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------
@@ -46,8 +46,8 @@ struct vtkQuaternion
       this->Q[3] = this->QUnit[3] = q[3];
 
       // determine theta, sin(theta), cos(theta) for unit quaternion
-      this->QUnit[0] *= vtkMath::DegreesToRadians(); //convert to radians
-      vtkQuaternion::Normalize(this->QUnit);
+      this->QUnit[0] = vtkMath::RadiansFromDegrees( this->QUnit[0] ); //convert to radians
+      vtkQuaternion::Normalize( this->QUnit );
     }
   static void Add(double q0[4], double q1[4], double q[4])
     {
@@ -109,7 +109,7 @@ struct vtkQuaternion
         q[2] /= vNorm;
         q[3] /= vNorm;
         }
-      q[0] *= vtkMath::RadiansToDegrees();
+      q[0] = vtkMath::DegreesFromRadians( q[0] );
     }
   // compute unit vector where q is a unit quaternion
   static void UnitVector(double q[4], double &theta, double &sinTheta, 

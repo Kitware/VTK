@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.13");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.14");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -192,17 +192,17 @@ void vtkInteractorStyleTerrain::Rotate()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dx = - (rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0]);
-  int dy = - (rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1]);
+  int dx = - ( rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0] );
+  int dy = - ( rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1] );
 
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
-  double a = dx / static_cast<double>(size[0]) * 180.0;
-  double e = dy / static_cast<double>(size[1]) * 180.0;
+  double a = dx / static_cast<double>( size[0]) * 180.0;
+  double e = dy / static_cast<double>( size[1]) * 180.0;
   
   if (rwi->GetShiftKey()) 
     {
-    if(abs(dx) >= abs(dy))
+    if(abs( dx ) >= abs( dy ))
       {
       e = 0.0;
       }
@@ -216,26 +216,25 @@ void vtkInteractorStyleTerrain::Rotate()
   // Make sure that we don't hit the north pole singularity.
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  camera->Azimuth(a);
+  camera->Azimuth( a );
 
   double dop[3], vup[3];
 
-  camera->GetDirectionOfProjection(dop);
-  vtkMath::Normalize(dop);
-  camera->GetViewUp(vup);
-  vtkMath::Normalize(vup);
+  camera->GetDirectionOfProjection( dop );
+  vtkMath::Normalize( dop );
+  camera->GetViewUp( vup );
+  vtkMath::Normalize( vup );
 
-  double angle = 
-    acos(vtkMath::Dot(dop, vup)) / vtkMath::DoubleDegreesToRadians();
-  if ((angle + e) > 179.0 ||
-      (angle + e) < 1.0)
+  double angle = vtkMath::DegreesFromRadians( acos(vtkMath::Dot( dop, vup) ) );
+  if ( ( angle + e ) > 179.0 ||
+       ( angle + e ) < 1.0 )
     {
     e = 0.0;
     }
 
-  camera->Elevation(e);
+  camera->Elevation( e );
 
-  if (this->AutoAdjustCameraClippingRange)
+  if ( this->AutoAdjustCameraClippingRange )
     {
     this->CurrentRenderer->ResetCameraClippingRange();
     }
@@ -258,8 +257,8 @@ void vtkInteractorStyleTerrain::Pan()
   double fp[3], focalPoint[3], pos[3], v[3], p1[4], p2[4];
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  camera->GetPosition(pos);
-  camera->GetFocalPoint(fp);
+  camera->GetPosition( pos );
+  camera->GetFocalPoint( fp );
 
   this->ComputeWorldToDisplay(fp[0], fp[1], fp[2], 
                               focalPoint);
@@ -281,8 +280,8 @@ void vtkInteractorStyleTerrain::Pan()
     fp[i] += v[i];
     }
 
-  camera->SetPosition(pos);
-  camera->SetFocalPoint(fp);
+  camera->SetPosition( pos );
+  camera->SetFocalPoint( fp );
     
   if (rwi->GetLightFollowCamera()) 
     {
@@ -314,7 +313,7 @@ void vtkInteractorStyleTerrain::Dolly()
     }
   else
     {
-    camera->Dolly(zoomFactor);
+    camera->Dolly( zoomFactor );
     if (this->AutoAdjustCameraClippingRange)
       {
       this->CurrentRenderer->ResetCameraClippingRange();
@@ -347,11 +346,11 @@ void vtkInteractorStyleTerrain::OnChar()
       else 
         {
         double bounds[6];
-        this->CurrentRenderer->ComputeVisiblePropBounds(bounds);
+        this->CurrentRenderer->ComputeVisiblePropBounds( bounds );
         double radius = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) /2.0;
-        this->LatLongSphere->SetRadius(radius);
+        this->LatLongSphere->SetRadius( radius );
         this->LatLongSphere->SetCenter((bounds[0]+bounds[1])/2.0,
                                        (bounds[2]+bounds[3])/2.0,
                                        (bounds[4]+bounds[5])/2.0);        
@@ -373,8 +372,8 @@ void vtkInteractorStyleTerrain::CreateLatLong()
   if (this->LatLongSphere == NULL)
     {
     this->LatLongSphere = vtkSphereSource::New();
-    this->LatLongSphere->SetPhiResolution(13);
-    this->LatLongSphere->SetThetaResolution(25);
+    this->LatLongSphere->SetPhiResolution( 13 );
+    this->LatLongSphere->SetThetaResolution( 25 );
     this->LatLongSphere->LatLongTessellationOn();
     }
 
