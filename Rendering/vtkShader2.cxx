@@ -27,7 +27,7 @@ GLenum vtkShaderTypeVTKToGL[3]={
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.2");
+vtkCxxRevisionMacro(vtkShader2, "1.3");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
@@ -188,26 +188,26 @@ void vtkShader2::Compile()
       this->LastCompileLog=0;
       return;
       }
-    GLuint id=static_cast<GLuint>(this->Id);
-    if(id==0)
+    GLuint shaderId=static_cast<GLuint>(this->Id);
+    if(shaderId==0)
       {
-      id=vtkgl::CreateShader(vtkShaderTypeVTKToGL[this->Type]);
-      if(id==0)
+      shaderId=vtkgl::CreateShader(vtkShaderTypeVTKToGL[this->Type]);
+      if(shaderId==0)
         {
         vtkErrorMacro(<<"fatal error (bad current OpenGL context?, extension not supported?).");
         this->LastCompileStatus=false;
         this->LastCompileLog=0;
         return;
         }
-      this->Id=static_cast<unsigned int>(id);
+      this->Id=static_cast<unsigned int>(shaderId);
       }
     
-    vtkgl::ShaderSource(id,1,const_cast<const vtkgl::GLchar**>(&this->SourceCode),0);
-    vtkgl::CompileShader(id);
+    vtkgl::ShaderSource(shaderId,1,const_cast<const vtkgl::GLchar**>(&this->SourceCode),0);
+    vtkgl::CompileShader(shaderId);
     GLint value;
-    vtkgl::GetShaderiv(id,vtkgl::COMPILE_STATUS,&value);
+    vtkgl::GetShaderiv(shaderId,vtkgl::COMPILE_STATUS,&value);
     this->LastCompileStatus=value==GL_TRUE;
-    vtkgl::GetShaderiv(id,vtkgl::INFO_LOG_LENGTH,&value);
+    vtkgl::GetShaderiv(shaderId,vtkgl::INFO_LOG_LENGTH,&value);
     if(static_cast<size_t>(value)>this->LastCompileLogCapacity)
       {
       if(this->LastCompileLog!=0)
@@ -217,7 +217,7 @@ void vtkShader2::Compile()
       this->LastCompileLogCapacity=value;
       this->LastCompileLog=new char[this->LastCompileLogCapacity];
       }
-    vtkgl::GetShaderInfoLog(id,value,0,this->LastCompileLog);
+    vtkgl::GetShaderInfoLog(shaderId,value,0,this->LastCompileLog);
     this->LastCompileTime.Modified();
     }
 }

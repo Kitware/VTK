@@ -27,7 +27,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.3");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.4");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
       {
       if(value!=GL_COMPILE_AND_EXECUTE)
         {
-        vtkErrorMacro(<<"Unexpected display list creation mode:" << hex << value << dec );
+        vtkErrorMacro(<< "Unexpected display list creation mode:" << hex << value << dec );
         }
       }
     }
@@ -226,21 +226,21 @@ void vtkShaderProgram2::Use()
   
   if(this->LastBuildStatus==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
     {
-    GLuint id=static_cast<GLuint>(this->Id);
+    GLuint progId=static_cast<GLuint>(this->Id);
     if(this->DisplayListUnderCreationInCompileMode())
       {
       // don't look at current program, don't save it, don't restore it
       // later.
-      vtkgl::UseProgram(id);
+      vtkgl::UseProgram(progId);
       }
     else
       {
       GLint value;
       glGetIntegerv(vtkgl::CURRENT_PROGRAM,&value);
-      if(static_cast<GLuint>(value)!=id)
+      if(static_cast<GLuint>(value)!=progId)
         {
         this->SavedId=static_cast<unsigned int>(value);
-        vtkgl::UseProgram(id);
+        vtkgl::UseProgram(progId);
         }
       assert("check: in_use" && this->IsUsed());
       }
@@ -288,29 +288,31 @@ void vtkShaderProgram2::Build()
      (this->Shaders!=0 && this->LastLinkTime<this->Shaders->GetMTime()))
     {
     this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
-    GLuint id=static_cast<GLuint>(this->Id);
-    if(id==0)
+    GLuint progId=static_cast<GLuint>(this->Id);
+    if(progId==0)
       {
-      id=vtkgl::CreateProgram();
-      if(id==0)
+      progId=vtkgl::CreateProgram();
+      if(progId==0)
         {
         vtkErrorMacro(<<"fatal error (bad current OpenGL context?, extension not supported?).");
         return;
         }
-      this->Id=static_cast<unsigned int>(id);
+      this->Id=static_cast<unsigned int>(progId);
       }
     // Detach all previous shaders (some may have disappeared
     // from this->Shaders)
     GLint numberOfAttachedShaders;
-    vtkgl::GetProgramiv(id,vtkgl::ATTACHED_SHADERS,&numberOfAttachedShaders);
+    vtkgl::GetProgramiv(progId,vtkgl::ATTACHED_SHADERS,
+                        &numberOfAttachedShaders);
     if(numberOfAttachedShaders>0)
       {
       GLuint *attachedShaders=new GLuint[numberOfAttachedShaders];
-      vtkgl::GetAttachedShaders(id,numberOfAttachedShaders,0,attachedShaders);
+      vtkgl::GetAttachedShaders(progId,numberOfAttachedShaders,0,
+                                attachedShaders);
       int i=0;
       while(i<numberOfAttachedShaders)
         {
-        vtkgl::DetachShader(id,attachedShaders[i]);
+        vtkgl::DetachShader(progId,attachedShaders[i]);
         ++i;
         }
       delete[] attachedShaders;
@@ -326,7 +328,7 @@ void vtkShaderProgram2::Build()
       s->Compile();
       if(s->GetLastCompileStatus())
         {
-        vtkgl::AttachShader(id,static_cast<GLuint>(s->GetId()));
+        vtkgl::AttachShader(progId,static_cast<GLuint>(s->GetId()));
         }
       else
         {
@@ -343,15 +345,15 @@ void vtkShaderProgram2::Build()
       {
       this->LastBuildStatus=VTK_SHADER_PROGRAM2_LINK_FAILED;
       
-      vtkgl::LinkProgram(id);
+      vtkgl::LinkProgram(progId);
       GLint value;
-      vtkgl::GetProgramiv(id,vtkgl::LINK_STATUS,&value);
+      vtkgl::GetProgramiv(progId,vtkgl::LINK_STATUS,&value);
       if(value==GL_TRUE)
         {
         this->LastBuildStatus=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED;
         }
       
-      vtkgl::GetProgramiv(id,vtkgl::INFO_LOG_LENGTH,&value);
+      vtkgl::GetProgramiv(progId,vtkgl::INFO_LOG_LENGTH,&value);
       if(static_cast<size_t>(value)>this->LastLinkLogCapacity)
         {
         if(this->LastLinkLog!=0)
@@ -361,7 +363,7 @@ void vtkShaderProgram2::Build()
         this->LastLinkLogCapacity=value;
         this->LastLinkLog=new char[this->LastLinkLogCapacity];
         }
-      vtkgl::GetProgramInfoLog(id,value,0,this->LastLinkLog);
+      vtkgl::GetProgramInfoLog(progId,value,0,this->LastLinkLog);
       
       if(this->LastBuildStatus==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
         {
@@ -419,7 +421,7 @@ void vtkShaderProgram2::SendUniforms()
         }
       }
     
-    GLuint id=static_cast<GLuint>(this->Id);
+    GLuint progId=static_cast<GLuint>(this->Id);
     
     this->Shaders->InitTraversal();
     s=this->Shaders->GetNextShader();
@@ -432,7 +434,7 @@ void vtkShaderProgram2::SendUniforms()
       while(!list->IsAtEnd())
         {
         name=list->GetCurrentName();
-        uniformId=vtkgl::GetUniformLocation(id,name);
+        uniformId=vtkgl::GetUniformLocation(progId,name);
         if(uniformId!=-1)
           {
           // -1 means is not an active uniform
@@ -451,7 +453,7 @@ void vtkShaderProgram2::SendUniforms()
     while(!list->IsAtEnd())
       {
       name=list->GetCurrentName();
-      uniformId=vtkgl::GetUniformLocation(id,name);
+      uniformId=vtkgl::GetUniformLocation(progId,name);
       if(uniformId!=-1)
         {
         // -1 means is not an active uniform
@@ -476,14 +478,14 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   vtkIndent indent)
 {
   GLint params;
-  GLuint id=static_cast<GLuint>(this->Id);
+  GLuint progId=static_cast<GLuint>(this->Id);
 
   // info about the list of active uniform variables
-  vtkgl::GetProgramiv(id,vtkgl::ACTIVE_UNIFORMS,&params);
+  vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_UNIFORMS,&params);
   os<< indent << "There are "<<params<<" active uniform variables."<<endl;
   int i=0;
   int c=params;
-  vtkgl::GetProgramiv(id,vtkgl::OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
+  vtkgl::GetProgramiv(progId,vtkgl::OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB,
                       &params);
     
   GLint buffSize=params;
@@ -494,7 +496,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   int elementSize;
   while(i<c)
     {
-    vtkgl::GetActiveUniform(id,i,buffSize,0,&size,&type,name);
+    vtkgl::GetActiveUniform(progId,i,buffSize,0,&size,&type,name);
     os << indent << i <<" ";
     os << indent;
     isInt=true;
@@ -622,7 +624,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
     if(isInt)
       {
       GLint *ivalues=new GLint[elementSize];
-      vtkgl::GetUniformiv(id,i,ivalues);
+      vtkgl::GetUniformiv(progId,i,ivalues);
       int j=0;
       while(j<elementSize)
         {
@@ -634,7 +636,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
     else
       {
       float *fvalues=new float[elementSize];
-      vtkgl::GetUniformfv(id,i,fvalues);
+      vtkgl::GetUniformfv(progId,i,fvalues);
       int j=0;
       while(j<elementSize)
         {
@@ -668,11 +670,11 @@ void vtkShaderProgram2::PrintActiveUniformVariablesOnCout()
 bool vtkShaderProgram2::IsValid()
 {
   // this line change the program log.
-  GLuint id=static_cast<GLuint>(this->Id);
-  vtkgl::ValidateProgram(id);
+  GLuint progId=static_cast<GLuint>(this->Id);
+  vtkgl::ValidateProgram(progId);
   
   GLint value;
-  vtkgl::GetProgramiv(id,vtkgl::VALIDATE_STATUS,&value);
+  vtkgl::GetProgramiv(progId,vtkgl::VALIDATE_STATUS,&value);
   return value==GL_TRUE;
 }
 
