@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.30");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.31");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void vtkMetaImageReader::ExecuteInformation()
       return;
     case vtkmetaio::MET_CHAR:
     case vtkmetaio::MET_CHAR_ARRAY:
-      this->DataScalarType = VTK_CHAR;
+      this->DataScalarType = VTK_SIGNED_CHAR;
       break;
     case vtkmetaio::MET_UCHAR:
     case vtkmetaio::MET_UCHAR_ARRAY:

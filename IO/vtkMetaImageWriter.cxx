@@ -39,7 +39,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.16");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.17");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ void vtkMetaImageWriter::Write( )
   switch ( scalarType )
     {
     case VTK_CHAR:           elementType = vtkmetaio::MET_CHAR; break;
+    case VTK_SIGNED_CHAR:    elementType = vtkmetaio::MET_CHAR; break;
     case VTK_UNSIGNED_CHAR:  elementType = vtkmetaio::MET_UCHAR; break;
     case VTK_SHORT:          elementType = vtkmetaio::MET_SHORT; break;
     case VTK_UNSIGNED_SHORT: elementType = vtkmetaio::MET_USHORT; break;
