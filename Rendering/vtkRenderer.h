@@ -448,11 +448,13 @@ public:
   void SetDelegate(vtkRendererDelegate *d);
   vtkGetObjectMacro(Delegate,vtkRendererDelegate);
 
+  //BTX
   // Description:
   // Set/Get a custom render pass.
   // Initial value is NULL.
   void SetPass(vtkRenderPass *p);
   vtkGetObjectMacro(Pass,vtkRenderPass);
+  //ETX
   
   // Description:
   // Get the current hardware selector. If the Selector is set, it implies the
