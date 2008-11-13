@@ -31,11 +31,32 @@
 
 #include "vtkgl.h" // vtkgl namespace
 
+#include "vtkShader2.h"
+#include "vtkShaderProgram2.h"
+#include "vtkUniformVariables.h"
+#include "vtkShader2Collection.h"
+#include <assert.h>
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.46");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.47");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
+extern const char *vtkOpenGLProperty_fs;
+
+
+vtkOpenGLProperty::vtkOpenGLProperty()
+{
+  this->Shader=0;
+}
+
+vtkOpenGLProperty::~vtkOpenGLProperty()
+{
+  if(this->Shader!=0)
+    {
+    this->Shader->Delete();
+    }
+}
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
@@ -47,22 +68,35 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
   float Info[4];
   GLenum Face;
   double  color[4];
-
+  
   // unbind any textures for starters
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
-  if(oRenderer->GetDepthPeelingHigherLayer())
+  vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
+  
+  if(prog!=0)
     {
-    GLint uUseTexture=-1;
-    uUseTexture=oRenderer->GetUseTextureUniformVariable();
-    vtkgl::Uniform1i(uUseTexture,0);
-    
-    // Even if the texture is not used, initialize the uniform variable
-    // so that, the program in use is in a valid state.
-    // Some OpenGL implementations (ex: ATI) check (which is good) if the same
-    // sample texture unit is not used with different sampler types.
-    GLint uTexture=oRenderer->GetTextureUniformVariable();
-    vtkgl::Uniform1i(uTexture,0); // active texture 0
+    if(this->Shader==0)
+      {
+      this->Shader=vtkShader2::New();
+      this->Shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
+      this->Shader->SetSourceCode(vtkOpenGLProperty_fs);
+      vtkUniformVariables *v=this->Shader->GetUniformVariables();
+      int value;
+      value=0;
+      v->SetUniformi("useTexture",1,&value);
+      value=0;
+      v->SetUniformi("uTexture",1,&value);
+      }
+    prog->GetShaders()->AddItem(this->Shader);
+    assert("check: prog is initialized" && prog->GetContext()!=0);
+    this->Shader->SetContext(prog->GetContext());
+    prog->Use();
+    if(!prog->IsValid())
+      {
+      vtkErrorMacro(<<prog->GetLastValidateLog());
+      }
     }
+ 
   glDisable(GL_TEXTURE_2D);
 
   // disable alpha testing (this may have been enabled
@@ -219,8 +253,16 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLProperty::PostRender(vtkActor* actor, vtkRenderer* renderer)
+void vtkOpenGLProperty::PostRender(vtkActor *actor,
+                                   vtkRenderer *renderer)
 {
+  vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
+  vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
+  if(prog!=0)
+    {
+    prog->Restore();
+    prog->GetShaders()->RemoveItem(this->Shader);
+    }
   this->Superclass::PostRender(actor, renderer);
 
   // render any textures.
@@ -373,6 +415,10 @@ void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
+  if(this->Shader!=0)
+    {
+    this->Shader->ReleaseGraphicsResources();
+    }
 }
 
 //----------------------------------------------------------------------------

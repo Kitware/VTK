@@ -33,6 +33,7 @@ class vtkMatrix4x4;
 class vtkPropCollection;
 class vtkViewport;
 class vtkWindow;
+class vtkInformation;
 
 class VTK_COMMON_EXPORT vtkProp : public vtkObject
 {
@@ -114,6 +115,20 @@ public:
   virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {}
   virtual vtkMatrix4x4 *GetMatrix() {return NULL;}
 
+  // Description:
+  // Set/Get property keys. Property keys can be digest by some rendering
+  // passes.
+  // For instance, the user may mark a prop as a shadow caster for a
+  // shadow mapping render pass. Keys are documented in render pass classes.
+  // Initial value is NULL.
+  vtkGetObjectMacro(PropertyKeys,vtkInformation);
+  virtual void SetPropertyKeys(vtkInformation *keys);
+  
+  // Description:
+  // Tells if the prop has all the required keys.
+  // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
+  virtual bool HasKeys(vtkInformation *requiredKeys);
+  
 //BTX  
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -135,6 +150,54 @@ public:
   virtual int RenderVolumetricGeometry( vtkViewport *) { return 0; }
   virtual int RenderOverlay(             vtkViewport *) { return 0; }
 
+  // Description:
+  // Render the opaque geometry only if the prop has all the requiredKeys.
+  // This is recursive for composite props like vtkAssembly.
+  // An implementation is provided in vtkProp but each composite prop
+  // must override it.
+  // It returns if the rendering was performed.
+  // \pre v_exists: v!=0
+  // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
+  virtual bool RenderFilteredOpaqueGeometry(vtkViewport *v,
+                                            vtkInformation *requiredKeys);
+  
+  // Description:
+  // Render the translucent polygonal geometry only if the prop has all the
+  // requiredKeys.
+  // This is recursive for composite props like vtkAssembly.
+  // An implementation is provided in vtkProp but each composite prop
+  // must override it.
+  // It returns if the rendering was performed.
+  // \pre v_exists: v!=0
+  // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
+  virtual bool RenderFilteredTranslucentPolygonalGeometry(
+    vtkViewport *v,
+    vtkInformation *requiredKeys);
+  
+  // Description:
+  // Render the volumetric geometry only if the prop has all the
+  // requiredKeys.
+  // This is recursive for composite props like vtkAssembly.
+  // An implementation is provided in vtkProp but each composite prop
+  // must override it.
+  // It returns if the rendering was performed.
+  // \pre v_exists: v!=0
+  // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
+  virtual bool RenderFilteredVolumetricGeometry(vtkViewport *v,
+                                                vtkInformation *requiredKeys);
+  
+  // Description:
+  // Render in the overlay of the viewport only if the prop has all the
+  // requiredKeys.
+  // This is recursive for composite props like vtkAssembly.
+  // An implementation is provided in vtkProp but each composite prop
+  // must override it.
+  // It returns if the rendering was performed.
+  // \pre v_exists: v!=0
+  // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
+  virtual bool RenderFilteredOverlay(vtkViewport *v,
+                                     vtkInformation *requiredKeys);
+  
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
@@ -281,6 +344,8 @@ protected:
   // support multi-part props and access to paths of prop
   // stuff that follows is used to build the assembly hierarchy
   vtkAssemblyPaths *Paths;
+  
+  vtkInformation *PropertyKeys;
   
 private:
   vtkProp(const vtkProp&);  // Not implemented.

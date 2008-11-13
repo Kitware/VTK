@@ -47,6 +47,7 @@ class vtkPainter;
 class vtkIdentColoredPainter;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
+class vtkRenderPass;
 
 #if !defined(VTK_LEGACY_REMOVE)
 class vtkVisibleCellSelector;
@@ -448,6 +449,12 @@ public:
   vtkGetObjectMacro(Delegate,vtkRendererDelegate);
 
   // Description:
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass,vtkRenderPass);
+  
+  // Description:
   // Get the current hardware selector. If the Selector is set, it implies the
   // current render pass is for selection. Mappers/Properties may choose to
   // behave differently when rendering for hardware selection.
@@ -664,6 +671,9 @@ protected:
   friend class vtkRendererDelegate;
   vtkRendererDelegate *Delegate;
 
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
+  
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.

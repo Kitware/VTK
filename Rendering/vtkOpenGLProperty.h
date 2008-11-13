@@ -23,6 +23,7 @@
 #include "vtkProperty.h"
 
 class vtkOpenGLRenderer;
+class vtkShader2;
 
 class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
 {
@@ -38,13 +39,14 @@ public:
   // Description:
   // Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
-
+  
   //BTX
   // Description:
   // This method is called after the actor has been rendered.
   // Don't call this directly. This method cleans up
   // any shaders allocated.
-  virtual void PostRender(vtkActor*, vtkRenderer*);
+  virtual void PostRender(vtkActor *a,
+                          vtkRenderer *r);
   //ETX
   
   // Description:
@@ -52,14 +54,16 @@ public:
   // property. The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *win);
-
+  
 protected:
-  vtkOpenGLProperty() {};
-  ~vtkOpenGLProperty() {};
+  vtkOpenGLProperty();
+  ~vtkOpenGLProperty();
 
   // Description:
   // Load OpenGL extensions for multi texturing.
   void LoadMultiTexturingExtensions(vtkRenderer* ren);
+  
+  vtkShader2 *Shader;
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
   void operator=(const vtkOpenGLProperty&);  // Not implemented.

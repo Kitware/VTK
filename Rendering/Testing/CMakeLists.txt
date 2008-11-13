@@ -25,5 +25,6 @@ IF(PYTHON_EXECUTABLE)
     vtkOpenGLExtensionManagerConfigure.h
     vtkCocoaMacOSXSDKCompatibility.h
     vtkPythagoreanQuadruples.h
+    vtkRenderState.h
     )
 ENDIF(PYTHON_EXECUTABLE)

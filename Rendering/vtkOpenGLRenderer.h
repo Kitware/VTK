@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 
 class vtkOpenGLRendererLayerList; // Pimpl
+class vtkShaderProgram2;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
@@ -62,6 +63,13 @@ public:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int GetDepthPeelingHigherLayer();
+  
+  //BTX
+  // Description:
+  // 
+  vtkGetObjectMacro(ShaderProgram,vtkShaderProgram2);
+  virtual void SetShaderProgram(vtkShaderProgram2 *program);
+  //ETX
   
 protected:
   vtkOpenGLRenderer();
@@ -144,6 +152,8 @@ protected:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int DepthPeelingHigherLayer;
+  
+  vtkShaderProgram2 *ShaderProgram;
   
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

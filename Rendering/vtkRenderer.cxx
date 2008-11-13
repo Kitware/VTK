@@ -37,9 +37,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
+#include "vtkRenderPass.h"
+#include "vtkRenderState.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.244");
+vtkCxxRevisionMacro(vtkRenderer, "1.245");
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
+vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
 #if !defined(VTK_LEGACY_REMOVE)
 #include "vtkIdentColoredPainter.h"
@@ -128,6 +131,7 @@ vtkRenderer::vtkRenderer()
 
   this->Selector = 0;
   this->Delegate=0;
+  this->Pass=0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -173,10 +177,14 @@ vtkRenderer::~vtkRenderer()
     this->IdentPainter = NULL;
     }
 #endif
-
+  
   if(this->Delegate!=0)
     {
     this->Delegate->UnRegister(this);
+    }
+  if(this->Pass!=0)
+    {
+    this->Pass->UnRegister(this);
     }
 }
 
@@ -316,7 +324,17 @@ void vtkRenderer::Render(void)
     }
 
   // do the render library specific stuff
-  this->DeviceRender();
+  if(this->Pass!=0)
+    {
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray,this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    this->Pass->Render(&s);
+    }
+  else
+    {
+    this->DeviceRender();
+    }
 
   // If we aborted, restore old estimated times
   // Setting the allocated render time to zero also sets the 
@@ -1190,9 +1208,13 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // what about lights?
     // what about cullers?
     
+    if(this->Pass!=0 && this->RenderWindow!=0)
+      {
+      this->Pass->ReleaseGraphicsResources(this->RenderWindow);
+      }
+    this->VTKWindow = renwin;
+    this->RenderWindow = renwin;
     }
-  this->VTKWindow = renwin;
-  this->RenderWindow = renwin;
 }
 
 // Given a pixel location, return the Z value
@@ -1371,6 +1393,16 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
       os << "null" << endl;
     }
   os << indent << "Selector: " << this->Selector << endl;
+  
+  os << indent << "Pass:";
+  if(this->Pass!=0)
+    {
+      os << "exists" << endl;
+    }
+  else
+    {
+      os << "null" << endl;
+    }
 }
 
 int vtkRenderer::VisibleActorCount()

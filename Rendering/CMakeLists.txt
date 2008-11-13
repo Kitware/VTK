@@ -125,6 +125,8 @@ SET( Kit_SRCS
   vtkRenderer.cxx
   vtkRendererDelegate.cxx
   vtkRendererSource.cxx
+  vtkRenderPass.cxx
+  vtkRenderState.cxx
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
@@ -137,7 +139,6 @@ SET( Kit_SRCS
   vtkShader.cxx
   vtkShaderDeviceAdapter.cxx
   vtkShaderProgram.cxx
-  vtkShaderProgram2.cxx
   vtkStandardPolyDataPainter.cxx
   vtkTesting.cxx
   # vtkTextActor2D.cxx
@@ -206,6 +207,10 @@ SET( KitOpenGL_SRCS
   vtkOpenGLRepresentationPainter.cxx
   vtkOpenGLScalarsToColorsPainter.cxx
   vtkOpenGLTexture.cxx
+  vtkShader2.cxx
+  vtkShader2Collection.cxx
+  vtkShaderProgram2.cxx
+  vtkUniformVariables.cxx
   )
 
 IF(VTK_USE_GLSL_SHADERS)
@@ -232,11 +237,22 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkPrimitivePainter
   vtkProp3D
   vtkRendererDelegate
+  vtkRenderPass
+  vtkRenderState # not abstract just not using instantiator
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderProgram
   vtkVisibilitySort.cxx
   ABSTRACT
+  )
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkRenderPass
+  vtkRenderState
+  vtkShader2
+  vtkShader2Collection
+  vtkShaderProgram2
+  WRAP_EXCLUDE
   )
 
 # Freetype stuff
@@ -268,6 +284,7 @@ ENDIF(VTK_USE_X)
 # The set of source files to be encoded.
 SET(glsl_files
   vtkOpenGLRenderer_PeelingFS
+  vtkOpenGLProperty_fs
   )
 
 # Create custom commands to encode each assembly file into a C string

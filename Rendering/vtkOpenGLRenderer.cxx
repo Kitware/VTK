@@ -30,6 +30,8 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkOpenGL.h"
 #endif
 
+#include "vtkShaderProgram2.h"
+
 #include <math.h>
 #include <assert.h>
 #include <vtkstd/list>
@@ -43,9 +45,11 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.92");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.93");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
+
+vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
 
 #define VTK_MAX_LIGHTS 8
 
@@ -75,6 +79,8 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->ProgramShader=0;
   this->DepthFormat=0;
   this->DepthPeelingHigherLayer=0;
+  
+  this->ShaderProgram=0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -1254,6 +1260,11 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->PickInfo->PickBuffer = 0;
     }
   delete this->PickInfo;
+  
+  if(this->ShaderProgram!=0)
+    {
+    this->ShaderProgram->Delete();
+    }
 }
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()
