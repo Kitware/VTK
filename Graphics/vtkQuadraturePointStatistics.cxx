@@ -47,10 +47,9 @@ void ComputeScalarStatistics(
 {
   const int nAtts=3;
 
-  stats.clear();
-  stats.push_back(vtkDoubleArray::New());
-  stats[0]->SetName(name.c_str());
-  stats[0]->SetNumberOfTuples(nAtts);
+  vtkDoubleArray *column=vtkDoubleArray::New();
+  column->SetName(name.c_str());
+  column->SetNumberOfTuples(nAtts);
 
   vtkIdType nTups=input->GetNumberOfTuples();
   double *pV=input->GetPointer(0);
@@ -68,9 +67,11 @@ void ComputeScalarStatistics(
     ++pV;
     }
   mean/=nTups;
-  stats[0]->SetValue(0,min);
-  stats[0]->SetValue(1,max);
-  stats[0]->SetValue(2,mean);
+  column->SetValue(0,min);
+  column->SetValue(1,max);
+  column->SetValue(2,mean);
+
+  stats.push_back(column);
 }
 
 //*****************************************************************************
@@ -115,44 +116,46 @@ void ComputeVectorStatistics(
   mean[2]/=nTups;
   mean[3]/=nTups;
   // add 4 arrays, 1 for the L2 norm, 3 for the comps.
-  stats.clear();
-  stats.resize(4);
-  //
+  vtkDoubleArray *column;
   ostringstream compM;
   compM << "|" << name << "|";
-  stats[0]=vtkDoubleArray::New();
-  stats[0]->SetName(compM.str().c_str());
-  stats[0]->SetNumberOfTuples(nAtts);
-  stats[0]->SetValue(0,min[0]);
-  stats[0]->SetValue(1,max[0]);
-  stats[0]->SetValue(2,mean[0]);
+  column=vtkDoubleArray::New();
+  column->SetName(compM.str().c_str());
+  column->SetNumberOfTuples(nAtts);
+  column->SetValue(0,min[0]);
+  column->SetValue(1,max[0]);
+  column->SetValue(2,mean[0]);
+  stats.push_back(column);
   //
   ostringstream compX;
   compX << name << "_X";
-  stats[1]=vtkDoubleArray::New();
-  stats[1]->SetName(compX.str().c_str());
-  stats[1]->SetNumberOfTuples(nAtts);
-  stats[1]->SetValue(0,min[1]);
-  stats[1]->SetValue(1,max[1]);
-  stats[1]->SetValue(2,mean[1]);
+  column=vtkDoubleArray::New();
+  column->SetName(compX.str().c_str());
+  column->SetNumberOfTuples(nAtts);
+  column->SetValue(0,min[1]);
+  column->SetValue(1,max[1]);
+  column->SetValue(2,mean[1]);
+  stats.push_back(column);
   //
   ostringstream compY;
   compY << name << "_Y";
-  stats[2]=vtkDoubleArray::New();
-  stats[2]->SetName(compY.str().c_str());
-  stats[2]->SetNumberOfTuples(nAtts);
-  stats[2]->SetValue(0,min[2]);
-  stats[2]->SetValue(1,max[2]);
-  stats[2]->SetValue(2,mean[2]);
+  column=vtkDoubleArray::New();
+  column->SetName(compY.str().c_str());
+  column->SetNumberOfTuples(nAtts);
+  column->SetValue(0,min[2]);
+  column->SetValue(1,max[2]);
+  column->SetValue(2,mean[2]);
+  stats.push_back(column);
   //
   ostringstream compZ;
   compZ << name << "_Z";
-  stats[3]=vtkDoubleArray::New();
-  stats[3]->SetName(compZ.str().c_str());
-  stats[3]->SetNumberOfTuples(nAtts);
-  stats[3]->SetValue(0,min[3]);
-  stats[3]->SetValue(1,max[3]);
-  stats[3]->SetValue(2,mean[3]);
+  column=vtkDoubleArray::New();
+  column->SetName(compZ.str().c_str());
+  column->SetNumberOfTuples(nAtts);
+  column->SetValue(0,min[3]);
+  column->SetValue(1,max[3]);
+  column->SetValue(2,mean[3]);
+  stats.push_back(column);
 }
 
 
@@ -160,7 +163,7 @@ void ComputeVectorStatistics(
 
 
 
-vtkCxxRevisionMacro(vtkQuadraturePointStatistics, "1.2");
+vtkCxxRevisionMacro(vtkQuadraturePointStatistics, "1.3");
 vtkStandardNewMacro(vtkQuadraturePointStatistics);
 
 //-----------------------------------------------------------------------------
@@ -253,7 +256,7 @@ int vtkQuadraturePointStatistics::ComputeStatistics(
 {
   // Each valid array on the input, produces one column for each of 
   // its components on the output.
-  vector<vector<vtkDoubleArray *> >columns;
+  vector<vtkDoubleArray *> columns;
 
   // Look at the arrays in FieldData for fields interpolated to
   // quadrature points.
@@ -285,23 +288,19 @@ int vtkQuadraturePointStatistics::ComputeStatistics(
     // have, because we want to name stuff like V_X,V_Y,V_Z
     // If there are more than three components we'll have to do
     // something else.
-    vector<vtkDoubleArray *> comps;
     int nComps=interpolated->GetNumberOfComponents();
     switch (nComps)
       {
       case 1:
-        ComputeScalarStatistics(interpolated,V->GetName(),comps);
+        ComputeScalarStatistics(interpolated,V->GetName(),columns);
         break;
       case 3:
-        ComputeVectorStatistics(interpolated,V->GetName(),comps);
+        ComputeVectorStatistics(interpolated,V->GetName(),columns);
         break;
       default:
         vtkWarningMacro("Unsupported number of components.");
         break;
       }
-    // Gather the columns, they are added to the table when all input 
-    // arrays have been processed.
-    columns.push_back(comps);
     }
   // Add the processed columns to the table.
   if (columns.size())
@@ -317,15 +316,12 @@ int vtkQuadraturePointStatistics::ComputeStatistics(
     size_t nCols=columns.size();
     for (size_t colId=0; colId<nCols; ++colId)
       {
-      size_t nSubCols=columns[colId].size();
-      for (size_t subColId=0; subColId<nSubCols; ++subColId)
-        {
-        results->AddColumn(columns[colId][subColId]);
-        //cerr << "Adding " << columns[colId][subColId]->GetName() << " to table." << endl;
-        columns[colId][subColId]->Delete();
-        }
+      results->AddColumn(columns[colId]);
+      //cerr << "Adding " << columns[colId]->GetName() << " to table." << endl;
+      columns[colId]->Delete();
       }
     }
+  // Clean out garbage that is added by default.
   results->GetFieldData()->Initialize();
   return static_cast<int>(columns.size());
 }
