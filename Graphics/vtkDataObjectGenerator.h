@@ -22,7 +22,7 @@
 // vtkStructuredGrid, vtkPolyData and vtkUnstructuredGrid respectively. You 
 // can compose composite datasets from the atomic ones listed above
 // by putting them between "(" and ")" in the string to create groups, and 
-// then placing a collection of groups together inside one of the three 
+// then placing a collection of groups together inside one of the two 
 // composite dataset identifiers - "MB{}" or "HB[]".
 // "HB[ (UF1)(UF1)(UF1) ]" will create a vtkHierarchicalBoxDataSet representing
 // an octree, in which the firstmost cell is refined, and then the firstmost 
