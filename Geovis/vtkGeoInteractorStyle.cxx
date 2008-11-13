@@ -45,7 +45,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.9");
+vtkCxxRevisionMacro(vtkGeoInteractorStyle, "1.10");
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
@@ -330,16 +330,17 @@ int vtkGeoInteractorStyle::ViewportToWorld(double xMouse,
   double right[3];
   double position[3];
   double direction[3];
-  //this->GeoCamera->GetPosition(position);
   camera->GetFocalPoint(direction);
   camera->GetPosition(position);
-  // What is the correct behavior?
   double origin[3];
   this->GeoCamera->GetOrigin(origin);
   
-  direction[0] = direction[0]+origin[0] - position[0];
-  direction[1] = direction[1]+origin[1] - position[1];
-  direction[2] = direction[2]+origin[2] - position[2];
+  direction[0] = direction[0] - position[0];
+  direction[1] = direction[1] - position[1];
+  direction[2] = direction[2] - position[2];
+  position[0] = position[0] + origin[0];
+  position[1] = position[1] + origin[1];
+  position[2] = position[2] + origin[2];
   camera->GetViewUp(up);
   vtkMath::Cross(direction, up, right);
   vtkMath::Normalize(right);
@@ -604,9 +605,11 @@ void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
   double direction2[3];
   camera->GetPosition(position);
   camera->GetFocalPoint(direction);
-  direction[0] = direction[0] - position[0];
-  direction[1] = direction[1] - position[1];
-  direction[2] = direction[2] - position[2];
+  double origin[3];
+  this->GeoCamera->GetOrigin(origin);
+  direction[0] = direction[0]+origin[0] - position[0];
+  direction[1] = direction[1]+origin[1] - position[1];
+  direction[2] = direction[2]+origin[2] - position[2];
   camera->GetViewUp(up);
   vtkMath::Cross(direction, up, right);
   vtkMath::Normalize(right);

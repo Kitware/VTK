@@ -28,7 +28,7 @@
 
 #define VTK_EARTH_RADIUS_METERS 6356750.0
 
-vtkCxxRevisionMacro(vtkGeoCamera, "1.9");
+vtkCxxRevisionMacro(vtkGeoCamera, "1.10");
 vtkStandardNewMacro(vtkGeoCamera);
 
 
@@ -282,18 +282,19 @@ void vtkGeoCamera::UpdateVTKCamera()
     // Project vector to north pole and view up to the following plane:
     // Normal = dir. out of center of earth from focal point, Point = origin.
     
-    // Compute the plane normal.
+    // Compute the plane normal (center of earth at -origin).
     double dir[3];
-    dir[0] = -tmp[0];
-    dir[1] = -tmp[1];
-    dir[2] = -tmp[2];
+    dir[0] = -tmp[0] - this->Origin[0];
+    dir[1] = -tmp[1] - this->Origin[1];
+    dir[2] = -tmp[2] - this->Origin[2];
     vtkMath::Normalize(dir);
     
-    // Compute direction to north pole from focal point.
+    // Compute direction to north pole (at -origin + (0,0,earth_radius))
+    // from focal point.
     double north[3];
-    north[0] = 0.0 - tmp[0];
-    north[1] = 0.0 - tmp[1];
-    north[2] = VTK_EARTH_RADIUS_METERS - tmp[2];
+    north[0] = -this->Origin[0] - tmp[0];
+    north[1] = -this->Origin[1] - tmp[1];
+    north[2] = VTK_EARTH_RADIUS_METERS - this->Origin[2] - tmp[2];
     double northDot = vtkMath::Dot(north, dir);
     
     // Project direction to north pole to our plane.

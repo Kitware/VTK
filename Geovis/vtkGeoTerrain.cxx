@@ -56,7 +56,7 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.13");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.14");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
@@ -181,6 +181,10 @@ void vtkGeoTerrain::AddActors(
     // Determine if node is within viewport
     double bbox[6];
     cur->GetModel()->GetBounds(bbox);
+    for (int i = 0; i < 6; ++i)
+      {
+      bbox[i] = bbox[i] - camera->GetOrigin()[i/2];
+      }
     int boundsTest = extractor->OverallBoundsTest(bbox);
     if (boundsTest == 0)
       {
