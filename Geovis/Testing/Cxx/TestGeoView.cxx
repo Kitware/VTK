@@ -151,14 +151,14 @@ int TestGeoView(int argc, char* argv[])
   view->AddRepresentation(imageRep2);
 
   // Add a graph representation
-  vtkSmartPointer<vtkGeoRandomGraphSource> source =
+  vtkSmartPointer<vtkGeoRandomGraphSource> graphSource =
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();
-  source->SetNumberOfVertices(100);
-  source->StartWithTreeOn();
-  source->SetNumberOfEdges(0);
+  graphSource->SetNumberOfVertices(100);
+  graphSource->StartWithTreeOn();
+  graphSource->SetNumberOfEdges(0);
   vtkSmartPointer<vtkGeoGraphRepresentation> graphRep =
     vtkSmartPointer<vtkGeoGraphRepresentation>::New();
-  graphRep->SetInputConnection(source->GetOutputPort());
+  graphRep->SetInputConnection(graphSource->GetOutputPort());
   view->AddRepresentation(graphRep);
 
   // Serialize databases
