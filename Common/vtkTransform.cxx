@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.109");
+vtkCxxRevisionMacro(vtkTransform, "1.110");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -388,7 +388,7 @@ void vtkTransform::GetOrientation(double orientation[3],
     }
 
   double theta = atan2(sinTheta, cosTheta);
-  orientation[1] = -theta/vtkMath::DoubleDegreesToRadians();
+  orientation[1] = - vtkMath::DegreesFromRadians( theta );
 
   // now rotate about x axis
   double d = sqrt(x2*x2 + y2*y2 + z2*z2);
@@ -411,7 +411,7 @@ void vtkTransform::GetOrientation(double orientation[3],
     }
 
   double phi = atan2(sinPhi, cosPhi);
-  orientation[0] = phi/vtkMath::DoubleDegreesToRadians();
+  orientation[0] = vtkMath::DegreesFromRadians( phi );
 
   // finally, rotate about z
   double x3p = x3*cosTheta - z3*sinTheta;
@@ -431,7 +431,7 @@ void vtkTransform::GetOrientation(double orientation[3],
     }
 
   double alpha = atan2(sinAlpha, cosAlpha);
-  orientation[2] = alpha/vtkMath::DoubleDegreesToRadians();
+  orientation[2] = vtkMath::DegreesFromRadians( alpha );
 }
 
 //----------------------------------------------------------------------------
@@ -470,11 +470,11 @@ void vtkTransform::GetOrientationWXYZ(double wxyz[4])
   vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
 
   // calc the return value wxyz
- double mag = sqrt(wxyz[1]*wxyz[1] + wxyz[2]*wxyz[2] + wxyz[3]*wxyz[3]);
+ double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
 
-  if (mag)
+  if ( mag )
     {
-    wxyz[0] = 2.0*acos(wxyz[0])/vtkMath::DoubleDegreesToRadians();
+    wxyz[0] = 2. * vtkMath::DegreesFromRadians( acos( wxyz[0] ) );
     wxyz[1] /= mag;
     wxyz[2] /= mag;
     wxyz[3] /= mag;

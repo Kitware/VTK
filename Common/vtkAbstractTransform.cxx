@@ -22,7 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.27");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.28");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -380,7 +380,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.27");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.28");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()
@@ -556,7 +556,7 @@ void vtkTransformConcatenation::Rotate(double angle,
     }
 
   // convert to radians
-  angle = angle*vtkMath::DoubleDegreesToRadians();
+  angle = vtkMath::RadiansFromDegrees( angle );
 
   // make a normalized quaternion
   double w = cos(0.5*angle);
