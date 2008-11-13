@@ -27,7 +27,7 @@
 #include <assert.h>
 
 vtkStandardNewMacro(vtkShaderProgram2);
-vtkCxxRevisionMacro(vtkShaderProgram2, "1.2");
+vtkCxxRevisionMacro(vtkShaderProgram2, "1.3");
 vtkCxxSetObjectMacro(vtkShaderProgram2,UniformVariables,vtkUniformVariables);
 
 //----------------------------------------------------------------------------
@@ -621,7 +621,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
       }
     if(isInt)
       {
-      int *ivalues=new int[elementSize];
+      GLint *ivalues=new GLint[elementSize];
       vtkgl::GetUniformiv(id,i,ivalues);
       int j=0;
       while(j<elementSize)
