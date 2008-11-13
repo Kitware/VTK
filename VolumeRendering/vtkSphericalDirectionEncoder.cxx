@@ -18,10 +18,10 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.4");
+vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.5");
 vtkStandardNewMacro(vtkSphericalDirectionEncoder);
 
-float vtkSphericalDirectionEncoder::DecodedGradientTable[65536*3];
+float vtkSphericalDirectionEncoder::DecodedGradientTable[65536 * 3];
 int   vtkSphericalDirectionEncoder::DecodedGradientTableInitialized = 0;
 
 // Construct the object. Initialize the index table which will be
@@ -45,7 +45,7 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
 {
   if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
     {
-    return ( 255*256 );
+    return ( 255 * 256 );
     }
   
   float theta, phi;
@@ -54,30 +54,30 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
   // don't handle a zero denominator
   if ( n[0] == 0 )
     {
-    theta = (n[1]>0)?(90.0):(270.0);
+    theta = ( n[1] > 0 ) ? 90.0 : 270.0 ;
     }
   else
     {
-    theta = (vtkMath::RadiansToDegrees())*atan2( n[1], n[0] );
-    theta = (theta<0.0)?(theta+360.0):(theta);
-    theta = (theta>=360.0)?(theta-360.0):(theta);
+    theta = vtkMath::DegreesFromRadians( atan2( n[1], n[0] ) );
+    theta = ( theta < 0.0 )    ? ( theta + 360.0 ) : theta;
+    theta = ( theta >= 360.0 ) ? ( theta - 360.0 ) : theta;
     }
   
-  phi = (vtkMath::RadiansToDegrees())*asin( n[2] );
-  phi = (phi > 90.5)?(phi-360):(phi);
-  
+  phi = vtkMath::DegreesFromRadians( asin( n[2] ) );
+  phi = phi > 90.5 ? ( phi-360 ) : phi;
+ 
   int lowByte, highByte;
   
-  lowByte  = static_cast<int>(theta * 255.0 / 359.0 + 0.5);
-  highByte = static_cast<int>((phi+90.0) * 254.0 / 180.0 + 0.5);
+  lowByte  = static_cast<int>( theta * 255.0 / 359.0 + 0.5 );
+  highByte = static_cast<int>( ( phi + 90.0 ) * 254.0 / 180.0 + 0.5 );
   
-  lowByte = (lowByte<0)?(0):(lowByte);
-  lowByte = (lowByte>255)?(255):(lowByte);
+  lowByte = lowByte < 0   ? 0   : lowByte;
+  lowByte = lowByte > 255 ? 255 : lowByte;
 
-  highByte = (highByte<0)?(0):(highByte);
-  highByte = (highByte>254)?(254):(highByte);
+  highByte = highByte < 0   ? 0   : highByte;
+  highByte = highByte > 254 ? 254 : highByte;
 
-  return (lowByte + highByte*256);
+  return ( lowByte + highByte * 256 );
 }
   
 float *vtkSphericalDirectionEncoder::GetDecodedGradient( int value )
@@ -107,7 +107,7 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
   
   for ( j = 0; j < 256; j++ )
     {
-    phi = -89.5 + j * (179.0 / 254.0 );
+    phi = -89.5 + j * ( 179.0 / 254.0 );
     
       transformPhi->Identity();
       transformPhi->RotateY( -phi );
