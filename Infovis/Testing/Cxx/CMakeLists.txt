@@ -126,8 +126,8 @@ ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 
 IF (VTK_USE_MPI)
-  ADD_EXECUTABLE(TestPDescriptiveStatistics TestPDescriptiveStatistics.cxx)
-  TARGET_LINK_LIBRARIES(TestPDescriptiveStatistics vtkInfovis vtkParallel)
+  ADD_EXECUTABLE(TestParallelRandomStatistics TestParallelRandomStatistics.cxx)
+  TARGET_LINK_LIBRARIES(TestParallelRandomStatistics vtkInfovis vtkParallel)
 ENDIF (VTK_USE_MPI)
 
 IF(VTK_USE_N_WAY_ARRAYS)
