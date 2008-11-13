@@ -78,7 +78,7 @@ public:
 
 //BTX
 
-  class Request
+  class VTK_PARALLEL_EXPORT Request
   {
   public:
     Request();
