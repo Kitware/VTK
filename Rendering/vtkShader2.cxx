@@ -27,7 +27,7 @@ GLenum vtkShaderTypeVTKToGL[3]={
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader2, "1.1");
+vtkCxxRevisionMacro(vtkShader2, "1.2");
 vtkStandardNewMacro(vtkShader2);
 vtkCxxSetObjectMacro(vtkShader2,UniformVariables,vtkUniformVariables);
 
@@ -158,7 +158,7 @@ void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
         {
         vtkOpenGLExtensionManager *e=this->Context->GetExtensionManager();
         this->SupportGeometryShader=
-          e->ExtensionSupported("GL_EXT_geometry_shader4");
+          e->ExtensionSupported("GL_EXT_geometry_shader4")==1;
         if(this->SupportGeometryShader)
           {
           e->LoadExtension("GL_EXT_geometry_shader4");
