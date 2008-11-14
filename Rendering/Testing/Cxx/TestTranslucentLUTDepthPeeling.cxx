@@ -39,6 +39,8 @@ int TestTranslucentLUTDepthPeeling(int argc, char* argv[])
 {
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetMultiSamples(0);
+  
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
