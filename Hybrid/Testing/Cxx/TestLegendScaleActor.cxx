@@ -31,6 +31,7 @@ int TestLegendScaleActor( int argc, char * argv [] )
   //
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
 
   ren1->GetActiveCamera()->ParallelProjectionOn();

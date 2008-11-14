@@ -49,6 +49,7 @@ vtkActor outlineActor
 # create a window to render into
 vtkRenderer ren1
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
 
 # create a renderer

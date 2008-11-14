@@ -71,6 +71,7 @@ ren1 SetMaximumNumberOfPeels 200
 ren1 SetOcclusionRatio 0.1
 
 vtkRenderWindow renWin
+renWin SetMultiSamples 0
 renWin SetAlphaBitPlanes 1
 renWin AddRenderer ren1
 renWin SetSize 300 300

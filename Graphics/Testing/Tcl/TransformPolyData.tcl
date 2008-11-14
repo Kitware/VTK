@@ -2,6 +2,7 @@ package require vtk
 
 # create a rendering window
 vtkRenderWindow renWin
+renWin SetMultiSamples 0
 renWin SetSize 600 300
 
 # set up first set of polydata

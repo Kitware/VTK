@@ -133,6 +133,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);
+  win->SetMultiSamples(0);
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 

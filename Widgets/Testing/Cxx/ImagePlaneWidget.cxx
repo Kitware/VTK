@@ -397,6 +397,7 @@ int ImagePlaneWidget( int argc, char *argv[] )
   vtkRenderer* ren2 = vtkRenderer::New();
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
+    renWin->SetMultiSamples(0);
     renWin->AddRenderer(ren2);
     renWin->AddRenderer(ren1);
 

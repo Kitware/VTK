@@ -46,7 +46,7 @@ int TestOpacity(int argc, char* argv[])
   // Standard rendering classes
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->SetMultiSamples(1);
+  renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
   renderer->Delete();

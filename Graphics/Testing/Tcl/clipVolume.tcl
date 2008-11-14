@@ -42,6 +42,7 @@ vtkActor outlineActor
 # Define graphics objects
 vtkRenderer ren1
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin

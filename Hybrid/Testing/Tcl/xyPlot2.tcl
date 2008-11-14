@@ -191,6 +191,7 @@ vtkActor outlineActor
 vtkRenderer ren1
 vtkRenderer ren2
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
     renWin AddRenderer ren2
 vtkRenderWindowInteractor iren

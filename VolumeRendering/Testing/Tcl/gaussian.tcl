@@ -3,6 +3,7 @@ package require vtkinteraction
 
 vtkRenderer ren1
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
     renWin SetSize 300 300
 vtkRenderWindowInteractor iren

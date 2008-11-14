@@ -194,6 +194,7 @@ int TestSplineWidget( int argc, char *argv[] )
   vtkRenderer* ren1 = vtkRenderer::New();
   vtkRenderer* ren2 = vtkRenderer::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
+    renWin->SetMultiSamples(0);
     renWin->AddRenderer( ren1);
     renWin->AddRenderer( ren2);
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();

@@ -41,6 +41,7 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   // Standard rendering classes
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);

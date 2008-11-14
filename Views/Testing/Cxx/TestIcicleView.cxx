@@ -50,6 +50,7 @@ int TestIcicleView(int argc, char* argv[])
 
   // Tree icicle view
   VTK_CREATE(vtkRenderWindow, win);
+  win->SetMultiSamples(0);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
   VTK_CREATE(vtkIcicleView, view);

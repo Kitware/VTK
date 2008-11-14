@@ -8,6 +8,7 @@ package require vtkinteraction
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
 vtkRenderer ren1
   ren1 SetBackground .8 .8 .2
 renWin AddRenderer ren1

@@ -4,6 +4,7 @@ package require vtkinteraction
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin

@@ -625,6 +625,7 @@ int TestHandleWidget( int argc, char *argv[] )
   //
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();

@@ -131,6 +131,7 @@ class TestMapperLUT(Testing.vtkTest):
         # Create the RenderWindow and Renderer
         ren = vtk.vtkRenderer()
         renWin = vtk.vtkRenderWindow()
+        renWin.SetMultiSamples(0)
         renWin.AddRenderer(ren)
 
         # Add the dummy actor.

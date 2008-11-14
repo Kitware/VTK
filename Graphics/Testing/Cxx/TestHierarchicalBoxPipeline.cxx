@@ -52,6 +52,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   cam->SetViewUp(0.210794, 0.95813, -0.193784);
 
   vtkRenderWindow *renWin = vtkRenderWindow::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);

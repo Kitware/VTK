@@ -125,6 +125,7 @@ int UnstructuredGridCellGradients(int argc, char *argv[])
   renderer->SetBackground(0.328125, 0.347656, 0.425781);
 
   VTK_CREATE(vtkRenderWindow, renwin);
+  renwin->SetMultiSamples(0);
   renwin->AddRenderer(renderer);
   renwin->SetSize(350, 500);
 

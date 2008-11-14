@@ -51,6 +51,7 @@ vtkRenderer ren5
     ren5 SetActiveCamera camera
     ren5 AddLight light
 vtkRenderWindow renWin
+    renWin SetMultiSamples 0
     renWin AddRenderer ren1
     renWin AddRenderer ren2
     renWin AddRenderer ren3
