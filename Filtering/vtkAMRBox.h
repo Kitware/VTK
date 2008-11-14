@@ -61,7 +61,7 @@ public:
   vtkAMRBox(const vtkAMRBox &other);
   // Description:
   // Copy the other box to this box.
-  vtkAMRBox &operator=(vtkAMRBox &other);
+  vtkAMRBox &operator=(const vtkAMRBox &other);
   // Description:
   // Set the box to null;
   void Invalidate();

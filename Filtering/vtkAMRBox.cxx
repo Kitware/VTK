@@ -108,7 +108,7 @@ vtkAMRBox::vtkAMRBox(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox &vtkAMRBox::operator=(vtkAMRBox &other)
+vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 {
   if (this==&other) return *this;
   this->SetDimensionality(other.GetDimensionality());
@@ -372,8 +372,8 @@ void vtkAMRBox::Grow(vtkIdType byN)
     {
     return;
     }
-  int lo[3];
-  int hi[3];
+  vtkIdType lo[3];
+  vtkIdType hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]-byN;
@@ -389,8 +389,8 @@ void vtkAMRBox::Shrink(vtkIdType byN)
     {
     return;
     }
-  int lo[3];
-  int hi[3];
+  vtkIdType lo[3];
+  vtkIdType hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]+byN;
@@ -589,8 +589,8 @@ void vtkAMRBox::Refine(int r)
     return;
     }
 
-  int lo[3];
-  int hi[3];
+  vtkIdType lo[3];
+  vtkIdType hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]*r;
@@ -612,7 +612,7 @@ void vtkAMRBox::Coarsen(int r)
     }
 
   // sanity check.
-  int nCells[3];
+  vtkIdType nCells[3];
   this->GetNumberOfCells(nCells);
   for (int q=0; q<this->Dimension; ++q)
     {
@@ -623,8 +623,8 @@ void vtkAMRBox::Coarsen(int r)
       }
     }
 
-  int lo[3];
-  int hi[3];
+  vtkIdType lo[3];
+  vtkIdType hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=(this->LoCorner[q]<0 ? -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);

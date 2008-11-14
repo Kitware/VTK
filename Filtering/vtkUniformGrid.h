@@ -69,6 +69,7 @@ public:
   virtual void Initialize();
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
 
+  //BTX
   // Description:
   // Initialize with no ghost cell arrays, from the definition in
   // the given box. The box is expetced to be 3D, if you have 2D 
@@ -97,6 +98,7 @@ public:
   // (X,X,0)(X,X,0)
   // Returns 0 if the initialization failed.
   int Initialize(const vtkAMRBox *def,int nGhostsI,int nGhostsJ,int nGhostsK);
+  //ETX
 
   // Description:
   // Shallow and Deep copy.
