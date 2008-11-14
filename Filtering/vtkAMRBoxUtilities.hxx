@@ -36,7 +36,7 @@ void FillRegion(
 {
   // Convert regions to array index space. VTK arrays
   // always start with 0,0,0.
-  vtkIdType ofs[3];
+  int ofs[3];
   arrayRegion.GetLoCorner(ofs);
   ofs[0]=-ofs[0];
   ofs[1]=-ofs[1];
@@ -52,21 +52,21 @@ void FillRegion(
          << "Aborting the fill." << endl;
     }
   // Get the bounds of the indices we fill.
-  vtkIdType destLo[3];
+  int destLo[3];
   destDims.GetLoCorner(destLo);
-  vtkIdType destHi[3];
+  int destHi[3];
   destDims.GetHiCorner(destHi);
   // Get the array dimensions.
-  vtkIdType arrayHi[3];
+  int arrayHi[3];
   arrayDims.GetNumberOfCells(arrayHi);
   // Fill.
-  for (vtkIdType k=destLo[2]; k<=destHi[2]; ++k) 
+  for (int k=destLo[2]; k<=destHi[2]; ++k) 
     {
     vtkIdType kOfs=k*arrayHi[0]*arrayHi[1];
-    for (vtkIdType j=destLo[1]; j<=destHi[1]; ++j) 
+    for (int j=destLo[1]; j<=destHi[1]; ++j) 
       {
       vtkIdType idx=kOfs+j*arrayHi[0]+destLo[0];
-      for (vtkIdType i=destLo[0]; i<=destHi[0]; ++i)
+      for (int i=destLo[0]; i<=destHi[0]; ++i)
         {
         pArray[idx]=fillValue;
         ++idx;

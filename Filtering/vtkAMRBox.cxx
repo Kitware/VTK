@@ -457,7 +457,7 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
     {
     return false;
     }
-  
+
   switch (this->Dimension)
     {
     case 2:
