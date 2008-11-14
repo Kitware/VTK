@@ -113,6 +113,7 @@ int TestGeoView(int argc, char* argv[])
     }
   // Create the geo view.
   VTK_CREATE(vtkRenderWindow, win);
+  win->SetMultiSamples(0);
   VTK_CREATE(vtkGeoView, view);
   view->SetupRenderWindow(win);
   win->SetSize(400,400);
