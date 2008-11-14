@@ -39,15 +39,14 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-int nVals = 100000;
+// For debugging purposes, serial engines can be run on each slice of the distributed data set
+#define DEBUG_WITH_SERIAL_STATS 0 
+
+int nVals = 1000000;
 
 // This will be called by all processes
 void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
 {
-  // Start clock
-  time_t t0;
-  time ( &t0 );
-  
   // Get local rank
   int myRank = controller->GetLocalProcessId();
 
@@ -102,6 +101,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
     doubleArray[c]->Delete();
     }
 
+#if DEBUG_WITH_SERIAL_STATS
   // Instantiate a (serial) descriptive statistics engine and set its ports
   vtkDescriptiveStatistics* ds = vtkDescriptiveStatistics::New();
   ds->SetInput( 0, inputData );
@@ -110,7 +110,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   for ( int c = 0; c < nVariables; ++ c )
     {
     ds->AddColumn( columnNames[c] );
-    } // Include invalid Metric 3
+    }
 
   // Test (serially) with Learn and Derive options only
   ds->SetLearn( true );
@@ -138,7 +138,13 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   
   // Clean up
   ds->Delete();
+#endif //DEBUG_WITH_SERIAL_STATS
 
+  // Synchronize and start clock
+  controller->Barrier();
+  time_t t0;
+  time ( &t0 );
+  
   // Instantiate a parallel descriptive statistics engine and set its ports
   vtkPDescriptiveStatistics* pds = vtkPDescriptiveStatistics::New();
   pds->SetInput( 0, inputData );
@@ -158,20 +164,20 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
-    // Synchronize and stop clock
+  // Synchronize and stop clock
   controller->Barrier();
   time_t t1;
   time ( &t1 );
 
   if ( ! controller->GetLocalProcessId() )
     {
-    cout << "\n## Completed parallel calculation of descriptive statistics.\n"
+    cout << "\n## Completed parallel calculation of descriptive statistics (with assessment):\n"
          << "   Total sample size: "
          << pds->GetSampleSize()
          << " \n"
          << "   Wall time: "
          << difftime( t1, t0 )
-         << "sec.\n";
+         << " sec.\n";
 
    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
       {
@@ -190,7 +196,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
   if ( ! controller->GetLocalProcessId() )
     {
-    cout << "\n ## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
+    cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";
     }
   
   vtkVariantArray* relDev[2];
@@ -256,6 +262,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   // Clean up
   pds->Delete();
 
+  // Synchronize and start clock
+  controller->Barrier();
+  time_t t2;
+  time ( &t2 );
+
   // Instantiate a parallel correlative statistics engine and set its ports
   vtkPCorrelativeStatistics* pcs = vtkPCorrelativeStatistics::New();
   pcs->SetInput( 0, inputData );
@@ -272,13 +283,21 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   pcs->SetAssess( true );
   pcs->Update();
 
+    // Synchronize and stop clock
   controller->Barrier();
+  time_t t3;
+  time ( &t3 );
 
   if ( ! controller->GetLocalProcessId() )
     {
-    cout << "\n## Calculated the following statistics in parallel ( total sample size: "
+    cout << "\n## Completed parallel calculation of correlative statistics (with assessment):\n"
+         << "   Total sample size: "
          << pcs->GetSampleSize()
-         << " ):\n";
+         << " \n"
+         << "   Wall time: "
+         << difftime( t3, t2 )
+         << " sec.\n";
+
     for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
       {
       cout << "   ";
@@ -325,13 +344,17 @@ int main( int argc, char** argv )
          << numProcs
          << " processes...\n";
     }
-  controller->Barrier();
 
   // Execute the function named "process" on both processes
   controller->SetSingleMethod( RandomSampleStatistics, 0 );
   controller->SingleMethodExecute();
   
   // Clean up and exit
+  if ( ! controller->GetLocalProcessId() )
+    {
+    cout << "\n# Test completed.\n\n";
+    }
+
   controller->Finalize();
   controller->Delete();
   
