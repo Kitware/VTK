@@ -33,7 +33,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.18");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.19");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid, PointVisibility,
@@ -112,7 +112,7 @@ int vtkUniformGrid::Initialize(
     }
 
   // Generate ghost cell array, with no ghosts marked.
-  vtkIdType nCells[3];
+  int nCells[3];
   def->GetNumberOfCells(nCells);
   vtkUnsignedCharArray *ghosts=vtkUnsignedCharArray::New();
   this->GetCellData()->AddArray(ghosts);
@@ -125,9 +125,9 @@ int vtkUniformGrid::Initialize(
   if (nGhostsI || nGhostsJ || nGhostsK)
     {
     unsigned char *pG=ghosts->GetPointer(0);
-    vtkIdType lo[3];
+    int lo[3];
     def->GetLoCorner(lo);
-    vtkIdType hi[3];
+    int hi[3];
     def->GetHiCorner(hi);
     // Identify & fill ghost regions
     if (nGhostsI)
