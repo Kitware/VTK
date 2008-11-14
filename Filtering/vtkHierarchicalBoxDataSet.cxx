@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.26");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.27");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -138,8 +138,8 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
     vtkInformation* info = levelDS->GetMetaData(id);
     if (info)
       {
-      const vtkIdType *loCorner=box.GetLoCorner();
-      const vtkIdType *hiCorner=box.GetHiCorner();
+      const int *loCorner=box.GetLoCorner();
+      const int *hiCorner=box.GetHiCorner();
       info->Set(BOX(),
         loCorner[0], loCorner[1], loCorner[2],
         hiCorner[0], hiCorner[1], hiCorner[2]);
@@ -306,7 +306,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
       if (grid && !box.Empty())
         {
-        vtkIdType cellDims[3];
+        int cellDims[3];
         box.GetNumberOfCells(cellDims);
         vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
         vtkIdType numCells = box.GetNumberOfCells();
@@ -315,8 +315,8 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
         vtkIdType numBlankedPts = 0;
         if (!boxes.empty()) 
           {
-          const vtkIdType *loCorner=box.GetLoCorner();
-          const vtkIdType *hiCorner=box.GetHiCorner();
+          const int *loCorner=box.GetLoCorner();
+          const int *hiCorner=box.GetHiCorner();
           for (int iz=loCorner[2]; iz<=hiCorner[2]; iz++)
             {
             for (int iy=loCorner[1]; iy<=hiCorner[1]; iy++)
