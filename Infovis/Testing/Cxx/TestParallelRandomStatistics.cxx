@@ -184,7 +184,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
       cout << "   ";
       for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
         {
-        cout << outputMeta->GetColumnName( c )
+        vtkStdString colName = outputMeta->GetColumnName( c );
+
+        // Do not report M aggregates
+        if ( colName[0] == 'M' && colName[1] != 'e' )
+          {
+          continue;
+          }
+
+        cout << colName
              << "="
              << outputMeta->GetValue( r, c ).ToString()
              << "  ";
@@ -303,7 +311,15 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
       cout << "   ";
       for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
         {
-        cout << outputMeta->GetColumnName( c )
+        vtkStdString colName = outputMeta->GetColumnName( c );
+
+        // Do not report M aggregates
+        if ( colName[0] == 'M' && colName[1] != 'e' )
+          {
+          continue;
+          }
+
+        cout << colName
              << "="
              << outputMeta->GetValue( r, c ).ToString()
              << "  ";
