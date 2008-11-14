@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.25");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.26");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -118,9 +118,7 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
   unsigned int level, unsigned int id,
   int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet)
 {
-  vtkIdType lo[3]={LoCorner[0],LoCorner[1],LoCorner[2]};
-  vtkIdType hi[3]={HiCorner[0],HiCorner[1],HiCorner[2]};
-  vtkAMRBox box(3, lo, hi);
+  vtkAMRBox box(3, LoCorner, HiCorner);
   this->SetDataSet(level, id, box, dataSet);
 }
 
@@ -171,9 +169,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
       int* boxVec = info->Get(BOX());
       if (boxVec)
         {
-        vtkIdType lo[3]={boxVec[0],boxVec[1],boxVec[2]};
-        vtkIdType hi[3]={boxVec[3],boxVec[4],boxVec[5]};
-        box.SetDimensions(lo,hi);
+        box.SetDimensions(boxVec,boxVec+3);
         }
       }
     return ds;
@@ -292,9 +288,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
         vtkInformation* info = this->GetMetaData(
             levelIdx+1,dataSetIdx);
         int* boxVec = info->Get(BOX());
-        vtkIdType lo[3]={boxVec[0],boxVec[1],boxVec[2]};
-        vtkIdType hi[3]={boxVec[3],boxVec[4],boxVec[5]};
-        vtkAMRBox coarsebox(3,lo,hi);
+        vtkAMRBox coarsebox(3,boxVec,boxVec+3);
         int refinementRatio = this->GetRefinementRatio(levelIdx);
         if (refinementRatio == 0)
           {
@@ -366,9 +360,7 @@ vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
     int* boxVec = info->Get(BOX());
     if (boxVec)
       {
-      vtkIdType lo[3]={boxVec[0],boxVec[1],boxVec[2]};
-      vtkIdType hi[3]={boxVec[3],boxVec[4],boxVec[5]};
-      box.SetDimensions(lo,hi);
+      box.SetDimensions(boxVec,boxVec+3);
       }
     }
   return box;

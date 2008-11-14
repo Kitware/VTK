@@ -37,7 +37,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkTemporalFractal, "1.9");
+vtkCxxRevisionMacro(vtkTemporalFractal, "1.10");
 vtkStandardNewMacro(vtkTemporalFractal);
 
 //----------------------------------------------------------------------------
@@ -712,8 +712,7 @@ void vtkTemporalFractal::AddDataSet(vtkDataObject* output,
   vtkMultiBlockDataSet* mbs = vtkMultiBlockDataSet::SafeDownCast(output);
   if (hbds)
     {
-    vtkIdType ext[6]={extents[0],extents[1],extents[2],extents[3],extents[4],extents[5]};
-    vtkAMRBox box(ext);
+    vtkAMRBox box(extents);
     unsigned int index = hbds->GetNumberOfDataSets(level);
     hbds->SetDataSet(level, index, box, vtkUniformGrid::SafeDownCast(dataSet));
     }

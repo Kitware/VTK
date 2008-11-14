@@ -41,21 +41,21 @@ public:
   // Description:
   // Construct a specific 3D box.
   vtkAMRBox(
-      vtkIdType ilo,vtkIdType jlo,vtkIdType klo,
-      vtkIdType ihi,vtkIdType jhi,vtkIdType khi);
+      int ilo,int jlo,int klo,
+      int ihi,int jhi,int khi);
   // Description:
   // Construct a specific 2D box.
   vtkAMRBox(
-      vtkIdType ilo,vtkIdType jlo,
-      vtkIdType ihi,vtkIdType jhi);
+      int ilo,int jlo,
+      int ihi,int jhi);
   // Description:
   // Construct a specific box. (ilo,jlo,klo,)(ihi,jhi,khi)
-  vtkAMRBox(int dim, const vtkIdType lo[3], const vtkIdType hi[3]);
-  vtkAMRBox(const vtkIdType lo[3], const vtkIdType hi[3]);
+  vtkAMRBox(int dim, const int lo[3], const int hi[3]);
+  vtkAMRBox(const int lo[3], const int hi[3]);
   // Description:
   // Construct a specific box. (ilo,ihi, jlo,jhi, klo,khi)
-  vtkAMRBox(int dim, const vtkIdType dims[6]);
-  vtkAMRBox(const vtkIdType dims[6]);
+  vtkAMRBox(int dim, const int dims[6]);
+  vtkAMRBox(const int dims[6]);
   // Description:
   // Copy construct this box from another.
   vtkAMRBox(const vtkAMRBox &other);
@@ -73,36 +73,36 @@ public:
   // Description:
   // Set the dimensions of the box. ilo,jlo,klo,ihi,jhi,khi
   void SetDimensions(
-      vtkIdType ilo, vtkIdType jlo, vtkIdType klo,
-      vtkIdType ihi, vtkIdType jhi, vtkIdType khi);
+      int ilo, int jlo, int klo,
+      int ihi, int jhi, int khi);
   // Description:
   // Set the dimensions of the box. (ilo,jlo,klo),(ihi,jhi,khi)
-  void SetDimensions(const vtkIdType lo[3], const vtkIdType hi[3]);
+  void SetDimensions(const int lo[3], const int hi[3]);
   // Description:
   // Set the dimensions of the box. (ilo,ihi,jlo,jhi,klo,khi)
-  void SetDimensions(const vtkIdType dims[6]);
+  void SetDimensions(const int dims[6]);
   // Description:
   // Get the dimensions of this box. (ilo,jlo,jhi),(ihi,jhi,khi)
-  void GetDimensions(vtkIdType lo[3], vtkIdType hi[3]) const;
+  void GetDimensions(int lo[3], int hi[3]) const;
   // Description:
   // Get the dimensions of this box. (ilo,ihi, jlo,jhi, klo,khi)
-  void GetDimensions(vtkIdType dims[6]) const;
+  void GetDimensions(int dims[6]) const;
   // Description:
   // Get the low corner index.
-  void GetLoCorner(vtkIdType lo[3]) const;
-  const vtkIdType *GetLoCorner() const { return this->LoCorner; }
+  void GetLoCorner(int lo[3]) const;
+  const int *GetLoCorner() const { return this->LoCorner; }
   // Description:
   // Copy the high corner index.
-  void GetHiCorner(vtkIdType hi[3]) const;
-  const vtkIdType *GetHiCorner() const { return this->HiCorner; }
+  void GetHiCorner(int hi[3]) const;
+  const int *GetHiCorner() const { return this->HiCorner; }
   // Description:
   // Gets the number of cells enclosed by the box.
-  void GetNumberOfCells(vtkIdType ext[3]) const;
+  void GetNumberOfCells(int ext[3]) const;
   vtkIdType GetNumberOfCells() const;
   // Description:
   // Gets the number of nodes required to construct
   // a physical representation of the box.
-  void GetNumberOfNodes(vtkIdType ext[3]) const;
+  void GetNumberOfNodes(int ext[3]) const;
   vtkIdType GetNumberOfNodes() const;
   // Description:
   // Set/Get grid spacing. Refine/coarsen operations update
@@ -130,15 +130,15 @@ public:
   void GetBoxOrigin(double x0[3]) const;
   // Description:
   // Grows the box in all directions.
-  void Grow(vtkIdType byN);
+  void Grow(int byN);
   // Description:
   // Shrinks the box in all directions.
-  void Shrink(vtkIdType byN);
+  void Shrink(int byN);
   // Description:
   // Shifts the box in index space.
-  void Shift(vtkIdType i, vtkIdType j);
-  void Shift(vtkIdType i, vtkIdType j, vtkIdType k);
-  void Shift(const vtkIdType I[3]);
+  void Shift(int i, int j);
+  void Shift(int i, int j, int k);
+  void Shift(const int I[3]);
   // Description:
   // Test if this box is empty/valid.
   bool Empty() const;
@@ -150,8 +150,8 @@ public:
   void operator&=(const vtkAMRBox &rhs);
   // Description:
   // Test to see if a given cell index is inside this box.
-  bool Contains(vtkIdType i,vtkIdType j,vtkIdType k) const;
-  bool Contains(const vtkIdType I[3]) const;
+  bool Contains(int i,int j,int k) const;
+  bool Contains(const int I[3]) const;
   // Description:
   // Test to see if a given box is inside this box.
   bool Contains(const vtkAMRBox &other) const;
@@ -180,8 +180,8 @@ public:
   // code uses these, it will break in the future when this class
   // is fixed. Use the above Set/Get'ers. See Get/SetDimensions, 
   // Get/SetXCorner, and the many constructors above.
-  vtkIdType LoCorner[3]; // lo corner cell id.
-  vtkIdType HiCorner[3]; // hi corner cell id.
+  int LoCorner[3]; // lo corner cell id.
+  int HiCorner[3]; // hi corner cell id.
 private:
   int Dimension;         // 2 or 3.
   double X0[3];          // Dataset origin (not box origin). low corner cell's, low corner node.

@@ -38,8 +38,8 @@ vtkAMRBox::vtkAMRBox(int dim)
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(
-    vtkIdType ilo,vtkIdType jlo,
-    vtkIdType ihi,vtkIdType jhi)
+    int ilo,int jlo,
+    int ihi,int jhi)
 {
   this->SetDimensionality(2);
   this->SetDimensions(ilo,jlo,0,ihi,jhi,0);
@@ -49,8 +49,8 @@ vtkAMRBox::vtkAMRBox(
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox(
-    vtkIdType ilo,vtkIdType jlo,vtkIdType klo,
-    vtkIdType ihi,vtkIdType jhi,vtkIdType khi)
+    int ilo,int jlo,int klo,
+    int ihi,int jhi,int khi)
 {
   this->SetDimensionality(3);
   this->SetDimensions(ilo,jlo,klo,ihi,jhi,khi);
@@ -59,7 +59,7 @@ vtkAMRBox::vtkAMRBox(
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(const vtkIdType *lo, const vtkIdType *hi)
+vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
 {
   this->SetDimensionality(3);
   this->SetDimensions(lo,hi);
@@ -68,7 +68,7 @@ vtkAMRBox::vtkAMRBox(const vtkIdType *lo, const vtkIdType *hi)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const vtkIdType *lo, const vtkIdType *hi)
+vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
 {
   this->SetDimensionality(dim);
   this->SetDimensions(lo,hi);
@@ -77,7 +77,7 @@ vtkAMRBox::vtkAMRBox(int dim, const vtkIdType *lo, const vtkIdType *hi)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(const vtkIdType *dims)
+vtkAMRBox::vtkAMRBox(const int *dims)
 {
   this->SetDimensionality(3);
   this->SetDimensions(dims);
@@ -86,7 +86,7 @@ vtkAMRBox::vtkAMRBox(const vtkIdType *dims)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const vtkIdType *dims)
+vtkAMRBox::vtkAMRBox(int dim, const int *dims)
 {
   this->SetDimensionality(dim);
   this->SetDimensions(dims);
@@ -99,8 +99,8 @@ vtkAMRBox::vtkAMRBox(const vtkAMRBox &other)
 {
   if (this==&other) return;
   this->SetDimensionality(other.GetDimensionality());
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   other.GetDimensions(lo,hi);
   this->SetDimensions(lo,hi);
   this->SetGridSpacing(other.GetGridSpacing());
@@ -112,8 +112,8 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 {
   if (this==&other) return *this;
   this->SetDimensionality(other.GetDimensionality());
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   other.GetDimensions(lo,hi);
   this->SetDimensions(lo,hi);
   this->SetGridSpacing(other.GetGridSpacing());
@@ -135,8 +135,8 @@ void vtkAMRBox::SetDimensionality(int dim)
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::SetDimensions(
-    vtkIdType ilo,vtkIdType jlo,vtkIdType klo,
-    vtkIdType ihi,vtkIdType jhi,vtkIdType khi)
+    int ilo,int jlo,int klo,
+    int ihi,int jhi,int khi)
 {
   if (ilo>ihi || jlo>jhi || klo>khi)
     {
@@ -154,7 +154,7 @@ void vtkAMRBox::SetDimensions(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::SetDimensions(const vtkIdType *lo, const vtkIdType *hi)
+void vtkAMRBox::SetDimensions(const int *lo, const int *hi)
 {
   switch (this->Dimension)
     {
@@ -168,7 +168,7 @@ void vtkAMRBox::SetDimensions(const vtkIdType *lo, const vtkIdType *hi)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::SetDimensions(const vtkIdType *dims)
+void vtkAMRBox::SetDimensions(const int *dims)
 {
   switch (this->Dimension)
     {
@@ -182,7 +182,7 @@ void vtkAMRBox::SetDimensions(const vtkIdType *dims)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetDimensions(vtkIdType *lo, vtkIdType *hi) const
+void vtkAMRBox::GetDimensions(int *lo, int *hi) const
 {
   for (int q=0; q<this->Dimension; ++q)
     {
@@ -192,7 +192,7 @@ void vtkAMRBox::GetDimensions(vtkIdType *lo, vtkIdType *hi) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetDimensions(vtkIdType dims[6]) const
+void vtkAMRBox::GetDimensions(int dims[6]) const
 {
   dims[0]=this->LoCorner[0];
   dims[1]=this->HiCorner[0];
@@ -203,7 +203,7 @@ void vtkAMRBox::GetDimensions(vtkIdType dims[6]) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetLoCorner(vtkIdType *lo) const
+void vtkAMRBox::GetLoCorner(int *lo) const
 {
   for (int q=0; q<this->Dimension; ++q)
     {
@@ -212,7 +212,7 @@ void vtkAMRBox::GetLoCorner(vtkIdType *lo) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetHiCorner(vtkIdType *hi) const
+void vtkAMRBox::GetHiCorner(int *hi) const
 {
   for (int q=0; q<this->Dimension; ++q)
     {
@@ -300,7 +300,7 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetNumberOfCells(vtkIdType *ext) const
+void vtkAMRBox::GetNumberOfCells(int *ext) const
 {
   if (this->Empty())
     {
@@ -333,7 +333,7 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::GetNumberOfNodes(vtkIdType *ext) const
+void vtkAMRBox::GetNumberOfNodes(int *ext) const
 {
   if (this->Empty())
     {
@@ -366,14 +366,14 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Grow(vtkIdType byN)
+void vtkAMRBox::Grow(int byN)
 {
   if (this->Empty())
     {
     return;
     }
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]-byN;
@@ -383,14 +383,14 @@ void vtkAMRBox::Grow(vtkIdType byN)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Shrink(vtkIdType byN)
+void vtkAMRBox::Shrink(int byN)
 {
   if (this->Empty())
     {
     return;
     }
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]+byN;
@@ -400,7 +400,7 @@ void vtkAMRBox::Shrink(vtkIdType byN)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Shift(vtkIdType i, vtkIdType j)
+void vtkAMRBox::Shift(int i, int j)
 {
   if (this->Empty())
     {
@@ -412,7 +412,7 @@ void vtkAMRBox::Shift(vtkIdType i, vtkIdType j)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Shift(vtkIdType i, vtkIdType j, vtkIdType k)
+void vtkAMRBox::Shift(int i, int j, int k)
 {
   if (this->Empty())
     {
@@ -424,7 +424,7 @@ void vtkAMRBox::Shift(vtkIdType i, vtkIdType j, vtkIdType k)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Shift(const vtkIdType *I)
+void vtkAMRBox::Shift(const int *I)
 {
   switch (this->Dimension)
     {
@@ -506,11 +506,11 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
     return;
     }
 
-  vtkIdType otherLo[3];
-  vtkIdType otherHi[3];
+  int otherLo[3];
+  int otherHi[3];
   other.GetDimensions(otherLo,otherHi);
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=(this->LoCorner[q]>otherLo[q] ? this->LoCorner[q] : otherLo[q]);
@@ -520,7 +520,7 @@ void vtkAMRBox::operator&=(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::Contains(vtkIdType i,vtkIdType j,vtkIdType k) const
+bool vtkAMRBox::Contains(int i,int j,int k) const
 {
   switch (this->Dimension)
     {
@@ -551,7 +551,7 @@ bool vtkAMRBox::Contains(vtkIdType i,vtkIdType j,vtkIdType k) const
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRBox::Contains(const vtkIdType *I) const
+bool vtkAMRBox::Contains(const int *I) const
 {
   switch (this->Dimension)
     {
@@ -575,8 +575,8 @@ bool vtkAMRBox::Contains(const vtkAMRBox &other) const
       << "D box with a " << other.Dimension << "D box.");
     return false;
     }
-  const vtkIdType *lo=other.GetLoCorner();
-  const vtkIdType *hi=other.GetHiCorner();
+  const int *lo=other.GetLoCorner();
+  const int *hi=other.GetHiCorner();
 
   return this->Contains(lo) && this->Contains(hi);
 }
@@ -589,8 +589,8 @@ void vtkAMRBox::Refine(int r)
     return;
     }
 
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=this->LoCorner[q]*r;
@@ -612,7 +612,7 @@ void vtkAMRBox::Coarsen(int r)
     }
 
   // sanity check.
-  vtkIdType nCells[3];
+  int nCells[3];
   this->GetNumberOfCells(nCells);
   for (int q=0; q<this->Dimension; ++q)
     {
@@ -623,8 +623,8 @@ void vtkAMRBox::Coarsen(int r)
       }
     }
 
-  vtkIdType lo[3];
-  vtkIdType hi[3];
+  int lo[3];
+  int hi[3];
   for (int q=0; q<this->Dimension; ++q)
     {
     lo[q]=(this->LoCorner[q]<0 ? -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);

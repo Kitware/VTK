@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.12");
+vtkCxxRevisionMacro(vtkDataObjectGenerator, "1.13");
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -658,8 +658,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         //+1 (in hi) is because we are counting cells inclusively. 
         //If children were 3x3x3 it would be *3+2
         //Note, other orderings are equally valid
-        const vtkIdType lo[3] = {dcnt/(r2*r2)%r2*2, dcnt/r2%r2*2, dcnt%r2*2};
-        const vtkIdType hi[3] = {dcnt/(r2*r2)%r2*2+1, dcnt/r2%r2*2+1, dcnt%r2*2+1};
+        const int lo[3] = {dcnt/(r2*r2)%r2*2, dcnt/r2%r2*2, dcnt%r2*2};
+        const int hi[3] = {dcnt/(r2*r2)%r2*2+1, dcnt/r2%r2*2+1, dcnt%r2*2+1};
 
         /*
         cerr << "LO=" << lo[0] << "," << lo[1] << "," << lo[2] << " "
