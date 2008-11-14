@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.20");
+vtkCxxRevisionMacro(vtkUnivariateStatisticsAlgorithm, "1.21");
 
 // ----------------------------------------------------------------------
 vtkUnivariateStatisticsAlgorithm::vtkUnivariateStatisticsAlgorithm()
@@ -92,10 +92,16 @@ void vtkUnivariateStatisticsAlgorithm::SetColumnStatus( const char* namCol, int 
 
 // ----------------------------------------------------------------------
 void vtkUnivariateStatisticsAlgorithm::ExecuteAssess( vtkTable* inData,
-                                                      vtkTable* inMeta,
+                                                      vtkDataObject* inMetaDO,
                                                       vtkTable* outData,
-                                                      vtkTable* vtkNotUsed( outMeta ) )
+                                                      vtkDataObject* vtkNotUsed( outMeta ) )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   if ( ! inData->GetNumberOfColumns() )
     {
     return;

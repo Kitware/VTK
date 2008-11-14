@@ -79,11 +79,11 @@ protected:
   // Description:
   // Execute the calculations required by the Learn option.
   virtual void ExecuteLearn( vtkTable* inData,
-                             vtkTable* outMeta );
+                             vtkDataObject* outMeta );
 
   // Description:
   // Execute the calculations required by the Derive option.
-  virtual void ExecuteDerive( vtkTable* );
+  virtual void ExecuteDerive( vtkDataObject* );
 
   int SignedDeviations;
 
@@ -91,7 +91,7 @@ protected:
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData, 
-                                    vtkTable* inMeta,
+                                    vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc );

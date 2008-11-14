@@ -73,9 +73,9 @@ public:
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void ExecuteAssess( vtkTable* inData,
-                              vtkTable* inMeta,
+                              vtkDataObject* inMeta,
                               vtkTable* outData,
-                              vtkTable* outMeta ); 
+                              vtkDataObject* outMeta ); 
 
 protected:
   vtkBivariateStatisticsAlgorithm();

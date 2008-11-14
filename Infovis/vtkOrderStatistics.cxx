@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtkstd/map>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkOrderStatistics, "1.37");
+vtkCxxRevisionMacro(vtkOrderStatistics, "1.38");
 vtkStandardNewMacro(vtkOrderStatistics);
 
 // ----------------------------------------------------------------------
@@ -62,8 +62,14 @@ void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
-                                       vtkTable* output )
+                                       vtkDataObject* outMetaDO )
 {
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
   if ( ! this->SampleSize )
     {
     return;
@@ -83,7 +89,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable" );
-  output->AddColumn( stringCol );
+  outMeta->AddColumn( stringCol );
   stringCol->Delete();
 
   if ( this->NumberOfIntervals < 1 )
@@ -126,7 +132,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
           break;
         }
       }
-    output->AddColumn( variantCol );
+    outMeta->AddColumn( variantCol );
     variantCol->Delete();
     }
 
@@ -187,7 +193,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
     
     row->SetValue( i, distr.rbegin()->first );
     
-    output->InsertNextRow( row );
+    outMeta->InsertNextRow( row );
     
     row->Delete();
     }
@@ -196,7 +202,7 @@ void vtkOrderStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkOrderStatistics::ExecuteDerive( vtkTable* vtkNotUsed( inMeta ) )
+void vtkOrderStatistics::ExecuteDerive( vtkDataObject* vtkNotUsed( inMeta ) )
 {
 }
 
@@ -263,11 +269,17 @@ public:
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::SelectAssessFunctor( vtkTable* inData,
-                                              vtkTable* inMeta,
+                                              vtkDataObject* inMetaDO,
                                               vtkStringArray* rowNames,
                                               vtkStringArray* vtkNotUsed(columnNames),
                                               AssessFunctor*& dfunc )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Loop over parameters table until the requested variable is found

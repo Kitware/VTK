@@ -40,7 +40,7 @@
 typedef vtkstd::map<vtkVariant,vtkIdType> Counts;
 typedef vtkstd::map<vtkVariant,double> PDF;
 
-vtkCxxRevisionMacro(vtkContingencyStatistics, "1.32");
+vtkCxxRevisionMacro(vtkContingencyStatistics, "1.33");
 vtkStandardNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
@@ -72,8 +72,14 @@ void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta )
+                                             vtkDataObject* outMetaDO )
 {
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO );
+  if ( ! outMeta )
+    {
+    return;
+    }
+
   if ( ! this->SampleSize )
     {
     return;
@@ -165,8 +171,14 @@ void vtkContingencyStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkContingencyStatistics::ExecuteDerive( vtkTable* inMeta )
+void vtkContingencyStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkIdType nCol = inMeta->GetNumberOfColumns();
   if ( nCol < 5 )
     {
@@ -380,11 +392,17 @@ public:
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* inData,
-                                                    vtkTable* inMeta,
+                                                    vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
                                                     vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
 

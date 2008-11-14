@@ -34,7 +34,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.56");
+vtkCxxRevisionMacro(vtkDescriptiveStatistics, "1.57");
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
@@ -77,8 +77,14 @@ void vtkDescriptiveStatistics::SetDeviationParameter( const char* name )
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta )
+                                             vtkDataObject* outMetaDO )
 {
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
   if ( ! this->SampleSize )
     {
     return;
@@ -198,8 +204,14 @@ void vtkDescriptiveStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkDescriptiveStatistics::ExecuteDerive( vtkTable* inMeta )
+void vtkDescriptiveStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkIdType nCol = inMeta->GetNumberOfColumns();
   if ( nCol < 7 )
     {
@@ -367,11 +379,17 @@ public:
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* inData,
-                                                    vtkTable* inMeta,
+                                                    vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
                                                     vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Loop over parameters table until the requested variable is found

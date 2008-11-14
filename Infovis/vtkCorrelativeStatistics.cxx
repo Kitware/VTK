@@ -37,7 +37,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.41");
+vtkCxxRevisionMacro(vtkCorrelativeStatistics, "1.42");
 vtkStandardNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
@@ -69,8 +69,14 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
-                                             vtkTable* outMeta )
+                                             vtkDataObject* outMetaDO )
 {
+  vtkTable* outMeta = vtkTable::SafeDownCast( outMetaDO ); 
+  if ( ! outMeta ) 
+    { 
+    return; 
+    } 
+
   if ( ! this->SampleSize )
     {
     return;
@@ -184,8 +190,14 @@ void vtkCorrelativeStatistics::ExecuteLearn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkCorrelativeStatistics::ExecuteDerive( vtkTable* inMeta )
+void vtkCorrelativeStatistics::ExecuteDerive( vtkDataObject* inMetaDO )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkIdType nCol = inMeta->GetNumberOfColumns();
   if ( nCol < 7 )
     {
@@ -353,11 +365,17 @@ public:
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
-                                                    vtkTable* inMeta,
+                                                    vtkDataObject* inMetaDO,
                                                     vtkStringArray* rowNames,
                                                     vtkStringArray* columnNames,
                                                     AssessFunctor*& dfunc )
 {
+  vtkTable* inMeta = vtkTable::SafeDownCast( inMetaDO ); 
+  if ( ! inMeta ) 
+    { 
+    return; 
+    } 
+
   vtkStdString varNameX = rowNames->GetValue( 0 );
   vtkStdString varNameY = rowNames->GetValue( 1 );
 

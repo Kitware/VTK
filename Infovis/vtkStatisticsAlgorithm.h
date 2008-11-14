@@ -139,7 +139,7 @@ public:
   // Description:
   // A pure virtual method to select the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData, 
-                                    vtkTable* inMeta,
+                                    vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     vtkStringArray* columnNames,
                                     AssessFunctor*& dfunc ) = 0;
@@ -160,12 +160,12 @@ protected:
   // Description:
   // Execute the required calculations in the specified execution modes
   virtual void ExecuteLearn( vtkTable*,
-                             vtkTable* ) = 0;
-  virtual void ExecuteDerive( vtkTable* ) = 0;
+                             vtkDataObject* ) = 0;
+  virtual void ExecuteDerive( vtkDataObject* ) = 0;
   virtual void ExecuteAssess( vtkTable*,
+                              vtkDataObject*,
                               vtkTable*,
-                              vtkTable*,
-                              vtkTable* ) = 0; 
+                              vtkDataObject* ) = 0; 
 
   vtkIdType NumberOfVariables;
   vtkIdType SampleSize;
