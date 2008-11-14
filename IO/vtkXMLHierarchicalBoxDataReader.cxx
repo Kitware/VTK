@@ -26,7 +26,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.9");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
 //----------------------------------------------------------------------------
@@ -107,13 +107,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
       childXML->GetScalarAttribute("dataset", index) &&
       childXML->GetVectorAttribute("amr_box", 6, box))
       {
-      vtkAMRBox amrBox;
-      amrBox.LoCorner[0] = box[0];
-      amrBox.HiCorner[0] = box[1];
-      amrBox.LoCorner[1] = box[2];
-      amrBox.HiCorner[1] = box[3];
-      amrBox.LoCorner[2] = box[4];
-      amrBox.HiCorner[2] = box[5];
+      vtkAMRBox amrBox(box);
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -200,12 +194,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
       vtkAMRBox amrBox;
       if (datasetXML->GetVectorAttribute("amr_box", 6, box))
         {
-        amrBox.LoCorner[0] = box[0];
-        amrBox.HiCorner[0] = box[1];
-        amrBox.LoCorner[1] = box[2];
-        amrBox.HiCorner[1] = box[3];
-        amrBox.LoCorner[2] = box[4];
-        amrBox.HiCorner[2] = box[5];
+        amrBox.SetDimensions(box[0],box[2],box[4],box[1],box[3],box[5]);
         }
       else
         {

@@ -12,23 +12,194 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAMRBox - represents a 3D uniform region in space
+// .NAME vtkAMRBox - Encloses a rectangular region of voxel like cells.
+//
 // .SECTION Description
-// vtkAMRBox is similar to Chombo's Box. It represents a 3D
-// region by storing indices for two corners (LoCorner, HiCorner).
-// A few utility methods are provided.
+// vtkAMRBox represents a collection of voxel like cells that fill
+// a rectangular region. It's purpose is to facilitate manipulation
+// of cell data arrays and the blocks that they are defined on.
+//
+// The vtkAMRBox can be either 2D or 3D. For 2D grids, pointers
+// passed in are assumed to be 2 units. The default is 3D.
+//
+// vtkAMRBox is used in vtkHierarchicalBoxDataSet to compute cell visibilty.
+//
+// .SECTION See Also
+// vtkHierarachicalBoxDataSet, vtkAMRBoxUtilities.hxx
 
 #ifndef __vtkAMRBox_h
 #define __vtkAMRBox_h
 
 #include "vtkObject.h"
 
-#include <assert.h>
+class VTK_FILTERING_EXPORT vtkAMRBox
+{
+public:
+  // Description:
+  // Construct the empty box.
+  vtkAMRBox(int dim=3);
+  // Description:
+  // Construct a specific 3D box.
+  vtkAMRBox(
+      vtkIdType ilo,vtkIdType jlo,vtkIdType klo,
+      vtkIdType ihi,vtkIdType jhi,vtkIdType khi);
+  // Description:
+  // Construct a specific 2D box.
+  vtkAMRBox(
+      vtkIdType ilo,vtkIdType jlo,
+      vtkIdType ihi,vtkIdType jhi);
+  // Description:
+  // Construct a specific box. (ilo,jlo,klo,)(ihi,jhi,khi)
+  vtkAMRBox(int dim, const vtkIdType lo[3], const vtkIdType hi[3]);
+  vtkAMRBox(const vtkIdType lo[3], const vtkIdType hi[3]);
+  // Description:
+  // Construct a specific box. (ilo,ihi, jlo,jhi, klo,khi)
+  vtkAMRBox(int dim, const vtkIdType dims[6]);
+  vtkAMRBox(const vtkIdType dims[6]);
+  // Description:
+  // Copy construct this box from another.
+  vtkAMRBox(const vtkAMRBox &other);
+  // Description:
+  // Copy the other box to this box.
+  vtkAMRBox &operator=(vtkAMRBox &other);
+  // Description:
+  // Set the box to null;
+  void Invalidate();
+  // Description:
+  // Get/Set the spatial dimension of the box. Only 2 and 3 
+  // are valid.
+  int GetDimensionality() const { return this->Dimension; }
+  void SetDimensionality(int dim);
+  // Description:
+  // Set the dimensions of the box. ilo,jlo,klo,ihi,jhi,khi
+  void SetDimensions(
+      vtkIdType ilo, vtkIdType jlo, vtkIdType klo,
+      vtkIdType ihi, vtkIdType jhi, vtkIdType khi);
+  // Description:
+  // Set the dimensions of the box. (ilo,jlo,klo),(ihi,jhi,khi)
+  void SetDimensions(const vtkIdType lo[3], const vtkIdType hi[3]);
+  // Description:
+  // Set the dimensions of the box. (ilo,ihi,jlo,jhi,klo,khi)
+  void SetDimensions(const vtkIdType dims[6]);
+  // Description:
+  // Get the dimensions of this box. (ilo,jlo,jhi),(ihi,jhi,khi)
+  void GetDimensions(vtkIdType lo[3], vtkIdType hi[3]) const;
+  // Description:
+  // Get the dimensions of this box. (ilo,ihi, jlo,jhi, klo,khi)
+  void GetDimensions(vtkIdType dims[6]) const;
+  // Description:
+  // Get the low corner index.
+  void GetLoCorner(vtkIdType lo[3]) const;
+  const vtkIdType *GetLoCorner() const { return this->LoCorner; }
+  // Description:
+  // Copy the high corner index.
+  void GetHiCorner(vtkIdType hi[3]) const;
+  const vtkIdType *GetHiCorner() const { return this->HiCorner; }
+  // Description:
+  // Gets the number of cells enclosed by the box.
+  void GetNumberOfCells(vtkIdType ext[3]) const;
+  vtkIdType GetNumberOfCells() const;
+  // Description:
+  // Gets the number of nodes required to construct
+  // a physical representation of the box.
+  void GetNumberOfNodes(vtkIdType ext[3]) const;
+  vtkIdType GetNumberOfNodes() const;
+  // Description:
+  // Set/Get grid spacing. Refine/coarsen operations update
+  // the grid spacing.
+  const double *GetGridSpacing() const { return this->DX; }
+  void GetGridSpacing(double dX[3]) const;
+  void SetGridSpacing(double dx);
+  void SetGridSpacing(const double dX[3]);
+  void SetGridSpacing(double dx, double dy, double dz);
+  // Description:
+  // Set/Get world space origin of the data set, The origin
+  // is the location of the low corner cell's low corner node
+  // of the data set. Which is not necessarilly the origin of
+  // this box! For that use GetBoxOrigin().
+  const double *GetDataSetOrigin() const { return this->X0; }
+  void GetDataSetOrigin(double X0[3]) const;
+  void SetDataSetOrigin(const double X0[3]);
+  void SetDataSetOrigin(double x0, double y0, double z0);
+  // Description:
+  // Get the world space origin of this box. The origin is the
+  // location of the lower corner cell's lower corner node,
+  // which is not necessarilly the orgin of the data set! For
+  // that use GetDataSetOrigin(). The value is computed each time,
+  // so that operations on the box are are appropriately reflected.
+  void GetBoxOrigin(double x0[3]) const;
+  // Description:
+  // Grows the box in all directions.
+  void Grow(vtkIdType byN);
+  // Description:
+  // Shrinks the box in all directions.
+  void Shrink(vtkIdType byN);
+  // Description:
+  // Shifts the box in index space.
+  void Shift(vtkIdType i, vtkIdType j);
+  void Shift(vtkIdType i, vtkIdType j, vtkIdType k);
+  void Shift(const vtkIdType I[3]);
+  // Description:
+  // Test if this box is empty/valid.
+  bool Empty() const;
+  // Description:
+  // Test if this box has the same dimensions as another.
+  bool operator==(const vtkAMRBox &other);
+  // Description:
+  // Intersect this box with another box in place.
+  void operator&=(const vtkAMRBox &rhs);
+  // Description:
+  // Test to see if a given cell index is inside this box.
+  bool Contains(vtkIdType i,vtkIdType j,vtkIdType k) const;
+  bool Contains(const vtkIdType I[3]) const;
+  // Description:
+  // Test to see if a given box is inside this box.
+  bool Contains(const vtkAMRBox &other) const;
+  // Description:
+  // Refine the box.
+  void Refine(int r);
+  // Description:
+  // Coarsen the box.
+  void Coarsen(int r);
+  // Description:
+  // Send the box to a stream. "(ilo,jlo,jhi),(ihi,jhi,khi)"
+  ostream &Print(ostream &os) const;
 
+  //BTX
+  // @deprecated Replaced by Contains() as of VTK 5.4.
+  // Do not use! See Contains().
+  VTK_LEGACY(int DoesContainCell(int i, int j, int k));
+  // @deprecated Replaced by Contains() as of VTK 5.4.
+  // Do not use! See Contains().
+  VTK_LEGACY(int DoesContainBox(vtkAMRBox const & box) const);
+  //ETX
+
+public:
+  // Description:
+  // These are public for backward compatibility only. If your
+  // code uses these, it will break in the future when this class
+  // is fixed. Use the above Set/Get'ers. See Get/SetDimensions, 
+  // Get/SetXCorner, and the many constructors above.
+  vtkIdType LoCorner[3]; // lo corner cell id.
+  vtkIdType HiCorner[3]; // hi corner cell id.
+private:
+  int Dimension;         // 2 or 3.
+  double X0[3];          // Dataset origin (not box origin). low corner cell's, low corner node.
+  double DX[3];          // grid spacing.
+};
+
+
+
+
+// NOTE 2008-11-10
+// If you are using this to set public member variables, DONT.
+// It is here for now for the sake of backward compatibility.
+// Use the Set'ers.
+
+// Helper to unroll the loop
 template<int dimension>
 struct vtkAMRBoxInitializeHelp;
 
-// Helper to unroll the loop
 template<int dimension>
 void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
                          const int *loCorner, const int *hiCorner, // local
@@ -46,148 +217,6 @@ void vtkAMRBoxInitialize(int *LoCorner, int *HiCorner, // member
     }
   }
 
-class VTK_FILTERING_EXPORT vtkAMRBox
-{
-public:
-  // Public for quick access.
-  
-  // Description:
-  // Cell position of the lower cell and higher cell defining the box.
-  // Both cells are defined at the same level of refinement. The refinement
-  // level itself is not specified.
-  // Invariant: LoCorner<=HiCorner
-  // Eg. LoCorner = {0,0,0}, HiCorner = {0,0,0} is an AMRBox with 1 cell
-  int LoCorner[3];
-  int HiCorner[3];
 
-  // Description:
-  // Default constructor: lower corner box made of one cell.
-  vtkAMRBox()
-    {
-      vtkAMRBoxInitialize<0>(this->LoCorner, this->HiCorner, 0, 0);
-    }
-  
-  // Description:
-  // Constructor.
-  // \pre dimensionality >= 2 && dimensionality <= 3
-  vtkAMRBox(int dimensionality, const int* loCorner, const int* hiCorner)
-    {
-      switch(dimensionality)
-        {
-        case 2:
-          vtkAMRBoxInitialize<2>(this->LoCorner, this->HiCorner,
-                                 loCorner, hiCorner);
-          break;
-        case 3:
-          vtkAMRBoxInitialize<3>(this->LoCorner, this->HiCorner,
-                                 loCorner, hiCorner);
-          break;
-        default:
-          vtkGenericWarningMacro( "Wrong dimensionality" );
-        }
-    }
-  
-  // Description:
-  // Returns the number of cells (aka elements, zones etc.) in
-  // the given region (for the specified refinement, see Coarsen()
-  // and Refine() ).
-  vtkIdType GetNumberOfCells()
-    {
-      vtkIdType numCells=1;
-      for(int i=0; i<3; i++)
-        {
-        numCells *= HiCorner[i] - LoCorner[i] + 1;
-        }
-      return numCells;
-    }
-  
-  // Description:
-  // Modify LoCorner and HiCorner by coarsening with the given
-  // refinement ratio.
-  // \pre valid_refinement: refinement>=2
-  void Coarsen(int refinement)
-    {
-      assert("pre: valid_refinement" && refinement>=2);
-      
-      for (int i=0; i<3; i++)
-        {
-        this->LoCorner[i] =
-          ( this->LoCorner[i] < 0 ?
-            -abs(this->LoCorner[i]+1)/refinement - 1 :
-            this->LoCorner[i]/refinement );
-        this->HiCorner[i] =
-          ( this->HiCorner[i] < 0 ?
-            -abs(this->HiCorner[i]+1)/refinement - 1 :
-            this->HiCorner[i]/refinement );
-        }
-    }
-  
-  // Description:
-  // Modify LoCorner and HiCorner by refining with the given
-  // refinement ratio.
-  // \pre valid_refinement: refinement>=2
-  void Refine(int refinement)
-    {
-      assert("pre: valid_refinement" && refinement>=2);
-      
-      for (int i=0; i<3; i++)
-        {
-        this->LoCorner[i] = this->LoCorner[i]*refinement;
-        this->HiCorner[i] = (this->HiCorner[i]+1)*refinement-1;
-        }
-    }
-  
-  // Description:
-  // Returns non-zero if the box contains the cell with
-  // given indices.
-  int DoesContainCell(int i, int j, int k)
-    {
-      return
-        i >= this->LoCorner[0] && i <= this->HiCorner[0] &&
-        j >= this->LoCorner[1] && j <= this->HiCorner[1] &&
-        k >= this->LoCorner[2] && k <= this->HiCorner[2];
-    }
-  
-  // Description:
-  // Returns non-zero if the box contains `box`
-  int DoesContainBox(vtkAMRBox const & box) const
-    {
-      // return DoesContainCell(box.LoCorner) && DoesContainCell(box.HiCorner);
-      return box.LoCorner[0] >= this->LoCorner[0]
-        && box.LoCorner[1] >= this->LoCorner[1]
-        && box.LoCorner[2] >= this->LoCorner[2]
-        && box.HiCorner[0] <= this->HiCorner[0]
-        && box.HiCorner[1] <= this->HiCorner[1]
-        && box.HiCorner[2] <= this->HiCorner[2];
-    }
-  
-  // Description:
-  // Print LoCorner and HiCorner
-  void Print(ostream &os)
-    {
-      os << "LoCorner: " << this->LoCorner[0] << "," << this->LoCorner[1]
-         << "," << this->LoCorner[2] << "\n";
-      os << "HiCorner: " << this->HiCorner[0] << "," << this->HiCorner[1]
-         << "," << this->HiCorner[2] << "\n";
-    }
-  
-  // Description:
-  // Check if cell position is HiCorner
-  bool IsHiCorner(const int pos[3]) const
-    {
-      return this->HiCorner[0] == pos[0]
-        && this->HiCorner[1] == pos[1]
-        && this->HiCorner[2] == pos[2];
-    }
-  
-  // Description:
-  // Check if cell position is LoCorner
-  bool IsLoCorner(const int pos[3]) const
-    {
-      return this->LoCorner[0] == pos[0]
-        && this->LoCorner[1] == pos[1]
-        && this->LoCorner[2] == pos[2];
-    }  
-};
 
 #endif

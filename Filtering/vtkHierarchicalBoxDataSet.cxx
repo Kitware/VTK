@@ -30,7 +30,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.23");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.24");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -139,9 +139,11 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
     vtkInformation* info = levelDS->GetMetaData(id);
     if (info)
       {
+      const vtkIdType *loCorner=box.GetLoCorner();
+      const vtkIdType *hiCorner=box.GetHiCorner();
       info->Set(BOX(),
-        box.LoCorner[0], box.LoCorner[1], box.LoCorner[2],
-        box.HiCorner[0], box.HiCorner[1], box.HiCorner[2]);
+        loCorner[0], loCorner[1], loCorner[2],
+        hiCorner[0], hiCorner[1], hiCorner[2]);
       }
     }
 }
@@ -168,8 +170,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(unsigned int level,
       int* boxVec = info->Get(BOX());
       if (boxVec)
         {
-        vtkAMRBoxInitialize<3>(box.LoCorner, box.HiCorner,
-          boxVec      , boxVec+3);
+        box.SetDimensions(boxVec,boxVec+3);
         }
       }
     return ds;
@@ -253,10 +254,11 @@ int vtkHierarchicalBoxDataSet::HasMetaData(unsigned int level,
 int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
                                        int i, int j, int k)
 {
-  vtkAMRBoxList::iterator it;
-  for(it = boxes.begin(); it != boxes.end(); it++)
+  vtkAMRBoxList::iterator it=boxes.begin();
+  vtkAMRBoxList::iterator end=boxes.end();
+  for(; it!=end; ++it)
     {
-    if (it->DoesContainCell(i, j, k))
+    if (it->Contains(i, j, k))
       {
       return 1;
       }
@@ -303,38 +305,32 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       {
       vtkAMRBox box;
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
-
-      if (grid)
+      if (grid && !box.Empty())
         {
-        int i;
-        int cellDims[3];
-        for (i=0; i<3; i++)
-          {
-          cellDims[i] = box.HiCorner[i] - box.LoCorner[i] + 1;
-          }
+        vtkIdType cellDims[3];
+        box.GetNumberOfCells(cellDims);
         vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
         vtkIdType numCells = box.GetNumberOfCells();
         vis->SetNumberOfTuples(numCells);
-        for (i=0; i<numCells; i++)
-          {
-          vis->SetValue(i, 1);
-          }
+        vis->FillComponent(0,static_cast<char>(1));
         vtkIdType numBlankedPts = 0;
         if (!boxes.empty()) 
           {
-          for (int iz=box.LoCorner[2]; iz<=box.HiCorner[2]; iz++)
+          const vtkIdType *loCorner=box.GetLoCorner();
+          const vtkIdType *hiCorner=box.GetHiCorner();
+          for (int iz=loCorner[2]; iz<=hiCorner[2]; iz++)
             {
-            for (int iy=box.LoCorner[1]; iy<=box.HiCorner[1]; iy++)
+            for (int iy=loCorner[1]; iy<=hiCorner[1]; iy++)
               {
-              for (int ix=box.LoCorner[0]; ix<=box.HiCorner[0]; ix++)
+              for (int ix=loCorner[0]; ix<=hiCorner[0]; ix++)
                 {
                 // Blank if cell is covered by a box of higher level
                 if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
                   {
                   vtkIdType id =
-                    (iz-box.LoCorner[2])*cellDims[0]*cellDims[1] +
-                    (iy-box.LoCorner[1])*cellDims[0] +
-                    (ix-box.LoCorner[0]);
+                    (iz-loCorner[2])*cellDims[0]*cellDims[1] +
+                    (iy-loCorner[1])*cellDims[0] +
+                    (ix-loCorner[0]);
                   vis->SetValue(id, 0);
                   numBlankedPts++;
                   }
@@ -365,8 +361,7 @@ vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
     int* boxVec = info->Get(BOX());
     if (boxVec)
       {
-      vtkAMRBoxInitialize<3>(box.LoCorner, box.HiCorner,
-        boxVec, boxVec+3);
+      box.SetDimensions(boxVec, boxVec+3);
       }
     }
   return box;

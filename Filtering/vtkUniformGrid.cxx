@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkUniformGrid.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRBoxUtilities.hxx"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkEmptyCell.h"
@@ -31,7 +33,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.15");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.16");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid, PointVisibility,
@@ -57,6 +59,116 @@ vtkUniformGrid::~vtkUniformGrid()
 }
 
 //----------------------------------------------------------------------------
+void vtkUniformGrid::Initialize()
+{
+  this->Superclass::Initialize();
+
+  this->PointVisibility->Delete();
+  this->PointVisibility = vtkStructuredVisibilityConstraint::New();
+
+  this->CellVisibility->Delete();
+  this->CellVisibility = vtkStructuredVisibilityConstraint::New();
+}
+
+//-----------------------------------------------------------------------------
+int vtkUniformGrid::Initialize(const vtkAMRBox *def)
+{
+  if (def->Empty())
+    {
+    vtkWarningMacro("Can't construct a data set from an empty box.");
+    return 0;
+    }
+  if (def->GetDimensionality()==2)
+    {
+    // NOTE: Define it 3D, with the third dim 0. eg. (X,X,0)(X,X,0) 
+    vtkWarningMacro("Can't construct a 3D data set from a 2D box."); 
+    return 0;
+    }
+
+  this->Initialize();
+
+  vtkIdType nPoints[3];
+  def->GetNumberOfNodes(nPoints);
+  double x0[3];
+  def->GetBoxOrigin(x0);
+
+  this->SetDimensions(nPoints);
+  this->SetSpacing(const_cast<double *>(def->GetGridSpacing()));
+  this->SetOrigin(x0);
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkUniformGrid::Initialize(
+        const vtkAMRBox *def,
+        int nGhostsI,
+        int nGhostsJ,
+        int nGhostsK)
+{
+  if (!this->Initialize(def))
+    {
+    return 0;
+    }
+
+  // Generate ghost cell array, with no ghosts marked.
+  vtkIdType nCells[3];
+  def->GetNumberOfCells(nCells);
+  vtkUnsignedCharArray *ghosts=vtkUnsignedCharArray::New();
+  this->GetCellData()->AddArray(ghosts);
+  ghosts->Delete();
+  ghosts->SetName("vtkGhostLevels");
+  ghosts->SetNumberOfComponents(1);
+  ghosts->SetNumberOfTuples(nCells[0]*nCells[1]*nCells[2]);
+  ghosts->FillComponent(0,'\0');
+  // If there are ghost cells mark them.
+  if (nGhostsI || nGhostsJ || nGhostsK)
+    {
+    unsigned char *pG=ghosts->GetPointer(0);
+    vtkIdType lo[3];
+    def->GetLoCorner(lo);
+    vtkIdType hi[3];
+    def->GetHiCorner(hi);
+    // Identify & fill ghost regions
+    if (nGhostsI)
+      {
+      vtkAMRBox left(lo[0],lo[1],lo[2],lo[0]+nGhostsI-1,hi[1],hi[2]);
+      FillRegion(pG,*def,left,static_cast<unsigned char>(1));
+      vtkAMRBox right(hi[0]-nGhostsI+1,lo[1],lo[2],hi[0],hi[1],hi[2]);
+      FillRegion(pG,*def,right,static_cast<unsigned char>(1));
+      }
+    if (nGhostsJ)
+      {
+      vtkAMRBox front(lo[0],lo[1],lo[2],hi[0],lo[1]+nGhostsJ-1,hi[2]);
+      FillRegion(pG,*def,front,static_cast<unsigned char>(1));
+      vtkAMRBox back(lo[0],hi[1]-nGhostsJ+1,lo[2],hi[0],hi[1],hi[2]);
+      FillRegion(pG,*def,back,static_cast<unsigned char>(1));
+      }
+    if (nGhostsK)
+      {
+      vtkAMRBox bottom(lo[0],lo[1],lo[2],hi[0],hi[1],lo[2]+nGhostsK-1);
+      FillRegion(pG,*def,bottom,static_cast<unsigned char>(1));
+      vtkAMRBox top(lo[0],lo[1],hi[2]-nGhostsK+1,hi[0],hi[1],hi[2]);
+      FillRegion(pG,*def,top,static_cast<unsigned char>(1));
+      }
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkUniformGrid::Initialize(const vtkAMRBox *def, const int nGhosts[3])
+{
+  return this->Initialize(def, nGhosts[0],nGhosts[1],nGhosts[2]);
+}
+
+//-----------------------------------------------------------------------------
+int vtkUniformGrid::Initialize(const vtkAMRBox *def, int nGhosts)
+{
+  return this->Initialize(def, nGhosts,nGhosts,nGhosts);
+}
+
+
+//----------------------------------------------------------------------------
 // Copy the geometric and topological structure of an input structured points
 // object.
 void vtkUniformGrid::CopyStructure(vtkDataSet *ds)
@@ -73,18 +185,6 @@ void vtkUniformGrid::CopyStructure(vtkDataSet *ds)
 
   this->PointVisibility->ShallowCopy(sPts->PointVisibility);
   this->CellVisibility->ShallowCopy(sPts->CellVisibility);
-}
-
-//----------------------------------------------------------------------------
-void vtkUniformGrid::Initialize()
-{
-  this->Superclass::Initialize();
-
-  this->PointVisibility->Delete();
-  this->PointVisibility = vtkStructuredVisibilityConstraint::New();
-
-  this->CellVisibility->Delete();
-  this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 }
 
 //----------------------------------------------------------------------------

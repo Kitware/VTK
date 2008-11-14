@@ -14,6 +14,7 @@ vtkActor2D.cxx
 vtkAdjacentVertexIterator.cxx
 vtkAlgorithm.cxx
 vtkAlgorithmOutput.cxx
+vtkAMRBox.cxx
 vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx
@@ -298,6 +299,7 @@ vtkViewport
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAMRBox.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkImageIterator.cxx
   vtkInformation.cxx
@@ -346,7 +348,6 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX AND MINGW)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkAMRBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkCellType.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageIterator.txx
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageProgressIterator.txx

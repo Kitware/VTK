@@ -25,12 +25,14 @@
 class vtkEmptyCell;
 class vtkStructuredVisibilityConstraint;
 class vtkUnsignedCharArray;
+class vtkAMRBox;
 
 class VTK_FILTERING_EXPORT vtkUniformGrid : public vtkImageData
 {
 public:
+  // Description:
+  // Construct an empty uniform grid.
   static vtkUniformGrid *New();
-
   vtkTypeRevisionMacro(vtkUniformGrid,vtkImageData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -66,6 +68,35 @@ public:
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   virtual void Initialize();
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
+
+  // Description:
+  // Initialize with no ghost cell arrays, from the definition in
+  // the given box. The box is expetced to be 3D, if you have 2D 
+  // data the set the third dimensions 0. eg. (X,X,0)(X,X,0)
+  // Returns 0 if the initialization failed.
+  int Initialize(const vtkAMRBox *def);
+  // Description:
+  // Initialize from the definition in the given box, with ghost cell
+  // arrays nGhosts cells thick in all directions. The box is expetced
+  // to be 3D, if you have 2D data the set the third dimensions 0.
+  // eg. (X,X,0)(X,X,0)
+  // Returns 0 if the initialization failed.
+  int Initialize(const vtkAMRBox *def, int nGhosts);
+  // Description:
+  // Initialize from the definition in the given box, with ghost cell 
+  // arrays of the thickness given in each direction by "nGhosts" array.
+  // The box and ghost array are expected to be 3D, if you have 2D data 
+  // the set the third dimensions 0. eg. (X,X,0)(X,X,0)
+  // Returns 0 if the initialization failed.
+  int Initialize(const vtkAMRBox *def, const int nGhosts[3]);
+  // Description:
+  // Construct a uniform grid, from the definition in the given box
+  // "def", with ghost cell arrays of the thickness given in each 
+  // direction by "nGhosts*". The box and ghost array are expected
+  // to be 3D, if you have 2D data the set the third dimensions 0. eg.
+  // (X,X,0)(X,X,0)
+  // Returns 0 if the initialization failed.
+  int Initialize(const vtkAMRBox *def,int nGhostsI,int nGhostsJ,int nGhostsK);
 
   // Description:
   // Shallow and Deep copy.

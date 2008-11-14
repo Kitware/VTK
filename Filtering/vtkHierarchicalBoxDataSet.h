@@ -13,11 +13,13 @@
 
 =========================================================================*/
 // .NAME vtkHierarchicalBoxDataSet - hierarchical dataset of vtkUniformGrids
+//
 // .SECTION Description
 // vtkHierarchicalBoxDataSet is a concrete implementation of
 // vtkCompositeDataSet. The dataset type is restricted to
 // vtkUniformGrid. Each dataset has an associated vtkAMRBox that represents
 // it's region (similar to extent) in space.
+//
 // .SECTION Warning
 // To compute the cellId of a cell within a vtkUniformGrid with AMRBox=box, 
 // you should not use vtkUniformGrid::ComputeCellId( {x,y,z} ) but instead
@@ -30,6 +32,9 @@
 //   (z-box.LoCorner[2])*cellDims[0]*cellDims[1] +
 //   (y-box.LoCorner[1])*cellDims[0] +
 //   (x-box.LoCorner[0]);
+//
+// NOTE vtkAMRBox is used to compute cell visibility, therefor it 
+// should be dimensioned according to the visible region.
 
 
 #ifndef __vtkHierarchicalBoxDataSet_h

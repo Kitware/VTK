@@ -2,20 +2,21 @@ SET(KIT Filtering)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
-  quadCellConsistency.cxx
-  otherColorTransferFunction.cxx
-  TestInterpolationFunctions.cxx
-  TestInterpolationDerivs.cxx
-  TestImageIterator.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
   otherCellTypes.cxx
+  otherColorTransferFunction.cxx
   otherEmptyCell.cxx
   otherFieldData.cxx
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
+  quadCellConsistency.cxx
   quadraticEvaluation.cxx
+  TestAMRBox.cxx
+  TestInterpolationFunctions.cxx
+  TestInterpolationDerivs.cxx
+  TestImageIterator.cxx
   TestGenericCell.cxx
   TestHigherOrderCell.cxx
   TestPointLocators.cxx
