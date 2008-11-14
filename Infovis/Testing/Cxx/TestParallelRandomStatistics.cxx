@@ -39,11 +39,15 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-int nVals = 10000;
+int nVals = 100000;
 
 // This will be called by all processes
 void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNotUsed(arg) )
 {
+  // Start clock
+  time_t t0;
+  time ( &t0 );
+  
   // Get local rank
   int myRank = controller->GetLocalProcessId();
 
@@ -154,14 +158,22 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* vtkNot
   pds->SignedDeviationsOff(); // Use unsigned deviations
   pds->Update();
 
+    // Synchronize and stop clock
   controller->Barrier();
+  time_t t1;
+  time ( &t1 );
 
   if ( ! controller->GetLocalProcessId() )
     {
-    cout << "\n## Calculated the following statistics in parallel ( total sample size: "
+    cout << "\n## Completed parallel calculation of descriptive statistics.\n"
+         << "   Total sample size: "
          << pds->GetSampleSize()
-         << " ):\n";
-    for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
+         << " \n"
+         << "   Wall time: "
+         << difftime( t1, t0 )
+         << "sec.\n";
+
+   for ( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++ r )
       {
       cout << "   ";
       for ( int c = 0; c < outputMeta->GetNumberOfColumns(); ++ c )
