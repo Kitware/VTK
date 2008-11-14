@@ -61,7 +61,7 @@ FORWARD(e_forward); /* ellipsoid */
 INVERSE(e_inverse); /* ellipsoid */
   int nn;
   PROJ_COMPLEX p, fxy, fpxy, dp;
-  double den, rh, z, sinz, cosz, chi, phi, dphi, esphi;
+  double den, rh = 0., z, sinz = 0., cosz = 0., chi, phi = 0., dphi, esphi;
 
   p.r = xy.x;
   p.i = xy.y;
@@ -238,6 +238,16 @@ ABs[] = { /* GS50 sphere */
 ENDENTRY(setup(P))
 /*
 ** Log: proj_mod_ster.c
+** Revision 1.1  2008-11-07 16:41:14  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

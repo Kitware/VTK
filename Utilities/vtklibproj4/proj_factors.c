@@ -37,7 +37,7 @@ LIBPROJ_ID[] = "Id";
 #define EPS 1.0e-12
   int
 proj_factors(PROJ_LP lp, PROJ *P, double h, struct PROJ_FACTORS *fac) {
-  struct PROJ_DERIVS der;
+  struct PROJ_DERIVS der = {0., 0., 0., 0.};
   double cosphi, t, n, r;
 
   /* check for forward and latitude or longitude overange */
@@ -112,6 +112,16 @@ proj_factors(PROJ_LP lp, PROJ *P, double h, struct PROJ_FACTORS *fac) {
 }
 /*
 ** Log: proj_factors.c
+** Revision 1.1  2008-11-07 16:41:14  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

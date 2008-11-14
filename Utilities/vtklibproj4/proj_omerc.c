@@ -97,8 +97,8 @@ INVERSE(e_inverse); /* ellipsoid */
 }
 FREEUP; if (P) free(P); }
 ENTRY0(omerc)
-  double con, com, cosph0, D, F, H, L, sinph0, p, J, gammaval,
-    gamma0, lamc, lam1, lam2, phi1, phi2, alpha_c;
+  double con, com, cosph0, D, F, H, L, sinph0, p, J, gammaval = 0.,
+    gamma0, lamc = 0., lam1 = 0., lam2 = 0., phi1 = 0., phi2 =0., alpha_c = 0.;
   int alp, gam, no_off = 0;
 
   P->no_rot = proj_param(P->params, "tno_rot").i;
@@ -194,6 +194,9 @@ ENTRY0(omerc)
 ENDENTRY(P)
 /*
 ** Log: proj_omerc.c
+** Revision 1.2  2008-11-07 21:40:43  jeff
+** ENH: Fixing some proj.4 warnings.
+**
 ** Revision 1.1  2008-11-07 16:41:15  jeff
 ** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
 ** to Utilities. Updating the architecture of the geospatial views. All

@@ -58,8 +58,8 @@ seraz0(double lam, double mult, PROJ *P) {
 }
 FORWARD(e_forward); /* ellipsoid */
     int l, nn;
-    double lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
-    lamtp, cl, sd, sp, fac, sav, tanphi;
+    double lamt = 0., xlam, sdsq, c, d, s, lamdp = 0., phidp,
+    lampp, tanph, lamtp, cl, sd, sp, fac, sav, tanphi;
 
   if (lp.phi > HALFPI)
       lp.phi = HALFPI;
@@ -198,6 +198,16 @@ ENTRY0(lsat)
 ENDENTRY(P)
 /*
 ** Log: proj_lsat.c
+** Revision 1.1  2008-11-07 16:41:14  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/01/11 01:38:18  gie
 ** Initial
 **

@@ -40,6 +40,7 @@ proj_apsi(double psi, double e) {
   double esp, phi, phi0, he = e * 0.5, exp_psi = exp(psi);
   int i = MAX_ITER;
 
+  phi = 0.;
   phi0 = 2. * atan(exp_psi) - HALFPI;
   while (--i) {
     esp = e * sin(phi0);
@@ -51,6 +52,16 @@ proj_apsi(double psi, double e) {
 }
 /*
 ** Log: proj_psi.c
+** Revision 1.1  2008-11-07 16:41:15  jeff
+** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
+** to Utilities. Updating the architecture of the geospatial views. All
+** multi-resolution sources are now subclasses of vtkGeoSource. Each source
+** has its own worker thread for fetching refined images or geometry.
+** On the 3D side, vtkGeoGlobeSource is an appropriate source for vtkGeoTerrain,
+** and vtkGeoAlignedImageSource is an appropriate source for
+** vtkGeoAlignedImageRepresentation. On the 2D side, vtkGeoProjectionSource is an
+** appropriate source for vtkGeoTerrain2D, and the image source is the same.
+**
 ** Revision 3.1  2006/06/19 01:00:26  gie
 ** Initial
 **

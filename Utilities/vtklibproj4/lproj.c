@@ -106,7 +106,7 @@ emess(int code, char *fmt, ...) {
 }
   static void  /* file processing function */
 process(FILE *fid) {
-  char line[MAX_LINE+3], *s, pline[40];
+  char line[MAX_LINE+3], *s = 0, pline[40];
   PROJ_UV data;
 
   for (;;) {
@@ -143,7 +143,7 @@ process(FILE *fid) {
         t = *s;
         *s = '\0';
         (void)fputs(line, stdout);
-        *s = t;
+        *s = (char)t;
         putchar('\t');
       }
     }
@@ -492,11 +492,13 @@ badscale:
     (void)fclose(fid);
     emess_dat.File_name = 0;
   }
-  exit(0);
   return 0; /* normal completion */
 }
 /*
 ** Log: lproj.c
+** Revision 1.2  2008-11-07 21:40:43  jeff
+** ENH: Fixing some proj.4 warnings.
+**
 ** Revision 1.1  2008-11-07 16:41:13  jeff
 ** ENH: Adding a 2D geoview. Adding the geographic projection library libproj4
 ** to Utilities. Updating the architecture of the geospatial views. All
