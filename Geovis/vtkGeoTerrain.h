@@ -34,6 +34,7 @@
 
 class vtkAssembly;
 class vtkCollection;
+class vtkExtractSelectedFrustum;
 class vtkGeoCamera;
 class vtkGeoSource;
 class vtkGeoTerrainNode;
@@ -60,13 +61,11 @@ public:
   // Update the actors in an assembly used to render the globe.
   // ren is the current renderer, and imageReps holds the collection of
   // vtkGeoAlignedImageRepresentations that will be blended together to
-  // form the image on the globe. camera is the vtkGeoCamera from the
-  // vtkGeoView that contains the camera parameters in spherical coordinates.
+  // form the image on the globe.
   void AddActors(
     vtkRenderer* ren,
     vtkAssembly* assembly,
-    vtkCollection* imageReps,
-    vtkGeoCamera* camera);
+    vtkCollection* imageReps);
 
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
@@ -84,15 +83,27 @@ protected:
   void Initialize();
 
   // Description:
-  // Evaluate whether a node should be refined, coarsened, or remain
-  // at the same level for a particular camera location.
-  int EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* camera);
+  // AddActors() calls this to setup parameters for evaluating nodes.
+  virtual void InitializeNodeAnalysis(vtkRenderer* ren);
+
+  // Description:
+  // AddActors() calls this to determine if a node is in the current
+  // viewport.
+  virtual bool NodeInViewport(vtkGeoTerrainNode* node);
+
+  // Description:
+  // AddActors() calls to to evaluate whether a node should be
+  // refined (1), coarsened (-1), or remain at the same level (0).
+  virtual int EvaluateNode(vtkGeoTerrainNode* node);
 
   // Description:
   // Print the tree of terrain nodes.
   void PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* node);
 
   double Origin[3];
+  vtkExtractSelectedFrustum* Extractor;
+  virtual void SetGeoCamera(vtkGeoCamera* camera);
+  vtkGeoCamera* GeoCamera;
 
 private:
   vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented

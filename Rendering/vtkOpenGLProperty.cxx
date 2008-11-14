@@ -38,7 +38,7 @@
 #include <assert.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLProperty, "1.47");
+vtkCxxRevisionMacro(vtkOpenGLProperty, "1.48");
 vtkStandardNewMacro(vtkOpenGLProperty);
 #endif
 
@@ -247,6 +247,10 @@ void vtkOpenGLProperty::Render(vtkActor *anActor,
         }
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
+    else
+      {
+      this->GetTextureAtIndex(0)->Render(ren);
+      }
     }
 
   this->Superclass::Render(anActor, ren);
@@ -282,13 +286,6 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor,
       vtkgl::ActiveTexture(vtkgl::TEXTURE0 + texture_unit);
       // Disable any possible texture.  Wouldn't having a PostRender on
       // vtkTexture be better?
-      if (this->GetTextureAtIndex(i)->GetTransform())
-        {
-        glMatrixMode(GL_TEXTURE);
-        // Corresponds with glPushMatrix in vtkOpenGLTexture::Load
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        }
       glDisable(GL_TEXTURE_1D);
       glDisable(GL_TEXTURE_2D);
       glDisable(vtkgl::TEXTURE_3D);

@@ -27,7 +27,7 @@
 // method which updates the set of actors representing the globe given the
 // current camera position.
 
-#include "vtkObject.h"
+#include "vtkGeoTerrain.h"
 
 class vtkAssembly;
 class vtkCollection;
@@ -36,22 +36,12 @@ class vtkGeoSource;
 class vtkGeoTerrainNode;
 class vtkRenderer;
 
-class VTK_GEOVIS_EXPORT vtkGeoTerrain2D : public vtkObject
+class VTK_GEOVIS_EXPORT vtkGeoTerrain2D : public vtkGeoTerrain
 {
 public:
   static vtkGeoTerrain2D *New();
-  vtkTypeRevisionMacro(vtkGeoTerrain2D,vtkObject);
+  vtkTypeRevisionMacro(vtkGeoTerrain2D,vtkGeoTerrain);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // The source used to obtain geometry patches.
-  virtual vtkGeoSource* GetSource()
-    { return this->GeoSource; }
-  virtual void SetSource(vtkGeoSource* source);
-
-  // Description:
-  // Save the set of patches up to a given maximum depth.
-  void SaveDatabase(const char* path, int depth);
 
   // Description:
   // The maximum size of a single texel in pixels.
@@ -65,28 +55,29 @@ public:
   vtkSetMacro(LocationTolerance, double);
   vtkGetMacro(LocationTolerance, double);
 
-  // Description:
-  // Update the actors in an assembly used to render the globe.
-  // ren is the current renderer, and imageReps holds the collection of
-  // vtkGeoAlignedImageRepresentations that will be blended together to
-  // form the image on the globe.
-  void AddActors(
-    vtkRenderer* ren,
-    vtkAssembly* assembly,
-    vtkCollection* imageReps);
-
 protected:
   vtkGeoTerrain2D();
   ~vtkGeoTerrain2D();
 
-  virtual void SetGeoSource(vtkGeoSource* source);
-  vtkGeoSource* GeoSource;
-  vtkGeoTerrainNode* Root;
   double LocationTolerance;
   double TextureTolerance;
 
-  void Initialize();
-  void PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode* node);
+  // Description:
+  // AddActors() calls this to setup parameters for evaluating nodes.
+  virtual void InitializeNodeAnalysis(vtkRenderer* ren);
+
+  // Description:
+  // AddActors() calls this to determine if a node is in the current
+  // viewport.
+  virtual bool NodeInViewport(vtkGeoTerrainNode* node);
+
+  // Description:
+  // AddActors() calls to to evaluate whether a node should be
+  // refined (1), coarsened (-1), or remain at the same level (0).
+  virtual int EvaluateNode(vtkGeoTerrainNode* node);
+
+  double CameraBounds[4];
+  double PixelSize;
 
 private:
   vtkGeoTerrain2D(const vtkGeoTerrain2D&); // Not implemented

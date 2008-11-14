@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.72");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.73");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -416,6 +416,10 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // now bind it
   glEnable(GL_TEXTURE_2D);
 
+  // clear any texture transform
+  glMatrixMode(GL_TEXTURE);
+  glLoadIdentity();
+
   // build transformation 
   if (this->Transform)
     {
@@ -439,12 +443,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     mat2[15] = mat[15];
     
     // insert texture transformation 
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    glLoadIdentity();
     glMultMatrixd(mat2);
-    glMatrixMode(GL_MODELVIEW);
     }
+  glMatrixMode(GL_MODELVIEW);
   
   GLint uUseTexture=-1;
   GLint uTexture=-1;

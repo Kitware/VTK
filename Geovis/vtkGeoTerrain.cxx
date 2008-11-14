@@ -32,6 +32,7 @@
 #include "vtkGeoAlignedImageRepresentation.h"
 #include "vtkGeoCamera.h"
 #include "vtkGeoImageNode.h"
+#include "vtkGeoInteractorStyle.h"
 #include "vtkGeoSource.h"
 #include "vtkGeoTerrainNode.h"
 #include "vtkImageData.h"
@@ -47,6 +48,8 @@
 #include "vtkProp3DCollection.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTransformFilter.h"
@@ -56,8 +59,9 @@
 #include <vtksys/stl/utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
-vtkCxxRevisionMacro(vtkGeoTerrain, "1.14");
+vtkCxxRevisionMacro(vtkGeoTerrain, "1.15");
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
+vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
 {
@@ -66,15 +70,22 @@ vtkGeoTerrain::vtkGeoTerrain()
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
+  this->Extractor = vtkExtractSelectedFrustum::New();
+  this->GeoCamera = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoTerrain::~vtkGeoTerrain()
 {
   this->SetGeoSource(0);
+  this->SetGeoCamera(0);
   if (this->Root)
     {
     this->Root->Delete();
+    }
+  if (this->Extractor)
+    {
+    this->Extractor->Delete();
     }
 }
 
@@ -105,12 +116,84 @@ void vtkGeoTerrain::Initialize()
 }
 
 //----------------------------------------------------------------------------
+void vtkGeoTerrain::InitializeNodeAnalysis(vtkRenderer* ren)
+{
+  vtkGeoInteractorStyle* style = vtkGeoInteractorStyle::SafeDownCast(
+    ren->GetRenderWindow()->GetInteractor()->GetInteractorStyle());
+  if (!style)
+    {
+    vtkErrorMacro("vtkGeoTerrain requires vtkGeoInteractorStyle in order to get geo camera.");
+    return;
+    }
+  vtkGeoCamera* camera = style->GetGeoCamera();
+  int* rendererSize = ren->GetSize();
+  camera->InitializeNodeAnalysis(rendererSize);
+  this->SetGeoCamera(camera);
+
+  // Setup the frustum extractor for finding
+  // node intersections with the view frustum.
+  double frustumPlanes[24];
+  double aspect = ren->GetTiledAspectRatio();
+  camera->GetVTKCamera()->GetFrustumPlanes( aspect, frustumPlanes );
+  vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
+  frustum->SetFrustumPlanes(frustumPlanes);
+  this->Extractor->SetFrustum(frustum);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGeoTerrain::NodeInViewport(vtkGeoTerrainNode* cur)
+{
+  // Determine if node is within viewport
+  double bbox[6];
+  cur->GetModel()->GetBounds(bbox);
+  for (int i = 0; i < 6; ++i)
+    {
+    bbox[i] = bbox[i] - this->GeoCamera->GetOrigin()[i/2];
+    }
+  int boundsTest = this->Extractor->OverallBoundsTest(bbox);
+  return (boundsTest != 0);
+}
+
+//-----------------------------------------------------------------------------
+// Returns 0 if there should be no change, -1 if the node resolution is too
+// high, and +1 if the nodes resolution is too low.
+int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node)
+{
+  double sphereViewSize;
+
+  if (!this->GeoCamera)
+    {
+    return 0;
+    }
+
+  // Size of the sphere in view area units (0 -> 1)
+  sphereViewSize = this->GeoCamera->GetNodeCoverage(node);
+
+  // Arbitrary tresholds
+  if (sphereViewSize > 0.2)
+    {
+    return 1;
+    }
+  if (sphereViewSize < 0.05)
+    {
+    return -1;
+    }
+  // Do not change the node.
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkGeoTerrain::AddActors(
   vtkRenderer* ren,
   vtkAssembly* assembly,
-  vtkCollection* imageReps,
-  vtkGeoCamera* camera)
+  vtkCollection* imageReps)
 {
+  this->InitializeNodeAnalysis(ren);
+
+  // See if we have multiTexturing
+  vtkSmartPointer<vtkPolyDataMapper> textureTest = vtkSmartPointer<vtkPolyDataMapper>::New();
+  bool multiTexturing = textureTest->GetSupportsMultiTexturing(ren->GetRenderWindow());
+
   // Extract the image representations from the collection.
   vtkGeoAlignedImageRepresentation* textureTree1 = 0;
   if (imageReps->GetNumberOfItems() >= 1)
@@ -124,10 +207,6 @@ void vtkGeoTerrain::AddActors(
     textureTree2 = vtkGeoAlignedImageRepresentation::SafeDownCast(
       imageReps->GetItemAsObject(1));
     }
-
-  bool wireframe = false;
-  bool colorTiles = true;
-  bool colorByTextureLevel = false;
 
   int visibleActors = 0;
 
@@ -157,17 +236,6 @@ void vtkGeoTerrain::AddActors(
   vtkGeoTerrainNode* child = NULL;
   vtkCollection* coll = NULL;
 
-  // Setup the frustum extractor for finding
-  // node intersections with the view frustum.
-  double frustumPlanes[24];
-  double aspect = ren->GetTiledAspectRatio();
-  camera->GetVTKCamera()->GetFrustumPlanes( aspect, frustumPlanes );
-  vtkSmartPointer<vtkPlanes> frustum = vtkSmartPointer<vtkPlanes>::New();
-  frustum->SetFrustumPlanes(frustumPlanes);
-  vtkSmartPointer<vtkExtractSelectedFrustum> extractor =
-    vtkSmartPointer<vtkExtractSelectedFrustum>::New();
-  extractor->SetFrustum(frustum);
-
   double llbounds[4];
   while (!s.empty())
     {
@@ -178,22 +246,14 @@ void vtkGeoTerrain::AddActors(
       continue;
       }
 
-    // Determine if node is within viewport
-    double bbox[6];
-    cur->GetModel()->GetBounds(bbox);
-    for (int i = 0; i < 6; ++i)
-      {
-      bbox[i] = bbox[i] - camera->GetOrigin()[i/2];
-      }
-    int boundsTest = extractor->OverallBoundsTest(bbox);
-    if (boundsTest == 0)
+    if (!this->NodeInViewport(cur))
       {
       // Totally outside, so prune node and subtree
       continue;
       }
 
     // Determine whether to traverse this node's children
-    int refine = this->EvaluateNode(cur, camera);
+    int refine = this->EvaluateNode(cur);
 
     child = cur->GetChild(0);
     if ((!child && refine == 1) || cur->GetStatus() == vtkGeoTreeNode::PROCESSING)
@@ -240,9 +300,22 @@ void vtkGeoTerrain::AddActors(
       for (int p = 0; p < props->GetNumberOfItems(); ++p)
         {
         vtkActor* actor = vtkActor::SafeDownCast(props->GetItemAsObject(p));
-        if (actor && actor->GetMapper()->GetInputDataObject(0, 0) == cur->GetModel() &&
-            (!textureNode1 || actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()) &&
-            (!textureNode2 || actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()))
+        bool sameTexture = false;
+        if (multiTexturing)
+          {
+          sameTexture = (
+              !textureNode1 ||
+              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()
+            ) && (
+              !textureNode2 ||
+              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()
+            );
+          }
+        else
+          {
+          sameTexture = !textureNode1 || actor->GetTexture() == textureNode1->GetTexture();
+          }
+        if (actor && actor->GetMapper()->GetInputDataObject(0, 0) == cur->GetModel() && sameTexture)
           {
           existingActor = actor;
           existingActor->VisibilityOn();
@@ -272,58 +345,29 @@ void vtkGeoTerrain::AddActors(
 
       if (textureNode1)
         {
-#if 1
-        // Multi texturing
-        mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
-          "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-        textureNode1->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-        actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0, textureNode1->GetTexture());
+        if (multiTexturing)
+          {
+          // Multi texturing
+          mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
+              "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+          textureNode1->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
+          actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0, textureNode1->GetTexture());
 
-        if (textureNode2)
-          {
-          mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_1,
-            "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
-          textureNode2->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
-          actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1, textureNode2->GetTexture());
-          }
-#else
-        // Single texturing
-        cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
-        actor->SetTexture(textureNode1->GetTexture());
-#endif
-
-        if (colorTiles)
-          {
-          int level = cur->GetLevel();
-          if (colorByTextureLevel)
+          if (textureNode2)
             {
-            level = textureNode1->GetLevel();
-            }
-          if (level == 0)
-            {
-            actor->GetProperty()->SetColor(1.0, 0.4, 0.4);
-            }
-          else if (level == 1)
-            {
-            actor->GetProperty()->SetColor(1.0, 1.0, 0.4);
-            }
-          else if (level == 2)
-            {
-            actor->GetProperty()->SetColor(0.4, 1.0, 0.4);
-            }
-          else if (level == 3)
-            {
-            actor->GetProperty()->SetColor(0.4, 0.4, 1.0);
-            }
-          else if (level == 4)
-            {
-            actor->GetProperty()->SetColor(1.0, 0.4, 1.0);
+            mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_1,
+                "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
+            textureNode2->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
+            actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1, textureNode2->GetTexture());
             }
           }
-        if (wireframe)
+        else
           {
-          actor->GetProperty()->SetRepresentationToWireframe();
+          // Single texturing
+          cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
+          actor->SetTexture(textureNode1->GetTexture());
           }
+        actor->GetProperty()->SetAmbient(1);
         assembly->AddPart(actor);
         }
       continue;
@@ -389,34 +433,6 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
         }
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-// Returns 0 if there should be no change, -1 if the node resolution is too
-// high, and +1 if the nodes resolution is too low.
-int vtkGeoTerrain::EvaluateNode(vtkGeoTerrainNode* node, vtkGeoCamera* cam)
-{
-  double sphereViewSize;
-
-  if (cam == 0)
-    {
-    return 0;
-    }
-
-  // Size of the sphere in view area units (0 -> 1)
-  sphereViewSize = cam->GetNodeCoverage(node);
-
-  // Arbitrary tresholds
-  if (sphereViewSize > 0.2)
-    {
-    return 1;
-    }
-  if (sphereViewSize < 0.05)
-    {
-    return -1;
-    }
-  // Do not change the node.
-  return 0;
 }
 
 //----------------------------------------------------------------------------
